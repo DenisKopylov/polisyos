@@ -1,15 +1,36 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
+    ControlJobLeaseLostError,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality.diagnostic_events import (
+    DIAGNOSTIC_EVENT_SCHEMA_NAME,
+    DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+    DiagnosticEvent,
+    DiagnosticEventContractError,
+)
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_action_job
+
+type _CheckpointPublication = tuple[
+    ControlPlaneStore,
+    AcquisitionActionHeadRecord,
+    str,
+    int,
+    RuntimeDiagnosticEventLog,
+    DiagnosticEvent,
+]
 
 
 def _make_store(tmp_path: Path) -> ControlPlaneStore:
@@ -42,11 +63,16 @@ def _append_head(
     expected_head_generation: int,
     predecessor_receipt_ref: str | None,
     receipt_phase: str,
+    receipt_manifest_profile_sha256: str | None = None,
 ) -> AcquisitionActionHeadRecord:
     coarse_phase, recovery_state = {
         "requested": ("requested", "none"),
         "executing": ("executing", "none"),
         "outcome_selected": ("executing", "none"),
+        "candidate_input_reentry_pending": (
+            "candidate_input_prepared",
+            "reentry_recovery_required",
+        ),
         "terminal": ("terminal", "complete"),
     }[receipt_phase]
     return store.advance_acquisition_action_head(
@@ -60,6 +86,7 @@ def _append_head(
         recovery_state=recovery_state,
         job_id="action-job",
         predecessor_receipt_ref=predecessor_receipt_ref,
+        receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
     )
 
 
@@ -232,3 +259,141 @@ def test_action_head_history_returns_no_result_for_corrupt_receipt_hash_relation
         )
         is None
     )
+
+
+@pytest.fixture
+def pending_checkpoint_publication(tmp_path: Path) -> _CheckpointPublication:
+    store = _make_store(tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="action-job")
+    scope = _action_scope()
+    head = None
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        for index, phase in enumerate(
+            ("requested", "executing", "outcome_selected", "candidate_input_reentry_pending")
+        ):
+            head = _append_head(
+                store,
+                scope,
+                receipt_ref=_receipt_ref(str(index)),
+                expected_head_generation=index,
+                predecessor_receipt_ref=None if head is None else head.receipt_ref,
+                receipt_phase=phase,
+                receipt_manifest_profile_sha256=_receipt_ref("f"),
+            )
+    assert head is not None
+    cas = FileSystemCAS(tmp_path / "checkpoint-cas")
+    checkpoint = cas.put_bytes(
+        b"candidate checkpoint", PutOptions(kind="test.checkpoint", media_type="text/plain")
+    )
+    payload_ref = str(checkpoint.artifact_id)
+    event = DiagnosticEvent(
+        event_id="evt_candidate_source_reentry_n5_checkpoint_test",
+        event_source="polisyos.runtime",
+        event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+        event_time=datetime.now(UTC).replace(microsecond=0),
+        event_subject="run/run-a/job/action-job/phase/candidate_source_reentry_n5_checkpoint",
+        schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        trace_id="trace-run-a",
+        span_id="span-n5-checkpoint",
+        parent_span_id=None,
+        run_id=head.run_id,
+        job_id=head.job_id,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        producer_component="polisyos.runtime.acquisition_world_growth",
+        producer_version="1.0",
+        execution_profile="governed",
+        phase="candidate_source_reentry_n5_checkpoint",
+        state_before=None,
+        state_after="n5_checkpoint_selected",
+        payload_ref=payload_ref,
+        artifact_refs=(payload_ref,),
+        input_refs=(head.receipt_ref,),
+        blocking_status=None,
+        redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
+        duplicate_of=None,
+        dedupe_key=None,
+    )
+    return (
+        store,
+        head,
+        worker,
+        attempt,
+        RuntimeDiagnosticEventLog(store=store, artifact_store=cas),
+        event,
+    )
+
+
+def test_candidate_n5_checkpoint_reuses_exact_event_and_refuses_collision(
+    pending_checkpoint_publication: _CheckpointPublication,
+) -> None:
+    store, head, worker, attempt, log, event = pending_checkpoint_publication
+    prepared = log.prepare(event)
+    other = log.artifact_store.put_bytes(
+        b"foreign checkpoint", PutOptions(kind="test.checkpoint", media_type="text/plain")
+    )
+    other_ref = str(other.artifact_id)
+    conflicting = log.prepare(
+        event.model_copy(update={"payload_ref": other_ref, "artifact_refs": (other_ref,)})
+    )
+    different_event = log.prepare(event.model_copy(update={"state_after": "different_state"}))
+    with store.job_execution_fence(job_id=head.job_id, worker_id=worker, attempt=attempt):
+        record = store.append_candidate_experiment_n5_checkpoint(
+            pending_head=head, prepared_event=prepared
+        )
+        assert (
+            store.append_candidate_experiment_n5_checkpoint(
+                pending_head=head, prepared_event=prepared
+            )
+            == record
+        )
+        for invalid in (conflicting, different_event):
+            with pytest.raises(DiagnosticEventContractError) as refused:
+                store.append_candidate_experiment_n5_checkpoint(
+                    pending_head=head, prepared_event=invalid
+                )
+            assert refused.value.code == "authority_event_collision"
+    assert store.list_diagnostic_events(event_id=event.event_id) == [record]
+    assert record.payload_ref == event.artifact_refs[0]
+    assert store.get_acquisition_action_head(**_action_scope()) == head
+
+
+def test_candidate_n5_checkpoint_requires_exact_pending_profile_and_artifact(
+    pending_checkpoint_publication: _CheckpointPublication,
+) -> None:
+    store, head, worker, attempt, log, event = pending_checkpoint_publication
+    prepared = log.prepare(event)
+    foreign_head = replace(head, receipt_manifest_profile_sha256=_receipt_ref("0"))
+    mismatched = log.prepare(event.model_copy(update={"artifact_refs": (_receipt_ref("a"),)}))
+    with store.job_execution_fence(job_id=head.job_id, worker_id=worker, attempt=attempt):
+        with pytest.raises(
+            ValueError, match="candidate_experiment_n5_checkpoint_pending_head_changed"
+        ):
+            store.append_candidate_experiment_n5_checkpoint(
+                pending_head=foreign_head, prepared_event=prepared
+            )
+        with pytest.raises(
+            ValueError, match="candidate_experiment_n5_checkpoint_event_binding_invalid"
+        ):
+            store.append_candidate_experiment_n5_checkpoint(
+                pending_head=head, prepared_event=mismatched
+            )
+    assert not store.list_diagnostic_events(event_id=event.event_id)
+
+
+def test_candidate_n5_checkpoint_refuses_an_expired_worker_lease(
+    tmp_path: Path,
+    pending_checkpoint_publication: _CheckpointPublication,
+) -> None:
+    store, head, worker, attempt, log, event = pending_checkpoint_publication
+    prepared = log.prepare(event)
+    fence = store.job_execution_fence(job_id=head.job_id, worker_id=worker, attempt=attempt)
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute(
+            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+            ("2000-01-01T00:00:00+00:00", head.job_id),
+        )
+    with fence, pytest.raises(ControlJobLeaseLostError):
+        store.append_candidate_experiment_n5_checkpoint(pending_head=head, prepared_event=prepared)
+    assert not store.list_diagnostic_events(event_id=event.event_id)

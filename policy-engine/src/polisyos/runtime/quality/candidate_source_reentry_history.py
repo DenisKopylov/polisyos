@@ -1,9 +1,8 @@
-"""Replay candidate-source re-entry through immutable producer-owned inputs.
+"""Checkpoint and replay candidate-source re-entry through its selected owners.
 
-This is the historical reader for the acquisition bridge's candidate outcome.
-It does not acquire a lease, resolve the current route, write artifacts, or
-establish source currentness. The route fold separately supplies the prior run
-to ``validate_candidate_source_continuation`` for append-only history checks.
+Historical readers establish custody without acquiring a lease or establishing
+source currentness. The recovery checkpoint selects one finished numerical
+step under the acquisition worker's existing lease and pending action head.
 """
 
 from __future__ import annotations
@@ -12,17 +11,22 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlPlaneStore,
+    )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
         AcquisitionRoutePhaseReceipt,
@@ -32,14 +36,17 @@ if TYPE_CHECKING:
         AcquisitionWorldGrowthBridge,
         CandidateAcquisitionWorldCheckpoint,
         CandidateAcquisitionWorldIntent,
+        CandidateSourceWorldHandoff,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
+        _VerifiedCurrentCandidateExperimentReentryAction,
     )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
     from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateContextPreparation
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSourceBasisTransition,
@@ -53,6 +60,12 @@ _PRODUCER = "polisyos.runtime.acquisition_world_growth"
 _REENTRY_KIND = "runtime_quality.candidate_source_reentry_receipt"
 _INTENT_KIND = "runtime_quality.acquisition_candidate_world_intent"
 _CHECKPOINT_KIND = "runtime_quality.acquisition_candidate_world_checkpoint"
+_N5_CHECKPOINT_KIND = "runtime_quality.candidate_source_reentry_n5_checkpoint"
+_N5_CHECKPOINT_SCHEMA = "polisyos.runtime.CandidateSourceReentryN5Checkpoint"
+_N5_CHECKPOINT_PHASE = "candidate_source_reentry_n5_checkpoint"
+_N5_CHECKPOINT_CANON = canon.CanonSpec(forbid_floats=False)
+_N5_CHECKPOINT_EVENT_TYPE = "polisyos.runtime.diagnostic.producer_execution.v1"
+_CANDIDATE_EXPERIMENT_PHASE_KIND = "runtime_quality.acquisition_candidate_experiment_phase_receipt"
 
 
 @dataclass(frozen=True)
@@ -64,6 +77,592 @@ class _Scope:
     action_job_id: str
     route_id: str
     action_generation: int
+
+
+class CandidateSourceReentryN5Checkpoint(BaseModel):
+    """Recover a completed candidate N5 under the same pending acquisition action."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["CandidateSourceReentryN5Checkpoint@1.0"] = (
+        "CandidateSourceReentryN5Checkpoint@1.0"
+    )
+    authority_purpose: Literal["candidate_scenario_n5_only"] = "candidate_scenario_n5_only"
+    originating_attempt: int = Field(ge=1, strict=True)
+    cycle_index: int = Field(ge=1, strict=True)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    pending_action_ref: artifacts.ArtifactRef
+    candidate_action_ref: artifacts.ArtifactRef
+    candidate_source_ref: artifacts.ArtifactRef
+    candidate_world_intent_ref: artifacts.ArtifactRef
+    candidate_world_checkpoint_ref: artifacts.ArtifactRef
+    world_model_ref: artifacts.ArtifactRef
+    n5_execution_ref: artifacts.ArtifactRef
+    simulation: SimulationPortObservation
+    schedule: SchedulingDecision
+
+
+def _n5_checkpoint_binding(
+    control_store: ControlPlaneStore,
+    events: RuntimeDiagnosticEventLog,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    world: CandidateSourceWorldHandoff | None = None,
+) -> tuple[AcquisitionActionHeadRecord, artifacts.ArtifactRef]:
+    """Match the independently replayed action, pending phase, and acquired world."""
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from polisyos.runtime.quality.acquisition_world_growth import CandidateSourceWorldHandoff
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _VerifiedCurrentCandidateExperimentReentryAction,
+    )
+
+    if (
+        type(origin) is not VerifiedCandidateExperimentOrigin
+        or type(reentry_context) is not _VerifiedCurrentCandidateExperimentReentryAction
+        or (world is not None and type(world) is not CandidateSourceWorldHandoff)
+    ):
+        raise TypeError("candidate_reentry_n5_checkpoint_owner_untyped")
+    head, phase, action = reentry_context.head, reentry_context.phase, reentry_context.action
+    admission = reentry_context.admission
+    expected_scope = (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+    if (
+        events._store is not control_store
+        or (head.tenant_id, head.cell_id, head.run_id, head.source_job_id) != expected_scope
+        or (action.tenant_id, action.cell_id, action.run_id, action.source_job_id) != expected_scope
+        or head.route_id != origin.route_id
+        or action.route_id != head.route_id
+        or head.job_id != action.action_job_id
+        or head.action_generation != action.action_generation
+        or head.receipt_ref != head.receipt_sha256
+        or head.receipt_manifest_profile_sha256 is None
+        or head.receipt_phase != "candidate_input_reentry_pending"
+        or phase.receipt_phase != head.receipt_phase
+        or (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id) != expected_scope
+        or phase.route_id != head.route_id
+        or phase.job_id != head.job_id
+        or phase.action_generation != head.action_generation
+        or phase.policy_ref != origin.policy_ref
+        or phase.policy_scope != origin.policy_scope
+        or phase.candidate_receipt_ref is None
+        or (
+            world is not None
+            and (
+                phase.candidate_receipt_ref != world.candidate_action_ref
+                or action.candidate_source_ref != world.candidate_source_ref
+            )
+        )
+        or reentry_context.outcome.head != head
+        or reentry_context.outcome.latest_receipt != phase
+        or admission.job.kind != "acquisition"
+        or admission.job.job_id != head.job_id
+        or admission.job.run_id != head.run_id
+        or admission.scope.status != "established"
+        or not admission.scope.actor_authenticated
+        or (admission.scope.tenant_id, admission.scope.cell_id) != expected_scope[:2]
+        or admission.attempt != admission.job.attempt
+        or admission.attempt < action.action_attempt
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_owner_mismatch")
+    current = control_store.current_execution_job_admission()
+    if not admission.same_execution_identity(current) or (
+        control_store.get_acquisition_action_head(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+            action_generation=head.action_generation,
+        )
+        != head
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_owner_changed")
+    return head, artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+        kind=_CANDIDATE_EXPERIMENT_PHASE_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+    )
+
+
+def _replay_checkpoint_n5(
+    store: artifacts.ArtifactStore,
+    *,
+    origin: VerifiedCandidateExperimentOrigin,
+    world: CandidateSourceWorldHandoff,
+    head: AcquisitionActionHeadRecord,
+    simulation: SimulationPortObservation,
+    execution_ref: artifacts.ArtifactRef,
+    schedule: SchedulingDecision,
+    cycle_index: int,
+) -> str | None:
+    """Reopen an exact V5 observation and classify its physical completion."""
+    from polisyos.runtime.quality.generation_cycle import (
+        _candidate_simulation_selected_n4_source_ref,
+        _scheduler_allows_candidate_n5,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV3,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import (
+        exact_n5_content_bytes,
+        read_n5_execution_implementation_witness,
+    )
+
+    previous = origin.effective_source_cycle
+    if (
+        simulation.status != "joint_simulated"
+        or cycle_index != previous.cycle_index + 1
+        or simulation.candidate_id != previous.selected_candidate_ref
+        or schedule.candidate_id != simulation.candidate_id
+        or not _scheduler_allows_candidate_n5(schedule, configured=True)
+        or execution_ref.kind != "runtime.quality.candidate_simulation_execution"
+        or execution_ref.media_type != "application/json"
+        or execution_ref.manifest_profile_sha256 is None
+        or simulation.generic_n5_execution_ref is not None
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_completion_required")
+    repository = GenerationSourceRepository(store)
+    n5 = repository._read_candidate_simulation_v5_numerical_output(
+        ref=execution_ref,
+        expected_run_id=head.run_id,
+        expected_job_id=head.job_id,
+        expected_tenant_id=head.tenant_id,
+        expected_cell_id=head.cell_id,
+    )
+    execution = n5.execution
+    context_ref = world.handoff.context_job_ref
+    world_hash = world.context.world_model_record.content_hash
+    if (
+        type(n5.source) is not N4CandidateScenarioSourceRecordV3
+        or n5.source.problem != origin.design_problem_basis
+        or n5.source.stable_subject_ref != previous.design_problem_ref
+        or execution.context_job_ref != context_ref
+        or execution.model_declaration_ref != world.handoff.model_declaration_ref
+        or execution.ncm_ref != world.handoff.ncm_ref
+        or execution.original_candidate_id != simulation.candidate_id
+        or execution.world_model_record_hash != world_hash
+        or exact_n5_content_bytes(n5.input_record.profile)
+        != exact_n5_content_bytes(world.handoff.profile)
+        or _candidate_simulation_selected_n4_source_ref(simulation) != execution.n4_source_ref
+        or simulation.candidate_simulation_context_job_ref != context_ref
+        or simulation.cycle_substrate_context_job_ref != context_ref
+        or simulation.candidate_simulation_n5_input_ref != execution.n5_input_ref
+        or simulation.candidate_simulation_profile_config_ref != execution.profile_config_ref
+        or simulation.candidate_simulation_profile_selection_ref
+        != world.handoff.profile.profile_selection_ref
+        or simulation.simulation_result_ref != execution.n5_result_ref
+        or simulation.simulation_ref != n5.result.receipt.payload_hash
+        or simulation.uncertainty_kind != n5.result.uncertainty_kind
+        or simulation.authority_blockers != n5.authority_blockers
+        or simulation.k_world_ref_before != execution.k_world_ref_before
+        or simulation.k_world_ref_after != execution.k_world_ref_after
+        or simulation.diagnostics.get("candidate_simulation_execution_selected_ref")
+        != execution_ref.model_dump(mode="json")
+        or simulation.diagnostics.get("candidate_simulation_purpose")
+        != "candidate_scenario_n5_only"
+        or (
+            simulation.world_model_record is not None
+            and simulation.world_model_record.content_hash != world_hash
+        )
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_selected_output_mismatch")
+    prior_ref = _candidate_simulation_selected_n4_source_ref(previous.simulation)
+    if prior_ref is None:
+        raise ValueError("candidate_reentry_n5_checkpoint_prior_source_missing")
+    prior = repository.load_candidate_scenario_source_in_owner_scope(
+        prior_ref,
+        expected_run_id=head.run_id,
+        expected_tenant_id=head.tenant_id,
+        expected_cell_id=head.cell_id,
+    )
+    if type(prior) is not N4CandidateScenarioSourceRecordV3:
+        raise ValueError("candidate_reentry_n5_checkpoint_prior_source_unsupported")
+    _require_n4_origin(
+        actual_origin_ref=n5.source.origin_source_ref,
+        prior_source_ref=prior_ref,
+        prior_origin_ref=prior.origin_source_ref,
+    )
+    read_n5_execution_implementation_witness(n5.result, input_ref=execution.n5_input_ref)
+    work = n5.result.physical_work_observations
+    if n5.result.diagnostics.get("physical_work_capture_status") != "observed" or not work:
+        raise ValueError("candidate_reentry_n5_checkpoint_physical_work_unverified")
+    if "physical_work_interruption" in n5.result.diagnostics:
+        interruption = n5.result.diagnostics["physical_work_interruption"]
+        if (
+            type(interruption) is not str
+            or not interruption
+            or interruption not in n5.authority_blockers
+        ):
+            raise ValueError("candidate_reentry_n5_checkpoint_interruption_mismatch")
+        return None
+    if any(item.status != "completed" for item in work):
+        raise ValueError("candidate_reentry_n5_checkpoint_physical_work_unverified")
+    return execution.original_candidate_hash
+
+
+def _n5_checkpoint_event_id(
+    pending_ref: artifacts.ArtifactRef, candidate_action_ref: artifacts.ArtifactRef
+) -> str:
+    selection = [ref.model_dump(mode="json") for ref in (pending_ref, candidate_action_ref)]
+    digest = hashlib.sha256(canon.to_canonical_bytes(selection)).hexdigest()
+    return "evt_candidate_source_reentry_n5_checkpoint_" + digest
+
+
+def _n5_checkpoint_options(
+    checkpoint: CandidateSourceReentryN5Checkpoint,
+    origin: VerifiedCandidateExperimentOrigin,
+) -> artifacts.ArtifactWriteOptions:
+    simulation = checkpoint.simulation
+    parents = (
+        ("pending_action_phase", checkpoint.pending_action_ref),
+        ("candidate_action", checkpoint.candidate_action_ref),
+        ("candidate_source", checkpoint.candidate_source_ref),
+        ("candidate_world_intent", checkpoint.candidate_world_intent_ref),
+        ("candidate_world_checkpoint", checkpoint.candidate_world_checkpoint_ref),
+        ("candidate_world_model", checkpoint.world_model_ref),
+        ("candidate_experiment_policy", origin.policy_ref),
+        ("compiled_source", origin.policy_scope.compiled_ref),
+        ("n4_source", simulation.candidate_simulation_n4_source_ref),
+        ("cycle_substrate_context_job", simulation.candidate_simulation_context_job_ref),
+        ("n5_input", simulation.candidate_simulation_n5_input_ref),
+        ("n5_execution", checkpoint.n5_execution_ref),
+        ("n5_result", simulation.simulation_result_ref),
+    )
+    inputs: list[artifacts.InputRef] = []
+    for role, parent in parents:
+        if parent is None or parent.manifest_profile_sha256 is None:
+            raise ValueError("candidate_reentry_n5_checkpoint_parent_profile_missing")
+        inputs.append(artifacts.input_ref_from_artifact_ref(parent, role=role))
+    return artifacts.ArtifactWriteOptions(
+        kind=_N5_CHECKPOINT_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=_N5_CHECKPOINT_SCHEMA, version="1.0"),
+        producer=artifacts.ProducerInfo(component=_PRODUCER, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_N5_CHECKPOINT_CANON),
+        governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
+        tenant_context=artifacts.ArtifactTenantContextInfo(
+            tenant_id=origin.tenant_id, cell_id=origin.cell_id
+        ),
+        inputs=inputs,
+    )
+
+
+def _n5_checkpoint_event(
+    *,
+    head: AcquisitionActionHeadRecord,
+    ref: artifacts.ArtifactRef,
+    options: artifacts.ArtifactWriteOptions,
+    event_id: str,
+    event_time: datetime,
+    execution_profile: str,
+) -> DiagnosticEvent:
+    from polisyos.runtime.quality.diagnostic_events import (
+        DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        DiagnosticEvent,
+    )
+
+    ref_id = str(ref.artifact_id)
+    return DiagnosticEvent(
+        event_id=event_id,
+        event_source=_PRODUCER,
+        event_type=_N5_CHECKPOINT_EVENT_TYPE,
+        event_time=event_time,
+        event_subject=(
+            f"run/{head.run_id}/job/{head.job_id}/phase/{_N5_CHECKPOINT_PHASE}"
+            f"/selected-manifest/{ref.manifest_profile_sha256}"
+        ),
+        schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        trace_id=f"trace-{head.job_id}",
+        span_id=f"span-{_N5_CHECKPOINT_PHASE}",
+        parent_span_id=None,
+        run_id=head.run_id,
+        job_id=head.job_id,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        producer_component=_PRODUCER,
+        producer_version="1.0",
+        execution_profile=execution_profile,
+        phase=_N5_CHECKPOINT_PHASE,
+        state_before=head.receipt_phase,
+        state_after=head.receipt_phase,
+        payload_ref=ref_id,
+        artifact_refs=(ref_id,),
+        input_refs=tuple(dict.fromkeys(str(edge.artifact_id) for edge in options.inputs or ())),
+        blocking_status=None,
+        redaction_policy_ref=None,
+        duplicate_of=None,
+        dedupe_key=None,
+    )
+
+
+def _load_n5_checkpoint_selection(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    head: AcquisitionActionHeadRecord,
+    pending_ref: artifacts.ArtifactRef,
+) -> tuple[artifacts.ArtifactRef, CandidateSourceReentryN5Checkpoint] | None:
+    candidate_action_ref = reentry_context.phase.candidate_receipt_ref
+    if candidate_action_ref is None:
+        raise ValueError("candidate_reentry_n5_checkpoint_action_missing")
+    event_id = _n5_checkpoint_event_id(pending_ref, candidate_action_ref)
+    rows = events.list_events(event_id=event_id, limit=2)
+    if not rows:
+        return None
+    if len(rows) != 1:
+        raise ValueError("candidate_reentry_n5_checkpoint_event_ambiguous")
+    (row,) = rows
+    event = row.event
+    prefix = f"run/{head.run_id}/job/{head.job_id}/phase/{_N5_CHECKPOINT_PHASE}/selected-manifest/"
+    if (
+        not event.event_subject.startswith(prefix)
+        or event.payload_ref is None
+        or row.payload_ref != event.payload_ref
+        or row.payload_inline is not None
+        or event.artifact_refs != (event.payload_ref,)
+        or (event.tenant_id, event.cell_id, event.run_id, event.job_id)
+        != (head.tenant_id, head.cell_id, head.run_id, head.job_id)
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_event_mismatch")
+    ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID.model_validate(event.payload_ref),
+        kind=_N5_CHECKPOINT_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=event.event_subject.removeprefix(prefix),
+    )
+    payload = _selected_payload(store, ref, kind=_N5_CHECKPOINT_KIND)
+    checkpoint = CandidateSourceReentryN5Checkpoint.model_validate(payload)
+    if (
+        payload != checkpoint.model_dump(mode="json")
+        or checkpoint.pending_action_ref != pending_ref
+        or checkpoint.candidate_action_ref != candidate_action_ref
+        or checkpoint.candidate_source_ref != reentry_context.action.candidate_source_ref
+        or not (
+            reentry_context.action.action_attempt
+            <= checkpoint.originating_attempt
+            <= reentry_context.admission.attempt
+        )
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_selection_mismatch")
+    options = _n5_checkpoint_options(checkpoint, origin)
+    manifest = store.get_manifest(ref)
+    if (
+        manifest.artifact_schema != options.schema
+        or manifest.producer != options.producer
+        or manifest.canon != options.canon
+        or manifest.governance != options.governance
+        or manifest.tenant_context != options.tenant_context
+        or manifest.inputs != options.inputs
+        or manifest.authority is not None
+        or manifest.same_input_closure is not None
+        or event
+        != _n5_checkpoint_event(
+            head=head,
+            ref=ref,
+            options=options,
+            event_id=event_id,
+            event_time=event.event_time,
+            execution_profile=reentry_context.admission.job.effective_execution_profile,
+        )
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_selected_profile_mismatch")
+    return ref, checkpoint
+
+
+def _read_n5_checkpoint_selection(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    world: CandidateSourceWorldHandoff,
+    head: AcquisitionActionHeadRecord,
+    pending_ref: artifacts.ArtifactRef,
+) -> tuple[artifacts.ArtifactRef, CandidateSourceReentryN5Checkpoint] | None:
+    selected = _load_n5_checkpoint_selection(
+        store=store,
+        events=events,
+        origin=origin,
+        reentry_context=reentry_context,
+        head=head,
+        pending_ref=pending_ref,
+    )
+    if selected is None:
+        return None
+    ref, checkpoint = selected
+    if (
+        checkpoint.candidate_world_intent_ref != world.candidate_world_intent_ref
+        or checkpoint.candidate_world_checkpoint_ref != world.candidate_world_checkpoint_ref
+        or checkpoint.world_model_ref != world.world_model_ref
+    ):
+        raise ValueError("candidate_reentry_n5_checkpoint_world_mismatch")
+    candidate_hash = _replay_checkpoint_n5(
+        store,
+        origin=origin,
+        world=world,
+        head=head,
+        simulation=checkpoint.simulation,
+        execution_ref=checkpoint.n5_execution_ref,
+        schedule=checkpoint.schedule,
+        cycle_index=checkpoint.cycle_index,
+    )
+    if candidate_hash is None:
+        raise ValueError("candidate_reentry_n5_checkpoint_incomplete_selection")
+    if checkpoint.candidate_content_hash != candidate_hash:
+        raise ValueError("candidate_reentry_n5_checkpoint_candidate_mismatch")
+    return ref, checkpoint
+
+
+def locate_candidate_source_reentry_n5_checkpoint_context(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+) -> artifacts.ArtifactRef | None:
+    """Locate the committed context profile for independent world re-admission."""
+    head, pending_ref = _n5_checkpoint_binding(control_store, events, origin, reentry_context)
+    selected = _load_n5_checkpoint_selection(
+        store=store,
+        events=events,
+        origin=origin,
+        reentry_context=reentry_context,
+        head=head,
+        pending_ref=pending_ref,
+    )
+    if selected is None:
+        return None
+    context_ref = selected[1].simulation.candidate_simulation_context_job_ref
+    if context_ref is None or context_ref.manifest_profile_sha256 is None:
+        raise ValueError("candidate_reentry_n5_checkpoint_context_profile_missing")
+    _n5_checkpoint_binding(control_store, events, origin, reentry_context)
+    return context_ref
+
+
+def persist_candidate_source_reentry_n5_checkpoint(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    world: CandidateSourceWorldHandoff,
+    simulation: SimulationPortObservation,
+    schedule: SchedulingDecision,
+    cycle_index: int,
+) -> artifacts.ArtifactRef | None:
+    """Select a completed N5 or leave a verified interrupted observation uncheckpointed."""
+    head, pending_ref = _n5_checkpoint_binding(
+        control_store, events, origin, reentry_context, world
+    )
+    if (
+        type(simulation) is not SimulationPortObservation
+        or type(schedule) is not SchedulingDecision
+    ):
+        raise TypeError("candidate_reentry_n5_checkpoint_observation_untyped")
+    execution_ref = artifacts.ArtifactRef.model_validate(
+        simulation.diagnostics.get("candidate_simulation_execution_selected_ref")
+    )
+    # Persist only the public observation. Recovery supplies the live world
+    # from the independently reopened acquisition handoff.
+    observation = SimulationPortObservation.model_validate(simulation.model_dump(mode="json"))
+    existing = _read_n5_checkpoint_selection(
+        store=store,
+        events=events,
+        origin=origin,
+        reentry_context=reentry_context,
+        world=world,
+        head=head,
+        pending_ref=pending_ref,
+    )
+    if existing is not None:
+        ref, checkpoint = existing
+        if (
+            checkpoint.simulation != observation
+            or checkpoint.schedule != schedule
+            or checkpoint.cycle_index != cycle_index
+            or checkpoint.n5_execution_ref != execution_ref
+        ):
+            raise ValueError("candidate_reentry_n5_checkpoint_conflict")
+        _n5_checkpoint_binding(control_store, events, origin, reentry_context, world)
+        return ref
+    candidate_hash = _replay_checkpoint_n5(
+        store,
+        origin=origin,
+        world=world,
+        head=head,
+        simulation=simulation,
+        execution_ref=execution_ref,
+        schedule=schedule,
+        cycle_index=cycle_index,
+    )
+    if candidate_hash is None:
+        return None
+    checkpoint = CandidateSourceReentryN5Checkpoint(
+        originating_attempt=reentry_context.admission.attempt,
+        cycle_index=cycle_index,
+        candidate_content_hash=candidate_hash,
+        pending_action_ref=pending_ref,
+        candidate_action_ref=world.candidate_action_ref,
+        candidate_source_ref=world.candidate_source_ref,
+        candidate_world_intent_ref=world.candidate_world_intent_ref,
+        candidate_world_checkpoint_ref=world.candidate_world_checkpoint_ref,
+        world_model_ref=world.world_model_ref,
+        n5_execution_ref=execution_ref,
+        simulation=observation,
+        schedule=schedule,
+    )
+    options = _n5_checkpoint_options(checkpoint, origin)
+    payload = checkpoint.model_dump(mode="json")
+    ref = store.put_json(payload, options, _N5_CHECKPOINT_CANON, return_selected_profile=True)
+    if _selected_payload(store, ref, kind=_N5_CHECKPOINT_KIND) != payload:
+        raise ValueError("candidate_reentry_n5_checkpoint_readback_mismatch")
+    event = _n5_checkpoint_event(
+        head=head,
+        ref=ref,
+        options=options,
+        event_id=_n5_checkpoint_event_id(pending_ref, world.candidate_action_ref),
+        event_time=datetime.now(UTC),
+        execution_profile=reentry_context.admission.job.effective_execution_profile,
+    )
+    control_store.append_candidate_experiment_n5_checkpoint(
+        pending_head=head, prepared_event=events.prepare(event)
+    )
+    return ref
+
+
+def read_candidate_source_reentry_n5_checkpoint(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    origin: VerifiedCandidateExperimentOrigin,
+    reentry_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    world: CandidateSourceWorldHandoff,
+) -> CandidateSourceReentryN5Checkpoint | None:
+    """Reopen a lease-selected checkpoint or report that no event selected one."""
+    head, pending_ref = _n5_checkpoint_binding(
+        control_store, events, origin, reentry_context, world
+    )
+    selected = _read_n5_checkpoint_selection(
+        store=store,
+        events=events,
+        origin=origin,
+        reentry_context=reentry_context,
+        world=world,
+        head=head,
+        pending_ref=pending_ref,
+    )
+    if selected is None:
+        return None
+    _n5_checkpoint_binding(control_store, events, origin, reentry_context, world)
+    return selected[1]
 
 
 def _selected_payload(

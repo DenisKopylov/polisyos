@@ -124,6 +124,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedPlannerInputs,
     )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        CandidateSourceReentryN5Checkpoint,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         VerifiedNLJobBudgetScope,
         VerifiedNLJobScope,
@@ -12245,6 +12248,7 @@ class GenerationCycleController:
         source_world_handoff: object,
         budget_state: BudgetState,
         reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
+        require_n5_checkpoint: bool = False,
     ) -> CandidateSourceReentryReceipt:
         """Append one limited N6 occurrence from an owner-verified candidate source.
 
@@ -12470,6 +12474,33 @@ class GenerationCycleController:
             self._restore_source_run(original_run)
             if original_run.source_custody_limitation is not None:
                 self._source_custody_limitation = original_run.source_custody_limitation
+
+            completed_n5 = (
+                bridge.read_completed_candidate_experiment_n5(
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    world=selected,
+                )
+                if experiment
+                else None
+            )
+            if require_n5_checkpoint and completed_n5 is None:
+                raise GenerationCycleError("candidate_source_reentry_n5_checkpoint_required")
+
+            def persist_experiment_n5(
+                simulation: SimulationPortObservation,
+                schedule: SchedulingDecision,
+                cycle_index: int,
+            ) -> None:
+                bridge.persist_completed_candidate_experiment_n5(
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    world=selected,
+                    simulation=simulation,
+                    schedule=schedule,
+                    cycle_index=cycle_index,
+                )
+
             new_cycle, summaries = await self._run_cycle(
                 problem,
                 cycle_index=source_cycle.cycle_index + 1,
@@ -12478,6 +12509,8 @@ class GenerationCycleController:
                 stable_design_problem_ref=original_run.design_problem_ref,
                 candidate_scenario_origin_source_ref=prior_source_ref,
                 candidate_scenario_proposal_reissue=proposal_reissue,
+                candidate_reentry_n5_checkpoint=persist_experiment_n5 if experiment else None,
+                candidate_reentry_n5_resume=completed_n5,
             )
             # This occurrence is entered by the selected source edge, not by
             # the problem's earlier counterexample/grammar revision hints.
@@ -12938,6 +12971,10 @@ class GenerationCycleController:
         stable_design_problem_ref: str | None = None,
         candidate_scenario_origin_source_ref: CASArtifactRef | None = None,
         candidate_scenario_proposal_reissue: object | None = None,
+        candidate_reentry_n5_checkpoint: (
+            Callable[[SimulationPortObservation, SchedulingDecision, int], None] | None
+        ) = None,
+        candidate_reentry_n5_resume: CandidateSourceReentryN5Checkpoint | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         partial_slot = _GenerationCycleN5PartialSlot()
         state: dict[str, Any] = {
@@ -12950,6 +12987,8 @@ class GenerationCycleController:
             "stable_design_problem_ref": stable_design_problem_ref,
             "candidate_scenario_origin_source_ref": candidate_scenario_origin_source_ref,
             "candidate_scenario_proposal_reissue": candidate_scenario_proposal_reissue,
+            "candidate_reentry_n5_checkpoint": candidate_reentry_n5_checkpoint,
+            "candidate_reentry_n5_resume": candidate_reentry_n5_resume,
         }
         try:
             finished = await self._engine.run_async(state)
@@ -18327,13 +18366,37 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("n5_physical_budget_scope_port_mismatch")
         self._n7_candidate_bindings[(candidate_id, candidate_hash)] = candidate
-        proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
-        schedule = self._schedule_candidate_for_execution(
-            candidate_id=candidate_id,
-            proxy_score=proxy_score,
-            voi_estimate=voi_estimate,
-            budget_state=state["budget_state"],
-        )
+        completed_n5 = state.get("candidate_reentry_n5_resume")
+        resumed_simulation = None
+        if completed_n5 is None:
+            proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
+            schedule = self._schedule_candidate_for_execution(
+                candidate_id=candidate_id,
+                proxy_score=proxy_score,
+                voi_estimate=voi_estimate,
+                budget_state=state["budget_state"],
+            )
+        else:
+            from polisyos.runtime.quality.candidate_source_reentry_history import (
+                CandidateSourceReentryN5Checkpoint,
+            )
+
+            context = self._cycle_substrate_context
+            if (
+                type(completed_n5) is not CandidateSourceReentryN5Checkpoint
+                or context is None
+                or self._candidate_simulation_handoff is None
+                or completed_n5.cycle_index != cycle_index
+                or completed_n5.simulation.candidate_id != candidate_id
+                or completed_n5.candidate_content_hash != candidate_hash
+                or _candidate_simulation_selected_n4_source_ref(completed_n5.simulation)
+                != self._candidate_scenario_source_refs.get((candidate_id, candidate_hash))
+            ):
+                raise GenerationCycleError("candidate_source_reentry_n5_checkpoint_scope_mismatch")
+            schedule = completed_n5.schedule
+            resumed_simulation = completed_n5.simulation.model_copy(
+                update={"world_model_record": context.world_model_record}
+            )
         if not _scheduler_allows_candidate_n5(
             schedule,
             configured=self._candidate_simulation_handoff is not None,
@@ -18374,13 +18437,20 @@ class GenerationCycleController:
                 "execution_schedule": schedule,
             }
         if self._candidate_simulation_handoff is not None:
-            simulation = self._run_configured_candidate_scenario_n5(
-                candidate=candidate,
-                problem=problem,
-                cycle_index=cycle_index,
-            )
-            simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
-            self._capture_completed_candidate_n5(state, simulation)
+            simulation = resumed_simulation
+            if simulation is None:
+                simulation = self._run_configured_candidate_scenario_n5(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                )
+                simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
+                self._capture_completed_candidate_n5(state, simulation)
+                checkpoint = state.get("candidate_reentry_n5_checkpoint")
+                if checkpoint is not None and simulation.status == "joint_simulated":
+                    # The checkpoint owner verifies physical completion. An
+                    # admitted interruption may retain its limited value path.
+                    checkpoint(simulation, schedule, cycle_index)
             value = _configured_candidate_value_observation(candidate_id, simulation)
             l1_routing = self._observe_candidate_n5_l1_routing(
                 candidate=candidate,

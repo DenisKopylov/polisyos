@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import hashlib
 from contextlib import closing
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Literal
 
 import pytest
@@ -21,10 +22,18 @@ from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.runtime.http.services.control.artifacts import write_runtime_authority_artifact
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import (
+    ControlJobLeaseLostError,
+    ControlPlaneStore,
+)
+from polisyos.runtime.quality import candidate_source_reentry_history as history
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthBridge,
     CandidateAcquisitionWorldCheckpoint,
+    CandidateSourceWorldHandoff,
+)
+from polisyos.runtime.quality.candidate_acquisition_action import (
+    _VerifiedCurrentCandidateExperimentReentryAction,
 )
 from polisyos.runtime.quality.candidate_source_reentry_history import (
     _owner_record,
@@ -36,17 +45,26 @@ from polisyos.runtime.quality.candidate_source_reentry_history import (
 )
 from polisyos.runtime.quality.data_state_substrate import build_candidate_acquisition_world
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
 from polisyos.runtime.quality.world_model_record import (
     load_world_model_record,
     persist_world_model_record,
     world_model_artifact_views,
 )
+from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+from tests.unit.runtime.http.test_control_plane_store_action_head_history import (
+    _action_scope,
+    _append_head,
+    _receipt_ref,
+)
+from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_action_job
 from tests.unit.runtime.quality.test_authority_reconciliation import _runtime_context
 from tests.unit.runtime.quality.test_candidate_acquisition_world import (
     CELL_ID,
     TENANT_ID,
     TRANSACTION_TIME,
 )
+from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
 from tests.unit.runtime.quality.test_candidate_source_basis import _case_with_explicit_empty_prior
 
 _KIND = "runtime_quality.acquisition_candidate_world_checkpoint"
@@ -347,6 +365,243 @@ def test_historical_checkpoint_never_falls_back_to_a_sibling_manifest(tmp_path: 
         finally:
             held_path.rename(selected_path)
         assert _read(case) == case.checkpoint
+
+
+def test_candidate_n5_checkpoint_requires_selected_event_and_complete_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real lease and event select one exact CAS view at the replay boundary."""
+    cas = artifacts.FileSystemCAS(tmp_path / "cas")
+
+    def selected(kind: str, name: str) -> artifacts.ArtifactRef:
+        return cas.put_json(
+            {"test_owner_input": name},
+            artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    action_ref = selected("runtime_quality.acquisition_candidate_action_receipt", "action")
+    world = CandidateSourceWorldHandoff(
+        candidate_action_ref=action_ref,
+        candidate_source_ref=selected("runtime.quality.candidate_acquisition_source", "source"),
+        candidate_world_intent_ref=selected(_KIND.replace("checkpoint", "intent"), "intent"),
+        candidate_world_checkpoint_ref=selected(_KIND, "world checkpoint"),
+        data_snapshot_ref=selected("fabric.data_snapshot", "data"),
+        world_model_ref=selected("runtime.quality.world_model_record", "world"),
+        world_model_record=None,
+        context=None,
+        context_owner=None,
+        handoff=None,
+        currentness_resolver=lambda: True,
+    )
+    origin, (outcome,) = _selection_case(1)
+    source_cycle = SimpleNamespace(cycle_index=0, selected_candidate_ref="candidate-a")
+    origin = replace(
+        origin,
+        source_job_id="source-job",
+        policy_ref=selected(origin.policy_ref.kind, "policy"),
+        policy_scope=origin.policy_scope.model_copy(
+            update={
+                "source_job_id": "source-job",
+                "compiled_ref": selected(origin.policy_scope.compiled_ref.kind, "compiled"),
+            }
+        ),
+        generation_run=SimpleNamespace(cycles=(source_cycle,)),
+        source_cycle=source_cycle,
+    )
+    context_ref = selected("runtime.quality.cycle_substrate_context_job", "context")
+    execution_ref = selected("runtime.quality.candidate_simulation_execution", "execution")
+    simulation = SimulationPortObservation(
+        candidate_id="candidate-a",
+        status="joint_simulated",
+        simulation_result_ref=selected("polisyos.runtime.joint_simulation_result", "result"),
+        cycle_substrate_context_job_ref=context_ref,
+        candidate_simulation_n4_source_ref=selected(
+            "runtime.quality.n4_candidate_scenario_source", "n4"
+        ),
+        candidate_simulation_context_job_ref=context_ref,
+        candidate_simulation_n5_input_ref=selected(
+            "runtime.quality.candidate_simulation_n5_input", "input"
+        ),
+        candidate_simulation_profile_config_ref="runtime-config:test",
+        candidate_simulation_profile_selection_ref=_receipt_ref("c"),
+        diagnostics={
+            "candidate_simulation_execution_selected_ref": execution_ref.model_dump(mode="json")
+        },
+    )
+    schedule = SchedulingDecision.model_validate(
+        {
+            "candidate_id": simulation.candidate_id,
+            "priority": 0.0,
+            "recommended_action": "reject",
+            "reason": "roi_below_threshold",
+            "economics": {
+                "candidate_id": simulation.candidate_id,
+                "recommended_action": "reject",
+                "expected_improvement_per_usd": 0.0,
+                "expected_falsification_value": 0.0,
+                "expected_governance_value": 0.0,
+                "timeout_risk": 0.0,
+                "replay_cost_usd": 0.0,
+                "calibration_debt": 0.0,
+                "current_pareto_position": "unassessed",
+            },
+        }
+    )
+    pending = selected(history._CANDIDATE_EXPERIMENT_PHASE_KIND, "pending action phase")
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "checkpoint.sqlite3")
+    ) as control:
+        job, worker, attempt = _create_action_job(control, job_id="action-job")
+        events = RuntimeDiagnosticEventLog(store=control, artifact_store=cas)
+        with control.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+            head = None
+            for index, phase_name in enumerate(
+                ("requested", "executing", "outcome_selected", "candidate_input_reentry_pending")
+            ):
+                is_pending = index == 3
+                head = _append_head(
+                    control,
+                    _action_scope(),
+                    receipt_ref=str(pending.artifact_id)
+                    if is_pending
+                    else _receipt_ref(str(index)),
+                    expected_head_generation=index,
+                    predecessor_receipt_ref=None if head is None else head.receipt_ref,
+                    receipt_phase=phase_name,
+                    receipt_manifest_profile_sha256=(
+                        pending.manifest_profile_sha256 if is_pending else _receipt_ref("f")
+                    ),
+                )
+            assert head is not None
+            phase = outcome.latest_receipt.model_copy(
+                update={
+                    "candidate_receipt_ref": action_ref,
+                    "source_job_id": head.source_job_id,
+                    "job_id": head.job_id,
+                    "policy_ref": origin.policy_ref,
+                    "policy_scope": origin.policy_scope,
+                }
+            )
+            # The route and numerical owners are the mocked upstream boundary
+            # here. CAS selection, event verification and the lease are real.
+            action = SimpleNamespace(
+                **_action_scope(),
+                action_job_id=job.job_id,
+                candidate_source_ref=world.candidate_source_ref,
+                action_attempt=attempt,
+            )
+            context = _VerifiedCurrentCandidateExperimentReentryAction(
+                selection=None,
+                phase=phase,
+                admission=control.current_execution_job_admission(),
+                action=action,
+                head=head,
+                outcome=replace(outcome, head=head, latest_receipt=phase),
+                budget_window=None,
+            )
+            locator = {
+                "origin": origin,
+                "reentry_context": context,
+                "control_store": control,
+                "events": events,
+            }
+            selection = {**locator, "world": world}
+            persist = {
+                **selection,
+                "store": cas,
+                "schedule": schedule,
+                "cycle_index": 1,
+            }
+            with pytest.raises(
+                ValueError, match="candidate_reentry_n5_checkpoint_completion_required"
+            ):
+                history.persist_candidate_source_reentry_n5_checkpoint(
+                    **persist,
+                    simulation=simulation.model_copy(update={"status": "simulation_blocked"}),
+                )
+            assert (
+                history.read_candidate_source_reentry_n5_checkpoint(**selection, store=cas) is None
+            )
+            assert (
+                history.locate_candidate_source_reentry_n5_checkpoint_context(**locator, store=cas)
+                is None
+            )
+
+            complete = False
+
+            def reopen_n5(_store: object, **values: object) -> str | None:
+                assert values["execution_ref"] == execution_ref
+                assert values["simulation"] == simulation
+                assert values["head"] == head
+                return _receipt_ref("e") if complete else None
+
+            monkeypatch.setattr(history, "_replay_checkpoint_n5", reopen_n5)
+            assert (
+                history.persist_candidate_source_reentry_n5_checkpoint(
+                    **persist, simulation=simulation
+                )
+                is None
+            )
+            assert (
+                history.read_candidate_source_reentry_n5_checkpoint(**selection, store=cas) is None
+            )
+            complete = True
+            ref = history.persist_candidate_source_reentry_n5_checkpoint(
+                **persist, simulation=simulation
+            )
+            assert ref is not None
+            assert (
+                history.persist_candidate_source_reentry_n5_checkpoint(
+                    **persist, simulation=simulation
+                )
+                == ref
+            )
+            assert control.get_acquisition_action_head(**_action_scope()) == head
+
+        reader = artifacts.FileSystemCAS.open_existing_read_only(cas.root)
+        with pytest.raises(ControlJobLeaseLostError):
+            history.read_candidate_source_reentry_n5_checkpoint(**selection, store=reader)
+        with control.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+            assert (
+                history.locate_candidate_source_reentry_n5_checkpoint_context(
+                    **locator, store=reader
+                )
+                == context_ref
+            )
+            checkpoint = history.read_candidate_source_reentry_n5_checkpoint(
+                **selection, store=reader
+            )
+        assert checkpoint is not None
+        assert checkpoint.originating_attempt == attempt
+        assert checkpoint.pending_action_ref == pending
+        assert checkpoint.n5_execution_ref == execution_ref
+        assert checkpoint.simulation == simulation
+        assert checkpoint.schedule == schedule
+        sibling = cas.put_json(
+            checkpoint.model_dump(mode="json"),
+            artifacts.ArtifactWriteOptions(kind=ref.kind, media_type=ref.media_type),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert sibling.artifact_id == ref.artifact_id
+        assert sibling.manifest_profile_sha256 != ref.manifest_profile_sha256
+        selected_path = cas._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        held_path = selected_path.with_name(selected_path.name + ".held")
+        selected_path.rename(held_path)
+        try:
+            assert reader.verify(sibling).ok
+            with (
+                control.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+                pytest.raises(
+                    ValueError, match="candidate_reentry_history_selected_profile_invalid"
+                ),
+            ):
+                history.locate_candidate_source_reentry_n5_checkpoint_context(
+                    **locator, store=reader
+                )
+        finally:
+            held_path.rename(selected_path)
 
 
 def test_real_world_builder_clock_is_verified_without_rebinding_retained_scope(

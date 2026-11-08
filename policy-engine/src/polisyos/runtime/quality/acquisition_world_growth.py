@@ -14,6 +14,7 @@ import re
 import tempfile
 from collections.abc import Sequence  # noqa: TC003
 from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from datetime import UTC, datetime
 from decimal import Decimal  # Pydantic resolves this annotation
 from pathlib import Path
@@ -66,6 +67,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         ControlJobRecord,
+        ControlPlaneStore,
     )
     from polisyos.runtime.quality.acquisition_evaluation import ResolvedAcquisitionEvaluation
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
@@ -77,8 +79,12 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
+        _VerifiedCurrentCandidateExperimentReentryAction,
     )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        CandidateSourceReentryN5Checkpoint,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         AcquiredCandidateModelValues,
         ConfiguredCandidateSimulationContextAdmissionOwner,
@@ -94,6 +100,7 @@ if TYPE_CHECKING:
         CandidateSourceReentryReceipt,
         GenerationCycleRecord,
         GenerationCycleRun,
+        SimulationPortObservation,
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -101,6 +108,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
+    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
     from polisyos.scientist.orchestration.engine import (
         BudgetInvocationCapacityObservation,
         BudgetInvocationQuotaPolicy,
@@ -644,6 +652,9 @@ class CandidateSourceWorldHandoff:
     context_owner: CycleSubstrateContextArtifactOwner
     handoff: CandidateSimulationContextHandoff
     currentness_resolver: Callable[[], bool]
+    experiment_reentry_budget: _CandidateExperimentReentryBudgetReconciliation | None = (
+        dataclass_field(default=None, repr=False, compare=False)
+    )
 
 
 @dataclass(frozen=True)
@@ -653,6 +664,7 @@ class _CandidateExperimentReentryBudgetReconciliation:
     observer: ProducerBudgetObserver
     budget: ProducerBudgetObservation
     capacity: BudgetInvocationCapacityObservation
+    action_context: _VerifiedCurrentCandidateExperimentReentryAction
 
 
 @dataclass(frozen=True)
@@ -1343,6 +1355,17 @@ class AcquisitionWorldGrowthBridge:
         candidate_action_ref: artifacts.ArtifactRef,
     ) -> BudgetLedgerReentryBudgetWindow:
         """Resolve the source action's original durable window at pending reentry."""
+        return self._resolve_candidate_experiment_reentry_action_context(
+            origin=origin, candidate_action_ref=candidate_action_ref
+        ).budget_window
+
+    def _resolve_candidate_experiment_reentry_action_context(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        candidate_action_ref: artifacts.ArtifactRef,
+    ) -> _VerifiedCurrentCandidateExperimentReentryAction:
+        """Verify the live selected action, using its pending head only as locator."""
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action_context,
         )
@@ -1365,7 +1388,7 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("candidate_experiment_reentry_pending_phase_missing")
         if context.action.selection != context.selection:
             raise ValueError("candidate_experiment_reentry_source_action_changed")
-        return context.budget_window
+        return context
 
     def _candidate_experiment_pending_reentry_locator_ref(
         self,
@@ -1475,6 +1498,7 @@ class AcquisitionWorldGrowthBridge:
         candidate_action_ref: artifacts.ArtifactRef,
         budget_state: BudgetState,
         reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+        require_existing_quota: bool = False,
     ) -> _CandidateExperimentReentryBudgetReconciliation:
         """Reconcile the live owner/window after work without admitting another call.
 
@@ -1546,7 +1570,7 @@ class AcquisitionWorldGrowthBridge:
                     quota, purpose="standard"
                 )
             except ProducerBudgetSourceError as exc:
-                if exc.args != ("n5_invocation_selection_not_current",):
+                if require_existing_quota or exc.args != ("n5_invocation_selection_not_current",):
                     raise
                 # A missing or changed persisted quota keeps the original full
                 # action read immediately before the legacy selection write.
@@ -1608,6 +1632,7 @@ class AcquisitionWorldGrowthBridge:
             observer=observer,
             budget=budget,
             capacity=capacity,
+            action_context=context,
         )
 
     def _candidate_source_first_prior(
@@ -5140,6 +5165,7 @@ class AcquisitionWorldGrowthBridge:
         identity = origin if origin is not None else closure
         if identity is None:
             raise ValueError("candidate_source_context_identity_missing")
+        experiment_reentry_budget = None
         if origin is not None:
             from polisyos.runtime.quality.candidate_acquisition_action import (
                 _candidate_experiment_source_selection,
@@ -5155,11 +5181,12 @@ class AcquisitionWorldGrowthBridge:
             )
             if budget_state is None or reentry_budget_scope is None:
                 raise ValueError("candidate_experiment_reentry_budget_scope_missing")
-            self._reconcile_candidate_experiment_source_reentry_budget(
+            experiment_reentry_budget = self._reconcile_candidate_experiment_source_reentry_budget(
                 origin=origin,
                 candidate_action_ref=candidate_action_ref,
                 budget_state=budget_state,
                 reentry_budget_scope=reentry_budget_scope,
+                require_existing_quota=existing_context_ref is not None,
             )
         else:
             if closure is None:
@@ -5560,6 +5587,7 @@ class AcquisitionWorldGrowthBridge:
                         candidate_action_ref=candidate_action_ref,
                         budget_state=budget_state,
                         reentry_budget_scope=reentry_budget_scope,
+                        require_existing_quota=existing_context_ref is not None,
                     )
                 replayed = context_owner.resolve_for_current_job(
                     context_ref, problem=identity.design_problem_basis
@@ -5593,6 +5621,7 @@ class AcquisitionWorldGrowthBridge:
             context_owner=context_owner,
             handoff=handoff,
             currentness_resolver=currentness_resolver,
+            experiment_reentry_budget=experiment_reentry_budget,
         )
 
     def verify_candidate_source_context_handoff(
@@ -5680,6 +5709,84 @@ class AcquisitionWorldGrowthBridge:
             prepared_n5_configuration=prepared_n5_configuration,
         )
 
+    def _candidate_experiment_n5_checkpoint_control_store(self) -> ControlPlaneStore:
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+        service = self._source_control_service
+        if (
+            type(service) is not ControlPlaneService
+            or service._control_store is not self.control_store
+            or service._artifact_store is not self.artifact_store
+            or service._diagnostic_event_log is not self.event_log
+        ):
+            raise ValueError("candidate_experiment_n5_checkpoint_bridge_owner_mismatch")
+        return service._control_store
+
+    def _candidate_experiment_n5_checkpoint_action_context(
+        self,
+        candidate_action_ref: artifacts.ArtifactRef,
+        world: CandidateSourceWorldHandoff,
+    ) -> _VerifiedCurrentCandidateExperimentReentryAction:
+        if (
+            type(world) is not CandidateSourceWorldHandoff
+            or world.candidate_action_ref != candidate_action_ref
+            or world.experiment_reentry_budget is None
+        ):
+            raise ValueError("candidate_experiment_n5_checkpoint_bridge_owner_mismatch")
+        return world.experiment_reentry_budget.action_context
+
+    def persist_completed_candidate_experiment_n5(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        candidate_action_ref: artifacts.ArtifactRef,
+        world: CandidateSourceWorldHandoff,
+        simulation: SimulationPortObservation,
+        schedule: SchedulingDecision,
+        cycle_index: int,
+    ) -> artifacts.ArtifactRef | None:
+        """Select the worker's completed N5 through the existing reentry proof."""
+        from polisyos.runtime.quality.candidate_source_reentry_history import (
+            persist_candidate_source_reentry_n5_checkpoint,
+        )
+
+        return persist_candidate_source_reentry_n5_checkpoint(
+            store=self.artifact_store,
+            events=self.event_log,
+            control_store=self._candidate_experiment_n5_checkpoint_control_store(),
+            origin=origin,
+            reentry_context=self._candidate_experiment_n5_checkpoint_action_context(
+                candidate_action_ref, world
+            ),
+            world=world,
+            simulation=simulation,
+            schedule=schedule,
+            cycle_index=cycle_index,
+        )
+
+    def read_completed_candidate_experiment_n5(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        candidate_action_ref: artifacts.ArtifactRef,
+        world: CandidateSourceWorldHandoff,
+    ) -> CandidateSourceReentryN5Checkpoint | None:
+        """Replay the exact selected N5 from its live action and acquired world."""
+        from polisyos.runtime.quality.candidate_source_reentry_history import (
+            read_candidate_source_reentry_n5_checkpoint,
+        )
+
+        return read_candidate_source_reentry_n5_checkpoint(
+            store=self.artifact_store,
+            events=self.event_log,
+            control_store=self._candidate_experiment_n5_checkpoint_control_store(),
+            origin=origin,
+            reentry_context=self._candidate_experiment_n5_checkpoint_action_context(
+                candidate_action_ref, world
+            ),
+            world=world,
+        )
+
     def _prepare_candidate_source_reentry(
         self,
         *,
@@ -5690,11 +5797,12 @@ class AcquisitionWorldGrowthBridge:
     ) -> tuple[artifacts.ArtifactRef, CandidateSourceReentryReceipt]:
         """Recover one selected result or fence exactly one physical N6/N5 attempt.
 
-        A crash after the fence without a selected result is explicitly
-        unresolved. It never authorizes repeating potentially paid work.
+        The exact selected N5 can finish an experiment after a crash. A fence
+        without a selected N5 or terminal result leaves the action unresolved.
         """
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.candidate_source_reentry_history import (
+            locate_candidate_source_reentry_n5_checkpoint_context,
             verify_candidate_source_reentry_history,
         )
         from polisyos.runtime.quality.generation_cycle import (
@@ -5842,10 +5950,30 @@ class AcquisitionWorldGrowthBridge:
                 return selected_ref, recovered
             if pointer.exists():
                 raise ValueError("candidate_source_reentry_event_missing")
+            resume_context_ref = None
             if fence.exists():
-                raise ValueError("candidate_source_reentry_outcome_not_established")
-
-            if origin is not None:
+                if origin is None:
+                    raise ValueError("candidate_source_reentry_outcome_not_established")
+                try:
+                    fenced_action = artifacts.ArtifactRef.model_validate_json(fence.read_bytes())
+                except ValueError as exc:
+                    raise ValueError("candidate_source_reentry_fence_invalid") from exc
+                if fenced_action != candidate_action_ref:
+                    raise ValueError("candidate_source_reentry_fence_identity_mismatch")
+                reentry_context = self._resolve_candidate_experiment_reentry_action_context(
+                    origin=origin, candidate_action_ref=candidate_action_ref
+                )
+                resume_context_ref = locate_candidate_source_reentry_n5_checkpoint_context(
+                    store=self.artifact_store,
+                    events=self.event_log,
+                    control_store=self._candidate_experiment_n5_checkpoint_control_store(),
+                    origin=origin,
+                    reentry_context=reentry_context,
+                )
+                if resume_context_ref is None:
+                    raise ValueError("candidate_source_reentry_outcome_not_established")
+                window = reentry_context.budget_window
+            elif origin is not None:
                 window = self.resolve_candidate_experiment_reentry_budget_window(
                     origin=origin, candidate_action_ref=candidate_action_ref
                 )
@@ -5863,31 +5991,43 @@ class AcquisitionWorldGrowthBridge:
             state = BudgetState.model_validate(
                 {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
             )
-            if origin is not None:
-                observer = self.candidate_experiment_source_reentry_preflight(
+            if resume_context_ref is not None:
+                selected_world = self._candidate_source_context_handoff(
                     origin=origin,
                     candidate_action_ref=candidate_action_ref,
+                    existing_context_ref=resume_context_ref,
                     budget_state=state,
                     reentry_budget_scope=window.scope,
                 )
+                if selected_world.experiment_reentry_budget is None:
+                    raise ValueError("candidate_source_reentry_budget_owner_not_established")
+                observer = selected_world.experiment_reentry_budget.observer
             else:
-                if closure is None:
-                    raise ValueError("candidate_source_reentry_closure_missing")
-                observer = self.candidate_source_reentry_preflight(
-                    closure=closure, budget_state=state, reentry_budget_scope=window.scope
+                if origin is not None:
+                    observer = self.candidate_experiment_source_reentry_preflight(
+                        origin=origin,
+                        candidate_action_ref=candidate_action_ref,
+                        budget_state=state,
+                        reentry_budget_scope=window.scope,
+                    )
+                else:
+                    if closure is None:
+                        raise ValueError("candidate_source_reentry_closure_missing")
+                    observer = self.candidate_source_reentry_preflight(
+                        closure=closure, budget_state=state, reentry_budget_scope=window.scope
+                    )
+                if type(observer) is not ProducerBudgetObserver:
+                    raise ValueError("candidate_source_reentry_budget_owner_not_established")
+                selected_world = self.candidate_source_context_handoff(
+                    closure=closure,
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    **(
+                        {"budget_state": state, "reentry_budget_scope": window.scope}
+                        if origin is not None
+                        else {}
+                    ),
                 )
-            if type(observer) is not ProducerBudgetObserver:
-                raise ValueError("candidate_source_reentry_budget_owner_not_established")
-            selected_world = self.candidate_source_context_handoff(
-                closure=closure,
-                origin=origin,
-                candidate_action_ref=candidate_action_ref,
-                **(
-                    {"budget_state": state, "reentry_budget_scope": window.scope}
-                    if origin is not None
-                    else {}
-                ),
-            )
             payload = load_core_json_artifact(self.artifact_store, identity.source_payload_ref)
             models = payload.get("llm_models")
             if not isinstance(models, list) or not models or not isinstance(models[0], str):
@@ -5906,11 +6046,12 @@ class AcquisitionWorldGrowthBridge:
                     else {}
                 ),
             )
-            with fence.open("x") as stream:
-                stream.write(candidate_action_ref.model_dump_json() + "\n")
-                stream.flush()
-                os.fsync(stream.fileno())
-            self._sync_directory(fence.parent)
+            if resume_context_ref is None:
+                with fence.open("x") as stream:
+                    stream.write(candidate_action_ref.model_dump_json() + "\n")
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                self._sync_directory(fence.parent)
             receipt = async_tools.run_coro_sync(
                 controller.reenter_after_candidate_acquisition_source(
                     bridge=self,
@@ -5920,6 +6061,7 @@ class AcquisitionWorldGrowthBridge:
                     source_world_handoff=selected_world,
                     budget_state=state,
                     reentry_budget_scope=window.scope if origin is not None else None,
+                    **({"require_n5_checkpoint": True} if resume_context_ref is not None else {}),
                 )
             )
             if type(receipt) is not CandidateSourceReentryReceipt:
@@ -5991,6 +6133,7 @@ class AcquisitionWorldGrowthBridge:
                     candidate_action_ref=candidate_action_ref,
                     budget_state=state,
                     reentry_budget_scope=window.scope,
+                    require_existing_quota=resume_context_ref is not None,
                 )
             elif (
                 closure is not None

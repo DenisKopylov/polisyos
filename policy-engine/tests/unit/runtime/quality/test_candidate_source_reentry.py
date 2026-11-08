@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from contextlib import nullcontext
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
@@ -534,6 +535,7 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         readback: CandidateSourceReentryReceipt = parsed_receipt,
         expected_error: str | None = None,
         costed: bool = False,
+        checkpoint: Literal["selected", "missing", "corrupt", "foreign_fence"] | None = None,
     ) -> None:
         folder = tmp_path / name
         folder.mkdir()
@@ -558,12 +560,13 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         bridge._reconcile_candidate_experiment_source_reentry_budget = lambda **_: calls.append(
             "reconciled"
         )
-        bridge.resolve_candidate_experiment_reentry_budget_window = lambda **_: SimpleNamespace(
+        window = SimpleNamespace(
             window_id=action.candidate_budget_window_id,
             record_digest=action.candidate_budget_window_digest,
             effective_limit_usd=Decimal("1"),
             scope=object(),
         )
+        bridge.resolve_candidate_experiment_reentry_budget_window = lambda **_: window
 
         def preflight(**_: object) -> ProducerBudgetObserver:
             calls.append("preflight")
@@ -576,12 +579,45 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         bridge.verify_candidate_source_context_handoff = lambda **_: handoff
         bridge.candidate_source_selection = lambda _: selection
         bridge._require_selected_candidate_action = lambda **_: action
+        if checkpoint is not None:
+            action_digest = hashlib.sha256(
+                canon.to_canonical_bytes(action_ref.model_dump(mode="json"))
+            ).hexdigest()
+            fence = folder / (action_digest + ".candidate-source-reentry.started")
+            fenced_action = selected_ref if checkpoint == "foreign_fence" else action_ref
+            fence.write_text(fenced_action.model_dump_json() + "\n", encoding="utf-8")
+            fence_identity = (fence.stat().st_ino, fence.read_bytes())
+            pending = SimpleNamespace(budget_window=window)
+            handoff.experiment_reentry_budget = SimpleNamespace(
+                observer=ProducerBudgetObserver.__new__(ProducerBudgetObserver)
+            )
+            bridge._resolve_candidate_experiment_reentry_action_context = lambda **_: pending
+            bridge._candidate_experiment_n5_checkpoint_control_store = lambda: bridge.control_store
+
+            def locate(**kwargs: object) -> ArtifactRef | None:
+                assert kwargs["reentry_context"] is pending
+                calls.append("checkpoint_locator")
+                if checkpoint == "corrupt":
+                    raise ValueError("candidate_reentry_n5_checkpoint_selected_profile_mismatch")
+                return context_ref if checkpoint == "selected" else None
+
+            def reopen(**kwargs: object) -> SimpleNamespace:
+                assert kwargs["existing_context_ref"] == context_ref
+                assert kwargs["reentry_budget_scope"] is window.scope
+                calls.append("reopen_world")
+                return handoff
+
+            monkeypatch.setattr(
+                history, "locate_candidate_source_reentry_n5_checkpoint_context", locate
+            )
+            bridge._candidate_source_context_handoff = reopen
 
         class Controller:
             def __init__(self, **_: object) -> None:
                 pass
 
-            async def reenter_after_candidate_acquisition_source(self, **_: object) -> object:
+            async def reenter_after_candidate_acquisition_source(self, **kwargs: object) -> object:
+                assert kwargs.get("require_n5_checkpoint", False) is (checkpoint == "selected")
                 calls.append("producer")
                 return produced
 
@@ -619,10 +655,35 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
             else:
                 assert calls.count("producer") == 1
                 assert "reconciled" in calls
+        if checkpoint is not None:
+            assert (fence.stat().st_ino, fence.read_bytes()) == fence_identity
+            assert "preflight" not in calls
+            assert ("reopen_world" in calls) is (checkpoint == "selected")
+            assert ("producer" in calls) is (checkpoint == "selected")
+            assert ("checkpoint_locator" in calls) is (checkpoint != "foreign_fence")
 
     exercise("recovered", recovered=True)
     exercise("costed-recovered", recovered=True, costed=True)
     exercise("new", recovered=False)
+    exercise("after-n5", recovered=False, checkpoint="selected")
+    exercise(
+        "unselected-n5",
+        recovered=False,
+        checkpoint="missing",
+        expected_error="candidate_source_reentry_outcome_not_established",
+    )
+    exercise(
+        "corrupt-n5-selection",
+        recovered=False,
+        checkpoint="corrupt",
+        expected_error="candidate_reentry_n5_checkpoint_selected_profile_mismatch",
+    )
+    exercise(
+        "foreign-fence",
+        recovered=False,
+        checkpoint="foreign_fence",
+        expected_error="candidate_source_reentry_fence_identity_mismatch",
+    )
     wrong_root = receipt.model_copy(
         update={"source_generation_run_content_hash": generation_cycle_run_content_hash(root)}
     )
@@ -797,14 +858,17 @@ def test_candidate_experiment_reentry_preflight_uses_real_budget_and_quota_owner
         "late_owner_change",
         "final_cas_removed",
         "locator_state",
+        "require_existing_quota",
     ),
     [
-        (True, False, False, "current"),
-        (False, False, False, "current"),
-        (True, True, False, "current"),
-        (True, False, True, "current"),
-        (True, False, False, "missing"),
-        (True, False, False, "stale"),
+        (True, False, False, "current", False),
+        (False, False, False, "current", False),
+        (True, True, False, "current", False),
+        (True, False, True, "current", False),
+        (True, False, False, "missing", False),
+        (True, False, False, "stale", False),
+        (True, False, False, "current", True),
+        (False, False, False, "current", True),
     ],
 )
 def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
@@ -814,6 +878,7 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     late_owner_change: bool,
     final_cas_removed: bool,
     locator_state: str,
+    require_existing_quota: bool,
 ) -> None:
     """Reuse exact selected quota; retain the full fallback and final owner fence."""
     from polisyos.runtime.quality import candidate_acquisition_action as actions
@@ -966,8 +1031,10 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
             candidate_action_ref=pending.latest_receipt.candidate_receipt_ref,
             budget_state=budget_state,
             reentry_budget_scope=window.scope,
+            require_existing_quota=require_existing_quota,
         )
 
+    strict_missing_profile = require_existing_quota and not selected_profile_present
     if locator_state in {"missing", "stale"}:
         with pytest.raises(
             ValueError,
@@ -980,32 +1047,35 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     elif late_owner_change:
         with pytest.raises(ValueError, match="candidate_experiment_reentry_owner_changed"):
             execute()
+    elif strict_missing_profile:
+        with pytest.raises(ValueError, match="candidate_experiment_reentry_budget_not_established"):
+            execute()
     else:
         result = execute()
         assert result.observer is observer
     assert head_reads == [head_scope]
     assert len(fast_builder_calls) == (0 if locator_state != "current" else 1)
     assert len(full_builder_calls) == (
-        0 if locator_state != "current" or selected_profile_present else 1
+        0 if locator_state != "current" or selected_profile_present or require_existing_quota else 1
     )
     if locator_state == "missing":
         expected_context_calls = 0
-    elif locator_state == "stale" or final_cas_removed:
+    elif locator_state == "stale" or final_cas_removed or strict_missing_profile:
         expected_context_calls = 1
     elif selected_profile_present:
         expected_context_calls = 2
     else:
         expected_context_calls = 3
     assert len(context_calls) == expected_context_calls
-    if locator_state != "current":
+    if locator_state != "current" or strict_missing_profile:
         expected_final_action_calls = 0
     elif selected_profile_present:
         expected_final_action_calls = 1
     else:
         expected_final_action_calls = 2
     assert len(final_action_calls) == expected_final_action_calls
-    assert (
-        budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id) == profile
+    assert budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id) == (
+        None if strict_missing_profile else profile
     )
 
 

@@ -8289,6 +8289,74 @@ class ControlPlaneStore:
             scope_id=str(row["scope_id"]),
         )
 
+    def append_candidate_experiment_n5_checkpoint(
+        self,
+        *,
+        pending_head: AcquisitionActionHeadRecord,
+        prepared_event: _PreparedDiagnosticEvent,
+    ) -> ControlDiagnosticEventRecord:
+        """Select one prepared N5 checkpoint while its action lease and head are current.
+
+        The bridge verifies the typed CAS artifact before preparing this event.
+        This transaction fences the event selection without advancing the head.
+        """
+        if type(pending_head) is not AcquisitionActionHeadRecord or (
+            pending_head.receipt_phase != "candidate_input_reentry_pending"
+            or not _is_sha256_ref(pending_head.receipt_manifest_profile_sha256)
+        ):
+            raise ValueError("candidate_experiment_n5_checkpoint_pending_head_invalid")
+        if type(prepared_event) is not _PreparedDiagnosticEvent:
+            raise TypeError("candidate_experiment_n5_checkpoint_prepared_event_untyped")
+        event, payload = prepared_event.publication_values()
+        expected_scope = (
+            pending_head.tenant_id,
+            pending_head.cell_id,
+            pending_head.run_id,
+            pending_head.job_id,
+        )
+        if (
+            payload is not None
+            or prepared_event.inline_payload
+            or event.event_type != "polisyos.runtime.diagnostic.producer_execution.v1"
+            or event.phase != "candidate_source_reentry_n5_checkpoint"
+            or (event.tenant_id, event.cell_id, event.run_id, event.job_id) != expected_scope
+            or not _is_sha256_ref(event.payload_ref)
+            or event.artifact_refs != (event.payload_ref,)
+            or pending_head.receipt_ref not in event.input_refs
+        ):
+            raise ValueError("candidate_experiment_n5_checkpoint_event_binding_invalid")
+
+        with self._job_transaction():
+            admission = self.current_execution_job_admission()
+            job, scope = admission.job, admission.scope
+            if (
+                job.kind != "acquisition"
+                or scope.status != "established"
+                or not scope.actor_authenticated
+                or (scope.tenant_id, scope.cell_id, job.run_id, job.job_id) != expected_scope
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "candidate_experiment_n5_checkpoint_job_scope_mismatch"
+                )
+            current = self.get_acquisition_action_head(
+                tenant_id=pending_head.tenant_id,
+                cell_id=pending_head.cell_id,
+                run_id=pending_head.run_id,
+                source_job_id=pending_head.source_job_id,
+                route_id=pending_head.route_id,
+                action_generation=pending_head.action_generation,
+            )
+            if current != pending_head:
+                raise ValueError("candidate_experiment_n5_checkpoint_pending_head_changed")
+            record = self.append_diagnostic_event(event=event, payload_ref=event.payload_ref)
+            if record.event != event:
+                raise DiagnosticEventContractError(
+                    "authority_event_collision",
+                    "A checkpoint retry must match the exact selected event.",
+                    details={"event_id": event.event_id},
+                )
+            return record
+
     def append_diagnostic_event(
         self,
         *,

@@ -4916,6 +4916,7 @@ def dispatch_candidate_experiment_evaluation(
     """
     from polisyos.runtime.http.services.control.run_lifecycle import (
         ControlPlaneService,
+        VerifiedAcquisitionActionPhase,
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionEvaluationFrontierKey,
@@ -4935,7 +4936,7 @@ def dispatch_candidate_experiment_evaluation(
         VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
-        _current_candidate_experiment_reentry_action,
+        _current_candidate_experiment_reentry_action_context,
         _select_current_candidate_experiment_outcome,
     )
     from polisyos.runtime.quality.candidate_source_basis import (
@@ -4958,6 +4959,72 @@ def dispatch_candidate_experiment_evaluation(
     ):
         raise ValueError("candidate_experiment_evaluation_owner_not_composed")
 
+    # The exact-scope SQL head is only a locator. Read its typed phase to obtain
+    # the action ref, then let the canonical owner replay authenticate the
+    # phase, selected profile, full prefix, live admission, and current head.
+    pending_phase_ref = bridge._candidate_experiment_pending_reentry_locator_ref(
+        origin=origin,
+        unavailable_reason="candidate_experiment_action_history_not_current",
+    )
+    pending_phase = sink._read_verified_action_phase(pending_phase_ref)
+    if (
+        type(pending_phase) is not VerifiedAcquisitionActionPhase
+        or pending_phase.receipt_ref != pending_phase_ref
+        or type(pending_phase.receipt) is not AcquisitionCandidateExperimentPhaseReceipt
+        or pending_phase.receipt.receipt_phase != "candidate_input_reentry_pending"
+    ):
+        raise ValueError("candidate_experiment_evaluation_pending_action_not_established")
+    pending = pending_phase.receipt
+    action_ref = pending.candidate_receipt_ref
+    if action_ref is None:
+        raise ValueError("candidate_experiment_evaluation_action_missing")
+    current_context = _current_candidate_experiment_reentry_action_context(
+        bridge,
+        origin,
+        pending_phase_ref,
+        action_ref,
+    )
+    expected_scope = (
+        origin.tenant_id,
+        origin.cell_id,
+        origin.run_id,
+        origin.source_job_id,
+        origin.route_id,
+        len(origin.candidate_terminal_history_chain) + 1,
+    )
+    head_scope = (
+        current_context.head.tenant_id,
+        current_context.head.cell_id,
+        current_context.head.run_id,
+        current_context.head.source_job_id,
+        current_context.head.route_id,
+        current_context.head.action_generation,
+    )
+    phase_scope = (
+        current_context.phase.tenant_id,
+        current_context.phase.cell_id,
+        current_context.phase.run_id,
+        current_context.phase.source_job_id,
+        current_context.phase.route_id,
+        current_context.phase.action_generation,
+    )
+    if (
+        type(current_context.head) is not AcquisitionActionHeadRecord
+        or type(current_context.phase) is not AcquisitionCandidateExperimentPhaseReceipt
+        or head_scope != expected_scope
+        or phase_scope != expected_scope
+        or current_context.head.receipt_ref != pending_phase_ref
+        or current_context.head.job_id != pending.job_id
+        or current_context.head.receipt_phase != "candidate_input_reentry_pending"
+        or current_context.head.receipt_manifest_profile_sha256 is None
+        or current_context.phase != pending
+        or current_context.action is None
+        or current_context.action.selection != current_context.selection
+    ):
+        raise ValueError("candidate_experiment_evaluation_pending_action_not_current")
+    selection, action = current_context.selection, current_context.action
+    snapshot = current_context.outcome
+
     def current_pending_experiment(
         receipt_ref: str | None = None,
     ) -> VerifiedAcquisitionActionOutcome:
@@ -4978,20 +5045,6 @@ def dispatch_candidate_experiment_evaluation(
             required_phase="candidate_input_reentry_pending",
         )
 
-    snapshot = current_pending_experiment()
-    if type(snapshot.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
-        raise ValueError("candidate_experiment_evaluation_pending_action_not_established")
-    pending = snapshot.latest_receipt
-    pending_phase_ref = snapshot.head.receipt_ref
-    action_ref = pending.candidate_receipt_ref
-    if action_ref is None:
-        raise ValueError("candidate_experiment_evaluation_action_missing")
-    selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
-        bridge,
-        origin,
-        pending_phase_ref,
-        action_ref,
-    )
     prior_owner = bridge._candidate_experiment_prior_owner(origin=origin, selection=selection)
 
     prepared, intent_ref, intent = prepare_live_candidate_experiment_source_basis_values(

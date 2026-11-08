@@ -207,6 +207,77 @@ def test_current_outcome_selects_latest_exact_generation_without_effects(
     assert _select(origin, outcomes) is outcomes[-1]
 
 
+@pytest.mark.parametrize("stale_owner", ["head_ref", "head_scope", "phase_scope", "missing_profile"])
+def test_candidate_dispatch_rejects_locator_that_differs_from_canonical_owner(
+    monkeypatch: pytest.MonkeyPatch,
+    stale_owner: str,
+) -> None:
+    """The head locator supplies a phase candidate; the full owner remains binding."""
+    origin, outcomes = _selection_case(1)
+    pending_ref = outcomes[-1].head.receipt_ref
+    pending_phase = outcomes[-1].latest_receipt
+    selection = object()
+    action = SimpleNamespace(selection=selection)
+    head = outcomes[-1].head
+    phase = pending_phase
+    if stale_owner == "head_ref":
+        head = replace(head, receipt_ref=_hash("0"))
+    elif stale_owner == "head_scope":
+        head = replace(head, tenant_id="foreign-tenant")
+    elif stale_owner == "phase_scope":
+        phase = pending_phase.model_copy(update={"tenant_id": "foreign-tenant"})
+    else:
+        head = replace(head, receipt_manifest_profile_sha256=None)
+    canonical_context = SimpleNamespace(
+        head=head,
+        phase=phase,
+        action=action,
+        selection=selection,
+        outcome=outcomes[-1],
+    )
+    phase_reads = []
+    full_outcome_reads = []
+    sink = SimpleNamespace(
+        _read_verified_action_phase=lambda receipt_ref: (
+            phase_reads.append(receipt_ref) or outcomes[-1].phase_chain[-1]
+        ),
+        experiment_action_outcomes=lambda **kwargs: full_outcome_reads.append(kwargs),
+    )
+    store, event_log = object(), object()
+    control_store = SimpleNamespace()
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store, service._control_store = store, control_store
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store, bridge.event_log = store, event_log
+    bridge.control_store, bridge.action_head_sink = control_store, sink
+    bridge._source_control_service = service
+    monkeypatch.setattr(
+        bridge,
+        "_candidate_experiment_pending_reentry_locator_ref",
+        lambda **_kwargs: pending_ref,
+    )
+    context_reads = []
+
+    def canonical_replay(*args):
+        context_reads.append(args)
+        return canonical_context
+
+    monkeypatch.setattr(actions, "_current_candidate_experiment_reentry_action_context", canonical_replay)
+    monkeypatch.setattr(
+        bridge,
+        "_candidate_experiment_prior_owner",
+        lambda **_kwargs: pytest.fail("stale pending owner reached prior-owner resolution"),
+    )
+
+    with pytest.raises(ValueError, match="candidate_experiment_evaluation_pending_action_not_current"):
+        dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin)
+
+    assert phase_reads == [pending_ref]
+    assert len(context_reads) == 1
+    assert context_reads[0][1:] == (origin, pending_ref, pending_phase.candidate_receipt_ref)
+    assert full_outcome_reads == []
+
+
 @pytest.mark.parametrize("corruption", ["missing", "duplicate", "order", "foreign", "prefix"])
 def test_current_outcome_refuses_changed_complete_prefix(corruption: str) -> None:
     origin, outcomes = _selection_case(4)
@@ -268,19 +339,57 @@ def test_original_source_n5_does_not_retain_first_experiment(
         ),
         read_acquisition_evaluation_frontier=lambda _key: None,
     )
-    sink = SimpleNamespace(experiment_action_outcomes=lambda **_kwargs: outcomes)
+    full_outcome_reads = []
+
+    def read_full_outcomes(**kwargs):
+        full_outcome_reads.append(kwargs)
+        return outcomes
+
+    phase_record = outcomes[-1].phase_chain[-1]
+    sink = SimpleNamespace(
+        experiment_action_outcomes=read_full_outcomes,
+        _read_verified_action_phase=lambda receipt_ref: phase_record,
+    )
     service = object.__new__(ControlPlaneService)
     service._artifact_store, service._control_store = store, control_store
     bridge = object.__new__(AcquisitionWorldGrowthBridge)
     bridge.artifact_store, bridge.event_log = store, event_log
     bridge.control_store, bridge.action_head_sink = control_store, sink
     bridge._source_control_service = service
+    pending_phase_ref = outcomes[-1].head.receipt_ref
+    locator_calls = []
+
+    def pending_locator(**kwargs):
+        locator_calls.append(kwargs)
+        return pending_phase_ref
+
+    monkeypatch.setattr(bridge, "_candidate_experiment_pending_reentry_locator_ref", pending_locator)
+    selection = object()
     action = SimpleNamespace(
+        selection=selection,
         action_job_id=pending.job_id,
         action_generation=1,
         candidate_source_ref=_ref("runtime.quality.candidate_acquisition_source", "6"),
         limitations=("component_only_no_authority",),
         action_phase_ref=_hash("7"),
+    )
+    canonical_context = SimpleNamespace(
+        head=outcomes[-1].head,
+        phase=pending,
+        action=action,
+        selection=selection,
+        outcome=outcomes[-1],
+    )
+    canonical_context_calls = []
+
+    def current_reentry_context(*args):
+        canonical_context_calls.append(args)
+        return canonical_context
+
+    monkeypatch.setattr(
+        actions,
+        "_current_candidate_experiment_reentry_action_context",
+        current_reentry_context,
     )
     inputs = SimpleNamespace(configured_profile=SimpleNamespace(limitations=("candidate_only",)))
     prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
@@ -288,11 +397,6 @@ def test_original_source_n5_does_not_retain_first_experiment(
     monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
     monkeypatch.setattr(
         bridge, "resolve_candidate_experiment_reentry_budget_window", lambda **_kwargs: window
-    )
-    monkeypatch.setattr(
-        actions,
-        "_current_candidate_experiment_reentry_action",
-        lambda *_args: (object(), pending, None, action),
     )
     monkeypatch.setattr(
         preparation,
@@ -349,6 +453,15 @@ def test_original_source_n5_does_not_retain_first_experiment(
     assert origin.candidate_terminal_history_chain == ()
     with pytest.raises(FreshReentryDemandedError):
         dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin)
+    assert locator_calls == [
+        {
+            "origin": origin,
+            "unavailable_reason": "candidate_experiment_action_history_not_current",
+        }
+    ]
+    assert len(canonical_context_calls) == 1
+    assert canonical_context_calls[0] == (bridge, origin, pending_phase_ref, pending.candidate_receipt_ref)
+    assert full_outcome_reads == []
     assert numerical_inputs == [source_evaluation]
     decision = next(values for kind, values in records_seen if kind == "decision")
     assert decision["comparison_result"] == "not_established"

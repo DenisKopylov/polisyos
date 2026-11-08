@@ -102,6 +102,7 @@ class _VerifiedCurrentCandidateExperimentReentryAction:
     admission: ControlJobExecutionAdmission
     action: CandidateAcquisitionActionReceipt
     head: AcquisitionActionHeadRecord
+    outcome: VerifiedAcquisitionActionOutcome
     budget_window: BudgetLedgerReentryBudgetWindow
 
 
@@ -775,6 +776,7 @@ def _current_candidate_experiment_reentry_action_context(
         admission=admission,
         action=receipt,
         head=action_context.outcome.head,
+        outcome=action_context.outcome,
         budget_window=window,
     )
 
@@ -1452,9 +1454,8 @@ def read_candidate_experiment_acquisition_action_historical(
         or policy.original_metered_budget_usd != evidence.run_budget_usd
     ):
         raise ValueError("candidate_experiment_budget_historical_policy_changed")
-    if policy.subsequent_live_authorizations and source.live_source_execution.authorization != (
-        policy.select_source_authorization(origin.source_attempt_prefix)
-    ):
+    selected_authorization = policy.select_source_authorization(origin.source_attempt_prefix)
+    if source.live_source_execution.authorization != selected_authorization:
         raise ValueError("candidate_experiment_source_historical_authorization_mismatch")
     budget_scope = BudgetLedgerReentryBudgetScope(
         run_binding=service.verify_acquisition_source_budget_owner(closure=origin),

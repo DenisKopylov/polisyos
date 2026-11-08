@@ -413,7 +413,7 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
     owners = build_candidate_port_owners(tmp_path / "owners")
     service = _build_control_service(tmp_path / "service", artifact_store=owners.store)
     try:
-        origin, _outcomes = _selection_case(1)
+        origin, outcomes = _selection_case(1)
         phase, action, _executing_phase_ref = _reentry_receipts()
         selection = action.selection
         pending_phase_ref = "sha256:" + "9" * 64
@@ -550,6 +550,18 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
                 else None
             ),
         )
+        outcome = replace(
+            outcomes[-1],
+            head=head,
+            latest_receipt=phase,
+            phase_chain=(
+                replace(
+                    outcomes[-1].phase_chain[-1],
+                    receipt_ref=pending_phase_ref,
+                    receipt=phase,
+                ),
+            ),
+        )
         live = {"admission": admission, "head": head}
         monkeypatch.setattr(
             service._control_store,
@@ -567,6 +579,7 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
             admission=admission,
             action=action,
             head=head,
+            outcome=outcome,
             budget_window=window,
         )
         # Replace only the heavy action intake. The canonical service builder,

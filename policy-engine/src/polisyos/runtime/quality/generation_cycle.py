@@ -6357,6 +6357,9 @@ class JointSimulationPort:
                 if blockers
                 else str(observation.diagnostics.get("reason") or "generic_n5_simulation_blocked")
             )
+        obligation_set_ref = (
+            observation.model_input_obligation_set_ref if currentness_code is None else None
+        )
         execution_ref = owner.persist_n5_execution(
             input_ref=input_ref,
             input_record=input_record,
@@ -6367,6 +6370,7 @@ class JointSimulationPort:
                 input_record.profile.context_inputs.world_model_record.content_hash
             ),
             limitation_code=limitation,
+            model_input_obligation_set_ref=obligation_set_ref,
         )
         if status == "joint_simulated":
             blockers = tuple(dict.fromkeys((*blockers, "simulation_only_k_sim_not_world_evidence")))
@@ -6374,9 +6378,7 @@ class JointSimulationPort:
         fields.update(
             status=status,
             authority_blockers=blockers,
-            model_input_obligation_set_ref=(
-                observation.model_input_obligation_set_ref if currentness_code is None else None
-            ),
+            model_input_obligation_set_ref=obligation_set_ref,
             world_model_record=observation.world_model_record,
             generic_n5_request_binding=request_binding,
             generic_n4_source_ref=input_record.n4_source_ref,
@@ -9833,6 +9835,7 @@ def _generic_n5_observation_refusal(
             expected=GenericN5ExecutionJoinExpectation(
                 input_ref=input_ref,
                 result_ref=simulation.simulation_result_ref,
+                model_input_obligation_set_ref=simulation.model_input_obligation_set_ref,
                 status=simulation.status,
                 n4_source_ref=source_ref,
                 context_job_ref=context_ref,
@@ -10207,6 +10210,7 @@ def resolve_generic_n5_historical_cycle_join(
         expected=GenericN5ExecutionJoinExpectation(
             input_ref=input_ref,
             result_ref=simulation.simulation_result_ref,
+            model_input_obligation_set_ref=simulation.model_input_obligation_set_ref,
             status=simulation.status,
             n4_source_ref=source_ref,
             context_job_ref=history_binding.context_job_ref,
@@ -18394,6 +18398,7 @@ class GenerationCycleController:
                 raise ValueError("generic_cycle_simulation_n5_sealed_observation_mismatch")
             from polisyos.runtime.quality.generic_simulation_admission import (
                 GenericCycleSimulationN5ExecutionV3,
+                GenericCycleSimulationN5ExecutionV4,
                 GenericN5ExecutionJoinExpectation,
                 parse_generic_cycle_simulation_n5_execution,
             )
@@ -18428,9 +18433,14 @@ class GenerationCycleController:
                 any(getattr(execution, name) != value for name, value in expected_execution.items())
                 or getattr(execution, "request_binding", None)
                 != simulation.generic_n5_request_binding
+                or getattr(execution, "model_input_obligation_set_ref", None)
+                != simulation.model_input_obligation_set_ref
             ):
                 raise ValueError("generic_cycle_simulation_n5_sealed_execution_mismatch")
-            if type(execution) is GenericCycleSimulationN5ExecutionV3:
+            if type(execution) in {
+                GenericCycleSimulationN5ExecutionV3,
+                GenericCycleSimulationN5ExecutionV4,
+            }:
                 join = owner.resolve_n5_execution_join(
                     simulation.generic_n5_execution_ref,
                     expected=GenericN5ExecutionJoinExpectation.model_validate(
@@ -18446,6 +18456,9 @@ class GenerationCycleController:
                             },
                             "child_family_ref": handoff.n4_child_profile_family_ref,
                             "child_set_ref": child_set_ref,
+                            "model_input_obligation_set_ref": (
+                                simulation.model_input_obligation_set_ref
+                            ),
                             "profile": handoff.profile,
                             "design_problem_ref": cycle_job_design_problem_ref(problem),
                             "cycle_index": cycle_index,
@@ -18458,7 +18471,7 @@ class GenerationCycleController:
                     )
             else:
                 # Earlier admitted refusals have no typed request yet. Preserve
-                # their exact blocked record without claiming a V3 typed join.
+                # their exact blocked record without claiming a typed join.
                 if simulation.status != "simulation_blocked":
                     raise ValueError("generic_cycle_simulation_n5_typed_execution_missing")
                 owner.resolve_n5_execution(simulation.generic_n5_execution_ref, expected=execution)

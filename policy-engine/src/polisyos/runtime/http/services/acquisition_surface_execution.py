@@ -869,10 +869,11 @@ class WorldBankWDIAcquisitionExecutionPort:
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
         )
+        selected_authorization = policy.select_source_authorization(origin.source_attempt_prefix)
         matching = tuple(
             (attempt, receipt)
             for attempt, receipt in attempts
-            if attempt.attempt_id == template.attempt_id
+            if attempt.attempt_id == selected_authorization.attempt_id
         )
         if len(matching) != 1 or variable_id != selection.canonical_variable_id:
             raise ValueError("candidate_experiment_source_attempt_not_unique")
@@ -898,7 +899,7 @@ class WorldBankWDIAcquisitionExecutionPort:
             constraints=bounded,
             registry_providers=service._registry_providers,
         )
-        if prepared.authorization != policy.live_authorization:
+        if prepared.authorization != selected_authorization:
             raise ValueError("candidate_experiment_live_authorization_changed")
         payload = {
             "schema_version": WORLD_BANK_WDI_ROUTE_BINDING_SCHEMA_VERSION,

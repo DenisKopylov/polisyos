@@ -127,6 +127,7 @@ def build_fixture_wdi_authority(
     profile: CandidateWDIProfile,
     *,
     attempt_id: str = "lane01-fixture-wdi-001",
+    subsequent_attempt_ids: tuple[str, ...] = (),
 ) -> tuple[CanonicalAcquisitionAuthority, AcquisitionAuthorityEntry]:
     """Create a separate source-owned test catalog, provision, and real resolver.
 
@@ -262,22 +263,30 @@ def build_fixture_wdi_authority(
         json.dumps(registry.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
         encoding="utf-8",
     )
-    family_receipt = _authority_family_receipt(attempt_id)
-    carrier = family_receipt["dry_run_attempts"][0]
-    carrier["request_dataset_id"] = profile.indicator_id
-    carrier["fetch_request_key"] = FetchRequest(dataset_id=profile.indicator_id).request_key
-    provision = _write_family_receipt(
-        repo_root,
-        entry_id=entry.entry_id,
-        attempt_id=attempt_id,
-        receipt=family_receipt,
-    )
+    provisions = []
+    for index, selected_attempt_id in enumerate((attempt_id, *subsequent_attempt_ids)):
+        family_receipt = _authority_family_receipt(selected_attempt_id)
+        carrier = family_receipt["dry_run_attempts"][0]
+        carrier["request_dataset_id"] = profile.indicator_id
+        carrier["fetch_request_key"] = FetchRequest(dataset_id=profile.indicator_id).request_key
+        receipt_path = "evidence/worldbank-wdi-live-harness.json"
+        if index:
+            receipt_path = f"evidence/worldbank-wdi-live-harness-{index}.json"
+        provisions.append(
+            _write_family_receipt(
+                repo_root,
+                entry_id=entry.entry_id,
+                attempt_id=selected_attempt_id,
+                receipt=family_receipt,
+                receipt_path=receipt_path,
+            )
+        )
     _write_provision(
         repo_root,
         baseline=baseline,
         l5_path=l5_path,
         baseline_owner_ref="repo://catalog/catalog.duckdb",
-        live_harness_receipts=(provision,),
+        live_harness_receipts=tuple(provisions),
     )
     return (
         CanonicalAcquisitionAuthority.from_provision(repo_root=repo_root, baseline_path=baseline),

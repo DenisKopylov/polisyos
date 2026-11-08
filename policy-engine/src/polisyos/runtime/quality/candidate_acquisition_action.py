@@ -330,7 +330,7 @@ def _candidate_experiment_source_selection(
         raise ValueError("candidate_experiment_source_policy_not_current") from exc
     if (
         selected_ref != origin.policy_ref
-        or policy.schema_version != "polisyos.runtime.candidate_unpriced_acquisition_policy.v2"
+        or policy.purpose != "bounded_candidate_experiment_voi_unknown"
         or policy.configured_template is None
         or policy.scope != scope
         or policy.source_payload_ref != origin.source_payload_ref
@@ -380,8 +380,11 @@ def _candidate_experiment_source_selection(
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_source_attempt_not_current") from exc
+    selected_authorization = policy.select_source_authorization(origin.source_attempt_prefix)
     selected_attempts = tuple(
-        attempt for attempt, _receipt in attempts if attempt.attempt_id == template.attempt_id
+        attempt
+        for attempt, _receipt in attempts
+        if attempt.attempt_id == selected_authorization.attempt_id
     )
     if entry_id != template.authority_entry_id or len(selected_attempts) != 1:
         raise ValueError("candidate_experiment_source_attempt_changed")
@@ -403,14 +406,14 @@ def _candidate_experiment_source_selection(
         prepared = _prepare_live_catalog_authorization(
             authority=current_port._authority,
             entry_id=entry_id,
-            attempt_id=template.attempt_id,
+            attempt_id=selected_authorization.attempt_id,
             constraints=bounded,
             registry_providers=service._registry_providers,
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_source_authorization_not_current") from exc
-    if type(policy.live_authorization) is not data_plane.LiveExecutionAuthorization or (
-        prepared.authorization != policy.live_authorization
+    if type(selected_authorization) is not data_plane.LiveExecutionAuthorization or (
+        prepared.authorization != selected_authorization
     ):
         raise ValueError("candidate_experiment_source_authorization_changed")
 
@@ -1449,6 +1452,10 @@ def read_candidate_experiment_acquisition_action_historical(
         or policy.original_metered_budget_usd != evidence.run_budget_usd
     ):
         raise ValueError("candidate_experiment_budget_historical_policy_changed")
+    if policy.subsequent_live_authorizations and source.live_source_execution.authorization != (
+        policy.select_source_authorization(origin.source_attempt_prefix)
+    ):
+        raise ValueError("candidate_experiment_source_historical_authorization_mismatch")
     budget_scope = BudgetLedgerReentryBudgetScope(
         run_binding=service.verify_acquisition_source_budget_owner(closure=origin),
         action_job_id=executing_phase.job_id,

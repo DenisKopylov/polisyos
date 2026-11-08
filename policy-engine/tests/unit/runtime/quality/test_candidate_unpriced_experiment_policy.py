@@ -18,6 +18,7 @@ import pytest
 
 from polisyos.core import artifacts, canon
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.fabric.data_plane import build_live_execution_authorization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import (
@@ -57,6 +58,11 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
 from tests._helpers.runtime_http import _build_control_service
+from tests.unit.fabric.data_plane.test_evidence_journal import (
+    _authorization_request,
+    _harness_receipt,
+    _source_profile,
+)
 from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
     _requested_phase,
 )
@@ -76,6 +82,29 @@ class _PlannerReportRef(artifacts.ArtifactRef):
 
 class _PlannerReportWithExtraMeaning(_PlannerReportRef):
     custody_note: str
+
+
+def _live_authorization_for_attempt(attempt_id: str):
+    """Build an exact component authorization with one independently named fixture carrier."""
+    request = _authorization_request()
+    receipt = _harness_receipt()
+    attempts = receipt.get("dry_run_attempts")
+    assert isinstance(attempts, tuple) and len(attempts) == 1
+    carrier = attempts[0]
+    assert isinstance(carrier, dict)
+    receipt["dry_run_attempts"] = ({**carrier, "attempt_id": attempt_id},)
+    return build_live_execution_authorization(
+        attempt_id=attempt_id,
+        connector_id="worldbank.wdi",
+        request_dataset_id="FP.CPI.TOTL",
+        request=request,
+        schema_contract=request["schema_contract"],
+        source_profile=_source_profile(),
+        baseline_sha256="sha256:" + "f" * 64,
+        family_receipt=receipt,
+        max_response_bytes=65_536,
+        max_decompressed_bytes=65_536,
+    )
 
 
 def _selected_mixed_report(cas, scope):
@@ -399,6 +428,7 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             old_payload = legacy.model_dump(mode="json")
             assert "experiment_intent" not in old_payload
             assert "information_value" not in old_payload
+            assert "subsequent_live_authorizations" not in old_payload
             legacy_ref = persist_candidate_unpriced_policy(
                 store=cas, event_log=base._diagnostic_event_log, policy=legacy
             )
@@ -432,6 +462,10 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 max_standard_n5_invocations=profile.total_units - profile.protected_units,
                 max_metered_reentry_usd=Decimal("1.00"),
             )
+            assert configured_template.schema_version == (
+                "polisyos.runtime.candidate_unpriced_policy_template.v1"
+            )
+            assert "subsequent_attempt_ids" not in configured_template.model_dump(mode="json")
             policy = issue_candidate_unpriced_experiment_policy(
                 scope=scope,
                 live_authorization=authorization,
@@ -451,6 +485,10 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             assert policy.monetary_cost == "not_established"
             assert policy.hard_usd_reservation is False
             assert policy.publication_authority is False
+            assert policy.schema_version == (
+                "polisyos.runtime.candidate_unpriced_acquisition_policy.v2"
+            )
+            assert "subsequent_live_authorizations" not in policy.model_dump(mode="json")
             event_id = "evt_candidate_unpriced_policy_" + policy.content_hash.removeprefix(
                 "sha256:"
             )
@@ -825,6 +863,10 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             # The original request/decision values are load-bearing: deleting or
             # changing one must not silently recreate a V1 or a valid V2.
             encoded = policy.model_dump(mode="json")
+            with pytest.raises(ValueError, match="candidate_unpriced_policy_version_mismatch"):
+                CandidateUnpricedAcquisitionPolicy.model_validate(
+                    {**encoded, "subsequent_live_authorizations": []}
+                )
             for field in (
                 "experiment_intent",
                 "information_value",
@@ -966,3 +1008,116 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             bound._control_store.close()
         else:
             base._control_store.close()
+
+
+def test_v3_policy_selects_exact_ordered_history_and_round_trips_wire(
+    tmp_path: Path,
+) -> None:
+    """V3 advances only through its configured exact ordered authorization prefix."""
+    cas = artifacts.FileSystemCAS(tmp_path / "cas")
+    base = _build_control_service(tmp_path / "control", artifact_store=cas)
+    _, _, observer = _owner(tmp_path / "quota-ledger.json", total=7, protected=1)
+    profile = observer.invocation_quota_profile
+    assert profile is not None
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            scope, legacy, first = _component_policy(cas, profile)
+            scope, _ = _selected_mixed_report(cas, scope)
+            payload_ref = _parent(cas, "runtime.control_nl_job_payload", "request")
+            subsequent_ids = ("z-authorized-attempt-002", "a-authorized-attempt-003")
+            subsequent = tuple(_live_authorization_for_attempt(item) for item in subsequent_ids)
+            template = CandidateUnpricedExperimentPolicyTemplate(
+                schema_version="polisyos.runtime.candidate_unpriced_policy_template.v2",
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                authority_entry_id="acquisition-authority:" + "a" * 64,
+                authority_registry_sha256="sha256:" + "b" * 64,
+                authority_provision_sha256="sha256:" + "c" * 64,
+                attempt_id=first.attempt_id,
+                subsequent_attempt_ids=subsequent_ids,
+                max_http_response_bytes=first.budget.max_response_bytes,
+                max_http_decompressed_bytes=first.budget.max_decompressed_bytes,
+                max_http_timeout_seconds=first.budget.timeout_seconds,
+                max_standard_n5_invocations=profile.total_units - profile.protected_units,
+                max_metered_reentry_usd=Decimal("1.00"),
+            )
+            policy = issue_candidate_unpriced_experiment_policy(
+                scope=scope,
+                live_authorization=first,
+                n5_quota_profile=profile,
+                source_payload_ref=str(payload_ref.artifact_id),
+                request_content_hash="sha256:" + "9" * 64,
+                original_metered_budget_usd=Decimal("5.00"),
+                limitations=(
+                    *legacy.limitations,
+                    "candidate_experiment_voi_not_established",
+                ),
+                configured_template=template,
+                subsequent_live_authorizations=subsequent,
+            )
+
+            authorizations = policy.authorized_source_attempts
+            ordered_ids = (first.attempt_id, *subsequent_ids)
+            assert tuple(item.attempt_id for item in authorizations) == ordered_ids
+            assert policy.select_source_authorization(()).attempt_id == ordered_ids[0]
+            assert policy.select_source_authorization(ordered_ids[:1]).attempt_id == ordered_ids[1]
+            assert policy.select_source_authorization(ordered_ids[:2]).attempt_id == ordered_ids[2]
+            with pytest.raises(
+                ValueError, match="candidate_experiment_source_attempt_history_mismatch"
+            ):
+                policy.select_source_authorization(("foreign-attempt",))
+            with pytest.raises(
+                ValueError, match="candidate_experiment_source_attempt_history_mismatch"
+            ):
+                policy.select_source_authorization((ordered_ids[0], ordered_ids[2]))
+            with pytest.raises(ValueError, match="candidate_experiment_source_attempts_exhausted"):
+                policy.select_source_authorization(ordered_ids)
+
+            wire = policy.model_dump(mode="json")
+            assert wire["schema_version"] == (
+                "polisyos.runtime.candidate_unpriced_acquisition_policy.v3"
+            )
+            assert wire["configured_template"]["subsequent_attempt_ids"] == list(subsequent_ids)
+            assert [item["attempt_id"] for item in wire["subsequent_live_authorizations"]] == list(
+                subsequent_ids
+            )
+            assert CandidateUnpricedAcquisitionPolicy.model_validate(wire) == policy
+
+            # Older wire versions keep their exact field sets; an explicitly
+            # supplied empty suffix is still a version violation.
+            assert "subsequent_live_authorizations" not in legacy.model_dump(mode="json")
+            legacy_wire = legacy.model_dump(mode="json")
+            with pytest.raises(ValueError, match="candidate_unpriced_policy_version_mismatch"):
+                CandidateUnpricedAcquisitionPolicy.model_validate(
+                    {**legacy_wire, "subsequent_live_authorizations": []}
+                )
+            with pytest.raises(ValueError, match="candidate_unpriced_policy_version_mismatch"):
+                CandidateUnpricedAcquisitionPolicy.model_validate(
+                    {
+                        **wire,
+                        "schema_version": "polisyos.runtime.candidate_unpriced_acquisition_policy.v2",
+                    }
+                )
+            with pytest.raises(ValueError, match="candidate_unpriced_template_version_mismatch"):
+                CandidateUnpricedExperimentPolicyTemplate.model_validate(
+                    {
+                        **template.model_dump(mode="json"),
+                        "schema_version": "polisyos.runtime.candidate_unpriced_policy_template.v1",
+                        "subsequent_attempt_ids": [],
+                    }
+                )
+
+            ref = _persist_owned_candidate_unpriced_policy(
+                store=cas, event_log=base._diagnostic_event_log, policy=policy
+            )
+            assert cas.get_manifest(ref).artifact_schema == artifacts.SchemaInfo(
+                name=POLICY_SCHEMA, version="3.0"
+            )
+            assert (
+                read_candidate_unpriced_policy(
+                    store=cas, event_log=base._diagnostic_event_log, ref=ref
+                )
+                == policy
+            )
+    finally:
+        base._control_store.close()

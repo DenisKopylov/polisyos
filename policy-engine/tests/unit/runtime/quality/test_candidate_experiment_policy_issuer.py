@@ -28,14 +28,16 @@ from tests.unit.runtime.quality.test_candidate_unpriced_experiment_policy import
 from tests.unit.scientist.orchestration.engine.test_invocation_capacity_observation import _owner
 
 
-def _wdi_component(tmp_path: Path):
+def _wdi_component(tmp_path: Path, *, subsequent_attempt_ids: tuple[str, ...] = ()):
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIAcquisitionExecutionPort,
     )
 
     service = _build_control_service(tmp_path / "control")
     cas = service._artifact_store
-    authority, entry = build_fixture_wdi_authority(tmp_path / "source", UNEMPLOYMENT_PROFILE)
+    authority, entry = build_fixture_wdi_authority(
+        tmp_path / "source", UNEMPLOYMENT_PROFILE, subsequent_attempt_ids=subsequent_attempt_ids
+    )
     registry = authority._load_registry()
     port = WorldBankWDIAcquisitionExecutionPort(
         authority=authority,
@@ -134,24 +136,41 @@ def test_prepare_policy_checks_canonical_authority_identity_and_attempt_before_e
     assert not (tmp_path / "runtime").exists()
 
 
-def test_prepare_policy_produces_bounded_real_authorization_without_source_effects(
-    tmp_path,
+@pytest.mark.parametrize(
+    "subsequent_attempt_ids",
+    [(), ("lane01-fixture-wdi-004", "lane01-fixture-wdi-002")],
+    ids=["legacy", "ordered"],
+)
+def test_prepare_policy_produces_bounded_real_authorizations_without_source_effects(
+    tmp_path: Path, subsequent_attempt_ids: tuple[str, ...]
 ):
-    """Component fixture proves Fabric authorization, not a completed NL source route."""
+    """Each selected attempt uses its own Fabric carrier and the configured order."""
     from polisyos.runtime.http.services.control_registry_providers import (
         resolve_control_registry_providers,
     )
 
-    service, _cas, port, quota, ledger, origin, template, _report = _wdi_component(tmp_path)
-    service._registry_providers = resolve_control_registry_providers()
-    template = template.model_copy(
-        update={
-            "attempt_id": port._provision.live_harness_receipts[0].attempt_id,
-            "max_http_response_bytes": 8_192,
-            "max_http_decompressed_bytes": 4_096,
-            "max_http_timeout_seconds": 5.0,
-        }
+    service, _cas, port, quota, ledger, origin, template, _report = _wdi_component(
+        tmp_path,
+        subsequent_attempt_ids=(
+            "lane01-fixture-wdi-002",
+            "lane01-fixture-wdi-003",
+            "lane01-fixture-wdi-004",
+        ),
     )
+    service._registry_providers = resolve_control_registry_providers()
+    template_fields: dict[str, object] = {
+        **template.model_dump(),
+        "attempt_id": "lane01-fixture-wdi-001",
+        "max_http_response_bytes": 8_192,
+        "max_http_decompressed_bytes": 4_096,
+        "max_http_timeout_seconds": 5.0,
+    }
+    if subsequent_attempt_ids:
+        template_fields.update(
+            schema_version="polisyos.runtime.candidate_unpriced_policy_template.v2",
+            subsequent_attempt_ids=subsequent_attempt_ids,
+        )
+    template = CandidateUnpricedExperimentPolicyTemplate.model_validate(template_fields)
     baseline = ledger.snapshot()
 
     policy = _prepare_policy(
@@ -166,10 +185,52 @@ def test_prepare_policy_produces_bounded_real_authorization_without_source_effec
     )
 
     assert policy.live_authorization.attempt_id == template.attempt_id
-    assert policy.live_authorization.budget.max_response_bytes == 8_192
-    assert policy.live_authorization.budget.max_decompressed_bytes == 4_096
-    assert policy.live_authorization.budget.timeout_seconds <= 5.0
+    authorizations = policy.authorized_source_attempts
+    assert tuple(item.attempt_id for item in authorizations) == (
+        template.attempt_id,
+        *subsequent_attempt_ids,
+    )
+    for authorization in authorizations:
+        receipt = port._authority.resolve_live_harness_receipt(
+            template.authority_entry_id, authorization.attempt_id
+        )
+        assert authorization.harness.carrier_receipt_sha256 == receipt.carrier_receipt_sha256
+        assert authorization.budget.max_response_bytes == 8_192
+        assert authorization.budget.max_decompressed_bytes == 4_096
+        assert authorization.budget.timeout_seconds <= 5.0
+    assert len({item.harness.carrier_receipt_sha256 for item in authorizations}) == len(
+        authorizations
+    )
     assert policy.publication_authority is False
+    assert ledger.snapshot() == baseline
+    assert not (tmp_path / "journal.jsonl").exists()
+    assert not (tmp_path / "runtime").exists()
+
+
+def test_prepare_policy_refuses_unprovisioned_subsequent_attempt(tmp_path: Path):
+    service, _cas, port, quota, ledger, origin, template, _report = _wdi_component(tmp_path)
+    template = CandidateUnpricedExperimentPolicyTemplate.model_validate(
+        {
+            **template.model_dump(),
+            "schema_version": "polisyos.runtime.candidate_unpriced_policy_template.v2",
+            "attempt_id": port._provision.live_harness_receipts[0].attempt_id,
+            "subsequent_attempt_ids": ("missing-attempt",),
+        }
+    )
+    baseline = ledger.snapshot()
+
+    with pytest.raises(ValueError, match="candidate_experiment_issuer_attempt_not_selected"):
+        _prepare_policy(
+            service=service,
+            origin=origin,
+            port=port,
+            template=template,
+            quota=quota,
+            source_payload_ref="sha256:" + "3" * 64,
+            request_content_hash="sha256:" + "4" * 64,
+            original_metered_budget_usd=Decimal("1.00"),
+        )
+
     assert ledger.snapshot() == baseline
     assert not (tmp_path / "journal.jsonl").exists()
     assert not (tmp_path / "runtime").exists()

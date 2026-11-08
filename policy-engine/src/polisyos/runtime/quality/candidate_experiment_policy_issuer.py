@@ -149,16 +149,10 @@ def _prepare_policy(
         provision=port._provision,
         provision_content_sha256=port._provision_content_sha256,
     )
-    if (
-        entry_id != template.authority_entry_id
-        or len(
-            tuple(
-                attempt
-                for attempt, _receipt in attempts
-                if attempt.attempt_id == template.attempt_id
-            )
-        )
-        != 1
+    selected_attempt_ids = (template.attempt_id, *template.subsequent_attempt_ids)
+    provisioned_attempt_ids = tuple(attempt.attempt_id for attempt, _receipt in attempts)
+    if entry_id != template.authority_entry_id or any(
+        provisioned_attempt_ids.count(attempt_id) != 1 for attempt_id in selected_attempt_ids
     ):
         raise ValueError("candidate_experiment_issuer_attempt_not_selected")
     bounded = LiveCatalogExecutionConstraints.model_validate(
@@ -175,12 +169,15 @@ def _prepare_policy(
             ),
         }
     )
-    prepared = _prepare_live_catalog_authorization(
-        authority=port._authority,
-        entry_id=entry_id,
-        attempt_id=template.attempt_id,
-        constraints=bounded,
-        registry_providers=service._registry_providers,
+    authorizations = tuple(
+        _prepare_live_catalog_authorization(
+            authority=port._authority,
+            entry_id=entry_id,
+            attempt_id=attempt_id,
+            constraints=bounded,
+            registry_providers=service._registry_providers,
+        ).authorization
+        for attempt_id in selected_attempt_ids
     )
     scope = _source_scope(
         service=service,
@@ -193,7 +190,8 @@ def _prepare_policy(
     )
     return issue_candidate_unpriced_experiment_policy(
         scope=scope,
-        live_authorization=prepared.authorization,
+        live_authorization=authorizations[0],
+        subsequent_live_authorizations=authorizations[1:],
         n5_quota_profile=quota,
         source_payload_ref=source_payload_ref,
         request_content_hash=request_content_hash,

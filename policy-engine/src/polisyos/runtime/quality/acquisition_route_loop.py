@@ -1093,6 +1093,11 @@ class VerifiedCandidateExperimentOrigin:
     candidate_terminal_history_chain: tuple[CandidateExperimentTerminalHistory, ...] = ()
 
     @property
+    def source_attempt_prefix(self) -> tuple[str, ...]:
+        """Return the source attempts in the verified predecessor terminal chain."""
+        return tuple(entry.action.attempt_id for entry in self.candidate_terminal_history_chain)
+
+    @property
     def effective_generation_run(self) -> GenerationCycleRun:
         """Return the current run derived from the complete verified terminal chain."""
         return _candidate_experiment_effective_source(self)[0]

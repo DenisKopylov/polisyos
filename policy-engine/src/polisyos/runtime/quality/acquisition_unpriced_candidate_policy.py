@@ -58,6 +58,9 @@ _REQUIRED_LIMITATIONS = frozenset(
 )
 _POLICY_V1 = "polisyos.runtime.candidate_unpriced_acquisition_policy.v1"
 _POLICY_V2 = "polisyos.runtime.candidate_unpriced_acquisition_policy.v2"
+_POLICY_V3 = "polisyos.runtime.candidate_unpriced_acquisition_policy.v3"
+_TEMPLATE_V1 = "polisyos.runtime.candidate_unpriced_policy_template.v1"
+_TEMPLATE_V2 = "polisyos.runtime.candidate_unpriced_policy_template.v2"
 _EXPERIMENT_FIELDS = frozenset(
     {
         "experiment_intent",
@@ -122,24 +125,27 @@ class CandidateUnpricedPolicyScope(BaseModel):
 
 
 class CandidateUnpricedExperimentPolicyTemplate(BaseModel):
-    """Server-selected limits for one independently authorized source attempt.
+    """Server-selected limits for one or a finite ordered set of source attempts.
 
     The template is not a source-rights decision or an action permit. Its
     registry and provision identities must be reopened through the real
-    authority, and the selected N5 allocation remains a separate owner.
+    authority, and the selected N5 allocation remains a separate owner. V1
+    binds exactly one attempt; V2 adds an explicitly ordered, finite suffix.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["polisyos.runtime.candidate_unpriced_policy_template.v1"] = (
-        "polisyos.runtime.candidate_unpriced_policy_template.v1"
-    )
+    schema_version: Literal[
+        "polisyos.runtime.candidate_unpriced_policy_template.v1",
+        "polisyos.runtime.candidate_unpriced_policy_template.v2",
+    ] = _TEMPLATE_V1
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
     authority_entry_id: str = Field(min_length=1)
     authority_registry_sha256: str = Field(pattern=_HASH)
     authority_provision_sha256: str = Field(pattern=_HASH)
     attempt_id: str = Field(min_length=1)
+    subsequent_attempt_ids: tuple[str, ...] = Field(default=(), exclude_if=lambda value: not value)
     max_http_response_bytes: int = Field(gt=0, strict=True)
     max_http_decompressed_bytes: int = Field(gt=0, strict=True)
     max_http_timeout_seconds: float = Field(ge=1, allow_inf_nan=False)
@@ -153,6 +159,20 @@ class CandidateUnpricedExperimentPolicyTemplate(BaseModel):
             for value in (self.tenant_id, self.cell_id, self.authority_entry_id, self.attempt_id)
         ):
             raise ValueError("candidate_unpriced_template_scope_invalid")
+        if self.schema_version == _TEMPLATE_V1:
+            if "subsequent_attempt_ids" in self.model_fields_set:
+                raise ValueError("candidate_unpriced_template_version_mismatch")
+        elif (
+            "subsequent_attempt_ids" not in self.model_fields_set
+            or not self.subsequent_attempt_ids
+            or any(
+                not isinstance(value, str) or not value or value != value.strip()
+                for value in self.subsequent_attempt_ids
+            )
+            or len({self.attempt_id, *self.subsequent_attempt_ids})
+            != len((self.attempt_id, *self.subsequent_attempt_ids))
+        ):
+            raise ValueError("candidate_unpriced_template_attempt_sequence_invalid")
         return self
 
 
@@ -169,6 +189,7 @@ class CandidateUnpricedAcquisitionPolicy(BaseModel):
     schema_version: Literal[
         "polisyos.runtime.candidate_unpriced_acquisition_policy.v1",
         "polisyos.runtime.candidate_unpriced_acquisition_policy.v2",
+        "polisyos.runtime.candidate_unpriced_acquisition_policy.v3",
     ] = _POLICY_V1
     purpose: Literal["bounded_candidate_research", "bounded_candidate_experiment_voi_unknown"] = (
         "bounded_candidate_research"
@@ -199,45 +220,108 @@ class CandidateUnpricedAcquisitionPolicy(BaseModel):
     configured_template: CandidateUnpricedExperimentPolicyTemplate | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    subsequent_live_authorizations: tuple[data_plane.LiveExecutionAuthorization, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
     content_hash: str = Field(pattern=_HASH)
 
     @model_validator(mode="after")
     def _bind_policy(self) -> CandidateUnpricedAcquisitionPolicy:
         if self.schema_version == _POLICY_V1:
             if self.purpose != "bounded_candidate_research" or (
-                _EXPERIMENT_FIELDS & self.model_fields_set
+                (_EXPERIMENT_FIELDS | {"subsequent_live_authorizations"}) & self.model_fields_set
             ):
                 raise ValueError("candidate_unpriced_policy_version_mismatch")
-        elif (
-            self.purpose != "bounded_candidate_experiment_voi_unknown"
-            or self.experiment_intent != "bounded_experiment_voi_unknown"
-            or self.information_value != "not_established"
-            or self.source_payload_ref is None
-            or self.request_content_hash is None
-            or self.original_metered_budget_usd is None
-            or "candidate_experiment_voi_not_established" not in self.limitations
+        elif self.schema_version in {_POLICY_V2, _POLICY_V3}:
+            if (
+                self.purpose != "bounded_candidate_experiment_voi_unknown"
+                or self.experiment_intent != "bounded_experiment_voi_unknown"
+                or self.information_value != "not_established"
+                or self.source_payload_ref is None
+                or self.request_content_hash is None
+                or self.original_metered_budget_usd is None
+                or "candidate_experiment_voi_not_established" not in self.limitations
+            ):
+                raise ValueError("candidate_unpriced_experiment_policy_incomplete")
+        else:
+            raise ValueError("candidate_unpriced_policy_version_unsupported")
+
+        if self.schema_version == _POLICY_V2 and (
+            "subsequent_live_authorizations" in self.model_fields_set
+            or (
+                self.configured_template is not None
+                and self.configured_template.schema_version != _TEMPLATE_V1
+            )
         ):
-            raise ValueError("candidate_unpriced_experiment_policy_incomplete")
+            raise ValueError("candidate_unpriced_policy_version_mismatch")
+        if self.schema_version == _POLICY_V3 and (
+            "subsequent_live_authorizations" not in self.model_fields_set
+            or not self.subsequent_live_authorizations
+            or self.configured_template is None
+            or self.configured_template.schema_version != _TEMPLATE_V2
+            or len(self.subsequent_live_authorizations)
+            != len(self.configured_template.subsequent_attempt_ids)
+        ):
+            raise ValueError("candidate_unpriced_experiment_attempt_sequence_invalid")
+
         if self.configured_template is not None:
             template = self.configured_template
-            budget = self.live_authorization.budget
             if (
-                self.schema_version != _POLICY_V2
+                self.schema_version not in {_POLICY_V2, _POLICY_V3}
                 or (template.tenant_id, template.cell_id)
                 != (self.scope.tenant_id, self.scope.cell_id)
                 or template.attempt_id != self.live_authorization.attempt_id
-                or budget.max_response_bytes > template.max_http_response_bytes
-                or budget.max_decompressed_bytes > template.max_http_decompressed_bytes
-                or budget.timeout_seconds > template.max_http_timeout_seconds
                 or self.n5_quota_profile.total_units - self.n5_quota_profile.protected_units
                 > template.max_standard_n5_invocations
             ):
                 raise ValueError("candidate_unpriced_template_policy_mismatch")
+            authorizations = self.authorized_source_attempts
+            if self.schema_version == _POLICY_V3:
+                if (
+                    tuple(authorization.attempt_id for authorization in authorizations[1:])
+                    != template.subsequent_attempt_ids
+                ):
+                    raise ValueError("candidate_unpriced_experiment_attempt_sequence_mismatch")
+                first = authorizations[0]
+                for authorization in authorizations:
+                    budget = authorization.budget
+                    if (
+                        not authorization.authorized
+                        or authorization.connector_id != first.connector_id
+                        or authorization.profile_id != first.profile_id
+                        or authorization.request_variables != first.request_variables
+                        or authorization.request_sha256 != first.request_sha256
+                        or authorization.schema_contract_sha256 != first.schema_contract_sha256
+                        or authorization.source_profile_sha256 != first.source_profile_sha256
+                        or authorization.baseline_sha256 != first.baseline_sha256
+                        or authorization.harness.connector_id != first.harness.connector_id
+                        or authorization.harness.profile_id != first.harness.profile_id
+                        or authorization.harness.request_dataset_id
+                        != first.harness.request_dataset_id
+                        or budget != first.budget
+                        or budget.max_response_bytes > template.max_http_response_bytes
+                        or budget.max_decompressed_bytes > template.max_http_decompressed_bytes
+                        or budget.timeout_seconds > template.max_http_timeout_seconds
+                    ):
+                        raise ValueError(
+                            "candidate_unpriced_experiment_attempt_authorization_mismatch"
+                        )
+            else:
+                budget = self.live_authorization.budget
+                if (
+                    budget.max_response_bytes > template.max_http_response_bytes
+                    or budget.max_decompressed_bytes > template.max_http_decompressed_bytes
+                    or budget.timeout_seconds > template.max_http_timeout_seconds
+                ):
+                    raise ValueError("candidate_unpriced_template_policy_mismatch")
         binding = self.n5_quota_profile.run_binding
         if (
-            not self.live_authorization.authorized
-            or self.live_authorization.budget.call_budget != 1
-            or self.live_authorization.budget.variable_budget != 1
+            any(
+                not authorization.authorized
+                or authorization.budget.call_budget != 1
+                or authorization.budget.variable_budget != 1
+                for authorization in self.authorized_source_attempts
+            )
             or self.n5_quota_profile.total_units <= self.n5_quota_profile.protected_units
             or (binding.tenant_id, binding.cell_id, binding.run_id, binding.control_job_id)
             != (
@@ -255,6 +339,37 @@ class CandidateUnpricedAcquisitionPolicy(BaseModel):
         if self.content_hash != expected:
             raise ValueError("candidate_unpriced_policy_content_mismatch")
         return self
+
+    @property
+    def authorized_source_attempts(
+        self,
+    ) -> tuple[data_plane.LiveExecutionAuthorization, ...]:
+        """Return the exact source authorizations in their configured order."""
+        return (self.live_authorization, *self.subsequent_live_authorizations)
+
+    def select_source_authorization(
+        self, prior_attempt_ids: tuple[str, ...]
+    ) -> data_plane.LiveExecutionAuthorization:
+        """Select the next bound authorization from the verified attempt prefix.
+
+        V1/V2 retain their original one-attempt behavior, including returning
+        the original authorization so the existing durable spent-attempt guard
+        continues to refuse reuse. V3 only advances through the exact ordered
+        attempt prefix recorded by verified terminal history.
+        """
+        if self.schema_version != _POLICY_V3:
+            return self.live_authorization
+        if type(prior_attempt_ids) is not tuple or any(
+            not isinstance(attempt_id, str) or not attempt_id for attempt_id in prior_attempt_ids
+        ):
+            raise ValueError("candidate_experiment_source_attempt_history_mismatch")
+        authorizations = self.authorized_source_attempts
+        expected_attempt_ids = tuple(item.attempt_id for item in authorizations)
+        if prior_attempt_ids != expected_attempt_ids[: len(prior_attempt_ids)]:
+            raise ValueError("candidate_experiment_source_attempt_history_mismatch")
+        if len(prior_attempt_ids) == len(expected_attempt_ids):
+            raise ValueError("candidate_experiment_source_attempts_exhausted")
+        return authorizations[len(prior_attempt_ids)]
 
 
 class CandidateUnpricedPolicyBinding(BaseModel):
@@ -335,6 +450,7 @@ def issue_candidate_unpriced_experiment_policy(
     original_metered_budget_usd: Decimal,
     limitations: tuple[str, ...],
     configured_template: CandidateUnpricedExperimentPolicyTemplate | None = None,
+    subsequent_live_authorizations: tuple[data_plane.LiveExecutionAuthorization, ...] = (),
 ) -> CandidateUnpricedAcquisitionPolicy:
     """Declare one bounded experiment; live owners must verify its request.
 
@@ -348,23 +464,47 @@ def issue_candidate_unpriced_experiment_policy(
         or type(live_authorization) is not data_plane.LiveExecutionAuthorization
         or type(n5_quota_profile) is not BudgetLedgerInvocationProfile
         or type(original_metered_budget_usd) is not Decimal
+        or type(subsequent_live_authorizations) is not tuple
+        or any(
+            type(item) is not data_plane.LiveExecutionAuthorization
+            for item in subsequent_live_authorizations
+        )
     ):
         raise TypeError("candidate_unpriced_policy_inputs_untyped")
-    draft = CandidateUnpricedAcquisitionPolicy.model_construct(
-        schema_version=_POLICY_V2,
-        purpose="bounded_candidate_experiment_voi_unknown",
-        scope=scope,
-        live_authorization=live_authorization,
-        n5_quota_profile=n5_quota_profile,
-        limitations=limitations,
-        experiment_intent="bounded_experiment_voi_unknown",
-        information_value="not_established",
-        source_payload_ref=source_payload_ref,
-        request_content_hash=request_content_hash,
-        original_metered_budget_usd=original_metered_budget_usd,
-        configured_template=configured_template,
-        content_hash="sha256:" + "0" * 64,
-    )
+    if configured_template is None:
+        if subsequent_live_authorizations:
+            raise ValueError("candidate_unpriced_experiment_attempt_template_missing")
+        policy_version = _POLICY_V2
+    elif type(configured_template) is not CandidateUnpricedExperimentPolicyTemplate:
+        raise TypeError("candidate_unpriced_experiment_template_untyped")
+    elif configured_template.schema_version == _TEMPLATE_V2:
+        if not subsequent_live_authorizations:
+            raise ValueError("candidate_unpriced_experiment_attempt_authorizations_missing")
+        policy_version = _POLICY_V3
+    elif configured_template.schema_version == _TEMPLATE_V1:
+        if subsequent_live_authorizations:
+            raise ValueError("candidate_unpriced_experiment_attempt_sequence_unconfigured")
+        policy_version = _POLICY_V2
+    else:
+        raise ValueError("candidate_unpriced_experiment_template_version_unsupported")
+    draft_values: dict[str, object] = {
+        "schema_version": policy_version,
+        "purpose": "bounded_candidate_experiment_voi_unknown",
+        "scope": scope,
+        "live_authorization": live_authorization,
+        "n5_quota_profile": n5_quota_profile,
+        "limitations": limitations,
+        "experiment_intent": "bounded_experiment_voi_unknown",
+        "information_value": "not_established",
+        "source_payload_ref": source_payload_ref,
+        "request_content_hash": request_content_hash,
+        "original_metered_budget_usd": original_metered_budget_usd,
+        "configured_template": configured_template,
+        "content_hash": "sha256:" + "0" * 64,
+    }
+    if policy_version == _POLICY_V3:
+        draft_values["subsequent_live_authorizations"] = subsequent_live_authorizations
+    draft = CandidateUnpricedAcquisitionPolicy.model_construct(**draft_values)
     payload = draft.model_dump(mode="json", exclude={"content_hash"})
     return CandidateUnpricedAcquisitionPolicy.model_validate(
         {**payload, "content_hash": _content_hash(payload)}
@@ -376,6 +516,8 @@ def _policy_schema_version(policy: CandidateUnpricedAcquisitionPolicy) -> str:
         return "1.0"
     if policy.schema_version == _POLICY_V2:
         return "2.0"
+    if policy.schema_version == _POLICY_V3:
+        return "3.0"
     raise ValueError("candidate_unpriced_policy_version_unsupported")
 
 
@@ -658,6 +800,7 @@ def read_candidate_unpriced_policy(
         not in (
             artifacts.SchemaInfo(name=POLICY_SCHEMA, version="1.0"),
             artifacts.SchemaInfo(name=POLICY_SCHEMA, version="2.0"),
+            artifacts.SchemaInfo(name=POLICY_SCHEMA, version="3.0"),
         )
         or manifest.producer != artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0")
     ):
@@ -938,7 +1081,7 @@ def verify_candidate_unpriced_experiment_policy_intent(
         not _selected_ref(policy_ref, POLICY_KIND)
         or artifacts.artifact_ref_identity_key(selected)
         != artifacts.artifact_ref_identity_key(policy_ref)
-        or policy.schema_version != _POLICY_V2
+        or policy.schema_version not in {_POLICY_V2, _POLICY_V3}
         or any(
             getattr(closure, name, None) != getattr(scope, name)
             for name in ("tenant_id", "cell_id", "run_id", "source_job_id")
@@ -1010,7 +1153,7 @@ def reconcile_candidate_unpriced_work(
         control_service=control_service, scope=scope
     )
     experiment_evidence = None
-    if policy.schema_version == _POLICY_V2:
+    if policy.schema_version in {_POLICY_V2, _POLICY_V3}:
         if (
             type(experiment_origin) is not VerifiedCandidateExperimentOrigin
             or experiment_source_closure is not None
@@ -1026,12 +1169,16 @@ def reconcile_candidate_unpriced_work(
         )
     elif experiment_source_closure is not None or experiment_origin is not None:
         raise ValueError("candidate_experiment_policy_version_not_established")
+    expected_live_authorization = policy.live_authorization
+    if policy.schema_version == _POLICY_V3:
+        prior_attempt_ids = getattr(experiment_origin, "source_attempt_prefix", None)
+        expected_live_authorization = policy.select_source_authorization(prior_attempt_ids)
     if (
         not _selected_ref(policy_ref, POLICY_KIND)
         or artifacts.artifact_ref_identity_key(selected_ref)
         != artifacts.artifact_ref_identity_key(policy_ref)
         or type(live_authorization) is not data_plane.LiveExecutionAuthorization
-        or live_authorization != policy.live_authorization
+        or live_authorization != expected_live_authorization
         or type(budget_observer) is not ProducerBudgetObserver
         or type(budget_state) is not BudgetState
         or any(

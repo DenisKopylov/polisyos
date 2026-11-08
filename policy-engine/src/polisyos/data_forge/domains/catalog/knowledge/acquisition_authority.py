@@ -15,6 +15,7 @@ import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
+from datetime import UTC, date, datetime, time
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Literal, Self
@@ -26,6 +27,16 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, contracts
+from polisyos.core.contracts.variable_binding import (
+    MeasurementAxis,
+    MeasurementBindingProfile,
+    MeasurementBindingProfileRef,
+    ModelInputScope,
+    VariableRepresentation,
+    VariableRepresentationRef,
+    VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
+)
 from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.fabric.connectors import verify_selected_cache_payload_ref
@@ -84,6 +95,12 @@ DEFAULT_L5_MEASUREMENT_REGISTRY = Path(
     "calibration/d2/measurement_registry.json"
 )
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES = (
+    "measurement_admission",
+    "fetch_permission",
+    "claim_evidence",
+    "source_currentness",
+)
 _MODELED_SOURCE_HINT = re.compile(
     r"\bmodel(?:l?ed|l?ing)\b"
     r"|\bmodels?[-\s]+(?:based|derived)\b"
@@ -413,6 +430,12 @@ class AcquisitionAuthorityEntry(_StrictModel):
     source_measure_scope: AcquisitionSourceMeasureScope | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    source_semantic_definition_ref: VariableSemanticDefinitionRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    source_representation_ref: VariableRepresentationRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
     country_codes: tuple[str, ...] = Field(min_length=1)
@@ -421,6 +444,10 @@ class AcquisitionAuthorityEntry(_StrictModel):
 
     @model_validator(mode="after")
     def _entry_is_narrow_and_content_bound(self) -> Self:
+        if (self.source_semantic_definition_ref is None) != (
+            self.source_representation_ref is None
+        ):
+            raise ValueError("source semantic definition and representation refs must be paired")
         names = tuple(column.name for column in self.schema_columns)
         if names != tuple(sorted(set(names))):
             raise ValueError("authority schema columns must be unique and sorted")
@@ -753,6 +780,59 @@ class ResolvedAcquisitionAuthority(_StrictModel):
             != self.upstream_catalog_projection_sha256
         ):
             raise ValueError("resolved catalog projection identity must be recomputed")
+        return self
+
+
+class ModelInputSourceDescriptorCandidate(_StrictModel):
+    """Candidate-only Catalog descriptor matched to one selected model input port."""
+
+    schema_version: Literal["polisyos.data_forge.model_input_source_descriptor_candidate.v1"] = (
+        "polisyos.data_forge.model_input_source_descriptor_candidate.v1"
+    )
+    authority_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    authority_entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    model_input_interface_ref: artifacts.ArtifactRef
+    model_input_port_id: str = Field(min_length=1)
+    source_semantic_definition_ref: VariableSemanticDefinitionRef
+    source_representation_ref: VariableRepresentationRef
+    model_semantic_definition_ref: VariableSemanticDefinitionRef
+    model_representation_ref: VariableRepresentationRef
+    binding_profile_ref: MeasurementBindingProfileRef
+    recomputed_axes: tuple[MeasurementAxis, ...] = ()
+    unknown_optional_axes: tuple[MeasurementAxis, ...] = ()
+    semantic_correspondence: Literal["not_established"] = "not_established"
+    may_not_use_for: tuple[
+        Literal[
+            "measurement_admission",
+            "fetch_permission",
+            "claim_evidence",
+            "source_currentness",
+        ],
+        ...,
+    ] = _MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES
+
+    @model_validator(mode="after")
+    def _candidate_refs_are_selected_and_exact(self) -> Self:
+        refs = (
+            self.model_input_interface_ref,
+            self.source_semantic_definition_ref,
+            self.source_representation_ref,
+            self.model_semantic_definition_ref,
+            self.model_representation_ref,
+            self.binding_profile_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("model_input_source_descriptor_ref_unselected")
+        if artifacts.artifact_ref_identity_key(
+            self.source_semantic_definition_ref
+        ) != artifacts.artifact_ref_identity_key(self.model_semantic_definition_ref):
+            raise ValueError("model_input_source_descriptor_definition_ref_mismatch")
+        if len(set(self.recomputed_axes)) != len(self.recomputed_axes):
+            raise ValueError("model_input_source_descriptor_duplicate_matched_axis")
+        if len(set(self.unknown_optional_axes)) != len(self.unknown_optional_axes):
+            raise ValueError("model_input_source_descriptor_duplicate_unknown_axis")
+        if self.may_not_use_for != _MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES:
+            raise ValueError("model_input_source_descriptor_candidate_limitations_mismatch")
         return self
 
 
@@ -1256,6 +1336,218 @@ class CanonicalAcquisitionAuthority:
             upstream_catalog_projection=projection,
             effective_authority_score=score,
         )
+
+    def discover_model_input_source_descriptor(
+        self,
+        artifact_store: ArtifactReader,
+        *,
+        model_input_interface_ref: artifacts.ArtifactRef,
+        port_id: str,
+    ) -> ModelInputSourceDescriptorCandidate:
+        """Select one exact source descriptor for a selected model input port.
+
+        The source descriptor must declare the exact selected semantic-definition
+        ref. This bounded discovery supports only same-definition representations
+        whose required measurement axes and declared source scope agree with the
+        selected port. The result is candidate-only: it does not admit a source
+        measurement, authorize a fetch, establish currentness, or create
+        claim-evidence authority.
+
+        Args:
+            artifact_store: CAS reader that owns the selected model and source
+                semantic artifacts.
+            model_input_interface_ref: Exact selected ProgramGraph input
+                interface produced by the active compiled model.
+            port_id: Unique model-owned input port to match.
+
+        Returns:
+            ModelInputSourceDescriptorCandidate: The unique compatible Catalog
+                registry descriptor and its selected model/source bindings.
+
+        Raises:
+            AcquisitionAuthorityError: If the selected model artifacts, current
+                source registry, source descriptor, or unique compatible match
+                cannot be established.
+        """
+        from polisyos.core.contracts.model_input_requirements import (
+            ProgramGraphInputInterface,
+            load_program_graph_input_interface,
+            verify_model_input_port_semantics,
+        )
+
+        if not isinstance(port_id, str) or not port_id.strip():
+            raise AcquisitionAuthorityError("model_input_source_port_id_missing")
+        try:
+            interface_ref = artifacts.ArtifactRef.model_validate(
+                model_input_interface_ref.model_dump(mode="json")
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError("model_input_interface_ref_invalid") from exc
+        if (
+            interface_ref.kind != ProgramGraphInputInterface.ARTIFACT_KIND
+            or interface_ref.media_type != "application/json"
+            or interface_ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionAuthorityError("model_input_interface_ref_unselected")
+
+        try:
+            interface = load_program_graph_input_interface(artifact_store, interface_ref)
+        except (OSError, TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError("model_input_interface_unavailable") from exc
+        selected_ports = tuple(port for port in interface.ports if port.port_id == port_id)
+        if len(selected_ports) != 1:
+            raise AcquisitionAuthorityError("model_input_source_port_ambiguous_or_missing", port_id)
+        port = selected_ports[0]
+
+        try:
+            target_representation = verify_model_input_port_semantics(artifact_store, port)
+            target_definition = artifacts.validate_core_model_json_artifact(
+                VariableSemanticDefinition,
+                artifact_store,
+                port.semantic_definition_ref,
+            )
+            profile = artifacts.validate_core_model_json_artifact(
+                MeasurementBindingProfile,
+                artifact_store,
+                port.binding_profile_ref,
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError(
+                "model_input_source_port_semantics_unavailable"
+            ) from exc
+
+        self._require_provision_unchanged()
+        registry = self._load_registry()
+        target_definition_key = artifacts.artifact_ref_identity_key(port.semantic_definition_ref)
+        selected_descriptors = tuple(
+            entry
+            for entry in registry.entries
+            if entry.source_semantic_definition_ref is not None
+            and artifacts.artifact_ref_identity_key(entry.source_semantic_definition_ref)
+            == target_definition_key
+        )
+        if not selected_descriptors:
+            raise AcquisitionAuthorityError("model_input_source_descriptor_unresolved")
+
+        candidates: list[ModelInputSourceDescriptorCandidate] = []
+        rejected: list[str] = []
+        for entry in selected_descriptors:
+            source_definition_ref = entry.source_semantic_definition_ref
+            source_representation_ref = entry.source_representation_ref
+            if source_definition_ref is None or source_representation_ref is None:
+                raise AcquisitionAuthorityError("model_input_source_descriptor_ref_pair_missing")
+            try:
+                source_definition = artifacts.validate_core_model_json_artifact(
+                    VariableSemanticDefinition,
+                    artifact_store,
+                    source_definition_ref,
+                )
+                source_representation = artifacts.validate_core_model_json_artifact(
+                    VariableRepresentation,
+                    artifact_store,
+                    source_representation_ref,
+                )
+                _reopen_selected_semantic_definition_evidence(
+                    artifact_store,
+                    source_definition,
+                )
+            except (OSError, TypeError, ValueError) as exc:
+                raise AcquisitionAuthorityError(
+                    "model_input_source_descriptor_artifact_unavailable",
+                    entry.entry_id,
+                ) from exc
+
+            try:
+                source_representation_manifest = artifact_store.get_manifest(
+                    source_representation_ref
+                )
+            except (OSError, TypeError, ValueError) as exc:
+                raise AcquisitionAuthorityError(
+                    "model_input_source_descriptor_artifact_unavailable",
+                    entry.entry_id,
+                ) from exc
+            expected_representation_inputs = (
+                artifacts.input_ref_from_artifact_ref(
+                    source_definition_ref,
+                    role="semantic_definition",
+                ),
+            )
+            if tuple(source_representation_manifest.inputs) != expected_representation_inputs:
+                rejected.append(f"{entry.entry_id}:source_representation_lineage_mismatch")
+                continue
+
+            if artifacts.artifact_ref_identity_key(source_definition_ref) != target_definition_key:
+                # The exact-ref comparison is intentionally repeated after
+                # reopening the stored descriptors to bind this comparison to
+                # the selected registry row, not to caller-provided fields.
+                raise AcquisitionAuthorityError(
+                    "model_input_source_descriptor_definition_ref_mismatch",
+                    entry.entry_id,
+                )
+            if (
+                source_definition != target_definition
+                or source_definition.revision != target_definition.revision
+                or artifacts.artifact_ref_identity_key(
+                    source_representation.semantic_definition_ref
+                )
+                != artifacts.artifact_ref_identity_key(source_definition_ref)
+                or source_representation.unit_id != entry.canonical_unit
+            ):
+                rejected.append(f"{entry.entry_id}:source_descriptor_definition_or_unit_mismatch")
+                continue
+
+            axis_match, unknown_optional_axes, axis_refusal = (
+                _compare_preacquisition_representation_axes(
+                    source_representation,
+                    target_representation,
+                    profile,
+                )
+            )
+            if axis_refusal is not None:
+                rejected.append(f"{entry.entry_id}:{axis_refusal}")
+                continue
+            scope_refusal = _preacquisition_source_scope_refusal(
+                entry,
+                port.scope,
+                source_representation,
+            )
+            if scope_refusal is not None:
+                rejected.append(f"{entry.entry_id}:{scope_refusal}")
+                continue
+
+            candidates.append(
+                ModelInputSourceDescriptorCandidate(
+                    authority_registry_content_sha256=registry.content_sha256,
+                    authority_entry_id=entry.entry_id,
+                    model_input_interface_ref=interface_ref,
+                    model_input_port_id=port.port_id,
+                    source_semantic_definition_ref=source_definition_ref,
+                    source_representation_ref=source_representation_ref,
+                    model_semantic_definition_ref=port.semantic_definition_ref,
+                    model_representation_ref=port.representation_ref,
+                    binding_profile_ref=port.binding_profile_ref,
+                    recomputed_axes=axis_match,
+                    unknown_optional_axes=unknown_optional_axes,
+                )
+            )
+
+        if len(candidates) > 1:
+            raise AcquisitionAuthorityError(
+                "model_input_source_descriptor_ambiguous",
+                ",".join(candidate.authority_entry_id for candidate in candidates),
+            )
+        if not candidates:
+            detail = ";".join(rejected) if rejected else None
+            raise AcquisitionAuthorityError(
+                "model_input_source_descriptor_incompatible",
+                detail,
+            )
+
+        current_registry = self._load_registry()
+        self._require_provision_unchanged()
+        if current_registry.content_sha256 != registry.content_sha256:
+            raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
+        return candidates[0]
 
     def _require_provision_unchanged(self) -> None:
         provision, content_sha256 = _load_authority_provision(
@@ -2429,6 +2721,194 @@ def resolve_live_temporal_bounds(
     return owner_start, owner_end
 
 
+def _compare_preacquisition_representation_axes(
+    source: VariableRepresentation,
+    target: VariableRepresentation,
+    profile: MeasurementBindingProfile,
+) -> tuple[tuple[MeasurementAxis, ...], tuple[MeasurementAxis, ...], str | None]:
+    """Compare selected source/model axes under the model-owned profile."""
+
+    required = frozenset(profile.required_axes)
+    needs_denominator = any(
+        representation.measure_form in {"ratio", "rate"}
+        or representation.denominator_ref is not None
+        for representation in (source, target)
+    )
+    if needs_denominator and MeasurementAxis.DENOMINATOR_REF not in required:
+        return (), (), "profile_denominator_axis_not_required"
+    if (
+        any(
+            representation.measure_form in {"ratio", "rate"}
+            or representation.numerator_ref is not None
+            for representation in (source, target)
+        )
+        and MeasurementAxis.NUMERATOR_REF not in required
+    ):
+        return (), (), "profile_numerator_axis_not_required"
+
+    matched: list[MeasurementAxis] = []
+    unknown_optional: list[MeasurementAxis] = []
+    for axis in profile.required_axes:
+        source_value = _preacquisition_axis_value(source, axis)
+        target_value = _preacquisition_axis_value(target, axis)
+        if source_value is None or target_value is None:
+            return (), (), f"required_axis_unknown:{axis.value}"
+        if source_value != target_value:
+            return (), (), f"required_axis_mismatch:{axis.value}"
+        matched.append(axis)
+
+    for axis in profile.optional_axes:
+        source_value = _preacquisition_axis_value(source, axis)
+        target_value = _preacquisition_axis_value(target, axis)
+        if source_value is None or target_value is None:
+            unknown_optional.append(axis)
+        elif source_value != target_value:
+            return (), (), f"optional_axis_mismatch:{axis.value}"
+        else:
+            matched.append(axis)
+    return tuple(matched), tuple(unknown_optional), None
+
+
+def _preacquisition_axis_value(
+    representation: VariableRepresentation,
+    axis: MeasurementAxis,
+) -> object | None:
+    value = getattr(representation, axis.value)
+    if isinstance(value, artifacts.ArtifactRef):
+        return artifacts.artifact_ref_identity_key(value)
+    if isinstance(value, tuple):
+        return value or None
+    return value
+
+
+def _preacquisition_source_scope_refusal(
+    entry: AcquisitionAuthorityEntry,
+    model_scope: ModelInputScope,
+    source_representation: VariableRepresentation,
+) -> str | None:
+    """Check only source scope fields explicitly declared by this descriptor."""
+
+    source_scope = entry.source_measure_scope
+    if source_scope is None:
+        return "source_measure_scope_missing"
+    if source_scope.population != model_scope.population_ref:
+        return "source_population_scope_mismatch"
+    if (
+        model_scope.jurisdiction_ref not in entry.country_codes
+        or model_scope.geography_ref not in entry.country_codes
+    ):
+        return "source_geography_scope_mismatch"
+    if model_scope.time_role != "observation_time":
+        return "source_time_role_unsupported"
+    if model_scope.period_basis != "calendar_year":
+        return "source_period_basis_unsupported"
+    if (
+        source_representation.temporal_granularity is None
+        or source_scope.temporal_granularity != source_representation.temporal_granularity
+    ):
+        return "source_temporal_granularity_unresolved"
+    if entry.temporal_start is None or entry.temporal_end is None:
+        return "source_temporal_scope_unresolved"
+
+    try:
+        owner_start = _normalize_preacquisition_temporal_bound(
+            entry.temporal_start,
+            end_bound=False,
+        )
+        owner_end = _normalize_preacquisition_temporal_bound(
+            entry.temporal_end,
+            end_bound=True,
+        )
+    except (TypeError, ValueError, OverflowError):
+        return "source_temporal_scope_unresolved"
+    if owner_end < owner_start:
+        return "source_temporal_scope_unresolved"
+
+    model_start = datetime.combine(model_scope.period_start, time.min, tzinfo=UTC)
+    model_end = datetime.combine(model_scope.period_end, time.max, tzinfo=UTC)
+    if owner_start > model_start or owner_end < model_end:
+        return "source_temporal_scope_mismatch"
+    ratio_like = (
+        source_representation.measure_form in {"ratio", "rate"}
+        or source_representation.denominator_ref is not None
+    )
+    if ratio_like != (source_scope.quantity_kind == "share_of_denominator"):
+        return "source_quantity_scope_mismatch"
+    if source_scope.quantity_kind == "share_of_denominator" and not source_scope.denominator:
+        return "source_quantity_denominator_unresolved"
+    if entry.is_proxy:
+        return "proxy_source_not_supported_for_exact_definition"
+    return None
+
+
+def _normalize_preacquisition_temporal_bound(
+    value: str,
+    *,
+    end_bound: bool,
+) -> datetime:
+    """Normalize a declared source bound without discarding date precision.
+
+    A bare four-digit year is an explicit calendar-year declaration. ISO dates
+    cover the declared day, while ISO datetimes retain their exact UTC instant.
+    """
+    text = value.strip()
+    if not text:
+        raise ValueError("source temporal bound is empty")
+    if re.fullmatch(r"\d{4}", text):
+        year = int(text)
+        return datetime(
+            year,
+            12 if end_bound else 1,
+            31 if end_bound else 1,
+            23 if end_bound else 0,
+            59 if end_bound else 0,
+            59 if end_bound else 0,
+            999999 if end_bound else 0,
+            tzinfo=UTC,
+        )
+    try:
+        parsed_date = date.fromisoformat(text)
+    except ValueError:
+        return parse_datetime_utc(text, what="source temporal bound")
+    return datetime.combine(
+        parsed_date,
+        time.max if end_bound else time.min,
+        tzinfo=UTC,
+    )
+
+
+def _reopen_selected_semantic_definition_evidence(
+    artifact_store: ArtifactReader,
+    definition: VariableSemanticDefinition,
+) -> None:
+    """Ensure the selected definition's declared evidence refs still resolve."""
+
+    if not definition.definition_evidence_refs:
+        raise AcquisitionAuthorityError("model_input_source_definition_evidence_missing")
+    for ref in definition.definition_evidence_refs:
+        try:
+            manifest = artifact_store.get_manifest(ref)
+            payload = artifact_store.get_bytes(ref)
+        except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError(
+                "model_input_source_definition_evidence_unavailable"
+            ) from exc
+        manifest_ref = artifacts.ArtifactRef(
+            artifact_id=manifest.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+        )
+        if (
+            artifacts.artifact_ref_identity_key(manifest_ref)
+            != artifacts.artifact_ref_identity_key(ref)
+            or hashlib.sha256(payload).hexdigest() != ref.artifact_id.hex
+        ):
+            raise AcquisitionAuthorityError(
+                "model_input_source_definition_evidence_identity_mismatch"
+            )
+
+
 def _live_year_is_in_scope(
     value: object,
     *,
@@ -2660,6 +3140,7 @@ __all__ = [
     "LocalRightsTrustedAuthority",
     "LocalSourceRightsDeclaration",
     "LocalSourceRightsReceipt",
+    "ModelInputSourceDescriptorCandidate",
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
     "ResolvedLiveHarnessReceipt",

@@ -1,4 +1,4 @@
-"""Distinguish retained N5 optional import evidence from matching live aliases."""
+"""Distinguish retained N5 initializer import evidence from matching live aliases."""
 
 from __future__ import annotations
 
@@ -13,7 +13,13 @@ import pytest
 
 @pytest.mark.parametrize(
     "profile",
-    ["locked-provider", "ordinary-fallback", "first-party-alias", "first-party-loader"],
+    [
+        "locked-provider",
+        "ordinary-fallback",
+        "first-party-alias",
+        "first-party-loader",
+        "package-reexport",
+    ],
 )
 def test_n5_capture_requires_actual_initializer_and_locked_members(
     tmp_path: Path, profile: str
@@ -44,6 +50,15 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
         ),
         "tools/_e02_first_party_forward.py": "from ._e02_first_party_base import selected\n",
         "tools/_e02_first_party_base.py": "def selected(): return 23\n",
+        "tools/_e02_package_reexport/__init__.py": (
+            "from enum import Enum\n"
+            "class Domain(str, Enum):\n    VALUE = 'policy'\n"
+            "def measure(): return 29\n"
+        ),
+        "tools/_e02_package_forward.py": "from ._e02_package_reexport import measure as selected\n",
+        "tools/_e02_package_consumer.py": (
+            "from ._e02_package_forward import selected as run\ndef observed(): return run()\n"
+        ),
     }
     for relative, content in sources.items():
         path = root / relative
@@ -134,15 +149,21 @@ wrapper = "tools._e02_locked_wrapper"
 facade = "e02_locked_provider"
 terminal = facade + ".base"
 first_party = tuple("tools._e02_first_party_" + name for name in ("optional", "forward", "base"))
+direct = tuple("tools._e02_package_" + name for name in ("consumer", "forward", "reexport"))
 sources = {}
-for source in (root / "tools").glob("*.py"):
+exports = {wrapper: {"AVAILABLE", "Model"}, **dict.fromkeys(first_party, {"selected"})}
+for source in (root / "tools").rglob("*.py"):
     relative = source.relative_to(root).as_posix()
-    name = "tools" if source.stem == "__init__" else "tools." + source.stem
-    sources[name] = recorder.ExpectedSource(relative, hashlib.sha256(source.read_bytes()).hexdigest())
+    name = host._module_name(relative)
+    assert name is not None
+    content = source.read_bytes()
+    sources[name] = recorder.ExpectedSource(relative, hashlib.sha256(content).hexdigest())
+    for provider, names in host._source_export_candidates(name, relative, content).items():
+        exports.setdefault(provider, set()).update(names)
 capture = recorder.SourceExecutionCapture(
     root,
     sources,
-    exports={wrapper: {"AVAILABLE", "Model"}, **dict.fromkeys(first_party, {"selected"})},
+    exports={name: bindings for name, bindings in exports.items() if name in sources},
     external_source_selector=selector.select,
 )
 capture.install()
@@ -198,6 +219,51 @@ def observe_first_party():
     ), capture.failure_reason
 
 
+def observe_package_reexport():
+    consumer, forward, package = (importlib.import_module(name) for name in direct)
+    original = package.measure
+    assert original is forward.selected is consumer.run
+    assert consumer.observed() == 29
+
+    def closure(binding=None):
+        return ledger._resolve_authority_import_closure(
+            root, consumer.__name__, include_tools=True, _n5_optional_imports=binding,
+        )
+
+    def assert_refused(binding):
+        try:
+            closure(binding)
+        except ledger.ConfidenceLedgerError as exc:
+            assert exc.code == "canonical_loaded_runtime_mismatch", str(exc)
+            assert "package initializer namespace effect" in str(exc)
+            return exc
+        raise AssertionError("unqualified ordinary package reexport accepted")
+
+    assert_refused(None)
+    analysis = ledger._IntegrityAnalysisContext()
+    binding = ledger._N5LockedOptionalImports(root, analysis, capture, lambda _: None)
+    assert set(dict(closure(binding))) == {"tools", *direct}
+    edges = binding.first_party_direct_rows[(forward.__name__, "selected")]
+    assert len(edges) == 1
+    edge = edges[0]
+    assert (edge[0], *edge[3:]) == (forward.__name__, package.__name__, "measure", "selected")
+    analysis.assert_sources_unchanged()
+
+    without_edge = ledger._N5LockedOptionalImports(root, analysis, capture, lambda _: None)
+    without_edge.events.pop((forward.__name__, package.__name__))
+    assert str(assert_refused(without_edge).__cause__) == "n5_optional_initializer_edge_not_established"
+    assert not without_edge.first_party_direct_rows
+
+    replacement = types.FunctionType(original.__code__, vars(package), original.__name__)
+    package.measure = forward.selected = consumer.run = replacement
+    assert consumer.observed() == 29
+    assert_refused(binding)
+    assert capture.failure_reason == "retained_export_changed", capture.failure_reason
+
+
+if profile == "package-reexport":
+    observe_package_reexport()
+    raise SystemExit(0)
 if profile.startswith("first-party-"):
     observe_first_party()
     raise SystemExit(0)

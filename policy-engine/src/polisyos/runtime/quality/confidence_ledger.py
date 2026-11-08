@@ -7090,6 +7090,7 @@ class _N5LockedOptionalImports:
         self.member = member
         self.rows: dict[_InitializerImportEdge, dict[str, object]] = {}
         self.first_party_rows: dict[tuple[str, str], tuple[_InitializerImportEdge, ...]] = {}
+        self.first_party_direct_rows: dict[tuple[str, str], tuple[_InitializerImportEdge, ...]] = {}
         self.events: dict[tuple[str, str], list[Any]] = {}
         for event in capture.import_events():
             if event.route == "builtin_import":
@@ -7148,12 +7149,17 @@ class _N5LockedOptionalImports:
         node: ast.ImportFrom,
         alias: ast.alias,
         *,
+        wrapper_relative: Path,
         terminal: tuple[str, str],
         selected: object,
-    ) -> None:
-        """Reconcile the recorded first-party reexports of an optional import."""
+    ) -> tuple[_InitializerImportEdge, ...]:
+        """Reconcile selected first-party initializer imports by retained identity."""
 
-        if self.capture.completed_binding(wrapper, export) is not selected:
+        module = _passive_capture_lookup(sys.modules, wrapper)
+        if (
+            not self.retains_repository_source(module, wrapper, wrapper_relative)
+            or self.capture.completed_binding(wrapper, export) is not selected
+        ):
             raise ValueError("n5_optional_first_party_binding_changed")
         edges = [self._initializer_edge(wrapper, provider, node, alias)]
         symbol = alias.name
@@ -7169,8 +7175,7 @@ class _N5LockedOptionalImports:
             ):
                 break
             if (provider, symbol) == terminal:
-                self.first_party_rows[(wrapper, export)] = tuple(edges)
-                return
+                return tuple(edges)
             tree = self.analysis.source_tree(self.root / relative)
             sites = _module_scope_direct_binding_sites(tree, symbol)
             if len(sites) != 1:
@@ -20854,15 +20859,17 @@ def _source_optional_import_binding_route(
 
         def admitted_route() -> tuple[str, str, str | None]:
             if recorded is not None:
-                recorded.reconcile_first_party(
+                edges = recorded.reconcile_first_party(
                     module_name,
                     export_name,
                     base,
                     import_statement,
                     alias,
+                    wrapper_relative=relative,
                     terminal=(provider_name, symbol),
                     selected=selected,
                 )
+                recorded.first_party_rows[(module_name, export_name)] = edges
             if token is not None:
                 analysis.assert_sources_unchanged()
             return route
@@ -20953,7 +20960,11 @@ def _source_module_direct_binding_route(
         ) from exc
 
     def resolve_nested(
-        base: str, symbol: str, *, skip: bool = False
+        base: str,
+        symbol: str,
+        *,
+        skip: bool = False,
+        import_site: tuple[ast.ImportFrom, ast.alias] | None = None,
     ) -> tuple[str, str, str | None] | None:
         if discovery_only:
             candidate = _source_module_import_route_candidate(
@@ -20966,12 +20977,48 @@ def _source_module_direct_binding_route(
                 skip_direct_binding=skip,
                 discovery_only=True,
             )
-            if candidate.package_initializer_effect_unknown:
-                raise ConfidenceLedgerError(
-                    "canonical_loaded_runtime_mismatch",
-                    f"package initializer namespace effect is unresolved: {base}.{symbol}",
+            route = candidate.route
+            if not candidate.package_initializer_effect_unknown:
+                return route
+            detail = f"package initializer namespace effect is unresolved: {base}.{symbol}"
+            recorded = source_index.n5_recorded_optional_imports
+            if (
+                recorded is None
+                or recorded.root != repo_root
+                or import_site is None
+                or base == module_name
+                or route is None
+                or route[0] != "symbol"
+                or route[2] is None
+                or candidate.binding_basis not in {"direct", "source_expression"}
+            ):
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", detail)
+            # The retained import event can establish this alias even when other
+            # effects of the provider initializer remain unresolved.
+            import_statement, import_alias = import_site
+            try:
+                selected = recorded.capture.completed_binding(module_name, export_name)
+                edges = recorded.reconcile_first_party(
+                    module_name,
+                    export_name,
+                    base,
+                    import_statement,
+                    import_alias,
+                    wrapper_relative=relative,
+                    terminal=(route[1], route[2]),
+                    selected=selected,
                 )
-            return candidate.route
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", detail) from exc
+            recorded.first_party_direct_rows[(module_name, export_name)] = edges
+            return route
         return _source_module_import_route(
             repo_root,
             base,
@@ -21070,7 +21117,10 @@ def _source_module_direct_binding_route(
                         f"{module_name}.{export_name}",
                     )
         target = resolve_nested(
-            base, alias.name, skip=(base == module_name and alias.name == export_name)
+            base,
+            alias.name,
+            skip=(base == module_name and alias.name == export_name),
+            import_site=(statement, alias),
         )
         if target is None:
             raise ConfidenceLedgerError(
@@ -25560,6 +25610,13 @@ def _capture_execution_source_bindings_body(
             evidence["first_party_optional_import_bindings"] = tuple(
                 (module, export, edges)
                 for (module, export), edges in sorted(optional_imports.first_party_rows.items())
+            )
+        if optional_imports.first_party_direct_rows:
+            evidence["first_party_direct_import_bindings"] = tuple(
+                (module, export, edges)
+                for (module, export), edges in sorted(
+                    optional_imports.first_party_direct_rows.items()
+                )
             )
     return evidence
 

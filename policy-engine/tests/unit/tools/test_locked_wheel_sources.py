@@ -83,7 +83,7 @@ def test_authority_launcher_retains_locked_native_ledger_provider() -> None:
     """Run real ledger validation and its removal control under the normal host."""
     wheel_directory = os.environ.get("POLISYOS_N6_PROVIDER_WHEEL_DIR")
     if wheel_directory is None:
-        pytest.skip("requires the retained pydantic-core wheel selected by uv.lock")
+        pytest.skip("requires retained pydantic-core and import-finder wheels selected by uv.lock")
     product = Path(__file__).resolve().parents[3]
     node = f"{__file__}::test_native_ledger_provider_inside_host"
     result = subprocess.run(

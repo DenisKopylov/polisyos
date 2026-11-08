@@ -1566,6 +1566,21 @@ class _CollectionHandoff:
         handoff_if_ready()
 
 
+def _handoff_failure_code(exc: Exception) -> str:
+    """Report known owner protocol failures without exposing arbitrary exception text."""
+    if type(exc) is RuntimeError and len(exc.args) == 1 and type(exc.args[0]) is str:
+        code = exc.args[0]
+        if code in {
+            "owner_capture_diagnostic_type_unavailable",
+            "owner_capture_not_collecting",
+            "owner_execution_binding_unavailable",
+            "owner_callback_binding_unavailable",
+            "owner_capture_finalizer_result_invalid",
+        }:
+            return code
+    return type(exc).__name__
+
+
 def handoff_if_ready() -> None:
     """Offer one live capture to the completed ledger owner."""
 
@@ -1593,11 +1608,13 @@ def handoff_if_ready() -> None:
         return
     capture = session["capture"]
     recorder = session["recorder"]
+    capture_failure = None
     try:
         diagnostic = capture.diagnostic()
         if type(diagnostic) is not recorder.__dict__.get("SourceCaptureDiagnostic"):
             raise RuntimeError("owner_capture_diagnostic_type_unavailable")
         if diagnostic.phase != "collecting":
+            capture_failure = diagnostic.failure_code
             raise RuntimeError("owner_capture_not_collecting")
         execution = capture.completed(module.__name__)
     except Exception as exc:
@@ -1615,7 +1632,8 @@ def handoff_if_ready() -> None:
         session["owner_capture_attempted"] = True
         session["last_owner_diagnostic"] = {
             "status": "not_established",
-            "failure": type(exc).__name__,
+            "failure": _handoff_failure_code(exc),
+            "capture_failure": capture_failure,
         }
         return
     if (
@@ -1656,10 +1674,10 @@ def handoff_if_ready() -> None:
         session["owner_capture_state"] = "failed"
         session["last_owner_diagnostic"] = {
             "status": "not_established",
-            "failure": type(exc).__name__,
+            "failure": _handoff_failure_code(exc),
         }
-    # This owner snapshot covers only reconciled first-party import bindings.
-    # External provider profile and protected-through-use owners remain absent.
+    # The owner reports bounded import and provider observations. Full provider
+    # qualification and protection through use remain separate.
 
 
 def _completed_owner_callback(

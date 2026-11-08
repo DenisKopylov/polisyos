@@ -158,6 +158,7 @@ supported_entrypoints = [
   "polisyos.core",
   "polisyos.core.artifacts",
   "polisyos.core.canon",
+  "polisyos.core.compiler",
   "polisyos.core.components",
   "polisyos.core.contracts",
   "polisyos.core.governance",

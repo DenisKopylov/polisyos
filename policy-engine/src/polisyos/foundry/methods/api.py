@@ -212,6 +212,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "ExecutionPlanOptimizer",
     ),
     "FidelityLevel": ("polisyos.foundry.methods.base", "FidelityLevel"),
+    "resolve_runtime_fidelity": (
+        "polisyos.foundry.extensions.registry",
+        "resolve_runtime_fidelity",
+    ),
     "FieldCalibrationStats": (
         "polisyos.foundry.methods.equivalence",
         "FieldCalibrationStats",

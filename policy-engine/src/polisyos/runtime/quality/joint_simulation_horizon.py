@@ -36,21 +36,27 @@ from pydantic import (
 )
 
 from polisyos.common.numeric_reductions import finite_binary64_mean
-from polisyos.core.artifacts import raise_artifact_read_access_error
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    InputRef,
+    input_ref_from_artifact_ref,
+    raise_artifact_read_access_error,
+)
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     ExecuteRequest,
     FoundryInputBindingsRef,
+    ProgramGraphInputInvocation,
     SemanticHorizonStepContext,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
 )
-from polisyos.foundry.execute.executor import (
+from polisyos.foundry.execute import (
     apply_state_delta,
     execute_program_graph,
+    load_state_snapshot,
     new_method_execution_capture,
     persist_method_execution_capture,
     put_state_snapshot,
@@ -88,8 +94,7 @@ from polisyos.scientist.orchestration.engine import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
 
 JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
@@ -4203,8 +4208,7 @@ class JointSimulationHorizonController:
         semantic_input: _SelectedSemanticProgramGraphInput,
     ) -> list[SimulationTrajectory]:
         from polisyos.core.artifacts import validate_core_model_json_artifact
-        from polisyos.foundry.execute.api import execute_semantic_horizon_step
-        from polisyos.foundry.execute.executor import load_state_snapshot
+        from polisyos.foundry.execute import execute_semantic_horizon_step
 
         method_fqn = decision.method_fqn
         if method_fqn is None:
@@ -6247,10 +6251,8 @@ def _require_program_graph_input_preflight(
     | None,
 ) -> _SelectedSemanticProgramGraphInput | None:
     from polisyos.core.artifacts import artifact_ref_identity_key
-    from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
-    from polisyos.foundry.execute.model_input_requirements import (
-        program_graph_declares_model_input_ports,
-    )
+    from polisyos.core.contracts import ProgramGraphInputInvocation
+    from polisyos.foundry.execute import program_graph_declares_model_input_ports
     from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
 
     try:
@@ -6302,7 +6304,7 @@ def _require_program_graph_input_preflight(
         or invocation.parameter_override_bundle_ref is not None
     ):
         raise JointSimulationControllerError("program_graph_semantic_horizon_profile_unsupported")
-    from polisyos.foundry.data_plane.bindings import (
+    from polisyos.foundry.data_plane import (
         load_input_bindings,
         reconcile_semantic_input_bindings,
     )
@@ -6405,9 +6407,10 @@ def verify_semantic_program_graph_result_sources(
 ) -> None:
     """Verify selected step chains and rederive projections from a trusted request."""
     from polisyos.core.artifacts import artifact_ref_identity_key
-    from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
-    from polisyos.foundry.execute.api import admit_semantic_horizon_step_chain
-    from polisyos.foundry.execute.executor import load_state_snapshot
+    from polisyos.foundry.execute import (
+        admit_semantic_horizon_step_chain,
+        resolve_core_json_profile_store,
+    )
 
     groups = _semantic_program_graph_replications(result)
     if not groups:

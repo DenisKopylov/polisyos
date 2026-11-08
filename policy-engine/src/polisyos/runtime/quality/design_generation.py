@@ -32,7 +32,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.common.producer_request import issue_producer_request_args as _issue_args
 from polisyos.common.serialization import extract_llm_json
 from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
-from polisyos.ir import TrinityBundle  # Pydantic resolves the persisted field type
+from polisyos.ir import LinkedIntervention, TrinityBundle
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
     NodeIntervention,
@@ -41,7 +41,7 @@ from polisyos.ir.analytics.interventions import (
     identification_plan_for_intervention,
 )
 from polisyos.ir.governance import InterventionSpec, ScheduleSpec
-from polisyos.ir.linker import LinkedIntervention, link_trinity
+from polisyos.ir.linker import link_trinity
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     CredalReference,
@@ -118,11 +118,11 @@ from polisyos.scientist.orchestration.engine.convergence import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.registry.loader import RegistryBundleContent
+    from polisyos.core.registry import RegistryBundleContent
     from polisyos.data_forge.read_api.academic import (
         ConfidenceLayerVintage,
     )
-    from polisyos.ir.registry.registry_fragments import RegistryBundle
+    from polisyos.ir import RegistryBundle
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationScenarioProfile,
     )
@@ -386,7 +386,7 @@ class N4SelectedProgramGraphLinkContext:
     registry_content: RegistryBundleContent
 
     def __post_init__(self) -> None:
-        from polisyos.core.registry.loader import RegistryBundleContent
+        from polisyos.core.registry import RegistryBundleContent
 
         if type(self.linkage) is not N4SelectedProgramGraphLinkageV1:
             raise TypeError("n4_selected_program_graph_linkage_untyped")
@@ -3491,7 +3491,7 @@ def _selected_program_graph_link_registries(
         raise DesignGenerationError("n4_selected_program_graph_link_context_untyped")
     if context is None:
         raise DesignGenerationError("n4_selected_program_graph_cycle_context_missing")
-    from polisyos.ir.registry.registry_fragments import RegistryBundle
+    from polisyos.ir import RegistryBundle
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
@@ -3531,7 +3531,7 @@ def _link_selected_program_graph_intervention(
     required_do_slots: Sequence[str],
 ) -> LinkedIntervention:
     """Link the N4 action and cover its selected do target with exact ABI writes."""
-    from polisyos.ir.registry.registry_fragments import RegistryBundle
+    from polisyos.ir import RegistryBundle
 
     if type(bundle) is not TrinityBundle or type(registries) is not RegistryBundle:
         raise DesignGenerationError("n4_selected_program_graph_link_input_untyped")

@@ -66,10 +66,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from polisyos.core.contracts.foundry import LoweredIR, ProgramGraph
-    from polisyos.core.registry.loader import RegistryBundleContent
-    from polisyos.ir.registry.registry_fragments import RegistryBundle
-    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.core.contracts import LoweredIR, ProgramGraph
+    from polisyos.core.registry import RegistryBundleContent
+    from polisyos.ir import RegistryBundle, TrinityBundle
     from polisyos.runtime.quality.generation_cycle import JointSimulationPort
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
     from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
@@ -2249,7 +2248,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> SelectedProgramGraphLinkage:
         from polisyos.core.artifacts import artifact_ref_identity_key
         from polisyos.core.registry import load_registry_bundle_content
-        from polisyos.ir.registry.registry_fragments import RegistryBundle
+        from polisyos.ir import RegistryBundle
 
         if not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
             raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_profile_required")
@@ -3612,9 +3611,9 @@ class GenericCycleSimulationAdmissionOwner:
             load_core_json_artifact,
             validate_core_model_json_artifact,
         )
-        from polisyos.core.compiler.report import CompileReport
-        from polisyos.core.contracts.foundry import ExecPlan, LoweredIR, ProgramGraph
-        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.core.compiler import CompileReport
+        from polisyos.core.contracts import ExecPlan, LoweredIR, ProgramGraph
+        from polisyos.ir import ModelSpec
         from polisyos.ir.trinity import load_trinity_bundle_artifact
 
         report_ref = n5.compile_report_ref
@@ -3764,9 +3763,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> None:
         """Allow only the actual single intervention compiled into this graph."""
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
-            resolve_runtime_fidelity,
-        )
+        from polisyos.foundry.methods import resolve_runtime_fidelity
         from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
         if atoms is None or len(atoms) != 1 or type(atoms[0]) is not InterventionAtomBinding:

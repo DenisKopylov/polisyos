@@ -22,8 +22,7 @@ from polisyos.core.artifacts import (
     load_core_json_artifact,
     raise_artifact_read_access_error,
 )
-from polisyos.core.contracts.runtime import RunCandidateValueMethodProjection
-from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+from polisyos.core.contracts import DataTrust, RunCandidateValueMethodProjection, ValueOuterSet
 from polisyos.pdc import gy_content_hash
 
 if TYPE_CHECKING:

@@ -914,7 +914,7 @@ class GenerationSourceHandoff(_StrictModel):
                 ):
                     raise ValueError("generation_source_selected_program_graph_linkage_mismatch")
                 selected_link = candidate.atom.to_trinity_intervention_spec()
-                from polisyos.ir.linker import LinkedIntervention
+                from polisyos.ir import LinkedIntervention
 
                 schedule_start, schedule_end = n4._schedule_bounds(selected_link.schedule)
                 linked_intervention = LinkedIntervention(

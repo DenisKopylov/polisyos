@@ -251,6 +251,7 @@ __all__ = [
     "LeontiefIOInput",
     "LessonRegistrySeedBundle",
     "LinkReport",
+    "LinkedIntervention",
     "MAUPInvarianceCertificate",
     "MAUPInvarianceCertificateRef",
     "MAUPPartitionCheck",
@@ -362,6 +363,7 @@ __all__ = [
     "RegimeShiftForecastBundle",
     "RegimeShiftForecastBundleRef",
     "RegionSectorPanels",
+    "RegistryBundle",
     "RightsAuditEntry",
     "RuleType",
     "SCMFitProvenance",
@@ -569,7 +571,12 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "ArticleExtractionResult",
     ),
     "ArtifactRefModel": ("polisyos.ir.registry.refs", "ArtifactRefModel"),
+    "LinkedIntervention": ("polisyos.ir.linker", "LinkedIntervention"),
     "LinkReport": ("polisyos.ir.linker", "LinkReport"),
+    "RegistryBundle": (
+        "polisyos.ir.registry.registry_fragments",
+        "RegistryBundle",
+    ),
     "TrinityBundle": ("polisyos.ir.trinity", "TrinityBundle"),
     "ABMBifurcationReport": (
         "polisyos.ir.analytics.phase4_dynamics",

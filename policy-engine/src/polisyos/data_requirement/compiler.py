@@ -16,15 +16,16 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
     InputRef,
+    PutOptions,
+    SchemaInfo,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts import (
     CapabilitySourceDiscoveryResult,
     CapabilitySourceDiscoveryUnavailableError,
+    ModelInputContext,
     candidate_source_time_coverage,
 )
 from polisyos.ir import governance
@@ -48,7 +49,7 @@ from polisyos.policy_grammar import (
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from polisyos.core.contracts.model_input_requirements import ModelInputContext
+    from polisyos.core.contracts import ModelInputContext
 
     from .model_input_requirements import ModelInputCompilationReport
 
@@ -341,7 +342,7 @@ class DataRequirementCompiler:
         candidate, interface and member bindings. This reports a measurement
         need without establishing execution, claim support or source admission.
         """
-        from polisyos.core.contracts.model_input_requirements import (
+        from polisyos.core.contracts import (
             load_model_input_obligation_set,
             verify_model_input_port_semantics,
         )

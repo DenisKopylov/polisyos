@@ -7,6 +7,7 @@ CAS and IR schemas unless a caller explicitly needs immutable registry bundles.
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 from .base import BaseRegistry, DuplicateDecision
@@ -41,45 +42,21 @@ __all__ = [
 ]
 
 
+_LAZY_IMPORTS = {
+    "FragmentPrecedencePolicy": "polisyos.core.registry.builder_from_fragments",
+    "RegistryBundleContent": "polisyos.core.registry.loader",
+    "build_default_registry_bundle": "polisyos.core.registry.builder",
+    "build_registry_bundle": "polisyos.core.registry.builder",
+    "build_registry_bundle_from_components": "polisyos.core.registry.builder_from_fragments",
+    "load_registry_bundle": "polisyos.core.registry.loader",
+    "load_registry_bundle_content": "polisyos.core.registry.loader",
+    "load_registry_bundle_payload": "polisyos.core.registry.loader",
+}
+
+
 def __getattr__(name: str) -> Any:
-    """Resolve one lazily exported bundle helper from `builder`, `loader`, or fragment builders."""
-    if name in {
-        "RegistryBundleContent",
-        "load_registry_bundle",
-        "load_registry_bundle_content",
-        "load_registry_bundle_payload",
-    }:
-        from .loader import (
-            RegistryBundleContent,
-            load_registry_bundle,
-            load_registry_bundle_content,
-            load_registry_bundle_payload,
-        )
-
-        providers = {
-            "RegistryBundleContent": RegistryBundleContent,
-            "load_registry_bundle": load_registry_bundle,
-            "load_registry_bundle_content": load_registry_bundle_content,
-            "load_registry_bundle_payload": load_registry_bundle_payload,
-        }
-        return providers[name]
-    if name in {"build_default_registry_bundle", "build_registry_bundle"}:
-        from .builder import build_default_registry_bundle, build_registry_bundle
-
-        providers = {
-            "build_default_registry_bundle": build_default_registry_bundle,
-            "build_registry_bundle": build_registry_bundle,
-        }
-        return providers[name]
-    if name in {"FragmentPrecedencePolicy", "build_registry_bundle_from_components"}:
-        from .builder_from_fragments import (
-            FragmentPrecedencePolicy,
-            build_registry_bundle_from_components,
-        )
-
-        providers = {
-            "FragmentPrecedencePolicy": FragmentPrecedencePolicy,
-            "build_registry_bundle_from_components": build_registry_bundle_from_components,
-        }
-        return providers[name]
-    raise AttributeError(f"module 'polisyos.core.registry' has no attribute {name!r}")
+    """Resolve the exact registered owner of a public bundle helper."""
+    owner = _LAZY_IMPORTS.get(name)
+    if owner is None:
+        raise AttributeError(f"module 'polisyos.core.registry' has no attribute {name!r}")
+    return getattr(import_module(owner), name)

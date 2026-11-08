@@ -25,6 +25,7 @@ from .bindings import (
     prepare_hte_observational_input,
     prepare_input_bindings,
     prepare_json_input_binding_values,
+    reconcile_semantic_input_bindings,
     resolve_bound_state_snapshot_ref,
 )
 
@@ -51,5 +52,6 @@ __all__ = [
     "prepare_hte_observational_input",
     "prepare_input_bindings",
     "prepare_json_input_binding_values",
+    "reconcile_semantic_input_bindings",
     "resolve_bound_state_snapshot_ref",
 ]

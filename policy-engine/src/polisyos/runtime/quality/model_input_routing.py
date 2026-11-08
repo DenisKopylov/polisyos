@@ -23,18 +23,18 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
-from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
-from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+from polisyos.core.contracts import ProgramGraphInputInvocation
+from polisyos.data_forge.read_api.catalog import (
     AcquisitionAuthorityError,
     CanonicalAcquisitionAuthority,
     ModelInputSourceDescriptorCandidate,
 )
-from polisyos.data_requirement.compiler import (
+from polisyos.data_requirement import (
     DataRequirementCompiler,
+    ModelInputCompilationReport,
     persist_model_input_compilation_report,
     verify_model_input_compilation_report,
 )
-from polisyos.data_requirement.model_input_requirements import ModelInputCompilationReport
 
 from .model_input_requirements import (
     SelectedProgramGraphInputBasis,

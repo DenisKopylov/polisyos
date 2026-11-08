@@ -9,7 +9,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     read_core_manifest_profile,
 )
-from polisyos.core.contracts.runtime import RunCandidateSimulationN5ResultBody
+from polisyos.core.contracts import RunCandidateSimulationN5ResultBody
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactManifest, CoreJSONArtifactStore

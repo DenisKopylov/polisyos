@@ -6,31 +6,31 @@ from dataclasses import dataclass
 
 from polisyos.core.artifacts import (
     ArtifactID,
+    ArtifactManifest,
+    ArtifactRef,
     CoreJSONArtifactStore,
+    SchemaInfo,
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
     load_core_json_artifact,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     ExecPlan,
     ExecPlanRef,
-    ParameterOverrideBundle,
-    ParameterOverrideBundleRef,
-    ProgramGraph,
-    ProgramGraphRef,
-    ProgramNode,
-    StateSnapshotRef,
-)
-from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
     ModelInputObligation,
     ModelInputObligationSet,
     ModelInputPortDeclaration,
+    ParameterOverrideBundle,
+    ParameterOverrideBundleRef,
+    ProgramGraph,
     ProgramGraphInputDependency,
     ProgramGraphInputInvocation,
+    ProgramGraphRef,
+    ProgramNode,
+    StateSnapshotRef,
     load_model_input_obligation_set,
     load_model_input_port_declaration,
     load_program_graph_input_interface,
@@ -38,12 +38,9 @@ from polisyos.core.contracts.model_input_requirements import (
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.contracts.specs import get_mechanism_spec, validate_mechanism_params
-from polisyos.ir.governance import ScheduleSpec
-from polisyos.ir.governance.schedule import schedule_range
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.kernel.merge_rules import MergeRuleKind
-from polisyos.ir.kernel.slots import SlotScope, SlotValueType
-from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.governance import ScheduleSpec, SelectorPredicate, schedule_range
+from polisyos.ir.kernel import MergeRuleKind, SlotScope, SlotValueType
+from polisyos.ir.registry import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
 
 

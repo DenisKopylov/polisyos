@@ -9462,6 +9462,54 @@
             "inputs_unchanged": true,
             "scope": "One verified action context per budget observation. The late full recheck, live lease, exact head/profile and current ledger window remain. Removing only the complete selected-head comparison in memory makes the wrong-profile case fail. Static R33 call-count estimate only, no whole-route elapsed claim."
           },
+          "dispatcher_exact_prospective_record_pair": {
+            "source_commit": "fc77550d76525fff040a9e760a512c384a52d493",
+            "source_tree": "789ade12c3dc4a4633bfcac1360a91b27ea71a8c",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-current-record-pair-r1 and lane01-current-record-pair-removal-r1",
+            "observed": {"PASS": 35, "EXPECTED_REMOVAL_FAIL": 2},
+            "inputs_unchanged": true,
+            "scope": "Decision scope and its exact prospective CAS basis use two live replays. Reintroducing the third duplicate or removing the complete selected-basis ref check makes its corresponding test fail. An alternate profile with the same artifact ID and payload is independently readable but cannot replace the decision's selected profile."
+          },
+          "r33_budget_snapshot_actual_lease_comparison": {
+            "source_commit": "fc77550d76525fff040a9e760a512c384a52d493",
+            "source_tree": "789ade12c3dc4a4633bfcac1360a91b27ea71a8c",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-r33-budget-snapshot-compare-r1/command.stdout.txt",
+            "observed": {"PASS": 1},
+            "named_inputs": 19,
+            "inputs_unchanged": true,
+            "wall_seconds": 70.82,
+            "scope": "Prior dispatcher function body on the same composed dependencies versus stock context reuse under the real retained attempt-2 lease. Exact native budget bytes and typed observation equal, two versus one reentry contexts and four versus two history folds. One paired sample 17.140 versus 8.937 seconds. Original SQLite, ledger, orphan CAS/event, pending head and four standard units unchanged. No N5, transport, dispatch completion or whole-route elapsed claim."
+          },
+          "canonical_equivalent_b_source_admission_r1": {
+            "source_commit": "fc77550d76525fff040a9e760a512c384a52d493",
+            "source_tree": "789ade12c3dc4a4633bfcac1360a91b27ea71a8c",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-cyc03-equivalent-full-r1",
+            "observed": {"FAIL": 1},
+            "named_inputs": 21,
+            "inputs_unchanged": true,
+            "wall_seconds": 153.16,
+            "scope": "Canonical TEST-CYC-03-01 real source completes with one joint-simulated acquisition-required cycle. Compiled CAS 29a8a3f2… has no routing report/cost record and records catalog_source_registry_readmission_required. Costed route selection stops before any B or later generation. The fixture persisted an unbound substrate registry despite explicit Catalog selection."
+          },
+          "changed_c_r2_retained_b_fresh_read": {
+            "source_commit": "fc77550d76525fff040a9e760a512c384a52d493",
+            "source_tree": "789ade12c3dc4a4633bfcac1360a91b27ea71a8c",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-changed-c-reopen-preflight-r2",
+            "observed": {"PASS": 1},
+            "named_inputs": 12,
+            "inputs_unchanged": true,
+            "wall_seconds": 49.7,
+            "scope": "Fresh authenticated GET 200 on the preserved 7/1 generation-1 terminal after the expired-token stop. Job completed, candidate evaluation blocked, head 5 and exact selected N5 dcf6ec84… profile. Four standard units, original ledger identity and bytes, SQL/CAS unchanged. No POST, worker, new acquisition or N5. New same-B and C are separate stages."
+          },
+          "canonical_equivalent_b_selected_catalog_r2": {
+            "source_commit": "414c95e4f374b88aeb8241d7d319b5866d564341",
+            "source_tree": "398e10eacd76b66373c23fc55e9b94efe9019ca7",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-cyc03-equivalent-full-r2 and lane01-cyc03-n7-refusal-probe-r3",
+            "observed": {"FAIL": 1, "PASS_DIAGNOSTIC": 1},
+            "named_inputs": 22,
+            "inputs_unchanged": true,
+            "wall_seconds": 175.94,
+            "scope": "The fixture uses the existing published Catalog owner and readmits the substrate registry. Its actual joint source cycle now persists a blocked planner report with unbound_requirement_input_refused and no costed route. The exact saved cycle validates its L1 gap and request. The compiler produces one global.tax_rate spec, zero capability resolutions and no routable descriptor, with or without the existing governed fixture resolver. The historical costed fixture instead expects government.balance WDI. No B or later evaluation runs. Keep the two mechanisms and their owner inputs distinct."
+          },
           "retained_r33_budget_window_author_r5": {
             "source_commit": "04e2ecf648e0aeb7a8703dfbd60190ff96722ad8",
             "source_tree": "ff24f2091c3c73e5586bedc7274af37c4356404b",

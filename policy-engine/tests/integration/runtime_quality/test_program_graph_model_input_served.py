@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from contextlib import closing
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -56,6 +58,7 @@ from polisyos.runtime.quality.model_input_requirements import (
 )
 from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
 from polisyos.runtime.quality.world_model_record import (
+    SkgCausalPriorRef,
     build_world_model_record,
     world_model_artifact_views,
 )
@@ -116,6 +119,8 @@ def _selected_profile(
     trinity: TrinityBundle,
     problem: DesignProblem,
     world_root: Path,
+    *,
+    skg_prior: SkgCausalPriorRef | None = None,
 ) -> GenericCycleSimulationProfileV1:
     store = case.store
     world_root.mkdir()
@@ -128,7 +133,7 @@ def _selected_profile(
         data_forge_snapshot_binding_path=world_fixture._write_data_forge_binding(world_root),
         data_snapshot_ref=case.data_snapshot_ref,
         model_spec=trinity.model_spec,
-        skg_causal_prior_ref=world_fixture._skg_ref(world_root),
+        skg_causal_prior_ref=skg_prior or world_fixture._skg_ref(world_root),
         substrate_registry=substrate,
         substrate_registry_artifact_ref=substrate_ref,
         registry_bundle_artifact_ref=case.registry_bundle_ref,
@@ -178,6 +183,179 @@ def _selected_profile(
             ),
         )
     )
+
+
+def _stock_grounding_source(root: Path) -> SkgCausalPriorRef:
+    """Build bounded owner inputs with two distinct fiscal controls."""
+    from polisyos.data_forge.read_api.academic import SKGQuery
+    from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+    from tests._helpers.candidate_cycle_source_profile import _build_source_files
+
+    # Explicit local knob data for existing IR mechanisms, with no law or fiscal
+    # research claim. The bounded SKG only establishes a real selected read.
+    skg_path, version = _build_source_files(
+        root,
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary={
+            kind: {
+                "default": 0.125,
+                "type": "float",
+                "min": 0.0,
+                "max": 1.0,
+                "unit": "ratio",
+                "mechanism_id": kind,
+                "param_path": "params.rate",
+            }
+            for kind in ("tax_subsidy", "income_tax")
+        },
+    )
+    paths = default_l6_bundle_paths(root)
+    source_authority = default_l6_bundle_paths(Path(__file__).resolve().parents[3])[
+        "owner_authority_bindings"
+    ]
+    authority_path = paths["owner_authority_bindings"]
+    authority_path.parent.mkdir(parents=True, exist_ok=True)
+    authority_path.write_bytes(source_authority.read_bytes())
+    slot_path = paths["slot_family_manifest"]
+    slots = json.loads(slot_path.read_text(encoding="utf-8"))
+    slots["families"]["stock_fixture_mechanisms"] = {
+        "slots": [_INCOME, "agents.reported_income", _OUTCOME]
+    }
+    slot_path.write_text(json.dumps(slots, sort_keys=True), encoding="utf-8")
+    with closing(SKGQuery(db_path=skg_path, index_dir=skg_path.parent / "index")) as skg:
+        snapshot_ref = skg.skg_snapshot_ref(version_id=int(version))
+    assert snapshot_ref is not None
+    return SkgCausalPriorRef(
+        skg_snapshot_ref=snapshot_ref,
+        skg_version_id=version,
+        source_data_snapshot_id=world_fixture.SNAPSHOT_ID,
+    )
+
+
+@pytest.mark.integration
+def test_compiled_stock_grounding_preserves_distinct_fiscal_mechanisms(tmp_path: Path) -> None:
+    """Exercise exact L6/CG1/CG2 identities for opposite Foundry mechanisms."""
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.credal_reference import (
+        build_credal_reference,
+        out_of_scope_edge,
+        replace_reference_edge,
+    )
+    from polisyos.runtime.quality.design_generation import (
+        _grounding_proposal_for_intervention,
+        _selected_atom_id_from_cg1,
+        _selected_atom_payload,
+    )
+    from polisyos.runtime.quality.grounding_bind import (
+        GroundingBindGate,
+        _operator_registered,
+        recompute_grounding_relation_content_hash,
+        resolve_grounding_decision_promotability,
+    )
+    from polisyos.runtime.quality.grounding_relation import (
+        _TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION,
+        GROUNDING_RELATION_VALIDATOR_VERSION,
+        GroundingRelationCertificate,
+        GroundingRelationEngine,
+    )
+
+    root = tmp_path / "knowledge"
+    skg_prior = _stock_grounding_source(root)
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        intervention_notes=("do.target=agents.income",),
+        intervention_measurement_expectations={
+            "sign": "increase",
+            "outcome": [_INCOME],
+            "effect_path": ["tax_subsidy", _INCOME, _INCOME],
+            "estimand": "average_treatment_effect",
+        },
+        model_input_port_declaration_builder=_stock_declaration,
+        snapshot_id=world_fixture.SNAPSHOT_ID,
+    )
+    try:
+        trinity = load_trinity_bundle_artifact(
+            ensure_ir_artifact_store(case.store), case.trinity_ref
+        )
+        problem = _fiscal_problem()
+        profile = _selected_profile(case, trinity, problem, tmp_path / "world", skg_prior=skg_prior)
+        world = profile.context_inputs.world_model_record
+        reference = build_credal_reference(root, world_model_record=world)
+        assert reference.component_versions["WMR"] == world.content_hash
+        engine = GroundingRelationEngine(reference)
+        assert {
+            atom.signature.modal_claims["L6"]["knob"]: atom.signature.op
+            for atom in engine.reference_atoms
+            if atom.signature.X_do == (_INCOME,)
+        } == {"tax_subsidy": "tax_subsidy", "income_tax": "income_tax"}
+
+        (intervention,) = trinity.policy_spec.interventions
+        bundle_ref = gy_content_hash(trinity.model_dump(mode="json"))
+        proposal = _grounding_proposal_for_intervention(
+            intervention, design_problem=problem, bundle_ref=bundle_ref
+        )
+        decision = engine.certificate_for(proposal, proposal_id=proposal["proposal_id"])
+        assert decision.selected_relation in {"exact", "certified-specialization"}, {
+            "relation": decision.selected_relation,
+            "contradictions": decision.critical_contradictions,
+            "unresolved": decision.unresolved_axes,
+            "axes": {row.axis: row.witness for row in decision.axis_witnesses},
+        }
+        selected = _selected_atom_payload(decision, _selected_atom_id_from_cg1(decision))
+        assert selected["signature"]["op"] == intervention.kind == "tax_subsidy"
+        assert decision.validator_version == _TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION
+        assert _operator_registered(reference, "income-tax")
+        assert _operator_registered(reference, intervention.kind)
+
+        live_gate = GroundingBindGate(reference)
+        current = live_gate.certificate_for(decision)
+        assert current.revalidation.status == "passed"
+        assert not resolve_grounding_decision_promotability(current, reference).promotable
+
+        # Preserve the historical wire and self-identity, even when the old
+        # validator version is the only difference in the observed property.
+        old = decision.model_copy(
+            update={"validator_version": GROUNDING_RELATION_VALIDATOR_VERSION}
+        )
+        old_hash = recompute_grounding_relation_content_hash(old)
+        old = old.model_copy(
+            update={
+                "content_hash": old_hash,
+                "certificate_id": f"cg1_cert_{old_hash.removeprefix('sha256:')[:16]}",
+            }
+        )
+        historical = GroundingRelationCertificate.model_validate_json(old.model_dump_json())
+        assert historical == old
+        assert recompute_grounding_relation_content_hash(historical) == old_hash
+        reissued = live_gate.certificate_for(historical)
+        assert reissued.decision == "abstain"
+        assert reissued.decisive_reason == "relation_revalidation_mismatch"
+        assert reissued.revalidation.content_hash_valid is True
+        assert reissued.revalidation.selected_atom_reproduced is True
+        assert reissued.revalidation.currentness_reasons == (
+            "cg1_validator_version_mismatch:"
+            f"{GROUNDING_RELATION_VALIDATOR_VERSION}->{_TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION}",
+        )
+
+        only_subsidy = replace_reference_edge(
+            reference,
+            out_of_scope_edge(("L6_KNOB_OPERATOR", "income_tax"), reason="tax control removed"),
+        )
+        assert _operator_registered(only_subsidy, intervention.kind)
+        assert not _operator_registered(only_subsidy, "income_tax")
+        wrong = _grounding_proposal_for_intervention(
+            intervention.model_copy(update={"kind": "income_tax"}),
+            design_problem=problem,
+            bundle_ref=bundle_ref,
+        )
+        refused = GroundingRelationEngine(only_subsidy).certificate_for(
+            wrong, proposal_id=wrong["proposal_id"]
+        )
+        assert refused.selected_relation not in {"exact", "certified-specialization"}
+    finally:
+        case.close()
 
 
 def _reopen_signed_scopes(

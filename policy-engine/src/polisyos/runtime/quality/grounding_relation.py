@@ -41,6 +41,10 @@ if TYPE_CHECKING:
 GROUNDING_RELATION_SCHEMA_VERSION_V1 = "policyos.runtime.grounding_relation_certificate.v1"
 GROUNDING_RELATION_SCHEMA_VERSION = "policyos.runtime.grounding_relation_certificate.v2"
 GROUNDING_RELATION_VALIDATOR_VERSION = "policyos.runtime.grounding_relation.cg1.v2"
+_TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION = (
+    "policyos.runtime.grounding_relation.cg1.v2.tax_transfer_identity.v1"
+)
+_TAX_TRANSFER_OPERATORS = frozenset({"income_tax", "tax_subsidy"})
 NUMERIC_SCALING = "basis_points"
 _REFERENCE_FTS_INSERT_BATCH_SIZE = 512
 
@@ -532,7 +536,15 @@ class GroundingRelationEngine:
             ],
             "unsat_core_if_any": list(unsat_core),
             "recommended_transition": recommended,
-            "validator_version": GROUNDING_RELATION_VALIDATOR_VERSION,
+            "validator_version": (
+                _TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION
+                if coverage_basis.registered_ops & _TAX_TRANSFER_OPERATORS
+                or any(
+                    _uses_tax_transfer_identity(hypothesis.signature)
+                    for hypothesis in parsed.hypotheses
+                )
+                else GROUNDING_RELATION_VALIDATOR_VERSION
+            ),
             "stale_conditions": _stale_conditions(),
             "shadow_only": True,
             "no_bind_admit_promote": True,
@@ -2449,11 +2461,11 @@ def _canonical_operator(value: object) -> str:
     text = _text(value).casefold().replace("-", "_").replace(" ", "_")
     if not text:
         return ""
+    # TaxSubsidy and IncomeTax have separate compiled mechanisms and effects.
     aliases = {
         "budget": "budget_allocation_multiplier",
         "budget_allocation": "budget_allocation_multiplier",
         "budget_multiplier": "budget_allocation_multiplier",
-        "tax_subsidy": "income_tax",
         "tax_credit": "tax_relief_rate",
         "tax_credit_rate": "tax_relief_rate",
         "income_tax_credit": "tax_relief_rate",
@@ -2464,6 +2476,23 @@ def _canonical_operator(value: object) -> str:
         "procurement_shock": "procurement_shock_intensity",
     }
     return aliases.get(text, text)
+
+
+def _is_tax_transfer_operator(value: object) -> bool:
+    return _canonical_operator(value) in _TAX_TRANSFER_OPERATORS
+
+
+def _uses_tax_transfer_identity(signature: MechanisticSignature) -> bool:
+    """Mark proofs whose operator claims depend on the tax-transfer identity rule."""
+    modal_operators = (
+        claims.get(key)
+        for claims in signature.modal_claims.values()
+        for key in ("op", "treatment_op", "knob")
+    )
+    return any(
+        _is_tax_transfer_operator(operator)
+        for operator in (signature.op, *signature.effect_path, *modal_operators)
+    )
 
 
 def _canonical_sign(value: object) -> str:

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterator, Mapping
 
     from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore, FileSystemCAS
     from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
@@ -66,6 +66,8 @@ def prepare_program_graph_tax_subsidy_input_case(
     opening_balance_usd: float | None,
     mechanism_start_step: int = 0,
     mechanism_duration_steps: int = 1,
+    intervention_notes: tuple[str, ...] = (),
+    intervention_measurement_expectations: Mapping[str, object] | None = None,
     model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
     | None = None,
     store: FileSystemCAS | None = None,
@@ -77,6 +79,8 @@ def prepare_program_graph_tax_subsidy_input_case(
     The model-input preflight can reuse that case to prove the graph's actual
     prestate dependency is absent, without inserting a test-created requirement.
     A caller-supplied store retains its existing ownership and lifetime.
+    A grounding test can declare its do target and structured candidate axes via
+    ``intervention_notes`` and ``intervention_measurement_expectations``.
     `snapshot_id` opts into the synthetic world fixture's explicit version.
     """
     from decimal import Decimal
@@ -227,6 +231,8 @@ def prepare_program_graph_tax_subsidy_input_case(
                         start_step=mechanism_start_step, duration_steps=mechanism_duration_steps
                     ),
                     params={"rate": Decimal(str(SUBSIDY_RATE))},
+                    measurement_expectations=dict(intervention_measurement_expectations or {}),
+                    notes=list(intervention_notes),
                 )
             ],
             mechanism_bindings=[

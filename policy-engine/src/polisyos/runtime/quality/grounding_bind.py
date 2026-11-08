@@ -42,6 +42,9 @@ if TYPE_CHECKING:
 
 GROUNDING_BIND_SCHEMA_VERSION = "policyos.runtime.grounding_decision_certificate.v3"
 GROUNDING_BIND_VALIDATOR_VERSION = "policyos.runtime.grounding_bind.cg2.v3"
+_TAX_TRANSFER_BIND_VALIDATOR_VERSION = (
+    "policyos.runtime.grounding_bind.cg2.v3.tax_transfer_identity.v1"
+)
 
 type GroundingDecision = Literal["bind", "abstain", "novel_candidate"]
 type CalibrationStatus = Literal["calibrated", "cold_start", "drift", "frozen"]
@@ -1277,6 +1280,9 @@ class GroundingBindGate:
         open_obligations = tuple(
             item.obligation_id for item in obligation_checks if item.status == "open"
         )
+        tax_transfer_replay = (
+            active_certificate.validator_version == _cg1._TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION
+        )
         raw_payload = {
             "calibration": calibration_decision.model_dump(mode="json"),
             "authority_scope": self._settings.authority_scope,
@@ -1302,7 +1308,11 @@ class GroundingBindGate:
             "selected_critical_contradictions": list(active_certificate.critical_contradictions),
             "bound_atom_id": bound_atom_id,
             "relation_outcome_set": list(_RELATION_OUTCOME_SET),
-            "validator_version": GROUNDING_BIND_VALIDATOR_VERSION,
+            "validator_version": (
+                _TAX_TRANSFER_BIND_VALIDATOR_VERSION
+                if tax_transfer_replay
+                else GROUNDING_BIND_VALIDATOR_VERSION
+            ),
             "synthetic": synthetic,
             "run_admission": admission.model_dump(mode="json"),
             "admission_strangle": GroundingAdmissionStrangleReceipt.recompute(
@@ -1410,6 +1420,11 @@ def _resolve_grounding_decision_promotability(
         reason = "decision_certificate_id_mismatch"
     elif certificate.decision != "bind":
         reason = "not_bind_decision"
+    elif (
+        _cg1._is_tax_transfer_operator(certificate.calibration.operator_family)
+        and certificate.validator_version != _TAX_TRANSFER_BIND_VALIDATOR_VERSION
+    ):
+        reason = "tax_transfer_operator_identity_revalidation_required"
     elif not reference_epoch_match:
         reason = "reference_epoch_or_hash_mismatch"
     elif not anchor_id or not certificate_anchor_hash:
@@ -1631,7 +1646,10 @@ def _cg1_currentness_reasons(
             "cg1_validator_version_mismatch:"
             f"{consumed.validator_version}->{replayed.validator_version}"
         )
-    if replayed.validator_version != GROUNDING_RELATION_VALIDATOR_VERSION:
+    if replayed.validator_version not in {
+        GROUNDING_RELATION_VALIDATOR_VERSION,
+        _cg1._TAX_TRANSFER_IDENTITY_VALIDATOR_VERSION,
+    }:
         reasons.append("cg1_replay_validator_not_current")
     if consumed.solver_status != replayed.solver_status:
         reasons.append(
@@ -1762,32 +1780,13 @@ def _target_is_writable(reference: CredalReference, target: str) -> bool:
 def _operator_registered(reference: CredalReference, operator: str) -> bool:
     if not operator:
         return False
-    canonical = _canonical_operator(operator)
+    canonical = _cg1._canonical_operator(operator)
     return any(
         edge.modality == "L6_KNOB_OPERATOR"
         and edge.status == "confirmed"
-        and _canonical_operator(edge.edge_id) == canonical
+        and _cg1._canonical_operator(edge.edge_id) == canonical
         for edge in reference.essential_edges.values()
     )
-
-
-def _canonical_operator(value: object) -> str:
-    text = str(value or "").strip().casefold().replace("-", "_").replace(" ", "_")
-    aliases = {
-        "budget": "budget_allocation_multiplier",
-        "budget_allocation": "budget_allocation_multiplier",
-        "budget_multiplier": "budget_allocation_multiplier",
-        "tax_subsidy": "income_tax",
-        "tax_credit": "tax_relief_rate",
-        "tax_credit_rate": "tax_relief_rate",
-        "income_tax_credit": "tax_relief_rate",
-        "corporate_tax_credit": "tax_relief_rate",
-        "payroll_tax_credit": "tax_relief_rate",
-        "tax_relief": "tax_relief_rate",
-        "procurement": "procurement_shock_intensity",
-        "procurement_shock": "procurement_shock_intensity",
-    }
-    return aliases.get(text, text)
 
 
 def _first_text(value: object) -> str:

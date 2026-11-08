@@ -402,6 +402,9 @@ class EnginePlan(_StrictModel):
     system_dynamics_state: dict[str, Any] = Field(default_factory=dict)
     system_dynamics_params: dict[str, Any] = Field(default_factory=dict)
     system_dynamics_state_overrides_by_atom: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    program_compilation_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     program_graph_ref: Any | None = Field(default=None, exclude=True)
     exec_plan_ref: Any | None = Field(default=None, exclude=True)
     program_store: Any | None = Field(default=None, exclude=True)
@@ -417,6 +420,21 @@ class EnginePlan(_StrictModel):
         default_factory=dict
     )
     method_fqn: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_program_compilation(self) -> EnginePlan:
+        ref = self.program_compilation_ref
+        if ref is None:
+            return self
+        if self.engine_kind != "program_graph":
+            raise ValueError("program_compilation_ref_engine_mismatch")
+        if (
+            ref.kind != "compiler.compile_report"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("program_compilation_ref_unselected")
+        return self
 
 
 class NCMConditionalComparatorProfile(_StrictModel):

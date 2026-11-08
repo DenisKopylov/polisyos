@@ -4239,17 +4239,40 @@ def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
         recording_controller = _RecordingController()
 
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            observation = JointSimulationPort(
+            runtime_port = JointSimulationPort(
                 controller=recording_controller,
                 repo_root=tmp_path / "empty-repo",
                 artifact_store=store,
-            )(
+            )
+            observation = runtime_port(
                 candidate=candidate,
                 problem=served_problem,
                 cycle_index=0,
             )
+            caller_selected_plan = unbound_program_plan.model_copy(
+                update={
+                    "program_compilation_ref": ArtifactRef(
+                        artifact_id="sha256:" + "a" * 64,
+                        kind="compiler.compile_report",
+                        media_type="application/json",
+                        manifest_profile_sha256="sha256:" + "b" * 64,
+                    )
+                }
+            )
+            caller_selected_request = ordered_request.model_copy(
+                update={"engine_plan": (caller_selected_plan, *owner_request.engine_plan)}
+            )
+            blocked = runtime_port(
+                candidate=candidate,
+                problem=problem.model_copy(
+                    update={"runtime_hints": {"joint_simulation_request": caller_selected_request}}
+                ),
+                cycle_index=0,
+            )
 
         assert observation.status == "joint_simulated"
+        assert blocked.status == "simulation_blocked"
+        assert blocked.authority_blockers == ("n5_program_compilation_owner_not_established",)
         assert len(request_seen) == 1
         assert request_seen[0].engine_plan[0].program_store is None
         assert request_seen[0].engine_plan[0].program_base_state is None

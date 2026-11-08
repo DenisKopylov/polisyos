@@ -1468,6 +1468,40 @@ def test_program_graph_plan_refuses_conflicting_shared_slot_before_execution(
             close()
 
 
+def test_program_graph_plan_roundtrips_exact_selected_compilation() -> None:
+    compile_ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="compiler.compile_report",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    legacy = EnginePlan(engine_kind="program_graph", objective_ref="objective://selected")
+    assert "program_compilation_ref" not in legacy.model_dump(mode="json")
+
+    plan = EnginePlan(
+        engine_kind="program_graph",
+        objective_ref=legacy.objective_ref,
+        program_compilation_ref=compile_ref,
+    )
+    reopened = EnginePlan.model_validate_json(plan.model_dump_json())
+    assert reopened.program_compilation_ref == compile_ref
+
+    with pytest.raises(ValueError, match="program_compilation_ref_engine_mismatch"):
+        EnginePlan(
+            engine_kind="ncm_parallel_worlds",
+            objective_ref=legacy.objective_ref,
+            program_compilation_ref=compile_ref,
+        )
+    with pytest.raises(ValueError, match="program_compilation_ref_unselected"):
+        EnginePlan(
+            engine_kind="program_graph",
+            objective_ref=legacy.objective_ref,
+            program_compilation_ref=compile_ref.model_copy(
+                update={"manifest_profile_sha256": None},
+            ),
+        )
+
+
 def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> None:
     request = _request().model_copy(
         update={

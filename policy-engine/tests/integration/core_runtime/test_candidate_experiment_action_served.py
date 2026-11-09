@@ -1524,7 +1524,8 @@ def run_genuine_candidate_experiment_scenario(
     expected_blocked: bool = False,
     subsequent_attempt_ids: tuple[str, ...] = (),
     after_execution: Callable[..., object] | None = None,
-    authority_valid_until: datetime | None = None,
+    authority_valid_until: datetime | Callable[[], datetime] | None = None,
+    before_action_observer: Callable[..., object] | None = None,
 ) -> dict[str, object]:
     """Serve the genuine source and first candidate action; optionally continue inline."""
     from dataclasses import replace
@@ -1569,6 +1570,8 @@ def run_genuine_candidate_experiment_scenario(
         run_id = str(values["run_id"])
         assert values["job"].kind == "natural_language_run"
         assert values["job"].state == "completed"
+        if before_action_observer is not None:
+            before_action_observer(**values)
         client, trust = values["client"], values["trust"]
         action_service = values["action_service"]
         policy_owner = _candidate_experiment_policy_owner(
@@ -1739,6 +1742,11 @@ def run_genuine_candidate_experiment_scenario(
                         prepared_catalog=prepared,
                     )
 
+            resolved_authority_valid_until = (
+                authority_valid_until()
+                if callable(authority_valid_until)
+                else authority_valid_until
+            )
             observed.update(
                 run_candidate_experiment_action_oracle(
                     tmp_path=tmp_path,
@@ -1746,7 +1754,7 @@ def run_genuine_candidate_experiment_scenario(
                     policy_ref=policy_ref,
                     monkeypatch=monkeypatch,
                     after_replay=execute_after_replay,
-                    authority_valid_until=authority_valid_until,
+                    authority_valid_until=resolved_authority_valid_until,
                 )
             )
         finally:

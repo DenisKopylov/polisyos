@@ -322,13 +322,9 @@ def test_served_actual_v5_n5_witness_reconciles_owner_quantities(
     assert len(checked) == 1, "no genuine served B result reached the witness oracle"
 
 
-@pytest.mark.integration
-def test_served_actual_v5_n5_initial_a_capture_is_live_before_b(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    served_recorded_candidate_gateway: Any,
-) -> None:
-    """The ordinary seed run binds a real N4 source and live N5 capture before B."""
+def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
+    import json
+
     from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, load_core_json_artifact
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
@@ -340,6 +336,141 @@ def test_served_actual_v5_n5_initial_a_capture_is_live_before_b(
         N4CandidateScenarioSourceRecordV3,
     )
 
+    control, job, run_id = values["control"], values["job"], values["run_id"]
+    terminal = control.resolve_completed_control_job_core_run_source(
+        job,
+        expected_control_run_id=run_id,
+        tenant_id=fixture.TENANT,
+        cell_id=fixture.CELL,
+    )
+    assert terminal.manifest.status == "ok"
+    outputs = tuple(
+        ref
+        for ref in terminal.manifest.outputs
+        if ref.kind == "runtime.compiled_recursive_generation_cycle"
+    )
+    assert len(outputs) == 1
+    selected = ArtifactRef.model_validate(
+        job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+    )
+    assert artifact_ref_identity_key(outputs[0]) == artifact_ref_identity_key(selected)
+    assert str(selected.artifact_id) == job.progress["compiled_recursive_generation_cycle_ref"]
+
+    fresh = FileSystemCAS.open_existing_read_only(values["cas_root"])
+    assert fresh is not control._artifact_store
+    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+        load_core_json_artifact(fresh, selected)
+    )
+    cycles = tuple(
+        (leaf.cycle_run, cycle)
+        for leaf in compiled.recursive_run.leaf_nodes
+        if leaf.cycle_run is not None
+        for cycle in leaf.cycle_run.cycles
+    )
+    assert len(cycles) == 1
+    _generation, cycle = cycles[0]
+    assert cycle.simulation.status == "joint_simulated"
+    simulation = cycle.simulation
+    input_ref = simulation.candidate_simulation_n5_input_ref
+    result_ref = simulation.simulation_result_ref
+    source_ref = simulation.candidate_simulation_n4_source_ref
+    assert input_ref is not None and result_ref is not None and source_ref is not None
+
+    candidate_source = GenerationSourceRepository(fresh).load_candidate_scenario_source_for_n5(
+        source_ref,
+        expected_run_id=run_id,
+        expected_job_id=job.job_id,
+        expected_tenant_id=fixture.TENANT,
+        expected_cell_id=fixture.CELL,
+    )
+    assert type(candidate_source) is N4CandidateScenarioSourceRecordV3
+    assert candidate_source.candidate.candidate_id == cycle.selected_candidate_ref
+    assert candidate_source.profile_selection_ref == values["profile_selection_ref"]
+    l6_bundle = candidate_source.profile.context_inputs.intervention_substrate
+    assert l6_bundle is not None
+    declared_slots = {
+        slot
+        for family in l6_bundle.slot_family_manifest["families"].values()
+        for slot in family["slots"]
+    }
+    assert candidate_source.profile.rule.target_world_slot == "government.balance"
+    assert "government.balance" in declared_slots
+
+    n5_input = CandidateSimulationN5InputV5.model_validate(
+        load_core_json_artifact(fresh, input_ref)
+    )
+    assert n5_input.original_candidate_id == cycle.selected_candidate_ref
+    assert n5_input.original_candidate_hash == cycle.selected_candidate_content_hash
+    assert n5_input.profile.profile_selection_ref == values["profile_selection_ref"]
+    assert artifact_ref_identity_key(n5_input.n4_source_ref) == artifact_ref_identity_key(
+        source_ref
+    )
+    expected_world_model_hash = n5_input.materialization.world_model_record_hash
+    expected_outcome = candidate_source.source_record.model_declaration.outcome_variable
+    selected_atom_id = candidate_source.candidate.atom.intervention_id
+    assert expected_outcome == n5_input.outcome_variable
+    assert selected_atom_id == n5_input.materialization.derived_n5_atom.intervention_id
+    result = load_joint_simulation_result(
+        result_ref,
+        store=fresh,
+        expected_world_model_record_content_hash=expected_world_model_hash,
+        expected_atom_ids=(selected_atom_id,),
+        expected_selected_outcomes=(expected_outcome,),
+        expected_receipt_payload_hash=simulation.simulation_ref,
+    )
+    assert result.receipt.payload_hash == simulation.simulation_ref
+    assert len(result.trajectories) == 2
+    assert result.receipt.engine_kind == "ncm_parallel_worlds"
+    assert result.diagnostics.get("physical_work_capture_status") == "observed"
+    assert result.diagnostics.get("physical_work_units") == 2
+    witness = basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
+    assert witness.predicate_provenance == "recomputed" and not witness.reason_codes
+    assert witness.input_ref_identity == artifact_ref_identity_key(input_ref)
+    with basis._LOCK:
+        issued = basis._ISSUED.get(witness.content_hash)
+    assert issued is not None and issued.witness == witness
+    capture = issued.capture
+    assert capture._admission is not None
+    assert artifact_ref_identity_key(capture._admission.input_ref) == (
+        artifact_ref_identity_key(input_ref)
+    )
+    assert capture._admission.input_content_hash == n5_input.content_hash
+    executed = {(row[0], row[1]) for row in witness.implementation["source"]["executed_code"]}
+    assert (
+        horizon_module.JointSimulationHorizonController.run.__module__,
+        horizon_module.JointSimulationHorizonController.run.__code__.co_qualname,
+    ) in executed
+    assert (
+        ncm_engine.NCMEngineMethod.pure_step.__module__,
+        ncm_engine.NCMEngineMethod.pure_step.__code__.co_qualname,
+    ) in executed
+    result = (run_id, cycle.selected_candidate_ref)
+    print(
+        json.dumps(
+            {
+                "initial_a_live_n5": "PASS",
+                "run_id": run_id,
+                "compiled_cycle_ref": str(selected),
+                "n4_source_ref": str(source_ref),
+                "n5_input_ref": str(input_ref),
+                "n5_result_ref": str(result_ref),
+                "n5_input_content_hash": n5_input.content_hash,
+                "witness_content_hash": witness.content_hash,
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
+    return result
+
+
+@pytest.mark.integration
+def test_served_actual_v5_n5_initial_a_capture_is_live_before_b(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+) -> None:
+    """The ordinary seed run binds a real N4 source and live N5 capture before B."""
     source = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "candidate-source",
         include_owner_slot_manifest=True,
@@ -347,117 +478,7 @@ def test_served_actual_v5_n5_initial_a_capture_is_live_before_b(
     observed: list[tuple[str, str]] = []
 
     def observe_initial_a(**values: Any) -> None:
-        control, job, run_id = values["control"], values["job"], values["run_id"]
-        terminal = control.resolve_completed_control_job_core_run_source(
-            job,
-            expected_control_run_id=run_id,
-            tenant_id=fixture.TENANT,
-            cell_id=fixture.CELL,
-        )
-        assert terminal.manifest.status == "ok"
-        outputs = tuple(
-            ref
-            for ref in terminal.manifest.outputs
-            if ref.kind == "runtime.compiled_recursive_generation_cycle"
-        )
-        assert len(outputs) == 1
-        selected = ArtifactRef.model_validate(
-            job.progress["compiled_recursive_generation_cycle_artifact_ref"]
-        )
-        assert artifact_ref_identity_key(outputs[0]) == artifact_ref_identity_key(selected)
-        assert str(selected.artifact_id) == job.progress["compiled_recursive_generation_cycle_ref"]
-
-        fresh = FileSystemCAS.open_existing_read_only(values["cas_root"])
-        assert fresh is not control._artifact_store
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            load_core_json_artifact(fresh, selected)
-        )
-        cycles = tuple(
-            (leaf.cycle_run, cycle)
-            for leaf in compiled.recursive_run.leaf_nodes
-            if leaf.cycle_run is not None
-            for cycle in leaf.cycle_run.cycles
-        )
-        assert len(cycles) == 1
-        _generation, cycle = cycles[0]
-        assert cycle.simulation.status == "joint_simulated"
-        simulation = cycle.simulation
-        input_ref = simulation.candidate_simulation_n5_input_ref
-        result_ref = simulation.simulation_result_ref
-        source_ref = simulation.candidate_simulation_n4_source_ref
-        assert input_ref is not None and result_ref is not None and source_ref is not None
-
-        candidate_source = GenerationSourceRepository(fresh).load_candidate_scenario_source_for_n5(
-            source_ref,
-            expected_run_id=run_id,
-            expected_job_id=job.job_id,
-            expected_tenant_id=fixture.TENANT,
-            expected_cell_id=fixture.CELL,
-        )
-        assert type(candidate_source) is N4CandidateScenarioSourceRecordV3
-        assert candidate_source.candidate.candidate_id == cycle.selected_candidate_ref
-        assert candidate_source.profile_selection_ref == values["profile_selection_ref"]
-        l6_bundle = candidate_source.profile.context_inputs.intervention_substrate
-        assert l6_bundle is not None
-        declared_slots = {
-            slot
-            for family in l6_bundle.slot_family_manifest["families"].values()
-            for slot in family["slots"]
-        }
-        assert candidate_source.profile.rule.target_world_slot == "government.balance"
-        assert "government.balance" in declared_slots
-
-        n5_input = CandidateSimulationN5InputV5.model_validate(
-            load_core_json_artifact(fresh, input_ref)
-        )
-        assert n5_input.original_candidate_id == cycle.selected_candidate_ref
-        assert n5_input.original_candidate_hash == cycle.selected_candidate_content_hash
-        assert n5_input.profile.profile_selection_ref == values["profile_selection_ref"]
-        assert artifact_ref_identity_key(n5_input.n4_source_ref) == artifact_ref_identity_key(
-            source_ref
-        )
-        expected_world_model_hash = n5_input.materialization.world_model_record_hash
-        expected_outcome = candidate_source.source_record.model_declaration.outcome_variable
-        selected_atom_id = candidate_source.candidate.atom.intervention_id
-        assert expected_outcome == n5_input.outcome_variable
-        assert selected_atom_id == n5_input.materialization.derived_n5_atom.intervention_id
-        result = load_joint_simulation_result(
-            result_ref,
-            store=fresh,
-            expected_world_model_record_content_hash=expected_world_model_hash,
-            expected_atom_ids=(selected_atom_id,),
-            expected_selected_outcomes=(expected_outcome,),
-            expected_receipt_payload_hash=simulation.simulation_ref,
-        )
-        assert result.receipt.payload_hash == simulation.simulation_ref
-        assert len(result.trajectories) == 2
-        assert result.receipt.engine_kind == "ncm_parallel_worlds"
-        assert result.diagnostics.get("physical_work_capture_status") == "observed"
-        assert result.diagnostics.get("physical_work_units") == 2
-        witness = basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-        assert witness.predicate_provenance == "recomputed" and not witness.reason_codes
-        assert witness.input_ref_identity == artifact_ref_identity_key(input_ref)
-        with basis._LOCK:
-            issued = basis._ISSUED.get(witness.content_hash)
-        assert issued is not None and issued.witness == witness
-        capture = issued.capture
-        assert capture._admission is not None
-        assert artifact_ref_identity_key(capture._admission.input_ref) == (
-            artifact_ref_identity_key(input_ref)
-        )
-        assert capture._admission.input_content_hash == n5_input.content_hash
-        executed = {
-            (row[0], row[1]) for row in witness.implementation["source"]["executed_code"]
-        }
-        assert (
-            horizon_module.JointSimulationHorizonController.run.__module__,
-            horizon_module.JointSimulationHorizonController.run.__code__.co_qualname,
-        ) in executed
-        assert (
-            ncm_engine.NCMEngineMethod.pure_step.__module__,
-            ncm_engine.NCMEngineMethod.pure_step.__code__.co_qualname,
-        ) in executed
-        observed.append((run_id, cycle.selected_candidate_ref))
+        observed.append(assert_live_initial_a_capture(**values))
 
     with _OwnerCallMonitor() as monitor:
         produced = fixture._produce_served_acquisition_history(

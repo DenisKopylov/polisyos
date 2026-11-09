@@ -292,6 +292,7 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
     served_recorded_candidate_gateway,
 ) -> None:
     """Run A→B→B→B→C through fresh signed decisions and the real served worker."""
+    import os
     from datetime import UTC, datetime, timedelta
 
     from polisyos.core import artifacts, canon
@@ -333,6 +334,14 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         run_candidate_experiment_action_oracle,
         run_genuine_candidate_experiment_scenario,
     )
+
+    initial_a_observer = None
+    if os.environ.get("POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A") == "1":
+        from tests.integration.runtime_quality.test_n5_implementation_witness import (
+            assert_live_initial_a_capture,
+        )
+
+        initial_a_observer = assert_live_initial_a_capture
 
     observed: dict[str, object] = {}
     constituent_controls = install_first_candidate_experiment_constituent_controls(monkeypatch)
@@ -1433,7 +1442,8 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         total_units=7,
         subsequent_attempt_ids=("lane01-generation-c",),
         after_execution=after_first_execution,
-        authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
+        authority_valid_until=lambda: datetime.now(UTC) + timedelta(minutes=90),
+        before_action_observer=initial_a_observer,
     )
     assert scenario["source_status"] == "completed"
     assert len(observed["executions"]) == 4

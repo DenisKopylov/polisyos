@@ -7236,11 +7236,18 @@ class _N5LockedOptionalImports:
             raise ValueError("proxy_facade_route_unqualified")
         module = _passive_capture_lookup(sys.modules, module_name)
         if module is _NO_EXECUTION_BINDING:
+            if type(sys.modules) is not dict or any(
+                type(key) is str and key == module_name for key in sys.modules
+            ):
+                raise ValueError("proxy_facade_module_unqualified")
             return
         if type(module) is not types.ModuleType:
             raise ValueError("proxy_facade_module_unqualified")
         namespace = vars(module)
         cached = _passive_capture_lookup(namespace, export)
+        cache_present = cached is not _NO_EXECUTION_BINDING or any(
+            type(key) is str and key == export for key in namespace
+        )
         if not self.retains_repository_source(module, module_name, relative):
             raise ValueError("proxy_facade_source_not_retained")
 
@@ -7272,7 +7279,7 @@ class _N5LockedOptionalImports:
             _live_facade_map_matches(tree, mapping_name, source_maps[mapping_name], namespace)
         ):
             raise ValueError("proxy_facade_map_changed")
-        if cached is not _NO_EXECUTION_BINDING:
+        if cache_present:
             self.reconcile_callable_facade_cache(cached, route[1], route[2])
         if getter is not _passive_capture_lookup(namespace, "__getattr__"):
             raise ValueError("proxy_facade_getter_changed")

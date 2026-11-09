@@ -255,6 +255,10 @@ def test_execution_source_capture_checks_live_proxy_and_leaves_inactive_route_so
         with pytest.raises(ledger.ConfidenceLedgerError, match="live proxy facade is unqualified"):
             capture()
     with monkeypatch.context() as changed:
+        changed.setattr(facade, "selected", ledger._NO_EXECUTION_BINDING)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="live proxy facade is unqualified"):
+            capture()
+    with monkeypatch.context() as changed:
         getter = vars(facade)["__getattr__"]
         replacement = types.FunctionType(
             getter.__code__,
@@ -274,6 +278,10 @@ def test_execution_source_capture_checks_live_proxy_and_leaves_inactive_route_so
         replacement_module = FacadeSubclass(facade_name)
         vars(replacement_module).update(vars(facade))
         changed.setitem(sys.modules, facade_name, replacement_module)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="live proxy facade is unqualified"):
+            capture()
+    with monkeypatch.context() as changed:
+        changed.setitem(sys.modules, facade_name, ledger._NO_EXECUTION_BINDING)
         with pytest.raises(ledger.ConfidenceLedgerError, match="live proxy facade is unqualified"):
             capture()
 

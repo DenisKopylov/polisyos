@@ -14300,6 +14300,64 @@
           "wall_seconds": 3599.664,
           "scope": "Pinned test delta on the named base. The real B numerical result, completed job and terminal SQL head 5 persisted. Exact source removal correctly refused earlier than the test's expected wrapper, so fresh HTTP, separate C action and C N5 did not run. The next test binds refusal to the injected removal itself. R1 state is historical and lacks a maintained continuation to C."
         },
+        "p05_separately_authorized_changed_input_r2": {
+          "source_commit": "04dcd97677df72d4928d179532ae9b8af1facd8b",
+          "source_tree": "a40a0c8305d91545d65f9d13e74f9de5ff966891",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r2",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 16,
+          "wall_seconds": 3667.346,
+          "scope": "The real B numerical result and terminal head 5 persisted. Exact removal and same-service GET complete before the second runtime fails its historical execution-owner composition check. No C action or C N5 exists. Resolve the exact fresh-owner configuration using the retained store before scheduling a repeat."
+        },
+        "p05_separately_authorized_retained_b_reader_r4": {
+          "source_commit": "8d901ba5e84f7a0ea1f9031586d77cda64ef847a",
+          "source_tree": "f88b7d7cc8aad88a879eeda2d3e0b11890a26266",
+          "test_delta_commit": "3d109ba3926b8ca59fb40263e337068eb9ddec9e",
+          "test_helper_sha256": "5afb0006c30a3107ac1b550907c5273278136e3b2a0e3a89d8fd1ac90f48b8f6",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-r2-fresh-b-reader-r4",
+          "observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 10,
+          "wall_seconds": 89.419,
+          "scope": "Retained R2 B, exact terminal and N5 profiles, five phases, fresh authenticated reader with wrong profile and removal controls. Independent CAS/SQLite scratch and exact original budget resource under a write guard. Units 4 to 4, no new PA2, worker, transport or N5. C remains unrun."
+        },
+        "governed_n7_same_cycle_reentry_r8": {
+          "source_commit": "7964c31385b4c6aa99f0a4a8220106162d09bdf6",
+          "source_tree": "0ed81718b529739fab412dfec61df248906b8a75",
+          "test_delta_commit": "8e1ffdf46483f713f3ad6f1e08f5528d12735b51",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n7-governed-compilation-reentry-r8",
+          "observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 7,
+          "wall_seconds": 82.628,
+          "scope": "Pinned test delta qualifies compiler, persisted planner receipt, exact report/request refusals and two pending-N5 port calls in cycle 0 with a changed world context and grounding unavailable. Numerical N5, GDP acquisition price and VOI remain outside this run."
+        },
+        "p08_legacy_and_semantic_no_sql_baseline_r1": {
+          "source_commit": "7964c31385b4c6aa99f0a4a8220106162d09bdf6",
+          "source_tree": "0ed81718b529739fab412dfec61df248906b8a75",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p08-wire-and-real-owners-r1",
+          "observed": {"PASS": 6, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 9,
+          "wall_seconds": 31.343,
+          "scope": "Exact constructed legacy wires and matrix, real legacy producer and reader, actual registered SQL v1.1 binding, and executed semantic no-SQL with fresh CAS admission. Actual semantic-SQL and same-number public authority contrast remain unrun."
+        },
+        "p08_sql_v25_current_reader_r1": {
+          "source_commit": "5ceeff327628850587d286fdb4df8611587ca5a9",
+          "source_tree": "cb034b620fd212cd906cf506c63858f8c3338273",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r1",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 6,
+          "wall_seconds": 122.622,
+          "scope": "The first authenticated selected-result debug GET returns 409 simulation_result_binding_tenant_mismatch. Withdrawal and unaffected-source controls did not run."
+        },
+        "p08_sql_v25_writer_owner_diagnostic": {
+          "source_commit": "8d901ba5e84f7a0ea1f9031586d77cda64ef847a",
+          "source_tree": "f88b7d7cc8aad88a879eeda2d3e0b11890a26266",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r2",
+          "diagnostic_output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-owner-diagnostic-r3",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 8,
+          "wall_seconds": 73.771,
+          "scope": "Pinned writer and test delta records 38 tenant-scoped states before the persisted-owner comparison refuses. Diagnostic and separate actual CAS reproduction isolate wire-identical EnvironmentManifestRef versus decoded ArtifactRef. Tenant, cell and scope predicates match. No V25 withdrawal verdict."
+        },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -14328,6 +14386,16 @@
           "r11_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r11",
           "r11_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.CatalogRunProfile",
           "r11_stable_pins": 23,
+          "r12_commit": "c43860b751990e2fc00c32a9867f6044e487623f",
+          "r12_tree": "2b06208d9887b00f220cdbd9217593734b8e1854",
+          "r12_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r12",
+          "r12_refusal": "missing repository re-export binding: polisyos.fabric.connectors",
+          "r12_stable_pins": 36,
+          "r13_commit": "8d901ba5e84f7a0ea1f9031586d77cda64ef847a",
+          "r13_tree": "f88b7d7cc8aad88a879eeda2d3e0b11890a26266",
+          "r13_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r13",
+          "r13_refusal": "unqualified package initializer route: polisyos.foundry.methods.catalog.causal.interference.estimation",
+          "r13_stable_pins": 46,
           "catalog_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-owner-r1",
           "catalog_lazy_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-lazy-r1",
           "known_import_edge_diagnostic": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r1",

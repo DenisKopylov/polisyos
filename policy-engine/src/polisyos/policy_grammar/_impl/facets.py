@@ -6,15 +6,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.core import contracts
-from polisyos.ir import governance, observation
+from polisyos.ir.governance import NormativeOutcomeChannel, PolicyLayerLevel
+from polisyos.ir.observation import IdentificationMode
 
 if TYPE_CHECKING:
     from .normalizer import NormalizedPolicyIntent
     from .schema import PolicyGrammarConceptSpineRefs
 
-IdentificationMode = observation.IdentificationMode
-NormativeOutcomeChannel = governance.NormativeOutcomeChannel
-PolicyLayerLevel = governance.PolicyLayerLevel
 UniversalGeographyPredicate = contracts.UniversalGeographyPredicate
 UniversalPolicyAuthorityTypeFacet = contracts.UniversalPolicyAuthorityTypeFacet
 UniversalPolicyDeliveryChannel = contracts.UniversalPolicyDeliveryChannel

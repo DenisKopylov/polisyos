@@ -9,13 +9,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 import polisyos.scientist.policy_design as policy_design
 from polisyos.core import artifacts, contracts
-from polisyos.ir import governance
+from polisyos.ir.governance import PolicySpec, ProblemDomain, ProblemFrame
 
 ArtifactRef = artifacts.ArtifactRef
 PolicyCandidateSchema = policy_design.PolicyCandidateSchema
-PolicySpec = governance.PolicySpec
-ProblemDomain = governance.ProblemDomain
-ProblemFrame = governance.ProblemFrame
 UniversalAuthorityProfile = contracts.UniversalAuthorityProfile
 UniversalPolicyDesignCase = contracts.UniversalPolicyDesignCase
 UniversalPolicyFacetName = contracts.UniversalPolicyFacetName

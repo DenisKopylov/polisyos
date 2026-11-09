@@ -584,7 +584,6 @@ def select_method_for_input_contract(
 
     reg = registry if registry is not None else MethodRegistry.get_instance()
     try:
-        from polisyos.foundry.extensions import FoundryExtensionRegistryReport
         from polisyos.foundry.methods import ensure_all_methods_registered
 
         bootstrap_report = ensure_all_methods_registered(reg)

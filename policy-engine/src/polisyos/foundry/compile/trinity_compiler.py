@@ -573,7 +573,7 @@ def _compile_method_metric_binding_set(
 ) -> MethodMetricBindingSetRef:
     """Compile explicit scalar bindings or an exact empty capture-only binding set."""
     _require_bounded_method_metric_bindings(request)
-    from polisyos.core.contracts.foundry import MethodMetricSemanticContract
+    from polisyos.ir.kernel import MethodMetricSemanticContract
 
     objectives_by_id: dict[str, list[ObjectiveSpec]] = {}
     for objective in bundle.problem_frame.objectives:

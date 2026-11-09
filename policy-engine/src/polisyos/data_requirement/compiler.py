@@ -28,7 +28,7 @@ from polisyos.core.contracts import (
     ModelInputContext,
     candidate_source_time_coverage,
 )
-from polisyos.ir import governance
+from polisyos.ir.governance import PolicyLayerLevel, ProblemDomain
 from polisyos.obligation_graph import (
     ComplexityBudget,
     ObligationGraph,
@@ -214,7 +214,7 @@ _CLAIM_CONSTRUCT_KEYS = (
 class _ScenarioDomainResolution:
     """Declared routing vocabulary and its original, unpromoted input."""
 
-    domain: governance.ProblemDomain
+    domain: ProblemDomain
     raw_inputs: tuple[tuple[str, str], ...]
     status: str
     reason_code: str
@@ -258,8 +258,8 @@ class _ScenarioAdapterInput:
 
     scenario_id: str
     text: str
-    domain: governance.ProblemDomain
-    authority_type: governance.PolicyLayerLevel
+    domain: ProblemDomain
+    authority_type: PolicyLayerLevel
     domain_resolution: _ScenarioDomainResolution
     scope_profile: _ScenarioScopeProfile | None = None
 
@@ -2834,26 +2834,26 @@ def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomain
 
     aliases = {
         spelling(token): domain
-        for domain in governance.ProblemDomain
+        for domain in ProblemDomain
         for token in (domain.name, domain.value)
     }
     # Explicit vocabulary aliases, not a token-presence or topic classifier.
     aliases.update(
         {
-            ("health",): governance.ProblemDomain.HEALTHCARE,
-            ("health", "care"): governance.ProblemDomain.HEALTHCARE,
-            ("образование",): governance.ProblemDomain.EDUCATION,
+            ("health",): ProblemDomain.HEALTHCARE,
+            ("health", "care"): ProblemDomain.HEALTHCARE,
+            ("образование",): ProblemDomain.EDUCATION,
         }
     )
     raw_inputs: list[tuple[str, str]] = []
-    resolutions: list[tuple[tuple[str, ...], governance.ProblemDomain | None]] = []
+    resolutions: list[tuple[tuple[str, ...], ProblemDomain | None]] = []
     for key in ("domain", "domain_hint"):
         if key not in scenario:
             continue
         raw = scenario[key]
         if not isinstance(raw, str):
             raise ScenarioDomainInputError("domain_wrong_type", key)
-        text = raw.value if isinstance(raw, governance.ProblemDomain) else str(raw)
+        text = raw.value if isinstance(raw, ProblemDomain) else str(raw)
         token = spelling(text)
         if not token:
             raise ScenarioDomainInputError("domain_empty", key)
@@ -2862,7 +2862,7 @@ def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomain
         resolutions.append((token, aliases.get(base_token)))
     if not resolutions:
         return _ScenarioDomainResolution(
-            governance.ProblemDomain.CUSTOM, (), "not_supplied", "domain_not_supplied"
+            ProblemDomain.CUSTOM, (), "not_supplied", "domain_not_supplied"
         )
     first_token, first_domain = resolutions[0]
     if len(resolutions) == 2:
@@ -2873,7 +2873,7 @@ def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomain
         if not compatible:
             raise ScenarioDomainInputError("domain_alias_conflict", "domain_hint")
     return _ScenarioDomainResolution(
-        first_domain or governance.ProblemDomain.CUSTOM,
+        first_domain or ProblemDomain.CUSTOM,
         tuple(raw_inputs),
         "resolved" if first_domain is not None else "unresolved",
         "domain_vocabulary_resolved" if first_domain is not None else "domain_vocabulary_unknown",
@@ -2882,7 +2882,7 @@ def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomain
 
 def _authority_type_for_scenario(
     scenario: Mapping[str, Any],
-) -> governance.PolicyLayerLevel:
+) -> PolicyLayerLevel:
     context = scenario.get("context") if isinstance(scenario.get("context"), Mapping) else {}
     text = (
         " ".join(
@@ -2898,10 +2898,10 @@ def _authority_type_for_scenario(
     )
     words = set(text.split())
     if words.intersection({"national", "ukraine"}):
-        return governance.PolicyLayerLevel.FEDERAL
+        return PolicyLayerLevel.FEDERAL
     if words.intersection({"oblast", "region", "state"}):
-        return governance.PolicyLayerLevel.STATE
-    return governance.PolicyLayerLevel.LOCAL
+        return PolicyLayerLevel.STATE
+    return PolicyLayerLevel.LOCAL
 
 
 def _jurisdiction_for_geography(

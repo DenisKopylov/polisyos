@@ -42,9 +42,9 @@ from weakref import WeakKeyDictionary, finalize
 
 from pydantic import Field, TypeAdapter, model_validator
 
+import polisyos.foundry.methods.catalog.dependency_evidence as evidence_module
+import polisyos.foundry.methods.catalog.dependency_profile as profile_module
 from polisyos.core import artifacts as core_artifacts
-from polisyos.foundry.methods.catalog import dependency_evidence as evidence_module
-from polisyos.foundry.methods.catalog import dependency_profile as profile_module
 from polisyos.foundry.methods.catalog.dependency_evidence import (
     AbsoluteRequestPath,
     AuthorityFailureCode,

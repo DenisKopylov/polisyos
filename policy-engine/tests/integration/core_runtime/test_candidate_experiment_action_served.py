@@ -118,7 +118,7 @@ def _assert_selected_n4_source_replay_is_consolidated(
         bad_source_ref = source_ref.model_copy(
             update={"manifest_profile_sha256": "sha256:" + "0" * 64}
         )
-        with pytest.raises((FileNotFoundError, ValueError)):
+        with pytest.raises(artifacts.ArtifactOwnershipError, match="read_raw_manifest_view"):
             repository._resolve_selected_candidate_simulation_v5_pair(
                 source_ref=bad_source_ref,
                 execution_ref=execution_ref,
@@ -1634,6 +1634,37 @@ def run_genuine_candidate_experiment_scenario(
                     run_candidate_experiment_served_execution,
                 )
 
+                # The persisted evaluation used to replay the same selected N4
+                # source once directly, once for the input, and twice while
+                # resolving the execution. These records belong to the prior
+                # run. Check its exact selected views before spending B quota.
+                origin = execution_values["origin"]
+                source_cycle = origin.effective_source_cycle
+                simulation = source_cycle.simulation
+                source_ref = simulation.candidate_simulation_n4_source_ref
+                input_ref = simulation.candidate_simulation_n5_input_ref
+                result_ref = simulation.simulation_result_ref
+                execution_ref = artifacts.ArtifactRef.model_validate(
+                    simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+                )
+                assert source_ref is not None and input_ref is not None and result_ref is not None
+                source_replay_counts = _assert_selected_n4_source_replay_is_consolidated(
+                    monkeypatch,
+                    artifact_store=control._artifact_store,
+                    source_ref=source_ref,
+                    execution_ref=execution_ref,
+                    input_ref=input_ref,
+                    expected_run_id=origin.run_id,
+                    expected_tenant_id=origin.tenant_id,
+                    expected_cell_id=origin.cell_id,
+                )
+                print(
+                    "selected_n4_source_replay_counts "
+                    f"baseline={source_replay_counts['preconsolidation']} "
+                    f"batched={source_replay_counts['batched']} "
+                    "retained_cas=served_candidate"
+                )
+
                 execution = run_candidate_experiment_served_execution(
                     values=execution_values["values"],
                     origin=execution_values["origin"],
@@ -1684,38 +1715,6 @@ def run_genuine_candidate_experiment_scenario(
                     resolved_reentry_evaluation=(
                         execution.terminal_history.reentry_evaluation if expected_blocked else None
                     ),
-                )
-                # The persisted evaluation used to replay the same selected N4
-                # source once directly, once for the input, and twice while
-                # resolving the execution. Measure the old and batched paths
-                # against the real CAS records produced by this served route.
-                from polisyos.core.artifacts.manifest import ArtifactRef
-
-                origin = execution_values["origin"]
-                source_cycle = origin.effective_source_cycle
-                simulation = source_cycle.simulation
-                source_ref = simulation.candidate_simulation_n4_source_ref
-                input_ref = simulation.candidate_simulation_n5_input_ref
-                result_ref = simulation.simulation_result_ref
-                execution_ref = ArtifactRef.model_validate(
-                    simulation.diagnostics["candidate_simulation_execution_selected_ref"]
-                )
-                assert source_ref is not None and input_ref is not None and result_ref is not None
-                source_replay_counts = _assert_selected_n4_source_replay_is_consolidated(
-                    monkeypatch,
-                    artifact_store=control._artifact_store,
-                    source_ref=source_ref,
-                    execution_ref=execution_ref,
-                    input_ref=input_ref,
-                    expected_run_id=origin.run_id,
-                    expected_tenant_id=origin.tenant_id,
-                    expected_cell_id=origin.cell_id,
-                )
-                print(
-                    "selected_n4_source_replay_counts "
-                    f"baseline={source_replay_counts['preconsolidation']} "
-                    f"batched={source_replay_counts['batched']} "
-                    "retained_cas=served_candidate"
                 )
                 observed["execution"] = execution
                 scenario_context.update(

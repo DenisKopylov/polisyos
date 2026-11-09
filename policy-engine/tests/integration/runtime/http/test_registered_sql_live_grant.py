@@ -1155,8 +1155,15 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
 
     import numpy as np
 
+    # The SQL bindings target `agents.income` and `agents.savings`; the shared
+    # model input state declares both as float32, and binding materialization
+    # converts source decimals to that target tensor dtype. Keep the oracle
+    # derived from the fixture values and that declared model boundary, rather
+    # than from the captured output's claimed dtype or digest.
+    model_input_dtype = np.dtype(np.float32)
+
     def expected_input(slot, values):
-        array = np.asarray(values, dtype=np.float64)
+        array = np.asarray(values, dtype=model_input_dtype)
         digest = hashlib.sha256()
         digest.update(array.dtype.str.encode("ascii"))
         digest.update(json.dumps(tuple(array.shape), separators=(",", ":")).encode("ascii"))

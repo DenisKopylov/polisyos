@@ -1107,6 +1107,9 @@ class AsyncWorkflowExecutor:
             final_state_ref=final_state_ref,
             output_refs={FINAL_WORKFLOW_REPORT_STATE_PATH: report_ref},
         )
+        finalization_tenant_context = await self._artifact_tenant_context(
+            operation="workflow_finalization_tenant_context"
+        )
         finalization_ref = await self._put_workflow_artifact(
             finalization.model_dump(mode="json"),
             ArtifactWriteOptions(
@@ -1116,6 +1119,7 @@ class AsyncWorkflowExecutor:
                     name=FINALIZATION_SCHEMA_NAME,
                     version=FINALIZATION_SCHEMA_VERSION,
                 ),
+                tenant_context=finalization_tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=True,
@@ -3408,6 +3412,9 @@ class AsyncWorkflowExecutor:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        tenant_context = await self._artifact_tenant_context(
+            operation="workflow_spec_tenant_context"
+        )
         return await self._put_workflow_artifact(
             workflow.model_dump(),
             ArtifactWriteOptions(
@@ -3417,6 +3424,7 @@ class AsyncWorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.WorkflowSpec",
                     version="1.0",
                 ),
+                tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=return_selected_profile,
@@ -3428,10 +3436,8 @@ class AsyncWorkflowExecutor:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        tenant_context = await _run_checkpoint_blocking(
-            self._ctx.run.artifact_tenant_context,
-            publication_budget=self._checkpoint_publication_budget,
-            operation="workflow_state_tenant_context",
+        tenant_context = await self._artifact_tenant_context(
+            operation="workflow_state_tenant_context"
         )
         return await self._put_workflow_artifact(
             state.model_dump(),
@@ -3449,10 +3455,8 @@ class AsyncWorkflowExecutor:
         )
 
     async def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
-        tenant_context = await _run_checkpoint_blocking(
-            self._ctx.run.artifact_tenant_context,
-            publication_budget=self._checkpoint_publication_budget,
-            operation="workflow_report_tenant_context",
+        tenant_context = await self._artifact_tenant_context(
+            operation="workflow_report_tenant_context"
         )
         return await self._put_workflow_artifact(
             report._validated_payload(),
@@ -3466,4 +3470,16 @@ class AsyncWorkflowExecutor:
                 tenant_context=tenant_context,
             ),
             return_selected_profile=True,
+        )
+
+    async def _artifact_tenant_context(
+        self,
+        *,
+        operation: str,
+    ) -> ArtifactTenantContextInfo | None:
+        """Resolve this run's verified artifact owner without blocking the event loop."""
+        return await _run_checkpoint_blocking(
+            self._ctx.run.artifact_tenant_context,
+            publication_budget=self._checkpoint_publication_budget,
+            operation=operation,
         )

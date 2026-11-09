@@ -14487,7 +14487,57 @@
           "chain_owner_backend_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-chain-owner-r1",
           "chain_owner_backend_pass": 12,
           "combined_a_collection": "VERIFY:policy-engine/_cache/e02/lane01-opt-in-a-collection-r2",
+          "strict_n6_r20": {
+            "source_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+            "source_tree": "f31951280c63f856ce91debb82e22076b24a2890",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r20",
+            "classification": "FAIL_BEFORE_N5_DEPENDENCY_EVIDENCE_IMPORT",
+            "stable_pins": 89,
+            "wall_seconds": 749.548
+          },
+          "composed_ir_foundry_focused_delta": {
+            "output": "MAIN:policy-engine/_cache/e02/lane01-n6-batch-ir-and-foundry-focused-r2",
+            "base_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+            "classification": "PASS_SCOPED_AUTHORED_DELTA",
+            "pass": 12,
+            "wall_seconds": 62.059
+          },
+          "batch_diagnostic_r3": {
+            "source_commit": "01ce69a5cd2e81a172303cc23f0e0ffbc140704f",
+            "source_tree": "aaf1e61700586b32c626663671cf83ad7a5798e0",
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r3",
+            "classification": "COMPLETE_DISCOVERY_ONLY",
+            "reached_modules": 2338,
+            "refused_edges": 157,
+            "refused_importers": 62,
+            "stable_pins": 79,
+            "wall_seconds": 2052.280
+          },
           "scope": "Current real grounded sibling N5 and fresh GET, information and budget controls, protected/unknown-price quota and interrupted results, two complete children and partial frontier through fresh GET. DA-06 retains the actual loaded-build dependency. Strict N6 R18 stops at the missing Foundry chain_executor re-export binding, with no numerical execution."
+        },
+        "lane01_p05_r4_completed_b_stale_unit_oracle": {
+          "source_commit": "607f273f43e4eff82b31b7f96e02ab994a630994",
+          "source_tree": "e5a7275ed0f2155d5df071bb459a5bd672ae3113",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r4",
+          "classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C",
+          "stable_pins": 19,
+          "wall_seconds": 4296.159,
+          "typed_retained_reader": "MAIN:policy-engine/_cache/e02/lane01-p05-r4-retained-typed-b-r2",
+          "reader_output_sha256": "f6ddcc01543cdfcc029c6d1b93ff4618647e2611c8aed9a8bcd4b52e037254e0",
+          "reader_product_source_commit": "01ce69a5cd2e81a172303cc23f0e0ffbc140704f",
+          "reader_product_source_tree": "aaf1e61700586b32c626663671cf83ad7a5798e0",
+          "selected_b_receipt": "sha256:91b4188a671eeb78c41a64e1ec36a4f5193c5471fb7a8afc0cddbc5cd20c9953",
+          "selected_b_receipt_profile": "sha256:c6bc5accbeb558f3599a824fad903965e03f86df8c7f3b4a2ce78dde3709c968",
+          "selected_b_n5_result": {
+            "artifact_id": "sha256:f74f663c5b0e2bd3e65f538e6d13203f94cce6d101163e21c82fdc74c3c4fde4",
+            "kind": "polisyos.runtime.joint_simulation_result",
+            "manifest_profile_sha256": "sha256:7f575a2faa1ecf121e515cf58af62cee576b71fc25968bede24fba30453dc2dd",
+            "media_type": "application/json"
+          },
+          "basis_reason_codes": [
+            "n5_prior_live_implementation_not_established"
+          ],
+          "scope": "Real completed B then test-only exact-unit expectation failure. Retained typed reader uses selected manifests and original bytes, establishes two observed physical units and the conditional effect with no new N5. C, live implementation witness, source authority and full 7/1 remain open."
         },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",

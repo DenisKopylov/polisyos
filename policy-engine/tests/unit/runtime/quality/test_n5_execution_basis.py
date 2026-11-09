@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from types import SimpleNamespace
+from types import CodeType, FrameType, SimpleNamespace
 from typing import Any
 
 import pytest
@@ -13,6 +13,53 @@ import pytest
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.runtime.quality import confidence_ledger as ledger
 from polisyos.runtime.quality import n5_execution_basis as basis
+
+
+def test_controller_observer_captures_first_frame_once_per_code_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receiver = object()
+    later_receiver = object()
+    observer = basis._ControllerExecutionObserver((receiver,))
+    executed_code_type = basis._ExecutedCode
+    constructions: list[object] = []
+
+    def construct_executed_code(
+        module: str,
+        code: CodeType,
+        namespace: dict[str, Any],
+        frame: FrameType,
+        receiver_roots: tuple[tuple[str, object], ...] = (),
+    ) -> object:
+        constructions.append(None)
+        return executed_code_type(module, code, namespace, frame, receiver_roots)
+
+    monkeypatch.setattr(basis, "_ExecutedCode", construct_executed_code)
+
+    def observe_first_code(receiver_value: object) -> FrameType:
+        frame = sys._getframe()
+        observer._observe(frame, "call", None)
+        return frame
+
+    def observe_second_code(receiver_value: object) -> FrameType:
+        frame = sys._getframe()
+        observer._observe(frame, "call", None)
+        return frame
+
+    first_frame = observe_first_code(receiver)
+    repeated_frame = observe_first_code(later_receiver)
+
+    assert first_frame is not repeated_frame
+    assert len(observer.codes) == 1
+    assert len(constructions) == 1
+    first_observation = next(iter(observer.codes.values()))
+    assert first_observation.frame is first_frame
+    assert first_observation.receiver_roots == (("receiver_value", receiver),)
+
+    observe_second_code(later_receiver)
+
+    assert len(observer.codes) == 2
+    assert len(constructions) == 2
 
 
 def _missing_selected_module() -> dict[str, Any]:

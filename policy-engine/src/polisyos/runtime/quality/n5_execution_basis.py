@@ -485,9 +485,8 @@ class _ControllerExecutionObserver:
             module = str(frame.f_globals.get("__name__", ""))
             if module and module != __name__:
                 key = (module, frame.f_code.co_qualname, str(id(frame.f_code)))
-                self.codes.setdefault(
-                    key,
-                    _ExecutedCode(
+                if key not in self.codes:
+                    self.codes[key] = _ExecutedCode(
                         module,
                         frame.f_code,
                         frame.f_globals,
@@ -497,8 +496,7 @@ class _ControllerExecutionObserver:
                             for name, value in frame.f_locals.items()
                             if any(value is root for root in self.receiver_roots)
                         ),
-                    ),
-                )
+                    )
         elif event == "c_call":
             module = str(getattr(arg, "__module__", ""))
             if module.startswith(("numpy", "scipy")):

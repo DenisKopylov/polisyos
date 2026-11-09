@@ -14236,6 +14236,16 @@
           },
           "scope": "One fresh offline noneditable wheel build/install. Child verifies installed-only module origins, exact V1/V2 bytes and audit projection, V2 clobber refusal, current education-domain resolution and governed candidate world-slot discovery. The retained installed child replay needs no rebuild."
         },
+        "lane01_initial_a_live_witness_wall_limit": {
+          "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",
+          "source_tree": "88a909ddda86fd5447c978822dbd2ce107760c5a",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-initial-a-live-witness-composed-r1",
+          "classification": "ERROR_RESOURCE_WALL_LIMIT_SEMANTIC_UNRUN",
+          "wall_seconds": 695.244,
+          "peak_rss_bytes": 2717335552,
+          "stable_pins": 14,
+          "scope": "The early host admitted the real initial NL worker; wall cap ended the process before a live N5 witness verdict. This is not a product failure or OOM finding."
+        },
         "p05_signed_policy_withdrawal_history": {
           "source_base_commit": "c6d3bfd509512af4814b0dc32fbd313681e5d36a",
           "source_base_tree": "f5b41f1d1ae6f1006bfb37635c52dac49758fd12",

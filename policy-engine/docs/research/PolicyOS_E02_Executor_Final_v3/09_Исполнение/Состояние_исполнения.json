@@ -14413,6 +14413,28 @@
           "wall_seconds": 250.735,
           "scope": "The fresh legacy SQL consumer passes bounded accounting, explicit unbounded injections, budget and input-removal controls. The foreign-cell request returns 403 mfa_required before the intended cell check. Withdrawal and the unaffected source after withdrawal remain unrun."
         },
+        "p08_sql_v25_composed_r12": {
+          "source_commit": "b4b82e28f9a7a24e24eb66b6c3aa83f7db70a8d6",
+          "source_tree": "cb6e21b59d9783096efef8893c860f75efc7c677",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r12",
+          "observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 10,
+          "wall_seconds": 248.483,
+          "compatibility_output": "VERIFY:policy-engine/_cache/e02/lane01-p08-composed-wire-real-owners-r2",
+          "compatibility_pass": 24,
+          "scope": "Fresh legacy registered-SQL debug GET through actual worker, Foundry and selected artifacts, exact transfer and same-mean distinct-input controls, wrong cell, withdrawal and unaffected independent source. Separate current compatibility covers exact legacy wires, matrix, actual SQL legacy and semantic no-SQL. Actual semantic-SQL production and Gate B remain open."
+        },
+        "lane01_source_owner_and_complete_selector_routes": {
+          "base_commit": "b4b82e28f9a7a24e24eb66b6c3aa83f7db70a8d6",
+          "red_output": "VERIFY:policy-engine/_cache/e02/lane01-workspace-direct-selector-diagnostic-r1",
+          "qualified_output": "VERIFY:policy-engine/_cache/e02/lane01-n6-ukraine-and-causal-owners-r1",
+          "candidate_count_per_query": 395,
+          "unreadable_before": 2,
+          "unreadable_after": 0,
+          "component_pass": 39,
+          "stable_pins": 9,
+          "scope": "The two actual selectors refuse unresolved PreparedSKGRead and Mapping annotations before the owner imports are fixed. Both then select after full registry enumeration. The same cohort proves Ukraine facade class identity and source route, and uses real CAS selected profiles for causal refusal negatives. No numerical N5, missing constraint authority or full playbook verdict is inferred."
+        },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -14466,6 +14488,11 @@
           "r16_output": "MAIN:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r16",
           "r16_refusal": "missing repository re-export binding: polisyos.foundry.SentenceTransformerEmbedder",
           "r16_stable_pins": 69,
+          "r17_commit": "b4b82e28f9a7a24e24eb66b6c3aa83f7db70a8d6",
+          "r17_tree": "cb6e21b59d9783096efef8893c860f75efc7c677",
+          "r17_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r17",
+          "r17_refusal": "repository re-export target does not bind: polisyos.data_forge.domains.ukraine.DemographySourceEvidence",
+          "r17_stable_pins": 70,
           "r16_scope": "The published route composition omitted frontier commit a9b7621ce, which was present on the separate verification branch only. The actual Git source retains the root import. R16 does not verify the frontier repair.",
           "catalog_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-owner-r1",
           "catalog_lazy_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-lazy-r1",

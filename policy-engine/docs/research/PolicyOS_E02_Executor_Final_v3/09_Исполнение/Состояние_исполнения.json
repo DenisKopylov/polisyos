@@ -14553,7 +14553,38 @@
           "post_r21_static_direct_refusal_occurrences": 23,
           "post_r21_executable_imports_matching_static_direct_refusals": 0,
           "post_r21_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-final-owner-architecture-r1",
+          "strict_r22_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r22",
+          "strict_r22_source_commit": "20c0cdcc4742fd05ccb5b0c74268b76be2e252c8",
+          "strict_r22_source_tree": "32d0d2de00c45b95102815059cd7d08d1c481f54",
+          "strict_r22_stable_pins": 122,
+          "strict_r22_wall_seconds": 903.643,
+          "strict_r22_first_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.FORECAST_PROFILE_MEMBER_KIND",
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
+        },
+        "lane01_p05_r5_completed_b_profile_oracle": {
+          "source_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+          "source_tree": "f31951280c63f856ce91debb82e22076b24a2890",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r5",
+          "classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C",
+          "stable_pins": 19,
+          "wall_seconds": 3834.945,
+          "b_terminal_head": [
+            1,
+            5
+          ],
+          "b_terminal_ref": "sha256:1f8ccd748e07fe200aaf604423ae150db5994360d710cc9ad6915f86d589a1f6",
+          "b_terminal_profile": "sha256:ab54c7e174c994fdb7007fc5a9eff890ad95adbde3114e0ac2751fee9e00419f",
+          "physical_standard_completed": 4,
+          "targeted_owned_cas_replay": "VERIFY:policy-engine/_cache/e02/lane01-p05-r5-selected-a-profile-replay-r2",
+          "targeted_replay_status": "PASS",
+          "targeted_prior_source_read_counts": {
+            "before": 4,
+            "after": 1
+          },
+          "c_r6_source_commit": "cac53160f29242ef7e779b7db5bf4a5cc1490402",
+          "c_r6_source_tree": "b3a737c0e90f5f086cc84b65340c6ec4c25cad93",
+          "c_r6_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r6",
+          "scope": "The prior A control refuses the same tenant/cell with an unowned profile, a foreign tenant and a mismatched selected input. The retained replay performs no N5. R5 never issued C. The reopened test retains separate B and C authority and quotas."
         },
         "lane01_p05_r4_completed_b_stale_unit_oracle": {
           "source_commit": "607f273f43e4eff82b31b7f96e02ab994a630994",

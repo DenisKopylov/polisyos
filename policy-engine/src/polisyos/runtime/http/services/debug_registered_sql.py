@@ -21,6 +21,7 @@ from polisyos.core.contracts.fabric import DataSnapshotOwnerBound
 from polisyos.core.contracts.foundry import (
     FoundryInputBindings,
     MethodExecutionBundle,
+    MethodExecutionOccurrence,
     ProgramGraph,
 )
 from polisyos.core.contracts.runtime import (
@@ -84,6 +85,36 @@ def _is_supported_restricted_graph(graph: ProgramGraph, *, method_node_id: str) 
         and graph.nodes == [method, *housekeeping]
         and graph.entrypoints == [method_node_id]
         and graph.edges == edges
+    )
+
+
+def _is_supported_restricted_execution_bundle(
+    *,
+    graph: ProgramGraph,
+    bundle: MethodExecutionBundle,
+    method_occurrence: MethodExecutionOccurrence,
+) -> bool:
+    """Require the one verified method and every successful compiler housekeeping step."""
+    if (
+        not _is_supported_restricted_graph(graph, method_node_id=method_occurrence.node_id)
+        or len(bundle.occurrences) != len(graph.nodes)
+        or method_occurrence.node_kind != "method"
+        or method_occurrence.status != "succeeded"
+        or method_occurrence.restricted_call_witness is None
+        or method_occurrence.restricted_call_witness.status != "verified"
+        or bundle.occurrences[0] != method_occurrence
+    ):
+        return False
+    invocation_id = method_occurrence.invocation_id
+    return all(
+        occurrence.invocation_id == invocation_id
+        and occurrence.plan_index == index
+        and occurrence.node_id == node.node_id
+        and occurrence.node_kind == node.node_kind
+        and occurrence.status == "succeeded"
+        for index, (occurrence, node) in enumerate(
+            zip(bundle.occurrences, graph.nodes, strict=True)
+        )
     )
 
 
@@ -413,9 +444,11 @@ def read_registered_sql_source_use(
                 MethodExecutionBundle, selection.method_execution_bundle_ref
             )
             if (
-                len(bundle.occurrences) != 1
-                or bundle.occurrences[0] != call.occurrence
-                or not _is_supported_restricted_graph(graph, method_node_id=call.occurrence.node_id)
+                not _is_supported_restricted_execution_bundle(
+                    graph=graph,
+                    bundle=bundle,
+                    method_occurrence=call.occurrence,
+                )
                 or call.occurrence.dispatch is None
                 or call.occurrence.dispatch.input_state_source_ref is None
                 or not _same(

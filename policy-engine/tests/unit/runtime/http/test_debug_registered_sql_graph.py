@@ -12,6 +12,7 @@ from polisyos.foundry.compile._graph import build_program_graph
 from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.runtime.http.services.debug_registered_sql import (
+    _is_supported_restricted_execution_bundle,
     _is_supported_restricted_graph,
     read_registered_sql_source_use,
 )
@@ -99,6 +100,61 @@ def test_actual_compiler_graph_with_unsupported_dependency_is_refused() -> None:
 
     for name, changed in adversaries.items():
         assert not _is_supported_restricted_graph(changed, method_node_id="ex_ante_node"), name
+
+
+def test_actual_compiler_occurrence_inventory_requires_one_verified_full_invocation() -> None:
+    graph = _actual_compiler_graph()
+    invocation_id = "graph-invocation.000001"
+
+    def make_bundle(*, statuses=("succeeded", "succeeded", "succeeded"), invocation_ids=None):
+        invocation_ids = invocation_ids or (invocation_id,) * len(graph.nodes)
+        occurrences = [
+            SimpleNamespace(
+                occurrence_id=f"{invocation_ids[index]}:{index}:{node.node_id}",
+                invocation_id=invocation_ids[index],
+                plan_index=index,
+                node_id=node.node_id,
+                node_kind=node.node_kind,
+                status=statuses[index],
+                restricted_call_witness=(
+                    SimpleNamespace(status="verified") if index == 0 else None
+                ),
+            )
+            for index, node in enumerate(graph.nodes)
+        ]
+        return SimpleNamespace(occurrences=occurrences), occurrences[0]
+
+    bundle, method_occurrence = make_bundle()
+    assert _is_supported_restricted_execution_bundle(
+        graph=graph,
+        bundle=bundle,
+        method_occurrence=method_occurrence,
+    )
+
+    failed_housekeeping, selected_method = make_bundle(
+        statuses=("succeeded", "failed", "succeeded")
+    )
+    second_run, _ = make_bundle(invocation_ids=("graph-invocation.000002",) * 3)
+    second_invocation = SimpleNamespace(occurrences=[*bundle.occurrences, *second_run.occurrences])
+    unverified_method, selected_unverified_method = make_bundle()
+    selected_unverified_method.restricted_call_witness = SimpleNamespace(status="not_established")
+    omitted_housekeeping, selected_omitted_method = make_bundle()
+    omitted_housekeeping.occurrences.pop()
+    legacy_single_method = SimpleNamespace(occurrences=[method_occurrence])
+
+    adversaries = {
+        "failed_housekeeping": (failed_housekeeping, selected_method),
+        "second_invocation": (second_invocation, method_occurrence),
+        "unverified_method": (unverified_method, selected_unverified_method),
+        "omitted_housekeeping": (omitted_housekeeping, selected_omitted_method),
+        "legacy_single_method": (legacy_single_method, method_occurrence),
+    }
+    for name, (candidate, selected) in adversaries.items():
+        assert not _is_supported_restricted_execution_bundle(
+            graph=graph,
+            bundle=candidate,
+            method_occurrence=selected,
+        ), name
 
 
 def test_source_use_requires_the_callers_exact_ambient_tenant_and_cell() -> None:

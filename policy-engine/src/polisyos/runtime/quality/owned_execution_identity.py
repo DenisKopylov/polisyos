@@ -163,7 +163,7 @@ class _RestrictedExecutionIdentityOwner:
         )
         from polisyos.runtime.http.resilience import _require_runtime_ambient_ownership
         from polisyos.runtime.http.services.debug_registered_sql import (
-            _is_supported_restricted_graph,
+            _is_supported_restricted_execution_bundle,
             _reconcile_selected_sql_inputs,
         )
         from polisyos.scientist.compute import (
@@ -248,9 +248,11 @@ class _RestrictedExecutionIdentityOwner:
             MethodExecutionBundle, selection.method_execution_bundle_ref
         )
         if (
-            len(bundle.occurrences) != 1
-            or bundle.occurrences[0] != call.occurrence
-            or not _is_supported_restricted_graph(graph, method_node_id=call.occurrence.node_id)
+            not _is_supported_restricted_execution_bundle(
+                graph=graph,
+                bundle=bundle,
+                method_occurrence=call.occurrence,
+            )
             or call.occurrence.dispatch is None
             or call.occurrence.dispatch.input_state_source_ref is None
             or artifact_ref_identity_key(call.occurrence.dispatch.input_state_source_ref)

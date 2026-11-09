@@ -6,7 +6,10 @@ Tests roundtrip serialization, validation, and cross-reference consistency.
 
 from __future__ import annotations
 
+import json
+import pickle
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 import yaml
@@ -598,6 +601,33 @@ class TestIRTrinityBundle:
             ),
         )
         assert bundle.schema_version == "1.0"
+
+    def test_public_alias_preserves_abi_schema_and_legacy_pickle(self) -> None:
+        from polisyos.ir.trinity.contracts import TrinityBundle as OwnerTrinityBundle
+        from polisyos.schemas.abi_models import IR_ABI_MODELS
+
+        assert IRTrinityBundle is OwnerTrinityBundle
+        assert IRTrinityBundle.__module__ == "polisyos.ir.trinity.contracts"
+        entry = next(item for item in IR_ABI_MODELS if item.abi_key == "trinity_bundle")
+        assert entry.fqn == "polisyos.ir.trinity.TrinityBundle"
+        snapshot = Path(__file__).parents[2] / "schemas/snapshots/ir/trinity_bundle.schema.json"
+        assert IRTrinityBundle.model_json_schema(mode="validation", by_alias=True) == json.loads(
+            snapshot.read_text(encoding="utf-8")
+        )
+
+        bundle = IRTrinityBundle(
+            problem_frame=ProblemFrame(problem_id="pf_test", domain=ProblemDomain.FISCAL),
+            policy_spec=PolicySpec(policy_id="ps_test"),
+            model_spec=ModelSpec(model_id="ms_test", data_snapshot_ref="sha256:" + "0" * 64),
+        )
+        serialized = pickle.dumps(bundle, protocol=0)
+        owner_name = b"polisyos.ir.trinity.contracts\nTrinityBundle\n"
+        legacy_name = b"polisyos.ir.trinity\nTrinityBundle\n"
+        assert owner_name in serialized
+        legacy = serialized.replace(owner_name, legacy_name, 1)
+        reopened = pickle.loads(legacy)  # noqa: S301 -- locally generated trusted payload.
+        assert type(reopened) is IRTrinityBundle
+        assert reopened == bundle
 
 
 # =============================================================================

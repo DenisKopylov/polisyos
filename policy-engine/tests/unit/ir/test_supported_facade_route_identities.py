@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from importlib import import_module
 
+import pytest
+
 from polisyos.core.contracts import MetricValidationReportRef as CoreMetricValidationReportRef
 from polisyos.ir import analytics, governance, kernel, loading, model_layer, registry, trinity
 from polisyos.ir.api import (
@@ -57,3 +59,17 @@ def test_model_and_existing_ir_facades_preserve_owner_identity() -> None:
     assert model_layer.SelectorOperator is SelectorOperator
     assert trinity.load_trinity_bundle_artifact is load_trinity_bundle_artifact
     assert set(model_layer.__all__) == set(MODEL_LAYER_FACADE_EXPORTS)
+
+
+def test_trinity_facade_lazily_caches_exact_loader_exports(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    loaders = import_module("polisyos.ir.trinity.loaders")
+    for name in ("load_trinity_bundle_artifact", "persist_trinity_bundle_artifact"):
+        monkeypatch.delitem(vars(trinity), name, raising=False)
+        assert name not in vars(trinity)
+        assert getattr(trinity, name) is getattr(loaders, name)
+        assert vars(trinity)[name] is getattr(loaders, name)
+
+    with pytest.raises(AttributeError, match="does_not_exist"):
+        _ = trinity.does_not_exist

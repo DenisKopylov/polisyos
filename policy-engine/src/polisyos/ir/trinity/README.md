@@ -8,7 +8,7 @@ from which loader, linker, migration, and downstream compilation flows begin.
 
 ## Where to Start
 
-- [`__init__.py`](./__init__.py) — `TrinityBundle` and the current bundle schema version.
+- [`contracts.py`](./contracts.py) — `TrinityBundle` and the current bundle schema version, re-exported by the package facade.
 - [`loaders.py`](./loaders.py) — strict loaders for `ProblemFrame`, `PolicySpec`, `ModelSpec`, and the complete bundle.
 - [`../governance/problem_frame.py`](../governance/problem_frame.py) — the `Why` contract for problem framing.
 - [`../governance/policy_spec.py`](../governance/policy_spec.py) — the `What` contract for interventions and execution semantics.
@@ -19,11 +19,11 @@ from which loader, linker, migration, and downstream compilation flows begin.
 
 | Entrypoint                                          | Use when                                              | Defined in                     |
 | --------------------------------------------------- | ----------------------------------------------------- | ------------------------------ |
-| `polisyos.ir.trinity.TrinityBundle`                 | Use the canonical container for the policy payload    | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.TrinityBundle`                 | Use the canonical container for the policy payload    | [`contracts.py`](./contracts.py) |
 | `polisyos.ir.trinity.ProblemFrame`                  | Use the `Why` layer of Trinity                        | [`__init__.py`](./__init__.py) |
 | `polisyos.ir.trinity.PolicySpec`                    | Use the `What` layer of Trinity                       | [`__init__.py`](./__init__.py) |
 | `polisyos.ir.trinity.ModelSpec`                     | Use the `How` layer of Trinity                        | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Identify the supported bundle version                 | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Identify the supported bundle version                 | [`contracts.py`](./contracts.py) |
 | `polisyos.ir.trinity.loaders.load_problem_frame()`  | Load a `ProblemFrame` strictly                        | [`loaders.py`](./loaders.py)   |
 | `polisyos.ir.trinity.loaders.load_policy_spec()`    | Load a `PolicySpec` strictly                          | [`loaders.py`](./loaders.py)   |
 | `polisyos.ir.trinity.loaders.load_model_spec()`     | Load a `ModelSpec` strictly                           | [`loaders.py`](./loaders.py)   |

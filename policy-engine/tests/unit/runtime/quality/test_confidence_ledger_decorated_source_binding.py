@@ -1627,6 +1627,39 @@ def test_ir_kernel_lazy_export_resolves_to_source_owned_live_provider(monkeypatc
         ledger._source_facade_runtime_projection(ledger._loaded_policy_engine_root(), closure)
 
 
+def test_ir_trinity_lazy_exports_bind_source_owned_providers(monkeypatch):
+    facade = importlib.import_module("polisyos.ir.trinity")
+    contracts = importlib.import_module("polisyos.ir.trinity.contracts")
+    provider = importlib.import_module("polisyos.ir.trinity.loaders")
+    root = ledger._loaded_policy_engine_root()
+    exports = ("load_trinity_bundle_artifact", "persist_trinity_bundle_artifact")
+    for name in exports:
+        assert getattr(facade, name) is getattr(provider, name)
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            facade.__name__,
+            name,
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+        assert candidate.route == ("symbol", provider.__name__, name)
+        assert candidate.binding_basis == "literal_getattr"
+
+    closure = tuple(
+        (module.__name__, Path(module.__file__).relative_to(root).as_posix())
+        for module in (facade, contracts, provider)
+    )
+    assert ledger._source_facade_runtime_projection(root, closure)[0]
+    with monkeypatch.context() as changed:
+        changed.setitem(vars(facade)["_LAZY_IMPORTS"], exports[0], (provider.__name__, exports[1]))
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_facade_runtime_projection(root, closure)
+    with monkeypatch.context() as changed:
+        changed.setattr(facade, exports[0], getattr(provider, exports[1]))
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_facade_runtime_projection(root, closure)
+
+
 def test_ir_analytics_guarded_lazy_export_binds_truthfulness_tier_and_keeps_child_owner():
     from polisyos.ir.analytics import TruthfulnessTier as ImportedTruthfulnessTier
     from polisyos.ir.analytics import _truthfulness as truthfulness_module

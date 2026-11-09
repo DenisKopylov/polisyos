@@ -1,0 +1,31 @@
+"""Canonical validated bundle of the three Trinity artifacts."""
+
+from __future__ import annotations
+
+from typing import ClassVar, Literal
+
+from pydantic import Field
+
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemFrame
+from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.model_layer.model_spec import ModelSpec
+
+TRINITY_BUNDLE_SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
+
+
+class TrinityBundle(KernelModel):
+    """Validate and transport the ``ProblemFrame`` / ``PolicySpec`` / ``ModelSpec`` triple."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.TrinityBundle"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = TRINITY_BUNDLE_SCHEMA_VERSION
+    ARTIFACT_KIND: ClassVar[Literal["ir.trinity_bundle"]] = "ir.trinity_bundle"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    schema_version: str = Field(
+        default=TRINITY_BUNDLE_SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN
+    )
+    problem_frame: ProblemFrame
+    policy_spec: PolicySpec
+    model_spec: ModelSpec

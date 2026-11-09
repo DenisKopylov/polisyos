@@ -8,7 +8,7 @@ from typing import Any, ClassVar
 import numpy as np
 
 from polisyos.core.observability import DeterminismTier
-from polisyos.foundry import (
+from polisyos.foundry.methods.backends.protocol import (
     SentenceTransformerEmbedder,
     TFIDFEmbedder,
 )

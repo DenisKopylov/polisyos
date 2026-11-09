@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 import polisyos.core.artifacts as core_artifacts
-from polisyos.core.artifacts import ArtifactReadBoundsError, validate_core_model_json_artifact
+from polisyos.core.artifacts import validate_core_model_json_artifact
 from polisyos.core.artifacts.environment import (
     CPUInfo,
     EnvironmentManifest,
@@ -1099,19 +1099,22 @@ def test_snapshot_refusal_usage_uses_transferred_bytes_not_member_size(
         max_entries=8,
         max_elements=32,
     )
-    original = store.get_raw_manifest_bytes_bounded
+    original = store.read_raw_manifest_bytes_bounded
 
-    def refuse_blob_manifest(ref, *, max_manifest_bytes):
+    def refuse_blob_manifest(ref, *, max_manifest_bytes, manifest_profile_sha256=None):
         if ref.artifact_id == bounded.state_blob_ref.artifact_id:
-            raise ArtifactReadBoundsError(
-                member="manifest",
-                observed_bytes=4096,
-                max_bytes=max_manifest_bytes,
-                bytes_read=0,
+            return original(
+                ref,
+                max_manifest_bytes=1,
+                manifest_profile_sha256=manifest_profile_sha256,
             )
-        return original(ref, max_manifest_bytes=max_manifest_bytes)
+        return original(
+            ref,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
 
-    monkeypatch.setattr(store, "get_raw_manifest_bytes_bounded", refuse_blob_manifest)
+    monkeypatch.setattr(store, "read_raw_manifest_bytes_bounded", refuse_blob_manifest)
     with pytest.raises(StateSnapshotInputReadRefusal) as precise_refusal:
         read_state_snapshot_inputs_bounded(
             store,
@@ -1137,12 +1140,16 @@ def test_snapshot_refusal_usage_uses_transferred_bytes_not_member_size(
         )
     )
 
-    def fail_without_usage(ref, *, max_manifest_bytes):
+    def fail_without_usage(ref, *, max_manifest_bytes, manifest_profile_sha256=None):
         if ref.artifact_id == bounded.state_blob_ref.artifact_id:
             raise RuntimeError("transfer_usage_not_reported")
-        return original(ref, max_manifest_bytes=max_manifest_bytes)
+        return original(
+            ref,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
 
-    monkeypatch.setattr(store, "get_raw_manifest_bytes_bounded", fail_without_usage)
+    monkeypatch.setattr(store, "read_raw_manifest_bytes_bounded", fail_without_usage)
     with pytest.raises(StateSnapshotInputReadRefusal) as unknown_refusal:
         read_state_snapshot_inputs_bounded(
             store,

@@ -28,6 +28,7 @@ from polisyos.core.artifacts import (
     CoreJsonReadLimits,
     artifact_manifest_profile_sha256,
     read_core_json_artifact_bounded,
+    read_core_manifest_profile_bounded,
 )
 from polisyos.core.artifacts import (
     require_return_selected_profile_writer as _require_return_selected_profile_writer,
@@ -37,7 +38,9 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import CoreJSONArtifactBoundedMemberReader
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactBoundedMemberReader,
+)
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
@@ -583,25 +586,30 @@ def read_state_snapshot_inputs_bounded(
 
     measured["observed_blob_manifest_bytes"] = None
     try:
-        blob_manifest_bytes = store.get_raw_manifest_bytes_bounded(
-            snapshot.state_ref,
+        bounded_blob_manifest = read_core_manifest_profile_bounded(
+            store,
+            ArtifactRef.model_validate(snapshot.state_ref.model_dump(mode="python")),
             max_manifest_bytes=max_manifest_bytes,
+            allow_profile_absent=True,
         )
-    except Exception as exc:
-        # ``observed_bytes`` on ArtifactReadBoundsError is the member's declared
-        # size, not the transfer count. Only Core's explicit ``bytes_read`` is
-        # admissible as usage; otherwise this attempted transfer is unknown.
-        measured["observed_blob_manifest_bytes"] = getattr(exc, "bytes_read", None)
+    except CoreJsonReadBoundsRefusalError as exc:
+        usage_complete = exc.source_usage_complete is True
+        measured["observed_blob_manifest_bytes"] = (
+            exc.observed_manifest_selection_bytes if usage_complete else None
+        )
         refuse(
             f"state_snapshot_blob_manifest_read_refused:{type(exc).__name__}",
-            observed_bytes=getattr(exc, "observed_source_bytes", None),
+            observed_bytes=exc.observed_source_bytes if usage_complete else None,
             limit_bytes=max_manifest_bytes,
         )
-    measured["observed_blob_manifest_bytes"] = len(blob_manifest_bytes)
-    try:
-        blob_manifest = ArtifactManifest.model_validate_json(blob_manifest_bytes)
-    except Exception:
-        refuse("state_snapshot_blob_manifest_parse_failed")
+    except Exception as exc:
+        refuse(
+            f"state_snapshot_blob_manifest_read_refused:{type(exc).__name__}",
+            limit_bytes=max_manifest_bytes,
+        )
+    blob_manifest_bytes = bounded_blob_manifest.raw_manifest_bytes
+    measured["observed_blob_manifest_bytes"] = bounded_blob_manifest.observed_source_bytes
+    blob_manifest = bounded_blob_manifest.manifest
     if (
         blob_manifest.artifact_id != snapshot.state_ref.artifact_id
         or blob_manifest.kind != "foundry.state_blob"

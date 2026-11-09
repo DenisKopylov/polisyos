@@ -44,7 +44,6 @@ from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStor
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
-    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
     DataSnapshot,
     ProgramGraphInputInvocation,
     data_snapshot_manifest_inputs_match,
@@ -103,6 +102,7 @@ from polisyos.foundry.data_plane import (
     load_input_bindings,
 )
 from polisyos.foundry.data_plane.bindings import (
+    _require_semantic_snapshot_lineage_version,
     reconcile_semantic_input_bindings,
     require_resolved_input_binding_manifest_edge,
 )
@@ -281,13 +281,22 @@ class _BoundedExecutionSourceReadSession:
         return ref, manifest
 
     def typed_model(self, model: type[_ModelT], ref: ArtifactRef) -> _ModelT:
+        """Read one bounded typed model and return its value."""
+        return self.typed_model_with_manifest(model, ref)[1]
+
+    def typed_model_with_manifest(
+        self,
+        model: type[_ModelT],
+        ref: ArtifactRef,
+    ) -> tuple[ArtifactManifest, _ModelT]:
+        """Read one bounded typed model with its exact selected manifest."""
         manifest, value, manifest_bytes, payload_bytes = self.reader.read_typed_model(model, ref)
         self.add(manifest_bytes)
         self.add(payload_bytes)
         _require_selected_manifest_identity(manifest, ref)
         if not isinstance(value, model):
             raise TypeError("execution_source_reader_typed_model_contract_mismatch")
-        return cast("_ModelT", value)
+        return manifest, cast("_ModelT", value)
 
 
 def _method_execution_abort_result(
@@ -555,16 +564,19 @@ def _verify_execution_data_snapshot_edges(
     ref: ArtifactRef,
     snapshot: DataSnapshot,
     *,
+    selected_manifest: ArtifactManifest | None = None,
     read_session: _BoundedExecutionSourceReadSession | None = None,
-) -> None:
-    """Reconcile the selected DataSnapshot fields with their exact CAS edges."""
-    manifest = _selected_manifest(store, ref, read_session=read_session)
+) -> bool:
+    """Reconcile selected DataSnapshot fields and report semantic owner lineage."""
+    manifest = selected_manifest
+    if manifest is None:
+        manifest = _selected_manifest(store, ref, read_session=read_session)
+    else:
+        _require_selected_manifest_identity(manifest, ref)
     schema = manifest.artifact_schema
-    if (
-        schema is not None
-        and schema.name == DataSnapshot.ARTIFACT_SCHEMA_NAME
-        and schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
-    ):
+    semantic_owner_lineage = _require_semantic_snapshot_lineage_version(snapshot, schema)
+    if semantic_owner_lineage:
+        assert schema is not None  # The semantic owner lineage requires the matching .4 schema.
         if not data_snapshot_manifest_inputs_match(
             snapshot, manifest.inputs, schema_version=schema.version
         ):
@@ -592,7 +604,7 @@ def _verify_execution_data_snapshot_edges(
                 expected_kind=owner_ref.kind,
                 read_session=read_session,
             )
-        return
+        return True
 
     for role, raw_ref in (
         ("data_ref", snapshot.data_ref),
@@ -613,6 +625,7 @@ def _verify_execution_data_snapshot_edges(
             expected_kind=raw_ref.kind,
             read_session=read_session,
         )
+    return False
 
 
 def _simulation_result_manifest(
@@ -923,15 +936,18 @@ def _admit_execution_source(
         raise ExecutionSourceAdmissionRefusal(
             "execution_source_semantic_bounded_replay_not_established"
         )
-    semantic_notes = reconcile_semantic_input_bindings(
-        store,
-        bindings,
-        execute_request=basis.request,
-        effective_step=basis.effective_step,
-        semantic_horizon_step=semantic_step,
-    )
-    if not all(note in simulation_result.notes for note in semantic_notes):
-        raise ValueError("execution_source_semantic_input_limitations_missing")
+    if read_session is None:
+        semantic_notes = reconcile_semantic_input_bindings(
+            store,
+            bindings,
+            execute_request=basis.request,
+            effective_step=basis.effective_step,
+            semantic_horizon_step=semantic_step,
+        )
+        if not all(note in simulation_result.notes for note in semantic_notes):
+            raise ValueError("execution_source_semantic_input_limitations_missing")
+    elif semantic_step is not None:
+        raise ValueError("foundry_input_bindings_semantic_manifest_required")
     transport_edges = [
         edge
         for edge in binding_manifest.inputs
@@ -1058,18 +1074,30 @@ def _admit_execution_source(
 
     if basis.data_snapshot_ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_data_snapshot_profile_missing")
-    data_snapshot = _read_typed_model(
-        DataSnapshot,
-        store,
-        basis.data_snapshot_ref,
-        read_session=read_session,
-    )
-    _verify_execution_data_snapshot_edges(
+    if read_session is None:
+        data_snapshot = _read_typed_model(
+            DataSnapshot,
+            store,
+            basis.data_snapshot_ref,
+            read_session=None,
+        )
+        data_snapshot_manifest = None
+    else:
+        data_snapshot_manifest, data_snapshot = read_session.typed_model_with_manifest(
+            DataSnapshot,
+            basis.data_snapshot_ref,
+        )
+    semantic_owner_lineage = _verify_execution_data_snapshot_edges(
         store,
         basis.data_snapshot_ref,
         data_snapshot,
+        selected_manifest=data_snapshot_manifest,
         read_session=read_session,
     )
+    if read_session is not None and semantic_owner_lineage:
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_semantic_bounded_replay_not_established"
+        )
     if data_snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_data_snapshot_state_profile_missing")
 
@@ -1643,8 +1671,7 @@ def _execute(
             or derived_tenant_context.model_extra is not None
             or type(context_fields["tenant_id"]) is not str
             or (
-                context_fields["cell_id"] is not None
-                and type(context_fields["cell_id"]) is not str
+                context_fields["cell_id"] is not None and type(context_fields["cell_id"]) is not str
             )
         ):
             raise ValueError("foundry_derived_tenant_context_invalid")

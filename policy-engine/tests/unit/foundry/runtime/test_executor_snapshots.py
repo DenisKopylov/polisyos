@@ -1147,7 +1147,7 @@ def test_snapshot_helpers_fail_closed_on_invalid_shapes_and_types() -> None:
     with pytest.raises(ValueError, match="unnamed scalar root"):
         dict(_flatten_state(1))
 
-    with pytest.raises(TypeError, match="Unsupported snapshot value"):
+    with pytest.raises(ValueError, match="Sparse snapshot input maps must be at the root"):
         dict(_flatten_state({"not": "a dataclass"}, prefix="payload."))
 
     with pytest.raises(ValueError, match="Invalid snapshot mapping key"):

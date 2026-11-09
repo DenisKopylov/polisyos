@@ -8,6 +8,7 @@ or causal-method dependencies.
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -238,6 +239,8 @@ def builtin_nodes() -> list[Node]:
 
 def __getattr__(name: str) -> Any:
     """Resolve individual node classes lazily from their owning modules."""
+    if name == "errors":
+        return import_module("polisyos.scientist.nodes.builtins.errors")
     if name == "BindFoundryInputsNode":
         from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import (
             BindFoundryInputsNode,

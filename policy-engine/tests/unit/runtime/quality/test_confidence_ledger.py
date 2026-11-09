@@ -2086,6 +2086,96 @@ def test_direct_importlib_getattr_dispatch_has_a_finite_source_provider_set(
         ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry")
 
 
+def test_source_provider_index_cache_preserves_owner_and_mutable_tree(tmp_path: Path) -> None:
+    """Identical source bytes cannot share package-relative provider owners."""
+
+    source = (
+        b"def __getattr__(name):\n"
+        b'    if name in {"Thing"}:\n'
+        b"        from .provider import Thing\n"
+        b'        selected = {"Thing": Thing}\n'
+        b"        return selected[name]\n"
+        b'    raise AttributeError(f"{name!r}")\n'
+    )
+    root = tmp_path / "repo"
+    for name in ("first", "second"):
+        package = root / "src" / "polisyos" / name
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_bytes(source)
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    tree = source_index.parse(source, filename="__init__.py")
+    entries: dict[Path, frozenset[str]] = {}
+
+    def index(owner: str) -> ledger_module._LiteralModuleGetattrProviderIndex:
+        return ledger_module._source_module_provider_index(
+            root, f"polisyos.{owner}", tree, directory_entries=entries, source_index=source_index
+        )
+
+    first = index("first")
+    assert first.providers_by_export["Thing"] == frozenset({"polisyos.first.provider"})
+    assert index("first") is first
+    assert index("second").providers_by_export["Thing"] == frozenset({"polisyos.second.provider"})
+
+    statement = next(node for node in ast.walk(tree) if isinstance(node, ast.ImportFrom))
+    statement.module = "other_provider"
+    assert index("first").providers_by_export["Thing"] == frozenset(
+        {"polisyos.first.other_provider"}
+    )
+    statement.module = "provider"
+    assert index("first") is first
+
+
+def test_source_provider_index_does_not_cache_imported_maps(tmp_path: Path) -> None:
+    """Map owner edits stay observable and a pinned integrity pass detects drift."""
+
+    root = tmp_path / "repo"
+    package = root / "src" / "polisyos" / "facade"
+    package.mkdir(parents=True)
+    source = (
+        b"from .owner import _LAZY_IMPORTS\n"
+        b"import importlib\n"
+        b"def __getattr__(name):\n"
+        b"    if name not in _LAZY_IMPORTS:\n"
+        b"        raise AttributeError(name)\n"
+        b"    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+        b"    value = getattr(module, name)\n"
+        b"    return value\n"
+    )
+    (package / "__init__.py").write_bytes(source)
+    owner = package / "owner.py"
+    owner_one = '_LAZY_IMPORTS = {"Thing": "polisyos.facade.one"}\n'
+    owner_two = '_LAZY_IMPORTS = {"Thing": "polisyos.facade.two"}\n'
+    owner.write_text(owner_one, encoding="utf-8")
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    tree = source_index.parse(source, filename="__init__.py")
+    entries: dict[Path, frozenset[str]] = {}
+
+    def index() -> ledger_module._LiteralModuleGetattrProviderIndex:
+        return ledger_module._source_module_provider_index(
+            root, "polisyos.facade", tree, directory_entries=entries, source_index=source_index
+        )
+
+    assert index().providers_by_export["Thing"] == frozenset({"polisyos.facade.one"})
+    owner.write_text(owner_two, encoding="utf-8")
+    assert index().providers_by_export["Thing"] == frozenset({"polisyos.facade.two"})
+    owner.write_text("_LAZY_IMPORTS = untrusted()\n", encoding="utf-8")
+    unknown = index()
+    assert "Thing" not in unknown.providers_by_export
+    assert "*" in unknown.invalid_exports
+
+    owner.write_text(owner_one, encoding="utf-8")
+    analysis = ledger_module._IntegrityAnalysisContext()
+    token = ledger_module._ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        assert index().providers_by_export["Thing"] == frozenset({"polisyos.facade.one"})
+        owner.write_text(owner_two, encoding="utf-8")
+        assert index().providers_by_export["Thing"] == frozenset({"polisyos.facade.one"})
+        with pytest.raises(ConfidenceLedgerError, match="source changed during integrity analysis"):
+            analysis.assert_sources_unchanged()
+    finally:
+        ledger_module._ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
 def test_core_registry_source_resolution_covers_all_direct_and_lazy_exports() -> None:
     """The complete public registry export set resolves from source, not a name allowlist."""
 
@@ -2125,7 +2215,16 @@ def test_core_registry_source_resolution_covers_all_direct_and_lazy_exports() ->
                 source_index=source_index,
             )
             assert provider is not None, export_name
-            provider_index = source_index.providers_by_content[registry_source]
+            registry_tree = source_index.parse(
+                registry_source, filename=registry_path.relative_to(REPO_ROOT).as_posix()
+            )
+            provider_index = ledger_module._source_module_provider_index(
+                REPO_ROOT,
+                "polisyos.core.registry",
+                registry_tree,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
             symbols = (provider_index.provider_symbols_by_export or {}).get(
                 export_name, frozenset({export_name})
             )
@@ -2256,9 +2355,8 @@ def test_core_registry_exports_reconcile_to_live_api_and_factory(
     closure = ledger_module._resolve_authority_import_closure(REPO_ROOT, ledger_module.__name__)
     ledger_module._import_authority_closure_modules(closure)
     registry_path = REPO_ROOT / "src/polisyos/core/registry/__init__.py"
-    tree = ast.parse(
-        registry_path.read_bytes(), filename=registry_path.relative_to(REPO_ROOT).as_posix()
-    )
+    registry_source = registry_path.read_bytes()
+    tree = ast.parse(registry_source, filename=registry_path.relative_to(REPO_ROOT).as_posix())
     exports = next(
         ast.literal_eval(statement.value)
         for statement in tree.body
@@ -2286,7 +2384,16 @@ def test_core_registry_exports_reconcile_to_live_api_and_factory(
                 source_index=source_index,
             )
             assert provider is not None, export_name
-            provider_index = source_index.providers_by_content[registry_path.read_bytes()]
+            registry_tree = source_index.parse(
+                registry_source, filename=registry_path.relative_to(REPO_ROOT).as_posix()
+            )
+            provider_index = ledger_module._source_module_provider_index(
+                REPO_ROOT,
+                "polisyos.core.registry",
+                registry_tree,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
             symbols = (provider_index.provider_symbols_by_export or {}).get(
                 export_name, frozenset({export_name})
             )

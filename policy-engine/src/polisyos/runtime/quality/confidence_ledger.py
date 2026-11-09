@@ -6212,9 +6212,12 @@ class _AuthorityImportClosureSourceIndex:
     """Cache source parses and PEP 562 indexes for one closure computation."""
 
     parsed_by_content: dict[bytes, ast.Module]
-    providers_by_content: dict[bytes, _LiteralModuleGetattrProviderIndex]
+    providers_by_content: dict[
+        tuple[Path, str, Path | None, bytes, bytes], _LiteralModuleGetattrProviderIndex
+    ]
     diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None
     n5_recorded_optional_imports: _N5LockedOptionalImports | None = None
+    content_by_tree: dict[ast.Module, bytes] = _dataclasses.field(default_factory=dict)
 
     def parse(self, content: bytes, *, filename: str) -> ast.Module:
         """Parse exact source bytes once within the current closure computation."""
@@ -6223,6 +6226,7 @@ class _AuthorityImportClosureSourceIndex:
         if tree is None:
             tree = ast.parse(content, filename=filename)
             self.parsed_by_content[content] = tree
+        self.content_by_tree[tree] = content
         return tree
 
 
@@ -10426,7 +10430,26 @@ def _source_module_provider_index(
             directory_entries=directory_entries,
             source_index=source_index,
         )
-    return _literal_module_getattr_provider_index(
+    # Only memoize a source-parsed facade with no imported map values. External
+    # maps are re-read on every request and synthetic callable-facade views are
+    # never entered into the source parse registry. ASTs are mutable, so bind
+    # each entry to the current full structure as well as its original bytes.
+    content = source_index.content_by_tree.get(tree)
+    cache_key = None
+    if (
+        content is not None
+        and not external_mappings
+        and any(
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+            for node in tree.body
+        )
+    ):
+        tree_hash = hashlib.sha256(ast.dump(tree, include_attributes=True).encode()).digest()
+        cache_key = (repo_root.absolute(), module_name, relative, content, tree_hash)
+        cached = source_index.providers_by_content.get(cache_key)
+        if cached is not None:
+            return cached
+    provider_index = _literal_module_getattr_provider_index(
         tree,
         external_mappings=external_mappings,
         source_module_name=module_name,
@@ -10434,6 +10457,9 @@ def _source_module_provider_index(
             module_name if relative is not None and relative.name == "__init__.py" else None
         ),
     )
+    if cache_key is not None:
+        source_index.providers_by_content[cache_key] = provider_index
+    return provider_index
 
 
 def _literal_mapping_import_call(
@@ -21983,9 +22009,8 @@ def _repository_module_exports_symbol(
         return False
     if symbol in _module_scope_definite_bindings(tree):
         return True
-    # Imported map identity depends on the importing package as well as this file's
-    # bytes. Recompute through the shared source-owner resolver instead of the
-    # content-only literal-index cache, which cannot distinguish relative-map owners.
+    # Resolve through the shared source-owner resolver so imported maps and
+    # package-relative providers retain their own source context.
     provider_index = _source_module_provider_index(
         repo_root,
         module_name,

@@ -26,6 +26,8 @@ from polisyos.runtime.http.container import resolve_control_service
 from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import RuntimeHTTPError, forbidden, service_unavailable
 from polisyos.runtime.http.permissions import (
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
     MODEL_INPUT_USE_PERMISSION,
     MODEL_INPUT_USE_RESOURCE_KIND,
     RuntimePermission,
@@ -483,6 +485,9 @@ _HIGH_STAKES_RESOURCE_CLASSES: Mapping[tuple[RuntimePermission, str], StepUpClas
     MappingProxyType(
         {
             (MODEL_INPUT_USE_PERMISSION, MODEL_INPUT_USE_RESOURCE_KIND): (
+                StepUpClass.ACQUISITION_APPROVAL
+            ),
+            (CANDIDATE_EXPERIMENT_REUSE_PERMISSION, CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND): (
                 StepUpClass.ACQUISITION_APPROVAL
             ),
         }

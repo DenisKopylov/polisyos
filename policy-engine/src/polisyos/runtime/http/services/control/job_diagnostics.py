@@ -760,6 +760,55 @@ class ControlJobDiagnosticsMixin:
                 != publication.request_json
             ):
                 raise ValueError("prepared_acquisition_action_payload_mismatch")
+            if publication.action_kind == "runtime.evidence.candidate_experiment.reuse":
+                from polisyos.runtime.quality.candidate_experiment_reuse import (
+                    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+                    CandidateExperimentReuseActionSelection,
+                )
+
+                selected_payload = payload.get("reuse_selection")
+                if type(selected_payload) is not dict:
+                    raise ValueError("candidate_experiment_reuse_prepared_job_binding_mismatch")
+                try:
+                    selection = CandidateExperimentReuseActionSelection.model_validate(
+                        selected_payload,
+                        strict=True,
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise ValueError(
+                        "candidate_experiment_reuse_prepared_job_binding_mismatch"
+                    ) from exc
+                selection_json = selection.model_dump(mode="json")
+                request_json = json.dumps(
+                    selection.request.model_dump(mode="json"),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                if (
+                    selected_payload != selection_json
+                    or publication.action_kind != CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+                    or selection.action_job_id != job_id
+                    or selection.action_job_id != publication.job_id
+                    or selection.action_generation != publication.action_generation
+                    or selection.tenant_id != publication.tenant_id
+                    or selection.cell_id != publication.cell_id
+                    or selection.run_id != publication.run_id
+                    or selection.source_job_id != publication.source_job_id
+                    or selection.route_id != publication.route_id
+                    or payload.get("tenant_id") != publication.tenant_id
+                    or payload.get("cell_id") != publication.cell_id
+                    or payload.get("run_id") != publication.run_id
+                    or payload.get("route_id") != publication.route_id
+                    or payload.get("decision_ref") != publication.decision_ref
+                    or type(request_value) is not dict
+                    or request_value != selection.request.model_dump(mode="json")
+                    or request_json != publication.request_json
+                    or publication.expected_previous_terminal_ref
+                    != str(selection.predecessor_terminal_ref.artifact_id)
+                    or publication.expected_previous_terminal_manifest_profile_sha256
+                    != selection.predecessor_terminal_ref.manifest_profile_sha256
+                ):
+                    raise ValueError("candidate_experiment_reuse_prepared_job_binding_mismatch")
         initially_refused = False
         if job_kind == "natural_language_run":
             payload[_EXECUTION_INTENT_BINDING_KEY] = _build_control_execution_intent_binding(

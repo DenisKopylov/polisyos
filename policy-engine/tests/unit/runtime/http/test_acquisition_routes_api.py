@@ -13,7 +13,11 @@ from polisyos.runtime.http.authorization import (
     get_route_action_permission_dependency,
 )
 from polisyos.runtime.http.dependencies import get_acquisition_action_service
-from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.permissions import (
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    RuntimePermission,
+)
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
@@ -24,6 +28,9 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteReplayPins,
 )
 from polisyos.runtime.http.step_up import StepUpClass, get_route_step_up_dependency
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    CandidateExperimentReuseActionRequest,
+)
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_permissionless_client,
@@ -44,6 +51,10 @@ _ROUTES = {
     (
         "POST",
         "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+    ),
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
     ),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
@@ -143,6 +154,31 @@ def test_candidate_experiment_execute_route_has_exact_binding_and_step_up(
     assert step_up.requirement.step_up_class is StepUpClass.ACQUISITION_APPROVAL
 
 
+def test_candidate_experiment_reuse_decision_route_has_distinct_exact_binding_and_step_up(
+    runtime_openapi_app,
+) -> None:
+    route = _route(
+        runtime_openapi_app,
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+    )
+    assert route.operation_id == "request_run_candidate_acquisition_experiment_reuse_decision"
+    dependency = get_route_action_permission_dependency(route)
+    assert dependency.requirement.permission is CANDIDATE_EXPERIMENT_REUSE_PERMISSION
+    binding = dependency.requirement.resource_binding
+    assert binding.source is ResourceBindingSource.REQUEST_COMPOSITE
+    assert binding.resource_kind == CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND
+    assert binding.selector_fields == tuple(CandidateExperimentReuseActionRequest.model_fields)
+    assert binding.required_selector_fields == tuple(
+        name
+        for name, field in CandidateExperimentReuseActionRequest.model_fields.items()
+        if field.is_required()
+    )
+    step_up = get_route_step_up_dependency(route, action_dependency=dependency)
+    assert step_up is not None
+    assert step_up.requirement.step_up_class is StepUpClass.ACQUISITION_APPROVAL
+
+
 def _candidate_experiment_projection() -> CandidateExperimentRouteProjection:
     def artifact_ref(digit: str, kind: str) -> ArtifactRef:
         digest = "sha256:" + digit * 64
@@ -182,6 +218,33 @@ def _candidate_experiment_request() -> CandidateExperimentRouteMutationRequest:
         route_id=projection.route_id,
         replay_pins=projection.replay_pins,
         idempotency_key="candidate-experiment-decision-request",
+    )
+
+
+def _candidate_experiment_reuse_request() -> CandidateExperimentReuseActionRequest:
+    def artifact_ref(digit: str, kind: str) -> ArtifactRef:
+        digest = "sha256:" + digit * 64
+        return ArtifactRef(
+            artifact_id=digest,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=digest,
+        )
+
+    return CandidateExperimentReuseActionRequest(
+        route_id="sha256:" + "a" * 64,
+        predecessor_terminal_ref=artifact_ref(
+            "1", "runtime_quality.acquisition_route_loop_receipt"
+        ),
+        predecessor_action_ref=artifact_ref(
+            "2", "runtime_quality.acquisition_candidate_action_receipt"
+        ),
+        source_ref=artifact_ref("3", "runtime.quality.candidate_acquisition_source"),
+        n5_input_ref=artifact_ref("4", "runtime.quality.candidate_simulation_n5_input"),
+        n5_execution_ref=artifact_ref("5", "runtime.quality.candidate_simulation_execution"),
+        n5_result_ref=artifact_ref("6", "polisyos.runtime.joint_simulation_result"),
+        policy_ref=artifact_ref("7", "runtime_quality.candidate_unpriced_acquisition_policy"),
+        idempotency_key="candidate-experiment-reuse-decision-request",
     )
 
 
@@ -299,6 +362,120 @@ def test_candidate_experiment_decision_transport_uses_bound_proof_and_step_up(
     assert (
         bound_permission.verification.requirement.resource_binding.resource_kind
         == "runtime.evidence.acquisition.candidate_experiment"
+    )
+
+
+def test_candidate_experiment_reuse_decision_transport_uses_distinct_bound_proof_and_step_up(
+    runtime_api_env,
+) -> None:
+    request_body = _candidate_experiment_reuse_request()
+    path = (
+        "/api/v1/runs/run-candidate-experiment/candidate-acquisition-experiment/"
+        f"{request_body.route_id}/reuse/decision-request"
+    )
+    calls: list[dict[str, object]] = []
+
+    def request_reuse_decision(
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionRequest,
+        bound_permission: BoundActionPermissionVerification,
+    ) -> AcquisitionDecisionRequestResponse:
+        calls.append(
+            {
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "run_id": run_id,
+                "route_id": route_id,
+                "request": request,
+                "bound_permission": bound_permission,
+            }
+        )
+        return AcquisitionDecisionRequestResponse(
+            run_id=run_id,
+            route_id=route_id,
+            authority_decision_ref="sha256:" + "f" * 64,
+            outcome="decision_required",
+        )
+
+    service = SimpleNamespace(request_candidate_experiment_reuse_decision=request_reuse_decision)
+    permissionless_client, permissionless_token = _build_permissionless_client(runtime_api_env)
+    permissionless_client.app.dependency_overrides[get_acquisition_action_service] = lambda: (
+        service
+    )
+    try:
+        denied = permissionless_client.post(
+            path,
+            headers={
+                "Authorization": f"Bearer {permissionless_token}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+            json=request_body.model_dump(mode="json"),
+        )
+    finally:
+        permissionless_client.close()
+    assert denied.status_code == 403, denied.text
+    assert denied.json()["code"] == "action_permission_denied"
+    assert calls == []
+
+    secure_client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    bearer = _fixture_bearer("candidate-experiment-reuse-step-up")
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-candidate-experiment-reuse-step-up",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    secure_client.app.dependency_overrides[get_acquisition_action_service] = lambda: service
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    try:
+        missing_step_up = secure_client.post(
+            path,
+            headers=headers,
+            json=request_body.model_dump(mode="json"),
+        )
+        assert missing_step_up.status_code == 403, missing_step_up.text
+        assert missing_step_up.json()["code"] == "step_up_required"
+        assert calls == []
+        step_up = _install_bound_test_step_up(secure_client)
+        accepted = secure_client.post(
+            path,
+            headers={**headers, "X-PolicyOS-Step-Up": step_up},
+            json=request_body.model_dump(mode="json"),
+        )
+    finally:
+        secure_client.close()
+
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json()["run_id"] == "run-candidate-experiment"
+    assert accepted.json()["route_id"] == request_body.route_id
+    assert accepted.json()["outcome"] == "decision_required"
+    assert len(calls) == 1
+    call = calls[0]
+    assert call["tenant_id"] == runtime_api_env["tenant_a"]
+    assert call["cell_id"] == cell.cell_id
+    assert call["run_id"] == "run-candidate-experiment"
+    assert call["route_id"] == request_body.route_id
+    assert call["request"] == request_body
+    bound_permission = call["bound_permission"]
+    assert type(bound_permission) is BoundActionPermissionVerification
+    assert (
+        bound_permission.verification.requirement.resource_binding.resource_kind
+        == CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND
     )
 
 

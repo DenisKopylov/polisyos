@@ -243,6 +243,9 @@ class CandidateAcquisitionRetainedContinuation(BaseModel):
     design_problem_basis_ref: str = Field(pattern=_HASH)
     candidate_id: str = Field(min_length=1)
     candidate_action_ref: ArtifactRef
+    reuse_occurrence_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     candidate_world_intent_ref: ArtifactRef
     candidate_source_ref: ArtifactRef
     evaluation_decision_ref: ArtifactRef
@@ -263,6 +266,7 @@ class CandidateAcquisitionRetainedContinuation(BaseModel):
 
     @model_validator(mode="after")
     def _verify_content(self) -> CandidateAcquisitionRetainedContinuation:
+        _validate_reuse_occurrence_ref(self.reuse_occurrence_ref)
         if self.content_hash != exact_n5_content_hash(
             self.model_dump(mode="json", exclude={"content_hash"})
         ):
@@ -352,6 +356,22 @@ class CandidateAcquisitionRetainedContinuation(BaseModel):
         return self
 
 
+def _validate_reuse_occurrence_ref(ref: ArtifactRef | None) -> None:
+    if ref is None:
+        return
+    from polisyos.runtime.quality.candidate_experiment_reuse_occurrence import (
+        CANDIDATE_EXPERIMENT_REUSE_OCCURRENCE_KIND,
+    )
+
+    if (
+        not _candidate_ref_same(ref, ref)
+        or ref.kind != CANDIDATE_EXPERIMENT_REUSE_OCCURRENCE_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("candidate_retained_reuse_occurrence_ref_invalid")
+
+
 class CandidateRetainedPortCapture(BaseModel):
     """Owner-recorded fresh candidate port outputs for one retained evaluation.
 
@@ -383,6 +403,9 @@ class CandidateRetainedPortCapture(BaseModel):
     design_problem_basis_ref: str = Field(pattern=_HASH)
     candidate_id: str = Field(min_length=1)
     candidate_action_ref: ArtifactRef
+    reuse_occurrence_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     candidate_world_intent_ref: ArtifactRef
     candidate_source_ref: ArtifactRef
     evaluation_decision_ref: ArtifactRef
@@ -402,6 +425,7 @@ class CandidateRetainedPortCapture(BaseModel):
 
     @model_validator(mode="after")
     def _validate_capture(self) -> CandidateRetainedPortCapture:
+        _validate_reuse_occurrence_ref(self.reuse_occurrence_ref)
         if self.content_hash != exact_n5_content_hash(
             self.model_dump(mode="json", exclude={"content_hash"})
         ):
@@ -485,6 +509,7 @@ def read_candidate_acquisition_retained_continuation(
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionCandidateExperimentTerminalReceiptV2,
         AcquisitionCandidateRouteLoopReceipt,
         VerifiedAcquisitionRouteClosure,
         VerifiedCandidateExperimentOrigin,
@@ -497,11 +522,14 @@ def read_candidate_acquisition_retained_continuation(
         _search_iteration,
     )
 
+    experiment_types = (
+        AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+    )
     source_count = int(prior_closure is not None) + int(prior_experiment_origin is not None)
     if (
         type(decision) is not CandidateAcquisitionEvaluationDecision
-        or type(terminal)
-        not in {AcquisitionCandidateRouteLoopReceipt, AcquisitionCandidateExperimentTerminalReceipt}
+        or type(terminal) not in (AcquisitionCandidateRouteLoopReceipt, *experiment_types)
         or source_count != 1
         or (
             prior_closure is not None and type(prior_closure) is not VerifiedAcquisitionRouteClosure
@@ -513,18 +541,12 @@ def read_candidate_acquisition_retained_continuation(
         or (
             prior_closure is not None and type(terminal) is not AcquisitionCandidateRouteLoopReceipt
         )
-        or (
-            prior_experiment_origin is not None
-            and type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
-        )
+        or (prior_experiment_origin is not None and type(terminal) not in experiment_types)
         or decision.comparison_result != "equivalent"
         or decision.predicate_provenance != "recomputed"
         or terminal.terminal_outcome != "candidate_evaluation_retained"
         or not _candidate_ref_same(terminal.current_continuation_ref, ref)
-        or (
-            type(terminal) is AcquisitionCandidateExperimentTerminalReceipt
-            and terminal.candidate_reentry_ref is not None
-        )
+        or (type(terminal) in experiment_types and terminal.candidate_reentry_ref is not None)
     ):
         raise ValueError("candidate_retained_owner_scope_not_established")
     if prior_closure is not None:
@@ -542,7 +564,7 @@ def read_candidate_acquisition_retained_continuation(
     else:
         if prior_experiment_origin is None:
             raise ValueError("candidate_retained_experiment_source_not_established")
-        if type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt:
+        if type(terminal) not in experiment_types:
             raise ValueError("candidate_retained_experiment_source_not_established")
         experiment_terminal = terminal
         scope = prior_experiment_origin.policy_scope
@@ -646,6 +668,17 @@ def read_candidate_acquisition_retained_continuation(
     )
     if type(record) is not CandidateAcquisitionRetainedContinuation:
         raise TypeError("candidate_retained_continuation_reader_mismatch")
+    occurrence = (
+        terminal.reuse_occurrence_ref
+        if type(terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+        else None
+    )
+    if (
+        not _candidate_ref_same(record.reuse_occurrence_ref, occurrence)
+        or not _candidate_ref_same(decision.reuse_occurrence_ref, occurrence)
+        or (occurrence is not None and record.retained_port_capture_ref is None)
+    ):
+        raise ValueError("candidate_retained_reuse_occurrence_mismatch")
     for name in (
         "tenant_id",
         "cell_id",
@@ -867,6 +900,7 @@ def read_candidate_acquisition_retained_continuation(
             or not _candidate_model_values_same(
                 capture.retained_evaluation, record.retained_evaluation
             )
+            or not _candidate_ref_same(capture.reuse_occurrence_ref, occurrence)
             or capture.budget_observation_before != record.budget_observation_before
             or capture.budget_observation_after != record.budget_observation_after
             or (

@@ -702,6 +702,18 @@ export class RuntimeApiClient {
     return this.request("POST", path, query, params?.body, undefined);
   }
 
+  async requestRunCandidateAcquisitionExperimentReuseDecision(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/reuse/decision-request`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
+  async executeRunCandidateAcquisitionExperimentReuse(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/reuse/execute`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
   async getCaseInspection(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/case-inspection`;
     const query = this.buildQuery({

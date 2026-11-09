@@ -724,8 +724,8 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
         profile=profile,
         model_declaration=object(),
         selected_evaluation=None,
-        generation_run=None,
-        source_cycle=None,
+        generation_run=origin.generation_run,
+        source_cycle=origin.source_cycle,
         first_n4_source=None,
     )
     intent = SimpleNamespace(action_phase_ref=action.action_phase_ref, transaction_time=now)
@@ -831,3 +831,45 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
     assert len(initial_replays) == expected_initial_replays
     assert len(final_replays) == 1
     assert len(predecessor_reads) == 2
+
+
+def test_v2_blocker_carries_verified_source_without_a_physical_predecessor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A V2 blocker preserves its verified prior source but creates no source edge."""
+    from polisyos.runtime.quality import candidate_source_basis as basis_module
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+        _candidate_experiment_effective_source,
+    )
+    from tests.unit.runtime.quality.test_acquisition_route_loop import (
+        _reuse_effective_source_case,
+    )
+
+    origin, generation_run, source_cycle, history, _frontier = (
+        _reuse_effective_source_case("candidate_blocked")
+    )
+    assert type(history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+    assert history.terminal.terminal_outcome == "candidate_blocked"
+    effective_run, effective_cycle = _candidate_experiment_effective_source(origin)
+    assert effective_run is generation_run
+    assert effective_cycle is source_cycle
+
+    captured: list[tuple[object, ...]] = []
+
+    def capture_transitions(**kwargs: object) -> tuple[()]:
+        captured.append(kwargs["transitions"])
+        return ()
+
+    monkeypatch.setattr(
+        basis_module,
+        "_candidate_source_predecessors_from_selected_transitions",
+        capture_transitions,
+    )
+
+    predecessors = basis_module._candidate_source_predecessors_for_verified_experiment_origin(
+        store=object(), origin=origin
+    )
+
+    assert predecessors == ()
+    assert captured == [()]

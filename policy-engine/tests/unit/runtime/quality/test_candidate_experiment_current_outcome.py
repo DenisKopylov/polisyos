@@ -188,6 +188,57 @@ def _select(origin, outcomes):
     )
 
 
+def _selection_case_after_v2_prefix():
+    """Build an exact owner-history prefix ending in V2, then a pending C phase."""
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+    from tests.unit.runtime.quality.test_acquisition_route_loop import (
+        _reuse_effective_source_case,
+    )
+
+    origin, _generation_run, _source_cycle, _last_history, _frontier = (
+        _reuse_effective_source_case("candidate_evaluation_retained")
+    )
+    base_chain = origin.candidate_terminal_history_chain
+    normalized_chain = []
+    outcomes = []
+    for generation, history in enumerate(base_chain, start=1):
+        parent = replace(origin, candidate_terminal_history_chain=tuple(normalized_chain))
+        history = replace(history, origin=parent)
+        outcome = _outcome(history.terminal, generation)
+        history = replace(history, head=outcome.head, phase_chain=outcome.phase_chain)
+        outcomes.append(replace(outcome, candidate_experiment_terminal_history=history))
+        normalized_chain.append(history)
+    origin = replace(origin, candidate_terminal_history_chain=tuple(normalized_chain))
+
+    predecessor = normalized_chain[-1]
+    terminal = predecessor.terminal
+    action_ref = _ref("runtime_quality.acquisition_candidate_action_receipt", "c")
+    phase_values = {
+        name: getattr(terminal, name)
+        for name in AcquisitionCandidateExperimentPhaseReceipt.model_fields
+        if hasattr(terminal, name)
+    }
+    phase_values.update(
+        {
+            "schema_version": "AcquisitionCandidateExperimentPhaseReceipt@1.0",
+            "receipt_id": "component-pending-c",
+            "job_id": "component-action-c",
+            "action_generation": len(normalized_chain) + 1,
+            "predecessor_receipt_ref": str(predecessor.terminal_ref.artifact_id),
+            "owner_receipt_refs": (str(action_ref.artifact_id),),
+            "coarse_phase": "candidate_input_prepared",
+            "receipt_phase": "candidate_input_reentry_pending",
+            "recovery_state": "reentry_recovery_required",
+            "candidate_receipt_ref": action_ref,
+        }
+    )
+    pending = AcquisitionCandidateExperimentPhaseReceipt.model_validate(phase_values)
+    outcomes.append(_outcome(pending, len(normalized_chain) + 1))
+    return origin, tuple(outcomes)
+
+
 @pytest.mark.parametrize("generation", [1, 2, 4])
 def test_current_outcome_selects_latest_exact_generation_without_effects(
     generation: int, monkeypatch: pytest.MonkeyPatch
@@ -205,6 +256,63 @@ def test_current_outcome_selects_latest_exact_generation_without_effects(
     )
     origin, outcomes = _selection_case(generation)
     assert _select(origin, outcomes) is outcomes[-1]
+
+
+def test_current_outcome_accepts_exact_owner_replayed_v2_prefix_for_new_c() -> None:
+    origin, outcomes = _selection_case_after_v2_prefix()
+
+    assert len(origin.candidate_terminal_history_chain) == 2
+    assert origin.candidate_terminal_history_chain[-1].terminal.schema_version == (
+        "AcquisitionCandidateExperimentTerminalReceipt@2.0"
+    )
+    assert _select(origin, outcomes) is outcomes[-1]
+
+
+def test_current_outcome_rejects_v2_terminal_with_an_unbound_reuse_profile() -> None:
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+    )
+
+    origin, outcomes = _selection_case_after_v2_prefix()
+    history = origin.candidate_terminal_history_chain[-1]
+    assert type(history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+    wrong_occurrence = _ref("runtime_quality.candidate_experiment_reuse_occurrence", "f")
+    terminal = history.terminal.model_copy(update={"reuse_occurrence_ref": wrong_occurrence})
+    history = replace(history, terminal=terminal)
+    chain = (*origin.candidate_terminal_history_chain[:-1], history)
+    origin = replace(origin, candidate_terminal_history_chain=chain)
+    outcome = outcomes[-2]
+    phase = replace(outcome.phase_chain[-1], receipt=terminal)
+    outcome = replace(
+        outcome,
+        latest_receipt=terminal,
+        phase_chain=(*outcome.phase_chain[:-1], phase),
+        candidate_experiment_terminal_history=history,
+    )
+    outcomes = (*outcomes[:-2], outcome, outcomes[-1])
+
+    with pytest.raises(ValueError, match="candidate_experiment_action_prefix_changed"):
+        _select(origin, outcomes)
+
+
+def test_current_outcome_rejects_v2_terminal_subclass() -> None:
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+    )
+
+    class ExtendedTerminal(AcquisitionCandidateExperimentTerminalReceiptV2):
+        extension: str
+
+    origin, outcomes = _selection_case_after_v2_prefix()
+    terminal = outcomes[-2].latest_receipt
+    assert type(terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+    extended = ExtendedTerminal.model_validate(
+        {**terminal.model_dump(mode="python"), "extension": "unrecognized"}
+    )
+    outcomes = (*outcomes[:-2], replace(outcomes[-2], latest_receipt=extended), outcomes[-1])
+
+    with pytest.raises(ValueError, match="candidate_experiment_action_prefix_changed"):
+        _select(origin, outcomes)
 
 
 @pytest.mark.parametrize("stale_owner", ["head_ref", "head_scope", "phase_scope", "missing_profile"])

@@ -1058,6 +1058,7 @@ def verify_candidate_unpriced_experiment_policy_intent(
     closure: object,
     scope: CandidateUnpricedPolicyScope,
     policy_ref: ArtifactRef,
+    require_current: bool = True,
 ) -> OriginalRunBudgetScopeEvidence:
     """Reopen the exact signed request and configured experiment declaration.
 
@@ -1069,18 +1070,32 @@ def verify_candidate_unpriced_experiment_policy_intent(
         ControlPlaneService,
         OriginalRunBudgetScopeEvidence,
     )
+    from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
     if type(control_service) is not ControlPlaneService or type(scope) is not (
         CandidateUnpricedPolicyScope
     ):
         raise ValueError("candidate_experiment_policy_owner_not_established")
-    selected, policy = resolve_current_candidate_unpriced_policy(
-        control_service=control_service, scope=scope
-    )
+    if type(require_current) is not bool:
+        raise ValueError("candidate_experiment_policy_selection_mode_invalid")
+    if require_current:
+        selected, policy = resolve_current_candidate_unpriced_policy(
+            control_service=control_service, scope=scope
+        )
+    else:
+        # A selected historical policy records the original intent only. It is
+        # not a current binding or an authorization to run a new action.
+        selected = policy_ref
+        policy = read_candidate_unpriced_policy(
+            store=control_service._artifact_store,
+            event_log=control_service._diagnostic_event_log,
+            ref=selected,
+        )
     if (
         not _selected_ref(policy_ref, POLICY_KIND)
         or artifacts.artifact_ref_identity_key(selected)
         != artifacts.artifact_ref_identity_key(policy_ref)
+        or not _candidate_model_values_same(policy.scope, scope)
         or policy.schema_version not in {_POLICY_V2, _POLICY_V3}
         or any(
             getattr(closure, name, None) != getattr(scope, name)
@@ -1110,9 +1125,21 @@ def verify_candidate_unpriced_experiment_policy_intent(
         or evidence.run_budget_usd != policy.original_metered_budget_usd
     ):
         raise ValueError("candidate_experiment_policy_intent_not_established")
-    selected_again, _ = resolve_current_candidate_unpriced_policy(
-        control_service=control_service, scope=scope
-    )
+    if require_current:
+        selected_again, _ = resolve_current_candidate_unpriced_policy(
+            control_service=control_service, scope=scope
+        )
+    else:
+        selected_again = selected
+        if (
+            read_candidate_unpriced_policy(
+                store=control_service._artifact_store,
+                event_log=control_service._diagnostic_event_log,
+                ref=selected_again,
+            )
+            != policy
+        ):
+            raise ValueError("candidate_experiment_policy_selection_changed")
     if artifacts.artifact_ref_identity_key(selected_again) != artifacts.artifact_ref_identity_key(
         selected
     ):

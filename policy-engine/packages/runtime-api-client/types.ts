@@ -1694,6 +1694,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Run Candidate Acquisition Experiment Reuse Decision
+         * @description Request a signed PA2 decision to reuse one exact prior candidate N5 result.
+         */
+        post: operations["request_run_candidate_acquisition_experiment_reuse_decision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Run Candidate Acquisition Experiment Reuse
+         * @description Queue one PA2-approved no-fetch reuse under the ordinary Control worker.
+         */
+        post: operations["execute_run_candidate_acquisition_experiment_reuse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/case-inspection": {
         parameters: {
             query?: never;
@@ -4895,6 +4935,38 @@ export interface components {
             /** Prior Action Generation */
             prior_action_generation: number;
             prior_action_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * CandidateExperimentReuseActionExecutionRequest
+         * @description Exact signed no-fetch reuse request selected for one deferred worker job.
+         */
+        CandidateExperimentReuseActionExecutionRequest: {
+            /** Decision Ref */
+            decision_ref: string;
+            request: components["schemas"]["CandidateExperimentReuseActionRequest"];
+        };
+        /**
+         * CandidateExperimentReuseActionRequest
+         * @description Ingress selectors for requesting a distinct candidate-reuse PA2 decision.
+         *
+         *     These selectors can be checked against the latest persisted predecessor
+         *     before a worker lease or executing phase exists. They are not a reuse
+         *     result, permission, or source-currentness claim.
+         */
+        CandidateExperimentReuseActionRequest: {
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
+            /** Idempotency Key */
+            idempotency_key: string;
+            n5_execution_ref: components["schemas"]["ArtifactRef-Input"];
+            n5_input_ref: components["schemas"]["ArtifactRef-Input"];
+            n5_result_ref: components["schemas"]["ArtifactRef-Input"];
+            policy_ref: components["schemas"]["ArtifactRef-Input"];
+            predecessor_action_ref: components["schemas"]["ArtifactRef-Input"];
+            predecessor_terminal_ref: components["schemas"]["ArtifactRef-Input"];
+            /** Route Id */
+            route_id: string;
+            source_ref: components["schemas"]["ArtifactRef-Input"];
         };
         /**
          * CandidateExperimentRouteExecutionRequest
@@ -31731,6 +31803,188 @@ export interface operations {
                      *       "world_growth": "not_established"
                      *     }
                      */
+                    "application/json": components["schemas"]["AcquisitionExecutionResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    request_run_candidate_acquisition_experiment_reuse_decision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                route_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CandidateExperimentReuseActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    execute_run_candidate_acquisition_experiment_reuse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                route_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CandidateExperimentReuseActionExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["AcquisitionExecutionResponse"];
                 };
             };

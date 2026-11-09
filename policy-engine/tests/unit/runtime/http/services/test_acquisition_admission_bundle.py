@@ -15,13 +15,22 @@ from polisyos.core.artifacts.signing import (
     SignatureVerificationStatus,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.runtime.http.authorization import (
+    BoundActionPermissionVerification,
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    RouteAuthorizationRequirement,
+)
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes.acquisitions import _MODEL_INPUT_USE_MUTATION_AUTHZ
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
     AcquisitionAdmissionBundleProducer,
     AcquisitionAdmissionSigningSlot,
     model_input_use_request_resource_digest,
+    require_candidate_experiment_reuse_bound_permission,
     require_model_input_use_bound_permission,
+    require_request_bound_action_snapshot,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.model_input_successor_action import (
@@ -31,11 +40,17 @@ from polisyos.runtime.http.services.model_input_successor_action import (
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_ADMISSION_ARTIFACT_KIND,
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+    MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAdmissionBundle,
     AgentActionEffectBinding,
     AgentActionIntent,
+    _consume_ds20_floor,
 )
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    CandidateExperimentReuseActionRequest,
+)
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests.integration.core_runtime import test_acquisition_admission_bundle as fixture
 
@@ -164,32 +179,21 @@ def test_bundle_producer_reopens_signed_artifact_and_refuses_digest_mutation(
     assert _bundle_refs(store) == bundle_refs_before
 
 
-def test_model_input_use_permission_binds_the_selected_activation_profile() -> None:
-    """Exercise the actual route's frozen binding and its historical PA2 replay."""
-
-    def selected_ref(kind: str, number: int, media_type: str = "application/json") -> ArtifactRef:
-        return ArtifactRef.model_validate(
-            {
-                "artifact_id": f"sha256:{number:064x}",
-                "kind": kind,
-                "media_type": media_type,
-                "manifest_profile_sha256": f"sha256:{number + 10:064x}",
-            }
-        )
-
-    request = ModelInputSuccessorActionRequest(
-        compiled_ref=selected_ref("runtime.compiled_recursive_generation_cycle", 1),
-        blocked_execution_ref=selected_ref(
-            "runtime.quality.generic_cycle_simulation_n5_execution", 2
-        ),
-        routing_report_ref=selected_ref("runtime.quality.model_input_routing_report", 3),
-        activation_receipt_ref=selected_ref(
-            "epoch.activated_overlay_admission_receipt", 4, "application/vnd.polisyos.epoch+json"
-        ),
-        observation_id="catalog-observation-selected",
-        idempotency_key="one-use",
+def _selected_ref(kind: str, number: int, media_type: str = "application/json") -> ArtifactRef:
+    return ArtifactRef.model_validate(
+        {
+            "artifact_id": f"sha256:{number:064x}",
+            "kind": kind,
+            "media_type": media_type,
+            "manifest_profile_sha256": f"sha256:{number + 10:064x}",
+        }
     )
-    requirement = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
+
+
+def _candidate_bound_proof(
+    request: ModelInputSuccessorActionRequest | CandidateExperimentReuseActionRequest,
+    requirement: RouteAuthorizationRequirement,
+) -> tuple[BoundActionPermissionVerification, str]:
     body = request.model_dump(mode="json")
     selectors = tuple(
         sorted(
@@ -209,8 +213,8 @@ def test_model_input_use_permission_binds_the_selected_activation_profile() -> N
             fixture._canonical_selector(
                 {
                     "binding_version": "runtime.authorization.resource.v1",
-                    "permission": MODEL_INPUT_USE_PERMISSION.value,
-                    "resource_kind": "runtime.evidence.model_input.use",
+                    "permission": requirement.permission.value,
+                    "resource_kind": requirement.resource_binding.resource_kind,
                     "authority": "request_bound",
                     "tenant_id": None,
                     "body_sha256": body_hash,
@@ -229,9 +233,39 @@ def test_model_input_use_permission_binds_the_selected_activation_profile() -> N
     )
     proof = replace(
         proof,
-        verification=replace(proof.verification, granted_permissions=(MODEL_INPUT_USE_PERMISSION,)),
+        verification=replace(proof.verification, granted_permissions=(requirement.permission,)),
     )
+    return proof, digest
+
+
+def test_model_input_use_permission_binds_the_selected_activation_profile() -> None:
+    """Exercise the actual route's frozen binding and its historical PA2 replay."""
+    request = ModelInputSuccessorActionRequest(
+        compiled_ref=_selected_ref("runtime.compiled_recursive_generation_cycle", 1),
+        blocked_execution_ref=_selected_ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", 2
+        ),
+        routing_report_ref=_selected_ref("runtime.quality.model_input_routing_report", 3),
+        activation_receipt_ref=_selected_ref(
+            "epoch.activated_overlay_admission_receipt", 4, "application/vnd.polisyos.epoch+json"
+        ),
+        observation_id="catalog-observation-selected",
+        idempotency_key="one-use",
+    )
+    requirement = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
+    assert requirement.permission is MODEL_INPUT_USE_PERMISSION
+    assert requirement.resource_binding.resource_kind == "runtime.evidence.model_input.use"
+    proof, digest = _candidate_bound_proof(request, requirement)
+    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(proof, [])
+    assert snapshot is not None and identity_ok and permission_ok
+    body_hash = snapshot.body_sha256
     assert require_model_input_use_bound_permission(proof, request) == digest
+    assert (
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=request
+        )
+        == digest
+    )
     assert (
         model_input_use_request_resource_digest(
             request, body_sha256=body_hash, query_sha256=fixture.EMPTY_QUERY_SHA256
@@ -258,3 +292,68 @@ def test_model_input_use_permission_binds_the_selected_activation_profile() -> N
         AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
     ):
         require_model_input_use_bound_permission(fixture._proof(), request)
+
+
+def test_candidate_reuse_permission_replays_exact_predecessor_and_distinct_resource() -> None:
+    request = CandidateExperimentReuseActionRequest(
+        route_id="sha256:" + "a" * 64,
+        predecessor_terminal_ref=_selected_ref("runtime_quality.acquisition_route_loop_receipt", 1),
+        predecessor_action_ref=_selected_ref(
+            "runtime_quality.acquisition_candidate_action_receipt", 2
+        ),
+        source_ref=_selected_ref("runtime.quality.candidate_acquisition_source", 3),
+        n5_input_ref=_selected_ref("runtime.quality.candidate_simulation_n5_input", 4),
+        n5_execution_ref=_selected_ref("runtime.quality.candidate_simulation_execution", 5),
+        n5_result_ref=_selected_ref("polisyos.runtime.joint_simulation_result", 6),
+        policy_ref=_selected_ref("runtime_quality.candidate_unpriced_acquisition_policy", 7),
+        idempotency_key="reuse-once",
+    )
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.RUNS_LAUNCH,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind="runtime.evidence.candidate_experiment.reuse",
+            selector_fields=tuple(type(request).model_fields),
+            required_selector_fields=tuple(
+                name for name, field in type(request).model_fields.items() if field.is_required()
+            ),
+        ),
+    )
+    proof, digest = _candidate_bound_proof(request, requirement)
+    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(proof, [])
+    assert snapshot is not None and identity_ok and permission_ok
+    assert require_candidate_experiment_reuse_bound_permission(proof, request) == digest
+    assert (
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, request=request
+        )
+        == digest
+    )
+
+    original = request.predecessor_terminal_ref
+    sibling = original.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    assert sibling.artifact_id == original.artifact_id
+    changed = request.model_copy(update={"predecessor_terminal_ref": sibling})
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_candidate_experiment_reuse_bound_permission(proof, changed)
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_digest_mismatch"
+    ):
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, request=changed
+        )
+    crossed = snapshot.model_copy(
+        update={"resource_kind": "runtime.evidence.model_input.use.request_bound"}
+    )
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_request_bound_action_snapshot(
+            crossed, action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, request=request
+        )
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_candidate_experiment_reuse_bound_permission(fixture._proof(), request)

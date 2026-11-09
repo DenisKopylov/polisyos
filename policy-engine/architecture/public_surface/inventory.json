@@ -8458,8 +8458,8 @@
                 "path": "src/polisyos/ir/trinity/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2478,
-                "sha256": "8e1febca08ed467b4dd9e914da16609b5087914228d4694e332806ad783951cd"
+                "bytes": 2048,
+                "sha256": "d6ed2bad053287beb64f61e7cb5d938b68b16248bdd73c24435d6c03c7337f4b"
               },
               {
                 "path": "src/polisyos/ir/trinity",
@@ -8478,6 +8478,12 @@
                 "operation": "is_dir",
                 "status": "present",
                 "result": false
+              },
+              {
+                "path": "src/polisyos/ir/trinity/contracts.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
               },
               {
                 "path": "src/polisyos/ir/trinity/loaders.py",
@@ -10274,8 +10280,8 @@
                 "path": "src/polisyos/fabric/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 9789,
-                "sha256": "528bb771891c544fc6c76d73cd2c804d01ab44e18a965ab719032eed746945f4"
+                "bytes": 9804,
+                "sha256": "2c171f1074c7da7730b6628602330454f3a07dacb557ad78921dfa629ee426b3"
               },
               {
                 "path": "src/polisyos/fabric/data_plane",
@@ -13965,8 +13971,8 @@
         "polisyos.scientist.policy_design"
       ],
       "major_subsystem": true,
-      "export_count": 45,
-      "known_export_count": 45,
+      "export_count": 46,
+      "known_export_count": 46,
       "exports": [
         "create_n4_producer_binding",
         "n4_producer_request_scope",
@@ -13996,6 +14002,7 @@
         "KnowledgeToolkit",
         "ScientistLegalBenchmarkRunner",
         "ScientistRetrievalBenchmarkOutcome",
+        "SchedulingDecision",
         "ToolContractSummary",
         "ToolDefinition",
         "ToolLoopResult",
@@ -14023,8 +14030,8 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 45,
-          "known_export_count": 45,
+          "export_count": 46,
+          "known_export_count": 46,
           "exports": [
             "create_n4_producer_binding",
             "n4_producer_request_scope",
@@ -14054,6 +14061,7 @@
             "KnowledgeToolkit",
             "ScientistLegalBenchmarkRunner",
             "ScientistRetrievalBenchmarkOutcome",
+            "SchedulingDecision",
             "ToolContractSummary",
             "ToolDefinition",
             "ToolLoopResult",
@@ -14096,8 +14104,8 @@
                 "path": "src/polisyos/scientist/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8787,
-                "sha256": "707f43406882d45bd72a1da15e7c7702f9c0c51e76e16844a9837b9dcaac0d07"
+                "bytes": 8937,
+                "sha256": "bf6ebcdffe46f709b944d61f41555f669da53222bbe416069828108c1c86770d"
               },
               {
                 "path": "src/polisyos/scientist",
@@ -18978,6 +18986,18 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/candidate_experiment_policy_issuer.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_experiment_reuse.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_experiment_reuse_occurrence.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

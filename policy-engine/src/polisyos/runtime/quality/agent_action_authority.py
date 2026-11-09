@@ -24,7 +24,11 @@ from polisyos.pdc import (
     OperationInvocationRecord,
 )
 from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
-from polisyos.runtime.http.permissions import MODEL_INPUT_USE_PERMISSION, RuntimePermission
+from polisyos.runtime.http.permissions import (
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    MODEL_INPUT_USE_PERMISSION,
+    RuntimePermission,
+)
 from polisyos.runtime.http.security import PolicyOSRole
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
@@ -161,6 +165,7 @@ HUMAN_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_human_decision"
 AGENT_ACTION_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_authority_decision"
 ACQUISITION_ACTION_KIND = "runtime.evidence.acquisition.execute"
 CANDIDATE_EXPERIMENT_ACTION_KIND = "runtime.evidence.acquisition.candidate_experiment.execute"
+CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND = "runtime.evidence.candidate_experiment.reuse"
 MODEL_INPUT_USE_ACTION_KIND = "runtime.evidence.model_input.use"
 _PROTECTED_ACTION_HUMAN_REVIEW: Mapping[str, tuple[RuntimePermission, DecisionNeedReason]] = (
     MappingProxyType(
@@ -169,6 +174,10 @@ _PROTECTED_ACTION_HUMAN_REVIEW: Mapping[str, tuple[RuntimePermission, DecisionNe
             CANDIDATE_EXPERIMENT_ACTION_KIND: (
                 RuntimePermission.EVIDENCE_ACQUIRE,
                 "acquisition_required",
+            ),
+            CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND: (
+                CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+                "mandate_limited",
             ),
             MODEL_INPUT_USE_ACTION_KIND: (MODEL_INPUT_USE_PERMISSION, "budget_required"),
         }

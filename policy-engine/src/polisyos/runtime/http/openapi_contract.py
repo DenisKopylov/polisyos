@@ -2536,6 +2536,7 @@ def _success_example_response_models() -> dict[str, Any]:
     )
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionDecisionRequestResponse,
+        AcquisitionExecutionResponse,
         CandidateExperimentRouteProjection,
     )
     from polisyos.runtime.http.services.candidate_hte_packet_projection import (
@@ -2563,6 +2564,7 @@ def _success_example_response_models() -> dict[str, Any]:
         "get_run_method_metrics": MethodMetricProjectionResponse,
         "get_run_method_metric_comparison": CompletedExAnteCandidateComparisonResponse,
         "cancel_control_job": ControlJobResponse,
+        "get_control_job_status": ControlJobResponse,
         "register_sql_source": RegisteredSQLRegistrationResponse,
         "admit_registered_sql_materialization": RegisteredSQLMaterializationResponse,
         "withdraw_registered_sql_materialization": RegisteredSQLWithdrawalResponse,
@@ -2571,6 +2573,10 @@ def _success_example_response_models() -> dict[str, Any]:
         "request_run_candidate_acquisition_experiment_decision": (
             AcquisitionDecisionRequestResponse
         ),
+        "request_run_candidate_acquisition_experiment_reuse_decision": (
+            AcquisitionDecisionRequestResponse
+        ),
+        "execute_run_candidate_acquisition_experiment_reuse": AcquisitionExecutionResponse,
         "get_control_pre_admission_attempt_by_idempotency_key": (
             ControlPreAdmissionAttemptResponse
         ),
@@ -3054,11 +3060,28 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "human_decision_request": {"request_ref": "pdc://human-decision/candidate-example"},
         "world_growth": "not_established",
     },
+    "request_run_candidate_acquisition_experiment_reuse_decision": {
+        "run_id": _RUN_ID_SAMPLE,
+        "route_id": _ARTIFACT_ID_SAMPLE,
+        "authority_decision_ref": "sha256:" + "2" * 64,
+        "outcome": "decision_required",
+        "human_decision_request": None,
+        "world_growth": "not_established",
+    },
     "execute_run_acquisition_route": {
         "run_id": "run-ds15",
         "route_id": _ARTIFACT_ID_SAMPLE,
         "job_id": "acquisition-deferred-job",
         "authority_decision_ref": "sha256:" + "1" * 64,
+        "status": "accepted",
+        "receipt_phase": "requested",
+        "world_growth": "not_established",
+    },
+    "execute_run_candidate_acquisition_experiment_reuse": {
+        "run_id": _RUN_ID_SAMPLE,
+        "route_id": _ARTIFACT_ID_SAMPLE,
+        "job_id": "candidate-experiment-reuse-job-example",
+        "authority_decision_ref": "sha256:" + "2" * 64,
         "status": "accepted",
         "receipt_phase": "requested",
         "world_growth": "not_established",
@@ -5853,6 +5876,54 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         },
     },
 }
+
+
+def _candidate_experiment_reuse_job_status_success_examples() -> dict[str, Any]:
+    """Show the generic status projection of a verified reuse V2 terminal."""
+    return {
+        "candidate_experiment_reuse_v2_terminal_fixture": {
+            "summary": "Candidate-only reuse V2 terminal status",
+            "description": (
+                "Illustrative progress fields returned after the owner verifies the V2 terminal. "
+                "The progress map is a projection; the referenced terminal receipt must be "
+                "reopened and verified by a consumer. This example establishes no source "
+                "currentness, external authority, or publication permission."
+            ),
+            "value": {
+                "meta": _META_NO_SOURCE,
+                "job_id": "candidate-experiment-reuse-job-example",
+                "kind": "acquisition",
+                "state": "completed",
+                "run_id": _RUN_ID_SAMPLE,
+                "pipeline_id": None,
+                "requested_execution_profile": None,
+                "effective_execution_profile": "research",
+                "capability_manifest_ref": {
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "runtime.capability_manifest",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:" + "b" * 64,
+                },
+                "submitted_at": _TS_SAMPLE,
+                "started_at": _TS_SAMPLE,
+                "finished_at": _TS_SAMPLE,
+                "error_message": None,
+                "execution_status": "completed",
+                "progress": {
+                    "state": "completed",
+                    "phase": "candidate_experiment_reuse",
+                    "receipt_phase": "terminal",
+                    "terminal_outcome": "candidate_evaluation_retained",
+                    "terminal_receipt_ref": "sha256:" + "c" * 64,
+                },
+            },
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_control_job_status"] = (
+    _candidate_experiment_reuse_job_status_success_examples
+)
 
 
 def _first_success_response(

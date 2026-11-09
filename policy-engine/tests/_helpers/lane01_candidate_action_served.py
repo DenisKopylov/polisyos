@@ -468,6 +468,7 @@ def _approve_candidate_action(
     trust: Any,
     signers: Any,
     identities: Any,
+    authority_valid_until: datetime | None = None,
 ) -> None:
     """Complete the existing authenticated request and human approval sequence."""
     response, _ = trust.post(
@@ -492,6 +493,7 @@ def _approve_candidate_action(
         identities=identities,
         now=datetime.now(UTC),
         audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
+        authority_valid_until=authority_valid_until,
     )
     body = {
         k: v
@@ -513,7 +515,17 @@ def _approve_candidate_action(
         extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
     )
     assert human.status_code == 201, human.text
-    slot["human_decision_record_ref"] = human.json()["record_ref"]
+    human_ref = human.json()["record_ref"]
+    slot["human_decision_record_ref"] = human_ref
+    if authority_valid_until is not None:
+        human_record = served._within_fixture_owner(
+            container.human_decision_service.read_record,
+            human_ref,
+            tenant_id=closure.tenant_id,
+            run_id=closure.run_id,
+        )
+        if human_record.valid_until != authority_valid_until:
+            raise AssertionError("candidate action DS9 record lost its exact bounded deadline")
 
 
 def _candidate_action_effect_snapshot(

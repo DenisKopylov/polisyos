@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.core import artifacts, canon
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.quality.agent_action_authority import (
     CANDIDATE_EXPERIMENT_ACTION_KIND,
     AgentActionAuthorityDecision,
@@ -166,6 +167,9 @@ def _install_candidate_mandate(
     resource_digest,
     tmp_path,
     key_root: Path,
+    action_kind: str = CANDIDATE_EXPERIMENT_ACTION_KIND,
+    required_permission: RuntimePermission = RuntimePermission.EVIDENCE_ACQUIRE,
+    action_job_id: str | None = None,
     authority_valid_until: datetime | None = None,
 ):
     """Sign exact candidate action/currentness inputs through existing fixture owners.
@@ -195,9 +199,10 @@ def _install_candidate_mandate(
     envelope = contract.action_envelopes[0].model_copy(
         update={
             "mandate_owner_ref": identities["owner"],
-            "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
-            "operation_id": CANDIDATE_EXPERIMENT_ACTION_KIND,
+            "action_kind": action_kind,
+            "operation_id": action_kind,
             "operation_version": "v1",
+            "required_permission": required_permission,
             "authorized_subject": "acquisition-operator",
             "authorized_runtime_roles": contract.action_envelopes[0].authorized_runtime_roles,
             "required_tenant_id": origin.tenant_id,
@@ -214,7 +219,9 @@ def _install_candidate_mandate(
         "tenant_id": origin.tenant_id,
         "cell_id": origin.cell_id,
         "run_id": origin.run_id,
-        "job_id": AcquisitionActionService._candidate_experiment_job_id(origin, request),
+        "job_id": action_job_id
+        if action_job_id is not None
+        else AcquisitionActionService._candidate_experiment_job_id(origin, request),
         "now": now,
     }
     contract_ref = served._within_fixture_owner(
@@ -290,7 +297,9 @@ def _install_candidate_mandate(
     return slot, install_provider
 
 
-def _candidate_experiment_issuer_port(*, fixture_root: Path, artifact_store):
+def _candidate_experiment_issuer_port(
+    *, fixture_root: Path, artifact_store, subsequent_attempt_ids: tuple[str, ...] = ()
+):
     """Build once, then reopen the same test-owned WDI issuer for retained retries."""
     from types import SimpleNamespace
 
@@ -306,6 +315,29 @@ def _candidate_experiment_issuer_port(*, fixture_root: Path, artifact_store):
     repo_root = fixture_root / "repo"
     registry_path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
     if not registry_path.is_file():
+        if subsequent_attempt_ids:
+            from tests._helpers.lane01_wdi_profiles import (
+                UNEMPLOYMENT_PROFILE,
+                build_fixture_wdi_authority,
+            )
+
+            authority, entry = build_fixture_wdi_authority(
+                repo_root,
+                UNEMPLOYMENT_PROFILE,
+                subsequent_attempt_ids=tuple(subsequent_attempt_ids),
+            )
+            registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
+                registry_path.read_bytes()
+            )
+            port = acquisition_surface_execution.WorldBankWDIAcquisitionExecutionPort(
+                authority=authority,
+                registry=registry,
+                provision=authority.provision,
+                provision_content_sha256=authority.provision_content_sha256,
+                runtime_state_root=fixture_root / "runtime",
+                artifact_store=artifact_store,
+            )
+            return SimpleNamespace(authority=authority, entry=entry, registry=registry, port=port)
         return build_candidate_experiment_issuer_port(
             tmp_path=fixture_root,
             artifact_store=artifact_store,
@@ -329,7 +361,13 @@ def _candidate_experiment_issuer_port(*, fixture_root: Path, artifact_store):
     return SimpleNamespace(authority=authority, entry=entry, registry=registry, port=port)
 
 
-def _candidate_experiment_policy_owner(*, control, fixture_root: Path, run_id: str):
+def _candidate_experiment_policy_owner(
+    *,
+    control,
+    fixture_root: Path,
+    run_id: str,
+    subsequent_attempt_ids: tuple[str, ...] = (),
+):
     """Compose the shared test-owned WDI issuer and current quota template."""
     from types import SimpleNamespace
 
@@ -342,10 +380,17 @@ def _candidate_experiment_policy_owner(*, control, fixture_root: Path, run_id: s
     issuer = _candidate_experiment_issuer_port(
         fixture_root=fixture_root,
         artifact_store=control._artifact_store,
+        subsequent_attempt_ids=tuple(subsequent_attempt_ids),
     )
     quota_profile = control._llm_producer_settlement_store.snapshot_safe().invocation_profiles[
         run_id
     ]
+    template_fields: dict[str, object] = {}
+    if subsequent_attempt_ids:
+        template_fields = {
+            "schema_version": "polisyos.runtime.candidate_unpriced_policy_template.v2",
+            "subsequent_attempt_ids": tuple(subsequent_attempt_ids),
+        }
     template = CandidateUnpricedExperimentPolicyTemplate(
         tenant_id=served.TENANT,
         cell_id=served.CELL,
@@ -358,6 +403,7 @@ def _candidate_experiment_policy_owner(*, control, fixture_root: Path, run_id: s
         max_http_timeout_seconds=15.0,
         max_standard_n5_invocations=quota_profile.total_units - quota_profile.protected_units,
         max_metered_reentry_usd=Decimal("1.00"),
+        **template_fields,
     )
     return SimpleNamespace(
         issuer=issuer,
@@ -470,6 +516,7 @@ def _run_candidate_experiment_action_oracle(
         cell_id=served.CELL,
         run_id=run_id,
     )
+
     def read_headers() -> dict[str, str]:
         return {
             "Authorization": trust.authorization_header("acquisition-operator"),
@@ -1475,7 +1522,9 @@ def run_genuine_candidate_experiment_scenario(
     *,
     total_units: int = 5,
     expected_blocked: bool = False,
+    subsequent_attempt_ids: tuple[str, ...] = (),
     after_execution: Callable[..., object] | None = None,
+    authority_valid_until: datetime | None = None,
 ) -> dict[str, object]:
     """Serve the genuine source and first candidate action; optionally continue inline."""
     from dataclasses import replace
@@ -1526,6 +1575,7 @@ def run_genuine_candidate_experiment_scenario(
             control=control,
             fixture_root=tmp_path / "candidate-issuer",
             run_id=run_id,
+            subsequent_attempt_ids=tuple(subsequent_attempt_ids),
         )
         issuer, template = policy_owner.issuer, policy_owner.template
         original_providers = control._registry_providers
@@ -1667,10 +1717,16 @@ def run_genuine_candidate_experiment_scenario(
                     decision_ref=execution_values["decision_ref"],
                 )
                 if after_execution is not None:
+                    if artifacts.artifact_ref_identity_key(
+                        execution_values["policy_ref"]
+                    ) != artifacts.artifact_ref_identity_key(policy_ref):
+                        raise AssertionError(
+                            "after_execution policy ref differs from the selected policy"
+                        )
                     scenario_context["after_execution_result"] = after_execution(
                         execution=execution,
                         values=execution_values["values"],
-                        policy_ref=execution_values["policy_ref"],
+                        policy_ref=policy_ref,
                         policy_owner=policy_owner,
                         policy=policy,
                         origin=execution_values["origin"],
@@ -1690,6 +1746,7 @@ def run_genuine_candidate_experiment_scenario(
                     policy_ref=policy_ref,
                     monkeypatch=monkeypatch,
                     after_replay=execute_after_replay,
+                    authority_valid_until=authority_valid_until,
                 )
             )
         finally:

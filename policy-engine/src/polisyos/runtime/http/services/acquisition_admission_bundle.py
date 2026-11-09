@@ -23,7 +23,13 @@ from polisyos.pdc import (
     OperationInvocationRecord,
 )
 from polisyos.runtime.http.authorization import ResourceBindingSource
-from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.permissions import (
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    MODEL_INPUT_USE_PERMISSION,
+    MODEL_INPUT_USE_RESOURCE_KIND,
+    RuntimePermission,
+)
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
@@ -38,17 +44,22 @@ from polisyos.runtime.quality.agent_action_authority import (
     AGENT_ACTION_ADMISSION_SCHEMA_VERSION,
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
     DELEGATION_CONTRACT_ARTIFACT_KIND,
     MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAdmissionBundle,
     AgentActionAuthorityWriteContext,
     AgentActionEffectBinding,
     AgentActionIntent,
+    AgentActionPermissionSnapshot,
     agent_action_content_hash,
     agent_action_permission_hash,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    CandidateExperimentReuseActionRequest,
+)
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
 )
@@ -57,11 +68,7 @@ from .acquisition_action_service import (
     AcquisitionRouteMutationRequest,
     CandidateExperimentRouteMutationRequest,
 )
-from .model_input_successor_action import (
-    MODEL_INPUT_USE_PERMISSION,
-    MODEL_INPUT_USE_RESOURCE_KIND,
-    ModelInputSuccessorActionRequest,
-)
+from .model_input_successor_action import ModelInputSuccessorActionRequest
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -75,6 +82,7 @@ _EMPTY_QUERY_SHA256 = f"sha256:{sha256(b'').hexdigest()}"
 type _ActionRequest = (
     AcquisitionRouteMutationRequest
     | CandidateExperimentRouteMutationRequest
+    | CandidateExperimentReuseActionRequest
     | ModelInputSuccessorActionRequest
 )
 _REQUEST_BINDING_BY_KIND: dict[str, tuple[type[_ActionRequest], str, RuntimePermission]] = {
@@ -87,6 +95,11 @@ _REQUEST_BINDING_BY_KIND: dict[str, tuple[type[_ActionRequest], str, RuntimePerm
         CandidateExperimentRouteMutationRequest,
         "runtime.evidence.acquisition.candidate_experiment",
         RuntimePermission.EVIDENCE_ACQUIRE,
+    ),
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND: (
+        CandidateExperimentReuseActionRequest,
+        CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+        CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
     ),
     MODEL_INPUT_USE_ACTION_KIND: (
         ModelInputSuccessorActionRequest,
@@ -316,7 +329,7 @@ class AcquisitionAdmissionBundleProducer:
         expected_class: OperationClass | None = None
         if action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
             expected_class = OperationClass.ACQUIRE
-        elif action_kind == MODEL_INPUT_USE_ACTION_KIND:
+        elif action_kind in {MODEL_INPUT_USE_ACTION_KIND, CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND}:
             expected_class = OperationClass.BIND
         elif action_kind != ACQUISITION_ACTION_KIND:
             raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
@@ -539,6 +552,50 @@ def require_model_input_use_bound_permission(
         action_kind=MODEL_INPUT_USE_ACTION_KIND,
         request=request,
     )
+
+
+def require_candidate_experiment_reuse_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: CandidateExperimentReuseActionRequest,
+) -> str:
+    """Recompute the request-bound permission for the distinct no-fetch action."""
+    return _recompute_resource_digest(
+        bound_permission,
+        action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+        request=request,
+    )
+
+
+def require_request_bound_action_snapshot(
+    snapshot: AgentActionPermissionSnapshot,
+    *,
+    action_kind: str,
+    request: _ActionRequest | None,
+) -> str:
+    """Reconcile a signed permission snapshot with an independently selected DTO."""
+    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    if selected is None or request is None or type(snapshot) is not AgentActionPermissionSnapshot:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    request_model, resource_kind, permission = selected
+    if (
+        type(request) is not request_model
+        or snapshot.required_permission != permission.value
+        or snapshot.resource_authority != BindingAuthority.REQUEST_BOUND.value
+        or snapshot.resource_kind != f"{resource_kind}.{BindingAuthority.REQUEST_BOUND.value}"
+        or snapshot.query_sha256 != _EMPTY_QUERY_SHA256
+    ):
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    digest = _request_resource_digest(
+        action_kind=action_kind,
+        request=request,
+        body_sha256=snapshot.body_sha256,
+        query_sha256=snapshot.query_sha256,
+        authority=BindingAuthority.REQUEST_BOUND,
+        tenant_id=None,
+    )
+    if digest != snapshot.resource_digest:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_digest_mismatch")
+    return digest
 
 
 def candidate_experiment_request_resource_digest(

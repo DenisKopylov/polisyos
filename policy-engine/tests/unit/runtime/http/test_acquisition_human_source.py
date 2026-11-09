@@ -25,7 +25,10 @@ def _source_case(tmp_path, monkeypatch, *, acquisition=True, action_kind=None, p
     operation = fixtures._operation(operation_id)
     invocation = fixtures._invocation(operation)
     if permission is None:
-        if kind == authority.MODEL_INPUT_USE_ACTION_KIND:
+        if kind in {
+            authority.MODEL_INPUT_USE_ACTION_KIND,
+            authority.CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+        }:
             permission = RuntimePermission.RUNS_LAUNCH
         elif acquisition:
             permission = RuntimePermission.EVIDENCE_ACQUIRE
@@ -138,6 +141,7 @@ def _retarget_source_tuple(case, *, action_kind, operation_id):
         (True, authority.ACQUISITION_ACTION_KIND, "acquisition_required"),
         (True, authority.CANDIDATE_EXPERIMENT_ACTION_KIND, "acquisition_required"),
         (True, authority.MODEL_INPUT_USE_ACTION_KIND, "budget_required"),
+        (True, authority.CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, "mandate_limited"),
         (False, None, "out_of_envelope"),
     ],
 )
@@ -206,11 +210,18 @@ def test_ds9_candidate_experiment_classifier_removal_refuses_candidate_source(
     assert effects == []
 
 
+@pytest.mark.parametrize(
+    ("action_kind", "foreign_reason"),
+    [
+        (authority.MODEL_INPUT_USE_ACTION_KIND, "acquisition_required"),
+        (authority.CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, "budget_required"),
+    ],
+)
 @pytest.mark.parametrize("mutation", ["permission", "version", "reason"])
-def test_ds9_model_input_use_refuses_crossed_review_tuple(tmp_path, monkeypatch, mutation):
-    case, effects = _source_case(
-        tmp_path, monkeypatch, action_kind=authority.MODEL_INPUT_USE_ACTION_KIND
-    )
+def test_ds9_request_bound_candidate_action_refuses_crossed_review_tuple(
+    tmp_path, monkeypatch, action_kind, foreign_reason, mutation
+):
+    case, effects = _source_case(tmp_path, monkeypatch, action_kind=action_kind)
     source = case["source"]
     (envelope,) = case["contract"].action_envelopes
     if mutation == "permission":
@@ -230,7 +241,7 @@ def test_ds9_model_input_use_refuses_crossed_review_tuple(tmp_path, monkeypatch,
         envelope = envelope.model_copy(update={"operation_version": "v2"})
         source = source.model_copy(update={"operation_version": "v2"})
     else:
-        request = case["request"].model_copy(update={"need_reasons": ["acquisition_required"]})
+        request = case["request"].model_copy(update={"need_reasons": [foreign_reason]})
         source = source.model_copy(update={"human_decision_request": request})
         case["request"] = request
         case["separation"] = case["separation"].model_copy(
@@ -245,11 +256,20 @@ def test_ds9_model_input_use_refuses_crossed_review_tuple(tmp_path, monkeypatch,
     assert effects == []
 
 
-def test_pa2_model_input_use_refuses_matching_legacy_envelope_and_permission(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    "action_kind",
+    [
+        authority.MODEL_INPUT_USE_ACTION_KIND,
+        authority.CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+    ],
+)
+def test_pa2_request_bound_candidate_action_refuses_matching_legacy_envelope_and_permission(
+    tmp_path, monkeypatch, action_kind
+):
     case, effects = _source_case(
         tmp_path,
         monkeypatch,
-        action_kind=authority.MODEL_INPUT_USE_ACTION_KIND,
+        action_kind=action_kind,
         permission=RuntimePermission.EVIDENCE_ACQUIRE,
     )
 

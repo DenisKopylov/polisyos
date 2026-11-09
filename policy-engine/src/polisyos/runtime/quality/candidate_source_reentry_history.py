@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
-from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+from polisyos.scientist import SchedulingDecision
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

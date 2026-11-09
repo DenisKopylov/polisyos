@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 55 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 45 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 46 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -6427,7 +6427,7 @@ validate_source_bound_gcm_spec
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 45 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 46 |
 | `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
@@ -6446,7 +6446,7 @@ validate_source_bound_gcm_spec
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (45)</summary>
+<details><summary>Entrypoint exports (46)</summary>
 
 ```text
 create_n4_producer_binding
@@ -6477,6 +6477,7 @@ ExperimentState
 KnowledgeToolkit
 ScientistLegalBenchmarkRunner
 ScientistRetrievalBenchmarkOutcome
+SchedulingDecision
 ToolContractSummary
 ToolDefinition
 ToolLoopResult
@@ -7238,7 +7239,7 @@ trace_to_mutation_hints
 
 </details>
 
-<details><summary>Supported exports (45)</summary>
+<details><summary>Supported exports (46)</summary>
 
 ```text
 create_n4_producer_binding
@@ -7269,6 +7270,7 @@ ExperimentState
 KnowledgeToolkit
 ScientistLegalBenchmarkRunner
 ScientistRetrievalBenchmarkOutcome
+SchedulingDecision
 ToolContractSummary
 ToolDefinition
 ToolLoopResult

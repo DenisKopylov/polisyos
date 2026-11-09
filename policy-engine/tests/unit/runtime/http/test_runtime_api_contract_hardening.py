@@ -1556,6 +1556,48 @@ def test_openapi_exposes_strict_acquisition_route_boundary_without_growth_author
     _assert_ds15_acquisition_openapi_contract(export_runtime_openapi_schema())
 
 
+def test_openapi_p05_reuse_routes_and_v2_progress_are_explicitly_documented() -> None:
+    from polisyos.runtime.http import openapi_contract
+
+    schema = export_runtime_openapi_schema()
+    operations = (
+        (
+            "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+            "request_run_candidate_acquisition_experiment_reuse_decision",
+        ),
+        (
+            "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
+            "execute_run_candidate_acquisition_experiment_reuse",
+        ),
+    )
+    adapters = openapi_contract._success_example_response_adapters()
+    for path, operation_id in operations:
+        operation = schema["paths"][path]["post"]
+        assert operation["operationId"] == operation_id
+        examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
+        assert examples
+        for example in examples.values():
+            encoded = json.dumps(example["value"], ensure_ascii=False, allow_nan=False)
+            adapters[operation_id].validate_json(encoded, strict=True)
+
+    status = schema["paths"]["/api/v1/control/jobs/{job_id}"]["get"]
+    status_examples = status["responses"]["200"]["content"]["application/json"]["examples"]
+    terminal = status_examples["candidate_experiment_reuse_v2_terminal_fixture"]["value"]
+    encoded_terminal = json.dumps(terminal, ensure_ascii=False, allow_nan=False)
+    adapters["get_control_job_status"].validate_json(encoded_terminal, strict=True)
+    assert terminal["progress"] == {
+        "state": "completed",
+        "phase": "candidate_experiment_reuse",
+        "receipt_phase": "terminal",
+        "terminal_outcome": "candidate_evaluation_retained",
+        "terminal_receipt_ref": "sha256:" + "c" * 64,
+    }
+    assert not {
+        "currentness_status",
+        "publication_authority",
+    }.intersection(terminal["progress"])
+
+
 @pytest.mark.parametrize(
     "mutation",
     ["facet", "growth_delta", "schema_discriminator", "replay_pin", "operation_binding"],
@@ -2255,12 +2297,43 @@ def test_generated_runtime_client_includes_all_acquisition_route_wrappers() -> N
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
     operations = generate_runtime_client._extract_operations(spec)
 
-    assert {
-        "listRunAcquisitionRoutes",
-        "getRunAcquisitionRoute",
-        "requestRunAcquisitionDecision",
-        "executeRunAcquisitionRoute",
-    } <= {operation.name for operation in operations}
+    expected = {
+        "listRunAcquisitionRoutes": ("GET", "/api/v1/runs/{run_id}/acquisition-routes"),
+        "getRunAcquisitionRoute": (
+            "GET",
+            "/api/v1/runs/{run_id}/acquisition-routes/{route_id}",
+        ),
+        "requestRunAcquisitionDecision": (
+            "POST",
+            "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request",
+        ),
+        "executeRunAcquisitionRoute": (
+            "POST",
+            "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+        ),
+        "requestRunCandidateAcquisitionExperimentReuseDecision": (
+            "POST",
+            "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+        ),
+        "executeRunCandidateAcquisitionExperimentReuse": (
+            "POST",
+            "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
+        ),
+    }
+    by_name = {operation.name: operation for operation in operations}
+
+    assert set(expected) <= set(by_name)
+    for name, (method, path) in expected.items():
+        operation = by_name[name]
+        assert (operation.method, operation.path) == (method, path)
+        if "Reuse" in name:
+            assert operation.body_schema is not None
+
+    rendered_ts = generate_runtime_client._render_ts(spec, operations)
+    rendered_js = generate_runtime_client._render_js(operations)
+    for name in expected:
+        assert f"async {name}(params: {{" in rendered_ts
+        assert f"async {name}(params) {{" in rendered_js
 
 
 def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:

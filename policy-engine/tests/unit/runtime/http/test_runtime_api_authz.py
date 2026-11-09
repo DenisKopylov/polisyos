@@ -241,6 +241,16 @@ _CANDIDATE_EXPERIMENT_MUTATIONS = (
     ("POST", "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"),
 )
+_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS = (
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+    ),
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
+    ),
+)
 _MODEL_INPUT_USE_MUTATIONS = (
     ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"),
@@ -291,6 +301,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     *_CANDIDATE_EXPERIMENT_MUTATIONS,
+    *_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"),
@@ -375,6 +386,7 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
     ): RuntimePermission.EVIDENCE_ACQUIRE,
     **dict.fromkeys(_CANDIDATE_EXPERIMENT_MUTATIONS, RuntimePermission.EVIDENCE_ACQUIRE),
+    **dict.fromkeys(_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS, RuntimePermission.RUNS_LAUNCH),
     (
         "POST",
         "/api/v1/runs/{run_id}/human-decisions",
@@ -445,6 +457,8 @@ _MUTATING_OPERATION_CASE_IDS = {
     ): "execute-run-acquisition-route",
     _CANDIDATE_EXPERIMENT_MUTATIONS[0]: "request-run-candidate-experiment-decision",
     _CANDIDATE_EXPERIMENT_MUTATIONS[1]: "execute-run-candidate-experiment",
+    _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[0]: "request-run-candidate-experiment-reuse-decision",
+    _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[1]: "execute-run-candidate-experiment-reuse",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
     _MODEL_INPUT_USE_MUTATIONS[0]: "request-run-model-input-use-decision",
     _MODEL_INPUT_USE_MUTATIONS[1]: "execute-run-model-input-use",
@@ -465,6 +479,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     *_CANDIDATE_EXPERIMENT_MUTATIONS,
+    *_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
@@ -475,7 +490,11 @@ def _expected_mutating_step_up_class(operation: tuple[str, str]) -> str | None:
     """Assert the two candidate action classes independently of the live gate."""
     from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
 
-    if operation in _MODEL_INPUT_USE_MUTATIONS or operation in _CANDIDATE_EXPERIMENT_MUTATIONS:
+    if (
+        operation in _MODEL_INPUT_USE_MUTATIONS
+        or operation in _CANDIDATE_EXPERIMENT_MUTATIONS
+        or operation in _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS
+    ):
         return "acquisition_approval"
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
     if permission is RuntimePermission.RUNS_LAUNCH:
@@ -1126,6 +1145,63 @@ def _authorized_mutation_request(
             },
             "idempotency_key": case_id,
         }
+    if operation in _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS:
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionDecisionRequestResponse,
+            AcquisitionExecutionResponse,
+        )
+
+        def selected_ref(marker: str, kind: str) -> dict[str, str]:
+            return {
+                "artifact_id": "sha256:" + marker * 64,
+                "kind": kind,
+                "media_type": "application/json",
+                "manifest_profile_sha256": "sha256:" + marker * 64,
+            }
+
+        route_id = "sha256:" + "a" * 64
+        authority_ref = "sha256:" + "9" * 64
+        reuse_request = {
+            "route_id": route_id,
+            "predecessor_terminal_ref": selected_ref(
+                "1", "runtime_quality.acquisition_route_loop_receipt"
+            ),
+            "predecessor_action_ref": selected_ref(
+                "2", "runtime_quality.acquisition_candidate_action_receipt"
+            ),
+            "source_ref": selected_ref("3", "runtime.quality.candidate_acquisition_source"),
+            "n5_input_ref": selected_ref("4", "runtime.quality.candidate_simulation_n5_input"),
+            "n5_execution_ref": selected_ref("5", "runtime.quality.candidate_simulation_execution"),
+            "n5_result_ref": selected_ref("6", "polisyos.runtime.joint_simulation_result"),
+            "policy_ref": selected_ref(
+                "7", "runtime_quality.candidate_unpriced_acquisition_policy"
+            ),
+            "idempotency_key": case_id,
+        }
+        service = client.app.state.runtime_container.acquisition_action_service
+        assert service is not None
+        response_fields = {
+            "run_id": run_id,
+            "route_id": route_id,
+            "authority_decision_ref": authority_ref,
+        }
+        if operation == _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[0]:
+            response = AcquisitionDecisionRequestResponse(
+                **response_fields,
+                outcome="decision_required",
+                human_decision_request={"request_ref": "pdc://human-decision/reuse-example"},
+            )
+            monkeypatch.setattr(
+                service,
+                "request_candidate_experiment_reuse_decision",
+                lambda **_: response,
+            )
+            return default_path, reuse_request
+
+        response = AcquisitionExecutionResponse(**response_fields, job_id="job-ds20-reuse")
+        monkeypatch.setattr(service, "execute_candidate_experiment_reuse", lambda **_: response)
+        return default_path, {"request": reuse_request, "decision_ref": authority_ref}
+
     if operation in _CANDIDATE_EXPERIMENT_MUTATIONS or operation in _MODEL_INPUT_USE_MUTATIONS:
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionDecisionRequestResponse,
@@ -1891,6 +1967,47 @@ def test_each_mutating_operation_projects_action_permission_extension(
         ) == _expected_mutating_step_up_class(operation)
         if operation in _MODEL_INPUT_USE_MUTATIONS:
             assert resource_binding["resource_kind"] == "runtime.evidence.model_input.use"
+        if operation in _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS:
+            assert resource_binding["source"] == "request_composite"
+            assert resource_binding["resource_kind"] == (
+                "runtime.evidence.candidate_experiment.reuse"
+            )
+            if operation == _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[0]:
+                assert set(resource_binding["required_selector_fields"]) == {
+                    "route_id",
+                    "predecessor_terminal_ref",
+                    "predecessor_action_ref",
+                    "source_ref",
+                    "n5_input_ref",
+                    "n5_execution_ref",
+                    "n5_result_ref",
+                    "policy_ref",
+                    "idempotency_key",
+                }
+            else:
+                assert set(resource_binding["required_selector_fields"]) == {
+                    "request",
+                    "decision_ref",
+                }
+
+
+def test_model_input_result_reader_openapi_keeps_owned_path_binding(runtime_api_env) -> None:
+    """The older result fetch remains scoped to one owned run and action job."""
+    client, _ = _build_permissionless_client(runtime_api_env)
+    operation = client.app.openapi()["paths"][
+        "/api/v1/runs/{run_id}/model-input-use/{job_id}/n5-result"
+    ]["get"]
+
+    assert operation["operationId"] == "get_run_model_input_use_n5_result"
+    assert operation["x-polisyos-action-permission"] == RuntimePermission.RUNS_REVIEW.value
+    binding = operation["x-polisyos-resource-binding"]
+    assert binding == {
+        "source": "owned_existing_path",
+        "resource_kind": "runtime.run.model_input_use_result",
+        "path_parameter": "run_id",
+        "path_selector_parameters": ["job_id"],
+        "allow_empty_body": True,
+    }
 
 
 def test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler(

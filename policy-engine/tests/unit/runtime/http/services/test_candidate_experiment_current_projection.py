@@ -408,3 +408,30 @@ def test_current_action_reader_uses_only_current_verified_history_blocker_basis(
         assert wrong_basis_refusal.value.code == (
             "candidate_experiment_blocked_evaluation_basis_not_established"
         )
+
+
+def test_v2_current_action_projection_uses_occurrence_selected_prior_n5(tmp_path: Path) -> None:
+    """A no-fetch V2 retention projects only the N5 selected by its verified occurrence."""
+    from tests.unit.runtime.quality.test_candidate_experiment_reuse import _v2_reuse_history
+
+    history, _evaluation = _v2_reuse_history(artifacts.FileSystemCAS(tmp_path / "cas"))
+
+    selected = AcquisitionActionService._candidate_experiment_v2_selected_evaluation_projection(
+        history
+    )
+
+    occurrence = history.reuse_occurrence
+    assert occurrence is not None
+    assert history.terminal.terminal_outcome == "candidate_evaluation_retained"
+    assert selected == history.terminal.selected_evaluation
+    assert selected.n5_input_ref == occurrence.selection.n5_input_ref
+    assert selected.n5_execution_ref == occurrence.selection.n5_execution_ref
+    assert selected.n5_result_ref == occurrence.selection.n5_result_ref
+
+    with pytest.raises(AcquisitionActionServiceError) as missing_occurrence:
+        AcquisitionActionService._candidate_experiment_v2_selected_evaluation_projection(
+            replace(history, reuse_occurrence_ref=None)
+        )
+    assert missing_occurrence.value.code == (
+        "candidate_experiment_reuse_selected_n5_not_established"
+    )

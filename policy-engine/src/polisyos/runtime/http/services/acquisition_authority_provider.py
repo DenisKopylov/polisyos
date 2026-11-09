@@ -26,9 +26,10 @@ from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
     AcquisitionAdmissionBundleProducer,
     candidate_experiment_request_resource_digest,
-    model_input_use_request_resource_digest,
     require_candidate_experiment_bound_permission,
+    require_candidate_experiment_reuse_bound_permission,
     require_model_input_use_bound_permission,
+    require_request_bound_action_snapshot,
 )
 from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionPA2GatewayAdapterInput,
@@ -39,13 +40,12 @@ from polisyos.runtime.http.services.human_decisions import (
 )
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_IMPLEMENTATION_REF,
-    MODEL_INPUT_USE_PERMISSION,
-    MODEL_INPUT_USE_RESOURCE_KIND,
     model_input_successor_action_tuple,
 )
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
     MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAuthorityDecision,
     AgentActionAuthorityGateway,
@@ -58,6 +58,10 @@ from polisyos.runtime.quality.agent_action_authority import (
     agent_action_content_hash,
     agent_action_permission_hash,
     load_agent_action_decision_history,
+    protected_action_human_review_requirement,
+)
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    candidate_experiment_reuse_action_tuple,
 )
 
 if TYPE_CHECKING:
@@ -82,6 +86,10 @@ if TYPE_CHECKING:
         AgentActionIntent,
         ResolvedDelegationContract,
     )
+    from polisyos.runtime.quality.candidate_experiment_reuse import (
+        CandidateExperimentReuseActionRequest,
+        CandidateExperimentReuseActionSelection,
+    )
     from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
         DelegatedActionEnvelope,
         HumanDecisionRecord,
@@ -93,7 +101,19 @@ type _AuthorityOrigin = (
     VerifiedAcquisitionRouteClosure
     | VerifiedCandidateExperimentOrigin
     | SelectedModelInputSuccessorAction
+    | CandidateExperimentReuseActionSelection
 )
+
+_REQUEST_BOUND_CANDIDATE_EFFECTS = {
+    MODEL_INPUT_USE_ACTION_KIND: (
+        MODEL_INPUT_USE_IMPLEMENTATION_REF,
+        "model_input_use_replay_resource_mismatch",
+    ),
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND: (
+        "polisyos.runtime.candidate_experiment_reuse.owner_port.v1",
+        "candidate_experiment_reuse_replay_resource_mismatch",
+    ),
+}
 
 
 class ProductionAcquisitionAuthorityProvider:
@@ -197,15 +217,17 @@ class ProductionAcquisitionAuthorityProvider:
         )
 
     @staticmethod
-    def _model_input_use_binding(
+    def _request_bound_candidate_binding(
+        action_kind: str,
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionEffectBinding:
+        implementation_ref, _ = _REQUEST_BOUND_CANDIDATE_EFFECTS[action_kind]
         return AgentActionEffectBinding(
-            binding_id=MODEL_INPUT_USE_IMPLEMENTATION_REF,
-            action_kind=MODEL_INPUT_USE_ACTION_KIND,
-            operation_id=MODEL_INPUT_USE_ACTION_KIND,
+            binding_id=implementation_ref,
+            action_kind=action_kind,
+            operation_id=action_kind,
             operation_version="v1",
-            implementation_ref=MODEL_INPUT_USE_IMPLEMENTATION_REF,
+            implementation_ref=implementation_ref,
             handler=effect_handler,
         )
 
@@ -388,7 +410,36 @@ class ProductionAcquisitionAuthorityProvider:
             bound_permission=bound_permission,
             effect_handler=effect_handler,
             action_tuple=model_input_successor_action_tuple(selection),
-            binding=self._model_input_use_binding(effect_handler),
+            binding=self._request_bound_candidate_binding(
+                MODEL_INPUT_USE_ACTION_KIND, effect_handler
+            ),
+        )
+
+    def for_candidate_experiment_reuse_request(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        bound_permission: BoundActionPermissionVerification,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway:
+        """Bind PA2 and DS9 to the exact no-fetch candidate reuse request."""
+        action_tuple = candidate_experiment_reuse_action_tuple(selection)
+        try:
+            require_candidate_experiment_reuse_bound_permission(bound_permission, selection.request)
+        except AcquisitionAdmissionBundleBlocked as exc:
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_reuse_request_proof_mismatch"
+            ) from exc
+        return self._for_action_request(
+            closure=selection,
+            request=selection.request,
+            job_id=selection.action_job_id,
+            bound_permission=bound_permission,
+            effect_handler=effect_handler,
+            action_tuple=action_tuple,
+            binding=self._request_bound_candidate_binding(
+                CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, effect_handler
+            ),
         )
 
     def _for_action_request(
@@ -398,6 +449,7 @@ class ProductionAcquisitionAuthorityProvider:
         request: (
             AcquisitionRouteMutationRequest
             | CandidateExperimentRouteMutationRequest
+            | CandidateExperimentReuseActionRequest
             | ModelInputSuccessorActionRequest
         ),
         job_id: str,
@@ -695,10 +747,34 @@ class ProductionAcquisitionAuthorityProvider:
             decision_ref=decision_ref,
             effect_handler=effect_handler,
             action_tuple=model_input_successor_action_tuple(selection),
-            binding=self._model_input_use_binding(effect_handler),
+            binding=self._request_bound_candidate_binding(
+                MODEL_INPUT_USE_ACTION_KIND, effect_handler
+            ),
             expected_human_decision_record_ref=selection.request.human_decision_record_ref,
             expected_action_kind=MODEL_INPUT_USE_ACTION_KIND,
-            expected_model_input_use_request=selection.request,
+            expected_request=selection.request,
+        )
+
+    def for_candidate_experiment_reuse_job(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        decision_ref: str,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway:
+        """Reopen the exact signed no-fetch action under the current mandate and DS9."""
+        return self._for_persisted_decision(
+            closure=selection,
+            job_id=selection.action_job_id,
+            decision_ref=decision_ref,
+            effect_handler=effect_handler,
+            action_tuple=candidate_experiment_reuse_action_tuple(selection),
+            binding=self._request_bound_candidate_binding(
+                CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND, effect_handler
+            ),
+            expected_human_decision_record_ref=selection.request.human_decision_record_ref,
+            expected_action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+            expected_request=selection.request,
         )
 
     def load_candidate_experiment_decision_history(
@@ -717,16 +793,8 @@ class ProductionAcquisitionAuthorityProvider:
         operation, invocation, intent = AcquisitionActionService._candidate_experiment_action_tuple(
             origin, request
         )
-        authority = require_factory_produced_deployment_security(
-            self._deployment
-        ).acquisition_authority
-        history = load_agent_action_decision_history(
-            artifact_store=self._store,
-            event_log=self._event_log,
-            artifact_verifier=authority.verifier,
-            expected_signer_identity=authority.decision_signer_identity,
-            write_context=self._context(origin, job_id),
-            decision_ref=decision_ref,
+        history = self._load_signed_decision_history(
+            closure=origin, job_id=job_id, decision_ref=decision_ref
         )
         decision = history.decision
         if (
@@ -758,6 +826,111 @@ class ProductionAcquisitionAuthorityProvider:
             )
         return history
 
+    def load_candidate_experiment_reuse_decision_history(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Authenticate the exact original reuse approval without a live mandate lookup."""
+        action_tuple = candidate_experiment_reuse_action_tuple(selection)
+        history = self._load_signed_decision_history(
+            closure=selection, job_id=selection.action_job_id, decision_ref=decision_ref
+        )
+        decision = history.decision
+        action_kind = CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+        self._require_persisted_action_tuple(
+            decision,
+            action_tuple=action_tuple,
+            expected_action_kind=action_kind,
+            expected_human_decision_record_ref=selection.request.human_decision_record_ref,
+            expected_request=selection.request,
+        )
+        record_ref = decision.human_decision_record_ref
+        if decision.outcome != "allowed" or record_ref is None or self._human_decisions is None:
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_reuse_history_ds9_not_established"
+            )
+        record = self._human_decisions.read_record(
+            record_ref, tenant_id=selection.tenant_id, run_id=selection.run_id
+        )
+        if record.source_kind != "agent_action_authority" or record.source_ref is None:
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_reuse_history_ds9_not_established"
+            )
+        source_history = self._load_signed_decision_history(
+            closure=selection, job_id=selection.action_job_id, decision_ref=record.source_ref
+        )
+        source = source_history.decision
+        self._require_persisted_action_tuple(
+            source,
+            action_tuple=action_tuple,
+            expected_action_kind=action_kind,
+            expected_human_decision_record_ref=None,
+            expected_request=selection.request,
+        )
+        request = source.human_decision_request
+        implementation_ref, _ = _REQUEST_BOUND_CANDIDATE_EFFECTS[action_kind]
+        if (
+            source.outcome != "refused"
+            or source.refusal_reasons != ("human_decision_missing",)
+            or source.human_decision_record_ref is not None
+            or request is None
+            or request != decision.human_decision_request
+            or request.need_reasons != ["mandate_limited"]
+            or record.source_digest != source_history.decision_ref
+            or record.human_decision_request_ref != request.request_ref
+            or record.decision_request_digest != agent_action_content_hash(request)
+            or record.case_id != request.case_id
+            or record.rule_version_ref != request.rule_version_ref
+            or record.basis_ref != source.contract_ref
+            or record.basis_digest != source.contract_content_hash
+            or source.contract_ref != decision.contract_ref
+            or source.contract_content_hash != decision.contract_content_hash
+            or source.permission_snapshot != decision.permission_snapshot
+            or source.admission_bundle_ref != decision.admission_bundle_ref
+            or source.envelope_id != decision.envelope_id
+            or source.envelope_ref != decision.envelope_ref
+            or source.effect_binding_id != decision.effect_binding_id
+            or source.effect_binding_digest != decision.effect_binding_digest
+            or source.effect_implementation_ref != implementation_ref
+            or decision.effect_implementation_ref != implementation_ref
+            or record.decision_action_exercised != "approve"
+            or not record.active_choice
+            or not record.five_rights_check.all_pass()
+            or record.responsibility_integrity.status != "pass"
+            or record.valid_from is None
+            or record.valid_until is None
+            or not (record.valid_from <= decision.decided_at < record.valid_until)
+            or record.recorded_at is None
+            or not (
+                source.decided_at <= record.decided_at <= record.recorded_at <= decision.decided_at
+            )
+        ):
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_reuse_history_ds9_binding_mismatch"
+            )
+        return history
+
+    def _load_signed_decision_history(
+        self,
+        *,
+        closure: _AuthorityOrigin,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        authority = require_factory_produced_deployment_security(
+            self._deployment
+        ).acquisition_authority
+        return load_agent_action_decision_history(
+            artifact_store=self._store,
+            event_log=self._event_log,
+            artifact_verifier=authority.verifier,
+            expected_signer_identity=authority.decision_signer_identity,
+            write_context=self._context(closure, job_id),
+            decision_ref=decision_ref,
+        )
+
     def _for_persisted_decision(
         self,
         *,
@@ -769,7 +942,9 @@ class ProductionAcquisitionAuthorityProvider:
         binding: AgentActionEffectBinding,
         expected_human_decision_record_ref: str | None,
         expected_action_kind: str = ACQUISITION_ACTION_KIND,
-        expected_model_input_use_request: ModelInputSuccessorActionRequest | None = None,
+        expected_request: (
+            ModelInputSuccessorActionRequest | CandidateExperimentReuseActionRequest | None
+        ) = None,
     ) -> AgentActionAuthorityGateway:
         """Reopen one exact PA2 decision and its current mandate and DS9 record."""
         self._require_worker_decision_verification()
@@ -781,50 +956,14 @@ class ProductionAcquisitionAuthorityProvider:
         slot = self._slot(closure, decision.bound_resource_digest or "")
         if slot is None or decision.admission_bundle_ref is None:
             raise AgentActionAuthorityRecordingError("acquisition replay authority slot is empty")
-        operation, invocation, intent = action_tuple
-        permission_snapshot = decision.permission_snapshot
-        expected_permission = (
-            MODEL_INPUT_USE_PERMISSION
-            if expected_action_kind == MODEL_INPUT_USE_ACTION_KIND
-            else RuntimePermission.EVIDENCE_ACQUIRE
+        self._require_persisted_action_tuple(
+            decision,
+            action_tuple=action_tuple,
+            expected_action_kind=expected_action_kind,
+            expected_human_decision_record_ref=expected_human_decision_record_ref,
+            expected_request=expected_request,
         )
-        if (
-            decision.action_kind != expected_action_kind
-            or decision.operation_id != operation.operation_id
-            or decision.operation_version != operation.operation_version
-            or decision.operation_content_hash != agent_action_content_hash(operation)
-            or decision.invocation_content_hash != agent_action_content_hash(invocation)
-            or decision.intent_content_hash != agent_action_content_hash(intent)
-            or (
-                expected_human_decision_record_ref is not None
-                and decision.human_decision_record_ref != expected_human_decision_record_ref
-            )
-            or permission_snapshot is None
-            or permission_snapshot.required_permission != expected_permission.value
-            or permission_snapshot.resource_digest != decision.bound_resource_digest
-        ):
-            raise AgentActionAuthorityRecordingError("acquisition replay action tuple changed")
-        if expected_action_kind == MODEL_INPUT_USE_ACTION_KIND:
-            try:
-                resource_digest = (
-                    model_input_use_request_resource_digest(
-                        expected_model_input_use_request,
-                        body_sha256=permission_snapshot.body_sha256,
-                        query_sha256=permission_snapshot.query_sha256,
-                    )
-                    if expected_model_input_use_request is not None
-                    else None
-                )
-            except AcquisitionAdmissionBundleBlocked as exc:
-                raise AgentActionAuthorityRecordingError(
-                    "model_input_use_replay_resource_mismatch"
-                ) from exc
-            if (
-                permission_snapshot.resource_kind
-                != f"{MODEL_INPUT_USE_RESOURCE_KIND}.request_bound"
-                or resource_digest != decision.bound_resource_digest
-            ):
-                raise AgentActionAuthorityRecordingError("model_input_use_replay_resource_mismatch")
+        operation, _, _ = action_tuple
         gateway = AgentActionAuthorityGateway.for_persisted_decision(
             **self._options(closure, job_id, binding, slot),
             decision_ref=decision_ref,
@@ -870,6 +1009,52 @@ class ProductionAcquisitionAuthorityProvider:
                 "acquisition replay human custody binding changed"
             )
         return gateway
+
+    @staticmethod
+    def _require_persisted_action_tuple(
+        decision: AgentActionAuthorityDecision,
+        *,
+        action_tuple: tuple[OperationContract, OperationInvocationRecord, AgentActionIntent],
+        expected_action_kind: str,
+        expected_human_decision_record_ref: str | None,
+        expected_request: (
+            ModelInputSuccessorActionRequest | CandidateExperimentReuseActionRequest | None
+        ),
+    ) -> None:
+        operation, invocation, intent = action_tuple
+        permission_snapshot = decision.permission_snapshot
+        protected_review = protected_action_human_review_requirement(
+            action_kind=expected_action_kind,
+            operation_id=operation.operation_id,
+            operation_version=operation.operation_version,
+        )
+        if (
+            protected_review is None
+            or decision.action_kind != expected_action_kind
+            or decision.operation_id != operation.operation_id
+            or decision.operation_version != operation.operation_version
+            or decision.operation_content_hash != agent_action_content_hash(operation)
+            or decision.invocation_content_hash != agent_action_content_hash(invocation)
+            or decision.intent_content_hash != agent_action_content_hash(intent)
+            or (
+                expected_human_decision_record_ref is not None
+                and decision.human_decision_record_ref != expected_human_decision_record_ref
+            )
+            or permission_snapshot is None
+            or permission_snapshot.required_permission != protected_review[0].value
+            or permission_snapshot.resource_digest != decision.bound_resource_digest
+        ):
+            raise AgentActionAuthorityRecordingError("acquisition replay action tuple changed")
+        exact_request_effect = _REQUEST_BOUND_CANDIDATE_EFFECTS.get(expected_action_kind)
+        if exact_request_effect is not None:
+            try:
+                require_request_bound_action_snapshot(
+                    permission_snapshot,
+                    action_kind=expected_action_kind,
+                    request=expected_request,
+                )
+            except AcquisitionAdmissionBundleBlocked as exc:
+                raise AgentActionAuthorityRecordingError(exact_request_effect[1]) from exc
 
     def _require_worker_decision_verification(self) -> None:
         """Keep production execution outside the generic unsigned legacy replay mode."""

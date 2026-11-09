@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from polisyos.core import artifacts
+from polisyos.core.canon import CanonSpec
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
@@ -23,6 +24,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionExecutionResponse,
     AcquisitionRouteMutationRequest,
     CandidateExperimentCurrentActionProjection,
+    CandidateExperimentReuseActionExecutionRequest,
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteReplayPins,
@@ -36,6 +38,8 @@ from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
 )
 from polisyos.runtime.quality.agent_action_authority import (
+    AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
+    AGENT_ACTION_DECISION_ARTIFACT_KIND,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityWriteContext,
@@ -1095,6 +1099,130 @@ def test_completed_candidate_retry_response_preserves_terminal_status() -> None:
     ):
         with pytest.raises(ValueError, match="acquisition_execution_status_phase_mismatch"):
             AcquisitionExecutionResponse(**values)
+
+
+def test_reuse_retry_binds_existing_job_actor_body_and_decision_before_head_read(
+    monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """An immutable reuse payload alone cannot authorize or select a retry."""
+    from tests.unit.runtime.quality.test_candidate_experiment_reuse import _reuse_action_selection
+
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    runtime_api_env = request.getfixturevalue("runtime_api_env")
+    selection = _reuse_action_selection()
+    principal = RuntimePrincipal(
+        subject="reuse-operator",
+        tenant_id=selection.tenant_id,
+        cell_id=selection.cell_id,
+        roles=frozenset({"analyst"}),
+        authenticated=True,
+    )
+    context = {
+        "tenant_id": selection.tenant_id,
+        "cell_id": selection.cell_id,
+        "run_id": selection.run_id,
+        "route_id": selection.route_id,
+    }
+    with (
+        runtime_api_env["client"],
+        tenant_scope(None, tenant_id=selection.tenant_id, cell_id=selection.cell_id),
+    ):
+        service = runtime_api_env["app"].state.runtime_container.acquisition_action_service
+        control = service.control_service
+        # These fixtures supply only the CAS locator. Without a selected head
+        # and authenticated decision history the exact original also refuses.
+        options = artifacts.ArtifactWriteOptions(
+            kind=AGENT_ACTION_DECISION_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="polisyos.runtime.AgentActionAuthorityDecision",
+                version=AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
+            ),
+            producer=artifacts.ProducerInfo(component="test.reuse_retry", version="1.0"),
+            tenant_context=artifacts.ArtifactTenantContextInfo(
+                tenant_id=selection.tenant_id, cell_id=selection.cell_id
+            ),
+            same_input_closure=artifacts.ArtifactSameInputClosureInfo(
+                closure_id="test.reuse_retry",
+                status="closed",
+                run_id=selection.run_id,
+                job_id=selection.action_job_id,
+                tenant_id=selection.tenant_id,
+                cell_id=selection.cell_id,
+            ),
+        )
+        decision, other_decision = (
+            str(
+                control._artifact_store.put_json(
+                    {"locator": label}, options, CanonSpec()
+                ).artifact_id
+            )
+            for label in ("first", "second")
+        )
+        envelope = CandidateExperimentReuseActionExecutionRequest(
+            request=selection.request, decision_ref=decision
+        )
+        job = control.enqueue_acquisition_job(
+            job_id=selection.action_job_id,
+            run_id=selection.run_id,
+            payload=service._candidate_experiment_reuse_payload(selection, decision),
+            request_id="original",
+            principal=principal,
+        )
+
+        def forbid_enqueue(**_kwargs: object) -> object:
+            raise AssertionError("retry attempted to enqueue again")
+
+        monkeypatch.setattr(control, "enqueue_acquisition_job", forbid_enqueue)
+        alternative_result = selection.request.n5_result_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        for body, actor, expected in (
+            (envelope, principal, "candidate_experiment_reuse_retry_head_not_established"),
+            (
+                envelope,
+                replace(principal, subject="different-operator"),
+                "candidate_experiment_reuse_source_scope_refused",
+            ),
+            (
+                envelope,
+                replace(principal, roles=frozenset({"reviewer"})),
+                "candidate_experiment_reuse_source_scope_refused",
+            ),
+            (
+                envelope.model_copy(update={"decision_ref": other_decision}),
+                principal,
+                "candidate_experiment_reuse_retry_payload_mismatch",
+            ),
+            (
+                envelope.model_copy(
+                    update={
+                        "request": selection.request.model_copy(
+                            update={"idempotency_key": "different-idempotency-key"}
+                        )
+                    }
+                ),
+                principal,
+                "candidate_experiment_reuse_retry_payload_mismatch",
+            ),
+            (
+                envelope.model_copy(
+                    update={
+                        "request": selection.request.model_copy(
+                            update={"n5_result_ref": alternative_result}
+                        )
+                    }
+                ),
+                principal,
+                "candidate_experiment_reuse_retry_payload_mismatch",
+            ),
+        ):
+            with pytest.raises(AcquisitionActionServiceError) as error:
+                service.execute_candidate_experiment_reuse(
+                    **context, request=body, request_id="retry", principal=actor
+                )
+            assert error.value.code == expected
+            assert control._control_store.get_job(job.job_id) == job
 
 
 @pytest.mark.asyncio

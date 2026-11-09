@@ -1660,6 +1660,46 @@ def test_ir_trinity_lazy_exports_bind_source_owned_providers(monkeypatch):
             ledger._source_facade_runtime_projection(root, closure)
 
 
+def test_fabric_data_plane_lazy_exports_bind_source_owned_providers(monkeypatch):
+    facade = importlib.import_module("polisyos.fabric.data_plane")
+    temporal = importlib.import_module("polisyos.fabric.data_plane.temporal")
+    query = importlib.import_module("polisyos.fabric.world.query")
+    root = ledger._loaded_policy_engine_root()
+    selected = ("parse_datetime_utc", "query_world_table")
+    assert facade.parse_datetime_utc is temporal.parse_datetime_utc
+    assert facade.query_world_table is query.query_world_table
+
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    for name, (provider, symbol) in vars(facade)["_LAZY_IMPORTS"].items():
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            facade.__name__,
+            name,
+            directory_entries={},
+            source_index=source_index,
+        )
+        assert candidate.route == ("symbol", provider, symbol)
+        assert candidate.binding_basis == "literal_getattr"
+
+    closure = tuple(
+        (module.__name__, Path(module.__file__).relative_to(root).as_posix())
+        for module in (facade, temporal)
+    )
+    assert ledger._source_facade_runtime_projection(root, closure)[0]
+    with monkeypatch.context() as changed:
+        changed.setitem(
+            vars(facade)["_LAZY_IMPORTS"],
+            selected[0],
+            (query.__name__, selected[1]),
+        )
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_facade_runtime_projection(root, closure)
+    with monkeypatch.context() as changed:
+        changed.setattr(facade, selected[0], query.query_world_table)
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_facade_runtime_projection(root, closure)
+
+
 def test_ir_analytics_guarded_lazy_export_binds_truthfulness_tier_and_keeps_child_owner():
     from polisyos.ir.analytics import TruthfulnessTier as ImportedTruthfulnessTier
     from polisyos.ir.analytics import _truthfulness as truthfulness_module

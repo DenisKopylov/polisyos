@@ -42,6 +42,7 @@ __all__ = [
     "KnowledgeToolkit",
     "ScientistLegalBenchmarkRunner",
     "ScientistRetrievalBenchmarkOutcome",
+    "SchedulingDecision",
     "ToolContractSummary",
     "ToolDefinition",
     "ToolLoopResult",
@@ -131,6 +132,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "resolve_governance_monitor_event",
     ),
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
+    "SchedulingDecision": (
+        "polisyos.scientist.methods.search.voi_scheduler",
+        "SchedulingDecision",
+    ),
     "CritiqueReport": ("polisyos.scientist.agent.protocols", "CritiqueReport"),
     "DraftResult": ("polisyos.scientist.agent.protocols", "DraftResult"),
     "ClaimLedgerCurrentHeadProjection": (

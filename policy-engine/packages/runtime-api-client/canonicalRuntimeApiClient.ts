@@ -302,6 +302,12 @@ export type CandidateExperimentN5ResultProjection =
 export type CandidateExperimentPriorN5ResultProjection =
   RuntimeApiComponents["schemas"]["CandidateExperimentPriorN5ResultProjection"];
 
+export type CandidateExperimentReuseActionExecutionRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentReuseActionExecutionRequest"];
+
+export type CandidateExperimentReuseActionRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentReuseActionRequest"];
+
 export type CandidateExperimentRouteExecutionRequest =
   RuntimeApiComponents["schemas"]["CandidateExperimentRouteExecutionRequest"];
 
@@ -3487,6 +3493,38 @@ export class RuntimeApiClient {
     body: CandidateExperimentRouteExecutionRequest;
   }): Promise<AcquisitionExecutionResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async requestRunCandidateAcquisitionExperimentReuseDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateExperimentReuseActionRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/reuse/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async executeRunCandidateAcquisitionExperimentReuse(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateExperimentReuseActionExecutionRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/reuse/execute`;
     const query = undefined;
     return this.request<AcquisitionExecutionResponse>(
       "POST",

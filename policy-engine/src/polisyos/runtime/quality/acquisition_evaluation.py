@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionCandidateExperimentTerminalReceiptV2,
         AcquisitionCandidateRouteLoopReceipt,
         AcquisitionRouteLoopReceiptV2,
         VerifiedAcquisitionRouteClosure,
@@ -69,6 +70,9 @@ if TYPE_CHECKING:
         CandidateAcquisitionActionReceipt,
     )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
+    from polisyos.runtime.quality.candidate_experiment_reuse_occurrence import (
+        CandidateExperimentReuseOccurrence,
+    )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationExecutionV5,
@@ -326,6 +330,9 @@ class CandidateAcquisitionEvaluationBasis(_Record):
     candidate_id: str = Field(min_length=1)
     source_candidate_content_hash: str = Field(pattern=_HASH)
     candidate_action_ref: ArtifactRef
+    reuse_occurrence_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     candidate_world_intent_ref: ArtifactRef
     candidate_source_ref: ArtifactRef
     preparation_inputs: CandidateSourceBasisInputs
@@ -351,6 +358,10 @@ class CandidateAcquisitionEvaluationBasis(_Record):
         )
         if any(not _candidate_selected_ref(ref, kind) for ref, kind in refs):
             raise ValueError("candidate_evaluation_basis_selected_ref_invalid")
+        if self.reuse_occurrence_ref is not None and not _candidate_selected_ref(
+            self.reuse_occurrence_ref, "runtime_quality.candidate_experiment_reuse_occurrence"
+        ):
+            raise ValueError("candidate_evaluation_basis_reuse_occurrence_invalid")
         if not _candidate_ref_same(
             self.preparation_inputs.candidate_source_ref, self.candidate_source_ref
         ):
@@ -491,6 +502,9 @@ class CandidateAcquisitionEvaluationDecision(_Record):
     candidate_id: str = Field(min_length=1)
     source_candidate_content_hash: str = Field(pattern=_HASH)
     candidate_action_ref: ArtifactRef
+    reuse_occurrence_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     candidate_world_intent_ref: ArtifactRef
     candidate_source_ref: ArtifactRef
     current_basis_ref: ArtifactRef
@@ -519,6 +533,10 @@ class CandidateAcquisitionEvaluationDecision(_Record):
             and not _candidate_selected_ref(self.prior_basis_ref, BASIS_KIND)
         ):
             raise ValueError("candidate_evaluation_decision_selected_ref_invalid")
+        if self.reuse_occurrence_ref is not None and not _candidate_selected_ref(
+            self.reuse_occurrence_ref, "runtime_quality.candidate_experiment_reuse_occurrence"
+        ):
+            raise ValueError("candidate_evaluation_decision_reuse_occurrence_invalid")
         if (self.expected_frontier_revision == 0) != (self.expected_frontier_ref is None):
             raise ValueError("candidate_evaluation_decision_frontier_mismatch")
         if (self.comparison_result == "not_established") != (
@@ -589,6 +607,7 @@ def issue_candidate_acquisition_evaluation_basis(
     selected_data_snapshot_ref: ArtifactRef | None = None,
     selected_world_model_ref: ArtifactRef | None = None,
     evaluation: AcquisitionSelectedEvaluation | None = None,
+    reuse_occurrence_ref: ArtifactRef | None = None,
 ) -> CandidateAcquisitionEvaluationBasis:
     """Construct a candidate basis from caller-replayed inputs and values.
 
@@ -658,6 +677,8 @@ def issue_candidate_acquisition_evaluation_basis(
         "effective_native_values_hex": encoded.hex(),
         "effective_values_sha256": "sha256:" + hashlib.sha256(encoded).hexdigest(),
     }
+    if reuse_occurrence_ref is not None:
+        payload["reuse_occurrence_ref"] = _candidate_issuance_ref(reuse_occurrence_ref)
     return CandidateAcquisitionEvaluationBasis.model_validate(
         {**payload, "content_hash": exact_n5_content_hash(payload)}
     )
@@ -689,6 +710,7 @@ def issue_candidate_acquisition_evaluation_decision(
     expected_frontier_revision: int,
     expected_frontier_ref: str | None,
     generated_at: str,
+    reuse_occurrence_ref: ArtifactRef | None = None,
 ) -> CandidateAcquisitionEvaluationDecision:
     """Construct the caller's candidate comparison without granting retention.
 
@@ -741,6 +763,8 @@ def issue_candidate_acquisition_evaluation_decision(
         "publication_authority": False,
         "generated_at": generated_at,
     }
+    if reuse_occurrence_ref is not None:
+        payload["reuse_occurrence_ref"] = _candidate_issuance_ref(reuse_occurrence_ref)
     return CandidateAcquisitionEvaluationDecision.model_validate(
         {**payload, "content_hash": exact_n5_content_hash(payload)}
     )
@@ -788,17 +812,23 @@ class CandidateExperimentTerminalHistory:
     history, action receipt, source re-entry or retained continuation, and the
     exact SQL evaluation frontier. ``phase_chain`` ends with the selected
     terminal. Consumers must obtain live permission and lease independently
-    before any further effect.
+    before any further effect. ``recorded_live_refusal`` means that a V2
+    blocked comparison preserved the producer's recorded failure to establish
+    a live implementation. That historical predicate is consumer-asserted;
+    this reader does not claim to reconstruct a past loaded implementation.
     """
 
     head: AcquisitionActionHeadRecord
     terminal_ref: ArtifactRef
-    terminal: AcquisitionCandidateExperimentTerminalReceipt
+    terminal: (
+        AcquisitionCandidateExperimentTerminalReceipt
+        | AcquisitionCandidateExperimentTerminalReceiptV2
+    )
     origin: VerifiedCandidateExperimentOrigin
     phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
     action: CandidateAcquisitionActionReceipt
     source: CandidateAcquisitionSource
-    budget_window: BudgetLedgerReentryBudgetWindow
+    budget_window: BudgetLedgerReentryBudgetWindow | None
     decision: CandidateAcquisitionEvaluationDecision | None
     current_basis: CandidateAcquisitionEvaluationBasis | None
     selected_basis: CandidateAcquisitionEvaluationBasis | None
@@ -808,6 +838,10 @@ class CandidateExperimentTerminalHistory:
     frontier_before: AcquisitionEvaluationFrontierRecord | None
     frontier_after: AcquisitionEvaluationFrontierRecord | None
     reentry_evaluation: ResolvedAcquisitionEvaluation | None = None
+    reuse_occurrence: CandidateExperimentReuseOccurrence | None = None
+    reuse_occurrence_ref: ArtifactRef | None = None
+    provenance_budget_window: BudgetLedgerReentryBudgetWindow | None = None
+    recorded_live_refusal: bool = False
 
 
 def resolve_selected_acquisition_evaluation(
@@ -1019,7 +1053,11 @@ def _candidate_evaluation_event_id(
         role = "retained_port_capture"
     else:
         raise TypeError("candidate_evaluation_record_untyped")
-    return _candidate_evaluation_role_event_id(record.candidate_action_ref, role)
+    return _candidate_evaluation_role_event_id(
+        record.candidate_action_ref,
+        role,
+        reuse_occurrence_ref=getattr(record, "reuse_occurrence_ref", None),
+    )
 
 
 def _candidate_evaluation_role_event_id(
@@ -1031,6 +1069,8 @@ def _candidate_evaluation_role_event_id(
         "retained_continuation",
         "retained_port_capture",
     ],
+    *,
+    reuse_occurrence_ref: ArtifactRef | None = None,
 ) -> str:
     """Name the single action-scoped event used for crash-window recovery."""
     if (
@@ -1048,7 +1088,13 @@ def _candidate_evaluation_role_event_id(
         }
     ):
         raise ValueError("candidate_evaluation_event_scope_untyped")
-    identity = hashlib.sha256(exact_n5_content_bytes(action_ref)).hexdigest()
+    if reuse_occurrence_ref is not None and not _candidate_selected_ref(
+        reuse_occurrence_ref, "runtime_quality.candidate_experiment_reuse_occurrence"
+    ):
+        raise ValueError("candidate_evaluation_event_scope_untyped")
+    identity = hashlib.sha256(
+        exact_n5_content_bytes(reuse_occurrence_ref or action_ref)
+    ).hexdigest()
     return f"evt_candidate_evaluation_{role}_{identity}"
 
 

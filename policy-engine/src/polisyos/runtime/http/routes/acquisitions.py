@@ -18,7 +18,11 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import conflict, forbidden, not_found, service_unavailable
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
-from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.permissions import (
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    RuntimePermission,
+)
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
@@ -27,6 +31,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteListResponse,
     AcquisitionRouteMutationRequest,
     AcquisitionRouteProjection,
+    CandidateExperimentReuseActionExecutionRequest,
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
@@ -38,7 +43,14 @@ from polisyos.runtime.http.services.model_input_successor_action import (
     ModelInputSuccessorDecisionResponse,
     ModelInputSuccessorExecutionRequest,
 )
-from polisyos.runtime.http.step_up import StepUpClass, require_step_up
+from polisyos.runtime.http.step_up import (
+    StepUpAssertionVerification,
+    StepUpClass,
+    require_step_up,
+)
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    CandidateExperimentReuseActionRequest,
+)
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi import APIRouter, Depends, Request
@@ -106,6 +118,32 @@ _CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ = require_action_permission(
         required_selector_fields=tuple(
             name
             for name, field in CandidateExperimentRouteExecutionRequest.model_fields.items()
+            if field.is_required()
+        ),
+    ),
+)
+_CANDIDATE_EXPERIMENT_REUSE_AUTHZ = require_action_permission(
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+        selector_fields=tuple(CandidateExperimentReuseActionRequest.model_fields),
+        required_selector_fields=tuple(
+            name
+            for name, field in CandidateExperimentReuseActionRequest.model_fields.items()
+            if field.is_required()
+        ),
+    ),
+)
+_CANDIDATE_EXPERIMENT_REUSE_EXECUTION_AUTHZ = require_action_permission(
+    CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+        selector_fields=tuple(CandidateExperimentReuseActionExecutionRequest.model_fields),
+        required_selector_fields=tuple(
+            name
+            for name, field in CandidateExperimentReuseActionExecutionRequest.model_fields.items()
             if field.is_required()
         ),
     ),
@@ -194,12 +232,16 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
         "acquisition_execution_bridge_missing",
         "candidate_experiment_n5_result_storage_unavailable",
         "candidate_experiment_current_action_head_not_established",
+        "candidate_experiment_reuse_authority_producer_missing",
+        "candidate_experiment_reuse_lifecycle_owner_unavailable",
+        "candidate_experiment_reuse_execution_owner_missing",
         "model_input_use_authority_producer_missing",
         "model_input_use_successor_owner_unavailable",
     }:
         raise service_unavailable("Acquisition producer is unavailable", code=code) from exc
     if code in {
         "candidate_experiment_n5_result_scope_refused",
+        "candidate_experiment_reuse_source_scope_refused",
         "model_input_use_source_scope_refused",
     }:
         raise forbidden("The selected candidate result is not accessible", code=code) from exc
@@ -226,6 +268,49 @@ def list_run_acquisition_routes(
     set_authz_resource(request, tenant_id=tenant_id, kind="runtime.acquisition_route")
     try:
         return service.list_routes(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
+    response_model=AcquisitionExecutionResponse,
+    operation_id="execute_run_candidate_acquisition_experiment_reuse",
+)
+def execute_run_candidate_acquisition_experiment_reuse(
+    run_id: str,
+    route_id: str,
+    body: CandidateExperimentReuseActionExecutionRequest,
+    request: Request,
+    bound_permission: Annotated[
+        BoundActionPermissionVerification,
+        Depends(_CANDIDATE_EXPERIMENT_REUSE_EXECUTION_AUTHZ),
+    ],
+    _step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
+    service: _Service,
+) -> AcquisitionExecutionResponse:
+    """Queue one PA2-approved no-fetch reuse under the ordinary Control worker."""
+    tenant_id, cell_id, principal = _scope(request)
+    set_authz_resource(
+        request,
+        tenant_id=tenant_id,
+        kind=CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    )
+    if type(bound_permission) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "Candidate reuse lacks its frozen execution binding",
+            code="authorization_binding_context_missing",
+        )
+    try:
+        return service.execute_candidate_experiment_reuse(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=body,
+            request_id=ensure_request_id(request),
+            principal=principal,
+        )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)
 
@@ -361,6 +446,42 @@ def execute_run_candidate_acquisition_experiment(
             decision_ref=body.decision_ref,
             request_id=ensure_request_id(request),
             principal=principal,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+    response_model=AcquisitionDecisionRequestResponse,
+    operation_id="request_run_candidate_acquisition_experiment_reuse_decision",
+)
+def request_run_candidate_acquisition_experiment_reuse_decision(
+    run_id: str,
+    route_id: str,
+    bound_permission: Annotated[
+        BoundActionPermissionVerification, Depends(_CANDIDATE_EXPERIMENT_REUSE_AUTHZ)
+    ],
+    _step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
+    body: CandidateExperimentReuseActionRequest,
+    request: Request,
+    service: _Service,
+) -> AcquisitionDecisionRequestResponse:
+    """Request a signed PA2 decision to reuse one exact prior candidate N5 result."""
+    tenant_id, cell_id, _ = _scope(request)
+    set_authz_resource(
+        request,
+        tenant_id=tenant_id,
+        kind=CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    )
+    try:
+        return service.request_candidate_experiment_reuse_decision(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=body,
+            bound_permission=bound_permission,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

@@ -20,6 +20,7 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.acquisition_evaluation import (
     CandidateAcquisitionEvaluationBasis,
     CandidateAcquisitionEvaluationDecision,
+    _candidate_evaluation_role_event_id,
     issue_candidate_acquisition_evaluation_basis,
     issue_candidate_acquisition_evaluation_decision,
     persist_acquisition_evaluation_artifact,
@@ -106,6 +107,7 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
         assert issue_candidate_acquisition_evaluation_basis(**basis_inputs) == basis
         assert _files(case.store.root) == before
         assert basis.predicate_provenance == "not_established"
+        assert "reuse_occurrence_ref" not in basis.model_dump(mode="json")
         assert basis.reason_codes == prepared.reason_codes
         assert basis.limitations == limitations
         assert not basis.observed_admission and not basis.publication_authority
@@ -147,6 +149,7 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
             }
             decision = issue_candidate_acquisition_evaluation_decision(**decision_inputs)
             assert issue_candidate_acquisition_evaluation_decision(**decision_inputs) == decision
+            assert "reuse_occurrence_ref" not in decision.model_dump(mode="json")
             assert decision.reason_codes == prepared.reason_codes
             assert decision.generated_at == TRANSACTION_TIME.isoformat()
             assert not decision.observed_admission and not decision.publication_authority
@@ -162,6 +165,107 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
                 )
                 == decision
             )
+
+            # A repeated reuse names a new action occurrence without claiming
+            # that the physical source action or its budget happened again.
+            # Both basis and decision events must remain independently readable.
+            occurrences = [
+                component_parent("runtime_quality.candidate_experiment_reuse_occurrence", name)
+                for name in ("reuse-a", "reuse-b")
+            ]
+            legacy_basis_event = _candidate_evaluation_role_event_id(action, "prospective_basis")
+            assert legacy_basis_event == (
+                "evt_candidate_evaluation_prospective_basis_"
+                + hashlib.sha256(exact_n5_content_bytes(action)).hexdigest()
+            )
+            reuse_events: list[str] = []
+            for generation, occurrence_ref in enumerate(occurrences, start=2):
+                reuse_basis = issue_candidate_acquisition_evaluation_basis(
+                    **{
+                        **basis_inputs,
+                        "action_job_id": f"reuse-{generation}",
+                        "action_generation": generation,
+                        "reuse_occurrence_ref": occurrence_ref,
+                    }
+                )
+                assert reuse_basis.candidate_action_ref == action
+                reuse_basis_ref = persist_acquisition_evaluation_artifact(
+                    store=case.store, event_log=events, record=reuse_basis
+                )
+                assert (
+                    read_acquisition_evaluation_artifact(
+                        store=case.store,
+                        event_log=events,
+                        ref=reuse_basis_ref,
+                        record_type=CandidateAcquisitionEvaluationBasis,
+                    )
+                    == reuse_basis
+                )
+                reuse_decision = issue_candidate_acquisition_evaluation_decision(
+                    **{
+                        **decision_inputs,
+                        "action_job_id": f"reuse-{generation}",
+                        "action_generation": generation,
+                        "current_basis_ref": reuse_basis_ref,
+                        "reuse_occurrence_ref": occurrence_ref,
+                    }
+                )
+                reuse_decision_ref = persist_acquisition_evaluation_artifact(
+                    store=case.store, event_log=events, record=reuse_decision
+                )
+                assert (
+                    read_acquisition_evaluation_artifact(
+                        store=case.store,
+                        event_log=events,
+                        ref=reuse_decision_ref,
+                        record_type=CandidateAcquisitionEvaluationDecision,
+                    )
+                    == reuse_decision
+                )
+                reuse_events.append(
+                    _candidate_evaluation_role_event_id(
+                        action, "prospective_basis", reuse_occurrence_ref=occurrence_ref
+                    )
+                )
+            assert len({legacy_basis_event, *reuse_events}) == 3
+            occurrence_manifest = case.store.get_manifest(occurrences[0])
+            sibling_occurrence = case.store.put_bytes(
+                case.store.get_bytes(occurrences[0]),
+                artifacts.ArtifactWriteOptions(
+                    kind=occurrences[0].kind,
+                    media_type=occurrences[0].media_type,
+                    schema=occurrence_manifest.artifact_schema,
+                    canon=occurrence_manifest.canon,
+                    inputs=occurrence_manifest.inputs,
+                    governance=occurrence_manifest.governance,
+                    tenant_context=occurrence_manifest.tenant_context,
+                    producer=artifacts.ProducerInfo(
+                        component="test.foreign-occurrence", version="1"
+                    ),
+                ),
+                return_selected_profile=True,
+            )
+            assert sibling_occurrence.artifact_id == occurrences[0].artifact_id
+            assert (
+                sibling_occurrence.manifest_profile_sha256 != occurrences[0].manifest_profile_sha256
+            )
+            assert (
+                _candidate_evaluation_role_event_id(
+                    action, "prospective_basis", reuse_occurrence_ref=sibling_occurrence
+                )
+                != reuse_events[0]
+            )
+            with pytest.raises(
+                ValueError, match="candidate_evaluation_basis_reuse_occurrence_invalid"
+            ):
+                issue_candidate_acquisition_evaluation_basis(
+                    **{
+                        **basis_inputs,
+                        "reuse_occurrence_ref": occurrences[0].model_copy(
+                            update={"manifest_profile_sha256": None}
+                        ),
+                    }
+                )
 
             # Incomplete prior selection cannot be relabeled as a successful
             # comparison; issuer defaults never invent a reason or a frontier.

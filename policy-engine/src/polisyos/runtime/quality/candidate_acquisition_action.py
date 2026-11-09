@@ -212,7 +212,9 @@ def _select_current_candidate_experiment_outcome(
     from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionCandidateExperimentTerminalReceiptV2,
         VerifiedCandidateExperimentOrigin,
+        _candidate_ref_same,
     )
 
     if type(origin) is not VerifiedCandidateExperimentOrigin or type(outcomes) is not tuple:
@@ -245,12 +247,28 @@ def _select_current_candidate_experiment_outcome(
     ):
         raise ValueError("candidate_experiment_action_history_not_current")
     for history, outcome in zip(prefix, outcomes[:-1], strict=True):
+        terminal = outcome.latest_receipt
         if (
             type(history) is not CandidateExperimentTerminalHistory
-            or type(outcome.latest_receipt) is not AcquisitionCandidateExperimentTerminalReceipt
+            or type(terminal)
+            not in {
+                AcquisitionCandidateExperimentTerminalReceipt,
+                AcquisitionCandidateExperimentTerminalReceiptV2,
+            }
+            or type(history.terminal) is not type(terminal)
             or outcome.head != history.head
-            or outcome.latest_receipt != history.terminal
+            or terminal != history.terminal
             or outcome.candidate_experiment_terminal_history != history
+            or (
+                type(terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+                and (
+                    history.budget_window is not None
+                    or history.reuse_occurrence is None
+                    or not _candidate_ref_same(
+                        history.reuse_occurrence_ref, terminal.reuse_occurrence_ref
+                    )
+                )
+            )
         ):
             raise ValueError("candidate_experiment_action_prefix_changed")
     outcome = outcomes[-1]

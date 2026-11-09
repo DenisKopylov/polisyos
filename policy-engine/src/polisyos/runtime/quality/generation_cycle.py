@@ -33,7 +33,7 @@ from decimal import Decimal
 from enum import Enum
 from functools import cache
 from pathlib import Path
-from types import UnionType
+from types import MethodType, UnionType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -119,6 +119,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
         CandidateAcquisitionEvaluationCurrentOwner,
         CandidateExperimentEvaluationCurrentOwner,
+        _CandidateExperimentReuseRetainedOwner,
         _CandidateRetainedBudgetFence,
     )
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -14206,11 +14207,13 @@ class GenerationCycleController:
                 from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                     CandidateAcquisitionEvaluationCurrentOwner,
                     CandidateExperimentEvaluationCurrentOwner,
+                    _CandidateExperimentReuseRetainedOwner,
                 )
 
                 if type(current_owner) in {
                     CandidateAcquisitionEvaluationCurrentOwner,
                     CandidateExperimentEvaluationCurrentOwner,
+                    _CandidateExperimentReuseRetainedOwner,
                 }:
                     return current_owner.planner_snapshot(snapshot)
             return snapshot
@@ -14257,12 +14260,14 @@ class GenerationCycleController:
                 AcquisitionEvaluationCurrentOwner,
                 CandidateAcquisitionEvaluationCurrentOwner,
                 CandidateExperimentEvaluationCurrentOwner,
+                _CandidateExperimentReuseRetainedOwner,
             )
 
             if type(current_owner) not in {
                 AcquisitionEvaluationCurrentOwner,
                 CandidateAcquisitionEvaluationCurrentOwner,
                 CandidateExperimentEvaluationCurrentOwner,
+                _CandidateExperimentReuseRetainedOwner,
             }:
                 raise GenerationCycleError("retained_planner_current_owner_not_established")
             snapshot = current_owner.planner_snapshot(snapshot)
@@ -17346,13 +17351,15 @@ class GenerationCycleController:
         self,
         *,
         owner: CandidateAcquisitionEvaluationCurrentOwner
-        | CandidateExperimentEvaluationCurrentOwner,
+        | CandidateExperimentEvaluationCurrentOwner
+        | _CandidateExperimentReuseRetainedOwner,
     ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
         """Re-run local ports for one owner-revalidated retained candidate."""
         from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
             CandidateAcquisitionEvaluationCurrentOwner,
             CandidateExperimentEvaluationCurrentOwner,
             _candidate_evaluation_artifact_for_recovery,
+            _CandidateExperimentReuseRetainedOwner,
         )
         from polisyos.runtime.quality.acquisition_retained_continuation import (
             CandidateAcquisitionRetainedContinuation,
@@ -17362,6 +17369,7 @@ class GenerationCycleController:
         if type(owner) not in {
             CandidateAcquisitionEvaluationCurrentOwner,
             CandidateExperimentEvaluationCurrentOwner,
+            _CandidateExperimentReuseRetainedOwner,
         }:
             raise GenerationCycleError("candidate_retained_current_owner_not_established")
         resolver = self._candidate_simulation_currentness_resolver
@@ -17402,21 +17410,29 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("candidate_retained_current_owner_not_established")
         owner.revalidate()
-        saved = _candidate_evaluation_artifact_for_recovery(
-            bridge=owner.bridge,
-            closure=(
-                owner.closure if type(owner) is CandidateAcquisitionEvaluationCurrentOwner else None
-            ),
-            origin=(
-                owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None
-            ),
-            pending_phase_ref=(
-                owner.pending_phase_ref
-                if type(owner) is CandidateExperimentEvaluationCurrentOwner
-                else None
-            ),
-            candidate_action_ref=owner.candidate_action_ref,
-            role="retained_continuation",
+        saved = (
+            owner.effect.recover_record("retained_continuation")
+            if type(owner) is _CandidateExperimentReuseRetainedOwner
+            else _candidate_evaluation_artifact_for_recovery(
+                bridge=owner.bridge,
+                closure=(
+                    owner.closure
+                    if type(owner) is CandidateAcquisitionEvaluationCurrentOwner
+                    else None
+                ),
+                origin=(
+                    owner.origin
+                    if type(owner) is CandidateExperimentEvaluationCurrentOwner
+                    else None
+                ),
+                pending_phase_ref=(
+                    owner.pending_phase_ref
+                    if type(owner) is CandidateExperimentEvaluationCurrentOwner
+                    else None
+                ),
+                candidate_action_ref=owner.candidate_action_ref,
+                role="retained_continuation",
+            )
         )
         prior_generated_at = self._generated_at
         if saved is not None:
@@ -17471,6 +17487,7 @@ class GenerationCycleController:
         growth_ref: CASArtifactRef | None,
         _candidate_owner: CandidateAcquisitionEvaluationCurrentOwner
         | CandidateExperimentEvaluationCurrentOwner
+        | _CandidateExperimentReuseRetainedOwner
         | None = None,
         _candidate_fence: _CandidateRetainedBudgetFence | None = None,
     ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
@@ -17495,6 +17512,7 @@ class GenerationCycleController:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 CandidateAcquisitionEvaluationCurrentOwner,
                 CandidateExperimentEvaluationCurrentOwner,
+                _CandidateExperimentReuseRetainedOwner,
                 _CandidateRetainedBudgetFence,
             )
 
@@ -17503,6 +17521,7 @@ class GenerationCycleController:
                 not in {
                     CandidateAcquisitionEvaluationCurrentOwner,
                     CandidateExperimentEvaluationCurrentOwner,
+                    _CandidateExperimentReuseRetainedOwner,
                 }
                 or type(_candidate_fence) is not _CandidateRetainedBudgetFence
                 or _candidate_fence.owner is not _candidate_owner
@@ -18106,6 +18125,7 @@ class GenerationCycleController:
         cycle: GenerationCycleRecord,
         retained_owner: CandidateAcquisitionEvaluationCurrentOwner
         | CandidateExperimentEvaluationCurrentOwner
+        | _CandidateExperimentReuseRetainedOwner
         | None = None,
     ) -> _N7ConfiguredCandidatePortSource:
         """Build replayed N4/N5 port facts for a candidate-only mixed route."""
@@ -18151,23 +18171,27 @@ class GenerationCycleController:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 CandidateAcquisitionEvaluationCurrentOwner,
                 CandidateExperimentEvaluationCurrentOwner,
+                _CandidateExperimentReuseRetainedOwner,
             )
             from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 
+            resolver = self._candidate_simulation_currentness_resolver
             if (
                 type(retained_owner)
                 not in {
                     CandidateAcquisitionEvaluationCurrentOwner,
                     CandidateExperimentEvaluationCurrentOwner,
+                    _CandidateExperimentReuseRetainedOwner,
                 }
                 or getattr(self, "_acquisition_retention_current_owner", None) is not retained_owner
                 or exact_n5_content_bytes(handoff)
                 != exact_n5_content_bytes(retained_owner.prior.handoff)
-                or self._candidate_simulation_currentness_resolver is None
-                or self._candidate_simulation_currentness_resolver() is not True
+                or type(resolver) is not MethodType
+                or resolver.__self__ is not retained_owner
+                or resolver.__func__ is not type(retained_owner).currentness_resolver
+                or resolver() is not True
             ):
                 raise ValueError("n7_configured_candidate_port_owner_not_established")
-            retained_owner.revalidate()
         selected_id = _candidate_id(candidate)
         selected_hash = _candidate_content_hash(candidate)
         problem_ref = _problem_ref(problem)

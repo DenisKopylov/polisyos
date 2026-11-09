@@ -48,6 +48,14 @@ _HIGH_STAKES_OPERATIONS = {
         "POST",
         "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
     ): "acquisition_approval",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
+    ): "acquisition_approval",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
+    ): "acquisition_approval",
     ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"): "acquisition_approval",
     ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"): "acquisition_approval",
     (

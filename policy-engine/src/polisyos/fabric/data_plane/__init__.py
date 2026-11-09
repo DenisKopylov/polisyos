@@ -266,17 +266,16 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> object:
-    try:
+    if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]
-    except KeyError as exc:
-        raise AttributeError(
-            f"module 'polisyos.fabric.data_plane' has no attribute {name!r}"
-        ) from exc
-    module = importlib.import_module(module_name)
-    value = getattr(module, attr)
-    globals()[name] = value
-    return value
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr)
+        globals()[name] = value
+        return value
+    raise AttributeError(
+        f"module 'polisyos.fabric.data_plane' has no attribute {name!r}"
+    ) from KeyError(name)
 
 
 def __dir__() -> list[str]:
-    return sorted(set(globals()) | set(_LAZY_IMPORTS))
+    return sorted(set(globals()) | set(_LAZY_IMPORTS.keys()))

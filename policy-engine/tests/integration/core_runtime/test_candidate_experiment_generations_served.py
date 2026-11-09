@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
@@ -137,10 +137,15 @@ def _assert_changed_candidate_n5_numeric_outcomes(
     *, control: object, first: object, changed: object, allow_blocked: bool = False
 ) -> None:
     """Reopen both real N5 outputs and compare their declared numerical outcomes."""
+    import json
+
     import numpy as np
 
     from polisyos.core import canon
     from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -183,6 +188,21 @@ def _assert_changed_candidate_n5_numeric_outcomes(
         assert declaration.outcome_noise_stddev == 0.0
         assert float(n5_input.materialization.value) == pytest.approx(2.0, rel=0, abs=1e-12)
         assert history.source.observation == pytest.approx(source_value, rel=0, abs=tolerance)
+        reopened_source = read_candidate_acquisition_source(
+            store,
+            source_ref=history.action.candidate_source_ref,
+        )
+        assert reopened_source == history.source
+        raw_source = json.loads(store.get_bytes(reopened_source.raw_source_ref))
+        assert len(raw_source) == 2 and len(raw_source[1]) == 1
+        assert raw_source[1][0]["countryiso3code"] == "USA"
+        assert raw_source[1][0]["date"] == "2024"
+        assert raw_source[1][0]["unit"] == "percent"
+        # The source fixture supplies percent; the source owner must derive the
+        # canonical ratio used as the actual N5 baseline (17.5% -> .175, 21% -> .21).
+        assert raw_source[1][0]["value"] == pytest.approx(source_value * 100, rel=0, abs=1e-12)
+        assert reopened_source.target_slot_id == "global.unemployment_rate"
+        assert reopened_source.canonical_unit == "ratio"
         reopened_declaration, ncm = GenerationSourceRepository(store).load_candidate_declared_ncm(
             declaration_ref=n5_input.model_declaration_ref,
             ncm_ref=n5_input.ncm_ref,
@@ -272,6 +292,27 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
     served_recorded_candidate_gateway,
 ) -> None:
     """Run A→B→B→B→C through fresh signed decisions and the real served worker."""
+    from datetime import UTC, datetime, timedelta
+
+    from polisyos.core import artifacts, canon
+    from polisyos.runtime.http.permissions import CANDIDATE_EXPERIMENT_REUSE_PERMISSION
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        CandidateExperimentRouteProjection,
+    )
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        AGENT_ACTION_DECISION_ARTIFACT_KIND,
+        CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+        AgentActionAuthorityDecision,
+    )
+    from polisyos.runtime.quality.candidate_experiment_reuse import (
+        CandidateExperimentReuseActionRequest,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
@@ -279,12 +320,16 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         install_first_candidate_experiment_constituent_controls,
     )
     from tests._helpers.candidate_experiment_served_execution import (
+        _candidate_experiment_reopened_runtime,
         _standard_invocation_units,
         candidate_experiment_served_execution_owner,
         run_candidate_experiment_served_execution,
     )
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests._helpers.lane01_candidate_action_served import _approve_candidate_action
     from tests.integration.core_runtime.test_candidate_experiment_action_served import (
         _assert_candidate_experiment_n5_uses_current_wmr,
+        _install_candidate_mandate,
         run_candidate_experiment_action_oracle,
         run_genuine_candidate_experiment_scenario,
     )
@@ -304,6 +349,16 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         policy = first_values["policy"]
         origin = first_values["origin"]
         quota = first_values["quota"]
+
+        # B1 and C are the only source attempts under the signed policy.
+        # B2 and B3 have their own PA2/DS9 decisions and reuse the source from B1.
+        authorized_attempt_ids = tuple(
+            item.attempt_id for item in policy.authorized_source_attempts
+        )
+        assert len(authorized_attempt_ids) == 2
+        assert len(set(authorized_attempt_ids)) == len(authorized_attempt_ids)
+        assert policy.configured_template is not None
+        assert policy.configured_template.subsequent_attempt_ids == authorized_attempt_ids[1:]
 
         assert first.standard_invocation_units_before == 2
         assert first.standard_invocation_units_after == 4
@@ -375,16 +430,14 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
                 "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"
             )
             get_path = f"/api/v1/runs/{run_id}/candidate-acquisition-experiment"
-            read_headers = {
-                "Authorization": (f"Bearer {action_trust.tokens['acquisition-operator']}"),
-                "X-Tenant-ID": action_origin.tenant_id,
-            }
             execute_body = {
                 "request": action_request.model_dump(mode="json"),
                 "decision_ref": str(action_decision_ref),
             }
             units_before = _standard_invocation_units(control=action_control, run_id=run_id)
             assert units_before == execution.standard_invocation_units_after
+            budget_store = action_control._llm_producer_settlement_store
+            budget_before = budget_store.snapshot_safe()
 
             def forbid_n5(*_args: object, **_kwargs: object) -> object:
                 raise AssertionError("candidate experiment duplicate retry or GET attempted N5")
@@ -402,7 +455,15 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
                     assert retry_response.json()["job_id"] == execution.job_id
                     assert retry_digest == execution.response_digest
 
-                    current_response = action_client.get(get_path, headers=read_headers)
+                    current_response = action_client.get(
+                        get_path,
+                        headers={
+                            "Authorization": action_trust.authorization_header(
+                                "acquisition-operator"
+                            ),
+                            "X-Tenant-ID": action_origin.tenant_id,
+                        },
+                    )
                     assert current_response.status_code == 200, current_response.text
                     current = current_response.json()["current_action"]
                     assert current["status"] == "completed"
@@ -428,180 +489,622 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
                 assert retry_owner.transport_calls == []
             units_after = _standard_invocation_units(control=action_control, run_id=run_id)
             assert units_after == units_before
+            assert budget_store.snapshot_safe() == budget_before
 
-        assert_exact_retry_and_fresh_get(
-            action_values=first_values,
-            execution=first,
+        control = first_values["control"]
+        action_service = first_values["action_service"]
+        client, trust = values["client"], values["trust"]
+        action_heads_scope = {
+            "tenant_id": origin.tenant_id,
+            "cell_id": origin.cell_id,
+            "run_id": origin.run_id,
+            "source_job_id": origin.source_job_id,
+        }
+        reuse_route = "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse"
+        reuse_path = reuse_route.format(run_id=origin.run_id, route_id=origin.route_id)
+        get_path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
+        independent_failures: list[AssertionError] = []
+
+        def assert_independently(check: Callable[[], None]) -> None:
+            # An independent readback/control failure must still fail this test,
+            # but it need not stop the next real producer if its head is sound.
+            try:
+                check()
+            except AssertionError as exc:
+                independent_failures.append(exc)
+
+        assert_independently(
+            lambda: assert_exact_retry_and_fresh_get(action_values=first_values, execution=first)
         )
 
-        def run_followup(
-            *,
-            generation: int,
-            wdi_response_value: float | None = None,
-        ) -> object:
-            result: dict[str, object] = {}
+        def reuse_request(
+            *, predecessor: object, generation: int
+        ) -> CandidateExperimentReuseActionRequest:
+            history = predecessor.terminal_history
+            terminal = history.terminal
+            selected = terminal.selected_evaluation
+            assert selected is not None and terminal.candidate_action_ref is not None
+            return CandidateExperimentReuseActionRequest.model_validate(
+                {
+                    "route_id": origin.route_id,
+                    "predecessor_terminal_ref": predecessor.terminal_ref.model_dump(mode="python"),
+                    "predecessor_action_ref": terminal.candidate_action_ref.model_dump(
+                        mode="python"
+                    ),
+                    "source_ref": history.action.candidate_source_ref.model_dump(mode="python"),
+                    "n5_input_ref": selected.n5_input_ref.model_dump(mode="python"),
+                    "n5_execution_ref": selected.n5_execution_ref.model_dump(mode="python"),
+                    "n5_result_ref": selected.n5_result_ref.model_dump(mode="python"),
+                    "policy_ref": policy_ref.model_dump(mode="python"),
+                    "idempotency_key": f"served-labor-candidate-reuse-{generation}",
+                }
+            )
 
-            def execute_after_replay(**action_values: object) -> None:
-                if generation == 2:
-                    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
-                        resolve_current_candidate_unpriced_policy,
-                    )
+        def assert_fresh_reuse_get(*, history: object) -> None:
+            with _candidate_experiment_reopened_runtime(
+                control=control, trust=trust, monkeypatch=monkeypatch
+            ) as (reader, _fresh_control, _sqlite_path, _cas_root):
+                response = reader.get(
+                    get_path,
+                    headers={
+                        "Authorization": trust.authorization_header("acquisition-operator"),
+                        "X-Tenant-ID": origin.tenant_id,
+                    },
+                )
+                assert response.status_code == 200, response.text
+                projection = CandidateExperimentRouteProjection.model_validate(response.json())
+                assert projection.action_authority == "not_established"
+                assert projection.publication_authority is False
+                action = projection.current_action
+                assert action.status == action.job_state == "completed"
+                assert action.job_id == history.head.job_id
+                assert action.action_generation == history.head.action_generation
+                assert action.receipt_phase == "terminal"
+                assert action.terminal_outcome == "candidate_evaluation_retained"
+                assert action.evaluation_disposition == "retained"
+                assert action.selected_receipt_ref == history.terminal_ref
+                assert action.selected_evaluation == initial_selected_evaluation
+                assert action.candidate_n5_result is None
 
-                    action_context = action_values["values"]
-                    action_control = action_context["control"]
-                    action_service = action_context["action_service"]
-                    action_client = action_context["client"]
-                    action_trust = action_context["trust"]
-                    action_origin = action_values["origin"]
-                    action_request = action_values["request"]
-                    action_decision_ref = action_values["decision_ref"]
-                    providers_before = action_control._registry_providers
-                    assert providers_before.candidate_unpriced_policy_bindings == ()
-                    assert len(providers_before.candidate_unpriced_policy_templates) == 1
-                    selected_ref_before, selected_policy_before = (
-                        resolve_current_candidate_unpriced_policy(
-                            control_service=action_control,
-                            scope=action_origin.policy_scope,
-                        )
-                    )
-                    assert selected_ref_before == policy_ref == action_origin.policy_ref
-                    assert selected_policy_before == policy
+        def post_fresh_reuse_execute(envelope: dict[str, object], *, subject: str):
+            # A retry receives its own signed identity and normal route-bound
+            # step-up, while preserving the authenticated actor subject.
+            with trust.authorization_exchange(subject):
+                return trust.post(
+                    client,
+                    reuse_path + "/execute",
+                    envelope,
+                    route=reuse_route + "/execute",
+                    subject=subject,
+                )
 
-                    execute_path = (
-                        f"/api/v1/runs/{action_origin.run_id}/candidate-acquisition-experiment/"
-                        f"{action_origin.route_id}/execute"
+        def run_reuse(*, generation: int, predecessor: object) -> object:
+            request = reuse_request(predecessor=predecessor, generation=generation)
+            authority_valid_until = datetime.now(UTC) + timedelta(minutes=90)
+            body = request.model_dump(mode="json")
+            heads_before = control._control_store.list_acquisition_action_heads_for_source(
+                **action_heads_scope
+            )
+            assert len(heads_before) == generation - 1
+            assert heads_before[-1] == predecessor.terminal_history.head
+            ledger_store = control._llm_producer_settlement_store
+            ledger_before = ledger_store.snapshot_safe()
+            ledger_path = ledger_store._ledger._path
+            ledger_bytes_before = ledger_path.read_bytes()
+            standard_units = _standard_invocation_units(control=control, run_id=origin.run_id)
+            assert standard_units == 4
+            source_entries: list[str] = []
+
+            def forbid_source(*_args: object, **_kwargs: object) -> object:
+                source_entries.append("candidate_source_producer")
+                raise AssertionError("same-basis reuse entered the real source producer")
+
+            with (
+                trust.authorization_exchange("acquisition-operator"),
+                trust.authorization_exchange("human-reviewer-1"),
+                candidate_experiment_served_execution_owner(
+                    action_service=action_service,
+                    origin=origin,
+                    policy_owner=policy_owner,
+                    monkeypatch=monkeypatch,
+                ) as owner,
+                _forbid_retained_generation_n5() as n5_entries,
+                monkeypatch.context() as no_source,
+            ):
+                no_source.setattr(
+                    WorldBankWDIAcquisitionExecutionPort,
+                    "execute_candidate_experiment",
+                    forbid_source,
+                )
+                refused, resource_digest = trust.post(
+                    client,
+                    reuse_path + "/decision-request",
+                    body,
+                    route=reuse_route + "/decision-request",
+                )
+                assert refused.status_code == 200, refused.text
+                assert refused.json()["outcome"] == "decision_required"
+                refusal_ref = refused.json()["authority_decision_ref"]
+                store = control._artifact_store
+                manifest = store.get_manifest(refusal_ref)
+                assert manifest.kind == AGENT_ACTION_DECISION_ARTIFACT_KIND
+                closure = manifest.same_input_closure
+                assert closure is not None
+                assert (closure.tenant_id, closure.cell_id, closure.run_id) == (
+                    origin.tenant_id,
+                    origin.cell_id,
+                    origin.run_id,
+                )
+                job_id = closure.job_id
+                assert job_id.startswith("candidate-experiment-reuse-")
+                assert control._control_store.get_job(job_id) is None
+                refusal = AgentActionAuthorityDecision.model_validate(
+                    canon.from_canonical_bytes(store.get_bytes(refusal_ref))
+                )
+                assert refusal.outcome == "refused"
+                assert refusal.action_kind == CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+                assert "delegation_contract_not_persisted" in refusal.refusal_reasons
+
+                slot, install_provider = _install_candidate_mandate(
+                    control=control,
+                    trust=trust,
+                    signers=values["signers"],
+                    identities=values["identities"],
+                    origin=origin,
+                    action_service=action_service,
+                    client=client,
+                    request=request,
+                    resource_digest=resource_digest,
+                    tmp_path=tmp_path,
+                    key_root=Path(values["key_root"]),
+                    action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+                    required_permission=CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
+                    action_job_id=job_id,
+                    authority_valid_until=authority_valid_until,
+                )
+                install_provider()
+                _approve_candidate_action(
+                    client=client,
+                    control=control,
+                    closure=origin,
+                    path=reuse_path,
+                    template=reuse_route,
+                    mutation=request,
+                    job_id=job_id,
+                    slot=slot,
+                    cas_root=Path(values["cas_root"]),
+                    trust=trust,
+                    signers=values["signers"],
+                    identities=values["identities"],
+                    authority_valid_until=authority_valid_until,
+                )
+                install_provider()
+                allowed, allowed_digest = trust.post(
+                    client,
+                    reuse_path + "/decision-request",
+                    body,
+                    route=reuse_route + "/decision-request",
+                )
+                assert allowed.status_code == 200, allowed.text
+                assert allowed_digest == resource_digest
+                assert allowed.json()["outcome"] == "decision_available", allowed.text
+                decision_ref = allowed.json()["authority_decision_ref"]
+                decision = AgentActionAuthorityDecision.model_validate(
+                    canon.from_canonical_bytes(store.get_bytes(decision_ref))
+                )
+                assert decision.outcome == "allowed"
+                assert decision.action_kind == CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+                assert decision.human_decision_record_ref == slot["human_decision_record_ref"]
+                assert decision.permission_snapshot is not None
+                assert decision.permission_snapshot.required_permission == "runs.launch"
+                assert control._control_store.get_job(job_id) is None
+                assert (
+                    control._control_store.list_acquisition_action_heads_for_source(
+                        **action_heads_scope
                     )
-                    execute_route = (
-                        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"
+                    == heads_before
+                )
+
+                execute_envelope = {"request": body, "decision_ref": decision_ref}
+                execute, _ = trust.post(
+                    client,
+                    reuse_path + "/execute",
+                    execute_envelope,
+                    route=reuse_route + "/execute",
+                )
+                assert execute.status_code in {200, 202}, execute.text
+                assert execute.json()["job_id"] == job_id
+                assert execute.json()["authority_decision_ref"] == str(decision_ref)
+                assert execute.json()["status"] == "accepted"
+                assert execute.json()["receipt_phase"] == "requested"
+                pending_job = control._control_store.get_job(job_id)
+                pending_head = control._control_store.get_acquisition_action_head(
+                    **action_heads_scope, route_id=origin.route_id, action_generation=generation
+                )
+                pending_heads = control._control_store.list_acquisition_action_heads_for_source(
+                    **action_heads_scope
+                )
+                assert pending_job is not None and pending_head is not None
+                pending_retry, _ = post_fresh_reuse_execute(
+                    execute_envelope,
+                    subject="acquisition-operator",
+                )
+                assert pending_retry.status_code in {200, 202}, pending_retry.text
+                assert pending_retry.json()["job_id"] == job_id
+                assert pending_retry.json()["authority_decision_ref"] == str(decision_ref)
+                assert pending_retry.json()["status"] == "accepted"
+                assert pending_retry.json()["receipt_phase"] == "requested"
+                assert control._control_store.get_job(job_id) == pending_job
+                assert (
+                    control._control_store.get_acquisition_action_head(
+                        **action_heads_scope, route_id=origin.route_id, action_generation=generation
                     )
-                    execute_body = {
+                    == pending_head
+                )
+                assert (
+                    control._control_store.list_acquisition_action_heads_for_source(
+                        **action_heads_scope
+                    )
+                    == pending_heads
+                )
+                assert (
+                    dispatch_one_control_job(
+                        store=control._control_store,
+                        handler=control._process_control_job,
+                        expected_job_id=job_id,
+                    )
+                    == job_id
+                )
+                job = control._control_store.get_job(job_id)
+                assert job is not None and job.state == "completed", job
+                assert job.attempt == 1
+                head = control._control_store.get_acquisition_action_head(
+                    **action_heads_scope, route_id=origin.route_id, action_generation=generation
+                )
+                assert head is not None and head.job_id == job_id
+                assert head.receipt_phase == "terminal"
+                assert head.receipt_manifest_profile_sha256 is not None
+                terminal_ref = artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+                    kind="runtime_quality.acquisition_route_loop_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+                )
+                history = verify_candidate_experiment_terminal_history(
+                    control_service=control, head=head, terminal_ref=terminal_ref
+                )
+                assert type(history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+                assert history.terminal.terminal_outcome == "candidate_evaluation_retained"
+                occurrence = history.reuse_occurrence
+                assert occurrence is not None
+                assert occurrence.selection.request == request
+                assert occurrence.selection.action_job_id == job_id
+                assert occurrence.selection.action_generation == generation
+                assert occurrence.selection.predecessor_action_generation == generation - 1
+                assert occurrence.selection.predecessor_terminal_ref == predecessor.terminal_ref
+                assert occurrence.pa2_decision_ref == artifacts.artifact_ref_for_manifest(
+                    store.get_manifest(decision_ref)
+                )
+                completed_job = control._control_store.get_job(job_id)
+                completed_heads = control._control_store.list_acquisition_action_heads_for_source(
+                    **action_heads_scope
+                )
+                completed_retry, _ = post_fresh_reuse_execute(
+                    execute_envelope,
+                    subject="acquisition-operator",
+                )
+                assert completed_retry.status_code in {200, 202}, completed_retry.text
+                assert completed_retry.json()["job_id"] == job_id
+                assert completed_retry.json()["authority_decision_ref"] == str(decision_ref)
+                assert completed_retry.json()["status"] == "completed"
+                assert completed_retry.json()["receipt_phase"] == "terminal"
+                assert control._control_store.get_job(job_id) == completed_job
+                assert (
+                    control._control_store.get_acquisition_action_head(
+                        **action_heads_scope, route_id=origin.route_id, action_generation=generation
+                    )
+                    == head
+                )
+                assert (
+                    control._control_store.list_acquisition_action_heads_for_source(
+                        **action_heads_scope
+                    )
+                    == completed_heads
+                )
+                assert occurrence.source_currentness == "source_currentness_not_established"
+                assert occurrence.observed_data_authority is False
+                assert occurrence.publication_authority is False
+                phase = next(
+                    item
+                    for item in history.phase_chain
+                    if item.receipt.receipt_phase == "executing"
+                )
+                assert phase.receipt.job_id == job_id
+                assert phase.receipt.action_generation == generation
+                phase_head = control._control_store.get_acquisition_action_head_by_receipt(
+                    **action_heads_scope,
+                    route_id=origin.route_id,
+                    action_generation=generation,
+                    receipt_ref=phase.receipt_ref,
+                )
+                assert phase_head is not None
+                assert occurrence.executing_phase_ref == artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(phase.receipt_ref),
+                    kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=phase_head.receipt_manifest_profile_sha256,
+                )
+                assert history.budget_window is None
+                assert history.reentry is None
+                assert history.action == initial_history.action
+                assert history.source == initial_history.source
+                assert history.terminal.selected_evaluation == initial_selected_evaluation
+
+                # A changed request body and a different signed decision must
+                # fail against this durable job without replacing its terminal.
+                changed_body = CandidateExperimentReuseActionRequest.model_validate(
+                    {
+                        **request.model_dump(mode="python"),
+                        "idempotency_key": request.idempotency_key + "-tampered",
+                    }
+                )
+                mismatch_snapshot = (
+                    control._control_store.get_job(job_id),
+                    control._control_store.list_acquisition_action_heads_for_source(
+                        **action_heads_scope
+                    ),
+                    ledger_store.snapshot_safe(),
+                    ledger_path.read_bytes(),
+                    _standard_invocation_units(control=control, run_id=origin.run_id),
+                )
+                for altered, altered_decision_ref in (
+                    (request, refusal_ref),
+                    (changed_body, decision_ref),
+                ):
+                    refused_retry, _ = post_fresh_reuse_execute(
+                        {
+                            "request": altered.model_dump(mode="json"),
+                            "decision_ref": str(altered_decision_ref),
+                        },
+                        subject="acquisition-operator",
+                    )
+                    assert refused_retry.status_code == 409, refused_retry.text
+                    assert refused_retry.json()["code"] == (
+                        "candidate_experiment_reuse_retry_payload_mismatch"
+                    )
+                    assert (
+                        control._control_store.get_job(job_id),
+                        control._control_store.list_acquisition_action_heads_for_source(
+                            **action_heads_scope
+                        ),
+                        ledger_store.snapshot_safe(),
+                        ledger_path.read_bytes(),
+                        _standard_invocation_units(control=control, run_id=origin.run_id),
+                    ) == mismatch_snapshot
+                assert_independently(lambda: assert_fresh_reuse_get(history=history))
+                assert owner.transport_calls == []
+
+            assert source_entries == []
+            assert n5_entries == []
+            assert ledger_store.snapshot_safe() == ledger_before
+            assert ledger_path.read_bytes() == ledger_bytes_before
+            return SimpleNamespace(
+                job_id=job_id,
+                terminal_history=history,
+                terminal_ref=terminal_ref,
+                standard_invocation_units_before=standard_units,
+                standard_invocation_units_after=_standard_invocation_units(
+                    control=control, run_id=origin.run_id
+                ),
+            )
+
+        def assert_wrong_reuse_refused(*, predecessor: object) -> None:
+            # A still-valid old B1 terminal cannot replace the selected B2
+            # head. Nor can a different genuine N5 result from the A cycle.
+            stale = reuse_request(predecessor=first, generation=3)
+            current = reuse_request(predecessor=predecessor, generation=3)
+            a_result = origin.effective_source_cycle.simulation.simulation_result_ref
+            assert a_result is not None and a_result != current.n5_result_ref
+            foreign = CandidateExperimentReuseActionRequest.model_validate(
+                {
+                    **current.model_dump(mode="python"),
+                    "n5_result_ref": a_result.model_dump(mode="python"),
+                }
+            )
+            heads_before = control._control_store.list_acquisition_action_heads_for_source(
+                **action_heads_scope
+            )
+            with trust.authorization_exchange("acquisition-operator"):
+                for request, expected_codes in (
+                    (
+                        stale,
+                        {
+                            "candidate_experiment_reuse_predecessor_not_current",
+                            "candidate_experiment_reuse_predecessor_not_latest_verified",
+                            "candidate_experiment_reuse_predecessor_not_current_control_head",
+                        },
+                    ),
+                    (foreign, {"candidate_experiment_reuse_predecessor_pins_mismatch"}),
+                ):
+                    denied, _ = trust.post(
+                        client,
+                        reuse_path + "/decision-request",
+                        request.model_dump(mode="json"),
+                        route=reuse_route + "/decision-request",
+                    )
+                    assert denied.status_code == 409, denied.text
+                    assert denied.json()["code"] in expected_codes
+            assert (
+                control._control_store.list_acquisition_action_heads_for_source(
+                    **action_heads_scope
+                )
+                == heads_before
+            )
+
+        def assert_withdrawn_source_refused(*, action_values: dict[str, object]) -> None:
+            action_origin = action_values["origin"]
+            action_request = action_values["request"]
+            action_decision_ref = action_values["decision_ref"]
+            providers = control._registry_providers
+            assert providers.candidate_unpriced_policy_templates == (policy_owner.template,)
+            heads_before = control._control_store.list_acquisition_action_heads_for_source(
+                **action_heads_scope
+            )
+            assert len(heads_before) == 3
+            job_id = action_service._candidate_experiment_job_id(action_origin, action_request)
+            assert control._control_store.get_job(job_id) is None
+            path = (
+                f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment/"
+                f"{origin.route_id}/execute"
+            )
+            units = _standard_invocation_units(control=control, run_id=origin.run_id)
+            with monkeypatch.context() as withdrawal, _forbid_retained_generation_n5() as entries:
+                withdrawal.setattr(
+                    control,
+                    "_registry_providers",
+                    replace(providers, candidate_unpriced_policy_templates=()),
+                )
+                denied, _ = trust.post(
+                    client,
+                    path,
+                    {
                         "request": action_request.model_dump(mode="json"),
                         "decision_ref": str(action_decision_ref),
-                    }
-                    job_id = action_service._candidate_experiment_job_id(
-                        action_origin, action_request
+                    },
+                    route="/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                )
+                assert denied.status_code == 409, denied.text
+                assert denied.json()["code"] == "candidate_experiment_policy_not_unique"
+            assert entries == []
+            assert control._control_store.get_job(job_id) is None
+            assert (
+                control._control_store.list_acquisition_action_heads_for_source(
+                    **action_heads_scope
+                )
+                == heads_before
+            )
+            assert _standard_invocation_units(control=control, run_id=origin.run_id) == units
+
+        def run_changed_source() -> object:
+            result: dict[str, object] = {}
+            authority_valid_until = datetime.now(UTC) + timedelta(minutes=90)
+
+            def execute_after_replay(**action_values: object) -> None:
+                assert_independently(
+                    lambda: assert_withdrawn_source_refused(action_values=action_values)
+                )
+                # Reopen the real current source and evaluation owners before
+                # C's source request and second numerical N5. This is a dry
+                # port preflight: it validates the exact changed-generation
+                # route without reserving a lease, fetching bytes, or running N5.
+                c_origin = action_values["origin"]
+                c_values = action_values["values"]
+                assert len(c_origin.candidate_terminal_history_chain) == 3
+                assert tuple(
+                    item.head.action_generation
+                    for item in c_origin.candidate_terminal_history_chain
+                ) == (1, 2, 3)
+                assert (
+                    _standard_invocation_units(control=c_values["control"], run_id=c_origin.run_id)
+                    == 4
+                )
+                with (
+                    candidate_experiment_served_execution_owner(
+                        action_service=c_values["action_service"],
+                        origin=c_origin,
+                        policy_owner=policy_owner,
+                        monkeypatch=monkeypatch,
+                        wdi_response_value=21.0,
+                    ) as c_preflight,
+                    _forbid_retained_generation_n5() as c_preflight_n5,
+                ):
+                    selected_route = c_preflight.port.preflight_candidate_experiment(
+                        origin=c_origin
                     )
-                    heads_before = (
-                        action_control._control_store.list_acquisition_action_heads_for_source(
-                            tenant_id=action_origin.tenant_id,
-                            cell_id=action_origin.cell_id,
-                            run_id=action_origin.run_id,
-                            source_job_id=action_origin.source_job_id,
-                        )
+                    assert selected_route == c_preflight.selection
+                    assert selected_route.candidate_digest == c_origin.policy_scope.candidate_digest
+                    assert (
+                        selected_route.tenant_id,
+                        selected_route.cell_id,
+                        selected_route.run_id,
+                        selected_route.route_id,
+                        selected_route.target_slot_id,
+                        selected_route.country_code,
+                        selected_route.year,
+                        selected_route.population,
+                    ) == (
+                        c_origin.tenant_id,
+                        c_origin.cell_id,
+                        c_origin.run_id,
+                        c_origin.route_id,
+                        "global.unemployment_rate",
+                        "USA",
+                        2024,
+                        "total_labor_force",
                     )
-                    assert len(heads_before) == 1
-                    assert heads_before[0].action_generation == 1
-                    assert heads_before[0].receipt_phase == "terminal"
-                    assert heads_before[0].job_id == first.job_id
-                    units_before = _standard_invocation_units(
-                        control=action_control,
-                        run_id=action_origin.run_id,
+                    assert c_preflight.transport_calls == []
+                    assert c_preflight.execution_calls == []
+                    assert c_preflight_n5 == []
+                execution = run_candidate_experiment_served_execution(
+                    values=action_values["values"],
+                    origin=action_values["origin"],
+                    request=action_values["request"],
+                    decision_ref=action_values["decision_ref"],
+                    policy_owner=policy_owner,
+                    monkeypatch=monkeypatch,
+                    wdi_response_value=21.0,
+                )
+                assert_independently(
+                    lambda: assert_exact_retry_and_fresh_get(
+                        action_values=action_values,
+                        execution=execution,
                     )
-                    assert units_before == first.standard_invocation_units_after == 4
-                    assert action_control._control_store.get_job(job_id) is None
-
-                    n5_calls: list[object] = []
-
-                    def forbid_n5(*args: object, **kwargs: object) -> object:
-                        n5_calls.append((args, kwargs))
-                        raise AssertionError("withdrawn candidate policy reached the N5 producer")
-
-                    try:
-                        action_control._registry_providers = replace(
-                            providers_before,
-                            candidate_unpriced_policy_templates=(),
-                        )
-                        with monkeypatch.context() as no_n5:
-                            no_n5.setattr(
-                                JointSimulationHorizonController,
-                                "run",
-                                forbid_n5,
-                            )
-                            denied, _ = action_trust.post(
-                                action_client,
-                                execute_path,
-                                execute_body,
-                                route=execute_route,
-                            )
-                        assert denied.status_code == 409, denied.text
-                        assert denied.json()["code"] == "candidate_experiment_policy_not_unique"
-                        assert action_control._control_store.get_job(job_id) is None
-                        assert (
-                            action_control._control_store.list_acquisition_action_heads_for_source(
-                                tenant_id=action_origin.tenant_id,
-                                cell_id=action_origin.cell_id,
-                                run_id=action_origin.run_id,
-                                source_job_id=action_origin.source_job_id,
-                            )
-                            == heads_before
-                        )
-                        assert (
-                            _standard_invocation_units(
-                                control=action_control,
-                                run_id=action_origin.run_id,
-                            )
-                            == units_before
-                        )
-                        assert n5_calls == []
-                    finally:
-                        action_control._registry_providers = providers_before
-
-                    selected_ref_after, selected_policy_after = (
-                        resolve_current_candidate_unpriced_policy(
-                            control_service=action_control,
-                            scope=action_origin.policy_scope,
-                        )
-                    )
-                    assert selected_ref_after == selected_ref_before
-                    assert selected_policy_after == selected_policy_before
-
-                execution_kwargs = {
-                    "values": action_values["values"],
-                    "origin": action_values["origin"],
-                    "request": action_values["request"],
-                    "decision_ref": action_values["decision_ref"],
-                    "policy_owner": policy_owner,
-                    "monkeypatch": monkeypatch,
-                }
-                if wdi_response_value is not None:
-                    execution_kwargs["wdi_response_value"] = wdi_response_value
-                if generation in (2, 3):
-                    # Each explicit new admission legitimately fetches its own
-                    # source bytes; an equivalent basis must not rerun N5.
-                    with _forbid_retained_generation_n5() as n5_entries:
-                        execution = run_candidate_experiment_served_execution(**execution_kwargs)
-                    assert n5_entries == []
-                else:
-                    execution = run_candidate_experiment_served_execution(**execution_kwargs)
-                assert_exact_retry_and_fresh_get(
-                    action_values=action_values,
-                    execution=execution,
                 )
                 result["execution"] = execution
 
             action_result = run_candidate_experiment_action_oracle(
-                tmp_path=tmp_path / f"candidate-generation-{generation}",
+                tmp_path=tmp_path / "candidate-generation-4",
                 values=values,
                 policy_ref=policy_ref,
                 monkeypatch=monkeypatch,
-                idempotency_key=(f"served-labor-candidate-experiment-generation-{generation}"),
+                idempotency_key="served-labor-candidate-experiment-generation-4",
                 exercise_controls=False,
                 after_replay=execute_after_replay,
+                authority_valid_until=authority_valid_until,
             )
             assert action_result["policy_ref"] == str(policy_ref.artifact_id)
-            execution = result.get("execution")
-            assert execution is not None, f"generation {generation} did not execute"
-            return execution
+            return result["execution"]
 
-        second = run_followup(generation=2)
-        third = run_followup(generation=3)
-        fourth = run_followup(generation=4, wdi_response_value=21.0)
-        executions = (first, second, third, fourth)
+        b1 = first
+        b2 = run_reuse(generation=2, predecessor=b1)
+        assert_independently(lambda: assert_wrong_reuse_refused(predecessor=b2))
+        b3 = run_reuse(generation=3, predecessor=b2)
+        changed = run_changed_source()
+        executions = (b1, b2, b3, changed)
+        changed_history = changed.terminal_history
+        changed_terminal = changed_history.terminal
+        changed_current_basis = changed_history.current_basis
+        changed_basis = changed_history.selected_basis
+        assert changed.standard_invocation_units_before == 4
+        assert changed.standard_invocation_units_after == 6
+        assert len(changed.execution_owner.execution_calls) == 1
+        assert changed.execution_owner.execution_calls[0].exception_chain is None
+        assert_independently(
+            lambda: _assert_changed_candidate_n5_numeric_outcomes(
+                control=control, first=first, changed=changed, allow_blocked=True
+            )
+        )
+        # Report a failed current selection after testing the actual outputs.
+        if changed_basis is None or changed_basis.basis_role != "evaluated":
+            reasons = changed_basis.reason_codes if changed_basis is not None else ()
+            raise ExceptionGroup(
+                "Changed source produced no selected evaluated basis",
+                [*independent_failures, AssertionError(f"C basis blockers: {reasons}")],
+            )
 
         # A later frontier advance must not invalidate the immutable history of
         # an earlier committed terminal. The last terminal still has to match
         # the live selected frontier.
-        control = first_values["control"]
         for execution in executions:
             reopened = verify_candidate_experiment_terminal_history(
                 control_service=control,
@@ -610,7 +1113,7 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             )
             assert reopened.frontier_after == execution.terminal_history.frontier_after
 
-        latest = executions[-1]
+        latest = changed
         latest_frontier = latest.terminal_history.frontier_after
         assert latest_frontier is not None
         read_frontier = control._control_store.read_acquisition_evaluation_frontier
@@ -668,12 +1171,25 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             3,
             4,
         )
-        assert second.standard_invocation_units_before == 4
-        assert second.standard_invocation_units_after == 4
-        assert third.standard_invocation_units_before == 4
-        assert third.standard_invocation_units_after == 4
-        assert fourth.standard_invocation_units_before == 4
-        assert fourth.standard_invocation_units_after == 6
+        assert (
+            b1.terminal_history.action.attempt_id,
+            changed.terminal_history.action.attempt_id,
+        ) == authorized_attempt_ids
+        assert (
+            len(b1.execution_owner.transport_calls)
+            == len(changed.execution_owner.transport_calls)
+            == 1
+        )
+        assert len({item.job_id for item in executions}) == len(executions)
+        assert len(
+            {artifacts.artifact_ref_identity_key(item.terminal_ref) for item in executions}
+        ) == len(executions)
+        assert b1.standard_invocation_units_before == 2
+        assert b1.standard_invocation_units_after == 4
+        assert b2.standard_invocation_units_before == 4
+        assert b2.standard_invocation_units_after == 4
+        assert b3.standard_invocation_units_before == 4
+        assert b3.standard_invocation_units_after == 4
 
         # Each later request is based on the exact ordered history and current source.
         for prior_count, execution in enumerate(executions[1:], start=1):
@@ -683,6 +1199,10 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
                 range(1, prior_count + 1)
             )
             assert len(current_chain) == prior_count
+            assert current_origin.source_attempt_prefix == authorized_attempt_ids[:1]
+            assert execution.terminal_history.action.attempt_id == (
+                authorized_attempt_ids[1] if execution is changed else authorized_attempt_ids[0]
+            )
             for prior_execution, current_history in zip(
                 executions[:prior_count], current_chain, strict=True
             ):
@@ -695,10 +1215,11 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             assert current_origin.policy_ref == policy_ref
             assert current_origin.action_authority == "not_established"
             assert execution.terminal_history.current_basis is not None
-            assert (
-                execution.terminal_history.current_basis.preparation_inputs.base_world_model_ref
-                == initial_history.reentry.world_model_ref
-            )
+            preparation = execution.terminal_history.current_basis.preparation_inputs
+            if execution is changed:
+                assert preparation.base_world_model_ref == initial_history.reentry.world_model_ref
+            else:
+                assert preparation == initial_basis.preparation_inputs
             assert execution.terminal_history.source.status == "candidate_only"
             assert execution.terminal_history.source.observation_class == "model_output"
             assert (
@@ -710,11 +1231,12 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             )
             assert current_origin.effective_source_cycle == initial_history.reentry.new_cycle
 
-        # B2 and B3 recompute current cheap consequences while retaining the
+        # B2/B3 recompute current cheap consequences while retaining the
         # exact prior N5 witness and atomically advancing the selected frontier.
         retained_frontiers = []
         retained_continuations = []
-        for index, execution in enumerate((second, third), start=1):
+        retained_n5_refs = []
+        for index, execution in enumerate((b2, b3), start=1):
             history = execution.terminal_history
             terminal = history.terminal
             basis = history.current_basis
@@ -735,6 +1257,14 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             assert basis.publication_authority is False
             assert selected_basis == initial_basis
             assert terminal.selected_evaluation == initial_selected_evaluation
+            assert terminal.selected_evaluation is not None
+            retained_n5_refs.append(
+                (
+                    terminal.selected_evaluation.n5_input_ref,
+                    terminal.selected_evaluation.n5_execution_ref,
+                    terminal.selected_evaluation.n5_result_ref,
+                )
+            )
             assert terminal.selected_evaluation_witness_ref == (
                 initial_terminal.selected_evaluation_witness_ref
             )
@@ -747,11 +1277,6 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             assert continuation.observed_admission is False
             assert continuation.publication_authority is False
             assert history.source.observation == initial_history.source.observation
-            assert execution.current_action.evaluation_disposition == "retained"
-            assert execution.current_action.selected_receipt_ref is not None
-            assert execution.current_action.selected_receipt_ref.manifest_profile_sha256
-            assert execution.current_action.selected_receipt_ref == execution.terminal_ref
-            assert len(execution.execution_owner.transport_calls) == 1
             assert history.frontier_before is not None
             assert history.frontier_after is not None
             assert history.frontier_after.revision == history.frontier_before.revision + 1
@@ -761,17 +1286,31 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             retained_frontiers.append(history.frontier_after)
             retained_continuations.append(terminal.current_continuation_ref)
 
-        assert second.terminal_history.frontier_before == initial_frontier
-        assert third.terminal_history.frontier_before == retained_frontiers[0]
+        assert b2.terminal_history.frontier_before == initial_frontier
+        assert b3.terminal_history.frontier_before == retained_frontiers[0]
         assert retained_frontiers[0].frontier_ref != retained_frontiers[1].frontier_ref
         assert retained_continuations[0] != retained_continuations[1]
+        assert (
+            retained_n5_refs[0]
+            == retained_n5_refs[1]
+            == (
+                initial_selected_evaluation.n5_input_ref,
+                initial_selected_evaluation.n5_execution_ref,
+                initial_selected_evaluation.n5_result_ref,
+            )
+        )
+        b2_occurrence = b2.terminal_history.reuse_occurrence
+        b3_occurrence = b3.terminal_history.reuse_occurrence
+        assert b2_occurrence is not None and b3_occurrence is not None
+        assert b2_occurrence.pa2_decision_ref != b3_occurrence.pa2_decision_ref
+        assert b2_occurrence.executing_phase_ref != b3_occurrence.executing_phase_ref
+        assert b2_occurrence.control_payload_ref != b3_occurrence.control_payload_ref
+        assert b2.terminal_history.terminal.reuse_occurrence_ref != (
+            b3.terminal_history.terminal.reuse_occurrence_ref
+        )
 
         # C changes the actual WDI observation, so it must produce a new basis,
         # N5 witness, and model transition instead of retaining the old result.
-        changed_history = fourth.terminal_history
-        changed_terminal = changed_history.terminal
-        changed_current_basis = changed_history.current_basis
-        changed_basis = changed_history.selected_basis
         assert changed_history.decision is not None
         assert changed_history.decision.comparison_result == "different"
         assert changed_history.decision.predicate_provenance == "recomputed"
@@ -784,8 +1323,6 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert changed_current_basis.effective_values_sha256 != (
             initial_basis.effective_values_sha256
         )
-        assert changed_basis is not None
-        assert changed_basis.basis_role == "evaluated"
         assert changed_basis.predicate_provenance == "recomputed"
         assert changed_basis.effective_values_sha256 != initial_basis.effective_values_sha256
         assert changed_history.source.observation == pytest.approx(0.21)
@@ -802,9 +1339,8 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             source_cycle=predecessor_run.cycles[-1],
         )
         _assert_candidate_experiment_n5_uses_current_wmr(
-            control=control, origin=preceding_view, execution=fourth
+            control=control, origin=preceding_view, execution=changed
         )
-        _assert_changed_candidate_n5_numeric_outcomes(control=control, first=first, changed=fourth)
         assert changed_basis.selected_data_snapshot_ref != initial_basis.selected_data_snapshot_ref
         assert changed_basis.selected_world_model_ref != initial_basis.selected_world_model_ref
         assert changed_basis.selected_data_snapshot_ref is not None
@@ -816,40 +1352,22 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert changed_history.reentry is not None
         transition = changed_history.reentry.basis_transition
         assert transition.to_cycle_index == transition.from_cycle_index + 1
-        assert transition.data_snapshot_ref.artifact_id == (
-            changed_basis.selected_data_snapshot_ref.artifact_id
-        )
-        assert transition.data_snapshot_ref.manifest_profile_sha256 == (
-            changed_basis.selected_data_snapshot_ref.manifest_profile_sha256
-        )
-        assert transition.world_model_ref.artifact_id == (
-            changed_basis.selected_world_model_ref.artifact_id
-        )
-        assert transition.world_model_ref.manifest_profile_sha256 == (
-            changed_basis.selected_world_model_ref.manifest_profile_sha256
-        )
+        assert artifacts.artifact_ref_identity_key(
+            transition.data_snapshot_ref
+        ) == artifacts.artifact_ref_identity_key(changed_basis.selected_data_snapshot_ref)
+        assert artifacts.artifact_ref_identity_key(
+            transition.world_model_ref
+        ) == artifacts.artifact_ref_identity_key(changed_basis.selected_world_model_ref)
         assert changed_terminal.selected_evaluation is not None
-        assert transition.n5_input_ref is not None
-        assert transition.n5_execution_ref is not None
-        assert transition.n5_result_ref is not None
-        assert transition.n5_input_ref.artifact_id == (
-            changed_terminal.selected_evaluation.n5_input_ref.artifact_id
-        )
-        assert transition.n5_input_ref.manifest_profile_sha256 == (
-            changed_terminal.selected_evaluation.n5_input_ref.manifest_profile_sha256
-        )
-        assert transition.n5_execution_ref.artifact_id == (
-            changed_terminal.selected_evaluation.n5_execution_ref.artifact_id
-        )
-        assert transition.n5_execution_ref.manifest_profile_sha256 == (
-            changed_terminal.selected_evaluation.n5_execution_ref.manifest_profile_sha256
-        )
-        assert transition.n5_result_ref.artifact_id == (
-            changed_terminal.selected_evaluation.n5_result_ref.artifact_id
-        )
-        assert transition.n5_result_ref.manifest_profile_sha256 == (
-            changed_terminal.selected_evaluation.n5_result_ref.manifest_profile_sha256
-        )
+        for actual, selected in (
+            (transition.n5_input_ref, changed_terminal.selected_evaluation.n5_input_ref),
+            (transition.n5_execution_ref, changed_terminal.selected_evaluation.n5_execution_ref),
+            (transition.n5_result_ref, changed_terminal.selected_evaluation.n5_result_ref),
+        ):
+            assert actual is not None
+            assert artifacts.artifact_ref_identity_key(
+                actual
+            ) == artifacts.artifact_ref_identity_key(selected)
         assert changed_terminal.selected_evaluation.n5_input_ref != (
             initial_selected_evaluation.n5_input_ref
         )
@@ -870,11 +1388,11 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert changed_history.frontier_after.selected_evaluation_witness_ref == str(
             changed_terminal.selected_evaluation_witness_ref.artifact_id
         )
-        assert fourth.current_action.evaluation_disposition == "new"
-        assert fourth.current_action.selected_receipt_ref is not None
-        assert fourth.current_action.selected_receipt_ref.manifest_profile_sha256
-        assert fourth.current_action.selected_receipt_ref == fourth.terminal_ref
-        assert len(fourth.execution_owner.transport_calls) == 1
+        assert changed.current_action.evaluation_disposition == "new"
+        assert changed.current_action.selected_receipt_ref is not None
+        assert changed.current_action.selected_receipt_ref.manifest_profile_sha256
+        assert changed.current_action.selected_receipt_ref == changed.terminal_ref
+        assert len(changed.execution_owner.transport_calls) == 1
 
         snapshot = control._llm_producer_settlement_store.snapshot_safe()
         profile = snapshot.invocation_profiles[origin.run_id]
@@ -901,6 +1419,10 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert protected_used == 0
         assert protected_remaining == 1
 
+        if independent_failures:
+            raise ExceptionGroup(
+                "Independent candidate experiment controls failed", independent_failures
+            )
         observed["executions"] = executions
         observed["policy_scope"] = root_policy_scope
 
@@ -909,7 +1431,9 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         monkeypatch=monkeypatch,
         gateway=served_recorded_candidate_gateway,
         total_units=7,
+        subsequent_attempt_ids=("lane01-generation-c",),
         after_execution=after_first_execution,
+        authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
     )
     assert scenario["source_status"] == "completed"
     assert len(observed["executions"]) == 4

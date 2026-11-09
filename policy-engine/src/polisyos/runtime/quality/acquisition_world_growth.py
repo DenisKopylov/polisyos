@@ -108,7 +108,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
-    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+    from polisyos.scientist import SchedulingDecision
     from polisyos.scientist.orchestration.engine import (
         BudgetInvocationCapacityObservation,
         BudgetInvocationQuotaPolicy,

@@ -24,6 +24,7 @@ from polisyos.pdc import OperationClass, OperationContract, OperationInvocationR
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
     AcquisitionCandidateExperimentTerminalReceipt,
+    AcquisitionCandidateExperimentTerminalReceiptV2,
     AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
@@ -38,7 +39,10 @@ from polisyos.runtime.quality.acquisition_route_loop import (
 )
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
+    AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
+    AGENT_ACTION_DECISION_ARTIFACT_KIND,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
     MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityRecordingError,
@@ -50,6 +54,10 @@ from polisyos.runtime.quality.agent_action_authority import (
     agent_action_content_hash,
     produce_agent_action_authority_decision,
     reserve_agent_external_action,
+)
+from polisyos.runtime.quality.candidate_experiment_reuse import (
+    CandidateExperimentReuseActionRequest,
+    CandidateExperimentReuseActionSelection,
 )
 
 from .control import ControlPlaneService
@@ -84,6 +92,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
 
+    from .control.run_lifecycle import VerifiedAcquisitionActionOutcome
     from .control_plane_store import (
         AcquisitionActionHeadRecord,
         ControlJobExecutionAdmission,
@@ -237,6 +246,21 @@ class CandidateExperimentRouteExecutionRequest(BaseModel):
 
     request: CandidateExperimentRouteMutationRequest
     decision_ref: str = Field(pattern=_SHA256_PATTERN)
+
+
+class CandidateExperimentReuseActionExecutionRequest(BaseModel):
+    """Exact signed no-fetch reuse request selected for one deferred worker job."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    request: CandidateExperimentReuseActionRequest
+    decision_ref: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _require_exact_reuse_request(self) -> CandidateExperimentReuseActionExecutionRequest:
+        if type(self.request) is not CandidateExperimentReuseActionRequest:
+            raise ValueError("candidate_experiment_reuse_execution_request_untyped")
+        return self
 
 
 class CandidateExperimentN5ResultProjection(BaseModel):
@@ -758,6 +782,29 @@ class AcquisitionAuthorityGatewayProvider(Protocol):
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionAuthorityGateway: ...
 
+    def for_candidate_experiment_reuse_request(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        bound_permission: BoundActionPermissionVerification,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway: ...
+
+    def for_candidate_experiment_reuse_job(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        decision_ref: str,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway: ...
+
+    def load_candidate_experiment_reuse_decision_history(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory: ...
+
     def load_candidate_experiment_decision_history(
         self,
         *,
@@ -1032,6 +1079,8 @@ class AcquisitionActionService:
             return self._handle_model_input_use_job(job, payload, execution_scope)
         if payload.get("action_kind") == CANDIDATE_EXPERIMENT_ACTION_KIND:
             return self._handle_candidate_experiment_job(job, payload, execution_scope)
+        if payload.get("action_kind") == CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND:
+            return self._handle_candidate_experiment_reuse_job(job, payload, execution_scope)
 
         if job.kind != "acquisition" or job.run_id is None:
             raise AcquisitionActionServiceError("acquisition_job_kind_mismatch")
@@ -1537,7 +1586,11 @@ class AcquisitionActionService:
             ) from exc
 
         if current_terminal is not None and (
-            type(current_terminal.terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+            type(current_terminal.terminal)
+            not in {
+                AcquisitionCandidateExperimentTerminalReceipt,
+                AcquisitionCandidateExperimentTerminalReceiptV2,
+            }
             or current_terminal.terminal_ref != selected_receipt_ref
         ):
             raise AcquisitionActionServiceError(
@@ -1545,9 +1598,19 @@ class AcquisitionActionService:
             )
         terminal = current_terminal.terminal if current_terminal is not None else None
         blocker_reason = None if terminal is None else terminal.blocker_reason
+        selected_evaluation = None if terminal is None else terminal.selected_evaluation
+        if (
+            current_terminal is not None
+            and type(terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+            and terminal.terminal_outcome == "candidate_evaluation_retained"
+        ):
+            selected_evaluation = self._candidate_experiment_v2_selected_evaluation_projection(
+                current_terminal
+            )
         if (
             current_terminal is not None
             and terminal is not None
+            and type(terminal) is AcquisitionCandidateExperimentTerminalReceipt
             and terminal.terminal_outcome == "candidate_reentry_completed"
             and terminal.selected_evaluation is None
         ):
@@ -1568,6 +1631,7 @@ class AcquisitionActionService:
             self._candidate_experiment_n5_result_projection(current_terminal)
             if current_terminal is not None
             and terminal is not None
+            and type(terminal) is AcquisitionCandidateExperimentTerminalReceipt
             and terminal.terminal_outcome == "candidate_reentry_completed"
             and terminal.selected_evaluation is None
             else None
@@ -1576,6 +1640,7 @@ class AcquisitionActionService:
             self._candidate_experiment_prior_n5_result_projection(current_terminal)
             if current_terminal is not None
             and terminal is not None
+            and type(terminal) is AcquisitionCandidateExperimentTerminalReceipt
             and terminal.terminal_outcome == "candidate_blocked"
             and terminal.blocker_reason == "candidate_experiment_input_change_not_established"
             else None
@@ -1586,11 +1651,56 @@ class AcquisitionActionService:
             selected_receipt_ref=selected_receipt_ref,
             current_terminal_head=None if current_terminal is None else current_terminal.head,
             terminal_outcome=None if terminal is None else terminal.terminal_outcome,
-            selected_evaluation=None if terminal is None else terminal.selected_evaluation,
+            selected_evaluation=selected_evaluation,
             candidate_n5_result=candidate_n5_result,
             prior_candidate_n5_result=prior_candidate_n5_result,
             blocker_reason=blocker_reason,
         )
+
+    @staticmethod
+    def _candidate_experiment_v2_selected_evaluation_projection(
+        history: CandidateExperimentTerminalHistory,
+    ) -> AcquisitionSelectedEvaluation:
+        """Project only the prior N5 selected by an owner-verified V2 reuse history."""
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        )
+        from polisyos.runtime.quality.candidate_experiment_reuse import (
+            _selected_predecessor_evaluation,
+        )
+        from polisyos.runtime.quality.candidate_experiment_reuse_occurrence import (
+            CandidateExperimentReuseOccurrence,
+        )
+
+        if (
+            type(history) is not CandidateExperimentTerminalHistory
+            or type(history.terminal) is not AcquisitionCandidateExperimentTerminalReceiptV2
+            or history.terminal.terminal_outcome != "candidate_evaluation_retained"
+            or type(history.reuse_occurrence_ref) is not artifacts.ArtifactRef
+            or history.terminal.reuse_occurrence_ref != history.reuse_occurrence_ref
+            or history.reuse_occurrence_ref.manifest_profile_sha256 is None
+            or type(history.reuse_occurrence) is not CandidateExperimentReuseOccurrence
+            or history.reuse_occurrence.selection.n5_result_ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_selected_n5_not_established"
+            )
+        try:
+            selected = _selected_predecessor_evaluation(history).selected
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_selected_n5_not_established"
+            ) from exc
+        if (
+            type(selected) is not AcquisitionSelectedEvaluation
+            or selected.n5_input_ref != history.reuse_occurrence.selection.n5_input_ref
+            or selected.n5_execution_ref != history.reuse_occurrence.selection.n5_execution_ref
+            or selected.n5_result_ref != history.reuse_occurrence.selection.n5_result_ref
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_selected_n5_not_established"
+            )
+        return selected
 
     def _candidate_experiment_prior_n5_result_projection(
         self,
@@ -1929,32 +2039,52 @@ class AcquisitionActionService:
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
         loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+        pins = request.replay_pins
+        store = self.control_service._control_store
         try:
-            root = loop._resolve_candidate_experiment_source(run_id=run_id)
-            job_id = self._candidate_experiment_job_id(root, request)
-            selected_heads = (
-                self.control_service._control_store.list_acquisition_action_heads_for_source(
+            historical_head = None
+            if not require_current and pins.predecessor_terminal_ref is None:
+                historical_head = store.get_acquisition_action_head(
                     tenant_id=tenant_id,
                     cell_id=cell_id,
                     run_id=run_id,
-                    source_job_id=root.source_job_id,
+                    source_job_id=pins.source_job_id,
+                    route_id=request.route_id,
+                    action_generation=1,
                 )
+            historical_policy_ref = (
+                pins.policy_ref
+                if not require_current
+                and (pins.predecessor_terminal_ref is not None or historical_head is not None)
+                else None
             )
-            own_heads = tuple(head for head in selected_heads if head.job_id == job_id)
-            if len(own_heads) > 1:
-                raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
             origin = loop.resolve_candidate_experiment_predecessor_origin(
                 run_id=run_id,
-                predecessor_terminal_ref=request.replay_pins.predecessor_terminal_ref,
-                expected_action_generation=(own_heads[0].action_generation if own_heads else None),
+                predecessor_terminal_ref=pins.predecessor_terminal_ref,
+                historical_policy_ref=historical_policy_ref,
+                historical_action_job_id=(
+                    None if historical_head is None else historical_head.job_id
+                ),
             )
+            if require_current and pins.predecessor_terminal_ref is not None:
+                live_root = loop._resolve_candidate_experiment_source(run_id=run_id)
+                historical_root = replace(
+                    origin,
+                    current_action_head=None,
+                    current_terminal_history=None,
+                    candidate_terminal_history_chain=(),
+                )
+                if not _candidate_model_values_same(live_root, historical_root):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_predecessor_not_current"
+                    )
         except AcquisitionRouteClosureError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
         if request.route_id != origin.route_id or not _candidate_model_values_same(
             request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
         ):
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
-        heads = self.control_service._control_store.list_acquisition_action_heads_for_source(
+        heads = store.list_acquisition_action_heads_for_source(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
@@ -2181,6 +2311,562 @@ class AcquisitionActionService:
             ),
         )
 
+    def request_candidate_experiment_reuse_decision(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionRequest,
+        bound_permission: BoundActionPermissionVerification,
+    ) -> AcquisitionDecisionRequestResponse:
+        """Persist PA2 for one exact no-fetch reuse of a prior candidate result."""
+        from polisyos.runtime.quality.candidate_experiment_reuse import (
+            candidate_experiment_reuse_action_tuple,
+        )
+
+        if type(request) is not CandidateExperimentReuseActionRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_reuse_request_untyped")
+        if request.route_id != route_id:
+            raise AcquisitionActionServiceError("candidate_experiment_reuse_route_mismatch")
+        selection = self._resolve_candidate_experiment_reuse_selection(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=request,
+        )
+
+        try:
+            operation, invocation, intent = candidate_experiment_reuse_action_tuple(selection)
+        except (TypeError, ValueError) as exc:
+            code = str(exc)
+            raise AcquisitionActionServiceError(
+                code
+                if code.startswith("candidate_experiment_reuse_")
+                else "candidate_experiment_reuse_action_tuple_not_established"
+            ) from exc
+        provider = self._require_candidate_experiment_reuse_authority_provider()
+
+        def _no_effect(_invocation: OperationInvocationRecord) -> object:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_execution_requires_worker"
+            )
+
+        try:
+            gateway = provider.for_candidate_experiment_reuse_request(
+                selection=selection,
+                bound_permission=bound_permission,
+                effect_handler=_no_effect,
+            )
+            with agent_action_authority_scope(gateway):
+                decision = produce_agent_action_authority_decision(
+                    bound_permission=bound_permission,
+                    operation=operation,
+                    invocation=invocation,
+                    intent=intent,
+                )
+                persisted = gateway.persist_decision(decision)
+        except AcquisitionActionServiceError:
+            raise
+        except AgentActionAuthorityRecordingError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        except artifacts.ArtifactOwnershipError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except PermissionError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            code = getattr(exc, "code", None)
+            raise AcquisitionActionServiceError(
+                code
+                if isinstance(code, str) and code.startswith("candidate_experiment_reuse_")
+                else "candidate_experiment_reuse_decision_not_established"
+            ) from exc
+
+        return AcquisitionDecisionRequestResponse(
+            run_id=run_id,
+            route_id=route_id,
+            authority_decision_ref=str(persisted.write_result.cas_ref.artifact_id),
+            outcome=(
+                "decision_required" if decision.outcome == "refused" else "decision_available"
+            ),
+            human_decision_request=(
+                decision.human_decision_request.model_dump(mode="json")
+                if decision.human_decision_request is not None
+                else None
+            ),
+        )
+
+    def _resolve_candidate_experiment_reuse_selection(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionRequest,
+    ) -> CandidateExperimentReuseActionSelection:
+        """Resolve one current predecessor under the composed Catalog owner."""
+        from polisyos.runtime.quality.candidate_experiment_reuse import (
+            resolve_candidate_experiment_reuse_action_selection,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        try:
+            selection = run_catalog_source_call(
+                self.control_service.catalog_serving_source,
+                lambda: resolve_candidate_experiment_reuse_action_selection(
+                    control_service=self.control_service,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    request=request,
+                ),
+            )
+        except artifacts.ArtifactOwnershipError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except PermissionError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            if isinstance(exc, AcquisitionActionServiceError):
+                raise
+            code = str(exc)
+            raise AcquisitionActionServiceError(
+                code
+                if code.startswith("candidate_experiment_reuse_")
+                else "candidate_experiment_reuse_selection_not_established"
+            ) from exc
+        if (
+            type(selection) is not CandidateExperimentReuseActionSelection
+            or selection.route_id != route_id
+            or selection.request != request
+            or (selection.tenant_id, selection.cell_id, selection.run_id)
+            != (tenant_id, cell_id, run_id)
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_selection_identity_mismatch"
+            )
+        return selection
+
+    def execute_candidate_experiment_reuse(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionExecutionRequest,
+        request_id: str | None,
+        principal: RuntimePrincipal | None,
+    ) -> AcquisitionExecutionResponse:
+        """Queue one signed, candidate-only reuse or replay its exact accepted job."""
+        if (
+            type(request) is not CandidateExperimentReuseActionExecutionRequest
+            or type(request.request) is not CandidateExperimentReuseActionRequest
+            or principal is None
+            or principal.authenticated is not True
+            or principal.tenant_id != tenant_id
+            or principal.cell_id != cell_id
+            or request.request.route_id != route_id
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_reuse_source_scope_refused")
+
+        control = self.control_service
+        try:
+            manifest, _ = artifacts.read_core_manifest_profile(
+                control._artifact_store, artifacts.ArtifactID.model_validate(request.decision_ref)
+            )
+            scope = manifest.same_input_closure
+            if (
+                manifest.kind != AGENT_ACTION_DECISION_ARTIFACT_KIND
+                or manifest.media_type != "application/json"
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name != "polisyos.runtime.AgentActionAuthorityDecision"
+                or manifest.artifact_schema.version != AGENT_ACTION_AUTHORITY_SCHEMA_VERSION
+                or scope is None
+                or not scope.job_id
+            ):
+                raise ValueError("candidate_experiment_reuse_decision_locator_invalid")
+            if (scope.tenant_id, scope.cell_id, scope.run_id) != (tenant_id, cell_id, run_id):
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_reuse_source_scope_refused"
+                )
+            decision_artifact_ref = artifacts.artifact_ref_for_manifest(manifest)
+            # The decision manifest is only a job locator. The new-action path
+            # checks live PA2, and the retry path authenticates the same receipt.
+            job = control._control_store.get_job(scope.job_id)
+            if job is None:
+                try:
+                    return self._enqueue_candidate_experiment_reuse(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=run_id,
+                        route_id=route_id,
+                        request=request,
+                        request_id=request_id,
+                        principal=principal,
+                        job_id=scope.job_id,
+                        decision_artifact_ref=decision_artifact_ref,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError):
+                    # Another request can win the atomic enqueue after our
+                    # first read. Only an exact replay may recover that race.
+                    job = control._control_store.get_job(scope.job_id)
+                    if job is None:
+                        raise
+            return self._replay_enqueued_candidate_experiment_reuse(
+                job,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                principal=principal,
+                decision_artifact_ref=decision_artifact_ref,
+            )
+        except AcquisitionActionServiceError:
+            raise
+        except (artifacts.ArtifactOwnershipError, PermissionError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            code = getattr(exc, "code", None)
+            raw_code = str(code if isinstance(code, str) else exc)
+            raise AcquisitionActionServiceError(
+                raw_code
+                if raw_code.startswith("candidate_experiment_reuse_")
+                else "candidate_experiment_reuse_enqueue_not_established"
+            ) from exc
+
+    def _enqueue_candidate_experiment_reuse(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionExecutionRequest,
+        request_id: str | None,
+        principal: RuntimePrincipal,
+        job_id: str,
+        decision_artifact_ref: artifacts.ArtifactRef,
+    ) -> AcquisitionExecutionResponse:
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        selection = self._resolve_candidate_experiment_reuse_selection(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=request.request,
+        )
+        if selection.action_job_id != job_id:
+            raise ValueError("candidate_experiment_reuse_decision_job_mismatch")
+        control = self.control_service
+        sink = control.acquisition_route_sink
+        if not callable(getattr(sink, "prepare_experiment_reuse_phase_publication", None)):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_lifecycle_owner_unavailable"
+            )
+        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id)
+        origin = run_catalog_source_call(
+            control.catalog_serving_source,
+            lambda: loop.resolve_candidate_experiment_predecessor_origin(
+                run_id=run_id,
+                predecessor_terminal_ref=selection.predecessor_terminal_ref,
+                expected_action_generation=selection.action_generation,
+            ),
+        )
+        if (
+            type(origin) is not VerifiedCandidateExperimentOrigin
+            or len(origin.candidate_terminal_history_chain)
+            != selection.predecessor_action_generation
+            or origin.current_terminal_history is not origin.candidate_terminal_history_chain[-1]
+            or (origin.tenant_id, origin.cell_id, origin.run_id, origin.route_id)
+            != (tenant_id, cell_id, run_id, route_id)
+            or origin.source_job_id != selection.source_job_id
+            or origin.source_payload_ref != selection.source_payload_ref
+            or origin.request_content_hash != selection.request_content_hash
+            or origin.policy_scope != selection.policy_scope
+            or origin.policy_ref != selection.policy_ref
+            or origin.current_terminal_history.terminal_ref != selection.predecessor_terminal_ref
+        ):
+            raise ValueError("candidate_experiment_reuse_predecessor_changed")
+        provider = self._require_candidate_experiment_reuse_execution_authority_provider()
+        history = self._require_candidate_experiment_reuse_decision_subject(
+            selection=selection, decision_ref=request.decision_ref, principal=principal
+        )
+
+        def _no_effect(_invocation: OperationInvocationRecord) -> object:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_execution_requires_worker"
+            )
+
+        gateway = provider.for_candidate_experiment_reuse_job(
+            selection=selection,
+            decision_ref=request.decision_ref,
+            effect_handler=_no_effect,
+        )
+        persisted = gateway.load_persisted_decision(request.decision_ref)
+        if (
+            persisted.decision != history.decision
+            or str(persisted.write_result.cas_ref.artifact_id) != request.decision_ref
+        ):
+            raise ValueError("candidate_experiment_reuse_live_authority_not_established")
+
+        phase = AcquisitionCandidateExperimentPhaseReceipt(
+            receipt_id=f"{selection.action_job_id}.candidate-experiment.requested",
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            action_generation=selection.action_generation,
+            job_id=selection.action_job_id,
+            source_payload_ref=origin.source_payload_ref,
+            capability_manifest_ref=origin.capability_manifest_ref,
+            request_content_hash=origin.request_content_hash,
+            policy_scope=origin.policy_scope,
+            policy_ref=origin.policy_ref,
+            authority_decision_ref=decision_artifact_ref,
+            voi_decision=origin.source_cycle.voi_decision,
+            coarse_phase="requested",
+            receipt_phase="requested",
+            recovery_state="none",
+            predecessor_receipt_ref=None,
+            owner_receipt_refs=(),
+            generated_at=datetime.now(UTC),
+        )
+        prepared = run_catalog_source_call(
+            control.catalog_serving_source,
+            lambda: sink.prepare_experiment_reuse_phase_publication(phase, selection),
+        )
+        job = control.enqueue_acquisition_job(
+            job_id=selection.action_job_id,
+            run_id=run_id,
+            payload=self._candidate_experiment_reuse_payload(selection, request.decision_ref),
+            request_id=request_id,
+            principal=principal,
+            prepared_acquisition_action_head=prepared,
+        )
+        stored_selection = self._read_enqueued_candidate_experiment_reuse_selection(
+            job,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=request,
+            principal=principal,
+        )
+        if stored_selection != selection:
+            raise ValueError("candidate_experiment_reuse_job_readback_mismatch")
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=route_id,
+            job_id=selection.action_job_id,
+            authority_decision_ref=request.decision_ref,
+        )
+
+    @staticmethod
+    def _candidate_experiment_reuse_payload(
+        selection: CandidateExperimentReuseActionSelection, decision_ref: str
+    ) -> dict[str, Any]:
+        return {
+            "action_kind": CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+            "tenant_id": selection.tenant_id,
+            "cell_id": selection.cell_id,
+            "run_id": selection.run_id,
+            "route_id": selection.route_id,
+            "request": selection.request.model_dump(mode="json"),
+            "decision_ref": decision_ref,
+            "reuse_selection": selection.model_dump(mode="json"),
+        }
+
+    def _read_enqueued_candidate_experiment_reuse_selection(
+        self,
+        job: ControlJobRecord,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionExecutionRequest,
+        principal: RuntimePrincipal,
+    ) -> CandidateExperimentReuseActionSelection:
+        """Bind the immutable queue payload and admitted submitter to this request."""
+        if job.kind != "acquisition" or job.run_id != run_id or job.payload_ref is None:
+            raise ValueError("candidate_experiment_reuse_retry_job_mismatch")
+        control = self.control_service
+        scope, _ = control._control_store._reconcile_control_job_creation_envelope(job)
+        if (
+            scope.status != "established"
+            or scope.actor_authenticated is not True
+            or scope.actor_subject != principal.subject
+            or job.submitted_by != principal.subject
+            or (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id)
+            or frozenset(scope.actor_roles) != principal.roles
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_reuse_source_scope_refused")
+        stored = control._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+        payload = ControlPlaneService._job_payload_without_telemetry(stored)
+        selection = CandidateExperimentReuseActionSelection.model_validate(
+            payload.get("reuse_selection")
+        )
+        if (
+            selection.action_job_id != job.job_id
+            or (selection.tenant_id, selection.cell_id, selection.run_id, selection.route_id)
+            != (tenant_id, cell_id, run_id, route_id)
+            or selection.request != request.request
+            or payload != self._candidate_experiment_reuse_payload(selection, request.decision_ref)
+        ):
+            raise ValueError("candidate_experiment_reuse_retry_payload_mismatch")
+        return selection
+
+    def _require_candidate_experiment_reuse_decision_subject(
+        self,
+        *,
+        selection: CandidateExperimentReuseActionSelection,
+        decision_ref: str,
+        principal: RuntimePrincipal,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Verify the original PA2/DS9 decision and the actual approved subject."""
+        provider = self._require_candidate_experiment_reuse_execution_authority_provider()
+        history = provider.load_candidate_experiment_reuse_decision_history(
+            selection=selection, decision_ref=decision_ref
+        )
+        if type(history) is not AuthenticatedAgentActionDecisionHistory:
+            raise ValueError("candidate_experiment_reuse_decision_subject_not_established")
+        permission = history.decision.permission_snapshot
+        if (
+            history.current_authority != "not_revalidated"
+            or history.decision_ref != decision_ref
+            or decision_ref != f"sha256:{history.payload_sha256}"
+            or not history.durable_event_id
+            or not history.signer_identity
+            or history.decision.outcome != "allowed"
+            or history.decision.action_kind != CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+            or permission is None
+            or permission.subject != principal.subject
+            or permission.tenant_id != selection.tenant_id
+            or frozenset(permission.roles) != principal.roles
+        ):
+            raise ValueError("candidate_experiment_reuse_decision_subject_not_established")
+        return history
+
+    def _replay_enqueued_candidate_experiment_reuse(
+        self,
+        job: ControlJobRecord,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentReuseActionExecutionRequest,
+        principal: RuntimePrincipal,
+        decision_artifact_ref: artifacts.ArtifactRef,
+    ) -> AcquisitionExecutionResponse:
+        """Read an accepted request from its selected Control head without work."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_ref_same
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        selection = self._read_enqueued_candidate_experiment_reuse_selection(
+            job,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=request,
+            principal=principal,
+        )
+        control = self.control_service
+        store = control._control_store
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": selection.source_job_id,
+            "route_id": route_id,
+        }
+        head = store.get_acquisition_action_head(
+            **scope, action_generation=selection.action_generation
+        )
+        if (
+            head is None
+            or head.job_id != job.job_id
+            or head.receipt_manifest_profile_sha256 is None
+            or head.receipt_phase not in {"requested", "executing", "terminal"}
+        ):
+            raise ValueError("candidate_experiment_reuse_retry_head_not_established")
+
+        sink = control.acquisition_route_sink
+
+        def verify_outcome() -> VerifiedAcquisitionActionOutcome:
+            if head.receipt_phase == "terminal":
+                return sink.verify_action_head(head)
+            loop = self._candidate_experiment_loop(
+                tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+            )
+            prior = loop.resolve_candidate_experiment_predecessor_origin(
+                run_id=run_id,
+                predecessor_terminal_ref=selection.predecessor_terminal_ref,
+                expected_action_generation=selection.action_generation,
+                historical_policy_ref=selection.policy_ref,
+            )
+            return sink._verify_action_head_with_origin(head, verified_origin=prior)
+
+        outcome = run_catalog_source_call(control.catalog_serving_source, verify_outcome)
+        if outcome.head != head or not outcome.phase_chain:
+            raise ValueError("candidate_experiment_reuse_retry_head_mismatch")
+        initial = outcome.phase_chain[0].receipt
+        if (
+            type(initial) is not AcquisitionCandidateExperimentPhaseReceipt
+            or initial.receipt_phase != "requested"
+            or initial.job_id != job.job_id
+            or not _candidate_ref_same(initial.authority_decision_ref, decision_artifact_ref)
+        ):
+            raise ValueError("candidate_experiment_reuse_retry_decision_profile_mismatch")
+        self._require_candidate_experiment_reuse_decision_subject(
+            selection=selection, decision_ref=request.decision_ref, principal=principal
+        )
+        if head.receipt_phase == "terminal":
+            self._candidate_experiment_reuse_terminal_progress(outcome)
+        current_job = store.get_job(job.job_id)
+        if (
+            current_job is None
+            or current_job.kind != job.kind
+            or current_job.run_id != job.run_id
+            or current_job.payload_ref != job.payload_ref
+            or current_job.submitted_by != job.submitted_by
+            or store.get_acquisition_action_head(
+                **scope, action_generation=selection.action_generation
+            )
+            != head
+        ):
+            raise ValueError("candidate_experiment_reuse_retry_head_changed")
+        completed = current_job.state == "completed" and head.receipt_phase == "terminal"
+        if not completed and current_job.state not in {"pending", "running"}:
+            raise ValueError("candidate_experiment_reuse_retry_job_state_conflict")
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=route_id,
+            job_id=job.job_id,
+            authority_decision_ref=request.decision_ref,
+            status="completed" if completed else "accepted",
+            receipt_phase="terminal" if completed else "requested",
+        )
+
     def request_model_input_use_decision(
         self,
         *,
@@ -2360,6 +3046,407 @@ class AcquisitionActionService:
         return {
             **self.control_service._control_store.current_execution_job_record().progress,
             **model_input_use_terminal_progress(completed),
+        }
+
+    def _handle_candidate_experiment_reuse_job(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Execute one admitted no-fetch reuse or recover its exact terminal."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            dispatch_candidate_experiment_reuse,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentPhaseReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+            AcquisitionRouteLoop,
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthBridge,
+        )
+        from polisyos.runtime.quality.candidate_experiment_reuse import (
+            CandidateExperimentReuseActionSelection,
+            candidate_experiment_reuse_action_tuple,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        if (
+            job.kind != "acquisition"
+            or job.state != "running"
+            or job.run_id is None
+            or execution_scope.status != "established"
+            or execution_scope.actor_authenticated is not True
+            or not execution_scope.actor_subject
+            or not execution_scope.tenant_id
+            or not execution_scope.cell_id
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_running_lease_not_established"
+            )
+        control = self.control_service
+        tenant_id, cell_id, run_id = (
+            execution_scope.tenant_id,
+            execution_scope.cell_id,
+            job.run_id,
+        )
+        from .control.job_attempt_publication import _EXECUTION_INTENT_BINDING_KEY
+
+        try:
+            payload = ControlPlaneService._job_payload_without_telemetry(payload)
+            request = CandidateExperimentReuseActionRequest.model_validate(payload.get("request"))
+            selection = CandidateExperimentReuseActionSelection.model_validate(
+                payload.get("reuse_selection")
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_job_payload_invalid"
+            ) from exc
+        allowed_payload_keys = {
+            "action_kind",
+            "job_id",
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "route_id",
+            "request",
+            "decision_ref",
+            "reuse_selection",
+            _EXECUTION_INTENT_BINDING_KEY,
+        }
+        decision_ref = payload.get("decision_ref")
+        if (
+            set(payload) - allowed_payload_keys
+            or payload.get("action_kind") != CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
+            or payload.get("job_id") != job.job_id
+            or payload.get("tenant_id") != tenant_id
+            or payload.get("cell_id") != cell_id
+            or payload.get("run_id") != run_id
+            or job.submitted_by != execution_scope.actor_subject
+            or payload.get("route_id") != request.route_id
+            or not isinstance(decision_ref, str)
+            or not decision_ref.startswith("sha256:")
+            or request != selection.request
+            or selection.action_job_id != job.job_id
+            or selection.route_id != payload.get("route_id")
+            or (selection.tenant_id, selection.cell_id, selection.run_id)
+            != (tenant_id, cell_id, run_id)
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_job_payload_scope_mismatch"
+            )
+        store = control._control_store
+        admission = store.current_execution_job_admission()
+        if (
+            not admission.matches_job_record(job)
+            or admission.job.state != "running"
+            or admission.scope != execution_scope
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_reuse_running_lease_changed")
+        loop = AcquisitionRouteLoop(
+            control_store=store,
+            artifact_store=control._artifact_store,
+            event_log=control._diagnostic_event_log,
+            core_source_resolver=control.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=control.acquisition_route_sink,
+        )
+        sink = control.acquisition_route_sink
+        try:
+            origin = run_catalog_source_call(
+                control.catalog_serving_source,
+                lambda: loop.resolve_candidate_experiment_predecessor_origin(
+                    run_id=run_id,
+                    predecessor_terminal_ref=selection.predecessor_terminal_ref,
+                    expected_action_generation=selection.action_generation,
+                ),
+            )
+            if (
+                type(origin) is not VerifiedCandidateExperimentOrigin
+                or len(origin.candidate_terminal_history_chain)
+                != selection.predecessor_action_generation
+                or origin.current_terminal_history
+                is not origin.candidate_terminal_history_chain[-1]
+                or origin.current_terminal_history.terminal_ref
+                != selection.predecessor_terminal_ref
+                or origin.route_id != selection.route_id
+                or origin.source_job_id != selection.source_job_id
+                or origin.source_payload_ref != selection.source_payload_ref
+                or origin.request_content_hash != selection.request_content_hash
+                or origin.policy_scope != selection.policy_scope
+                or origin.policy_ref != selection.policy_ref
+            ):
+                raise ValueError("candidate_experiment_reuse_predecessor_changed")
+            decision_artifact_ref = artifacts.profile_bound_ref(
+                control._artifact_store,
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(decision_ref),
+                    kind="runtime_quality.agent_action_authority_decision",
+                    media_type="application/json",
+                ),
+            )
+            seed = AcquisitionCandidateExperimentPhaseReceipt(
+                receipt_id=f"{job.job_id}.candidate-experiment.requested",
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                route_id=origin.route_id,
+                action_generation=selection.action_generation,
+                job_id=job.job_id,
+                source_payload_ref=origin.source_payload_ref,
+                capability_manifest_ref=origin.capability_manifest_ref,
+                request_content_hash=origin.request_content_hash,
+                policy_scope=origin.policy_scope,
+                policy_ref=origin.policy_ref,
+                authority_decision_ref=decision_artifact_ref,
+                voi_decision=origin.source_cycle.voi_decision,
+                coarse_phase="requested",
+                receipt_phase="requested",
+                recovery_state="none",
+                predecessor_receipt_ref=None,
+                owner_receipt_refs=(),
+                generated_at=datetime.now(UTC),
+            )
+            current_head = sink.get_head(seed)
+            if (
+                current_head is None
+                or current_head.job_id != job.job_id
+                or current_head.action_generation != selection.action_generation
+            ):
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_reuse_action_head_missing"
+                )
+            outcome = run_catalog_source_call(
+                control.catalog_serving_source,
+                lambda: sink.verify_action_head(current_head),
+            )
+        except AcquisitionRouteRecoveryRequired:
+            raise
+        except (artifacts.ArtifactOwnershipError, PermissionError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_reuse_action_history_not_current"
+            ) from exc
+
+        if type(outcome.latest_receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
+            return self._candidate_experiment_reuse_terminal_progress(outcome)
+        if (
+            outcome.head != current_head
+            or outcome.head.job_id != job.job_id
+            or outcome.head.action_generation != selection.action_generation
+            or not outcome.phase_chain
+        ):
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_reuse_action_head_changed")
+        latest = outcome.phase_chain[-1]
+        phase = latest.receipt
+        if (
+            type(phase) is not AcquisitionCandidateExperimentPhaseReceipt
+            or phase.receipt_phase not in {"requested", "executing"}
+            or phase.job_id != job.job_id
+            or phase.action_generation != selection.action_generation
+        ):
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_reuse_phase_not_recoverable"
+            )
+        try:
+            context = sink._candidate_experiment_reuse_context_from_job(
+                phase, verified_origin=origin
+            )
+            if context is None:
+                raise ValueError("candidate_experiment_reuse_job_context_missing")
+            action_service, selected, selected_decision_ref, selected_origin, payload_ref = context
+            if (
+                action_service is not self
+                or not _candidate_model_values_same(selected, selection)
+                or selected_decision_ref != decision_ref
+                or not _candidate_model_values_same(selected_origin, origin)
+            ):
+                raise ValueError("candidate_experiment_reuse_job_context_changed")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_reuse_job_context_not_established"
+            ) from exc
+
+        provider = self._require_candidate_experiment_reuse_execution_authority_provider()
+        port = self._require_candidate_experiment_execution_port()
+        bridge = getattr(port, "_world_growth_bridge", None)
+        if type(bridge) is not AcquisitionWorldGrowthBridge:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_execution_owner_missing"
+            )
+        try:
+            history = provider.load_candidate_experiment_reuse_decision_history(
+                selection=selection, decision_ref=decision_ref
+            )
+            operation, invocation, intent = candidate_experiment_reuse_action_tuple(selection)
+
+            def _no_effect(_invocation: OperationInvocationRecord) -> object:
+                raise RuntimeError("candidate-experiment reuse readiness cannot invoke an effect")
+
+            readiness_gateway = provider.for_candidate_experiment_reuse_job(
+                selection=selection,
+                decision_ref=decision_ref,
+                effect_handler=_no_effect,
+            )
+            readiness = readiness_gateway.load_persisted_decision(decision_ref)
+            permission = history.decision.permission_snapshot
+            if (
+                history.current_authority != "not_revalidated"
+                or history.decision_ref != decision_ref
+                or decision_ref != f"sha256:{history.payload_sha256}"
+                or not history.durable_event_id
+                or not history.signer_identity
+                or history.decision.outcome != "allowed"
+                or permission is None
+                or permission.subject != execution_scope.actor_subject
+                or permission.subject != job.submitted_by
+                or permission.tenant_id != tenant_id
+                or tuple(sorted(permission.roles)) != execution_scope.actor_roles
+                or readiness.decision != history.decision
+                or str(readiness.write_result.cas_ref.artifact_id) != decision_ref
+                or not store.current_execution_job_admission().same_execution_identity(admission)
+            ):
+                raise ValueError("candidate_experiment_reuse_live_authority_not_established")
+
+            if phase.receipt_phase == "requested":
+                executing = phase.model_copy(
+                    update={
+                        "receipt_id": f"{job.job_id}.candidate-experiment.executing",
+                        "coarse_phase": "executing",
+                        "receipt_phase": "executing",
+                        "recovery_state": "none",
+                        "predecessor_receipt_ref": latest.receipt_ref,
+                        "generated_at": datetime.now(UTC),
+                    }
+                )
+                executing_head = sink.persist_experiment_phase(executing)
+                if executing_head.receipt_phase != "executing":
+                    raise AcquisitionRouteRecoveryRequired(
+                        "candidate_experiment_reuse_executing_head_not_established"
+                    )
+            else:
+                executing = phase
+                executing_head = outcome.head
+            if (
+                executing_head.receipt_phase != "executing"
+                or executing_head.job_id != job.job_id
+                or executing_head.action_generation != selection.action_generation
+                or executing_head.receipt_manifest_profile_sha256 is None
+            ):
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_reuse_executing_head_not_established"
+                )
+            executing_phase_ref = artifacts.ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(executing_head.receipt_ref),
+                kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                media_type="application/json",
+                manifest_profile_sha256=executing_head.receipt_manifest_profile_sha256,
+            )
+
+            def _effect(supplied: OperationInvocationRecord) -> object:
+                if not _candidate_model_values_same(supplied, invocation):
+                    raise ValueError("candidate_experiment_reuse_invocation_changed")
+                return dispatch_candidate_experiment_reuse(
+                    bridge=bridge,
+                    selection=selection,
+                    executing_phase=executing,
+                    executing_phase_ref=executing_phase_ref,
+                    control_payload_ref=payload_ref,
+                    pa2_decision_ref=executing.authority_decision_ref,
+                )
+
+            gateway = provider.for_candidate_experiment_reuse_job(
+                selection=selection,
+                decision_ref=decision_ref,
+                effect_handler=_effect,
+            )
+            persisted = gateway.load_persisted_decision(decision_ref)
+            if (
+                persisted.decision != readiness.decision
+                or str(persisted.write_result.cas_ref.artifact_id) != decision_ref
+                or not store.current_execution_job_admission().same_execution_identity(admission)
+            ):
+                raise ValueError("candidate_experiment_reuse_live_authority_changed")
+            terminal = gateway.execute_bound_effect(
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+                persisted=persisted,
+            )
+            if (
+                type(terminal) is not AcquisitionCandidateExperimentTerminalReceiptV2
+                or terminal.job_id != job.job_id
+                or terminal.action_generation != selection.action_generation
+                or terminal.predecessor_receipt_ref != str(executing_phase_ref.artifact_id)
+            ):
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_reuse_terminal_not_established"
+                )
+            terminal_head = sink.get_head(terminal)
+            if terminal_head is None or terminal_head.receipt_phase != "terminal":
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_reuse_terminal_readback_missing"
+                )
+            final = run_catalog_source_call(
+                control.catalog_serving_source,
+                lambda: sink.verify_action_head(terminal_head),
+            )
+        except AcquisitionActionServiceError:
+            raise
+        except AcquisitionRouteRecoveryRequired:
+            raise
+        except artifacts.ArtifactOwnershipError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_source_scope_refused"
+            ) from exc
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_reuse_recovery_required"
+            ) from exc
+        return self._candidate_experiment_reuse_terminal_progress(final)
+
+    @staticmethod
+    def _candidate_experiment_reuse_terminal_progress(outcome: object) -> dict[str, Any]:
+        """Project only a fully replayed reuse V2 terminal to generic job completion."""
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            VerifiedAcquisitionActionOutcome,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            CandidateExperimentTerminalHistory,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        )
+
+        if (
+            type(outcome) is not VerifiedAcquisitionActionOutcome
+            or type(outcome.latest_receipt) is not AcquisitionCandidateExperimentTerminalReceiptV2
+            or type(outcome.candidate_experiment_terminal_history)
+            is not CandidateExperimentTerminalHistory
+            or outcome.candidate_experiment_terminal_history.head != outcome.head
+            or outcome.candidate_experiment_terminal_history.terminal != outcome.latest_receipt
+            or str(outcome.candidate_experiment_terminal_history.terminal_ref.artifact_id)
+            != outcome.head.receipt_ref
+            or outcome.head.job_id != outcome.latest_receipt.job_id
+            or outcome.head.receipt_phase != "terminal"
+        ):
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_reuse_terminal_not_verified"
+            )
+        return {
+            "state": "completed",
+            "phase": "candidate_experiment_reuse",
+            "receipt_phase": "terminal",
+            "terminal_outcome": outcome.latest_receipt.terminal_outcome,
+            "terminal_receipt_ref": outcome.head.receipt_ref,
         }
 
     def _resolve_model_input_use(
@@ -3281,6 +4368,32 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("candidate_experiment_authority_producer_missing")
         return provider
 
+    def _require_candidate_experiment_reuse_authority_provider(
+        self,
+    ) -> AcquisitionAuthorityGatewayProvider:
+        provider = self._require_authority_provider()
+        if not callable(getattr(provider, "for_candidate_experiment_reuse_request", None)):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_authority_producer_missing"
+            )
+        return provider
+
+    def _require_candidate_experiment_reuse_execution_authority_provider(
+        self,
+    ) -> AcquisitionAuthorityGatewayProvider:
+        provider = self._require_candidate_experiment_reuse_authority_provider()
+        if any(
+            not callable(getattr(provider, name, None))
+            for name in (
+                "for_candidate_experiment_reuse_job",
+                "load_candidate_experiment_reuse_decision_history",
+            )
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_reuse_authority_producer_missing"
+            )
+        return provider
+
     def _resolve(
         self,
         *,
@@ -3730,6 +4843,7 @@ __all__ = [
     "AcquisitionRouteProjection",
     "AcquisitionRouteReplayPins",
     "CandidateExperimentCurrentActionProjection",
+    "CandidateExperimentReuseActionExecutionRequest",
     "CandidateExperimentRouteExecutionRequest",
     "CandidateExperimentRouteMutationRequest",
     "CandidateExperimentRouteProjection",

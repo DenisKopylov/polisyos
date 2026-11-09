@@ -74,6 +74,24 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 
 
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
+_CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND = (
+    "runtime.evidence.acquisition.candidate_experiment.execute"
+)
+_CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND = "runtime.evidence.candidate_experiment.reuse"
+_CANDIDATE_EXPERIMENT_REUSE_REQUEST_FIELDS = frozenset(
+    {
+        "route_id",
+        "predecessor_terminal_ref",
+        "predecessor_action_ref",
+        "source_ref",
+        "n5_input_ref",
+        "n5_execution_ref",
+        "n5_result_ref",
+        "policy_ref",
+        "idempotency_key",
+        "human_decision_record_ref",
+    }
+)
 
 
 def _completed_hte_source_invalidation_dedupe_key(
@@ -1242,8 +1260,7 @@ class ControlJobExecutionAdmission:
             self.job.same_execution_inputs(other.job)
             and self.scope == other.scope
             and self.attempt == self.job.attempt == other.attempt == other.job.attempt
-            and self.admission_capability_manifest_ref
-            == other.admission_capability_manifest_ref
+            and self.admission_capability_manifest_ref == other.admission_capability_manifest_ref
         )
 
     def matches_job_record(self, other: object) -> bool:
@@ -1426,7 +1443,10 @@ class _PreparedAcquisitionActionHeadPublication:
     route_id: str
     action_generation: int
     job_id: str
-    action_kind: Literal["runtime.evidence.acquisition.candidate_experiment.execute"]
+    action_kind: Literal[
+        "runtime.evidence.acquisition.candidate_experiment.execute",
+        "runtime.evidence.candidate_experiment.reuse",
+    ]
     request_json: str
     decision_ref: str
     payload_ref: str | None
@@ -4294,7 +4314,10 @@ class ControlPlaneStore:
                 or initial_state != "pending"
                 or publication.job_id != job_id
                 or publication.action_kind
-                != "runtime.evidence.acquisition.candidate_experiment.execute"
+                not in {
+                    _CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND,
+                    _CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
+                }
                 or publication.run_id != run_id
                 or publication.payload_ref != payload_ref
                 or type(publication.action_generation) is not int
@@ -4341,27 +4364,59 @@ class ControlPlaneStore:
                 raise ValueError("prepared_acquisition_action_request_invalid")
             previous_ref = publication.expected_previous_terminal_ref
             previous_profile = publication.expected_previous_terminal_manifest_profile_sha256
-            pins = request_value.get("replay_pins")
-            selected_previous = (
-                pins.get("predecessor_terminal_ref") if isinstance(pins, dict) else None
-            )
-            if publication.action_generation == 1:
-                if (
-                    previous_ref is not None
-                    or previous_profile is not None
-                    or selected_previous is not None
+            if publication.action_kind == _CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND:
+                pins = request_value.get("replay_pins")
+                selected_previous = (
+                    pins.get("predecessor_terminal_ref") if isinstance(pins, dict) else None
+                )
+                if "predecessor_terminal_ref" in request_value or (
+                    "replay_pins" in request_value and not isinstance(pins, dict)
                 ):
                     raise ValueError("prepared_acquisition_action_predecessor_invalid")
-            elif (
-                not _is_sha256_ref(previous_ref)
-                or not _is_sha256_ref(previous_profile)
-                or not isinstance(selected_previous, dict)
-                or selected_previous.get("artifact_id") != previous_ref
-                or selected_previous.get("manifest_profile_sha256") != previous_profile
-                or selected_previous.get("kind") != "runtime_quality.acquisition_route_loop_receipt"
-                or selected_previous.get("media_type") != "application/json"
-            ):
-                raise ValueError("prepared_acquisition_action_predecessor_invalid")
+                if publication.action_generation == 1:
+                    if (
+                        previous_ref is not None
+                        or previous_profile is not None
+                        or selected_previous is not None
+                    ):
+                        raise ValueError("prepared_acquisition_action_predecessor_invalid")
+                elif (
+                    not _is_sha256_ref(previous_ref)
+                    or not _is_sha256_ref(previous_profile)
+                    or not isinstance(selected_previous, dict)
+                    or selected_previous.get("artifact_id") != previous_ref
+                    or selected_previous.get("manifest_profile_sha256") != previous_profile
+                    or selected_previous.get("kind")
+                    != "runtime_quality.acquisition_route_loop_receipt"
+                    or selected_previous.get("media_type") != "application/json"
+                ):
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid")
+            else:
+                selected_previous = request_value.get("predecessor_terminal_ref")
+                if (
+                    publication.action_generation < 2
+                    or "replay_pins" in request_value
+                    or set(request_value) != _CANDIDATE_EXPERIMENT_REUSE_REQUEST_FIELDS
+                    or request_value.get("route_id") != publication.route_id
+                    or not isinstance(selected_previous, dict)
+                    or set(selected_previous)
+                    != {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+                ):
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid")
+                try:
+                    selected_terminal = ArtifactRef.model_validate(selected_previous)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid") from exc
+                if (
+                    selected_terminal.model_dump(mode="json") != selected_previous
+                    or selected_terminal.kind != "runtime_quality.acquisition_route_loop_receipt"
+                    or selected_terminal.media_type != "application/json"
+                    or not _is_sha256_ref(str(selected_terminal.artifact_id))
+                    or not _is_sha256_ref(selected_terminal.manifest_profile_sha256)
+                    or str(selected_terminal.artifact_id) != previous_ref
+                    or selected_terminal.manifest_profile_sha256 != previous_profile
+                ):
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid")
         if (pre_admission_attempt_id is None) != (pre_admission_outcome is None):
             raise ValueError("control_job_pre_admission_link_incomplete")
         if pre_admission_attempt_id is not None and (

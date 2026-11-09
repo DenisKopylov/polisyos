@@ -1169,6 +1169,7 @@ def _candidate_source_predecessors_for_verified_experiment_origin(
     cheap retained continuations never manufacture a world/source transaction.
     """
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
         VerifiedCandidateExperimentOrigin,
         _candidate_experiment_effective_source,
     )
@@ -1209,6 +1210,25 @@ def _candidate_source_predecessors_for_verified_experiment_origin(
                 and history.frontier_after is None
             ):
                 continue
+            if type(history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2:
+                # The owner replay above proves a V2 blocker retains the exact
+                # predecessor frontier/source. It contributes no physical
+                # producer edge and cannot become the selected numerical basis.
+                if (
+                    history.terminal.terminal_outcome == "candidate_blocked"
+                    and history.budget_window is None
+                    and history.reuse_occurrence is not None
+                    and history.reuse_occurrence_ref is not None
+                ):
+                    continue
+                if (
+                    history.terminal.terminal_outcome == "candidate_evaluation_retained"
+                    and history.continuation is not None
+                    and history.budget_window is None
+                    and history.reuse_occurrence is not None
+                    and history.reuse_occurrence_ref is not None
+                ):
+                    continue
             if (
                 history.terminal.terminal_outcome != "candidate_evaluation_retained"
                 or history.continuation is None
@@ -1368,6 +1388,7 @@ def prepare_live_candidate_experiment_source_basis_values(
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
         VerifiedCandidateExperimentOrigin,
+        _candidate_experiment_effective_source,
     )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.candidate_acquisition_action import (
@@ -1518,10 +1539,18 @@ def prepare_live_candidate_experiment_source_basis_values(
             or action.target_slot_id != selection.target_slot_id
         ):
             raise ValueError("candidate_experiment_source_basis_source_scope_mismatch")
+        effective_generation_run, effective_source_cycle = _candidate_experiment_effective_source(
+            origin
+        )
         prior_owner = bridge._candidate_experiment_prior_owner(
             origin=origin,
             selection=selection,
         )
+        if (
+            prior_owner.generation_run != effective_generation_run
+            or prior_owner.source_cycle != effective_source_cycle
+        ):
+            raise ValueError("candidate_source_basis_effective_source_changed")
         profile = prior_owner.profile
         declaration = prior_owner.model_declaration
         prior_evaluation = prior_owner.selected_evaluation

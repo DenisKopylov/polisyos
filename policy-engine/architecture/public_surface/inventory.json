@@ -10897,8 +10897,8 @@
                 "path": "src/polisyos/fabric/ingestion/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1554,
-                "sha256": "9f59ee20747ddecbb08c5461554ab67892415d43a51fc1670effb7845148ba6a"
+                "bytes": 1573,
+                "sha256": "79c5183905a20764a4355d51fe21856bf15ecd418c31d240fc33645a26b1c59e"
               },
               {
                 "path": "src/polisyos/fabric/ingestion",

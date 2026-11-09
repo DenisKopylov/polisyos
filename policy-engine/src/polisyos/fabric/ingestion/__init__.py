@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import polisyos.fabric.ingestion.ingestion as _ingestion_module
 from polisyos.fabric.evidence.evidence import (
     load_provenance_graph,
     verify_live_ingestion_evidence_profile,
 )
 
-from . import ingestion as _ingestion_module
 from ._source_evidence_schema import load_source_evidence_bundle
 from .ingestion import (
     ConnectorManifestSpec,

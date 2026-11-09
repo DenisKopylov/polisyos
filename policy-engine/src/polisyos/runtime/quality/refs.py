@@ -9,16 +9,13 @@ from functools import lru_cache
 from hashlib import sha256
 from typing import Any, get_args
 
+import polisyos.runtime.quality.report_registry as _report_registry
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.runtime.quality.report_registry import (
     KNOWN_QUALITY_REF_KEYS,
     LIFECYCLE_QUALITY_REF_KEYS,
-    QUALITY_REPORT_BODY_KEYS,
-    QUALITY_REPORT_BODY_REF_KEYS,
-    QUALITY_REPORT_REF_KEYS,
     REQUIRED_QUALITY_REF_KEYS,
     quality_report_body_locator_for_field,
-    quality_report_ref_intake_registry,
 )
 from polisyos.runtime.quality.report_registry import (
     QUALITY_REF_HINTS as _QUALITY_REF_HINTS,
@@ -55,6 +52,12 @@ _SECRET_MARKERS = (
     "secret",
     "token",
 )
+
+# Keep legacy module attributes as exact owner objects. Runtime paths below use
+# the qualified source owner so derived registries are not rebound by import aliases.
+QUALITY_REPORT_REF_KEYS = _report_registry.QUALITY_REPORT_REF_KEYS
+QUALITY_REPORT_BODY_REF_KEYS = _report_registry.QUALITY_REPORT_BODY_REF_KEYS
+QUALITY_REPORT_BODY_KEYS = _report_registry.QUALITY_REPORT_BODY_KEYS
 
 
 @dataclass(frozen=True)
@@ -170,7 +173,7 @@ class RuntimeQualityAuthorityRefs:
         quality_evidence_scan = cls.from_sources(
             source_payloads={"quality_evidence": quality_evidence},
         )
-        registered_ref_keys = frozenset(QUALITY_REPORT_REF_KEYS)
+        registered_ref_keys = frozenset(_report_registry.QUALITY_REPORT_REF_KEYS)
         scoped_only_rejections = tuple(
             rejection
             for rejection in scoped.rejections
@@ -628,7 +631,9 @@ class RuntimeQualityAuthorityRefs:
         Callers use its rejection rows to construct an admitted input view and
         continue to use their existing source-specific resolver for selection.
         """
-        registered_ref_keys, registered_body_ref_keys = quality_report_ref_intake_registry()
+        registered_ref_keys, registered_body_ref_keys = (
+            _report_registry.quality_report_ref_intake_registry()
+        )
         role_keys = frozenset(registered_ref_keys)
         body_roles = {
             body_key: ref_key
@@ -821,8 +826,8 @@ def _iter_quality_ref_matches(
     source: str,
     path: str,
     rejections: list[QualityRefRejection],
-    known_ref_keys: frozenset[str] = frozenset(QUALITY_REPORT_REF_KEYS),
-    report_body_ref_keys: Mapping[str, str] | None = QUALITY_REPORT_BODY_REF_KEYS,
+    known_ref_keys: frozenset[str] = frozenset(_report_registry.QUALITY_REPORT_REF_KEYS),
+    report_body_ref_keys: Mapping[str, str] | None = _report_registry.QUALITY_REPORT_BODY_REF_KEYS,
 ) -> Iterable[QualityRefMatch]:
     body_roles = report_body_ref_keys or {}
     if isinstance(payload, Mapping):
@@ -997,7 +1002,7 @@ def _iter_quality_ref_matches(
                 continue
             report_ref_key = body_roles.get(key)
             if (
-                key in QUALITY_REPORT_BODY_KEYS
+                key in _report_registry.QUALITY_REPORT_BODY_KEYS
                 and report_ref_key is None
                 and isinstance(value, Mapping)
             ):
@@ -1155,8 +1160,8 @@ def _is_safe_quality_ref_rejection_record(value: Mapping[Any, Any]) -> bool:
 def _quality_ref_keys_from_mapping(
     payload: Mapping[Any, Any],
     *,
-    known_ref_keys: frozenset[str] = frozenset(QUALITY_REPORT_REF_KEYS),
-    report_body_ref_keys: Mapping[str, str] | None = QUALITY_REPORT_BODY_REF_KEYS,
+    known_ref_keys: frozenset[str] = frozenset(_report_registry.QUALITY_REPORT_REF_KEYS),
+    report_body_ref_keys: Mapping[str, str] | None = _report_registry.QUALITY_REPORT_BODY_REF_KEYS,
 ) -> frozenset[str]:
     """Return every registered role named by any recognized mapping hint."""
     matches: set[str] = set()
@@ -1174,8 +1179,8 @@ def _quality_ref_keys_from_mapping(
 def _quality_ref_keys_from_text(
     value: Any,
     *,
-    known_ref_keys: frozenset[str] = frozenset(QUALITY_REPORT_REF_KEYS),
-    report_body_ref_keys: Mapping[str, str] | None = QUALITY_REPORT_BODY_REF_KEYS,
+    known_ref_keys: frozenset[str] = frozenset(_report_registry.QUALITY_REPORT_REF_KEYS),
+    report_body_ref_keys: Mapping[str, str] | None = _report_registry.QUALITY_REPORT_BODY_REF_KEYS,
 ) -> frozenset[str]:
     """Return every registered role with a complete identifier boundary."""
     if not isinstance(value, str):
@@ -1456,7 +1461,7 @@ def _report_body_ref_aliases(ref_key: str) -> tuple[tuple[str, str], ...]:
     cross-report dependency embedded in another report body.
     """
     aliases = [(alias, ref_key) for alias in _ref_aliases_for("report")]
-    aliases.extend((role_key, role_key) for role_key in QUALITY_REPORT_REF_KEYS)
+    aliases.extend((role_key, role_key) for role_key in _report_registry.QUALITY_REPORT_REF_KEYS)
     return tuple(dict.fromkeys(aliases))
 
 

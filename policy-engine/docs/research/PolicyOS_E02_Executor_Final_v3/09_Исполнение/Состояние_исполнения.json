@@ -14564,6 +14564,14 @@
           "forecast_member_consumer_baseline": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-consumers-baseline-r1",
           "forecast_member_consumer_baseline_commit": "d20b5b47ef3a2b75cab3396cac0bb1550ee1bc37",
           "forecast_member_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-architecture-r1",
+          "strict_r23_source_commit": "aff49a7d53efba45c1344f69297920a86dc1aaef",
+          "strict_r23_source_tree": "c84a04471f4b96ab32a5d9c6f93729a0f6b8a109",
+          "strict_r23_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r23",
+          "strict_r23_stable_pins": 132,
+          "strict_r23_wall_seconds": 1556.161,
+          "strict_r23_first_refusal": "side-effecting direct source assignment is unresolved: polisyos.runtime.quality.report_registry.QUALITY_REPORT_BODY_REF_KEYS",
+          "report_registry_affected_checks": "MAIN:policy-engine/_cache/e02/lane01-n6-runtime-report-registry-affected-r1",
+          "report_registry_affected_passed": 86,
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
         "lane01_p05_configured_source_withdrawal_history": {
@@ -14599,6 +14607,16 @@
           "c_r6_source_commit": "cac53160f29242ef7e779b7db5bf4a5cc1490402",
           "c_r6_source_tree": "b3a737c0e90f5f086cc84b65340c6ec4c25cad93",
           "c_r6_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r6",
+          "c_r6_classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C_OWNER_LIFETIME",
+          "c_r6_wall_seconds": 3747.707,
+          "c_r6_stable_pins": 19,
+          "c_r6_b_terminal_ref": "sha256:7afce59ae4ba1fe35b5229de245f84e8ce2e16dc85c57340de4d262dbd4de8b8",
+          "c_r6_b_terminal_profile": "sha256:57c4991874054e304850057b166687e2d30c71d52c120a9acfec537826673204",
+          "c_r6_retained_preflight": "VERIFY:policy-engine/_cache/e02/lane01-p05-c-r6-retained-preflight-r2",
+          "c_r6_retained_preflight_stable_pins": 6,
+          "c_r6_retained_preflight_outcome": "PASS_WITHOUT_POST_WORKER_TRANSPORT_OR_N5",
+          "v12_interrupted_trial": "MAIN:policy-engine/_cache/e02/lane01-p05-same-scalar-new-release-r1",
+          "v12_interrupted_classification": "STOPPED_AFTER_A_BEFORE_NEW_RELEASE_CONTROL",
           "scope": "The prior A control refuses the same tenant/cell with an unowned profile, a foreign tenant and a mismatched selected input. The retained replay performs no N5. R5 never issued C. The reopened test retains separate B and C authority and quotas."
         },
         "lane01_p05_r4_completed_b_stale_unit_oracle": {

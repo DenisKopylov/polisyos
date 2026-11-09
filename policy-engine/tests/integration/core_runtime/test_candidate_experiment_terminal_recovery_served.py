@@ -1405,8 +1405,8 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                             response = reader.get(
                                 f"/api/v1/runs/{retry_origin.run_id}/candidate-acquisition-experiment",
                                 headers={
-                                    "Authorization": (
-                                        f"Bearer {values_for_retry['trust'].tokens['acquisition-operator']}"
+                                    "Authorization": values_for_retry["trust"].authorization_header(
+                                        "acquisition-operator"
                                     ),
                                     "X-Tenant-ID": served.TENANT,
                                 },

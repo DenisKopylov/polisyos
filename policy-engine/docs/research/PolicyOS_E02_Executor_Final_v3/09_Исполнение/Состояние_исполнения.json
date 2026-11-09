@@ -14236,6 +14236,23 @@
           },
           "scope": "One fresh offline noneditable wheel build/install. Child verifies installed-only module origins, exact V1/V2 bytes and audit projection, V2 clobber refusal, current education-domain resolution and governed candidate world-slot discovery. The retained installed child replay needs no rebuild."
         },
+        "lane01_n5_checkpoint_recovery_r5_retained_read": {
+          "source_commit": "80ef761f65730d80a73843a20c11b1f4b085ac7a",
+          "source_tree": "96fc94a112cefa4e9067f540df2f5ee4003c20d9",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-n5-checkpoint-crash-served-r5",
+          "classification": "WALL_LIMIT_WITH_TERMINAL_EVENT_AND_VERIFIED_HISTORICAL_N5_READ",
+          "wall_seconds": 4795.209,
+          "stable_pins": 14,
+          "peak_rss_bytes": 2274951168,
+          "sqlite": "tmp/test_candidate_n5_checkpoint_c0/.polisyos/control_plane.sqlite3",
+          "event_id": "evt_acquisition_1_experiment_terminal_5fab4a0b9de0e6f3",
+          "terminal_artifact_id": "sha256:f92afd84814a293dfa6eed0c8412f9316af24734e005e80d5e71c3169fb8548e",
+          "terminal_profile": "sha256:e4d53bd65af93e7560f74e39db3a3a8915b8559c9548ad8d75f0202ade8954ab",
+          "reentry_artifact_id": "sha256:3bfa6cf2e82199e2cd9416d7c8cc8feeab9875046a432f00944d58e4428d6eff",
+          "reentry_profile": "sha256:1a5131774a98eb0e03923937c34ee056ce178fcd884029fe26c148b1b4dcde21",
+          "replay_recipe": "Open SQLite with mode=ro and immutable=1. Find the exact terminal event and action job. Open the sibling cas with FileSystemCAS.open_existing_read_only and read the terminal with the explicit selected manifest profile. Reconcile its typed authority event and all 13 inputs against the SQLite row. Follow the exact reentry receipt and use GenerationSourceRepository._read_candidate_simulation_v5_numerical_output with the selected refs and terminal scope.",
+          "scope": "The retained V5 reader reopens two candidate-only NCM trajectories and the two completed acquired-world work observations without new N5 or store writes. SQL head 4 and the original expired worker lease remain. The fresh HTTP GET and terminal SQL commit are unrun."
+        },
         "lane01_initial_a_live_witness_wall_limit": {
           "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",
           "source_tree": "88a909ddda86fd5447c978822dbd2ce107760c5a",

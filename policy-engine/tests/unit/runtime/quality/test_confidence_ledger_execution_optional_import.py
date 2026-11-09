@@ -21,6 +21,7 @@ import pytest
         "first-party-alias",
         "first-party-loader",
         "package-reexport",
+        "unconsumed-alias",
     ],
 )
 def test_n5_capture_requires_actual_initializer_and_locked_members(
@@ -33,7 +34,7 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
         "tools/__init__.py": "",
         "tools/_e02_locked_wrapper.py": (
             "try:\n"
-            "    from e02_locked_provider import Model\n"
+            "    from e02_locked_provider import Model, SVC\n"
             "    AVAILABLE = True\n"
             "except ImportError:\n"
             "    AVAILABLE = False\n"
@@ -67,8 +68,11 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
     wheel_sources = {
-        "e02_locked_provider/__init__.py": "from .base import Model\n",
-        "e02_locked_provider/base.py": "class Model:\n    def predict(self): return 17\n",
+        "e02_locked_provider/__init__.py": "from .base import Model, SVC\n",
+        "e02_locked_provider/base.py": (
+            "class Model:\n    def predict(self): return 17\n"
+            "class SVC:\n    def predict(self): return 29\n"
+        ),
         "e02_locked_provider-1.0.dist-info/METADATA": (
             "Metadata-Version: 2.1\nName: e02-locked-provider\nVersion: 1.0\n\n"
         ),
@@ -266,6 +270,7 @@ for source in (root / "tools").rglob("*.py"):
     sources[name] = recorder.ExpectedSource(relative, hashlib.sha256(content).hexdigest())
     for provider, names in host._source_export_candidates(name, relative, content).items():
         exports.setdefault(provider, set()).update(names)
+assert "SVC" in exports[wrapper]
 capture = recorder.SourceExecutionCapture(
     root,
     sources,
@@ -423,6 +428,7 @@ else:
     assert [row["consumer_import"][-2:] for row in rows] == [
         ("AVAILABLE", "AVAILABLE"), ("Model", "Selected")
     ]
+    assert [row[0] for row in rows[0]["locked_class_imports"]] == ["Model", "SVC"]
     local, edges, members = rows[1]["locked_class_imports"][0]
     assert local == "Model"
     assert [(edge[0], edge[3:]) for edge in edges] == [
@@ -430,6 +436,23 @@ else:
     ]
     assert [row[0] for row in members] == [facade, terminal]
     assert all(row[3] == "sha256:" + hashlib.sha256(wheel).hexdigest() for row in members)
+    if profile == "unconsumed-alias":
+        wrapper_module = importlib.import_module(wrapper)
+        provider_module = importlib.import_module(facade)
+        assert "SVC" not in vars(actual)
+        assert capture.completed_binding(wrapper, "SVC") is vars(provider_module)["SVC"]
+
+        class ReplacementSVC:
+            pass
+
+        wrapper_module.SVC = ReplacementSVC
+        try:
+            capture.completed_binding(wrapper, "SVC")
+        except recorder.CaptureError as exc:
+            assert str(exc) == "retained_export_changed", str(exc)
+        else:
+            raise AssertionError("unconsumed optional alias replacement was not retained")
+        raise SystemExit(0)
     assert_refused(
         lambda name: None if name == terminal else selected_member(name),
         "n5_optional_locked_python_member_not_established",

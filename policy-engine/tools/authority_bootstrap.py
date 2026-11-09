@@ -138,6 +138,69 @@ def _module_name(relative: str) -> str | None:
     return ".".join(parts) if parts and all(part.isidentifier() for part in parts) else None
 
 
+def _source_optional_arm_import_aliases(tree: ast.Module) -> set[str]:
+    """Find local names imported by finite, explicitly flagged optional arms."""
+
+    aliases: set[str] = set()
+    for statement in tree.body:
+        if (
+            not isinstance(statement, ast.Try)
+            or statement.orelse
+            or statement.finalbody
+            or len(statement.handlers) != 1
+            or len(statement.body) < 2
+        ):
+            continue
+        marker = statement.body[-1]
+        if (
+            not isinstance(marker, ast.Assign)
+            or len(marker.targets) != 1
+            or not isinstance(marker.targets[0], ast.Name)
+            or not isinstance(marker.value, ast.Constant)
+            or marker.value.value is not True
+        ):
+            continue
+        flag = marker.targets[0].id
+        handler = statement.handlers[0]
+        if (
+            handler.name is not None
+            or not isinstance(handler.type, ast.Name)
+            or handler.type.id not in {"Exception", "ImportError", "ModuleNotFoundError"}
+            or not handler.body
+            or not isinstance(handler.body[0], ast.Assign)
+            or len(handler.body[0].targets) != 1
+            or not isinstance(handler.body[0].targets[0], ast.Name)
+            or handler.body[0].targets[0].id != flag
+            or not isinstance(handler.body[0].value, ast.Constant)
+            or handler.body[0].value.value is not False
+            or any(
+                not isinstance(item, (ast.ClassDef, ast.FunctionDef)) or item.name == flag
+                for item in handler.body[1:]
+            )
+        ):
+            continue
+        imported: dict[str, ast.alias] = {}
+        for node in statement.body[:-1]:
+            if (
+                not isinstance(node, ast.ImportFrom)
+                or node.level
+                or node.module is None
+                or node.module.partition(".")[0] in {"polisyos", "tools"}
+            ):
+                break
+            for alias in node.names:
+                local = alias.asname or alias.name
+                if alias.name == "*" or local in imported or local == flag:
+                    break
+                imported[local] = alias
+            else:
+                continue
+            break
+        else:
+            aliases.update(imported)
+    return aliases
+
+
 def _source_export_candidates(
     module_name: str, relative: str, content: bytes
 ) -> dict[str, set[str]]:
@@ -153,6 +216,9 @@ def _source_export_candidates(
     package = module_name if is_package else module_name.rpartition(".")[0]
     exports: dict[str, set[str]] = {}
     aliases: dict[str, set[str]] = {}
+    optional_aliases = _source_optional_arm_import_aliases(tree)
+    if optional_aliases:
+        exports.setdefault(module_name, set()).update(optional_aliases)
     if is_package:
         # Lazy facades can cache a leaf without any syntactic import of its
         # symbol. Retain candidates from literal package maps before the leaf

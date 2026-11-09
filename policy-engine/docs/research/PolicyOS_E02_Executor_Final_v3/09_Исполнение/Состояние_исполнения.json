@@ -14261,6 +14261,21 @@
           "stable_pins": 8,
           "scope": "Component replay of the already verified evaluation, exact profile controls, fallback, and unique selected real CAS recovery. No served elapsed-time or fresh GET verdict."
         },
+        "p05_current_v2_history_and_basis": {
+          "base_commit": "f7450f82713fea515011af56b4d3a8d0081d6c08",
+          "component_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-v2-current-composed-r1",
+          "component_pass": 77,
+          "profile_delta_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-v2-conflicting-raw-basis-green-r1",
+          "profile_delta_pass": 13,
+          "scope": "Exact V2 terminal and retained or blocked projection from the stock history fold. Pending successor, basis-bound numerical view and same-blob wrong profile controls. The component history owner seam does not establish a fresh served sequence."
+        },
+        "p05_current_and_historical_replay_reuse": {
+          "worker_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-worker-owner-replay-green-r1",
+          "worker_pass": 25,
+          "historical_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-v1-terminal-reopen-green-r1",
+          "historical_pass": 17,
+          "scope": "The worker keeps one current outcome fold and all later action fences. One already verified phase-origin resolution per standalone V1 terminal read. No global cache or served time claim."
+        },
         "p05_separately_authorized_changed_input_r1": {
           "base_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "base_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -14287,7 +14302,13 @@
           "r9_stable_pins": 15,
           "direct_ambient_facade_checks": "VERIFY:policy-engine/_cache/e02/lane01-facade-direct-ambient-r2",
           "direct_ambient_architecture": "VERIFY:policy-engine/_cache/e02/lane01-facade-direct-ambient-architecture-r2",
-          "scope": "Exact early-host source discovery with zero physical N5. R8 advances past the earlier facade, R9 advances past the wildcard. Four scoped compatibility tests and architecture excluding generated freshness pass on the direct ambient-provider fix. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
+          "r10_commit": "f7450f82713fea515011af56b4d3a8d0081d6c08",
+          "r10_tree": "2a85a49471c5ce9a6cf09148c1fc66fbab79c7c2",
+          "r10_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r10",
+          "r10_refusal": "non-literal repository re-export: polisyos.fabric.connectors.components.__polisyos_components__",
+          "r10_stable_pins": 18,
+          "connector_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-connector-owner-r1",
+          "scope": "Exact early-host source discovery with zero physical N5. R10 advances past the ambient providers and refuses the computed connector aggregate. The fallback now calls the exact lazy producer without changing the compatibility export. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
         },
         "lane01_initial_a_live_witness_wall_limit": {
           "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",

@@ -414,24 +414,81 @@ def test_v2_current_action_projection_uses_occurrence_selected_prior_n5(tmp_path
     """A no-fetch V2 retention projects only the N5 selected by its verified occurrence."""
     from tests.unit.runtime.quality.test_candidate_experiment_reuse import _v2_reuse_history
 
-    history, _evaluation = _v2_reuse_history(artifacts.FileSystemCAS(tmp_path / "cas"))
-
-    selected = AcquisitionActionService._candidate_experiment_v2_selected_evaluation_projection(
-        history
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    history, evaluation = _v2_reuse_history(store)
+    # The numerical owner does not attach the terminal's selected basis.
+    raw_evaluation = replace(
+        evaluation, selected=evaluation.selected.model_copy(update={"basis_ref": None})
     )
+    (previous,) = history.origin.candidate_terminal_history_chain
+    previous = replace(previous, evaluation=raw_evaluation)
+    head = AcquisitionActionHeadRecord(
+        **vars(history.head),
+        head_generation=3,
+        receipt_sha256=history.head.receipt_ref,
+        durable_event_id=history.phase_chain[-1].durable_event_id,
+        coarse_phase=history.terminal.coarse_phase,
+        recovery_state=history.terminal.recovery_state,
+        created_at=history.terminal.generated_at,
+    )
+    history = replace(
+        history,
+        head=head,
+        origin=replace(
+            history.origin,
+            current_terminal_history=previous,
+            candidate_terminal_history_chain=(previous,),
+        ),
+        evaluation=raw_evaluation,
+    )
+    origin = replace(history.origin, current_action_head=head, current_terminal_history=history)
+    service = object.__new__(AcquisitionActionService)
+    service.control_service = SimpleNamespace(
+        _control_store=SimpleNamespace(get_job=lambda _job_id: None),
+        _artifact_store=store,
+    )
+    projected = service._candidate_experiment_current_action_projection(origin)
+    selected = projected.selected_evaluation
 
     occurrence = history.reuse_occurrence
     assert occurrence is not None
-    assert history.terminal.terminal_outcome == "candidate_evaluation_retained"
+    assert projected.terminal_outcome == "candidate_evaluation_retained"
+    assert projected.evaluation_disposition == "retained"
+    assert projected.selected_receipt_ref == history.terminal_ref
+    assert selected is not None and selected.basis_ref == history.terminal.selected_basis_ref
     assert selected == history.terminal.selected_evaluation
     assert selected.n5_input_ref == occurrence.selection.n5_input_ref
     assert selected.n5_execution_ref == occurrence.selection.n5_execution_ref
     assert selected.n5_result_ref == occurrence.selection.n5_result_ref
 
     with pytest.raises(AcquisitionActionServiceError) as missing_occurrence:
-        AcquisitionActionService._candidate_experiment_v2_selected_evaluation_projection(
-            replace(history, reuse_occurrence_ref=None)
+        service._candidate_experiment_current_action_projection(
+            replace(origin, current_terminal_history=replace(history, reuse_occurrence_ref=None))
         )
     assert missing_occurrence.value.code == (
         "candidate_experiment_reuse_selected_n5_not_established"
     )
+
+    alternate_basis = selected.basis_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+    )
+    alternate_evaluation = replace(
+        raw_evaluation,
+        selected=raw_evaluation.selected.model_copy(update={"basis_ref": alternate_basis}),
+    )
+    alternate_previous = replace(previous, evaluation=alternate_evaluation)
+    alternate_history = replace(
+        history,
+        origin=replace(
+            history.origin,
+            current_terminal_history=alternate_previous,
+            candidate_terminal_history_chain=(alternate_previous,),
+        ),
+        evaluation=alternate_evaluation,
+    )
+    with pytest.raises(
+        AcquisitionActionServiceError, match="candidate_experiment_reuse_selected_n5_not_established"
+    ):
+        service._candidate_experiment_current_action_projection(
+            replace(origin, current_terminal_history=alternate_history)
+        )

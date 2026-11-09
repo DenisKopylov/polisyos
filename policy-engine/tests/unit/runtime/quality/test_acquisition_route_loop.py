@@ -1203,14 +1203,17 @@ def _reuse_effective_source_case(outcome: str):
         source_cycle=source_cycle,
     )
     selected = prior.selected_evaluation
-    assert selected is not None
+    assert selected is not None and selected.basis_ref is not None
+    # The numerical owner returns the raw selection. The terminal adds the
+    # selected basis profile without changing the underlying N5 selection.
+    numerical_selection = selected.model_copy(update={"basis_ref": None})
     prior_history = _reuse_effective_history(
         prior,
         origin=base_origin,
         generation=1,
         action=prior_action,
         source=prior_source,
-        evaluation=SimpleNamespace(selected=selected),
+        evaluation=SimpleNamespace(selected=numerical_selection),
         continuation=SimpleNamespace(),
         frontier_before=None,
         frontier_after=prior_frontier,
@@ -1238,7 +1241,7 @@ def _reuse_effective_source_case(outcome: str):
         action=prior_action,
         source=prior_source,
         evaluation=(
-            SimpleNamespace(selected=current.selected_evaluation)
+            SimpleNamespace(selected=numerical_selection)
             if outcome == "candidate_evaluation_retained"
             else None
         ),
@@ -1354,6 +1357,44 @@ def test_effective_source_reuse_rejects_mismatched_occurrence_profile() -> None:
 
     with pytest.raises(
         ValueError, match="candidate_experiment_effective_source_reuse_occurrence_mismatch"
+    ):
+        route_loop._candidate_experiment_effective_source(origin)
+
+
+@pytest.mark.parametrize("changed_basis", ["terminal", "numerical"])
+def test_effective_source_reuse_rejects_an_alternate_selected_basis_profile(
+    changed_basis: str,
+) -> None:
+    import polisyos.runtime.quality.acquisition_route_loop as route_loop
+
+    origin, _run, _cycle, current_history, _frontier = _reuse_effective_source_case(
+        "candidate_evaluation_retained"
+    )
+    terminal = current_history.terminal
+    selected = terminal.selected_evaluation
+    assert selected is not None and selected.basis_ref is not None
+    alternate_basis = selected.basis_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+    )
+    if changed_basis == "terminal":
+        alternate_terminal = type(terminal).model_validate(
+            {
+                **terminal.model_dump(mode="python"),
+                "selected_basis_ref": alternate_basis,
+                "selected_evaluation": selected.model_copy(update={"basis_ref": alternate_basis}),
+            }
+        )
+        object.__setattr__(current_history, "terminal", alternate_terminal)
+    else:
+        prior = origin.candidate_terminal_history_chain[0]
+        alternate_evaluation = SimpleNamespace(
+            selected=selected.model_copy(update={"basis_ref": alternate_basis})
+        )
+        object.__setattr__(prior, "evaluation", alternate_evaluation)
+        object.__setattr__(current_history, "evaluation", alternate_evaluation)
+
+    with pytest.raises(
+        ValueError, match="candidate_experiment_effective_source_reuse_retention_mismatch"
     ):
         route_loop._candidate_experiment_effective_source(origin)
 

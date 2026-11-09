@@ -1693,6 +1693,10 @@ class AcquisitionActionService:
             ) from exc
         if (
             type(selected) is not AcquisitionSelectedEvaluation
+            or (
+                selected.basis_ref is not None
+                and selected.basis_ref != history.terminal.selected_basis_ref
+            )
             or selected.n5_input_ref != history.reuse_occurrence.selection.n5_input_ref
             or selected.n5_execution_ref != history.reuse_occurrence.selection.n5_execution_ref
             or selected.n5_result_ref != history.reuse_occurrence.selection.n5_result_ref
@@ -1700,7 +1704,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(
                 "candidate_experiment_reuse_selected_n5_not_established"
             )
-        return selected
+        return selected.model_copy(update={"basis_ref": history.terminal.selected_basis_ref})
 
     def _candidate_experiment_prior_n5_result_projection(
         self,
@@ -3987,7 +3991,7 @@ class AcquisitionActionService:
             run_id=run_id,
         )
         try:
-            origin = loop.resolve_current_candidate_experiment(
+            resolution = loop._resolve_current_candidate_experiment_resolution(
                 run_id=run_id,
                 action_job_id=job.job_id,
             )
@@ -3995,18 +3999,13 @@ class AcquisitionActionService:
             raise AcquisitionRouteRecoveryRequired(
                 "candidate_experiment_action_history_not_current"
             ) from exc
+        origin = resolution.origin
         if route_id != origin.route_id or job.job_id != self._candidate_experiment_job_id(
             origin, request
         ):
             raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
         sink = self.control_service.acquisition_route_sink
-        outcomes = sink.experiment_action_outcomes(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-        )
+        outcomes = resolution.outcomes
         if not outcomes or outcomes[-1].head.job_id != job.job_id:
             raise AcquisitionRouteRecoveryRequired("candidate_experiment_action_head_missing")
         outcome = outcomes[-1]

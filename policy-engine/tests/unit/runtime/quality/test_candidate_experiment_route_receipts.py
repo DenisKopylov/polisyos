@@ -6,6 +6,7 @@ checks do not establish a protected action, source rights, or a live lease.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
@@ -425,3 +426,215 @@ def test_historical_cutoff_refuses_until_exclusive_fold_is_available() -> None:
             loop.resolve_current_candidate_experiment(
                 run_id="run-a", before_action_generation=cutoff
             )
+
+
+@dataclass(frozen=True)
+class _FoldSourceCycle:
+    voi_decision: LoopVOIDecision
+
+
+@dataclass(frozen=True)
+class _FoldBasis:
+    limitations: tuple[str, ...] = ("source_currentness_not_established",)
+
+
+@dataclass(frozen=True)
+class _FoldEvaluation:
+    selected: AcquisitionSelectedEvaluation
+
+
+@dataclass(frozen=True)
+class _FoldDecision:
+    prior_basis_ref: ArtifactRef | None = None
+    prior_evaluation: AcquisitionSelectedEvaluation | None = None
+    expected_frontier_revision: int = 0
+    expected_frontier_ref: str | None = None
+    comparison_result: str = "not_established"
+    predicate_provenance: str = "not_established"
+
+
+@pytest.mark.parametrize("current", ["retained", "pending", "blocked", "foreign_profile"])
+def test_current_fold_uses_exact_v2_history_for_the_selected_head(
+    monkeypatch: pytest.MonkeyPatch, current: str
+) -> None:
+    """Fold typed owner outcomes without reissuing a permit or invoking N5."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierKey,
+        AcquisitionEvaluationFrontierRecord,
+    )
+    from polisyos.runtime.quality import acquisition_evaluation_history
+    from tests.unit.runtime.quality.test_acquisition_route_loop import _reuse_effective_source_case
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _outcome
+
+    blocked = current == "blocked"
+    seed, _, _, _, _ = _reuse_effective_source_case(
+        "candidate_blocked" if blocked else "candidate_evaluation_retained"
+    )
+    first, reuse = seed.candidate_terminal_history_chain
+    physical = AcquisitionCandidateExperimentTerminalReceipt.model_validate(
+        {
+            **first.terminal.model_dump(mode="python"),
+            "terminal_outcome": "candidate_reentry_completed",
+            "candidate_reentry_ref": _ref("runtime_quality.candidate_source_reentry_receipt", "7"),
+            "current_continuation_ref": None,
+        }
+    )
+    origin = replace(
+        first.origin,
+        source_cycle=_FoldSourceCycle(physical.voi_decision),
+    )
+    # The per-terminal reader owns CAS, PA2 and frontier verification. Supply
+    # its already-verified values while exercising the real enclosing fold.
+    first_outcome = _outcome(physical, 1)
+    assert physical.selected_evaluation is not None
+    evaluation = _FoldEvaluation(physical.selected_evaluation)
+    basis = _FoldBasis()
+    frontier = AcquisitionEvaluationFrontierRecord(
+        key=AcquisitionEvaluationFrontierKey(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            source_job_id=origin.source_job_id,
+            design_problem_ref=origin.policy_scope.design_problem_ref,
+            candidate_id=origin.policy_scope.candidate_id,
+        ),
+        revision=1,
+        selected_evaluation_witness_ref=str(evaluation.selected.n5_execution_ref.artifact_id),
+        selected_evaluation_content_hash=_hash("7"),
+        basis_ref=str(evaluation.selected.basis_ref.artifact_id),
+        basis_content_hash=_hash("b"),
+        decision_ref=str(physical.evaluation_decision_ref.artifact_id),
+        frontier_ref=_hash("8"),
+    )
+    first = replace(
+        first,
+        head=first_outcome.head,
+        terminal=physical,
+        origin=origin,
+        phase_chain=first_outcome.phase_chain,
+        decision=_FoldDecision(),
+        selected_basis=basis,
+        evaluation=evaluation,
+        continuation=None,
+        frontier_after=frontier,
+    )
+    terminal = reuse.terminal
+    if blocked:
+        terminal = type(terminal).model_validate(
+            {
+                **terminal.model_dump(mode="python"),
+                "blocker_ref": _ref("runtime_quality.acquisition_evaluation_decision", "b"),
+                "blocker_reason": "candidate_experiment_reuse_numerical_basis_not_established",
+            }
+        )
+    reuse_outcome = _outcome(terminal, 2)
+    reuse = replace(
+        reuse,
+        head=reuse_outcome.head,
+        terminal=terminal,
+        origin=replace(
+            origin, current_terminal_history=first, candidate_terminal_history_chain=(first,)
+        ),
+        phase_chain=reuse_outcome.phase_chain,
+        decision=_FoldDecision(
+            prior_basis_ref=physical.selected_basis_ref,
+            prior_evaluation=physical.selected_evaluation,
+            expected_frontier_revision=frontier.revision,
+            expected_frontier_ref=frontier.frontier_ref,
+            comparison_result="not_established" if blocked else "equivalent",
+            predicate_provenance="not_established" if blocked else "recomputed",
+        ),
+        current_basis=basis,
+        selected_basis=None if blocked else basis,
+        evaluation=None if blocked else evaluation,
+        continuation=None if blocked else basis,
+        frontier_before=frontier,
+        frontier_after=(
+            frontier if blocked else replace(frontier, revision=2, frontier_ref=_hash("9"))
+        ),
+    )
+    if current == "foreign_profile":
+        reuse = replace(
+            reuse,
+            terminal_ref=reuse.terminal_ref.model_copy(
+                update={"manifest_profile_sha256": _hash("e")}
+            ),
+        )
+    outcomes = (first_outcome, reuse_outcome)
+    if current == "pending":
+        pending = _phase(action_generation=3, job_id="changed-source-action")
+        outcomes = (*outcomes, _outcome(pending, 3))
+    by_ref = {outcome.head.receipt_ref: outcome for outcome in outcomes}
+    histories = {item.head.action_generation: item for item in (first, reuse)}
+    heads = tuple(outcome.head for outcome in outcomes)
+
+    store = SimpleNamespace(
+        list_acquisition_action_heads_for_source=lambda **_: heads,
+        list_acquisition_action_heads=lambda **_: heads,
+        get_acquisition_action_head=lambda *, action_generation, **_: heads[action_generation - 1],
+    )
+
+    def unexpected_cas_access(*_args, **_kwargs) -> None:
+        pytest.fail("current fold bypassed the preverified component boundary")
+
+    cas = SimpleNamespace(
+        has=unexpected_cas_access,
+        get_bytes=unexpected_cas_access,
+        get_manifest=unexpected_cas_access,
+    )
+    service = object.__new__(ControlPlaneService)
+    sink = object.__new__(AcquisitionRouteLoopAuthoritySink)
+    sink._control_store = store
+    sink._artifact_store = cas
+    sink._event_log = object()
+    sink._core_source_resolver = service.resolve_completed_control_job_core_run_source
+    loop = AcquisitionRouteLoop(
+        control_store=store,
+        artifact_store=cas,
+        event_log=sink._event_log,
+        core_source_resolver=sink._core_source_resolver,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        action_outcome_reader=sink,
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoop, "_resolve_candidate_experiment_source", lambda *_args, **_: origin
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_read_verified_action_phase",
+        lambda _sink, receipt_ref, **_: by_ref[receipt_ref].phase_chain[-1],
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_verified_candidate_experiment_phase_chain",
+        lambda _sink, head, **_: by_ref[head.receipt_ref].phase_chain,
+    )
+    monkeypatch.setattr(
+        acquisition_evaluation_history,
+        "verify_candidate_experiment_terminal_history",
+        lambda *, head, **_: histories[head.action_generation],
+    )
+
+    job_id = heads[-1].job_id if current == "pending" else None
+    if current == "foreign_profile":
+        with pytest.raises(
+            AcquisitionRouteClosureError,
+            match=r"^candidate_experiment_terminal_history_not_verified$",
+        ):
+            loop.resolve_current_candidate_experiment(run_id=origin.run_id)
+        return
+    selected = loop.resolve_current_candidate_experiment(run_id=origin.run_id, action_job_id=job_id)
+    assert selected.current_action_head == heads[-1]
+    assert selected.current_terminal_history is reuse
+    assert selected.candidate_terminal_history_chain == (first, reuse)
+    assert selected.source_attempt_prefix == (first.action.attempt_id,)
+    assert selected.action_authority == "not_established"
+    if blocked:
+        assert reuse.evaluation is None
+        assert reuse.frontier_after == first.frontier_after
+    else:
+        assert reuse.terminal.selected_evaluation == physical.selected_evaluation

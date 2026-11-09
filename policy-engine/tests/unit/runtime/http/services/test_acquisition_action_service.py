@@ -547,6 +547,7 @@ def _candidate_experiment_pending_resume_case(
     from polisyos.runtime.quality import acquisition_evaluation_dispatch
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
+        _ResolvedCurrentCandidateExperiment,
     )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.generation_cycle import LoopVOIDecision
@@ -646,13 +647,14 @@ def _candidate_experiment_pending_resume_case(
             return admission
 
     calls: list[str] = []
+    owner_resolution_calls: list[dict[str, object]] = []
     no_n5_calls: list[object] = []
     terminal_head = object()
     verified_outcome = object()
 
     class Sink:
         def experiment_action_outcomes(self, **_kwargs: object) -> tuple[object, ...]:
-            return (outcome,)
+            raise AssertionError("worker must reuse outcomes from its current owner resolution")
 
         def verify_action_head(self, actual_head: object) -> object:
             assert actual_head is terminal_head
@@ -674,8 +676,14 @@ def _candidate_experiment_pending_resume_case(
     service.control_service = control
     service._execution_port = port
     service._production_execution_port = port
+
+    def resolve_current(**kwargs: object) -> _ResolvedCurrentCandidateExperiment:
+        owner_resolution_calls.append(kwargs)
+        return _ResolvedCurrentCandidateExperiment(origin=origin, outcomes=(outcome,))
+
     service._candidate_experiment_loop = lambda **_kwargs: SimpleNamespace(
-        resolve_current_candidate_experiment=lambda **_resolve_kwargs: origin
+        resolve_current_candidate_experiment=lambda **kwargs: resolve_current(**kwargs).origin,
+        _resolve_current_candidate_experiment_resolution=resolve_current,
     )
     service._candidate_experiment_terminal_progress = lambda actual: {
         "state": "completed" if actual is verified_outcome else "unexpected"
@@ -702,6 +710,7 @@ def _candidate_experiment_pending_resume_case(
         "terminal_head": terminal_head,
         "verified_outcome": verified_outcome,
         "calls": calls,
+        "owner_resolution_calls": owner_resolution_calls,
         "no_n5_calls": no_n5_calls,
         "dispatch_error": None,
         "dispatch_check": None,
@@ -737,6 +746,9 @@ def test_pending_candidate_experiment_retry_scopes_dispatch_and_sink_to_app_cata
 
     assert result == {"state": "completed"}
     assert case["calls"] == ["dispatch", "verify"]
+    assert case["owner_resolution_calls"] == [
+        {"run_id": case["origin"].run_id, "action_job_id": case["job"].job_id}
+    ]
     assert case["no_n5_calls"] == []
     assert current_catalog_serving_source() is None
 
@@ -758,6 +770,9 @@ def test_pending_candidate_experiment_retry_restores_catalog_scope_after_error(
         case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
 
     assert case["calls"] == ["dispatch"]
+    assert case["owner_resolution_calls"] == [
+        {"run_id": case["origin"].run_id, "action_job_id": case["job"].job_id}
+    ]
     assert case["no_n5_calls"] == []
     assert current_catalog_serving_source() is None
 
@@ -784,6 +799,9 @@ def test_pending_candidate_experiment_retry_uses_app_catalog_and_restores_equiva
         assert current_catalog_serving_source() is outer_source
 
     assert case["calls"] == ["dispatch", "verify"]
+    assert case["owner_resolution_calls"] == [
+        {"run_id": case["origin"].run_id, "action_job_id": case["job"].job_id}
+    ]
     assert case["no_n5_calls"] == []
     assert current_catalog_serving_source() is None
 
@@ -805,6 +823,9 @@ def test_pending_candidate_experiment_retry_restores_foreign_outer_catalog_after
         assert current_catalog_serving_source() is case["foreign_source"]
 
     assert case["calls"] == ["dispatch", "verify"]
+    assert case["owner_resolution_calls"] == [
+        {"run_id": case["origin"].run_id, "action_job_id": case["job"].job_id}
+    ]
     assert case["no_n5_calls"] == []
     assert current_catalog_serving_source() is None
 

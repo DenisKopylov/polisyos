@@ -14367,6 +14367,15 @@
           "wall_seconds": 3701.353,
           "scope": "Real B persisted at terminal SQL head 5 and completed. The selected WMR, input bindings and input binding report retained a default bound-state view. The protected reentry oracle failed before C. A CAS sibling profile is not selected evidence."
         },
+        "p05_protected_candidate_world_profiles": {
+          "source_commit": "0da16eb492e6057cb53c6b4b0678969f50f84ff3",
+          "source_tree": "4973aa0bc33c13520f1e150c6d9486f2921b088f",
+          "component_output": "MAIN:policy-engine/_cache/e02/lane01-p05-candidate-world-profiles-r1",
+          "component_pass": 32,
+          "n5_consumer_output": "MAIN:policy-engine/_cache/e02/lane01-p05-selected-bound-state-n5-r1",
+          "n5_consumer_pass": 3,
+          "scope": "New protected candidate producer selects Foundry binding, state and report profiles. Fresh owner readback preserves the exact data edge and distinguishes the same-artifact-ID default view. Historical checkpoint readers keep their stored refs. Full new B and independently authorized C are a separate running test."
+        },
         "p08_sql_v25_restricted_occurrence_diagnostic": {
           "source_commit": "0c1da9b356f26b2df81cd020791d35d8e19dd171",
           "source_tree": "d8798a5f8a65502743065707e15c499eb8669ece",
@@ -14386,6 +14395,23 @@
           "stable_pins": 10,
           "wall_seconds": 166.032,
           "scope": "The new graph-inventory checks admit actual complete Foundry execution and all three initial current GETs. The independent digest oracle expected float64 but the actual captured arrays are float32. The remaining controls have no verdict."
+        },
+        "p08_sql_v25_transfer_diagnostic_r10": {
+          "source_commit": "e8a8f4add7aa6f05e324e6f83492c3af7b43bef0",
+          "source_tree": "0b7d938c356b71cd43b5197b8282f4471e08a7be",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-transfer-diagnostic-r10",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 11,
+          "scope": "The route reaches current selected execution, independent float32 byte checks, and wrong merge-schema refusal. The real observer records 45 unbudgeted or receiptless CAS calls before withdrawal. The exact stacks and typed read path isolate legacy snapshot reconciliation and the bytes-only NPZ sidecar."
+        },
+        "p08_sql_v25_bounded_transfer_r11": {
+          "base_commit": "e8a8f4add7aa6f05e324e6f83492c3af7b43bef0",
+          "product_delta_commit": "c6fe5b7f558a2aa488dd980c6d451535de773b70",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r11",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 11,
+          "wall_seconds": 250.735,
+          "scope": "The fresh legacy SQL consumer passes bounded accounting, explicit unbounded injections, budget and input-removal controls. The foreign-cell request returns 403 mfa_required before the intended cell check. Withdrawal and the unaffected source after withdrawal remain unrun."
         },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
@@ -14435,6 +14461,12 @@
           "r15_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r15",
           "r15_refusal": "missing repository re-export binding: polisyos.foundry.SentenceTransformerEmbedder",
           "r15_stable_pins": 58,
+          "r16_commit": "607f273f43e4eff82b31b7f96e02ab994a630994",
+          "r16_tree": "e5a7275ed0f2155d5df071bb459a5bd672ae3113",
+          "r16_output": "MAIN:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r16",
+          "r16_refusal": "missing repository re-export binding: polisyos.foundry.SentenceTransformerEmbedder",
+          "r16_stable_pins": 69,
+          "r16_scope": "The published route composition omitted frontier commit a9b7621ce, which was present on the separate verification branch only. The actual Git source retains the root import. R16 does not verify the frontier repair.",
           "catalog_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-owner-r1",
           "catalog_lazy_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-lazy-r1",
           "known_import_edge_diagnostic": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r1",

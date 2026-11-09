@@ -14435,6 +14435,60 @@
           "stable_pins": 9,
           "scope": "The two actual selectors refuse unresolved PreparedSKGRead and Mapping annotations before the owner imports are fixed. Both then select after full registry enumeration. The same cohort proves Ukraine facade class identity and source route, and uses real CAS selected profiles for causal refusal negatives. No numerical N5, missing constraint authority or full playbook verdict is inferred."
         },
+        "lane01_current_cycle_owner_checks": {
+          "source_commit": "f2dd0ef1eb74d10e062b1dba6aca5622299b37ef",
+          "source_tree": "74463661e41ccf5c4fdddbd07d829c24e2189c00",
+          "cyc04_served_and_scheduler": {
+            "output": "VERIFY:policy-engine/_cache/e02/cyc04-fallback-served-current-b3",
+            "pass": 3,
+            "fail": 0,
+            "stable_pins": 8,
+            "wall_seconds": 142.503,
+            "peak_rss_bytes": 1519665152
+          },
+          "cyc04_protected_quota_and_interruption": {
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-protected-quota-current-r3",
+            "pass": 5,
+            "fail": 0,
+            "stable_pins": 24,
+            "wall_seconds": 126.522,
+            "peak_rss_bytes": 1579810816
+          },
+          "cyc05_two_children": {
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-cyc05-two-child-native-r4",
+            "pass": 1,
+            "fail": 0,
+            "stable_pins": 16,
+            "wall_seconds": 224.755,
+            "peak_rss_bytes": 1523286016
+          },
+          "cyc05_partial_frontier": {
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-frontier-current-r9",
+            "pass": 1,
+            "fail": 0,
+            "stable_pins": 274,
+            "wall_seconds": 176.352,
+            "peak_rss_bytes": 1565573120
+          },
+          "strict_n6_r18": {
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r18",
+            "pass": 0,
+            "fail": 1,
+            "stable_pins": 75,
+            "wall_seconds": 867.3,
+            "peak_rss_bytes": 1981104128
+          },
+          "batch_diagnostic_r2": {
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r2",
+            "classification": "RESOURCE_LIMIT_NO_FINAL_CENSUS",
+            "stable_pins": 75,
+            "wall_seconds": 1695.443
+          },
+          "chain_owner_backend_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-chain-owner-r1",
+          "chain_owner_backend_pass": 12,
+          "combined_a_collection": "VERIFY:policy-engine/_cache/e02/lane01-opt-in-a-collection-r2",
+          "scope": "Current real grounded sibling N5 and fresh GET, information and budget controls, protected/unknown-price quota and interrupted results, two complete children and partial frontier through fresh GET. DA-06 retains the actual loaded-build dependency. Strict N6 R18 stops at the missing Foundry chain_executor re-export binding, with no numerical execution."
+        },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -30733,7 +30787,7 @@
       "track_position": 5,
       "implementation_status": "IN_PROGRESS",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "lane01_cycle",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
@@ -30757,6 +30811,7 @@
         "TEST-CYC-04-06"
       ],
       "evidence": [
+        "LANE-01.evidence_catalog.lane01_current_cycle_owner_checks",
         "LANE-01.evidence_catalog.mixed_affected_r2",
         "LANE-01.evidence_catalog.cyc04_full_served_r7"
       ],
@@ -30771,7 +30826,7 @@
       "track_position": 6,
       "implementation_status": "IN_PROGRESS",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "lane01_cycle + lane01_served + lane01_readiness",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
@@ -30797,6 +30852,7 @@
         "TEST-CYC-05-07"
       ],
       "evidence": [
+        "LANE-01.evidence_catalog.lane01_current_cycle_owner_checks",
         "LANE-01.evidence_catalog.quota_historical_owner",
         "LANE-01.evidence_catalog.quota_historical_affected",
         "LANE-01.evidence_catalog.mixed_focused_r4",

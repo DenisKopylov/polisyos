@@ -6,12 +6,12 @@ from typing import Literal
 
 from pydantic import Field
 
+from polisyos.core.contracts import CatalogRunProfile
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.artifacts import RetentionClass
 from polisyos.data_forge.kernel.pipeline import AssetGroup, AssetKey, AssetSpec
 
 from .selection import (
-    CatalogRunProfile,
     select_catalog_sources,
     source_included_in_run_profile,
 )

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from polisyos.data_forge.kernel.schemas import CompatibilityMode, SchemaRegistry, SchemaVersion
 
-from .source_modules import CORE_CATALOG_SOURCE_MODULES
+from .source_modules import _default_catalog_source_modules
+
+CORE_CATALOG_SOURCE_MODULES = _default_catalog_source_modules()
 
 CATALOG_BASE_SCHEMA_IDS: tuple[str, ...] = (
     "catalog.sources.raw",

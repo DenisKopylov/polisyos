@@ -8,6 +8,8 @@ from typing import Self
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+# Keep public method annotations resolvable through runtime reflection.
+from polisyos.core.contracts import CatalogRunProfile  # noqa: TC001
 from polisyos.data_forge.kernel._base import DataForgeModel
 
 from .selection import (
@@ -19,7 +21,6 @@ from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
     CatalogRunLane,
-    CatalogRunProfile,
     CatalogSourceModuleSpec,
 )
 

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from polisyos.core.contracts import CatalogRunProfile
+
 from .assets import (
     CATALOG_ASSET_GROUP,
     CATALOG_INDEX_KEY,
@@ -43,7 +45,6 @@ from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
     CatalogRunLane,
-    CatalogRunProfile,
     CatalogSourceAssetKeys,
     CatalogSourceModulePlan,
     CatalogSourceModuleSpec,
@@ -69,9 +70,9 @@ if TYPE_CHECKING:
 def __getattr__(name: str) -> object:
     """Resolve YAML-derived compatibility views only when explicitly requested."""
     if name == "CORE_CATALOG_SOURCE_MODULES":
-        from . import source_modules
+        from .source_modules import _default_catalog_source_modules
 
-        return source_modules.CORE_CATALOG_SOURCE_MODULES
+        return _default_catalog_source_modules()
     if name in {
         "CATALOG_BASE_SCHEMA_CONTRACTS",
         "CATALOG_BASE_SCHEMA_IDS",

@@ -14328,6 +14328,10 @@
           "r11_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r11",
           "r11_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.CatalogRunProfile",
           "r11_stable_pins": 23,
+          "catalog_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-owner-r1",
+          "catalog_lazy_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-lazy-r1",
+          "known_import_edge_diagnostic": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r1",
+          "diagnostic_scope": "On 3df8e9db, 2,318 known reached modules and 638 refused edges, 24 unchanged inputs. Unknown subtrees remain unqualified. Multiple later live capture errors can share an earlier cause. This diagnostic does not qualify the source or numerical execution.",
           "scope": "Exact early-host source discovery with zero physical N5. R11 advances past the connector aggregate and refuses the Catalog profile alias route. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
         },
         "lane01_initial_a_live_witness_wall_limit": {

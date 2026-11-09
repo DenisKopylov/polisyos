@@ -85,7 +85,7 @@ _MAUP_POSITIVITY_BLOCK_THRESHOLD = 0.01
 # Shared output slots
 # ──────────────────────────────────────────────────────────────────────────────
 
-from . import identification as _identification
+import polisyos.foundry.methods.catalog.causal.interference.identification as _identification
 
 globals().update(
     {

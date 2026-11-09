@@ -85,8 +85,9 @@ _MAUP_POSITIVITY_BLOCK_THRESHOLD = 0.01
 # Shared output slots
 # ──────────────────────────────────────────────────────────────────────────────
 
-from . import estimation as _estimation
-from . import identification as _identification
+import polisyos.foundry.methods.catalog.causal.interference.estimation as _estimation
+import polisyos.foundry.methods.catalog.causal.interference.identification as _identification
+
 from .identification import (
     build_block_stratified_network_causal_data,
     build_interference_topology_contracts,

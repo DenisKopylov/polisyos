@@ -93,6 +93,7 @@ Main ref families:
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
 - `foundry.py` includes the opt-in source-basis artifact/ref alongside existing compile and execute DTOs.
 - `runtime.py`, `control.py`, `cursor.py`
+- `forecast_profile_member.py` (the stable direct owner route for forecast-member receipts and profile-kind identities; the root facade remains a lazy compatibility export)
 - `owned_attempt_anchor.py` (stable lazy-facade exports are part of the public Core contract surface)
 - `provenance.py`
 - `bounded_liveness.py`

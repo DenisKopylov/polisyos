@@ -41,13 +41,13 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     resolve_manifest_by_profile as _resolve_manifest_by_profile,
 )
-from polisyos.core.contracts import (
+from polisyos.core.contracts import DataSnapshot
+from polisyos.core.contracts.forecast_profile_member import (
     FORECAST_PROFILE_MEMBER_KIND,
     FORECAST_PROFILE_MEMBER_SCHEMA,
     FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
     VALUE_DATA_PROFILE_KIND,
     VALUE_OWNER_PROJECTION_KIND,
-    DataSnapshot,
     ForecastProfileMemberV1,
     forecast_profile_observed_series_sha256,
 )

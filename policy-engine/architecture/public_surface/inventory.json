@@ -887,6 +887,7 @@
         "polisyos.core.compiler",
         "polisyos.core.components",
         "polisyos.core.contracts",
+        "polisyos.core.contracts.forecast_profile_member",
         "polisyos.core.governance",
         "polisyos.core.llm",
         "polisyos.core.llm.cache_settlement",
@@ -3298,6 +3299,63 @@
                 "operation": "is_file",
                 "status": "present",
                 "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
+          "module": "polisyos.core.contracts.forecast_profile_member",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 8,
+          "known_export_count": 8,
+          "exports": [
+            "FORECAST_PROFILE_MEMBER_CONTRACT_VERSION",
+            "FORECAST_PROFILE_MEMBER_KIND",
+            "FORECAST_PROFILE_MEMBER_SCHEMA",
+            "FORECAST_PROFILE_MEMBER_SCHEMA_VERSION",
+            "VALUE_DATA_PROFILE_KIND",
+            "VALUE_OWNER_PROJECTION_KIND",
+            "ForecastProfileMemberV1",
+            "forecast_profile_observed_series_sha256"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/contracts/forecast_profile_member.py",
+          "summary": "Candidate-only binding between one forecast and an EMP-01 source member.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/contracts/forecast_profile_member.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/forecast_profile_member/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/contracts/forecast_profile_member.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 5529,
+                "sha256": "aca9eb0cfc21f2349c35af52dd1569809b24bf4b2f0123b188f79a75eaa0ea37"
+              },
+              {
+                "path": "src/polisyos/core/contracts/forecast_profile_member",
+                "operation": "is_dir",
+                "status": "absent",
+                "result": false
               }
             ],
             "unresolved_by_construction": [

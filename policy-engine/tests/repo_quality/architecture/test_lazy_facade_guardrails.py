@@ -118,6 +118,62 @@ def test_lazy_module_facade_children_are_source_proved_and_not_deep_edges() -> N
         ), (source, module_name, alias_name)
 
 
+def test_forecast_member_leaf_keeps_the_lazy_core_facade_supported() -> None:
+    """The explicit forecast owner route preserves Core's lazy root exports."""
+
+    owner = "polisyos.core.contracts.forecast_profile_member"
+    root = "polisyos.core.contracts"
+    consumer = SRC_ROOT / "runtime" / "quality" / "forecast_profile_binding.py"
+    consumer_tree = ast.parse(consumer.read_bytes(), filename=str(consumer))
+    imports = {
+        (node.module, alias.name)
+        for node in ast.walk(consumer_tree)
+        if isinstance(node, ast.ImportFrom)
+        for alias in node.names
+    }
+    assert (owner, "FORECAST_PROFILE_MEMBER_KIND") in imports
+    assert (root, "FORECAST_PROFILE_MEMBER_KIND") not in imports
+
+    manifest = Path(
+        os.environ.get(
+            "POLISYOS_VIRTUAL_MANIFEST",
+            REPO_ROOT / "architecture/public_surface/contract.toml",
+        )
+    )
+    policies = _guardrails()._parse_public_surface(manifest)
+    supported = {entry for policy in policies for entry in policy.supported_entrypoints}
+    assert owner in supported
+
+    probe = f"""
+import importlib, sys
+from pathlib import Path
+source_root = {str(REPO_ROOT / 'src')!r}
+owner_name = {owner!r}
+facade = importlib.import_module('polisyos.core.contracts')
+assert Path(facade.__file__).resolve() == Path(source_root) / 'polisyos/core/contracts/__init__.py'
+assert owner_name not in sys.modules and 'polisyos.ir' not in sys.modules
+family = tuple(name for name, provider in facade._LAZY_IMPORTS.items() if provider == owner_name)
+assert family
+owner = importlib.import_module(owner_name)
+assert Path(owner.__file__).resolve() == Path(source_root) / 'polisyos/core/contracts/forecast_profile_member.py'
+assert all(facade._LAZY_IMPORTS[name] == owner_name for name in family)
+assert all(getattr(facade, name) is getattr(owner, name) for name in family)
+""".strip()
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", probe],
+        cwd=REPO_ROOT,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(REPO_ROOT / "src"),
+            "PYTHONDONTWRITEBYTECODE": "1",
+        },
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_loader_proof_follows_the_returned_module_and_rejects_helper_drift() -> None:
     prove = getattr(_guardrails(), "_facade_lazy_child_target", None)
     assert callable(prove), "the source-backed lazy child resolver is missing"

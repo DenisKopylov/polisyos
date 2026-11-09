@@ -12,7 +12,7 @@ import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from polisyos.core.contracts import (
+from polisyos.core.contracts.forecast_profile_member import (
     FORECAST_PROFILE_MEMBER_CONTRACT_VERSION,
     FORECAST_PROFILE_MEMBER_KIND,
     FORECAST_PROFILE_MEMBER_SCHEMA,

@@ -14559,6 +14559,11 @@
           "strict_r22_stable_pins": 122,
           "strict_r22_wall_seconds": 903.643,
           "strict_r22_first_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.FORECAST_PROFILE_MEMBER_KIND",
+          "forecast_member_cold_owner": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-cold-r2",
+          "forecast_member_consumer_wave": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-consumers-r1",
+          "forecast_member_consumer_baseline": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-consumers-baseline-r1",
+          "forecast_member_consumer_baseline_commit": "d20b5b47ef3a2b75cab3396cac0bb1550ee1bc37",
+          "forecast_member_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-architecture-r1",
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
         "lane01_p05_configured_source_withdrawal_history": {

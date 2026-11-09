@@ -1410,18 +1410,9 @@ def verify_candidate_experiment_terminal_history(
     ).receipt
     if type(pending_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
         raise ValueError("candidate_experiment_terminal_pending_phase_untyped")
-    action_service, request, _decision_ref = sink._candidate_experiment_phase_action_context(
-        pending_phase
-    )
-    # Reopen only the signed request's earlier prefix. A full current fold here
-    # would call this terminal verifier recursively on its own generation.
-    origin = action_service._candidate_experiment_origin_for_request(
-        tenant_id=head.tenant_id,
-        cell_id=head.cell_id,
-        run_id=head.run_id,
-        request=request,
-        require_current=False,
-    )
+    # The phase owner reopens the signed request's earlier prefix. A full
+    # current fold here would recursively verify this terminal again.
+    _, _, _, origin = sink._candidate_experiment_phase_action_context(pending_phase)
     predecessor_history_chain = origin.candidate_terminal_history_chain
     if len(predecessor_history_chain) + 1 != head.action_generation:
         raise ValueError("candidate_experiment_terminal_prior_generation_missing")

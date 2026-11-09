@@ -3542,10 +3542,12 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if reuse_context is not None:
             return
-        action_service, request, decision_ref = self._candidate_experiment_phase_action_context(
-            phase,
-            verified_origin=verified_origin if reuse_verified_origin else None,
-            job_context=job_context,
+        action_service, request, decision_ref, _origin = (
+            self._candidate_experiment_phase_action_context(
+                phase,
+                verified_origin=verified_origin if reuse_verified_origin else None,
+                job_context=job_context,
+            )
         )
         try:
             if verified_origin is None:
@@ -3645,8 +3647,8 @@ class AcquisitionRouteLoopAuthoritySink:
                 raise ValueError("candidate_experiment_reuse_live_authority_not_established")
             return
 
-        action_service, request, decision_ref = self._candidate_experiment_phase_action_context(
-            phase, job_context=job_context
+        action_service, request, decision_ref, _origin = (
+            self._candidate_experiment_phase_action_context(phase, job_context=job_context)
         )
 
         def _no_effect(_invocation: object) -> object:
@@ -4102,7 +4104,12 @@ class AcquisitionRouteLoopAuthoritySink:
         verified_origin: VerifiedCandidateExperimentOrigin | None = None,
         job_context: tuple[ControlJobRecord, ArtifactRef, dict[str, Any], AcquisitionActionService]
         | None = None,
-    ) -> tuple[AcquisitionActionService, CandidateExperimentRouteMutationRequest, str]:
+    ) -> tuple[
+        AcquisitionActionService,
+        CandidateExperimentRouteMutationRequest,
+        str,
+        VerifiedCandidateExperimentOrigin,
+    ]:
         """Resolve the exact source and typed acquisition request from its action job."""
         from polisyos.runtime.http.services.acquisition_action_service import (
             CandidateExperimentRouteMutationRequest,
@@ -4129,12 +4136,12 @@ class AcquisitionRouteLoopAuthoritySink:
                 request=request,
                 require_current=False,
             )
-        self._candidate_experiment_phase_origin(phase, verified_origin=verified_origin)
+        origin = self._candidate_experiment_phase_origin(phase, verified_origin=verified_origin)
         if not callable(
             getattr(action_service, "load_candidate_experiment_decision_history", None)
         ) or not callable(getattr(action_service, "replay_candidate_experiment_authority", None)):
             raise ValueError("candidate_experiment_authority_owner_not_composed")
-        return action_service, request, decision_ref
+        return action_service, request, decision_ref, origin
 
     def _candidate_experiment_reuse_phase_action_context(
         self,

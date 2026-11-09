@@ -20,6 +20,10 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.runtime.http.resilience import guard_runtime_control_store
+from polisyos.runtime.http.services.acquisition_action_service import (
+    CandidateExperimentRouteMutationRequest,
+    CandidateExperimentRouteReplayPins,
+)
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
 )
@@ -36,6 +40,7 @@ from polisyos.runtime.quality.acquisition_evaluation_history import (
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
     AcquisitionCandidateExperimentTerminalReceipt,
+    VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
@@ -354,10 +359,80 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
         }
         return head if scope == expected_scope else None
 
-    origin = SimpleNamespace(candidate_terminal_history_chain=())
-    action_service = SimpleNamespace(
-        _candidate_experiment_origin_for_request=lambda **_kwargs: origin
+    scope = base.policy_scope
+    origin = VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=base.tenant_id,
+        cell_id=base.cell_id,
+        run_id=base.run_id,
+        source_job_id=base.source_job_id,
+        source_payload_ref=base.source_payload_ref,
+        capability_manifest_ref=base.capability_manifest_ref,
+        request_content_hash=base.request_content_hash,
+        route_id=base.route_id,
+        policy_ref=base.policy_ref,
+        policy_scope=scope,
+        generation_run=SimpleNamespace(),
+        source_cycle=SimpleNamespace(voi_decision=base.voi_decision),
+        design_problem_basis=SimpleNamespace(),
+        planner_report=SimpleNamespace(),
+        planner_record=SimpleNamespace(),
     )
+    request = CandidateExperimentRouteMutationRequest(
+        route_id=base.route_id,
+        replay_pins=CandidateExperimentRouteReplayPins(
+            source_job_id=base.source_job_id,
+            source_payload_ref=base.source_payload_ref,
+            request_content_hash=base.request_content_hash,
+            compiled_ref=scope.compiled_ref,
+            planner_report_ref=scope.planner_report_ref,
+            compiler_report_ref=scope.compiler_report_ref,
+            configured_port_source_ref=scope.configured_port_source_ref,
+            policy_ref=base.policy_ref,
+            candidate_digest=scope.candidate_digest,
+        ),
+        idempotency_key="terminal-identity-owner",
+    )
+    owner_reads: list[dict[str, object]] = []
+    owner_error: list[BaseException] = []
+    phase_reads: list[object] = []
+
+    def reopen_origin(**kwargs: object) -> VerifiedCandidateExperimentOrigin:
+        owner_reads.append(kwargs)
+        if owner_error:
+            raise owner_error[0]
+        assert kwargs == {
+            "tenant_id": base.tenant_id,
+            "cell_id": base.cell_id,
+            "run_id": base.run_id,
+            "request": request,
+            "require_current": False,
+        }
+        return origin
+
+    action_service = SimpleNamespace(
+        _candidate_experiment_origin_for_request=reopen_origin,
+        load_candidate_experiment_decision_history=lambda **_kwargs: None,
+        replay_candidate_experiment_authority=lambda **_kwargs: None,
+    )
+    payload = {
+        "action_kind": "runtime.evidence.acquisition.candidate_experiment.execute",
+        "request": request.model_dump(mode="python"),
+        "decision_ref": str(base.authority_decision_ref.artifact_id),
+    }
+
+    def read_phase_chain(
+        _sink: AcquisitionRouteLoopAuthoritySink,
+        selected_head: AcquisitionActionHeadRecord,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin,
+        reuse_verified_origin: bool,
+    ) -> tuple[SimpleNamespace, ...]:
+        assert selected_head == head
+        assert verified_origin is origin
+        assert reuse_verified_origin is True
+        phase_reads.append(selected_head)
+        return tuple(verified_by_ref[ref] for ref in phase_refs)
 
     def stop_after_identity(_receipt: object) -> frozenset[str] | None:
         raise RuntimeError("identity_join_reached_transition_guard")
@@ -370,13 +445,13 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
     )
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink,
-        "_candidate_experiment_phase_action_context",
-        lambda _self, _phase: (action_service, object(), _hash("0")),
+        "_candidate_experiment_phase_job_context",
+        lambda _self, _phase: (object(), object(), payload, action_service),
     )
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink,
         "_verified_candidate_experiment_phase_chain",
-        lambda _self, *_args, **_kwargs: tuple(verified_by_ref[ref] for ref in phase_refs),
+        read_phase_chain,
     )
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink,
@@ -395,12 +470,28 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
             ),
         ):
             install_case(**changes_identity)
+            owner_reads.clear()
+            phase_reads.clear()
             with pytest.raises((RuntimeError, ValueError), match=expected_error):
                 verify_candidate_experiment_terminal_history(
                     control_service=service,
                     head=head,
                     terminal_ref=terminal_ref,
                 )
+            assert len(owner_reads) == 1
+            assert phase_reads == [head]
+
+        owner_reads.clear()
+        phase_reads.clear()
+        owner_error.append(FileNotFoundError("selected source unavailable"))
+        with pytest.raises(FileNotFoundError, match="selected source unavailable"):
+            verify_candidate_experiment_terminal_history(
+                control_service=service,
+                head=head,
+                terminal_ref=terminal_ref,
+            )
+        assert len(owner_reads) == 1
+        assert phase_reads == []
     finally:
         service.close()
 

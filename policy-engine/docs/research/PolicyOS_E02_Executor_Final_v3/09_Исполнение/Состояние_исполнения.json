@@ -14253,6 +14253,23 @@
           "replay_recipe": "Open SQLite with mode=ro and immutable=1. Find the exact terminal event and action job. Open the sibling cas with FileSystemCAS.open_existing_read_only and read the terminal with the explicit selected manifest profile. Reconcile its typed authority event and all 13 inputs against the SQLite row. Follow the exact reentry receipt and use GenerationSourceRepository._read_candidate_simulation_v5_numerical_output with the selected refs and terminal scope.",
           "scope": "The retained V5 reader reopens two candidate-only NCM trajectories and the two completed acquired-world work observations without new N5 or store writes. SQL head 4 and the original expired worker lease remain. The fresh HTTP GET and terminal SQL commit are unrun."
         },
+        "lane01_selected_evaluation_reentry_reuse": {
+          "source_commit": "6d9be402af83b4503d7c09a213a5cf79149f3edc",
+          "source_tree": "cb723861ced016549fc1840a29ac518c5f011fcc",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-r4-selected-evaluation-reuse-r2",
+          "observed": {"PASS": 119, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 8,
+          "scope": "Component replay of the already verified evaluation, exact profile controls, fallback, and unique selected real CAS recovery. No served elapsed-time or fresh GET verdict."
+        },
+        "p05_separately_authorized_changed_input_r1": {
+          "base_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
+          "base_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r1",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 14,
+          "wall_seconds": 3599.664,
+          "scope": "Pinned test delta on the named base. The real B numerical result, completed job and terminal SQL head 5 persisted. Exact source removal correctly refused earlier than the test's expected wrapper, so fresh HTTP, separate C action and C N5 did not run. The next test binds refusal to the injected removal itself. R1 state is historical and lacks a maintained continuation to C."
+        },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",

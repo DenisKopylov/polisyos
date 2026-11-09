@@ -239,3 +239,92 @@ def test_changed_source_after_blocked_candidate_executes_new_n5(
     )
     assert scenario["source_status"] == "completed"
     assert "changed" in observed
+
+
+def test_separately_authorized_changed_source_executes_new_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: object,
+) -> None:
+    """A changed source uses the next provisioned attempt on one verified route."""
+    from datetime import UTC, datetime, timedelta
+
+    from tests._helpers.candidate_experiment_served_execution import (
+        run_candidate_experiment_served_execution,
+    )
+
+    completed = []
+    second_attempt = "served-labor-changed-source-attempt"
+
+    def after_first_execution(**first_values: object) -> None:
+        first = first_values["execution"]
+        first_history = first.terminal_history
+        assert first.standard_invocation_units_after == 4
+        policy = first_values["policy"]
+        assert tuple(item.attempt_id for item in policy.authorized_source_attempts) == (
+            first_history.action.attempt_id,
+            second_attempt,
+        )
+
+        def execute_changed(**action_values: object) -> None:
+            origin = action_values["origin"]
+            assert origin.policy_ref == first_history.origin.policy_ref
+            assert origin.route_id == first_history.origin.route_id
+            assert origin.candidate_terminal_history_chain == (first_history,)
+            changed = run_candidate_experiment_served_execution(
+                values=action_values["values"],
+                origin=origin,
+                request=action_values["request"],
+                decision_ref=action_values["decision_ref"],
+                policy_owner=first_values["policy_owner"],
+                monkeypatch=monkeypatch,
+                wdi_response_value=21.0,
+            )
+            history = changed.terminal_history
+            assert history.origin.source_attempt_prefix == (first_history.action.attempt_id,)
+            assert history.action.attempt_id == second_attempt
+            assert history.action.candidate_source_ref != first_history.action.candidate_source_ref
+            assert len(changed.execution_owner.transport_calls) == 1
+            assert (
+                changed.standard_invocation_units_before,
+                changed.standard_invocation_units_after,
+            ) == (4, 6)
+            assert history.reentry_evaluation is not None
+            assert first_history.reentry_evaluation is not None
+            old = first_history.reentry_evaluation.selected
+            current = history.reentry_evaluation.selected
+            assert current.n5_input_ref != old.n5_input_ref
+            assert current.n5_execution_ref != old.n5_execution_ref
+            assert current.n5_result_ref != old.n5_result_ref
+            result = changed.current_action.candidate_n5_result
+            assert result is not None
+            assert result.result_body.artifact_ref == current.n5_result_ref
+            assert result.publication_authority is False
+            _assert_changed_candidate_n5_numeric_outcomes(
+                control=first_values["control"], first=first, changed=changed, allow_blocked=True
+            )
+            completed.append(history.terminal_ref)
+
+        run_candidate_experiment_action_oracle(
+            tmp_path=tmp_path / "authorized-changed-source",
+            values=first_values["values"],
+            policy_ref=first_values["policy_ref"],
+            monkeypatch=monkeypatch,
+            idempotency_key="served-candidate-distinct-authorized-source",
+            exercise_controls=False,
+            after_replay=execute_changed,
+            authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
+        )
+
+    scenario = run_genuine_candidate_experiment_scenario(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        gateway=served_recorded_candidate_gateway,
+        total_units=7,
+        expected_blocked=True,
+        subsequent_attempt_ids=(second_attempt,),
+        after_execution=after_first_execution,
+        authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
+    )
+    assert scenario["source_status"] == "completed"
+    assert len(completed) == 1

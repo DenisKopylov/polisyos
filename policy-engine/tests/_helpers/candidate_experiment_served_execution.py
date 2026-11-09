@@ -560,18 +560,27 @@ def _assert_public_terminal_reader_reopens_source(
     source_id = origin.source_payload_ref
     original_get_bytes = store.get_bytes
     source_reads: list[str] = []
+    unavailable = FileNotFoundError("selected candidate source removed")
 
     with monkeypatch.context() as removed_source:
 
         def deny_source(ref, *args, **kwargs):
             if str(getattr(ref, "artifact_id", ref)) == source_id:
                 source_reads.append(source_id)
-                raise FileNotFoundError("selected candidate source removed")
+                raise unavailable
             return original_get_bytes(ref, *args, **kwargs)
 
         removed_source.setattr(store, "get_bytes", deny_source)
-        with pytest.raises(ValueError, match="candidate_experiment_source_not_current"):
+        with pytest.raises(ValueError) as refused:
             control.acquisition_route_sink.verify_action_head(head)
+    assert str(refused.value) in {
+        "source_artifact_unverified",
+        "candidate_experiment_source_not_current",
+    }
+    failure: BaseException | None = refused.value
+    while failure is not None and failure is not unavailable:
+        failure = failure.__cause__
+    assert failure is unavailable
     if source_reads != [source_id]:
         raise AssertionError("standalone terminal history did not reopen its selected source")
 
@@ -1172,6 +1181,7 @@ def run_candidate_experiment_served_execution(
     )
     execute_route = "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"
     get_path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
+
     def read_headers() -> dict[str, str]:
         return {
             "Authorization": trust.authorization_header("acquisition-operator"),

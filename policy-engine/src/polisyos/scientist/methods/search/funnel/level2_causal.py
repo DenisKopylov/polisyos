@@ -17,6 +17,7 @@ from pydantic import ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir import TypedFailureCard, UncertaintyType
 from polisyos.ir.analytics.causal import (
     build_data_readiness_report,
     persist_data_readiness_report,
@@ -32,10 +33,8 @@ from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
     FunnelStageResult,
-    TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 

@@ -17,13 +17,12 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.ir import TypedFailureCard, UncertaintyType
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelStage,
     FunnelStageResult,
-    TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
     parse_funnel_work_packet_feedback,
     statistical_uncertainty_from_ci_width,
 )

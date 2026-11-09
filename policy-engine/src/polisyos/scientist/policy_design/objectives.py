@@ -16,6 +16,7 @@ from polisyos.foundry.methods.catalog.optimization.protocols import (
     AmbiguityCertificate,
     ConstraintCertificate,
 )
+from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
@@ -42,9 +43,6 @@ from polisyos.scientist.methods.search.objective import (
 )
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope as SearchUncertaintyEnvelope,
-)
-from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyType,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 

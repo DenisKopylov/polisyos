@@ -9,15 +9,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from polisyos.ir import TypedFailureCard, UncertaintyType
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelAttemptHistory,
     FunnelStage,
     FunnelStageResult,
-    TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 
 __all__ = [

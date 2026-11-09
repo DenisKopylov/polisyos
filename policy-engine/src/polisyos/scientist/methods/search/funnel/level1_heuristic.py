@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.ir import TypedFailureCard, UncertaintyType
 from polisyos.scientist.methods.search.funnel._rules import (
     check_forbidden_combinations,
     compute_conflict_score,
@@ -24,10 +25,8 @@ from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
     FunnelStageResult,
-    TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context

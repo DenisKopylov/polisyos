@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 
-def test_funnel_facade_preserves_ir_uncertainty_type_export() -> None:
+def test_funnel_facade_preserves_ir_failure_contract_exports() -> None:
+    from polisyos.ir import TypedFailureCard as IRTypedFailureCard
     from polisyos.ir import UncertaintyType as IRUncertaintyType
-    from polisyos.scientist.methods.search.funnel import UncertaintyType
+    from polisyos.scientist.methods.search.funnel import TypedFailureCard, UncertaintyType
 
+    assert TypedFailureCard is IRTypedFailureCard
     assert UncertaintyType is IRUncertaintyType
 
 

@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.ir import FailureSeverity, TypedFailureCard, UncertaintyType
 from polisyos.scientist.methods.search.actionable_side_information import (
     ActionableSideInformation,
     persist_actionable_side_information,
@@ -17,7 +17,6 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
     parse_funnel_work_packet_feedback,
     statistical_uncertainty_from_ci_width,
 )

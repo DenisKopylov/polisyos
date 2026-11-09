@@ -11145,6 +11145,7 @@
         "polisyos.foundry.methods.artifacts",
         "polisyos.foundry.methods.backends",
         "polisyos.foundry.methods.causal",
+        "polisyos.foundry.methods.selection",
         "polisyos.foundry.uncertainty",
         "polisyos.foundry.validation"
       ],
@@ -12259,7 +12260,7 @@
         },
         {
           "module": "polisyos.foundry.methods",
-          "facade_mode_observed": "eager_exports",
+          "facade_mode_observed": "lazy_facade",
           "export_count": 233,
           "known_export_count": 233,
           "exports": [
@@ -12497,7 +12498,7 @@
             "verify_persisted_equivalence_certificate",
             "verify_value_method_selection_receipt"
           ],
-          "has___getattr__": false,
+          "has___getattr__": true,
           "has___dir__": false,
           "source_file": "src/polisyos/foundry/methods/__init__.py",
           "summary": "Stable lazy facade for Foundry Methods.",
@@ -12521,8 +12522,39 @@
                 "path": "src/polisyos/foundry/methods/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 143,
-                "sha256": "bf32d62cf5de89679a1b8c05563e3680bcb101e68c87c478bfb1872a3973a29c"
+                "bytes": 614,
+                "sha256": "1f3ac004344df79391a707b571ff4bb96cb2f4403af3f8fddff39a1673ad0bc0"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/api.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/api/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/api.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 26840,
+                "sha256": "9ed4be9673e30ae764ad8474c933fc540c6b3e94d38c121c3ef6d9324fe3fe18"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/api.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/api/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -13650,6 +13682,163 @@
           "source_export_profiles": []
         },
         {
+          "module": "polisyos.foundry.methods.selection",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 42,
+          "known_export_count": 42,
+          "exports": [
+            "COST_PER_MS",
+            "ActiveSetSummary",
+            "AdvisorOptimizationResult",
+            "AdvisorValuePolicy",
+            "BudgetCertificate",
+            "CalibratedRegretCertificate",
+            "CandidateScore",
+            "ConfidenceSequence",
+            "CrossMethodConsensus",
+            "DataCharacteristics",
+            "MethodAdvisorQuery",
+            "MethodAdvisorResult",
+            "MethodLossProfile",
+            "MethodScoreTraceEntry",
+            "MethodSelectionAlternative",
+            "MethodSelectionDisposition",
+            "MethodRouteConstraint",
+            "InputContractMethodCandidate",
+            "InputContractMethodSelection",
+            "select_method_for_input_contract",
+            "MethodSelectionReceipt",
+            "MethodSelectionCriteria",
+            "_score_entry",
+            "_score_entry_v2",
+            "advise_methods",
+            "advise_methods_for_analyst",
+            "attach_advisor_execution_context",
+            "authoring_catalog_payload",
+            "build_advisor_execution_context",
+            "compute_voi",
+            "method_selection_context_hash",
+            "method_accepts_input_contract",
+            "method_selection_payload",
+            "pareto_advise_methods",
+            "rank_method_catalog_entries",
+            "reachable_value_method_fqns",
+            "select_method_candidates_for_requirements",
+            "select_value_method_for_problem",
+            "suggest_adapter_methods",
+            "suggest_alternative_methods",
+            "suggest_plan_node_alternatives",
+            "verify_value_method_selection_receipt"
+          ],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/foundry/methods/selection/__init__.py",
+          "summary": "Lazy facade for method selection and advisor APIs.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/foundry/methods/selection.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 5199,
+                "sha256": "5b2dfacbe2676809f1fd61aa87cb23d6f2345d48735cb4cf90ba59a13464440a"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/advisor.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/cache.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/cost_model.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/history.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/receipt.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/registry.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/registry.pyi",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/requirements.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/selection/resolution.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
           "module": "polisyos.foundry.uncertainty",
           "facade_mode_observed": "lazy_facade",
           "export_count": 38,
@@ -13829,20 +14018,28 @@
         {
           "module": "polisyos.foundry.validation",
           "facade_mode_observed": "eager_exports",
-          "export_count": 11,
-          "known_export_count": 11,
+          "export_count": 19,
+          "known_export_count": 19,
           "exports": [
+            "bind_legal_subject_annotations",
             "build_causal_statistical_validity_report",
             "build_foundry_method_report",
             "build_foundry_phase0_closure_report",
             "build_foundry_phase2_closure_report",
             "default_foundry_phase2_closure_report_path",
             "default_foundry_phase2_manifest_path",
+            "LegalCorrespondenceRequest",
+            "LegalCorrespondenceResult",
+            "LegalSubjectAnnotationSource",
             "maybe_load_foundry_phase2_closure_report",
             "normalize_causal_statistical_validity_report",
             "normalize_foundry_method_report",
             "normalize_phase2_artifact_family",
-            "persist_causal_statistical_validity_report"
+            "persist_causal_statistical_validity_report",
+            "persist_legal_correspondence_result",
+            "persist_legal_subject_annotations",
+            "produce_legal_subject_spine",
+            "recognize_legal_correspondence"
           ],
           "has___getattr__": false,
           "has___dir__": false,
@@ -13868,8 +14065,8 @@
                 "path": "src/polisyos/foundry/validation/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1287,
-                "sha256": "a7451e018bf6ac15d48bf3406517ead921ac7f965d5ed93edad2a13525e24343"
+                "bytes": 1932,
+                "sha256": "736e0a710e8b8f3a1fe8c2dff9f64bf23cdb69a121c49851e90097fcd8b1b193"
               },
               {
                 "path": "src/polisyos/foundry/validation",

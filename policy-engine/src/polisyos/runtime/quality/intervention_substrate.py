@@ -33,7 +33,7 @@ from pydantic import (
 
 from polisyos.core import artifacts
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.foundry import (
+from polisyos.foundry.validation import (
     LegalCorrespondenceRequest,
     LegalCorrespondenceResult,
     LegalSubjectAnnotationSource,
@@ -85,7 +85,7 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.foundry import MethodRouteConstraint
+    from polisyos.foundry.methods.selection import MethodRouteConstraint
     from polisyos.ir.linker import LinkedIntervention
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioDecimalSetToRuleV2,
@@ -1615,7 +1615,7 @@ def project_value_method_route_constraint(
     All manifest rows are validated before selecting the requested family. An
     unresolvable source is never converted to an unconstrained advisor query.
     """
-    from polisyos.foundry import MethodRouteConstraint
+    from polisyos.foundry.methods.selection import MethodRouteConstraint
 
     routes = resolve_observation_manifest_routes(bundle)
     invalid = [
@@ -4397,7 +4397,7 @@ def _registered_methods_for_contract(
     contract_fqn: str | None = None,
 ) -> tuple[_MethodSignatureProtocol, ...]:
     # Metadata tokens can neither prove nor exhaust the actual input relation.
-    from polisyos.foundry import method_accepts_input_contract
+    from polisyos.foundry.methods.selection import method_accepts_input_contract
 
     matches = []
     for signature in registry.list_all():

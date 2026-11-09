@@ -2073,7 +2073,7 @@ def _foundry_requirement_report(
     capability_bindings: Sequence[Mapping[str, Any] | object],
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
 ) -> dict[str, Any]:
-    from polisyos.foundry import select_method_candidates_for_requirements
+    from polisyos.foundry.methods.selection import select_method_candidates_for_requirements
 
     return select_method_candidates_for_requirements(
         candidate_methods=candidate_methods,

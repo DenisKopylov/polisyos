@@ -16,13 +16,13 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
-from polisyos.foundry import (
+from polisyos.foundry.data_plane import materialize_method_contract
+from polisyos.foundry.methods import (
+    MethodDispatcher,
+    MethodRegistry,
     causal_worker_execution_context,
-    method_accepts_input_contract,
     validate_source_bound_causal_worker_response,
 )
-from polisyos.foundry.data_plane import materialize_method_contract
-from polisyos.foundry.methods import MethodDispatcher, MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -37,6 +37,7 @@ from polisyos.foundry.methods.causal import (
     StandardDifferenceInDifferences,
     TMLEEstimator,
 )
+from polisyos.foundry.methods.selection import method_accepts_input_contract
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,

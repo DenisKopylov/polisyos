@@ -34,10 +34,11 @@ gate. The runtime manifest owner derives the constraint from source; direct raw
 nested manifests refuse rather than becoming empty hints. An explicit requested
 method cannot escape the allowed route.
 
-Cross-component consumers import `MethodRouteConstraint` and
-`method_accepts_input_contract` through the stable `polisyos.foundry` facade.
-The facade lazily exposes these exact existing owner objects; it adds no wrapper,
-parser, evidence authority, or change to this internal implementation's maturity.
+Cross-component consumers import selection contracts and functions through the
+supported `polisyos.foundry.methods.selection` facade. The root
+`polisyos.foundry` exports remain available for compatibility. Both facades
+lazily expose the same existing owner objects; this entrypoint adds no wrapper,
+parser, evidence authority, or change to the selection implementation's maturity.
 
 Selector context v4 binds the complete effective constraint. Selection receipt v2
 retains its existing shape and authority labels. Prior context hashes remain

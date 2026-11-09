@@ -1,15 +1,59 @@
 from __future__ import annotations
 
 import ast
+import subprocess
+import sys
 from collections import Counter
 from importlib import import_module
 from pathlib import Path
 
 import pytest
 
-# One entry per unique physical import binding from the selected 60-row source
-# set. Duplicate occurrence rows remain distinct in the raw outcome ledger.
+# One entry per unique physical import binding in the selected source files.
+# Duplicate occurrence rows remain distinct in the outcome ledger.
 _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
+    (
+        "polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "polisyos.foundry.methods",
+        "causal_worker_execution_context",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "polisyos.foundry.methods",
+        "validate_source_bound_causal_estimator_interval",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "polisyos.foundry.methods",
+        "validate_source_bound_gcm_spec",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+        "polisyos.foundry.methods",
+        "validate_source_bound_gcm_spec",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "polisyos.foundry.methods",
+        "causal_worker_execution_context",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "polisyos.foundry.methods",
+        "validate_source_bound_causal_worker_response",
+        1,
+    ),
+    (
+        "polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "polisyos.foundry.methods.selection",
+        "method_accepts_input_contract",
+        1,
+    ),
     (
         "polisyos/runtime/quality/cycle_substrate.py",
         "polisyos.foundry.execute",
@@ -26,7 +70,7 @@ _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
         "polisyos/runtime/quality/data_state_substrate.py",
         "polisyos.foundry.data_plane",
         "load_input_bindings",
-        1,
+        2,
     ),
     (
         "polisyos/runtime/quality/generation_cycle.py",
@@ -44,13 +88,13 @@ _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
         "polisyos/runtime/quality/generation_cycle.py",
         "polisyos.foundry.methods",
         "EstimandSpec",
-        1,
+        4,
     ),
     (
         "polisyos/runtime/quality/generation_cycle.py",
         "polisyos.foundry.methods",
         "MethodRegistry",
-        3,
+        4,
     ),
     (
         "polisyos/runtime/quality/generation_cycle.py",
@@ -80,7 +124,7 @@ _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
         "polisyos/scientist/compute/runner.py",
         "polisyos.foundry.calibration",
         "persist_posterior_summary_from_method_evidence",
-        1,
+        2,
     ),
     (
         "polisyos/scientist/methods/autotune/execution_work.py",
@@ -104,7 +148,7 @@ _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
         "polisyos/scientist/methods/autotune/runtime.py",
         "polisyos.foundry.methods",
         "MethodRegistry",
-        1,
+        2,
     ),
     (
         "polisyos/scientist/methods/backtesting/forecast_owner.py",
@@ -331,6 +375,30 @@ _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
 )
 
 _OWNER_IDENTITIES: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "polisyos.foundry.methods",
+        "causal_worker_execution_context",
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "worker_execution_context",
+    ),
+    (
+        "polisyos.foundry.methods",
+        "validate_source_bound_gcm_spec",
+        "polisyos.foundry.methods.catalog.causal.gcm_fit",
+        "validate_persisted_gcm_spec",
+    ),
+    (
+        "polisyos.foundry.methods",
+        "validate_source_bound_causal_estimator_interval",
+        "polisyos.foundry.methods.catalog.causal.gcm_query",
+        "validate_persisted_estimator_interval",
+    ),
+    (
+        "polisyos.foundry.methods",
+        "validate_source_bound_causal_worker_response",
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "validate_persisted_worker_response",
+    ),
     (
         "polisyos.foundry.analysis",
         "build_geography_breakdown",
@@ -641,9 +709,75 @@ def test_missing_methods_facade_route_fails_closed(
     methods = import_module("polisyos.foundry.methods")
     methods_api = import_module("polisyos.foundry.methods.api")
     name = "BootstrapExecutionWork"
-    monkeypatch.delitem(methods_api._EXPORTS, name)
-    monkeypatch.delitem(methods_api.__dict__, name, raising=False)
+    # Clear only an unrelated earlier test's state, then make the real first
+    # package lookup. A removed map entry must refuse without clearing a cache.
     monkeypatch.delitem(methods.__dict__, name, raising=False)
+    owner = import_module("polisyos.foundry.methods.catalog.causal.ci_backends")
+    assert getattr(methods, name) is owner.BootstrapExecutionWork
+    assert name not in vars(methods)
+    monkeypatch.delitem(methods_api._EXPORTS, name)
 
-    with pytest.raises(AttributeError, match="BootstrapExecutionWork"):
+    with pytest.raises(AttributeError, match="BootstrapExecutionWork") as refusal:
         getattr(methods, name)
+    assert isinstance(refusal.value.__cause__, KeyError)
+
+
+def test_methods_facade_retains_api_metadata_and_lightweight_startup() -> None:
+    """Importing the methods facade preserves metadata without loading IR or backends."""
+    product_root = Path(__file__).resolve().parents[4]
+    program = """
+import sys
+sys.path.insert(0, sys.argv[1])
+before = tuple(sys.meta_path)
+from polisyos.foundry import methods
+from polisyos.foundry.methods import api
+assert methods.__all__ is api.__all__
+assert methods.__dir__ is api.__dir__
+assert methods.__version__ == api.__version__
+assert 'polisyos.ir' not in sys.modules
+assert 'polisyos.foundry.methods.catalog' not in sys.modules
+assert 'sentence_transformers' not in sys.modules
+assert tuple(sys.meta_path) == before
+"""
+    result = subprocess.run(  # noqa: S603 - fixed local interpreter and source probe
+        [sys.executable, "-I", "-S", "-B", "-c", program, str(product_root / "src")],
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_methods_causal_routes_resolve_to_selected_source_owners() -> None:
+    """The source-owned table identifies each causal provider without a root alias."""
+    from polisyos.runtime.quality import confidence_ledger as ledger
+
+    product_root = Path(__file__).resolve().parents[4]
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    routes = {
+        "causal_worker_execution_context": (
+            "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+            "worker_execution_context",
+        ),
+        "validate_source_bound_gcm_spec": (
+            "polisyos.foundry.methods.catalog.causal.gcm_fit",
+            "validate_persisted_gcm_spec",
+        ),
+        "validate_source_bound_causal_estimator_interval": (
+            "polisyos.foundry.methods.catalog.causal.gcm_query",
+            "validate_persisted_estimator_interval",
+        ),
+        "validate_source_bound_causal_worker_response": (
+            "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+            "validate_persisted_worker_response",
+        ),
+    }
+    for name, (provider, symbol) in routes.items():
+        assert ledger._source_module_import_route(
+            product_root,
+            "polisyos.foundry.methods",
+            name,
+            directory_entries={},
+            source_index=source_index,
+        ) == ("symbol", provider, symbol)

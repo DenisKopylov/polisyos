@@ -285,6 +285,7 @@ supported_entrypoints = [
   "polisyos.foundry.methods.artifacts",
   "polisyos.foundry.methods.backends",
   "polisyos.foundry.methods.causal",
+  "polisyos.foundry.methods.selection",
   "polisyos.foundry.uncertainty",
   "polisyos.foundry.validation",
 ]

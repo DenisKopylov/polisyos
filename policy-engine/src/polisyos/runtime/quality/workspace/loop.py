@@ -41,7 +41,7 @@ from polisyos.core.security import (
     get_current_tenant_id_or_none,
 )
 from polisyos.data_forge import read_api
-from polisyos.foundry import InputContractMethodSelection
+from polisyos.foundry.methods.selection import InputContractMethodSelection
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -851,8 +851,10 @@ def _phase2_value_method_selection(
 ) -> dict[str, Any]:
     """Compatibility name for phase-2 causal candidate search, not N8 values."""
 
-    from polisyos.foundry import select_method_for_input_contract
-    from polisyos.foundry.methods.selection import MethodSelectionCriteria
+    from polisyos.foundry.methods.selection import (
+        MethodSelectionCriteria,
+        select_method_for_input_contract,
+    )
 
     if "observation_to_contract_manifest" in intent:
         raise MeasurementRootBindingError("source_manifest_requires_verified_input_binding")

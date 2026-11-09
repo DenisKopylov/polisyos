@@ -316,8 +316,8 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 if TYPE_CHECKING:
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.data_requirement import CapabilityRequirementResolution
-    from polisyos.foundry import MethodRouteConstraint
     from polisyos.foundry.methods import EstimandSpec
+    from polisyos.foundry.methods.selection import MethodRouteConstraint
     from polisyos.ir import ArtifactStore as IRArtifactStore
     from polisyos.pdc import ArtifactEnvelope
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport

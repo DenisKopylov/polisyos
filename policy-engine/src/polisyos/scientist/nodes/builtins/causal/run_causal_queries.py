@@ -16,7 +16,7 @@ from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry import (
+from polisyos.foundry.methods import (
     causal_worker_execution_context,
     validate_source_bound_causal_estimator_interval,
     validate_source_bound_gcm_spec,

@@ -51,6 +51,7 @@ if TYPE_CHECKING:
         AcquisitionWorldGrowthConfig,
     )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
     from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 
 
@@ -737,9 +738,56 @@ def _candidate_experiment_fresh_registry_providers(
     return fresh
 
 
+def _candidate_experiment_reopened_policy_owner(
+    *, control: ControlPlaneService, policy_owner: object
+) -> object:
+    """Reopen the fixture issuer against the fresh Runtime's artifact store."""
+    from types import SimpleNamespace
+
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+
+    issuer = getattr(policy_owner, "issuer", None)
+    previous = getattr(issuer, "authority", None)
+    if type(previous) is not catalog.CanonicalAcquisitionAuthority:
+        raise AssertionError("candidate experiment fresh reader lacks its canonical issuer")
+    authority = catalog.CanonicalAcquisitionAuthority.from_provision(
+        repo_root=previous.repo_root,
+        baseline_path=previous.baseline_path,
+        l5_measurement_registry_path=previous.l5_path,
+    )
+    registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+    if (
+        authority.provision_content_sha256 != previous.provision_content_sha256
+        or registry != issuer.registry
+    ):
+        raise AssertionError("candidate experiment fresh reader issuer changed")
+    port = WorldBankWDIAcquisitionExecutionPort(
+        authority=authority,
+        registry=registry,
+        provision=authority.provision,
+        provision_content_sha256=authority.provision_content_sha256,
+        runtime_state_root=Path(control._cas_root),
+        artifact_store=control._artifact_store,
+    )
+    return SimpleNamespace(
+        issuer=SimpleNamespace(authority=authority, registry=registry, port=port),
+        template=policy_owner.template,
+        source_profiles=policy_owner.source_profiles,
+    )
+
+
 @contextmanager
 def _candidate_experiment_reopened_runtime(
-    *, control: ControlPlaneService, trust: object, monkeypatch: pytest.MonkeyPatch
+    *,
+    control: ControlPlaneService,
+    trust: object,
+    monkeypatch: pytest.MonkeyPatch,
+    reopened_settlement_store: BudgetMiddleware | None = None,
 ) -> Iterator[tuple[object, ControlPlaneService, Path, Path]]:
     """Open a second real runtime over the selected CAS and SQLite owners."""
     from fastapi.testclient import TestClient
@@ -784,6 +832,7 @@ def _candidate_experiment_reopened_runtime(
             container_overrides=RuntimeContainerOverrides(
                 runtime_api_context=runtime_context,
                 control_registry_providers=fresh_providers,
+                llm_producer_settlement_store=reopened_settlement_store,
             ),
             candidate_simulation_profiles=tuple(context_owner.profiles),
             candidate_simulation_model_declarations=tuple(context_owner.model_declarations),
@@ -813,19 +862,25 @@ def _read_candidate_experiment_with_reopened_owner(
     control: ControlPlaneService,
     trust: object,
     origin: VerifiedCandidateExperimentOrigin,
+    policy_owner: object,
     terminal_head: AcquisitionActionHeadRecord,
     terminal_history: CandidateExperimentTerminalHistory,
     monkeypatch: pytest.MonkeyPatch,
     fresh_reader_observer: Callable[..., None] | None = None,
+    reopened_settlement_store: BudgetMiddleware | None = None,
 ) -> CandidateExperimentCurrentActionProjection:
     """Replay terminal action state through an independent app and storage owner."""
     import sqlite3
+    from dataclasses import replace
 
     from polisyos.core import artifacts
     from polisyos.runtime.http.services.acquisition_action_service import (
         CandidateExperimentRouteProjection,
     )
-    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateExperimentTerminalHistory,
+        _candidate_model_values_same,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
     from tests._helpers import acquisition_served_history as served
 
@@ -833,13 +888,41 @@ def _read_candidate_experiment_with_reopened_owner(
         control=control,
         trust=trust,
         monkeypatch=monkeypatch,
+        reopened_settlement_store=reopened_settlement_store,
     ) as (reader, reader_control, sqlite_path, _cas_root):
         reader_store = reader_control._artifact_store
+        reader_action_service = reader.app.state._acquisition_action_service
+        reader_policy_owner = _candidate_experiment_reopened_policy_owner(
+            control=reader_control, policy_owner=policy_owner
+        )
+        reader_origin = reader_action_service._candidate_experiment_loop(
+            tenant_id=origin.tenant_id, cell_id=origin.cell_id, run_id=origin.run_id
+        )._resolve_candidate_experiment_source(
+            run_id=origin.run_id, historical_policy_ref=origin.policy_ref
+        )
+        if not _candidate_model_values_same(
+            reader_origin,
+            replace(
+                origin,
+                current_action_head=None,
+                current_terminal_history=None,
+                candidate_terminal_history_chain=(),
+            ),
+        ):
+            raise AssertionError("candidate experiment fresh reader source changed")
 
         def forbid_n5(*_args: object, **_kwargs: object) -> object:
             raise AssertionError("candidate experiment fresh GET attempted to run N5")
 
-        with monkeypatch.context() as read_only_guard:
+        with (
+            candidate_experiment_served_execution_owner(
+                action_service=reader_action_service,
+                origin=reader_origin,
+                policy_owner=reader_policy_owner,
+                monkeypatch=monkeypatch,
+            ) as reader_execution_owner,
+            monkeypatch.context() as read_only_guard,
+        ):
             read_only_guard.setattr(JointSimulationHorizonController, "run", forbid_n5)
             path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
 
@@ -859,7 +942,7 @@ def _read_candidate_experiment_with_reopened_owner(
 
             reopened_outcomes = _experiment_outcomes(
                 control=reader_control,
-                origin=origin,
+                origin=reader_origin,
             )
             if not reopened_outcomes:
                 raise AssertionError("candidate experiment terminal history not reopened")
@@ -950,7 +1033,7 @@ def _read_candidate_experiment_with_reopened_owner(
                     client=reader,
                     control=reader_control,
                     history=reopened_history,
-                    origin=origin,
+                    origin=reopened_history.origin,
                     headers=read_headers(),
                 )
 
@@ -1115,6 +1198,8 @@ def _read_candidate_experiment_with_reopened_owner(
                     or restored_prior.n5_result.result_body.artifact_ref != result_ref
                 ):
                     raise AssertionError("candidate experiment restored GET lost prior result")
+            if reader_execution_owner.transport_calls:
+                raise AssertionError("candidate experiment fresh GET attempted source transport")
             return restored_action
 
 
@@ -1737,6 +1822,7 @@ def run_candidate_experiment_served_execution(
             control=control,
             trust=trust,
             origin=origin,
+            policy_owner=policy_owner,
             terminal_head=final_outcome.head,
             terminal_history=terminal_history,
             monkeypatch=monkeypatch,

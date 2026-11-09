@@ -7,6 +7,7 @@ import hashlib
 import importlib
 import importlib.util
 import json
+import subprocess
 import sys
 import types
 from pathlib import Path
@@ -105,6 +106,162 @@ def test_immutable_security_facade_binds_real_source_and_cached_owner(
         )
         assert rebound_projection == projection
         assert not ledger._runtime_binding_references_match(rebound, tuple(references))
+
+
+def test_security_http_reexport_needs_retained_proxy_constructor() -> None:
+    from polisyos.core.security import identity
+    from polisyos.runtime.http import security
+
+    root = ledger._loaded_policy_engine_root()
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    for name in ("PolicyOSRole", "UserIdentityClaims"):
+        assert getattr(security, name) is getattr(identity, name)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="initializer namespace effect"):
+            ledger._source_module_import_route(
+                root,
+                security.__name__,
+                name,
+                directory_entries={},
+                source_index=source_index,
+            )
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        "mutate_package_globals()",
+        "MappingProxyType = dict",
+        "__loader__ = None",
+        "_EXPORTS = {'PolicyOSRole': ('polisyos.core.security.identity', 'PolicyOSRole')}",
+    ],
+)
+def test_initializer_keeps_unknown_effects_around_a_proxy_facade(extra: str) -> None:
+    facade = importlib.import_module("polisyos.core.security")
+    source = Path(facade.__file__).read_text(encoding="utf-8")
+    assert ledger._source_package_initializer_effect_is_unknown(ast.parse(source))
+    assert not ledger._source_package_initializer_effect_is_unknown(
+        ast.parse(source), qualified_proxy_map="_EXPORTS"
+    )
+    assert ledger._source_package_initializer_effect_is_unknown(
+        ast.parse(f"{source}\n{extra}\n"), qualified_proxy_map="_EXPORTS"
+    )
+
+
+@pytest.mark.parametrize("transient", [False, True])
+def test_proxy_initializer_constructor_reconciles_observed_import(
+    tmp_path: Path, transient: bool
+) -> None:
+    package = tmp_path / "proxy_owner"
+    package.mkdir()
+    (package / "__init__.py").write_text(
+        "from types import MappingProxyType\n"
+        "_EXPORTS = MappingProxyType({'selected': ('proxy_leaf', 'selected')})\n",
+        encoding="utf-8",
+    )
+    product = Path(__file__).resolve().parents[4]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-S",
+            "-B",
+            "-c",
+            """
+import hashlib, importlib, importlib.util, sys, types
+from pathlib import Path
+
+root, tool = (Path(value).resolve() for value in sys.argv[1:3])
+transient = sys.argv[3] == 'True'
+spec = importlib.util.spec_from_file_location('_fixture_recorder', tool)
+assert spec is not None and spec.loader is not None
+recorder = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = recorder
+spec.loader.exec_module(recorder)
+relative = 'proxy_owner/__init__.py'
+source = (root / relative).read_bytes()
+capture = recorder.SourceExecutionCapture(root, {
+    'proxy_owner': recorder.ExpectedSource(relative, hashlib.sha256(source).hexdigest())
+}, exports={'proxy_owner': {'_EXPORTS'}})
+canonical = type(type.__dict__)
+
+def foreign(value):
+    owner = sys.modules['proxy_owner']
+    owner.MappingProxyType = canonical
+    owner.side_effect = True
+    types.MappingProxyType = canonical
+    return canonical(value)
+
+capture.install()
+try:
+    sys.path.insert(0, str(root))
+    if transient:
+        types.MappingProxyType = foreign
+    owner = importlib.import_module('proxy_owner')
+    assert owner.MappingProxyType is types.MappingProxyType is canonical
+    assert type(owner._EXPORTS) is canonical
+    assert getattr(owner, 'side_effect', False) is transient
+    event, = (
+        item for item in capture.import_events()
+        if item.importer_name == 'proxy_owner' and item.provider_name == 'types'
+    )
+    assert event.caller_code is capture.completed('proxy_owner').code
+    assert event.caller_line == 1 and event.route == 'builtin_import'
+    assert event.retained_exports['MappingProxyType'] is (foreign if transient else canonical)
+    try:
+        capture.assert_import_binding(
+            event, importer_attribute='MappingProxyType', provider_export='MappingProxyType'
+        )
+    except recorder.CaptureError as exc:
+        assert transient and str(exc) == 'import_event_binding_changed', str(exc)
+    else:
+        assert not transient, 'restored namespace hid the transient foreign constructor'
+finally:
+    types.MappingProxyType = canonical
+    capture.close()
+""",
+            str(tmp_path),
+            str(product / "tools" / "loaded_execution_capture.py"),
+            str(transient),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_core_proxy_constructor_requires_the_exact_retained_import(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facade = importlib.import_module("polisyos.core.security")
+    tree = ast.parse(Path(facade.__file__).read_bytes())
+    expected_import = next(
+        statement
+        for statement in tree.body
+        if isinstance(statement, ast.ImportFrom)
+        and statement.module == "types"
+        and any(alias.name == "MappingProxyType" for alias in statement.names)
+    )
+    calls = []
+
+    def check_edge(_self, module, provider, node, alias, *, expected_export):
+        calls.append((module, provider, node, alias.name, expected_export))
+        raise ValueError("retained_import_unqualified")
+
+    monkeypatch.setattr(ledger._N5LockedOptionalImports, "_initializer_edge", check_edge)
+    capture = SimpleNamespace(import_events=lambda: ())
+    binding = ledger._N5LockedOptionalImports(
+        ledger._loaded_policy_engine_root(),
+        ledger._IntegrityAnalysisContext(),
+        capture,
+        lambda _: None,
+    )
+    with pytest.raises(ValueError, match="retained_import_unqualified"):
+        binding.reconcile_proxy_constructor(facade.__name__, tree, "_EXPORTS")
+    assert calls == [
+        (facade.__name__, "types", expected_import, "MappingProxyType", type(type.__dict__))
+    ]
 
 
 def test_immutable_facade_detects_equal_graft_during_reconciliation(

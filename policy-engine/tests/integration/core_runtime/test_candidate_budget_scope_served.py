@@ -1,9 +1,9 @@
 """Reopen an explicitly selected experiment intent from the served NL owner.
 
-The source candidate, N4/N5 and job are produced by the existing controlled
-recorded gateway. The small closure adapter carries only that job's actual
-identity. Policy-parent fixtures below do not establish an actual candidate
-route, source rights, or a permit to execute an acquisition.
+The source candidate, N4/N5, planner report and job are produced by the
+existing controlled recorded gateway. The small closure adapter carries only
+that job's actual identity. The issuer persists its real selected policy.
+This test does not establish a permit to execute an acquisition.
 """
 
 from __future__ import annotations
@@ -16,25 +16,34 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core import artifacts
+from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionServiceError
 from polisyos.runtime.http.services.control.run_lifecycle import (
     ControlPlaneService,
     OriginalRunBudgetScopeEvidence,
 )
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyBinding,
-    CandidateUnpricedPolicyScope,
     issue_candidate_unpriced_experiment_policy,
     persist_candidate_unpriced_policy,
+    read_candidate_unpriced_policy,
     verify_candidate_unpriced_experiment_policy_intent,
 )
-from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
+from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+    prepare_candidate_experiment_policies_for_completed_job,
+)
 from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 from tests._helpers import acquisition_served_history as fixture
 from tests._helpers.candidate_cycle_source_profile import (
     build_candidate_cycle_substrate_route_inputs,
     complete_candidate_cycle_catalog_source,
 )
-from tests.unit.runtime.quality.test_candidate_unpriced_policy import _live_authorization, _parent
+from tests._helpers.candidate_experiment_served_execution import (
+    bind_candidate_test_execution_port_factory,
+)
+from tests.integration.core_runtime.test_candidate_experiment_action_served import (
+    _candidate_experiment_policy_owner,
+    run_candidate_experiment_action_oracle,
+)
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
@@ -95,37 +104,102 @@ def test_served_experiment_intent_replays_original_job_and_refuses_source_remova
         assert any(row.purpose == "standard" and row.status == "completed" for row in reservations)
         assert sum(row.units for row in reservations if row.purpose == "standard") <= 2
 
-        # Join the genuine signed job to a server-selected V2 policy. The four
-        # typed CAS parents are component fixtures, so this exercises only the
-        # signed-source/policy owner join, not a selected cycle or fetch permit.
+        # Produce the policy through the real issuer from the selected N7
+        # report, compiler relation, source job, quota and WDI authority.
         store = control._artifact_store
-        planner_ref = _parent(store, "runtime.acquisition_planner_report", "experiment-planner")
-        policy_scope = CandidateUnpricedPolicyScope(
-            tenant_id=fixture.TENANT,
-            cell_id=fixture.CELL,
-            run_id=run_id,
-            source_job_id=job.job_id,
-            design_problem_ref="sha256:" + "1" * 64,
-            design_problem_basis_ref="sha256:" + "2" * 64,
-            source_cycle_index=0,
-            candidate_id="component-experiment-candidate",
-            candidate_content_hash="sha256:" + "3" * 64,
-            requirement_id="component-experiment-gap",
-            compiled_requirement_ref="component-experiment-requirement",
-            candidate_digest="sha256:" + "4" * 64,
-            planner_report_hash=agent_action_content_hash(
-                artifacts.load_core_json_artifact(store, planner_ref)
-            ),
-            compiled_ref=_parent(store, "runtime.compiled_recursive_generation_cycle", "compiled"),
-            planner_report_ref=planner_ref,
-            compiler_report_ref=_parent(
-                store, "runtime.data_requirement_compilation_report", "compiler"
-            ),
-            configured_port_source_ref=_parent(
-                store, "runtime.quality.n7_configured_candidate_port_source", "ports"
-            ),
+        owner = _candidate_experiment_policy_owner(
+            control=control, fixture_root=tmp_path / "candidate-issuer", run_id=run_id
         )
-        authorization = _live_authorization()
+        original_providers = control._registry_providers
+        control._registry_providers = replace(
+            original_providers,
+            source_profiles=owner.source_profiles,
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(owner.template,),
+        )
+        try:
+            bind_candidate_test_execution_port_factory(
+                monkeypatch=monkeypatch,
+                control_service=control,
+                fixture_port=owner.issuer.port,
+            )
+            refs = prepare_candidate_experiment_policies_for_completed_job(
+                control_service=control, source_job_id=job.job_id
+            )
+            assert len(refs) == 1
+            policy_ref = refs[0]
+            issued_policy = read_candidate_unpriced_policy(
+                store=store, event_log=control._diagnostic_event_log, ref=policy_ref
+            )
+            policy_scope = issued_policy.scope
+
+            def verify_signed_action_after_withdrawal(**selected: object) -> None:
+                action_service = values["action_service"]
+                origin = selected["origin"]
+                request = selected["request"]
+                decision_ref = selected["decision_ref"]
+                job_id = action_service._candidate_experiment_job_id(origin, request)
+                original_history = (
+                    action_service._authority_provider.load_candidate_experiment_decision_history(
+                        origin=origin, request=request, job_id=job_id, decision_ref=decision_ref
+                    )
+                )
+                selected_providers = control._registry_providers
+                control._registry_providers = replace(
+                    selected_providers,
+                    candidate_unpriced_policy_bindings=(),
+                    candidate_unpriced_policy_templates=(),
+                )
+                try:
+                    assert (
+                        verify_candidate_unpriced_experiment_policy_intent(
+                            control_service=control,
+                            closure=closure,
+                            scope=policy_scope,
+                            policy_ref=policy_ref,
+                            require_current=False,
+                        )
+                        == evidence
+                    )
+                    history = action_service._authority_provider.load_candidate_experiment_decision_history(
+                        origin=origin, request=request, job_id=job_id, decision_ref=decision_ref
+                    )
+                    assert history == original_history
+                    assert history.decision.outcome == "allowed"
+                    assert history.current_authority == "not_revalidated"
+                    with pytest.raises(
+                        AcquisitionActionServiceError,
+                        match="candidate_experiment_policy_not_unique",
+                    ):
+                        action_service.replay_candidate_experiment_authority(
+                            tenant_id=fixture.TENANT,
+                            cell_id=fixture.CELL,
+                            run_id=run_id,
+                            route_id=origin.route_id,
+                            request=request,
+                            job_id=job_id,
+                            decision_ref=decision_ref,
+                            effect_handler=lambda _invocation: pytest.fail(
+                                "withdrawn policy executed an effect"
+                            ),
+                        )
+                finally:
+                    control._registry_providers = selected_providers
+
+            signed_action = run_candidate_experiment_action_oracle(
+                tmp_path=tmp_path,
+                values=values,
+                policy_ref=policy_ref,
+                monkeypatch=monkeypatch,
+                exercise_controls=False,
+                after_replay=verify_signed_action_after_withdrawal,
+            )
+            assert signed_action["policy_ref"] == str(policy_ref.artifact_id)
+            assert signed_action["source_status"] == "completed"
+        finally:
+            control._registry_providers = original_providers
+        policy_scope = issued_policy.scope
+        authorization = issued_policy.live_authorization
         limitations = (
             "acquisition_monetary_cost_not_established",
             "n5_monetary_cost_not_established",
@@ -148,32 +222,92 @@ def test_served_experiment_intent_replays_original_job_and_refuses_source_remova
                 store=store, event_log=control._diagnostic_event_log, policy=policy
             )
 
-        policy_ref = write_policy(
-            payload_ref=job.payload_ref,
-            request_hash=evidence.request_content_hash,
-            cap=evidence.run_budget_usd,
-        )
         providers = replace(
             control._registry_providers,
             candidate_unpriced_policy_bindings=(
                 CandidateUnpricedPolicyBinding(scope=policy_scope, policy_ref=policy_ref),
             ),
+            candidate_unpriced_policy_templates=(),
         )
         bound = ControlPlaneService(
             cas_root=values["cas_root"],
             core_runs_root=values["cas_root"] / "runs",
+            repo_root=control._repo_root,
             artifact_store=store,
             control_store=control._control_store,
             policy_resolver=control._policy_resolver,
             registry_providers=providers,
             llm_producer_settlement_store=control._llm_producer_settlement_store,
         )
+        assert bound.catalog_serving_source == control.catalog_serving_source
         assert (
             verify_candidate_unpriced_experiment_policy_intent(
                 control_service=bound, closure=closure, scope=policy_scope, policy_ref=policy_ref
             )
             == evidence
         )
+        # The historical join reopens the selected policy and the original
+        # signed source even after its current binding is withdrawn. This
+        # proves no present permit to fetch or reuse the observation.
+        bound._registry_providers = replace(
+            providers,
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(),
+        )
+        assert (
+            verify_candidate_unpriced_experiment_policy_intent(
+                control_service=bound,
+                closure=closure,
+                scope=policy_scope,
+                policy_ref=policy_ref,
+                require_current=False,
+            )
+            == evidence
+        )
+        with pytest.raises(ValueError, match="candidate_unpriced_policy_not_selected"):
+            verify_candidate_unpriced_experiment_policy_intent(
+                control_service=bound, closure=closure, scope=policy_scope, policy_ref=policy_ref
+            )
+        wrong_scope = policy_scope.model_copy(update={"candidate_id": "foreign-candidate"})
+        with pytest.raises(ValueError, match="candidate_experiment_policy_intent_not_established"):
+            verify_candidate_unpriced_experiment_policy_intent(
+                control_service=bound,
+                closure=closure,
+                scope=wrong_scope,
+                policy_ref=policy_ref,
+                require_current=False,
+            )
+        alternate_profile = policy_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "d" * 64}
+        )
+        with pytest.raises((OSError, ValueError)):
+            verify_candidate_unpriced_experiment_policy_intent(
+                control_service=bound,
+                closure=closure,
+                scope=policy_scope,
+                policy_ref=alternate_profile,
+                require_current=False,
+            )
+        policy_events = bound._diagnostic_event_log.list_events
+
+        def without_selected_policy(**kwargs):
+            return [
+                row
+                for row in policy_events(**kwargs)
+                if str(policy_ref.artifact_id) not in row.event.artifact_refs
+            ]
+
+        with monkeypatch.context() as patch:
+            patch.setattr(bound._diagnostic_event_log, "list_events", without_selected_policy)
+            with pytest.raises(ValueError):
+                verify_candidate_unpriced_experiment_policy_intent(
+                    control_service=bound,
+                    closure=closure,
+                    scope=policy_scope,
+                    policy_ref=policy_ref,
+                    require_current=False,
+                )
+        bound._registry_providers = providers
         for wrong in (
             {
                 "payload_ref": "sha256:" + "f" * 64,
@@ -212,7 +346,7 @@ def test_served_experiment_intent_replays_original_job_and_refuses_source_remova
             control.verify_candidate_experiment_intent(closure=foreign)
         foreign = SimpleNamespace(**vars(closure))
         foreign.source_payload_ref = "sha256:" + "f" * 64
-        with pytest.raises(ValueError, match="candidate_unpriced_budget_source_changed"):
+        with pytest.raises(ValueError, match="acquisition_source_budget_payload_changed"):
             control.verify_candidate_experiment_intent(closure=foreign)
 
         artifact_id = artifacts.ArtifactID.model_validate(job.payload_ref)
@@ -230,7 +364,9 @@ def test_served_experiment_intent_replays_original_job_and_refuses_source_remova
         assert control._llm_producer_settlement_store.snapshot_safe() == snapshot
         observed.append(run_id)
 
-    with complete_candidate_cycle_catalog_source(source.root, monkeypatch) as prepared:
+    with complete_candidate_cycle_catalog_source(
+        source.root, monkeypatch, synthetic_usa_labor_scope=True
+    ) as prepared:
         result = fixture._produce_served_acquisition_history(
             tmp_path,
             monkeypatch,
@@ -238,10 +374,11 @@ def test_served_experiment_intent_replays_original_job_and_refuses_source_remova
             source_owner_root=source.root,
             prepared_catalog=prepared,
             provider_mode="synthetic_settled_candidate",
-            seed_only_observer=observe,
+            seed_only_context_observer=observe,
             run_budget_usd=5.0,
             run_budget_scope="metered_paid_producers_and_bounded_candidate",
             candidate_acquisition_intent="bounded_experiment_voi_unknown",
             invocation_quota_policy=quota,
+            labor_seed=True,
         )
     assert result is not None and observed == [result["run_id"]]

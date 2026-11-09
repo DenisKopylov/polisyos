@@ -15473,6 +15473,7 @@ class GenerationCycleController:
         previous_problem: DesignProblem,
         problem: DesignProblem,
         context_job_ref: CASArtifactRef | None = None,
+        require_source_profile: bool = False,
     ) -> CASArtifactRef:
         """Persist, resolve, and bind one context before any N5 consumer runs."""
         from polisyos.runtime.quality.cycle_substrate import (
@@ -15486,6 +15487,7 @@ class GenerationCycleController:
             CycleSubstrateContextJobArtifactV6,
             CycleSubstrateContextOwnerError,
             VerifiedNLJobScope,
+            is_candidate_source_profile_context_job_artifact,
         )
 
         if type(context) is not CycleSubstrateContext:
@@ -15535,10 +15537,16 @@ class GenerationCycleController:
             ValueError,
         ) as exc:
             raise GenerationCycleError(
-                "generation_cycle_context_rebind_owner_refused",
-                str(getattr(exc, "code", None) or exc),
+                "n4_candidate_source_profile_owner_refused"
+                if require_source_profile
+                else "generation_cycle_context_rebind_owner_refused",
+                str(exc) if require_source_profile else str(getattr(exc, "code", None) or exc),
             ) from exc
 
+        if require_source_profile and not is_candidate_source_profile_context_job_artifact(
+            resolved_job
+        ):
+            raise GenerationCycleError("n4_candidate_source_profile_owner_readback_mismatch")
         supported_job_artifacts = (
             CycleSubstrateContextJobArtifact,
             CycleSubstrateContextJobArtifactV2,
@@ -15556,7 +15564,11 @@ class GenerationCycleController:
             or resolved_context.design_problem_ref != _problem_ref(problem)
             or resolved_context.domain != problem.domain
         ):
-            raise GenerationCycleError("generation_cycle_context_rebind_owner_readback_mismatch")
+            raise GenerationCycleError(
+                "n4_candidate_source_profile_owner_readback_mismatch"
+                if require_source_profile
+                else "generation_cycle_context_rebind_owner_readback_mismatch"
+            )
 
         self._bind_cycle_substrate_context(
             resolved_context,
@@ -17020,7 +17032,6 @@ class GenerationCycleController:
             VerifiedNLJobScope,
             build_candidate_cycle_substrate_context,
             candidate_cycle_substrate_source_profile_selection,
-            is_candidate_source_profile_context_job_artifact,
             revalidate_cycle_substrate_context,
         )
 
@@ -17070,37 +17081,12 @@ class GenerationCycleController:
             and current_context is not None
             and current_context.design_problem_ref == _problem_ref(problem)
         ):
-            try:
-                resolved_job = context_owner.resolve_for_current_job(
-                    current_ref,
-                    problem=problem,
-                    repo_root=self._repo_root,
-                    verified_nl_job_scope=verified_scope,
-                )
-            except (
-                CycleSubstrateContextOwnerError,
-                OSError,
-                RuntimeError,
-                TypeError,
-                ValueError,
-            ) as exc:
-                raise GenerationCycleError(
-                    "n4_candidate_source_profile_owner_refused",
-                    str(getattr(exc, "code", None) or exc),
-                ) from exc
-            if (
-                not is_candidate_source_profile_context_job_artifact(resolved_job)
-                or resolved_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
-                or resolved_job.context.model_dump(mode="json")
-                != current_context.model_dump(mode="json")
-                or resolved_job.context.source_profile is None
-            ):
-                raise GenerationCycleError("n4_candidate_source_profile_owner_readback_mismatch")
             self._persist_resolve_and_bind_cycle_substrate_context(
-                resolved_job.context,
+                current_context,
                 previous_problem=previous_problem or problem,
                 problem=problem,
                 context_job_ref=current_ref,
+                require_source_profile=True,
             )
             return
         try:
@@ -17161,29 +17147,16 @@ class GenerationCycleController:
             )
             if context_job_ref.manifest_profile_sha256 is None:
                 raise ValueError("n4_candidate_context_selected_profile_missing")
-            resolved_job = context_owner.resolve_for_current_job(
-                context_job_ref,
-                problem=problem,
-                repo_root=repo_root,
-                verified_nl_job_scope=verified_scope,
-            )
-            if (
-                not is_candidate_source_profile_context_job_artifact(resolved_job)
-                or resolved_job.context.source_profile != candidate_context.source_profile
-                or resolved_job.context.content_hash != candidate_context.content_hash
-                or resolved_job.design_problem_ref != candidate_context.design_problem_ref
-            ):
-                raise ValueError("candidate_cycle_source_profile_v5_readback_mismatch")
-            context = resolved_job.context
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise GenerationCycleError(
                 "n4_candidate_source_profile_owner_refused", str(exc)
             ) from exc
         self._persist_resolve_and_bind_cycle_substrate_context(
-            context,
+            candidate_context,
             previous_problem=previous_problem or problem,
             problem=problem,
             context_job_ref=context_job_ref,
+            require_source_profile=True,
         )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:

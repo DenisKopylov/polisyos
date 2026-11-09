@@ -1181,7 +1181,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     replay_phase = {"value": "source_profile"}
     original_bind = GenerationCycleController._persist_resolve_and_bind_cycle_substrate_context
 
-    def bind_after_source_replay(controller: Any, *args: Any, **kwargs: Any) -> Any:
+    def observe_consumer_binding(controller: Any, *args: Any, **kwargs: Any) -> Any:
         prior_phase = replay_phase["value"]
         replay_phase["value"] = "bind_consumers"
         try:
@@ -1192,7 +1192,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     monkeypatch.setattr(
         GenerationCycleController,
         "_persist_resolve_and_bind_cycle_substrate_context",
-        bind_after_source_replay,
+        observe_consumer_binding,
     )
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
@@ -1621,12 +1621,10 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     ), "\n".join(compile_failures)
     assert n4_observations, f"persisted={persisted_v5!r}, resolved={resolved_v5!r}"
     assert len(persisted_v5) == 1
-    assert len(resolved_v5) == 2
-    assert resolved_v5_phases == ["source_profile", "bind_consumers"]
-    assert resolved_v5_refs == [artifact_ref_identity_key(persisted_v5[0][1])] * 2
-    assert resolved_v5[0] == resolved_v5[1]
+    assert resolved_v5_phases == ["bind_consumers"]
+    assert resolved_v5_refs == [artifact_ref_identity_key(persisted_v5[0][1])]
+    (resolved,) = resolved_v5
     assert len(n4_observations) == 1
-    resolved = resolved_v5[-1]
     n4_context, cycle_index = n4_observations[0]
     assert cycle_index == 0
     assert type(resolved) is CycleSubstrateContextJobArtifactV5

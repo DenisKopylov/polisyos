@@ -21850,8 +21850,8 @@
                 "path": "src/polisyos/data_forge/read_api/ukraine.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 61188,
-                "sha256": "cb9735fb4c27d1a8a59c388ac0b56de8ec3bc446cac3a83badfdc54f2a972fb5"
+                "bytes": 61238,
+                "sha256": "515d5ecf0df543837454a1f238696c7344b115cfbbc016eea737f6d91ba7bce6"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/ukraine",

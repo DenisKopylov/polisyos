@@ -378,7 +378,7 @@ class AsyncChainExecutor:
         seed: int,
     ) -> MethodResult:
         """Dispatch a single node asynchronously."""
-        from polisyos.foundry.methods.backends import chain_executor as chain_exec
+        import polisyos.foundry.methods.backends.chain_executor as chain_exec
 
         node = chain.get_node(node_id)
         method_class = registry.get(node.method_fqn)

@@ -14536,6 +14536,16 @@
           "causal_source_candidates": 32,
           "direct_refusals_after_causal_owner": 27,
           "n8_wrong_candidate_early_refusal": "MAIN:policy-engine/_cache/e02/lane01-n6-causal-actual-consumers-r1",
+          "n8_source_method_and_negative_controls": "MAIN:policy-engine/_cache/e02/lane01-n8-source-selection-negative-r3",
+          "n8_source_method_authored_base": "95715e9dd11ca0ec24e5872285a1e3cda7b7926e",
+          "n8_source_method_stable_pins": 6,
+          "n8_source_method_wall_seconds": 284.45,
+          "signed_held_out_and_fiscal_semantics": "MAIN:policy-engine/_cache/e02/lane01-heldout-signed-stock-current-r1",
+          "strict_r21_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r21",
+          "strict_r21_source_commit": "95715e9dd11ca0ec24e5872285a1e3cda7b7926e",
+          "strict_r21_source_tree": "2610cc3477d413e94ffd20b01da926d664fc092f",
+          "strict_r21_stable_pins": 107,
+          "strict_r21_first_refusal": "non-literal repository re-export: polisyos.fabric.storage.DuckDBStorageAdapter",
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
         "lane01_p05_r4_completed_b_stale_unit_oracle": {

@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.fabric.data_plane as data_plane
 from polisyos.core import artifacts, canon
-from polisyos.fabric import data_plane
 from polisyos.runtime.quality.agent_action_authority import (
     agent_action_content_hash,
     write_runtime_authority_artifact,

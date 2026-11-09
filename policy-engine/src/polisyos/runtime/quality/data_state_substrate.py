@@ -1553,8 +1553,8 @@ def _prepared_acquired_observation(
     prepared: AcquiredObservationDataPreparation,
 ) -> CanonicalAcquisitionObservation:
     """Reconcile all selected row and payload bindings on one preparation."""
+    import polisyos.fabric.data_plane as data_plane
     from polisyos.data_forge.read_api.catalog import ActivatedAcquisitionObservationProjection
-    from polisyos.fabric import data_plane
 
     if type(prepared) is not AcquiredObservationDataPreparation:
         raise DataStateSubstrateError("acquisition_preparation_untyped")
@@ -1710,8 +1710,8 @@ def _verify_historical_acquisition_activation(
     activation: ActivatedSemanticEpochAdmissionReceipt | None,
 ) -> None:
     """Reconcile immutable activation evidence without a current native permit."""
+    import polisyos.fabric.data_plane as data_plane
     from polisyos.core.contracts import epoch
-    from polisyos.fabric import data_plane
     from polisyos.runtime.quality.acquisition_executor import ActivatedSemanticEpochAdmissionReceipt
 
     def read(ref: ArtifactRef, kind: str) -> dict[str, Any]:
@@ -1930,9 +1930,10 @@ def _replay_acquired_observation_projection(
     activation: ActivatedSemanticEpochAdmissionReceipt | None = None,
 ) -> ActivatedAcquisitionObservationProjection:
     """Replay source and typed activation history without a present native permit."""
+    import polisyos.fabric.connectors as connectors
+    import polisyos.fabric.data_plane as data_plane
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.contracts import epoch
-    from polisyos.fabric import connectors, data_plane
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
 
@@ -2114,9 +2115,9 @@ def _read_acquired_observation_selection(
     store: ArtifactStore, data_snapshot_ref: ArtifactRef
 ) -> tuple[CanonicalAcquisitionObservation, ControlledAcquisitionSlotBinding, int]:
     """Replay the actual selected snapshot, source codec and canonical row owner."""
+    import polisyos.fabric.data_plane as data_plane
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionObservation
-    from polisyos.fabric import data_plane
     from polisyos.runtime.quality.data_snapshot_lineage import (
         DataSnapshotLineageError,
         validate_data_snapshot_owner_lineage,

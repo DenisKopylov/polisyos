@@ -104,11 +104,12 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> object:
     """Lazily expose compiler entrypoints and the owner types used by its bridge."""
-    owner = _LAZY_IMPORTS.get(name)
-    if owner is None:
+    if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.data_requirement' has no attribute {name!r}")
-    module_name, attr_name = owner
-    return getattr(importlib.import_module(module_name), attr_name)
+    module_name, attr_name = _LAZY_IMPORTS[name]
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    return value
 
 
 __all__ = [

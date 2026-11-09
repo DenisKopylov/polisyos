@@ -26,8 +26,8 @@ from typing import Any, BinaryIO, Concatenate, Literal, Protocol, Self
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+import polisyos.fabric.data_plane as fabric_data_plane
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
-from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.fabric.connectors.types.units import (
     PREFIX_FACTORS,
     STANDARD_UNITS,

@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.fabric.data_plane as fabric_data_plane
 from polisyos.core import canon
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.runtime.quality.acquisition_executor import (
     LiveAcquisitionExecutionError,
     LiveCatalogExecutionConstraints,

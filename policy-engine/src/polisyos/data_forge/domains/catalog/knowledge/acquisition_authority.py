@@ -26,6 +26,8 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.fabric.connectors as fabric_connectors
+import polisyos.fabric.data_plane as fabric_data_plane
 from polisyos.core import artifacts, canon, contracts
 from polisyos.core.contracts import (
     MeasurementAxis,
@@ -37,8 +39,6 @@ from polisyos.core.contracts import (
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
 )
-from polisyos.fabric import connectors as fabric_connectors
-from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.fabric.connectors import verify_selected_cache_payload_ref
 from polisyos.fabric.data_plane import parse_datetime_utc
 

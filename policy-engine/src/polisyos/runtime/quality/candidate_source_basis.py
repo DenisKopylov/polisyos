@@ -231,8 +231,8 @@ def _same_view(
 def _source_values(
     store: artifacts.ArtifactStore, source: CandidateAcquisitionSource
 ) -> dict[str, object]:
+    import polisyos.fabric.connectors as connectors
     from polisyos.data_forge.read_api import catalog
-    from polisyos.fabric import connectors
     from polisyos.runtime.quality.candidate_acquisition_source import _selected_compiler_candidate
 
     _, _, query, discovery, candidate = _selected_compiler_candidate(

@@ -298,8 +298,8 @@ def _candidate_experiment_source_selection(
     origin: VerifiedCandidateExperimentOrigin,
 ) -> AcquisitionCandidateSourceRoute:
     """Derive the typed source selection from its current experiment owners."""
+    import polisyos.fabric.data_plane as data_plane
     from polisyos.data_requirement import DataRequirementCompilationReport
-    from polisyos.fabric import data_plane
     from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIAcquisitionExecutionPort,

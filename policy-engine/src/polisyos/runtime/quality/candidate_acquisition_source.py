@@ -14,12 +14,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.fabric.connectors as connectors
+import polisyos.fabric.data_plane as data_plane
 from polisyos.core import artifacts, canon
 from polisyos.core.contracts import DataSnapshot, EvidenceBundle
 from polisyos.core.llm import SECRET_PII_DETECTOR_VERSION, scan_secret_and_pii
 from polisyos.data_forge.read_api import catalog
 from polisyos.data_requirement import DataRequirementCompilationReport, DataRequirementSpec
-from polisyos.fabric import connectors, data_plane
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementBasisBinding,
     validate_persisted_data_requirement_compilation_report,

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.core.artifacts import ArtifactTenantContextInfo
     from polisyos.core.security import AuditLog
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext

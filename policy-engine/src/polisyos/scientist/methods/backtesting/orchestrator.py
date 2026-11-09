@@ -125,7 +125,7 @@ def _trust_scorer_profile(scorer: TrustScorer) -> dict[str, Any] | None:
 
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.core.artifacts import ArtifactTenantContextInfo
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
 

@@ -14358,6 +14358,35 @@
           "wall_seconds": 73.771,
           "scope": "Pinned writer and test delta records 38 tenant-scoped states before the persisted-owner comparison refuses. Diagnostic and separate actual CAS reproduction isolate wire-identical EnvironmentManifestRef versus decoded ArtifactRef. Tenant, cell and scope predicates match. No V25 withdrawal verdict."
         },
+        "p05_separately_authorized_changed_input_r3": {
+          "source_commit": "1e263a23a23d3289fa728b60f7713aa5c29d55df",
+          "source_tree": "8daab45b2833633b51d2167d176216a42080be05",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r3",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 16,
+          "wall_seconds": 3701.353,
+          "scope": "Real B persisted at terminal SQL head 5 and completed. The selected WMR, input bindings and input binding report retained a default bound-state view. The protected reentry oracle failed before C. A CAS sibling profile is not selected evidence."
+        },
+        "p08_sql_v25_restricted_occurrence_diagnostic": {
+          "source_commit": "0c1da9b356f26b2df81cd020791d35d8e19dd171",
+          "source_tree": "d8798a5f8a65502743065707e15c499eb8669ece",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r6",
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 9,
+          "wall_seconds": 190.331,
+          "scope": "Three initial selected debug GETs return 200 and unknown. The retained exact graph and bundle establish one verified method plus two successful compiler housekeeping occurrences. The restricted projection expects one total occurrence. Withdrawal and the unaffected source are unrun. This is the legacy SQL route, separate from the semantic-SQL producer."
+        },
+        "p08_sql_v25_occurrence_writer_consumer_r7": {
+          "base_commit": "a9b7621ce70408a28839a8a867d19ea807bc8e61",
+          "product_delta_commit": "c22fcf9554faf05aeb707ec207ac93ca9eaead41",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p08-sql-current-reader-r7",
+          "component_output": "VERIFY:policy-engine/_cache/e02/lane01-p08-restricted-occurrence-cohort-r2",
+          "component_pass": 4,
+          "observed": {"PASS": 0, "FAIL": 1, "ERROR": 0, "SKIP": 0},
+          "stable_pins": 10,
+          "wall_seconds": 166.032,
+          "scope": "The new graph-inventory checks admit actual complete Foundry execution and all three initial current GETs. The independent digest oracle expected float64 but the actual captured arrays are float32. The remaining controls have no verdict."
+        },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -14396,6 +14425,16 @@
           "r13_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r13",
           "r13_refusal": "unqualified package initializer route: polisyos.foundry.methods.catalog.causal.interference.estimation",
           "r13_stable_pins": 46,
+          "r14_commit": "91491b42cc441ac8a46ca964cfa3979dc76490aa",
+          "r14_tree": "d9d2a97cff648fc2aa6b34fa24f9661b68be3842",
+          "r14_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r14",
+          "r14_refusal": "unqualified locked optional import: polisyos.foundry.methods.catalog.causal._sklearn_compat.SKLEARN_AVAILABLE",
+          "r14_stable_pins": 52,
+          "r15_commit": "0c1da9b356f26b2df81cd020791d35d8e19dd171",
+          "r15_tree": "d8798a5f8a65502743065707e15c499eb8669ece",
+          "r15_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r15",
+          "r15_refusal": "missing repository re-export binding: polisyos.foundry.SentenceTransformerEmbedder",
+          "r15_stable_pins": 58,
           "catalog_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-owner-r1",
           "catalog_lazy_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-catalog-lazy-r1",
           "known_import_edge_diagnostic": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r1",

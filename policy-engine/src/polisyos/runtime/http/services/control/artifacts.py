@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, NotRequired, TypedDict, Unpack
 from uuid import NAMESPACE_URL, uuid5
 
+import polisyos.runtime.http.services._control_contracts as _contracts
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.artifacts import (
@@ -32,7 +33,6 @@ from polisyos.core.canon import (
     content_hash,
     to_canonical_bytes,
 )
-from polisyos.runtime.http.services import _control_contracts as _contracts
 from polisyos.runtime.http.services.control.production_data import (
     production_data_bundle_path,
 )

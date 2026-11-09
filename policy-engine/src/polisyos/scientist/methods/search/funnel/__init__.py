@@ -7,6 +7,7 @@ reserving expensive evaluation for promising ones only.
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import Any
 
 from polisyos.ir import TypedFailureCard, UncertaintyType
@@ -38,58 +39,61 @@ __all__ = [
 
 # Lazy imports for stage implementations to avoid heavy dependencies at import time.
 
+_LAZY_EXPORTS: dict[str, tuple[str, str]] = {
+    "Level0StaticValidator": (
+        "polisyos.scientist.methods.search.funnel.level0_static",
+        "Level0StaticValidator",
+    ),
+    "Level1CheapHeuristic": (
+        "polisyos.scientist.methods.search.funnel.level1_heuristic",
+        "Level1CheapHeuristic",
+    ),
+    "Level2CausalPlausibility": (
+        "polisyos.scientist.methods.search.funnel.level2_causal",
+        "Level2CausalPlausibility",
+    ),
+    "Level3MediumFidelity": (
+        "polisyos.scientist.methods.search.funnel.level3_medium",
+        "Level3MediumFidelity",
+    ),
+    "Level4FullFidelity": (
+        "polisyos.scientist.methods.search.funnel.level4_full",
+        "Level4FullFidelity",
+    ),
+    "Level5RefutationGovernanceStage": (
+        "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+        "Level5RefutationGovernanceStage",
+    ),
+    "Level6PromotionStage": (
+        "polisyos.scientist.methods.search.funnel.level6_promotion",
+        "Level6PromotionStage",
+    ),
+    "FunnelOrchestrator": (
+        "polisyos.scientist.methods.search.funnel.orchestrator",
+        "FunnelOrchestrator",
+    ),
+    "FunnelTicket": (
+        "polisyos.scientist.methods.search.funnel.orchestrator",
+        "FunnelTicket",
+    ),
+    "FunnelTraceStep": (
+        "polisyos.scientist.methods.search.funnel.orchestrator",
+        "FunnelTraceStep",
+    ),
+    "FunnelOutcome": (
+        "polisyos.scientist.methods.search.funnel.orchestrator",
+        "FunnelOutcome",
+    ),
+    "FunnelCorrelationTracker": (
+        "polisyos.scientist.methods.search.funnel.correlation",
+        "FunnelCorrelationTracker",
+    ),
+}
+
 
 def __getattr__(name: str) -> Any:
-    if name == "Level0StaticValidator":
-        from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
-
-        return Level0StaticValidator
-    if name == "Level1CheapHeuristic":
-        from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
-
-        return Level1CheapHeuristic
-    if name == "Level2CausalPlausibility":
-        from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
-
-        return Level2CausalPlausibility
-    if name == "Level3MediumFidelity":
-        from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
-
-        return Level3MediumFidelity
-    if name == "Level4FullFidelity":
-        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
-
-        return Level4FullFidelity
-    if name == "Level5RefutationGovernanceStage":
-        from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
-            Level5RefutationGovernanceStage,
-        )
-
-        return Level5RefutationGovernanceStage
-    if name == "Level6PromotionStage":
-        from polisyos.scientist.methods.search.funnel.level6_promotion import (
-            Level6PromotionStage,
-        )
-
-        return Level6PromotionStage
-    if name == "FunnelOrchestrator":
-        from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
-
-        return FunnelOrchestrator
-    if name == "FunnelTicket":
-        from polisyos.scientist.methods.search.funnel.orchestrator import FunnelTicket
-
-        return FunnelTicket
-    if name == "FunnelTraceStep":
-        from polisyos.scientist.methods.search.funnel.orchestrator import FunnelTraceStep
-
-        return FunnelTraceStep
-    if name == "FunnelOutcome":
-        from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-
-        return FunnelOutcome
-    if name == "FunnelCorrelationTracker":
-        from polisyos.scientist.methods.search.funnel.correlation import FunnelCorrelationTracker
-
-        return FunnelCorrelationTracker
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    if name not in _LAZY_EXPORTS:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module_name, attribute_name = _LAZY_EXPORTS[name]
+    module = import_module(module_name)
+    return getattr(module, attribute_name)

@@ -60,7 +60,7 @@ from polisyos.runtime.quality.candidate_experiment_reuse import (
     CandidateExperimentReuseActionSelection,
 )
 
-from .control import ControlPlaneService
+from .control.run_lifecycle import ControlPlaneService
 from .human_decisions import HumanDecisionService
 from .model_input_successor_action import (
     ModelInputSuccessorActionRequest,

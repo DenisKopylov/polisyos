@@ -47,14 +47,35 @@ __all__ = [
 ]
 
 
-_EMPIRICAL_EVIDENCE_EXPORTS = {
-    "EmpiricalCalibrationContext": "EmpiricalCalibrationContext",
-    "EmpiricalCalibrationEvidenceRef": "EmpiricalCalibrationEvidenceRef",
-    "EvidenceArtifactRef": "EvidenceArtifactRef",
-    "REFERENCE_PROFILES": "REFERENCE_PROFILES",
-    "load_empirical_calibration_evidence": "load_empirical_calibration_evidence",
-    "persist_empirical_calibration_evidence": "persist_empirical_calibration_evidence",
-    "produce_empirical_calibration_evidence": "produce_empirical_calibration_evidence",
+_EMPIRICAL_EVIDENCE_EXPORTS: dict[str, tuple[str, str]] = {
+    "EmpiricalCalibrationContext": (
+        "polisyos.calibration.forecast_bridge",
+        "EmpiricalCalibrationContext",
+    ),
+    "EmpiricalCalibrationEvidenceRef": (
+        "polisyos.calibration.forecast_bridge",
+        "EmpiricalCalibrationEvidenceRef",
+    ),
+    "EvidenceArtifactRef": (
+        "polisyos.calibration.forecast_bridge",
+        "EvidenceArtifactRef",
+    ),
+    "REFERENCE_PROFILES": (
+        "polisyos.calibration.forecast_bridge",
+        "REFERENCE_PROFILES",
+    ),
+    "load_empirical_calibration_evidence": (
+        "polisyos.calibration.forecast_bridge",
+        "load_empirical_calibration_evidence",
+    ),
+    "persist_empirical_calibration_evidence": (
+        "polisyos.calibration.forecast_bridge",
+        "persist_empirical_calibration_evidence",
+    ),
+    "produce_empirical_calibration_evidence": (
+        "polisyos.calibration.forecast_bridge",
+        "produce_empirical_calibration_evidence",
+    ),
 }
 
 
@@ -74,12 +95,12 @@ def __getattr__(name: str) -> object:
     """Resolve the predictive evidence bridge only when a consumer selects it."""
     if name not in _EMPIRICAL_EVIDENCE_EXPORTS:
         raise AttributeError(f"module 'polisyos.calibration' has no attribute {name!r}")
-    module = importlib.import_module("polisyos.calibration.forecast_bridge")
-    value = getattr(module, _EMPIRICAL_EVIDENCE_EXPORTS[name])
+    module_name, attr_name = _EMPIRICAL_EVIDENCE_EXPORTS[name]
+    value = getattr(importlib.import_module(module_name), attr_name)
     globals()[name] = value
     return value
 
 
 def __dir__() -> list[str]:
     """Return loaded calibration symbols and deferred evidence bridge exports."""
-    return sorted(set(globals()) | set(_EMPIRICAL_EVIDENCE_EXPORTS))
+    return sorted({*globals(), *_EMPIRICAL_EVIDENCE_EXPORTS})

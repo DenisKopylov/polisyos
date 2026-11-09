@@ -154,10 +154,9 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> Any:
     """Resolve covariance and failure exports without eager owner imports."""
-    target = _LAZY_IMPORTS.get(name)
-    if target is None:
+    if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module_name, attr_name = target
+    module_name, attr_name = _LAZY_IMPORTS[name]
     value = getattr(importlib.import_module(module_name), attr_name)
     globals()[name] = value
     return value

@@ -183,9 +183,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> object:
     """Resolve one backend facade export or real backend submodule on demand."""
-    target = _LAZY_IMPORTS.get(name)
-    if target is not None:
-        module_name, attr_name = target
+    if name in _LAZY_IMPORTS:
+        module_name, attr_name = _LAZY_IMPORTS[name]
         value = getattr(importlib.import_module(module_name), attr_name)
         globals()[name] = value
         return value

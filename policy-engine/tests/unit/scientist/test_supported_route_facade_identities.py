@@ -60,3 +60,21 @@ def test_policy_design_facade_exposes_phase2_bounds_owner_identity(
     )
     with pytest.raises(AttributeError):
         getattr(policy_design, name)
+
+
+def test_policy_design_facade_preserves_claim_decomposition_owner_identities() -> None:
+    policy_design = import_module("polisyos.scientist.policy_design")
+    claim_decomposition = import_module(
+        "polisyos.scientist.policy_design.claim_decomposition"
+    )
+    names = (
+        "ClaimDecompositionFacet",
+        "ClaimDecompositionInput",
+        "ClaimDecompositionObligation",
+        "compile_claim_decomposition",
+        "compile_participation_requirements_from_claim_ledger",
+    )
+
+    for name in names:
+        assert name in policy_design.__all__
+        assert getattr(policy_design, name) is getattr(claim_decomposition, name)

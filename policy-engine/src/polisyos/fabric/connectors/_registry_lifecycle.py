@@ -509,9 +509,9 @@ class RegistryLifecycleMixin:
         """
         registered = 0
         try:
-            from polisyos.fabric.connectors.components import __polisyos_components__
+            from polisyos.fabric.connectors.components import _builtin_components
 
-            for component in __polisyos_components__:
+            for component in _builtin_components():
                 connector_class = component.create()
                 fqid = getattr(
                     getattr(connector_class, "metadata", None),

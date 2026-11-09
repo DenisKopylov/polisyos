@@ -7,6 +7,7 @@ from typing import ClassVar
 
 import pytest
 
+import polisyos.fabric.connectors.components as connector_components
 from polisyos.core.components import (
     Capability,
     ComponentEntry,
@@ -288,6 +289,28 @@ def test_registry_lifecycle_bootstraps_without_importing_public_bridge(
 
     registry._bootstrap()
 
+    assert registry.get("test.bridge@1.0.0") is not None
+
+
+def test_registry_lifecycle_direct_fallback_uses_component_producer(
+    _clean_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+
+    monkeypatch.setattr(connector_components, "_builtin_components", lambda: (component,))
+
+    def refuse_computed_public_export(name: str) -> object:
+        if name == "__polisyos_components__":
+            raise AssertionError("source admission requires the canonical component producer")
+        raise AttributeError(name)
+
+    monkeypatch.setattr(connector_components, "__getattr__", refuse_computed_public_export)
+
+    registered = registry._bootstrap_builtin_connectors_direct()
+
+    assert registered == 1
     assert registry.get("test.bridge@1.0.0") is not None
 
 

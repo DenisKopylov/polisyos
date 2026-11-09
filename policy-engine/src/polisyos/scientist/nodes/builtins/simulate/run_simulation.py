@@ -408,7 +408,13 @@ class RunSimulationNode:
             return NodeOutcome(status="fail", state=new_state, error=error)
 
         if native_request_ref is None:
-            result = ctx.foundry.execute(ctx.store, request)
+            tenant_context = ctx.run.artifact_tenant_context()
+            if tenant_context is None:
+                result = ctx.foundry.execute(ctx.store, request)
+            else:
+                result = ctx.foundry.execute(
+                    ctx.store, request, derived_tenant_context=tenant_context
+                )
         else:
             from polisyos.scientist.methods.backtesting.native_replay import (
                 execute_native_forecast,

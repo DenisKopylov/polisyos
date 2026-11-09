@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -40,7 +40,13 @@ from polisyos.ir.trinity import TrinityBundle
 
 
 def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
-    store = FileSystemCAS(tmp_path)
+    tenant_context = ArtifactTenantContextInfo(tenant_id="tenant-feedback", cell_id="cell-feedback")
+    store = FileSystemCAS(
+        tmp_path,
+        tenant_id=tenant_context.tenant_id,
+        cell_id=tenant_context.cell_id,
+        ownership_enforced=True,
+    )
     bundle = build_default_registry_bundle(store)
     load_registry_bundle_content(store, bundle.bundle_ref)
     policy = TrinityBundle(
@@ -137,10 +143,13 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
             feedback_config_ref=FeedbackConfigRef(artifact_id=feedback_config_ref.artifact_id),
             observed_range_bundle_ref=observed_range_bundle_ref,
         ),
+        derived_tenant_context=tenant_context,
     )
 
     assert exec_result.ok is True
     assert exec_result.simulation_result_ref is not None
+    assert exec_result.simulation_result_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(exec_result.simulation_result_ref).tenant_context == tenant_context
     assert {artifact.role for artifact in exec_result.derived_refs} >= {
         "feedback_convergence_certificate",
         "feedback_result",

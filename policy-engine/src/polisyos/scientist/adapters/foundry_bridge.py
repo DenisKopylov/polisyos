@@ -6,6 +6,7 @@ import json
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
@@ -27,6 +28,9 @@ from polisyos.core.security import (
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.scientist.orchestration.engine.context import FoundryPort
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 
 
 class FoundryBridgeSecurityError(PolicyOSError):
@@ -60,7 +64,13 @@ class DefaultFoundryPort(FoundryPort):
         """Compile a Trinity/registry request through `polisyos.foundry.compile.api.compile`."""
         return compile_foundry(store, request)
 
-    def execute(self, store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
+    def execute(
+        self,
+        store: ArtifactStore,
+        request: ExecuteRequest,
+        *,
+        derived_tenant_context: ArtifactTenantContextInfo | None = None,
+    ) -> ExecuteResult:
         """Execute a lowered program through Foundry and attach TEE/SBOM derived artifacts."""
         attestation: AttestationResult | None = None
         if self._gatekeeper is not None:
@@ -70,7 +80,12 @@ class DefaultFoundryPort(FoundryPort):
             )
 
         with _tee_env_scope(attestation):
-            result = execute_foundry(store, request)
+            if derived_tenant_context is None:
+                result = execute_foundry(store, request)
+            else:
+                result = execute_foundry(
+                    store, request, derived_tenant_context=derived_tenant_context
+                )
 
         if attestation is None:
             return _maybe_attach_sbom(result=result, store=store, settings=self._settings)

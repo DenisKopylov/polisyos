@@ -782,7 +782,13 @@ def execute_native_forecast(
                 }
             )
         execution_bindings.append(execution.input_bindings_ref)
-        result = ctx.foundry.execute(ctx.store, execution)
+        tenant_context = ctx.run.artifact_tenant_context()
+        if tenant_context is None:
+            result = ctx.foundry.execute(ctx.store, execution)
+        else:
+            result = ctx.foundry.execute(
+                ctx.store, execution, derived_tenant_context=tenant_context
+            )
         if not result.ok or result.simulation_result_ref is None:
             raise ValueError("native replay execution produced no successful simulation")
         admission = admit_execution_source(ctx.store, result.simulation_result_ref)

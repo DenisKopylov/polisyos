@@ -1415,9 +1415,20 @@ class _RuntimeOriginCapturingFoundryPort:
         """Forward compilation to the server-selected Foundry port."""
         return self._delegate.compile(store, request)
 
-    def execute(self, store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
+    def execute(
+        self,
+        store: ArtifactStore,
+        request: ExecuteRequest,
+        *,
+        derived_tenant_context: ArtifactTenantContextInfo | None = None,
+    ) -> ExecuteResult:
         """Capture actual ExecuteResult refs without retaining payloads or arrays."""
-        result = self._delegate.execute(store, request)
+        if derived_tenant_context is None:
+            result = self._delegate.execute(store, request)
+        else:
+            result = self._delegate.execute(
+                store, request, derived_tenant_context=derived_tenant_context
+            )
         self._capture_execute_result(result)
         return result
 

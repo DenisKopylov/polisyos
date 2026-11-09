@@ -35,6 +35,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
+    ArtifactTenantContextInfo,
     InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
@@ -1531,6 +1532,7 @@ def execute(
     request: ExecuteRequest,
     *,
     artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
+    derived_tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ExecuteResult:
     """Execute a compiled Foundry plan from a bound state snapshot.
 
@@ -1552,6 +1554,8 @@ def execute(
             and parameter override artifacts, and receiving runtime outputs.
         request: Execution contract referencing the compiled plan, bound
             input snapshot, registry bundle, and runtime configuration.
+        derived_tenant_context: Validated run-owner scope for the produced
+            simulation result, when an owning run supplies one.
         artifact_output_codec: Source-owned method-sidecar request. ``legacy``
             preserves default CAN.2 behavior. ``bounded_v3`` requests only the
             local primitive MethodArtifactOutputPayload cohort; unsupported
@@ -1585,7 +1589,12 @@ def execute(
             simulation_ref = result.simulation_result_ref
         ```
     """
-    return _execute(store, request, artifact_output_codec=artifact_output_codec)
+    return _execute(
+        store,
+        request,
+        artifact_output_codec=artifact_output_codec,
+        derived_tenant_context=derived_tenant_context,
+    )
 
 
 def execute_semantic_horizon_step(
@@ -1622,7 +1631,24 @@ def _execute(
     artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
     expected_invocation: ProgramGraphInputInvocation | None = None,
+    derived_tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ExecuteResult:
+    if derived_tenant_context is not None:
+        if type(derived_tenant_context) is not ArtifactTenantContextInfo:
+            raise TypeError("foundry_derived_tenant_context_untyped")
+        context_fields = vars(derived_tenant_context)
+        if (
+            any(type(name) is not str for name in context_fields)
+            or set(context_fields) != {"tenant_id", "cell_id"}
+            or derived_tenant_context.model_extra is not None
+            or type(context_fields["tenant_id"]) is not str
+            or (
+                context_fields["cell_id"] is not None
+                and type(context_fields["cell_id"]) is not str
+            )
+        ):
+            raise ValueError("foundry_derived_tenant_context_invalid")
+        derived_tenant_context = ArtifactTenantContextInfo(**context_fields)
     if type(artifact_output_codec) is not str or artifact_output_codec not in (
         "legacy",
         "bounded_v3",
@@ -1715,7 +1741,7 @@ def _execute(
             )
         )
     execution_input_basis_ref: FoundryExecutionInputBasisRef | None = None
-    if request.return_selected_profile:
+    if request.return_selected_profile or derived_tenant_context is not None:
         _require_return_selected_profile_writer(store, "put_json")
     if request.feedback_config_ref is not None:
         feedback_config = _load_model(store, request.feedback_config_ref, FeedbackConfig)
@@ -1734,6 +1760,7 @@ def _execute(
                 parameter_override_inputs=parameter_override_inputs,
                 feedback_config=feedback_config,
                 method_execution_capture=method_execution_capture,
+                derived_tenant_context=derived_tenant_context,
             )
     if request.return_selected_profile:
         execution_input_basis_ref = _build_execution_input_basis(
@@ -1890,8 +1917,11 @@ def _execute(
                 version=sim_result.schema_version,
             ),
             inputs=sim_inputs,
+            tenant_context=derived_tenant_context,
         ),
-        return_selected_profile=request.return_selected_profile,
+        return_selected_profile=(
+            request.return_selected_profile or derived_tenant_context is not None
+        ),
     )
 
     return ExecuteResult(
@@ -1899,7 +1929,7 @@ def _execute(
         ok=True,
         simulation_result_ref=(
             SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
-            if request.return_selected_profile
+            if request.return_selected_profile or derived_tenant_context is not None
             else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
         ),
         method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
@@ -1984,6 +2014,7 @@ def _execute_with_feedback(
     parameter_override_inputs: list[InputRef],
     feedback_config: FeedbackConfig,
     method_execution_capture: MethodExecutionCapture | None = None,
+    derived_tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ExecuteResult:
     initial_feedback_state = _build_initial_feedback_state(base_state, feedback_config)
     prepared = prepare_feedback_config(
@@ -2454,8 +2485,11 @@ def _execute_with_feedback(
                 version=sim_result.schema_version,
             ),
             inputs=sim_inputs,
+            tenant_context=derived_tenant_context,
         ),
-        return_selected_profile=request.return_selected_profile,
+        return_selected_profile=(
+            request.return_selected_profile or derived_tenant_context is not None
+        ),
     )
 
     if exec_artifacts.constraint_hard_fail:
@@ -2471,7 +2505,7 @@ def _execute_with_feedback(
         ok=True,
         simulation_result_ref=(
             SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
-            if request.return_selected_profile
+            if request.return_selected_profile or derived_tenant_context is not None
             else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
         ),
         method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,

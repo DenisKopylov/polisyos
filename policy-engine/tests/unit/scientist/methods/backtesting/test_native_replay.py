@@ -510,7 +510,10 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
     attempts = []
     context = SimpleNamespace(
         store=fresh_store,
-        run=SimpleNamespace(run_manifest=SimpleNamespace(run_id=request.run_id)),
+        run=SimpleNamespace(
+            run_manifest=SimpleNamespace(run_id=request.run_id),
+            artifact_tenant_context=lambda: None,
+        ),
         foundry=SimpleNamespace(execute=lambda *args: attempts.append(args)),
     )
     with pytest.raises(ValueError, match="execution contains unscoped inputs"):
@@ -591,7 +594,10 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
         attempts = []
         context = SimpleNamespace(
             store=FileSystemCAS(store.root),
-            run=SimpleNamespace(run_manifest=SimpleNamespace(run_id=request.run_id)),
+            run=SimpleNamespace(
+                run_manifest=SimpleNamespace(run_id=request.run_id),
+                artifact_tenant_context=lambda: None,
+            ),
             foundry=SimpleNamespace(execute=lambda *args, attempts=attempts: attempts.append(args)),
         )
         with pytest.raises(ValueError, match="initial materialization differs from source"):
@@ -847,7 +853,10 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
 
     context = SimpleNamespace(
         store=fresh_store,
-        run=SimpleNamespace(run_manifest=SimpleNamespace(run_id=request.run_id)),
+        run=SimpleNamespace(
+            run_manifest=SimpleNamespace(run_id=request.run_id),
+            artifact_tenant_context=lambda: None,
+        ),
         foundry=SimpleNamespace(execute=change_second_execution),
     )
     with pytest.raises(ValueError, match="execution differs from submitted request"):
@@ -1359,7 +1368,10 @@ def test_native_registry_profiles_bind_real_compile_and_runtime_basis(tmp_path, 
 
         context = SimpleNamespace(
             store=reader,
-            run=SimpleNamespace(run_manifest=SimpleNamespace(run_id=request.run_id)),
+            run=SimpleNamespace(
+                run_manifest=SimpleNamespace(run_id=request.run_id),
+                artifact_tenant_context=lambda: None,
+            ),
             foundry=SimpleNamespace(execute=execute_real),
         )
         with monkeypatch.context() as capture:
@@ -1407,7 +1419,10 @@ def test_native_registry_profiles_bind_real_compile_and_runtime_basis(tmp_path, 
     attempts = []
     context = SimpleNamespace(
         store=reader,
-        run=SimpleNamespace(run_manifest=SimpleNamespace(run_id=request.run_id)),
+        run=SimpleNamespace(
+            run_manifest=SimpleNamespace(run_id=request.run_id),
+            artifact_tenant_context=lambda: None,
+        ),
         foundry=SimpleNamespace(execute=lambda *args: attempts.append(args)),
     )
     with pytest.raises(ValueError, match="initial input bindings differ from request"):

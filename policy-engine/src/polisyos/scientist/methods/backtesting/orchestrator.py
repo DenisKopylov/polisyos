@@ -125,6 +125,7 @@ def _trust_scorer_profile(scorer: TrustScorer) -> dict[str, Any] | None:
 
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
 
@@ -209,7 +210,13 @@ class _BacktestReplicaFoundryPort:
         """Keep compile on the existing Foundry route without changing its contract."""
         return self.delegate.compile(store, request)
 
-    def execute(self, store: Any, request: ExecuteRequest) -> ExecuteResult:
+    def execute(
+        self,
+        store: Any,
+        request: ExecuteRequest,
+        *,
+        derived_tenant_context: ArtifactTenantContextInfo | None = None,
+    ) -> ExecuteResult:
         """Execute a copied request bound to the masked view and this replica seed."""
         from polisyos.core.artifacts import load_core_json_artifact
 
@@ -239,7 +246,12 @@ class _BacktestReplicaFoundryPort:
                 update={"exec_config": exec_config},
             )
             self.request = physical_request
-            self.result = self.delegate.execute(store, physical_request)
+            if derived_tenant_context is None:
+                self.result = self.delegate.execute(store, physical_request)
+            else:
+                self.result = self.delegate.execute(
+                    store, physical_request, derived_tenant_context=derived_tenant_context
+                )
             if not self.result.ok:
                 self.failure = "; ".join(self.result.notes) or "foundry_execute_not_ok"
             return self.result

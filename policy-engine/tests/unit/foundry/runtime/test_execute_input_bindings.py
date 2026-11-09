@@ -7,9 +7,19 @@ from pathlib import Path
 import pytest
 
 from polisyos.common.async_tools import run_coro_sync
-from polisyos.core.artifacts import CoreJSONArtifactStore, validate_core_model_json_artifact
+from polisyos.core.artifacts import (
+    CoreJSONArtifactStore,
+    ManifestLifecycle,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -128,8 +138,7 @@ def _compile_exec_plan(store: FileSystemCAS):
     return compile_result.exec_plan_ref, registry_bundle.bundle_ref
 
 
-def test_execute_supports_input_bindings_ref(tmp_path) -> None:
-    store = FileSystemCAS(tmp_path)
+def _small_input_bindings_execute_request(store: FileSystemCAS) -> ExecuteRequest:
     exec_plan_ref, registry_bundle_ref = _compile_exec_plan(store)
 
     base_state = GlobalState.empty(n_agents=4, n_firms=2)
@@ -157,19 +166,83 @@ def test_execute_supports_input_bindings_ref(tmp_path) -> None:
         ),
     )
 
-    result = execute_foundry(
-        store,
-        ExecuteRequest(
-            exec_plan_ref=exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
-            registry_bundle_ref=registry_bundle_ref,
-        ),
+    return ExecuteRequest(
+        exec_plan_ref=exec_plan_ref,
+        input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+        registry_bundle_ref=registry_bundle_ref,
     )
+
+
+def test_execute_supports_input_bindings_ref(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    request = _small_input_bindings_execute_request(store)
+
+    # Keep the existing two-positional call covered for legacy/direct adapters.
+    result = execute_foundry(store, request)
     assert result.ok
     assert result.schema_version == "1.0"
     assert result.method_execution_bundle_ref is None
     assert result.simulation_result_ref is not None
     assert any(note == "state_source:input_bindings_ref" for note in result.notes)
+
+
+def test_execute_persists_run_derived_tenant_context_on_selected_result_profile(
+    tmp_path: Path,
+) -> None:
+    tenant_id = "tenant-execute-result"
+    cell_id = "cell-execute-result"
+    store = FileSystemCAS(
+        tmp_path / "scoped-cas",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        ownership_enforced=True,
+    )
+    request = _small_input_bindings_execute_request(store)
+    derived_tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+
+    result = execute_foundry(
+        store,
+        request,
+        derived_tenant_context=derived_tenant_context,
+    )
+
+    assert result.ok
+    assert result.simulation_result_ref is not None
+    assert result.simulation_result_ref.manifest_profile_sha256 is not None
+    selected_manifest = store.get_manifest(result.simulation_result_ref)
+    assert selected_manifest.tenant_context == derived_tenant_context
+    assert (
+        ManifestLifecycle.profile_sha256(selected_manifest)
+        == result.simulation_result_ref.manifest_profile_sha256
+    )
+    unscoped_ref = store.put_bytes(
+        store.get_bytes(result.simulation_result_ref),
+        PutOptions(
+            kind=selected_manifest.kind,
+            media_type=selected_manifest.media_type,
+            schema=selected_manifest.artifact_schema,
+            inputs=selected_manifest.inputs,
+            canon=selected_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert unscoped_ref.artifact_id == result.simulation_result_ref.artifact_id
+    assert unscoped_ref.manifest_profile_sha256 != result.simulation_result_ref.manifest_profile_sha256
+    assert store.get_manifest(unscoped_ref).tenant_context is None
+    assert store.get_manifest(result.simulation_result_ref).tenant_context == derived_tenant_context
+
+    # The scoped owner must reject a scope copied from another cell even when
+    # the tenant ID matches; it must not publish an incorrectly bound profile.
+    foreign_cell_context = ArtifactTenantContextInfo(
+        tenant_id=tenant_id,
+        cell_id="different-cell",
+    )
+    with pytest.raises(ArtifactOwnershipError, match="different cell"):
+        execute_foundry(
+            store,
+            request,
+            derived_tenant_context=foreign_cell_context,
+        )
 
 
 def test_execute_refuses_semantic_binding_without_exact_correspondence_before_dispatch(

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from polisyos.core.artifacts import (
+    ArtifactID,
     ArtifactRef,
     FileSystemCAS,
     PutOptions,
@@ -25,6 +26,7 @@ from polisyos.core.contracts.model_input_requirements import (
 from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorResponse
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.data_forge.read_api.catalog import AcquisitionAuthorityError, build_authority_registry
 from polisyos.foundry.execute import admit_semantic_horizon_step_chain, load_state_snapshot
 from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.runtime.http.app import create_runtime_api_app
@@ -684,3 +686,79 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                 assert limited.simulation_result_ref is None and limited.result_body is None
             finally:
                 withheld.rename(blob)
+
+        # Withdraw only the current source entry through the canonical registry
+        # format. Keep the original activation, signed action and numerical
+        # evidence available for historical replay.
+        registry_path = active.authority.registry_path
+        registry_bytes = registry_path.read_bytes()
+        registry = active.authority._load_registry()
+        assert entry in registry.entries
+        withdrawn = build_authority_registry(
+            baseline_content_sha256=registry.baseline_content_sha256,
+            l5_measurement_registry_sha256=registry.l5_measurement_registry_sha256,
+            entries=tuple(item for item in registry.entries if item.entry_id != entry.entry_id),
+        )
+        try:
+            registry_path.write_text(withdrawn.model_dump_json(), encoding="utf-8")
+            with pytest.raises(AcquisitionAuthorityError, match="authority_entry_unresolved"):
+                active.authority.resolve(entry.entry_id)
+
+            with (
+                trust.authorization_exchange("acquisition-operator") as operator_authorization,
+                TestClient(app(root)) as historical_reader,
+            ):
+                historical_control = historical_reader.app.state.runtime_container.control_service
+                stop_embedded_control_worker(historical_control)
+                ledger = historical_control.llm_producer_settlement_store._ledger
+                reservations = ledger.snapshot().invocation_reservations
+                assert len(reservations) == 1
+                new_use = mutation.model_copy(update={"idempotency_key": "withdrawn-stock-use"})
+                refused, _ = trust.post(
+                    historical_reader,
+                    path + "/decision-request",
+                    new_use.model_dump(mode="json"),
+                    route=_ROUTE_TEMPLATE + "/decision-request",
+                )
+                assert refused.status_code == 409, refused.text
+                assert refused.json()["code"] == "model_input_use_source_not_established"
+
+                with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
+                    _assert_foundry_successor(
+                        fresh,
+                        original=original,
+                        mutation=mutation,
+                        action_job_id=action_job_id,
+                        checkpoint=checkpoint,
+                    )
+                historical_headers = {
+                    "Authorization": operator_authorization,
+                    "X-Tenant-ID": served.TENANT,
+                }
+                historical = historical_reader.get(result_path, headers=historical_headers)
+                assert ledger.snapshot().invocation_reservations == reservations
+                assert historical.status_code == 200, historical.text
+                replayed = RunModelInputUseN5SuccessorResponse.model_validate(historical.json())
+                assert replayed.result == selected, historical.text
+
+                decision_id = ArtifactID.model_validate(execution_body["decision_ref"])
+                signature = fresh._sig_path(decision_id)
+                withheld_signature = tmp_path / "withheld-successor-approval-signature"
+                signature.rename(withheld_signature)
+                try:
+                    unsigned = historical_reader.get(result_path, headers=historical_headers)
+                    assert unsigned.status_code == 200, unsigned.text
+                    unverified = RunModelInputUseN5SuccessorResponse.model_validate(
+                        unsigned.json()
+                    ).result
+                    assert unverified.action_status == "completed"
+                    assert unverified.result_status == "not_established"
+                    assert unverified.limitation_code == (
+                        "model_input_use_history_approval_not_established"
+                    )
+                    assert unverified.simulation_result_ref is None
+                    assert unverified.result_body is None
+                finally:
+                    withheld_signature.rename(signature)
+        finally:
+            registry_path.write_bytes(registry_bytes)

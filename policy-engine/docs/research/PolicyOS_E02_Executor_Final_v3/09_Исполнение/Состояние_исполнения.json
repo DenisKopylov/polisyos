@@ -14561,6 +14561,16 @@
           "strict_r22_first_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.FORECAST_PROFILE_MEMBER_KIND",
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
+        "lane01_p05_configured_source_withdrawal_history": {
+          "source_base": "da5acf1016af5e8385b1642e46bc8faec01b87f3",
+          "source_base_tree": "8582d26998f1f7fa55b5c7b3268285122eeffbfb",
+          "baseline_red": "MAIN:policy-engine/_cache/e02/lane01-p05-heldout-source-withdrawal-r1",
+          "composed_result": "MAIN:policy-engine/_cache/e02/lane01-p05-heldout-source-withdrawal-r2",
+          "stable_pins": 11,
+          "passed": 6,
+          "wall_seconds": 211.433,
+          "scope": "Runtime authenticates original signed PA2 and verifies the exact completed job/phase/Foundry lineage without requiring the selected source to remain in the current Catalog. Current POST refusal, historical GET, missing signature, unchanged reservations, and related Runtime controls pass. No institutional release revocation or same-scalar reuse verdict."
+        },
         "lane01_p05_r5_completed_b_profile_oracle": {
           "source_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
           "source_tree": "f31951280c63f856ce91debb82e22076b24a2890",

@@ -85,6 +85,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIAcquisitionExecutionPort,
     )
+    from polisyos.runtime.http.services.model_input_successor_action import (
+        ModelInputSuccessorIdentity,
+    )
     from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthConfig,
@@ -3488,6 +3491,37 @@ class AcquisitionActionService:
         if type(provider) is not ProductionAcquisitionAuthorityProvider:
             raise AcquisitionActionServiceError("model_input_use_authority_producer_missing")
         return provider
+
+    def require_model_input_use_decision_history(
+        self,
+        *,
+        identity: ModelInputSuccessorIdentity,
+        decision_ref: str,
+        execution_scope: ControlJobExecutionScope,
+    ) -> None:
+        """Bind an original signed approval to the completed job's creation actor."""
+        provider = self._require_model_input_use_authority_provider()
+        try:
+            history = provider.load_model_input_use_decision_history(
+                identity=identity, decision_ref=decision_ref
+            )
+        except AgentActionAuthorityRecordingError as exc:
+            raise AcquisitionActionServiceError(
+                "model_input_use_history_approval_not_established"
+            ) from exc
+        permission = history.decision.permission_snapshot
+        if (
+            execution_scope.status != "established"
+            or execution_scope.actor_authenticated is not True
+            or not execution_scope.actor_subject
+            or (execution_scope.tenant_id, execution_scope.cell_id)
+            != (identity.tenant_id, identity.cell_id)
+            or permission is None
+            or permission.tenant_id != identity.tenant_id
+            or permission.subject != execution_scope.actor_subject
+            or tuple(sorted(permission.roles)) != execution_scope.actor_roles
+        ):
+            raise AcquisitionActionServiceError("model_input_use_history_actor_mismatch")
 
     def _load_model_input_use_decision(
         self,

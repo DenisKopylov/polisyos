@@ -106,7 +106,10 @@ from polisyos.runtime.http.authorization import (
     require_action_permission,
     require_optional_action_permission,
 )
-from polisyos.runtime.http.container import resolve_production_approval_resolver
+from polisyos.runtime.http.container import (
+    resolve_acquisition_action_service,
+    resolve_production_approval_resolver,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -216,6 +219,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactManifest
     from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
     from polisyos.ir import InputRef as IRInputRef
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
     from polisyos.runtime.quality.candidate_simulation import (
@@ -5779,6 +5783,7 @@ def _model_input_use_n5_successor_projection(
     cell_id: str,
     store: Any,
     control_service: Any,
+    action_service: AcquisitionActionService | None = None,
 ) -> RunModelInputUseN5SuccessorProjection:
     """Read one explicit completed model-input action and its selected N5 result.
 
@@ -5791,6 +5796,7 @@ def _model_input_use_n5_successor_projection(
         artifact_ref_for_manifest,
         artifact_ref_identity_key,
     )
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
     from polisyos.runtime.http.services.acquisition_n5_projection import (
         n5_numerical_body_payload,
         read_selected_n5_result_manifest,
@@ -5800,7 +5806,7 @@ def _model_input_use_n5_successor_projection(
     from polisyos.runtime.http.services.model_input_successor_action import (
         ModelInputSuccessorActionRequest,
         ModelInputUseActionCheckpoint,
-        resolve_model_input_successor_action,
+        resolve_model_input_successor_history,
         verify_model_input_use_result,
     )
     from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
@@ -5948,12 +5954,13 @@ def _model_input_use_n5_successor_projection(
             action_status="completed",
         )
     try:
-        selection = resolve_model_input_successor_action(
+        selection = resolve_model_input_successor_history(
             control_service,
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
             request=request,
+            checkpoint=checkpoint,
         )
         if selection.job_id != action_job_id or selection.route_id != payload["route_id"]:
             raise KeyError(action_job_id)
@@ -5980,6 +5987,20 @@ def _model_input_use_n5_successor_projection(
         routing_report_ref=origin.routing_report_ref,
     )
     try:
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not control_service
+        ):
+            return limited(
+                "model_input_use_history_authority_owner_unavailable",
+                action_status="completed",
+                blocked_source=blocked_source,
+            )
+        action_service.require_model_input_use_decision_history(
+            identity=selection,
+            decision_ref=payload["decision_ref"],
+            execution_scope=execution_scope,
+        )
         resolved = verify_model_input_use_result(
             store,
             selection=selection,
@@ -7172,6 +7193,7 @@ if router is not None:
                 cell_id=review_scope.cell_id,
                 store=ctx.store,
                 control_service=control_service,
+                action_service=resolve_acquisition_action_service(request),
             )
         except KeyError as exc:
             raise not_found(

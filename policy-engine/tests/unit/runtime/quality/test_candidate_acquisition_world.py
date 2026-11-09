@@ -14,7 +14,12 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, load_core_json_artifact
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    FileSystemCAS,
+    artifact_ref_identity_key,
+    load_core_json_artifact,
+)
 from polisyos.core.contracts.fabric import (
     CandidateAcquisitionSourceDataSnapshotLineage,
     DataSnapshot,
@@ -847,8 +852,21 @@ def test_candidate_acquisition_world_reopens_limited_model_output_and_actual_fou
 
         views = world_model_artifact_views(record)
         base_views = world_model_artifact_views(base)
+        assert views.bound_state_snapshot_ref.manifest_profile_sha256 is not None
+        assert views.input_bindings_ref.manifest_profile_sha256 is not None
+        assert views.input_binding_report_ref.manifest_profile_sha256 is not None
         assert views.data_snapshot_ref == case.materialization.data_snapshot_ref
         assert views.registry_bundle_ref == base_views.registry_bundle_ref
+        state_manifest = fresh.get_manifest(views.bound_state_snapshot_ref)
+        selected_data_edges = tuple(
+            edge for edge in state_manifest.inputs if edge.role == "input.data_snapshot_ref"
+        )
+        assert len(selected_data_edges) == 1
+        assert selected_data_edges[0].artifact_id == views.data_snapshot_ref.artifact_id
+        assert (
+            selected_data_edges[0].manifest_profile_sha256
+            == views.data_snapshot_ref.manifest_profile_sha256
+        )
         snapshot = DataSnapshot.model_validate(
             load_core_json_artifact(fresh, views.data_snapshot_ref)
         )
@@ -915,6 +933,22 @@ def test_candidate_acquisition_world_reopens_limited_model_output_and_actual_fou
 
         bindings = load_input_bindings(fresh, views.input_bindings_ref)
         assert bindings.data_snapshot_ref == views.data_snapshot_ref
+        assert artifact_ref_identity_key(
+            bindings.bound_state_snapshot_ref
+        ) == artifact_ref_identity_key(views.bound_state_snapshot_ref)
+        assert bindings.bound_state_snapshot_ref.manifest_profile_sha256 is not None
+        report = load_core_json_artifact(fresh, views.input_binding_report_ref)
+        assert report["bound_state_snapshot_ref"] == views.bound_state_snapshot_ref.model_dump(
+            mode="json"
+        )
+        profileless_state_ref = views.bound_state_snapshot_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+        assert profileless_state_ref.artifact_id == views.bound_state_snapshot_ref.artifact_id
+        assert artifact_ref_identity_key(profileless_state_ref) != artifact_ref_identity_key(
+            bindings.bound_state_snapshot_ref
+        )
+        assert fresh.verify(profileless_state_ref).ok
         assert case.materialization.foundry_binding_rule in bindings.rules
         assert {rule.binding_id for rule in bindings.rules} == {
             "base.tax_rate",

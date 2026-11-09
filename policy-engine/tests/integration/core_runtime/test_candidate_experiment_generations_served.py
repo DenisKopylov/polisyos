@@ -182,7 +182,7 @@ def _assert_changed_candidate_n5_numeric_outcomes(
         )
         assert declaration.target_world_slot == "government.balance"
         assert declaration.outcome_variable == "global.unemployment_rate"
-        assert declaration.target_unit_id == "USD"
+        assert declaration.target_unit_id == n5_input.profile.rule.unit_id == "usd"
         assert declaration.outcome_unit_id == "ratio"
         assert declaration.outcome_per_target_unit == pytest.approx(0.001, rel=0, abs=1e-12)
         assert declaration.outcome_noise_stddev == 0.0

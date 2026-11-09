@@ -1001,7 +1001,11 @@ def _assert_candidate_experiment_n5_uses_current_wmr(
     assert declaration.outcome_baseline == pytest.approx(source.observation, abs=1e-7)
     target_binding = acquired_world.slot_binding(declaration.target_world_slot)
     outcome_binding = acquired_world.slot_binding(declaration.outcome_variable)
-    assert target_binding is not None and target_binding.unit == declaration.target_unit_id == "USD"
+    assert target_binding is not None
+    assert (
+        target_binding.unit == declaration.target_unit_id == n5_input.profile.rule.unit_id == "usd"
+    )
+    assert target_binding.temporal_granularity == "stock"
     assert (
         outcome_binding is not None
         and outcome_binding.unit == declaration.outcome_unit_id == "ratio"

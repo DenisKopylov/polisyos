@@ -286,6 +286,7 @@ class AsyncWorkflowExecutor:
         self._workflow_deadline_at = workflow_deadline_at
         self._admitted_workflow_deadline_at: datetime | None = None
         self._workflow_deadline: float | None = None
+        self._checkpoint_publication_budget: CheckpointPublicationBudget | None = None
         self._workflow_publication_operation: str | None = None
         self._workflow_task: asyncio.Task[Any] | None = None
         self._workflow_cancelling = 0
@@ -438,6 +439,7 @@ class AsyncWorkflowExecutor:
             execution_budget_contract="admitted_workflow_budget_v1",
             execution_deadline_at=execution_deadline_at,
         )
+        self._checkpoint_publication_budget = checkpoint_budget
 
         if SNAPSHOT_INPUT_KEY in state.inputs:
             # Reuse the original queued/entered owner budget for this blocking
@@ -522,7 +524,10 @@ class AsyncWorkflowExecutor:
                         log=self._ctx.logger,
                     )
                     self._workflow_execution_admission_ref = None
-        state_input_ref = await self._persist_state(initial_state)
+        state_input_ref = await self._persist_state(
+            initial_state,
+            return_selected_profile=True,
+        )
         self._ctx.run.add_input(state_input_ref)
 
         try:
@@ -3423,6 +3428,11 @@ class AsyncWorkflowExecutor:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        tenant_context = await _run_checkpoint_blocking(
+            self._ctx.run.artifact_tenant_context,
+            publication_budget=self._checkpoint_publication_budget,
+            operation="workflow_state_tenant_context",
+        )
         return await self._put_workflow_artifact(
             state.model_dump(),
             ArtifactWriteOptions(
@@ -3432,12 +3442,18 @@ class AsyncWorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.ExperimentState",
                     version=state.schema_version,
                 ),
+                tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=return_selected_profile,
         )
 
     async def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
+        tenant_context = await _run_checkpoint_blocking(
+            self._ctx.run.artifact_tenant_context,
+            publication_budget=self._checkpoint_publication_budget,
+            operation="workflow_report_tenant_context",
+        )
         return await self._put_workflow_artifact(
             report._validated_payload(),
             ArtifactWriteOptions(
@@ -3447,6 +3463,7 @@ class AsyncWorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.WorkflowReport",
                     version="1.0",
                 ),
+                tenant_context=tenant_context,
             ),
             return_selected_profile=True,
         )

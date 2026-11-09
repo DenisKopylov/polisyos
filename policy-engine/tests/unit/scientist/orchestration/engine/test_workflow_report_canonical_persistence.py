@@ -95,6 +95,7 @@ class _SlowCanonicalFailureNode(_ReportNode):
 def _build_context(tmp_path) -> tuple[FileSystemCAS, ExecutionContext]:
     store = FileSystemCAS(tmp_path / "cas")
     run = MagicMock()
+    run.artifact_tenant_context.return_value = None
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
         artifact_id=_FAKE_SHA,

@@ -2674,6 +2674,7 @@ class WorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.ExperimentState",
                     version=state.schema_version,
                 ),
+                tenant_context=self._ctx.run.artifact_tenant_context(),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=return_selected_profile,
@@ -2689,6 +2690,7 @@ class WorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.WorkflowReport",
                     version="1.0",
                 ),
+                tenant_context=self._ctx.run.artifact_tenant_context(),
             ),
             return_selected_profile=True,
         )

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import threading
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -82,6 +84,7 @@ def _make_ctx(tmp_path: Path) -> ExecutionContext:
     run.add_output = MagicMock()
     run.trace_path = None
     run.finalize = MagicMock(return_value=MagicMock())
+    run.artifact_tenant_context.return_value = None
     logger = MagicMock()
     store = FileSystemCAS(tmp_path / "cas")
     store.put_json = create_autospec(store.put_json, side_effect=store.put_json)
@@ -425,6 +428,52 @@ class TestWorkflowTimeout:
         executor = AsyncWorkflowExecutor(ctx, registry)
         result = await executor.execute(workflow, state)
         assert result.report.status == "ok"
+
+    @pytest.mark.asyncio
+    async def test_tenant_context_proof_is_blocking_worker_owned_and_cancellable(
+        self,
+        tmp_path: Path,
+    ):
+        """Tenant ownership proof must not block the event loop or outlive its owner."""
+        ctx = _make_ctx(tmp_path)
+        loop_thread = threading.get_ident()
+        worker_threads: list[int] = []
+        entered = threading.Event()
+        release = threading.Event()
+
+        def read_tenant_context():
+            worker_threads.append(threading.get_ident())
+            entered.set()
+            release.wait(0.5)
+            return None
+
+        ctx.run.artifact_tenant_context.side_effect = read_tenant_context
+        node = _make_node(node_id="test.tenant_proof@1.0.0")
+        registry = _make_registry(("test.tenant_proof@1.0.0", node))
+        executor = AsyncWorkflowExecutor(ctx, registry, workflow_timeout_s=5)
+        workflow = _make_workflow(
+            NodeInvocation(alias="tenant_proof", node_id="test.tenant_proof@1.0.0")
+        )
+        task = asyncio.create_task(
+            executor.execute(workflow, ExperimentState(run_id="tenant-proof"))
+        )
+        try:
+            assert await asyncio.to_thread(entered.wait, 1)
+            assert worker_threads and worker_threads[0] != loop_thread
+            assert executor._checkpoint_publication_budget is not None
+            assert (
+                executor._checkpoint_publication_budget.deadline_monotonic
+                == executor._workflow_deadline
+            )
+            task.cancel()
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        finally:
+            release.set()
+            if not task.done():
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
 
 
 # ── Budget integration ────────────────────────────────────────────────

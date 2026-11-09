@@ -67,6 +67,7 @@ class _TemporaryFileSystemCAS(FileSystemCAS):
 def _make_ctx(*, metrics=None):
     store = _TemporaryFileSystemCAS()
     run = MagicMock()
+    run.artifact_tenant_context.return_value = None
     run.run_manifest.run_id = "async-test-run"
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
@@ -301,6 +302,7 @@ def _make_real_store_ctx(
 ) -> tuple[FileSystemCAS, ExecutionContext]:
     store = FileSystemCAS(tmp_path / "cas")
     run = MagicMock()
+    run.artifact_tenant_context.return_value = None
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
         artifact_id=_FAKE_SHA,

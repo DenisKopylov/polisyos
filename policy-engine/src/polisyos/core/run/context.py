@@ -16,10 +16,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
+from pydantic import BaseModel
+
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 
-from ..artifacts import ManifestLifecycle
+from ..artifacts import ArtifactID, ManifestLifecycle
 from ..artifacts._atomic_write import AtomicFileWriter
 from ..artifacts.manifest import (
     ArtifactManifest,
@@ -81,6 +83,73 @@ _ACTIVE_RUN_THREAD_LOCKS_GUARD = threading.Lock()
 
 class _FinalizeRecoveryError(ValueError):
     """A pending finalize journal cannot be reconciled from its durable facts."""
+
+
+def _run_owner_artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None] | None:
+    """Read the exact wire identity from the owner's standard model storage."""
+    fields = {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+    if (
+        not isinstance(ref, ArtifactRef)
+        or set(type(ref).model_fields) != fields
+        or type(ref).model_computed_fields
+    ):
+        return None
+
+    # Read the checked values once. Typed views can define their own accessors.
+    model_dict = BaseModel.__dict__["__dict__"]
+    model_extra = BaseModel.__dict__["__pydantic_extra__"]
+    try:
+        values = model_dict.__get__(ref)
+        if (
+            type(values) is not dict
+            or any(type(name) is not str for name in values)
+            or values.keys() != fields
+            or model_extra.__get__(ref) is not None
+        ):
+            return None
+        artifact_id = values["artifact_id"]
+        if type(artifact_id) is not ArtifactID:
+            return None
+        id_values = model_dict.__get__(artifact_id)
+        try:
+            id_extra = model_extra.__get__(artifact_id)
+        except AttributeError:
+            # RootModel leaves BaseModel's extra slot unset.
+            id_extra = None
+        if (
+            type(id_values) is not dict
+            or any(type(name) is not str for name in id_values)
+            or id_values.keys() != {"root"}
+            or id_extra is not None
+        ):
+            return None
+    except AttributeError:
+        return None
+
+    root, kind, media_type, profile = (
+        id_values["root"],
+        values["kind"],
+        values["media_type"],
+        values["manifest_profile_sha256"],
+    )
+    if (
+        type(root) is not str
+        or type(kind) is not str
+        or type(media_type) is not str
+        or (profile is not None and type(profile) is not str)
+    ):
+        return None
+    return root, kind, media_type, profile
+
+
+def _run_owner_artifact_ref_matches(
+    persisted: ArtifactRef | None, current: ArtifactRef | None
+) -> bool:
+    """Compare a decoded owner ref to the matching live typed view."""
+    if persisted is None or current is None:
+        return persisted is current
+    expected = _run_owner_artifact_ref_key(persisted)
+    return expected is not None and expected == _run_owner_artifact_ref_key(current)
 
 
 class ChildOutcomeUnknownError(Exception):
@@ -1850,9 +1919,30 @@ class RunContext:
             "sbom_ref",
             "tee_attestation_ref",
         )
+        artifact_ref_fields = frozenset(
+            {
+                "registry_bundle",
+                "trace_ref",
+                "replay_source_ref",
+                "capability_manifest_ref",
+                "environment_manifest_ref",
+                "sbom_ref",
+                "tee_attestation_ref",
+            }
+        )
         if (
             snapshot.access_scope_sha256 != scope_digest
-            or any(getattr(persisted, name) != getattr(current, name) for name in identity_fields)
+            or any(
+                (
+                    not _run_owner_artifact_ref_matches(
+                        getattr(persisted, name),
+                        getattr(current, name),
+                    )
+                    if name in artifact_ref_fields
+                    else getattr(persisted, name) != getattr(current, name)
+                )
+                for name in identity_fields
+            )
             or (self.tenant_id, self.cell_id) != (current.tenant_id, current.cell_id)
             or (
                 (require_store_binding or store_scope_established)

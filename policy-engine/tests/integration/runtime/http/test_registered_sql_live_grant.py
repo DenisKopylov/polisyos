@@ -1005,6 +1005,54 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
     context = client.app.state.runtime_container.runtime_api_context
     context.run_index.refresh(force=True)
 
+    # The terminal adapter exposes these exact selected producer outputs to
+    # the debug projection. Their persisted CAS profiles must carry the same
+    # tenant/cell binding as the admitted run.
+    from dataclasses import replace
+
+    from polisyos.core.artifacts import read_core_manifest_profile
+    from polisyos.runtime.http.services.debug import SimulationResultProjectionError
+
+    run_record_a = context.run_index.get_run(run_a["run_id"])
+    workflow_bindings = (
+        ("experiment_state_ref", run_record_a.experiment_state_ref),
+        ("workflow_report_ref", run_record_a.workflow_report_ref),
+    )
+    with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
+        for field_name, binding_ref in workflow_bindings:
+            assert binding_ref is not None and binding_ref.manifest_profile_sha256 is not None
+            manifest = read_core_manifest_profile(store, binding_ref)[0]
+            assert manifest.tenant_context is not None
+            assert manifest.tenant_context.tenant_id == run_record_a.details.tenant_id == TENANT
+            assert manifest.tenant_context.cell_id == run_record_a.details.cell_id == CELL
+
+            # Re-persist the same selected payload without manifest scope. The
+            # actual debug consumer must reject this profile for either binding;
+            # request authentication and CAS ownership alone do not establish the
+            # artifact's persisted tenant/cell claim.
+            unscoped_ref = store.put_bytes(
+                store.get_bytes(binding_ref),
+                ArtifactWriteOptions(
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    schema=manifest.artifact_schema,
+                    canon=manifest.canon,
+                ),
+                return_selected_profile=True,
+            )
+            assert unscoped_ref.artifact_id == binding_ref.artifact_id
+            assert unscoped_ref.manifest_profile_sha256 is not None
+            assert unscoped_ref.manifest_profile_sha256 != binding_ref.manifest_profile_sha256
+            unscoped_manifest = read_core_manifest_profile(store, unscoped_ref)[0]
+            assert unscoped_manifest.tenant_context is None
+            unscoped_run = replace(run_record_a, **{field_name: unscoped_ref})
+            with pytest.raises(SimulationResultProjectionError) as refusal:
+                context.debug.get_simulation_result_candidate(
+                    unscoped_run,
+                    alias="run_simulation",
+                )
+            assert refusal.value.code == "simulation_result_binding_tenant_mismatch"
+
     # Observe the actual Runtime owner result without substituting its replay.
     import polisyos.foundry.execute as foundry_execute
     from polisyos.runtime.quality import authority as closure_authority

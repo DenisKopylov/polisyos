@@ -6,16 +6,32 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.environment import EnvironmentManifestRef
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.core.run.context import RunContext, _FinalizeRecoveryError
+from polisyos.core.run.context import (
+    RunContext,
+    _FinalizeRecoveryError,
+    _validate_run_owner_snapshot_ref,
+)
 from polisyos.core.run.worker_lifecycle import (
     WorkerDispatchBinding,
     WorkerLifecycleCapability,
     WorkerRunView,
 )
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace.record import TraceRecord
+
+
+class _PermissiveString(str):
+    """Test a wire value whose equality cannot establish canonical identity."""
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, str)
+
+    __hash__ = str.__hash__
 
 
 class _MemoryTrace:
@@ -313,3 +329,107 @@ def test_worker_capability_rejects_fake_or_incomplete_dispatch_bindings(
     with pytest.raises(ValueError, match="worker_lifecycle_dispatch_binding_unissued"):
         capability.admit_worker_events(forged, [])
     run.suspend_for_resume()
+
+
+def test_run_owner_replay_compares_typed_artifact_refs_by_exact_wire_identity(
+    tmp_path: Path,
+) -> None:
+    tenant_id = "tenant-owner-typed-ref"
+    cell_id = "cell-owner-typed-ref"
+    access_scope = AccessScope.for_service(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        spiffe_id="spiffe://policyos/run-owner-typed-ref",
+    )
+    store = FileSystemCAS(tmp_path / "cas").for_tenant(tenant_id, cell_id)
+    run_id = "R_core_owner_typed_ref_replay"
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        registry = build_default_registry_bundle(store, return_selected_profile=True)
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry.bundle_ref,
+            run_id=run_id,
+            run_dir=store.root / "runs" / run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=access_scope,
+        )
+        environment_base_ref = store.put_json(
+            {"platform": "fixture"},
+            PutOptions(
+                kind="foundry.environment_manifest",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.core.artifacts.environment.EnvironmentManifest",
+                    version="1.0",
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        environment_ref = EnvironmentManifestRef.model_validate(
+            environment_base_ref.model_dump(mode="python")
+        )
+
+        try:
+            run.update_manifest(environment_manifest_ref=environment_ref)
+            assert type(run.run_manifest.environment_manifest_ref) is EnvironmentManifestRef
+            owner_ref = run._owner_snapshot_ref
+            assert owner_ref is not None
+            persisted = _validate_run_owner_snapshot_ref(
+                store,
+                owner_ref,
+                require_registry_profile=False,
+            )
+            assert type(persisted.run_manifest.environment_manifest_ref) is ArtifactRef
+            assert run.artifact_tenant_context() is not None
+
+            original_profile = environment_ref.manifest_profile_sha256
+            assert original_profile is not None
+            alternate_profile = "sha256:" + "0" * 64
+            if original_profile == alternate_profile:
+                alternate_profile = "sha256:" + "1" * 64
+            forged_profile = _PermissiveString(alternate_profile)
+            assert forged_profile == original_profile
+            profile_forgery = environment_ref.model_copy(
+                update={"manifest_profile_sha256": forged_profile}
+            )
+            assert type(profile_forgery.manifest_profile_sha256) is _PermissiveString
+            run.run_manifest.environment_manifest_ref = profile_forgery
+            with pytest.raises(
+                _FinalizeRecoveryError,
+                match="timeout_worker_owner_inputs_mismatch",
+            ):
+                run.artifact_tenant_context()
+
+            class ProfileAccessorRef(EnvironmentManifestRef):
+                def __getattribute__(self, name: str) -> object:
+                    if name == "manifest_profile_sha256":
+                        return original_profile
+                    return super().__getattribute__(name)
+
+            forged_accessor = ProfileAccessorRef.model_construct(
+                **{**vars(environment_ref), "manifest_profile_sha256": alternate_profile}
+            )
+            assert forged_accessor.manifest_profile_sha256 == original_profile
+            run.run_manifest.environment_manifest_ref = forged_accessor
+            with pytest.raises(
+                _FinalizeRecoveryError,
+                match="timeout_worker_owner_inputs_mismatch",
+            ):
+                run.artifact_tenant_context()
+
+            extra_field_ref = environment_ref.model_copy(
+                update={"unmodeled_wire_field": "must-not-be-ignored"}
+            )
+            assert extra_field_ref.model_extra is None
+            assert "unmodeled_wire_field" in extra_field_ref.__dict__
+            run.run_manifest.environment_manifest_ref = extra_field_ref
+            with pytest.raises(
+                _FinalizeRecoveryError,
+                match="timeout_worker_owner_inputs_mismatch",
+            ):
+                run.artifact_tenant_context()
+        finally:
+            run.run_manifest.environment_manifest_ref = environment_ref
+            run.finalize(status="ok")

@@ -288,7 +288,10 @@ def resolve_model_input_successor_action(
         CatalogAcquisitionOverlay,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
-    from polisyos.runtime.quality.model_input_routing import verify_model_input_routing_report
+    from polisyos.runtime.quality.model_input_routing import (
+        ModelInputRoutingActivationError,
+        resolve_model_input_routing_activation,
+    )
     from polisyos.runtime.quality.substrate_registry import require_catalog_serving_source_unchanged
 
     if type(request) is not ModelInputSuccessorActionRequest:
@@ -311,15 +314,6 @@ def resolve_model_input_successor_action(
         baseline_path=source.substrate_paths.l1_dcat_path,
         l5_measurement_registry_path=source.substrate_paths.measurement_registry_path,
     )
-    report = verify_model_input_routing_report(
-        store,
-        request.routing_report_ref,
-        expected_obligation_set_ref=origin.routing_report.obligation_set_ref,
-        selected_basis=origin.selected_basis,
-        catalog_authority=authority,
-    )
-    if len(report.routes) != 1 or (descriptor := report.routes[0].source_descriptor) is None:
-        raise ModelInputSuccessorActionError("model_input_use_single_resolved_route_required")
     admission = _read_model_input_activation_boundary(store, request.activation_receipt_ref)
     passport = AdmissionPassport.model_validate(
         epoch_contract.load_verified_epoch_statement(
@@ -328,19 +322,31 @@ def resolve_model_input_successor_action(
             expected_kind="epoch.acquisition_passport_snapshot",
         )
     )
-    if (
-        descriptor.authority_entry_id != passport.authority_entry_id
-        or descriptor.authority_registry_content_sha256
-        != passport.authority_registry_content_sha256
-    ):
-        raise ModelInputSuccessorActionError("model_input_use_activated_source_mismatch")
+    try:
+        _, active_authority = resolve_model_input_routing_activation(
+            store,
+            request.routing_report_ref,
+            expected_obligation_set_ref=origin.routing_report.obligation_set_ref,
+            selected_basis=origin.selected_basis,
+            catalog_authority=authority,
+            receipt_ref=request.activation_receipt_ref,
+            passport=passport,
+        )
+    except ModelInputRoutingActivationError as exc:
+        code = {
+            "single_obligation_required": "model_input_use_single_resolved_route_required",
+            "resolved_route_required": "model_input_use_single_resolved_route_required",
+            "activated_source_mismatch": "model_input_use_activated_source_mismatch",
+            "live_authority_drift": "acquisition_authority_drift",
+        }[exc.reason]
+        raise ModelInputSuccessorActionError(code) from exc
     overlay = CatalogAcquisitionOverlay(authority.baseline_path, source.overlay_path)
     try:
         active = overlay.read_activated_semantic_epoch_observations(
             receipt_ref=request.activation_receipt_ref,
             artifact_store=store,
             passport=passport,
-            authority=authority,
+            authority=active_authority,
         )
     finally:
         overlay.close()

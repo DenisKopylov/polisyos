@@ -14,7 +14,7 @@ import json
 import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, time
 from enum import StrEnum
 from pathlib import Path
@@ -160,9 +160,9 @@ class ModelInputSourceQueryRow(_StrictModel):
 class ModelInputSourceQueryEnvelope(_StrictModel):
     """Content-bound result of the exact-definition Catalog discovery query."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.model_input_source_query_envelope.v1"
-    ] = _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION
+    schema_version: Literal["polisyos.data_forge.model_input_source_query_envelope.v1"] = (
+        _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION
+    )
     model_input_interface_ref: artifacts.ArtifactRef
     model_input_port_id: str = Field(min_length=1)
     model_semantic_definition_ref: VariableSemanticDefinitionRef
@@ -1313,6 +1313,15 @@ def build_authority_registry(
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _ModelInputActivationScope:
+    receipt_ref: artifacts.ArtifactRef
+    passport_ref: artifacts.ArtifactRef
+    entry_id: str
+    original_registry_sha256: str
+    current_registry_sha256: str
+
+
 class CanonicalAcquisitionAuthority:
     """Resolver that reopens every decisive owner instead of trusting callers."""
 
@@ -1338,6 +1347,7 @@ class CanonicalAcquisitionAuthority:
         self.local_rights_trust_anchor_sha256 = provision.local_rights_trust_anchor_sha256
         self.registry_path = self.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
         self.local_rights_trust_path = self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
+        self._model_input_activation_scope: _ModelInputActivationScope | None = None
 
     @classmethod
     def from_provision(
@@ -1370,6 +1380,131 @@ class CanonicalAcquisitionAuthority:
             provision=provision,
             provision_content_sha256=provision_content_sha256,
             _construction_token=_PROVISION_CONSTRUCTION_TOKEN,
+        )
+
+    def _for_model_input_activation(
+        self,
+        store: artifacts.CoreJSONArtifactStore,
+        *,
+        receipt_ref: artifacts.ArtifactRef,
+        routing_report_ref: artifacts.ArtifactRef,
+        current_registry_sha256: str,
+    ) -> CanonicalAcquisitionAuthority:
+        """Reopen an exact local-lift activation against the unchanged model-input query."""
+        from polisyos.core.contracts import epoch
+
+        if (
+            routing_report_ref.kind != "runtime.quality.model_input_routing_report"
+            or routing_report_ref.media_type != "application/json"
+            or routing_report_ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionAuthorityError("model_input_activation_report_unselected")
+        report = artifacts.load_core_json_artifact(store, routing_report_ref)
+        schema = store.get_manifest(routing_report_ref).artifact_schema
+        if (
+            schema is None
+            or schema.name != "polisyos.runtime.quality.ModelInputRoutingReport"
+            or schema.version != "2.0"
+            or not isinstance(report, dict)
+            or report.get("schema_version") != "2.0"
+        ):
+            raise AcquisitionAuthorityError("model_input_activation_report_version_mismatch")
+        routes = report.get("routes")
+        if (
+            not isinstance(routes, list)
+            or len(routes) != 1
+            or not isinstance(routes[0], dict)
+            or routes[0].get("disposition") != "resolved"
+        ):
+            raise AcquisitionAuthorityError("model_input_activation_report_route_mismatch")
+        (route,) = routes
+        stored_descriptor = ModelInputSourceDescriptorCandidate.model_validate(
+            route.get("source_descriptor")
+        )
+        stored_envelope = ModelInputSourceQueryEnvelope.model_validate(route.get("query_envelope"))
+
+        activation = epoch.ActivatedOverlayAdmissionStatement.model_validate(
+            epoch.load_verified_epoch_statement(
+                store=store,
+                ref=receipt_ref,
+                expected_kind="epoch.activated_overlay_admission_receipt",
+            )
+        )
+        admission = epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(
+            epoch.load_verified_epoch_statement(
+                store=store,
+                ref=activation.admitted_boundary_evidence_ref,
+                expected_kind="epoch.admitted_acquisition_boundary_evidence",
+            )
+        )
+        passport = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=admission.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        current = self.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=stored_descriptor.model_input_interface_ref,
+            port_id=stored_descriptor.model_input_port_id,
+            include_query_envelope=True,
+        )
+        compare_exclusions = {"query_envelope", "authority_registry_content_sha256"}
+        if (
+            passport.get("passport_id") != activation.passport_id
+            or passport.get("source_lane") != "local_lift"
+            or passport.get("authority_entry_id") != stored_descriptor.authority_entry_id
+            or passport.get("authority_registry_content_sha256")
+            != stored_descriptor.authority_registry_content_sha256
+            or current.authority_registry_content_sha256 != current_registry_sha256
+            or current.query_envelope != stored_envelope
+            or current.model_dump(exclude=compare_exclusions)
+            != stored_descriptor.model_dump(exclude=compare_exclusions)
+        ):
+            raise AcquisitionAuthorityError("model_input_activation_scope_mismatch")
+        scoped = CanonicalAcquisitionAuthority.from_provision(
+            repo_root=self.repo_root,
+            baseline_path=self.baseline_path,
+            l5_measurement_registry_path=self.l5_path,
+        )
+        if scoped.provision_content_sha256 != self.provision_content_sha256:
+            raise AcquisitionAuthorityError("acquisition_authority_provision_drift")
+        scoped._model_input_activation_scope = _ModelInputActivationScope(
+            receipt_ref=receipt_ref,
+            passport_ref=admission.passport_ref,
+            entry_id=current.authority_entry_id,
+            original_registry_sha256=stored_descriptor.authority_registry_content_sha256,
+            current_registry_sha256=current_registry_sha256,
+        )
+        scoped._require_model_input_activation_registry()
+        return scoped
+
+    def _require_model_input_activation_registry(self) -> None:
+        scope = self._model_input_activation_scope
+        if scope is not None:
+            self._require_provision_unchanged()
+            if self._load_registry().content_sha256 != scope.current_registry_sha256:
+                raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
+
+    def _model_input_activation_registry_matches(
+        self,
+        *,
+        receipt_ref: artifacts.ArtifactRef,
+        passport_ref: artifacts.ArtifactRef,
+        entry_id: str,
+        source_lane: str,
+        original_registry_sha256: str,
+        resolved: ResolvedAcquisitionAuthority,
+    ) -> bool:
+        scope = self._model_input_activation_scope
+        if scope is None:
+            return resolved.registry_content_sha256 == original_registry_sha256
+        return (
+            source_lane == resolved.entry.source_lane == "local_lift"
+            and scope.receipt_ref == receipt_ref
+            and scope.passport_ref == passport_ref
+            and scope.entry_id == entry_id == resolved.entry.entry_id
+            and scope.original_registry_sha256 == original_registry_sha256
+            and scope.current_registry_sha256 == resolved.registry_content_sha256
         )
 
     def resolve(self, entry_id: str) -> ResolvedAcquisitionAuthority:

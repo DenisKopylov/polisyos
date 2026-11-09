@@ -14574,6 +14574,17 @@
           "report_registry_affected_passed": 86,
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
+        "lane01_p05_v13_local_lift_locality": {
+          "base_commit": "2fa8129c491e9625c6a2e9f1d8cd1364b6837c98",
+          "base_tree": "9d757169d769e6a8fe48dc56176ba102a46f4782",
+          "locality_baseline_red": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-registry-locality-diagnostic-r1",
+          "previous_oracle_fail": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-scoped-local-lift-r2",
+          "composed_result": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-scoped-local-lift-r3",
+          "stable_pins": 11,
+          "passed": 3,
+          "wall_seconds": 165.282,
+          "scope": "Exact V2 local_lift, one real approved ProgramGraph worker, same selected entry, fresh current decision required, competitor and removed activation before any extra reservation. Original historic GET and signature controls pass. Live-fetch, legacy and institutional release currentness are outside this verified expansion."
+        },
         "lane01_p05_configured_source_withdrawal_history": {
           "source_base": "da5acf1016af5e8385b1642e46bc8faec01b87f3",
           "source_base_tree": "8582d26998f1f7fa55b5c7b3268285122eeffbfb",

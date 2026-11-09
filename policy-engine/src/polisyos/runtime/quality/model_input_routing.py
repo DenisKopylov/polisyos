@@ -75,6 +75,23 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class ModelInputRoutingActivationError(ValueError):
+    """A verified routing report cannot select the requested activation."""
+
+    def __init__(
+        self,
+        reason: Literal[
+            "single_obligation_required",
+            "resolved_route_required",
+            "activated_source_mismatch",
+            "live_authority_drift",
+        ],
+    ) -> None:
+        self.reason = reason
+        worker_reason = "activated_source_mismatch" if reason == "live_authority_drift" else reason
+        super().__init__(f"model_input_routing_{worker_reason}")
+
+
 class ModelInputPortRoute(_StrictModel):
     """Candidate source-discovery result for one compiled executable port."""
 
@@ -431,6 +448,58 @@ def _v2_routing_report_matches_current(
     return True
 
 
+def resolve_model_input_routing_activation(
+    store: CoreJSONArtifactStore,
+    report_ref: ArtifactRef,
+    *,
+    expected_obligation_set_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis,
+    catalog_authority: CanonicalAcquisitionAuthority,
+    receipt_ref: ArtifactRef,
+    passport: AdmissionPassport,
+) -> tuple[ModelInputRoutingReport, CanonicalAcquisitionAuthority]:
+    """Revalidate the frozen activation and its current exact source selection."""
+    report, current = _verify_model_input_routing_report_current(
+        store,
+        report_ref,
+        expected_obligation_set_ref=expected_obligation_set_ref,
+        selected_basis=selected_basis,
+        catalog_authority=catalog_authority,
+    )
+    if len(report.routes) != 1:
+        raise ModelInputRoutingActivationError("single_obligation_required")
+    (route,) = report.routes
+    (current_route,) = current.routes
+    stored_descriptor = route.source_descriptor
+    current_descriptor = current_route.source_descriptor
+    if stored_descriptor is None or current_descriptor is None:
+        raise ModelInputRoutingActivationError("resolved_route_required")
+    if (
+        stored_descriptor.authority_entry_id != passport.authority_entry_id
+        or stored_descriptor.authority_registry_content_sha256
+        != passport.authority_registry_content_sha256
+    ):
+        raise ModelInputRoutingActivationError("activated_source_mismatch")
+    current_registry = current_descriptor.authority_registry_content_sha256
+    if current_registry != passport.authority_registry_content_sha256:
+        if (
+            report.schema_version != MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+            or route.query_envelope is None
+        ):
+            raise ModelInputRoutingActivationError("activated_source_mismatch")
+        if passport.source_lane == "live_fetch":
+            raise ModelInputRoutingActivationError("live_authority_drift")
+        if passport.source_lane != "local_lift":
+            raise ModelInputRoutingActivationError("activated_source_mismatch")
+        catalog_authority = catalog_authority._for_model_input_activation(
+            store,
+            receipt_ref=receipt_ref,
+            routing_report_ref=report_ref,
+            current_registry_sha256=current_registry,
+        )
+    return report, catalog_authority
+
+
 def materialize_routed_model_input_observation(
     store: CoreJSONArtifactStore,
     *,
@@ -476,26 +545,19 @@ def materialize_routed_model_input_observation(
 
     if type(overlay) is not CatalogAcquisitionOverlay or type(passport) is not AdmissionPassport:
         raise ValueError("model_input_routing_activation_owner_untyped")
-    report, current_report = _verify_model_input_routing_report_current(
+    report, catalog_authority = resolve_model_input_routing_activation(
         store,
         report_ref,
         expected_obligation_set_ref=expected_obligation_set_ref,
         selected_basis=selected_basis,
         catalog_authority=catalog_authority,
+        receipt_ref=receipt_ref,
+        passport=passport,
     )
-    if len(report.routes) != 1:
-        raise ValueError("model_input_routing_single_obligation_required")
     (route,) = report.routes
-    (current_route,) = current_report.routes
-    current_descriptor = current_route.source_descriptor
-    if current_descriptor is None:
+    descriptor = route.source_descriptor
+    if descriptor is None:
         raise ValueError("model_input_routing_resolved_route_required")
-    if (
-        current_descriptor.authority_entry_id != passport.authority_entry_id
-        or current_descriptor.authority_registry_content_sha256
-        != passport.authority_registry_content_sha256
-    ):
-        raise ValueError("model_input_routing_activated_source_mismatch")
 
     invocation = report.selected_invocation
     interface = load_program_graph_input_interface(store, invocation.interface_ref)
@@ -534,8 +596,8 @@ def materialize_routed_model_input_observation(
         transaction_time=transaction_time,
         semantic_input_request=AcquiredObservationSemanticInputRequest(
             binding_id=rule.binding_id,
-            source_definition_ref=current_descriptor.source_semantic_definition_ref,
-            source_representation_ref=current_descriptor.source_representation_ref,
+            source_definition_ref=descriptor.source_semantic_definition_ref,
+            source_representation_ref=descriptor.source_representation_ref,
             obligation_set_ref=SelectedVariableBindingRef.model_validate(
                 report.obligation_set_ref.model_dump(mode="python")
             ),

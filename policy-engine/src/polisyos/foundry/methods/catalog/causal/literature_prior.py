@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import Any, ClassVar
 
 from polisyos.core.observability import DeterminismTier
-from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.data_forge.read_api.academic import PreparedSKGRead, SKGQuery
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -22,9 +22,6 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
-
-if TYPE_CHECKING:
-    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 
 
 def _build_prior_metadata(

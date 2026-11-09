@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 import hashlib
+from typing import get_args, get_type_hints
 
 import duckdb
 
 from polisyos.data_forge.domains.academic.knowledge import skg_versioning
+from polisyos.data_forge.read_api.academic import PreparedSKGRead
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
 from polisyos.ir.analytics.literature import (
     ClaimVocabularyAxisStatus,
     EnvironmentAuditReport,
 )
+
+
+def test_prepared_read_annotation_resolves_to_public_skg_owner_type() -> None:
+    annotation = get_type_hints(BuildLiteraturePrior.pure_step)["prepared_read"]
+
+    assert get_args(annotation) == (PreparedSKGRead, type(None))
 
 
 def _seed_skg_db(path) -> None:

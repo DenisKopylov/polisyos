@@ -196,7 +196,7 @@ _EXPORTS = {
     "UKRAINE_PERIOD_PROJECTION_VERSION": _UKRAINE_OBSERVATION,
     "project_ukraine_observation_periods": _UKRAINE_OBSERVATION,
     "DemographyRoleProjection": _UKRAINE_DOMAIN,
-    "DemographySourceEvidence": _UKRAINE_DOMAIN,
+    "DemographySourceEvidence": "polisyos.data_forge.domains.ukraine.demography.source_inventory",
     "DemographySourceRequest": _UKRAINE_DOMAIN,
     "HistoricalLayoutRequest": _UKRAINE_DOMAIN,
     "InventorySourceRequest": _UKRAINE_DOMAIN,

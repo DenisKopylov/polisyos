@@ -733,6 +733,42 @@ def _materialized_causal_output(case):
     )
 
 
+def _write_same_bytes_selected_manifest_profile(ctx, *, original_ref, payload, manifest):
+    """Persist forged metadata as an exact CAS-selected profile over the same bytes."""
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+    original_profile = artifact_manifest_profile_sha256(ctx.store.get_manifest(original_ref))
+    forged_ref = ctx.store.put_bytes(
+        payload,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert forged_ref.artifact_id == original_ref.artifact_id
+    assert forged_ref.manifest_profile_sha256 is not None
+    assert forged_ref.manifest_profile_sha256 != original_profile
+    assert ctx.store.get_bytes(forged_ref) == payload
+    selected_manifest = ctx.store.get_manifest(forged_ref)
+    assert selected_manifest.kind == manifest.kind
+    assert selected_manifest.media_type == manifest.media_type
+    assert selected_manifest.artifact_schema == manifest.artifact_schema
+    assert selected_manifest.inputs == manifest.inputs
+    assert selected_manifest.producer == manifest.producer
+    return forged_ref
+
+
 def test_causal_output_contract_uses_complete_real_method_population(causal_recorded_output_case):
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
@@ -945,7 +981,6 @@ def test_causal_output_contract_rejects_each_missing_required_output(causal_reco
 def test_causal_output_refusal_readback_rejects_matching_wrong_manifest_header(
     causal_recorded_output_case, mutation
 ):
-    from polisyos.core.artifacts import ArtifactRef
     from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
 
     ctx, input_state, _, _ = causal_recorded_output_case
@@ -957,24 +992,16 @@ def test_causal_output_refusal_readback_rejects_matching_wrong_manifest_header(
     manifest = ctx.store.get_manifest(old_ref)
     if mutation == "kind":
         changed_manifest = manifest.model_copy(update={"kind": "foreign.node_output_refusal"})
-        changed_ref = ArtifactRef.model_validate(
-            {
-                **old_ref.model_dump(mode="python"),
-                "kind": "foreign.node_output_refusal",
-            }
-        )
     else:
         changed_manifest = manifest.model_copy(update={"media_type": "text/plain"})
-        changed_ref = ArtifactRef.model_validate(
-            {**old_ref.model_dump(mode="python"), "media_type": "text/plain"}
-        )
     assert changed_manifest.artifact_schema == manifest.artifact_schema
     assert changed_manifest.producer == manifest.producer
-    manifest_path = ctx.store._manifest_path_for_ref(
-        old_ref.artifact_id, old_ref.manifest_profile_sha256
+    changed_ref = _write_same_bytes_selected_manifest_profile(
+        ctx,
+        original_ref=old_ref,
+        payload=original_payload,
+        manifest=changed_manifest,
     )
-    manifest_path.write_text(changed_manifest.model_dump_json(by_alias=True))
-    assert ctx.store.get_bytes(changed_ref) == original_payload
 
     rows[index] = rows[index].model_copy(update={"artifact_ref": changed_ref})
     changed_outcome = outcome.model_copy(
@@ -1000,10 +1027,11 @@ def test_causal_output_refusal_readback_binds_actual_manifest(
 
     ctx, input_state, _, _ = causal_recorded_output_case
     outcome = _materialized_causal_output(causal_recorded_output_case)
-    ref = next(
-        row.artifact_ref for row in outcome.output_dispositions if row.disposition == "refused"
-    )
-    manifest = ctx.store.get_manifest(ref.artifact_id)
+    rows = list(outcome.output_dispositions)
+    index = next(index for index, row in enumerate(rows) if row.disposition == "refused")
+    ref = rows[index].artifact_ref
+    original_payload = ctx.store.get_bytes(ref)
+    manifest = ctx.store.get_manifest(ref)
     if mutation == "drop_parent":
         changed = manifest.model_copy(update={"inputs": manifest.inputs[1:]})
     elif mutation == "forge_role":
@@ -1025,11 +1053,22 @@ def test_causal_output_refusal_readback_binds_actual_manifest(
         changed = manifest.model_copy(
             update={"producer": ProducerInfo(component="other.owner", version="1.0")}
         )
-    # This is an actual temporary CAS sidecar mutation, preserving payload bytes,
-    # content address, node/spec/source markers, and every offered disposition.
-    _, manifest_path = ctx.store._paths(ref.artifact_id)
-    manifest_path.write_text(changed.model_dump_json(by_alias=True))
-    with pytest.raises(ValueError):
+    changed_ref = _write_same_bytes_selected_manifest_profile(
+        ctx,
+        original_ref=ref,
+        payload=original_payload,
+        manifest=changed,
+    )
+    rows[index] = rows[index].model_copy(update={"artifact_ref": changed_ref})
+    changed_outcome = outcome.model_copy(
+        update={
+            "artifacts": [changed_ref if item == ref else item for item in outcome.artifacts],
+            "output_dispositions": tuple(rows),
+        }
+    )
+    with pytest.raises(
+        ValueError, match=f"causal_output_refusal_lineage_mismatch:{rows[index].output_key}"
+    ):
         owner.RunCausalEvaluationNode().verify_output_dispositions(
-            ctx=ctx, input_state=input_state, outcome=outcome
+            ctx=ctx, input_state=input_state, outcome=changed_outcome
         )

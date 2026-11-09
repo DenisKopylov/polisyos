@@ -1363,6 +1363,28 @@ def test_data_forge_lazy_export_map_binds_catalog_selection_error_live():
     )
 
 
+def test_data_forge_ukraine_demography_evidence_binds_defining_owner() -> None:
+    from polisyos.data_forge.read_api import ukraine
+
+    owner_module = "polisyos.data_forge.domains.ukraine.demography.source_inventory"
+    ukraine_route = ledger._source_module_import_route_candidate(
+        Path(ledger.__file__).parents[4],
+        ukraine.__name__,
+        "DemographySourceEvidence",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert ukraine_route.route == (
+        "symbol",
+        owner_module,
+        "DemographySourceEvidence",
+    )
+    assert ukraine_route.binding_basis == "literal_getattr"
+
+    owner = importlib.import_module(owner_module)
+    assert ukraine.DemographySourceEvidence is owner.DemographySourceEvidence
+
+
 def test_data_forge_lazy_map_profile_rejects_noncanonical_import_and_name_binding():
     source = (
         "from ._lazy import lazy_dir, load_lazy_export\n"

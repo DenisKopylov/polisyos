@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from typing import Any, get_type_hints
+
 import pytest
 
 from polisyos.foundry.methods.catalog.causal import transport_engine as transport_engine_module
@@ -29,6 +32,10 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     build_selection_diagram,
 )
+
+
+def test_transport_state_annotation_resolves_to_standard_mapping_type() -> None:
+    assert get_type_hints(CheckTransportability.pure_step)["state"] == Mapping[str, Any]
 
 
 def test_transport_check_direct_when_no_s_nodes() -> None:

@@ -166,8 +166,14 @@ def _install_candidate_mandate(
     resource_digest,
     tmp_path,
     key_root: Path,
+    authority_valid_until: datetime | None = None,
 ):
-    """Sign exact candidate action/currentness inputs through existing fixture owners."""
+    """Sign exact candidate action/currentness inputs through existing fixture owners.
+
+    ``authority_valid_until`` aligns the signed envelope and current-mandate
+    evidence for a bounded long-running test; omitted values keep the existing
+    one-hour fixture window.
+    """
     from polisyos.runtime.http import deployment_security as security
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionActionService,
@@ -180,6 +186,11 @@ def _install_candidate_mandate(
     from tests._helpers import acquisition_served_history as served
 
     now = datetime.now(UTC)
+    effective_authority_valid_until = (
+        authority_valid_until
+        if authority_valid_until is not None
+        else now + timedelta(hours=1)
+    )
     contract = served._contract()
     envelope = contract.action_envelopes[0].model_copy(
         update={
@@ -192,7 +203,7 @@ def _install_candidate_mandate(
             "required_tenant_id": origin.tenant_id,
             "required_resource_digest": resource_digest,
             "valid_from": now - timedelta(minutes=1),
-            "valid_until": now + timedelta(hours=1),
+            "valid_until": effective_authority_valid_until,
         }
     )
     contract = contract.model_copy(
@@ -221,7 +232,7 @@ def _install_candidate_mandate(
         signer_identity=identities["current"],
         rule_version_ref=contract.rule_version_ref,
         effective_from=now - timedelta(minutes=1),
-        effective_until=now + timedelta(hours=1),
+        effective_until=effective_authority_valid_until,
     )
     current_ref = served._within_fixture_owner(
         human_fixture.persist_signed,
@@ -391,6 +402,7 @@ def run_candidate_experiment_action_oracle(
     idempotency_key: str = "served-labor-candidate-experiment-authority",
     exercise_controls: bool = True,
     after_replay: Callable[..., object] | None = None,
+    authority_valid_until: datetime | None = None,
 ) -> dict[str, str]:
     """Run one protected exchange with a stable, freshly issued identity proof.
 
@@ -414,6 +426,7 @@ def run_candidate_experiment_action_oracle(
             idempotency_key=idempotency_key,
             exercise_controls=exercise_controls,
             after_replay=after_replay,
+            authority_valid_until=authority_valid_until,
         )
 
 
@@ -426,6 +439,7 @@ def _run_candidate_experiment_action_oracle(
     idempotency_key: str = "served-labor-candidate-experiment-authority",
     exercise_controls: bool = True,
     after_replay: Callable[..., object] | None = None,
+    authority_valid_until: datetime | None = None,
 ) -> dict[str, str]:
     """Run the fresh HTTP/PA2/DS9 consumer against an already-served source.
 
@@ -504,6 +518,7 @@ def _run_candidate_experiment_action_oracle(
         resource_digest=resource_digest,
         tmp_path=tmp_path,
         key_root=key_root,
+        authority_valid_until=authority_valid_until,
     )
     install_provider()
 
@@ -517,6 +532,13 @@ def _run_candidate_experiment_action_oracle(
     )
     assert source_decision.outcome == "refused"
     assert source_decision.human_decision_request is not None
+    if authority_valid_until is not None and (
+        source_decision.human_decision_request.decision_due_at != authority_valid_until
+        or source_decision.human_decision_request.decidable_until != authority_valid_until
+    ):
+        raise AssertionError(
+            "candidate experiment request did not inherit the exact signed authority deadline"
+        )
 
     gate = served._within_fixture_owner(
         prepare_human_decision,
@@ -530,6 +552,7 @@ def _run_candidate_experiment_action_oracle(
         identities=values["identities"],
         now=datetime.now(UTC),
         audit_path=Path(values["cas_root"]) / "runtime" / "audit" / "access.jsonl",
+        authority_valid_until=authority_valid_until,
     )
     human_body = {
         name: value
@@ -552,6 +575,17 @@ def _run_candidate_experiment_action_oracle(
     )
     assert human_response.status_code == 201, human_response.text
     human_ref = human_response.json()["record_ref"]
+    if authority_valid_until is not None:
+        human_record = served._within_fixture_owner(
+            client.app.state.runtime_container.human_decision_service.read_record,
+            human_ref,
+            tenant_id=served.TENANT,
+            run_id=run_id,
+        )
+        if human_record.valid_until != authority_valid_until:
+            raise AssertionError(
+                "candidate experiment DS9 record did not inherit the exact test authority deadline"
+            )
     slot["human_decision_record_ref"] = human_ref
     trust.raw["acquisition_authority"]["mandates"] = [slot]
     install_provider()

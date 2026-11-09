@@ -9158,6 +9158,16 @@
           "inputs_unchanged": true,
           "scope": "Configured procurement N5 publishes the exact selected numerical artifact to a separate API and conditional reader. All three child modes and semantic removal/refusal controls pass. The historical R4 cost-tag failure stays separate."
         },
+        "cyc02_configured_cross_process_composed_r6": {
+          "source_commit": "0eb17c99ef35c38d8ff99e219e22ebb7c292ef3b",
+          "source_tree": "061f7b778abba684d659c633532dc6e07cf3c3a4",
+          "output": "verification checkout:policy-engine/_cache/e02/lane01-cyc02-configured-composed-r6/",
+          "observed": {"PASS": 1},
+          "wall_seconds": 229.01,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "scope": "Complete configured procurement selector. Actual producer exits, then a fresh API and conditional reader reopen the selected N5. The expected 0.5 effect and 0.02 replication tolerance hold. Changed model, baseline, trajectory and unsupported blocker controls refuse. Candidate-only authority remains explicit. This is author-side evidence."
+        },
         "n6_labor_seed_optional_binding_diagnostic_r3": {
           "source_commit": "f39e11f24cce6514cae6d2495a1dc43a32cd113f",
           "source_tree": "26e6f8cbd1f35342a36bdf9a6481b719a174aa7e",
@@ -13001,7 +13011,7 @@
           "material_current_delta": "Later public routes/contracts/recursive relation and rehashed-reversed-order control; simulator unchanged sincev3. Original R2 fixtureCAS absent; surviving hashes/outputs do not provide bytes.",
           "next_check": "One current producer→saved artifact→fresh process reader including order control. Reuse measured~1.83GB/50s profile; independent store may overlap measured protected job after source freeze. Retain deciding bytes through consumer check.",
           "resolution": "See authored_joint_current_retained_qualification; original failure retained, full pytest PASS not claimed.",
-          "current_disposition": "Producer R1 plus retained current suffix qualification are recorded in authored_joint_current_retained_qualification; no new full-selector PASS is inferred."
+          "current_disposition": "Composed R2 passes the complete named selector on ed4e2e1d793f8e111c22131eb6926299f5c729f2 / dd63593f2ea16a7571428e8c664ea60154e9d67d, 95.04s with six unchanged named inputs. Actual authored joint NCM reaches fresh HTTP and a separate CAS handle; numerical samples, unit and source basis, alternative versus joint relationships, unknown coupling, and a removed-component numerical and reader control pass. The fixture uses a fresh reader context in the same process. Output: verification checkout policy-engine/_cache/e02/lane01-cyc05-authored-joint-composed-r2/. Prior failed invocations remain separate; this is author-side evidence."
         },
         "source_provider_composed_f42": {
           "output": "policy-engine/_cache/e02/lane01-decorated-source-composed-final-r22",

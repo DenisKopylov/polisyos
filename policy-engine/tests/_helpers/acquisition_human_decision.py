@@ -158,8 +158,14 @@ def prepare_human_decision(
     identities: dict[str, str],
     now: datetime,
     audit_path: Path,
+    authority_valid_until: datetime | None = None,
 ) -> contracts.HumanDecisionPA2GateInput:
-    """Create signed external predicates and durable exposure; never rewrite the source."""
+    """Create signed external predicates and durable exposure; never rewrite the source.
+
+    Args:
+        authority_valid_until: Optional absolute expiry for the test-owned signed gate. The
+            default preserves the existing 30-minute fixture interval.
+    """
     store = control._artifact_store
     source_bytes = store.get_bytes(source_ref)
     source = AgentActionAuthorityDecision.model_validate(canon.from_canonical_bytes(source_bytes))
@@ -211,7 +217,11 @@ def prepare_human_decision(
         "run_id": run_id,
         "verifier_epoch": epoch,
         "valid_from": now - timedelta(minutes=1),
-        "valid_until": now + timedelta(minutes=30),
+        "valid_until": (
+            authority_valid_until
+            if authority_valid_until is not None
+            else now + timedelta(minutes=30)
+        ),
         "rule_version_ref": rule,
         "issued_at": now - timedelta(minutes=1),
     }

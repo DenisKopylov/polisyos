@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 from dataclasses import replace
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -1774,6 +1774,7 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                     policy_ref=policy_ref,
                     monkeypatch=monkeypatch,
                     after_replay=finish_checkpoint_recovery,
+                    authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
                 )
             )
             if observed["source_status"] != "completed":

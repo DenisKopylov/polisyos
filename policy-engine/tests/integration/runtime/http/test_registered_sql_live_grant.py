@@ -1430,19 +1430,11 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
         owner_mode["omit_source"] = False
     assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "current"
     now = int(time.time())
-    other_cell_token = external.encode(
-        {
-            "iss": "https://idp.example",
-            "aud": "polisyos-runtime",
-            "sub": "acquisition-operator",
-            "tenant_id": TENANT,
-            "cell_id": "018f47a0-0000-7000-8000-000000000002",
-            "realm_access": {"roles": ["polisyos_analyst"]},
-            "iat": now,
-            "exp": now + 3600,
-            "jti": "jwt-other-cell-source-use",
-        }
+    other_cell_claims = external._identity_payload(
+        "acquisition-operator", issued_at=now, jti="jwt-other-cell-source-use"
     )
+    other_cell_claims["cell_id"] = "018f47a0-0000-7000-8000-000000000002"
+    other_cell_token = external.encode(other_cell_claims)
     wrong_cell = client.get(
         f"/api/v1/debug/runs/{run_a['run_id']}/nodes/run_simulation/simulation-result",
         headers={"Authorization": f"Bearer {other_cell_token}", "X-Tenant-ID": TENANT},

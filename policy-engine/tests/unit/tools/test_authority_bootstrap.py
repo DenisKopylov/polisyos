@@ -40,6 +40,71 @@ route: dict[str, tuple[str, str]] = {
     assert candidates == {"example.leaf": {"real_export"}}
 
 
+def test_source_candidates_nominate_inline_immutable_lazy_map_and_provider() -> None:
+    from tools.authority_bootstrap import _source_export_candidates
+
+    candidates = _source_export_candidates(
+        "example.facade",
+        "src/example/facade/__init__.py",
+        b"""
+from types import MappingProxyType as freeze
+route = freeze({"alias": ("example.leaf", "real_export")})
+unrelated = freeze({"other": ("example.leaf", "other")})
+def __getattr__(name):
+    if name in route:
+        return route[name]
+    raise AttributeError(name)
+""",
+    )
+    assert candidates["example.facade"] == {"route", "__getattr__"}
+    assert candidates["example.leaf"] == {"real_export"}
+
+
+def test_inline_immutable_map_candidate_retains_actual_initializer_binding(tmp_path: Path) -> None:
+    program = r"""
+import hashlib
+import importlib
+import pathlib
+import sys
+from types import MappingProxyType
+sys.path.insert(0, sys.argv[1])
+from tools.authority_bootstrap import _source_export_candidates
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+root = pathlib.Path(sys.argv[2]).resolve()
+package = root / 'proxy_witness'
+package.mkdir()
+source = b'''from types import MappingProxyType\n_EXPORTS = MappingProxyType({"item": ("proxy_witness.leaf", "item")})\ndef __getattr__(name):\n    if name in _EXPORTS:\n        return _EXPORTS[name]\n    raise AttributeError(name)\n'''
+(package / '__init__.py').write_bytes(source)
+candidates = _source_export_candidates('proxy_witness', 'src/proxy_witness/__init__.py', source)
+assert '_EXPORTS' in candidates['proxy_witness']
+assert '__getattr__' in candidates['proxy_witness']
+expected = {'proxy_witness': ExpectedSource('proxy_witness/__init__.py', hashlib.sha256(source).hexdigest())}
+capture = SourceExecutionCapture(root, expected, exports={'proxy_witness': candidates['proxy_witness']})
+capture.install()
+sys.path.insert(0, str(root))
+facade = importlib.import_module('proxy_witness')
+held = capture.completed_binding('proxy_witness', '_EXPORTS')
+assert held is facade._EXPORTS
+backing = dict(held)
+facade._EXPORTS = MappingProxyType(backing)
+assert facade._EXPORTS == held and facade._EXPORTS is not held
+try:
+    capture.completed_binding('proxy_witness', '_EXPORTS')
+except CaptureError as exc:
+    assert str(exc) == 'retained_export_changed'
+else:
+    raise AssertionError('same-content proxy graft accepted')
+"""
+    result = subprocess.run(  # noqa: S603 - fixed local interpreter and source probe
+        [sys.executable, "-I", "-S", "-B", "-c", program, str(_PRODUCT), str(tmp_path)],
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_bootstrap_retains_private_owner_finalizer_and_endpoint_callbacks() -> None:
     """Both source-qualified lifecycle callbacks are selected before owner import."""
     from tools.authority_bootstrap import _OWNER_CAPTURE_EXPORTS

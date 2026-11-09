@@ -7,6 +7,7 @@ import pytest
 
 EXPECTED_EXPORTS = {
     "AuditLog": "polisyos.core.security.audit_protocol",
+    "canonical_statement_bytes": "polisyos.core.security.chronology_anchor",
     "InTotoStatement": "polisyos.core.security.slsa.models",
     "NamespacedArtifactStore": "polisyos.core.security.namespace",
     "SECURITY_ASSURANCE_REPORT_REF_KEY": "polisyos.core.security.quality_gates",
@@ -21,6 +22,7 @@ EXPECTED_EXPORTS = {
     "TenantQuotaLimits": "polisyos.core.security.tenant_quota",
     "TenantQuotaRegistry": "polisyos.core.security.quota_registry",
     "build_security_assurance_report": "polisyos.core.security.quality_gates",
+    "parse_canonical_statement": "polisyos.core.security.chronology_anchor",
     "security_gates_from_report": "polisyos.core.security.quality_gates",
     "tenant_scope": "polisyos.core.security.tenant_context",
     "validate_tenant_id": "polisyos.core.security.db_backend",
@@ -53,3 +55,21 @@ def test_security_facade_export_map_is_immutable_and_covers_public_exports() -> 
             "importlib",
             "import_module",
         )
+
+
+def test_security_facade_caches_the_exact_lazy_export(monkeypatch: pytest.MonkeyPatch) -> None:
+    facade = import_module("polisyos.core.security")
+    provider = import_module("polisyos.core.security.chronology_anchor")
+    monkeypatch.delitem(vars(facade), "parse_canonical_statement", raising=False)
+
+    assert facade.parse_canonical_statement is provider.parse_canonical_statement
+    assert vars(facade)["parse_canonical_statement"] is provider.parse_canonical_statement
+    assert facade.parse_canonical_statement is provider.parse_canonical_statement
+
+
+def test_security_facade_missing_name_raises_attribute_error() -> None:
+    facade = import_module("polisyos.core.security")
+    missing = "not_a_security_export"
+
+    with pytest.raises(AttributeError, match="no attribute 'not_a_security_export'"):
+        getattr(facade, missing)

@@ -7097,6 +7097,8 @@ class _N5LockedOptionalImports:
                 self.events.setdefault((event.importer_name, event.provider_name), []).append(event)
         self.members: dict[str, tuple[_LockedPythonMember, ast.Module]] = {}
         self.chains: dict[tuple[str, str], tuple[object, ...]] = {}
+        self.proxy_facade_maps: dict[str, dict[str, dict[str, object]]] = {}
+        self.proxy_facade_getters: dict[str, types.FunctionType] = {}
 
     def _initializer_edge(
         self,
@@ -7200,6 +7202,84 @@ class _N5LockedOptionalImports:
             or self.capture.completed_binding(provider, symbol) is not cached
         ):
             raise ValueError("callable_facade_cache_changed")
+
+    def reconcile_loaded_proxy_facade(
+        self,
+        module_name: str,
+        relative: Path,
+        tree: ast.Module,
+        mapping_names: frozenset[str],
+        export: str,
+        route: tuple[str, str, str | None],
+    ) -> None:
+        """Bind a loaded proxy route to its initializer-held objects.
+
+        An unloaded facade remains a source candidate; this check makes no
+        claim that an inactive alternative was executed.
+        """
+
+        declarations = _source_literal_proxy_facade_declarations(tree, mapping_names)
+        if not declarations:
+            return
+        source_maps = self.proxy_facade_maps.get(module_name)
+        if source_maps is None:
+            source_maps, invalid, _unknown = _source_declared_facade_mapping_values(
+                tree, frozenset(declarations), source_module_name=module_name
+            )
+            if invalid or source_maps.keys() != declarations.keys():
+                raise ValueError("proxy_facade_source_map_unqualified")
+            self.proxy_facade_maps[module_name] = source_maps
+        matched = [name for name, mapping in source_maps.items() if export in mapping]
+        if not matched:
+            return
+        if len(matched) != 1 or route[0] != "symbol" or route[2] is None:
+            raise ValueError("proxy_facade_route_unqualified")
+        module = _passive_capture_lookup(sys.modules, module_name)
+        if module is _NO_EXECUTION_BINDING:
+            return
+        if type(module) is not types.ModuleType:
+            raise ValueError("proxy_facade_module_unqualified")
+        namespace = vars(module)
+        cached = _passive_capture_lookup(namespace, export)
+        if not self.retains_repository_source(module, module_name, relative):
+            raise ValueError("proxy_facade_source_not_retained")
+
+        getter = self.capture.completed_binding(module_name, "__getattr__")
+        if getter is not _passive_capture_lookup(namespace, "__getattr__"):
+            raise ValueError("proxy_facade_getter_changed")
+        pinned_getter = self.proxy_facade_getters.get(module_name)
+        if pinned_getter is None:
+            _imports, owners, codes = _runtime_import_scope_index(
+                tree, filename=str(self.root / relative)
+            )
+            qualified = _source_live_scope_owner(
+                module,
+                module_name,
+                "__getattr__",
+                expected_code=codes.get("__getattr__"),
+                source_node=owners.get("__getattr__"),
+                source_path=self.root / relative,
+            )
+            if qualified is None or qualified[2] is not getter:
+                raise ValueError("proxy_facade_getter_source_changed")
+            self.proxy_facade_getters[module_name] = getter
+        elif pinned_getter is not getter:
+            raise ValueError("proxy_facade_getter_changed")
+
+        mapping_name = matched[0]
+        held_map = self.capture.completed_binding(module_name, mapping_name)
+        if held_map is not _passive_capture_lookup(namespace, mapping_name) or not (
+            _live_facade_map_matches(tree, mapping_name, source_maps[mapping_name], namespace)
+        ):
+            raise ValueError("proxy_facade_map_changed")
+        if cached is not _NO_EXECUTION_BINDING:
+            self.reconcile_callable_facade_cache(cached, route[1], route[2])
+        if getter is not _passive_capture_lookup(namespace, "__getattr__"):
+            raise ValueError("proxy_facade_getter_changed")
+        if held_map is not _passive_capture_lookup(namespace, mapping_name) or not (
+            _live_facade_map_matches(tree, mapping_name, source_maps[mapping_name], namespace)
+        ):
+            raise ValueError("proxy_facade_map_changed")
 
     def reconcile_first_party(
         self,
@@ -8153,12 +8233,7 @@ def _literal_module_getattr_provider(
             )
         if callable_facade is not None:
             for name, source_map in source_maps.items():
-                observed = _passive_capture_lookup(callable_facade[1], name)
-                if (
-                    type(observed) is not dict
-                    or any(type(key) is not str for key in observed)
-                    or not _literal_facade_value_matches(source_map, observed)
-                ):
+                if not _live_facade_map_matches(tree, name, source_map, callable_facade[1]):
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
                         f"loaded callable facade map differs from source: {module_name}.{name}",
@@ -9674,6 +9749,54 @@ def _source_callable_facade_installation(
     return statement, sys_name, types_name, class_name
 
 
+def _source_literal_proxy_facade_declarations(
+    tree: ast.Module, mapping_names: frozenset[str]
+) -> dict[str, tuple[ast.Assign | ast.AnnAssign, str]]:
+    """Find inline proxy maps built by one unshadowed stdlib constructor."""
+
+    declarations: dict[str, tuple[ast.Assign | ast.AnnAssign, str]] = {}
+    for statement in tree.body:
+        if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+            target, expression = statement.targets[0], statement.value
+        elif isinstance(statement, ast.AnnAssign):
+            target, expression = statement.target, statement.value
+        else:
+            continue
+        if not (
+            isinstance(target, ast.Name)
+            and target.id in mapping_names
+            and isinstance(expression, ast.Call)
+            and isinstance(expression.func, ast.Name)
+            and len(expression.args) == 1
+            and isinstance(expression.args[0], ast.Dict)
+            and not expression.keywords
+        ):
+            continue
+        constructor = expression.func.id
+        try:
+            map_sites = _module_scope_direct_binding_sites(tree, target.id)
+            constructor_sites = _module_scope_direct_binding_sites(tree, constructor)
+        except ConfidenceLedgerError:
+            continue
+        if len(map_sites) != 1 or map_sites[0][1] is not statement:
+            continue
+        if len(constructor_sites) != 1:
+            continue
+        kind, imported, alias = constructor_sites[0]
+        if not (
+            kind == "import_from"
+            and isinstance(imported, ast.ImportFrom)
+            and imported.level == 0
+            and imported.module == "types"
+            and alias is not None
+            and alias.name == "MappingProxyType"
+            and imported.lineno < statement.lineno
+        ):
+            continue
+        declarations[target.id] = (statement, constructor)
+    return declarations
+
+
 def _source_declared_facade_mapping_values(
     tree: ast.Module,
     mapping_names: frozenset[str],
@@ -9693,8 +9816,40 @@ def _source_declared_facade_mapping_values(
         "__name__",
         "__package__",
     }
+    declarations = _source_literal_proxy_facade_declarations(tree, mapping_names)
+    if declarations:
+        # Reuse the finite literal-map transfer for the proxy's inline dict.
+        # The declaration kind remains explicit and is checked against the live
+        # constructor and immutable object in the runtime projection.
+        statements = {id(statement) for statement, _constructor in declarations.values()}
+        body: list[ast.stmt] = []
+        for statement in tree.body:
+            if id(statement) not in statements:
+                body.append(statement)
+                continue
+            if isinstance(statement, ast.Assign):
+                expression = cast("ast.Call", statement.value)
+                replacement: ast.stmt = ast.Assign(
+                    targets=statement.targets,
+                    value=expression.args[0],
+                    type_comment=statement.type_comment,
+                )
+            elif isinstance(statement, ast.AnnAssign):
+                expression = cast("ast.Call", statement.value)
+                replacement = ast.AnnAssign(
+                    target=statement.target,
+                    annotation=statement.annotation,
+                    value=expression.args[0],
+                    simple=statement.simple,
+                )
+            else:  # pragma: no cover - declarations are only assignments.
+                continue
+            body.append(ast.copy_location(replacement, statement))
+        effect_tree = ast.Module(body=body, type_ignores=tree.type_ignores)
+    else:
+        effect_tree = tree
     maps, invalid = _static_facade_mapping_values(
-        tree,
+        effect_tree,
         watched_names,
         external_mappings=external_mappings,
         separate_namespace_effects=True,
@@ -11456,11 +11611,10 @@ def _literal_facade_value_matches(expected: object, observed: object) -> bool:
         return False
     if type(expected) is dict:
         return bool(
-            set(expected) == set(observed)
-            and all(
-                type(key) is str and _literal_facade_value_matches(expected[key], observed[key])
-                for key in expected
-            )
+            all(type(key) is str for key in expected)
+            and all(type(key) is str for key in observed)
+            and set(expected) == set(observed)
+            and all(_literal_facade_value_matches(expected[key], observed[key]) for key in expected)
         )
     if type(expected) in {tuple, list}:
         return bool(
@@ -11471,6 +11625,33 @@ def _literal_facade_value_matches(expected: object, observed: object) -> bool:
             )
         )
     return expected == observed
+
+
+def _live_facade_map_matches(
+    tree: ast.Module,
+    name: str,
+    expected: dict[str, object],
+    namespace: Mapping[str, object],
+) -> bool:
+    """Reconcile a source-declared dict or inline immutable proxy to live state."""
+
+    observed = _passive_capture_lookup(namespace, name)
+    declarations = _source_literal_proxy_facade_declarations(tree, frozenset({name}))
+    declaration = declarations.get(name)
+    if declaration is not None:
+        _statement, constructor = declaration
+        proxy_type = type(type.__dict__)
+        if (
+            types.MappingProxyType is not proxy_type
+            or _passive_capture_lookup(namespace, constructor) is not proxy_type
+            or type(observed) is not proxy_type
+        ):
+            return False
+        referents = gc.get_referents(observed)
+        if len(referents) != 1 or type(referents[0]) is not dict:
+            return False
+        observed = referents[0]
+    return type(observed) is dict and _literal_facade_value_matches(expected, observed)
 
 
 def _literal_facade_value_projection(value: object) -> object:
@@ -11524,6 +11705,7 @@ def _source_facade_runtime_projection(
             ],
         ] = {}
         facade_rows: list[dict[str, object]] = []
+        live_map_objects: dict[tuple[str, str], object] = {}
         supplemental_modules: dict[str, str] = {}
 
         def resolve_source_target(
@@ -11791,17 +11973,57 @@ def _source_facade_runtime_projection(
                     )
                 namespace = vars(facade_module)
                 live_maps: dict[str, object] = {}
+                proxy_maps = _source_literal_proxy_facade_declarations(tree, mapping_names)
                 for mapping_name, expected_map in maps.items():
-                    observed = namespace.get(mapping_name, _STATIC_FACADE_UNKNOWN)
-                    if type(observed) is not dict or not _literal_facade_value_matches(
-                        expected_map,
-                        observed,
-                    ):
+                    observed_map = _passive_capture_lookup(namespace, mapping_name)
+                    if not _live_facade_map_matches(tree, mapping_name, expected_map, namespace):
                         raise ConfidenceLedgerError(
                             "canonical_loaded_runtime_mismatch",
                             f"loaded facade map differs from source: {module_name}.{mapping_name}",
                         )
-                    live_maps[mapping_name] = _literal_facade_value_projection(expected_map)
+                    if _passive_capture_lookup(namespace, mapping_name) is not observed_map:
+                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    if mapping_name in proxy_maps:
+                        try:
+                            retained_host = _retained_n5_host_capture()
+                            if (
+                                retained_host is not None
+                                and retained_host[0].capture.completed_binding(
+                                    module_name, mapping_name
+                                )
+                                is not observed_map
+                            ):
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    f"retained facade map differs: {module_name}.{mapping_name}",
+                                )
+                        except (
+                            AttributeError,
+                            ImportError,
+                            OSError,
+                            RuntimeError,
+                            TypeError,
+                        ) as exc:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"retained facade map unavailable: {module_name}.{mapping_name}",
+                            ) from exc
+                    live_map_objects[(module_name, mapping_name)] = observed_map
+                    _append_source_identity_reference(
+                        runtime_binding_references,
+                        binding_module_name=module_name,
+                        symbol=mapping_name,
+                        binding_module=facade_module,
+                        provider_module_name=module_name,
+                        provider_module=facade_module,
+                        provider_value=observed_map,
+                        importer_module_name=module_name,
+                        importer_module=facade_module,
+                    )
+                    projection = _literal_facade_value_projection(expected_map)
+                    live_maps[mapping_name] = (
+                        {"$mappingproxy": projection} if mapping_name in proxy_maps else projection
+                    )
                 facade_rows.append(
                     {
                         "module": module_name,
@@ -12827,13 +13049,11 @@ def _source_facade_runtime_projection(
             module = sys.modules.get(str(row["module"]))
             if module is None:
                 raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
-            _tree, _index, maps = source_rows[str(row["module"])]
+            tree, _index, maps = source_rows[str(row["module"])]
             for mapping_name, expected_map in maps.items():
-                observed = vars(module).get(mapping_name, _STATIC_FACADE_UNKNOWN)
-                if type(observed) is not dict or not _literal_facade_value_matches(
-                    expected_map,
-                    observed,
-                ):
+                if _passive_capture_lookup(vars(module), mapping_name) is not live_map_objects[
+                    (str(row["module"]), mapping_name)
+                ] or not _live_facade_map_matches(tree, mapping_name, expected_map, vars(module)):
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
                         "loaded facade map changed during reconciliation: "
@@ -14301,6 +14521,33 @@ def _source_module_import_route_candidate_body(
                 else "external"
             )
             route = route_kind, provider, next(iter(symbols))
+        if (
+            discovery_only
+            and recorded is not None
+            and recorded.root == repo_root
+            and callable_facade is None
+        ):
+            try:
+                recorded.reconcile_loaded_proxy_facade(
+                    module_name,
+                    relative,
+                    tree,
+                    provider_index.mapping_names,
+                    export_name,
+                    route,
+                )
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"live proxy facade is unqualified: {module_name}.{export_name}",
+                ) from exc
         if callable_facade is not None:
             if recorded is None or route[0] != "symbol" or route[2] is None:
                 raise ConfidenceLedgerError(

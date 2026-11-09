@@ -560,14 +560,13 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
-    target = _EXPORTS.get(name)
-    if target is None:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module_name, attr_name = target
-    module = import_module(module_name)
-    value = getattr(module, attr_name)
-    globals()[name] = value
-    return value
+    if name in _EXPORTS:
+        module_name, attr_name = _EXPORTS[name]
+        module = import_module(module_name)
+        value = getattr(module, attr_name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:

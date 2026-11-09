@@ -158,12 +158,46 @@ def _source_export_candidates(
         # symbol. Retain candidates from literal package maps before the leaf
         # initializes. Runtime still verifies the map, route and held object.
         source_root = module_name.partition(".")[0]
+        proxy_constructors = {
+            alias.asname or alias.name
+            for statement in tree.body
+            if isinstance(statement, ast.ImportFrom)
+            and statement.level == 0
+            and statement.module == "types"
+            for alias in statement.names
+            if alias.name == "MappingProxyType"
+        }
+        getter_maps = {
+            node.value.id
+            for statement in tree.body
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == "__getattr__"
+            for node in ast.walk(statement)
+            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name)
+        }
         for statement in tree.body:
             if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
                 continue
-            if not isinstance(statement.value, ast.Dict):
+            value = statement.value
+            targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+            if (
+                isinstance(value, ast.Call)
+                and isinstance(value.func, ast.Name)
+                and value.func.id in proxy_constructors
+                and len(value.args) == 1
+                and isinstance(value.args[0], ast.Dict)
+                and not value.keywords
+                and len(targets) == 1
+                and isinstance(targets[0], ast.Name)
+                and targets[0].id in getter_maps
+            ):
+                # This is a retention candidate only. The owner separately
+                # proves the constructor, source map and actual held binding.
+                exports.setdefault(module_name, set()).update({targets[0].id, "__getattr__"})
+                value = value.args[0]
+            if not isinstance(value, ast.Dict):
                 continue
-            for key, entry in zip(statement.value.keys, statement.value.values, strict=True):
+            for key, entry in zip(value.keys, value.values, strict=True):
                 match key, entry:
                     case ast.Constant(value=str(export)), ast.Tuple(
                         elts=[ast.Constant(value=str(provider)), ast.Constant(value=str(symbol))]

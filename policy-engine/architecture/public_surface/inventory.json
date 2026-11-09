@@ -3880,8 +3880,8 @@
                 "path": "src/polisyos/core/security/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 21773,
-                "sha256": "8545355cc5f29c21ae2cf920ce3422721aa319d877adbd3b5f14fa651eb4d4b4"
+                "bytes": 21767,
+                "sha256": "597c073f832a76d88aa1564b23cdbc6d92279fddfaae1ffe27c8737d28a70f0f"
               },
               {
                 "path": "src/polisyos/core/security",

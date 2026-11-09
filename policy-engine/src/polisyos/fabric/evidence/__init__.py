@@ -1,6 +1,16 @@
 # ruff: noqa: F401
 """Fabric evidence, decision-data, and fact-writing contracts."""
 
+from __future__ import annotations
+
+import hashlib
+import json
+import time
+from decimal import Decimal
+from typing import TYPE_CHECKING, Any
+
+import pandas as pd
+
 # Keep the existing named re-exports tied to their defining modules.
 from .decision_data import (
     AccessRef,
@@ -56,7 +66,6 @@ from .evidence import (
     evidence_bundle_manifest_input_refs,
     expected_artifact_manifest_for_write,
     from_canonical_bytes,
-    hashlib,
     input_ref_from_artifact_ref,
     load_provenance_graph,
     persist_evidence_bundle,
@@ -66,22 +75,15 @@ from .evidence import (
     verify_live_ingestion_evidence_profile,
 )
 from .fact_writer import (
-    TYPE_CHECKING,
-    Any,
-    Decimal,
     Fact,
     FactLegal,
     FactProvenance,
     FactSegmentManifest,
     FactTrust,
-    annotations,
     build_fact,
     build_fact_id,
     content_hash,
     facts_from_dataframe,
-    json,
-    pd,
-    time,
     utc_tx_time,
     write_fact_segment,
     write_segment_manifest,

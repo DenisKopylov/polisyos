@@ -14280,7 +14280,14 @@
           "r8_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r8",
           "r8_refusal": "wildcard source binding is unresolved: persist_provenance_graph",
           "stable_pins_per_run": 12,
-          "scope": "Exact early-host source discovery with zero physical N5. R8 advances past the earlier facade and refuses an active named import from the wildcard evidence facade. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
+          "r9_commit": "db2c11520c813c988315d423a31f96ff32181752",
+          "r9_tree": "054dd37e0f2a3a6ab63721b288dbba3daa0bcd16",
+          "r9_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r9",
+          "r9_refusal": "direct source provider is unavailable: polisyos.fabric.evidence.fact_writer.TYPE_CHECKING",
+          "r9_stable_pins": 15,
+          "direct_ambient_facade_checks": "VERIFY:policy-engine/_cache/e02/lane01-facade-direct-ambient-r2",
+          "direct_ambient_architecture": "VERIFY:policy-engine/_cache/e02/lane01-facade-direct-ambient-architecture-r2",
+          "scope": "Exact early-host source discovery with zero physical N5. R8 advances past the earlier facade, R9 advances past the wildcard. Four scoped compatibility tests and architecture excluding generated freshness pass on the direct ambient-provider fix. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
         },
         "lane01_initial_a_live_witness_wall_limit": {
           "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import importlib
+from pathlib import Path
 
 from polisyos.runtime.quality import confidence_ledger as ledger
 
@@ -136,3 +138,45 @@ def test_evidence_facade_preserves_legacy_namespace_and_exact_owner() -> None:
     )
     assert candidate.route == ("symbol", evidence.__name__, "persist_provenance_graph")
     assert candidate.binding_basis == "direct"
+
+
+def test_legacy_ambient_exports_bind_directly_to_canonical_external_modules() -> None:
+    facade = importlib.import_module("polisyos.fabric.evidence")
+    tree = ast.parse(Path(facade.__file__).read_text(encoding="utf-8"))
+    bindings: dict[str, tuple[str, str, str]] = {}
+    facade_leaf_imports: set[str] = set()
+
+    for statement in tree.body:
+        if isinstance(statement, ast.Import):
+            bindings.update(
+                {
+                    alias.asname or alias.name: ("import", alias.name, alias.asname or alias.name)
+                    for alias in statement.names
+                }
+            )
+            continue
+        if not isinstance(statement, ast.ImportFrom):
+            continue
+        if statement.level == 1 and statement.module in {
+            "decision_data",
+            "evidence",
+            "fact_writer",
+        }:
+            facade_leaf_imports.update(alias.asname or alias.name for alias in statement.names)
+        owner = "." * statement.level + (statement.module or "")
+        bindings.update(
+            {alias.asname or alias.name: ("from", owner, alias.name) for alias in statement.names}
+        )
+
+    expected_bindings = {
+        "annotations": ("from", "__future__", "annotations"),
+        "TYPE_CHECKING": ("from", "typing", "TYPE_CHECKING"),
+        "Any": ("from", "typing", "Any"),
+        "Decimal": ("from", "decimal", "Decimal"),
+        "hashlib": ("import", "hashlib", "hashlib"),
+        "json": ("import", "json", "json"),
+        "pd": ("import", "pandas", "pd"),
+        "time": ("import", "time", "time"),
+    }
+    assert {name: bindings[name] for name in expected_bindings} == expected_bindings
+    assert facade_leaf_imports.isdisjoint(expected_bindings)

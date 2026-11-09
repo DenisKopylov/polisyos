@@ -9250,317 +9250,475 @@ async def _exercise_n7_selected_source_candidate(
     assert len(simulation_probe.calls) == 1
 
 
-@pytest.mark.asyncio
-async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
+def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class _ObserveActionsController(GenerationCycleController):
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(**kwargs)
-            self.action_decisions: list[Any] = []
+    import asyncio
 
-        def decide_next_action(self, **kwargs: Any) -> Any:
-            decision = super().decide_next_action(**kwargs)
-            self.action_decisions.append(decision)
-            return decision
-
-    problem = _problem().model_copy(
-        update={
-            "runtime_hints": {
-                "n7_world_snapshot": AcquisitionWorldSnapshot(
-                    world_ref="world://before/n6-n7",
-                    known_slots=("administrative_tax_receipts",),
-                    dependency_index={"administrative_tax_receipts": ("candidate_cycle_1",)},
-                    design_revalidation_stages={
-                        "candidate_cycle_1": (
-                            "identification",
-                            "calibration",
-                            "value_set",
-                            "grounding",
-                        )
-                    },
-                    substrate_registry=_n7_substrate_registry(
-                        family_id="administrative_tax_receipts"
-                    ).model_dump(mode="json"),
-                ),
-                "n7_useful_design_rate_before": 0.0,
-            }
-        }
+    from polisyos.core.artifacts import (
+        artifact_ref_identity_key,
+        load_core_json_artifact,
+        profile_bound_ref,
     )
-    atom = _canonical_n7_test_atom(
-        problem,
-        candidate_id="candidate_cycle_1",
-        target_world_slot="policy_outcome_slot",
-    )
-    requirement_gap = l1_variable_availability_requirement_gap(
-        candidate_id="candidate_cycle_1",
-        candidate_content_hash=atom.content_hash,
-        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
-        availability=L1VariableAvailability(
-            variable_id="administrative_tax_receipts",
-            status="unavailable",
-            dataset_count=0,
-            metric_binding_count=0,
-            observation_count=0,
-            coverage_ref=(
-                "repo://production_data/dataset_catalog.duckdb#variable/administrative_tax_receipts"
-            ),
-        ),
-        authority_level=problem.authority_profile.requested_authority_level,
-    )
-    compiler_basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
-        problem,
-        acquisition_request={"required_data_families": ("administrative_tax_receipts",)},
-    )
-    from polisyos.runtime.quality.acquisition_planner import requirement_gaps_from_compiled_specs
-
-    compiled_gaps = requirement_gaps_from_compiled_specs(
-        data_requirement_specs=compiler_basis.specs,
-        capability_requirement_resolutions=compiler_basis.capability_resolutions,
-    )
-    matching_specs = tuple(
-        spec
-        for spec in compiler_basis.specs
-        if spec.required_data_families == ("administrative_tax_receipts",)
-    )
-    assert len(matching_specs) == 1
-    selected_spec = matching_specs[0]
-    matching_compiler_gaps = tuple(
-        gap for gap in compiled_gaps if gap.compiled_requirement_ref == selected_spec.requirement_id
-    )
-    assert len(matching_compiler_gaps) == 1
-    compiled_gap = matching_compiler_gaps[0]
-    assert compiled_gap.missing_requirement_fields == (
-        "required_data_family:administrative_tax_receipts",
-        *(f"mandatory_facet:{facet}" for facet in selected_spec.mandatory_facets),
-    )
-    payload = _n7_owner_payload(
-        acquired_family="administrative_tax_receipts",
-        source_id="fabric.administrative_tax_receipts",
-        candidate_id="candidate_cycle_1",
-        candidate_content_hash=atom.content_hash,
-        target_world_slots=atom.target_world_slots,
-    )
-    artifact = AcquisitionOwnerArtifact.from_payload(
-        owner_component="fabric.ingestion",
-        requirement_ref=compiled_gap.compiled_requirement_ref,
-        artifact_ref="fabric://recorded/administrative-tax-receipts",
-        payload=payload,
-        cost_usd=2.0,
-        quality={"capture": "real_owner_recording"},
-        rights={"license": "recorded-open"},
-        binding_refs=("candidate_cycle_1",),
-        journal_ref="journal://n7/administrative-tax-receipts/001",
-        capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
-            owner_component="fabric.ingestion",
-            owner_endpoint="fabric.ingestion.acquire",
-            owner_request={"requirement_ref": compiled_gap.compiled_requirement_ref},
-            owner_response=payload,
-            captured_at=datetime(2026, 7, 5, tzinfo=UTC),
-            capture_mode="local_substrate_owner",
-        ),
-    )
-    simulation_probe = _N7ReentrySimulationPort()
-
-    class _TypedGapThenPendingValuePort(_N7ReentryPendingValuePort):
-        def __call__(self, **kwargs: Any) -> ValuePortObservation:
-            if self.calls:
-                return super().__call__(**kwargs)
-            candidate = kwargs["candidate"]
-            call = {
-                "candidate_id": str(candidate.candidate_id),
-                "simulation_status": kwargs["simulation"].status,
-                "cycle_index": kwargs["cycle_index"],
-            }
-            self.calls.append(call)
-            return ValuePortObservation(
-                status="value_blocked",
-                candidate_id=call["candidate_id"],
-                authority_blockers=("acquire_data:value_panel_data_missing",),
-                reason="Current owner tax-receipt observations are missing.",
-                decision_grade="blocked",
-                acquisition_requirement=requirement_gap,
-            )
-
-    persistence_order: list[str] = []
-    persist_report = acquisition_planner_module.persist_acquisition_planner_report
-    load_report = acquisition_planner_module.load_acquisition_planner_report
-
-    def persist_and_record(*args: Any, **kwargs: Any) -> Any:
-        ref = persist_report(*args, **kwargs)
-        persistence_order.append("persist")
-        return ref
-
-    def load_and_record(*args: Any, **kwargs: Any) -> Any:
-        report = load_report(*args, **kwargs)
-        persistence_order.append("readback")
-        return report
-
-    monkeypatch.setattr(
-        acquisition_planner_module,
-        "persist_acquisition_planner_report",
-        persist_and_record,
-    )
-    monkeypatch.setattr(
-        acquisition_planner_module,
-        "load_acquisition_planner_report",
-        load_and_record,
-    )
-
-    class _OrderedRecordedGateway(RecordedAcquisitionOwnerGateway):
-        def acquire(self, **kwargs: Any) -> AcquisitionOwnerArtifact | None:
-            persistence_order.append("owner")
-            return super().acquire(**kwargs)
-
-    value_probe = _TypedGapThenPendingValuePort()
-    owner_gateway = _OrderedRecordedGateway(
-        artifacts_by_requirement={compiled_gap.compiled_requirement_ref: artifact}
-    )
-    controller = _ObserveActionsController(
-        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
-        grounding_port=_AcquisitionGrounding(),
-        simulation_port=simulation_probe,
-        value_port=value_probe,
-        acquisition_owner_gateway=owner_gateway,
-        authority_scope="contract_testing",
-        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
-        repo_root=tmp_path,
-    )
-
-    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
-
-    assert run.cycles[0].acquisition_receipt is not None, (
-        run.cycles[0].counterexample.diagnostic.model_dump(mode="json"),
-        persistence_order,
-    )
-    receipt = run.cycles[0].acquisition_receipt
-    assert "requirement_gap" in receipt["acquisition_request"]
-    assert receipt["planner_report_ref"]
-    assert persistence_order[0:3] == ["persist", "readback", "readback"]
-    assert persistence_order.index("persist") < persistence_order.index("owner")
-    assert persistence_order.index("owner") > persistence_order.index("readback")
+    from polisyos.data_requirement import DataRequirementSpec
     from polisyos.runtime.quality.acquisition_planner import (
         AcquisitionReceipt,
         load_acquisition_planner_report,
+        run_acquisition_closed_loop,
         validate_acquisition_receipt,
     )
-
-    receipt_model = AcquisitionReceipt.model_validate(receipt)
-    assert receipt_model.planner_report_ref is not None
-    assert controller._source_repository is not None
-    persisted_report = load_acquisition_planner_report(
-        controller._source_repository.store,
-        receipt_model.planner_report_ref,
-    )
-    assert persisted_report == receipt_model.planner_report
-    receipt_issues = validate_acquisition_receipt(
-        receipt_model,
-        artifact_store=controller._source_repository.store,
-        require_persisted_planner_report=True,
-    )
-    assert not any(
-        issue["code"].startswith("acquisition_planner_report") for issue in receipt_issues
-    )
-    stripped_receipt = receipt_model.model_dump(mode="json")
-    stripped_receipt.pop("planner_report_ref")
-    stripped_issues = validate_acquisition_receipt(
-        stripped_receipt,
-        artifact_store=controller._source_repository.store,
-        require_persisted_planner_report=True,
-    )
-    assert any(
-        issue["code"] == "acquisition_planner_report_ref_missing" for issue in stripped_issues
-    )
-    # Same gap IDs with different planner bytes fail the resolved CAS join.
-    mismatched_receipt = receipt_model.model_dump(mode="json")
-    mismatched_receipt["planner_report"]["acquisition_records"][0]["recommended_strategy"] = (
-        "agency_request"
-    )
-    mismatched_receipt.pop("content_hash")
-    mismatched_issues = validate_acquisition_receipt(
-        mismatched_receipt,
-        artifact_store=controller._source_repository.store,
-        require_persisted_planner_report=True,
-    )
-    assert any(
-        issue["code"] == "acquisition_planner_report_readback_mismatch"
-        for issue in mismatched_issues
+    from tests.unit.remediation.test_acq_01 import (
+        _acq01_verified_job_execution,
+        _Acq01MacroContextGrounding,
+        _assert_n7_world_model_record_semantics,
+        _build_acq01_real_route_controller,
+        _published_worldbank_owner,
+        _real_acq01_macro_context_case,
+        _real_acq01_route,
+        _WorldBoundSimulation,
     )
 
-    # The complete request bytes are bound before owner dispatch; preserving
-    # requirement IDs while changing request metadata cannot reuse this plan.
-    from polisyos.runtime.quality.acquisition_planner import (
-        run_acquisition_closed_loop,
-    )
+    class _RecordingMacroContextGrounding(_Acq01MacroContextGrounding):
+        def __init__(self, *, case: Any, route: Any) -> None:
+            super().__init__(case=case, route=route)
+            self.observations: list[CandidateGroundingObservation] = []
+            self.report_refs: list[Any] = []
 
-    typed_spec = DataRequirementSpec.model_validate(receipt_model.compiled_requirement_specs[0])
-    changed_request = {
-        **receipt_model.acquisition_request,
-        "context": {"same_ids_different_bytes": "changed"},
-    }
-    changed_world = controller._n7_world_snapshot(
-        problem,
-        cycle=run.cycles[0],
-        acquisition_request=changed_request,
-        specs=(typed_spec,),
-    )
-    owner_calls_before = persistence_order.count("owner")
-    with pytest.raises(ValueError, match="acquisition_planner_report_binding_mismatch"):
-        run_acquisition_closed_loop(
-            run_id=receipt_model.run_id,
-            acquisition_request=changed_request,
-            data_requirement_specs=(typed_spec,),
-            world_snapshot=changed_world,
-            capability_requirement_resolutions=receipt_model.capability_requirement_resolutions,
-            design_problem=problem,
-            owner_gateway=owner_gateway,
-            generated_at=receipt_model.generated_at,
-            planner_report=receipt_model.planner_report,
-            planner_report_ref=receipt_model.planner_report_ref,
-            artifact_store=controller._source_repository.store,
-            require_persisted_planner_report=True,
+        def __call__(self, **kwargs: Any) -> CandidateGroundingObservation:
+            observation = super().__call__(**kwargs)
+            self.observations.append(observation)
+            self.report_refs.append(self.report_ref)
+            return observation
+
+    class _ContextRecordingPendingN5Simulation(_WorldBoundSimulation):
+        def __init__(self) -> None:
+            super().__init__(pending_n5=True)
+            self.controller: GenerationCycleController | None = None
+            self.contexts: list[Any] = []
+            self.calls: list[dict[str, Any]] = []
+
+        def __call__(self, **kwargs: Any) -> SimulationPortObservation:
+            assert self.controller is not None
+            self.contexts.append(self.controller._cycle_substrate_context)
+            candidate = kwargs["candidate"]
+            atom = candidate.atom
+            self.calls.append(
+                {
+                    "candidate_id": str(candidate.candidate_id),
+                    "candidate_content_hash": atom.content_hash,
+                    "cycle_index": kwargs["cycle_index"],
+                    "world_model_record_ref": atom.world_model_record_ref,
+                    "target_world_slots": tuple(atom.target_world_slots),
+                }
+            )
+            return super().__call__(**kwargs)
+
+    initial_case = _real_acq01_macro_context_case(tmp_path / "initial-problem")
+    with _acq01_verified_job_execution(tmp_path, initial_case.problem) as job:
+        case = _real_acq01_macro_context_case(
+            tmp_path / "job-scoped-case",
+            artifact_store=job.store,
         )
-    assert persistence_order.count("owner") == owner_calls_before
-    assert receipt["source_cycle_index"] == 0
-    assert receipt["reentry_cycle_index"] == 0
-    _assert_n7_reentered_in_candidate_band(
-        run=run,
-        controller=controller,
-        original_atom=atom,
-        simulation_port=simulation_probe,
-        value_port=value_probe,
-        require_disjoint_source_and_target=True,
-    )
-    assert run.acquisition_receipts == (receipt,)
-    assert len(controller.action_decisions) == 2
-    assert controller.action_decisions[-1].next_action == "escalate"
-    assert run.cycles[0].voi_decision.next_action == "escalate"
-    assert run.terminal_status == "completed"
-    assert run.blocked_reason is None
-    assert any(summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries)
-    assert run.fronts.decision.candidate_ids == ()
-    assert "candidate_cycle_1" in (
-        run.fronts.research.candidate_ids + run.fronts.quarantine.candidate_ids
-    )
+        assert case.problem.model_dump(mode="json") == initial_case.problem.model_dump(mode="json")
+        assert case.compiler_report.input_content_hash == (
+            initial_case.compiler_report.input_content_hash
+        )
+        assert not {
+            "n7_data_requirement_specs",
+            "data_requirement_specs",
+            "compiled_requirement_specs",
+        }.intersection(case.problem.runtime_hints)
+        assert case.compiler_report.requirement_basis.source == "governed_capability_resolution"
+        assert case.compiler_report.requirement_basis.basis_grade == "recomputed"
+        assert case.data_spec.required_data_families == ("wdi_nominal_gdp_annual",)
 
-    report_blob, _ = controller._source_repository.store._paths(
-        receipt_model.planner_report_ref.artifact_id
-    )
-    original_report_bytes = report_blob.read_bytes()
-    try:
-        report_blob.write_bytes(original_report_bytes + b"\x00")
-        corrupted_issues = validate_acquisition_receipt(
-            receipt_model,
-            artifact_store=controller._source_repository.store,
-            require_persisted_planner_report=True,
-        )
-        assert any(
-            issue["code"] == "acquisition_planner_report_readback_failed"
-            for issue in corrupted_issues
-        )
-    finally:
-        report_blob.write_bytes(original_report_bytes)
+        with (
+            _published_worldbank_owner(
+                tmp_path / "published-worldbank-owner",
+                monkeypatch,
+                artifact_store=job.store,
+                geography="US",
+                metric="gdp",
+                time_start="2022",
+                time_end="2022",
+            ) as selected_owner,
+            _real_acq01_route(
+                tmp_path,
+                case.problem,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                candidate_id=case.candidate.candidate_id,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+                requirement_ref=case.data_spec.requirement_id,
+                artifact_store=job.store,
+                execution_scope_binding=job.execution_scope_binding,
+                selected_metric="gdp",
+                selected_owner=selected_owner,
+                data_spec_override=case.data_spec,
+                compiled_requirement_family="wdi_nominal_gdp_annual",
+                world_model_scope={
+                    "region_or_jurisdiction": "US",
+                    "population_scope": "national_economy",
+                    "policy_domain": "fiscal_credit",
+                    "valid_time_scope": "2022",
+                },
+            ) as route,
+        ):
+            grounding = _RecordingMacroContextGrounding(case=case, route=route)
+            simulation = _ContextRecordingPendingN5Simulation()
+            controller = _build_acq01_real_route_controller(
+                case=case,
+                route=route,
+                simulation=simulation,
+                repo_root=REPO_ROOT,
+                grounding_port=grounding,
+                capability_resolver=case.capability_resolver,
+                context_owner=job.context_owner,
+                verified_scope=job.verified_scope,
+            )
+            simulation.controller = controller
+
+            context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+                case.before_context,
+                previous_problem=case.problem,
+                problem=case.problem,
+            )
+            assert controller._candidate_cycle_context_job_ref == context_job_ref
+            prior_context = job.context_owner.resolve_for_current_job(
+                context_job_ref,
+                problem=case.problem,
+                repo_root=REPO_ROOT,
+                verified_nl_job_scope=job.verified_scope,
+            )
+            assert prior_context.context.model_dump(mode="json") == (
+                case.before_context.model_dump(mode="json")
+            )
+
+            persistence_order: list[str] = []
+            planned_routes: list[Any] = []
+            source_cycles: list[Any] = []
+            owner_records: list[Any] = []
+            persist_report = acquisition_planner_module.persist_acquisition_planner_report
+            load_report = acquisition_planner_module.load_acquisition_planner_report
+
+            def persist_and_record(*args: Any, **kwargs: Any) -> Any:
+                ref = persist_report(*args, **kwargs)
+                persistence_order.append("persist")
+                return ref
+
+            def load_and_record(*args: Any, **kwargs: Any) -> Any:
+                report = load_report(*args, **kwargs)
+                persistence_order.append("readback")
+                return report
+
+            monkeypatch.setattr(
+                acquisition_planner_module,
+                "persist_acquisition_planner_report",
+                persist_and_record,
+            )
+            monkeypatch.setattr(
+                acquisition_planner_module,
+                "load_acquisition_planner_report",
+                load_and_record,
+            )
+
+            owner_gateway = controller._acquisition_owner_gateway
+            assert isinstance(owner_gateway, RecordedAcquisitionOwnerGateway)
+            acquire_owner = owner_gateway.acquire
+
+            def acquire_and_record(*args: Any, **kwargs: Any) -> Any:
+                persistence_order.append("owner")
+                owner_records.append(kwargs["record"])
+                return acquire_owner(*args, **kwargs)
+
+            monkeypatch.setattr(owner_gateway, "acquire", acquire_and_record)
+
+            plan_route = controller._plan_n7_requirement_gap_if_requested
+
+            def plan_and_record(*args: Any, **kwargs: Any) -> Any:
+                planned = plan_route(*args, **kwargs)
+                if planned is not None:
+                    planned_routes.append(planned)
+                return planned
+
+            monkeypatch.setattr(
+                controller, "_plan_n7_requirement_gap_if_requested", plan_and_record
+            )
+
+            run_n7 = controller._run_n7_acquisition_if_requested
+
+            def run_n7_and_record(*args: Any, **kwargs: Any) -> Any:
+                source_cycles.append(kwargs["cycle"])
+                return run_n7(*args, **kwargs)
+
+            monkeypatch.setattr(controller, "_run_n7_acquisition_if_requested", run_n7_and_record)
+
+            controller.action_decisions = []
+            decide_next_action = controller.decide_next_action
+
+            def record_action_decision(**kwargs: Any) -> Any:
+                decision = decide_next_action(**kwargs)
+                controller.action_decisions.append(decision)
+                return decision
+
+            monkeypatch.setattr(controller, "decide_next_action", record_action_decision)
+            run = asyncio.run(controller.run(case.problem, budget_state=_budget(), max_cycles=1))
+
+            assert len(planned_routes) == 1
+            planned = planned_routes[0]
+            assert planned.basis.unbound_input_fields == ()
+            assert planned.basis.routing_limitation_code is None
+            assert planned.basis.compilation_report.input_content_hash == (
+                case.compiler_report.input_content_hash
+            )
+            assert planned.basis.compilation_report.requirement_basis.basis_grade == "recomputed"
+            assert planned.basis.specs == (case.data_spec,)
+            assert planned.basis.capability_resolutions == (
+                case.compiler_report.capability_requirement_resolutions
+            )
+            assert len(source_cycles) == 1
+            source_cycle = source_cycles[0]
+            assert source_cycle.cycle_index == 0
+            assert source_cycle.selected_candidate_ref == case.candidate.candidate_id
+            assert source_cycle.selected_candidate_content_hash == case.candidate.atom.content_hash
+            source_gap = source_cycle.grounding.acquisition_requirement
+            assert source_gap is not None
+            assert planned.basis.routed_source_gap == source_gap
+            assert source_gap.metadata["candidate_binding"]["candidate_id"] == (
+                case.candidate.candidate_id
+            )
+            assert source_gap.metadata["candidate_binding"]["candidate_content_hash"] == (
+                case.candidate.atom.content_hash
+            )
+            assert case.candidate.atom.target_world_slots == ("global.tax_rate",)
+            assert len(owner_records) == 1
+            owner_record = owner_records[0]
+            assert owner_record.compiled_requirement_ref == case.data_spec.requirement_id
+            assert source_gap.requirement_gap_id in owner_record.scenario_requirement_refs
+            assert owner_record in planned.report.acquisition_records
+            persist_index = persistence_order.index("persist")
+            readback_index = persistence_order.index("readback", persist_index + 1)
+            owner_index = persistence_order.index("owner")
+            assert persist_index < readback_index < owner_index
+
+            receipt = run.cycles[0].acquisition_receipt
+            assert receipt is not None
+            receipt_model = AcquisitionReceipt.model_validate(receipt)
+            assert receipt_model.planner_report_ref is not None
+            assert artifact_ref_identity_key(receipt_model.planner_report_ref) == (
+                artifact_ref_identity_key(planned.report_ref)
+            )
+            # The ordinary V1 wire retains its profileless locator. Resolve the
+            # stored view explicitly for the independent CAS read below.
+            assert receipt_model.planner_report_ref.manifest_profile_sha256 is None
+            selected_report_ref = profile_bound_ref(job.store, receipt_model.planner_report_ref)
+            assert selected_report_ref.manifest_profile_sha256 is not None
+            assert receipt_model.planner_report == planned.report
+            assert "requirement_gap" in receipt_model.acquisition_request
+            assert receipt["source_cycle_index"] == 0
+            assert receipt["reentry_cycle_index"] == 0
+            assert run.acquisition_receipts == (receipt,)
+            assert run.synthetic is True
+            assert run.cycles[0].cycle_index == source_cycle.cycle_index == 0
+            assert run.cycles[0].simulation.status == "simulation_pending_n5"
+
+            persisted_report = load_acquisition_planner_report(
+                job.store,
+                selected_report_ref,
+            )
+            assert persisted_report == receipt_model.planner_report
+            receipt_issues = validate_acquisition_receipt(
+                receipt_model,
+                artifact_store=job.store,
+                require_persisted_planner_report=True,
+            )
+            assert not any(
+                issue["code"].startswith("acquisition_planner_report") for issue in receipt_issues
+            )
+
+            stripped_receipt = receipt_model.model_dump(mode="json")
+            stripped_receipt.pop("planner_report_ref")
+            stripped_issues = validate_acquisition_receipt(
+                stripped_receipt,
+                artifact_store=job.store,
+                require_persisted_planner_report=True,
+            )
+            assert any(
+                issue["code"] == "acquisition_planner_report_ref_missing"
+                for issue in stripped_issues
+            )
+
+            mismatched_receipt = receipt_model.model_dump(mode="json")
+            mismatched_receipt["planner_report"]["acquisition_records"][0][
+                "recommended_strategy"
+            ] = "agency_request"
+            mismatched_receipt.pop("content_hash")
+            mismatched_issues = validate_acquisition_receipt(
+                mismatched_receipt,
+                artifact_store=job.store,
+                require_persisted_planner_report=True,
+            )
+            assert any(
+                issue["code"] == "acquisition_planner_report_readback_mismatch"
+                for issue in mismatched_issues
+            )
+
+            typed_spec = DataRequirementSpec.model_validate(
+                receipt_model.compiled_requirement_specs[0]
+            )
+            changed_request = {
+                **receipt_model.acquisition_request,
+                "context": {"same_ids_different_bytes": "changed"},
+            }
+            changed_world = controller._n7_world_snapshot(
+                case.problem,
+                cycle=source_cycle,
+                acquisition_request=changed_request,
+                specs=(typed_spec,),
+            )
+            owner_calls_before = len(owner_records)
+            with pytest.raises(ValueError, match="acquisition_planner_report_binding_mismatch"):
+                run_acquisition_closed_loop(
+                    run_id=receipt_model.run_id,
+                    acquisition_request=changed_request,
+                    data_requirement_specs=(typed_spec,),
+                    world_snapshot=changed_world,
+                    capability_requirement_resolutions=(
+                        receipt_model.capability_requirement_resolutions or ()
+                    ),
+                    design_problem=case.problem,
+                    owner_gateway=owner_gateway,
+                    generated_at=receipt_model.generated_at,
+                    planner_report=receipt_model.planner_report,
+                    planner_report_ref=receipt_model.planner_report_ref,
+                    artifact_store=job.store,
+                    require_persisted_planner_report=True,
+                )
+            assert len(owner_records) == owner_calls_before
+
+            # N7 records that its owner write lacks a source-bound N4/CGF
+            # result. Re-entry projects that refusal from the verified receipt;
+            # it does not call the original grounding port a second time.
+            assert len(grounding.observations) == 1
+            rederivation_rows = tuple(
+                row
+                for row in receipt_model.grounding_rederivations
+                if row.design_id == case.candidate.candidate_id
+            )
+            assert len(rederivation_rows) == 1
+            rederivation = rederivation_rows[0]
+            assert rederivation.source_slots == receipt_model.affected_region.source_slots
+            assert rederivation.status == "grounding_unavailable"
+            assert rederivation.issue_codes == (
+                "generation_result_problem_scope_unestablished",
+            )
+            reentered_grounding = run.cycles[0].grounding
+            assert reentered_grounding.status == "grounding_unavailable"
+            assert reentered_grounding.issue_codes == rederivation.issue_codes
+            assert reentered_grounding.grounding_source == "grounding_unavailable"
+            assert reentered_grounding.grounding_disposition is None
+            assert reentered_grounding.current_valid is False
+            assert reentered_grounding.evidence_refs == ()
+            assert reentered_grounding.cgf_certificate_refs == ()
+            source_report_ref = grounding.report_refs[0]
+            assert source_report_ref is not None
+            source_report = load_core_json_artifact(job.store, source_report_ref)
+            assert source_report["authority_scope"] == "contract_testing"
+            assert source_report["claim_evidence_use_allowed"] is False
+            assert source_report["candidate_binding"]["candidate_content_hash"] == (
+                case.candidate.atom.content_hash
+            )
+            assert source_report["causal_scope"] == {
+                "macro_context_is_employment_outcome": False,
+                "gdp_to_employment_causal_effect_claimed": False,
+            }
+            assert source_report["source_authority_status"] == "not_established"
+            assert source_report["source_currentness_status"] == "not_established"
+            assert source_report["required_macro_context"]["compiled_requirement_ref"] == (
+                case.data_spec.requirement_id
+            )
+            assert source_report["required_macro_context"]["compiled_requirement_family"] == (
+                "wdi_nominal_gdp_annual"
+            )
+            assert source_report["observed_source_context"]["source_requirement_ref"] == (
+                route.source_requirement.requirement_id
+            )
+            assert source_report["observed_source_context"]["dataset_id"] == (route.plan.dataset_id)
+
+            assert len(simulation.calls) == len(simulation.contexts) == 2
+            initial_call, reentry_call = simulation.calls
+            assert (
+                initial_call["candidate_id"]
+                == reentry_call["candidate_id"]
+                == (case.candidate.candidate_id)
+            )
+            assert initial_call["cycle_index"] == reentry_call["cycle_index"] == 0
+            assert initial_call["candidate_content_hash"] == case.candidate.atom.content_hash
+            assert initial_call["world_model_record_ref"] == (
+                case.candidate.atom.world_model_record_ref
+            )
+            assert reentry_call["candidate_content_hash"] != initial_call["candidate_content_hash"]
+            assert reentry_call["target_world_slots"] == tuple(
+                case.candidate.atom.target_world_slots
+            )
+            before_context, after_context = simulation.contexts
+            assert before_context is not None and after_context is not None
+            assert before_context.model_dump(mode="json") == case.before_context.model_dump(
+                mode="json"
+            )
+            _assert_n7_world_model_record_semantics(
+                after_context.world_model_record,
+                route.world_build.record,
+            )
+            assert after_context.content_hash != before_context.content_hash
+            assert {
+                "grounding_authority",
+                "transport_authority",
+                "promotion_authority",
+            }.issubset(after_context.may_not_use_for)
+            assert simulation.world_refs == [
+                str(case.candidate.atom.world_model_record_ref),
+                str(route.world_build.record.world_model_record_id),
+            ]
+            assert reentry_call["world_model_record_ref"] == (
+                route.world_build.record.world_model_record_id
+            )
+            assert (
+                run.cycles[0].selected_candidate_content_hash
+                == (reentry_call["candidate_content_hash"])
+            )
+            assert run.cycles[0].value_port.status == "value_pending_n8"
+            assert run.promotion_port.status != "certified_current_valid"
+            assert run.promotion_port.receipts == ()
+            assert run.fronts.decision.candidate_ids == ()
+            receipt_source_slots = set(receipt_model.affected_region.source_slots)
+            receipt_target_slots = set(reentry_call["target_world_slots"])
+            assert receipt_source_slots
+            assert receipt_target_slots
+            assert receipt_source_slots.isdisjoint(receipt_target_slots)
+
+            # This is a bounded N7 route/reentry proof. The current planner
+            # schedule has no exact wdi_nominal_gdp_annual cost row, so this
+            # scenario does not claim a cost estimate or a VOI qualification.
+            assert run.cycles[0].acquisition_cost_basis_record is None
+            assert run.cycles[0].acquisition_cost_basis_hash is None
+
+            report_blob, _ = job.store._paths(receipt_model.planner_report_ref.artifact_id)
+            assert not report_blob.is_symlink() and report_blob.stat().st_nlink == 1
+            original_report_bytes = report_blob.read_bytes()
+            try:
+                report_blob.write_bytes(original_report_bytes + b"\x00")
+                corrupted_issues = validate_acquisition_receipt(
+                    receipt_model,
+                    artifact_store=job.store,
+                    require_persisted_planner_report=True,
+                )
+                assert any(
+                    issue["code"] == "acquisition_planner_report_readback_failed"
+                    for issue in corrupted_issues
+                )
+            finally:
+                report_blob.write_bytes(original_report_bytes)
 
 
 @pytest.mark.asyncio

@@ -562,7 +562,8 @@ def capture_managed_subworkflow_definition(node: object) -> ManagedSubWorkflowDe
     terminal-only recovery verifies its persisted history instead. Missing old
     observations cannot be upgraded by this function.
     """
-    from polisyos.scientist.orchestration.engine import child_workflow, sub_workflow
+    import polisyos.scientist.orchestration.engine.child_workflow as child_workflow
+    import polisyos.scientist.orchestration.engine.sub_workflow as sub_workflow
 
     if type(node) is not sub_workflow.SubWorkflowNode:
         raise ExecutionAdmissionError("managed_subworkflow_owner_not_established")

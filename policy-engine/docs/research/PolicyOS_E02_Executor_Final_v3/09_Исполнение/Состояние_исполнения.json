@@ -14546,6 +14546,13 @@
           "strict_r21_source_tree": "2610cc3477d413e94ffd20b01da926d664fc092f",
           "strict_r21_stable_pins": 107,
           "strict_r21_first_refusal": "non-literal repository re-export: polisyos.fabric.storage.DuckDBStorageAdapter",
+          "post_r21_fabric": "MAIN:policy-engine/_cache/e02/lane01-n6-fabric-storage-owner-r1",
+          "post_r21_lex_scientist": "MAIN:policy-engine/_cache/e02/lane01-n6-lex-scientist-owner-r1",
+          "post_r21_runtime_foundry": "MAIN:policy-engine/_cache/e02/lane01-n6-final-direct-owner-r1",
+          "post_r21_static_probe": "MAIN:policy-engine/_cache/e02/lane01-n6-known-route-targets-remaining-r7",
+          "post_r21_static_direct_refusal_occurrences": 23,
+          "post_r21_executable_imports_matching_static_direct_refusals": 0,
+          "post_r21_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-final-owner-architecture-r1",
           "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
         },
         "lane01_p05_r4_completed_b_stale_unit_oracle": {

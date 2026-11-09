@@ -17258,13 +17258,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
-      "target_module": "polisyos.lex.interventions",
-      "target_root": "lex"
-    },
-    {
       "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
@@ -18523,13 +18516,6 @@
       "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
       "target_module": "polisyos.ir.trinity.loaders",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
-      "target_module": "polisyos.lex.interventions",
-      "target_root": "lex"
     },
     {
       "source_module": "polisyos.scientist.nodes.builtins.planning.run_preflight",

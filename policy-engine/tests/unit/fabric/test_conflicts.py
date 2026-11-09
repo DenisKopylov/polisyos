@@ -23,6 +23,7 @@ from polisyos.fabric.docs import (
     normalize_doc,
 )
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.storage import DuckDBStorageAdapter
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.conflict import ConflictKind, ConflictSet
@@ -183,6 +184,7 @@ def test_resolution_tie_break_deterministic(tmp_path: Path) -> None:
 def test_conflict_emits_world_facts(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
+    storage = DuckDBStorageAdapter(db)
     text = "\n".join(
         [
             "claim: policy.tax_rate = 20 [percent]",
@@ -196,7 +198,7 @@ def test_conflict_emits_world_facts(tmp_path: Path) -> None:
     detected = detect_conflicts(
         cas=cas,
         fact_log_root=tmp_path,
-        db=db,
+        storage=storage,
         claim_set_artifact_ids=[claim_set_artifact_id],
         policy_id=_POLICY_ID,
         segment_name="claims_detect_e2e",
@@ -204,7 +206,7 @@ def test_conflict_emits_world_facts(tmp_path: Path) -> None:
     resolve_conflicts(
         cas=cas,
         fact_log_root=tmp_path,
-        db=db,
+        storage=storage,
         conflict_set_ids=detected.conflict_set_ids,
         claim_set_artifact_ids=[claim_set_artifact_id],
         policy_id=_POLICY_ID,

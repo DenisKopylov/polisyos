@@ -113,7 +113,7 @@ class _RestrictedExecutionIdentityOwner:
         simulation_ref: ArtifactRef,
         aggregate_read_budget: _ProjectionReadBudget,
     ) -> None:
-        from polisyos.runtime.http.services.control import ControlPlaneService
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
         from polisyos.scientist.compute import (
             MethodMetricSourceReadBudget as _ProjectionReadBudget,
         )

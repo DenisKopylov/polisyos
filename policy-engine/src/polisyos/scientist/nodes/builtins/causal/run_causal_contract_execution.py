@@ -43,7 +43,7 @@ from polisyos.ir.observation.causal_execution import (
     persist_causal_execution_bundle,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel, EffectTrajectoryBundleRef
-from polisyos.lex.interventions import TemporalInterventionSequencer
+from polisyos.lex import TemporalInterventionSequencer
 from polisyos.scientist.methods.causal.execution import BoundsEstimationRunner
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (

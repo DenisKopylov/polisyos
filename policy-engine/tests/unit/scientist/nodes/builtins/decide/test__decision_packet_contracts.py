@@ -6,6 +6,7 @@ from typing import Any, cast
 
 import pytest
 
+import polisyos.scientist.nodes.builtins.decide.decision_packet as decision_packet
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.nodes.builtins.decide import build_decision_packet as runtime
 from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import (
@@ -29,6 +30,7 @@ def test_decision_packet_contracts_are_reexported_from_runtime_module() -> None:
 
 
 def test_decision_packet_split_modules_preserve_legacy_api_aliases() -> None:
+    assert decision_packet.BuildDecisionPacketNode is builder.BuildDecisionPacketNode
     assert runtime.BuildDecisionPacketNode is api.BuildDecisionPacketNode
     assert api.BuildDecisionPacketNode is builder.BuildDecisionPacketNode
     assert runtime._build_policy_summary is enrichment._build_policy_summary

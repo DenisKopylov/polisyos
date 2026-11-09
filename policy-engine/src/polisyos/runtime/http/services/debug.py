@@ -299,7 +299,7 @@ class DebugService:
 
     def bind_source_use_control_service(self, control: Any) -> None:
         """Bind the Runtime's actual completed-job owner for fresh source reads."""
-        from polisyos.runtime.http.services.control import ControlPlaneService
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 
         if (
             type(control) is not ControlPlaneService

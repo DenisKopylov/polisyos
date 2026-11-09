@@ -12541,8 +12541,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26840,
-                "sha256": "9ed4be9673e30ae764ad8474c933fc540c6b3e94d38c121c3ef6d9324fe3fe18"
+                "bytes": 26863,
+                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -12572,8 +12572,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26840,
-                "sha256": "9ed4be9673e30ae764ad8474c933fc540c6b3e94d38c121c3ef6d9324fe3fe18"
+                "bytes": 26863,
+                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -12603,8 +12603,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26840,
-                "sha256": "9ed4be9673e30ae764ad8474c933fc540c6b3e94d38c121c3ef6d9324fe3fe18"
+                "bytes": 26863,
+                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
               },
               {
                 "path": "src/polisyos/foundry/methods",
@@ -20259,8 +20259,8 @@
                 "path": "src/polisyos/lex/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 15988,
-                "sha256": "575841a4217792dcdb8abeb550db3daa7b826c5ac7eab3a2f1fee092a0659d4e"
+                "bytes": 16034,
+                "sha256": "e04ea153ac980eb384cd23a14b9b79596ff76fdaa3de1d19b9f1450191e9354f"
               },
               {
                 "path": "src/polisyos/lex",

@@ -944,7 +944,13 @@ def preflight_candidate_experiment_evaluation(
         or sink is None
     ):
         raise ValueError("candidate_experiment_evaluation_preflight_owner_missing")
-    _candidate_experiment_verified_prior_history(bridge=bridge, origin=origin)
+    latest_history = _candidate_experiment_verified_prior_history(bridge=bridge, origin=origin)
+    if (
+        latest_history is not None
+        and latest_history.frontier_after is not None
+        and (latest_history.selected_basis is None or latest_history.evaluation is None)
+    ):
+        raise ValueError("candidate_experiment_evaluation_prior_not_selected")
     selected = _candidate_experiment_source_selection(bridge, origin)
     if selected != selection:
         raise ValueError("candidate_experiment_evaluation_preflight_selection_changed")

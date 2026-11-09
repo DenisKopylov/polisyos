@@ -584,3 +584,59 @@ def test_prior_owner_comparison_uses_selected_values_and_store_not_wrapper_ident
         expected=expected,
         artifact_store=world.store,
     )
+
+
+def test_preflight_rejects_blocked_v2_frontier_before_source_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A blocked V2 may preserve the frontier without selecting it as latest basis."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceiptV2,
+    )
+    from tests.unit.runtime.quality.test_acquisition_route_loop import (
+        _reuse_effective_source_case,
+    )
+
+    origin, _generation_run, _source_cycle, blocked_history, _frontier = (
+        _reuse_effective_source_case("candidate_blocked")
+    )
+    assert type(origin) is route_loop_module.VerifiedCandidateExperimentOrigin
+    assert type(blocked_history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
+    assert blocked_history.terminal.terminal_outcome == "candidate_blocked"
+    assert blocked_history.frontier_after is not None
+    assert blocked_history.selected_basis is None
+    assert blocked_history.evaluation is None
+
+    artifact_store, control_store, sink = object(), object(), object()
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store = artifact_store
+    service._control_store = control_store
+    service._acquisition_route_sink = sink
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = artifact_store
+    bridge.control_store = control_store
+    bridge.action_head_sink = sink
+    bridge._source_control_service = service
+    selection = AcquisitionCandidateSourceRoute.model_construct()
+
+    monkeypatch.setattr(
+        dispatch,
+        "_candidate_experiment_verified_prior_history",
+        lambda **_kwargs: blocked_history,
+    )
+    monkeypatch.setattr(
+        actions,
+        "_candidate_experiment_source_selection",
+        lambda *_args, **_kwargs: pytest.fail(
+            "preflight selected a source despite the latest blocked V2 having no selected basis"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="candidate_experiment_evaluation_prior_not_selected"):
+        dispatch.preflight_candidate_experiment_evaluation(
+            bridge=bridge,
+            origin=origin,
+            selection=selection,
+        )

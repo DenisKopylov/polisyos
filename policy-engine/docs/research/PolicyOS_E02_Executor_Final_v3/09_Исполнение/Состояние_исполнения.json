@@ -14276,6 +14276,21 @@
           "historical_pass": 17,
           "scope": "The worker keeps one current outcome fold and all later action fences. One already verified phase-origin resolution per standalone V1 terminal read. No global cache or served time claim."
         },
+        "lane01_r33_composed_historical_reader": {
+          "source_commit": "c2058453d535dd4d726244b9f5bcaff71c9b3e6d",
+          "source_tree": "5f92e41eb2d272d146e8337323e75caf9c5ca8f2",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-r33-fresh-reader-composed-r7",
+          "stable_pins": 11,
+          "wall_seconds": 35.29,
+          "scope": "Fresh authenticated GET of the retained R33 attempt-2 terminal on the composed source. SQL head 5 and exact terminal/event/N5 profiles preserved. Four physical units before and after, N5 and accounting writes forbidden, no dispatch or new PA2. Reuses the prior scratch CAS and copies only the 408 KiB test database for independent service boot. No new crash or V2 continuation claim."
+        },
+        "p05_blocked_v2_successor_preflight": {
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p05-v2-blocked-preflight-green-r1",
+          "red_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-v2-blocked-preflight-red-r1",
+          "component_pass": 4,
+          "stable_pins": 5,
+          "scope": "The preflight refuses a verified nonempty frontier with no selected basis or evaluation before its inner source selector. Source review places this before fresh enqueue and protected transport. The preceding read-only port lookup still runs. No served blocked-successor run or claim that an earlier numerical frontier can be reused across a blocked V2."
+        },
         "p05_separately_authorized_changed_input_r1": {
           "base_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
           "base_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
@@ -14308,7 +14323,12 @@
           "r10_refusal": "non-literal repository re-export: polisyos.fabric.connectors.components.__polisyos_components__",
           "r10_stable_pins": 18,
           "connector_owner_checks": "VERIFY:policy-engine/_cache/e02/lane01-n6-connector-owner-r1",
-          "scope": "Exact early-host source discovery with zero physical N5. R10 advances past the ambient providers and refuses the computed connector aggregate. The fallback now calls the exact lazy producer without changing the compatibility export. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
+          "r11_commit": "c2058453d535dd4d726244b9f5bcaff71c9b3e6d",
+          "r11_tree": "5f92e41eb2d272d146e8337323e75caf9c5ca8f2",
+          "r11_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r11",
+          "r11_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.CatalogRunProfile",
+          "r11_stable_pins": 23,
+          "scope": "Exact early-host source discovery with zero physical N5. R11 advances past the connector aggregate and refuses the Catalog profile alias route. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
         },
         "lane01_initial_a_live_witness_wall_limit": {
           "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",

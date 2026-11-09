@@ -169,18 +169,27 @@ def test_actual_causal_facade_routes_the_complete_metadata_tuple_without_executi
     source = guardrails._facade_source_for("polisyos.foundry.methods.causal")
     tree = ast.parse(source.read_bytes())
     exports = guardrails._extract_exports(tree, source)
-    metadata = source.with_name("_exports.py")
     declaration = next(
         node
-        for node in ast.parse(metadata.read_bytes()).body
+        for node in tree.body
         if isinstance(node, ast.Assign)
-        and any(
-            isinstance(target, ast.Name) and target.id == "CAUSAL_METHOD_EXPORTS"
-            for target in node.targets
-        )
+        and any(isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets)
     )
-    assert exports == ast.literal_eval(declaration.value)
-    assert exports
+    ordered_names = ast.literal_eval(declaration.value)
+    assert type(ordered_names) is tuple and ordered_names
+    assert exports == ordered_names
+
+    metadata = source.with_name("_exports.py")
+    metadata_tree = ast.parse(metadata.read_bytes())
+    aliases = [
+        (node.level, node.module, alias.name)
+        for node in metadata_tree.body
+        if isinstance(node, ast.ImportFrom)
+        for alias in node.names
+        if alias.asname == "CAUSAL_METHOD_EXPORTS"
+    ]
+    assert aliases == [(1, None, "__all__")]
+    assert guardrails._extract_exports(metadata_tree, metadata) == ("CAUSAL_METHOD_EXPORTS",)
 
 
 def test_lazy_child_route_is_selected_and_unrelated_imports_do_not_affect_it(

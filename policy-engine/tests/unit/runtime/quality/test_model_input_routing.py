@@ -16,15 +16,21 @@ from polisyos.core.artifacts import (
     PutOptions,
     SelectedProfileVerificationReader,
     read_core_manifest_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
     ModelInputPhysicalEncoding,
+    ModelInputPort,
     ModelInputPortDeclaration,
     load_program_graph_input_interface,
     persist_model_input_port_declaration,
+)
+from polisyos.core.contracts.variable_binding import (
+    VariableRepresentation,
+    VariableSemanticDefinition,
 )
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
@@ -35,6 +41,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.routes.runs import _generic_model_input_routing_projection
 from polisyos.runtime.quality.model_input_requirements import (
+    ProgramGraphInputPreflight,
     SelectedProgramGraphInputBasis,
     derive_program_graph_input_interface,
     preflight_program_graph_inputs,
@@ -58,6 +65,7 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
+    from tests._helpers.program_graph_tax_subsidy_input import ProgramGraphTaxSubsidyInputCase
 
 
 def _projection_catalog_source(
@@ -84,9 +92,7 @@ def _replace_authority_registry(
 ) -> str:
     registry = build_authority_registry(
         baseline_content_sha256=authority.provision.baseline_content_sha256,
-        l5_measurement_registry_sha256=(
-            authority.provision.l5_measurement_registry_content_sha256
-        ),
+        l5_measurement_registry_sha256=(authority.provision.l5_measurement_registry_content_sha256),
         entries=entries,
     )
     registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
@@ -94,8 +100,19 @@ def _replace_authority_registry(
     return registry.content_sha256
 
 
-def _fiscal_input_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
-    _, _, _, source_interface_ref = _model_inputs(store)
+def _fiscal_input_declaration(
+    store: CoreJSONArtifactStore,
+    *,
+    definition_revision: str = "r1",
+    definition_meaning: str = (
+        "Government fiscal balance measured for a bounded population and period."
+    ),
+) -> ArtifactRef:
+    _, _, _, source_interface_ref = _model_inputs(
+        store,
+        definition_revision=definition_revision,
+        definition_meaning=definition_meaning,
+    )
     source_interface = load_program_graph_input_interface(store, source_interface_ref)
     port = source_interface.ports[0].model_copy(
         update={
@@ -115,6 +132,211 @@ def _fiscal_input_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
     )
 
 
+def _select_program_graph_routing_inputs(
+    case: ProgramGraphTaxSubsidyInputCase,
+    *,
+    run_id: str,
+) -> tuple[ModelInputPort, SelectedProgramGraphInputBasis, ProgramGraphInputPreflight]:
+    graph_ref = ProgramGraphRef.model_validate(case.program_graph_ref.model_dump(mode="python"))
+    exec_plan_ref = ExecPlanRef.model_validate(case.exec_plan_ref.model_dump(mode="python"))
+    interface_ref = derive_program_graph_input_interface(
+        case.store,
+        program_graph_ref=graph_ref,
+        exec_plan_ref=exec_plan_ref,
+        registry_bundle_ref=case.registry_bundle_ref,
+    )
+    assert interface_ref is not None
+    interface = load_program_graph_input_interface(case.store, interface_ref)
+    (port,) = interface.ports
+    context = ModelInputContext(
+        run_id=run_id,
+        candidate_id="program_graph_tax_subsidy_input",
+        candidate_content_hash=str(case.policy_candidate_ref.artifact_id),
+        design_problem_ref=str(case.trinity_ref.artifact_id),
+        candidate_source_ref=case.policy_candidate_ref,
+    )
+    basis = SelectedProgramGraphInputBasis(
+        context=context,
+        program_graph_ref=graph_ref,
+        exec_plan_ref=exec_plan_ref,
+        registry_bundle_ref=case.registry_bundle_ref,
+        input_bindings_ref=case.input_bindings_ref,
+        steps=(0, 1, 2),
+    )
+    preflight = preflight_program_graph_inputs(
+        case.store,
+        interface_ref=interface_ref,
+        program_graph_ref=graph_ref,
+        exec_plan_ref=exec_plan_ref,
+        registry_bundle_ref=case.registry_bundle_ref,
+        input_bindings_ref=case.input_bindings_ref,
+        context=context,
+        steps=(0, 1, 2),
+    )
+    assert len(preflight.obligation_refs) == 1
+    return port, basis, preflight
+
+
+def test_new_semantic_definition_revision_rebinds_selected_model_input(
+    tmp_path: Path,
+) -> None:
+    """A compiled model revision must carry its exact changed semantic definition."""
+    old_case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "definition-r1",
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        model_input_port_declaration_builder=_fiscal_input_declaration,
+    )
+    new_case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "definition-r2",
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        model_input_port_declaration_builder=partial(
+            _fiscal_input_declaration,
+            definition_revision="r2",
+            definition_meaning=(
+                "Government fiscal balance for a bounded population and period,"
+                " including the explicitly revised opening-balance convention."
+            ),
+        ),
+    )
+    try:
+        old_port, old_basis, old_preflight = _select_program_graph_routing_inputs(
+            old_case,
+            run_id="model-input-definition-r1",
+        )
+        new_port, new_basis, new_preflight = _select_program_graph_routing_inputs(
+            new_case,
+            run_id="model-input-definition-r2",
+        )
+        old_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition,
+            old_case.store,
+            old_port.semantic_definition_ref,
+        )
+        new_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition,
+            new_case.store,
+            new_port.semantic_definition_ref,
+        )
+        assert (old_definition.namespace, old_definition.stable_id) == (
+            new_definition.namespace,
+            new_definition.stable_id,
+        )
+        assert old_definition.revision == "r1"
+        assert new_definition.revision == "r2"
+        assert old_definition.meaning != new_definition.meaning
+        assert old_port.semantic_definition_ref != new_port.semantic_definition_ref
+
+        old_representation = validate_core_model_json_artifact(
+            VariableRepresentation,
+            old_case.store,
+            old_port.representation_ref,
+        )
+        new_representation = validate_core_model_json_artifact(
+            VariableRepresentation,
+            new_case.store,
+            new_port.representation_ref,
+        )
+        assert old_representation.model_dump(
+            mode="python",
+            exclude={"semantic_definition_ref"},
+        ) == new_representation.model_dump(
+            mode="python",
+            exclude={"semantic_definition_ref"},
+        )
+
+        authority, _ = _resolver(
+            tmp_path / "catalog-definition-revisions",
+            authority_entry=_authority_entry(
+                old_port.semantic_definition_ref,
+                old_port.representation_ref,
+                suffix="definition-r1",
+            ),
+        )
+        old_entry = authority._load_registry().entries[0]
+        new_entry = _authority_entry(
+            new_port.semantic_definition_ref,
+            new_port.representation_ref,
+            suffix="definition-r2",
+        )
+        old_route = plan_selected_model_input_routing(
+            old_case.store,
+            obligation_set_ref=old_preflight.obligation_set_ref,
+            selected_basis=old_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        assert (
+            verify_model_input_routing_report(
+                old_case.store,
+                old_route.report_ref,
+                expected_obligation_set_ref=old_preflight.obligation_set_ref,
+                selected_basis=old_basis,
+                catalog_authority=authority,
+            )
+            == old_route.report
+        )
+        _replace_authority_registry(authority, (old_entry, new_entry))
+        assert (
+            verify_model_input_routing_report(
+                old_case.store,
+                old_route.report_ref,
+                expected_obligation_set_ref=old_preflight.obligation_set_ref,
+                selected_basis=old_basis,
+                catalog_authority=authority,
+            )
+            == old_route.report
+        )
+        new_route = plan_selected_model_input_routing(
+            new_case.store,
+            obligation_set_ref=new_preflight.obligation_set_ref,
+            selected_basis=new_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (old_binding,) = old_route.report.routes
+        (new_binding,) = new_route.report.routes
+        assert old_binding.disposition == new_binding.disposition == "resolved"
+        assert old_binding.query_envelope is not None
+        assert new_binding.query_envelope is not None
+        assert (
+            old_binding.query_envelope.model_semantic_definition_ref
+            == old_port.semantic_definition_ref
+        )
+        assert (
+            new_binding.query_envelope.model_semantic_definition_ref
+            == new_port.semantic_definition_ref
+        )
+        assert old_binding.query_envelope.model_semantic_definition_ref != (
+            new_binding.query_envelope.model_semantic_definition_ref
+        )
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_obligation_set_selection_mismatch",
+        ):
+            verify_model_input_routing_report(
+                old_case.store,
+                old_route.report_ref,
+                expected_obligation_set_ref=new_preflight.obligation_set_ref,
+                selected_basis=new_basis,
+                catalog_authority=authority,
+            )
+        assert (
+            verify_model_input_routing_report(
+                new_case.store,
+                new_route.report_ref,
+                expected_obligation_set_ref=new_preflight.obligation_set_ref,
+                selected_basis=new_basis,
+                catalog_authority=authority,
+            )
+            == new_route.report
+        )
+    finally:
+        old_case.close()
+        new_case.close()
+
+
 def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
     tmp_path: Path,
 ) -> None:
@@ -125,43 +347,10 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         model_input_port_declaration_builder=_fiscal_input_declaration,
     )
     try:
-        graph_ref = ProgramGraphRef.model_validate(case.program_graph_ref.model_dump(mode="python"))
-        exec_plan_ref = ExecPlanRef.model_validate(case.exec_plan_ref.model_dump(mode="python"))
-        interface_ref = derive_program_graph_input_interface(
-            case.store,
-            program_graph_ref=graph_ref,
-            exec_plan_ref=exec_plan_ref,
-            registry_bundle_ref=case.registry_bundle_ref,
-        )
-        assert interface_ref is not None
-        interface = load_program_graph_input_interface(case.store, interface_ref)
-        (port,) = interface.ports
-        context = ModelInputContext(
+        port, selected_basis, preflight = _select_program_graph_routing_inputs(
+            case,
             run_id="model-input-routing-test",
-            candidate_id="program_graph_tax_subsidy_input",
-            candidate_content_hash=str(case.policy_candidate_ref.artifact_id),
-            design_problem_ref=str(case.trinity_ref.artifact_id),
-            candidate_source_ref=case.policy_candidate_ref,
         )
-        selected_basis = SelectedProgramGraphInputBasis(
-            context=context,
-            program_graph_ref=graph_ref,
-            exec_plan_ref=exec_plan_ref,
-            registry_bundle_ref=case.registry_bundle_ref,
-            input_bindings_ref=case.input_bindings_ref,
-            steps=(0, 1, 2),
-        )
-        preflight = preflight_program_graph_inputs(
-            case.store,
-            interface_ref=interface_ref,
-            program_graph_ref=graph_ref,
-            exec_plan_ref=exec_plan_ref,
-            registry_bundle_ref=case.registry_bundle_ref,
-            input_bindings_ref=case.input_bindings_ref,
-            context=context,
-            steps=(0, 1, 2),
-        )
-        assert len(preflight.obligation_refs) == 1
 
         compatible_authority, _ = _resolver(
             tmp_path / "catalog-compatible",
@@ -261,15 +450,12 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         (route_v2,) = routed_v2.report.routes
         assert routed_v2.report.schema_version == "2.0"
         assert route_v2.query_envelope is not None
-        assert [row.entry_id for row in route_v2.query_envelope.rows] == [
-            selected_entry.entry_id
-        ]
+        assert [row.entry_id for row in route_v2.query_envelope.rows] == [selected_entry.entry_id]
         assert route_v2.query_envelope.rows[0].disposition == "compatible"
         assert route_v2.source_descriptor is not None
         assert route_v2.source_descriptor.query_envelope is None
         assert (
-            route_v2.source_descriptor.authority_registry_content_sha256
-            == registry_before_sha256
+            route_v2.source_descriptor.authority_registry_content_sha256 == registry_before_sha256
         )
         v2_manifest = fresh_store.get_manifest(routed_v2.report_ref)
         assert v2_manifest.artifact_schema is not None
@@ -418,9 +604,9 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         assert ambiguous_route.disposition == "ambiguous"
         assert ambiguous_route.query_envelope is not None
         assert len(ambiguous_route.query_envelope.rows) == 2
-        assert sum(
-            row.disposition == "compatible" for row in ambiguous_route.query_envelope.rows
-        ) == 2
+        assert (
+            sum(row.disposition == "compatible" for row in ambiguous_route.query_envelope.rows) == 2
+        )
         with pytest.raises(
             ValueError,
             match="model_input_routing_report_selection_mismatch",

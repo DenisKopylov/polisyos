@@ -94,6 +94,7 @@ def _model_inputs(
     *,
     source_quantity_kind: str = "stock",
     definition_namespace: str = "test.fiscal",
+    definition_revision: str = "r1",
     definition_meaning: str = (
         "Government fiscal balance measured for a bounded population and period."
     ),
@@ -112,7 +113,7 @@ def _model_inputs(
     definition = VariableSemanticDefinition(
         namespace=definition_namespace,
         stable_id="balance",
-        revision="r1",
+        revision=definition_revision,
         meaning=definition_meaning,
         definition_evidence_refs=(evidence_ref,),
     )

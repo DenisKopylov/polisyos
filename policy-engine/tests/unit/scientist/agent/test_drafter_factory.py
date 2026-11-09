@@ -39,6 +39,16 @@ def test_explicit_unknown_multipass_mode_fails_closed() -> None:
         create_drafter_agent(_StubClient(), multipass_mode="invented")  # type: ignore[arg-type]
 
 
+def test_multipass_facade_preserves_exact_parts_exports() -> None:
+    import polisyos.scientist.agent.drafter_multipass as facade
+    import polisyos.scientist.agent.drafter_multipass_parts as parts
+
+    assert facade.__all__ is parts.__all__
+    assert facade.__all__ == ["MultiPassLLMDrafter"]
+    assert facade.MultiPassLLMDrafter is parts.MultiPassLLMDrafter
+    assert {name for name in vars(facade) if not name.startswith("_")} == {"MultiPassLLMDrafter"}
+
+
 def test_create_drafter_agent_uses_injected_rag_store_factory(
     monkeypatch,
     tmp_path,

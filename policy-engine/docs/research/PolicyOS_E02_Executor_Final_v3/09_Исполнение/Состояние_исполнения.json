@@ -14253,6 +14253,18 @@
           "replay_recipe": "Open SQLite with mode=ro and immutable=1. Find the exact terminal event and action job. Open the sibling cas with FileSystemCAS.open_existing_read_only and read the terminal with the explicit selected manifest profile. Reconcile its typed authority event and all 13 inputs against the SQLite row. Follow the exact reentry receipt and use GenerationSourceRepository._read_candidate_simulation_v5_numerical_output with the selected refs and terminal scope.",
           "scope": "The retained V5 reader reopens two candidate-only NCM trajectories and the two completed acquired-world work observations without new N5 or store writes. SQL head 4 and the original expired worker lease remain. The fresh HTTP GET and terminal SQL commit are unrun."
         },
+        "lane01_n6_source_preflight_facade_boundaries": {
+          "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",
+          "r7_tree": "89eb4ad01da7cf2563fa1aecaccd87ac611f8de6",
+          "r7_output": "MAIN:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r7",
+          "r7_refusal": "non-literal repository re-export: polisyos.fabric.ingestion.ingestion",
+          "r8_commit": "3fa70367bbc703839ec28335b0e6d05def40abcb",
+          "r8_tree": "f11ba5871470edd0fdffbefcb259b4487eac873c",
+          "r8_output": "VERIFY:policy-engine/_cache/e02/lane01-a-no-n5-source-preflight-r8",
+          "r8_refusal": "wildcard source binding is unresolved: persist_provenance_graph",
+          "stable_pins_per_run": 12,
+          "scope": "Exact early-host source discovery with zero physical N5. R8 advances past the earlier facade and refuses an active named import from the wildcard evidence facade. The C95 full live projection has a separate decorated QualityIndicators boundary. No runtime or through-use qualification."
+        },
         "lane01_initial_a_live_witness_wall_limit": {
           "source_commit": "e89a0a10f35f5f4fcdf24716b5939a8defdc2897",
           "source_tree": "88a909ddda86fd5447c978822dbd2ce107760c5a",

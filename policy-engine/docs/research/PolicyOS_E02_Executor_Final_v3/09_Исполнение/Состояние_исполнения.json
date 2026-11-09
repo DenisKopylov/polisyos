@@ -14113,6 +14113,13 @@
           "saved_commit": "d66917a3510c0ec447c2579a6f0503708fc7d6e3",
           "v2_output": "AUTHOR:policy-engine/_cache/e02/lane01-legacy-v2-source-replay-r1",
           "v3_output": "AUTHOR:policy-engine/_cache/e02/lane01-cyc02-legacy-v3-r5",
+          "composed_source_commit": "494de0b36b32f11025796e8dd42fa393a84314a6",
+          "composed_source_tree": "dfbd5c70c174049be358bcd21e5bf50477666641",
+          "composed_output": "MAIN:policy-engine/_cache/e02/lane01-cyc02-legacy-composed-r8",
+          "composed_observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "composed_wall_seconds": 49.228,
+          "composed_peak_rss_bytes": 3225829376,
+          "composed_stable_pins": 6,
           "scope": "The v2 case executes the old native producer and current selected consumer. The v3 case reserializes a real native result under the supported historical wire shape and verifies an independent N8 process, exact profile, original bytes, derived limitations and refusal controls. These are reproducible compatibility results rather than recovered archives."
         },
         "cyc04_current_grounded_fallback": {

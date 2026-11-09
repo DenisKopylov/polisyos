@@ -275,6 +275,22 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         assert v2_manifest.artifact_schema is not None
         assert v2_manifest.artifact_schema.version == "2.0"
 
+        # Same local identifier/revision is not a Catalog alias contract: this
+        # separate meaning must not enter the exact-definition query or stale
+        # the already persisted model binding.
+        lookalike_definition_ref, lookalike_representation_ref, _, _ = _model_inputs(
+            case.store,
+            definition_meaning=(
+                "A different balance definition sharing the same local label and revision."
+            ),
+        )
+        assert lookalike_definition_ref != port.semantic_definition_ref
+        same_label_different_meaning_entry = _authority_entry(
+            lookalike_definition_ref,
+            lookalike_representation_ref,
+            suffix="same-label-different-meaning",
+        )
+
         # Keep the exact definition, dataset, units, scope and N5 obligation.
         # The nearby fiscal flow still cannot supply the model's opening stock.
         flow_definition_ref, flow_representation_ref, _, _ = _model_inputs(
@@ -287,7 +303,25 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
                 "source_representation_ref": flow_representation_ref,
             }
         )
-        _replace_authority_registry(v2_authority, (flow_entry, unrelated_before))
+        registry_with_lookalike_sha256 = _replace_authority_registry(
+            v2_authority,
+            (selected_entry, unrelated_before, same_label_different_meaning_entry),
+        )
+        assert registry_with_lookalike_sha256 != registry_before_sha256
+        assert (
+            verify_model_input_routing_report(
+                fresh_store,
+                routed_v2.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=v2_authority,
+            )
+            == routed_v2.report
+        )
+        _replace_authority_registry(
+            v2_authority,
+            (flow_entry, unrelated_before, same_label_different_meaning_entry),
+        )
         flow_routing = plan_selected_model_input_routing(
             case.store,
             obligation_set_ref=preflight.obligation_set_ref,
@@ -329,7 +363,7 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         unrelated_after = build_authority_entry(**revised_unrelated_fields)
         registry_after_sha256 = _replace_authority_registry(
             v2_authority,
-            (selected_entry, unrelated_after),
+            (selected_entry, unrelated_after, same_label_different_meaning_entry),
         )
         assert registry_after_sha256 != registry_before_sha256
 
@@ -367,7 +401,12 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         )
         _replace_authority_registry(
             v2_authority,
-            (selected_entry, unrelated_after, countercandidate),
+            (
+                selected_entry,
+                unrelated_after,
+                same_label_different_meaning_entry,
+                countercandidate,
+            ),
         )
         current_routes = _discover_port_routes(
             fresh_store,

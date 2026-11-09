@@ -368,7 +368,10 @@ def test_phase2_contract_selector_receives_the_owner_design_problem(
         observed.append(kwargs["selection_context"]["design_problem"])
         return SimpleNamespace(model_dump=lambda **options: {"status": "blocked"})
 
-    monkeypatch.setattr("polisyos.foundry.select_method_for_input_contract", select)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.selection.select_method_for_input_contract",
+        select,
+    )
     owner._phase2_value_method_selection(problem.to_workspace_intent(), design_problem=problem)
     assert observed == [problem.model_dump(mode="json")]
 

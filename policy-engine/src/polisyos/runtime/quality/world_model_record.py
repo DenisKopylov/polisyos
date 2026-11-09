@@ -625,6 +625,7 @@ def build_world_model_record(
     candidate_only: bool = False,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
     return_selected_profile: bool = False,
+    select_foundry_input_profiles: bool = False,
 ) -> WorldModelBuildResult:
     """Build and persist one versioned world record from existing substrates.
 
@@ -677,6 +678,10 @@ def build_world_model_record(
         deployment_update_refs: Phase-6 forward hooks, not write-back logic.
         return_selected_profile: Return the exact writer-selected WMR manifest
             view. The default retains the historical profileless return.
+        select_foundry_input_profiles: Persist the exact writer-selected
+            Foundry input bindings, state snapshot, and input-binding report
+            views in the WMR. The default preserves historical selection
+            behavior for ordinary worlds without a model-input port.
 
     Raises:
         WorldModelRecordError: If any required substrate is missing or versions
@@ -689,6 +694,8 @@ def build_world_model_record(
 
     if type(return_selected_profile) is not bool:
         raise TypeError("world_model_record_selected_profile_request_untyped")
+    if type(select_foundry_input_profiles) is not bool:
+        raise TypeError("world_model_foundry_input_profiles_request_untyped")
     if not model_spec.registry_bundle_ref:
         raise WorldModelRecordError(
             "model_spec_registry_bundle_missing",
@@ -793,18 +800,21 @@ def build_world_model_record(
         registry_content.slot_registry,
         policy_slot_ids=policy_slot_ids,
     )
-    # A declared model-input interface replays the exact bindings and state
-    # views. Models without a declaration keep their historical writer profile.
-    select_model_input_views = model_spec.model_input_port_declaration_ref is not None
+    # A declared model-input interface or an explicit protected-world request
+    # replays the exact bindings and state views. Ordinary worlds retain their
+    # historical writer profile.
+    select_input_views = (
+        model_spec.model_input_port_declaration_ref is not None or select_foundry_input_profiles
+    )
     input_bindings = build_input_bindings(
         store,
         data_snapshot_ref=data_snapshot_ref,
         registry_bundle_ref=registry_bundle_ref,
         rules=list(foundry_binding_rules or []),
         notes=[f"world_model_record_snapshot_id:{data_snapshot_id}"],
-        return_selected_profile=select_model_input_views,
+        return_selected_profile=select_input_views,
     )
-    if select_model_input_views and any(
+    if select_input_views and any(
         ref.manifest_profile_sha256 is None
         for ref in (
             input_bindings.input_bindings_ref,

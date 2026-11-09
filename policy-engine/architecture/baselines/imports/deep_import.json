@@ -11143,13 +11143,6 @@
       "source_module": "polisyos.runtime.quality.generation_cycle",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
-      "target_module": "polisyos.foundry.methods.selection",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.generation_cycle",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
       "target_module": "polisyos.ir.analytics.causal_graph",
       "target_root": "ir"
     },
@@ -11719,13 +11712,6 @@
       "source_file": "src/polisyos/runtime/quality/workspace/loop.py",
       "target_module": "polisyos.core.run.context",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.workspace.loop",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/workspace/loop.py",
-      "target_module": "polisyos.foundry.methods.selection",
-      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.runtime.quality.workspace.loop",
@@ -12804,13 +12790,6 @@
       "source_file": "src/polisyos/scientist/agent/prompts.py",
       "target_module": "polisyos.core.contracts.execution_plan",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.prompts",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/prompts.py",
-      "target_module": "polisyos.foundry.methods.selection",
-      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.scientist.agent.rag",
@@ -15148,13 +15127,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/autotune/execution_plan.py",
       "target_module": "polisyos.foundry.methods.exceptions",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.scientist.methods.autotune.execution_plan",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/autotune/execution_plan.py",
-      "target_module": "polisyos.foundry.methods.selection",
       "target_root": "foundry"
     },
     {
@@ -19621,13 +19593,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/llm/cycle.py",
       "target_module": "polisyos.foundry.methods.catalog.causal.estimand_compiler",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.llm.cycle",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/llm/cycle.py",
-      "target_module": "polisyos.foundry.methods.selection",
       "target_root": "foundry"
     },
     {

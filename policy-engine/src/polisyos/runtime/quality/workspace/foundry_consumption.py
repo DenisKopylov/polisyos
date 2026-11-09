@@ -1188,7 +1188,7 @@ class ConstraintStoreIngestor:
         from datetime import datetime
 
         from polisyos.data_requirement import DataRequirementCompiler, PolicyGrammarIntent
-        from polisyos.foundry import (
+        from polisyos.foundry.methods.selection import (
             select_method_candidates_for_requirements,
         )
         from polisyos.foundry.validation.method_quality import (

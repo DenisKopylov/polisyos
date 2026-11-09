@@ -3816,6 +3816,7 @@ def _build_acquisition_candidate_world(
     )
     limitations = plan.limitations
     data_snapshot_ref = materialization.data_snapshot_ref
+    is_protected_candidate = isinstance(materialization, CandidateAcquisitionDataSnapshotResult)
     built = build_world_model_record(
         store,
         fabric_world_ref=FabricWorldRef(
@@ -3871,12 +3872,10 @@ def _build_acquisition_candidate_world(
         limitations=limitations,
         candidate_only=True,
         deployment_update_refs=base.deployment_update_refs,
-        return_selected_profile=isinstance(materialization, CandidateAcquisitionDataSnapshotResult),
+        return_selected_profile=is_protected_candidate,
+        select_foundry_input_profiles=is_protected_candidate,
     )
-    if (
-        isinstance(materialization, CandidateAcquisitionDataSnapshotResult)
-        and built.record_ref.manifest_profile_sha256 is None
-    ):
+    if is_protected_candidate and built.record_ref.manifest_profile_sha256 is None:
         raise DataStateSubstrateError("candidate_world_selected_profile_missing")
     if built.record.skg_causal_prior_ref != base.skg_causal_prior_ref:
         raise DataStateSubstrateError("acquisition_candidate_skg_prior_changed")

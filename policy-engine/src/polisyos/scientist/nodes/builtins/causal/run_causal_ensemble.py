@@ -22,7 +22,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.protocol import RootedArtifactStore, matches_runtime_protocol
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry import validate_source_bound_gcm_spec
+from polisyos.foundry.methods import validate_source_bound_gcm_spec
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )

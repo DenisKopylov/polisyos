@@ -5358,7 +5358,7 @@ world
 ## `polisyos.foundry`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.coupling`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.artifacts`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
+- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.coupling`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.artifacts`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.methods.selection`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
@@ -5378,12 +5378,13 @@ world
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 25 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 35 |
-| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 233 |
+| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 233 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 230 |
+| `polisyos.foundry.methods.selection` | `src/polisyos/foundry/methods/selection/__init__.py` | `lazy_facade` | 42 |
 | `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 38 |
-| `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 11 |
+| `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 19 |
 
 #### `polisyos.foundry`
 
@@ -5747,7 +5748,7 @@ resolve_execution_posture
 #### `polisyos.foundry.methods`
 
 - Source: `src/polisyos/foundry/methods/__init__.py`
-- Facade: `eager_exports`
+- Facade: `lazy_facade`
 - Summary: Stable lazy facade for Foundry Methods.
 
 <details><summary>Entrypoint exports (233)</summary>
@@ -6299,6 +6300,61 @@ compute_scalar_distributional_effect
 
 </details>
 
+#### `polisyos.foundry.methods.selection`
+
+- Source: `src/polisyos/foundry/methods/selection/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Lazy facade for method selection and advisor APIs.
+
+<details><summary>Entrypoint exports (42)</summary>
+
+```text
+COST_PER_MS
+ActiveSetSummary
+AdvisorOptimizationResult
+AdvisorValuePolicy
+BudgetCertificate
+CalibratedRegretCertificate
+CandidateScore
+ConfidenceSequence
+CrossMethodConsensus
+DataCharacteristics
+MethodAdvisorQuery
+MethodAdvisorResult
+MethodLossProfile
+MethodScoreTraceEntry
+MethodSelectionAlternative
+MethodSelectionDisposition
+MethodRouteConstraint
+InputContractMethodCandidate
+InputContractMethodSelection
+select_method_for_input_contract
+MethodSelectionReceipt
+MethodSelectionCriteria
+_score_entry
+_score_entry_v2
+advise_methods
+advise_methods_for_analyst
+attach_advisor_execution_context
+authoring_catalog_payload
+build_advisor_execution_context
+compute_voi
+method_selection_context_hash
+method_accepts_input_contract
+method_selection_payload
+pareto_advise_methods
+rank_method_catalog_entries
+reachable_value_method_fqns
+select_method_candidates_for_requirements
+select_value_method_for_problem
+suggest_adapter_methods
+suggest_alternative_methods
+suggest_plan_node_alternatives
+verify_value_method_selection_receipt
+```
+
+</details>
+
 #### `polisyos.foundry.uncertainty`
 
 - Source: `src/polisyos/foundry/uncertainty/__init__.py`
@@ -6356,20 +6412,28 @@ prepare_empirical_joint
 - Facade: `eager_exports`
 - Summary: Validation helpers for machine-checking Foundry closure surfaces.
 
-<details><summary>Entrypoint exports (11)</summary>
+<details><summary>Entrypoint exports (19)</summary>
 
 ```text
+bind_legal_subject_annotations
 build_causal_statistical_validity_report
 build_foundry_method_report
 build_foundry_phase0_closure_report
 build_foundry_phase2_closure_report
 default_foundry_phase2_closure_report_path
 default_foundry_phase2_manifest_path
+LegalCorrespondenceRequest
+LegalCorrespondenceResult
+LegalSubjectAnnotationSource
 maybe_load_foundry_phase2_closure_report
 normalize_causal_statistical_validity_report
 normalize_foundry_method_report
 normalize_phase2_artifact_family
 persist_causal_statistical_validity_report
+persist_legal_correspondence_result
+persist_legal_subject_annotations
+produce_legal_subject_spine
+recognize_legal_correspondence
 ```
 
 </details>

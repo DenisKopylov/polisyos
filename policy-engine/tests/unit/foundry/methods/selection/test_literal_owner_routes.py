@@ -12,7 +12,9 @@ from polisyos.runtime.quality import confidence_ledger as ledger
 _PRODUCT_ROOT = Path(__file__).resolve().parents[5]
 _MODULE = "polisyos.foundry.methods.selection"
 _REQUIREMENT_EXPORTS = frozenset({"select_method_candidates_for_requirements"})
-_RECEIPT_EXPORTS = frozenset({"MethodSelectionAlternative", "MethodSelectionReceipt"})
+_RECEIPT_EXPORTS = frozenset(
+    {"MethodSelectionAlternative", "MethodSelectionDisposition", "MethodSelectionReceipt"}
+)
 _EXPECTED_EXPORTS = (
     "COST_PER_MS",
     "ActiveSetSummary",
@@ -29,6 +31,7 @@ _EXPECTED_EXPORTS = (
     "MethodLossProfile",
     "MethodScoreTraceEntry",
     "MethodSelectionAlternative",
+    "MethodSelectionDisposition",
     "MethodRouteConstraint",
     "InputContractMethodCandidate",
     "InputContractMethodSelection",
@@ -54,13 +57,14 @@ _EXPECTED_EXPORTS = (
     "suggest_adapter_methods",
     "suggest_alternative_methods",
     "suggest_plan_node_alternatives",
+    "verify_value_method_selection_receipt",
 )
 
 
 def _expected_provider_map() -> dict[str, str]:
     advisor_exports = set(_EXPECTED_EXPORTS) - _REQUIREMENT_EXPORTS - _RECEIPT_EXPORTS
-    assert len(_EXPECTED_EXPORTS) == 40
-    assert len(advisor_exports) == 37
+    assert len(_EXPECTED_EXPORTS) == 42
+    assert len(advisor_exports) == 38
     expected = dict.fromkeys(
         _REQUIREMENT_EXPORTS,
         "polisyos.foundry.methods.selection.requirements",
@@ -149,7 +153,7 @@ def test_literal_owner_map_binds_the_complete_public_route_table() -> None:
         assert len(symbols) == 1
         observed[export] = (next(iter(providers)), next(iter(symbols)))
     assert observed == {export: (module_name, export) for export, module_name in expected.items()}
-    assert len(observed) == 40
+    assert len(observed) == 42
 
     source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
     for export, module_name in expected.items():

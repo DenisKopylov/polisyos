@@ -2703,9 +2703,9 @@ def _materialize_recorded_method_input(
     method_fqn: str,
     payload: dict[str, Any],
 ) -> tuple[dict[str, Any], str]:
-    from polisyos.foundry import method_accepts_input_contract
     from polisyos.foundry.data_plane import materialize_method_contract
     from polisyos.foundry.methods import MethodRegistry, ensure_all_methods_registered
+    from polisyos.foundry.methods.selection import method_accepts_input_contract
 
     try:
         registry = MethodRegistry.get_instance()

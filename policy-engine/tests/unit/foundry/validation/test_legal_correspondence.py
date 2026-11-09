@@ -7,6 +7,27 @@ import pytest
 from polisyos.core import artifacts, canon
 
 
+def test_stable_validation_facade_reexports_exact_legal_owner_symbols():
+    import polisyos.foundry as foundry
+    import polisyos.foundry.validation as validation
+    from polisyos.foundry.validation import legal_correspondence as owner
+
+    names = (
+        "LegalCorrespondenceRequest",
+        "LegalCorrespondenceResult",
+        "LegalSubjectAnnotationSource",
+        "bind_legal_subject_annotations",
+        "persist_legal_correspondence_result",
+        "persist_legal_subject_annotations",
+        "produce_legal_subject_spine",
+        "recognize_legal_correspondence",
+    )
+    for name in names:
+        symbol = getattr(owner, name)
+        assert getattr(validation, name) is symbol
+        assert getattr(foundry, name) is symbol
+
+
 def _source(store, role, entries, *, producer=None, inputs=None):
     from polisyos.foundry.validation import legal_correspondence as owner
 

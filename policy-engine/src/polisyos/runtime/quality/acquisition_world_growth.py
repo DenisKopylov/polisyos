@@ -2879,25 +2879,28 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("candidate_world_selected_profile_mismatch")
         return value.selected_ref
 
-    def _recover_unique_candidate_owner_view[RecordT: BaseModel](
+    def _recover_unique_candidate_owner_view[VerifiedT](
         self,
         *,
         artifact_ref: str,
         kind: str,
         schema: str,
         version: str,
-        record_type: type[RecordT],
-        verify: Callable[[artifacts.ArtifactRef], RecordT],
+        record_type: type[BaseModel],
+        verify: Callable[[artifacts.ArtifactRef], VerifiedT],
+        verified_record: Callable[[VerifiedT], BaseModel] | None = None,
         producer_component: Literal[
             "polisyos.runtime.acquisition_world_growth",
             "polisyos.runtime.acquisition_evaluation",
         ] = "polisyos.runtime.acquisition_world_growth",
-    ) -> tuple[artifacts.ArtifactRef, RecordT]:
+    ) -> tuple[artifacts.ArtifactRef, VerifiedT]:
         """Find one owner-replayed selected view without trusting the CAS default.
 
         This is only for the event-before-pointer crash window. A stable,
         tenant-scoped CAS inventory and the full historical owner verifier
         must identify one profile; missing or competing profiles refuse recovery.
+        A projection validates the persisted record when verification also
+        returns an operation-local, owner-verified companion value.
         """
         from polisyos.core.artifacts import raise_artifact_read_access_error
 
@@ -2912,7 +2915,7 @@ class AcquisitionWorldGrowthBridge:
         inventory = inventory_reader(artifact_id=artifacts.ArtifactID.model_validate(artifact_ref))
         if getattr(inventory, "verdict", None) != "pass":
             raise ValueError("candidate_source_reentry_profile_inventory_unverified")
-        matches: dict[str, tuple[artifacts.ArtifactRef, RecordT]] = {}
+        matches: dict[str, tuple[artifacts.ArtifactRef, VerifiedT]] = {}
         for entry in inventory.entries:
             manifest = entry.manifest
             if (
@@ -2927,22 +2930,23 @@ class AcquisitionWorldGrowthBridge:
                 continue
             selected = artifacts.artifact_ref_for_manifest(manifest)
             try:
-                receipt = verify(selected)
+                verified = verify(selected)
             except ValueError as exc:
                 # A wrapper may strip the cause of an unavailable owner read.
                 # Do not silently remove any otherwise eligible profile from
                 # the uniqueness denominator on the strength of that error.
                 raise_artifact_read_access_error(exc)
                 raise
-            if type(receipt) is not record_type:
+            record = verified_record(verified) if verified_record is not None else verified
+            if type(record) is not record_type:
                 raise ValueError("candidate_source_reentry_profile_result_untyped")
             profile = selected.manifest_profile_sha256
             if profile is None:
                 raise ValueError("candidate_source_reentry_profile_inventory_unverified")
             prior = matches.get(profile)
-            if prior is not None and prior != (selected, receipt):
+            if prior is not None and prior != (selected, verified):
                 raise ValueError("candidate_source_reentry_profile_ambiguous")
-            matches[profile] = (selected, receipt)
+            matches[profile] = (selected, verified)
         if len(matches) != 1:
             raise ValueError("candidate_source_reentry_profile_not_unique")
         return next(iter(matches.values()))
@@ -5795,10 +5799,33 @@ class AcquisitionWorldGrowthBridge:
         candidate_action_ref: artifacts.ArtifactRef,
         prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
     ) -> tuple[artifacts.ArtifactRef, CandidateSourceReentryReceipt]:
+        """Return the persisted receipt through the legacy tuple contract."""
+        ref, receipt, _evaluation = self._prepare_candidate_source_reentry_with_evaluation(
+            closure=closure,
+            origin=origin,
+            candidate_action_ref=candidate_action_ref,
+            prepared_n5_configuration=prepared_n5_configuration,
+        )
+        return ref, receipt
+
+    def _prepare_candidate_source_reentry_with_evaluation(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure | None = None,
+        origin: VerifiedCandidateExperimentOrigin | None = None,
+        candidate_action_ref: artifacts.ArtifactRef,
+        prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
+    ) -> tuple[
+        artifacts.ArtifactRef,
+        CandidateSourceReentryReceipt,
+        ResolvedAcquisitionEvaluation | None,
+    ]:
         """Recover one selected result or fence exactly one physical N6/N5 attempt.
 
         The exact selected N5 can finish an experiment after a crash. A fence
         without a selected N5 or terminal result leaves the action unresolved.
+        The operation-local evaluation is the one resolved and verified during
+        owner readback; it is never retained across calls.
         """
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.candidate_source_reentry_history import (
@@ -5820,6 +5847,8 @@ class AcquisitionWorldGrowthBridge:
             raise TypeError("candidate_source_reentry_prepared_n5_configuration_untyped")
         if (closure is None) == (origin is None):
             raise ValueError("candidate_source_reentry_identity_ambiguous")
+        if origin is not None and type(origin) is not VerifiedCandidateExperimentOrigin:
+            raise TypeError("candidate_experiment_reentry_origin_untyped")
         identity = origin if origin is not None else closure
         if identity is None:
             raise ValueError("candidate_source_reentry_identity_missing")
@@ -5854,7 +5883,9 @@ class AcquisitionWorldGrowthBridge:
         pointer = overlay_path.parent / (action_identity_digest + ".candidate-source-reentry.json")
         fence = pointer.with_suffix(".started")
 
-        def read_selected(ref: artifacts.ArtifactRef) -> CandidateSourceReentryReceipt:
+        def read_selected(
+            ref: artifacts.ArtifactRef,
+        ) -> tuple[CandidateSourceReentryReceipt, ResolvedAcquisitionEvaluation | None]:
             if origin is not None:
                 from polisyos.runtime.quality.candidate_source_reentry_history import (
                     verify_candidate_experiment_source_reentry_history,
@@ -5883,14 +5914,15 @@ class AcquisitionWorldGrowthBridge:
                     expected_action_generation=action.action_generation,
                     expected_selected_action_ref=candidate_action_ref,
                 )
+            verified_evaluation: ResolvedAcquisitionEvaluation | None = None
             if prepared_n5_configuration is not None and result.n5_execution_ref is not None:
-                self._verify_candidate_reentry_prepared_configuration(
+                verified_evaluation = self._verify_candidate_reentry_prepared_configuration(
                     closure=closure,
                     origin=origin,
                     receipt=result,
                     prepared_n5_configuration=prepared_n5_configuration,
                 )
-            return result
+            return result, verified_evaluation
 
         def validate_continuation(receipt: CandidateSourceReentryReceipt) -> None:
             # An experiment may have advanced through prior candidate reentries;
@@ -5916,16 +5948,18 @@ class AcquisitionWorldGrowthBridge:
                     )
                     if str(selected_ref.artifact_id) != refs[0]:
                         raise ValueError("candidate_source_reentry_pointer_mismatch")
-                    recovered = read_selected(selected_ref)
+                    recovered, recovered_evaluation = read_selected(selected_ref)
                 else:
-                    selected_ref, recovered = self._recover_unique_candidate_owner_view(
+                    selected_ref, recovered_view = self._recover_unique_candidate_owner_view(
                         artifact_ref=refs[0],
                         kind=_CANDIDATE_REENTRY_KIND,
                         schema="polisyos.runtime.CandidateSourceReentryReceipt",
                         version="1.0",
                         record_type=CandidateSourceReentryReceipt,
                         verify=read_selected,
+                        verified_record=lambda verified: verified[0],
                     )
+                    recovered, recovered_evaluation = recovered_view
                 validate_continuation(recovered)
                 current_action = (
                     read_candidate_experiment_acquisition_action(
@@ -5947,7 +5981,7 @@ class AcquisitionWorldGrowthBridge:
                         candidate_action_ref=candidate_action_ref,
                         selected_ref=selected_ref,
                     )
-                return selected_ref, recovered
+                return selected_ref, recovered, recovered_evaluation
             if pointer.exists():
                 raise ValueError("candidate_source_reentry_event_missing")
             resume_context_ref = None
@@ -6121,7 +6155,7 @@ class AcquisitionWorldGrowthBridge:
             self._write_candidate_world_pointer(
                 pointer, candidate_action_ref=candidate_action_ref, selected_ref=selected_ref
             )
-            verified = read_selected(selected_ref)
+            verified, verified_evaluation = read_selected(selected_ref)
             # Compare every persisted field after independent owner replay. The
             # live simulation also holds a deliberately excluded world-model
             # object, which cannot survive the receipt JSON round trip.
@@ -6143,7 +6177,7 @@ class AcquisitionWorldGrowthBridge:
                 != action
             ):
                 raise ValueError("candidate_source_reentry_owner_changed")
-            return selected_ref, verified
+            return selected_ref, verified, verified_evaluation
 
     def _verify_candidate_reentry_prepared_configuration(
         self,
@@ -6152,8 +6186,8 @@ class AcquisitionWorldGrowthBridge:
         origin: VerifiedCandidateExperimentOrigin | None,
         receipt: CandidateSourceReentryReceipt,
         prepared_n5_configuration: PreparedJointSimulationConfiguration,
-    ) -> None:
-        """Reopen an actual N5 result and compare its consumed configuration."""
+    ) -> ResolvedAcquisitionEvaluation:
+        """Resolve the selected N5 once and verify its consumed configuration."""
         from polisyos.runtime.quality.acquisition_evaluation import (
             _candidate_ref_same,
             resolve_selected_acquisition_evaluation,
@@ -6223,6 +6257,7 @@ class AcquisitionWorldGrowthBridge:
                 else "candidate_source_reentry_observation_not_established"
             )
             raise ValueError(reason)
+        return selected
 
     def _complete_candidate_source_reentry(
         self, closure: VerifiedAcquisitionRouteClosure

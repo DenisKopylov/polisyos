@@ -5254,25 +5254,29 @@ def dispatch_candidate_acquisition_evaluation(
 
     # This existing owner fences the expensive operation and recovers its saved
     # event/result on retry instead of issuing another physical N5.
-    reentry_ref, reentry = bridge._prepare_candidate_source_reentry(
-        closure=closure,
-        candidate_action_ref=action_ref,
-        prepared_n5_configuration=configuration,
-    )
-    evaluation = (
-        resolve_selected_acquisition_evaluation_parts(
-            artifact_store=bridge.artifact_store,
-            control_store=bridge.control_store,
-            tenant_id=closure.tenant_id,
-            cell_id=closure.cell_id,
-            run_id=closure.run_id,
-            generation_run=reentry.continued_generation_run,
-            source_cycle=reentry.new_cycle,
-            design_problem_ref=closure.design_problem_ref,
+    reentry_ref, reentry, verified_reentry_evaluation = (
+        bridge._prepare_candidate_source_reentry_with_evaluation(
+            closure=closure,
+            candidate_action_ref=action_ref,
+            prepared_n5_configuration=configuration,
         )
-        if reentry.new_cycle.simulation.status == "joint_simulated"
-        else None
     )
+    evaluation: ResolvedAcquisitionEvaluation | None = None
+    if reentry.new_cycle.simulation.status == "joint_simulated":
+        evaluation = verified_reentry_evaluation
+        if evaluation is None:
+            # Preserve the legacy resolution for a simulated receipt that did
+            # not carry an N5 execution ref for prepared-configuration proof.
+            evaluation = resolve_selected_acquisition_evaluation_parts(
+                artifact_store=bridge.artifact_store,
+                control_store=bridge.control_store,
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                generation_run=reentry.continued_generation_run,
+                source_cycle=reentry.new_cycle,
+                design_problem_ref=closure.design_problem_ref,
+            )
     selected_values, selected_reasons = recompute_candidate_acquisition_basis_values(
         artifact_store=bridge.artifact_store,
         problem=closure.design_problem_basis,
@@ -6302,25 +6306,29 @@ def dispatch_candidate_experiment_evaluation(
         if comparison not in {"different", "not_established"}:
             raise ValueError("candidate_experiment_evaluation_comparison_not_established")
         # A different complete basis reaches the existing owner-backed N5 path.
-        reentry_ref, reentry = bridge.prepare_candidate_experiment_source_reentry(
-            origin=origin,
-            candidate_action_ref=action_ref,
-            prepared_n5_configuration=configuration,
-        )
-        evaluation = (
-            resolve_selected_acquisition_evaluation_parts(
-                artifact_store=bridge.artifact_store,
-                control_store=bridge.control_store,
-                tenant_id=origin.tenant_id,
-                cell_id=origin.cell_id,
-                run_id=origin.run_id,
-                generation_run=reentry.continued_generation_run,
-                source_cycle=reentry.new_cycle,
-                design_problem_ref=origin.policy_scope.design_problem_ref,
+        reentry_ref, reentry, verified_reentry_evaluation = (
+            bridge._prepare_candidate_source_reentry_with_evaluation(
+                origin=origin,
+                candidate_action_ref=action_ref,
+                prepared_n5_configuration=configuration,
             )
-            if reentry.new_cycle.simulation.status == "joint_simulated"
-            else None
         )
+        evaluation: ResolvedAcquisitionEvaluation | None = None
+        if reentry.new_cycle.simulation.status == "joint_simulated":
+            evaluation = verified_reentry_evaluation
+            if evaluation is None:
+                # Preserve the old path for a simulated receipt without the
+                # N5 execution ref required by prepared-configuration proof.
+                evaluation = resolve_selected_acquisition_evaluation_parts(
+                    artifact_store=bridge.artifact_store,
+                    control_store=bridge.control_store,
+                    tenant_id=origin.tenant_id,
+                    cell_id=origin.cell_id,
+                    run_id=origin.run_id,
+                    generation_run=reentry.continued_generation_run,
+                    source_cycle=reentry.new_cycle,
+                    design_problem_ref=origin.policy_scope.design_problem_ref,
+                )
         selected_values, selected_reasons = recompute_candidate_acquisition_basis_values(
             artifact_store=bridge.artifact_store,
             problem=origin.design_problem_basis,

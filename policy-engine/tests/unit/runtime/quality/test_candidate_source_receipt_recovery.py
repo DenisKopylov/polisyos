@@ -290,6 +290,32 @@ def test_two_accepted_eligible_profiles_refuse_recovery(recovery_case: SimpleNam
     assert not case.pointer.exists()
 
 
+def test_verified_companion_stays_bound_to_the_unique_selected_profile(
+    recovery_case: SimpleNamespace,
+) -> None:
+    case = recovery_case
+    companion = object()
+
+    def recover() -> tuple[artifacts.ArtifactRef, tuple[BaseModel, object]]:
+        return case.bridge._recover_unique_candidate_owner_view(
+            artifact_ref=case.event_artifact_ref,
+            kind=case.spec.kind,
+            schema=case.spec.schema,
+            version=case.spec.version,
+            record_type=case.spec.record_type,
+            verify=lambda ref: (_verify_unit_view(case, ref), companion),
+            verified_record=lambda verified: verified[0],
+        )
+
+    selected, verified = recover()
+    assert selected == case.ref
+    assert verified[0] is case.opaque and verified[1] is companion
+    _alternate(case, warnings=[artifacts.WarningRecord(code="unit.alternate", msg="unit profile")])
+    with pytest.raises(ValueError, match="candidate_source_reentry_profile_not_unique"):
+        recover()
+    assert not case.pointer.exists()
+
+
 @pytest.mark.parametrize("denial", ["reconciliation", "permission", "wrapped_permission", "io"])
 def test_one_denied_eligible_view_cannot_make_the_other_view_unique(
     recovery_case: SimpleNamespace, denial: str

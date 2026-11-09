@@ -124,6 +124,7 @@ def _candidate_reentry_configuration_case(
 def test_candidate_experiment_reentry_accepts_historical_observation_without_promoting_witness(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.quality import acquisition_evaluation
     from polisyos.runtime.quality.joint_simulation_horizon import (
         prepare_joint_simulation_configuration,
     )
@@ -137,18 +138,109 @@ def test_candidate_experiment_reentry_accepts_historical_observation_without_pro
         monkeypatch,
         consumed_configuration=_exact_native_content(prepared),
     )
+    resolution_calls: list[object] = []
 
-    bridge._verify_candidate_reentry_prepared_configuration(
+    def resolve_selected(**kwargs: object) -> object:
+        resolution_calls.append(kwargs)
+        return selected
+
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        resolve_selected,
+    )
+
+    resolved = bridge._verify_candidate_reentry_prepared_configuration(
         closure=None,
         origin=origin,
         receipt=receipt,
         prepared_n5_configuration=prepared,
     )
+    assert resolved is selected
+    assert len(resolution_calls) == 1
     witness = read_n5_execution_implementation_witness(
         selected.result,
         input_ref=receipt.n5_input_ref,
     )
     assert witness.predicate_provenance == "not_established"
+
+
+@pytest.mark.parametrize("reference_field", ["n5_input_ref", "n5_execution_ref", "n5_result_ref"])
+def test_candidate_reentry_configuration_refuses_same_bytes_with_wrong_profile(
+    monkeypatch: pytest.MonkeyPatch,
+    reference_field: str,
+) -> None:
+    from polisyos.runtime.quality import acquisition_evaluation, n5_execution_basis
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import _exact_native_content
+
+    prepared = prepare_joint_simulation_configuration()
+    bridge, origin, receipt, prepared, selected = _candidate_reentry_configuration_case(
+        monkeypatch,
+        consumed_configuration=_exact_native_content(prepared),
+    )
+    resolution_calls = 0
+
+    def resolve_selected(**_: object) -> object:
+        nonlocal resolution_calls
+        resolution_calls += 1
+        return selected
+
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        resolve_selected,
+    )
+    assert (
+        bridge._verify_candidate_reentry_prepared_configuration(
+            closure=None,
+            origin=origin,
+            receipt=receipt,
+            prepared_n5_configuration=prepared,
+        )
+        is selected
+    )
+    assert resolution_calls == 1
+
+    refs = {
+        name: getattr(selected.selected, name)
+        for name in ("n5_input_ref", "n5_execution_ref", "n5_result_ref")
+    }
+    correct_ref = refs[reference_field]
+    wrong_profile_ref = correct_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    assert wrong_profile_ref.artifact_id == correct_ref.artifact_id
+    assert wrong_profile_ref.kind == correct_ref.kind
+    assert wrong_profile_ref.media_type == correct_ref.media_type
+    assert wrong_profile_ref.manifest_profile_sha256 != correct_ref.manifest_profile_sha256
+    refs[reference_field] = wrong_profile_ref
+    wrong_profile_selection = SimpleNamespace(
+        selected=SimpleNamespace(**refs), result=selected.result
+    )
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        lambda **_: wrong_profile_selection,
+    )
+    monkeypatch.setattr(
+        n5_execution_basis,
+        "read_n5_execution_implementation_witness",
+        lambda *_args, **_kwargs: pytest.fail("wrong profile reached the N5 witness"),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"^candidate_source_reentry_configuration_witness_mismatch$",
+    ):
+        bridge._verify_candidate_reentry_prepared_configuration(
+            closure=None,
+            origin=origin,
+            receipt=receipt,
+            prepared_n5_configuration=prepared,
+        )
 
 
 def test_costed_closure_reentry_keeps_whole_implementation_witness_gate(
@@ -404,6 +496,7 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
     """
     from polisyos.core import artifacts
     from polisyos.data_forge import read_api as data_forge_read_api
+    from polisyos.runtime.quality import acquisition_evaluation
     from polisyos.runtime.quality import acquisition_route_loop as route_loop
     from polisyos.runtime.quality import acquisition_world_growth as growth
     from polisyos.runtime.quality import candidate_acquisition_action as actions
@@ -414,6 +507,10 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         SimulationPortObservation,
         generation_cycle_run_content_hash,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import _exact_native_content
     from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
     from tests.unit.runtime.quality.test_candidate_acquisition_world import _candidate_world_case
     from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
@@ -421,8 +518,36 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         _reentry_receipts,
         _selected_ref,
     )
+    from tests.unit.runtime.quality.test_n5_execution_basis import _historical_n5_result
 
     world = _candidate_world_case(tmp_path / "world", monkeypatch)
+    prepared_n5_configuration = prepare_joint_simulation_configuration()
+    n5_input_ref = _intrinsic_ref("runtime.quality.candidate_simulation_n5_input", "a")
+    n5_execution_ref = _intrinsic_ref("runtime.quality.candidate_simulation_execution", "b")
+    n5_result_ref = _intrinsic_ref("polisyos.runtime.joint_simulation_result", "c")
+    n5_result, _witness = _historical_n5_result(
+        n5_input_ref,
+        consumed_configuration=_exact_native_content(prepared_n5_configuration),
+    )
+    selected_evaluation = SimpleNamespace(
+        selected=SimpleNamespace(
+            n5_input_ref=n5_input_ref,
+            n5_execution_ref=n5_execution_ref,
+            n5_result_ref=n5_result_ref,
+        ),
+        result=n5_result,
+    )
+    selected_resolution_calls: list[object] = []
+
+    def resolve_selected_evaluation(**kwargs: object) -> object:
+        selected_resolution_calls.append(kwargs)
+        return selected_evaluation
+
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        resolve_selected_evaluation,
+    )
     context_ref = _intrinsic_ref("runtime.quality.cycle_substrate_context_job", "2")
     simulation = SimulationPortObservation(
         candidate_id="candidate-a",
@@ -491,6 +616,9 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         basis_transition=second_edge,
         candidate_summaries=(),
         limitations=("component_only",),
+        n5_input_ref=n5_input_ref,
+        n5_execution_ref=n5_execution_ref,
+        n5_result_ref=n5_result_ref,
     )
     parsed_receipt = receipt.model_copy(
         update={"new_cycle": parsed_c, "continued_generation_run": parsed_continued}
@@ -535,6 +663,7 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         readback: CandidateSourceReentryReceipt = parsed_receipt,
         expected_error: str | None = None,
         costed: bool = False,
+        prepared_configuration: bool = False,
         checkpoint: Literal["selected", "missing", "corrupt", "foreign_fence"] | None = None,
     ) -> None:
         folder = tmp_path / name
@@ -645,9 +774,18 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
                 )
             assert "reconciled" not in calls
         else:
-            assert bridge._prepare_candidate_source_reentry(
-                **identity, candidate_action_ref=action_ref
-            ) == (selected_ref, readback)
+            if prepared_configuration:
+                resolutions_before = len(selected_resolution_calls)
+                assert bridge._prepare_candidate_source_reentry_with_evaluation(
+                    **identity,
+                    candidate_action_ref=action_ref,
+                    prepared_n5_configuration=prepared_n5_configuration,
+                ) == (selected_ref, readback, selected_evaluation)
+                assert len(selected_resolution_calls) == resolutions_before + 1
+            else:
+                assert bridge._prepare_candidate_source_reentry(
+                    **identity, candidate_action_ref=action_ref
+                ) == (selected_ref, readback)
             assert "historical_reader" in calls
             assert "pointer" in calls
             if recovered:
@@ -664,7 +802,9 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
 
     exercise("recovered", recovered=True)
     exercise("costed-recovered", recovered=True, costed=True)
+    exercise("recovered-prepared", recovered=True, prepared_configuration=True)
     exercise("new", recovered=False)
+    exercise("new-prepared", recovered=False, prepared_configuration=True)
     exercise("after-n5", recovered=False, checkpoint="selected")
     exercise(
         "unselected-n5",

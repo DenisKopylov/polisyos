@@ -562,7 +562,7 @@ def test_original_source_n5_does_not_retain_first_experiment(
         fresh_calls.append(kwargs)
         raise FreshReentryDemandedError
 
-    monkeypatch.setattr(bridge, "prepare_candidate_experiment_source_reentry", fresh_reentry)
+    monkeypatch.setattr(bridge, "_prepare_candidate_source_reentry_with_evaluation", fresh_reentry)
     assert origin.source_cycle.simulation.candidate_simulation_n5_input_ref is not None
     assert origin.candidate_terminal_history_chain == ()
     with pytest.raises(FreshReentryDemandedError):
@@ -593,9 +593,11 @@ def test_original_source_n5_does_not_retain_first_experiment(
 
 
 @pytest.mark.parametrize("stale_fence_read", [None, "head", "phase"])
+@pytest.mark.parametrize("reentry_evaluation_mode", ["not_simulated", "verified", "fallback"])
 def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_terminal_write(
     monkeypatch: pytest.MonkeyPatch,
     stale_fence_read: str | None,
+    reentry_evaluation_mode: str,
 ) -> None:
     """Use the exact current context at admission and both terminal fences.
 
@@ -737,12 +739,14 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     )
 
     recomputations = 0
+    reentry_priors: list[object] = []
 
-    def recompute(**_kwargs):
+    def recompute(**kwargs):
         nonlocal recomputations
         recomputations += 1
         if recomputations == 1:
             return {"basis": "current"}, ()
+        reentry_priors.append(kwargs["prior"])
         return {"basis": "reentry"}, ("candidate_reentry_n5_not_established",)
 
     monkeypatch.setattr(dispatch, "recompute_candidate_acquisition_basis_values", recompute)
@@ -785,17 +789,45 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         "current_budget_snapshot",
         lambda _self: (budget_state, budget_observation),
     )
+    continued_generation_run = object()
     reentry = SimpleNamespace(
-        new_cycle=SimpleNamespace(simulation=SimpleNamespace(status="not_simulated")),
+        continued_generation_run=continued_generation_run,
+        new_cycle=SimpleNamespace(
+            simulation=SimpleNamespace(
+                status=(
+                    "not_simulated"
+                    if reentry_evaluation_mode == "not_simulated"
+                    else "joint_simulated"
+                )
+            )
+        ),
         data_snapshot_ref=_ref("runtime.data_snapshot", "a"),
         world_model_ref=_ref("runtime.world_model", "b"),
         limitations=("component_only_no_n5",),
     )
     reentry_ref = _ref("runtime_quality.candidate_source_reentry_receipt", "c")
+    resolved_reentry_evaluation = object()
+    fallback_reentry_evaluation = object()
+    resolution_calls: list[object] = []
+    preparation_calls: list[dict[str, object]] = []
+
+    def resolve_fallback(**kwargs: object) -> object:
+        resolution_calls.append(kwargs)
+        return fallback_reentry_evaluation
+
+    def prepare_reentry(**kwargs: object) -> tuple[object, object, object | None]:
+        preparation_calls.append(kwargs)
+        return (
+            reentry_ref,
+            reentry,
+            resolved_reentry_evaluation if reentry_evaluation_mode == "verified" else None,
+        )
+
+    monkeypatch.setattr(records, "resolve_selected_acquisition_evaluation_parts", resolve_fallback)
     monkeypatch.setattr(
         bridge,
-        "prepare_candidate_experiment_source_reentry",
-        lambda **_kwargs: (reentry_ref, reentry),
+        "_prepare_candidate_source_reentry_with_evaluation",
+        prepare_reentry,
     )
 
     owner_checks: list[object] = []
@@ -825,3 +857,27 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     assert len(reads) == 2
     assert all(read["verified_origin"] is origin for read in reads)
     assert len(owner_checks) == 2
+    assert len(preparation_calls) == 1
+    assert reentry_priors == [
+        resolved_reentry_evaluation
+        if reentry_evaluation_mode == "verified"
+        else fallback_reentry_evaluation
+        if reentry_evaluation_mode == "fallback"
+        else None
+    ]
+    assert len(resolution_calls) == (1 if reentry_evaluation_mode == "fallback" else 0)
+    if reentry_evaluation_mode != "fallback":
+        assert resolution_calls == []
+    else:
+        assert resolution_calls == [
+            {
+                "artifact_store": bridge.artifact_store,
+                "control_store": bridge.control_store,
+                "tenant_id": origin.tenant_id,
+                "cell_id": origin.cell_id,
+                "run_id": origin.run_id,
+                "generation_run": continued_generation_run,
+                "source_cycle": reentry.new_cycle,
+                "design_problem_ref": origin.policy_scope.design_problem_ref,
+            }
+        ]

@@ -7011,8 +7011,9 @@ type _InitializerImportEdge = tuple[str, int, str, str, str, str]
 @dataclass(frozen=True, slots=True)
 class _SourceLockedOptionalArm:
     statement: ast.Try
-    flag: str
-    imports: dict[str, tuple[ast.ImportFrom, ast.alias]]
+    flag: str | None
+    imports: dict[str, tuple[ast.Import | ast.ImportFrom, ast.alias]]
+    prerequisite_guards: tuple[ast.If, ...] = ()
 
 
 def _source_optional_flag(statement: ast.stmt, value: bool) -> str | None:
@@ -7027,9 +7028,91 @@ def _source_optional_flag(statement: ast.stmt, value: bool) -> str | None:
     return None
 
 
-def _source_locked_optional_arms(tree: ast.Module) -> dict[str, _SourceLockedOptionalArm]:
-    """Find finite external import success arms with an explicit availability flag."""
+def _source_optional_import_suite(
+    tree: ast.Module,
+    statement: ast.Try,
+) -> tuple[tuple[ast.Import | ast.ImportFrom, ...], tuple[ast.If, ...]] | None:
+    """Select imports accompanied only by passive stores or pre-import refusal guards."""
+    imports: list[ast.Import | ast.ImportFrom] = []
+    guards: list[ast.If] = []
+    available: set[str] = set()
 
+    def passive(value: ast.expr) -> bool:
+        return bool(
+            isinstance(value, ast.Constant)
+            or (isinstance(value, ast.Name) and value.id in available)
+            or (
+                isinstance(value, (ast.Tuple, ast.List))
+                and all(passive(item) for item in value.elts)
+            )
+        )
+
+    for item in statement.body:
+        if isinstance(item, (ast.Import, ast.ImportFrom)):
+            names = _module_scope_statement_binding_names(item)
+            if "*" in names or available & names:
+                return None
+            available.update(names)
+            imports.append(item)
+            continue
+        if isinstance(item, ast.If):
+            test = item.test
+            if (
+                imports
+                or item.orelse
+                or len(item.body) != 1
+                or not isinstance(test, ast.Compare)
+                or not isinstance(test.left, ast.Name)
+                or len(test.ops) != 1
+                or not isinstance(test.ops[0], (ast.Is, ast.IsNot))
+                or len(test.comparators) != 1
+                or not isinstance(test.comparators[0], ast.Constant)
+                or test.comparators[0].value is not None
+            ):
+                return None
+            raised = item.body[0]
+            if (
+                not isinstance(raised, ast.Raise)
+                or raised.cause is not None
+                or not isinstance(raised.exc, ast.Call)
+                or not isinstance(raised.exc.func, ast.Name)
+                or raised.exc.keywords
+                or len(raised.exc.args) != 1
+                or not isinstance(raised.exc.args[0], ast.Constant)
+                or type(raised.exc.args[0].value) is not str
+            ):
+                return None
+            guards.append(item)
+            continue
+        if isinstance(item, ast.Pass) or (
+            isinstance(item, ast.Expr)
+            and isinstance(item.value, ast.Constant)
+            and type(item.value.value) is str
+        ):
+            continue
+        if isinstance(item, ast.Assign) and len(item.targets) == 1:
+            target, value = item.targets[0], item.value
+        elif (
+            isinstance(item, ast.AnnAssign)
+            and item.simple
+            and _source_future_annotations_enabled(tree)
+        ):
+            target, value = item.target, item.value
+        else:
+            return None
+        if (
+            not isinstance(target, ast.Name)
+            or target.id in available
+            or value is None
+            or not passive(value)
+        ):
+            return None
+        available.add(target.id)
+    return tuple(imports), tuple(guards)
+
+
+def _source_locked_optional_arms(tree: ast.Module) -> dict[str, _SourceLockedOptionalArm]:
+    """Find finite external import suites; flags are never substitutes for retained imports."""
     arms: dict[str, _SourceLockedOptionalArm] = {}
     for statement in tree.body:
         if (
@@ -7037,42 +7120,93 @@ def _source_locked_optional_arms(tree: ast.Module) -> dict[str, _SourceLockedOpt
             or statement.orelse
             or statement.finalbody
             or len(statement.handlers) != 1
-            or len(statement.body) < 2
         ):
             continue
-        flag = _source_optional_flag(statement.body[-1], True)
-        handler = statement.handlers[0]
-        if (
-            flag is None
-            or handler.name is not None
-            or not isinstance(handler.type, ast.Name)
-            or handler.type.id not in {"Exception", "ImportError", "ModuleNotFoundError"}
-            or _source_optional_flag(handler.body[0], False) != flag
-            or any(
-                not isinstance(item, (ast.ClassDef, ast.FunctionDef)) or item.name == flag
-                for item in handler.body[1:]
-            )
-        ):
+        suite = _source_optional_import_suite(tree, statement)
+        if suite is None or not suite[0]:
             continue
-        imports: dict[str, tuple[ast.ImportFrom, ast.alias]] = {}
-        for node in statement.body[:-1]:
-            if (
-                not isinstance(node, ast.ImportFrom)
-                or node.level
-                or node.module is None
-                or _repository_module_root(node.module) in {"polisyos", "tools"}
+        import_nodes, guards = suite
+        imports: dict[str, tuple[ast.Import | ast.ImportFrom, ast.alias]] = {}
+        for node in import_nodes:
+            if isinstance(node, ast.ImportFrom) and (node.level or node.module is None):
+                break
+            if isinstance(node, ast.ImportFrom) and _repository_module_root(node.module) in {
+                "polisyos",
+                "tools",
+            }:
+                break
+            if isinstance(node, ast.Import) and any(
+                _repository_module_root(a.name) in {"polisyos", "tools"} for a in node.names
             ):
                 break
             for alias in node.names:
-                local = alias.asname or alias.name
-                if local in imports or local == flag or alias.name == "*":
+                local = alias.asname or (
+                    alias.name.partition(".")[0] if isinstance(node, ast.Import) else alias.name
+                )
+                if alias.name == "*" or local in imports:
                     break
                 imports[local] = node, alias
             else:
                 continue
             break
         else:
-            arm = _SourceLockedOptionalArm(statement, flag, imports)
+            handler = statement.handlers[0]
+            if not isinstance(handler.type, ast.Name) or handler.type.id not in {
+                "Exception",
+                "ImportError",
+                "ModuleNotFoundError",
+            }:
+                continue
+            flag = _source_optional_flag(statement.body[-1], True)
+            if flag is not None:
+                if (
+                    handler.name is not None
+                    or not handler.body
+                    or _source_optional_flag(handler.body[0], False) != flag
+                    or any(
+                        not isinstance(item, (ast.ClassDef, ast.FunctionDef)) or item.name == flag
+                        for item in handler.body[1:]
+                    )
+                    or any(not isinstance(node, ast.ImportFrom) for node in import_nodes)
+                ):
+                    continue
+            else:
+                # A flag-free failure arm must erase every imported binding to
+                # None. Ancillary stores may only retain its exception or literals.
+                erased: set[str] = set()
+                seen: set[str] = set()
+                for item in handler.body:
+                    if (
+                        not isinstance(item, ast.Assign)
+                        or len(item.targets) != 1
+                        or not isinstance(item.targets[0], ast.Name)
+                    ):
+                        break
+                    name, value = item.targets[0].id, item.value
+                    if name in seen or name == handler.name:
+                        break
+                    seen.add(name)
+                    if name in imports:
+                        if not isinstance(value, ast.Constant) or value.value is not None:
+                            break
+                        erased.add(name)
+                    elif not (
+                        (isinstance(value, ast.Constant) and value.value is None)
+                        or (
+                            isinstance(value, ast.Name)
+                            and handler.name is not None
+                            and value.id == handler.name
+                        )
+                    ):
+                        break
+                else:
+                    if erased != imports.keys():
+                        continue
+                    arm = _SourceLockedOptionalArm(statement, None, imports, guards)
+                    for export in imports:
+                        arms[export] = arm
+                continue
+            arm = _SourceLockedOptionalArm(statement, flag, imports, guards)
             for export in (flag, *imports):
                 arms[export] = arm
     return arms
@@ -7100,7 +7234,8 @@ class _N5LockedOptionalImports:
             if event.route == "builtin_import":
                 self.events.setdefault((event.importer_name, event.provider_name), []).append(event)
         self.members: dict[str, tuple[_LockedPythonMember, ast.Module]] = {}
-        self.chains: dict[tuple[str, str], tuple[object, ...]] = {}
+        self.class_reference_rows: dict[tuple[str, str], dict[str, object]] = {}
+        self.fallback_provenance: dict[tuple[str, str], dict[str, object]] = {}
         self.proxy_facade_maps: dict[str, dict[str, dict[str, object]]] = {}
         self.proxy_facade_getters: dict[str, types.FunctionType] = {}
 
@@ -7108,7 +7243,7 @@ class _N5LockedOptionalImports:
         self,
         importer_name: str,
         provider: str,
-        node: ast.ImportFrom,
+        node: ast.Import | ast.ImportFrom,
         alias: ast.alias,
         *,
         expected_export: object = _NO_EXECUTION_BINDING,
@@ -7117,26 +7252,55 @@ class _N5LockedOptionalImports:
         source = self.analysis.source_bytes(self.root / importer.relative_path)
         if hashlib.sha256(source).hexdigest() != importer.source_sha256:
             raise ValueError("n5_optional_importer_source_changed")
-        local = alias.asname or alias.name
+        module_import = isinstance(node, ast.Import)
+        local = alias.asname or (alias.name.partition(".")[0] if module_import else alias.name)
+        if module_import and alias.name != provider:
+            raise ValueError("n5_optional_module_import_binding_unresolved")
         events = [
             event
             for event in self.events.get((importer_name, provider), ())
             if event.caller_code is importer.code
             and node.lineno <= event.caller_line <= (node.end_lineno or node.lineno)
-            and alias.name in event.requested_exports
-            and alias.name not in event.unresolved_exports
+            and (
+                module_import
+                or (
+                    alias.name in event.requested_exports
+                    and alias.name not in event.unresolved_exports
+                )
+            )
         ]
         if len(events) != 1:
             raise ValueError("n5_optional_initializer_edge_not_established")
         event = events[0]
-        self.capture.assert_import_binding(
-            event, importer_attribute=local, provider_export=alias.name
-        )
+        if module_import:
+            # Reuse the recorder's held event anchor: a plain import has no
+            # requested export for assert_import_binding to reconcile.
+            self.capture._check_import_event_anchor(event)
+            provider_execution = self.capture.completed(provider)
+            self.capture.assert_retained(frozenset({importer_name, provider}))
+            if (
+                event.importer is not importer.module
+                or event.provider is not provider_execution.module
+                or self.capture.completed_binding(importer_name, local)
+                is not provider_execution.module
+            ):
+                raise ValueError("n5_optional_module_binding_changed")
+        else:
+            self.capture.assert_import_binding(
+                event, importer_attribute=local, provider_export=alias.name
+            )
         if expected_export is not _NO_EXECUTION_BINDING and (
             _passive_capture_lookup(event.retained_exports, alias.name) is not expected_export
         ):
             raise ValueError("n5_optional_initializer_export_changed")
-        return importer_name, event.caller_line, importer.source_sha256, provider, alias.name, local
+        return (
+            importer_name,
+            event.caller_line,
+            importer.source_sha256,
+            provider,
+            "" if module_import else alias.name,
+            local,
+        )
 
     def retains_repository_source(self, module: object, module_name: str, relative: Path) -> bool:
         """Reopen the exact completed repository module from the held recorder."""
@@ -7371,6 +7535,11 @@ class _N5LockedOptionalImports:
 
     def _locked_source(self, module: str) -> tuple[_LockedPythonMember, ast.Module]:
         if module not in self.members:
+            execution = self.capture.completed(module)
+            # A source-owned ModuleType subclass is not a plain namespace.
+            # Refuse this reference path before vars/getattr can dispatch it.
+            if type(execution.module) is not types.ModuleType:
+                raise ValueError("n5_optional_locked_provider_module_not_plain")
             member = self.member(module)
             if member is None:
                 raise ValueError("n5_optional_locked_python_member_not_established")
@@ -7383,18 +7552,38 @@ class _N5LockedOptionalImports:
             self.members[module] = member, self.analysis.source_tree(path)
         return self.members[module]
 
-    def _class_chain(
-        self, wrapper: str, node: ast.ImportFrom, alias: ast.alias
+    def _binding_chain(
+        self,
+        wrapper: str,
+        node: ast.Import | ast.ImportFrom,
+        alias: ast.alias,
     ) -> tuple[object, ...]:
-        local = alias.asname or alias.name
-        key = wrapper, local
-        if key in self.chains:
-            return self.chains[key]
-        provider = cast("str", node.module)  # Source arm admits only absolute from imports.
+        """Reconcile a module, class, or plain function against retained locked source."""
+        local = alias.asname or (
+            alias.name.partition(".")[0] if isinstance(node, ast.Import) else alias.name
+        )
+        provider = (
+            alias.name
+            if isinstance(node, ast.Import)
+            else _resolve_import_from_base(node, self.capture.completed(wrapper).package)
+        )
+        if provider is None:
+            raise ValueError("n5_optional_locked_provider_not_established")
         edges = [self._initializer_edge(wrapper, provider, node, alias)]
         selected = self.capture.completed_binding(wrapper, local)
-        if not isinstance(selected, type):
-            raise ValueError("n5_optional_locked_class_not_established")
+        if isinstance(node, ast.Import):
+            member, _tree = self._locked_source(provider)
+            if (
+                type(selected) is not types.ModuleType
+                or self.capture.completed(provider).module is not selected
+            ):
+                raise ValueError("n5_optional_locked_module_not_established")
+            return local, tuple(edges), (member,)
+        if not isinstance(selected, type) and type(selected) is not types.FunctionType:
+            raise ValueError("n5_optional_locked_binding_not_established")
+        key = wrapper, local
+        # Source derivations are pass-scoped; mutable live members are rechecked
+        # even when this exact retained class was reconciled earlier in the pass.
         symbol = alias.name
         members: list[_LockedPythonMember] = []
         visited: set[tuple[str, str]] = set()
@@ -7403,7 +7592,7 @@ class _N5LockedOptionalImports:
             member, tree = self._locked_source(provider)
             members.append(member)
             if self.capture.completed_binding(provider, symbol) is not selected:
-                raise ValueError("n5_optional_locked_class_binding_changed")
+                raise ValueError("n5_optional_locked_binding_changed")
             sites = _module_scope_direct_binding_sites(tree, symbol)
             if len(sites) != 1:
                 break
@@ -7411,12 +7600,71 @@ class _N5LockedOptionalImports:
             if (
                 kind == "local"
                 and isinstance(statement, ast.ClassDef)
-                and type.__getattribute__(selected, "__module__") == provider
-                and type.__getattribute__(selected, "__qualname__") == symbol
+                and isinstance(selected, type)
+                and _source_native_class_field(selected, "__module__") == provider
+                and _source_native_class_field(selected, "__qualname__") == symbol
             ):
-                result = (local, tuple(edges), tuple(members))
-                self.chains[key] = result
-                return result
+                path = self.analysis.bind_source_path(self.root / member[1])
+                limitations: set[str] = set()
+                transform_bindings: list[tuple[object, ...]] = []
+                if not _source_plain_class_reference_supported(
+                    self.root,
+                    self.capture.completed(provider).module,
+                    provider,
+                    symbol,
+                    path,
+                    selected,
+                    analysis=self.analysis,
+                    directory_entries={},
+                    source_index=_AuthorityImportClosureSourceIndex({}, {}),
+                    visited=frozenset(),
+                    member_reference_only=True,
+                    unestablished=limitations,
+                    retained_imports=self,
+                    transform_bindings=transform_bindings,
+                ):
+                    raise ValueError("n5_optional_locked_class_members_not_established")
+                self.class_reference_rows[key] = {
+                    "provider": provider,
+                    "symbol": symbol,
+                    "scope": "retained_reference_and_declared_direct_callable_source_only",
+                    "unestablished": tuple(sorted(limitations)),
+                    "declared_transform_factory_bindings": tuple(transform_bindings),
+                    "construction_and_inherited_behavior": "not_established",
+                }
+                return local, tuple(edges), tuple(members)
+            if (
+                kind == "local"
+                and isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and type(selected) is types.FunctionType
+            ):
+                path = self.analysis.bind_source_path(self.root / member[1])
+                slots = tuple(
+                    slot
+                    for slot in _loader_owned_callable_slots(path)
+                    if not slot.owner_path and slot.binding_name == symbol
+                )
+                if (
+                    len(slots) != 1
+                    or statement.type_params
+                    or selected.__closure__ is not None
+                    or not _source_function_defaults_match(selected, statement)
+                ):
+                    break
+                _compiled, hashes = self.analysis.compiled_source_index(
+                    path, optimize=sys.flags.optimize
+                )
+                _row, matches = _loader_owned_slot_binding(
+                    self.capture.completed(provider).module,
+                    provider,
+                    path,
+                    slots[0],
+                    hashes.get(slots[0].qualname, ()),
+                    hashes,
+                )
+                if matches:
+                    return local, tuple(edges), tuple(members)
+                break
             if (
                 kind != "import_from"
                 or not isinstance(statement, ast.ImportFrom)
@@ -7428,7 +7676,193 @@ class _N5LockedOptionalImports:
                 break
             edges.append(self._initializer_edge(provider, target, statement, binding))
             provider, symbol = target, binding.name
-        raise ValueError("n5_optional_locked_class_source_not_established")
+        raise ValueError("n5_optional_locked_binding_source_not_established")
+
+    def _class_chain(
+        self, wrapper: str, node: ast.ImportFrom, alias: ast.alias
+    ) -> tuple[object, ...]:
+        """Preserve the legacy class-only evidence projection."""
+        if not isinstance(
+            self.capture.completed_binding(wrapper, alias.asname or alias.name), type
+        ):
+            raise ValueError("n5_optional_locked_class_not_established")
+        return self._binding_chain(wrapper, node, alias)
+
+    def _verify_optional_arm(
+        self,
+        wrapper: str,
+        relative: Path,
+        tree: ast.Module,
+        arm: _SourceLockedOptionalArm,
+        export: str,
+    ) -> object:
+        """Verify source-bound prerequisite tests without executing their failure calls."""
+        sites = _module_scope_direct_binding_sites(tree, export)
+        module = self.capture.completed(wrapper).module
+        if (
+            type(module) is not types.ModuleType
+            or len(sites) != 1
+            or sites[0][1] is not arm.statement
+            or not self.retains_repository_source(module, wrapper, relative)
+        ):
+            raise ValueError("n5_optional_wrapper_binding_not_established")
+        handler = arm.statement.handlers[0]
+        handler_type = self._source_builtin_exception(
+            wrapper, tree, cast("ast.Name", handler.type).id
+        )
+        if not any(
+            handler_type is item
+            for item in (_builtins.Exception, _builtins.ImportError, _builtins.ModuleNotFoundError)
+        ):
+            raise ValueError("n5_optional_handler_not_established")
+        selected = self.capture.completed_binding(wrapper, export)
+        refused_guard = False
+        for guard in arm.prerequisite_guards:
+            test = cast("ast.Compare", guard.test)
+            name = cast("ast.Name", test.left).id
+            dependencies = _module_scope_direct_binding_sites(tree, name)
+            if len(dependencies) != 1 or dependencies[0][1].lineno >= guard.lineno:
+                raise ValueError("n5_optional_prerequisite_source_not_established")
+            kind, dependency, alias = dependencies[0]
+            if isinstance(dependency, ast.Try):
+                dependency_arm = _source_locked_optional_arms(tree).get(name)
+                if dependency_arm is None:
+                    raise ValueError("n5_optional_prerequisite_source_not_established")
+                self._verify_optional_arm(wrapper, relative, tree, dependency_arm, name)
+                dependency, alias = dependency_arm.imports[name]
+            elif kind not in {"import", "import_from"}:
+                raise ValueError("n5_optional_prerequisite_source_not_established")
+            if not isinstance(dependency, (ast.Import, ast.ImportFrom)) or alias is None:
+                raise ValueError("n5_optional_prerequisite_source_not_established")
+            prerequisite = self.capture.completed_binding(wrapper, name)
+            if prerequisite is not None:
+                self._binding_chain(wrapper, dependency, alias)
+            elif not isinstance(dependencies[0][1], ast.Try):
+                raise ValueError("n5_optional_prerequisite_fallback_not_established")
+            raised = cast("ast.Raise", guard.body[0])
+            raised_type = self._source_builtin_exception(
+                wrapper, tree, cast("ast.Name", cast("ast.Call", raised.exc).func).id
+            )
+            if not issubclass(raised_type, handler_type):
+                raise ValueError("n5_optional_guard_handler_mismatch")
+            refused = (
+                (prerequisite is None)
+                if isinstance(test.ops[0], ast.Is)
+                else (prerequisite is not None)
+            )
+            refused_guard = refused_guard or refused
+            if refused and selected is not None:
+                raise ValueError("n5_optional_prerequisite_refuses_selected_import")
+        if selected is None:
+            if refused_guard:
+                self.fallback_provenance[wrapper, export] = {"basis": "source_bound_guard_refusal"}
+            else:
+                # A successful import may itself return None. Only an anchored
+                # failed import in this finite suite establishes its failure arm.
+                # Failed events lack a line: require one possible module-level
+                # import statement for that provider rather than inventing a site.
+                importer = self.capture.completed(wrapper)
+                providers = {
+                    alias.name if isinstance(node, ast.Import) else node.module
+                    for node, alias in arm.imports.values()
+                }
+                provider_sites: dict[str, set[int]] = {}
+                guard_calls: set[int] = set()
+                for other in _source_locked_optional_arms(tree).values():
+                    for guard in other.prerequisite_guards:
+                        raised = cast("ast.Raise", guard.body[0])
+                        call = cast("ast.Call", raised.exc)
+                        try:
+                            self._source_builtin_exception(
+                                wrapper, tree, cast("ast.Name", call.func).id
+                            )
+                        except ValueError:
+                            continue
+                        guard_calls.add(id(call))
+                pending: list[ast.AST] = list(tree.body)
+                while pending:
+                    node = pending.pop()
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        pending.extend(
+                            child for child in ast.iter_child_nodes(node) if child not in node.body
+                        )
+                        continue
+                    if isinstance(node, ast.ClassDef):
+                        pending.extend(
+                            (*node.bases, *node.decorator_list, *node.keywords, *node.type_params)
+                        )
+                        continue
+                    if isinstance(node, ast.Lambda):
+                        pending.append(node.args)
+                        continue
+                    if isinstance(node, ast.Call) and id(node) not in guard_calls:
+                        raise ValueError("n5_optional_failed_import_site_ambiguous")
+                    if isinstance(node, (ast.Import, ast.ImportFrom)):
+                        for alias in node.names:
+                            provider = alias.name if isinstance(node, ast.Import) else node.module
+                            if type(provider) is str:
+                                provider_sites.setdefault(provider, set()).add(id(node))
+                    pending.extend(ast.iter_child_nodes(node))
+                failed = []
+                for event in self.capture._failed_imports:
+                    self.capture._check_failed_import_anchor(event)
+                    if (
+                        event.importer_name == wrapper
+                        and event.importer is importer.module
+                        and event.caller_code is importer.code
+                        and event.route == "builtin_import"
+                        and event.provider_name in providers
+                        and len(provider_sites.get(event.provider_name, ())) == 1
+                    ):
+                        failed.append(event.provider_name)
+                if len(failed) != 1:
+                    raise ValueError("n5_optional_none_import_provenance_not_established")
+                self.fallback_provenance[wrapper, export] = {
+                    "basis": "retained_failed_import_in_unique_source_suite",
+                    "failed_provider": failed[0],
+                }
+        return selected
+
+    def _source_builtin_exception(self, wrapper: str, tree: ast.Module, name: str) -> type:
+        candidate = _source_import_binding(
+            name, tree=tree, module=self.capture.completed(wrapper).module, module_name=wrapper
+        )
+        if candidate is not _passive_capture_lookup(vars(_builtins), name) or not any(
+            candidate is value
+            for value in vars(_builtins).values()
+            if type(value) is type and issubclass(value, BaseException)
+        ):
+            raise ValueError("n5_optional_exception_is_not_unshadowed_builtin")
+        return cast("type", candidate)
+
+    def reconcile_wrapper_export(
+        self,
+        wrapper: str,
+        export: str,
+        relative: Path,
+        tree: ast.Module,
+        arm: _SourceLockedOptionalArm,
+    ) -> tuple[tuple[str, str, str | None], dict[str, object]]:
+        """Keep selected external bindings separate from a held local None fallback."""
+        selected = self._verify_optional_arm(wrapper, relative, tree, arm, export)
+        if selected is None:
+            return ("symbol", wrapper, export), {
+                "wrapper_binding_disposition": "local_none_fallback",
+                "locked_import_bindings": (),
+                "fallback_provenance": self.fallback_provenance[wrapper, export],
+            }
+        node, alias = arm.imports[export]
+        chain = self._binding_chain(wrapper, node, alias)
+        provider = alias.name if isinstance(node, ast.Import) else cast("str", node.module)
+        return ("external", provider, None if isinstance(node, ast.Import) else alias.name), {
+            "wrapper_binding_disposition": "retained_locked_import",
+            "locked_import_bindings": (chain,),
+            "class_reference_observations": tuple(
+                row
+                for key, row in sorted(self.class_reference_rows.items())
+                if key == (wrapper, export)
+            ),
+        }
 
     def reconcile(
         self,
@@ -7443,6 +7877,21 @@ class _N5LockedOptionalImports:
     ) -> None:
         """Bind the selected source arm, import event, and current consumer."""
 
+        if arm.flag is None:
+            _route, projection = self.reconcile_wrapper_export(
+                wrapper, alias.name, relative, tree, arm
+            )
+            if self.capture.completed(importer).relative_path != importer_relative.as_posix():
+                raise ValueError("n5_optional_importer_path_changed")
+            edge = self._initializer_edge(importer, wrapper, node, alias)
+            self.rows[edge] = {
+                "consumer_import": edge,
+                "wrapper_source_sha256": self.capture.completed(wrapper).source_sha256,
+                "wrapper_availability_export": None,
+                **projection,
+            }
+            return
+        self._verify_optional_arm(wrapper, relative, tree, arm, alias.name)
         sites = _module_scope_direct_binding_sites(tree, alias.name)
         handler = cast("ast.Name", arm.statement.handlers[0].type)
         if (
@@ -7472,6 +7921,9 @@ class _N5LockedOptionalImports:
             "locked_class_imports": tuple(
                 self._class_chain(wrapper, source_node, source_alias)
                 for source_node, source_alias in selected_imports
+            ),
+            "class_reference_observations": tuple(
+                row for key, row in sorted(self.class_reference_rows.items()) if key[0] == wrapper
             ),
         }
 
@@ -21012,10 +21464,21 @@ def _source_plain_class_reference_supported(
     directory_entries: dict[Path, frozenset[str]],
     source_index: _AuthorityImportClosureSourceIndex,
     visited: frozenset[tuple[str, str]],
+    member_reference_only: bool = False,
+    unestablished: set[str] | None = None,
+    retained_imports: _N5LockedOptionalImports | None = None,
+    transform_bindings: list[tuple[object, ...]] | None = None,
 ) -> bool:
-    """Check a current plain class reference, not construction or inherited behavior."""
+    """Check a class reference; never establish construction or inherited behavior.
+
+    The retained external-reference mode reuses loader-owned callable slots for
+    direct members. Opaque class state/default expressions remain explicit
+    limitations; known source/default mismatches always refuse.
+    """
     if (
-        type(selected) is not type
+        (member_reference_only and type(provider) is not types.ModuleType)
+        or (type(selected) is not type and not member_reference_only)
+        or _source_native_class_field(selected, "__dict__") is _NO_EXECUTION_BINDING
         or _passive_capture_lookup(vars(provider), symbol) is not selected
     ):
         return False
@@ -21024,6 +21487,195 @@ def _source_plain_class_reference_supported(
     if len(sites) != 1 or sites[0][0] != "local" or not isinstance(sites[0][1], ast.ClassDef):
         return False
     node = sites[0][1]
+    if member_reference_only:
+        limitations = unestablished if unestablished is not None else set()
+        namespace = _source_native_class_field(selected, "__dict__")
+        if (
+            type(namespace) is not type(type.__dict__)
+            or _source_native_class_field(selected, "__module__") != provider_name
+            or _source_native_class_field(selected, "__qualname__") != symbol
+            or any(type(key) is not str for key in namespace)
+        ):
+            return False
+        # Even a read through type.__getattribute__ can invoke a metaclass
+        # property. All metadata and class namespaces above/below use CPython's
+        # own descriptors; unsupported metadata overrides refuse without a read.
+        meta_mro = _source_native_class_field(type(selected), "__mro__")
+        if type(meta_mro) is not tuple:
+            return False
+        for meta in meta_mro:
+            if meta is type:
+                break
+            fields = _source_native_class_field(meta, "__dict__")
+            if type(fields) is not type(type.__dict__):
+                return False
+            for name in (
+                "__dict__",
+                "__module__",
+                "__name__",
+                "__qualname__",
+                "__bases__",
+                "__mro__",
+            ):
+                raw = _passive_capture_lookup(fields, name)
+                if raw is not _NO_EXECUTION_BINDING and type(raw) is not str:
+                    return False
+        if type(selected) is not type or node.keywords or node.decorator_list or node.type_params:
+            limitations.add("metaclass_or_class_transform_behavior")
+        limitations.add("construction_and_inherited_behavior")
+        slots = tuple(
+            slot
+            for slot in _loader_owned_callable_slots(source_path)
+            if slot.owner_path == (symbol,)
+        )
+        expected_names = {slot.binding_name for slot in slots}
+        actual_names = {
+            name
+            for name, value in namespace.items()
+            if _source_exact_type_in(value, types.FunctionType, classmethod, staticmethod, property)
+        }
+        if actual_names != expected_names:
+            return False
+        _compiled, hashes = analysis.compiled_source_index(source_path, optimize=sys.flags.optimize)
+        for slot in slots:
+            row, matches = _loader_owned_slot_binding(
+                provider, provider_name, source_path, slot, hashes.get(slot.qualname, ()), hashes
+            )
+            function_rows = row["functions"]
+            if type(function_rows) is not list or not function_rows:
+                return False
+            if not matches:
+                # A retained class reference is not a wrapper-behavior claim.
+                # Only source-declared transforms with a proven terminal remain
+                # candidates; undeclared wrappers and changed terminal code refuse.
+                declared_transform = False
+                for declaration in node.body:
+                    if (
+                        not isinstance(declaration, (ast.FunctionDef, ast.AsyncFunctionDef))
+                        or declaration.name != slot.binding_name
+                    ):
+                        continue
+                    for decorator in declaration.decorator_list:
+                        target = decorator.func if isinstance(decorator, ast.Call) else decorator
+                        if isinstance(target, ast.Attribute) and target.attr in {
+                            "getter",
+                            "setter",
+                            "deleter",
+                        }:
+                            continue
+                        factory = _SOURCE_DERIVATION_FAILED
+                        if isinstance(target, ast.Name):
+                            factory = _source_import_binding(
+                                target.id, tree=tree, module=provider, module_name=provider_name
+                            )
+                        elif isinstance(target, ast.Attribute) and isinstance(
+                            target.value, ast.Name
+                        ):
+                            owner = _source_import_binding(
+                                target.value.id,
+                                tree=tree,
+                                module=provider,
+                                module_name=provider_name,
+                            )
+                            if type(owner) is types.ModuleType:
+                                factory = _passive_capture_lookup(vars(owner), target.attr)
+                        sites = (
+                            _module_scope_direct_binding_sites(tree, target.id)
+                            if isinstance(target, ast.Name)
+                            else ()
+                        )
+                        direct_import = (
+                            len(sites) == 1
+                            and sites[0][0] in {"import", "import_from"}
+                            and isinstance(sites[0][1], (ast.Import, ast.ImportFrom))
+                            and sites[0][2] is not None
+                        )
+                        if direct_import and retained_imports is not None:
+                            # Wheel modules retain their initializer-end alias
+                            # bindings. Reopen the original alias before treating
+                            # a current factory as nonstructural.
+                            factory = retained_imports.capture.completed_binding(
+                                provider_name, target.id
+                            )
+                        if factory is _SOURCE_DERIVATION_FAILED:
+                            return False
+                        if any(
+                            factory is structural
+                            for structural in (classmethod, staticmethod, property)
+                        ):
+                            continue
+                        if (
+                            not direct_import
+                            or retained_imports is None
+                            or type(factory) is not types.FunctionType
+                        ):
+                            return False
+                        _kind, import_node, import_alias = sites[0]
+                        chain = retained_imports._binding_chain(
+                            provider_name, import_node, import_alias
+                        )
+                        if transform_bindings is not None:
+                            transform_bindings.append(chain)
+                        declared_transform = True
+                if (
+                    not declared_transform
+                    or row.get("descriptor_kind_matches") is not True
+                    or not all(
+                        item.get("terminal_matches_loader") is True for item in function_rows
+                    )
+                ):
+                    return False
+                limitations.add("declared_callable_transform_behavior")
+            for function_row in function_rows:
+                for field, limitation in (
+                    ("source_defaults_status", "direct_callable_defaults"),
+                    ("source_closure_status", "direct_callable_closure"),
+                ):
+                    status = function_row[field]
+                    if status == "mismatch":
+                        return False
+                    if status != "recomputed":
+                        limitations.add(limitation)
+        declared_names = set(expected_names)
+        for item in node.body:
+            if (
+                isinstance(item, ast.Assign)
+                and len(item.targets) == 1
+                and isinstance(item.targets[0], ast.Name)
+            ):
+                name, expression = item.targets[0].id, item.value
+            elif isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                name, expression = item.target.id, item.value
+            elif isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) or (
+                isinstance(item, ast.Expr)
+                and isinstance(item.value, ast.Constant)
+                and type(item.value.value) is str
+            ):
+                continue
+            else:
+                limitations.add("class_body_state")
+                continue
+            declared_names.add(name)
+            if expression is not None:
+                literal = _source_literal(expression)
+                if literal is _UNSUPPORTED_SOURCE_LITERAL:
+                    limitations.add("class_body_state")
+                elif not _exact_literal_equal(_passive_capture_lookup(namespace, name), literal):
+                    return False
+        generated = {
+            "__module__",
+            "__qualname__",
+            "__doc__",
+            "__dict__",
+            "__weakref__",
+            "__firstlineno__",
+            "__static_attributes__",
+            "__annotate_func__",
+            "__annotations_cache__",
+        }
+        if set(namespace) - declared_names - generated:
+            limitations.add("undeclared_class_state")
+        return True
     if (
         node.decorator_list
         or node.keywords
@@ -21278,55 +21930,12 @@ def _source_optional_import_binding_route(
 
     if statement.orelse or statement.finalbody or not statement.handlers:
         return None
-    # Passive success bookkeeping does not change an imported object's owner.
-    # Keep this separate from initializer-effect authority: only names/literals
-    # and containers that cannot invoke user code may accompany the imports.
-    imported_names: set[str] = set()
-    available_names: set[str] = set()
-
-    def passive_expression(value: ast.expr) -> bool:
-        if isinstance(value, ast.Constant):
-            return True
-        if isinstance(value, ast.Name):
-            return value.id in available_names
-        if isinstance(value, (ast.Tuple, ast.List)):
-            return all(passive_expression(item) for item in value.elts)
-        return False
-
-    for item in statement.body:
-        if isinstance(item, (ast.Import, ast.ImportFrom)):
-            names = _module_scope_statement_binding_names(item)
-            if "*" in names or available_names & names:
-                return None
-            imported_names.update(names)
-            available_names.update(names)
-            continue
-        if isinstance(item, ast.Pass) or (
-            isinstance(item, ast.Expr)
-            and isinstance(item.value, ast.Constant)
-            and type(item.value.value) is str
-        ):
-            continue
-        if isinstance(item, ast.Assign) and len(item.targets) == 1:
-            target, value = item.targets[0], item.value
-        elif (
-            isinstance(item, ast.AnnAssign)
-            and item.simple
-            and _source_future_annotations_enabled(tree)
-        ):
-            target, value = item.target, item.value
-        else:
-            return None
-        if (
-            not isinstance(target, ast.Name)
-            or target.id in available_names
-            or target.id == export_name
-            or value is None
-            or not passive_expression(value)
-        ):
-            return None
-        available_names.add(target.id)
-    if export_name not in imported_names:
+    suite = _source_optional_import_suite(tree, statement)
+    if suite is None or suite[1]:
+        return None
+    if export_name not in {
+        name for node in suite[0] for name in _module_scope_statement_binding_names(node)
+    }:
         return None
     module = _passive_capture_lookup(sys.modules, module_name)
     if type(module) is not types.ModuleType:
@@ -21603,6 +22212,27 @@ def _source_module_direct_binding_route(
         )
     binding_kind, statement, alias = sites[0]
     if binding_kind == "unsupported" and isinstance(statement, ast.Try):
+        recorded = source_index.n5_recorded_optional_imports
+        if discovery_only and recorded is not None and recorded.root == repo_root:
+            arm = _source_locked_optional_arms(tree).get(export_name)
+            if arm is not None and arm.flag is None:
+                try:
+                    route, _projection = recorded.reconcile_wrapper_export(
+                        module_name, export_name, relative, tree, arm
+                    )
+                    return route
+                except (
+                    AttributeError,
+                    ImportError,
+                    OSError,
+                    RuntimeError,
+                    TypeError,
+                    ValueError,
+                ) as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"unqualified retained optional binding: {module_name}.{export_name}",
+                    ) from exc
         selected_import_route = _source_optional_import_binding_route(
             repo_root,
             module_name,
@@ -22369,15 +22999,19 @@ def _loader_owned_slot_owner(
 
     owner = module
     for index, name in enumerate(owner_path):
-        namespace = getattr(owner, "__dict__", {})
+        namespace = _source_native_class_field(owner, "__dict__")
+        if namespace is _NO_EXECUTION_BINDING:
+            try:
+                namespace = types.ModuleType.__dict__["__dict__"].__get__(owner, types.ModuleType)
+            except TypeError:
+                return None
         if not isinstance(namespace, Mapping):
             return None
-        owner = namespace.get(name)
+        owner = _passive_capture_lookup(namespace, name)
         expected_qualname = ".".join(owner_path[: index + 1])
         if not (
-            isinstance(owner, type)
-            and owner.__module__ == module_name
-            and owner.__qualname__ == expected_qualname
+            _source_native_class_field(owner, "__module__") == module_name
+            and _source_native_class_field(owner, "__qualname__") == expected_qualname
         ):
             return None
     return owner
@@ -22689,6 +23323,8 @@ def _source_decorator_factory_captures(
 def _source_slot_function_node(
     tree: ast.Module,
     slot: _LoaderOwnedCallableSlot,
+    *,
+    firstlineno: int | None = None,
 ) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
     """Resolve one source-declared function slot without evaluating imports."""
 
@@ -22711,6 +23347,11 @@ def _source_slot_function_node(
             for statement in body
             if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
             and statement.name == slot.binding_name
+            and (
+                firstlineno is None
+                or min((statement.lineno, *(item.lineno for item in statement.decorator_list)))
+                == firstlineno
+            )
         ),
         None,
     )
@@ -25506,6 +26147,48 @@ def _loader_owned_slot_function_matches(
 
     terminal, chain = _unwrapped_function_chain(function)
     terminal_hash = _content_hash(_normalize_code_object(terminal.__code__))
+    analysis = _active_integrity_analysis()
+    tree = (
+        analysis.source_tree(source_path)
+        if analysis
+        else ast.parse(source_path.read_bytes(), filename=str(source_path))
+    )
+    declaration = _source_slot_function_node(
+        tree, slot, firstlineno=terminal.__code__.co_firstlineno
+    )
+    literal_defaults = declaration is not None and all(
+        _source_literal(item) is not _UNSUPPORTED_SOURCE_LITERAL
+        for item in (
+            *declaration.args.defaults,
+            *(item for item in declaration.args.kw_defaults if item is not None),
+        )
+    )
+    defaults_status = (
+        "recomputed"
+        if declaration is not None and _source_function_defaults_match(terminal, declaration)
+        else "mismatch"
+        if literal_defaults
+        else "not_established"
+    )
+    closure_status = "not_established"
+    if not terminal.__code__.co_freevars and terminal.__closure__ is None:
+        closure_status = "recomputed"
+    elif (
+        terminal.__code__.co_freevars == ("__class__",)
+        and type(terminal.__closure__) is tuple
+        and len(terminal.__closure__) == 1
+        and slot.owner_path
+    ):
+        try:
+            actual_class = terminal.__closure__[0].cell_contents
+        except ValueError:
+            closure_status = "mismatch"
+        else:
+            closure_status = (
+                "recomputed"
+                if actual_class is _loader_owned_slot_owner(module, module_name, slot.owner_path)
+                else "mismatch"
+            )
     terminal_matches = bool(
         expected_hashes
         and terminal.__code__.co_firstlineno in expected_firstlinenos
@@ -25560,6 +26243,9 @@ def _loader_owned_slot_function_matches(
             "chain_normalized_code_hashes": [
                 _content_hash(_normalize_code_object(item.__code__)) for item in chain
             ],
+            "source_defaults_status": defaults_status,
+            "source_closure_status": closure_status,
+            "terminal_matches_loader": terminal_matches,
             "terminal_declared_module": terminal.__module__,
             "terminal_firstlineno": terminal.__code__.co_firstlineno,
             "terminal_qualname": terminal.__qualname__,
@@ -25582,8 +26268,17 @@ def _loader_owned_slot_binding(
     """Resolve and reconcile one exact source-declared callable binding."""
 
     owner = _loader_owned_slot_owner(module, module_name, slot.owner_path)
-    namespace = getattr(owner, "__dict__", {}) if owner is not None else {}
-    raw = namespace.get(slot.binding_name) if isinstance(namespace, Mapping) else None
+    namespace = _source_native_class_field(owner, "__dict__")
+    if namespace is _NO_EXECUTION_BINDING:
+        try:
+            namespace = types.ModuleType.__dict__["__dict__"].__get__(owner, types.ModuleType)
+        except TypeError:
+            namespace = {}
+    raw = (
+        _passive_capture_lookup(namespace, slot.binding_name)
+        if isinstance(namespace, Mapping)
+        else None
+    )
     functions: list[tuple[str, types.FunctionType]] = []
     source_firstlinenos = dict(slot.source_firstlinenos)
     expected_cache_policies = {
@@ -25869,6 +26564,7 @@ def _execution_loaded_slot_bindings(
     executed_code: tuple[tuple[str, types.CodeType], ...],
     *,
     receiver_classes: tuple[type, ...] = (),
+    required_defaults_modules: frozenset[str] = frozenset(),
 ) -> dict[str, object]:
     """Reconcile the live SOURCE slots which own actually consumed code.
 
@@ -25884,12 +26580,13 @@ def _execution_loaded_slot_bindings(
             modules.setdefault(module, set()).add(code.co_qualname)
     class_paths: dict[str, set[tuple[str, ...]]] = {}
     for cls in receiver_classes:
-        module_name = cls.__module__
+        module_name = _source_native_class_field(cls, "__module__")
+        qualname = _source_native_class_field(cls, "__qualname__")
+        if type(module_name) is not str or type(qualname) is not str:
+            raise ConfidenceLedgerError("n5_receiver_construction_not_established")
         module = sys.modules.get(module_name)
-        parts = tuple(cls.__qualname__.split("."))
-        owner: object = module
-        for part in parts:
-            owner = vars(owner).get(part) if hasattr(owner, "__dict__") else None
+        parts = tuple(qualname.split("."))
+        owner = _loader_owned_slot_owner(module, module_name, parts)
         if module_name not in paths or owner is not cls or type(cls) is not type:
             raise ConfidenceLedgerError("n5_receiver_construction_not_established")
         class_paths.setdefault(module_name, set()).add(parts)
@@ -25949,7 +26646,7 @@ def _execution_loaded_slot_bindings(
             actual: set[str] = set()
 
             def collect_labels(cls: type, label: str, labels: set[str], owner_module: str) -> None:
-                for name, raw in vars(cls).items():
+                for name, raw in _source_native_class_field(cls, "__dict__").items():
                     member = label + "." + name
                     if isinstance(raw, (types.FunctionType, classmethod, staticmethod)):
                         labels.add(member)
@@ -25959,7 +26656,7 @@ def _execution_loaded_slot_bindings(
                             for role in ("fget", "fset", "fdel")
                             if getattr(raw, role) is not None
                         )
-                    elif isinstance(raw, type) and raw.__module__ == owner_module:
+                    elif _source_native_class_field(raw, "__module__") == owner_module:
                         collect_labels(raw, member, labels, owner_module)
 
             cls = _loader_owned_slot_owner(module, module_name, owner_path)
@@ -26011,6 +26708,12 @@ def _execution_loaded_slot_bindings(
             row, matches = _loader_owned_slot_binding(
                 module, module_name, source_path, slot, hashes.get(qualname, ()), hashes
             )
+            if module_name in required_defaults_modules:
+                matches = matches and all(
+                    function_row.get("source_defaults_status") == "recomputed"
+                    and function_row.get("source_closure_status") == "recomputed"
+                    for function_row in row["functions"]
+                )
             if not matches:
                 receiver_owned = any(
                     slot.owner_path[: len(path)] == path
@@ -26100,8 +26803,25 @@ def _capture_execution_source_bindings_body(
         for module, relative in closure
     )
     paths = dict(closure)
+    loaded_paths = dict(paths)
+    external_slot_modules: set[str] = set()
+    for module_name, _code in executed_code + bound_entry_code:
+        if module_name in loaded_paths:
+            continue
+        module = _passive_capture_lookup(sys.modules, module_name)
+        if type(module) is not types.ModuleType:
+            raise ConfidenceLedgerError("n5_executed_dependency_source_not_established")
+        namespace = vars(module)
+        spec = _passive_capture_lookup(namespace, "__spec__")
+        if isinstance(getattr(spec, "loader", None), SourceFileLoader) and type(spec.origin) is str:
+            loaded_paths[module_name] = analysis.bind_source_path(Path(spec.origin)).as_posix()
+            external_slot_modules.add(module_name)
     loaded_bindings = _execution_loaded_slot_bindings(
-        root, paths, executed_code + bound_entry_code, receiver_classes=receiver_classes
+        root,
+        loaded_paths,
+        executed_code + bound_entry_code,
+        receiver_classes=receiver_classes,
+        required_defaults_modules=frozenset(external_slot_modules),
     )
     executed_rows: list[tuple[str, str, str]] = []
     bound_rows: list[tuple[str, str, str]] = []
@@ -26147,6 +26867,13 @@ def _capture_execution_source_bindings_body(
         "source_module_count": len(source_rows),
         "loaded_binding_hash": _content_hash(loaded_bindings),
         "loaded_module_count": len(loaded_bindings),
+        "loaded_binding_scope": "current_source_owned_slots_for_observed_code_only",
+        "executed_function_identity": "not_established",
+        "executed_invocation_default_state": "not_established",
+        "observation_limitations": (
+            "code_identity_does_not_bind_a_detached_callable_or_its_invocation_defaults",
+        ),
+        "protected_through_use": "not_established",
         "executed_code": tuple(sorted(set(executed_rows))),
         "bound_entry_code": tuple(sorted(set(bound_rows))),
     }
@@ -26238,10 +26965,13 @@ def _live_defined_code_manifest(
         )
 
     def walk_class(label: str, cls: type[object]) -> None:
-        if id(cls) in seen_classes or cls.__module__ != module_name:
+        if id(cls) in seen_classes or _source_native_class_field(cls, "__module__") != module_name:
+            return
+        namespace = _source_native_class_field(cls, "__dict__")
+        if type(namespace) is not type(type.__dict__):
             return
         seen_classes.add(id(cls))
-        for name, value in sorted(vars(cls).items()):
+        for name, value in sorted(namespace.items()):
             member_label = f"{label}.{name}"
             if isinstance(value, types.FunctionType):
                 add_function(member_label, value)

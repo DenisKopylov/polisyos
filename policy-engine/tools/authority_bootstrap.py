@@ -951,6 +951,24 @@ raise SystemExit(module._child_main(channel, request))
 """
 
 
+def _source_test_arguments(argv: Sequence[str]) -> list[str]:
+    """Select literal Python assertions for the source-recorded pytest profile."""
+    arguments = list(argv)
+    has_plain_mode = False
+    for index, argument in enumerate(arguments):
+        if argument == "--":
+            break
+        if argument.startswith("--assert="):
+            if argument != "--assert=plain":
+                raise ValueError("source_test_profile_requires_plain_assertions")
+            has_plain_mode = True
+        elif argument == "--assert":
+            if index + 1 >= len(arguments) or arguments[index + 1] != "plain":
+                raise ValueError("source_test_profile_requires_plain_assertions")
+            has_plain_mode = True
+    return arguments if has_plain_mode else ["--assert=plain", *arguments]
+
+
 def _launch(mode: str, argv: Sequence[str], *, wheel_directory: Path | None = None) -> int:
     if (
         not (_PRODUCT / "src/polisyos").is_dir()
@@ -972,6 +990,12 @@ def _launch(mode: str, argv: Sequence[str], *, wheel_directory: Path | None = No
     except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
         print(f"source execution evidence unavailable: {type(exc).__name__}", file=sys.stderr)
         return _invoke_entry(mode, list(argv), candidate_reason="source_snapshot_unavailable")
+    if mode == "test":
+        try:
+            argv = _source_test_arguments(argv)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     parent, child = socket.socketpair()
     request = {
         "parent_pid": os.getpid(),

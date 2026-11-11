@@ -34,6 +34,11 @@ python tools/quality/testing/process_budget.py \
 
 ### Explicit live initial-N5 witness profile
 
+Source-recorded `tools/authority test` selects plain Python assertions by default,
+preserving the original test code and import-finder state. An explicit assertion
+rewrite request is a profile error before child startup. Assertion statements
+still execute; this changes pytest's rewritten failure diagnostics.
+
 For the served A → B → B → B → C scenario, pass `--require-live-initial-n5`
 inside the authority launcher's `test` arguments. The launcher intentionally
 clears outer environment variables. Pytest activates the existing stronger

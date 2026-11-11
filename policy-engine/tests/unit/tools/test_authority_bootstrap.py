@@ -7,7 +7,44 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _PRODUCT = Path(__file__).resolve().parents[3]
+
+
+def test_source_test_profile_preserves_assertions_and_literal_path_arguments() -> None:
+    from tools.authority_bootstrap import _source_test_arguments
+
+    assert _source_test_arguments(["-q", "test_case.py"]) == [
+        "--assert=plain",
+        "-q",
+        "test_case.py",
+    ]
+    for explicit in (["--assert=plain"], ["--assert", "plain"]):
+        assert _source_test_arguments(explicit) == explicit
+    assert _source_test_arguments(["--", "--assert=rewrite"]) == [
+        "--assert=plain",
+        "--",
+        "--assert=rewrite",
+    ]
+    for invalid in (["--assert=rewrite"], ["--assert", "rewrite"], ["--assert"]):
+        with pytest.raises(ValueError, match="source_test_profile_requires_plain_assertions"):
+            _source_test_arguments(invalid)
+
+
+def test_source_test_profile_refuses_rewriting_before_child_start(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from tools import authority_bootstrap as host
+
+    monkeypatch.setattr(host, "_selected_snapshot", lambda: ({}, {}, [], {}, b"", b""))
+
+    def unexpected_child() -> None:
+        raise AssertionError("a refused source test must not start the child")
+
+    monkeypatch.setattr(host.socket, "socketpair", unexpected_child)
+    assert host._launch("test", ["--assert=rewrite"]) == 2
+    assert "source_test_profile_requires_plain_assertions" in capsys.readouterr().err
 
 
 def test_source_candidates_follow_relative_imports_and_module_aliases() -> None:

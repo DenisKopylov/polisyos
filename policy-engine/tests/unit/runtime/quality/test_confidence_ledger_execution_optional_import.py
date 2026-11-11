@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import importlib
 import subprocess
@@ -22,6 +23,45 @@ import pytest
         "first-party-loader",
         "package-reexport",
         "unconsumed-alias",
+        "guarded-family",
+        "guarded-is-not-none",
+        "guarded-fallback",
+        "guarded-alias",
+        "guarded-code",
+        "guarded-default",
+        "guarded-provider",
+        "guarded-source",
+        "guarded-prerequisite",
+        "guarded-events",
+        "guarded-handler",
+        "guarded-shadowed-raise",
+        "guarded-call-guard",
+        "guarded-prerequisite-handler",
+        "guarded-none-import",
+        "flagged-guard",
+        "guarded-class-code",
+        "guarded-class-default",
+        "guarded-class-state",
+        "guarded-class-metaclass",
+        "guarded-executed-class-default",
+        "flagged-bound-guard",
+        "guarded-none-locked",
+        "guarded-ambiguous-failure",
+        "guarded-class-kwdefault",
+        "guarded-class-closure",
+        "guarded-class-literal-state",
+        "guarded-declared-transform",
+        "guarded-undeclared-transform",
+        "guarded-dynamic-failure",
+        "guarded-builtin-alias",
+        "guarded-module-descriptor",
+        "guarded-structural-classmethod",
+        "guarded-structural-staticmethod",
+        "guarded-structural-property",
+        "guarded-structural-alias",
+        "guarded-structural-unresolved",
+        "guarded-transform-factory-rebind",
+        "guarded-transform-provider-missing",
     ],
 )
 def test_n5_capture_requires_actual_initializer_and_locked_members(
@@ -63,15 +103,84 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
             "from ._e02_package_forward import selected as run\ndef observed(): return run()\n"
         ),
     }
+    guarded = (
+        "try:\n    import e02_locked_provider as backend\n"
+        "except Exception as exc:\n    backend = None\n    BACKEND_ERROR = exc\n"
+        "try:\n    if backend is None:\n        raise RuntimeError('prerequisite unavailable')\n"
+        "    from e02_locked_provider import Model, SVC, calculate\n"
+        "except Exception as exc:\n    Model = None\n    SVC = None\n    calculate = None\n    FAMILY_ERROR = exc\n"
+    )
+    if profile == "guarded-is-not-none":
+        guarded = guarded.replace(
+            "import e02_locked_provider as backend", "import missing_prerequisite as backend"
+        ).replace("if backend is None:", "if backend is not None:")
+    elif profile == "guarded-fallback":
+        guarded = guarded.replace(
+            "import e02_locked_provider as backend", "import missing_prerequisite as backend"
+        )
+    elif profile == "guarded-prerequisite-handler":
+        guarded = "ModuleNotFoundError = BaseException\n" + guarded.replace(
+            "import e02_locked_provider as backend", "import missing_prerequisite as backend"
+        ).replace("except Exception as exc:", "except ModuleNotFoundError as exc:", 1).replace(
+            "if backend is None:", "if backend is not None:"
+        )
+    elif profile == "guarded-none-locked":
+        guarded = guarded.replace(
+            "import e02_locked_provider as backend",
+            "from e02_locked_provider import SENTINEL as backend",
+        ).replace("if backend is None:", "if backend is not None:")
+    elif profile in {"guarded-none-import", "guarded-dynamic-failure"}:
+        guarded = guarded.replace(
+            "import e02_locked_provider as backend",
+            "from e02_unlocked_prerequisite import SENTINEL as backend",
+        ).replace("if backend is None:", "if backend is not None:")
+    elif profile == "guarded-handler":
+        guarded = guarded.replace("except Exception as exc:", "except BaseException as exc:")
+    elif profile == "guarded-builtin-alias":
+        guarded = "from builtins import ValueError as RuntimeError\n" + guarded
+    elif profile == "guarded-shadowed-raise":
+        guarded = "RuntimeError = lambda message: ValueError(message)\n" + guarded
+    elif profile == "guarded-call-guard":
+        guarded = guarded.replace("if backend is None:", "if bool(backend):")
+    if profile == "guarded-dynamic-failure":
+        guarded = (
+            "try:\n    __import__('e02_unlocked_prerequisite')\nexcept ImportError:\n    pass\n"
+            + guarded
+        )
+    sources["tools/_e02_guarded_optional.py"] = guarded
+    sources["tools/_e02_guarded_consumer.py"] = (
+        "from tools._e02_guarded_optional import backend, Model, SVC, calculate\n"
+    )
+    if profile == "flagged-guard":
+        sources["tools/_e02_locked_consumer.py"] += "from tools._e02_locked_wrapper import SVC\n"
+        sources["tools/_e02_locked_wrapper.py"] = (
+            "unqualified = 1\nRuntimeError = lambda message: ValueError(message)\n"
+            + sources["tools/_e02_locked_wrapper.py"].replace(
+                "try:\n", "try:\n    if unqualified is None:\n        raise RuntimeError('x')\n", 1
+            )
+        )
+    if profile == "flagged-bound-guard":
+        sources["tools/_e02_locked_consumer.py"] += (
+            "from tools._e02_locked_wrapper import backend, SVC\n"
+        )
+        sources["tools/_e02_locked_wrapper.py"] = (
+            "import e02_locked_provider as backend\n"
+            + sources["tools/_e02_locked_wrapper.py"].replace(
+                "try:\n", "try:\n    if backend is None:\n        raise ImportError('x')\n", 1
+            )
+        )
+    if profile == "guarded-executed-class-default":
+        sources["tools/_e02_guarded_consumer.py"] = "def observed(): return 17\n"
     for relative, content in sources.items():
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
     wheel_sources = {
-        "e02_locked_provider/__init__.py": "from .base import Model, SVC\n",
+        "e02_locked_provider/__init__.py": "from .base import Model, SVC, calculate\n",
         "e02_locked_provider/base.py": (
-            "class Model:\n    def predict(self): return 17\n"
+            "class Model:\n    def predict(self, value=17): return value\n"
             "class SVC:\n    def predict(self): return 29\n"
+            "def calculate(value=13): return value + 4\n"
         ),
         "e02_locked_provider-1.0.dist-info/METADATA": (
             "Metadata-Version: 2.1\nName: e02-locked-provider\nVersion: 1.0\n\n"
@@ -83,6 +192,101 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
             "e02_locked_provider/__init__.py,,\ne02_locked_provider/base.py,,\n"
         ),
     }
+    if profile == "guarded-none-locked":
+        wheel_sources["e02_locked_provider/__init__.py"] += "SENTINEL = None\n"
+    if profile == "guarded-class-kwdefault":
+        wheel_sources["e02_locked_provider/base.py"] = wheel_sources[
+            "e02_locked_provider/base.py"
+        ].replace("def predict(self, value=17)", "def predict(self, *, value=17)")
+    if profile == "guarded-class-closure":
+        wheel_sources["e02_locked_provider/base.py"] = wheel_sources[
+            "e02_locked_provider/base.py"
+        ].replace(
+            "def predict(self, value=17): return value",
+            "def predict(self, value=17): return value + (0 if __class__ is Model else 1)",
+        )
+    if profile == "guarded-class-literal-state":
+        wheel_sources["e02_locked_provider/base.py"] = wheel_sources[
+            "e02_locked_provider/base.py"
+        ].replace("class Model:\n", "class Model:\n    FACTOR = 17\n")
+    if profile.startswith("guarded-structural-"):
+        kind = profile.removeprefix("guarded-structural-")
+        method = (
+            "    @property\n    def predict(self): return 17\n"
+            if kind == "property"
+            else "    @staticmethod\n    def predict(value=17): return value\n"
+            if kind == "staticmethod"
+            else "    @classmethod\n    def predict(cls, value=17): return value\n"
+        )
+        if kind == "unresolved":
+            wheel_sources["e02_locked_provider/base.py"] = (
+                "classmethod = classmethod\n" + wheel_sources["e02_locked_provider/base.py"]
+            )
+        if kind == "alias":
+            method = method.replace("@classmethod", "@structural")
+            wheel_sources["e02_locked_provider/base.py"] = (
+                "from builtins import classmethod as structural\n"
+                + wheel_sources["e02_locked_provider/base.py"]
+            )
+        wheel_sources["e02_locked_provider/base.py"] = wheel_sources[
+            "e02_locked_provider/base.py"
+        ].replace("    def predict(self, value=17): return value\n", method, 1)
+    if profile == "guarded-transform-factory-rebind":
+        wheel_sources["e02_locked_provider/transforms.py"] = (
+            "from builtins import classmethod as borrowed\n"
+        )
+        wheel_sources["e02_locked_provider/base.py"] = (
+            "from .transforms import borrowed as classmethod\n"
+            + wheel_sources["e02_locked_provider/base.py"].replace(
+                "    def predict(self, value=17): return value\n",
+                "    @classmethod\n    def predict(cls, value=17): return value\n",
+                1,
+            )
+        )
+    if profile in {"guarded-declared-transform", "guarded-transform-provider-missing"}:
+        wheel_sources["e02_locked_provider/base.py"] = (
+            "from .transforms import borrowed\n"
+            + wheel_sources["e02_locked_provider/base.py"].replace(
+                "    def predict(self, value=17)",
+                "    @borrowed\n    def predict(self, value=17)",
+                1,
+            )
+        )
+        wheel_sources["e02_locked_provider/transforms.py"] = (
+            "from functools import wraps\n"
+            "def borrowed(function):\n"
+            "    @wraps(function)\n"
+            "    def wrapped(*args, **kwargs): return function(*args, **kwargs)\n"
+            "    return wrapped\n"
+        )
+    if profile == "guarded-module-descriptor":
+        wheel_sources["e02_locked_provider/base.py"] += (
+            "from types import ModuleType\nimport sys\neffects = []\n"
+            "class ProviderModule(ModuleType):\n"
+            "    def __getattribute__(self, name):\n"
+            "        if name == '__dict__': effects.append('executed')\n"
+            "        return super().__getattribute__(name)\n"
+            "sys.modules[__name__].__class__ = ProviderModule\n"
+        )
+    if profile == "guarded-class-metaclass":
+        wheel_sources["e02_locked_provider/base.py"] = (
+            "effects = []\n"
+            "class Meta(type):\n"
+            "    @property\n"
+            "    def __module__(cls):\n"
+            "        effects.append('executed')\n"
+            "        return __name__\n"
+            + wheel_sources["e02_locked_provider/base.py"].replace(
+                "class Model:", "class Model(metaclass=Meta):", 1
+            )
+        )
+    if (
+        "e02_locked_provider/transforms.py" in wheel_sources
+        and profile != "guarded-transform-provider-missing"
+    ):
+        wheel_sources["e02_locked_provider-1.0.dist-info/RECORD"] += (
+            "e02_locked_provider/transforms.py,,\n"
+        )
     wheel = root / "e02_locked_provider-1.0-py3-none-any.whl"
     with zipfile.ZipFile(wheel, "w") as archive:
         for relative, content in wheel_sources.items():
@@ -90,6 +294,16 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
             path = root / "site" / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8")
+    if profile in {"guarded-none-import", "guarded-dynamic-failure"}:
+        prerequisite = "SENTINEL = None\n"
+        if profile == "guarded-dynamic-failure":
+            prerequisite = (
+                "import builtins\n"
+                "if not getattr(builtins, '_e02_prerequisite_attempted', False):\n"
+                "    builtins._e02_prerequisite_attempted = True\n"
+                "    raise ModuleNotFoundError('first attempt')\n" + prerequisite
+            )
+        (root / "site/e02_unlocked_prerequisite.py").write_text(prerequisite)
     digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
     lock = root / "uv.lock"
     lock.write_text(
@@ -106,6 +320,59 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
         timeout=20,
     )
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.integration
+def test_retained_guarded_optional_native_dependency_family() -> None:
+    """Reconcile every real import in the guarded dependency facade without numerical work."""
+    host = sys.modules.get("_polisyos_early_host")
+    if host is None:
+        pytest.skip("requires the selected early authority launcher")
+    from polisyos.runtime.quality import confidence_ledger as ledger
+
+    facade = importlib.import_module("polisyos.scientist.methods.search.strategies._deps")
+    assert facade.TORCH_IMPORT_ERROR is None
+    assert facade.BOTORCH_IMPORT_ERROR is None
+    host.handoff_if_ready()
+    root = ledger._loaded_policy_engine_root()
+    analysis = ledger._IntegrityAnalysisContext()
+    recorded = ledger._n5_locked_optional_imports(root, analysis)
+    session = sys.__dict__["_polisyos_loaded_host_v1"]
+    owner_path = Path(ledger.__file__).resolve()
+    assert recorded is not None, {
+        "owner_capture_state": session.get("owner_capture_state"),
+        "owner_diagnostic": session.get("last_owner_diagnostic"),
+        "owner_origin": str(owner_path),
+        "owner_source_sha256": hashlib.sha256(owner_path.read_bytes()).hexdigest(),
+    }
+    assert owner_path == root / "src/polisyos/runtime/quality/confidence_ledger.py"
+    assert (
+        recorded.capture.completed(ledger.__name__).source_sha256
+        == hashlib.sha256(owner_path.read_bytes()).hexdigest()
+    )
+    tree = analysis.source_tree(Path(facade.__file__))
+    arms = ledger._source_locked_optional_arms(tree)
+    assert len(arms) == 17  # Complete source-declared family, not a selected GP alias.
+    index = ledger._AuthorityImportClosureSourceIndex({}, {}, n5_recorded_optional_imports=recorded)
+    for export, arm in sorted(arms.items()):
+        selected = vars(facade)[export]
+        assert selected is not None
+        statement, alias = arm.imports[export]
+        provider = alias.name if isinstance(statement, ast.Import) else statement.module
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            facade.__name__,
+            export,
+            directory_entries={},
+            source_index=index,
+            discovery_only=True,
+        )
+        assert candidate.route == (
+            "external",
+            provider,
+            None if isinstance(statement, ast.Import) else alias.name,
+        )
+    analysis.assert_sources_unchanged()
 
 
 @pytest.mark.integration
@@ -223,7 +490,7 @@ from pathlib import Path
 
 product, root, profile = sys.argv[1:]
 product, root = Path(product), Path(root)
-fallback = profile == "ordinary-fallback"
+fallback = profile in {"ordinary-fallback", "guarded-fallback", "guarded-ambiguous-failure"}
 venv_site = Path(sys.prefix) / "lib/python3.14/site-packages"
 sys.path[:0] = [str(root), str(product / "src"), str(venv_site)]
 plain_import_profile = sys.meta_path[:]
@@ -370,6 +637,202 @@ def observe_package_reexport():
     assert consumer.observed() == 29
     assert_refused(binding)
     assert capture.failure_reason == "retained_export_changed", capture.failure_reason
+
+
+def observe_guarded_family():
+    if not fallback:
+        sys.path.insert(0, str(site))
+    selected_consumer = importlib.import_module("tools._e02_guarded_consumer")
+    optional = importlib.import_module("tools._e02_guarded_optional")
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    try:
+        ledger._resolve_authority_import_closure(root, selected_consumer.__name__, include_tools=True)
+    except ledger.ConfidenceLedgerError:
+        pass
+    else:
+        assert profile == "guarded-executed-class-default", "unrecorded guarded binding accepted"
+
+    def member(name):
+        retained = selector._selected.get(name)
+        if retained is None:
+            return None
+        completed = capture.completed(name)
+        assert selector.select(name, completed.origin, _retained_only=True) == retained[:2]
+        return (name, *retained, hashlib.sha256(lock).hexdigest())
+
+    def observe(member_reader=member, drop_events=False):
+        analysis = ledger._IntegrityAnalysisContext()
+        binding = ledger._N5LockedOptionalImports(root, analysis, capture, member_reader)
+        if drop_events:
+            binding.events.pop((optional.__name__, facade))
+        if profile == "guarded-prerequisite-handler":
+            index = ledger._AuthorityImportClosureSourceIndex({}, {}, n5_recorded_optional_imports=binding)
+            ledger._source_module_import_route_candidate(root, optional.__name__, "Model", directory_entries={}, source_index=index, discovery_only=True)
+            return []
+        closure = ledger._resolve_authority_import_closure(root, selected_consumer.__name__, include_tools=True, _n5_optional_imports=binding)
+        assert set(dict(closure)) == {"tools", optional.__name__, selected_consumer.__name__}
+        index = ledger._AuthorityImportClosureSourceIndex({}, {}, n5_recorded_optional_imports=binding)
+        for name in ("backend", "Model", "SVC", "calculate"):
+            candidate = ledger._source_module_import_route_candidate(root, optional.__name__, name, directory_entries={}, source_index=index, discovery_only=True)
+            value = vars(optional)[name]
+            assert candidate.route == (("symbol", optional.__name__, name) if value is None else ("external", facade, None if name == "backend" else name))
+        analysis.assert_sources_unchanged()
+        return list(binding.rows.values())
+
+    def refused(**kwargs):
+        try:
+            observe(**kwargs)
+        except ledger.ConfidenceLedgerError as exc:
+            assert exc.code == "canonical_loaded_runtime_mismatch", str(exc)
+        else:
+            raise AssertionError("unqualified guarded optional binding accepted")
+
+    if profile in {"guarded-handler", "guarded-shadowed-raise", "guarded-call-guard", "guarded-prerequisite-handler", "guarded-none-import", "guarded-none-locked", "guarded-ambiguous-failure", "guarded-class-metaclass", "guarded-dynamic-failure", "guarded-builtin-alias", "guarded-module-descriptor", "guarded-transform-provider-missing"}:
+        if profile in {"guarded-none-import", "guarded-dynamic-failure"}:
+            assert optional.backend is None and "BACKEND_ERROR" not in vars(optional)
+            assert any(event.importer_name == optional.__name__ and event.provider_name == "e02_unlocked_prerequisite" for event in capture.import_events())
+            assert "e02_unlocked_prerequisite" not in selector._selected
+        if profile == "guarded-class-metaclass":
+            assert vars(sys.modules[terminal])["effects"] == []
+        if profile == "guarded-module-descriptor":
+            namespace = types.ModuleType.__dict__["__dict__"].__get__(sys.modules[terminal], types.ModuleType)
+            before_effects = list(namespace["effects"])
+        refused()
+        if profile == "guarded-module-descriptor":
+            assert namespace["effects"] == before_effects
+        if profile == "guarded-class-metaclass":
+            assert vars(sys.modules[terminal])["effects"] == []
+        return
+    if profile.startswith("guarded-structural-") or profile == "guarded-transform-factory-rebind":
+        if profile == "guarded-structural-alias":
+            refused()
+            return
+        rows = observe()
+        raw = vars(optional.Model)["predict"]
+        original = raw.fget if profile.endswith("property") else raw.__func__
+        from functools import wraps
+        @wraps(original)
+        def malicious(*args, **kwargs): return -999
+        if profile == "guarded-transform-factory-rebind":
+            def replacement(*args, **kwargs): return None
+            sys.modules[terminal].classmethod = sys.modules[facade + ".transforms"].borrowed = replacement
+        if profile.endswith(("classmethod", "unresolved")) or profile == "guarded-transform-factory-rebind":
+            optional.Model.predict = classmethod(malicious)
+        elif profile.endswith("staticmethod"):
+            optional.Model.predict = staticmethod(malicious)
+        else:
+            optional.Model.predict = property(malicious)
+        assert (optional.Model().predict if profile.endswith("property") else optional.Model().predict()) == -999
+        refused()
+        return
+    if profile == "guarded-executed-class-default":
+        function = optional.Model.predict
+        assert optional.Model().predict() == 17
+        ledger._loaded_policy_engine_root = lambda: root
+        ledger._n5_locked_optional_imports = lambda selected_root, analysis: ledger._N5LockedOptionalImports(root, analysis, capture, member)
+        original_closure = ledger._resolve_authority_import_closure
+        ledger._resolve_authority_import_closure = lambda selected_root, entries, **kwargs: original_closure(selected_root, entries, include_tools=True, **kwargs)
+        def consume():
+            return ledger.capture_execution_source_bindings((selected_consumer.__name__,), ((terminal, function.__code__),))
+        original = consume()
+        assert original["executed_code"]
+        assert original["loaded_binding_scope"] == "current_source_owned_slots_for_observed_code_only"
+        assert original["executed_function_identity"] == "not_established"
+        assert original["executed_invocation_default_state"] == "not_established"
+        detached = types.FunctionType(function.__code__, function.__globals__, function.__name__, (-999,))
+        assert detached(optional.Model()) == -999 and optional.Model().predict() == 17
+        assert consume()["executed_function_identity"] == "not_established"
+        function.__defaults__ = (-999,)
+        assert optional.Model().predict() == -999
+        try:
+            consume()
+        except ledger.ConfidenceLedgerError as exc:
+            assert exc.code == "n5_consumed_loaded_binding_mismatch", str(exc)
+        else:
+            raise AssertionError("changed external executed defaults accepted")
+        return
+    if profile in {"guarded-class-code", "guarded-class-default", "guarded-class-state", "guarded-class-kwdefault", "guarded-class-closure", "guarded-class-literal-state", "guarded-declared-transform", "guarded-undeclared-transform"}:
+        rows = observe()
+        if profile == "guarded-class-code":
+            optional.Model.predict.__code__ = (lambda self, value=17: -999).__code__
+            assert optional.Model().predict() == -999
+        elif profile == "guarded-class-default":
+            optional.Model.predict.__defaults__ = (-999,)
+            assert optional.Model().predict() == -999
+        elif profile == "guarded-class-kwdefault":
+            optional.Model.predict.__kwdefaults__ = {"value": -999}
+            assert optional.Model().predict() == -999
+        elif profile == "guarded-class-closure":
+            optional.Model.predict.__closure__[0].cell_contents = object
+            assert optional.Model().predict() == 18
+        elif profile == "guarded-class-literal-state":
+            optional.Model.FACTOR = -999
+        elif profile == "guarded-declared-transform":
+            views = [view for row in rows for view in row.get("class_reference_observations", ())]
+            assert any("declared_callable_transform_behavior" in view["unestablished"] for view in views)
+            optional.Model.predict.__wrapped__.__defaults__ = (-999,)
+            assert optional.Model().predict() == -999
+        elif profile == "guarded-undeclared-transform":
+            from functools import wraps
+            original = optional.Model.predict
+            @wraps(original)
+            def wrapped(*args, **kwargs): return -999
+            optional.Model.predict = wrapped
+            assert optional.Model().predict() == -999
+        else:
+            optional.Model.injected = lambda self: -999
+        refused()
+        return
+    rows = observe()
+    assert len(rows) == 4
+    expected_fallbacks = 4 if fallback else (1 if profile == "guarded-is-not-none" else 0)
+    assert sum(row["wrapper_binding_disposition"] == "local_none_fallback" for row in rows) == expected_fallbacks
+    assert all(row["wrapper_availability_export"] is None for row in rows)
+    if fallback or profile in {"guarded-family", "guarded-is-not-none"}:
+        return
+    if profile == "guarded-alias":
+        owner = sys.modules[terminal]
+        original = owner.Model
+        replacement = type("Model", (), {"predict": original.predict, "__module__": terminal})
+        owner.Model = sys.modules[facade].Model = optional.Model = selected_consumer.Model = replacement
+        refused()
+    elif profile == "guarded-code":
+        optional.calculate.__code__ = (lambda value=13: value + 99).__code__
+        refused()
+    elif profile == "guarded-default":
+        optional.calculate.__defaults__ = (99,)
+        refused()
+    elif profile == "guarded-provider":
+        refused(member_reader=lambda name: None if name == terminal else member(name))
+    elif profile == "guarded-source":
+        path = root / "tools/_e02_guarded_optional.py"
+        path.write_text(path.read_text().replace("from e02_locked_provider import Model, SVC, calculate", "pass"))
+        refused()
+    elif profile == "guarded-prerequisite":
+        optional.backend = types.ModuleType(facade)
+        refused()
+    elif profile == "guarded-events":
+        refused(drop_events=True)
+    else:
+        raise AssertionError(profile)
+
+
+if profile in {"flagged-guard", "flagged-bound-guard"}:
+    sys.path.insert(0, str(site))
+    importlib.import_module(consumer)
+    analysis = ledger._IntegrityAnalysisContext()
+    binding = ledger._N5LockedOptionalImports(root, analysis, capture, lambda name: (name, *selector._selected[name], hashlib.sha256(lock).hexdigest()) if name in selector._selected else None)
+    try:
+        ledger._resolve_authority_import_closure(root, consumer, include_tools=True, _n5_optional_imports=binding)
+    except ledger.ConfidenceLedgerError as exc:
+        assert profile == "flagged-guard" and exc.code == "canonical_loaded_runtime_mismatch", str(exc)
+    else:
+        assert profile == "flagged-bound-guard", "unqualified flagged prerequisite accepted"
+    raise SystemExit(0)
+
+if profile.startswith("guarded-"):
+    observe_guarded_family()
+    raise SystemExit(0)
 
 
 if profile == "package-reexport":

@@ -9275,7 +9275,21 @@
             "output": "policy-engine/_cache/e02/lane01-generated-full-r2/",
             "wall_seconds": 445.633,
             "peak_sampled_process_tree_rss_bytes": 2240397312,
-            "earlier_setup": "r1 HARNESS_ERROR/UNRUN probes; r2 cached frozen setup completed; working .venv preserved"
+            "earlier_setup": "r1 HARNESS_ERROR/UNRUN probes; r2 cached frozen setup completed; working .venv preserved",
+            "focused_repair": {
+              "result": "PASS",
+              "commit": "465962a33e87d6a23204115750f9a235e1adac25",
+              "tree": "3d9740bea0cfcacfae4b31c13d834a8574fba4b3",
+              "source": "1ce3715f3941d6735c61c656cbc6228900098fa7",
+              "output_only": true,
+              "independent_review": "GO",
+              "check_output": "PRIMARY/policy-engine/_cache/e02/lane01-trust-posture-check-r1/",
+              "wall_seconds": 20.789,
+              "peak_sampled_process_tree_rss_bytes": 410402816,
+              "new_claims": "two blocked; unchanged historical supported claim; no authority promotion",
+              "five_other_families": "clean on recorded native6 source; no blind rerun",
+              "original_aggregate": "FAIL preserved, not retroactively PASS"
+            }
           },
           "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
           "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
@@ -9429,16 +9443,31 @@
             "wall_seconds": 1281.616,
             "peak_sampled_process_tree_rss_bytes": 3690545152,
             "output": "policy-engine/_cache/e02/lane01-n6-source-admission-r2/",
-            "repair_state": "IN_PROGRESS: four independent source-route findings; no actual numerical bypass claim; real 17-binding family not qualified",
+            "repair_state": "REVIEWED_SOURCE_CHECKPOINT: final45PASS; independent10PASS/GO; actual17familyUNRUN",
             "plain_pytest_profile": {
               "tests": 13,
               "result": "PASS",
               "independent_review": "GO",
-              "state": "REVIEWED_WORKING_TREE_NOT_YET_COMMITTED"
+              "state": "REVIEWED_SOURCE_CHECKPOINT"
+            },
+            "final_repair": {
+              "ledger_sha256": "09d102159571ea273c5dc5335bf0b456012f82f4bb80d925c1791ef2c41c4048",
+              "test_sha256": "a95db4d1e633ed9b58091428e3324aa3c6246199b567d4f4ded2a811c0691f59",
+              "tests": 45,
+              "independent_tests": 10,
+              "independent_review": "GO",
+              "wall_seconds": 37.153,
+              "peak_sampled_process_tree_rss_bytes": 326336512,
+              "limits": [
+                "class construction/inherited/opaque wrapper behavior not_established",
+                "detached executed callable identity/defaults not_established",
+                "endpoint retained reference does not establish protected through-use"
+              ],
+              "earlier_89": "PASS on prior pre-classifier hash, not final45source"
             }
           },
           "methodology_v05": {
-            "state": "REVIEWED_WORKING_TREE_RUNTIME_VARIANT_PENDING",
+            "state": "COMMITTED_PUBLIC_COMPANIONS_REVIEWED_SERVED_V2_PENDING",
             "changed_paths": 12,
             "core": {
               "PASS": 50,
@@ -9453,7 +9482,15 @@
             },
             "independent_review": "GO",
             "semantics": "Explicit v2 selected raw methodology document; unchanged v1 bytes/defaults; optional unknown carries typed candidate limitation; no external method validity or authority",
-            "next": "public companions and separate served v2 Runtime/Foundry/fresh reader positive and target-only removal control; no v1 numerical repeat"
+            "next": "Separate served v2 Runtime/Foundry/fresh reader positive and target-only removal control; no v1 numerical repeat",
+            "implementation_commit": "1ce3715f3941d6735c61c656cbc6228900098fa7",
+            "affected_runtime_foundry": {
+              "PASS": 61,
+              "output": "PRIMARY/policy-engine/_cache/e02/variable-methodology-runtime-consumers-r1/",
+              "wall_seconds": 52.286,
+              "peak_sampled_process_tree_rss_bytes": 1710325760,
+              "unchanged_inputs": 8
+            }
           },
           "REQ_REQ_01_06_current_composition": "UNRUN current-source census/wheel/legacy-flag requalification; historical r3/r4 remain qualified only on recorded source",
           "retained_C_preflight": {

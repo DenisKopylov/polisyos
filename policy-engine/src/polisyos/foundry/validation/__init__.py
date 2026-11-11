@@ -17,6 +17,7 @@ from polisyos.foundry.validation.legal_correspondence import (
 )
 from polisyos.foundry.validation.method_quality import (
     build_foundry_method_report,
+    build_foundry_method_report_from_execution_result,
     normalize_foundry_method_report,
 )
 from polisyos.foundry.validation.phase0_closure import (
@@ -34,6 +35,7 @@ __all__ = [
     "bind_legal_subject_annotations",
     "build_causal_statistical_validity_report",
     "build_foundry_method_report",
+    "build_foundry_method_report_from_execution_result",
     "build_foundry_phase0_closure_report",
     "build_foundry_phase2_closure_report",
     "default_foundry_phase2_closure_report_path",

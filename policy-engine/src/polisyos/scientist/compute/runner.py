@@ -57,7 +57,7 @@ from polisyos.foundry.methods import (
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.registry import MethodRegistry, registry_scope
 from polisyos.ir import ArtifactID as IRArtifactID
 from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
 from polisyos.ir.governance.validation import ValidationIssue
@@ -1887,6 +1887,7 @@ class MethodBackend:
         seed: int,
         input_refs: Mapping[str, ArtifactRef] | None = None,
         capture_dispatch_binding: bool = False,
+        method_requirements: list[Mapping[str, Any] | Any] | None = None,
     ) -> ExecutionResult:
         """Run one Method and optionally record the observed dispatch binding."""
         store = self._store_factory(cas_root)
@@ -1958,13 +1959,19 @@ class MethodBackend:
                 else:
                     dispatch_binding = binding.model_dump(mode="json")
                     dispatch_binding_status = "recomputed"
-            return dispatcher.dispatch(
-                method_class=method_class,
-                signature=signature,
-                state=input_state,
-                params=method_params,
-                seed=seed,
+            from contextlib import nullcontext
+
+            selected_scope = (
+                registry_scope(registry) if signature.representation_profiles else nullcontext()
             )
+            with selected_scope:
+                return dispatcher.dispatch(
+                    method_class=method_class,
+                    signature=signature,
+                    state=input_state,
+                    params=method_params,
+                    seed=seed,
+                )
 
         method_result = common_async_tools.run_shared_executor_sync(dispatch_with_observation)
 
@@ -2015,6 +2022,17 @@ class MethodBackend:
             "result_ref": str(result_ref.artifact_id),
             "method_result_ref": result_ref.model_dump(mode="json"),
         }
+        if method_result.representation_compatibility:
+            quality_ref = self._persist_representation_audit(
+                store,
+                method_result,
+                result_ref=result_ref,
+                method_requirements=method_requirements,
+            )
+            evidence_payload["foundry_method_report_ref"] = quality_ref.model_dump(mode="json")
+            evidence_payload["representation_projection_scope"] = (
+                "historical_compatibility_audit_only"
+            )
         if dispatch_binding_status is not None:
             evidence_payload["method_dispatch_binding_status"] = dispatch_binding_status
             if dispatch_binding is not None:
@@ -2079,6 +2097,45 @@ class MethodBackend:
             ),
             applied=None,
             final_state=method_result.output,
+        )
+
+    @staticmethod
+    def _persist_representation_audit(
+        store: ArtifactStore,
+        result: Any,
+        *,
+        result_ref: ArtifactRef,
+        method_requirements: list[Mapping[str, Any] | Any] | None,
+    ) -> ArtifactRef:
+        """Pair this producer's fresh selected write with its live result once.
+
+        Readback binds output bytes and selected manifest lineage. Source-input
+        meaning/currentness and portable execution authority remain unestablished.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.foundry.validation import build_foundry_method_report_from_execution_result
+
+        if result_ref.manifest_profile_sha256 is None:
+            raise ValueError("representation_report_requires_selected_result_ref")
+        if load_core_json_artifact(store, result_ref) != to_python_data(
+            result.output, sort_keys=True
+        ):
+            raise ValueError("representation_report_result_payload_mismatch")
+        report = build_foundry_method_report_from_execution_result(
+            result,
+            method_requirements=method_requirements,
+        )
+        report["execution_result_ref"] = result_ref.model_dump(mode="json")
+        return store.put_json(
+            report,
+            ArtifactWriteOptions(
+                kind="foundry.method_quality_report",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.MethodQualityReport", version="1.0"),
+                inputs=[input_ref_from_artifact_ref(result_ref, role="method_result")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
 

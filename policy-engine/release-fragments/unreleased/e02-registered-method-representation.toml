@@ -1,0 +1,21 @@
+id = "e02-registered-method-representation"
+title = "Bind method representation support to actual native execution"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Typed registered representation profiles survive cache and lazy admission separately from stable ABI identity. A bounded Bounds-engine profile produces live BOUNDS_ONLY compatibility from its actual input and native output; selectors reject caller metadata, transplanted results and mutations. MethodBackend links a persisted historical report through the supported Foundry validation facade."
+compatibility = "Existing signatures default to no representation profiles, stable ABI digests stay unchanged, and unprofiled method execution keeps its existing path. Derived method caches rebuild under semantic schema v5. Historical compatibility summaries never qualify a new live mode selection."
+change_class = "compatible"
+public_surface_inventory_reviewed = true
+surface_classification = "public_experimental: typed method representation profiles, existing OutputContractDeclaration through the IR facade and build_foundry_method_report_from_execution_result; public_stable: existing Common serialization exports explicitly declared as a supported package entrypoint; internal: live call projection, registry/cache binding and candidate audit persistence"
+migration = "Regenerate the complete five-file Foundry stub family. Rebuild derived caches and qualify their semantic snapshot against the admitted registry. No historical artifact rewrite or inferred scientific support."
+limitations = "The initial profile covers only finite aligned binary-data base bounds. Tightening, IV/monotonicity forms, calibration, scientific identification, execution-through-use custody and publication authority are not established. In-process endpoint observations are not a portable execution attestation."
+evidence = [
+  "src/polisyos/foundry/methods/components/representation.py",
+  "src/polisyos/foundry/methods/catalog/causal/bounds_engine.py",
+  "src/polisyos/foundry/methods/selection/requirements.py",
+  "src/polisyos/foundry/validation/method_quality.py",
+  "src/polisyos/scientist/compute/runner.py",
+  "tests/unit/foundry/methods/components/test_representation.py",
+  "tests/unit/scientist/compute/test_runner_representation.py",
+]

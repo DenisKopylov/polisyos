@@ -381,10 +381,23 @@ def _missing_identification_modes(
     method: Mapping[str, Any],
     required_modes: Sequence[str],
 ) -> list[str]:
-    """Return modes absent from the method's declared requirement contract."""
+    """Return modes absent from an execution-bound representation projection."""
 
-    declared = {value.casefold() for value in _string_list(method.get("method_expectations"))}
-    return sorted(mode for mode in required_modes if mode.casefold() not in declared)
+    if not required_modes:
+        return []
+
+    from polisyos.foundry.methods.backends.protocol import MethodResult
+    from polisyos.foundry.methods.components.representation import (
+        resolved_execution_representation_modes,
+    )
+
+    result = method.get("execution_result")
+    supported = (
+        set(resolved_execution_representation_modes(result))
+        if isinstance(result, MethodResult)
+        else set()
+    )
+    return sorted(mode for mode in required_modes if mode not in supported)
 
 
 def _serious_requirement(requirement: MethodValidityRequirementSpec) -> bool:
@@ -491,8 +504,18 @@ def _family_mismatch(
 
 def _mapping(value: object) -> dict[str, Any]:
     if hasattr(value, "model_dump"):
-        return dict(value.model_dump(mode="json"))
+        value = value.model_dump(mode="json")
     if isinstance(value, Mapping):
+        result = value.get("execution_result")
+        if result is not None:
+            from polisyos.foundry.methods.backends.protocol import MethodResult
+            from polisyos.foundry.validation.method_quality import (
+                method_candidate_from_execution_result,
+            )
+
+            if isinstance(result, MethodResult):
+                return method_candidate_from_execution_result(result)
+            return {}
         return dict(value)
     raise TypeError("method candidates must be mappings or Pydantic-like models")
 

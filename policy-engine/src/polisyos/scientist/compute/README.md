@@ -55,6 +55,14 @@ refs by role; the exact method-result and method-evidence views remain in CAS
 lineage. This does not select a point role for a consumer or make the summaries
 gate-eligible.
 
+For methods with a registered representation profile, `MethodBackend` uses its
+explicit selected registry during native dispatch. It persists the result and a
+historical compatibility report, then links the full selected report reference
+in execution evidence. The producer verifies the result readback before pairing
+that report with it. This projection does not establish input provenance,
+scientific identification, method validity, currentness or publication authority;
+fresh consumers retain the historical limitation.
+
 The graph workflow can also submit a `MethodMetricProjectionWork` after its
 result, execution bundle, and compiled binding set have been persisted and its
 producer buffers have been released. The worker resolves a server-configured

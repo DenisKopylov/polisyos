@@ -6,9 +6,14 @@ from collections.abc import Mapping
 from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.selection.requirements import (
     select_method_candidates_for_requirements,
 )
@@ -1895,10 +1900,29 @@ def _result_refs_from_output(output: dict[str, Any]) -> dict[str, str]:
 
 
 def _selected_method_from_output(
-    output: dict[str, Any],
+    output: dict[str, Any] | MethodResult,
     *,
     foundry_input_refs: dict[str, str],
 ) -> dict[str, Any]:
+    from polisyos.foundry.methods.components.representation import (
+        resolved_execution_representation_modes,
+    )
+
+    execution_result = (
+        output if isinstance(output, MethodResult) else output.get("execution_result")
+    )
+    if isinstance(execution_result, MethodResult):
+        # A live carrier owns every consumed payload field. Outer dictionaries
+        # cannot lend another result's family, evidence, gates, or references.
+        native_output = _mapping(execution_result.output)
+        output = {**native_output, "method_result": execution_result.output}
+    elif "execution_result" in output:
+        output = {}
+    modes = (
+        resolved_execution_representation_modes(execution_result)
+        if isinstance(execution_result, MethodResult)
+        else ()
+    )
     report = _report_payload(output)
     evidence = _evidence_payload(output)
     result = _result_payload(output)
@@ -1908,6 +1932,15 @@ def _selected_method_from_output(
         evidence=evidence,
         result=result,
     )
+    representation_summaries = []
+    if modes:
+        projections = execution_result.representation_compatibility
+        method_id = projections[0].binding.signature.fqn
+        representation_summaries = [
+            projection.summary()
+            for projection in projections
+            if projection.valid_for(execution_result.output)
+        ]
     output_input_refs = _normalize_ref_mapping(output.get("input_refs"))
     input_refs = {**foundry_input_refs, **output_input_refs}
     method_family = _infer_method_family(
@@ -1930,6 +1963,8 @@ def _selected_method_from_output(
     return {
         "method_id": method_id,
         "method_family": method_family,
+        "execution_result": execution_result if modes else None,
+        "representation_compatibility": representation_summaries,
         "validity_registry": _registry_entry_for_method({"method_family": method_family}),
         "input_refs": input_refs,
         "result_refs": result_refs,
@@ -2055,6 +2090,13 @@ def _selected_method_from_output(
         ),
         "result_summary": _result_summary_from_payloads(report, result),
     }
+
+
+def method_candidate_from_execution_result(result: MethodResult) -> dict[str, Any]:
+    """Project one actual backend result without borrowing outer candidate evidence."""
+    if not isinstance(result, MethodResult):
+        raise TypeError("native_method_result_required")
+    return _selected_method_from_output(result, foundry_input_refs={})
 
 
 def _candidate_method_families(
@@ -2313,6 +2355,14 @@ def build_foundry_method_report(
         )
 
     status = _status_from_issues(issues)
+    selected_methods = [
+        {key: value for key, value in method.items() if key != "execution_result"}
+        for method in selected_methods
+    ]
+    normalized_candidate_methods = [
+        {key: value for key, value in method.items() if key != "execution_result"}
+        for method in normalized_candidate_methods
+    ]
     report = {
         "schema_version": SCHEMA_VERSION,
         "status": status,
@@ -2406,6 +2456,7 @@ def build_foundry_method_report(
                 blocker_refs=[issue.get("code") for issue in issues],
             )
         )
+    report.update(_representation_audit_limits(report))
     return report
 
 
@@ -2453,12 +2504,13 @@ def normalize_foundry_method_report(
         method_requirements=method_requirements or report.get("method_requirements"),
         canary_kind=canary_kind,
     )
+    normalized.update(_representation_audit_limits(report))
     return {**report, **normalized}
 
 
 def build_foundry_method_report_from_execution_outputs(
     *,
-    method_outputs: list[dict[str, Any]],
+    method_outputs: list[dict[str, Any] | MethodResult],
     foundry_input_refs: Mapping[str, Any] | None = None,
     expected_method_expectations: list[str] | None = None,
     method_requirements: list[Mapping[str, Any] | Any] | None = None,
@@ -2472,9 +2524,12 @@ def build_foundry_method_report_from_execution_outputs(
         if _text(expectation)
     }
     candidate_methods = [
-        _selected_method_from_output(_mapping(output), foundry_input_refs=normalized_foundry_refs)
+        _selected_method_from_output(
+            output if isinstance(output, MethodResult) else _mapping(output),
+            foundry_input_refs=normalized_foundry_refs,
+        )
         for output in method_outputs
-        if isinstance(output, Mapping)
+        if isinstance(output, Mapping | MethodResult)
     ]
     selected_methods, rejected_methods = _select_methods_after_execution(
         candidate_methods,
@@ -2745,6 +2800,7 @@ def _authority_envelope() -> dict[str, tuple[str, ...] | str]:
 
 def persist_foundry_method_report(store: object, report: dict[str, Any]) -> ArtifactRef:
     """Persist a Foundry method-quality report as a CAS artifact."""
+    report = {**report, **_representation_audit_limits(report)}
     return store.put_json(
         _jsonable(report),
         ArtifactWriteOptions(
@@ -2755,6 +2811,69 @@ def persist_foundry_method_report(store: object, report: dict[str, Any]) -> Arti
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+
+
+def _representation_audit_limits(report: dict[str, Any]) -> dict[str, object]:
+    """Reconstruct nonpromotion limits from every surviving owner disclosure."""
+    envelope = _mapping(report.get("runtime_authority_envelope"))
+    disclosures = [
+        disclosure
+        for key in ("candidate_methods", "selected_methods")
+        for method in _as_list(report.get(key))
+        for disclosure in _as_list(_mapping(method).get("representation_compatibility"))
+        if _mapping(disclosure).get("scope") == "representation_compatibility_only"
+    ]
+    if (
+        report.get("representation_projection_scope") == "historical_compatibility_audit_only"
+        or envelope.get("authority_role") == "historical_audit_projection"
+        or disclosures
+    ):
+        # Any surviving restrictive owner projection prevents promotion when a
+        # secondary marker was removed. Reconstruct the canonical limitation.
+        return {
+            "runtime_authority_envelope": _representation_audit_envelope(),
+            "representation_projection_scope": "historical_compatibility_audit_only",
+        }
+    return {}
+
+
+def _representation_audit_envelope() -> dict[str, object]:
+    """Keep historical representation disclosures outside scientific authority."""
+    return {
+        "authority_role": "historical_audit_projection",
+        "provenance_kind": "runtime_emitted",
+        "authoritative_for": ["representation_compatibility_disclosure", "selected_method_refs"],
+        "may_not_use_for": [
+            "causal_identification",
+            "scientific_validity",
+            "method_validity",
+            "runtime_assumption_gate_satisfaction",
+            "promotion_authority",
+            "publication_authority",
+            "closeout_pass",
+            "live_execution_observation",
+        ],
+    }
+
+
+def build_foundry_method_report_from_execution_result(
+    result: MethodResult,
+    *,
+    method_requirements: list[Mapping[str, Any] | Any] | None = None,
+) -> dict[str, Any]:
+    """Build a bounded historical audit from a live backend result.
+
+    This pure projection accepts no supplied artifact lineage and establishes no
+    portable observation, source currentness, scientific validity or authority.
+    The actual execution producer owns persistence and its fresh selected refs.
+    """
+    report = build_foundry_method_report_from_execution_outputs(
+        method_outputs=[result],
+        method_requirements=method_requirements,
+    )
+    report["representation_projection_scope"] = "historical_compatibility_audit_only"
+    report["runtime_authority_envelope"] = _representation_audit_envelope()
+    return report
 
 
 def persist_foundry_method_report_for_state(
@@ -2799,10 +2918,12 @@ __all__ = [
     "build_foundry_method_obligation_report_from_state",
     "build_foundry_method_report",
     "build_foundry_method_report_from_execution_outputs",
+    "build_foundry_method_report_from_execution_result",
     "build_foundry_method_report_from_state",
     "expected_method_expectations_from_state",
     "normalize_foundry_method_report",
     "persist_foundry_method_obligation_report_for_state",
     "persist_foundry_method_report",
+    "method_candidate_from_execution_result",
     "persist_foundry_method_report_for_state",
 ]

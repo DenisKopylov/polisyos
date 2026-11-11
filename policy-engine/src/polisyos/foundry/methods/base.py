@@ -31,6 +31,7 @@ import numpy as np
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
+from polisyos.ir import IdentificationMode
 from polisyos.ir.analytics import (
     parse_truthfulness_scope,
     parse_truthfulness_tier,
@@ -588,6 +589,49 @@ class ParameterSpec:
 
 
 @dataclass(frozen=True, slots=True)
+class MethodRepresentationProfile:
+    """Declare executable representation compatibility, never instance identification."""
+
+    profile_id: str
+    identification_mode: IdentificationMode
+    input_contract_id: str
+    input_contract_owner: str
+    output_slot: str
+    output_contract_id: str
+    output_contract_owner: str
+    precondition_method: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.identification_mode, IdentificationMode):
+            raise TypeError("representation_profile_identification_mode_invalid")
+        for name in (
+            "profile_id",
+            "input_contract_id",
+            "input_contract_owner",
+            "output_slot",
+            "output_contract_id",
+            "output_contract_owner",
+            "precondition_method",
+        ):
+            value = getattr(self, name)
+            if type(value) is not str or not value.strip():
+                raise ValueError("representation_profile_field_invalid:" + name)
+        for owner in (self.input_contract_owner, self.output_contract_owner):
+            if ":" not in owner or not all(
+                part.isidentifier() for part in owner.replace(":", ".").split(".")
+            ):
+                raise ValueError("representation_profile_owner_invalid")
+        if not self.precondition_method.isidentifier():
+            raise ValueError("representation_profile_precondition_method_invalid")
+
+    def _stable_dict(self) -> dict[str, str]:
+        return {
+            **{field.name: getattr(self, field.name) for field in dataclasses.fields(self)},
+            "identification_mode": self.identification_mode.value,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class MethodSignature:
     """
     The immutable ABI contract of a Foundry method.
@@ -623,6 +667,7 @@ class MethodSignature:
     supports_jit: bool = True
     supports_vmap: bool = True
     supports_grad: bool = True
+    representation_profiles: tuple[MethodRepresentationProfile, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name:
@@ -666,6 +711,16 @@ class MethodSignature:
         for param in self.parameters:
             if not isinstance(param, ParameterSpec):
                 raise TypeError("parameters must contain ParameterSpec")
+        if not isinstance(self.representation_profiles, tuple) or any(
+            not isinstance(profile, MethodRepresentationProfile)
+            for profile in self.representation_profiles
+        ):
+            raise TypeError("representation_profiles_must_be_typed_tuple")
+        _ensure_unique_names(
+            "representation_profiles", [p.profile_id for p in self.representation_profiles]
+        )
+        if any(p.output_slot not in self.output_slot_names for p in self.representation_profiles):
+            raise ValueError("representation_profile_output_slot_missing")
         _ensure_unique_names("input_slots", [slot.name for slot in self.input_slots])
         _ensure_unique_names("output_slots", [slot.name for slot in self.output_slots])
         _ensure_unique_names("parameters", [param.name for param in self.parameters])
@@ -726,6 +781,17 @@ class MethodSignature:
     def abi_digest(self) -> str:
         """Stable ABI digest for persistent cache keys (Law H)."""
         return _stable_digest(self._stable_dict())
+
+    def representation_digest(self) -> str:
+        """Bind functional representation profiles separately from the legacy ABI."""
+        return _stable_digest(
+            [
+                profile._stable_dict()
+                for profile in sorted(
+                    self.representation_profiles, key=lambda item: item.profile_id
+                )
+            ]
+        )
 
     def stable_digest(self) -> str:
         """Alias for abi_digest()."""

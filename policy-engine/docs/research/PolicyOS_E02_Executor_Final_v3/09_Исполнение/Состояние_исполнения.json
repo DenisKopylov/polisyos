@@ -9259,7 +9259,7 @@
           }
         },
         "architecture": {
-          "full_generated": "UNRUN: environment layout repaired; actual retained/offline generated-profile preparation and six freshness probes not yet executed.",
+          "full_generated": "UNRUN: supported private retained probe uses frozen offline sync; external UV cache lacks required locked package bytes including JAX/JAXlib0.8.2. Existing working .venv retained. No probe launched against known-incomplete cache.",
           "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
           "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
           "final_static_output": "policy-engine/_cache/e02/lane01-audit-architecture/facade-final-static-check.log",
@@ -9285,7 +9285,16 @@
             "wall_seconds": 54.385,
             "peak_sampled_process_tree_rss_bytes": 2441494528,
             "source": "Audited secondary C composition; actual OpenAPI and generated client/dashboard; no dependency sync."
-          }
+          },
+          "representation_first_static": "FAIL: five new deep imports; preserved diagnostic; canonical facade/entrypoint companions applied, final check pending.",
+          "representation_final_static": {
+            "result": "PASS with generated freshness explicitly separate",
+            "output": "policy-engine/_cache/e02/lane01-representation-architecture-check-r3/",
+            "wall_seconds": 90.993,
+            "peak_sampled_process_tree_rss_bytes": 213876736,
+            "baseline": "2924 to2894: exactly30 obsolete Common.serialization edges removed after declaring existing supported entrypoint; zero additions or exceptions; independently reviewed."
+          },
+          "representation_generated_stubs": "Complete five-file generation and final byte check PASS; final check lane01-representation-stubs-check-r2. Existing composer field metadata drift repaired to actual source, no composer runtime change."
         },
         "next_execution": {
           "N6_source_only": {
@@ -9343,15 +9352,49 @@
             "next": "Bind final committed source and original retained bytes in read-only preflight; fresh authority appends refresh2,2, then one worker/N5 reaches terminal2,6, no A/B replay."
           },
           "representation_profile": {
-            "status": "ACTUAL_BOUNDS_TOY_PASS_BRIDGE_AND_ADVERSARIAL_REVIEW_IN_PROGRESS",
-            "PASS": 1,
+            "status": "IMPLEMENTED_REVIEWED_NATIVE_AND_TYPED_CONSUMERS_PASS; FULL_PRIVATE_FRESHNESS_UNRUN",
+            "PASS": 92,
             "FAIL": 0,
             "ERROR": 0,
             "SKIP": 0,
-            "wall_seconds": 7.353,
-            "peak_sampled_process_tree_rss_bytes": 680148992,
-            "output": "policy-engine/_cache/e02/lane01-representation-native-toy-r3/",
-            "scope": "Bounded BOUNDS_ONLY registered native method; no scientific identification or execution-through-use authority. ComputeRunner bridge and mixed-result direct-selector controls required before capability claim."
+            "wall_seconds": 15.431,
+            "peak_sampled_process_tree_rss_bytes": 852525056,
+            "output": "policy-engine/_cache/e02/lane01-representation-final-r7/",
+            "source_commit": "adb5abeec8788fb4b56724a83caa9b28b5a8f7d0",
+            "unchanged_source_test_inputs": 20,
+            "independent_review": "GO; reviewer independently reconciled all20recorded source hashes",
+            "scope": "Bounded BOUNDS_ONLY registered native method; actual MethodBackend selected registry, result and historical audit report. No scientific identification/calibration, through-use custody, current authority or full lane/G acceptance.",
+            "controls": "Mixed-carrier direct selector and mapper; native input/output mutations; profile and callable removal; capsule construction/replacement/transplant; emission/persistence/normalization marker removal retains nonpromotion.",
+            "earlier_resource_abort": "R6 pytest20PASS/exit0, but runnerRESOURCE_ABORT/rss_measurement_unavailable/group signal unavailable; retained separately, not a guarded PASS.",
+            "cache_schema": "5; stable ABI preserved",
+            "generated_stubs": "Complete five-file generation and byte check PASS; generated base.pyi differs from R7 typing input, runtime Python unchanged.",
+            "affected_registry_consumers": {
+              "PASS": 146,
+              "SKIP": 1,
+              "FAIL": 0,
+              "ERROR": 0,
+              "output": "policy-engine/_cache/e02/lane01-representation-registry-consumers-r1/",
+              "skip": "Installed y0 makes symbolic_identify causal_available true; explicit snapshot environment condition.",
+              "wall_seconds": 140.194,
+              "peak_sampled_process_tree_rss_bytes": 976175104
+            },
+            "root_import_companions": {
+              "native_cases": "21PASS; actual producer and fresh reader after canonical facade imports",
+              "output": "policy-engine/_cache/e02/lane01-representation-facade-consumers-r8/",
+              "independent_source_review": "GO",
+              "Common_entrypoint": "Existing explicit 15-name serialization surface declared; no wrapper/eager behavior change.",
+              "IR_facade": "Same existing native enum/declaration owners; TYPE_CHECKING aliases retain static types."
+            },
+            "strict_consumer": {
+              "PASS": 1,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0,
+              "output": "policy-engine/_cache/e02/lane01-representation-type-contract-r1/",
+              "wall_seconds": 51.817,
+              "peak_sampled_process_tree_rss_bytes": 2127200256,
+              "controls": "Actual positive consumer canonical types plus exactly 3 intended negative type errors; first manual probe accepted bad strings as Any, corrected probe rejects2assignments."
+            }
           },
           "live_initial_n5_profile": {
             "status": "INDEPENDENT_SOURCE_REVIEW_GO; AUTHORITY_COLLECTION_PASS; NUMERICAL_UNRUN",

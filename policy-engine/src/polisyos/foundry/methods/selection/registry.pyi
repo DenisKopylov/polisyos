@@ -10,6 +10,7 @@ from _typeshed import Incomplete
 
 from polisyos.core.registry import BaseRegistry
 from polisyos.foundry.methods.base import FoundryMethod, MethodMetadata, MethodSignature
+from polisyos.foundry.methods.components.representation import RegisteredRepresentationBinding
 from polisyos.foundry.methods.lifecycle import LifecycleLog
 from polisyos.foundry.methods.lifecycle import MethodLifecycle as MethodLifecycle
 from polisyos.foundry.methods.selection.resolution import ResolutionPolicy, VersionConstraint
@@ -65,6 +66,9 @@ class MethodEntry:
     import_qualname: str | None = ...
     lifecycle_log: LifecycleLog = field(default_factory=LifecycleLog, repr=False)
     load_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
+    representation_bindings: tuple[RegisteredRepresentationBinding, ...] = field(
+        default=(), repr=False
+    )
 
     @property
     def fqn(self) -> str: ...
@@ -179,5 +183,5 @@ class MethodRegistry:
     def __repr__(self) -> str: ...
 
 @contextmanager
-def registry_scope() -> Generator[MethodRegistry]: ...
+def registry_scope(registry: MethodRegistry | None = None) -> Generator[MethodRegistry]: ...
 def get_registry() -> MethodRegistry: ...

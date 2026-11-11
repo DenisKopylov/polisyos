@@ -32,6 +32,7 @@ from polisyos.foundry.methods.base import (
     ComputeBackend,
     FidelityLevel,
     MethodMetadata,
+    MethodRepresentationProfile,
     MethodSignature,
     ParameterSpec,
     SlotSpec,
@@ -58,6 +59,7 @@ from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     TanBoundsEstimator,
 )
+from polisyos.ir import IdentificationMode
 from polisyos.ir.analytics.certified_tightening import build_certified_tightening_claim
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
@@ -379,6 +381,18 @@ class BoundsEngineMethod:
                 description="Reference treatment level passed to auto_bounds().",
             ),
         ),
+        representation_profiles=(
+            MethodRepresentationProfile(
+                profile_id="causal.bounds.base_bounds.v1",
+                identification_mode=IdentificationMode.BOUNDS_ONLY,
+                input_contract_id="foundry.causal.bounds_estimation_input.v1",
+                input_contract_owner="polisyos.ir.observation.contract_compilers:BoundsEstimationInput",
+                output_slot="bounds_report",
+                output_contract_id="ir.bounds_bundle.v1",
+                output_contract_owner="polisyos.ir.analytics.partial_identification:BoundsBundle",
+                precondition_method="supports_base_bounds_representation",
+            ),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -425,6 +439,45 @@ class BoundsEngineMethod:
             "is_informative flag, and list of all method results."
         ),
     )
+
+    @staticmethod
+    def supports_base_bounds_representation(state: Any, params: Mapping[str, Any]) -> bool:
+        """Check the bounded input/algorithm profile without identifying an effect."""
+        if not isinstance(params, Mapping):
+            return False
+        outcome = np.asarray(state.outcome, dtype=float)
+        treatment = np.asarray(state.treatment, dtype=float)
+        lower = params.get("y_lower")
+        upper = params.get("y_upper")
+        return bool(
+            type(lower) in {int, float}
+            and type(upper) in {int, float}
+            and np.isfinite(lower)
+            and np.isfinite(upper)
+            and lower < upper
+            and outcome.ndim == treatment.ndim == 1
+            and outcome.size == treatment.size > 0
+            and np.all(np.isfinite(outcome))
+            and np.all((outcome >= lower) & (outcome <= upper))
+            and np.all((treatment == 0) | (treatment == 1))
+            and all(
+                params.get(name) is False
+                for name in (
+                    "has_iv",
+                    "has_selection",
+                    "has_monotone",
+                    "run_all",
+                    "has_multi_valued",
+                    "run_intersection",
+                    "sensitivity_lambda",
+                    "use_auto_bounds",
+                    "tighten_bounds",
+                )
+            )
+            and state.instrument is None
+            and state.selected is None
+            and state.miv_proxy is None
+        )
 
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:

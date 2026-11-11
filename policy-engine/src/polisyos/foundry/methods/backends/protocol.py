@@ -24,6 +24,7 @@ from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
+    from polisyos.foundry.methods.components.representation import MethodRepresentationCompatibility
 
 
 @runtime_checkable
@@ -218,6 +219,7 @@ class MethodResult:
     warnings: tuple[str, ...] = ()
     validated_bound: ValidatedBound | None = None
     restricted_invocation: RestrictedMethodInvocationEvidence | None = None
+    representation_compatibility: tuple[MethodRepresentationCompatibility, ...] = ()
 
 
 class MethodRunner(Protocol):

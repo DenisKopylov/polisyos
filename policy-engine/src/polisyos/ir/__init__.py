@@ -13,11 +13,17 @@ here remain internal to their submodules.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.api import (
     install_ir_legacy_module_aliases as _install_ir_legacy_module_aliases,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.uncertainty import (
+        OutputContractDeclaration as OutputContractDeclaration,
+    )
+    from polisyos.ir.observation.contracts import IdentificationMode as IdentificationMode
 
 _install_ir_legacy_module_aliases()
 del _install_ir_legacy_module_aliases
@@ -317,6 +323,7 @@ __all__ = [
     "OrdinalPovertyReportRef",
     "OutcomeComparison",
     "OuterObjectiveResult",
+    "OutputContractDeclaration",
     "OwnedAttemptAnchorRef",
     "PAGIdentificationPolicy",
     "PanelEconometricBundleManifest",
@@ -710,6 +717,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "DistributionFamily": ("polisyos.ir.analytics.uncertainty", "DistributionFamily"),
     "FailureSeverity": ("polisyos.ir.analytics.uncertainty", "FailureSeverity"),
     "IntervalSemantics": ("polisyos.ir.analytics.uncertainty", "IntervalSemantics"),
+    "OutputContractDeclaration": (
+        "polisyos.ir.analytics.uncertainty",
+        "OutputContractDeclaration",
+    ),
     "PropagationMethod": ("polisyos.ir.analytics.uncertainty", "PropagationMethod"),
     "TypedFailureCard": ("polisyos.ir.analytics.uncertainty", "TypedFailureCard"),
     "UncertaintyType": ("polisyos.ir.analytics.uncertainty", "UncertaintyType"),

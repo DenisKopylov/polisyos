@@ -11,6 +11,8 @@ method promotion, and input/output materialization helpers.
 - `io.py` materializes bound inputs and dematerializes method outputs.
 - `linker.py` resolves slot bindings and compatibility diagnostics.
 - `merge_engine.py` owns deterministic state-delta merge helpers.
+- `representation.py` binds registered representation profiles to native method
+  inputs and outputs observed at the NumPy execution endpoints.
 - `semantic_validator.py` validates cross-method chain semantics.
 - `slot_schema.py` owns semantic slot labels and compatibility registration.
 
@@ -26,6 +28,15 @@ unconstrained rather than semantically attested.
 `bridge.py` may call `selection.registry.MethodRegistry.register_lazy()` for
 component-backed methods. Catalog family registration remains in
 `catalog/*/_registry_boot.py`.
+
+Representation support is declared by typed method profiles and reconciled with
+the actual registered callable, input preconditions and native output contract.
+The initial Bounds profile covers only its finite binary-data base bounds;
+optional tightening and other scientific forms have no implied support.
+Neither an expectation dictionary nor a serialized audit summary establishes
+live mode compatibility. Endpoint compatibility is separate from scientific
+identification, calibration, execution-through-use custody and publication
+authority. Stable ABI identity and representation-profile identity are distinct.
 
 ## Composition and checkpoint custody
 

@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 540 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 541 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -110,7 +110,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`, `polisyos.common.numeric_reductions`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.serialization`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`, `polisyos.common.numeric_reductions`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -123,6 +123,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 9 |
+| `polisyos.common.serialization` | `src/polisyos/common/serialization/__init__.py` | `eager_exports` | 15 |
 | `polisyos.common.text` | `src/polisyos/common/text.py` | `eager_exports` | 1 |
 | `polisyos.common.config` | `src/polisyos/common/config/__init__.py` | `eager_exports` | 8 |
 | `polisyos.common.canonical` | `src/polisyos/common/canonical.py` | `eager_exports` | 10 |
@@ -150,6 +151,34 @@ producer_request
 serialization
 text
 timestamps
+```
+
+</details>
+
+#### `polisyos.common.serialization`
+
+- Source: `src/polisyos/common/serialization/__init__.py`
+- Facade: `eager_exports`
+- Summary: Convert nested runtime objects to JSON-safe data and fast serialized payloads.
+
+<details><summary>Entrypoint exports (15)</summary>
+
+```text
+JsonDataVisitor
+SerializationCycleError
+SerializationDepthError
+SerializationError
+SerializationPolicy
+UnsupportedSerializationError
+decode_json_object
+extract_llm_json
+extract_llm_json_object
+fast_json_dumps
+fast_json_dumps_bytes
+fast_json_loads
+stable_json_dumps
+strip_none
+to_python_data
 ```
 
 </details>
@@ -2124,7 +2153,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 540 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 541 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -2144,7 +2173,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (540)</summary>
+<details><summary>Entrypoint exports (541)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2441,6 +2470,7 @@ OrdinalPovertyReport
 OrdinalPovertyReportRef
 OutcomeComparison
 OuterObjectiveResult
+OutputContractDeclaration
 OwnedAttemptAnchorRef
 PAGIdentificationPolicy
 PanelEconometricBundleManifest
@@ -3807,7 +3837,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (540)</summary>
+<details><summary>Supported exports (541)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -4104,6 +4134,7 @@ OrdinalPovertyReport
 OrdinalPovertyReportRef
 OutcomeComparison
 OuterObjectiveResult
+OutputContractDeclaration
 OwnedAttemptAnchorRef
 PAGIdentificationPolicy
 PanelEconometricBundleManifest
@@ -5411,7 +5442,7 @@ world
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 230 |
 | `polisyos.foundry.methods.selection` | `src/polisyos/foundry/methods/selection/__init__.py` | `lazy_facade` | 42 |
 | `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 38 |
-| `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 19 |
+| `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 20 |
 
 #### `polisyos.foundry`
 
@@ -6439,12 +6470,13 @@ prepare_empirical_joint
 - Facade: `eager_exports`
 - Summary: Validation helpers for machine-checking Foundry closure surfaces.
 
-<details><summary>Entrypoint exports (19)</summary>
+<details><summary>Entrypoint exports (20)</summary>
 
 ```text
 bind_legal_subject_annotations
 build_causal_statistical_validity_report
 build_foundry_method_report
+build_foundry_method_report_from_execution_result
 build_foundry_phase0_closure_report
 build_foundry_phase2_closure_report
 default_foundry_phase2_closure_report_path

@@ -191,6 +191,8 @@ def _build_method_catalog_snapshot_from_admitted_registry(
             runtime_posture.determinism_tier,
         )
         capability_matrix = {
+            "representation_profiles": [p._stable_dict() for p in sig.representation_profiles],
+            "representation_digest": sig.representation_digest(),
             "kind": sig.kind.value,
             "execution_backend": sig.execution_backend.value,
             "runtime_stack": list(runtime_stack),

@@ -57,8 +57,8 @@ __all__ = [
     "RegistryPersistenceLayer",
 ]
 
-_SCHEMA_VERSION = "4"
-_SEMANTIC_SNAPSHOT_VERSION = 1
+_SCHEMA_VERSION = "5"
+_SEMANTIC_SNAPSHOT_VERSION = 2
 
 _CREATE_META = """
 CREATE TABLE IF NOT EXISTS _meta (
@@ -455,6 +455,9 @@ def _complete_signature_payload(signature) -> dict[str, Any]:
     # The stable ABI intentionally omits the default JAX backend. The semantic
     # cache snapshot records every dataclass field, including that default.
     payload["backend"] = signature.backend.value
+    payload["representation_profiles"] = [
+        p._stable_dict() for p in signature.representation_profiles
+    ]
     for field_name, slots in (
         ("input_slots", signature.input_slots),
         ("output_slots", signature.output_slots),
@@ -590,9 +593,19 @@ def _signature_from_payload(payload: dict[str, Any]):
         ComputeBackend,
         FidelityLevel,
         MethodKind,
+        MethodRepresentationProfile,
         MethodSignature,
     )
+    from polisyos.ir import IdentificationMode
 
+    if "representation_profiles" not in payload:
+        raise ValueError("cache_signature_representation_profiles_missing")
+    profiles = tuple(
+        MethodRepresentationProfile(
+            **{**row, "identification_mode": IdentificationMode(row["identification_mode"])}
+        )
+        for row in payload["representation_profiles"]
+    )
     fidelity_tier = payload.get("fidelity_tier")
     return MethodSignature(
         name=str(payload["name"]),
@@ -617,6 +630,7 @@ def _signature_from_payload(payload: dict[str, Any]):
         supports_jit=bool(payload.get("supports_jit", True)),
         supports_vmap=bool(payload.get("supports_vmap", True)),
         supports_grad=bool(payload.get("supports_grad", True)),
+        representation_profiles=profiles,
     )
 
 

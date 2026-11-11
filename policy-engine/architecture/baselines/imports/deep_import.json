@@ -38,25 +38,11 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.core.artifacts._manifest_lifecycle",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/artifacts/_manifest_lifecycle.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.core.artifacts._profiled_ref",
       "source_root": "core",
       "source_file": "src/polisyos/core/artifacts/_profiled_ref.py",
       "target_module": "polisyos.ir.artifacts.contracts",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.core.artifacts._transfer_ops",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/artifacts/_transfer_ops.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.core.artifacts.async_store",
@@ -276,13 +262,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.core.llm.cache_settlement",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/llm/cache_settlement.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.core.registry.builder_from_fragments",
       "source_root": "core",
       "source_file": "src/polisyos/core/registry/builder_from_fragments.py",
@@ -311,13 +290,6 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.core.run.context",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/run/context.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.core.security.audit_sink",
       "source_root": "core",
       "source_file": "src/polisyos/core/security/audit_sink.py",
@@ -343,13 +315,6 @@
       "source_root": "core",
       "source_file": "src/polisyos/core/security/identity.py",
       "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.core.security.rotation",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/security/rotation.py",
-      "target_module": "polisyos.common.serialization",
       "target_root": "common"
     },
     {
@@ -3776,13 +3741,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.foundry.agent_sim.experiment",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/agent_sim/experiment.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.foundry.agent_sim.training",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/agent_sim/training.py",
@@ -4327,13 +4285,6 @@
       "source_file": "src/polisyos/foundry/contracts/specs.py",
       "target_module": "polisyos.ir.model_layer.units",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.foundry.data_plane.bindings",
@@ -8623,22 +8574,8 @@
       "source_module": "polisyos.runtime.api",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/api.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.runtime.api",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/api.py",
       "target_module": "polisyos.core.contracts.foundry",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.access_audit",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/access_audit.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.runtime.http.access_audit",
@@ -8666,13 +8603,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
       "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.runtime.http.compliance",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/compliance.py",
-      "target_module": "polisyos.common.serialization",
       "target_root": "common"
     },
     {
@@ -8750,13 +8680,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
       "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.runtime.http.mutation_policy",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/mutation_policy.py",
-      "target_module": "polisyos.common.serialization",
       "target_root": "common"
     },
     {
@@ -10954,13 +10877,6 @@
       "source_module": "polisyos.runtime.quality.design_generation",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/design_generation.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.design_generation",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/design_generation.py",
       "target_module": "polisyos.ir.analytics.interventions",
       "target_root": "ir"
     },
@@ -12316,13 +12232,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.scientist.agent._drafter_parsing",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/_drafter_parsing.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.scientist.agent._drafter_passes",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/_drafter_passes.py",
@@ -12355,13 +12264,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/code_verifier.py",
       "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.code_verifier",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/code_verifier.py",
-      "target_module": "polisyos.common.serialization",
       "target_root": "common"
     },
     {
@@ -12400,13 +12302,6 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.scientist.agent.critic",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/critic.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.scientist.agent.data_need_extractor",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/data_need_extractor.py",
@@ -12417,22 +12312,8 @@
       "source_module": "polisyos.scientist.agent.data_need_extractor",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/data_need_extractor.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.data_need_extractor",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/data_need_extractor.py",
       "target_module": "polisyos.fabric.catalog.registry",
       "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.drafter_clients",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/drafter_clients.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.agent.drafter_factory",
@@ -12634,13 +12515,6 @@
       "source_module": "polisyos.scientist.agent.formalizer",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/formalizer.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.formalizer",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/formalizer.py",
       "target_module": "polisyos.ir.governance.policy_spec",
       "target_root": "ir"
     },
@@ -12769,13 +12643,6 @@
       "source_file": "src/polisyos/scientist/agent/persistent_memory.py",
       "target_module": "polisyos.core.artifacts.store",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.pi",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/pi.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.agent.promotion",
@@ -12998,13 +12865,6 @@
       "source_module": "polisyos.scientist.compute.runner",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/compute/runner.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.compute.runner",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/compute/runner.py",
       "target_module": "polisyos.core.artifacts.backends.config",
       "target_root": "core"
     },
@@ -13133,13 +12993,6 @@
       "source_file": "src/polisyos/scientist/compute/runner.py",
       "target_module": "polisyos.ir.observation.bundles",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.scientist.cross_graph.alignment",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/cross_graph/alignment.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.cross_graph.alignment",
@@ -16043,13 +15896,6 @@
       "source_module": "polisyos.scientist.methods.discovery.workers",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/discovery/workers/__init__.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.methods.discovery.workers",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/discovery/workers/__init__.py",
       "target_module": "polisyos.ir.analytics.causal_discovery",
       "target_root": "ir"
     },
@@ -16206,13 +16052,6 @@
       "source_file": "src/polisyos/scientist/methods/search/contracts.py",
       "target_module": "polisyos.core.artifacts.manifest",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.methods.search.frontier",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/search/frontier.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.methods.search.funnel.level0_static",
@@ -19221,13 +19060,6 @@
       "source_module": "polisyos.scientist.orchestration.engine.idempotency",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/idempotency.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.engine.idempotency",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/engine/idempotency.py",
       "target_module": "polisyos.common.timestamps",
       "target_root": "common"
     },
@@ -19603,24 +19435,10 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.scientist.orchestration.llm.prepared_request",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/llm/prepared_request.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
       "source_module": "polisyos.scientist.orchestration.llm.prompt_cache",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
       "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.llm.prompt_cache",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
-      "target_module": "polisyos.common.serialization",
       "target_root": "common"
     },
     {
@@ -19713,13 +19531,6 @@
       "source_file": "src/polisyos/scientist/orchestration/workflows/causal_full.py",
       "target_module": "polisyos.foundry.methods.catalog.causal.pag_member_family",
       "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.scientist.policy_design.adversary",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/policy_design/adversary.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.policy_design.adversary",
@@ -19977,13 +19788,6 @@
       "source_module": "polisyos.scientist.policy_design.translator",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/policy_design/translator.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scientist.policy_design.translator",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/policy_design/translator.py",
       "target_module": "polisyos.core.artifacts.manifest",
       "target_root": "core"
     },
@@ -20091,13 +19895,6 @@
       "source_file": "src/polisyos/scientist/validation/benchmarks.py",
       "target_module": "polisyos.core.contracts.foundry",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.validation.citation_faithfulness",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/validation/citation_faithfulness.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.validation.decision_validity",
@@ -20273,13 +20070,6 @@
       "source_file": "src/polisyos/scientist/validation/policy_verified/models.py",
       "target_module": "polisyos.lex.knowledge.types",
       "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.scientist.validation.policy_verified.service",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/validation/policy_verified/service.py",
-      "target_module": "polisyos.common.serialization",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.scientist.validation.policy_verified.service",

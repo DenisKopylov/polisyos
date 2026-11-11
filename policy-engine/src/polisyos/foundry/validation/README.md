@@ -4,6 +4,13 @@ This package owns validation of Foundry inputs and candidate outputs. Existing
 numeric constraints remain in `constraints_engine.py`; legal subject recognition
 belongs to `legal_correspondence.py` and is exposed through the lazy Foundry facade.
 
+`build_foundry_method_report_from_execution_result` consumes a live native
+`MethodResult` through this package's supported facade. Registered representation
+compatibility is distinct from scientific identification or validity. Its
+persisted projection is a historical audit only; report construction, persistence
+and normalization preserve that restriction even when a redundant scope marker
+is removed. A serialized summary cannot recreate a live execution projection.
+
 Legal recognition compares entity membership in a versioned subject namespace,
 including content identity and effective interval. Independent annotation inputs
 are persisted separately, bound to current entity content and joined into a CAS

@@ -13,10 +13,22 @@ PRODUCT_ROOT = Path(__file__).resolve().parents[3]
 _POSITIVE_CLIENT = """\
 from collections.abc import Mapping
 from typing import Any, ClassVar, assert_type
-from polisyos.foundry.methods.base import FoundryMethod, MethodMetadata, MethodSignature
+from polisyos.foundry.methods.base import (
+    FoundryMethod, MethodMetadata, MethodRepresentationProfile, MethodSignature,
+)
 from polisyos.foundry.methods.compiler import FoundryMethodProtocol, MethodCompiler
 from polisyos.foundry.methods.compiler.specialization import Specialization
 from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.ir import IdentificationMode, OutputContractDeclaration
+from polisyos.ir.analytics.uncertainty import OutputContractDeclaration as NativeOutputContract
+from polisyos.ir.observation.contracts import IdentificationMode as NativeIdentificationMode
+
+def representation(profile: MethodRepresentationProfile,
+                   declaration: OutputContractDeclaration) -> NativeOutputContract:
+    assert_type(profile.identification_mode, NativeIdentificationMode)
+    mode: IdentificationMode = NativeIdentificationMode.BOUNDS_ONLY
+    assert_type(mode, NativeIdentificationMode)
+    return declaration
 
 class SpecializedRegistered:
     signature: ClassVar[MethodSignature]
@@ -55,6 +67,10 @@ _NEGATIVE_CLIENT = """\
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.compiler import MethodCompiler
 from polisyos.foundry.methods.compiler.specialization import Specialization
+from polisyos.ir import IdentificationMode, OutputContractDeclaration
+
+wrong_mode: IdentificationMode = "not_a_mode"
+wrong_contract: OutputContractDeclaration = "not_a_contract"
 
 class WrongStep:
     @staticmethod
@@ -145,6 +161,13 @@ def test_actual_registry_compiler_and_fusion_owners_pass_strict_consumers(tmp_pa
         if ": error:" in line
     ]
     assert negative.returncode == 1, negative_output
-    assert len(errors) == 1, negative_output
-    assert "negative.py:" in errors[0] and '"_compile_method"' in errors[0]
-    assert "[arg-type]" in errors[0], errors[0]
+    assert len(errors) == 3, negative_output
+    assert all("negative.py:" in error for error in errors), negative_output
+    compiler_errors = [error for error in errors if '"_compile_method"' in error]
+    assert len(compiler_errors) == 1 and "[arg-type]" in compiler_errors[0], negative_output
+    assignment_errors = [error for error in errors if "[assignment]" in error]
+    assert len(assignment_errors) == 2, negative_output
+    assert any('"IdentificationMode"' in error for error in assignment_errors), negative_output
+    assert any('"OutputContractDeclaration"' in error for error in assignment_errors), (
+        negative_output
+    )

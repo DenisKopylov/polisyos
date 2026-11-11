@@ -381,6 +381,7 @@ def _apply_dispatch_contract_overlay(
         warnings=result.warnings,
         validated_bound=result.validated_bound,
         restricted_invocation=result.restricted_invocation,
+        representation_compatibility=result.representation_compatibility,
     )
 
 
@@ -412,6 +413,7 @@ def _merge_dispatch_result(
         warnings=tuple(dict.fromkeys((*result.warnings, *warnings))),
         validated_bound=result.validated_bound,
         restricted_invocation=result.restricted_invocation,
+        representation_compatibility=result.representation_compatibility,
     )
 
 
@@ -785,6 +787,7 @@ class MethodDispatcher:
                     warnings=result.warnings,
                     validated_bound=validated_bound,
                     restricted_invocation=result.restricted_invocation,
+                    representation_compatibility=result.representation_compatibility,
                 )
             _log.info(
                 "method_dispatch_complete",

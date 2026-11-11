@@ -57,7 +57,7 @@ class _ExecutableIdentity:
 
 _SlotBounds = tuple[float | int | None, float | int | None]
 _SignatureBinding = tuple[
-    str, tuple[tuple[str, _SlotBounds], ...], tuple[tuple[str, _SlotBounds], ...]
+    str, str, tuple[tuple[str, _SlotBounds], ...], tuple[tuple[str, _SlotBounds], ...]
 ]
 
 
@@ -65,7 +65,7 @@ def _signature_binding(signature: MethodSignature) -> _SignatureBinding:
     """Bind ABI and numeric slot bounds without coercing distinct integers to floats."""
     inputs = tuple(sorted((slot.name, slot.bounds) for slot in signature.input_slots))
     outputs = tuple(sorted((slot.name, slot.bounds) for slot in signature.output_slots))
-    return signature.stable_digest(), inputs, outputs
+    return signature.stable_digest(), signature.representation_digest(), inputs, outputs
 
 
 def _signature_matches(method_class: type[Any], expected: MethodSignature) -> bool:

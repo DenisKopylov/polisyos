@@ -27,6 +27,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.components.io import dematerialize_method_output
+from polisyos.foundry.methods.components.representation import invoke_representation_call
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
@@ -71,6 +72,7 @@ class NumpyRunner(MethodRunner):
         resolved["__rng__"] = rng
         resolved["__seed__"] = seed
 
+        representation_compatibility = ()
         started = time.perf_counter()
         restricted_invocation = None
         if runtime_context is None:
@@ -90,7 +92,14 @@ class NumpyRunner(MethodRunner):
                 original_params=params,
             )
             if not profile_selected:
-                output = pure_step(state, resolved)
+                output, representation_compatibility = invoke_representation_call(
+                    method_class=method_class,
+                    signature=signature,
+                    operation=pure_step,
+                    postprocessor=postprocess,
+                    state=state,
+                    params=resolved,
+                )
         else:
             from polisyos.core.contracts.owned_attempt_anchor import (
                 OwnedAttemptAnchorDispatchContext,
@@ -192,4 +201,5 @@ class NumpyRunner(MethodRunner):
             artifacts={**artifacts, "backend_runtime_fingerprint": posture.as_dict()},
             warnings=tuple(dict.fromkeys(warnings)),
             restricted_invocation=restricted_invocation,
+            representation_compatibility=representation_compatibility,
         )

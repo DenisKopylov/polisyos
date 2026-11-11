@@ -147,17 +147,11 @@ def test_linked_bounds_mode_is_enforced_by_real_method_requirement_selector() ->
         method_requirements=requirements,
     )
 
-    assert report["status"] == "pass"
-    assert set(report["method_requirement_statuses"]) == {
-        row.requirement_id for row in requirements
+    assert report["status"] == "fail"
+    assert report["selected_methods"] == []
+    assert {row["reason_code"] for row in report["rejected_methods"]} == {
+        "identification_mode_unsupported"
     }
-    assert set(report["method_requirement_statuses"].values()) == {"satisfied"}
-    assert all(row["method_id"] == "causal.did.runtime" for row in report["selected_methods"])
-    assert {
-        requirement_ref
-        for row in report["selected_methods"]
-        for requirement_ref in row["method_requirement_refs"]
-    } == {row.requirement_id for row in requirements}
 
 
 def test_method_selector_refuses_absent_or_wrong_explicit_identification_mode() -> None:
@@ -392,24 +386,12 @@ def test_method_selector_keeps_component_modes_on_every_causal_claim() -> None:
         method_requirements=requirements,
     )
 
-    assert report["status"] == "pass"
-    assert set(report["method_requirement_statuses"]) == {
-        row.requirement_id for row in requirements
+    assert report["status"] == "fail"
+    assert report["selected_methods"] == []
+    assert set(report["method_requirement_statuses"].values()) == {"missing"}
+    assert {row["reason_code"] for row in report["rejected_methods"]} == {
+        "identification_mode_unsupported"
     }
-    assert set(report["method_requirement_statuses"].values()) == {"satisfied"}
-    selected_by_requirement = {
-        requirement_ref: row["method_id"]
-        for row in report["selected_methods"]
-        for requirement_ref in row["method_requirement_refs"]
-    }
-    assert set(selected_by_requirement) == {row.requirement_id for row in requirements}
-    for requirement in requirements:
-        expected = (
-            "causal.point.runtime"
-            if "facet_employment_mode" in requirement.facet_refs
-            else "causal.sequential.runtime"
-        )
-        assert selected_by_requirement[requirement.requirement_id] == expected
 
 
 def test_requirement_selection_rejects_method_without_runtime_assumption_gate() -> None:

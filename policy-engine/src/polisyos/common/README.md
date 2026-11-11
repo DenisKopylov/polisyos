@@ -53,8 +53,11 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 ## Public API
 
 - Supported package entrypoints: `polisyos.common`, `polisyos.common.text`,
-  `polisyos.common.canonical`, `polisyos.common.canonical_profile`, and
-  `polisyos.common.hashing`, and `polisyos.common.numeric_reductions`.
+  `polisyos.common.config`, `polisyos.common.canonical`,
+  `polisyos.common.canonical_profile`, `polisyos.common.producer_request`,
+  `polisyos.common.hashing`, `polisyos.common.migrations`,
+  `polisyos.common.numeric_reductions`, and `polisyos.common.serialization`
+  (the existing explicit serialization exports).
 - `polisyos.common.text` provides pure shared whitespace normalization through
   `collapse_ws`; existing Lex consumers retain that same function object through
   the lazy root facade.
@@ -65,7 +68,7 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   currentness; Core and IR keep their distinct tags and admission rules. The reader identity is materialization context only and never a substitute for the caller's expected artifact contract.
 - Lazy facade exports from `src/polisyos/common/__init__.py` remain:
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
-  `serialization`, `text`, `timestamps`.
+  `producer_request`, `serialization`, `text`, `timestamps`.
 
 - Private environment parser functions remain in `config/__init__.py`; do not treat them as
   stable public surface without updating the facade and

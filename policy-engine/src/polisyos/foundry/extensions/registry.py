@@ -164,6 +164,7 @@ def _method_registry_snapshot_binding_sha256(snapshot: RegistrySnapshot) -> str:
         {
             "fqn": entry.fqn,
             "signature_digest": entry.signature.stable_digest(),
+            "representation_digest": entry.signature.representation_digest(),
             "metadata_digest": entry.metadata.stable_digest(),
             "import_module": entry.import_module,
             "import_qualname": entry.import_qualname,

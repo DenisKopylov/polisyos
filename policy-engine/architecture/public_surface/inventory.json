@@ -174,6 +174,7 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.common",
+        "polisyos.common.serialization",
         "polisyos.common.text",
         "polisyos.common.config",
         "polisyos.common.canonical",
@@ -369,6 +370,82 @@
               {
                 "path": "src/polisyos/common/timestamps",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
+          "module": "polisyos.common.serialization",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 15,
+          "known_export_count": 15,
+          "exports": [
+            "JsonDataVisitor",
+            "SerializationCycleError",
+            "SerializationDepthError",
+            "SerializationError",
+            "SerializationPolicy",
+            "UnsupportedSerializationError",
+            "decode_json_object",
+            "extract_llm_json",
+            "extract_llm_json_object",
+            "fast_json_dumps",
+            "fast_json_dumps_bytes",
+            "fast_json_loads",
+            "stable_json_dumps",
+            "strip_none",
+            "to_python_data"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/common/serialization/__init__.py",
+          "summary": "Convert nested runtime objects to JSON-safe data and fast serialized payloads.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/common/serialization.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/common/serialization/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/serialization/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 14251,
+                "sha256": "9dd34967d6bb95244085410a5988d326824c017aadb3233db903eab1efb31685"
+              },
+              {
+                "path": "src/polisyos/common/serialization",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/serialization/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/common/serialization/_strict_json.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               }
@@ -4398,8 +4475,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 540,
-      "known_export_count": 540,
+      "export_count": 541,
+      "known_export_count": 541,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -4695,6 +4772,7 @@
         "OrdinalPovertyReportRef",
         "OutcomeComparison",
         "OuterObjectiveResult",
+        "OutputContractDeclaration",
         "OwnedAttemptAnchorRef",
         "PAGIdentificationPolicy",
         "PanelEconometricBundleManifest",
@@ -4951,8 +5029,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 540,
-          "known_export_count": 540,
+          "export_count": 541,
+          "known_export_count": 541,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -5248,6 +5326,7 @@
             "OrdinalPovertyReportRef",
             "OutcomeComparison",
             "OuterObjectiveResult",
+            "OutputContractDeclaration",
             "OwnedAttemptAnchorRef",
             "PAGIdentificationPolicy",
             "PanelEconometricBundleManifest",
@@ -5519,8 +5598,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 75680,
-                "sha256": "c414774c5107500705fc5cbf3b3f2a83d3e5cd3044d8abad250808fa0d700937"
+                "bytes": 76084,
+                "sha256": "aa43a7345faf29454ee3b53f824dac57053e6a06adc39746d8ff8d77072e4aed"
               },
               {
                 "path": "src/polisyos/ir",
@@ -14000,12 +14079,13 @@
         {
           "module": "polisyos.foundry.validation",
           "facade_mode_observed": "eager_exports",
-          "export_count": 19,
-          "known_export_count": 19,
+          "export_count": 20,
+          "known_export_count": 20,
           "exports": [
             "bind_legal_subject_annotations",
             "build_causal_statistical_validity_report",
             "build_foundry_method_report",
+            "build_foundry_method_report_from_execution_result",
             "build_foundry_phase0_closure_report",
             "build_foundry_phase2_closure_report",
             "default_foundry_phase2_closure_report_path",
@@ -14047,8 +14127,8 @@
                 "path": "src/polisyos/foundry/validation/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1932,
-                "sha256": "736e0a710e8b8f3a1fe8c2dff9f64bf23cdb69a121c49851e90097fcd8b1b193"
+                "bytes": 2044,
+                "sha256": "7f0d710a70ea97cc2bac1a7c95206975e84091b884b0e68990e1d1bbc211bdf0"
               },
               {
                 "path": "src/polisyos/foundry/validation",

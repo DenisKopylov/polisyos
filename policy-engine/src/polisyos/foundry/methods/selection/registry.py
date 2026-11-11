@@ -53,7 +53,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cmp_to_key
 from os import PathLike
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.registry import BaseRegistry
 from polisyos.foundry.methods.base import (
@@ -72,6 +72,10 @@ from polisyos.foundry.methods.lifecycle import (
 from polisyos.foundry.methods.lifecycle import (
     MethodLifecycle as MethodLifecycle,
 )
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.components.representation import RegisteredRepresentationBinding
+
 
 # ---------------------------------------------------------------------------
 # Structured logging (optional — no-ops if structlog not installed)
@@ -276,6 +280,9 @@ class MethodEntry:
         default_factory=threading.Lock,
         repr=False,
         compare=False,
+    )
+    representation_bindings: tuple[RegisteredRepresentationBinding, ...] = field(
+        default=(), repr=False
     )
 
     @property
@@ -530,6 +537,13 @@ class MethodRegistry:
                 f"got {type(meta).__name__}"
             )
 
+        from polisyos.foundry.methods.components.representation import (
+            bind_registered_representation_profiles,
+        )
+
+        representation_bindings = bind_registered_representation_profiles(
+            method_class, sig, registry=self
+        )
         fqn = sig.fqn
 
         with self._reg_lock:
@@ -541,6 +555,7 @@ class MethodRegistry:
                 factory=lambda cls=method_class: cls,
                 loaded=True,
                 _cached_class=method_class,
+                representation_bindings=representation_bindings,
                 import_module=method_class.__module__,
                 import_qualname=method_class.__qualname__,
                 lifecycle_log=log,
@@ -815,7 +830,15 @@ class MethodRegistry:
                         raise ValueError("lazy_method_import_target_unresolvable") from exc
                     if method_class is not declared_class:
                         raise ValueError("lazy_method_import_target_mismatch")
+                from polisyos.foundry.methods.components.representation import (
+                    bind_registered_representation_profiles,
+                )
+
+                representation_bindings = bind_registered_representation_profiles(
+                    method_class, entry.signature, registry=self
+                )
                 with self._reg_lock:
+                    entry.representation_bindings = representation_bindings
                     entry._cached_class = method_class
                     entry.loaded = True
                     self._touch_modified()
@@ -1063,9 +1086,9 @@ _registry_ctx: contextvars.ContextVar[MethodRegistry | None] = contextvars.Conte
 
 
 @contextmanager
-def registry_scope() -> Generator[MethodRegistry]:
+def registry_scope(registry: MethodRegistry | None = None) -> Generator[MethodRegistry]:
     """
-    Context manager that provides an isolated, fresh MethodRegistry.
+    Context manager selecting a supplied registry or an isolated fresh registry.
 
     Within the ``with`` block, all calls to ``get_registry()`` return the
     isolated instance instead of the global singleton.  This is the
@@ -1078,7 +1101,9 @@ def registry_scope() -> Generator[MethodRegistry]:
     The isolated registry is discarded when the block exits and never
     touches the global singleton.
     """
-    fresh = MethodRegistry._create_fresh()
+    fresh = registry if registry is not None else MethodRegistry._create_fresh()
+    if not isinstance(fresh, MethodRegistry):
+        raise TypeError("registry_scope_requires_method_registry")
     token = _registry_ctx.set(fresh)
     try:
         yield fresh

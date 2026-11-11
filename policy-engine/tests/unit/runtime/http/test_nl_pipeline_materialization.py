@@ -25,6 +25,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
+from polisyos.ir.kernel import DEFAULT_METRIC_REGISTRY, MetricRegistry, MetricSpec
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -192,13 +193,16 @@ class _EmptyRegistry:
         return []
 
 
-def _registry_providers() -> ControlRegistryProviders:
+def _registry_providers(
+    *, metric_registry: MetricRegistry | None = None
+) -> ControlRegistryProviders:
     registry = _EmptyRegistry()
     return ControlRegistryProviders(
         connectors=registry,
         source_profiles=registry,
         binding_profiles=registry,
         model_profiles=registry,
+        metric_registry=metric_registry,
     )
 
 
@@ -2913,6 +2917,16 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
         raise AssertionError("unknown metrics must fail before scientist workflow execution")
 
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _forbidden_run_experiment)
+    extended_registry = MetricRegistry(
+        metrics={
+            **DEFAULT_METRIC_REGISTRY.metrics,
+            "audit_water_loss_rate": MetricSpec(
+                metric_id="audit_water_loss_rate",
+                unit_id="percent",
+                description="Host-admitted water loss rate",
+            ),
+        }
+    )
     service = ControlPlaneService(
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
@@ -2923,7 +2937,7 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
             sqlite_path=str(tmp_path / "control-unknown-metric.sqlite3"),
             postgres_dsn=None,
         ),
-        registry_providers=_registry_providers(),
+        registry_providers=_registry_providers(metric_registry=extended_registry),
     )
     job_id = "job_unknown_metric"
     execution_fence = _prepare_running_scoped_control_job(
@@ -2972,21 +2986,144 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
     assert record.progress["failure"]["code"] == "unknown_production_metric"
 
 
-def test_nl_pipeline_records_metric_taxonomy_evidence_for_canonicalized_aliases(
+@pytest.mark.parametrize("registry_mode", ["host", "default-drift"])
+def test_nl_pipeline_snapshots_operation_registry_through_real_input_bindings(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
+    registry_mode: str,
 ) -> None:
+    """Qualify registry lineage through bindings; full workflow param projection remains untested."""
+    assert registry_mode in {"host", "default-drift"}
     captured: dict[str, Any] = {}
+    host_registry = MetricRegistry(
+        metrics={
+            **DEFAULT_METRIC_REGISTRY.metrics,
+            "audit_water_loss_rate": MetricSpec(
+                metric_id="audit_water_loss_rate",
+                unit_id="percent",
+                description="Host-admitted water loss rate",
+            ),
+        }
+    )
+    configured_registry = host_registry if registry_mode == "host" else None
+    assert (configured_registry is not None) is (registry_mode == "host")
+    expected_registry = (
+        host_registry if configured_registry is not None else DEFAULT_METRIC_REGISTRY
+    )
+    expected_metric_id = "audit_water_loss_rate" if configured_registry is not None else "gdp"
+    late_default_metric_id = "late_mutation_only_metric"
+    drifted_default_registry = MetricRegistry(
+        metrics={
+            **DEFAULT_METRIC_REGISTRY.metrics,
+            late_default_metric_id: MetricSpec(
+                metric_id=late_default_metric_id,
+                unit_id="percent",
+                description="Must not enter an operation after taxonomy snapshotting",
+            ),
+        }
+    )
+    operation_registries: dict[str, Any] = {}
 
-    def _capture_state(payload: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
-        captured["payload"] = payload
-        captured["kwargs"] = kwargs
-        return {"run_id": payload["run_id"], "reports_index": {}}
+    from polisyos.core.registry import builder as registry_builder
+    from polisyos.core.registry import (
+        load_registry_bundle_content,
+        load_registry_bundle_payload,
+    )
+    from polisyos.foundry import data_plane as data_plane_module
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
+
+    class _RegistryBridgeReached(BaseException):
+        """Stop after the real downstream binding consumer has completed."""
+
+    original_taxonomy_builder = nl_pipeline_module.build_production_metric_taxonomy
+    original_metric_payload_canonicalizer = nl_pipeline_module._canonicalize_runtime_metric_payload
+
+    def _capture_metric_payload(value: object, **kwargs: Any) -> object:
+        normalized = original_metric_payload_canonicalizer(value, **kwargs)
+        path = kwargs.get("path")
+        if path in {"context", "expected_outputs"}:
+            captured[f"normalized_{path}"] = normalized
+            captured[f"diagnostics_{path}"] = kwargs["diagnostics"]
+        return normalized
+
+    def _capture_taxonomy_registry(*, registry=None):
+        operation_registries["taxonomy"] = registry
+        taxonomy = original_taxonomy_builder(registry=registry)
+        operation_registries["taxonomy_result"] = taxonomy
+        if registry_mode == "default-drift":
+            operation_registries["default_drift_applied"] = True
+            monkeypatch.setattr(
+                registry_builder,
+                "DEFAULT_METRIC_REGISTRY",
+                drifted_default_registry,
+            )
+        return taxonomy
+
+    original_default_bundle_builder = registry_builder.build_default_registry_bundle
+
+    def _capture_bundle_registry(
+        store,
+        *,
+        return_selected_profile: bool = False,
+        metric_registry: MetricRegistry | None = None,
+    ):
+        operation_registries["bundle"] = metric_registry
+        bundle = original_default_bundle_builder(
+            store,
+            return_selected_profile=return_selected_profile,
+            metric_registry=metric_registry,
+        )
+        operation_registries["bundle_result"] = bundle
+        return bundle
+
+    original_input_bindings_builder = data_plane_module.build_input_bindings
+
+    def _consume_registry_bundle(
+        store,
+        *,
+        data_snapshot_ref,
+        registry_bundle_ref,
+        **kwargs: Any,
+    ):
+        bundle_content = load_registry_bundle_content(store, registry_bundle_ref)
+        assert bundle_content.metric_registry is not None
+        assert expected_metric_id in bundle_content.metric_registry.metrics
+        result = original_input_bindings_builder(
+            store,
+            data_snapshot_ref=data_snapshot_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            **kwargs,
+        )
+        operation_registries["consumed_bundle_ref"] = registry_bundle_ref
+        operation_registries["input_bindings_result"] = result
+        operation_registries["binding_consumer_reached"] = True
+        raise _RegistryBridgeReached
+
+    monkeypatch.setattr(
+        nl_pipeline_module,
+        "_canonicalize_runtime_metric_payload",
+        _capture_metric_payload,
+    )
+    monkeypatch.setattr(
+        nl_pipeline_module,
+        "build_production_metric_taxonomy",
+        _capture_taxonomy_registry,
+    )
+    monkeypatch.setattr(
+        registry_builder,
+        "build_default_registry_bundle",
+        _capture_bundle_registry,
+    )
+    monkeypatch.setattr(
+        data_plane_module,
+        "build_input_bindings",
+        _consume_registry_bundle,
+    )
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
     _forbid_real_gateway_network(monkeypatch)
     monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
-    monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
     monkeypatch.setattr(
         "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
         lambda: None,
@@ -2998,10 +3135,6 @@ def test_nl_pipeline_records_metric_taxonomy_evidence_for_canonicalized_aliases(
             run_id=run_id,
         ),
     )
-    monkeypatch.setattr(
-        "polisyos.foundry.methods.persist_method_catalog_snapshot",
-        lambda _store, _snapshot: MethodCatalogSnapshotRef(artifact_id="sha256:" + "9" * 64),
-    )
     service = ControlPlaneService(
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
@@ -3012,46 +3145,112 @@ def test_nl_pipeline_records_metric_taxonomy_evidence_for_canonicalized_aliases(
             sqlite_path=str(tmp_path / "control-metric-taxonomy.sqlite3"),
             postgres_dsn=None,
         ),
-        registry_providers=_registry_providers(),
+        registry_providers=_registry_providers(metric_registry=configured_registry),
     )
 
     try:
-        _run_nl_pipeline_with_live_admission(
-            service,
-            service._execute_nl_pipeline,
-            run_id="R_nl_metric_taxonomy",
-            nl_request="Evaluate a serious MSME policy with an aliased outcome.",
-            context=_intent_context(
-                desired_outcome="msme_credit_volume",
-                query_outcome="msme_credit_volume",
-            ),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            execution_profile="research",
-            allow_mock_fallback=False,
+        with pytest.raises(_RegistryBridgeReached):
+            _run_nl_pipeline_with_live_admission(
+                service,
+                service._execute_nl_pipeline,
+                run_id="R_nl_metric_taxonomy",
+                nl_request="Evaluate a serious MSME policy with an aliased outcome.",
+                context=_intent_context(
+                    desired_outcome=expected_metric_id,
+                    query_outcome="msme_credit_volume",
+                    metric_id=expected_metric_id,
+                ),
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[
+                    {
+                        "output_id": expected_metric_id.replace("_", "-"),
+                        "metric_id": expected_metric_id,
+                    }
+                ],
+                execution_profile="research",
+                allow_mock_fallback=False,
+            )
+        bundle = operation_registries["bundle_result"]
+        bindings_result = operation_registries["input_bindings_result"]
+        loaded_bindings = load_input_bindings(
+            service._artifact_store,
+            bindings_result.input_bindings_ref,
+        )
+        loaded_bundle = load_registry_bundle_content(
+            service._artifact_store,
+            bundle.bundle_ref,
+        )
+        bundle_payload = load_registry_bundle_payload(
+            service._artifact_store,
+            bundle.bundle_ref,
+        )
+        bundle_manifest = service._artifact_store.get_manifest(bundle.bundle_ref.artifact_id)
+        metric_input = next(
+            item for item in bundle_manifest.inputs if item.role == "metric_registry"
+        )
+        bindings_manifest = service._artifact_store.get_manifest(
+            bindings_result.input_bindings_ref.artifact_id
+        )
+        consumed_bundle_edge = next(
+            item for item in bindings_manifest.inputs if item.role == "input.registry_bundle_ref"
         )
     finally:
         service.close()
 
-    params = captured["payload"]["params"]
-    evidence = params["metric_taxonomy_evidence"]
-    assert params["query_outcome"] == "msme_loan_volume"
+    normalized_context = captured["normalized_context"]
+    normalized_expected_outputs = captured["normalized_expected_outputs"]
+    evidence = operation_registries["taxonomy_result"].evidence()
+    assert normalized_context["query_outcome"] == "msme_loan_volume"
+    assert normalized_context["metric_id"] == expected_metric_id
+    assert normalized_expected_outputs == [
+        {
+            "output_id": expected_metric_id.replace("_", "-"),
+            "metric_id": expected_metric_id,
+        }
+    ]
+    assert operation_registries["taxonomy"] is operation_registries["bundle"]
+    assert operation_registries["binding_consumer_reached"] is True
+    assert operation_registries["taxonomy"] is not expected_registry
+    assert operation_registries["taxonomy"] == expected_registry
+    assert operation_registries["consumed_bundle_ref"] == bundle.bundle_ref
+    assert loaded_bundle.metric_registry == expected_registry
+    assert loaded_bundle.metric_registry is not None
+    assert bundle_payload.metric_registry.artifact_id == metric_input.artifact_id
+    assert (
+        bundle_payload.metric_registry.manifest_profile_sha256
+        == metric_input.manifest_profile_sha256
+    )
+    assert metric_input.manifest_profile_sha256 is not None
+    assert expected_metric_id in loaded_bundle.metric_registry.metrics
+    if registry_mode == "default-drift":
+        assert operation_registries["default_drift_applied"] is True
+        assert late_default_metric_id not in loaded_bundle.metric_registry.metrics
+    else:
+        assert configured_registry is host_registry
+        assert "audit_water_loss_rate" in operation_registries["taxonomy"].metrics
+    assert loaded_bindings.registry_bundle_ref.artifact_id == bundle.bundle_ref.artifact_id
+    assert (
+        loaded_bindings.registry_bundle_ref.manifest_profile_sha256
+        == bundle.bundle_ref.manifest_profile_sha256
+    )
+    assert consumed_bundle_edge.artifact_id == bundle.bundle_ref.artifact_id
+    assert consumed_bundle_edge.manifest_profile_sha256 == bundle.bundle_ref.manifest_profile_sha256
     assert evidence["taxonomy_version"]
     assert evidence["metric_count"] > 0
     assert evidence["canonicalizer"] == "production_metric_taxonomy.v1"
     assert evidence["fingerprint"].startswith("sha256:")
-    assert params["metric_taxonomy_diagnostics"] == [
+    assert captured["diagnostics_context"] == [
         {
             "path": "context.query_outcome",
             "raw": "msme_credit_volume",

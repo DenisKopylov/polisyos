@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from polisyos.core import contracts
 
+from .facets import identification_mode_origin_for_rule
+
 UniversalPolicyAuthorityPurpose = contracts.UniversalPolicyAuthorityPurpose
 UniversalPolicyDesignCase = contracts.UniversalPolicyDesignCase
 
@@ -18,7 +20,7 @@ def require_compiled_universal_policy_design_case(
     """Return a case only when W6.A facets are present and consumer-safe."""
     if case.status == "blocked":
         raise PolicyGrammarConsumerError("universal policy design case is blocked")
-    if case.facets is None:
+    if case.facets is None and not case.components:
         raise PolicyGrammarConsumerError("universal policy design case has no compiled facets")
     return case
 
@@ -35,6 +37,61 @@ def facet_snapshots_for_obligation_graph(
 
     compiled = require_compiled_universal_policy_design_case(case)
     facets = compiled.facets
+    warnings = tuple(blocker for blocker in compiled.blockers if blocker.severity == "warning")
+    limitation_metadata: dict[str, object] = (
+        {
+            "grammar_limitations": tuple(blocker.code for blocker in warnings),
+            "grammar_limitation_messages": tuple(blocker.message for blocker in warnings),
+            "grammar_limitation_details": tuple(blocker.details for blocker in warnings),
+            "semantic_scope_provenance": "not_established",
+        }
+        if warnings
+        else {}
+    )
+    if compiled.components:
+        component_rows: list[dict[str, object]] = []
+        for component in compiled.components:
+            component_facets = component.facets
+            scope = ":".join(
+                (
+                    _facet_value(component_facets.population_predicate),
+                    _facet_value(component_facets.geography_predicate),
+                )
+            )
+            for facet in component_facets.iter_facets():
+                component_rows.append(
+                    {
+                        "facet_id": (
+                            f"{compiled.case_id}:component:{component.component_id}:"
+                            f"{facet.facet_name}"
+                        ),
+                        "facet_type": facet.facet_name,
+                        "value": _facet_value(facet),
+                        "concept_ref": facet.concept_spine_refs[0],
+                        "scope": scope,
+                        "authority_profile": compiled.authority_profile.profile_id,
+                        "temporal_window": _facet_value(component_facets.time_predicate),
+                        "metadata": {
+                            "component_id": component.component_id,
+                            "source_intervention_sha256": component.source_intervention_sha256,
+                            "source_intent_sha256": compiled.source_intent_sha256,
+                            "grammar_case_schema_version": compiled.schema_version,
+                            "case_id": compiled.case_id,
+                            "intent_id": compiled.intent_id,
+                            "concept_spine_refs": list(facet.concept_spine_refs),
+                            "source_vocabulary_refs": list(facet.source_vocabulary_refs),
+                            "derivation_rule_ref": facet.derivation_rule_ref,
+                            **_method_origin_metadata(facet.facet_name, facet.derivation_rule_ref),
+                            "source_contract_refs": list(component.source_contract_refs),
+                            "component_limitations": tuple(blocker.code for blocker in warnings),
+                            "component_limitation_messages": tuple(
+                                blocker.message for blocker in warnings
+                            ),
+                            **limitation_metadata,
+                        },
+                    }
+                )
+        return tuple(component_rows)
     if facets is None:
         raise PolicyGrammarConsumerError("universal policy design case has no compiled facets")
     scope = ":".join(
@@ -62,6 +119,16 @@ def facet_snapshots_for_obligation_graph(
                     "concept_spine_refs": list(facet.concept_spine_refs),
                     "source_vocabulary_refs": list(facet.source_vocabulary_refs),
                     "derivation_rule_ref": facet.derivation_rule_ref,
+                    **_method_origin_metadata(facet.facet_name, facet.derivation_rule_ref),
+                    **limitation_metadata,
+                    **(
+                        {
+                            "source_intent_sha256": compiled.source_intent_sha256,
+                            "grammar_case_schema_version": compiled.schema_version,
+                        }
+                        if compiled.schema_version == "policyos.universal_policy_design_case.v2"
+                        else {}
+                    ),
                 },
             }
         )
@@ -91,6 +158,12 @@ def _facet_value(facet: object) -> str:
     if not text:
         raise PolicyGrammarConsumerError("facet snapshot value is empty")
     return text
+
+
+def _method_origin_metadata(facet_name: str, rule_ref: str) -> dict[str, str]:
+    if facet_name != "method_need":
+        return {}
+    return {"identification_mode_origin": identification_mode_origin_for_rule(rule_ref)}
 
 
 __all__ = [

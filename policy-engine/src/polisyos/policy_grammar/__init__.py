@@ -17,6 +17,7 @@ from ._impl.consumer import (
     facet_snapshots_for_obligation_graph,
     require_compiled_universal_policy_design_case,
 )
+from ._impl.facets import identification_mode_origin_for_rule
 from ._impl.schema import (
     CompiledUniversalPolicyDesignCaseArtifact,
     PolicyGrammarConceptSpineRefs,
@@ -38,6 +39,7 @@ __all__ = [
     "assert_authority_slot_eligible",
     "authority_profile_from_mapping",
     "facet_snapshots_for_obligation_graph",
+    "identification_mode_origin_for_rule",
     "load_universal_policy_design_case",
     "persist_universal_policy_design_case",
     "require_compiled_universal_policy_design_case",

@@ -12,9 +12,12 @@ from polisyos.core.registry import (
     load_registry_bundle_payload,
 )
 from polisyos.ir.kernel import (
+    DEFAULT_METRIC_REGISTRY,
     ConstraintRegistry,
     MechanismTypeRegistry,
     MergeRuleRegistry,
+    MetricRegistry,
+    MetricSpec,
     SlotRegistry,
     UnitsRegistry,
 )
@@ -55,8 +58,44 @@ def test_build_default_registry_bundle(tmp_path) -> None:
     assert store.has(bundle.merge_registry.artifact_id)
     assert store.has(bundle.mechanism_registry.artifact_id)
     assert store.has(bundle.constraint_registry.artifact_id)
+    assert bundle.metric_registry is not None
+    assert load_registry_bundle_content(store, bundle.bundle_ref).metric_registry == (
+        DEFAULT_METRIC_REGISTRY
+    )
     if bundle.units_registry is not None:
         assert store.has(bundle.units_registry.artifact_id)
+
+
+def test_default_registry_bundle_persists_host_metric_registry(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    metric_registry = MetricRegistry(
+        metrics={
+            **DEFAULT_METRIC_REGISTRY.metrics,
+            "audit_water_loss_rate": MetricSpec(
+                metric_id="audit_water_loss_rate",
+                unit_id="percent",
+                description="Water loss rate admitted by the application host",
+            ),
+        }
+    )
+
+    bundle = build_default_registry_bundle(
+        store,
+        metric_registry=metric_registry,
+        return_selected_profile=True,
+    )
+    bundle_payload = load_registry_bundle_payload(store, bundle.bundle_ref)
+    loaded = load_registry_bundle_content(store, bundle.bundle_ref)
+    manifest = store.get_manifest(bundle.bundle_ref.artifact_id)
+    metric_input = next(item for item in manifest.inputs if item.role == "metric_registry")
+
+    assert bundle.metric_registry == bundle_payload.metric_registry
+    assert bundle.metric_registry is not None
+    assert bundle.metric_registry.artifact_id == metric_input.artifact_id
+    assert bundle.metric_registry.manifest_profile_sha256 == metric_input.manifest_profile_sha256
+    assert bundle.metric_registry.manifest_profile_sha256 is not None
+    assert loaded.metric_registry == metric_registry
+    assert "audit_water_loss_rate" in loaded.metric_registry.metrics
 
 
 @pytest.mark.parametrize(

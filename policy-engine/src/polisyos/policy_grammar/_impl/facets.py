@@ -7,9 +7,17 @@ from typing import TYPE_CHECKING
 
 from polisyos.core import contracts
 from polisyos.ir.governance import NormativeOutcomeChannel, PolicyLayerLevel
-from polisyos.ir.observation import IdentificationMode
+from polisyos.ir.observation import (
+    IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF,
+    IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF,
+    IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF,
+    IdentificationMode,
+    identification_mode_origin_for_rule,
+)
 
 if TYPE_CHECKING:
+    from pydantic import JsonValue
+
     from .normalizer import NormalizedPolicyIntent
     from .schema import PolicyGrammarConceptSpineRefs
 
@@ -58,6 +66,42 @@ _POLICY_SPEC_REF = "polisyos.ir.governance.policy_spec.PolicySpec"
 _CANDIDATE_REF = "polisyos.scientist.policy_design.schema.PolicyCandidateSchema"
 _CRITIC_REF = "polisyos.scientist.policy_design.critic.ConstraintCritic"
 _CHALLENGE_REF = "polisyos.scientist.evals.challenge_factory.ChallengeClass"
+_INSTRUMENT_RULES: tuple[tuple[UniversalPolicyInstrumentType, tuple[str, ...]], ...] = (
+    ("subsidy", ("subsidy", "voucher", "rent")),
+    ("service", ("service", "clinic", "vaccination", "vaccine")),
+    ("credit", ("credit", "loan", "guarantee", "msme")),
+    ("tax", ("tax",)),
+    ("regulation", ("regulation", "license", "compliance")),
+    ("procurement", ("procurement",)),
+    ("infrastructure", ("infrastructure", "construction")),
+    ("information", ("information", "campaign")),
+)
+_DELIVERY_RULES: tuple[tuple[UniversalPolicyDeliveryChannel, tuple[str, ...]], ...] = (
+    ("credit_registry", ("credit", "loan", "bank", "registry")),
+    ("voucher", ("voucher",)),
+    ("public_service", ("service", "clinic", "vaccination", "centre", "center")),
+    ("tax_expenditure", ("tax",)),
+    ("procurement", ("procurement",)),
+    ("grant_program", ("grant",)),
+    ("regulatory_enforcement", ("regulation", "compliance", "enforcement")),
+    ("information_campaign", ("information", "campaign")),
+)
+# These are the existing population rules, with their inferential terms named.
+# An outcome/qualifier such as employment, low_income, or all does not establish
+# a second literal population alongside a more explicit controlled token.
+_POPULATION_RULES: tuple[
+    tuple[UniversalPopulationPredicate, tuple[str, ...], tuple[str, ...]], ...
+] = (
+    ("msmes", ("msme", "msmes"), ()),
+    ("low_income_renters", ("low_income", "renters"), ("low_income",)),
+    ("children", ("children",), ()),
+    ("patients", ("patients",), ()),
+    ("students", ("students",), ()),
+    ("firms", ("firms",), ()),
+    ("households", ("households",), ()),
+    ("workers", ("workers", "employment"), ("employment",)),
+    ("all_residents", ("all", "residents"), ("all",)),
+)
 
 
 @dataclass(frozen=True)
@@ -113,6 +157,35 @@ def derive_facets(
             ),
         )
 
+    disclosures = _selector_disclosures(normalized)
+    explicit_populations = {
+        record["candidate_value"]
+        for record in disclosures
+        if record["facet_name"] == "population_predicate"
+        and record["evidence_role"] == "explicit_controlled_token"
+    }
+    if len(explicit_populations) > 1:
+        return FacetDerivationResult(
+            facets=None,
+            blockers=(
+                UniversalPolicyGrammarBlocker(
+                    code="policy_grammar_population_composition_unsupported",
+                    message=(
+                        "The scalar grammar cannot bind competing controlled population "
+                        "choices to one scope. Supply explicit intervention components."
+                    ),
+                    facet_name="population_predicate",
+                    pattern_refs=("P10", "P31", "P33"),
+                    missing_capability_label="bridge_missing",
+                    details={
+                        "selector_candidates": list(disclosures),
+                        "semantic_scope_provenance": "not_established",
+                        "supported_envelope": "explicit_component_or_single_population",
+                    },
+                ),
+            ),
+        )
+    warnings = _ambiguity_warnings(disclosures)
     instrument = _instrument_type(normalized)
     targeting = _targeting_type(normalized)
     delivery = _delivery_channel(normalized)
@@ -121,6 +194,7 @@ def derive_facets(
     population = _population_predicate(normalized)
     geography = _geography_predicate(normalized, authority_type)
     time_predicate = _time_predicate(normalized)
+    method_need, method_rule_ref = _method_need(normalized)
     if None in {
         instrument,
         targeting,
@@ -188,10 +262,10 @@ def derive_facets(
                 derivation_rule_ref=f"{_FACET_RULE_VERSION}:risk_facet",
             ),
             method_need=UniversalPolicyMethodNeedFacet(
-                value=_method_need(normalized),
+                value=method_need,
                 concept_spine_refs=concept_spine_refs.refs_for("method_need"),
                 source_vocabulary_refs=(_IR_METHOD_REF, _IR_TEMPORAL_REF),
-                derivation_rule_ref=f"{_FACET_RULE_VERSION}:method_need",
+                derivation_rule_ref=method_rule_ref,
             ),
             population_predicate=UniversalPolicyPopulationPredicateFacet(
                 value=population,
@@ -211,28 +285,17 @@ def derive_facets(
                 source_vocabulary_refs=(_IR_TEMPORAL_REF,),
                 derivation_rule_ref=f"{_FACET_RULE_VERSION}:time_predicate",
             ),
-        )
+        ),
+        blockers=warnings,
     )
 
 
 def _instrument_type(normalized: NormalizedPolicyIntent) -> UniversalPolicyInstrumentType | None:
-    kinds = set(normalized.intervention_kinds)
-    if normalized.has_any("subsidy", "voucher", "rent"):
-        return "subsidy"
-    if "service" in kinds or normalized.has_any("service", "clinic", "vaccination", "vaccine"):
-        return "service"
-    if normalized.has_any("credit", "loan", "guarantee", "msme"):
-        return "credit"
-    if normalized.has_any("tax"):
-        return "tax"
-    if normalized.has_any("regulation", "license", "compliance"):
-        return "regulation"
-    if normalized.has_any("procurement"):
-        return "procurement"
-    if normalized.has_any("infrastructure", "construction"):
-        return "infrastructure"
-    if normalized.has_any("information", "campaign"):
-        return "information"
+    for value, terms in _INSTRUMENT_RULES:
+        if normalized.has_any(*terms) or (
+            value == "service" and "service" in normalized.intervention_kinds
+        ):
+            return value
     return None
 
 
@@ -253,22 +316,9 @@ def _targeting_type(normalized: NormalizedPolicyIntent) -> UniversalPolicyTarget
 
 
 def _delivery_channel(normalized: NormalizedPolicyIntent) -> UniversalPolicyDeliveryChannel | None:
-    if normalized.has_any("credit", "loan", "bank", "registry"):
-        return "credit_registry"
-    if normalized.has_any("voucher"):
-        return "voucher"
-    if normalized.has_any("service", "clinic", "vaccination", "centre", "center"):
-        return "public_service"
-    if normalized.has_any("tax"):
-        return "tax_expenditure"
-    if normalized.has_any("procurement"):
-        return "procurement"
-    if normalized.has_any("grant"):
-        return "grant_program"
-    if normalized.has_any("regulation", "compliance", "enforcement"):
-        return "regulatory_enforcement"
-    if normalized.has_any("information", "campaign"):
-        return "information_campaign"
+    for value, terms in _DELIVERY_RULES:
+        if normalized.has_any(*terms):
+            return value
     return None
 
 
@@ -304,36 +354,97 @@ def _risk_facet(normalized: NormalizedPolicyIntent) -> UniversalPolicyRiskFacet 
     return None
 
 
-def _method_need(normalized: NormalizedPolicyIntent) -> IdentificationMode:
+def _method_need(normalized: NormalizedPolicyIntent) -> tuple[IdentificationMode, str]:
     if normalized.identification_modes:
-        return normalized.identification_modes[0]
+        return normalized.identification_modes[0], (
+            IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF
+        )
     if normalized.has_any("phase", "phased", "rollout", "sequence"):
-        return IdentificationMode.SEQUENTIAL
-    return IdentificationMode.POINT_IDENTIFIED
+        return IdentificationMode.SEQUENTIAL, (
+            IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF
+        )
+    return IdentificationMode.POINT_IDENTIFIED, (
+        IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF
+    )
 
 
 def _population_predicate(
     normalized: NormalizedPolicyIntent,
 ) -> UniversalPopulationPredicate | None:
-    if normalized.has_any("msme", "msmes"):
-        return "msmes"
-    if normalized.has_any("low_income", "renters"):
-        return "low_income_renters"
-    if normalized.has_any("children"):
-        return "children"
-    if normalized.has_any("patients"):
-        return "patients"
-    if normalized.has_any("students"):
-        return "students"
-    if normalized.has_any("firms"):
-        return "firms"
-    if normalized.has_any("households"):
-        return "households"
-    if normalized.has_any("workers", "employment"):
-        return "workers"
-    if normalized.has_any("all", "residents"):
-        return "all_residents"
+    for value, terms, _fallbacks in _POPULATION_RULES:
+        if normalized.has_any(*terms):
+            return value
     return None
+
+
+def _selector_disclosures(
+    normalized: NormalizedPolicyIntent,
+) -> tuple[dict[str, JsonValue], ...]:
+    """Retain every applicable existing exclusive-axis selector and its role."""
+    rule_rows = (
+        *(("instrument_type", value, terms, ()) for value, terms in _INSTRUMENT_RULES),
+        *(("delivery_channel", value, terms, ()) for value, terms in _DELIVERY_RULES),
+        *(("population_predicate", *row) for row in _POPULATION_RULES),
+    )
+    disclosures: list[dict[str, JsonValue]] = []
+    for facet_name, value, terms, fallbacks in rule_rows:
+        matched_terms = [term for term in terms if normalized.has_any(term)]
+        if (
+            facet_name == "instrument_type"
+            and value == "service"
+            and "service" in normalized.intervention_kinds
+            and "service" not in matched_terms
+        ):
+            matched_terms.append("InterventionSpec.kind:service")
+        if not matched_terms:
+            continue
+        role = (
+            "inferential_fallback"
+            if all(term in fallbacks for term in matched_terms)
+            else "explicit_controlled_token"
+        )
+        disclosures.append(
+            {
+                "facet_name": facet_name,
+                "candidate_value": value,
+                "matched_terms": matched_terms,
+                "rule_ref": f"{_FACET_RULE_VERSION}:{facet_name}:{value}",
+                "evidence_role": role,
+            }
+        )
+    return tuple(disclosures)
+
+
+def _ambiguity_warnings(
+    disclosures: tuple[dict[str, JsonValue], ...],
+) -> tuple[UniversalPolicyGrammarBlocker, ...]:
+    warnings: list[UniversalPolicyGrammarBlocker] = []
+    for facet_name in ("instrument_type", "delivery_channel", "population_predicate"):
+        choices = [record for record in disclosures if record["facet_name"] == facet_name]
+        if len(choices) <= 1 and not any(
+            record["evidence_role"] == "inferential_fallback" for record in choices
+        ):
+            continue
+        warnings.append(
+            UniversalPolicyGrammarBlocker(
+                code="policy_grammar_facet_choice_not_scoped",
+                severity="warning",
+                message=(
+                    f"The {facet_name} projection uses controlled selector precedence or "
+                    "an inferential fallback. These candidate choices do not establish "
+                    "component scope or complete interpretation of the unstructured intent."
+                ),
+                facet_name=facet_name,
+                pattern_refs=("P10", "P33", "P37"),
+                missing_capability_label="semantic_test_missing",
+                details={
+                    "selector_candidates": choices,
+                    "semantic_scope_provenance": "not_established",
+                    "supported_envelope": "controlled_selector_candidate_only",
+                },
+            )
+        )
+    return tuple(warnings)
 
 
 def _geography_predicate(
@@ -375,4 +486,9 @@ def _time_predicate(normalized: NormalizedPolicyIntent) -> UniversalTimePredicat
     return None
 
 
-__all__ = ["FACET_NAMES", "FacetDerivationResult", "derive_facets"]
+__all__ = [
+    "FACET_NAMES",
+    "FacetDerivationResult",
+    "derive_facets",
+    "identification_mode_origin_for_rule",
+]

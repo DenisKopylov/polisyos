@@ -2129,8 +2129,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 852,
-          "known_export_count": 852,
+          "export_count": 853,
+          "known_export_count": 853,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2899,6 +2899,7 @@
             "UniversalPolicyCapabilityRealityLabel",
             "UniversalPolicyDeliveryChannel",
             "UniversalPolicyDeliveryChannelFacet",
+            "UniversalPolicyComponentFacets",
             "UniversalPolicyDesignCase",
             "UniversalPolicyDesignCaseAuditSurface",
             "UniversalPolicyFacetName",
@@ -3009,8 +3010,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 88985,
-                "sha256": "37aa91c8d1ea4a313a78bbd004adf27ca57d677a4cb78769718e9a3c99b0d4b0"
+                "bytes": 89105,
+                "sha256": "8c00941cc2137e9a2a581d17e4c0a0ff239959ce8eb8deaf8c862eaff8a78207"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -7073,14 +7074,17 @@
         {
           "module": "polisyos.ir.observation",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 167,
-          "known_export_count": 167,
+          "export_count": 171,
+          "known_export_count": 171,
           "exports": [
             "BACKTEST_PLAN_TARGET",
             "DEFAULT_GOVERNANCE_PASS_ALIAS_REGISTRY",
             "DEFAULT_GOVERNANCE_PASS_MAPPING_REGISTRY",
             "DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY",
             "DYNAMIC_TREATMENT_TARGET",
+            "IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF",
+            "IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF",
+            "IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF",
             "LESSON_CARD_TARGET",
             "MULTIPLEX_NETWORK_TARGET",
             "NETWORK_ANALYSIS_TARGET",
@@ -7233,6 +7237,7 @@
             "bridge_observation_record_to_ddi",
             "bridge_observation_record_to_fhir",
             "bridge_observation_record_to_sdmx",
+            "identification_mode_origin_for_rule",
             "load_causal_execution_bundle",
             "load_causal_readiness_bundle",
             "load_json_bundle",
@@ -7268,8 +7273,8 @@
                 "path": "src/polisyos/ir/observation/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 25382,
-                "sha256": "b6deb1fc6934dac2b593b0339ae68e8dd9b6ef05909d147a64c2ac108b872552"
+                "bytes": 26331,
+                "sha256": "e1e4f7cf3c5b6e0a5a29799af90c55dd9e899a1f9f859c651f01759c61ea538e"
               },
               {
                 "path": "src/polisyos/ir/observation",

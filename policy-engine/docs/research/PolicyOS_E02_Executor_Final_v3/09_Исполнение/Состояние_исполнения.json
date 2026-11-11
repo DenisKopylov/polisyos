@@ -9083,7 +9083,7 @@
         "archive_sha256": "af7a3fdc9b237c7dcf783c130a0cfc70041c2e99137fea457bc43d6b0c944bd2",
         "source_base": "3a10e21d9bcf28fa77d8d9ebf43ae4773cfdecc7",
         "source_tree": "fd75a2748a303be2f53dc5f3bc708d2488364570",
-        "status": "RECONCILED_IMPLEMENTATION_IN_PROGRESS",
+        "status": "AUTHOR_AUDIT_REPAIRS_COMPOSED_WITH_BOUNDED_VERIFICATION",
         "bundle_integrity": {
           "result": "PASS_ARTIFACT_COVERAGE_AND_INTEGRITY_ONLY",
           "checks": 36,
@@ -9100,11 +9100,10 @@
           "RD-01",
           "MA-01",
           "MA-02",
-          "MA-03"
-        ],
-        "remaining_component_contract": [
+          "MA-03",
           "DC-01"
         ],
+        "remaining_component_contract": [],
         "conditional_qualification": [
           "FLOW-01"
         ],
@@ -9117,7 +9116,7 @@
               "PASS": 39
             },
             "independent_source_review": "GO",
-            "native_composed_consumers": "UNRUN",
+            "native_composed_consumers": "PASS_BOUNDED_CATALOG_AND_HORIZON; FULL_SERVED_GATE_A_UNRUN",
             "native_catalog": {
               "PASS": 3,
               "FAIL": 0,
@@ -9139,7 +9138,7 @@
               "PASS": 14
             },
             "independent_source_review": "GO",
-            "downstream_method_bridge": "IN_PROGRESS"
+            "downstream_method_bridge": "PASS_BOUNDED_REAL_DID_MODE_GATE_NOT_SCIENTIFIC_ADMISSION"
           },
           "MA-01_MA-02_MA-03": {
             "root_composed_tests": {
@@ -9175,10 +9174,119 @@
               "max_process_rss_bytes": 1971175424
             },
             "note": "Direct scenario fixture seed now uses the actual authenticated request tenant and generated cell. Stable head 200 and post-OPA changed-head 409 remain required; no product gate weakened, no inherited-red attribution or retroactive combined PASS."
+          },
+          "DC-01": {
+            "grammar_owner_tests": {
+              "PASS": 53
+            },
+            "graph_owner_tests": {
+              "PASS": 12
+            },
+            "independent_source_review": "GO_BOUNDED_COMPONENT_GRAPH",
+            "ordinary_served_route": "UNRUN"
+          },
+          "EC-01": {
+            "full_native_owner_tests": {
+              "PASS": 226,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+            "independent_source_review": "GO_BOUNDED_SCOPE_AND_MULTI_BINDING",
+            "legacy_query_v1_limit": "One geography field; strict selected ProgramGraph intake verifies jurisdiction/geography independently."
+          },
+          "FG-03": {
+            "real_host_and_default_drift_tests": {
+              "PASS": 2
+            },
+            "unknown_metric_control": {
+              "PASS": 1
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+            "late_workflow_parameter_projection": "UNRUN",
+            "note": "Earlier tuple-valued cases did not exercise the claimed branches; corrected string parameter cases do."
+          },
+          "EC-02": {
+            "final_affected_tests": {
+              "PASS": 98,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "independent_source_review": "GO",
+            "scope": "Exact mode origin plus compiler and selector reconstruction from surviving linked contexts; other actual method gates remain required."
           }
         },
         "g_acceptance": false,
-        "note": "Audit findings are source-reconciled supplemental work, not a replacement criterion denominator or product/acceptance PASS. See the single E02-WORK-PLAN audit table."
+        "note": "Supplemental repairs preserve all original criterion denominators and honest source/profile boundaries. Full ordinary integration scenarios, live N6 through-use, Variable Binding Gate A/B and G acceptance remain separate.",
+        "ordinary_served_component_qualification": "UNRUN",
+        "root_composed_wave": {
+          "PASS": 404,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0,
+          "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+          "wall_seconds": 78.572,
+          "peak_sampled_process_tree_rss_bytes": 2089467904,
+          "unchanged_python_inputs": 32,
+          "failure": "Real DiD adapter test expected registry FQN but actual output uses existing difference_in_differences identity; correct test contract, then verify the mode gate.",
+          "later_delta": {
+            "PASS": 98,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "wall_seconds": 53.726,
+            "peak_sampled_process_tree_rss_bytes": 1842839552,
+            "unchanged_python_inputs": 33,
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-delta-final/",
+            "note": "Correct actual DiD output identity, independent +3 numerical oracle and compiler/selector projection-removal controls. Reuse unchanged owner/consumer cases; do not retroactively relabel the original 404/1 cohort."
+          }
+        },
+        "architecture": {
+          "full_generated": "UNRUN: environment layout repaired; actual retained/offline generated-profile preparation and six freshness probes not yet executed.",
+          "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
+          "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
+          "final_static_output": "policy-engine/_cache/e02/lane01-audit-architecture/facade-final-static-check.log",
+          "node_layout": "Local frozen offline PNPM install ready; all six importer and first-party workspace links resolve within primary. Original shared links preserved. About 29 MiB measured disk growth; no network or original environment removal.",
+          "uv_cache": "Existing 4.2 MiB dependency cache moved atomically to external Library/Caches/polisyos/uv-e02-shared; logical _cache/uv preserved, identities unchanged. Offline completeness unknown."
+        },
+        "next_execution": {
+          "N6_source_only": {
+            "source_commit": "4a4f707d7378196f70c7b27f335becdb9ef371db",
+            "source_tree": "810da7299c7d7bc845294e9db85a9c8306619ff8",
+            "result": "FAIL_SOURCE_ADMISSION",
+            "N5": "UNRUN",
+            "reason": "Unsupported direct source binding fabric.claims.resolve_conflicts inside optional import suite with passive bookkeeping. Earlier report_registry boundary advanced.",
+            "wall_seconds": 1212.451,
+            "peak_sampled_process_tree_rss_bytes": 3624583168,
+            "minimum_global_free_disk_bytes": 7320264704,
+            "bound_inputs_and_tracked_source_unchanged": true,
+            "output": "policy-engine/_cache/e02/lane01-audit-n6-source-only-r1/",
+            "bounded_fix": {
+              "PASS": 33,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0,
+              "output": "policy-engine/_cache/e02/lane01-n6-conditional-import-r1/",
+              "coordinator_source_review": "GO",
+              "initializer_authority": "UNKNOWN_UNCHANGED",
+              "full_replay_after_fix": "UNRUN"
+            }
+          },
+          "retained_C": "Pending attempt0/head(2,1); original decision expired. Generic versioned append-only authority refresh is being implemented/tested in the admitted secondary checkout, preserving original job/request/history and A/B four spent standard units. No retained C dispatch or N5 yet.",
+          "integration_scenarios": "E02-I01-A/B/C remain NOT_RUN; scoped tests do not replace original 11/66/64 denominator.",
+          "variable_binding": "Gate A and the metadata-only held-out after freeze precede P06-P08/Gate B.",
+          "secondary_base": {
+            "commit": "dfa7ee776b0cd84d171ea38facbd9ef8a5be8486",
+            "tree": "da9221168de25482db404df35e89f37dc2c760c0",
+            "admission": "admitted",
+            "note": "Ordinary merge, exact committed-main e4b tree; no reset/rebase or new checkout/environment."
+          },
+          "retained_C_scope": "Matching unemployment-rate candidate profile, generated WDI-shaped fixture, not production provenance or Variable Binding Gate A. Preserve original A/B and 7/1 ledger; authentic signed pending-C dispatch remains UNRUN.",
+          "retained_C_implementation": "Secondary source frozen after independent final Terra GO; R5 138 PASS / 2 new legacy-wire FAIL, corrected producer then R6 11 PASS. Generated API companions and composed-source checks still pending."
+        },
+        "ruff": "PASS check/format on 33 changed/new Python paths"
       },
       "sequence": 8,
       "implementation_status": "IN_PROGRESS",

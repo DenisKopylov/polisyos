@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, fields
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -832,6 +833,276 @@ class Phase2RequirementBasis(BaseModel):
     source_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
 
 
+def _claim_decomposition_input_from_selected_graph(
+    *,
+    run_id: str,
+    intent: str,
+    graph: object,
+    concept_spine_refs: Sequence[str],
+    authority_profile_refs: Sequence[str],
+) -> object:
+    """Preserve selected graph facet metadata and exact component obligation scope."""
+
+    from polisyos.scientist.policy_design import (
+        ClaimDecompositionFacet,
+        ClaimDecompositionInput,
+        ClaimDecompositionObligation,
+    )
+
+    graph_facets = tuple(getattr(graph, "facets", ()))
+    frontier = tuple(getattr(graph, "blocking_frontier", ()))
+    _validate_selected_graph_frontier_membership(graph)
+    facet_by_id = {facet.facet_id: facet for facet in graph_facets}
+    if len(facet_by_id) != len(graph_facets):
+        raise ValueError("constraint_graph_facet_identity_duplicate")
+    claim_facets = []
+    for facet in graph_facets:
+        metadata = dict(facet.metadata)
+        facet_concepts = metadata.get("concept_spine_refs")
+        if facet_concepts is None:
+            facet_concepts = [facet.concept_ref]
+        if (
+            not isinstance(facet_concepts, Sequence)
+            or isinstance(facet_concepts, str | bytes | bytearray)
+            or any(not isinstance(ref, str) or not ref.strip() for ref in facet_concepts)
+        ):
+            raise ValueError("constraint_graph_facet_concept_refs_invalid")
+        claim_facets.append(
+            ClaimDecompositionFacet(
+                facet_id=facet.facet_id,
+                facet_type=facet.facet_type,
+                value=facet.value,
+                concept_spine_refs=list(facet_concepts),
+                authority_profile_refs=[facet.authority_profile],
+                metadata=metadata,
+            )
+        )
+
+    claim_obligations = []
+    for item in frontier:
+        item_facet_refs = _selected_frontier_facet_refs(item, graph_facets)
+        if set(item_facet_refs) - set(facet_by_id):
+            raise ValueError("constraint_graph_frontier_facet_refs_unresolved")
+        claim_obligations.append(
+            ClaimDecompositionObligation(
+                obligation_id=item.frontier_id,
+                family=item.bundle_key.family,
+                description=item.obligation_text,
+                facet_refs=item_facet_refs,
+            )
+        )
+
+    return ClaimDecompositionInput(
+        run_id=run_id,
+        intent=intent,
+        facets=claim_facets,
+        obligations=claim_obligations,
+        concept_spine_refs=list(concept_spine_refs),
+        authority_profile_refs=list(authority_profile_refs),
+    )
+
+
+def _validate_selected_graph_frontier_membership(graph: object) -> None:
+    """Reconcile selected frontier copies to the graph's candidate and bundle ledgers."""
+
+    candidate_ledger = tuple(getattr(graph, "candidate_ledger", ()))
+    bundle_ledger = tuple(getattr(graph, "bundle_ledger", ()))
+    frontier = tuple(getattr(graph, "blocking_frontier", ()))
+    bundles_by_id: dict[str, list[object]] = {}
+    for bundle in bundle_ledger:
+        bundles_by_id.setdefault(bundle.bundle_id, []).append(bundle)
+    candidates_by_id: dict[str, list[object]] = {}
+    for candidate in candidate_ledger:
+        candidates_by_id.setdefault(candidate.candidate_id, []).append(candidate)
+
+    for item in frontier:
+        bundle_rows = bundles_by_id.get(item.bundle_id, [])
+        if len(bundle_rows) != 1:
+            raise ValueError("constraint_frontier_bundle_ledger_mismatch")
+        bundle = bundle_rows[0]
+        if bundle.bundle_key != item.bundle_key or tuple(bundle.candidate_refs) != tuple(
+            item.candidate_refs
+        ):
+            raise ValueError("constraint_frontier_bundle_binding_mismatch")
+        if not isinstance(item.metadata, Mapping):
+            raise ValueError("constraint_frontier_metadata_invalid")
+        copied_metadata = item.metadata.get("candidate_metadata_refs", {})
+        if not isinstance(copied_metadata, Mapping) or set(copied_metadata) - set(
+            item.candidate_refs
+        ):
+            raise ValueError("constraint_frontier_candidate_metadata_invalid")
+        for candidate_ref in item.candidate_refs:
+            candidate_rows = candidates_by_id.get(candidate_ref, [])
+            if len(candidate_rows) != 1:
+                raise ValueError("constraint_frontier_candidate_ledger_mismatch")
+            candidate = candidate_rows[0]
+            if candidate.bundle_key != item.bundle_key:
+                raise ValueError("constraint_frontier_candidate_binding_mismatch")
+            actual_metadata = dict(candidate.metadata)
+            copied = copied_metadata.get(candidate_ref)
+            if actual_metadata:
+                if not isinstance(copied, Mapping) or dict(copied) != actual_metadata:
+                    raise ValueError("constraint_frontier_candidate_metadata_mismatch")
+            elif copied is not None:
+                raise ValueError("constraint_frontier_candidate_metadata_mismatch")
+
+
+def _selected_frontier_facet_refs(frontier: object, graph_facets: Sequence[object]) -> list[str]:
+    """Resolve facets only through the selected graph's candidate lineage."""
+
+    bundle_key = getattr(frontier, "bundle_key", None)
+    component_id = getattr(bundle_key, "component_id", None)
+    metadata = getattr(frontier, "metadata", {})
+    if not isinstance(metadata, Mapping):
+        raise ValueError("constraint_frontier_metadata_invalid")
+    declared_refs = metadata.get("component_facet_refs")
+    graph_component_refs = sorted(
+        facet.facet_id
+        for facet in graph_facets
+        if facet.metadata.get("component_id") == component_id and component_id is not None
+    )
+    if component_id is None:
+        if declared_refs is not None or metadata.get("component_id") is not None:
+            raise ValueError("constraint_component_facet_scope_unbound")
+        return _selected_v1_case_facet_refs(frontier, graph_facets, metadata)
+    if metadata.get("component_id") != component_id:
+        raise ValueError("constraint_component_facet_scope_mismatch")
+    if metadata.get("source_intervention_sha256") != getattr(
+        bundle_key, "source_intervention_sha256", None
+    ):
+        raise ValueError("constraint_component_intervention_binding_mismatch")
+    if (
+        not isinstance(declared_refs, Sequence)
+        or isinstance(declared_refs, str | bytes | bytearray)
+        or any(not isinstance(ref, str) or not ref.strip() for ref in declared_refs)
+        or len(set(declared_refs)) != len(declared_refs)
+        or not declared_refs
+        or set(declared_refs) != set(graph_component_refs)
+    ):
+        raise ValueError("constraint_component_facet_context_mismatch")
+    for facet in graph_facets:
+        if facet.facet_id in declared_refs and (
+            facet.metadata.get("source_intervention_sha256")
+            != getattr(bundle_key, "source_intervention_sha256", None)
+        ):
+            raise ValueError("constraint_component_intervention_binding_mismatch")
+    return list(declared_refs)
+
+
+def _selected_v1_case_facet_refs(
+    frontier: object,
+    graph_facets: Sequence[object],
+    metadata: Mapping[str, Any],
+) -> list[str]:
+    """Resolve ordinary singleton-v1 facets through actual candidate membership."""
+
+    candidate_refs = getattr(frontier, "candidate_refs", ())
+    candidate_metadata_refs = metadata.get("candidate_metadata_refs")
+    bundle_key = getattr(frontier, "bundle_key", None)
+    family = str(getattr(bundle_key, "family", "")).casefold()
+    has_explicit_method_mode = any(
+        getattr(facet, "facet_type", None) == "method_need" for facet in graph_facets
+    )
+    mode_binding_required = has_explicit_method_mode and any(
+        token in family for token in ("causal", "effect", "outcome")
+    )
+    if (
+        not isinstance(candidate_refs, Sequence)
+        or isinstance(candidate_refs, str | bytes | bytearray)
+        or any(not isinstance(ref, str) or not ref.strip() for ref in candidate_refs)
+        or len(set(candidate_refs)) != len(candidate_refs)
+        or not isinstance(candidate_metadata_refs, Mapping)
+    ):
+        if mode_binding_required:
+            raise ValueError("constraint_frontier_identification_mode_binding_unestablished")
+        return []
+
+    selected_rows: list[tuple[tuple[str, ...], dict[str, str]]] = []
+    for candidate_ref in candidate_refs:
+        candidate_metadata = candidate_metadata_refs.get(candidate_ref)
+        if not isinstance(candidate_metadata, Mapping):
+            if mode_binding_required:
+                raise ValueError("constraint_frontier_identification_mode_binding_unestablished")
+            return []
+        raw_refs = candidate_metadata.get("selected_case_facet_refs")
+        raw_binding = candidate_metadata.get("selected_case_binding")
+        if raw_refs is None and raw_binding is None:
+            if mode_binding_required:
+                raise ValueError("constraint_frontier_identification_mode_binding_unestablished")
+            return []
+        if (
+            not isinstance(raw_refs, Sequence)
+            or isinstance(raw_refs, str | bytes | bytearray)
+            or not raw_refs
+            or any(not isinstance(ref, str) or not ref.strip() for ref in raw_refs)
+            or len(set(raw_refs)) != len(raw_refs)
+            or not isinstance(raw_binding, Mapping)
+        ):
+            raise ValueError("constraint_frontier_identification_mode_binding_invalid")
+        binding: dict[str, str] = {}
+        for field in ("case_id", "scope", "authority_profile", "temporal_window"):
+            value = raw_binding.get(field)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError("constraint_frontier_identification_mode_binding_invalid")
+            binding[field] = value.strip()
+        matched_refs = candidate_metadata.get("matched_facet_refs", ())
+        if (
+            not isinstance(matched_refs, Sequence)
+            or isinstance(matched_refs, str | bytes | bytearray)
+            or any(not isinstance(ref, str) or not ref.strip() for ref in matched_refs)
+            or len(set(matched_refs)) != len(matched_refs)
+            or not set(matched_refs).issubset(raw_refs)
+        ):
+            raise ValueError("constraint_frontier_identification_mode_binding_invalid")
+        selected_rows.append((tuple(raw_refs), binding))
+
+    if not selected_rows:
+        if mode_binding_required:
+            raise ValueError("constraint_frontier_identification_mode_binding_unestablished")
+        return []
+    first_refs, first_binding = selected_rows[0]
+    if any(
+        row_refs != first_refs or row_binding != first_binding
+        for row_refs, row_binding in selected_rows[1:]
+    ):
+        raise ValueError("constraint_frontier_identification_mode_binding_conflict")
+
+    facet_by_id = {getattr(facet, "facet_id", None): facet for facet in graph_facets}
+    if len(facet_by_id) != len(graph_facets) or set(first_refs) - set(facet_by_id):
+        raise ValueError("constraint_frontier_identification_mode_binding_unresolved")
+    selected_facets = [facet_by_id[ref] for ref in first_refs]
+    selected_intent_ids: set[str] = set()
+    for facet in selected_facets:
+        if (
+            not isinstance(getattr(facet, "metadata", None), Mapping)
+            or facet.metadata.get("case_id") != first_binding["case_id"]
+            or facet.scope != first_binding["scope"]
+            or facet.authority_profile != first_binding["authority_profile"]
+            or facet.temporal_window != first_binding["temporal_window"]
+        ):
+            raise ValueError("constraint_frontier_identification_mode_binding_mismatch")
+        intent_id = facet.metadata.get("intent_id")
+        if not isinstance(intent_id, str) or not intent_id.strip():
+            raise ValueError("constraint_frontier_identification_mode_binding_invalid")
+        selected_intent_ids.add(intent_id)
+    if len(selected_intent_ids) != 1:
+        raise ValueError("constraint_frontier_identification_mode_binding_conflict")
+    selected_intent_id = next(iter(selected_intent_ids))
+    complete_case_refs = {
+        facet.facet_id
+        for facet in graph_facets
+        if isinstance(getattr(facet, "metadata", None), Mapping)
+        and facet.metadata.get("case_id") == first_binding["case_id"]
+        and facet.metadata.get("intent_id") == selected_intent_id
+        and facet.scope == first_binding["scope"]
+        and facet.authority_profile == first_binding["authority_profile"]
+        and facet.temporal_window == first_binding["temporal_window"]
+    }
+    if complete_case_refs != set(first_refs):
+        raise ValueError("constraint_frontier_identification_mode_case_incomplete")
+    return list(first_refs)
+
+
 class Phase2ConstraintAdmission(BaseModel):
     """Readback handle; deserialization alone cannot recreate owner admission."""
 
@@ -1197,9 +1468,6 @@ class ConstraintStoreIngestor:
         from polisyos.method_requirement import MethodValidityRequirementCompiler
         from polisyos.participation_requirement import evaluate_participation_requirement
         from polisyos.scientist.policy_design import (
-            ClaimDecompositionFacet,
-            ClaimDecompositionInput,
-            ClaimDecompositionObligation,
             compile_claim_decomposition,
             compile_participation_requirements_from_claim_ledger,
         )
@@ -1270,7 +1538,6 @@ class ConstraintStoreIngestor:
             if compiled.status in {"blocked", "candidate_unverified"} or compilation.facets is None:
                 missing.append("constraint_grammar_not_admitted")
             else:
-                facets = compilation.facets
                 catalog = compilation.rule_catalog
                 graph = compilation.obligation_graph
                 if catalog is None or graph is None:
@@ -1320,27 +1587,10 @@ class ConstraintStoreIngestor:
                 if not graph.blocking_frontier:
                     missing.append("constraint_claim_requirement_population_not_established")
                 else:
-                    claim_input = ClaimDecompositionInput(
+                    claim_input = _claim_decomposition_input_from_selected_graph(
                         run_id=workspace_id,
                         intent=problem.problem_statement,
-                        facets=[
-                            ClaimDecompositionFacet(
-                                facet_id=row["facet_id"],
-                                facet_type=row["facet_type"],
-                                value=row["value"],
-                                concept_spine_refs=list(row["metadata"]["concept_spine_refs"]),
-                                authority_profile_refs=[compiled.authority_profile.profile_id],
-                            )
-                            for row in facets
-                        ],
-                        obligations=[
-                            ClaimDecompositionObligation(
-                                obligation_id=item.frontier_id,
-                                family=item.bundle_key.family,
-                                description=item.obligation_text,
-                            )
-                            for item in graph.blocking_frontier
-                        ],
+                        graph=graph,
                         concept_spine_refs=list(basis.concept_spine_refs.canonical_concept_refs),
                         authority_profile_refs=[compiled.authority_profile.profile_id],
                     )

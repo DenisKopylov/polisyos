@@ -200,6 +200,12 @@ class ClaimConstructDeclarationInputError(ValueError):
         super().__init__(f"{self.code}:{reason_code}:{field_path}")
 
 
+class ClaimScopeInputError(ScenarioScopeProfileInputError):
+    """Refuse a claim scope that cannot be bound to one selected facet set."""
+
+    code = "claim_scope_input_invalid"
+
+
 _SCENARIO_DOMAIN_RULE_REF = "policyos.data_requirement.scenario_domain.v1"
 _CLAIM_CONSTRUCT_KEYS = (
     "required_evidence_constructs",
@@ -270,6 +276,8 @@ class _ConstructResolutionInputs:
 
     required_constructs: tuple[str, ...] = ()
     candidate_construct_proposals: tuple[str, ...] = ()
+    graph_global_constructs: tuple[str, ...] = ()
+    graph_component_constructs: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
 
 def _load_governed_scenario_family_construct_rows() -> tuple[
@@ -426,18 +434,129 @@ class DataRequirementCompiler:
                 scope_profile.candidate_construct_proposals if scope_profile else ()
             ),
         )
-        scope = _scope_from_facets(facet_index, scope_profile=scope_profile)
-        capability_bindings, capability_resolutions = _resolve_capability_requirements(
+        claim_scoped_constructs: dict[str, tuple[str, ...]] = {}
+        claim_facets_by_id: dict[str, dict[str, Mapping[str, Any]]] = {}
+        claim_scopes: dict[str, DataRequirementScope] = {}
+        claim_construct_owners: dict[str, list[str]] = {}
+        component_claim_owners: dict[str, list[str]] = {}
+        graph_component_constructs = dict(resolution_inputs.graph_component_constructs)
+        for claim in claims:
+            if not _claim_requires_data(claim):
+                continue
+            claim_id = str(claim.claim_id)
+            claim_facets = _facets_for_claim(claim, facet_index=facet_index)
+            component_ids = _component_ids_for_facets(claim_facets)
+            if len(component_ids) > 1 and graph_component_constructs:
+                raise ClaimScopeInputError(
+                    "claim_spans_multiple_components",
+                    f"claims[{claim_id}].facet_refs",
+                )
+            component_id = next(iter(component_ids), None)
+            scope_facets = _scope_facets_for_claim(
+                claim,
+                facet_index=facet_index,
+                scope_profile=scope_profile,
+            )
+            claim_scope = _scope_from_facets(scope_facets, scope_profile=scope_profile)
+            claim_constructs = _required_constructs_from_semantics(
+                facets=tuple(claim_facets.values()), claims=(claim,), scenario_id=scenario_id
+            )
+            component_constructs = graph_component_constructs.get(component_id or "", ())
+            claim_constructs = tuple(dict.fromkeys((*claim_constructs, *component_constructs)))
+            scoped = tuple(
+                construct
+                for construct in claim_constructs
+                if construct in resolution_inputs.required_constructs
+            )
+            claim_facets_by_id[claim_id] = scope_facets
+            claim_scopes[claim_id] = claim_scope
+            claim_scoped_constructs[claim_id] = scoped
+            if component_id is not None and component_constructs:
+                component_claim_owners.setdefault(component_id, []).append(claim_id)
+            for construct in scoped:
+                claim_construct_owners.setdefault(construct, []).append(claim_id)
+
+        shared_scope_constructs = set(
+            _normalised_construct_refs(scope_profile.required_constructs)
+            if scope_profile is not None
+            else ()
+        )
+        component_constructs = {
+            construct
+            for _, constructs in resolution_inputs.graph_component_constructs
+            for construct in constructs
+        }
+        if component_constructs & shared_scope_constructs:
+            raise ClaimScopeInputError(
+                "component_and_global_construct_scope_overlap",
+                "scope_profile.required_constructs",
+            )
+        graph_scope_overlap = set(resolution_inputs.graph_global_constructs) & set(
+            claim_construct_owners
+        )
+        if graph_scope_overlap:
+            raise ClaimScopeInputError(
+                "claim_and_graph_construct_scope_overlap",
+                "obligation_graph.blocking_frontier",
+            )
+        unowned_component_constructs = tuple(
+            component_id
+            for component_id, constructs in resolution_inputs.graph_component_constructs
+            if constructs and not component_claim_owners.get(component_id)
+        )
+        if unowned_component_constructs:
+            raise ClaimScopeInputError(
+                "component_obligation_claim_unlinked",
+                "obligation_graph.blocking_frontier.component_facet_refs",
+            )
+        claim_bound_constructs = set(claim_construct_owners) - shared_scope_constructs
+        global_constructs = tuple(
+            construct
+            for construct in resolution_inputs.required_constructs
+            if construct not in claim_bound_constructs
+        )
+        global_scope = _scope_from_facets(
+            facet_index if global_constructs else {}, scope_profile=scope_profile
+        )
+        global_inputs = _ConstructResolutionInputs(
+            required_constructs=global_constructs,
+            candidate_construct_proposals=resolution_inputs.candidate_construct_proposals,
+        )
+        global_bindings, global_resolutions = _resolve_capability_requirements(
             facets=facets,
             claims=claims,
             obligation_graph=obligation_graph,
             scenario_id=scenario_id,
-            scope=scope,
+            scope=global_scope,
             resolver=self._resolver_for_compilation(),
             scenario_family_construct_rows=self._scenario_family_construct_rows,
             scope_profile=scope_profile,
-            resolution_inputs=resolution_inputs,
+            resolution_inputs=global_inputs,
         )
+        claim_bindings: dict[str, tuple[CapabilityBindingLike, ...]] = {}
+        claim_resolutions: list[CapabilityRequirementResolution] = []
+        for claim in claims:
+            claim_id = str(claim.claim_id)
+            constructs = claim_scoped_constructs.get(claim_id, ())
+            if not constructs:
+                continue
+            bindings, resolutions = _resolve_capability_requirements(
+                facets=tuple(claim_facets_by_id[claim_id].values()),
+                claims=(claim,),
+                obligation_graph=None,
+                scenario_id=scenario_id,
+                scope=claim_scopes[claim_id],
+                resolver=self._resolver_for_compilation(),
+                scenario_family_construct_rows=self._scenario_family_construct_rows,
+                scope_profile=scope_profile,
+                resolution_inputs=_ConstructResolutionInputs(required_constructs=constructs),
+                query_claim_id=claim_id,
+            )
+            claim_bindings[claim_id] = bindings
+            claim_resolutions.extend(resolutions)
+        claim_binding_rows = tuple(binding for rows in claim_bindings.values() for binding in rows)
+        capability_bindings = (*global_bindings, *claim_binding_rows)
+        capability_resolutions = (*global_resolutions, *claim_resolutions)
         family_rules = tuple(
             dict.fromkeys(
                 family
@@ -452,17 +571,57 @@ class DataRequirementCompiler:
                 if family
             )
         )
-        bindings_by_family = {
-            family: binding
-            for binding in capability_bindings
-            if binding.construct_ref
-            for family in (
-                legacy_family_for_construct(
-                    binding.construct_ref or "",
-                    rows=self._scenario_family_construct_rows,
-                ),
+        global_family_rules = tuple(
+            dict.fromkeys(
+                family
+                for family in (
+                    legacy_family_for_construct(
+                        binding.construct_ref or "",
+                        rows=self._scenario_family_construct_rows,
+                    )
+                    for binding in global_bindings
+                    if binding.construct_ref
+                )
+                if family
             )
-            if family
+        )
+        bindings_by_family: dict[str, list[CapabilityBindingLike]] = {}
+        for binding in global_bindings:
+            if not binding.construct_ref:
+                continue
+            family = legacy_family_for_construct(
+                binding.construct_ref,
+                rows=self._scenario_family_construct_rows,
+            )
+            if family:
+                bindings_by_family.setdefault(family, []).append(binding)
+        bindings_by_claim_family: dict[tuple[str, str], list[CapabilityBindingLike]] = {}
+        for claim_id, bindings in claim_bindings.items():
+            for binding in bindings:
+                if not binding.construct_ref:
+                    continue
+                family = legacy_family_for_construct(
+                    binding.construct_ref,
+                    rows=self._scenario_family_construct_rows,
+                )
+                if family:
+                    bindings_by_claim_family.setdefault((claim_id, family), []).append(binding)
+        families_by_claim = {
+            claim_id: tuple(
+                dict.fromkeys(
+                    family
+                    for binding in bindings
+                    if binding.construct_ref
+                    for family in (
+                        legacy_family_for_construct(
+                            binding.construct_ref or "",
+                            rows=self._scenario_family_construct_rows,
+                        ),
+                    )
+                    if family
+                )
+            )
+            for claim_id, bindings in claim_bindings.items()
         }
         family_derivation = "capability_resolver" if family_rules else None
         family_rules = family_rules or ()
@@ -471,39 +630,68 @@ class DataRequirementCompiler:
         for claim in claims:
             if not _claim_requires_data(claim):
                 continue
-            families = family_rules
-            for family in families:
-                spec = _spec_for_claim_family(
-                    run_id=run_id,
-                    scenario_id=scenario_id,
-                    claim=claim,
-                    family=family,
-                    facet_index=facet_index,
-                    obligation_refs=obligation_refs or tuple(claim.obligation_refs),
-                    authority_profile_refs=tuple(authority_profile_refs)
-                    or tuple(claim.authority_profile_refs),
-                    capability_binding=bindings_by_family.get(family),
-                    family_derivation=family_derivation,
-                    scope_profile=scope_profile,
-                )
-                specs.append(spec)
-        if not specs and family_rules:
-            specs.extend(
-                _spec_for_claim_family(
-                    run_id=run_id,
-                    scenario_id=scenario_id,
-                    claim=None,
-                    family=family,
-                    facet_index=facet_index,
-                    obligation_refs=obligation_refs,
-                    authority_profile_refs=tuple(authority_profile_refs)
-                    or _authority_refs_from_facets(facets),
-                    capability_binding=bindings_by_family.get(family),
-                    family_derivation=family_derivation,
-                    scope_profile=scope_profile,
-                )
-                for family in family_rules
+            claim_id = str(claim.claim_id)
+            families = tuple(
+                dict.fromkeys((*global_family_rules, *families_by_claim.get(claim_id, ())))
             )
+            for family in families:
+                family_bindings = (
+                    *bindings_by_family.get(family, ()),
+                    *bindings_by_claim_family.get((claim_id, family), ()),
+                )
+                bindings_to_emit: tuple[CapabilityBindingLike | None, ...] = family_bindings or (
+                    None,
+                )
+                for capability_binding in bindings_to_emit:
+                    binding_identity = None
+                    if len(family_bindings) > 1 and capability_binding is not None:
+                        binding_identity = (
+                            f"{capability_binding.requirement_id}:"
+                            f"{capability_binding.construct_ref}"
+                        )
+                    specs.append(
+                        _spec_for_claim_family(
+                            run_id=run_id,
+                            scenario_id=scenario_id,
+                            claim=claim,
+                            family=family,
+                            facet_index=claim_facets_by_id[claim_id],
+                            obligation_refs=obligation_refs or tuple(claim.obligation_refs),
+                            authority_profile_refs=tuple(authority_profile_refs)
+                            or tuple(claim.authority_profile_refs),
+                            capability_binding=capability_binding,
+                            family_derivation=family_derivation,
+                            scope_profile=scope_profile,
+                            scope=claim_scopes[claim_id],
+                            binding_identity=binding_identity,
+                        )
+                    )
+        if not specs and global_family_rules:
+            for family in global_family_rules:
+                family_bindings = tuple(bindings_by_family.get(family, ()))
+                for capability_binding in family_bindings or (None,):
+                    binding_identity = None
+                    if len(family_bindings) > 1 and capability_binding is not None:
+                        binding_identity = (
+                            f"{capability_binding.requirement_id}:"
+                            f"{capability_binding.construct_ref}"
+                        )
+                    specs.append(
+                        _spec_for_claim_family(
+                            run_id=run_id,
+                            scenario_id=scenario_id,
+                            claim=None,
+                            family=family,
+                            facet_index=facet_index,
+                            obligation_refs=obligation_refs,
+                            authority_profile_refs=tuple(authority_profile_refs)
+                            or _authority_refs_from_facets(facets),
+                            capability_binding=capability_binding,
+                            family_derivation=family_derivation,
+                            scope_profile=scope_profile,
+                            binding_identity=binding_identity,
+                        )
+                    )
         deduped = tuple(_dedupe_specs(specs))
         producer_report_ref = data_requirement_compilation_event_ref(run_id)
         subject_refs = _data_requirement_subject_refs(
@@ -593,7 +781,9 @@ class DataRequirementCompiler:
             authority_profile=authority_profile,
             concept_spine_refs=concept_spine_refs,
         )
-        if case.status in {"blocked", "candidate_unverified"} or case.facets is None:
+        if case.status in {"blocked", "candidate_unverified"} or (
+            case.facets is None and not case.components
+        ):
             return DataRequirementObligationCompilation(
                 case=case,
                 facets=None,
@@ -671,6 +861,9 @@ class DataRequirementCompiler:
                         "value": facet["value"],
                         "concept_spine_refs": [facet["concept_ref"]],
                         "authority_profile_refs": [facet["authority_profile"]],
+                        "metadata": dict(facet["metadata"])
+                        if isinstance(facet.get("metadata"), Mapping)
+                        else {},
                     }
                     for facet in facets
                 ],
@@ -1266,12 +1459,15 @@ def _spec_for_claim_family(
     capability_binding: CapabilityBindingLike | None = None,
     family_derivation: str | None = None,
     scope_profile: _ScenarioScopeProfile | None = None,
+    scope: DataRequirementScope | None = None,
+    binding_identity: str | None = None,
 ) -> DataRequirementSpec:
     claim_id = claim.claim_id if claim is not None else f"claim:{family}"
-    facets = _facets_for_claim(claim, facet_index=facet_index)
-    scope_facets = dict(facet_index)
-    scope_facets.update(facets)
-    scope = _scope_from_facets(scope_facets, scope_profile=scope_profile)
+    # Claim callers pass the exact selected scope facets prepared by the
+    # compiler. Re-resolving the original refs here would drop axis facets
+    # safely joined through one verified component.
+    facets = dict(facet_index)
+    scope = scope or _scope_from_facets(facets, scope_profile=scope_profile)
     concept_refs = _concept_refs_from_facets(facets) or tuple(
         claim.concept_spine_refs if claim else ()
     )
@@ -1309,6 +1505,7 @@ def _spec_for_claim_family(
             scenario_id=scenario_id,
             claim_id=claim_id,
             family=family,
+            binding_identity=binding_identity,
         ),
         claim_id=claim_id,
         claim_family=_enum_value(getattr(claim, "claim_family", None)),
@@ -1424,6 +1621,7 @@ def _capability_queries_for_requirements(
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
     scope_profile: _ScenarioScopeProfile | None = None,
     resolution_inputs: _ConstructResolutionInputs | None = None,
+    query_claim_id: str | None = None,
 ) -> tuple[RequirementToCapabilityQuery, ...]:
     rows = tuple(
         contracts.ScenarioFamilyConstructRow.model_validate(row)
@@ -1440,38 +1638,50 @@ def _capability_queries_for_requirements(
             scope_profile.candidate_construct_proposals if scope_profile else ()
         ),
     )
-    return tuple(
-        RequirementToCapabilityQuery(
-            requirement_id=f"data-requirement:{_slug(scenario_id or 'run')}:{construct}",
-            construct=construct,
-            entity_scope=(
-                scope_profile.entity_scope
-                if scope_profile and scope_profile.entity_scope
-                else _entity_scope_for_construct(construct)
-            ),
-            population_filter=(
-                {"type": scope.population}
-                if scope_profile and scope_profile.population
-                else _population_filter_for_construct(construct, scope)
-            ),
-            geography=scope.jurisdiction or scope.geography,
-            time_window={
-                "start": _time_start_for_scope(scope, scope_profile=scope_profile),
-                "end": _time_end_for_scope(scope, scope_profile=scope_profile),
-            },
-            authority_level="governed_pilot",
-            claim_use="claim_evidence_closeout",
-            required_evidence_modes=(
-                "observed",
-                "derived",
-                "proxy_observational",
-                "scholarly_causal_support",
-            ),
-            forbidden_evidence_modes=("simulation_only", "candidate_unverified"),
-            source_family_alias=legacy_family_for_construct(construct, rows=rows),
+    queries: list[RequirementToCapabilityQuery] = []
+    for construct in inputs.required_constructs:
+        if query_claim_id is None:
+            requirement_id = f"data-requirement:{_slug(scenario_id or 'run')}:{construct}"
+        else:
+            scope_digest = _sha256_json_value(
+                {"claim_id": query_claim_id, "scope": scope.model_dump(mode="json")}
+            ).split(":", 1)[1][:12]
+            requirement_id = (
+                f"data-requirement:{_slug(scenario_id or 'run')}:"
+                f"{_slug(query_claim_id)}:{_slug(construct)}:{scope_digest}"
+            )
+        queries.append(
+            RequirementToCapabilityQuery(
+                requirement_id=requirement_id,
+                construct=construct,
+                entity_scope=(
+                    scope_profile.entity_scope
+                    if scope_profile and scope_profile.entity_scope
+                    else _entity_scope_for_construct(construct)
+                ),
+                population_filter=(
+                    {"type": scope.population}
+                    if scope_profile and scope_profile.population
+                    else _population_filter_for_construct(construct, scope)
+                ),
+                geography=scope.jurisdiction or scope.geography,
+                time_window={
+                    "start": _time_start_for_scope(scope, scope_profile=scope_profile),
+                    "end": _time_end_for_scope(scope, scope_profile=scope_profile),
+                },
+                authority_level="governed_pilot",
+                claim_use="claim_evidence_closeout",
+                required_evidence_modes=(
+                    "observed",
+                    "derived",
+                    "proxy_observational",
+                    "scholarly_causal_support",
+                ),
+                forbidden_evidence_modes=("simulation_only", "candidate_unverified"),
+                source_family_alias=legacy_family_for_construct(construct, rows=rows),
+            )
         )
-        for construct in inputs.required_constructs
-    )
+    return tuple(queries)
 
 
 def _capability_bindings_for_requirements(
@@ -1516,6 +1726,7 @@ def _resolve_capability_requirements(
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
     scope_profile: _ScenarioScopeProfile | None = None,
     resolution_inputs: _ConstructResolutionInputs | None = None,
+    query_claim_id: str | None = None,
 ) -> tuple[tuple[CapabilityBindingLike, ...], tuple[CapabilityRequirementResolution, ...]]:
     queries = _capability_queries_for_requirements(
         facets=facets,
@@ -1526,6 +1737,7 @@ def _resolve_capability_requirements(
         scenario_family_construct_rows=scenario_family_construct_rows,
         scope_profile=scope_profile,
         resolution_inputs=resolution_inputs,
+        query_claim_id=query_claim_id,
     )
     bindings: list[CapabilityBindingLike] = []
     resolutions: list[CapabilityRequirementResolution] = []
@@ -1621,9 +1833,22 @@ def _construct_resolution_inputs(
         contracts.ScenarioFamilyConstructRow.model_validate(row)
         for row in scenario_family_construct_rows
     )
-    graph_constructs = _required_constructs_from_obligation_graph(
+    graph_global_constructs, graph_component_constructs = _obligation_graph_construct_bindings(
         obligation_graph,
+        facets=facets,
         scenario_family_construct_rows=rows,
+    )
+    graph_constructs = tuple(
+        dict.fromkeys(
+            (
+                *graph_global_constructs,
+                *(
+                    construct
+                    for _, component_constructs in graph_component_constructs
+                    for construct in component_constructs
+                ),
+            )
+        )
     )
     declared = _required_constructs_from_semantics(
         facets=facets,
@@ -1643,6 +1868,8 @@ def _construct_resolution_inputs(
     return _ConstructResolutionInputs(
         required_constructs=required_constructs,
         candidate_construct_proposals=proposals,
+        graph_global_constructs=graph_global_constructs,
+        graph_component_constructs=graph_component_constructs,
     )
 
 
@@ -1651,18 +1878,148 @@ def _required_constructs_from_obligation_graph(
     *,
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
 ) -> tuple[str, ...]:
+    global_constructs, component_constructs = _obligation_graph_construct_bindings(
+        obligation_graph,
+        facets=(),
+        scenario_family_construct_rows=scenario_family_construct_rows,
+        validate_components=False,
+    )
+    return tuple(
+        dict.fromkeys(
+            (
+                *global_constructs,
+                *(construct for _, constructs in component_constructs for construct in constructs),
+            )
+        )
+    )
+
+
+def _obligation_graph_construct_bindings(
+    obligation_graph: object | Mapping[str, Any] | None,
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
+    validate_components: bool = True,
+) -> tuple[tuple[str, ...], tuple[tuple[str, tuple[str, ...]], ...]]:
+    """Separate global graph constructs from component-bound constructs.
+
+    Component evidence requirements retain the exact W6.C component and facet
+    lineage. They are eligible for claim-scoped resolution only when the
+    compiler receives the matching component facet snapshots.
+    """
     if obligation_graph is None:
-        return ()
+        return (), ()
     frontier = getattr(obligation_graph, "blocking_frontier", None)
     if frontier is None and isinstance(obligation_graph, Mapping):
         frontier = obligation_graph.get("blocking_frontier")
-    constructs: list[str] = []
+    rows = tuple(
+        contracts.ScenarioFamilyConstructRow.model_validate(row)
+        for row in scenario_family_construct_rows
+    )
+    facet_index = _facet_index(facets)
+    component_facets: dict[str, dict[str, Mapping[str, Any]]] = {}
+    component_digests: dict[str, set[str]] = {}
+    if validate_components:
+        for facet_id, facet in facet_index.items():
+            metadata = facet.get("metadata")
+            if not isinstance(metadata, Mapping) or "component_id" not in metadata:
+                continue
+            component_id = _text(metadata.get("component_id")) or None
+            digest = _text(metadata.get("source_intervention_sha256")) or None
+            if component_id is None or digest is None:
+                raise ClaimScopeInputError(
+                    "component_facet_lineage_incomplete",
+                    f"facet_snapshots[{facet_id}].metadata",
+                )
+            component_facets.setdefault(component_id, {})[facet_id] = facet
+            component_digests.setdefault(component_id, set()).add(digest)
+
+    global_constructs: list[str] = []
+    component_constructs: dict[str, list[str]] = {}
     for item in frontier or ():
         metadata = (
             item.get("metadata") if isinstance(item, Mapping) else getattr(item, "metadata", {})
         )
+        bundle_key = (
+            item.get("bundle_key")
+            if isinstance(item, Mapping)
+            else getattr(item, "bundle_key", None)
+        )
         if not isinstance(metadata, Mapping):
+            bundle_component_id = (
+                _text(
+                    bundle_key.get("component_id")
+                    if isinstance(bundle_key, Mapping)
+                    else getattr(bundle_key, "component_id", None)
+                )
+                or None
+            )
+            if bundle_component_id is not None:
+                raise ClaimScopeInputError(
+                    "component_obligation_lineage_incomplete",
+                    "obligation_graph.blocking_frontier.metadata",
+                )
             continue
+        metadata_component_id = _text(metadata.get("component_id")) or None
+        bundle_component_id = (
+            _text(
+                bundle_key.get("component_id")
+                if isinstance(bundle_key, Mapping)
+                else getattr(bundle_key, "component_id", None)
+            )
+            or None
+        )
+        has_component_lineage = (
+            metadata_component_id is not None
+            or bundle_component_id is not None
+            or bool(_text(metadata.get("source_intervention_sha256")))
+            or bool(_text_tuple(metadata.get("component_facet_refs")))
+        )
+        if has_component_lineage:
+            if (
+                metadata_component_id is None
+                or bundle_component_id is None
+                or metadata_component_id != bundle_component_id
+            ):
+                raise ClaimScopeInputError(
+                    "component_obligation_lineage_incomplete",
+                    "obligation_graph.blocking_frontier.component_id",
+                )
+            if validate_components:
+                raw_refs = _text_tuple(metadata.get("component_facet_refs"))
+                refs = tuple(dict.fromkeys(raw_refs))
+                expected_refs = tuple(sorted(component_facets.get(metadata_component_id, {})))
+                digest = _text(metadata.get("source_intervention_sha256")) or None
+                bundle_digest = (
+                    _text(
+                        bundle_key.get("source_intervention_sha256")
+                        if isinstance(bundle_key, Mapping)
+                        else getattr(bundle_key, "source_intervention_sha256", None)
+                    )
+                    or None
+                )
+                expected_digests = component_digests.get(metadata_component_id, set())
+                if (
+                    not refs
+                    or len(raw_refs) != len(refs)
+                    or tuple(sorted(refs)) != expected_refs
+                    or len(expected_digests) != 1
+                    or digest not in expected_digests
+                    or bundle_digest != digest
+                ):
+                    raise ClaimScopeInputError(
+                        "component_obligation_facet_binding_invalid",
+                        "obligation_graph.blocking_frontier.component_facet_refs",
+                    )
+        elif _text(metadata.get("source_intervention_sha256")) or _text_tuple(
+            metadata.get("component_facet_refs")
+        ):
+            raise ClaimScopeInputError(
+                "component_obligation_lineage_incomplete",
+                "obligation_graph.blocking_frontier.component_id",
+            )
+
+        constructs: list[str] = []
         for key in ("required_evidence_constructs", "construct_refs", "construct_ref"):
             for construct in _text_tuple(metadata.get(key)):
                 normalized = construct.removeprefix("construct:")
@@ -1675,14 +2032,24 @@ def _required_constructs_from_obligation_graph(
             "required_evidence_family",
         ):
             token = _text(metadata.get(key))
-            mapped = (
-                construct_for_legacy_family(token, rows=scenario_family_construct_rows)
-                if token
-                else None
-            )
+            mapped = construct_for_legacy_family(token, rows=rows) if token else None
             if mapped and mapped not in constructs:
                 constructs.append(mapped)
-    return tuple(constructs)
+        destination = (
+            component_constructs.setdefault(metadata_component_id, [])
+            if metadata_component_id is not None
+            else global_constructs
+        )
+        for construct in constructs:
+            if construct not in destination:
+                destination.append(construct)
+    return (
+        tuple(global_constructs),
+        tuple(
+            (component_id, tuple(constructs))
+            for component_id, constructs in sorted(component_constructs.items())
+        ),
+    )
 
 
 def _required_constructs_from_semantics(
@@ -2257,12 +2624,99 @@ def _facets_for_claim(
 ) -> dict[str, Mapping[str, Any]]:
     if claim is None:
         return dict(facet_index)
-    selected = {
-        facet_ref: facet_index[facet_ref]
-        for facet_ref in claim.facet_refs
-        if facet_ref in facet_index
-    }
-    return selected or dict(facet_index)
+    facet_refs = tuple(claim.facet_refs)
+    if not facet_refs:
+        return dict(facet_index)
+    missing = tuple(facet_ref for facet_ref in facet_refs if facet_ref not in facet_index)
+    if missing:
+        raise ClaimScopeInputError(
+            "claim_facet_reference_unresolved",
+            f"claims[{claim.claim_id}].facet_refs",
+        )
+    return {facet_ref: facet_index[facet_ref] for facet_ref in facet_refs}
+
+
+def _component_ids_for_facets(facets: Mapping[str, Mapping[str, Any]]) -> set[str]:
+    component_ids: set[str] = set()
+    for facet_id, facet in facets.items():
+        metadata = facet.get("metadata")
+        if not isinstance(metadata, Mapping) or "component_id" not in metadata:
+            continue
+        component_id = _text(metadata.get("component_id")) or None
+        if component_id is None:
+            raise ClaimScopeInputError(
+                "component_facet_lineage_incomplete",
+                f"facet_snapshots[{facet_id}].metadata.component_id",
+            )
+        component_ids.add(component_id)
+    return component_ids
+
+
+def _scope_facets_for_claim(
+    claim: Any,
+    *,
+    facet_index: Mapping[str, Mapping[str, Any]],
+    scope_profile: _ScenarioScopeProfile | None = None,
+) -> dict[str, Mapping[str, Any]]:
+    """Fill scope axes from the linked component or an unambiguous legacy scope."""
+
+    selected = _facets_for_claim(claim, facet_index=facet_index)
+    axes = {"population_predicate", "geography_predicate", "time_predicate"}
+    selected_types = {_text(facet.get("facet_type")) for facet in selected.values()}
+    component_ids = _component_ids_for_facets(selected)
+    if len(component_ids) > 1:
+        raise ClaimScopeInputError(
+            "claim_spans_multiple_components",
+            f"claims[{claim.claim_id}].facet_refs",
+        )
+    component_id = next(iter(component_ids), None)
+    component_facets: dict[str, Mapping[str, Any]] = {}
+    if component_id is not None:
+        for facet_id, facet in facet_index.items():
+            metadata = facet.get("metadata")
+            if (
+                isinstance(metadata, Mapping)
+                and (_text(metadata.get("component_id")) or None) == component_id
+            ):
+                component_facets[facet_id] = facet
+        component_digests = {
+            _text(metadata.get("source_intervention_sha256")) or None
+            for facet in component_facets.values()
+            if isinstance((metadata := facet.get("metadata")), Mapping)
+        }
+        if not component_facets or None in component_digests or len(component_digests) != 1:
+            raise ClaimScopeInputError(
+                "component_facet_lineage_incomplete",
+                f"claims[{claim.claim_id}].facet_refs",
+            )
+    for facet_type in axes - selected_types:
+        source_facets = component_facets if component_id is not None else facet_index
+        matching = [
+            (facet_id, facet)
+            for facet_id, facet in source_facets.items()
+            if _text(facet.get("facet_type")) == facet_type and _enum_text(facet.get("value"))
+        ]
+        values = {_enum_text(facet.get("value")) for _, facet in matching}
+        if len(values) > 1:
+            raise ClaimScopeInputError(
+                "scope_axis_unlinked_and_ambiguous",
+                f"claims[{claim.claim_id}].facet_refs.{facet_type}",
+            )
+        if len(values) == 1:
+            selected_ref, selected_facet = next(
+                iter(matching),
+                (None, None),
+            )
+            if selected_ref is not None and selected_facet is not None:
+                selected[selected_ref] = selected_facet
+        elif component_id is not None and not (
+            facet_type == "population_predicate" and scope_profile and scope_profile.population
+        ):
+            raise ClaimScopeInputError(
+                "component_scope_axis_unrepresented",
+                f"claims[{claim.claim_id}].facet_refs.{facet_type}",
+            )
+    return selected
 
 
 def _scope_from_facets(
@@ -2270,11 +2724,33 @@ def _scope_from_facets(
     *,
     scope_profile: _ScenarioScopeProfile | None = None,
 ) -> DataRequirementScope:
+    values_by_type: dict[str, set[str]] = {}
+    for facet in facets.values():
+        facet_type = _text(facet.get("facet_type"))
+        value = _enum_text(facet.get("value"))
+        if facet_type and value:
+            values_by_type.setdefault(facet_type, set()).add(value)
+    for facet_type in (
+        "population_predicate",
+        "geography_predicate",
+        "time_predicate",
+    ):
+        if len(values_by_type.get(facet_type, ())) > 1:
+            raise ClaimScopeInputError("scope_axis_ambiguous", f"facet_snapshots.{facet_type}")
     by_type = {str(facet.get("facet_type")): facet for facet in facets.values()}
-    population = (
-        scope_profile.population
-        if scope_profile and scope_profile.population
-        else _enum_text(by_type.get("population_predicate", {}).get("value")) or "population"
+    facet_population = _enum_text(by_type.get("population_predicate", {}).get("value"))
+    if (
+        scope_profile is not None
+        and scope_profile.population
+        and facet_population
+        and scope_profile.population != facet_population
+    ):
+        raise ClaimScopeInputError(
+            "scope_profile_population_conflicts_with_facets",
+            "scope_profile.population",
+        )
+    population = facet_population or (
+        scope_profile.population if scope_profile and scope_profile.population else "population"
     )
     geography = _enum_text(by_type.get("geography_predicate", {}).get("value")) or "geography"
     time = _enum_text(by_type.get("time_predicate", {}).get("value")) or "time"
@@ -2334,13 +2810,15 @@ def _data_obligation_refs(obligation_graph: object | Mapping[str, Any] | None) -
 
 
 def _dedupe_specs(specs: Sequence[DataRequirementSpec]) -> list[DataRequirementSpec]:
-    seen: set[tuple[str, str]] = set()
+    seen: dict[str, DataRequirementSpec] = {}
     deduped: list[DataRequirementSpec] = []
     for spec in specs:
-        key = (spec.claim_id, spec.required_data_families[0])
-        if key in seen:
+        prior = seen.get(spec.requirement_id)
+        if prior is not None:
+            if prior != spec:
+                raise ValueError("data_requirement_id_collision")
             continue
-        seen.add(key)
+        seen[spec.requirement_id] = spec
         deduped.append(spec)
     return deduped
 
@@ -2351,9 +2829,13 @@ def _requirement_id(
     scenario_id: str | None,
     claim_id: str,
     family: str,
+    binding_identity: str | None = None,
 ) -> str:
     scope = scenario_id or run_id
-    digest = hashlib.sha256(f"{scope}:{claim_id}:{family}".encode()).hexdigest()[:12]
+    identity = f"{scope}:{claim_id}:{family}"
+    if binding_identity is not None:
+        identity = f"{identity}:{binding_identity}"
+    digest = hashlib.sha256(identity.encode()).hexdigest()[:12]
     return f"data-requirement:{scope}:{claim_id}:{family}:{digest}"
 
 
@@ -2833,9 +3315,7 @@ def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomain
         return tuple(value.casefold().replace("-", " ").replace("_", " ").split())
 
     aliases = {
-        spelling(token): domain
-        for domain in ProblemDomain
-        for token in (domain.name, domain.value)
+        spelling(token): domain for domain in ProblemDomain for token in (domain.name, domain.value)
     }
     # Explicit vocabulary aliases, not a token-presence or topic classifier.
     aliases.update(

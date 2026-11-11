@@ -21276,12 +21276,57 @@ def _source_optional_import_binding_route(
     and unsupported providers require their own proof and remain unresolved.
     """
 
-    if (
-        statement.orelse
-        or statement.finalbody
-        or not statement.handlers
-        or any(not isinstance(item, (ast.Import, ast.ImportFrom)) for item in statement.body)
-    ):
+    if statement.orelse or statement.finalbody or not statement.handlers:
+        return None
+    # Passive success bookkeeping does not change an imported object's owner.
+    # Keep this separate from initializer-effect authority: only names/literals
+    # and containers that cannot invoke user code may accompany the imports.
+    imported_names: set[str] = set()
+    available_names: set[str] = set()
+
+    def passive_expression(value: ast.expr) -> bool:
+        if isinstance(value, ast.Constant):
+            return True
+        if isinstance(value, ast.Name):
+            return value.id in available_names
+        if isinstance(value, (ast.Tuple, ast.List)):
+            return all(passive_expression(item) for item in value.elts)
+        return False
+
+    for item in statement.body:
+        if isinstance(item, (ast.Import, ast.ImportFrom)):
+            names = _module_scope_statement_binding_names(item)
+            if "*" in names or available_names & names:
+                return None
+            imported_names.update(names)
+            available_names.update(names)
+            continue
+        if isinstance(item, ast.Pass) or (
+            isinstance(item, ast.Expr)
+            and isinstance(item.value, ast.Constant)
+            and type(item.value.value) is str
+        ):
+            continue
+        if isinstance(item, ast.Assign) and len(item.targets) == 1:
+            target, value = item.targets[0], item.value
+        elif (
+            isinstance(item, ast.AnnAssign)
+            and item.simple
+            and _source_future_annotations_enabled(tree)
+        ):
+            target, value = item.target, item.value
+        else:
+            return None
+        if (
+            not isinstance(target, ast.Name)
+            or target.id in available_names
+            or target.id == export_name
+            or value is None
+            or not passive_expression(value)
+        ):
+            return None
+        available_names.add(target.id)
+    if export_name not in imported_names:
         return None
     module = _passive_capture_lookup(sys.modules, module_name)
     if type(module) is not types.ModuleType:

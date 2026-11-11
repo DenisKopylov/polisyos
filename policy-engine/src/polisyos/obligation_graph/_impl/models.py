@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 OBLIGATION_GRAPH_SCHEMA_VERSION = "policyos.obligation_graph.v1"
 OBLIGATION_GRAPH_CONTRACT_ID = "policy_design_case.obligation_graph.v1"
@@ -255,6 +255,52 @@ class BundleKey(BaseModel):
     authority_profile: str = Field(min_length=1)
     temporal_window: str = Field(min_length=1)
     remedy_path: str = Field(min_length=1)
+    component_id: str | None = Field(
+        default=None,
+        min_length=1,
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+    source_intervention_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+    applicability_scope: str | None = Field(
+        default=None,
+        min_length=1,
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+    applicability_temporal_window: str | None = Field(
+        default=None,
+        min_length=1,
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+    applicability_authority_profile: str | None = Field(
+        default=None,
+        min_length=1,
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def _component_binding_is_complete(self) -> BundleKey:
+        """Require all selected component coordinates when any are present."""
+        component_fields = (
+            self.component_id,
+            self.source_intervention_sha256,
+            self.applicability_scope,
+            self.applicability_temporal_window,
+            self.applicability_authority_profile,
+        )
+        if any(value is not None for value in component_fields) and any(
+            value is None for value in component_fields
+        ):
+            raise ValueError("component_bundle_applicability_binding_incomplete")
+        return self
 
 
 class CandidateLedgerEntry(BaseModel):

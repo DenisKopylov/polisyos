@@ -1888,6 +1888,17 @@ def test_resolve_control_registry_providers_uses_factory_overrides(
     assert resolved == providers
 
 
+def test_control_registry_providers_accept_only_typed_metric_registry() -> None:
+    from polisyos.ir.kernel import MetricRegistry
+
+    metric_registry = MetricRegistry()
+    resolved = resolve_control_registry_providers(metric_registry=metric_registry)
+
+    assert resolved.metric_registry is metric_registry
+    with pytest.raises(ValueError, match="control_metric_registry_untyped"):
+        resolve_control_registry_providers(metric_registry=object())  # type: ignore[arg-type]
+
+
 def test_control_service_builds_retrieval_with_injected_provider_bundle(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,

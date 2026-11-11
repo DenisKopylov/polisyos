@@ -349,7 +349,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 852 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 853 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
@@ -784,7 +784,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (852)</summary>
+<details><summary>Entrypoint exports (853)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -1554,6 +1554,7 @@ UniversalPolicyAuthorityTypeFacet
 UniversalPolicyCapabilityRealityLabel
 UniversalPolicyDeliveryChannel
 UniversalPolicyDeliveryChannelFacet
+UniversalPolicyComponentFacets
 UniversalPolicyDesignCase
 UniversalPolicyDesignCaseAuditSurface
 UniversalPolicyFacetName
@@ -2128,7 +2129,7 @@ security
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
 | `polisyos.ir.governance` | `src/polisyos/ir/governance/__init__.py` | `lazy_facade` | 106 |
-| `polisyos.ir.observation` | `src/polisyos/ir/observation/__init__.py` | `lazy_facade` | 167 |
+| `polisyos.ir.observation` | `src/polisyos/ir/observation/__init__.py` | `lazy_facade` | 171 |
 | `polisyos.ir.connectors` | `src/polisyos/ir/connectors/__init__.py` | `eager_exports` | 52 |
 | `polisyos.ir.kernel` | `src/polisyos/ir/kernel/__init__.py` | `lazy_facade` | 81 |
 | `polisyos.ir.loading` | `src/polisyos/ir/loading/__init__.py` | `lazy_facade` | 12 |
@@ -3195,7 +3196,7 @@ summarize_issues
 - Facade: `lazy_facade`
 - Summary: Expose the observation contract stack through a lazy package facade.
 
-<details><summary>Entrypoint exports (167)</summary>
+<details><summary>Entrypoint exports (171)</summary>
 
 ```text
 BACKTEST_PLAN_TARGET
@@ -3203,6 +3204,9 @@ DEFAULT_GOVERNANCE_PASS_ALIAS_REGISTRY
 DEFAULT_GOVERNANCE_PASS_MAPPING_REGISTRY
 DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY
 DYNAMIC_TREATMENT_TARGET
+IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF
+IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF
+IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF
 LESSON_CARD_TARGET
 MULTIPLEX_NETWORK_TARGET
 NETWORK_ANALYSIS_TARGET
@@ -3355,6 +3359,7 @@ bridge_observation_panel_to_cdisc
 bridge_observation_record_to_ddi
 bridge_observation_record_to_fhir
 bridge_observation_record_to_sdmx
+identification_mode_origin_for_rule
 load_causal_execution_bundle
 load_causal_readiness_bundle
 load_json_bundle

@@ -209,7 +209,10 @@ def test_compiler_preserves_each_explicit_identification_mode(mode: Identificati
     assert compiled.facets.method_need.value is mode
 
 
-def test_compiler_blocks_conflicting_explicit_identification_modes() -> None:
+def test_component_modes_remain_independent_and_scalar_projection_refuses() -> None:
+    from polisyos.policy_grammar._impl.facets import derive_facets
+    from polisyos.policy_grammar._impl.normalizer import normalise_intent
+
     interventions = [
         InterventionSpec(
             intervention_id=f"action_{index}",
@@ -240,18 +243,33 @@ def test_compiler_blocks_conflicting_explicit_identification_modes() -> None:
         policy_spec=PolicySpec(policy_id="policy_one", interventions=interventions),
     )
 
+    authority = _authority_profile(PolicyLayerLevel.LOCAL)
+    spine = _concept_spine_refs(intent.intent_id)
+    scalar = derive_facets(
+        normalized=normalise_intent(intent),
+        authority_type=authority.authority_type,
+        concept_spine_refs=spine,
+    )
+    assert scalar.facets is None
+    assert {blocker.code for blocker in scalar.blockers} == {
+        "policy_grammar_identification_modes_conflict"
+    }
+    assert scalar.blockers[0].facet_name == "method_need"
+    assert scalar.blockers[0].missing_capability_label == "bridge_missing"
+
     compiled = PolicyGrammarCompiler().compile(
         intent=intent,
-        authority_profile=_authority_profile(PolicyLayerLevel.LOCAL),
-        concept_spine_refs=_concept_spine_refs(intent.intent_id),
+        authority_profile=authority,
+        concept_spine_refs=spine,
     )
 
-    assert compiled.status == "blocked"
+    assert compiled.status == "compiled"
+    assert compiled.schema_version == "policyos.universal_policy_design_case.v2"
     assert compiled.facets is None
-    assert _blocker_codes(compiled) == {"policy_grammar_identification_modes_conflict"}
-    blocker = compiled.blockers[0]
-    assert blocker.facet_name == "method_need"
-    assert blocker.missing_capability_label == "bridge_missing"
+    assert {item.component_id: item.facets.method_need.value for item in compiled.components} == {
+        "action_0": IdentificationMode.POINT_IDENTIFIED,
+        "action_1": IdentificationMode.BOUNDS_ONLY,
+    }
 
 
 def test_missing_concept_spine_refs_blocks_consumer_ready_facets() -> None:

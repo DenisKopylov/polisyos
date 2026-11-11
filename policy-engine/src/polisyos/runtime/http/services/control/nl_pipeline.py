@@ -36,6 +36,8 @@ from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
 )
 from polisyos.ir.kernel.metrics import (
+    DEFAULT_METRIC_REGISTRY,
+    MetricRegistry,
     MetricTaxonomyValidationError,
     ProductionMetricTaxonomy,
     build_production_metric_taxonomy,
@@ -3890,7 +3892,21 @@ class NaturalLanguageRunMixin:
             artifact_store=self._artifact_store,
             authorizer=cache_reuse_authorizer,
         )
-        metric_taxonomy = build_production_metric_taxonomy()
+        configured_metric_registry = self._registry_providers.metric_registry
+        if (
+            configured_metric_registry is not None
+            and type(configured_metric_registry) is not MetricRegistry
+        ):
+            raise NaturalLanguagePipelineRefusalError(
+                "control_metric_registry_untyped",
+                "The application metric registry is not the canonical typed registry.",
+            )
+        operation_metric_registry = (
+            configured_metric_registry.model_copy(deep=True)
+            if configured_metric_registry is not None
+            else DEFAULT_METRIC_REGISTRY.model_copy(deep=True)
+        )
+        metric_taxonomy = build_production_metric_taxonomy(registry=operation_metric_registry)
         metric_taxonomy_evidence = metric_taxonomy.evidence()
         metric_taxonomy_diagnostics: list[dict[str, Any]] = []
 
@@ -7765,6 +7781,7 @@ class NaturalLanguageRunMixin:
                         build_default_registry_bundle,
                         store,
                         return_selected_profile=True,
+                        metric_registry=operation_metric_registry,
                     )
                     registry_bundle_ref = bundle.bundle_ref
                     if registry_bundle_ref is None:

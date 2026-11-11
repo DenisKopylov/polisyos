@@ -9125,6 +9125,13 @@
               "output": "policy-engine/_cache/e02/lane01-audit-rd01-consumers/",
               "pytest_seconds": 52.743,
               "max_process_rss_bytes": 1940078592
+            },
+            "native_foundry_horizon": {
+              "PASS": 1,
+              "FAIL": 0,
+              "output": "policy-engine/_cache/e02/lane01-audit-semantic-horizon/",
+              "pytest_seconds": 95.62,
+              "max_process_rss_bytes": 1765883904
             }
           },
           "DC-02": {
@@ -9133,6 +9140,20 @@
             },
             "independent_source_review": "GO",
             "downstream_method_bridge": "IN_PROGRESS"
+          },
+          "MA-01_MA-02_MA-03": {
+            "root_composed_tests": {
+              "PASS": 104,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-method-cache-consumers/",
+            "pytest_seconds": 2.05,
+            "max_process_rss_bytes": 243433472,
+            "independent_source_review": "GO_BOUNDED_MECHANISM",
+            "application_cache_caller": "NOT_ESTABLISHED",
+            "currentness_protocol": "Live registry qualification before restore/use; bare validity is integrity only."
           }
         },
         "g_acceptance": false,

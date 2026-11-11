@@ -5185,12 +5185,19 @@ class RunModelInputUseN5SuccessorProjection(BaseModel):
     simulation_result_ref: ArtifactRef | None = None
     result_body: RunGenericCycleSimulationN5ResultBody | None = None
     limitation_code: str | None = Field(default=None, min_length=1)
+    semantic_input_limitation_codes: tuple[
+        Annotated[str, Field(min_length=1, strict=True, pattern=r"^\S+$")], ...
+    ] = Field(default=(), exclude_if=lambda value: not value)
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     currentness_status: Literal["not_established"] = "not_established"
     publication_authority: Literal[False] = False
 
     @model_validator(mode="after")
     def _verify_candidate_result_binding(self) -> RunModelInputUseN5SuccessorProjection:
+        if len(self.semantic_input_limitation_codes) != len(
+            set(self.semantic_input_limitation_codes)
+        ):
+            raise ValueError("run_model_input_use_semantic_input_limitations_duplicate")
         if self.blocked_source is not None and self.blocked_source.run_id != self.run_id:
             raise ValueError("run_model_input_use_blocked_source_run_mismatch")
         refs = (
@@ -5218,6 +5225,7 @@ class RunModelInputUseN5SuccessorProjection(BaseModel):
                 raise ValueError("run_model_input_use_successor_result_binding_invalid")
         elif (
             self.result_body is not None
+            or bool(self.semantic_input_limitation_codes)
             or any(ref is not None for ref, _ in refs)
             or self.limitation_code is None
         ):

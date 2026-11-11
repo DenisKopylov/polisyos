@@ -6021,6 +6021,13 @@ def _model_input_use_n5_successor_projection(
             checkpoint.result_ref
         ):
             raise ValueError("model_input_use_result_selected_view_changed")
+        semantic_input_limitation_codes = resolved.result.verified_semantic_input_limitation_codes
+        if semantic_input_limitation_codes is None:
+            return limited(
+                "model_input_use_semantic_input_limitations_not_established",
+                action_status="completed",
+                blocked_source=blocked_source,
+            )
         body = RunGenericCycleSimulationN5ResultBody.model_validate(
             n5_numerical_body_payload(
                 ref=selected_result_ref,
@@ -6048,6 +6055,7 @@ def _model_input_use_n5_successor_projection(
         n5_execution_ref=checkpoint.execution_ref,
         simulation_result_ref=checkpoint.result_ref,
         result_body=body,
+        semantic_input_limitation_codes=semantic_input_limitation_codes,
     )
 
 

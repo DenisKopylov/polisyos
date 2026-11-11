@@ -1637,9 +1637,11 @@ def test_get_run_details_returns_normalized_payload(runtime_api_env) -> None:
     assert secondary_payload["execution_profile"] is None
 
 
+@pytest.mark.parametrize("selected_result_scope_control", [False, True])
 def test_model_input_use_result_ignores_mutable_completed_progress_without_terminal_event(
     runtime_api_env,
     monkeypatch,
+    selected_result_scope_control: bool,
 ) -> None:
     """A completed job row cannot establish a selected result without lifecycle proof."""
     from polisyos.core.contracts.runtime import (
@@ -1681,6 +1683,7 @@ def test_model_input_use_result_ignores_mutable_completed_progress_without_termi
             "receipt_phase": "terminal",
             "terminal_receipt_ref": "sha256:" + "b" * 64,
             "model_input_use": {"forged": True},
+            "semantic_input_limitation_codes": ["forged_caller_limitation"],
         },
     )
     scope = ControlJobExecutionScope(
@@ -1729,6 +1732,30 @@ def test_model_input_use_result_ignores_mutable_completed_progress_without_termi
         "request": request_payload,
     }
 
+    from types import SimpleNamespace
+
+    from polisyos.runtime.http.services import (
+        acquisition_n5_projection,
+        model_input_successor_action,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+
+    def selected_ref(kind: str, fill: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id="sha256:" + fill * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    checkpoint = model_input_successor_action.ModelInputUseActionCheckpoint(
+        phase_ref=selected_ref("runtime.quality.model_input_use_action_phase", "5"),
+        semantic_successor_ref=selected_ref("runtime.quality.model_input_successor_selection", "6"),
+        execution_ref=selected_ref("runtime.quality.generic_cycle_simulation_n5_execution", "7"),
+        result_ref=selected_ref("polisyos.runtime.joint_simulation_result", "8"),
+    )
+
     class _StoreWithoutTerminal:
         def get_job(self, selected_job_id: str):
             assert selected_job_id == job_id
@@ -1749,7 +1776,36 @@ def test_model_input_use_result_ignores_mutable_completed_progress_without_termi
 
         def get_job_terminal_source_event_record(self, selected_job_id: str):
             assert selected_job_id == job_id
+            if selected_result_scope_control:
+                return SimpleNamespace(
+                    event_type="job_completed",
+                    job_id=job_id,
+                    payload={
+                        "state": "completed",
+                        "attempt": job.attempt,
+                        "lease_owner": "fixture-lease",
+                    },
+                )
             raise RuntimeError("control job terminal event is unavailable")
+
+        def get_job_completed_outbox_event(self, selected_job_id: str):
+            assert selected_job_id == job_id
+            return SimpleNamespace(
+                topic="control.job.completed",
+                event_key=f"{job_id}:job_completed",
+                job_id=job_id,
+                run_id=run_id,
+                payload={
+                    "state": "completed",
+                    "attempt": job.attempt,
+                    "lease_owner": "fixture-lease",
+                    "progress": {
+                        "receipt_phase": "terminal",
+                        "terminal_receipt_ref": str(checkpoint.execution_ref.artifact_id),
+                        "model_input_use": checkpoint.model_dump(mode="json"),
+                    },
+                },
+            )
 
     with monkeypatch.context() as scoped:
         scoped.setattr(control_service, "_control_store", _StoreWithoutTerminal())
@@ -1760,6 +1816,80 @@ def test_model_input_use_result_ignores_mutable_completed_progress_without_termi
             if selected_ref == payload_ref and kind == "runtime.control_job_payload.acquisition"
             else pytest.fail("unexpected action payload read"),
         )
+
+        if selected_result_scope_control:
+            from polisyos.runtime.http.services.acquisition_action_service import (
+                AcquisitionActionService,
+            )
+
+            # This boundary control isolates manifest authorization ordering;
+            # the real served PA2/DS9/action chain is covered independently.
+            action_service = object.__new__(AcquisitionActionService)
+            action_service.control_service = control_service
+            origin = SimpleNamespace(
+                run_id=run_id,
+                source_job_id="source-job",
+                source_cycle=SimpleNamespace(
+                    design_problem_ref="sha256:" + "1" * 64,
+                    cycle_index=0,
+                    selected_candidate_ref="candidate-model-input",
+                    selected_candidate_content_hash="sha256:" + "2" * 64,
+                ),
+                n5_execution_ref=ArtifactRef.model_validate(
+                    request_payload["blocked_execution_ref"]
+                ),
+                routing_report=SimpleNamespace(
+                    obligation_set_ref=selected_ref(
+                        "runtime.quality.model_input_obligation_set", "9"
+                    )
+                ),
+                routing_report_ref=ArtifactRef.model_validate(
+                    request_payload["routing_report_ref"]
+                ),
+            )
+            selection = SimpleNamespace(job_id=job_id, route_id=payload["route_id"], origin=origin)
+            scoped.setattr(
+                model_input_successor_action,
+                "resolve_model_input_successor_history",
+                lambda *args, **kwargs: selection,
+            )
+            scoped.setattr(
+                type(action_service),
+                "require_model_input_use_decision_history",
+                lambda *args, **kwargs: None,
+            )
+            unknown_result = JointSimulationResult.model_construct()
+            assert unknown_result.verified_semantic_input_limitation_codes is None
+            scoped.setattr(
+                model_input_successor_action,
+                "verify_model_input_use_result",
+                lambda *args, **kwargs: GenericN5ResolvedResult(
+                    result=unknown_result, request=None
+                ),
+            )
+            calls = []
+
+            def refuse_selected_result(*args, **kwargs):
+                calls.append("selected_result_scope")
+                raise ArtifactOwnershipError("selected-result-scope-refused")
+
+            scoped.setattr(
+                acquisition_n5_projection,
+                "read_selected_n5_result_manifest",
+                refuse_selected_result,
+            )
+            with pytest.raises(ArtifactOwnershipError, match="selected-result-scope-refused"):
+                runs_routes._model_input_use_n5_successor_projection(
+                    run_id=run_id,
+                    action_job_id=job_id,
+                    tenant_id=runtime_api_env["tenant_a"],
+                    cell_id=runtime_api_env["cell_a"],
+                    store=context.store,
+                    control_service=control_service,
+                    action_service=action_service,
+                )
+            assert calls == ["selected_result_scope"]
+            return
 
         projection = runs_routes._model_input_use_n5_successor_projection(
             run_id=run_id,
@@ -1780,6 +1910,8 @@ def test_model_input_use_result_ignores_mutable_completed_progress_without_termi
     assert selected.n5_execution_ref is None
     assert selected.simulation_result_ref is None
     assert selected.result_body is None
+    assert selected.semantic_input_limitation_codes == ()
+    assert "semantic_input_limitation_codes" not in selected.model_dump(mode="json")
 
 
 def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachment(

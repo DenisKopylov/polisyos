@@ -3909,3 +3909,160 @@ def test_numerical_failure_stays_recorded_without_becoming_access_denial(monkeyp
     assert result.receipt.trajectory_count == 0
     assert result.receipt.calibration_status == "no_run"
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
+
+
+def test_semantic_input_limitations_remain_unknown_before_source_replay() -> None:
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+
+    result = owner.JointSimulationResult.model_construct(diagnostics={}, trajectories=())
+    assert result.verified_semantic_input_limitation_codes is None
+    assert owner.verify_semantic_program_graph_result_sources(object(), result) is None
+    assert result.verified_semantic_input_limitation_codes is None
+
+
+@pytest.mark.parametrize(
+    "admission_codes",
+    [
+        (("optional_axis_unknown:methodology_ref",), ("source_currentness_not_established",)),
+        ((), ()),
+        (("code",), None),
+    ],
+)
+def test_semantic_source_replay_uses_all_owner_codes_instead_of_copied_notes(
+    monkeypatch: pytest.MonkeyPatch,
+    admission_codes: tuple[tuple[str, ...], tuple[str, ...] | None],
+) -> None:
+    """Exercise code aggregation at the existing admission seam without physical N5."""
+    from types import SimpleNamespace
+
+    from polisyos.core.contracts.foundry import FoundryInputBindingsRef
+    from polisyos.foundry import execute as execute_owner
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+
+    selected_ref = FoundryInputBindingsRef(artifact_id=_ref("1"), manifest_profile_sha256=_ref("2"))
+    graph_ref = ArtifactRef(
+        artifact_id=_ref("3"), kind="foundry.program_graph", media_type="application/json"
+    )
+    plan_ref = ArtifactRef(
+        artifact_id=_ref("4"), kind="foundry.exec_plan", media_type="application/json"
+    )
+    plan = SimpleNamespace(
+        program_semantic_input_bindings_ref=selected_ref,
+        program_graph_ref=graph_ref,
+        exec_plan_ref=plan_ref,
+    )
+    groups, admissions, trajectories = {}, {}, []
+    for index, codes in enumerate(admission_codes):
+        seed = 11 + index
+        physical_ref = str(7 + index) * 64
+        refs, chain, points = [], [], []
+        for step_index in range(2):
+            step_ref = ArtifactRef(
+                artifact_id=_ref(str(5 + 2 * index + step_index)),
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                manifest_profile_sha256=_ref("a"),
+            )
+            refs.append(step_ref)
+            step = SimpleNamespace(
+                steps=(0, 1),
+                step_index=step_index,
+                replication_seed=seed,
+                effective_step=step_index,
+            )
+            basis = SimpleNamespace(
+                input_bindings_ref=selected_ref,
+                semantic_horizon_step=step,
+                program_graph_ref=graph_ref,
+                exec_plan_ref=plan_ref,
+            )
+            step_codes = (
+                codes if step_index == 0 else (("later_step_only",) if index == 0 and codes else ())
+            )
+            chain.append(
+                SimpleNamespace(
+                    basis=basis,
+                    semantic_input_limitation_codes=step_codes,
+                    simulation_result=SimpleNamespace(state_snapshot_ref=step_ref),
+                )
+            )
+            locator = step_ref.model_dump(mode="json")
+            points.append(
+                SimpleNamespace(
+                    step=step_index,
+                    replication_sampling=SimpleNamespace(
+                        samples=(
+                            SimpleNamespace(
+                                seed=seed,
+                                engine_state={"simulation_result_ref": locator},
+                                outcomes={},
+                                effects={},
+                            ),
+                        )
+                    ),
+                    engine_state={
+                        "simulation_result_ref": locator,
+                        "replication_engine_states": [{"simulation_result_ref": locator}],
+                        "semantic_input_notes": ["semantic_input_limitation:forged_copied_code"],
+                    },
+                )
+            )
+        replication = SimpleNamespace(step_result_refs=tuple(refs), replication_seed=seed)
+        groups[physical_ref] = (replication,)
+        admissions[str(refs[0].artifact_id)] = tuple(chain)
+        trajectories.append(
+            SimpleNamespace(
+                diagnostics={"physical_run_ref": "sha256:" + physical_ref},
+                points=tuple(points),
+            )
+        )
+    result = SimpleNamespace(
+        diagnostics={"semantic_program_graph_bindings_ref": selected_ref.model_dump(mode="json")},
+        horizon=SimpleNamespace(steps=lambda: (0, 1)),
+        trajectories=trajectories,
+    )
+    monkeypatch.setattr(owner, "_semantic_program_graph_replications", lambda _: groups)
+    monkeypatch.setattr(
+        owner.JointSimulationHorizonController,
+        "_select_engine",
+        lambda *_: SimpleNamespace(
+            plan=plan,
+            decision=SimpleNamespace(decision="selected", engine_kind="program_graph"),
+        ),
+    )
+    monkeypatch.setattr(execute_owner, "resolve_core_json_profile_store", lambda store: store)
+    monkeypatch.setattr(
+        execute_owner,
+        "admit_semantic_horizon_step_chain",
+        lambda store, refs: admissions[str(refs[0].artifact_id)],
+    )
+    monkeypatch.setattr(owner, "load_state_snapshot", lambda *args, **kwargs: object())
+    monkeypatch.setattr(owner, "_program_graph_outcomes", lambda *args: {})
+    request = SimpleNamespace(selected_outcomes=())
+    if None in admission_codes:
+        with pytest.raises(
+            ValueError, match="semantic_program_graph_input_limitations_not_established"
+        ):
+            owner.verify_semantic_program_graph_result_sources(
+                object(), result, expected_request=request
+            )
+        return
+    expected_codes = {code for codes in admission_codes for code in codes}
+    if admission_codes[0]:
+        expected_codes.add("later_step_only")
+    expected = tuple(sorted(expected_codes))
+    assert (
+        owner.verify_semantic_program_graph_result_sources(
+            object(), result, expected_request=request
+        )
+        == expected
+    )
+    for trajectory in trajectories:
+        for point in trajectory.points:
+            point.engine_state.pop("semantic_input_notes")
+    assert (
+        owner.verify_semantic_program_graph_result_sources(
+            object(), result, expected_request=request
+        )
+        == expected
+    )

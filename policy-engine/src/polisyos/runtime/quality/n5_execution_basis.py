@@ -14,26 +14,31 @@ import hashlib
 import importlib.machinery
 import inspect
 import json
+import math
+import os
+import platform
 import re
 import sys
 import threading
 import types
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from dataclasses import dataclass, fields, is_dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
+from datetime import time as datetime_time
 from decimal import Decimal
 from enum import Enum
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import artifact_ref_identity_key
+from polisyos.runtime.quality.authority import PredicateProvenanceClass
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
 
     from polisyos.core.artifacts import ArtifactRef
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -43,8 +48,10 @@ if TYPE_CHECKING:
     )
 
 
-def _exact_native_content(value: object) -> object:
-    """Project the complete native typed quantity without name-based exclusions."""
+def _exact_native_content(value: object, *, strict: bool = False) -> object:
+    """Project native typed content; strict mode refuses unsupported protocols."""
+    if strict:
+        return _strict_n5_native_content(value, seen=set(), budget=[10000, 1024**2])
     if value is None or type(value) in {bool, int, str}:
         return {type(value).__name__: value}
     if type(value) is float:
@@ -1261,3 +1268,681 @@ def _candidate_n5_experiment_observation_supported(
         or _candidate_n5_failure_diagnostic_is_bounded(reason)
         for reason in reasons
     )
+
+
+# V2 is a candidate observation. It does not alter the v1 live-issuance or
+# historical-reader contract above, and cannot authorize protected reuse.
+_N5CallResult = TypeVar("_N5CallResult")
+_CONTENT_NORMALIZATION = "supported-native-pre-invocation-content/2"
+_CONTENT_SCHEMA = "N5ExecutionContentWitness@2.0"
+
+
+def _v2_json(value: object) -> str:
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+    )
+
+
+def _v2_hash(value: object) -> str:
+    return "sha256:" + hashlib.sha256(_v2_json(value).encode()).hexdigest()
+
+
+def _require_v2_wire(value: str | None) -> None:
+    """Require the frozen witness bytes to be canonical inert JSON."""
+    if value is None:
+        return
+    try:
+        decoded = json.loads(value)
+        canonical = _v2_json(decoded)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("n5_content_wire_invalid") from exc
+    if type(decoded) is not dict or canonical != value:
+        raise ValueError("n5_content_wire_invalid")
+
+
+def _require_v2_predicates(
+    predicates: tuple[N5ContentPredicate, ...], expected: dict[str, str]
+) -> None:
+    observed = {item.predicate_id: item.provenance for item in predicates}
+    if len(observed) != len(predicates) or any(
+        observed.get(name) != provenance for name, provenance in expected.items()
+    ):
+        raise ValueError("n5_content_predicate_scope_mismatch")
+
+
+def _native_type_label(kind: type) -> str:
+    namespace = type.__dict__["__dict__"].__get__(kind, type(kind))
+    module = namespace.get("__module__")
+    qualname = type.__dict__["__qualname__"].__get__(kind, type(kind))
+    if type(module) is not str or type(qualname) is not str:
+        raise ValueError("n5_native_content_not_established")
+    return module + "." + qualname
+
+
+def _strict_n5_native_content(
+    value: object, *, seen: set[int], budget: list[int], depth: int = 0
+) -> object:
+    """Copy a bounded native/declared-field domain without opaque serialization."""
+    if depth > 40 or budget[0] <= 0:
+        raise ValueError("n5_native_content_not_established")
+    budget[0] -= 1
+    kind = type(value)
+    if value is None or kind is bool or kind is int or kind is str:
+        size = (
+            len(value) * 4 if kind is str else (value.bit_length() + 7) // 8 if kind is int else 0
+        )
+        budget[1] -= size
+        if budget[1] < 0:
+            raise ValueError("n5_native_content_not_established")
+        return {kind.__name__: value}
+    if kind is float or kind is complex:
+        from polisyos.runtime.quality.confidence_ledger import _strict_ieee754_content
+
+        return _strict_ieee754_content(value)
+    if kind is bytes:
+        budget[1] -= len(value)
+        if budget[1] < 0:
+            raise ValueError("n5_native_content_not_established")
+        return {"bytes": value.hex()}
+    if kind is Decimal:
+        return {"decimal": str(value)}
+    if kind is date:
+        return {"date": value.isoformat()}
+    if kind is datetime or kind is datetime_time:
+        zone = value.tzinfo
+        if zone is not None and type(zone) is not timezone:
+            raise ValueError("n5_native_content_not_established")
+        zone_content = None
+        if zone is not None:
+            offset, name = zone.utcoffset(None), zone.tzname(None)
+            if offset is None or type(name) is not str:
+                raise ValueError("n5_native_content_not_established")
+            zone_content = {
+                "offset": [offset.days, offset.seconds, offset.microseconds],
+                "name": name,
+            }
+        return {
+            kind.__name__: {"iso": value.isoformat(), "fold": value.fold, "timezone": zone_content}
+        }
+    if id(value) in seen:
+        raise ValueError("n5_native_content_not_established")
+    seen.add(id(value))
+
+    def encode(item: object) -> object:
+        return _strict_n5_native_content(item, seen=seen, budget=budget, depth=depth + 1)
+
+    if kind is dict:
+        if len(value) > budget[0]:
+            raise ValueError("n5_native_content_not_established")
+        return {"mapping": [(encode(key), encode(item)) for key, item in value.items()]}
+    if any(kind is supported for supported in (tuple, list, set, frozenset)):
+        if len(value) > budget[0]:
+            raise ValueError("n5_native_content_not_established")
+        items = [encode(item) for item in value]
+        if kind is set or kind is frozenset:
+            items.sort(key=_v2_json)
+        return {kind.__name__: items}
+    # Known typed owners supply a declared field denominator. Custom instance
+    # protocols/field descriptors remain unknown; no model serializer is called.
+    if type(kind) is type(BaseModel) and issubclass(kind, BaseModel):
+        if inspect.getattr_static(kind, "__getattribute__") is not object.__getattribute__:
+            raise ValueError("n5_native_content_not_established")
+        for slot in ("__dict__", "__pydantic_extra__"):
+            if inspect.getattr_static(kind, slot) is not inspect.getattr_static(BaseModel, slot):
+                raise ValueError("n5_native_content_not_established")
+        values = vars(value)
+        if any(type(key) is not str for key in values):
+            raise ValueError("n5_native_content_not_established")
+        names = exact_n5_model_field_names(value)
+        missing = object()
+        if any(inspect.getattr_static(kind, name, missing) is not missing for name in names):
+            raise ValueError("n5_native_content_not_established")
+        return {
+            "model": _native_type_label(kind),
+            "fields": {name: encode(values[name]) for name in sorted(names)},
+        }
+    if type(kind) is type(Enum) and issubclass(kind, Enum):
+        dictionary = inspect.getattr_static(kind, "__dict__", None)
+        if type(dictionary) is not types.GetSetDescriptorType:
+            raise ValueError("n5_native_content_not_established")
+        values = dictionary.__get__(value, kind)
+        if type(values) is not dict or "_value_" not in values:
+            raise ValueError("n5_native_content_not_established")
+        return {"enum": _native_type_label(kind), "value": encode(values["_value_"])}
+    if (
+        type(kind) is type
+        and inspect.getattr_static(kind, "__getattribute__") is object.__getattribute__
+    ):
+        declared = inspect.getattr_static(kind, "__dataclass_fields__", None)
+        if type(declared) is dict:
+            names = tuple(field.name for field in fields(kind))
+            for name in names:
+                descriptor = inspect.getattr_static(kind, name, None)
+                if inspect.getattr_static(
+                    type(descriptor), "__get__", None
+                ) is not None and not any(
+                    type(descriptor) is supported
+                    for supported in (types.MemberDescriptorType, types.GetSetDescriptorType)
+                ):
+                    raise ValueError("n5_native_content_not_established")
+            return {
+                "dataclass": _native_type_label(kind),
+                "fields": {name: encode(object.__getattribute__(value, name)) for name in names},
+            }
+    raise ValueError("n5_native_content_not_established")
+
+
+def _v2_native_wire(value: object) -> str:
+    return _v2_json(_exact_native_content(value, strict=True))
+
+
+class N5ContentPredicate(BaseModel):
+    """One scoped predicate reported by a candidate content observer."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    predicate_id: str = Field(min_length=1)
+    provenance: PredicateProvenanceClass
+    reason_codes: tuple[str, ...] = ()
+
+
+class N5ProductionSourceFile(BaseModel):
+    """One path and byte identity in a prospective production source image."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    relative_path: str = Field(min_length=1, max_length=4096)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _relative(self) -> N5ProductionSourceFile:
+        path = PurePosixPath(self.relative_path)
+        if (
+            path.is_absolute()
+            or ".." in path.parts
+            or "\\" in self.relative_path
+            or path.as_posix() != self.relative_path
+        ):
+            raise ValueError("n5_production_source_path_invalid")
+        return self
+
+
+class N5ProductionImage(BaseModel):
+    """Conservative path/byte inventory; not proof of loaded or executed code."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["N5ProductionImage@2.0"] = "N5ProductionImage@2.0"
+    source_scope: Literal["all_first_party_production_python"] = "all_first_party_production_python"
+    python_sources: tuple[N5ProductionSourceFile, ...]
+    lock_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    platform_content: str
+    selected_profile_content: str | None
+    provenance: Literal["recomputed", "not_established"]
+    reason_codes: tuple[str, ...] = ()
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _content(self) -> N5ProductionImage:
+        _require_v2_wire(self.platform_content)
+        _require_v2_wire(self.selected_profile_content)
+        if self.content_hash != _v2_hash(self.model_dump(mode="json", exclude={"content_hash"})):
+            raise ValueError("n5_production_image_content_mismatch")
+        paths = tuple(item.relative_path for item in self.python_sources)
+        if paths != tuple(sorted(set(paths))):
+            raise ValueError("n5_production_image_paths_invalid")
+        if self.provenance == "recomputed" and (
+            not paths
+            or self.lock_content_hash is None
+            or self.selected_profile_content is None
+            or self.reason_codes
+        ):
+            raise ValueError("n5_production_image_not_established")
+        return self
+
+
+def capture_n5_production_image(*, root: Path, admitted_profile: object) -> N5ProductionImage:
+    """Read the full production Python inventory and selected profile as content.
+
+    Profile admission is a separate predicate. Supplying profile bytes here does
+    not establish their authority or any loaded/executed module denominator.
+    """
+    sources: list[N5ProductionSourceFile] = []
+    reasons = []
+    lock_hash = None
+    profile = None
+    platform_wire = _v2_native_wire(
+        {
+            "implementation": sys.implementation.name,
+            "version": tuple(sys.version_info[:3]),
+            "cache_tag": sys.implementation.cache_tag,
+            "optimize": sys.flags.optimize,
+            "platform": sys.platform,
+            "machine": platform.machine(),
+        }
+    )
+    try:
+        root = root.resolve(strict=True)
+        package = root / "src" / "polisyos"
+        if not package.is_dir() or package.is_symlink():
+            raise ValueError("n5_production_image_not_established")
+        before = []
+        for directory, directories, files in os.walk(package, followlinks=False):
+            base = Path(directory)
+            if any((base / name).is_symlink() for name in directories):
+                raise ValueError("n5_production_image_not_established")
+            for name in files:
+                if name.endswith(".py"):
+                    path = base / name
+                    if path.is_symlink() or not path.is_file():
+                        raise ValueError("n5_production_image_not_established")
+                    before.append(path)
+        for path in sorted(before):
+            sources.append(
+                N5ProductionSourceFile(
+                    relative_path=path.relative_to(root).as_posix(), content_hash=_file_hash(path)
+                )
+            )
+        after = sorted(path for path in package.rglob("*.py") if path.is_file())
+        if sorted(before) != after or not sources:
+            raise ValueError("n5_production_image_not_established")
+        lock = root / "uv.lock"
+        if lock.is_symlink() or not lock.is_file():
+            raise ValueError("n5_production_image_not_established")
+        lock_hash = _file_hash(lock)
+        profile = _v2_native_wire(admitted_profile)
+    except (OSError, TypeError, ValueError, RuntimeError):
+        reasons.append("n5_production_image_not_established")
+    payload = {
+        "schema_version": "N5ProductionImage@2.0",
+        "source_scope": "all_first_party_production_python",
+        "python_sources": [item.model_dump(mode="json") for item in sources],
+        "lock_content_hash": lock_hash,
+        "platform_content": platform_wire,
+        "selected_profile_content": profile,
+        "provenance": "not_established" if reasons else "recomputed",
+        "reason_codes": reasons,
+    }
+    return N5ProductionImage.model_validate({**payload, "content_hash": _v2_hash(payload)})
+
+
+class N5ControlledCallObservation(BaseModel):
+    """One actual owner-invoked call with frozen pre-invocation content."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    sequence: int = Field(ge=0)
+    local_callable_token: str = Field(min_length=1)
+    callable_content: str | None
+    arguments_content: str | None
+    output_content: str | None
+    callable_content_hash: str | None = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    numerical_content_hash: str | None = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    status: Literal["returned", "raised"]
+    predicates: tuple[N5ContentPredicate, ...]
+    recorded_module_membership_content: str | None = None
+
+    @model_validator(mode="after")
+    def _scope(self) -> N5ControlledCallObservation:
+        for wire in (
+            self.callable_content,
+            self.arguments_content,
+            self.output_content,
+            self.recorded_module_membership_content,
+        ):
+            _require_v2_wire(wire)
+        if self.status == "raised" and self.output_content is not None:
+            raise ValueError("n5_controlled_call_outcome_mismatch")
+        _require_v2_predicates(
+            self.predicates,
+            {
+                "callable_state": "recomputed"
+                if self.callable_content is not None
+                else "not_established",
+                "argument_content": "recomputed"
+                if self.arguments_content is not None
+                else "not_established",
+                "output_content": "recomputed"
+                if self.output_content is not None
+                else "not_established",
+                "recorded_entry_code_membership": "independently_reconciled"
+                if self.recorded_module_membership_content is not None
+                else "not_established",
+                "globals_and_full_readset": "not_established",
+                "through_call_state_stability": "not_established",
+            },
+        )
+        return self
+
+
+class N5ExecutionContentWitness(BaseModel):
+    """Candidate-only content record, separate from v1 protected live issuance."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["N5ExecutionContentWitness@2.0"] = _CONTENT_SCHEMA
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    comparison_scope: Literal["supported_pre_invocation_content_only"] = (
+        "supported_pre_invocation_content_only"
+    )
+    normalization_profile: Literal["supported-native-pre-invocation-content/2"] = (
+        _CONTENT_NORMALIZATION
+    )
+    occurrence_id: str
+    production_image: N5ProductionImage
+    numerical_intent_content: str | None
+    numerical_intent_content_hash: str | None = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    observed_calls: tuple[N5ControlledCallObservation, ...] = Field(min_length=1)
+    predicates: tuple[N5ContentPredicate, ...]
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _content(self) -> N5ExecutionContentWitness:
+        _require_v2_wire(self.numerical_intent_content)
+        _require_v2_predicates(
+            self.predicates,
+            {
+                "prospective_numerical_intent": "recomputed"
+                if self.numerical_intent_content is not None
+                else "not_established",
+                "production_image_content": self.production_image.provenance,
+                "profile_admission": "not_established",
+                "optional_import_closure_n9": "not_established",
+                "protected_reuse": "not_established",
+            },
+        )
+        if self.content_hash != _v2_hash(self.model_dump(mode="json", exclude={"content_hash"})):
+            raise ValueError("n5_execution_content_witness_mismatch")
+        if tuple(item.sequence for item in self.observed_calls) != tuple(
+            range(len(self.observed_calls))
+        ):
+            raise ValueError("n5_controlled_call_sequence_invalid")
+        expected_intent = (
+            None
+            if self.numerical_intent_content is None
+            else _v2_hash(json.loads(self.numerical_intent_content))
+        )
+        if self.numerical_intent_content_hash != expected_intent:
+            raise ValueError("n5_numerical_intent_content_mismatch")
+        for call in self.observed_calls:
+            expected_callable = (
+                None
+                if call.callable_content is None
+                else _v2_hash(json.loads(call.callable_content))
+            )
+            if call.callable_content_hash != expected_callable:
+                raise ValueError("n5_callable_content_mismatch")
+            expected = _n5_invocation_content_hash(
+                self.production_image,
+                self.numerical_intent_content_hash,
+                call.callable_content,
+                call.arguments_content,
+            )
+            if call.numerical_content_hash != expected:
+                raise ValueError("n5_invocation_content_mismatch")
+        return self
+
+
+def _n5_invocation_content_hash(
+    image: N5ProductionImage,
+    intent_hash: str | None,
+    callable_wire: str | None,
+    arguments_wire: str | None,
+) -> str | None:
+    if (
+        image.provenance != "recomputed"
+        or intent_hash is None
+        or callable_wire is None
+        or arguments_wire is None
+    ):
+        return None
+    return _v2_hash(
+        {
+            "normalization_profile": _CONTENT_NORMALIZATION,
+            "production_image": image.content_hash,
+            "numerical_intent": intent_hash,
+            "callable": json.loads(callable_wire),
+            "arguments": json.loads(arguments_wire),
+        }
+    )
+
+
+class N5ControlledCallCapture:
+    """Invoke retained callables and record supported content as candidate evidence.
+
+    Globals/full readsets, transient mutations and protected reuse are not
+    established. Local membership tokens never enter numerical content hashes.
+    """
+
+    def __init__(self, *, effective_inputs: object, production_image: N5ProductionImage) -> None:
+        if type(production_image) is not N5ProductionImage:
+            raise ValueError("n5_production_image_type_invalid")
+        self._image = N5ProductionImage.model_validate_json(production_image.model_dump_json())
+        try:
+            self._intent = _v2_native_wire(effective_inputs)
+        except (OSError, TypeError, ValueError, RuntimeError):
+            self._intent = None
+        self.numerical_intent_content_hash = (
+            None if self._intent is None else _v2_hash(json.loads(self._intent))
+        )
+        self._occurrence = uuid4().hex
+        self._retained: list[tuple[object, str]] = []
+        self._calls: list[N5ControlledCallObservation | None] = []
+        self._sealed: N5ExecutionContentWitness | None = None
+
+    @property
+    def observed_calls(self) -> tuple[N5ControlledCallObservation, ...]:
+        """Return immutable snapshots already recorded by this owner."""
+        return tuple(call for call in self._calls if call is not None)
+
+    def _retain(self, function: object) -> str:
+        for retained, token in self._retained:
+            if retained is function:
+                return token
+        token = uuid4().hex
+        self._retained.append((function, token))
+        return token
+
+    def observe_numerical_call(
+        self, function: Callable[..., _N5CallResult], /, *args: object, **kwargs: object
+    ) -> _N5CallResult:
+        """Snapshot supported content, invoke this retained object, and record its return."""
+        if self._sealed is not None:
+            raise ValueError("n5_content_capture_already_sealed")
+        from polisyos.runtime.quality.confidence_ledger import _normalize_function_binding
+
+        retained = function
+        token = self._retain(retained)
+        sequence = len(self._calls)
+        self._calls.append(None)
+        callable_wire = arguments_wire = output_wire = membership = None
+        with suppress(OSError, TypeError, ValueError, RuntimeError):
+            callable_wire = _v2_json(_normalize_function_binding(retained, strict=True))
+        with suppress(OSError, TypeError, ValueError, RuntimeError):
+            arguments_wire = _v2_native_wire((args, kwargs))
+        membership = _n5_recorded_entry_membership(retained)
+        status: Literal["returned", "raised"] = "raised"
+        try:
+            result = retained(*args, **kwargs)
+            status = "returned"
+            with suppress(OSError, TypeError, ValueError, RuntimeError):
+                output_wire = _v2_native_wire(result)
+            return result
+        finally:
+            predicates = (
+                N5ContentPredicate(
+                    predicate_id="callable_state",
+                    provenance="recomputed" if callable_wire is not None else "not_established",
+                    reason_codes=()
+                    if callable_wire is not None
+                    else ("n5_callable_state_not_established",),
+                ),
+                N5ContentPredicate(
+                    predicate_id="argument_content",
+                    provenance="recomputed" if arguments_wire is not None else "not_established",
+                ),
+                N5ContentPredicate(
+                    predicate_id="output_content",
+                    provenance="recomputed" if output_wire is not None else "not_established",
+                ),
+                N5ContentPredicate(
+                    predicate_id="recorded_entry_code_membership",
+                    provenance="independently_reconciled"
+                    if membership is not None
+                    else "not_established",
+                ),
+                N5ContentPredicate(
+                    predicate_id="globals_and_full_readset", provenance="not_established"
+                ),
+                N5ContentPredicate(
+                    predicate_id="through_call_state_stability", provenance="not_established"
+                ),
+            )
+            self._calls[sequence] = N5ControlledCallObservation(
+                sequence=sequence,
+                local_callable_token=token,
+                callable_content=callable_wire,
+                arguments_content=arguments_wire,
+                output_content=output_wire,
+                callable_content_hash=None
+                if callable_wire is None
+                else _v2_hash(json.loads(callable_wire)),
+                numerical_content_hash=_n5_invocation_content_hash(
+                    self._image,
+                    self.numerical_intent_content_hash,
+                    callable_wire,
+                    arguments_wire,
+                ),
+                status=status,
+                predicates=predicates,
+                recorded_module_membership_content=membership,
+            )
+
+    def seal(self) -> N5ExecutionContentWitness:
+        """Freeze a candidate record without issuing protected reuse authority."""
+        if self._sealed is not None:
+            return self._sealed
+        if any(call is None for call in self._calls):
+            raise ValueError("n5_content_capture_in_progress")
+        payload = {
+            "schema_version": _CONTENT_SCHEMA,
+            "authority_purpose": "candidate_observation_only",
+            "comparison_scope": "supported_pre_invocation_content_only",
+            "normalization_profile": _CONTENT_NORMALIZATION,
+            "occurrence_id": self._occurrence,
+            "production_image": self._image.model_dump(mode="json"),
+            "numerical_intent_content": self._intent,
+            "numerical_intent_content_hash": self.numerical_intent_content_hash,
+            "observed_calls": [item.model_dump(mode="json") for item in self.observed_calls],
+            "predicates": [
+                {
+                    "predicate_id": "prospective_numerical_intent",
+                    "provenance": "recomputed" if self._intent is not None else "not_established",
+                    "reason_codes": [],
+                },
+                {
+                    "predicate_id": "production_image_content",
+                    "provenance": self._image.provenance,
+                    "reason_codes": list(self._image.reason_codes),
+                },
+                {
+                    "predicate_id": "profile_admission",
+                    "provenance": "not_established",
+                    "reason_codes": ["admission_not_supplied_by_owned_profile_verifier"],
+                },
+                {
+                    "predicate_id": "optional_import_closure_n9",
+                    "provenance": "not_established",
+                    "reason_codes": [],
+                },
+                {
+                    "predicate_id": "protected_reuse",
+                    "provenance": "not_established",
+                    "reason_codes": [],
+                },
+            ],
+        }
+        self._sealed = N5ExecutionContentWitness.model_validate(
+            {**payload, "content_hash": _v2_hash(payload)}
+        )
+        return self._sealed
+
+
+def _n5_recorded_entry_membership(function: object) -> str | None:
+    """Observe entry-code membership only through the existing retained recorder."""
+    if type(function) is not types.FunctionType:
+        return None
+    from polisyos.runtime.quality.confidence_ledger import (
+        _passive_capture_lookup,
+        _retained_n5_host_capture,
+    )
+
+    try:
+        retained = _retained_n5_host_capture()
+        if retained is None:
+            return None
+        capture = retained[0].capture
+        module_name = _passive_capture_lookup(function.__globals__, "__name__")
+        if type(module_name) is not str:
+            return None
+        execution = capture.completed(module_name)
+        capture.assert_retained(frozenset({module_name}))
+        if (
+            type(execution.module) is not types.ModuleType
+            or execution.module is not sys.modules.get(module_name)
+            or function.__globals__ is not vars(execution.module)
+            or not capture._code_belongs_to(execution.code, function.__code__)
+        ):
+            return None
+        return _v2_json(
+            {
+                "scope": "controlled_entry_code_only",
+                "module": module_name,
+                "relative_path": execution.relative_path,
+                "source_hash": execution.source_sha256,
+            }
+        )
+    except (OSError, TypeError, ValueError, RuntimeError, AttributeError):
+        return None
+
+
+def _require_n5_json_wire_domain(value: object) -> None:
+    """Admit only exact JSON values before any encoder protocol can run."""
+    active: set[int] = set()
+    pending = [(value, False)]
+    while pending:
+        item, leaving = pending.pop()
+        if leaving:
+            active.remove(id(item))
+            continue
+        kind = type(item)
+        if item is None or kind is bool or kind is int or kind is str:
+            continue
+        if kind is float:
+            if math.isfinite(item):
+                continue
+            raise ValueError("n5_content_witness_wire_required")
+        if kind is not list and kind is not dict:
+            raise ValueError("n5_content_witness_wire_required")
+        if id(item) in active:
+            raise ValueError("n5_content_witness_wire_required")
+        active.add(id(item))
+        pending.append((item, True))
+        if kind is dict:
+            for key, child in item.items():
+                if type(key) is not str:
+                    raise ValueError("n5_content_witness_wire_required")
+                pending.append((child, False))
+        else:
+            pending.extend((child, False) for child in item)
+
+
+def read_n5_execution_content_witness(value: object) -> N5ExecutionContentWitness:
+    """Validate a V2 candidate record's content; grant no current reuse permission."""
+    if type(value) is N5ExecutionContentWitness:
+        value = json.loads(value.model_dump_json())
+    if type(value) is not dict:
+        raise ValueError("n5_content_witness_wire_required")
+    _require_n5_json_wire_domain(value)
+    try:
+        # A mapping containing model_construct instances is not JSON wire.
+        # Re-enter through inert JSON so nested models cannot bypass validation.
+        wire = json.loads(_v2_json(value))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("n5_content_witness_wire_required") from exc
+    return N5ExecutionContentWitness.model_validate(wire)

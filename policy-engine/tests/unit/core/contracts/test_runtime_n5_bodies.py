@@ -573,3 +573,80 @@ def test_recursive_capacity_checkpoint_requires_typed_frontier_and_hides_legacy_
             RunRecursiveCycleCheckpoint.model_validate({**row, **change})
     legacy = RunRecursiveCycleCheckpoint(budget_stop_node_ref="old-budget-stop")
     assert "capacity_source_content_hash" not in legacy.model_dump(mode="json")
+
+
+def _model_input_successor_projection_payload() -> dict[str, object]:
+    body = _result_body_payload(candidate=False)
+    return {
+        "run_id": "run-model-input",
+        "action_job_id": "action-model-input",
+        "action_status": "completed",
+        "result_status": "resolved",
+        "blocked_source": {
+            "run_id": "run-model-input",
+            "source_job_id": "source-model-input",
+            "design_problem_ref": _WORLD_HASH,
+            "cycle_index": 0,
+            "candidate_id": "candidate-model-input",
+            "candidate_content_hash": _REQUEST_HASH,
+            "blocked_execution_ref": _artifact_ref(
+                "runtime.quality.generic_cycle_simulation_n5_execution", "1"
+            ),
+            "model_input_obligation_set_ref": _artifact_ref(
+                "runtime.quality.model_input_obligation_set", "2"
+            ),
+            "routing_report_ref": _artifact_ref("runtime.quality.model_input_routing_report", "3"),
+        },
+        "semantic_successor_ref": _artifact_ref(
+            "runtime.quality.model_input_successor_selection", "4"
+        ),
+        "n5_execution_ref": _artifact_ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", "5"
+        ),
+        "simulation_result_ref": body["artifact_ref"],
+        "result_body": body,
+    }
+
+
+def test_model_input_successor_projects_semantic_limitations_without_changing_legacy_shape() -> (
+    None
+):
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjection
+
+    payload = _model_input_successor_projection_payload()
+    legacy = RunModelInputUseN5SuccessorProjection.model_validate(payload)
+    assert legacy.semantic_input_limitation_codes == ()
+    assert "semantic_input_limitation_codes" not in legacy.model_dump(mode="json")
+    payload["semantic_input_limitation_codes"] = ("optional_axis_unknown:methodology_ref",)
+    selected = RunModelInputUseN5SuccessorProjection.model_validate(payload)
+    assert selected.model_dump(mode="json")["semantic_input_limitation_codes"] == [
+        "optional_axis_unknown:methodology_ref"
+    ]
+    assert selected.publication_authority is False
+    assert selected.currentness_status == "not_established"
+
+
+@pytest.mark.parametrize("codes", [("",), (" ",), (7,), ("code", "code")])
+def test_model_input_successor_rejects_invalid_semantic_limitation_codes(codes: object) -> None:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjection
+
+    payload = {
+        **_model_input_successor_projection_payload(),
+        "semantic_input_limitation_codes": codes,
+    }
+    with pytest.raises(ValidationError):
+        RunModelInputUseN5SuccessorProjection.model_validate(payload)
+
+
+def test_unverified_model_input_successor_cannot_advertise_semantic_limitations() -> None:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjection
+
+    with pytest.raises(ValidationError, match="run_model_input_use_unverified_result_present"):
+        RunModelInputUseN5SuccessorProjection(
+            run_id="run-model-input",
+            action_job_id="action-model-input",
+            action_status="pending",
+            result_status="not_established",
+            limitation_code="model_input_use_action_terminal_not_completed",
+            semantic_input_limitation_codes=("optional_axis_unknown:methodology_ref",),
+        )

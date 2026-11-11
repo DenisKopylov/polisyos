@@ -24,6 +24,7 @@ import importlib.util
 import inspect as _inspect
 import json
 import os
+import struct
 import sys
 import sysconfig
 import threading
@@ -26283,9 +26284,14 @@ def _normalize_function_binding(
     function: types.FunctionType,
     *,
     seen: set[int] | None = None,
+    strict: bool = False,
 ) -> dict[str, object]:
-    """Bind executable code together with defaults and closed-over state."""
+    """Bind executable code and captured state; strict mode refuses opaque values."""
 
+    if strict:
+        return _normalize_strict_function_binding(
+            function, seen=set() if seen is None else set(seen), budget=[10000, 1024**2]
+        )
     active = set() if seen is None else set(seen)
     active.add(id(function))
     closure: list[object] = []
@@ -26309,6 +26315,116 @@ def _normalize_function_binding(
             seen=active,
         ),
         "closure": closure,
+    }
+
+
+def _normalize_strict_function_binding(
+    function: types.FunctionType, *, seen: set[int], budget: list[int], depth: int = 0
+) -> dict[str, object]:
+    """Snapshot only native function fields and a finite inert captured-value domain.
+
+    This is sampled content, not globals/readset completeness or stability
+    through execution. Cycles and shared containers are unsupported rather than
+    replaced by a type label or process-local identity.
+    """
+    if type(function) is not types.FunctionType or id(function) in seen:
+        raise ValueError("n5_callable_state_not_established")
+    seen.add(id(function))
+    code, defaults, keyword_defaults, cells = (
+        function.__code__,
+        function.__defaults__,
+        function.__kwdefaults__,
+        function.__closure__,
+    )
+    module, qualname = function.__module__, function.__qualname__
+    if (module is not None and type(module) is not str) or type(qualname) is not str:
+        raise ValueError("n5_callable_state_not_established")
+    closure = []
+    for cell in cells or ():
+        try:
+            value = cell.cell_contents
+        except ValueError as exc:
+            raise ValueError("n5_callable_state_not_established") from exc
+        closure.append(
+            _normalize_strict_binding_value(value, seen=seen, budget=budget, depth=depth + 1)
+        )
+    return {
+        "declared_module": module,
+        "qualname": qualname,
+        "code": _normalize_code_object(code, work_budget=budget, work_depth=depth, strict=True),
+        "defaults": _normalize_strict_binding_value(
+            defaults, seen=seen, budget=budget, depth=depth + 1
+        ),
+        "kwdefaults": _normalize_strict_binding_value(
+            keyword_defaults, seen=seen, budget=budget, depth=depth + 1
+        ),
+        "closure": closure,
+    }
+
+
+def _strict_ieee754_content(value: object) -> dict[str, object]:
+    """Preserve all IEEE-754 bits, including NaN payload/sign and signed zero."""
+    if type(value) is float:
+        return {"float_ieee754": struct.pack(">d", value).hex()}
+    if type(value) is complex:
+        return {"complex_ieee754": struct.pack(">dd", value.real, value.imag).hex()}
+    raise ValueError("n5_native_content_not_established")
+
+
+def _normalize_strict_binding_value(
+    value: object, *, seen: set[int], budget: list[int], depth: int
+) -> object:
+    """Read exact inert builtin values without invoking user protocols."""
+    _consume_code_normalization_budget(budget, depth)
+    kind = type(value)
+    if value is None or kind is bool:
+        return value
+    if kind is int:
+        _consume_code_normalization_budget(
+            budget, depth, node_count=0, byte_count=(value.bit_length() + 7) // 8
+        )
+        return value
+    if kind is str:
+        _consume_code_normalization_budget(budget, depth, node_count=0, byte_count=len(value) * 4)
+        return value
+    if kind is float or kind is complex:
+        return _strict_ieee754_content(value)
+    if kind is bytes:
+        _consume_code_normalization_budget(budget, depth, node_count=0, byte_count=len(value))
+        return {"bytes_hash": _bytes_hash(value)}
+    if value is Ellipsis:
+        return {"singleton": "ellipsis"}
+    if kind is types.FunctionType:
+        return {
+            "function": _normalize_strict_function_binding(
+                value, seen=seen, budget=budget, depth=depth + 1
+            )
+        }
+    if kind is not tuple and kind is not list and kind is not dict:
+        raise ValueError("n5_callable_state_not_established")
+    if id(value) in seen:
+        raise ValueError("n5_callable_state_not_established")
+    seen.add(id(value))
+    if len(value) > budget[0]:
+        raise ValueError("n5_callable_state_not_established")
+    if kind is dict:
+        # Preserve insertion order: a callable may consume a mapping's order.
+        return {
+            "mapping": [
+                [
+                    _normalize_strict_binding_value(key, seen=seen, budget=budget, depth=depth + 1),
+                    _normalize_strict_binding_value(
+                        item, seen=seen, budget=budget, depth=depth + 1
+                    ),
+                ]
+                for key, item in value.items()
+            ]
+        }
+    return {
+        "tuple" if kind is tuple else "list": [
+            _normalize_strict_binding_value(item, seen=seen, budget=budget, depth=depth + 1)
+            for item in value
+        ]
     }
 
 
@@ -26412,6 +26528,7 @@ def _normalize_code_object(
     code_cache: _CodeNormalizationCache | None = None,
     work_budget: list[int] | None = None,
     work_depth: int = 0,
+    strict: bool = False,
 ) -> dict[str, object]:
     """Normalize native executable fields without invoking constant protocols.
 
@@ -26426,7 +26543,7 @@ def _normalize_code_object(
     analysis = _active_integrity_analysis()
     active_cache = (
         None
-        if work_budget is not None
+        if work_budget is not None or strict
         else (
             code_cache
             if code_cache is not None
@@ -26509,6 +26626,7 @@ def _normalize_code_object(
                 code_cache=active_cache,
                 work_budget=work_budget,
                 work_depth=work_depth + 1,
+                strict=strict,
             )
             for value in code.co_consts
         ],
@@ -26552,6 +26670,7 @@ def _normalize_code_constant(
     code_cache: _CodeNormalizationCache | None = None,
     work_budget: list[int] | None = None,
     work_depth: int = 0,
+    strict: bool = False,
 ) -> object:
     """Normalize only exact inert native constants, with an optional work bound."""
 
@@ -26564,6 +26683,7 @@ def _normalize_code_constant(
                 code_cache=code_cache,
                 work_budget=work_budget,
                 work_depth=work_depth,
+                strict=strict,
             )
         }
     scalar_bytes = (
@@ -26589,6 +26709,7 @@ def _normalize_code_constant(
                 code_cache=code_cache,
                 work_budget=work_budget,
                 work_depth=work_depth + 1,
+                strict=strict,
             )
             for item in value
         ]
@@ -26603,10 +26724,13 @@ def _normalize_code_constant(
                     code_cache=code_cache,
                     work_budget=work_budget,
                     work_depth=work_depth + 1,
+                    strict=strict,
                 )
                 for item in (value.start, value.stop, value.step)
             ]
         }
+    if strict and (kind is float or kind is complex):
+        return _strict_ieee754_content(value)
     if kind is float:
         return {"float_hex": value.hex()}
     if kind is complex:

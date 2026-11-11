@@ -181,6 +181,7 @@ class ExecutionSourceAdmission:
     basis_manifest: ArtifactManifest | None = None
     basis_inventory: tuple[InputRef, ...] | None = None
     source_read_bytes: int | None = None
+    semantic_input_limitation_codes: tuple[str, ...] | None = None
 
 
 class ExecutionSourceAdmissionRefusal(ValueError):
@@ -936,6 +937,7 @@ def _admit_execution_source(
         raise ExecutionSourceAdmissionRefusal(
             "execution_source_semantic_bounded_replay_not_established"
         )
+    semantic_input_limitation_codes: tuple[str, ...] | None = None
     if read_session is None:
         semantic_notes = reconcile_semantic_input_bindings(
             store,
@@ -946,6 +948,12 @@ def _admit_execution_source(
         )
         if not all(note in simulation_result.notes for note in semantic_notes):
             raise ValueError("execution_source_semantic_input_limitations_missing")
+        prefix = "semantic_input_limitation:"
+        semantic_input_limitation_codes = tuple(
+            sorted(
+                {note.removeprefix(prefix) for note in semantic_notes if note.startswith(prefix)}
+            )
+        )
     elif semantic_step is not None:
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     transport_edges = [
@@ -1214,6 +1222,7 @@ def _admit_execution_source(
         basis=basis,
         basis_manifest=basis_manifest,
         basis_inventory=tuple(expected_inventory),
+        semantic_input_limitation_codes=semantic_input_limitation_codes,
         source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
     )
 

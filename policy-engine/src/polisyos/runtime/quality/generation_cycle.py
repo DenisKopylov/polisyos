@@ -2102,6 +2102,7 @@ def load_joint_simulation_result(
         expected_atom_ids=expected_atom_ids,
         expected_selected_outcomes=expected_selected_outcomes,
     )
+    semantic_input_limitation_codes: tuple[str, ...] | None = None
     try:
         semantic_edges = [
             edge
@@ -2115,7 +2116,7 @@ def load_joint_simulation_result(
                 raise _JointSimulationBindingMismatchError(
                     "joint_simulation_semantic_expected_request_required"
                 )
-            verify_semantic_program_graph_result_sources(
+            semantic_input_limitation_codes = verify_semantic_program_graph_result_sources(
                 store, result, expected_request=expected_request
             )
     except _JointSimulationBindingMismatchError:
@@ -2136,6 +2137,7 @@ def load_joint_simulation_result(
                 "joint_simulation_result_execution_binding_invalid", str(exc)
             ) from exc
     result._comparator_refs_verified = comparator_refs_verified
+    result._verified_semantic_input_limitation_codes = semantic_input_limitation_codes
     return result
 
 

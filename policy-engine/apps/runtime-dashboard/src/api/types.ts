@@ -21398,6 +21398,11 @@ export interface components {
        * @constant
        */
       schema_version: "policyos.runtime.run_model_input_use_n5_successor_projection.v1";
+      /**
+       * Semantic Input Limitation Codes
+       * @default []
+       */
+      semantic_input_limitation_codes: string[];
       semantic_successor_ref?:
         | components["schemas"]["ArtifactRef-Output"]
         | null;

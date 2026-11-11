@@ -44859,6 +44859,16 @@
             "title": "Schema Version",
             "type": "string"
           },
+          "semantic_input_limitation_codes": {
+            "default": [],
+            "items": {
+              "minLength": 1,
+              "pattern": "^\\S+$",
+              "type": "string"
+            },
+            "title": "Semantic Input Limitation Codes",
+            "type": "array"
+          },
           "semantic_successor_ref": {
             "anyOf": [
               {

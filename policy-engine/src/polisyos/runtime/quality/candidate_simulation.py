@@ -205,6 +205,193 @@ def prepare_candidate_n5_request_values(
     )
 
 
+CandidateN5RequestFieldRoleNameV2 = Literal["numerical", "operational", "output_label"]
+
+
+class CandidateN5RequestFieldRoleV2(_StrictModel):
+    """One field's explicit role in the versioned N5 request projection."""
+
+    field_name: str = Field(..., min_length=1, strict=True)
+    role: CandidateN5RequestFieldRoleNameV2
+
+
+_CANDIDATE_N5_REQUEST_FIELD_ROLES_V2: tuple[tuple[str, CandidateN5RequestFieldRoleNameV2], ...] = (
+    ("schema_version", "numerical"),
+    ("engine_kind", "numerical"),
+    ("budget_ref", "operational"),
+    ("horizon", "numerical"),
+    ("baseline_state", "numerical"),
+    ("comparator_refs", "output_label"),
+    ("seed", "numerical"),
+    ("replications", "numerical"),
+    ("invocation_quota_policy", "operational"),
+    ("invocation_purpose", "operational"),
+)
+
+
+def _candidate_n5_request_field_roles_v2(
+    source_field_names: set[str],
+) -> tuple[CandidateN5RequestFieldRoleV2, ...]:
+    """Return a complete disjoint role census for the actual N5 config fields."""
+
+    field_names = tuple(field_name for field_name, _role in _CANDIDATE_N5_REQUEST_FIELD_ROLES_V2)
+    if len(field_names) != len(set(field_names)):
+        raise ValueError("candidate_n5_request_field_role_overlap")
+    if set(field_names) != source_field_names:
+        raise ValueError("candidate_n5_request_field_role_census_mismatch")
+    return tuple(
+        CandidateN5RequestFieldRoleV2(field_name=field_name, role=role)
+        for field_name, role in sorted(_CANDIDATE_N5_REQUEST_FIELD_ROLES_V2)
+    )
+
+
+class CandidateN5NumericalRequestValuesV2(_StrictModel):
+    """Exact numerical subset of one configured candidate N5 request."""
+
+    schema_version: Literal["policyos.runtime.candidate_n5_numerical_request.v2"] = (
+        "policyos.runtime.candidate_n5_numerical_request.v2"
+    )
+    config_schema_version: Literal["policyos.runtime.candidate_scenario.n5_config.v1"]
+    engine_kind: Literal["ncm_parallel_worlds"]
+    horizon: tuple[tuple[str, int | str], ...]
+    baseline_state_ieee754_hex: tuple[tuple[str, str], ...]
+    seed: int = Field(strict=True)
+    replications: int = Field(ge=1, strict=True)
+
+    @model_validator(mode="after")
+    def _validate_native_value_order(self) -> CandidateN5NumericalRequestValuesV2:
+        horizon_names = tuple(name for name, _value in self.horizon)
+        baseline_names = tuple(name for name, _value in self.baseline_state_ieee754_hex)
+        if len(horizon_names) != len(set(horizon_names)) or not horizon_names:
+            raise ValueError("candidate_n5_numerical_horizon_fields_invalid")
+        if len(baseline_names) != len(set(baseline_names)):
+            raise ValueError("candidate_n5_numerical_baseline_fields_invalid")
+        if any(
+            len(encoded) != 16 or any(char not in "0123456789abcdef" for char in encoded)
+            for _name, encoded in self.baseline_state_ieee754_hex
+        ):
+            raise ValueError("candidate_n5_numerical_baseline_encoding_invalid")
+        return self
+
+
+class CandidateN5OperationalRequestValuesV2(_StrictModel):
+    """Budget and invocation controls, separate from numerical identity."""
+
+    budget_ref: str = Field(..., min_length=1, strict=True)
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    invocation_purpose: Literal["standard", "diagnostic", "counterevidence"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    reservation_identities: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_invocation_scope(self) -> CandidateN5OperationalRequestValuesV2:
+        if (self.invocation_quota_policy is None) != (self.invocation_purpose is None):
+            raise ValueError("candidate_n5_operational_invocation_profile_incomplete")
+        if any(not value or value != value.strip() for value in self.reservation_identities):
+            raise ValueError("candidate_n5_operational_reservation_identity_invalid")
+        if len(self.reservation_identities) != len(set(self.reservation_identities)):
+            raise ValueError("candidate_n5_operational_reservation_identity_duplicate")
+        return self
+
+
+class CandidateN5OutputLabelsV2(_StrictModel):
+    """Selected display/readback labels excluded from numerical identity."""
+
+    world_model_record_ref: str | None = Field(default=None, min_length=1, strict=True)
+    comparator_evidence_refs: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_comparator_labels(self) -> CandidateN5OutputLabelsV2:
+        if any(not value or value != value.strip() for value in self.comparator_evidence_refs):
+            raise ValueError("candidate_n5_output_comparator_reference_invalid")
+        if len(self.comparator_evidence_refs) != len(set(self.comparator_evidence_refs)):
+            raise ValueError("candidate_n5_output_comparator_reference_duplicate")
+        return self
+
+
+class CandidateN5RequestProjectionV2(_StrictModel):
+    """Numerical, operational and label projections plus their field census.
+
+    This projection covers the declared ``CandidateScenarioN5Config`` fields.
+    Consumers composing a wider effective numerical basis must bind other
+    numerical facets (for example selected NCM, model, atoms or applied rules)
+    through their existing typed owners.
+    """
+
+    schema_version: Literal["policyos.runtime.candidate_n5_request_projection.v2"] = (
+        "policyos.runtime.candidate_n5_request_projection.v2"
+    )
+    numerical: CandidateN5NumericalRequestValuesV2
+    operational: CandidateN5OperationalRequestValuesV2
+    output_labels: CandidateN5OutputLabelsV2
+    field_roles: tuple[CandidateN5RequestFieldRoleV2, ...]
+
+    @model_validator(mode="after")
+    def _validate_complete_field_role_census(self) -> CandidateN5RequestProjectionV2:
+        observed_names = tuple(row.field_name for row in self.field_roles)
+        if len(observed_names) != len(set(observed_names)):
+            raise ValueError("candidate_n5_request_field_role_overlap")
+        expected_names = tuple(
+            field_name for field_name, _role in _CANDIDATE_N5_REQUEST_FIELD_ROLES_V2
+        )
+        expected_roles = dict(_CANDIDATE_N5_REQUEST_FIELD_ROLES_V2)
+        observed_roles = {row.field_name: row.role for row in self.field_roles}
+        if (
+            len(expected_names) != len(expected_roles)
+            or set(observed_names) != set(expected_names)
+            or observed_roles != expected_roles
+        ):
+            raise ValueError("candidate_n5_request_field_role_census_mismatch")
+        return self
+
+
+def prepare_candidate_n5_request_projection_v2(
+    config: CandidateScenarioN5Config,
+    *,
+    world_model_record_ref: str | None = None,
+    reservation_identities: tuple[str, ...] = (),
+) -> CandidateN5RequestProjectionV2:
+    """Separate configured numerical inputs from budget controls and labels.
+
+    The legacy ``prepare_candidate_n5_request_values`` projection remains
+    unchanged for persisted v1 identity semantics. This versioned projection
+    prepares a JSON-safe numerical facet for newer consumers.
+    """
+
+    if type(config) is not CandidateScenarioN5Config:
+        raise TypeError("candidate_n5_request_config_untyped")
+    roles = _candidate_n5_request_field_roles_v2(set(type(config).model_fields))
+    prepared = prepare_candidate_n5_request_values(config)
+    if type(reservation_identities) is not tuple:
+        raise TypeError("candidate_n5_projection_reservation_identities_untyped")
+    return CandidateN5RequestProjectionV2(
+        numerical=CandidateN5NumericalRequestValuesV2(
+            config_schema_version=prepared.schema_version,
+            engine_kind=prepared.engine_kind,
+            horizon=prepared.horizon,
+            baseline_state_ieee754_hex=tuple(
+                (name, encoded.hex()) for name, encoded in prepared.baseline_state
+            ),
+            seed=prepared.seed,
+            replications=prepared.replications,
+        ),
+        operational=CandidateN5OperationalRequestValuesV2(
+            budget_ref=prepared.budget_ref,
+            invocation_quota_policy=prepared.invocation_quota_policy,
+            invocation_purpose=prepared.invocation_purpose,
+            reservation_identities=reservation_identities,
+        ),
+        output_labels=CandidateN5OutputLabelsV2(
+            world_model_record_ref=world_model_record_ref,
+            comparator_evidence_refs=prepared.comparator_refs,
+        ),
+        field_roles=roles,
+    )
+
+
 class CandidateSimulationScenarioProfile(_StrictModel):
     """Server-configured scenario selected by a bounded semantic projection."""
 

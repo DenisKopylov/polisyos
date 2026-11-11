@@ -2582,6 +2582,16 @@ class JointSimulationResult(_StrictModel):
 
     _content_payload: dict[str, Any] = PrivateAttr(default_factory=dict)
     _comparator_refs_verified: bool = PrivateAttr(default=False)
+    _verified_semantic_input_limitation_codes: tuple[str, ...] | None = PrivateAttr(default=None)
+
+    @property
+    def verified_semantic_input_limitation_codes(self) -> tuple[str, ...] | None:
+        """Return owner-recomputed codes, or None before semantic-source replay.
+
+        This ephemeral read observation conveys no authority or currentness.
+        An empty tuple means replay established that no such limitations apply.
+        """
+        return self._verified_semantic_input_limitation_codes
 
     @property
     def comparator_refs_verified(self) -> bool:
@@ -6404,8 +6414,8 @@ def verify_semantic_program_graph_result_sources(
     result: JointSimulationResult,
     *,
     expected_request: JointSimulationRequest | None = None,
-) -> None:
-    """Verify selected step chains and rederive projections from a trusted request."""
+) -> tuple[str, ...] | None:
+    """Replay selected step chains and return their canonical input limitations."""
     from polisyos.core.artifacts import artifact_ref_identity_key
     from polisyos.foundry.execute import (
         admit_semantic_horizon_step_chain,
@@ -6414,7 +6424,7 @@ def verify_semantic_program_graph_result_sources(
 
     groups = _semantic_program_graph_replications(result)
     if not groups:
-        return
+        return None
     selected_ref = FoundryInputBindingsRef.model_validate(
         result.diagnostics["semantic_program_graph_bindings_ref"]
     )
@@ -6435,11 +6445,15 @@ def verify_semantic_program_graph_result_sources(
         raise ValueError("semantic_program_graph_result_store_unavailable")
     steps = result.horizon.steps()
     projected: dict[str, dict[tuple[int, int], tuple[dict[str, float], dict[str, float]]]] = {}
+    limitation_codes: set[str] = set()
     for physical_ref, replications in groups.items():
         by_sample = projected.setdefault(physical_ref, {})
         for replication in replications:
             chain = admit_semantic_horizon_step_chain(store, replication.step_result_refs)
             for index, admission in enumerate(chain):
+                if admission.semantic_input_limitation_codes is None:
+                    raise ValueError("semantic_program_graph_input_limitations_not_established")
+                limitation_codes.update(admission.semantic_input_limitation_codes)
                 basis = admission.basis
                 step = None if basis is None else basis.semantic_horizon_step
                 if (
@@ -6505,6 +6519,8 @@ def verify_semantic_program_graph_result_sources(
                     sample.effects,
                 ):
                     raise ValueError("semantic_program_graph_result_projection_mismatch")
+
+    return tuple(sorted(limitation_codes))
 
 
 def _program_graph_outcomes(

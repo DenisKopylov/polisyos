@@ -15,11 +15,16 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     FileSystemCAS,
     PutOptions,
+    artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
     read_core_json_artifact,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import WarningRecord, artifact_ref_identity_key
+from polisyos.core.artifacts.manifest import (
+    SchemaInfo,
+    WarningRecord,
+    artifact_ref_identity_key,
+)
 from polisyos.core.contracts import (
     ScopedCorrespondenceBasis,
     ScopedMeasurementOccurrence,
@@ -27,10 +32,21 @@ from polisyos.core.contracts import (
 )
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.model_input_requirements import (
+    ModelInputPortDeclaration,
     load_model_input_obligation_set,
     load_model_input_port_declaration,
+    persist_model_input_port_declaration,
 )
 from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorResponse
+from polisyos.core.contracts.variable_binding import (
+    MeasurementAxis,
+    MeasurementBindingProfile,
+    MeasurementBindingProfileRef,
+    SelectedVariableBindingRef,
+    VariableRepresentationRef,
+    load_variable_representation,
+    variable_representation_manifest_inputs,
+)
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.read_api.catalog import (
@@ -106,6 +122,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from polisyos.core.contracts.model_input_requirements import ModelInputPort
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
     from polisyos.runtime.http.services.control import ControlPlaneService
     from polisyos.runtime.quality.generic_simulation_admission import (
@@ -118,6 +135,96 @@ _ROUTE_TEMPLATE = "/api/v1/runs/{run_id}/model-input-use"
 _OPENING_CASH = 640.0
 # The scheduled 1/8 subsidy debits the sum of the two eligible incomes.
 _EXPECTED_BALANCES = (_OPENING_CASH, _OPENING_CASH, _OPENING_CASH - (100 + 200) / 8)
+
+
+def _held_out_methodology_declaration(
+    store: FileSystemCAS, *, fact_log_root: Path
+) -> tuple[ArtifactRef, ModelInputPort, SelectedVariableBindingRef]:
+    """Build a held-out target port with an optional, test-owned Fabric method document."""
+    from polisyos.fabric.docs.ingestion import ingest_doc_bytes
+    from polisyos.fabric.docs.types import DocSourceSpec
+
+    source_declaration_ref = _held_out_declaration(store)
+    (source_port,) = load_model_input_port_declaration(store, source_declaration_ref).ports
+    source_representation = load_variable_representation(store, source_port.representation_ref)
+    assert source_representation.schema_version == "polisyos.catalog.variable_representation.v1"
+    assert source_representation.methodology_ref is None
+
+    document = ingest_doc_bytes(
+        cas=store,
+        fact_log_root=fact_log_root,
+        source=DocSourceSpec(
+            source_locator="repo://test/held-out-stock/measurement-method/r1",
+            license="test-owned",
+            title="Test-only measurement method",
+        ),
+        raw_bytes=(
+            b"Test-owned method note for a controlled measurement fixture. "
+            b"Its empirical validity and external authority are not established.\n"
+        ),
+        mime="text/plain",
+    )
+    document_manifest = store.get_manifest(document.raw_ref)
+    methodology_ref = SelectedVariableBindingRef(
+        artifact_id=document_manifest.artifact_id,
+        kind=document_manifest.kind,
+        media_type=document_manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(document_manifest),
+    )
+
+    target_representation = source_representation.model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "representation_id": "test.public-benefit-fund.opening-cash-with-method",
+            "methodology_ref": methodology_ref,
+        }
+    )
+    target_representation_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            target_representation,
+            PutOptions(
+                kind=target_representation.ARTIFACT_KIND,
+                media_type=target_representation.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=target_representation.ARTIFACT_SCHEMA_NAME,
+                    version="2.0",
+                ),
+                inputs=list(variable_representation_manifest_inputs(target_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump(mode="json")
+    )
+    source_profile = validate_core_model_json_artifact(
+        MeasurementBindingProfile, store, source_port.binding_profile_ref
+    )
+    assert MeasurementAxis.METHODOLOGY_REF not in source_profile.optional_axes
+    target_profile = source_profile.model_copy(
+        update={
+            "schema_version": "polisyos.catalog.measurement_binding_profile.v2",
+            "optional_axes": (*source_profile.optional_axes, MeasurementAxis.METHODOLOGY_REF),
+        }
+    )
+    target_profile_ref = MeasurementBindingProfileRef.model_validate(
+        store.put_json(
+            target_profile,
+            PutOptions(
+                kind=target_profile.ARTIFACT_KIND,
+                media_type=target_profile.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(name=target_profile.ARTIFACT_SCHEMA_NAME, version="2.0"),
+            ),
+            return_selected_profile=True,
+        ).model_dump(mode="json")
+    )
+    target_port = source_port.model_copy(
+        update={
+            "representation_ref": target_representation_ref,
+            "binding_profile_ref": target_profile_ref,
+        }
+    )
+    target_declaration_ref = persist_model_input_port_declaration(
+        store, ModelInputPortDeclaration(ports=(target_port,))
+    )
+    return target_declaration_ref, source_port, methodology_ref
 
 
 def _sign_model_input_mandate(
@@ -225,6 +332,7 @@ def _assert_foundry_successor(
     mutation: ModelInputSuccessorActionRequest,
     action_job_id: str,
     checkpoint: ModelInputUseActionCheckpoint,
+    expected_methodology_ref: ArtifactRef | None = None,
 ) -> None:
     """Recompute every step through Foundry and check independent cash arithmetic."""
     execution_ref = checkpoint.execution_ref
@@ -293,6 +401,51 @@ def _assert_foundry_successor(
     assert artifact_ref_identity_key(correspondence.target_representation_ref) == (
         artifact_ref_identity_key(obligation.port.representation_ref)
     )
+    if expected_methodology_ref is not None:
+        from polisyos.core.contracts.fabric import (
+            AcquiredObservationSemanticInputDataSnapshotLineage,
+            DataSnapshot,
+        )
+
+        source_representation = load_variable_representation(
+            store, correspondence.source_representation_ref
+        )
+        target_representation = load_variable_representation(
+            store, correspondence.target_representation_ref
+        )
+        target_representation_manifest = store.get_manifest(
+            correspondence.target_representation_ref
+        )
+        assert source_representation.methodology_ref is None
+        assert target_representation.schema_version == (
+            "polisyos.catalog.variable_representation.v2"
+        )
+        assert target_representation.methodology_ref == expected_methodology_ref
+        assert tuple(target_representation_manifest.inputs) == (
+            variable_representation_manifest_inputs(target_representation)
+        )
+        assert any(
+            edge.role == "methodology"
+            and edge.artifact_id == expected_methodology_ref.artifact_id
+            and edge.manifest_profile_sha256 == expected_methodology_ref.manifest_profile_sha256
+            for edge in target_representation_manifest.inputs
+        )
+        profile = validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, correspondence.binding_profile_ref
+        )
+        assert profile.schema_version == "polisyos.catalog.measurement_binding_profile.v2"
+        assert MeasurementAxis.METHODOLOGY_REF in profile.optional_axes
+        snapshot = validate_core_model_json_artifact(
+            DataSnapshot, store, bindings.data_snapshot_ref
+        )
+        lineage = snapshot.source_lineage
+        assert isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage)
+        assert artifact_ref_identity_key(lineage.selection.correspondence_basis_ref) == (
+            artifact_ref_identity_key(measurement.correspondence_ref)
+        )
+        verified_limitations = result.verified_semantic_input_limitation_codes
+        assert verified_limitations is not None
+        assert "optional_axis_unknown:methodology_ref" in verified_limitations
     (route,) = read_model_input_routing_report(store, mutation.routing_report_ref).routes
     assert artifact_ref_identity_key(route.obligation_ref) == artifact_ref_identity_key(
         measurement.model_input_obligation_ref
@@ -365,13 +518,9 @@ def _assert_semantic_input_selection_refusals(
     )
     mismatched_selection_ref = persist_model_input_successor_selection(
         store,
-        selection.model_copy(
-            update={"semantic_foundry_input_bindings_ref": typed_mismatched_ref}
-        ),
+        selection.model_copy(update={"semantic_foundry_input_bindings_ref": typed_mismatched_ref}),
     )
-    with pytest.raises(
-        ValueError, match="foundry_input_bindings_semantic_manifest_edge_mismatch"
-    ):
+    with pytest.raises(ValueError, match="foundry_input_bindings_semantic_manifest_edge_mismatch"):
         owner.prepare_semantic_successor_request(
             semantic_successor_ref=mismatched_selection_ref,
             expected_blocked_execution_ref=blocked_execution_ref,
@@ -394,13 +543,125 @@ def _assert_semantic_input_selection_refusals(
         withheld_binding.rename(binding_blob)
 
 
-@pytest.mark.integration
-def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_action(
+def _assert_v2_methodology_preflight(
+    *,
+    tmp_path: Path,
+    store: FileSystemCAS,
+    active: Any,
+    control: ControlPlaneService,
+    job: Any,
+    profile: GenericCycleSimulationProfileV1,
+    report_ref: ArtifactRef,
+    report: Any,
+    receipt_ref: ArtifactRef,
+    observation_id: str,
+    source_port: ModelInputPort,
+    methodology_ref: SelectedVariableBindingRef,
+) -> None:
+    """Exercise target-document availability through the real pre-N5 Foundry reader."""
+    from polisyos.core.contracts.fabric import (
+        AcquiredObservationSemanticInputDataSnapshotLineage,
+        DataSnapshot,
+    )
+    from polisyos.foundry.data_plane import (
+        load_input_bindings,
+        reconcile_semantic_input_bindings,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.model_input_requirements import (
+        SelectedProgramGraphInputBasis,
+    )
+    from polisyos.runtime.quality.model_input_routing import (
+        materialize_routed_model_input_observation,
+    )
+
+    invocation = report.selected_invocation
+    selected_basis = SelectedProgramGraphInputBasis(
+        context=invocation.context,
+        program_graph_ref=invocation.program_graph_ref,
+        exec_plan_ref=invocation.exec_plan_ref,
+        registry_bundle_ref=invocation.registry_bundle_ref,
+        input_bindings_ref=invocation.input_bindings_ref,
+        steps=invocation.steps,
+    )
+    passport = AdmissionPassport.model_validate(
+        load_verified_epoch_statement(
+            store=store,
+            ref=active.projections[active.entries[0].target_variable].passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    source_representation = load_variable_representation(store, source_port.representation_ref)
+    assert source_representation.methodology_ref is None
+    _, (obligation,) = load_model_input_obligation_set(store, report.obligation_set_ref)
+    target_representation = load_variable_representation(store, obligation.port.representation_ref)
+    assert target_representation.methodology_ref == methodology_ref
+
+    ledger = control.llm_producer_settlement_store._ledger
+    ledger_before = ledger.snapshot()
+    source_job_before = control._control_store.get_job(job.job_id)
+    assert source_job_before == job
+    candidate = materialize_routed_model_input_observation(
+        store,
+        report_ref=report_ref,
+        expected_obligation_set_ref=report.obligation_set_ref,
+        selected_basis=selected_basis,
+        catalog_authority=active.authority,
+        overlay=active.overlay,
+        receipt_ref=receipt_ref,
+        passport=passport,
+        observation_id=observation_id,
+        profile_selection_ref=profile.profile_selection_ref,
+        workspace_dir=tmp_path / "v2-methodology-preflight",
+        transaction_time=datetime(2026, 10, 2, 12, tzinfo=UTC),
+    )
+    assert candidate.semantic_foundry_input_bindings_ref is not None
+    bindings = load_input_bindings(store, candidate.semantic_foundry_input_bindings_ref)
+    snapshot = validate_core_model_json_artifact(DataSnapshot, store, candidate.data_snapshot_ref)
+    lineage = snapshot.source_lineage
+    assert isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage)
+    basis = validate_core_model_json_artifact(
+        ScopedCorrespondenceBasis,
+        store,
+        lineage.selection.correspondence_basis_ref,
+    )
+    assert basis.source_representation_ref == source_port.representation_ref
+    assert basis.target_representation_ref == obligation.port.representation_ref
+    positive_notes = reconcile_semantic_input_bindings(store, bindings)
+    assert "semantic_input_limitation:optional_axis_unknown:methodology_ref" in positive_notes
+
+    target_document_blob, _ = store._paths(methodology_ref.artifact_id)
+    withheld_document = target_document_blob.with_name("withheld-target-methodology")
+    target_document_blob.rename(withheld_document)
+    try:
+        assert (
+            load_variable_representation(store, source_port.representation_ref).methodology_ref
+            is None
+        )
+        with pytest.raises(FileNotFoundError):
+            reconcile_semantic_input_bindings(store, bindings)
+    finally:
+        withheld_document.rename(target_document_blob)
+
+    assert (
+        load_variable_representation(store, source_port.representation_ref).methodology_ref is None
+    )
+    assert load_variable_representation(store, basis.target_representation_ref).methodology_ref == (
+        methodology_ref
+    )
+    assert reconcile_semantic_input_bindings(store, bindings) == positive_notes
+    assert ledger.snapshot() == ledger_before
+    assert control._control_store.get_job(job.job_id) == source_job_before
+
+
+def _run_activated_held_out_stock_scenario(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: ControlledCandidateGateway,
+    *,
+    methodology_v2: bool,
 ) -> None:
-    """Exercise the blocked producer, protected successor, and fresh numerical reader."""
+    """Exercise one selected held-out stock profile through the served successor route."""
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
@@ -417,6 +678,19 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
     )
     problem = DesignProblem.model_validate(problem_data)
     original_compiler = generation_owner.build_design_problem_from_nl_request
+    source_ports: list[ModelInputPort] = []
+    methodology_refs: list[SelectedVariableBindingRef] = []
+
+    def build_port_declaration(store: FileSystemCAS) -> ArtifactRef:
+        if not methodology_v2:
+            return _held_out_declaration(store)
+        declaration_ref, source_port, methodology_ref = _held_out_methodology_declaration(
+            store,
+            fact_log_root=tmp_path / "fabric-methodology-facts",
+        )
+        source_ports.append(source_port)
+        methodology_refs.append(methodology_ref)
+        return declaration_ref
 
     async def bind_actual_compiler_output(**kwargs: object) -> DesignProblem:
         compiled = await original_compiler(
@@ -444,7 +718,7 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                     "effect_path": ["tax_subsidy", _INCOME, _INCOME],
                     "estimand": "average_treatment_effect",
                 },
-                model_input_port_declaration_builder=_held_out_declaration,
+                model_input_port_declaration_builder=build_port_declaration,
                 store=store,
                 snapshot_id=world_fixture.SNAPSHOT_ID,
             )
@@ -452,6 +726,8 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
             (port,) = load_model_input_port_declaration(
                 store, case.model_input_port_declaration_ref
             ).ports
+            source_port = source_ports[0] if methodology_v2 else port
+            expected_methodology_ref = methodology_refs[0] if methodology_v2 else None
             trinity = load_trinity_bundle_artifact(
                 ensure_ir_artifact_store(store), case.trinity_ref
             )
@@ -547,7 +823,7 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
             _activated_fund(
                 tmp_path / "held-out-activation",
                 store=store,
-                port=port,
+                port=source_port,
                 fund="public-benefit-fund",
                 before_activation=launch_before_activation,
             ) as active,
@@ -556,6 +832,45 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
             (entry,) = active.entries
             projection = active.projections[entry.target_variable]
             (selected_observation,) = projection.observations
+            if methodology_v2:
+                ((source_job, selected_profile),) = seeds
+                compiled_ref = ArtifactRef.model_validate(
+                    source_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+                )
+                compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                    read_core_json_artifact(store, compiled_ref).value
+                )
+                (node,) = compiled.recursive_run.leaf_nodes
+                assert node.cycle_run is not None
+                (cycle,) = node.cycle_run.cycles
+                blocked_execution_ref = cycle.simulation.generic_n5_execution_ref
+                report_ref = cycle.model_input_routing_report_ref
+                assert blocked_execution_ref is not None and report_ref is not None
+                blocked_execution = parse_generic_cycle_simulation_n5_execution(
+                    read_core_json_artifact(store, blocked_execution_ref).value
+                )
+                assert type(blocked_execution) is GenericCycleSimulationN5ExecutionV4
+                assert blocked_execution.status == "simulation_blocked"
+                assert blocked_execution.result_ref is None
+                report = read_model_input_routing_report(store, report_ref)
+                assert expected_methodology_ref is not None
+                with TestClient(app(root, selected_profile)) as preflight_client:
+                    control = preflight_client.app.state.runtime_container.control_service
+                    stop_embedded_control_worker(control)
+                    _assert_v2_methodology_preflight(
+                        tmp_path=tmp_path,
+                        store=store,
+                        active=active,
+                        control=control,
+                        job=source_job,
+                        profile=selected_profile,
+                        report_ref=report_ref,
+                        report=report,
+                        receipt_ref=projection.receipt_ref,
+                        observation_id=selected_observation.observation.observation_id,
+                        source_port=source_port,
+                        methodology_ref=expected_methodology_ref,
+                    )
         registry_path = active.authority.registry_path
         registry_bytes = registry_path.read_bytes()
         registry = active.authority._load_registry()
@@ -815,6 +1130,19 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
             assert selected.n5_execution_ref == checkpoint.execution_ref
             assert selected.simulation_result_ref == checkpoint.result_ref
             assert selected.authority_purpose == "cycle_input_candidate_only"
+            expected_limitation_codes = (
+                (
+                    "external_empirical_origin_not_established",
+                    "optional_axis_unknown:methodology_ref",
+                    "source_currentness_not_established",
+                )
+                if expected_methodology_ref is not None
+                else (
+                    "external_empirical_origin_not_established",
+                    "source_currentness_not_established",
+                )
+            )
+            assert selected.semantic_input_limitation_codes == expected_limitation_codes
             assert (
                 selected.currentness_status == "not_established"
                 and not selected.publication_authority
@@ -833,10 +1161,18 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                     tuple(point.outcomes[_OUTCOME] for point in trajectory.points)
                     == _EXPECTED_BALANCES
                 )
+            if expected_methodology_ref is not None:
+                assert checkpoint.result_ref is not None
+                result_content = reader.get(
+                    "/api/v1/artifacts/"
+                    f"{checkpoint.result_ref.artifact_id}/content"
+                    f"?manifest_profile_sha256={checkpoint.result_ref.manifest_profile_sha256}",
+                    headers={**headers, "Accept": "application/octet-stream"},
+                )
+                assert result_content.status_code == 403, result_content.text
+                assert result_content.json()["code"] == "artifact_tenant_unscoped"
             reader_control = reader.app.state.runtime_container.control_service
-            reservations_before_binding_controls = (
-                reader_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
-            )
+            reservations_before_binding_controls = reader_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
             action_before_binding_controls = reader_control._control_store.get_job(action_job_id)
             assert action_before_binding_controls is not None
             _assert_foundry_successor(
@@ -845,6 +1181,7 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                 mutation=mutation,
                 action_job_id=action_job_id,
                 checkpoint=checkpoint,
+                expected_methodology_ref=expected_methodology_ref,
             )
             _assert_semantic_input_selection_refusals(
                 fresh,
@@ -991,6 +1328,7 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                         mutation=mutation,
                         action_job_id=action_job_id,
                         checkpoint=checkpoint,
+                        expected_methodology_ref=expected_methodology_ref,
                     )
                 historical_headers = {
                     "Authorization": operator_authorization,
@@ -1031,3 +1369,33 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
         assert decision["route_id"] == route_id
         assert decision["job_id"] == action_job_id
         assert decision["authority_decision_ref"] != execution_body["decision_ref"]
+
+
+@pytest.mark.integration
+def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_action(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """Preserve the original v1 served stock scenario."""
+    _run_activated_held_out_stock_scenario(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        methodology_v2=False,
+    )
+
+
+@pytest.mark.integration
+def test_v2_optional_methodology_flows_through_served_foundry_and_fresh_artifact_api(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """Retain optional-method unknown as a candidate limitation through a fresh result read."""
+    _run_activated_held_out_stock_scenario(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        methodology_v2=True,
+    )

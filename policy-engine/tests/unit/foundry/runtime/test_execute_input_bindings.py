@@ -227,7 +227,9 @@ def test_execute_persists_run_derived_tenant_context_on_selected_result_profile(
         return_selected_profile=True,
     )
     assert unscoped_ref.artifact_id == result.simulation_result_ref.artifact_id
-    assert unscoped_ref.manifest_profile_sha256 != result.simulation_result_ref.manifest_profile_sha256
+    assert (
+        unscoped_ref.manifest_profile_sha256 != result.simulation_result_ref.manifest_profile_sha256
+    )
     assert store.get_manifest(unscoped_ref).tenant_context is None
     assert store.get_manifest(result.simulation_result_ref).tenant_context == derived_tenant_context
 
@@ -535,6 +537,39 @@ def _exercise_selected_stock_binding(
     try:
         admitted = admit_execution_source(fresh, executed.simulation_result_ref)
         assert admitted.basis is not None
+        assert admitted.semantic_input_limitation_codes is not None
+        assert "source_currentness_not_established" in admitted.semantic_input_limitation_codes
+        original_model_reader = execute_api._read_typed_model
+
+        def changed_result_notes(model, *args, **kwargs):
+            loaded = original_model_reader(model, *args, **kwargs)
+            if model is execute_api.SimulationResult:
+                return loaded.model_copy(
+                    update={"notes": (*loaded.notes, "semantic_input_limitation:forged_extra_code")}
+                )
+            return loaded
+
+        with monkeypatch.context() as extra_note:
+            extra_note.setattr(execute_api, "_read_typed_model", changed_result_notes)
+            extra_admitted = admit_execution_source(fresh, executed.simulation_result_ref)
+        assert (
+            extra_admitted.semantic_input_limitation_codes
+            == admitted.semantic_input_limitation_codes
+        )
+        assert "forged_extra_code" not in extra_admitted.semantic_input_limitation_codes
+
+        def missing_result_notes(model, *args, **kwargs):
+            loaded = original_model_reader(model, *args, **kwargs)
+            if model is execute_api.SimulationResult:
+                return loaded.model_copy(update={"notes": ()})
+            return loaded
+
+        with monkeypatch.context() as missing_note:
+            missing_note.setattr(execute_api, "_read_typed_model", missing_result_notes)
+            with pytest.raises(
+                ValueError, match="execution_source_semantic_input_limitations_missing"
+            ):
+                admit_execution_source(fresh, executed.simulation_result_ref)
         assert admitted.basis.input_bindings_ref == built.input_bindings_ref
         assert load_input_bindings(
             fresh, built.input_bindings_ref

@@ -94,6 +94,25 @@ def derive_facets(
             ),
         )
 
+    identification_modes = tuple(dict.fromkeys(normalized.identification_modes))
+    if len(identification_modes) > 1:
+        return FacetDerivationResult(
+            facets=None,
+            blockers=(
+                UniversalPolicyGrammarBlocker(
+                    code="policy_grammar_identification_modes_conflict",
+                    message=(
+                        "W6.A cannot represent distinct intervention identification modes "
+                        "in its scalar method_need facet: "
+                        + ", ".join(mode.value for mode in identification_modes)
+                    ),
+                    facet_name="method_need",
+                    pattern_refs=("P10", "P33"),
+                    missing_capability_label="bridge_missing",
+                ),
+            ),
+        )
+
     instrument = _instrument_type(normalized)
     targeting = _targeting_type(normalized)
     delivery = _delivery_channel(normalized)
@@ -286,8 +305,8 @@ def _risk_facet(normalized: NormalizedPolicyIntent) -> UniversalPolicyRiskFacet 
 
 
 def _method_need(normalized: NormalizedPolicyIntent) -> IdentificationMode:
-    if IdentificationMode.SEQUENTIAL in normalized.identification_modes:
-        return IdentificationMode.SEQUENTIAL
+    if normalized.identification_modes:
+        return normalized.identification_modes[0]
     if normalized.has_any("phase", "phased", "rollout", "sequence"):
         return IdentificationMode.SEQUENTIAL
     return IdentificationMode.POINT_IDENTIFIED

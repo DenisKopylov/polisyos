@@ -930,7 +930,9 @@ def evaluate_scoped_correspondence_basis(
 
     All referenced bytes and the raw source occurrence must be reopened by the
     caller. This pure predicate contains no CAS or Catalog access and is shared
-    by the source owner and Foundry consumer.
+    by the source owner and Foundry consumer. The finite projection rule admits
+    one unchanged provider value or an explicitly matching row aggregation;
+    neither establishes the provider's upstream empirical estimand.
     """
 
     refusals: list[str] = []
@@ -1000,6 +1002,33 @@ def evaluate_scoped_correspondence_basis(
         refusals.append("source_definition_evidence_ref_mismatch")
     if occurrence.source_scope != basis.scope:
         refusals.append("source_occurrence_scope_mismatch")
+    for representation, scope, refusal_code in (
+        (
+            source_representation,
+            occurrence.source_scope,
+            "source_representation_population_scope_mismatch",
+        ),
+        (
+            target_representation,
+            model_port.scope,
+            "target_representation_population_scope_mismatch",
+        ),
+    ):
+        if (
+            representation.population_ref is not None
+            and representation.population_ref != scope.population_ref
+        ):
+            refusals.append(refusal_code)
+    # Identity reads one already-produced value. Its provider may describe that
+    # value as a mean, total, or another estimand; passthrough does not recompute
+    # that upstream operation. A performed row aggregation needs the matching
+    # declared operation in this bounded profile. Different compositions need
+    # their own typed rule, not an alias or a replacement numerical value.
+    if occurrence.aggregation_method == "identity":
+        if len(occurrence.raw_values) != 1:
+            refusals.append("source_occurrence_identity_not_unique")
+    elif source_representation.aggregation != occurrence.aggregation_method:
+        refusals.append("source_occurrence_aggregation_not_established")
     if (
         source_representation.unit_id != occurrence.canonical_unit
         or source_representation.unit_id != source_selection.canonical_unit

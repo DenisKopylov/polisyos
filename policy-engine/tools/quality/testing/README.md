@@ -2,6 +2,36 @@
 
 `tools/quality/testing` contains Phase 4 tooling for the local smoke path and test-suite economics.
 
+### Bounded local command execution
+
+`process_budget.py` is a coordinator-owned runner for one explicit local command. It starts a new
+process session, captures combined output once in `command.log`, and writes compact resource
+metadata to `result.json`. The requested output directory must not already exist; its parent and
+the command working directory must be on the same filesystem. The runner refuses to start below
+the configured disk floor, stops the command group when a sampled RSS, wall-time, or disk limit is
+crossed, and reports the child's actual exit separately from `RESOURCE_ABORT`. RSS is a sampled
+sum of the root process and psutil-observed descendants, so brief processes may be missed and a
+child that changes its process group or session is outside the cleanup boundary. Safe group cleanup
+requires `waitid(WNOWAIT)`; the runner refuses admission if the platform lacks it and keeps the
+unreaped session leader until cleanup signals finish. It enumerates live group members by process
+and session identity, requiring consecutive empty observations before declaring the group quiescent;
+this records only observed quiescence in the original group, not a guarantee that all descendants
+stopped. Inaccessible membership scans remain unresolved. The tool does not install
+dependencies, select workloads, record environment values, or establish product evidence.
+
+```bash
+python tools/quality/testing/process_budget.py \
+  --output-dir _build/.tmp/e02/n6-r24 \
+  --cwd . \
+  --max-rss-bytes 4294967296 \
+  --wall-seconds 2700 \
+  --disk-floor-bytes 3382286745 \
+  --sample-interval-seconds 0.5 \
+  -- ./tools/authority \
+    --wheel-dir <admitted-wheel-directory> \
+    test <source-qualified-test-arguments>
+```
+
 ## Commands
 
 Working directory: `policy-engine/`.

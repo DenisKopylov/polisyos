@@ -370,6 +370,100 @@ def test_process_budget_refuses_to_run_without_waitid_wnowait(
     assert not marker.exists()
 
 
+def test_process_budget_records_rss_measurement_failure_cause(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    observed_root_pid: list[int] = []
+
+    class DeniedRoot:
+        def __init__(self, pid: int) -> None:
+            self.pid = pid
+
+        def children(self, *, recursive: bool) -> list[object]:
+            assert recursive is True
+            raise psutil.AccessDenied(pid=self.pid)
+
+    def denied_process(pid: int) -> DeniedRoot:
+        observed_root_pid.append(pid)
+        return DeniedRoot(pid)
+
+    def observe_root_until_exit(
+        root_pid: int, pgid: int, session_id: int
+    ) -> process_budget._GroupObservation:
+        del pgid, session_id
+        live_pids = (
+            frozenset({root_pid})
+            if process_budget._peek_child_exit(root_pid) is None
+            else frozenset()
+        )
+        return process_budget._GroupObservation(live_pids, 1, None)
+
+    monkeypatch.setattr(process_budget.psutil, "Process", denied_process)
+    monkeypatch.setattr(process_budget, "_observe_owned_group", observe_root_until_exit)
+    result = _run(tmp_path, [sys.executable, "-c", "import time; time.sleep(30)"])
+
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "rss_measurement_unavailable"
+    assert result["rss_measurement_failure"] == {
+        "reason": "process_access_denied",
+        "operation": "recursive_children",
+        "pid": observed_root_pid[0],
+        "exception_type": "AccessDenied",
+    }
+    assert result["actual_exit_code"] is not None
+    persisted = json.loads((tmp_path / "run-output" / "result.json").read_text(encoding="utf-8"))
+    assert persisted["rss_measurement_failure"] == result["rss_measurement_failure"]
+
+
+def test_process_budget_records_partial_census_when_group_signal_raises(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    observed_root_pids: list[int] = []
+
+    def sample_process_tree(root_pid: int) -> process_budget._Sample:
+        return process_budget._Sample(0, (root_pid,), ())
+
+    def observe_owned_root(
+        root_pid: int, pgid: int, session_id: int
+    ) -> process_budget._GroupObservation:
+        del pgid, session_id
+        observed_root_pids.append(root_pid)
+        return process_budget._GroupObservation(frozenset({root_pid}), 7, None)
+
+    def fail_group_signal(
+        process_handle: subprocess.Popen[bytes],
+        pgid: int,
+        session_id: int,
+        sig: signal.Signals,
+    ) -> bool:
+        del process_handle, pgid, session_id, sig
+        raise RuntimeError("injected failure containing fake-secret")
+
+    monkeypatch.setattr(process_budget, "_sample_process_tree", sample_process_tree)
+    monkeypatch.setattr(process_budget, "_observe_owned_group", observe_owned_root)
+    monkeypatch.setattr(process_budget, "_signal_owned_group", fail_group_signal)
+    result = _run(
+        tmp_path,
+        [sys.executable, "-c", "import time; time.sleep(30)"],
+        wall_seconds=0.15,
+        sample_interval_seconds=0.02,
+    )
+
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "wall_time_cap"
+    assert result["cleanup_runtime_error"] == {
+        "type": "RuntimeError",
+        "operation": "signal_owned_group",
+        "pid": observed_root_pids[0],
+        "signal": "SIGINT",
+    }
+    assert result["process_group_scan_count"] == 1
+    assert result["process_table_pids_scanned"] == 7
+    assert result["process_group_quiescence_observed"] is False
+    assert result["actual_exit_code"] is not None
+    assert "fake-secret" not in json.dumps(result)
+
+
 def test_process_budget_cli_runs_explicit_command_after_separator(tmp_path: Path) -> None:
     script = Path(__file__).resolve().parents[4] / "tools/quality/testing/process_budget.py"
     output_dir = tmp_path / "cli-output"

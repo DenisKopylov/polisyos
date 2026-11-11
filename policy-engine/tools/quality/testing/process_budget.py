@@ -38,12 +38,55 @@ class _Sample:
 class _RssUnavailableError(RuntimeError):
     """Raised when a live process tree cannot be measured completely."""
 
+    def __init__(
+        self,
+        reason: str,
+        *,
+        operation: str,
+        pid: int | None,
+        exception_type: str | None,
+    ) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.operation = operation
+        self.pid = pid
+        self.exception_type = exception_type
+
+    def to_record(self) -> dict[str, str | int | None]:
+        """Return compact failure provenance without process names or payloads."""
+        return {
+            "reason": self.reason,
+            "operation": self.operation,
+            "pid": self.pid,
+            "exception_type": self.exception_type,
+        }
+
 
 @dataclass(frozen=True)
 class _GroupObservation:
     live_pids: frozenset[int] | None
     scanned_pids: int
     unavailable_reason: str | None
+
+
+class _OwnedGroupCleanupError(RuntimeError):
+    """Carry partial census counts when an owned-group signal is refused."""
+
+    def __init__(
+        self,
+        cause: RuntimeError,
+        *,
+        scans: int,
+        scanned_pids: int,
+        unavailable_reason: str | None,
+        signal_name: str,
+    ) -> None:
+        super().__init__("owned_process_group_signal_unavailable")
+        self.cause_type = type(cause).__name__
+        self.scans = scans
+        self.scanned_pids = scanned_pids
+        self.unavailable_reason = unavailable_reason
+        self.signal_name = signal_name
 
 
 def _free_bytes(path: Path) -> int:
@@ -61,25 +104,64 @@ def _sample_process_tree(root_pid: int) -> _Sample:
     """
     try:
         root = psutil.Process(root_pid)
+    except psutil.NoSuchProcess as exc:
+        raise _RssUnavailableError(
+            "process_disappeared",
+            operation="root_process",
+            pid=getattr(exc, "pid", None) or root_pid,
+            exception_type=type(exc).__name__,
+        ) from exc
+    except psutil.AccessDenied as exc:
+        raise _RssUnavailableError(
+            "process_access_denied",
+            operation="root_process",
+            pid=getattr(exc, "pid", None),
+            exception_type=type(exc).__name__,
+        ) from exc
+
+    try:
         members = [root, *root.children(recursive=True)]
     except psutil.NoSuchProcess as exc:
-        raise _RssUnavailableError("process disappeared during sampling") from exc
+        raise _RssUnavailableError(
+            "process_disappeared",
+            operation="recursive_children",
+            pid=getattr(exc, "pid", None) or root_pid,
+            exception_type=type(exc).__name__,
+        ) from exc
     except psutil.AccessDenied as exc:
-        raise _RssUnavailableError("process tree enumeration was denied") from exc
+        raise _RssUnavailableError(
+            "process_access_denied",
+            operation="recursive_children",
+            pid=getattr(exc, "pid", None),
+            exception_type=type(exc).__name__,
+        ) from exc
 
     rss_bytes = 0
     observed_pids: list[int] = []
     raced_pids: list[int] = []
+    root_rss_exception_type: str | None = None
     for member in members:
         try:
             rss_bytes += member.memory_info().rss
             observed_pids.append(member.pid)
-        except (psutil.NoSuchProcess, psutil.ZombieProcess):
+        except (psutil.NoSuchProcess, psutil.ZombieProcess) as exc:
             raced_pids.append(member.pid)
+            if member.pid == root_pid:
+                root_rss_exception_type = type(exc).__name__
         except psutil.AccessDenied as exc:
-            raise _RssUnavailableError(f"RSS for process {member.pid} was denied") from exc
+            raise _RssUnavailableError(
+                "rss_access_denied",
+                operation="memory_info",
+                pid=member.pid,
+                exception_type=type(exc).__name__,
+            ) from exc
     if root_pid not in observed_pids:
-        raise _RssUnavailableError("command root RSS was not observed")
+        raise _RssUnavailableError(
+            "root_rss_not_observed",
+            operation="memory_info",
+            pid=root_pid,
+            exception_type=root_rss_exception_type,
+        )
     return _Sample(rss_bytes, tuple(observed_pids), tuple(raced_pids))
 
 
@@ -287,7 +369,16 @@ def _stop_owned_group(
             if empty:
                 return True, escalations, scans, scanned_pids, unavailable_reason
         escalations.append(label)
-        _signal_owned_group(process, pgid, session_id, sig)
+        try:
+            _signal_owned_group(process, pgid, session_id, sig)
+        except RuntimeError as exc:
+            raise _OwnedGroupCleanupError(
+                exc,
+                scans=scans,
+                scanned_pids=scanned_pids,
+                unavailable_reason=unavailable_reason,
+                signal_name=label,
+            ) from exc
         empty, wait_scans, wait_scanned, wait_unavailable = _wait_group_empty(
             process, pgid, session_id, grace
         )
@@ -368,6 +459,8 @@ def run_command(
     process_group_scan_count = 0
     process_table_pids_scanned = 0
     process_group_measurement_issue: str | None = None
+    rss_measurement_failure: dict[str, str | int | None] | None = None
+    cleanup_runtime_error: dict[str, str | int | None] | None = None
     waitid_wnowait_available = _waitid_supported()
     limitations = [
         "RSS is sampled; short-lived processes may fall between samples.",
@@ -431,7 +524,8 @@ def run_command(
                             break
                         try:
                             sample = _sample_process_tree(process.pid)
-                        except _RssUnavailableError:
+                        except _RssUnavailableError as exc:
+                            rss_measurement_failure = exc.to_record()
                             try:
                                 root_exit_observed = _peek_child_exit(process.pid) is not None
                             except (ChildProcessError, OSError, RuntimeError):
@@ -505,11 +599,34 @@ def run_command(
                             process_table_pids_scanned += cleanup_pids_scanned
                             if cleanup_issue is not None:
                                 process_group_measurement_issue = cleanup_issue
-                        except RuntimeError:
+                        except _OwnedGroupCleanupError as exc:
+                            process_group_scan_count += exc.scans
+                            process_table_pids_scanned += exc.scanned_pids
+                            if exc.unavailable_reason is not None:
+                                process_group_measurement_issue = exc.unavailable_reason
+                            elif process_group_measurement_issue is None:
+                                process_group_measurement_issue = (
+                                    "owned_process_group_signal_unavailable"
+                                )
+                            cleanup_runtime_error = {
+                                "type": exc.cause_type,
+                                "operation": "signal_owned_group",
+                                "pid": process.pid,
+                                "signal": exc.signal_name,
+                            }
                             process_group_clean = False
-                            process_group_measurement_issue = (
-                                "owned_process_group_signal_unavailable"
-                            )
+                            cleanup_escalations = _stop_owned_root_only(process.pid)
+                        except RuntimeError as exc:
+                            process_group_clean = False
+                            if process_group_measurement_issue is None:
+                                process_group_measurement_issue = (
+                                    "owned_process_group_signal_unavailable"
+                                )
+                            cleanup_runtime_error = {
+                                "type": type(exc).__name__,
+                                "operation": "stop_owned_group",
+                                "pid": process.pid,
+                            }
                             cleanup_escalations = _stop_owned_root_only(process.pid)
                     actual_exit_code = process.wait()
 
@@ -552,6 +669,8 @@ def run_command(
             "process_group_scan_count": process_group_scan_count,
             "process_table_pids_scanned": process_table_pids_scanned,
             "process_group_measurement_issue": process_group_measurement_issue,
+            "rss_measurement_failure": rss_measurement_failure,
+            "cleanup_runtime_error": cleanup_runtime_error,
             "waitid_wnowait_available": waitid_wnowait_available,
             "cleanup_signals": cleanup_escalations,
             "limitations": limitations,

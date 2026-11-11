@@ -1421,7 +1421,7 @@ def verify_candidate_experiment_terminal_history(
     )
     chain = (*phase_chain, terminal_verified)
     if (
-        len(chain) != 5
+        len(chain) < 5
         or type(chain[-1].receipt) is not AcquisitionCandidateExperimentTerminalReceipt
     ):
         raise ValueError("candidate_experiment_terminal_chain_generation_mismatch")
@@ -1432,7 +1432,9 @@ def verify_candidate_experiment_terminal_history(
         "outcome_selected",
         "candidate_input_reentry_pending",
     )
-    phases = chain[:-1]
+    phases = tuple(
+        item for item in chain[:-1] if item.receipt.receipt_phase != "authorization_refreshed"
+    )
     if tuple(item.receipt.receipt_phase for item in phases) != expected_phases:
         raise ValueError("candidate_experiment_terminal_phase_history_incomplete")
     if (
@@ -1475,7 +1477,13 @@ def verify_candidate_experiment_terminal_history(
         raise ValueError("candidate_experiment_terminal_predecessor_binding_mismatch")
 
     first_phase = phases[0].receipt
-    if any(not sink._same_action_identity(first_phase, item.receipt) for item in chain[1:]):
+    if any(
+        not sink._same_candidate_experiment_base_identity(first_phase, item.receipt)
+        for item in chain[1:]
+    ) or any(
+        not sink._candidate_experiment_transition_identity(previous.receipt, item.receipt)
+        for previous, item in pairwise(chain)
+    ):
         raise ValueError("candidate_experiment_terminal_identity_mismatch")
     if any(
         item.receipt.predecessor_receipt_ref != previous.receipt_ref
@@ -1483,6 +1491,7 @@ def verify_candidate_experiment_terminal_history(
         or item.receipt.generated_at < previous.receipt.generated_at
         or (allowed := sink._allowed_predecessor_phases(item.receipt)) is None
         or previous.receipt.receipt_phase not in allowed
+        or not sink._candidate_experiment_transition_identity(previous.receipt, item.receipt)
         for previous, item in pairwise(chain)
     ) or any(item.event.state_after != item.receipt.receipt_phase for item in chain):
         raise ValueError("candidate_experiment_terminal_transition_invalid")

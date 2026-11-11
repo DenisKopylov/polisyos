@@ -316,6 +316,7 @@ from ..control_plane_store import (
     HumanDecisionReservationRecord,
     HumanDecisionReservationResult,
     HumanDecisionWriteFence,
+    PendingAcquisitionActionAuthorizationCAS,
     _PreparedAcquisitionActionHeadPublication,
 )
 from ..control_plane_store import (
@@ -2603,7 +2604,8 @@ class AcquisitionRouteLoopAuthoritySink:
         if type(receipt) is AcquisitionCandidateExperimentPhaseReceipt:
             return {
                 "requested": frozenset(),
-                "executing": frozenset({"requested"}),
+                "authorization_refreshed": frozenset({"requested", "authorization_refreshed"}),
+                "executing": frozenset({"requested", "authorization_refreshed"}),
                 "outcome_selected": frozenset({"executing"}),
                 "candidate_input_reentry_pending": frozenset({"outcome_selected"}),
             }.get(receipt.receipt_phase)
@@ -2959,6 +2961,44 @@ class AcquisitionRouteLoopAuthoritySink:
                 "cost_basis_hash",
                 "decision_ref",
             )
+        )
+
+    @classmethod
+    def _same_candidate_experiment_base_identity(cls, left: object, right: object) -> bool:
+        """Compare immutable action identity while keeping authority transitions separate."""
+        receipt_types = (
+            AcquisitionCandidateExperimentPhaseReceipt,
+            AcquisitionCandidateExperimentTerminalReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        )
+        if type(left) not in receipt_types or type(right) not in receipt_types:
+            return False
+        normalized = right.model_copy(
+            update={"authority_decision_ref": left.authority_decision_ref}
+        )
+        return cls._same_action_identity(left, normalized)
+
+    @classmethod
+    def _candidate_experiment_transition_identity(cls, previous: object, current: object) -> bool:
+        """Allow a changed selected decision only at an explicit v2 pre-effect refresh."""
+        if not cls._same_candidate_experiment_base_identity(previous, current):
+            return False
+        if (
+            type(current) is AcquisitionCandidateExperimentPhaseReceipt
+            and current.receipt_phase == "authorization_refreshed"
+        ):
+            return (
+                current.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+                and type(previous) is AcquisitionCandidateExperimentPhaseReceipt
+                and previous.receipt_phase in {"requested", "authorization_refreshed"}
+                and previous.authority_decision_ref.artifact_id
+                != current.authority_decision_ref.artifact_id
+            )
+        return cls._same_action_identity(previous, current) and not (
+            type(previous) is AcquisitionCandidateExperimentPhaseReceipt
+            and previous.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+            and type(current) is AcquisitionCandidateExperimentPhaseReceipt
+            and current.schema_version != "AcquisitionCandidateExperimentPhaseReceipt@2.0"
         )
 
     def _read_verified_action_phase(
@@ -3677,6 +3717,12 @@ class AcquisitionRouteLoopAuthoritySink:
                 effect_handler=_no_effect,
             )
             persisted = gateway.load_persisted_decision(decision_ref)
+            operation, invocation, intent = action_service._candidate_experiment_action_tuple(
+                _origin, request
+            )
+            gateway.verify_bound_authorization(
+                operation=operation, invocation=invocation, intent=intent, persisted=persisted
+            )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("candidate_experiment_live_authority_not_established") from exc
         if (
@@ -3789,6 +3835,12 @@ class AcquisitionRouteLoopAuthoritySink:
                 ),
             )
             persisted = gateway.load_persisted_decision(decision_ref)
+            operation, invocation, intent = action_service._candidate_experiment_action_tuple(
+                origin, request
+            )
+            gateway.verify_bound_authorization(
+                operation=operation, invocation=invocation, intent=intent, persisted=persisted
+            )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("candidate_experiment_live_authority_not_established") from exc
         if (
@@ -4077,13 +4129,21 @@ class AcquisitionRouteLoopAuthoritySink:
         decision_ref = payload.get("decision_ref")
         if (
             not isinstance(decision_ref, str)
-            or decision_ref != str(phase.authority_decision_ref.artifact_id)
+            or (
+                (
+                    phase.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@1.0"
+                    or phase.receipt_phase == "requested"
+                )
+                and decision_ref != str(phase.authority_decision_ref.artifact_id)
+            )
             or payload.get("route_id") != phase.route_id
             or payload.get("run_id") != phase.run_id
             or payload.get("tenant_id") != phase.tenant_id
             or payload.get("cell_id") != phase.cell_id
         ):
             raise ValueError("candidate_experiment_action_job_binding_mismatch")
+        if phase.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0":
+            self._control_store._reconcile_control_job_creation_envelope(job)
         decision_manifest = read_core_manifest_profile(
             self._artifact_store, phase.authority_decision_ref
         )[0]
@@ -4130,7 +4190,7 @@ class AcquisitionRouteLoopAuthoritySink:
             job_context or self._candidate_experiment_phase_job_context(phase)
         )
         request = CandidateExperimentRouteMutationRequest.model_validate(payload.get("request"))
-        decision_ref = cast("str", payload["decision_ref"])
+        decision_ref = str(phase.authority_decision_ref.artifact_id)
         if (
             payload.get("action_kind")
             != "runtime.evidence.acquisition.candidate_experiment.execute"
@@ -4448,6 +4508,11 @@ class AcquisitionRouteLoopAuthoritySink:
                 raise ValueError("candidate_experiment_phase_chain_untyped")
             receipt = current.receipt
             if (
+                receipt.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+                and row.receipt_manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_experiment_v2_phase_profile_required")
+            if (
                 row.receipt_ref != current.receipt_ref
                 or row.receipt_sha256 != current.receipt_ref
                 or row.durable_event_id != current.durable_event_id
@@ -4483,10 +4548,13 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt = current.receipt
             if type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
                 raise ValueError("candidate_experiment_phase_chain_untyped")
-            if receipt.receipt_phase in seen_phases:
+            if (
+                receipt.receipt_phase in seen_phases
+                and receipt.receipt_phase != "authorization_refreshed"
+            ):
                 raise ValueError("candidate_experiment_phase_duplicate")
             seen_phases.add(receipt.receipt_phase)
-            if not self._same_action_identity(first.receipt, receipt):
+            if not self._same_candidate_experiment_base_identity(first.receipt, receipt):
                 raise ValueError("candidate_experiment_phase_identity_mismatch")
             if previous is not None:
                 predecessor = previous.receipt
@@ -4498,6 +4566,7 @@ class AcquisitionRouteLoopAuthoritySink:
                     or allowed_predecessors is None
                     or predecessor.receipt_phase not in allowed_predecessors
                     or receipt.generated_at < predecessor.generated_at
+                    or not self._candidate_experiment_transition_identity(predecessor, receipt)
                 ):
                     raise ValueError("candidate_experiment_phase_transition_invalid")
             if current.event.state_after != receipt.receipt_phase:
@@ -4529,6 +4598,13 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("candidate_experiment_action_head_binding_mismatch")
         if candidate_reuse_selection is None:
+            for binding in chain:
+                if binding is first or binding.receipt.receipt_phase == "authorization_refreshed":
+                    self._verify_candidate_experiment_phase_owner(
+                        binding.receipt,
+                        verified_origin=verified_origin,
+                        reuse_verified_origin=reuse_verified_origin,
+                    )
             if expected_control_payload_ref is not None:
                 raise ValueError("candidate_experiment_reuse_selection_missing")
             self._verify_candidate_experiment_phase_owner(
@@ -4959,6 +5035,59 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt_label="candidate_experiment_phase",
         )
 
+    def refresh_experiment_authorization(
+        self,
+        receipt: AcquisitionCandidateExperimentPhaseReceipt,
+        request: object,
+        *,
+        expected_job: ControlJobRecord,
+    ) -> AcquisitionActionHeadRecord:
+        """Append fresh authority for the same pending pre-effect action atomically.
+
+        The immutable job payload and initial requested receipt remain the original
+        admission. The v2 successor names the new current permission; the store
+        fences publication against a racing worker claim or changed attempt.
+        """
+        typed = AcquisitionCandidateExperimentPhaseReceipt.model_validate(receipt)
+        if (
+            typed.receipt_phase != "authorization_refreshed"
+            or typed.schema_version != "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+            or expected_job.job_id != typed.job_id
+            or expected_job.kind != "acquisition"
+            or expected_job.run_id != typed.run_id
+            or expected_job.state != "pending"
+            or expected_job.payload_ref is None
+            or not expected_job.submitted_by
+        ):
+            raise ValueError("candidate_experiment_refresh_pending_job_not_established")
+        pending_cas = PendingAcquisitionActionAuthorizationCAS(
+            expected_job_attempt=expected_job.attempt,
+            expected_payload_ref=expected_job.payload_ref,
+            expected_submitted_by=expected_job.submitted_by,
+        )
+        self._verify_candidate_experiment_prejob_live_authority(typed, request)
+        recovered = self._recover_orphan_experiment_phase(
+            typed, pending_authorization_cas=pending_cas
+        )
+        if recovered is not None:
+            return recovered
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt",
+            event_type="polisyos.runtime.acquisition.candidate_experiment_phase.v1",
+            event_suffix=(
+                "experiment_phase_"
+                + typed.receipt_phase
+                + "_"
+                + hashlib.sha256(typed.receipt_id.encode()).hexdigest()[:16]
+            ),
+            receipt_type=AcquisitionCandidateExperimentPhaseReceipt,
+            receipt_label="candidate_experiment_phase",
+            candidate_experiment_request=request,
+            pending_authorization_cas=pending_cas,
+        )
+
     def _require_candidate_experiment_running_admission(
         self,
         phase: AcquisitionCandidateExperimentPhaseReceipt,
@@ -4982,20 +5111,36 @@ class AcquisitionRouteLoopAuthoritySink:
     def _recover_orphan_experiment_phase(
         self,
         expected: AcquisitionCandidateExperimentPhaseReceipt,
+        *,
+        pending_authorization_cas: PendingAcquisitionActionAuthorizationCAS | None = None,
     ) -> AcquisitionActionHeadRecord | None:
         """Adopt the exact original CAS/event after a phase-write acknowledgement loss."""
         from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
         from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
 
-        self._require_candidate_experiment_running_admission(expected)
+        if pending_authorization_cas is None:
+            self._require_candidate_experiment_running_admission(expected)
+        elif (
+            type(pending_authorization_cas) is not PendingAcquisitionActionAuthorizationCAS
+            or expected.receipt_phase != "authorization_refreshed"
+        ):
+            raise ValueError("candidate_experiment_refresh_pending_cas_invalid")
         current = self.get_head(expected)
         if current is not None and current.receipt_phase == expected.receipt_phase:
             verified = self.verify_action_head(current)
             latest = verified.latest_receipt
-            recovered = expected.model_copy(update={"generated_at": latest.generated_at})
-            if type(latest) is AcquisitionCandidateExperimentPhaseReceipt and latest == recovered:
-                return current
-            raise ValueError("candidate_experiment_phase_recovery_head_conflict")
+            same_publication = (
+                expected.receipt_phase != "authorization_refreshed"
+                or latest.receipt_id == expected.receipt_id
+            )
+            if same_publication:
+                recovered = expected.model_copy(update={"generated_at": latest.generated_at})
+                if (
+                    type(latest) is AcquisitionCandidateExperimentPhaseReceipt
+                    and latest == recovered
+                ):
+                    return current
+                raise ValueError("candidate_experiment_phase_recovery_head_conflict")
         expected_event_id = (
             "evt_acquisition_"
             + str(expected.action_generation)
@@ -5032,7 +5177,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 or manifest.artifact_schema is None
                 or manifest.artifact_schema.name
                 != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
-                or manifest.artifact_schema.version != "1.0"
+                or manifest.artifact_schema.version != expected.schema_version.rsplit("@", 1)[-1]
                 or manifest.tenant_context is None
                 or (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id)
                 != (expected.tenant_id, expected.cell_id)
@@ -5146,6 +5291,7 @@ class AcquisitionRouteLoopAuthoritySink:
             job_id=recovered.job_id,
             predecessor_receipt_ref=recovered.predecessor_receipt_ref,
             receipt_manifest_profile_sha256=selected_profile,
+            pending_authorization_cas=pending_authorization_cas,
         )
         if self.get_head(recovered) != head:
             raise ValueError("candidate_experiment_phase_recovery_head_readback_failed")
@@ -5976,9 +6122,17 @@ class AcquisitionRouteLoopAuthoritySink:
         candidate_frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
         candidate_experiment_request: object | None = None,
         candidate_experiment_orphan_ref: ArtifactRef | None = None,
+        pending_authorization_cas: PendingAcquisitionActionAuthorizationCAS | None = None,
     ) -> AcquisitionActionHeadRecord | _PreparedAcquisitionActionHeadPublication:
         """Persist one strict receipt family before advancing its shared action head."""
 
+        if pending_authorization_cas is not None and (
+            type(pending_authorization_cas) is not PendingAcquisitionActionAuthorizationCAS
+            or type(typed) is not AcquisitionCandidateExperimentPhaseReceipt
+            or typed.receipt_phase != "authorization_refreshed"
+            or candidate_experiment_request is None
+        ):
+            raise ValueError("candidate_experiment_refresh_pending_cas_invalid")
         if (
             isinstance(typed, AcquisitionCandidateExperimentTerminalReceiptV2)
             and type(typed) is not AcquisitionCandidateExperimentTerminalReceiptV2
@@ -6035,12 +6189,24 @@ class AcquisitionRouteLoopAuthoritySink:
                 previous = self.verify_action_head(current)
                 previous_chain = previous.phase_chain
                 previous_receipt = previous.latest_receipt
-            if not self._same_action_identity(typed, previous_receipt):
+            if type(typed) in {
+                AcquisitionCandidateExperimentPhaseReceipt,
+                AcquisitionCandidateExperimentTerminalReceipt,
+                AcquisitionCandidateExperimentTerminalReceiptV2,
+            }:
+                identity_matches = self._candidate_experiment_transition_identity(
+                    previous_receipt, typed
+                )
+            else:
+                identity_matches = self._same_action_identity(typed, previous_receipt)
+            if not identity_matches:
                 raise ValueError("acquisition_action_predecessor_identity_mismatch")
             allowed = self._allowed_predecessor_phases(typed)
             if allowed is None or current.receipt_phase not in allowed:
                 raise ValueError("acquisition_action_phase_transition_invalid")
-            if any(item.receipt.receipt_phase == typed.receipt_phase for item in previous_chain):
+            if typed.receipt_phase != "authorization_refreshed" and any(
+                item.receipt.receipt_phase == typed.receipt_phase for item in previous_chain
+            ):
                 raise ValueError("acquisition_action_phase_duplicate")
         elif self._allowed_predecessor_phases(typed) != frozenset():
             raise ValueError("acquisition_action_phase_root_invalid")
@@ -6295,7 +6461,7 @@ class AcquisitionRouteLoopAuthoritySink:
         elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
             if self.get_head(typed) != current:
                 raise ValueError("candidate_experiment_action_head_changed")
-            if candidate_experiment_request is not None:
+            if candidate_experiment_request is not None and pending_authorization_cas is None:
                 self._verify_candidate_experiment_prejob_live_authority(
                     typed, candidate_experiment_request
                 )
@@ -6336,6 +6502,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 if selected_action_ref is not None
                 else None
             ),
+            pending_authorization_cas=pending_authorization_cas,
         )
         if self.get_head(typed) != head:
             raise RuntimeError("acquisition_action_head_readback_failed")

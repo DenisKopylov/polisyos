@@ -1402,6 +1402,24 @@ class AgentActionAuthorityGateway:
         ):
             raise AgentActionAuthorityRecordingError("decision source signature is unverified")
 
+    def verify_bound_authorization(
+        self,
+        *,
+        operation: OperationContract,
+        invocation: OperationInvocationRecord,
+        intent: AgentActionIntent,
+        persisted: PersistedAgentActionDecision,
+    ) -> None:
+        """Verify current protected-action permission without dispatching or consuming it.
+
+        This reuses every gate applied immediately before an effect. It neither
+        invokes the registered handler nor reserves/completes dispatch or a human
+        decision, and it issues no durable permission token for later use.
+        """
+        self._verify_bound_effect_authorization(
+            operation=operation, invocation=invocation, intent=intent, persisted=persisted
+        )
+
     def execute_bound_effect(
         self,
         *,
@@ -1411,7 +1429,20 @@ class AgentActionAuthorityGateway:
         persisted: PersistedAgentActionDecision,
     ) -> object:
         """Revalidate owner inputs and execute only the sealed, exact adapter binding."""
+        binding = self._verify_bound_effect_authorization(
+            operation=operation, invocation=invocation, intent=intent, persisted=persisted
+        )
+        return binding.handler(invocation)
 
+    def _verify_bound_effect_authorization(
+        self,
+        *,
+        operation: OperationContract,
+        invocation: OperationInvocationRecord,
+        intent: AgentActionIntent,
+        persisted: PersistedAgentActionDecision,
+    ) -> AgentActionEffectBinding:
+        """Resolve a live exact binding; only the effect entry point invokes it."""
         decision = self._revalidate_persisted_decision(persisted)
         if self._replay_decision_ref is not None:
             if str(persisted.write_result.cas_ref.artifact_id) != self._replay_decision_ref:
@@ -1458,7 +1489,7 @@ class AgentActionAuthorityGateway:
             raise AgentActionAuthorityRecordingError(
                 "delegation envelope is no longer live; effect refused"
             )
-        return binding.handler(invocation)
+        return binding
 
     def _revalidate_persisted_decision(
         self,

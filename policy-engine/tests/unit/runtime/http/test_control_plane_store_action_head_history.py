@@ -11,8 +11,10 @@ import pytest
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
+    ControlJobExecutionAdmissionError,
     ControlJobLeaseLostError,
     ControlPlaneStore,
+    PendingAcquisitionActionAuthorizationCAS,
 )
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -55,6 +57,61 @@ def _receipt_ref(character: str) -> str:
     return "sha256:" + character * 64
 
 
+def _create_pending_action_job(
+    store: ControlPlaneStore,
+    *,
+    job_id: str = "action-job",
+) -> Any:
+    run_id = "run-a"
+    payload_ref = _receipt_ref("e")
+    submitted_by = "tester"
+    capability_manifest_ref = _receipt_ref("f")
+    creation_event_payload = {
+        "job_id": job_id,
+        "run_id": run_id,
+        "job_kind": "acquisition",
+        "pipeline_id": None,
+        "payload_ref": payload_ref,
+        "submitted_by": submitted_by,
+        "requested_execution_profile": None,
+        "effective_execution_profile": "governed",
+        "policy_flags": {},
+        "capability_manifest_ref": capability_manifest_ref,
+        "execution_scope": {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": "established",
+            "tenant_id": "tenant-a",
+            "cell_id": "cell-a",
+            "actor_subject": submitted_by,
+            "actor_authenticated": True,
+            "actor_roles": ["operator"],
+        },
+    }
+    return store.create_job(
+        job_id=job_id,
+        kind="acquisition",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="governed",
+        policy_flags={},
+        capability_manifest_ref=capability_manifest_ref,
+        payload_ref=payload_ref,
+        submitted_by=submitted_by,
+        creation_event_payload=creation_event_payload,
+    )
+
+
+def _pending_authorization_cas(job: Any) -> PendingAcquisitionActionAuthorizationCAS:
+    assert job.payload_ref is not None
+    assert job.submitted_by is not None
+    return PendingAcquisitionActionAuthorizationCAS(
+        expected_job_attempt=job.attempt,
+        expected_payload_ref=job.payload_ref,
+        expected_submitted_by=job.submitted_by,
+    )
+
+
 def _append_head(
     store: ControlPlaneStore,
     scope: dict[str, Any],
@@ -64,9 +121,12 @@ def _append_head(
     predecessor_receipt_ref: str | None,
     receipt_phase: str,
     receipt_manifest_profile_sha256: str | None = None,
+    job_id: str = "action-job",
+    pending_authorization_cas: PendingAcquisitionActionAuthorizationCAS | None = None,
 ) -> AcquisitionActionHeadRecord:
     coarse_phase, recovery_state = {
         "requested": ("requested", "none"),
+        "authorization_refreshed": ("requested", "none"),
         "executing": ("executing", "none"),
         "outcome_selected": ("executing", "none"),
         "candidate_input_reentry_pending": (
@@ -84,10 +144,329 @@ def _append_head(
         coarse_phase=coarse_phase,
         receipt_phase=receipt_phase,
         recovery_state=recovery_state,
-        job_id="action-job",
+        job_id=job_id,
         predecessor_receipt_ref=predecessor_receipt_ref,
         receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
+        pending_authorization_cas=pending_authorization_cas,
     )
+
+
+@pytest.mark.parametrize("attempt", [0, 4])
+def test_authorization_refreshed_appends_for_exact_pending_job_and_preserves_request(
+    tmp_path: Path,
+    attempt: int,
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    if attempt:
+        with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+            connection.execute(
+                "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+                (attempt, job.job_id),
+            )
+        job = store.get_job(job.job_id)
+        assert job is not None
+
+    initial_profile = _receipt_ref("a")
+    refreshed_profile = _receipt_ref("b")
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("c"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=initial_profile,
+        job_id=job.job_id,
+    )
+    refreshed = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("d"),
+        expected_head_generation=1,
+        predecessor_receipt_ref=requested.receipt_ref,
+        receipt_phase="authorization_refreshed",
+        receipt_manifest_profile_sha256=refreshed_profile,
+        job_id=job.job_id,
+        pending_authorization_cas=_pending_authorization_cas(job),
+    )
+
+    persisted_job = store.get_job(job.job_id)
+    assert persisted_job is not None
+    assert persisted_job.same_execution_inputs(job)
+    assert persisted_job.payload_ref == job.payload_ref
+    assert persisted_job.state == "pending"
+    assert persisted_job.attempt == attempt
+    assert store.get_acquisition_action_head(**scope) == refreshed
+    assert (
+        store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=requested.receipt_ref)
+        == requested
+    )
+    assert refreshed.receipt_phase == "authorization_refreshed"
+    assert (refreshed.coarse_phase, refreshed.recovery_state) == ("requested", "none")
+    assert requested.receipt_manifest_profile_sha256 == initial_profile
+    assert refreshed.receipt_manifest_profile_sha256 == refreshed_profile
+
+
+def test_authorization_refreshed_duplicate_stale_predecessor_does_not_append(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("a"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("f"),
+        job_id=job.job_id,
+    )
+    refreshed = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("b"),
+        expected_head_generation=1,
+        predecessor_receipt_ref=requested.receipt_ref,
+        receipt_phase="authorization_refreshed",
+        receipt_manifest_profile_sha256=_receipt_ref("e"),
+        job_id=job.job_id,
+        pending_authorization_cas=_pending_authorization_cas(job),
+    )
+
+    with pytest.raises(ValueError, match="acquisition_action_predecessor_conflict"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("d"),
+            expected_head_generation=1,
+            predecessor_receipt_ref=requested.receipt_ref,
+            receipt_phase="authorization_refreshed",
+            receipt_manifest_profile_sha256=_receipt_ref("e"),
+            job_id=job.job_id,
+            pending_authorization_cas=_pending_authorization_cas(job),
+        )
+
+    assert store.get_acquisition_action_head(**scope) == refreshed
+    assert (
+        store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=_receipt_ref("d")) is None
+    )
+
+
+@pytest.mark.parametrize(
+    ("replacement", "update_sql"),
+    [
+        pytest.param(
+            1,
+            "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+            id="attempt",
+        ),
+        pytest.param(
+            _receipt_ref("d"),
+            "UPDATE control_jobs SET payload_ref = ? WHERE job_id = ?",
+            id="payload_ref",
+        ),
+        pytest.param(
+            "changed-submitter",
+            "UPDATE control_jobs SET submitted_by = ? WHERE job_id = ?",
+            id="submitted_by",
+        ),
+        pytest.param(
+            "failed",
+            "UPDATE control_jobs SET state = ? WHERE job_id = ?",
+            id="state",
+        ),
+    ],
+)
+def test_authorization_refreshed_rejects_changed_pending_job_without_new_head(
+    tmp_path: Path,
+    replacement: int | str,
+    update_sql: str,
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("a"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("f"),
+        job_id=job.job_id,
+    )
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute(update_sql, (replacement, job.job_id))
+
+    with pytest.raises((ControlJobLeaseLostError, ControlJobExecutionAdmissionError)):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("b"),
+            expected_head_generation=1,
+            predecessor_receipt_ref=requested.receipt_ref,
+            receipt_phase="authorization_refreshed",
+            receipt_manifest_profile_sha256=_receipt_ref("e"),
+            job_id=job.job_id,
+            pending_authorization_cas=_pending_authorization_cas(job),
+        )
+
+    assert store.get_acquisition_action_head(**scope) == requested
+    assert (
+        store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=_receipt_ref("b")) is None
+    )
+
+
+def test_authorization_refreshed_refuses_worker_claim_that_wins_first(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("a"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("f"),
+        job_id=job.job_id,
+    )
+    claimed = store.lease_next_job(worker_id="worker-action-job")
+    assert claimed is not None
+    assert claimed.job_id == job.job_id
+    assert claimed.state == "running"
+
+    with pytest.raises(ControlJobLeaseLostError):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("b"),
+            expected_head_generation=1,
+            predecessor_receipt_ref=requested.receipt_ref,
+            receipt_phase="authorization_refreshed",
+            receipt_manifest_profile_sha256=_receipt_ref("e"),
+            job_id=job.job_id,
+            pending_authorization_cas=_pending_authorization_cas(job),
+        )
+
+    assert store.get_acquisition_action_head(**scope) == requested
+    persisted_job = store.get_job(job.job_id)
+    assert persisted_job is not None
+    assert persisted_job.state == "running"
+    assert persisted_job.payload_ref == job.payload_ref
+
+
+def test_authorization_refreshed_requires_phase_scoped_valid_cas(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+
+    with pytest.raises(ValueError, match="pending_acquisition_action_authorization_cas_required"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("a"),
+            expected_head_generation=0,
+            predecessor_receipt_ref=None,
+            receipt_phase="authorization_refreshed",
+        )
+    with pytest.raises(ValueError, match="pending_acquisition_action_authorization_phase_mismatch"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("b"),
+            expected_head_generation=0,
+            predecessor_receipt_ref=None,
+            receipt_phase="requested",
+            pending_authorization_cas=PendingAcquisitionActionAuthorizationCAS(
+                expected_job_attempt=0,
+                expected_payload_ref=_receipt_ref("e"),
+                expected_submitted_by="tester",
+            ),
+        )
+    with pytest.raises(TypeError, match="pending_acquisition_action_authorization_cas_untyped"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("c"),
+            expected_head_generation=0,
+            predecessor_receipt_ref=None,
+            receipt_phase="authorization_refreshed",
+            pending_authorization_cas="untyped",
+        )
+    with pytest.raises(
+        ValueError, match="pending_acquisition_action_authorization_attempt_invalid"
+    ):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("d"),
+            expected_head_generation=0,
+            predecessor_receipt_ref=None,
+            receipt_phase="authorization_refreshed",
+            pending_authorization_cas=PendingAcquisitionActionAuthorizationCAS(
+                expected_job_attempt=True,
+                expected_payload_ref=_receipt_ref("e"),
+                expected_submitted_by="tester",
+            ),
+        )
+    with pytest.raises(
+        ValueError, match="pending_acquisition_action_authorization_identity_invalid"
+    ):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("d"),
+            expected_head_generation=0,
+            predecessor_receipt_ref=None,
+            receipt_phase="authorization_refreshed",
+            pending_authorization_cas=PendingAcquisitionActionAuthorizationCAS(
+                expected_job_attempt=0,
+                expected_payload_ref=_receipt_ref("e"),
+                expected_submitted_by=" ",
+            ),
+        )
+
+    assert store.get_acquisition_action_head(**scope) is None
+
+
+def test_authorization_refreshed_keeps_requested_coarse_phase_without_recovery(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("a"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("f"),
+        job_id=job.job_id,
+    )
+
+    with pytest.raises(ValueError, match="acquisition_action_authorization_phase_invalid"):
+        store.advance_acquisition_action_head(
+            **scope,
+            expected_head_generation=1,
+            receipt_ref=_receipt_ref("b"),
+            receipt_sha256=_receipt_ref("b"),
+            durable_event_id="event-2",
+            coarse_phase="executing",
+            receipt_phase="authorization_refreshed",
+            recovery_state="none",
+            job_id=job.job_id,
+            predecessor_receipt_ref=requested.receipt_ref,
+            pending_authorization_cas=_pending_authorization_cas(job),
+            receipt_manifest_profile_sha256=_receipt_ref("e"),
+        )
+
+    assert store.get_acquisition_action_head(**scope) == requested
 
 
 def test_action_head_history_resolves_old_receipt_after_terminal_append(tmp_path: Path) -> None:
@@ -397,3 +776,38 @@ def test_candidate_n5_checkpoint_refuses_an_expired_worker_lease(
     with fence, pytest.raises(ControlJobLeaseLostError):
         store.append_candidate_experiment_n5_checkpoint(pending_head=head, prepared_event=prepared)
     assert not store.list_diagnostic_events(event_id=event.event_id)
+
+
+@pytest.mark.parametrize("axis", ["tenant_id", "cell_id"])
+def test_authorization_refreshed_reconciles_creation_scope_even_with_a_foreign_head(
+    tmp_path: Path, axis: str
+) -> None:
+    """A pre-existing foreign SQL head cannot change the immutable job's scope."""
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    scope[axis] = "foreign-scope"
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("a"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("f"),
+        job_id=job.job_id,
+    )
+    with pytest.raises(ControlJobLeaseLostError, match="authorization scope changed"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("b"),
+            expected_head_generation=1,
+            predecessor_receipt_ref=requested.receipt_ref,
+            receipt_phase="authorization_refreshed",
+            receipt_manifest_profile_sha256=_receipt_ref("e"),
+            job_id=job.job_id,
+            pending_authorization_cas=_pending_authorization_cas(job),
+        )
+    assert store.get_acquisition_action_head(**scope) == requested
+    assert store.get_job(job.job_id) == job

@@ -346,9 +346,15 @@ test("candidate acquisition experiment execute POST preserves nested request and
     run_id: runId,
     route_id: routeId,
     job_id: "queued-job-fixture",
-    authority_decision_ref: body.decision_ref,
+    authority_decision_ref: `sha256:${"9".repeat(64)}`,
     status: "accepted",
-    receipt_phase: "requested",
+    receipt_phase: "authorization_refreshed",
+    selected_receipt_ref: {
+      artifact_id: `sha256:${"8".repeat(64)}`,
+      kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"7".repeat(64)}`,
+    },
     world_growth: "not_established",
   };
   const calls = [];

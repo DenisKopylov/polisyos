@@ -377,6 +377,7 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
     receipt_phase: (
         Literal[
             "requested",
+            "authorization_refreshed",
             "executing",
             "outcome_selected",
             "candidate_input_reentry_pending",
@@ -627,7 +628,11 @@ class AcquisitionDecisionRequestResponse(BaseModel):
 
 
 class AcquisitionExecutionResponse(BaseModel):
-    """Durable deferred-job acceptance response."""
+    """Durable deferred-job admission or historical retry response.
+
+    The decision ref attributes the selected recorded permission. A completed
+    retry reports historical execution and grants no current effect authority.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -636,13 +641,33 @@ class AcquisitionExecutionResponse(BaseModel):
     job_id: str
     authority_decision_ref: str = Field(pattern=_SHA256_PATTERN)
     status: Literal["accepted", "completed"] = "accepted"
-    receipt_phase: Literal["requested", "terminal"] = "requested"
+    receipt_phase: Literal[
+        "requested",
+        "authorization_refreshed",
+        "executing",
+        "outcome_selected",
+        "candidate_input_reentry_pending",
+        "terminal",
+    ] = "requested"
+    selected_receipt_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     world_growth: Literal["not_established"] = "not_established"
 
     @model_validator(mode="after")
     def _status_matches_receipt_phase(self) -> AcquisitionExecutionResponse:
         if (self.status == "completed") != (self.receipt_phase == "terminal"):
             raise ValueError("acquisition_execution_status_phase_mismatch")
+        if self.selected_receipt_ref is not None and (
+            self.selected_receipt_ref.manifest_profile_sha256 is None
+            or self.selected_receipt_ref.kind
+            != (
+                "runtime_quality.acquisition_route_loop_receipt"
+                if self.receipt_phase == "terminal"
+                else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+            )
+        ):
+            raise ValueError("acquisition_execution_selected_receipt_invalid")
         return self
 
 
@@ -3662,6 +3687,10 @@ class AcquisitionActionService:
             )
         )
         existing_requested = None
+        pending_authorization_outcome = None
+        pending_authorization_job = None
+        inflight_retry_outcome = None
+        has_authorization_refresh = False
         same_job_heads = tuple(head for head in existing_heads if head.job_id == job_id)
         if len(same_job_heads) > 1:
             raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
@@ -3683,14 +3712,45 @@ class AcquisitionActionService:
                 raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
             existing_requested = outcome.phase_chain[0]
             requested_phase = existing_requested.receipt
-            if (
-                requested_phase.receipt_phase != "requested"
-                or requested_phase.job_id != job_id
-                or str(requested_phase.authority_decision_ref.artifact_id) != decision_ref
-            ):
+            if requested_phase.receipt_phase != "requested" or requested_phase.job_id != job_id:
                 raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            initial_decision_ref = str(requested_phase.authority_decision_ref.artifact_id)
+            effective_decision_ref = str(outcome.latest_receipt.authority_decision_ref.artifact_id)
+            recorded_decision_refs = {
+                str(row.receipt.authority_decision_ref.artifact_id) for row in outcome.phase_chain
+            }
+            has_authorization_refresh = any(
+                row.receipt.receipt_phase == "authorization_refreshed"
+                for row in outcome.phase_chain
+            )
             existing_job = self.control_service._control_store.get_job(job_id)
+            if (
+                existing_job is not None
+                and existing_job.state == "pending"
+                and type(outcome.latest_receipt) is AcquisitionCandidateExperimentPhaseReceipt
+                and outcome.latest_receipt.receipt_phase in {"requested", "authorization_refreshed"}
+            ):
+                if (
+                    principal is None
+                    or not principal.authenticated
+                    or principal.subject != existing_job.submitted_by
+                    or principal.tenant_id != tenant_id
+                    or principal.cell_id != cell_id
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_refresh_subject_mismatch"
+                    )
+                pending_authorization_outcome = outcome
+                pending_authorization_job = existing_job
+                if decision_ref in recorded_decision_refs:
+                    decision_ref = effective_decision_ref
+            elif decision_ref not in recorded_decision_refs:
+                raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            elif existing_job is not None and existing_job.state in {"pending", "running"}:
+                inflight_retry_outcome = outcome
+                decision_ref = effective_decision_ref
             if existing_job is not None and existing_job.state == "completed":
+                decision_ref = effective_decision_ref
                 expected_payload = {
                     "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
                     "tenant_id": tenant_id,
@@ -3698,7 +3758,7 @@ class AcquisitionActionService:
                     "run_id": run_id,
                     "route_id": route_id,
                     "request": request.model_dump(mode="json"),
-                    "decision_ref": decision_ref,
+                    "decision_ref": initial_decision_ref,
                 }
                 if (
                     existing_job.kind != "acquisition"
@@ -3778,6 +3838,9 @@ class AcquisitionActionService:
                     authority_decision_ref=decision_ref,
                     status="completed",
                     receipt_phase="terminal",
+                    selected_receipt_ref=(
+                        terminal_history.terminal_ref if has_authorization_refresh else None
+                    ),
                 )
         current_origin = self._candidate_experiment_origin_for_request(
             tenant_id=tenant_id,
@@ -3857,6 +3920,91 @@ class AcquisitionActionService:
             persisted = gateway.load_persisted_decision(decision_ref)
             if persisted.decision != history.decision:
                 raise ValueError("candidate_experiment_current_pa2_changed")
+            operation, invocation, intent = self._candidate_experiment_action_tuple(
+                current_origin, request
+            )
+            gateway.verify_bound_authorization(
+                operation=operation, invocation=invocation, intent=intent, persisted=persisted
+            )
+            if inflight_retry_outcome is not None:
+                current_phase = inflight_retry_outcome.latest_receipt
+                current_head = inflight_retry_outcome.head
+                if phase_owner.get_head(current_phase) != current_head:
+                    raise ValueError("candidate_experiment_retry_head_changed")
+                return AcquisitionExecutionResponse(
+                    run_id=run_id,
+                    route_id=route_id,
+                    job_id=job_id,
+                    authority_decision_ref=decision_ref,
+                    receipt_phase=current_phase.receipt_phase
+                    if has_authorization_refresh
+                    else "requested",
+                    selected_receipt_ref=(
+                        self._candidate_experiment_phase_head_ref(current_head)
+                        if has_authorization_refresh
+                        else None
+                    ),
+                )
+            if pending_authorization_outcome is not None:
+                current_phase = pending_authorization_outcome.latest_receipt
+                current_head = pending_authorization_outcome.head
+                if (
+                    pending_authorization_job is None
+                    or phase_owner.get_head(current_phase) != current_head
+                    or self.control_service._control_store.get_job(job_id)
+                    != pending_authorization_job
+                ):
+                    raise ValueError("candidate_experiment_refresh_pending_job_changed")
+                if str(current_phase.authority_decision_ref.artifact_id) == decision_ref:
+                    return AcquisitionExecutionResponse(
+                        run_id=run_id,
+                        route_id=route_id,
+                        job_id=job_id,
+                        authority_decision_ref=decision_ref,
+                        receipt_phase=current_phase.receipt_phase
+                        if has_authorization_refresh
+                        else "requested",
+                        selected_receipt_ref=self._candidate_experiment_phase_head_ref(current_head)
+                        if has_authorization_refresh
+                        else None,
+                    )
+                refreshed = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+                    current_phase.model_copy(
+                        update={
+                            "schema_version": "AcquisitionCandidateExperimentPhaseReceipt@2.0",
+                            "receipt_id": (
+                                f"{job_id}.candidate-experiment.authorization-refreshed."
+                                + decision_ref.removeprefix("sha256:")
+                            ),
+                            "coarse_phase": "requested",
+                            "receipt_phase": "authorization_refreshed",
+                            "recovery_state": "none",
+                            "predecessor_receipt_ref": current_head.receipt_ref,
+                            "authority_decision_ref": artifacts.profile_bound_ref(
+                                self.control_service._artifact_store,
+                                artifacts.ArtifactRef(
+                                    artifact_id=artifacts.ArtifactID.model_validate(decision_ref),
+                                    kind="runtime_quality.agent_action_authority_decision",
+                                    media_type="application/json",
+                                ),
+                            ),
+                            "generated_at": datetime.now(UTC),
+                        }
+                    ).model_dump(mode="python")
+                )
+                refreshed_head = phase_owner.refresh_experiment_authorization(
+                    refreshed, request, expected_job=pending_authorization_job
+                )
+                if refreshed_head.receipt_phase != "authorization_refreshed":
+                    raise ValueError("candidate_experiment_refresh_head_not_established")
+                return AcquisitionExecutionResponse(
+                    run_id=run_id,
+                    route_id=route_id,
+                    job_id=job_id,
+                    authority_decision_ref=decision_ref,
+                    receipt_phase="authorization_refreshed",
+                    selected_receipt_ref=self._candidate_experiment_phase_head_ref(refreshed_head),
+                )
             if existing_requested is not None:
                 phase = existing_requested.receipt
                 requested_head = (
@@ -3942,6 +4090,20 @@ class AcquisitionActionService:
             route_id=route_id,
             job_id=job_id,
             authority_decision_ref=decision_ref,
+        )
+
+    @staticmethod
+    def _candidate_experiment_phase_head_ref(
+        head: AcquisitionActionHeadRecord,
+    ) -> artifacts.ArtifactRef | None:
+        """Project the verified head's exact profile without inferring legacy selectors."""
+        if head.receipt_manifest_profile_sha256 is None:
+            return None
+        return artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+            kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=head.receipt_manifest_profile_sha256,
         )
 
     def _handle_candidate_experiment_job(
@@ -4053,6 +4215,15 @@ class AcquisitionActionService:
             raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_history_missing")
         latest = phase_chain[-1]
         phase = latest.receipt
+        initial_phase = phase_chain[0].receipt
+        if (
+            type(initial_phase) is not AcquisitionCandidateExperimentPhaseReceipt
+            or initial_phase.receipt_phase != "requested"
+            or str(initial_phase.authority_decision_ref.artifact_id) != decision_ref
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_worker_initial_decision_mismatch"
+            )
         if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
             raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_history_untyped")
         port = self._require_candidate_experiment_execution_port()
@@ -4061,7 +4232,10 @@ class AcquisitionActionService:
             or type(port._world_growth_bridge) is not AcquisitionWorldGrowthBridge
         ):
             raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
-        if phase.receipt_phase == "requested":
+        # The payload is immutable original admission; only the verified current
+        # phase chain can select a later execution permission.
+        decision_ref = str(phase.authority_decision_ref.artifact_id)
+        if phase.receipt_phase in {"requested", "authorization_refreshed"}:
             try:
                 decision_history = self.load_candidate_experiment_decision_history(
                     tenant_id=tenant_id,

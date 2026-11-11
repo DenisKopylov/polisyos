@@ -24,6 +24,7 @@ type TimelineFact = Readonly<{
   phase: string;
   raw: Readonly<Record<string, unknown>>;
   receiptRef?: string;
+  receiptProfileSha256?: string;
   scope: "run_route" | "global_n13b_history";
   status: string;
 }>;
@@ -47,6 +48,28 @@ function terminalReceiptRef(job: ControlJobResponse): string | undefined {
 function decisionAction(receipt: HumanDecisionCreateReceipt): string {
   const action = recordValue(receipt.record).action;
   return typeof action === "string" ? action : "recorded";
+}
+
+function executionFactPhase(
+  execution: AcquisitionExecutionResponseCurrent,
+): string {
+  // Preserve the original v1 acceptance presentation while exposing phases
+  // added by the authorization-refresh response contract.
+  return execution.receipt_phase === "requested"
+    ? "executing"
+    : execution.receipt_phase;
+}
+
+function executionFactStatus(
+  execution: AcquisitionExecutionResponseCurrent,
+): string {
+  if (execution.receipt_phase === "authorization_refreshed") {
+    return `${execution.status}:${execution.receipt_phase} (recorded renewal; pending)`;
+  }
+  if (execution.status === "completed") {
+    return "completed:terminal (historical execution)";
+  }
+  return `${execution.status}:${execution.receipt_phase}`;
 }
 
 function assertSameCase(
@@ -109,14 +132,25 @@ function timelineFacts({
       decision &&
       execution.authority_decision_ref !== decision.authority_decision_ref
     ) {
-      throw new TypeError("DS15-SAME-CASE-MISMATCH");
+      // The backend's versioned selected receipt attributes a refreshed action
+      // to its current decision; it does not grant permission or execution.
+      const hasVersionedExecutionAttribution =
+        execution.receipt_phase !== "requested" &&
+        execution.selected_receipt_ref != null;
+      if (!hasVersionedExecutionAttribution) {
+        throw new TypeError("DS15-SAME-CASE-MISMATCH");
+      }
     }
     facts.push({
-      phase: "executing",
+      phase: executionFactPhase(execution),
       raw: execution as Readonly<Record<string, unknown>>,
-      receiptRef: execution.authority_decision_ref,
+      receiptRef:
+        execution.selected_receipt_ref?.artifact_id ??
+        execution.authority_decision_ref,
+      receiptProfileSha256:
+        execution.selected_receipt_ref?.manifest_profile_sha256 ?? undefined,
       scope: "run_route",
-      status: `${execution.status}:${execution.receipt_phase}`,
+      status: executionFactStatus(execution),
     });
   }
   if (job) {
@@ -152,8 +186,10 @@ function timelineFacts({
   return Object.freeze(facts);
 }
 
-function artifactHref(receiptRef: string) {
-  return `/api/v1/artifacts/${encodeURIComponent(receiptRef)}`;
+function artifactHref(receiptRef: string, profileSha256?: string) {
+  const base = `/api/v1/artifacts/${encodeURIComponent(receiptRef)}`;
+  if (profileSha256 === undefined) return base;
+  return `${base}?${new URLSearchParams({ manifest_profile_sha256: profileSha256 })}`;
 }
 
 export function AcquisitionExecutionTimeline(
@@ -264,7 +300,7 @@ export function AcquisitionExecutionTimeline(
             {fact.receiptRef ? (
               <a
                 className="mt-2 block font-mono text-xs break-all underline"
-                href={artifactHref(fact.receiptRef)}
+                href={artifactHref(fact.receiptRef, fact.receiptProfileSha256)}
               >
                 {fact.receiptRef}
               </a>

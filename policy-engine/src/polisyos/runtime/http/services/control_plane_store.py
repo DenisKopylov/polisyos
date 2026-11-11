@@ -1428,6 +1428,15 @@ class AcquisitionActionHeadRecord:
 
 
 @dataclass(frozen=True)
+class PendingAcquisitionActionAuthorizationCAS:
+    """Compare-and-swap identity for refreshing a pending acquisition authorization."""
+
+    expected_job_attempt: int
+    expected_payload_ref: str
+    expected_submitted_by: str
+
+
+@dataclass(frozen=True)
 class _PreparedAcquisitionActionHeadPublication:
     """SQL-ready publication for a verified requested acquisition phase.
 
@@ -1542,6 +1551,20 @@ def _validate_acquisition_evaluation_frontier_key(
         raise ValueError("acquisition_evaluation_frontier_key_invalid")
     if not _is_sha256_ref(key.design_problem_ref):
         raise ValueError("acquisition_evaluation_frontier_design_problem_ref_invalid")
+
+
+def _validate_pending_acquisition_action_authorization_cas(
+    cas: PendingAcquisitionActionAuthorizationCAS,
+) -> None:
+    if type(cas) is not PendingAcquisitionActionAuthorizationCAS:
+        raise TypeError("pending_acquisition_action_authorization_cas_untyped")
+    if type(cas.expected_job_attempt) is not int or cas.expected_job_attempt < 0:
+        raise ValueError("pending_acquisition_action_authorization_attempt_invalid")
+    if any(
+        type(value) is not str or not value or value != value.strip()
+        for value in (cas.expected_payload_ref, cas.expected_submitted_by)
+    ):
+        raise ValueError("pending_acquisition_action_authorization_identity_invalid")
 
 
 def _validate_acquisition_evaluation_frontier_value(
@@ -5258,19 +5281,32 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
         frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        pending_authorization_cas: PendingAcquisitionActionAuthorizationCAS | None = None,
         receipt_manifest_profile_sha256: str | None = None,
     ) -> AcquisitionActionHeadRecord:
-        """Append one predecessor-consistent action head under the job lease.
+        """Append one predecessor-consistent action head in the job transaction.
 
         When a frontier CAS is supplied, its shared candidate/task selector
         transition is part of this same SQL transaction. Legacy callers retain
         the original route-only behavior and must not emit B09 source-retained
-        terminals. A selected receipt profile cannot be dropped by a successor;
-        the store never infers a profile for a different or historical receipt.
+        terminals. The authorization-refreshed phase instead requires a CAS over
+        one still-pending acquisition job and its exact creation-time identity.
+        A selected receipt profile cannot be dropped by a successor; the store
+        never infers a profile for a different or historical receipt.
         """
 
         if action_generation < 1 or expected_head_generation < 0:
             raise ValueError("acquisition_action_generation_invalid")
+        if pending_authorization_cas is not None:
+            _validate_pending_acquisition_action_authorization_cas(pending_authorization_cas)
+            if receipt_phase != "authorization_refreshed":
+                raise ValueError("pending_acquisition_action_authorization_phase_mismatch")
+        elif receipt_phase == "authorization_refreshed":
+            raise ValueError("pending_acquisition_action_authorization_cas_required")
+        if receipt_phase == "authorization_refreshed" and (
+            coarse_phase != "requested" or recovery_state != "none"
+        ):
+            raise ValueError("acquisition_action_authorization_phase_invalid")
         if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
             raise ValueError("acquisition_action_receipt_binding_invalid")
         if receipt_manifest_profile_sha256 is not None and not _is_sha256_ref(
@@ -5291,6 +5327,52 @@ class ControlPlaneStore:
             expected_attempt=None,
         )
         with self._job_transaction():
+            if pending_authorization_cas is not None:
+                if fence is not None:
+                    raise ControlJobLeaseLostError(
+                        "pending acquisition authorization conflicts with a running fence"
+                    )
+                lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+                locked_job = self._fetchone(
+                    f"SELECT job_id FROM control_jobs WHERE job_id = ?{lock_suffix}",
+                    (job_id,),
+                )
+                if locked_job is None:
+                    raise ControlJobLeaseLostError(
+                        f"pending acquisition authorization job is unavailable: {job_id}"
+                    )
+                current_job = self.get_job(job_id)
+                if (
+                    current_job is None
+                    or current_job.kind != "acquisition"
+                    or current_job.run_id != run_id
+                    or current_job.state != "pending"
+                    or current_job.lease_owner is not None
+                    or current_job.lease_expires_at is not None
+                ):
+                    raise ControlJobLeaseLostError(
+                        f"pending acquisition authorization job changed: {job_id}"
+                    )
+                creation_scope, _ = self._reconcile_control_job_creation_envelope(current_job)
+                if (
+                    creation_scope.status != "established"
+                    or not creation_scope.actor_authenticated
+                    or creation_scope.tenant_id != tenant_id
+                    or creation_scope.cell_id != cell_id
+                    or creation_scope.actor_subject
+                    != pending_authorization_cas.expected_submitted_by
+                ):
+                    raise ControlJobLeaseLostError(
+                        f"pending acquisition authorization scope changed: {job_id}"
+                    )
+                if (
+                    current_job.attempt != pending_authorization_cas.expected_job_attempt
+                    or current_job.payload_ref != pending_authorization_cas.expected_payload_ref
+                    or current_job.submitted_by != pending_authorization_cas.expected_submitted_by
+                ):
+                    raise ControlJobLeaseLostError(
+                        f"pending acquisition authorization identity changed: {job_id}"
+                    )
             if fence is not None:
                 where, where_params = self._job_fence_where(
                     job_id=job_id,
@@ -5342,6 +5424,14 @@ class ControlPlaneStore:
                 and receipt_manifest_profile_sha256 is None
             ):
                 raise ValueError("acquisition_action_receipt_manifest_profile_downgrade")
+            if pending_authorization_cas is not None and (
+                current is None
+                or current.job_id != job_id
+                or current.receipt_phase not in {"requested", "authorization_refreshed"}
+                or current.receipt_manifest_profile_sha256 is None
+                or receipt_manifest_profile_sha256 is None
+            ):
+                raise ValueError("acquisition_action_authorization_predecessor_invalid")
             prior_receipts = self._fetchall(
                 """
                 SELECT receipt_manifest_profile_sha256

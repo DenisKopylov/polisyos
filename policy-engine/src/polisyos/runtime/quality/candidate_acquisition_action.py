@@ -515,16 +515,47 @@ def _selected_candidate_experiment_phase_ref(
     phase_ref: str,
 ) -> artifacts.ArtifactRef:
     """Resolve the selected full CAS view for one exact typed experiment phase."""
-    from polisyos.core.artifacts import artifact_ref_for_manifest
+    from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
 
     if not re.fullmatch(r"sha256:[0-9a-f]{64}", phase_ref):
         raise ValueError("candidate_experiment_phase_ref_invalid")
-    manifest = bridge.artifact_store.get_manifest(phase_ref)
+    control = getattr(bridge, "control_store", None)
+    lookup = getattr(control, "get_acquisition_action_head_by_receipt", None)
+    row = (
+        lookup(
+            tenant_id=phase.tenant_id,
+            cell_id=phase.cell_id,
+            run_id=phase.run_id,
+            source_job_id=phase.source_job_id,
+            route_id=phase.route_id,
+            action_generation=phase.action_generation,
+            receipt_ref=phase_ref,
+        )
+        if callable(lookup)
+        else None
+    )
+    selector: artifacts.ArtifactRef | str = phase_ref
+    if row is not None and row.receipt_manifest_profile_sha256 is not None:
+        if row.receipt_ref != phase_ref or row.job_id != phase.job_id:
+            raise ValueError("candidate_experiment_phase_profile_unselected")
+        selector = artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(phase_ref),
+            kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=row.receipt_manifest_profile_sha256,
+        )
+    elif phase.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0":
+        raise ValueError("candidate_experiment_v2_phase_profile_required")
+    manifest = read_core_manifest_profile(bridge.artifact_store, selector)[0]
     selected_ref = artifact_ref_for_manifest(manifest)
     if (
         str(selected_ref.artifact_id) != phase_ref
         or selected_ref.manifest_profile_sha256 is None
         or manifest.kind != "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name
+        != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
+        or manifest.artifact_schema.version != phase.schema_version.rsplit("@", 1)[-1]
         or artifacts.load_core_json_artifact(bridge.artifact_store, selected_ref)
         != phase.model_dump(mode="json")
     ):

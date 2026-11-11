@@ -676,20 +676,36 @@ class _CandidateExperimentActionIdentity(BaseModel):
 class AcquisitionCandidateExperimentPhaseReceipt(_CandidateExperimentActionIdentity):
     """Immutable candidate-experiment phase, distinct from costed phases."""
 
-    schema_version: Literal["AcquisitionCandidateExperimentPhaseReceipt@1.0"] = (
-        "AcquisitionCandidateExperimentPhaseReceipt@1.0"
-    )
+    schema_version: Literal[
+        "AcquisitionCandidateExperimentPhaseReceipt@1.0",
+        "AcquisitionCandidateExperimentPhaseReceipt@2.0",
+    ] = "AcquisitionCandidateExperimentPhaseReceipt@1.0"
     coarse_phase: Literal["requested", "executing", "candidate_input_prepared"]
     receipt_phase: Literal[
-        "requested", "executing", "outcome_selected", "candidate_input_reentry_pending"
+        "requested",
+        "authorization_refreshed",
+        "executing",
+        "outcome_selected",
+        "candidate_input_reentry_pending",
     ]
     recovery_state: Literal["none", "reentry_recovery_required"]
     candidate_receipt_ref: ArtifactRef | None = None
 
     @model_validator(mode="after")
     def _validate_phase(self) -> AcquisitionCandidateExperimentPhaseReceipt:
+        if (
+            self.receipt_phase == "authorization_refreshed"
+            and self.schema_version != "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+        ):
+            raise ValueError("candidate_experiment_refresh_requires_v2")
+        if (
+            self.receipt_phase == "requested"
+            and self.schema_version == "AcquisitionCandidateExperimentPhaseReceipt@2.0"
+        ):
+            raise ValueError("candidate_experiment_refresh_requires_original_requested_root")
         expected = {
             "requested": ("requested", "none"),
+            "authorization_refreshed": ("requested", "none"),
             "executing": ("executing", "none"),
             "outcome_selected": ("executing", "none"),
             "candidate_input_reentry_pending": (
@@ -701,7 +717,7 @@ class AcquisitionCandidateExperimentPhaseReceipt(_CandidateExperimentActionIdent
             raise ValueError("candidate_experiment_phase_state_mismatch")
         if (self.receipt_phase == "requested") != (self.predecessor_receipt_ref is None):
             raise ValueError("candidate_experiment_phase_predecessor_invalid")
-        if self.receipt_phase in {"requested", "executing"}:
+        if self.receipt_phase in {"requested", "authorization_refreshed", "executing"}:
             if self.candidate_receipt_ref is not None or self.owner_receipt_refs:
                 raise ValueError("candidate_experiment_phase_outcome_premature")
         else:

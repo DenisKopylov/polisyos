@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
@@ -16,8 +17,14 @@ from polisyos.core.artifacts import (
     PutOptions,
     ensure_ir_artifact_store,
     read_core_json_artifact,
+    validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import WarningRecord
+from polisyos.core.artifacts.manifest import WarningRecord, artifact_ref_identity_key
+from polisyos.core.contracts import (
+    ScopedCorrespondenceBasis,
+    ScopedMeasurementOccurrence,
+    load_resolved_input_binding_manifest,
+)
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.model_input_requirements import (
     load_model_input_obligation_set,
@@ -31,6 +38,7 @@ from polisyos.data_forge.read_api.catalog import (
     build_authority_entry,
     build_authority_registry,
 )
+from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.foundry.execute import admit_semantic_horizon_step_chain, load_state_snapshot
 from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.runtime.http.app import create_runtime_api_app
@@ -58,6 +66,10 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     parse_generic_cycle_simulation_n5_execution,
 )
 from polisyos.runtime.quality.model_input_routing import read_model_input_routing_report
+from polisyos.runtime.quality.model_input_successor_selection import (
+    persist_model_input_successor_selection,
+    read_model_input_successor_selection,
+)
 from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 from tests._helpers import acquisition_served_history as served
 from tests._helpers.acquisition_human_decision import (
@@ -243,6 +255,52 @@ def _assert_foundry_successor(
     (plan,) = request.engine_plan
     selected_bindings = plan.program_semantic_input_bindings_ref
     assert selected_bindings is not None and selected_bindings.manifest_profile_sha256 is not None
+    bindings = load_input_bindings(store, selected_bindings)
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    assert manifest_ref is not None and manifest_ref.manifest_profile_sha256 is not None
+    manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    obligation_set, (obligation,) = load_model_input_obligation_set(
+        store, original.model_input_obligation_set_ref
+    )
+    assert artifact_ref_identity_key(manifest.model_input_obligation_set_ref) == (
+        artifact_ref_identity_key(original.model_input_obligation_set_ref)
+    )
+    assert artifact_ref_identity_key(manifest.data_snapshot_ref) == artifact_ref_identity_key(
+        bindings.data_snapshot_ref
+    )
+    assert len(manifest.measurements) == 1
+    (measurement,) = manifest.measurements
+    assert artifact_ref_identity_key(measurement.model_input_obligation_ref) == (
+        artifact_ref_identity_key(obligation_set.obligation_refs[0])
+    )
+    occurrence = validate_core_model_json_artifact(
+        ScopedMeasurementOccurrence, store, measurement.selected_occurrence_ref
+    )
+    assert occurrence.observation_id == mutation.observation_id
+    assert artifact_ref_identity_key(occurrence.source_receipt_ref) == artifact_ref_identity_key(
+        mutation.activation_receipt_ref
+    )
+    correspondence = validate_core_model_json_artifact(
+        ScopedCorrespondenceBasis, store, measurement.correspondence_ref
+    )
+    assert correspondence.model_port_id == obligation.port.port_id
+    assert artifact_ref_identity_key(correspondence.occurrence_ref) == artifact_ref_identity_key(
+        measurement.selected_occurrence_ref
+    )
+    assert artifact_ref_identity_key(correspondence.target_definition_ref) == (
+        artifact_ref_identity_key(obligation.port.semantic_definition_ref)
+    )
+    assert artifact_ref_identity_key(correspondence.target_representation_ref) == (
+        artifact_ref_identity_key(obligation.port.representation_ref)
+    )
+    (route,) = read_model_input_routing_report(store, mutation.routing_report_ref).routes
+    assert artifact_ref_identity_key(route.obligation_ref) == artifact_ref_identity_key(
+        measurement.model_input_obligation_ref
+    )
+    assert route.source_descriptor is not None
+    assert artifact_ref_identity_key(route.source_descriptor.source_semantic_definition_ref) == (
+        artifact_ref_identity_key(correspondence.source_definition_ref)
+    )
     assert len(result.physical_work_observations) == 1
     assert result.physical_work_observations[0].status == "completed"
     assert {trajectory.run_level for trajectory in result.trajectories} == {"individual", "joint"}
@@ -260,6 +318,80 @@ def _assert_foundry_successor(
             )
             assert float(state.government_balance) == expected
         assert trajectory.points[-1].outcomes[_OUTCOME] == _EXPECTED_BALANCES[-1]
+
+
+def _assert_semantic_input_selection_refusals(
+    store: FileSystemCAS,
+    *,
+    semantic_successor_ref: ArtifactRef,
+    blocked_execution_ref: ArtifactRef,
+    input_ref: ArtifactRef,
+) -> None:
+    """Prove a bad selected manifest or missing binding cannot re-enter N5."""
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    selection = read_model_input_successor_selection(store, semantic_successor_ref)
+    selected_bindings_ref = selection.semantic_foundry_input_bindings_ref
+    bindings = load_input_bindings(store, selected_bindings_ref)
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    assert manifest_ref is not None and manifest_ref.manifest_profile_sha256 is not None
+
+    wrong_profile = "sha256:" + "0" * 64
+    if wrong_profile == manifest_ref.manifest_profile_sha256:
+        wrong_profile = "sha256:" + "1" * 64
+    wrong_manifest_ref = type(manifest_ref).model_validate(
+        {**manifest_ref.model_dump(mode="python"), "manifest_profile_sha256": wrong_profile}
+    )
+    mismatched_bindings = bindings.model_copy(
+        update={"resolved_binding_manifest_ref": wrong_manifest_ref}
+    )
+    selected_bindings_manifest = store.get_manifest(selected_bindings_ref)
+    mismatched_bindings_ref = store.put_json(
+        mismatched_bindings,
+        PutOptions(
+            kind=selected_bindings_manifest.kind,
+            media_type=selected_bindings_manifest.media_type,
+            schema=selected_bindings_manifest.artifact_schema,
+            canon=selected_bindings_manifest.canon,
+            producer=selected_bindings_manifest.producer,
+            inputs=selected_bindings_manifest.inputs,
+            governance=selected_bindings_manifest.governance,
+            tenant_context=selected_bindings_manifest.tenant_context,
+            warnings=selected_bindings_manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    typed_mismatched_ref = type(selected_bindings_ref).model_validate(
+        mismatched_bindings_ref.model_dump(mode="python")
+    )
+    mismatched_selection_ref = persist_model_input_successor_selection(
+        store,
+        selection.model_copy(
+            update={"semantic_foundry_input_bindings_ref": typed_mismatched_ref}
+        ),
+    )
+    with pytest.raises(
+        ValueError, match="foundry_input_bindings_semantic_manifest_edge_mismatch"
+    ):
+        owner.prepare_semantic_successor_request(
+            semantic_successor_ref=mismatched_selection_ref,
+            expected_blocked_execution_ref=blocked_execution_ref,
+            expected_input_ref=input_ref,
+        )
+
+    binding_blob, _ = store._paths(selected_bindings_ref.artifact_id)
+    withheld_binding = binding_blob.with_name(f"{binding_blob.name}.withheld-test")
+    binding_blob.rename(withheld_binding)
+    try:
+        with pytest.raises((FileNotFoundError, CanonicalProfileRefusalError)) as missing_binding:
+            owner.prepare_semantic_successor_request(
+                semantic_successor_ref=semantic_successor_ref,
+                expected_blocked_execution_ref=blocked_execution_ref,
+                expected_input_ref=input_ref,
+            )
+        if isinstance(missing_binding.value, CanonicalProfileRefusalError):
+            assert missing_binding.value.code == "canon_profile_payload_unavailable"
+    finally:
+        withheld_binding.rename(binding_blob)
 
 
 @pytest.mark.integration
@@ -701,12 +833,31 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                     tuple(point.outcomes[_OUTCOME] for point in trajectory.points)
                     == _EXPECTED_BALANCES
                 )
+            reader_control = reader.app.state.runtime_container.control_service
+            reservations_before_binding_controls = (
+                reader_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+            )
+            action_before_binding_controls = reader_control._control_store.get_job(action_job_id)
+            assert action_before_binding_controls is not None
             _assert_foundry_successor(
                 fresh,
                 original=original,
                 mutation=mutation,
                 action_job_id=action_job_id,
                 checkpoint=checkpoint,
+            )
+            _assert_semantic_input_selection_refusals(
+                fresh,
+                semantic_successor_ref=checkpoint.semantic_successor_ref,
+                blocked_execution_ref=execution_ref,
+                input_ref=original.input_ref,
+            )
+            assert (
+                reader_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                == reservations_before_binding_controls
+            )
+            assert reader_control._control_store.get_job(action_job_id) == (
+                action_before_binding_controls
             )
             assert checkpoint.result_ref is not None
             blob, _ = fresh._paths(checkpoint.result_ref.artifact_id)

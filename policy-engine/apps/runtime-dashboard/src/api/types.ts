@@ -2401,7 +2401,10 @@ export interface components {
     };
     /**
      * AcquisitionExecutionResponse
-     * @description Durable deferred-job acceptance response.
+     * @description Durable deferred-job admission or historical retry response.
+     *
+     *     The decision ref attributes the selected recorded permission. A completed
+     *     retry reports historical execution and grants no current effect authority.
      */
     AcquisitionExecutionResponse: {
       /** Authority Decision Ref */
@@ -2413,11 +2416,18 @@ export interface components {
        * @default requested
        * @enum {string}
        */
-      receipt_phase: "requested" | "terminal";
+      receipt_phase:
+        | "requested"
+        | "authorization_refreshed"
+        | "executing"
+        | "outcome_selected"
+        | "candidate_input_reentry_pending"
+        | "terminal";
       /** Route Id */
       route_id: string;
       /** Run Id */
       run_id: string;
+      selected_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /**
        * Status
        * @default accepted
@@ -5013,6 +5023,7 @@ export interface components {
       receipt_phase?:
         | (
             | "requested"
+            | "authorization_refreshed"
             | "executing"
             | "outcome_selected"
             | "candidate_input_reentry_pending"

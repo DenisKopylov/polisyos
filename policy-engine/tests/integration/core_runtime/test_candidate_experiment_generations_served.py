@@ -337,6 +337,10 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
 
     initial_a_observer = None
     if os.environ.get("POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A") == "1":
+        from polisyos.runtime.quality.confidence_ledger import _retained_n5_host_capture
+
+        if _retained_n5_host_capture() is None:
+            raise RuntimeError("live_initial_n5_profile_requires_authority_launcher")
         from tests.integration.runtime_quality.test_n5_implementation_witness import (
             assert_live_initial_a_capture,
         )

@@ -182,12 +182,35 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="compatibility no-op for validation scripts that expose a CLI --self-test",
     )
 
+    parser.addoption(
+        "--require-live-initial-n5",
+        action="store_true",
+        default=False,
+        help="require the genuine initial N5 implementation witness in the served generation scenario",
+    )
+
 
 def pytest_configure(config: pytest.Config) -> None:
     quarantine_entries, expired_entries = _load_quarantine_entries()
     config._polisyos_quarantine_entries = quarantine_entries  # type: ignore[attr-defined]
     config._polisyos_expired_quarantines = expired_entries  # type: ignore[attr-defined]
     _configure_hypothesis_cache()
+    if config.getoption("--require-live-initial-n5", default=False):
+        config._polisyos_previous_initial_n5_env = os.environ.get(  # type: ignore[attr-defined]
+            "POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A"
+        )
+        os.environ["POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A"] = "1"
+
+
+def pytest_unconfigure(config: pytest.Config) -> None:
+    """Restore the caller's test-only witness setting after this pytest session."""
+    if not hasattr(config, "_polisyos_previous_initial_n5_env"):
+        return
+    previous = config._polisyos_previous_initial_n5_env  # type: ignore[attr-defined]
+    if previous is None:
+        os.environ.pop("POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A", None)
+    else:
+        os.environ["POLISYOS_TEST_REQUIRE_LIVE_N5_INITIAL_A"] = previous
 
 
 def _configure_hypothesis_cache() -> None:

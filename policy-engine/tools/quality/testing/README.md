@@ -32,6 +32,21 @@ python tools/quality/testing/process_budget.py \
     test <source-qualified-test-arguments>
 ```
 
+### Explicit live initial-N5 witness profile
+
+For the served A → B → B → B → C scenario, pass `--require-live-initial-n5`
+inside the authority launcher's `test` arguments. The launcher intentionally
+clears outer environment variables. Pytest activates the existing stronger
+initial-A observer inside the admitted process and restores its test-only
+setting afterwards. The selected test refuses a missing retained host before
+starting its numerical scenario; collection alone is not an execution PASS.
+
+```bash
+tools/authority --wheel-dir <admitted-wheel-directory> test \
+  --require-live-initial-n5 \
+  tests/integration/core_runtime/test_candidate_experiment_generations_served.py::test_genuine_candidate_experiment_generations_retain_then_advance_frontier
+```
+
 ## Commands
 
 Working directory: `policy-engine/`.

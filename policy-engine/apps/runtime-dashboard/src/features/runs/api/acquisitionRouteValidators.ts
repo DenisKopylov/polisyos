@@ -5,6 +5,7 @@ import type {
   AcquisitionExecutionResponse,
   AcquisitionGrowthPayload,
 } from "@polisyos/runtime-api-client";
+import { coreArtifactRefSchema } from "@/api/validators";
 
 const acquisitionReplayPinsSchema = z
   .object({
@@ -385,11 +386,62 @@ const acquisitionExecutionResponseCurrentSchema = z
   .object({
     authority_decision_ref: z.string().min(1),
     job_id: z.string().min(1),
-    receipt_phase: z.literal("requested"),
+    receipt_phase: z.enum([
+      "requested",
+      "authorization_refreshed",
+      "executing",
+      "outcome_selected",
+      "candidate_input_reentry_pending",
+      "terminal",
+    ]),
     route_id: z.string().min(1),
     run_id: z.string().min(1),
-    status: z.literal("accepted"),
+    selected_receipt_ref: coreArtifactRefSchema.nullable().optional(),
+    status: z.enum(["accepted", "completed"]),
     world_growth: z.literal("not_established"),
+  })
+  .superRefine((response, context) => {
+    if (
+      (response.status === "completed") !==
+      (response.receipt_phase === "terminal")
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "acquisition execution status and phase must agree",
+        path: ["receipt_phase"],
+      });
+    }
+    const selectedReceipt = response.selected_receipt_ref;
+    if (
+      [
+        "authorization_refreshed",
+        "executing",
+        "outcome_selected",
+        "candidate_input_reentry_pending",
+      ].includes(response.receipt_phase) &&
+      selectedReceipt == null
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "refreshed execution phases require a selected receipt",
+        path: ["selected_receipt_ref"],
+      });
+    }
+    if (
+      selectedReceipt != null &&
+      (selectedReceipt.manifest_profile_sha256 == null ||
+        selectedReceipt.kind !==
+          (response.receipt_phase === "terminal"
+            ? "runtime_quality.acquisition_route_loop_receipt"
+            : "runtime_quality.acquisition_candidate_experiment_phase_receipt"))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "selected receipt must be profiled and match the execution phase",
+        path: ["selected_receipt_ref"],
+      });
+    }
   })
   .strict();
 

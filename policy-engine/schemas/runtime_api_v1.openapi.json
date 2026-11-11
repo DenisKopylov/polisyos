@@ -209,7 +209,7 @@
       },
       "AcquisitionExecutionResponse": {
         "additionalProperties": false,
-        "description": "Durable deferred-job acceptance response.",
+        "description": "Durable deferred-job admission or historical retry response.\n\nThe decision ref attributes the selected recorded permission. A completed\nretry reports historical execution and grants no current effect authority.",
         "properties": {
           "authority_decision_ref": {
             "pattern": "^sha256:[0-9a-f]{64}$",
@@ -224,6 +224,10 @@
             "default": "requested",
             "enum": [
               "requested",
+              "authorization_refreshed",
+              "executing",
+              "outcome_selected",
+              "candidate_input_reentry_pending",
               "terminal"
             ],
             "title": "Receipt Phase",
@@ -237,6 +241,16 @@
           "run_id": {
             "title": "Run Id",
             "type": "string"
+          },
+          "selected_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "status": {
             "default": "accepted",
@@ -6491,6 +6505,7 @@
               {
                 "enum": [
                   "requested",
+                  "authorization_refreshed",
                   "executing",
                   "outcome_selected",
                   "candidate_input_reentry_pending",

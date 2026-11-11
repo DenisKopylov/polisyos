@@ -135,6 +135,18 @@ function execution(
   };
 }
 
+function selectedReceiptRef(
+  kind = "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+  manifestProfileSha256 = digest("m"),
+) {
+  return {
+    artifact_id: digest("s"),
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: manifestProfileSha256,
+  };
+}
+
 function job(
   state: ControlJobResponse["state"] = "completed",
   receiptPhase = "terminal",
@@ -492,6 +504,160 @@ describe("AcquisitionExecutionTimeline", () => {
     expect(screen.getByTestId("acquisition-job-phase")).toHaveTextContent(
       "world_committed_reentry_pending",
     );
+  });
+
+  it("renders authorization refresh as a recorded pending renewal, not completion", () => {
+    const selected = {
+      ...execution(),
+      authority_decision_ref: digest("b"),
+      receipt_phase: "authorization_refreshed" as const,
+      selected_receipt_ref: selectedReceiptRef(undefined, digest("z")),
+    };
+    render(
+      <LocaleProvider>
+        <AcquisitionExecutionTimeline
+          decision={decision()}
+          execution={selected}
+          humanDecision={humanDecision()}
+          route={route()}
+        />
+      </LocaleProvider>,
+    );
+
+    const timeline = screen.getByTestId("acquisition-execution-timeline");
+    const fact = within(timeline)
+      .getAllByTestId("acquisition-timeline-fact")
+      .at(-1);
+    if (!fact) throw new Error("missing refreshed execution fact");
+    expect(fact).toHaveAttribute(
+      "data-acquisition-phase",
+      "authorization_refreshed",
+    );
+    expect(fact).toHaveTextContent(
+      "accepted:authorization_refreshed (recorded renewal; pending)",
+    );
+    expect(fact).toHaveTextContent("not_established");
+    expect(fact).not.toHaveTextContent("completed:terminal");
+    expect(fact).not.toHaveTextContent("terminal");
+    expect(fact).not.toHaveTextContent("N5");
+    expect(fact).not.toHaveTextContent("publishable");
+    expect(fact).not.toHaveTextContent("active_epoch");
+    const receiptLink = within(fact).getByRole("link", { name: digest("s") });
+    expect(receiptLink).toHaveAttribute(
+      "href",
+      `/api/v1/artifacts/${encodeURIComponent(digest("s"))}` +
+        `?manifest_profile_sha256=${encodeURIComponent(digest("z"))}`,
+    );
+  });
+
+  it("renders a bound in-flight response using its actual phase", () => {
+    const selected = {
+      ...execution(),
+      authority_decision_ref: digest("b"),
+      receipt_phase: "executing" as const,
+      selected_receipt_ref: selectedReceiptRef(),
+    };
+    render(
+      <LocaleProvider>
+        <AcquisitionExecutionTimeline
+          decision={decision()}
+          execution={selected}
+          humanDecision={humanDecision()}
+          route={route()}
+        />
+      </LocaleProvider>,
+    );
+    const facts = within(
+      screen.getByTestId("acquisition-execution-timeline"),
+    ).getAllByTestId("acquisition-timeline-fact");
+    expect(facts.at(-1)).toHaveAttribute("data-acquisition-phase", "executing");
+    expect(facts.at(-1)).toHaveTextContent("accepted:executing");
+    expect(facts.at(-1)).not.toHaveTextContent("historical execution");
+  });
+
+  it("renders completed refreshed execution as historical", () => {
+    const selected = {
+      ...execution(),
+      authority_decision_ref: digest("b"),
+      receipt_phase: "terminal" as const,
+      selected_receipt_ref: selectedReceiptRef(
+        "runtime_quality.acquisition_route_loop_receipt",
+      ),
+      status: "completed" as const,
+    };
+    render(
+      <LocaleProvider>
+        <AcquisitionExecutionTimeline
+          decision={decision()}
+          execution={selected}
+          humanDecision={humanDecision()}
+          route={route()}
+        />
+      </LocaleProvider>,
+    );
+    const fact = within(screen.getByTestId("acquisition-execution-timeline"))
+      .getAllByTestId("acquisition-timeline-fact")
+      .at(-1);
+    expect(fact).toHaveAttribute("data-acquisition-phase", "terminal");
+    expect(fact).toHaveTextContent("completed:terminal (historical execution)");
+  });
+
+  it("rejects a refreshed response whose route or job does not match the selected action", () => {
+    const foreignRoute = { ...execution(), route_id: digest("x") };
+    expect(() =>
+      render(
+        <LocaleProvider>
+          <AcquisitionExecutionTimeline
+            decision={decision()}
+            execution={foreignRoute}
+            humanDecision={humanDecision()}
+            route={route()}
+          />
+        </LocaleProvider>,
+      ),
+    ).toThrow(/DS15-SAME-CASE-MISMATCH/);
+
+    const selected = {
+      ...execution(),
+      receipt_phase: "executing" as const,
+      selected_receipt_ref: selectedReceiptRef(),
+    };
+    expect(() =>
+      render(
+        <LocaleProvider>
+          <AcquisitionExecutionTimeline
+            decision={decision()}
+            execution={selected}
+            humanDecision={humanDecision()}
+            job={{ ...job("running", "executing"), job_id: "foreign-job" }}
+            route={route()}
+          />
+        </LocaleProvider>,
+      ),
+    ).toThrow(/DS15-SAME-CASE-MISMATCH/);
+  });
+
+  it("does not attribute a changed decision ref from a missing or null selected receipt", () => {
+    for (const selectedReceipt of [undefined, null]) {
+      const unexplained = {
+        ...execution(),
+        authority_decision_ref: digest("b"),
+        receipt_phase: "authorization_refreshed" as const,
+        ...(selectedReceipt === null ? { selected_receipt_ref: null } : {}),
+      };
+      expect(() =>
+        render(
+          <LocaleProvider>
+            <AcquisitionExecutionTimeline
+              decision={decision()}
+              execution={unexplained}
+              humanDecision={humanDecision()}
+              route={route()}
+            />
+          </LocaleProvider>,
+        ),
+      ).toThrow(/DS15-SAME-CASE-MISMATCH/);
+    }
   });
 
   it("fails DS15-SAME-CASE-MISMATCH when a real receipt moves to another run", () => {

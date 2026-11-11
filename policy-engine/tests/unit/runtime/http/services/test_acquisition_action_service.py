@@ -622,10 +622,24 @@ def _candidate_experiment_pending_resume_case(
         receipt_ref="sha256:" + "9" * 64,
         receipt_phase="candidate_input_reentry_pending",
     )
+    initial_phase = phase.model_copy(
+        update={
+            "receipt_id": f"{job_id}.candidate-experiment.requested",
+            "receipt_phase": "requested",
+            "coarse_phase": "requested",
+            "recovery_state": "none",
+            "predecessor_receipt_ref": None,
+            "owner_receipt_refs": (),
+            "candidate_receipt_ref": None,
+        }
+    )
     outcome = SimpleNamespace(
         head=head,
         latest_receipt=phase,
-        phase_chain=(SimpleNamespace(receipt=phase, receipt_ref=head.receipt_ref),),
+        phase_chain=(
+            SimpleNamespace(receipt=initial_phase, receipt_ref="sha256:" + "8" * 64),
+            SimpleNamespace(receipt=phase, receipt_ref=head.receipt_ref),
+        ),
     )
     job = SimpleNamespace(job_id=job_id, kind="acquisition", run_id=origin.run_id, state="running")
     execution_scope = ControlJobExecutionScope(

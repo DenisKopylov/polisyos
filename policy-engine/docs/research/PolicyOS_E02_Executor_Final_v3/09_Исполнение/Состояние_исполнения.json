@@ -9116,7 +9116,7 @@
               "PASS": 39
             },
             "independent_source_review": "GO",
-            "native_composed_consumers": "PASS_BOUNDED_CATALOG_AND_HORIZON; FULL_SERVED_GATE_A_UNRUN",
+            "native_composed_consumers": "PASS_FINITE_CATALOG_HORIZON_AND_ORDINARY_SERVED_STOCK_PROFILE; FULL_GATE_A_PENDING",
             "native_catalog": {
               "PASS": 3,
               "FAIL": 0,
@@ -9131,6 +9131,21 @@
               "output": "policy-engine/_cache/e02/lane01-audit-semantic-horizon/",
               "pytest_seconds": 95.62,
               "max_process_rss_bytes": 1765883904
+            },
+            "native_served_stock": {
+              "PASS": 1,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0,
+              "output": "policy-engine/_cache/e02/stock-gatea-composed-r1/",
+              "source_commit": "38245943a1451f92a7eaace46efc19173b7c0861",
+              "source_tree": "00accceaae8b31fa7f4a3ddd4efbe235fa3f769a",
+              "working_inputs_pinned": 15,
+              "working_inputs_unchanged": true,
+              "wall_seconds": 145.066,
+              "peak_sampled_process_tree_rss_bytes": 2240249856,
+              "controls": "Foreign manifest profile and removed binding refuse before extra N5; reservation ledger and action unchanged.",
+              "limits": "Finite synthetic candidate profile; currentness not_established; no publication authority, live N6 custody, full Gate A/B or G acceptance."
             }
           },
           "DC-02": {
@@ -9248,8 +9263,29 @@
           "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
           "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
           "final_static_output": "policy-engine/_cache/e02/lane01-audit-architecture/facade-final-static-check.log",
-          "node_layout": "Local frozen offline PNPM install ready; all six importer and first-party workspace links resolve within primary. Original shared links preserved. About 29 MiB measured disk growth; no network or original environment removal.",
-          "uv_cache": "Existing 4.2 MiB dependency cache moved atomically to external Library/Caches/polisyos/uv-e02-shared; logical _cache/uv preserved, identities unchanged. Offline completeness unknown."
+          "node_layout": "Both existing workspaces have checkout-local frozen offline Node installs; no downloads or lifecycle scripts. Secondary first-party links resolve within secondary, including API client and dashboard.",
+          "uv_cache": "Existing 4.2 MiB dependency cache moved atomically to external Library/Caches/polisyos/uv-e02-shared; logical _cache/uv preserved, identities unchanged. Offline completeness unknown.",
+          "api_generation": {
+            "backend_openapi": "PASS from actual secondary source",
+            "client": "PASS 4.752s, 345800704-byte peak process-tree RSS",
+            "dashboard": "PASS 5.271s, 424673280-byte peak process-tree RSS",
+            "outputs": [
+              "policy-engine/schemas/runtime_api_v1.openapi.json",
+              "policy-engine/packages/runtime-api-client/types.ts",
+              "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+              "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+              "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+            ],
+            "qualification": "Generation success only; affected client/UI checks and full six-family freshness remain separate."
+          },
+          "refresh_static": "PASS sync and check with generated checks explicitly omitted; no public inventory delta or deep-import baseline rewrite.",
+          "runtime_api_contract": {
+            "result": "PASS",
+            "output": "policy-engine/_cache/e02/candidate-refresh-runtime-api-contract-r1/",
+            "wall_seconds": 54.385,
+            "peak_sampled_process_tree_rss_bytes": 2441494528,
+            "source": "Audited secondary C composition; actual OpenAPI and generated client/dashboard; no dependency sync."
+          }
         },
         "next_execution": {
           "N6_source_only": {
@@ -9278,13 +9314,52 @@
           "integration_scenarios": "E02-I01-A/B/C remain NOT_RUN; scoped tests do not replace original 11/66/64 denominator.",
           "variable_binding": "Gate A and the metadata-only held-out after freeze precede P06-P08/Gate B.",
           "secondary_base": {
-            "commit": "dfa7ee776b0cd84d171ea38facbd9ef8a5be8486",
-            "tree": "da9221168de25482db404df35e89f37dc2c760c0",
+            "commit": "38245943a1451f92a7eaace46efc19173b7c0861",
+            "tree": "00accceaae8b31fa7f4a3ddd4efbe235fa3f769a",
             "admission": "admitted",
-            "note": "Ordinary merge, exact committed-main e4b tree; no reset/rebase or new checkout/environment."
+            "note": "Ordinary merge of published main e5659818; C source/test bytes unchanged, original history preserved."
           },
           "retained_C_scope": "Matching unemployment-rate candidate profile, generated WDI-shaped fixture, not production provenance or Variable Binding Gate A. Preserve original A/B and 7/1 ledger; authentic signed pending-C dispatch remains UNRUN.",
-          "retained_C_implementation": "Secondary source frozen after independent final Terra GO; R5 138 PASS / 2 new legacy-wire FAIL, corrected producer then R6 11 PASS. Generated API companions and composed-source checks still pending."
+          "retained_C_implementation": {
+            "status": "BACKEND_AND_PUBLIC_COMPANIONS_QUALIFIED; RETAINED_C_DISPATCH_UNRUN",
+            "PASS": 140,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "wall_seconds": 182.997,
+            "peak_sampled_process_tree_rss_bytes": 2001879040,
+            "unchanged_inputs": 15,
+            "output": "policy-engine/_cache/e02/pending-authority-refresh-composed-r1/",
+            "independent_backend_review": "GO",
+            "independent_frontend_review": "GO_AFTER_PROFILED_LINK_FIX",
+            "frontend": {
+              "ui_tests": 45,
+              "client_transport_tests": 19,
+              "typecheck": "Client and dashboard PASS before final timeline-only URL change; final UI affected tests PASS.",
+              "output": "policy-engine/_cache/e02/candidate-refresh-{ui,client}-final-r1/",
+              "limits": "Client run is too short for a precise sampled RSS peak."
+            },
+            "retained_data": "UNCHANGED; same pending job/attempt0/head2,1, original authority expired",
+            "next": "Bind final committed source and original retained bytes in read-only preflight; fresh authority appends refresh2,2, then one worker/N5 reaches terminal2,6, no A/B replay."
+          },
+          "representation_profile": {
+            "status": "ACTUAL_BOUNDS_TOY_PASS_BRIDGE_AND_ADVERSARIAL_REVIEW_IN_PROGRESS",
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "wall_seconds": 7.353,
+            "peak_sampled_process_tree_rss_bytes": 680148992,
+            "output": "policy-engine/_cache/e02/lane01-representation-native-toy-r3/",
+            "scope": "Bounded BOUNDS_ONLY registered native method; no scientific identification or execution-through-use authority. ComputeRunner bridge and mixed-result direct-selector controls required before capability claim."
+          },
+          "live_initial_n5_profile": {
+            "status": "INDEPENDENT_SOURCE_REVIEW_GO; AUTHORITY_COLLECTION_PASS; NUMERICAL_UNRUN",
+            "mechanism": "--require-live-initial-n5 sets observer inside pytest despite authority launcher env isolation; restores prior environment; fails early outside retained authority host.",
+            "collection_output": "policy-engine/_cache/e02/lane01-live-initial-n5-collection-r1/",
+            "collection_wall_seconds": 31.116,
+            "collection_peak_sampled_process_tree_rss_bytes": 1730379776
+          }
         },
         "ruff": "PASS check/format on 33 changed/new Python paths"
       },

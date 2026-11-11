@@ -1,0 +1,20 @@
+id = "e02-candidate-authorization-refresh"
+title = "Renew authority for an unchanged pending candidate experiment"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos"
+summary = "A versioned append-only action phase records fresh verified authority for the same pending job before effects. Workers and retries resolve that selected authority while retaining the original request, decision and payload history. API, client and dashboard expose the actual selected phase and profiled receipt."
+compatibility = "Legacy v1 replies keep their wire shape. New v2 authority refresh requires an exact historically selected receipt profile; a completed retry describes prior execution and grants no current effect authority."
+change_class = "compatible"
+public_surface_inventory_reviewed = true
+surface_classification = "public_experimental: additive acquisition response phases and selected profiled receipt; internal: pending job, phase and retry reconciliation"
+migration = "No SQL table migration, retained history rewrite or job replacement. Refresh is limited to an unchanged pending request and requires current signed permission, actor scope and the expected predecessor."
+limitations = "A local candidate execution does not establish production provenance, scientific identification, publication authority or G acceptance."
+evidence = [
+  "src/polisyos/runtime/http/services/acquisition_action_service.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "tests/unit/runtime/http/services/test_candidate_experiment_authorization_retry.py",
+  "tests/unit/runtime/quality/test_candidate_experiment_authorization_refresh.py",
+  "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.test.tsx",
+]

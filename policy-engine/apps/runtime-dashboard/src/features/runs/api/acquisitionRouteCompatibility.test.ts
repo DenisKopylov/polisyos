@@ -204,6 +204,148 @@ describe("current acquisition projection compatibility", () => {
   });
 
   it.each([
+    {
+      name: "authorization refresh pending",
+      status: "accepted",
+      receipt_phase: "authorization_refreshed",
+      kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+    },
+    {
+      name: "in-flight execution",
+      status: "accepted",
+      receipt_phase: "executing",
+      kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+    },
+    {
+      name: "historical completed execution",
+      status: "completed",
+      receipt_phase: "terminal",
+      kind: "runtime_quality.acquisition_route_loop_receipt",
+    },
+  ])(
+    "preserves a profiled $name response",
+    ({ status, receipt_phase, kind }) => {
+      const response = {
+        authority_decision_ref: "sha256:decision-b",
+        job_id: "job-1",
+        receipt_phase,
+        route_id: "sha256:route",
+        run_id: "run-a",
+        selected_receipt_ref: {
+          artifact_id: "sha256:" + "a".repeat(64),
+          kind,
+          media_type: "application/json",
+          manifest_profile_sha256: "sha256:" + "b".repeat(64),
+        },
+        status,
+        world_growth: "not_established",
+      };
+      expect(acquisitionExecutionResponseSchema.parse(response)).toEqual(
+        response,
+      );
+    },
+  );
+
+  it.each([
+    {
+      status: "completed",
+      receipt_phase: "authorization_refreshed",
+    },
+    { status: "accepted", receipt_phase: "terminal" },
+  ])("rejects inconsistent execution status and phase %#", (overrides) => {
+    expect(() =>
+      acquisitionExecutionResponseSchema.parse({
+        authority_decision_ref: "sha256:decision-b",
+        job_id: "job-1",
+        route_id: "sha256:route",
+        run_id: "run-a",
+        world_growth: "not_established",
+        ...overrides,
+      }),
+    ).toThrow();
+  });
+
+  it.each([
+    {
+      kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+      manifest_profile_sha256: undefined,
+    },
+    {
+      kind: "runtime_quality.acquisition_route_loop_receipt",
+      manifest_profile_sha256: "sha256:" + "b".repeat(64),
+    },
+  ])(
+    "rejects an unprofiled or phase-incompatible selected receipt %#",
+    (ref) => {
+      expect(() =>
+        acquisitionExecutionResponseSchema.parse({
+          authority_decision_ref: "sha256:decision-b",
+          job_id: "job-1",
+          receipt_phase: "authorization_refreshed",
+          route_id: "sha256:route",
+          run_id: "run-a",
+          selected_receipt_ref: {
+            artifact_id: "sha256:" + "a".repeat(64),
+            kind: ref.kind,
+            media_type: "application/json",
+            ...(ref.manifest_profile_sha256 === undefined
+              ? {}
+              : { manifest_profile_sha256: ref.manifest_profile_sha256 }),
+          },
+          status: "accepted",
+          world_growth: "not_established",
+        }),
+      ).toThrow();
+    },
+  );
+
+  it.each([
+    "authorization_refreshed",
+    "executing",
+    "outcome_selected",
+    "candidate_input_reentry_pending",
+  ])("requires a selected receipt for %s", (receipt_phase) => {
+    expect(() =>
+      acquisitionExecutionResponseSchema.parse({
+        authority_decision_ref: "sha256:decision-b",
+        job_id: "job-1",
+        receipt_phase,
+        route_id: "sha256:route",
+        run_id: "run-a",
+        selected_receipt_ref: null,
+        status: "accepted",
+        world_growth: "not_established",
+      }),
+    ).toThrow();
+  });
+
+  it.each([
+    {
+      status: "accepted",
+      receipt_phase: "requested",
+    },
+    {
+      status: "completed",
+      receipt_phase: "terminal",
+    },
+  ])(
+    "treats null selected receipt as absent for legacy %s responses",
+    (state) => {
+      const parsed = acquisitionExecutionResponseSchema.parse({
+        authority_decision_ref: "sha256:decision-a",
+        job_id: "job-1",
+        receipt_phase: state.receipt_phase,
+        route_id: "sha256:route",
+        run_id: "run-a",
+        selected_receipt_ref: null,
+        status: state.status,
+        world_growth: "not_established",
+      });
+      expect(parsed.selected_receipt_ref).toBeNull();
+    },
+  );
+
+  it.each([
     { ...activeRoute(), admitted_observation_delta: 0 },
     { ...activeRoute(), admitted_observation_delta: undefined },
     { ...activeRoute(), qualification_predicate: "not_established" },

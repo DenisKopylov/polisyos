@@ -9,6 +9,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from polisyos.ir.observation import IdentificationMode, identification_mode_origin_for_rule
+
 from .models import (
     AssumptionValidationNeed,
     FairnessDecompositionNeed,
@@ -72,7 +74,20 @@ class MethodValidityRequirementCompiler:
         )
         method_needs = _method_needs(claim)
         tokens = _claim_tokens(claim, method_needs)
-        identification_class = _identification_class(claim, method_needs, tokens)
+        source_facet_contexts = _source_facet_contexts(claim)
+        explicit_mode_facets = _explicit_identification_mode_facets(
+            claim,
+            source_facet_contexts,
+        )
+        explicit_modes = {row["identification_mode"] for row in explicit_mode_facets}
+        if len(explicit_modes) > 1:
+            raise ValueError("method_requirement_explicit_identification_modes_conflict")
+        identification_class = _identification_class(
+            claim,
+            method_needs,
+            tokens,
+            explicit_modes,
+        )
         uncertainty_class = _uncertainty_class(identification_class, tokens)
         fairness_need = _fairness_need(tokens)
         strategic_sensitivity = _strategic_response_sensitivity(tokens)
@@ -89,6 +104,12 @@ class MethodValidityRequirementCompiler:
             method_needs=method_needs,
             tokens=tokens,
             strategic_sensitivity=strategic_sensitivity,
+        )
+        method_expectations = _dedupe(
+            [
+                *method_expectations,
+                *(row["identification_mode"] for row in explicit_mode_facets),
+            ]
         )
         return MethodValidityRequirementSpec(
             requirement_id=_stable_id("method_requirement", run_id, claim_id, method_needs),
@@ -137,6 +158,14 @@ class MethodValidityRequirementCompiler:
                 "claim_family": _text(claim.get("claim_family")),
                 "claim_use": _text(claim.get("claim_use")),
                 "source": "claim_method_need_preconditions",
+                "source_facet_contexts": source_facet_contexts,
+                "explicit_identification_mode_facets": explicit_mode_facets,
+                "identification_mode_limitations": _identification_mode_limitations(
+                    source_facet_contexts
+                ),
+                "identification_class_semantics": (
+                    "required_method_capability_not_identification_evidence"
+                ),
             },
         )
 
@@ -279,7 +308,243 @@ def _method_needs(claim: Mapping[str, Any]) -> list[str]:
     return _dedupe(inferred)
 
 
+def _explicit_identification_mode_facets(
+    claim: Mapping[str, Any],
+    source_facet_contexts: Sequence[Mapping[str, Any]],
+) -> list[dict[str, str]]:
+    """Read and validate mode bindings carried by linked claim preconditions."""
+
+    output: list[dict[str, str]] = []
+    seen: dict[str, str] = {}
+    contexts_by_ref = {
+        _text(context.get("facet_ref")): context
+        for context in source_facet_contexts
+        if _text(context.get("facet_ref"))
+    }
+    for precondition in _precondition_rows(claim):
+        metadata = precondition.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        facets = metadata.get("explicit_identification_mode_facets", [])
+        if not isinstance(facets, list):
+            raise ValueError("method_requirement_identification_mode_binding_invalid")
+        for facet in facets:
+            if not isinstance(facet, Mapping):
+                raise ValueError("method_requirement_identification_mode_binding_invalid")
+            facet_ref = _required_text(facet.get("facet_ref"), field_name="facet_ref")
+            try:
+                mode = IdentificationMode(
+                    _required_text(
+                        facet.get("identification_mode"),
+                        field_name="identification_mode",
+                    )
+                )
+            except ValueError as exc:
+                raise ValueError("method_requirement_identification_mode_unknown") from exc
+            precondition_facet_refs = _string_list(precondition.get("facet_refs"))
+            if precondition_facet_refs and facet_ref not in precondition_facet_refs:
+                raise ValueError("method_requirement_identification_mode_binding_unlinked")
+            context = contexts_by_ref.get(facet_ref)
+            origin, rule_ref, source_class = _mode_binding_context(facet, context)
+            if context is not None:
+                context_value = _text(context.get("value"))
+                if context_value and context_value != mode.value:
+                    raise ValueError("method_requirement_identification_mode_binding_mismatch")
+            if source_class in {"llm_candidate", "llm_critic", "llm_drafter"}:
+                raise ValueError("method_requirement_identification_mode_binding_not_deterministic")
+            if origin in {"default_point", "inferred_sequential", "not_established"}:
+                raise ValueError("method_requirement_identification_mode_binding_not_explicit")
+            if origin not in {"explicit_policy_spec", "declared_constraint"}:
+                raise ValueError("method_requirement_identification_mode_origin_invalid")
+            if origin == "explicit_policy_spec" and not rule_ref:
+                raise ValueError("method_requirement_identification_mode_origin_unbound")
+            if origin == "declared_constraint" and rule_ref:
+                raise ValueError("method_requirement_identification_mode_origin_mismatch")
+            prior_mode = seen.get(facet_ref)
+            if prior_mode is not None and prior_mode != mode.value:
+                raise ValueError("method_requirement_identification_mode_binding_conflict")
+            if prior_mode is None:
+                row = {
+                    "facet_ref": facet_ref,
+                    "identification_mode": mode.value,
+                    "identification_mode_origin": origin,
+                    "source_class": source_class,
+                }
+                if rule_ref:
+                    row["derivation_rule_ref"] = rule_ref
+                output.append(row)
+                seen[facet_ref] = mode.value
+
+    # The source context is the bound producer record; the precondition metadata is
+    # a projection. Reconstruct strict bindings from the source context so deleting
+    # only that projection cannot silently weaken a declared PolicySpec constraint.
+    precondition_facet_refs = {
+        facet_ref
+        for precondition in _precondition_rows(claim)
+        for facet_ref in _string_list(precondition.get("facet_refs"))
+    }
+    output_by_ref = {row["facet_ref"]: row for row in output}
+    for context in source_facet_contexts:
+        if _text(context.get("facet_type")) != "method_need":
+            continue
+        facet_ref = _required_text(context.get("facet_ref"), field_name="facet_ref")
+        origin, rule_ref, source_class = _mode_binding_context({}, context)
+        if source_class in {"llm_candidate", "llm_critic", "llm_drafter"}:
+            if facet_ref in output_by_ref:
+                raise ValueError("method_requirement_identification_mode_binding_not_deterministic")
+            continue
+        if origin in {"default_point", "inferred_sequential", "not_established"}:
+            if facet_ref in output_by_ref:
+                raise ValueError("method_requirement_identification_mode_binding_not_explicit")
+            continue
+        if origin not in {"explicit_policy_spec", "declared_constraint"}:
+            continue
+        if facet_ref not in precondition_facet_refs:
+            raise ValueError("method_requirement_identification_mode_binding_unlinked")
+        try:
+            mode = IdentificationMode(
+                _required_text(context.get("value"), field_name="identification_mode")
+            )
+        except ValueError as exc:
+            raise ValueError("method_requirement_identification_mode_unknown") from exc
+        prior = output_by_ref.get(facet_ref)
+        if prior is not None:
+            if prior["identification_mode"] != mode.value:
+                raise ValueError("method_requirement_identification_mode_binding_mismatch")
+            continue
+        row = {
+            "facet_ref": facet_ref,
+            "identification_mode": mode.value,
+            "identification_mode_origin": origin,
+            "source_class": source_class,
+        }
+        if rule_ref:
+            row["derivation_rule_ref"] = rule_ref
+        output.append(row)
+        output_by_ref[facet_ref] = row
+        seen[facet_ref] = mode.value
+    return output
+
+
+def _mode_binding_context(
+    binding: Mapping[str, Any],
+    context: Mapping[str, Any] | None,
+) -> tuple[str, str, str]:
+    """Resolve mode origin from the linked typed context and reconcile its binding."""
+
+    context_metadata: Mapping[str, Any] = {}
+    source_class = _text(binding.get("source_class"))
+    if context is not None:
+        context_metadata_value = context.get("metadata")
+        if not isinstance(context_metadata_value, Mapping):
+            raise ValueError("method_requirement_source_facet_context_invalid")
+        context_metadata = context_metadata_value
+        context_source_class = _text(context.get("source_class"))
+        if context_source_class:
+            if source_class and source_class != context_source_class:
+                raise ValueError("method_requirement_identification_mode_source_mismatch")
+            source_class = context_source_class
+
+    binding_rule_ref = _text(binding.get("derivation_rule_ref"))
+    context_rule_ref = _text(context_metadata.get("derivation_rule_ref"))
+    if binding_rule_ref and context_rule_ref and binding_rule_ref != context_rule_ref:
+        raise ValueError("method_requirement_identification_mode_rule_mismatch")
+    rule_ref = context_rule_ref or binding_rule_ref
+    binding_origin = _text(binding.get("identification_mode_origin"))
+    context_origin = _text(context_metadata.get("identification_mode_origin"))
+    if binding_origin and context_origin and binding_origin != context_origin:
+        raise ValueError("method_requirement_identification_mode_origin_mismatch")
+    supplied_origin = context_origin or binding_origin
+
+    grammar_marked = any(
+        key in context_metadata
+        for key in (
+            "case_id",
+            "intent_id",
+            "source_intent_sha256",
+            "source_intervention_sha256",
+            "grammar_case_schema_version",
+        )
+    )
+    if rule_ref:
+        origin = identification_mode_origin_for_rule(rule_ref)
+    elif grammar_marked or source_class in {"llm_candidate", "llm_critic", "llm_drafter"}:
+        origin = "not_established"
+    else:
+        # Historical direct typed precondition fixtures have no grammar provenance.
+        # Their mode is a caller constraint, not identification evidence.
+        origin = "declared_constraint"
+    mode_value = _text(context.get("value")) if context is not None else ""
+    mode_value = mode_value or _text(binding.get("identification_mode"))
+    if origin == "default_point" and mode_value != IdentificationMode.POINT_IDENTIFIED.value:
+        raise ValueError("method_requirement_identification_mode_origin_value_mismatch")
+    if origin == "inferred_sequential" and mode_value != IdentificationMode.SEQUENTIAL.value:
+        raise ValueError("method_requirement_identification_mode_origin_value_mismatch")
+    if supplied_origin and supplied_origin != origin:
+        raise ValueError("method_requirement_identification_mode_origin_mismatch")
+    return origin, rule_ref, source_class
+
+
+def _source_facet_contexts(claim: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Preserve claim-linked facet provenance for method consumers and audit surfaces."""
+
+    claim_metadata = claim.get("metadata")
+    if not isinstance(claim_metadata, Mapping):
+        return []
+    rows = claim_metadata.get("source_facet_contexts", [])
+    if not isinstance(rows, list):
+        raise ValueError("method_requirement_source_facet_context_invalid")
+    claim_facet_refs = set(_string_list(claim.get("facet_refs")))
+    output: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, Mapping):
+            raise ValueError("method_requirement_source_facet_context_invalid")
+        facet_ref = _required_text(row.get("facet_ref"), field_name="facet_ref")
+        if facet_ref not in claim_facet_refs:
+            raise ValueError("method_requirement_source_facet_context_unlinked")
+        copied = dict(row)
+        if _text(copied.get("facet_type")) == "method_need":
+            metadata = copied.get("metadata")
+            if not isinstance(metadata, Mapping):
+                raise ValueError("method_requirement_source_facet_context_invalid")
+            copied_metadata = dict(metadata)
+            origin, _, _ = _mode_binding_context({}, copied)
+            supplied_origin = _text(copied_metadata.get("identification_mode_origin"))
+            if supplied_origin and supplied_origin != origin:
+                raise ValueError("method_requirement_identification_mode_origin_mismatch")
+            copied_metadata["identification_mode_origin"] = origin
+            copied["metadata"] = copied_metadata
+        output.append(copied)
+    return output
+
+
+def _identification_mode_limitations(
+    source_facet_contexts: Sequence[Mapping[str, Any]],
+) -> list[dict[str, str]]:
+    """Keep unknown grammar mode provenance visible without turning it into a mode gate."""
+
+    limitations: list[dict[str, str]] = []
+    for context in source_facet_contexts:
+        if _text(context.get("facet_type")) != "method_need":
+            continue
+        origin, rule_ref, _ = _mode_binding_context({}, context)
+        if origin != "not_established":
+            continue
+        limitation = {
+            "code": "identification_mode_origin_not_established",
+            "facet_ref": _text(context.get("facet_ref")),
+            "identification_mode": _text(context.get("value")),
+            "origin": origin,
+        }
+        if rule_ref:
+            limitation["derivation_rule_ref"] = rule_ref
+        limitations.append(limitation)
+    return limitations
+
+
 def _claim_tokens(claim: Mapping[str, Any], method_needs: Sequence[str]) -> set[str]:
+    """Derive method semantics from typed claim inputs, text, and closed metadata fields."""
+
     values: list[object] = [
         claim.get("claim_type"),
         claim.get("claim_family"),
@@ -289,8 +554,11 @@ def _claim_tokens(claim: Mapping[str, Any], method_needs: Sequence[str]) -> set[
     ]
     metadata = claim.get("metadata")
     if isinstance(metadata, Mapping):
-        values.extend(metadata.keys())
-        values.extend(metadata.values())
+        # This is the only legacy free-form metadata field with an established
+        # semantic consumer. Audit, source, and future metadata remain provenance.
+        strategic_response = metadata.get("strategic_response")
+        if strategic_response is not None:
+            values.extend(("strategic_response", strategic_response))
     tokens: set[str] = set()
     for value in values:
         text = _text(value).casefold()
@@ -305,10 +573,15 @@ def _identification_class(
     claim: Mapping[str, Any],
     method_needs: Sequence[str],
     tokens: set[str],
+    explicit_modes: set[str],
 ) -> MethodIdentificationClass:
     support_status = _text(claim.get("support_status")).casefold()
     if "negative_certificate" in method_needs or support_status == "refuted":
         return MethodIdentificationClass.NEGATIVE_CERTIFICATE
+    if IdentificationMode.BOUNDS_ONLY.value in explicit_modes:
+        return MethodIdentificationClass.BOUNDS
+    if IdentificationMode.PARTIALLY_IDENTIFIED.value in explicit_modes:
+        return MethodIdentificationClass.PARTIAL
     if {"bounds", "partial_identification", "monotonicity_bounds"} & tokens:
         return MethodIdentificationClass.BOUNDS
     if {"partial", "partially_identified"} & tokens:

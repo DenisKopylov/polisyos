@@ -11,6 +11,8 @@ from polisyos.ir.governance import ProblemDomain
 from polisyos.ir.observation import IdentificationMode
 
 if TYPE_CHECKING:
+    from polisyos.ir.governance import InterventionSpec
+
     from .schema import PolicyGrammarIntent
 
 _TOKEN_RE = re.compile(r"[a-z0-9_]+")
@@ -95,6 +97,52 @@ def normalise_intent(intent: PolicyGrammarIntent) -> NormalizedPolicyIntent:
     )
 
 
+def normalise_component_intent(
+    intent: PolicyGrammarIntent,
+    *,
+    intervention: InterventionSpec,
+) -> NormalizedPolicyIntent:
+    """Normalize one explicit action without borrowing another action's scope.
+
+    Shared prose remains declared context, not a component's population,
+    instrument, or method evidence. The compound compiler surfaces that limit.
+    The existing singleton normalizer still owns the actual facet vocabulary.
+    """
+    policy = intent.policy_spec
+    if policy is None:
+        raise ValueError("component normalization requires PolicySpec")
+    effective = intervention
+    if policy.global_schedule is not None:
+        effective = intervention.model_copy(update={"schedule": policy.global_schedule})
+    component_policy = policy.model_copy(
+        update={
+            "policy_id": "component",
+            "description": None,
+            "labels": [],
+            "interventions": [effective],
+        }
+    )
+    component_intent = intent.model_copy(
+        update={
+            "intent_id": f"{intent.intent_id}:component:{intervention.intervention_id}",
+            "text": None,
+            "problem_frame": None,
+            "candidate": None,
+            "policy_spec": component_policy,
+        }
+    )
+    normalized = normalise_intent(component_intent)
+    return normalized.model_copy(
+        update={
+            "source_contract_refs": (
+                *normalized.source_contract_refs,
+                "polisyos.ir.governance.policy_spec.InterventionSpec",
+                f"PolicySpec.interventions:{intervention.intervention_id}",
+            )
+        }
+    )
+
+
 def _source_contract_refs(intent: PolicyGrammarIntent) -> tuple[str, ...]:
     refs = [
         "polisyos.ir.governance.problem_frame.ProblemFrame",
@@ -123,4 +171,4 @@ def _dedupe[T](values: list[T]) -> list[T]:
     return deduped
 
 
-__all__ = ["NormalizedPolicyIntent", "normalise_intent"]
+__all__ = ["NormalizedPolicyIntent", "normalise_component_intent", "normalise_intent"]

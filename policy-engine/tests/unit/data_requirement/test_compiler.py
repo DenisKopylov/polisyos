@@ -229,6 +229,258 @@ def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compil
         <= set(spec.mandatory_facets)
         for spec in report.specs
     )
+
+
+def test_claim_scopes_and_capability_queries_stay_bound_to_linked_facets() -> None:
+    resolver = _RecordingCapabilityResolver()
+    claims = [
+        {
+            "claim_id": "claim:component-alpha",
+            "claim_family": "implementation",
+            "claim_type": "implementation",
+            "claim_use": "decision_support",
+            "text": "First component outcome.",
+            "metadata": {"required_constructs": ["firm_survival"]},
+            "facet_refs": ("population:population-a", "geography:area-a", "time:period-a"),
+            "concept_spine_refs": ("concept://component-alpha",),
+            "authority_profile_refs": ("authority_profile.test",),
+        },
+        {
+            "claim_id": "claim:component-beta",
+            "claim_family": "implementation",
+            "claim_type": "implementation",
+            "claim_use": "decision_support",
+            "text": "Second component outcome.",
+            "metadata": {"required_constructs": ["firm_survival"]},
+            "facet_refs": ("population:population-b", "geography:area-b", "time:period-b"),
+            "concept_spine_refs": ("concept://component-beta",),
+            "authority_profile_refs": ("authority_profile.test",),
+        },
+    ]
+    facets = (
+        {
+            "facet_id": "population:population-a",
+            "facet_type": "population_predicate",
+            "value": "population-a",
+        },
+        {
+            "facet_id": "population:population-b",
+            "facet_type": "population_predicate",
+            "value": "population-b",
+        },
+        {"facet_id": "geography:area-b", "facet_type": "geography_predicate", "value": "area-b"},
+        {"facet_id": "geography:area-a", "facet_type": "geography_predicate", "value": "area-a"},
+        {"facet_id": "time:period-a", "facet_type": "time_predicate", "value": "period-a"},
+        {"facet_id": "time:period-b", "facet_type": "time_predicate", "value": "period-b"},
+    )
+    report = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "firm_survival_panel",
+                "construct": "firm_survival",
+                "producer_ref": "rule://firm-survival/test",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="run-mixed-claim-scopes",
+        scenario_id="mixed-claim-scopes",
+        claim_ledger={"claims": claims},
+        facet_snapshots=facets,
+        obligation_graph={"blocking_frontier": []},
+    )
+
+    specs = {spec.claim_id: spec for spec in report.specs}
+    assert set(specs) == {"claim:component-alpha", "claim:component-beta"}
+    assert specs["claim:component-alpha"].scope.population == "population-a"
+    assert specs["claim:component-alpha"].scope.geography == "area-a"
+    assert specs["claim:component-alpha"].scope.time == "period-a"
+    assert specs["claim:component-beta"].scope.population == "population-b"
+    assert specs["claim:component-beta"].scope.geography == "area-b"
+    assert specs["claim:component-beta"].scope.time == "period-b"
+    assert (
+        specs["claim:component-alpha"].requirement_id
+        != specs["claim:component-beta"].requirement_id
+    )
+    assert specs["claim:component-alpha"].facet_refs == (
+        "population:population-a",
+        "geography:area-a",
+        "time:period-a",
+    )
+    assert specs["claim:component-beta"].facet_refs == (
+        "population:population-b",
+        "geography:area-b",
+        "time:period-b",
+    )
+    assert len(resolver.queries) == 2
+    assert len({query.requirement_id for query in resolver.queries}) == 2
+    query_by_population = {query.population_filter["type"]: query for query in resolver.queries}
+    assert query_by_population["population-a"].geography == "area-a"
+    assert query_by_population["population-b"].geography == "area-b"
+
+
+def test_scope_retains_geography_and_jurisdiction_with_legacy_query_projection() -> None:
+    resolver = _RecordingCapabilityResolver()
+    report = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "regional_labor_data",
+                "construct": "labor.regional_employment",
+                "producer_ref": "rule://regional-employment",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="ec01-dual-scope-axes",
+        scenario_id="ec01-dual-scope-axes",
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:regional-employment",
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Employment claim for the named region.",
+                    "metadata": {"required_constructs": ["labor.regional_employment"]},
+                    "facet_refs": ("population:workers", "geography:region-a", "time:2026"),
+                    "concept_spine_refs": ("concept://regional-employment",),
+                    "authority_profile_refs": ("authority_profile.test",),
+                }
+            ]
+        },
+        facet_snapshots=(
+            {
+                "facet_id": "population:workers",
+                "facet_type": "population_predicate",
+                "value": "workers",
+            },
+            {
+                "facet_id": "geography:region-a",
+                "facet_type": "geography_predicate",
+                "value": "region-a",
+            },
+            {"facet_id": "time:2026", "facet_type": "time_predicate", "value": "2026"},
+        ),
+        scope_profile=compiler_module._ScenarioScopeProfile(
+            profile_id="scope:country-x",
+            jurisdiction="country-x",
+        ),
+    )
+
+    (spec,) = report.specs
+    (query,) = resolver.queries
+    assert spec.scope.geography == "region-a"
+    assert spec.scope.jurisdiction == "country-x"
+    # The current resolver query v1 projects the declared jurisdiction into its
+    # single geography field. This legacy projection does not prove the two axes
+    # denote the same place; the typed spec keeps both source values.
+    assert query.geography == "country-x"
+    assert query.geography != spec.scope.geography
+    assert len(resolver.queries) == 1
+
+
+def test_unlinked_mixed_claim_scopes_refuse_before_capability_resolution() -> None:
+    resolver = _RecordingCapabilityResolver()
+    compiler = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "firm_survival_panel",
+                "construct": "firm_survival",
+                "producer_ref": "rule://firm-survival/test",
+            },
+        ),
+    )
+
+    with pytest.raises(compiler_module.ClaimScopeInputError) as raised:
+        compiler.compile_for_claim_ledger(
+            run_id="run-unlinked-mixed-scopes",
+            scenario_id="unlinked-mixed-scopes",
+            claim_ledger={
+                "claims": [
+                    {
+                        "claim_id": "claim:unlinked",
+                        "claim_family": "implementation",
+                        "claim_type": "implementation",
+                        "claim_use": "decision_support",
+                        "text": "A claim without scope links.",
+                        "metadata": {"required_constructs": ["firm_survival"]},
+                        "facet_refs": (),
+                        "concept_spine_refs": ("concept://unlinked",),
+                        "authority_profile_refs": ("authority_profile.test",),
+                    }
+                ]
+            },
+            facet_snapshots=(
+                {
+                    "facet_id": "population:community",
+                    "facet_type": "population_predicate",
+                    "value": "community",
+                },
+                {
+                    "facet_id": "population:enterprises",
+                    "facet_type": "population_predicate",
+                    "value": "enterprises",
+                },
+            ),
+            obligation_graph={"blocking_frontier": []},
+        )
+
+    assert raised.value.code == "claim_scope_input_invalid"
+    assert raised.value.reason_code == "scope_axis_ambiguous"
+    assert isinstance(raised.value, compiler_module.ScenarioScopeProfileInputError)
+    assert resolver.queries == []
+
+
+def test_unambiguous_legacy_claim_without_facet_refs_keeps_single_scope() -> None:
+    resolver = _RecordingCapabilityResolver()
+    report = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "firm_survival_panel",
+                "construct": "firm_survival",
+                "producer_ref": "rule://firm-survival/test",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="run-single-legacy-scope",
+        scenario_id="single-legacy-scope",
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:legacy-single",
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "A legacy single-scope claim.",
+                    "metadata": {"required_constructs": ["firm_survival"]},
+                    "facet_refs": (),
+                    "concept_spine_refs": ("concept://legacy-single",),
+                    "authority_profile_refs": ("authority_profile.test",),
+                }
+            ]
+        },
+        facet_snapshots=(
+            {
+                "facet_id": "population:all",
+                "facet_type": "population_predicate",
+                "value": "enterprises",
+            },
+            {"facet_id": "geography:all", "facet_type": "geography_predicate", "value": "coast"},
+            {"facet_id": "time:all", "facet_type": "time_predicate", "value": "baseline"},
+        ),
+        obligation_graph={"blocking_frontier": []},
+    )
+
+    spec = report.specs[0]
+    assert (spec.scope.population, spec.scope.geography, spec.scope.time) == (
+        "enterprises",
+        "coast",
+        "baseline",
+    )
+    assert len(resolver.queries) == 1
+    assert resolver.queries[0].population_filter["type"] == "enterprises"
     assert all(
         {
             "source_family_matches_compiled_requirement",
@@ -239,6 +491,378 @@ def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compil
         }
         <= set(spec.admissibility_predicates)
         for spec in report.specs
+    )
+
+
+def test_compound_component_graph_resolves_claim_queries_without_cross_joining() -> None:
+    from decimal import Decimal
+
+    from polisyos.ir.governance import (
+        InterventionSpec,
+        PolicySpec,
+        ProblemFrame,
+        ScheduleSpec,
+        SelectorPredicate,
+    )
+    from polisyos.ir.observation import IdentificationMode
+
+    profile = UniversalAuthorityProfile(
+        profile_id="component_compilation",
+        authority_type=PolicyLayerLevel.FEDERAL,
+        authoritative_for=("compilation_facets",),
+    )
+    refs = PolicyGrammarConceptSpineRefs(
+        concept_spine_ref="concept-spine://ec01-components",
+        jurisdiction_spine_ref="jurisdiction-spine://ec01-components",
+        canonical_concept_refs=("concept://ec01-components",),
+    )
+    intent = PolicyGrammarIntent.from_problem_policy(
+        intent_id="ec01_component_scope",
+        problem_frame=ProblemFrame(
+            problem_id="shared_context",
+            domain=ProblemDomain.CUSTOM,
+            narrative="A separate global housing subsidy for urban renters.",
+        ),
+        policy_spec=PolicySpec(
+            policy_id="ec01_component_scope",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="delivery",
+                    kind="service",
+                    target=SelectorPredicate(
+                        kind="predicate",
+                        field="population",
+                        operator="==",
+                        value="children",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                    params={"budget": Decimal("10")},
+                    target_population_type="children",
+                    target_region_ids=["rural"],
+                    identification_mode=IdentificationMode.SEQUENTIAL,
+                ),
+                InterventionSpec(
+                    intervention_id="financing",
+                    kind="credit",
+                    target=SelectorPredicate(
+                        kind="predicate",
+                        field="population",
+                        operator="==",
+                        value="msmes",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                    params={"budget": Decimal("10")},
+                    target_population_type="msmes",
+                    target_region_ids=["national"],
+                    identification_mode=IdentificationMode.BOUNDS_ONLY,
+                ),
+            ],
+        ),
+    )
+    basis = DataRequirementCompiler().compile_obligation_basis(
+        intent=intent,
+        authority_profile=profile,
+        concept_spine_refs=refs,
+        run_id="ec01_component_scope",
+        generated_at=NOW,
+        intent_text="A compound public policy design.",
+    )
+
+    assert basis.case.status == "compiled"
+    assert basis.case.facets is None
+    assert {component.component_id for component in basis.case.components} == {
+        "delivery",
+        "financing",
+    }
+    assert basis.facets is not None
+    assert basis.obligation_graph is not None
+    component_constructs: dict[str, set[str]] = {"delivery": set(), "financing": set()}
+    for item in basis.obligation_graph.blocking_frontier:
+        component_id = item.metadata.get("component_id")
+        if component_id in component_constructs:
+            component_constructs[component_id].update(
+                construct.removeprefix("construct:")
+                for construct in item.metadata.get("required_evidence_constructs", ())
+            )
+    assert all(component_constructs.values())
+    component_rows = {
+        component_id: tuple(
+            row for row in basis.facets if row["metadata"].get("component_id") == component_id
+        )
+        for component_id in component_constructs
+    }
+    assert all(
+        {row["facet_type"] for row in rows}
+        >= {"population_predicate", "geography_predicate", "time_predicate"}
+        for rows in component_rows.values()
+    )
+    outcome_claims = []
+    for component_id, rows in component_rows.items():
+        (outcome_row,) = tuple(row for row in rows if row["facet_type"] == "outcome_channel")
+        outcome_claims.append(
+            {
+                "claim_id": f"claim:{component_id}",
+                "claim_family": "causal",
+                "claim_type": "causal",
+                "claim_use": "decision_support",
+                "text": f"Causal outcome for component {component_id}.",
+                "metadata": {
+                    "required_constructs": [
+                        "component_shared_signal",
+                        "component_shared_signal_two",
+                    ]
+                },
+                "facet_refs": (outcome_row["facet_id"],),
+                "concept_spine_refs": (outcome_row["concept_ref"],),
+                "authority_profile_refs": (profile.profile_id,),
+            }
+        )
+
+    scenario_rows = [
+        {
+            "scenario_family": f"{component_id}_{construct}",
+            "construct": construct,
+            "producer_ref": f"rule://component/{component_id}/{construct}",
+        }
+        for component_id, constructs in component_constructs.items()
+        for construct in sorted(constructs)
+    ]
+    scenario_rows.append(
+        {
+            "scenario_family": "component_shared_signal",
+            "construct": "component_shared_signal",
+            "producer_ref": "rule://component/shared-signal",
+        }
+    )
+    scenario_rows.append(
+        {
+            "scenario_family": "component_shared_signal",
+            "construct": "component_shared_signal_two",
+            "producer_ref": "rule://component/shared-signal-two",
+        }
+    )
+    resolver = _RecordingCapabilityResolver()
+    report = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=scenario_rows,
+    ).compile_for_claim_ledger(
+        run_id="ec01_component_scope",
+        claim_ledger={"claims": outcome_claims},
+        facet_snapshots=basis.facets,
+        obligation_graph=basis.obligation_graph,
+    )
+
+    query_constructs_by_component = {"delivery": set(), "financing": set()}
+    shared_signal_query_ids: set[str] = set()
+    for query in resolver.queries:
+        if query.population_filter["type"] == "children":
+            component_id = "delivery"
+            assert query.geography == "rural"
+        elif query.population_filter["type"] == "msmes":
+            component_id = "financing"
+            assert query.geography == "national"
+        else:
+            raise AssertionError(f"unexpected component population {query.population_filter!r}")
+        assert f"claim-{component_id}" in query.requirement_id
+        query_constructs_by_component[component_id].add(query.construct)
+        if query.construct == "component_shared_signal":
+            shared_signal_query_ids.add(query.requirement_id)
+
+    assert query_constructs_by_component == {
+        component_id: constructs | {"component_shared_signal", "component_shared_signal_two"}
+        for component_id, constructs in component_constructs.items()
+    }
+    assert len(shared_signal_query_ids) == 2
+    specs_by_claim = {claim["claim_id"]: [] for claim in outcome_claims}
+    for spec in report.specs:
+        specs_by_claim[spec.claim_id].append(spec)
+    assert len(specs_by_claim) == 2
+    for component_id, claim in zip(component_constructs, outcome_claims, strict=True):
+        expected_families = {
+            f"{component_id}_{construct}" for construct in component_constructs[component_id]
+        } | {"component_shared_signal"}
+        specs = specs_by_claim[claim["claim_id"]]
+        assert {
+            family for spec in specs for family in spec.required_data_families
+        } == expected_families
+        same_family_specs = [
+            spec for spec in specs if spec.required_data_families == ("component_shared_signal",)
+        ]
+        assert len(same_family_specs) == 2
+        assert len({spec.requirement_id for spec in same_family_specs}) == 2
+        assert {
+            spec.metadata["capability_binding"]["construct_ref"] for spec in same_family_specs
+        } == {
+            "construct:component_shared_signal",
+            "construct:component_shared_signal_two",
+        }
+        for spec in same_family_specs:
+            binding = spec.metadata["capability_binding"]
+            resolutions = [
+                row
+                for row in report.capability_requirement_resolutions
+                if row.query.requirement_id == binding["requirement_id"]
+            ]
+            assert len(resolutions) == 1
+            assert resolutions[0].query.construct == binding["construct_ref"].removeprefix(
+                "construct:"
+            )
+        assert all(
+            spec.scope.population == ("children" if component_id == "delivery" else "msmes")
+            for spec in specs
+        )
+        assert all(
+            spec.scope.geography == ("rural" if component_id == "delivery" else "national")
+            for spec in specs
+        )
+        assert all(spec.scope.time == "annual" for spec in specs)
+        expected_scope_refs = {
+            row["facet_id"]
+            for row in component_rows[component_id]
+            if row["facet_type"]
+            in {"outcome_channel", "population_predicate", "geography_predicate", "time_predicate"}
+        }
+        assert all(set(spec.facet_refs) == expected_scope_refs for spec in specs)
+
+    # The N7 family-level compatibility projection may fold equivalent source
+    # families, but it must retain every compiled requirement identity.
+    from polisyos.runtime.quality.production_data_contract_index import (
+        _requirements_from_data_requirement_specs,
+    )
+
+    projected = _requirements_from_data_requirement_specs(report.specs)
+    shared_projection = tuple(
+        row for row in projected if row["expected_family"] == "component_shared_signal"
+    )
+    shared_spec_ids = {
+        spec.requirement_id
+        for spec in report.specs
+        if spec.required_data_families == ("component_shared_signal",)
+    }
+    assert len(shared_projection) == 1
+    assert set(shared_projection[0]["data_requirement_ids"]) == shared_spec_ids
+
+    ambiguous_claim = {
+        **outcome_claims[0],
+        "claim_id": "claim:ambiguous-components",
+        "facet_refs": tuple(
+            next(row["facet_id"] for row in rows if row["facet_type"] == "outcome_channel")
+            for rows in component_rows.values()
+        ),
+    }
+    refusing_resolver = _RecordingCapabilityResolver()
+    with pytest.raises(compiler_module.ClaimScopeInputError) as raised:
+        DataRequirementCompiler(
+            capability_resolver=refusing_resolver,
+            scenario_family_construct_rows=scenario_rows,
+        ).compile_for_claim_ledger(
+            run_id="ec01_component_scope_ambiguous",
+            claim_ledger={"claims": [ambiguous_claim]},
+            facet_snapshots=basis.facets,
+            obligation_graph=basis.obligation_graph,
+        )
+    assert raised.value.reason_code == "claim_spans_multiple_components"
+    assert refusing_resolver.queries == []
+
+    component_frontier = next(
+        item
+        for item in basis.obligation_graph.blocking_frontier
+        if item.metadata.get("component_id")
+    )
+    malformed_frontier = component_frontier.model_copy(
+        update={
+            "metadata": {
+                key: value
+                for key, value in component_frontier.metadata.items()
+                if key != "component_facet_refs"
+            }
+        }
+    )
+    malformed_graph = basis.obligation_graph.model_copy(
+        update={
+            "blocking_frontier": tuple(
+                malformed_frontier if item is component_frontier else item
+                for item in basis.obligation_graph.blocking_frontier
+            )
+        }
+    )
+    removed_lineage_resolver = _RecordingCapabilityResolver()
+    with pytest.raises(compiler_module.ClaimScopeInputError) as lineage_raised:
+        DataRequirementCompiler(
+            capability_resolver=removed_lineage_resolver,
+            scenario_family_construct_rows=scenario_rows,
+        ).compile_for_claim_ledger(
+            run_id="ec01_component_scope_lineage_removed",
+            claim_ledger={"claims": outcome_claims},
+            facet_snapshots=basis.facets,
+            obligation_graph=malformed_graph,
+        )
+    assert lineage_raised.value.reason_code == "component_obligation_facet_binding_invalid"
+    assert removed_lineage_resolver.queries == []
+
+    conflicting_profile_resolver = _RecordingCapabilityResolver()
+    with pytest.raises(compiler_module.ClaimScopeInputError) as profile_raised:
+        DataRequirementCompiler(
+            capability_resolver=conflicting_profile_resolver,
+            scenario_family_construct_rows=scenario_rows,
+        ).compile_for_claim_ledger(
+            run_id="ec01_component_scope_profile_conflict",
+            claim_ledger={"claims": [outcome_claims[0]]},
+            facet_snapshots=basis.facets,
+            obligation_graph=basis.obligation_graph,
+            scope_profile=compiler_module._ScenarioScopeProfile(
+                profile_id="scope:wrong-population",
+                population="msmes",
+            ),
+        )
+    assert profile_raised.value.reason_code == "scope_profile_population_conflicts_with_facets"
+    assert conflicting_profile_resolver.queries == []
+
+
+def test_scenario_claims_preserve_grammar_limitation_source_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_ledgers = []
+    original_compile_claim_decomposition = compiler_module._compile_claim_decomposition
+
+    def capture_source_ledger(payload: dict[str, Any]) -> Any:
+        ledger = original_compile_claim_decomposition(payload)
+        source_ledgers.append(ledger)
+        return ledger
+
+    monkeypatch.setattr(
+        compiler_module,
+        "_compile_claim_decomposition",
+        capture_source_ledger,
+    )
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "ec01-source-context",
+            "domain": "fiscal",
+            "text": (
+                "Create a concessional credit guarantee programme for displaced MSMEs in "
+                "northern regions in 2026, funded by budget appropriation and delivered "
+                "through partner banks to preserve employment."
+            ),
+        }
+    )
+
+    assert report.scenario_id == "ec01-source-context"
+    assert len(source_ledgers) == 1
+    contexts = tuple(
+        context
+        for claim in source_ledgers[0].claims
+        for context in claim.metadata.get("source_facet_contexts", ())
+    )
+    warning_contexts = tuple(
+        context for context in contexts if context.get("metadata", {}).get("grammar_limitations")
+    )
+    assert warning_contexts
+    assert all(
+        context["metadata"]["semantic_scope_provenance"] == "not_established"
+        and context["metadata"]["grammar_limitation_messages"]
+        and context["metadata"]["grammar_limitation_details"]
+        for context in warning_contexts
     )
 
 
@@ -2622,13 +3246,14 @@ def test_world_slot_join_preserves_multiple_matching_claim_specs_as_ambiguous() 
     from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 
     scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    scope_profile = compiler_module._scenario_scope_profile(scenario)
     report = DataRequirementCompiler(
         capability_resolver=RequirementToCapabilityResolver.governed_fixture()
     ).compile_for_claim_ledger(
         run_id="world-slot-two-claims",
         scenario_id=scenario["scenario_id"],
         facet_snapshots=(),
-        scope_profile=compiler_module._scenario_scope_profile(scenario),
+        scope_profile=scope_profile,
         claim_ledger={
             "claims": [
                 {
@@ -2643,14 +3268,122 @@ def test_world_slot_join_preserves_multiple_matching_claim_specs_as_ambiguous() 
             ]
         },
     )
-    assert len(report.specs) == 2
+    resolutions = report.capability_requirement_resolutions or ()
+    assert len(resolutions) == 3
+    query_ids = {row.query.requirement_id for row in resolutions}
+    assert len(query_ids) == 3
+    assert len(report.specs) == 4
+    assert len({spec.requirement_id for spec in report.specs}) == 4
+    binding_ids = [spec.metadata["capability_binding"]["requirement_id"] for spec in report.specs]
+    assert set(binding_ids) == query_ids
+    global_query_id = next(
+        query_id
+        for query_id in query_ids
+        if "claim-one" not in query_id and "claim-two" not in query_id
+    )
+    for claim_slug in ("claim-one", "claim-two"):
+        claim_specs = tuple(
+            spec for spec in report.specs if claim_slug.replace("-", ":") in spec.claim_id
+        )
+        assert len(claim_specs) == 2
+        assert global_query_id in {
+            spec.metadata["capability_binding"]["requirement_id"] for spec in claim_specs
+        }
     matches = compiler_module.compiled_requirements_for_world_slot(
         world_slot="global.unemployment_rate",
         specs=report.specs,
         capability_resolutions=report.capability_requirement_resolutions,
     )
-    assert len(matches) == 2
+    assert len(matches) == 4
     assert {spec.claim_id for spec in matches} == {"claim:one", "claim:two"}
+
+
+def test_global_and_claim_same_family_bindings_emit_unique_requirement_specs() -> None:
+    resolver = _RecordingCapabilityResolver()
+    report = DataRequirementCompiler(
+        capability_resolver=resolver,
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "shared_source_family",
+                "construct": "labor.shared_indicator",
+                "producer_ref": "rule://labor/shared-indicator",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="ec01-global-claim-family",
+        scenario_id="ec01-global-claim-family",
+        scope_profile=compiler_module._ScenarioScopeProfile(
+            profile_id="scope:global-and-claim",
+            population="workers",
+            jurisdiction="country-a",
+            time_start="2024-01-01",
+            time_end="2024-12-31",
+            time_role="observation_time",
+            granularity="annual",
+            entity_scope="country",
+            required_constructs=("labor.shared_indicator",),
+        ),
+        facet_snapshots=(),
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:local-indicator",
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Claim-specific indicator use.",
+                    "metadata": {"required_constructs": ["labor.shared_indicator"]},
+                }
+            ]
+        },
+    )
+
+    assert len(resolver.queries) == 2
+    assert len(report.capability_requirement_resolutions or ()) == 2
+    assert len(report.specs) == 2
+    assert len({spec.requirement_id for spec in report.specs}) == 2
+    assert {spec.required_data_families for spec in report.specs} == {("shared_source_family",)}
+    query_ids = {query.requirement_id for query in resolver.queries}
+    assert {
+        spec.metadata["capability_binding"]["requirement_id"] for spec in report.specs
+    } == query_ids
+    assert {spec.metadata["capability_binding"]["construct_ref"] for spec in report.specs} == {
+        "construct:labor.shared_indicator"
+    }
+
+    singleton_report = DataRequirementCompiler(
+        capability_resolver=_RecordingCapabilityResolver(),
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "shared_source_family",
+                "construct": "labor.shared_indicator",
+                "producer_ref": "rule://labor/shared-indicator",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="ec01-single-binding-id",
+        scenario_id="ec01-single-binding-id",
+        facet_snapshots=(),
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:local-indicator",
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Claim-specific indicator use.",
+                    "metadata": {"required_constructs": ["labor.shared_indicator"]},
+                }
+            ]
+        },
+    )
+    (singleton_spec,) = singleton_report.specs
+    legacy_identity = "ec01-single-binding-id:claim:local-indicator:shared_source_family"
+    legacy_digest = hashlib.sha256(legacy_identity.encode()).hexdigest()[:12]
+    assert singleton_spec.requirement_id == (
+        f"data-requirement:ec01-single-binding-id:claim:local-indicator:"
+        f"shared_source_family:{legacy_digest}"
+    )
 
 
 def test_world_slot_join_preserves_source_alternatives_inside_one_spec() -> None:

@@ -10,7 +10,7 @@ Use :class:`ObservationRecord` for atomic evidence rows and
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -27,6 +27,35 @@ else:
     from polisyos.ir.model_layer.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
+
+IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF = (
+    "policyos.policy_grammar.facet_derivation.v1:method_need:explicit_policy_spec.v1"
+)
+IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF = (
+    "policyos.policy_grammar.facet_derivation.v1:method_need:inferred_sequential.v1"
+)
+IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF = (
+    "policyos.policy_grammar.facet_derivation.v1:method_need:default_point.v1"
+)
+
+
+def identification_mode_origin_for_rule(
+    rule_ref: str,
+) -> Literal["explicit_policy_spec", "inferred_sequential", "default_point", "not_established"]:
+    """Resolve method-mode origin from an exact versioned derivation-rule identity.
+
+    Mode values never establish their own origin. Unknown and historical generic
+    grammar rules remain ``not_established`` so consumers cannot turn defaults
+    into strict declared-mode constraints.
+    """
+
+    if rule_ref == IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF:
+        return "explicit_policy_spec"
+    if rule_ref == IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF:
+        return "inferred_sequential"
+    if rule_ref == IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF:
+        return "default_point"
+    return "not_established"
 
 
 class ObservationFamily(str, Enum):
@@ -243,6 +272,9 @@ class ObservationPanel(KernelModel):
 
 
 __all__ = [
+    "IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF",
+    "IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF",
+    "IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF",
     "EntityScope",
     "IdentificationMode",
     "MultiplexGraphLayerId",
@@ -251,4 +283,5 @@ __all__ = [
     "ObservationRecord",
     "SourceConfidenceTier",
     "StrategicResponseChannel",
+    "identification_mode_origin_for_rule",
 ]

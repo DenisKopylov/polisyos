@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.observation import IdentificationMode
 from polisyos.scientist.evidence.claims.export import (
     ClaimExportAudience,
     _format_resolved_claim_ledger,
@@ -244,6 +245,245 @@ def test_llm_candidate_obligation_is_downgraded_to_context_only_not_authority() 
         and claim.decomposition_source_class is ClaimSourceClass.LLM_CANDIDATE
         for claim in ledger.claims
     )
+
+
+def test_explicit_method_facet_is_bound_to_linked_causal_claim_preconditions() -> None:
+    payload = ClaimDecompositionInput(
+        run_id="run_w6d_method_binding",
+        intent="Estimate the causal effect under partial identification.",
+        facets=[
+            ClaimDecompositionFacet(
+                facet_id="facet_effect",
+                facet_type="outcome_channel",
+                value="causal effect",
+            ),
+            ClaimDecompositionFacet(
+                facet_id="facet_method",
+                facet_type="method_need",
+                value="partially_identified",
+            ),
+        ],
+        obligations=[
+            ClaimDecompositionObligation(
+                obligation_id="obligation_effect",
+                family="causal_effect",
+                description="Estimate the intervention effect.",
+                facet_refs=["facet_effect", "facet_method"],
+            )
+        ],
+    )
+
+    ledger = ClaimDecompositionCompiler().compile(payload)
+
+    causal_claims = [claim for claim in ledger.claims if claim.claim_type is ClaimType.CAUSAL]
+    assert len(causal_claims) == 2
+    for causal_claim in causal_claims:
+        assert "facet_method" in causal_claim.facet_refs
+        mode_need = next(
+            need
+            for need in causal_claim.method_need_preconditions
+            if need.method_need == "partially_identified"
+        )
+        assert mode_need.claim_id == causal_claim.claim_id
+        assert mode_need.facet_refs == ["facet_method"]
+        assert mode_need.obligation_refs == ["obligation_effect"]
+        assert mode_need.metadata["explicit_identification_mode_facets"] == [
+            {
+                "facet_ref": "facet_method",
+                "identification_mode": "partially_identified",
+                "identification_mode_origin": "declared_constraint",
+                "source_class": "deterministic_compiler",
+            }
+        ]
+    method_claim = next(claim for claim in ledger.claims if claim.facet_refs == ["facet_method"])
+    assert method_claim.claim_use is ClaimUse.CONTEXT_ONLY
+    assert method_claim.method_need_preconditions == []
+
+
+def test_unlinked_method_facet_does_not_change_causal_precondition() -> None:
+    payload = ClaimDecompositionInput(
+        run_id="run_w6d_unlinked_method",
+        intent="Estimate a causal effect.",
+        facets=[
+            ClaimDecompositionFacet(
+                facet_id="facet_effect",
+                facet_type="outcome_channel",
+                value="causal effect",
+            ),
+            ClaimDecompositionFacet(
+                facet_id="facet_method",
+                facet_type="method_need",
+                value="bounds_only",
+            ),
+        ],
+        obligations=[
+            ClaimDecompositionObligation(
+                obligation_id="obligation_effect",
+                family="causal_effect",
+                description="Estimate the intervention effect.",
+                facet_refs=["facet_effect"],
+            )
+        ],
+    )
+
+    ledger = ClaimDecompositionCompiler().compile(payload)
+
+    causal_claim = next(claim for claim in ledger.claims if claim.claim_type is ClaimType.CAUSAL)
+    assert all(
+        "explicit_identification_mode_facets" not in need.metadata
+        for need in causal_claim.method_need_preconditions
+    )
+
+
+@pytest.mark.parametrize(
+    ("mode", "rule_ref", "origin"),
+    [
+        (
+            IdentificationMode.POINT_IDENTIFIED,
+            "policyos.policy_grammar.facet_derivation.v1:method_need:default_point.v1",
+            "default_point",
+        ),
+        (
+            IdentificationMode.SEQUENTIAL,
+            "policyos.policy_grammar.facet_derivation.v1:method_need:inferred_sequential.v1",
+            "inferred_sequential",
+        ),
+        (
+            IdentificationMode.POINT_IDENTIFIED,
+            "policyos.policy_grammar.facet_derivation.v1:method_need",
+            "not_established",
+        ),
+    ],
+)
+def test_nonexplicit_grammar_method_modes_remain_context_not_constraints(
+    mode: IdentificationMode,
+    rule_ref: str,
+    origin: str,
+) -> None:
+    ledger = ClaimDecompositionCompiler().compile(
+        ClaimDecompositionInput(
+            run_id=f"run_w6d_{origin}",
+            intent="Assess the requested causal policy effect.",
+            facets=[
+                ClaimDecompositionFacet(
+                    facet_id="facet_effect",
+                    facet_type="outcome_channel",
+                    value="program outcome",
+                    metadata={"case_id": "case-mode-origin"},
+                ),
+                ClaimDecompositionFacet(
+                    facet_id="facet_method",
+                    facet_type="method_need",
+                    value=mode.value,
+                    metadata={
+                        "case_id": "case-mode-origin",
+                        "derivation_rule_ref": rule_ref,
+                        "identification_mode_origin": origin,
+                    },
+                ),
+            ],
+            obligations=[
+                ClaimDecompositionObligation(
+                    obligation_id="obligation_effect",
+                    family="causal_effect",
+                    description="Assess the program outcome.",
+                    facet_refs=["facet_effect", "facet_method"],
+                )
+            ],
+        )
+    )
+
+    causal_claims = [claim for claim in ledger.claims if claim.claim_type is ClaimType.CAUSAL]
+    assert len(causal_claims) == 2
+    for claim in causal_claims:
+        assert all(
+            not need.metadata.get("explicit_identification_mode_facets")
+            for need in claim.method_need_preconditions
+        )
+        mode_context = next(
+            row
+            for row in claim.metadata["source_facet_contexts"]
+            if row["facet_ref"] == "facet_method"
+        )
+        assert mode_context["metadata"]["identification_mode_origin"] == origin
+        assert mode_context["metadata"]["derivation_rule_ref"] == rule_ref
+
+
+def test_default_point_rule_rejects_a_conflicting_mode_value() -> None:
+    payload = ClaimDecompositionInput(
+        run_id="run_w6d_default_point_wrong_value",
+        intent="Assess a causal effect with bounds.",
+        facets=[
+            ClaimDecompositionFacet(
+                facet_id="facet_effect",
+                facet_type="outcome_channel",
+                value="causal effect",
+                metadata={"case_id": "case_default_wrong_value"},
+            ),
+            ClaimDecompositionFacet(
+                facet_id="facet_method",
+                facet_type="method_need",
+                value=IdentificationMode.BOUNDS_ONLY.value,
+                metadata={
+                    "case_id": "case_default_wrong_value",
+                    "derivation_rule_ref": (
+                        "policyos.policy_grammar.facet_derivation.v1:method_need:default_point.v1"
+                    ),
+                    "identification_mode_origin": "default_point",
+                },
+            ),
+        ],
+        obligations=[
+            ClaimDecompositionObligation(
+                obligation_id="obligation_effect",
+                family="causal_effect",
+                description="Assess the causal effect.",
+                facet_refs=["facet_effect", "facet_method"],
+            )
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="claim_method_identification_mode_origin_value_mismatch",
+    ):
+        ClaimDecompositionCompiler().compile(payload)
+
+
+def test_unknown_method_rule_cannot_be_stamped_explicit_by_metadata() -> None:
+    payload = ClaimDecompositionInput(
+        run_id="run_w6d_unknown_rule_forged_origin",
+        intent="Assess a causal effect under bounds-only identification.",
+        facets=[
+            ClaimDecompositionFacet(
+                facet_id="facet_effect",
+                facet_type="outcome_channel",
+                value="causal effect",
+                metadata={"case_id": "case_unknown_rule"},
+            ),
+            ClaimDecompositionFacet(
+                facet_id="facet_method",
+                facet_type="method_need",
+                value=IdentificationMode.BOUNDS_ONLY.value,
+                metadata={
+                    "case_id": "case_unknown_rule",
+                    "derivation_rule_ref": "policyos.policy_grammar.facet_derivation.v9:method_need:future.v1",
+                    "identification_mode_origin": "explicit_policy_spec",
+                },
+            ),
+        ],
+        obligations=[
+            ClaimDecompositionObligation(
+                obligation_id="obligation_effect",
+                family="causal_effect",
+                description="Assess the causal effect.",
+                facet_refs=["facet_effect", "facet_method"],
+            )
+        ],
+    )
+
+    with pytest.raises(ValueError, match="claim_method_identification_mode_origin_mismatch"):
+        ClaimDecompositionCompiler().compile(payload)
 
 
 def test_claim_decomposition_bridges_participation_claims_to_requirements() -> None:

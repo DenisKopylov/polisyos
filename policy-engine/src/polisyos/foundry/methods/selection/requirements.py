@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
+from polisyos.ir.observation import IdentificationMode, identification_mode_origin_for_rule
 from polisyos.method_requirement import (
     MethodIdentificationClass,
     MethodValidityRequirementSpec,
@@ -103,6 +104,26 @@ def _rejection_for_requirement(
     method: Mapping[str, Any],
     requirement: MethodValidityRequirementSpec,
 ) -> dict[str, Any] | None:
+    explicit_modes, mode_error = _explicit_identification_modes(requirement)
+    if mode_error is not None:
+        return _rejection_row(
+            method,
+            requirement=requirement,
+            reason_code="identification_mode_requirement_invalid",
+            reason=mode_error,
+        )
+    missing_modes = _missing_identification_modes(method, explicit_modes)
+    if missing_modes:
+        return _rejection_row(
+            method,
+            requirement=requirement,
+            reason_code="identification_mode_unsupported",
+            reason=(
+                "Method candidate does not declare support for the linked identification "
+                "mode(s): " + ", ".join(missing_modes) + "."
+            ),
+            missing_identification_modes=missing_modes,
+        )
     if not _matches_requirement_family(method, requirement):
         return _rejection_row(
             method,
@@ -194,11 +215,14 @@ def _matches_requirement_family(
     method: Mapping[str, Any],
     requirement: MethodValidityRequirementSpec,
 ) -> bool:
+    explicit_modes, mode_error = _explicit_identification_modes(requirement)
+    if mode_error is not None or _missing_identification_modes(method, explicit_modes):
+        return False
     required = {
         value.casefold()
         for value in [*requirement.required_method_families, *requirement.method_expectations]
         if value
-    }
+    } - {mode.casefold() for mode in explicit_modes}
     if not required:
         return True
     method_values = {
@@ -212,6 +236,155 @@ def _matches_requirement_family(
     ):
         method_values.add("negative_certificate")
     return bool(required.intersection(method_values))
+
+
+def _explicit_identification_modes(
+    requirement: MethodValidityRequirementSpec,
+) -> tuple[list[str], str | None]:
+    """Read only claim-bound declared constraints with preserved mode provenance."""
+
+    rows = requirement.metadata.get("explicit_identification_mode_facets", [])
+    if not isinstance(rows, list):
+        return [], "Explicit identification-mode bindings must be a list."
+    if rows and not requirement.source_precondition_refs:
+        return [], "Explicit identification-mode bindings have no source precondition."
+    raw_contexts = requirement.metadata.get("source_facet_contexts", [])
+    if not isinstance(raw_contexts, list):
+        return [], "Identification-mode source facet contexts must be a list."
+    contexts: dict[str, Mapping[str, Any]] = {}
+    for context in raw_contexts:
+        if not isinstance(context, Mapping):
+            return [], "Identification-mode source facet context must be an object."
+        context_ref = _text(context.get("facet_ref"))
+        if not context_ref:
+            return [], "Identification-mode source facet context has no reference."
+        if context_ref in contexts:
+            return [], "Identification-mode source facet context is ambiguous."
+        contexts[context_ref] = context
+    output: list[str] = []
+    for row in rows:
+        if not isinstance(row, Mapping):
+            return [], "Explicit identification-mode binding must be an object."
+        facet_ref = _text(row.get("facet_ref"))
+        if not facet_ref or facet_ref not in requirement.facet_refs:
+            return [], "Explicit identification-mode binding is not linked to this claim."
+        try:
+            mode = IdentificationMode(_text(row.get("identification_mode")))
+        except ValueError:
+            return [], "Explicit identification-mode binding has an unknown mode."
+        rule_ref = _text(row.get("derivation_rule_ref"))
+        origin = _text(row.get("identification_mode_origin"))
+        row_source = _text(row.get("source_class"))
+        if row_source in {"llm_candidate", "llm_critic", "llm_drafter"}:
+            return [], "Explicit identification-mode binding came from an LLM candidate."
+        context = contexts.get(facet_ref)
+        if context is not None:
+            context_value = _text(context.get("value"))
+            if context_value and context_value != mode.value:
+                return [], "Explicit identification-mode binding disagrees with its source value."
+            context_source = _text(context.get("source_class"))
+            if context_source in {"llm_candidate", "llm_critic", "llm_drafter"}:
+                return [], "Explicit identification-mode binding came from an LLM candidate."
+            if row_source and context_source and row_source != context_source:
+                return [], "Explicit identification-mode binding has a different source class."
+            context_metadata = context.get("metadata")
+            if not isinstance(context_metadata, Mapping):
+                return [], "Explicit identification-mode source metadata is invalid."
+            context_rule = _text(context_metadata.get("derivation_rule_ref"))
+            context_origin = _text(context_metadata.get("identification_mode_origin"))
+            if rule_ref and context_rule and rule_ref != context_rule:
+                return [], "Explicit identification-mode binding has a different source rule."
+            if origin and context_origin and origin != context_origin:
+                return [], "Explicit identification-mode binding has a different source origin."
+            rule_ref = context_rule or rule_ref
+            origin = context_origin or origin
+        if rule_ref:
+            expected_origin = identification_mode_origin_for_rule(rule_ref)
+            if origin and origin != expected_origin:
+                return [], "Identification-mode binding disagrees with its derivation rule."
+            origin = expected_origin
+        # Requirements emitted by the compiler carry the exact origin resolved
+        # from the source facet. Older direct typed constraints have no grammar
+        # rule identity and remain caller constraints, never scientific evidence.
+        if not origin and not rule_ref:
+            context_metadata = context.get("metadata", {}) if context is not None else {}
+            grammar_marked = isinstance(context_metadata, Mapping) and any(
+                key in context_metadata
+                for key in (
+                    "case_id",
+                    "intent_id",
+                    "source_intent_sha256",
+                    "source_intervention_sha256",
+                    "grammar_case_schema_version",
+                )
+            )
+            origin = "not_established" if grammar_marked else "declared_constraint"
+        if origin not in {"explicit_policy_spec", "declared_constraint"}:
+            return [], "Identification-mode binding is not a declared method constraint."
+        if origin == "explicit_policy_spec" and not rule_ref:
+            return [], "Explicit PolicySpec mode has no derivation rule binding."
+        if origin == "declared_constraint" and rule_ref:
+            return [], "Direct declared mode conflicts with grammar provenance."
+        output.append(mode.value)
+
+    # The producer-bound source context is authoritative for declared constraints;
+    # the explicit rows are a projection. Reconstruct a missing projection so a
+    # caller cannot weaken selection by deleting only that secondary copy.
+    for facet_ref, context in contexts.items():
+        if _text(context.get("facet_type")) != "method_need":
+            continue
+        context_metadata = context.get("metadata")
+        if not isinstance(context_metadata, Mapping):
+            return [], "Identification-mode source metadata is invalid."
+        context_source = _text(context.get("source_class"))
+        rule_ref = _text(context_metadata.get("derivation_rule_ref"))
+        supplied_origin = _text(context_metadata.get("identification_mode_origin"))
+        grammar_marked = any(
+            key in context_metadata
+            for key in (
+                "case_id",
+                "intent_id",
+                "source_intent_sha256",
+                "source_intervention_sha256",
+                "grammar_case_schema_version",
+            )
+        )
+        if rule_ref:
+            origin = identification_mode_origin_for_rule(rule_ref)
+        elif grammar_marked or context_source in {"llm_candidate", "llm_critic", "llm_drafter"}:
+            origin = "not_established"
+        else:
+            origin = "declared_constraint"
+        if supplied_origin and supplied_origin != origin:
+            return [], "Identification-mode source origin disagrees with its derivation rule."
+        try:
+            mode = IdentificationMode(_text(context.get("value")))
+        except ValueError:
+            return [], "Identification-mode source context has an unknown mode."
+        if (origin == "default_point" and mode is not IdentificationMode.POINT_IDENTIFIED) or (
+            origin == "inferred_sequential" and mode is not IdentificationMode.SEQUENTIAL
+        ):
+            return [], "Identification-mode source value disagrees with its derivation rule."
+        if origin not in {"explicit_policy_spec", "declared_constraint"}:
+            continue
+        if facet_ref not in requirement.facet_refs:
+            return [], "Declared identification-mode source context is not linked to this claim."
+        if not requirement.source_precondition_refs:
+            return [], "Declared identification-mode source context has no source precondition."
+        if context_source in {"llm_candidate", "llm_critic", "llm_drafter"}:
+            return [], "Declared identification-mode source context came from an LLM candidate."
+        output.append(mode.value)
+    return _dedupe(output), None
+
+
+def _missing_identification_modes(
+    method: Mapping[str, Any],
+    required_modes: Sequence[str],
+) -> list[str]:
+    """Return modes absent from the method's declared requirement contract."""
+
+    declared = {value.casefold() for value in _string_list(method.get("method_expectations"))}
+    return sorted(mode for mode in required_modes if mode.casefold() not in declared)
 
 
 def _serious_requirement(requirement: MethodValidityRequirementSpec) -> bool:
@@ -281,6 +454,7 @@ def _rejection_row(
     reason_code: str,
     reason: str,
     missing_assumption_gates: list[str] | None = None,
+    missing_identification_modes: list[str] | None = None,
 ) -> dict[str, Any]:
     row: dict[str, Any] = {
         "method_id": _method_id(method),
@@ -297,6 +471,8 @@ def _rejection_row(
     }
     if missing_assumption_gates:
         row["missing_assumption_gates"] = missing_assumption_gates
+    if missing_identification_modes:
+        row["missing_identification_modes"] = missing_identification_modes
     return row
 
 

@@ -1,0 +1,29 @@
+id = "e02-lane01-audit-integration"
+title = "Preserve selected policy components, inputs and method declarations"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos"
+summary = "Lane 01 audit repairs bind measurement aggregation and population to actual occurrences, preserve explicit identification modes and per-claim scopes, keep complete method declarations across cache restoration, and separate complete run discovery from its bounded decoded cache. Trusted application metric registries use one operation snapshot through early NL normalization and persisted downstream bindings. Structured policy components retain independent scope and method lineage."
+compatibility = "Existing unextended v1 case bytes and readers, stable method ABI digests and default registry contents are preserved. New structured compound cases and scalar cases carrying structured diagnostic details use v2; older consumers must not reinterpret components as one scalar case. Method caches rebuild under schema v4. Runtime run-linked artifact ownership supports multiple legitimate tenants while retaining CAS tenant/cell and authorization checks."
+change_class = "compatible"
+surface_classification = "public_experimental: additive Core component DTO, v2 grammar case and exact identification-origin resolver; internal: compiler, method-cache and Runtime index consumers"
+migration = "No historical artifact rewrite. Rebuild derived method caches and qualify them against the current admitted registry before current use. Unextended legacy v1 payloads keep their wire version; new structured fields require v2."
+limitations = "Candidate compilation and selected numerical checks do not grant scientific, institutional, publication or G acceptance. Caller-declared identification modes constrain method selection; exact grammar defaults/inference and unknown historical origins remain context with limitations, not scientific identification evidence. Controlled text ambiguities remain explicit; this is not universal NL interpretation. A maintained application cache caller and the full late workflow-parameter projection are not established by focused cache/metric bridge tests."
+evidence = [
+  "src/polisyos/core/contracts/variable_binding.py",
+  "src/polisyos/core/contracts/runtime.py",
+  "src/polisyos/policy_grammar/_impl/compiler.py",
+  "src/polisyos/obligation_graph/_impl/compiler.py",
+  "src/polisyos/data_requirement/compiler.py",
+  "src/polisyos/scientist/policy_design/claim_decomposition.py",
+  "src/polisyos/method_requirement/_impl/compiler.py",
+  "src/polisyos/foundry/methods/selection/cache.py",
+  "src/polisyos/runtime/http/services/run_index.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+  "tests/unit/core/contracts/test_variable_binding.py",
+  "tests/unit/policy_grammar/test_component_policy_grammar.py",
+  "tests/unit/obligation_graph/test_component_scoped_compiler.py",
+  "tests/unit/data_requirement/test_compiler.py",
+  "tests/unit/foundry/methods/test_cache.py",
+  "tests/unit/runtime/http/services/test_run_index_generation.py",
+]

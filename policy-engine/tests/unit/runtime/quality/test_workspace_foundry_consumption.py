@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
-from typing import get_args
+import json
+from collections.abc import Mapping
+from typing import Any, get_args
 
 import pytest
 
@@ -23,6 +25,44 @@ from tests.unit.runtime.quality.test_data_forge_binding import (
 )
 
 recorded_panel_owner = _recorded_panel_owner
+
+
+def _assert_claim_grammar_warnings_match_source_context(claim: Mapping[str, Any]) -> None:
+    claim_metadata = claim["metadata"]
+    contexts = claim_metadata["source_facet_contexts"]
+    expected = set()
+    for context in contexts:
+        metadata = context["metadata"]
+        codes = metadata.get("grammar_limitations", ())
+        messages = metadata.get("grammar_limitation_messages", ())
+        details = metadata.get("grammar_limitation_details", ())
+        for code, message, detail in zip(codes, messages, details, strict=True):
+            expected.add(
+                json.dumps(
+                    [code, message, dict(detail), metadata.get("semantic_scope_provenance")],
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+            )
+    observed = {
+        json.dumps(
+            [
+                row["code"],
+                row["message"],
+                row["details"],
+                row["semantic_scope_provenance"],
+            ],
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        for row in claim_metadata["grammar_limitation_records"]
+    }
+    assert observed == expected
+    context_refs = {row["facet_ref"] for row in contexts}
+    assert all(
+        set(row["source_facet_refs"]).issubset(context_refs)
+        for row in claim_metadata["grammar_limitation_records"]
+    )
 
 
 def _method_owner_case(recorded_panel_owner):
@@ -629,6 +669,435 @@ def test_compiled_constraint_preflight_derives_whole_owner_population_without_po
                 "constraint_method_requirement_population_not_established"
                 in packet["missing_basis"]
             )
+
+
+def test_selected_component_graph_preserves_modes_to_every_causal_consumer() -> None:
+    from datetime import UTC, datetime
+    from hashlib import sha256
+
+    from polisyos.foundry.methods.selection import select_method_candidates_for_requirements
+    from polisyos.ir.observation import IdentificationMode
+    from polisyos.method_requirement import compile_method_validity_requirements
+    from polisyos.obligation_graph import (
+        ComplexityBudget,
+        GovernedObligationRule,
+        compile_obligation_graph,
+    )
+    from polisyos.policy_grammar import PolicyGrammarCompiler, facet_snapshots_for_obligation_graph
+    from polisyos.scientist.policy_design import compile_claim_decomposition
+    from tests.unit.policy_grammar.test_component_policy_grammar import (
+        _authority,
+        _intent,
+        _refs,
+    )
+
+    case = PolicyGrammarCompiler().compile(
+        intent=_intent(),
+        authority_profile=_authority(),
+        concept_spine_refs=_refs(),
+    )
+    facet_rows = facet_snapshots_for_obligation_graph(case)
+    modes = (IdentificationMode.SEQUENTIAL, IdentificationMode.BOUNDS_ONLY)
+    rules = [
+        GovernedObligationRule(
+            rule_id=f"rule:causal-mode:{mode.value}",
+            rule_family="causal_effect",
+            rule_version="2026.11",
+            logic_hash="sha256:" + sha256(mode.value.encode()).hexdigest(),
+            owner="team-evidence",
+            scope="national",
+            authority_level="governed",
+            evidence_basis="registered rule",
+            public_revalidation_effect="review_affected_claim",
+            obligation_text=f"Review the causal method contract for {mode.value}.",
+            authority_profile="candidate",
+            temporal_window="case_lifecycle",
+            remedy_path="source_evidence",
+            required_facets={"method_need": mode.value},
+        )
+        for mode in modes
+    ]
+    graph = compile_obligation_graph(
+        run_id="run_w6d_selected_component_graph",
+        facets=facet_rows,
+        governed_rules=rules,
+        generated_at=datetime(2026, 11, 11, tzinfo=UTC),
+        complexity_budget=ComplexityBudget(max_frontier_items=8),
+    )
+    assert {row.bundle_key.component_id for row in graph.blocking_frontier} == {
+        "delivery",
+        "financing",
+    }
+
+    claim_input = constraint_owner._claim_decomposition_input_from_selected_graph(
+        run_id=graph.run_id,
+        intent="Assess the composed policy's causal effects.",
+        graph=graph,
+        concept_spine_refs=["concept://declared-action"],
+        authority_profile_refs=[case.authority_profile.profile_id],
+    )
+    frontier_by_component = {row.bundle_key.component_id: row for row in graph.blocking_frontier}
+    obligations_by_id = {row.obligation_id: row for row in claim_input.obligations}
+    facet_by_id = {row.facet_id: row for row in claim_input.facets}
+    for component_id, frontier in frontier_by_component.items():
+        obligation = obligations_by_id[frontier.frontier_id]
+        assert set(obligation.facet_refs) == set(frontier.metadata["component_facet_refs"])
+        assert all(
+            facet_by_id[facet_ref].metadata["component_id"] == component_id
+            for facet_ref in obligation.facet_refs
+        )
+
+    assert all(
+        "grammar_limitations" in row.metadata
+        and "grammar_limitation_details" in row.metadata
+        and row.metadata.get("semantic_scope_provenance") == "not_established"
+        for row in claim_input.facets
+    )
+    ledger = compile_claim_decomposition(claim_input)
+    causal_claims = [row for row in ledger.claims if row.claim_type.value == "causal"]
+    assert len(causal_claims) == 4
+    for claim in causal_claims:
+        _assert_claim_grammar_warnings_match_source_context(claim.model_dump(mode="python"))
+        mode_refs = [
+            ref for ref in claim.facet_refs if facet_by_id[ref].facet_type == "method_need"
+        ]
+        assert len(mode_refs) == 1
+        mode_facet = facet_by_id[mode_refs[0]]
+        assert mode_facet.metadata["component_id"] in {"delivery", "financing"}
+        assert mode_facet.value in {
+            IdentificationMode.SEQUENTIAL.value,
+            IdentificationMode.BOUNDS_ONLY.value,
+        }
+        assert any(
+            precondition.method_need == mode_facet.value
+            and mode_facet.facet_id in precondition.facet_refs
+            for precondition in claim.method_need_preconditions
+        )
+        source_context = next(
+            row
+            for row in claim.metadata["source_facet_contexts"]
+            if row["facet_ref"] == mode_facet.facet_id
+        )
+        assert source_context["metadata"] == mode_facet.metadata
+
+    method_artifact = compile_method_validity_requirements(
+        run_id=ledger.run_id,
+        claims=ledger.claims,
+    )
+    causal_claim_ids = {row.claim_id for row in causal_claims}
+    causal_requirements = [
+        row for row in method_artifact.requirements if row.claim_id in causal_claim_ids
+    ]
+    assert len(causal_requirements) == len(causal_claims)
+    assert all(requirement.metadata["source_facet_contexts"] for requirement in causal_requirements)
+    candidates = []
+    for mode in modes:
+        candidates.append(
+            {
+                "method_id": f"causal.{mode.value}.runtime",
+                "method_family": "causal_effect_estimation",
+                "method_expectations": ["causal_effect_estimation", mode.value],
+                "truthfulness_status": "runtime_consistent",
+                "runtime_assumption_gates": [
+                    {"assumption": "identification_assumptions", "status": "pass"},
+                    {"assumption": "overlap_or_support", "status": "pass"},
+                    {"assumption": "missingness_process", "status": "pass"},
+                    {"assumption": "simulation_dgp_lineage", "status": "pass"},
+                ],
+                "uncertainty_refs": {
+                    "uncertainty_envelope_ref": "sha256:" + sha256(mode.value.encode()).hexdigest()
+                },
+                "limitation_refs": {
+                    "method_limitation_ref": "sha256:"
+                    + sha256((mode.value + "limit").encode()).hexdigest()
+                },
+                "method_result_refs": {
+                    "method_result_ref": "sha256:"
+                    + sha256((mode.value + "result").encode()).hexdigest()
+                },
+            }
+        )
+
+    selection = select_method_candidates_for_requirements(
+        candidate_methods=candidates,
+        method_requirements=causal_requirements,
+    )
+
+    assert selection["status"] == "pass", selection
+    assert set(selection["method_requirement_statuses"]) == {
+        row.requirement_id for row in causal_requirements
+    }
+    assert set(selection["method_requirement_statuses"].values()) == {"satisfied"}
+    selected_by_requirement = {
+        requirement_ref: row["method_id"]
+        for row in selection["selected_methods"]
+        for requirement_ref in row["method_requirement_refs"]
+    }
+    assert set(selected_by_requirement) == {row.requirement_id for row in causal_requirements}
+    for requirement in causal_requirements:
+        mode = requirement.metadata["explicit_identification_mode_facets"][0]["identification_mode"]
+        assert selected_by_requirement[requirement.requirement_id] == (f"causal.{mode}.runtime")
+
+
+def test_selected_v1_graph_binds_single_case_method_mode_through_selector() -> None:
+    from datetime import UTC, datetime
+    from decimal import Decimal
+    from hashlib import sha256
+
+    from polisyos.foundry.methods.selection import select_method_candidates_for_requirements
+    from polisyos.ir.governance.policy_composition import PolicyLayerLevel
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.observation.contracts import IdentificationMode
+    from polisyos.method_requirement import compile_method_validity_requirements
+    from polisyos.obligation_graph import (
+        ComplexityBudget,
+        GovernedObligationRule,
+        compile_obligation_graph,
+    )
+    from polisyos.policy_grammar import (
+        PolicyGrammarCompiler,
+        PolicyGrammarIntent,
+        facet_snapshots_for_obligation_graph,
+    )
+    from polisyos.scientist.policy_design import compile_claim_decomposition
+    from tests.unit.policy_grammar.test_universal_policy_grammar_compiler import (
+        _authority_profile,
+        _concept_spine_refs,
+    )
+
+    intent = PolicyGrammarIntent.from_problem_policy(
+        intent_id="lane01_ec02_v1_sequential_case",
+        problem_frame=ProblemFrame(
+            problem_id="lane01_ec02_v1_sequential_problem",
+            domain=ProblemDomain.HEALTHCARE,
+            narrative=(
+                "Phase a mobile clinic vaccination service for rural children during 2026 "
+                "with public-service delivery, budget funding, and monitoring for coverage."
+            ),
+        ),
+        policy_spec=PolicySpec(
+            policy_id="lane01_ec02_v1_sequential_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="lane01_ec02_v1_mobile_clinic",
+                    kind="service",
+                    target=SelectorPredicate(
+                        field="population",
+                        operator="==",
+                        value="children",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                    params={"monthly_budget": Decimal("1000")},
+                    target_population_type="children",
+                    target_region_ids=["rural"],
+                    identification_mode=IdentificationMode.SEQUENTIAL,
+                )
+            ],
+        ),
+    )
+    case = PolicyGrammarCompiler().compile(
+        intent=intent,
+        authority_profile=_authority_profile(PolicyLayerLevel.LOCAL),
+        concept_spine_refs=_concept_spine_refs(intent.intent_id),
+    )
+    facets = facet_snapshots_for_obligation_graph(case)
+    method_mode = IdentificationMode.SEQUENTIAL
+    rule = GovernedObligationRule(
+        rule_id="rule:causal-mode:sequential-v1",
+        rule_family="causal_effect",
+        rule_version="2026.11",
+        logic_hash="sha256:" + sha256(method_mode.value.encode()).hexdigest(),
+        owner="team-evidence",
+        scope="national",
+        authority_level="governed",
+        evidence_basis="registered rule",
+        public_revalidation_effect="review_affected_claim",
+        obligation_text="Review the causal method contract for the selected policy case.",
+        authority_profile="candidate",
+        temporal_window="case_lifecycle",
+        remedy_path="source_evidence",
+        required_facets={"method_need": method_mode.value},
+    )
+    graph = compile_obligation_graph(
+        run_id="run_w6d_selected_v1_graph",
+        facets=facets,
+        governed_rules=[rule],
+        generated_at=datetime(2026, 11, 11, tzinfo=UTC),
+        complexity_budget=ComplexityBudget(max_frontier_items=8),
+    )
+    assert len(graph.blocking_frontier) == 1
+    frontier = graph.blocking_frontier[0]
+    assert frontier.bundle_key.component_id is None
+    candidate_metadata = frontier.metadata["candidate_metadata_refs"][frontier.candidate_refs[0]]
+    selected_case_refs = tuple(candidate_metadata["selected_case_facet_refs"])
+    assert set(candidate_metadata["matched_facet_refs"]) == {
+        facet["facet_id"] for facet in facets if facet["facet_type"] == "method_need"
+    }
+    assert len(selected_case_refs) == len(facets)
+    assert candidate_metadata["selected_case_binding"] == {
+        "case_id": case.case_id,
+        "scope": facets[0]["scope"],
+        "authority_profile": facets[0]["authority_profile"],
+        "temporal_window": facets[0]["temporal_window"],
+    }
+
+    claim_input = constraint_owner._claim_decomposition_input_from_selected_graph(
+        run_id=graph.run_id,
+        intent="Assess the causal effects of the selected policy case.",
+        graph=graph,
+        concept_spine_refs=[case.concept_spine_ref],
+        authority_profile_refs=[case.authority_profile.profile_id],
+    )
+    selected_obligation = next(
+        row for row in claim_input.obligations if row.obligation_id == frontier.frontier_id
+    )
+    assert set(selected_obligation.facet_refs) == set(selected_case_refs)
+
+    ledger = compile_claim_decomposition(claim_input)
+    facet_by_id = {row.facet_id: row for row in claim_input.facets}
+    causal_claims = [row for row in ledger.claims if row.claim_type.value == "causal"]
+    assert causal_claims
+    for claim in causal_claims:
+        _assert_claim_grammar_warnings_match_source_context(claim.model_dump(mode="python"))
+        linked_mode_refs = [
+            ref for ref in claim.facet_refs if facet_by_id[ref].facet_type == "method_need"
+        ]
+        assert len(linked_mode_refs) == 1
+        assert any(
+            precondition.method_need == method_mode.value
+            and linked_mode_refs[0] in precondition.facet_refs
+            for precondition in claim.method_need_preconditions
+        )
+
+    requirement_artifact = compile_method_validity_requirements(
+        run_id=ledger.run_id,
+        claims=ledger.claims,
+    )
+    causal_claim_ids = {claim.claim_id for claim in causal_claims}
+    causal_requirements = [
+        row for row in requirement_artifact.requirements if row.claim_id in causal_claim_ids
+    ]
+    assert len(causal_requirements) == len(causal_claims)
+    assert all(
+        row.metadata["explicit_identification_mode_facets"][0]["identification_mode"]
+        == method_mode.value
+        for row in causal_requirements
+    )
+
+    def candidate(mode: IdentificationMode) -> dict[str, object]:
+        digest = sha256(mode.value.encode()).hexdigest()
+        return {
+            "method_id": f"causal.{mode.value}.runtime",
+            "method_family": "causal_effect_estimation",
+            "method_expectations": ["causal_effect_estimation", mode.value],
+            "truthfulness_status": "runtime_consistent",
+            "runtime_assumption_gates": [
+                {"assumption": "identification_assumptions", "status": "pass"},
+                {"assumption": "overlap_or_support", "status": "pass"},
+                {"assumption": "missingness_process", "status": "pass"},
+                {"assumption": "simulation_dgp_lineage", "status": "pass"},
+            ],
+            "uncertainty_refs": {"uncertainty_envelope_ref": f"sha256:{digest}"},
+            "limitation_refs": {
+                "method_limitation_ref": f"sha256:{sha256((mode.value + 'limit').encode()).hexdigest()}"
+            },
+            "method_result_refs": {
+                "method_result_ref": f"sha256:{sha256((mode.value + 'result').encode()).hexdigest()}"
+            },
+        }
+
+    selection = select_method_candidates_for_requirements(
+        candidate_methods=[candidate(IdentificationMode.SEQUENTIAL)],
+        method_requirements=causal_requirements,
+    )
+    assert selection["status"] == "pass", selection
+    assert set(selection["method_requirement_statuses"].values()) == {"satisfied"}
+
+    removal_control = select_method_candidates_for_requirements(
+        candidate_methods=[candidate(IdentificationMode.POINT_IDENTIFIED)],
+        method_requirements=causal_requirements,
+    )
+    assert removal_control["status"] == "fail"
+    assert set(removal_control["method_requirement_statuses"].values()) == {"missing"}
+    assert all(
+        row["reason_code"] == "identification_mode_unsupported"
+        for row in removal_control["rejected_methods"]
+    )
+
+    candidate_ref = frontier.candidate_refs[0]
+    missing_candidate_graph = graph.model_copy(
+        update={
+            "candidate_ledger": tuple(
+                row for row in graph.candidate_ledger if row.candidate_id != candidate_ref
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="constraint_frontier_candidate_ledger_mismatch"):
+        constraint_owner._claim_decomposition_input_from_selected_graph(
+            run_id=graph.run_id,
+            intent="Assess the causal effects of the selected policy case.",
+            graph=missing_candidate_graph,
+            concept_spine_refs=[case.concept_spine_ref],
+            authority_profile_refs=[case.authority_profile.profile_id],
+        )
+
+    changed_candidate_graph = graph.model_copy(
+        update={
+            "candidate_ledger": tuple(
+                row.model_copy(
+                    update={
+                        "metadata": {
+                            **row.metadata,
+                            "selected_case_facet_refs": ("unrelated:facet",),
+                        }
+                    }
+                )
+                if row.candidate_id == candidate_ref
+                else row
+                for row in graph.candidate_ledger
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="constraint_frontier_candidate_metadata_mismatch"):
+        constraint_owner._claim_decomposition_input_from_selected_graph(
+            run_id=graph.run_id,
+            intent="Assess the causal effects of the selected policy case.",
+            graph=changed_candidate_graph,
+            concept_spine_refs=[case.concept_spine_ref],
+            authority_profile_refs=[case.authority_profile.profile_id],
+        )
+
+    unbound_candidate_metadata = dict(candidate_metadata)
+    unbound_candidate_metadata.pop("selected_case_facet_refs")
+    unbound_candidate_metadata.pop("selected_case_binding")
+    unbound_frontier_metadata = dict(frontier.metadata)
+    unbound_frontier_metadata["candidate_metadata_refs"] = {
+        **dict(frontier.metadata["candidate_metadata_refs"]),
+        frontier.candidate_refs[0]: unbound_candidate_metadata,
+    }
+    unbound_frontier = frontier.model_copy(update={"metadata": unbound_frontier_metadata})
+    with pytest.raises(ValueError, match="constraint_frontier_identification_mode_binding"):
+        constraint_owner._selected_frontier_facet_refs(
+            unbound_frontier,
+            graph.facets,
+        )
+
+
+def test_v1_frontier_with_unbound_explicit_method_facet_refuses_default_point() -> None:
+    from types import SimpleNamespace
+
+    frontier = SimpleNamespace(
+        bundle_key=SimpleNamespace(component_id=None, family="causal_effect"),
+        metadata={},
+        candidate_refs=(),
+    )
+    mode_facet = SimpleNamespace(facet_id="case:method_need", facet_type="method_need", metadata={})
+
+    with pytest.raises(ValueError, match="constraint_frontier_identification_mode_binding"):
+        constraint_owner._selected_frontier_facet_refs(frontier, [mode_facet])
 
 
 def test_oversized_compiled_population_is_a_typed_refusal_with_fresh_cas_basis(
@@ -2249,3 +2718,267 @@ def test_candidate_requirement_refusal_and_status_survive_fresh_cas_replay(
         "constraint_source_authority_verification_missing",
         "constraint_grammar_not_admitted",
     ]
+
+
+def test_plain_text_default_point_does_not_reject_real_did_as_explicit_mode() -> None:
+    """Default and explicit POINT share a value but have different constraint origins."""
+
+    from datetime import UTC, datetime
+    from decimal import Decimal
+
+    import numpy as np
+
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
+    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+    from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+    from polisyos.foundry.methods.selection import select_method_candidates_for_requirements
+    from polisyos.foundry.validation.method_quality import _selected_method_from_output
+    from polisyos.ir.governance.policy_composition import PolicyLayerLevel
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.observation import IdentificationMode
+    from polisyos.method_requirement import compile_method_validity_requirements
+    from polisyos.obligation_graph import (
+        ComplexityBudget,
+        GovernedObligationRule,
+        compile_obligation_graph,
+    )
+    from polisyos.policy_grammar import (
+        PolicyGrammarCompiler,
+        PolicyGrammarIntent,
+        facet_snapshots_for_obligation_graph,
+    )
+    from polisyos.scientist.policy_design import compile_claim_decomposition
+    from tests.unit.policy_grammar.test_universal_policy_grammar_compiler import (
+        _authority_profile,
+        _concept_spine_refs,
+    )
+
+    authority = _authority_profile(PolicyLayerLevel.LOCAL)
+    compiler = PolicyGrammarCompiler()
+    default_intent = PolicyGrammarIntent(
+        intent_id="lane01_ec02_default_point",
+        text=(
+            "Provide a vaccination service for rural children in 2026 with budget funding "
+            "and coverage monitoring."
+        ),
+        domain=ProblemDomain.HEALTHCARE,
+    )
+    explicit_intent = PolicyGrammarIntent.from_problem_policy(
+        intent_id="lane01_ec02_explicit_point",
+        problem_frame=ProblemFrame(
+            problem_id="lane01_ec02_explicit_point_problem",
+            domain=ProblemDomain.HEALTHCARE,
+            narrative="Improve vaccination coverage for rural children.",
+        ),
+        policy_spec=PolicySpec(
+            policy_id="lane01_ec02_explicit_point_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="lane01_ec02_vaccination_service",
+                    kind="service",
+                    target=SelectorPredicate(
+                        field="population",
+                        operator="==",
+                        value="selected",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                    params={"monthly_budget": Decimal("1000")},
+                    target_population_type="children",
+                    target_region_ids=["rural"],
+                    identification_mode=IdentificationMode.POINT_IDENTIFIED,
+                )
+            ],
+        ),
+    )
+
+    def compile_route(intent: PolicyGrammarIntent, run_id: str):
+        case = compiler.compile(
+            intent=intent,
+            authority_profile=authority,
+            concept_spine_refs=_concept_spine_refs(intent.intent_id),
+        )
+        facets = facet_snapshots_for_obligation_graph(case)
+        mode = case.facets.method_need.value
+        rule = GovernedObligationRule(
+            rule_id=f"rule:lane01-ec02:{run_id}",
+            rule_family="causal_effect",
+            rule_version="2026.11",
+            logic_hash="sha256:" + hashlib.sha256(run_id.encode()).hexdigest(),
+            owner="team-evidence",
+            scope="national",
+            authority_level="governed",
+            evidence_basis="registered rule",
+            public_revalidation_effect="review_affected_claim",
+            obligation_text="Review the causal method requirement for this policy case.",
+            authority_profile="candidate",
+            temporal_window="case_lifecycle",
+            remedy_path="source_evidence",
+            required_facets={"method_need": mode.value},
+        )
+        graph = compile_obligation_graph(
+            run_id=run_id,
+            facets=facets,
+            governed_rules=[rule],
+            generated_at=datetime(2026, 11, 11, tzinfo=UTC),
+            complexity_budget=ComplexityBudget(max_frontier_items=4),
+        )
+        claim_input = constraint_owner._claim_decomposition_input_from_selected_graph(
+            run_id=run_id,
+            intent="Assess the vaccination policy's causal effects.",
+            graph=graph,
+            concept_spine_refs=[case.concept_spine_ref],
+            authority_profile_refs=[case.authority_profile.profile_id],
+        )
+        ledger = compile_claim_decomposition(claim_input)
+        causal_claims = [claim for claim in ledger.claims if claim.claim_type.value == "causal"]
+        artifact = compile_method_validity_requirements(
+            run_id=ledger.run_id,
+            claims=ledger.claims,
+        )
+        causal_claim_ids = {claim.claim_id for claim in causal_claims}
+        causal_requirements = [
+            row for row in artifact.requirements if row.claim_id in causal_claim_ids
+        ]
+        method_facet = next(row for row in claim_input.facets if row.facet_type == "method_need")
+        return method_facet, causal_claims, causal_requirements
+
+    default_facet, default_claims, default_requirements = compile_route(
+        default_intent,
+        "run_lane01_ec02_default_point",
+    )
+    explicit_facet, explicit_claims, explicit_requirements = compile_route(
+        explicit_intent,
+        "run_lane01_ec02_explicit_point",
+    )
+
+    assert default_facet.value == explicit_facet.value == IdentificationMode.POINT_IDENTIFIED.value
+    assert default_facet.metadata["identification_mode_origin"] == "default_point"
+    assert explicit_facet.metadata["identification_mode_origin"] == "explicit_policy_spec"
+    assert default_claims and explicit_claims
+    assert all(
+        row.metadata["explicit_identification_mode_facets"] == [] for row in default_requirements
+    )
+    assert all(
+        row.metadata["identification_class_semantics"]
+        == "required_method_capability_not_identification_evidence"
+        for row in default_requirements
+    )
+    assert all(
+        row.metadata["source_facet_contexts"]
+        and any(
+            context["facet_type"] == "method_need"
+            and context["metadata"]["identification_mode_origin"] == "default_point"
+            for context in row.metadata["source_facet_contexts"]
+        )
+        for row in default_requirements
+    )
+    assert all(
+        row.metadata["explicit_identification_mode_facets"][0]["identification_mode_origin"]
+        == "explicit_policy_spec"
+        for row in explicit_requirements
+    )
+
+    # Exercise the actual registered NumPy DiD implementation and its execution-output
+    # adapter; this candidate has no declared point_identified mode expectation.
+    ensure_causal_methods_registered()
+    outcome = np.tile(np.arange(10, dtype=float), (8, 1))
+    outcome[:3, 5:] += 3.0
+    data = PanelObservationalData(
+        outcome=outcome,
+        treatment=np.array([1, 1, 1, 0, 0, 0, 0, 0]),
+        time_treatment=5,
+        unit_ids=np.arange(8),
+    )
+    dispatched = MethodDispatcher.get_instance().dispatch(
+        method_class=StandardDifferenceInDifferences,
+        signature=StandardDifferenceInDifferences.signature,
+        state=data,
+        params={},
+        seed=17,
+    )
+    actual_did = _selected_method_from_output(dict(dispatched.output), foundry_input_refs={})
+    assert actual_did["method_id"] == "difference_in_differences"
+    assert "method_expectations" not in actual_did
+    treated_change = outcome[:3, 5:].mean() - outcome[:3, :5].mean()
+    control_change = outcome[3:, 5:].mean() - outcome[3:, :5].mean()
+    independent_did = treated_change - control_change
+    assert independent_did == pytest.approx(3.0)
+    assert dispatched.output["report"].point_estimate == pytest.approx(independent_did)
+
+    default_selection = select_method_candidates_for_requirements(
+        candidate_methods=[actual_did],
+        method_requirements=default_requirements,
+    )
+    default_reasons = {row["reason_code"] for row in default_selection["rejected_methods"]}
+    assert "identification_mode_unsupported" not in default_reasons
+
+    explicit_selection = select_method_candidates_for_requirements(
+        candidate_methods=[actual_did],
+        method_requirements=explicit_requirements,
+    )
+    assert explicit_selection["status"] == "fail"
+    assert explicit_selection["selected_methods"] == []
+    assert all(
+        row["reason_code"] == "identification_mode_unsupported"
+        for row in explicit_selection["rejected_methods"]
+    )
+
+    # The source-facet context is the producer-bound record. Removing only the
+    # redundant precondition projection must retain the explicit PolicySpec gate.
+    stripped_explicit_claims = []
+    for claim in explicit_claims:
+        stripped_preconditions = []
+        for precondition in claim.method_need_preconditions:
+            metadata = dict(precondition.metadata)
+            metadata.pop("explicit_identification_mode_facets", None)
+            stripped_preconditions.append(precondition.model_copy(update={"metadata": metadata}))
+        stripped_explicit_claims.append(
+            claim.model_copy(update={"method_need_preconditions": stripped_preconditions})
+        )
+    stripped_artifact = compile_method_validity_requirements(
+        run_id="run_lane01_ec02_explicit_point_projection_removed",
+        claims=stripped_explicit_claims,
+    )
+    explicit_claim_ids = {claim.claim_id for claim in explicit_claims}
+    stripped_requirements = [
+        row for row in stripped_artifact.requirements if row.claim_id in explicit_claim_ids
+    ]
+    assert stripped_requirements
+    assert all(
+        row.metadata["explicit_identification_mode_facets"]
+        and all(
+            binding["identification_mode_origin"] == "explicit_policy_spec"
+            for binding in row.metadata["explicit_identification_mode_facets"]
+        )
+        for row in stripped_requirements
+    )
+    stripped_selection = select_method_candidates_for_requirements(
+        candidate_methods=[actual_did],
+        method_requirements=stripped_requirements,
+    )
+    assert stripped_selection["status"] == "fail"
+    assert all(
+        row["reason_code"] == "identification_mode_unsupported"
+        for row in stripped_selection["rejected_methods"]
+    )
+
+    # The selector must preserve the same constraint if its own secondary
+    # requirement projection is removed after compilation.
+    stripped_selector_requirements = []
+    for requirement in explicit_requirements:
+        metadata = dict(requirement.metadata)
+        metadata["explicit_identification_mode_facets"] = []
+        stripped_selector_requirements.append(requirement.model_copy(update={"metadata": metadata}))
+    selector_removal = select_method_candidates_for_requirements(
+        candidate_methods=[actual_did],
+        method_requirements=stripped_selector_requirements,
+    )
+    assert selector_removal["status"] == "fail"
+    assert all(
+        row["reason_code"] == "identification_mode_unsupported"
+        for row in selector_removal["rejected_methods"]
+    )

@@ -17,6 +17,9 @@ __all__ = [
     "DEFAULT_GOVERNANCE_PASS_MAPPING_REGISTRY",
     "DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY",
     "DYNAMIC_TREATMENT_TARGET",
+    "IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF",
+    "IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF",
+    "IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF",
     "LESSON_CARD_TARGET",
     "MULTIPLEX_NETWORK_TARGET",
     "NETWORK_ANALYSIS_TARGET",
@@ -169,6 +172,7 @@ __all__ = [
     "bridge_observation_record_to_ddi",
     "bridge_observation_record_to_fhir",
     "bridge_observation_record_to_sdmx",
+    "identification_mode_origin_for_rule",
     "load_causal_execution_bundle",
     "load_causal_readiness_bundle",
     "load_json_bundle",
@@ -193,6 +197,22 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ObservationFamily": ("polisyos.ir.observation.contracts", "ObservationFamily"),
     "EntityScope": ("polisyos.ir.observation.contracts", "EntityScope"),
     "IdentificationMode": ("polisyos.ir.observation.contracts", "IdentificationMode"),
+    "IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF": (
+        "polisyos.ir.observation.contracts",
+        "IDENTIFICATION_MODE_EXPLICIT_POLICY_SPEC_DERIVATION_RULE_REF",
+    ),
+    "IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF": (
+        "polisyos.ir.observation.contracts",
+        "IDENTIFICATION_MODE_INFERRED_SEQUENTIAL_DERIVATION_RULE_REF",
+    ),
+    "IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF": (
+        "polisyos.ir.observation.contracts",
+        "IDENTIFICATION_MODE_DEFAULT_POINT_DERIVATION_RULE_REF",
+    ),
+    "identification_mode_origin_for_rule": (
+        "polisyos.ir.observation.contracts",
+        "identification_mode_origin_for_rule",
+    ),
     "SourceConfidenceTier": ("polisyos.ir.observation.contracts", "SourceConfidenceTier"),
     "MultiplexGraphLayerId": ("polisyos.ir.observation.contracts", "MultiplexGraphLayerId"),
     "StrategicResponseChannel": (

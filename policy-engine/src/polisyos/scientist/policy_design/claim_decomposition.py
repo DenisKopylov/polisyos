@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.observation import IdentificationMode, identification_mode_origin_for_rule
 from polisyos.participation_requirement import (
     ParticipationRequirementBundle,
     compile_participation_requirements,
@@ -30,10 +32,6 @@ from polisyos.scientist.evidence.claims.models import (
     MethodNeedPrecondition,
 )
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
-
 
 _LLM_SOURCE_CLASSES = {
     ClaimSourceClass.LLM_CANDIDATE,
@@ -204,6 +202,18 @@ class ClaimDecompositionCompiler:
             claim_use = ClaimUse.CONTEXT_ONLY
             blocked_reasons.append("candidate_source_not_authority")
             publishability = ClaimPublishability.BLOCKED
+        linked_method_facets = (
+            _linked_method_facets_for_linked_facet(item, facet)
+            if claim_type is ClaimType.CAUSAL
+            else []
+        )
+        explicit_method_modes = _explicit_method_mode_facets(
+            item,
+            {method_facet.facet_id for method_facet in linked_method_facets},
+        )
+        claim_facet_refs = _dedupe_strings(
+            [facet.facet_id, *(method_facet.facet_id for method_facet in linked_method_facets)]
+        )
         return _build_claim(
             run_id=item.run_id,
             family=family,
@@ -211,7 +221,7 @@ class ClaimDecompositionCompiler:
             claim_use=claim_use,
             text=f"Facet {facet.facet_type} requires claim coverage for {facet.value}.",
             source_label=f"claim_decomposition.facet.{facet.facet_id}",
-            facet_refs=[facet.facet_id],
+            facet_refs=claim_facet_refs,
             obligation_refs=_related_obligation_refs(item, [facet.facet_id]),
             concept_spine_refs=_with_fallback(facet.concept_spine_refs, _all_concept_refs(item)),
             authority_profile_refs=_with_fallback(
@@ -221,6 +231,9 @@ class ClaimDecompositionCompiler:
             source_class=facet.source_class,
             publishability=publishability,
             blocked_reasons=blocked_reasons,
+            extra_method_needs=[mode["identification_mode"] for mode in explicit_method_modes],
+            explicit_method_mode_facets=explicit_method_modes,
+            source_facet_contexts=_facet_context_rows(item, claim_facet_refs),
         )
 
     def _claim_for_obligation(
@@ -240,6 +253,11 @@ class ClaimDecompositionCompiler:
             blocked_reasons.append("candidate_source_not_authority")
             publishability = ClaimPublishability.BLOCKED
         facet_refs = _with_fallback(obligation.facet_refs, _all_facet_refs(item))
+        explicit_method_modes = (
+            _explicit_method_mode_facets(item, set(obligation.facet_refs))
+            if claim_type is ClaimType.CAUSAL
+            else []
+        )
         return _build_claim(
             run_id=item.run_id,
             family=family,
@@ -260,6 +278,9 @@ class ClaimDecompositionCompiler:
             source_class=obligation.source_class,
             publishability=publishability,
             blocked_reasons=blocked_reasons,
+            extra_method_needs=[mode["identification_mode"] for mode in explicit_method_modes],
+            explicit_method_mode_facets=explicit_method_modes,
+            source_facet_contexts=_facet_context_rows(item, obligation.facet_refs),
         )
 
     def _superiority_claim(
@@ -444,9 +465,14 @@ def _build_claim(
     baseline_refs: Iterable[str] = (),
     alternative_refs: Iterable[str] = (),
     extra_method_needs: Iterable[str] = (),
+    explicit_method_mode_facets: Iterable[Mapping[str, str]] = (),
+    source_facet_contexts: Iterable[Mapping[str, Any]] = (),
 ) -> ClaimRecord:
     claim_id = _stable_id("claim", run_id, family.value, claim_use.value, text, source_label)
     method_needs = [*_method_needs_for(family, claim_type), *list(extra_method_needs)]
+    explicit_modes = list(explicit_method_mode_facets)
+    source_context_rows = [dict(row) for row in source_facet_contexts]
+    grammar_limitation_records = _source_grammar_limitation_records(source_context_rows)
     preconditions = [
         MethodNeedPrecondition(
             precondition_id=_stable_id("method_need", claim_id, method_need),
@@ -454,8 +480,24 @@ def _build_claim(
             claim_type=claim_type,
             method_need=method_need,
             reason=f"{family.value} claims require {method_need} before method admission.",
-            facet_refs=list(facet_refs),
+            facet_refs=(
+                [
+                    mode["facet_ref"]
+                    for mode in explicit_modes
+                    if mode["identification_mode"] == method_need
+                ]
+                or list(facet_refs)
+            ),
             obligation_refs=list(obligation_refs),
+            metadata={
+                "explicit_identification_mode_facets": [
+                    dict(mode)
+                    for mode in explicit_modes
+                    if mode["identification_mode"] == method_need
+                ]
+            }
+            if any(mode["identification_mode"] == method_need for mode in explicit_modes)
+            else {},
         )
         for method_need in _dedupe_strings(method_needs)
     ]
@@ -479,8 +521,224 @@ def _build_claim(
         decomposition_source_class=source_class,
         source_attribution=["claim_decomposition"],
         blocked_reasons=list(blocked_reasons),
-        metadata={"source_label": source_label},
+        metadata={
+            "source_label": source_label,
+            "source_facet_contexts": source_context_rows,
+            "grammar_limitation_records": grammar_limitation_records,
+        },
     )
+
+
+def _explicit_method_mode_facets(
+    item: ClaimDecompositionInput,
+    facet_refs: set[str],
+) -> list[dict[str, str]]:
+    """Resolve linked method constraints without elevating grammar defaults."""
+
+    output: list[dict[str, str]] = []
+    for facet in item.facets:
+        if facet.facet_id not in facet_refs or facet.facet_type != "method_need":
+            continue
+        if facet.source_class in _LLM_SOURCE_CLASSES:
+            continue
+        try:
+            mode = IdentificationMode(facet.value)
+        except ValueError as exc:
+            raise ValueError("claim_method_identification_mode_unknown") from exc
+        origin = _identification_mode_origin(facet)
+        if origin not in {"explicit_policy_spec", "declared_constraint"}:
+            continue
+        row = {
+            "facet_ref": facet.facet_id,
+            "identification_mode": mode.value,
+            "identification_mode_origin": origin,
+            "source_class": facet.source_class.value,
+        }
+        rule_ref = _facet_derivation_rule_ref(facet)
+        if rule_ref is not None:
+            row["derivation_rule_ref"] = rule_ref
+        output.append(row)
+    return output
+
+
+def _linked_method_facets_for_linked_facet(
+    item: ClaimDecompositionInput,
+    facet: ClaimDecompositionFacet,
+) -> list[ClaimDecompositionFacet]:
+    """Return exact method facets linked through a causal obligation/component."""
+
+    component_id = _component_id(facet)
+    method_facets: dict[str, ClaimDecompositionFacet] = {}
+    for obligation in item.obligations:
+        if (
+            facet.facet_id not in obligation.facet_refs
+            or obligation.source_class in _LLM_SOURCE_CLASSES
+            or _type_for_family(_family_for_obligation(obligation)) is not ClaimType.CAUSAL
+        ):
+            continue
+        for candidate in item.facets:
+            if (
+                candidate.facet_id not in obligation.facet_refs
+                or candidate.facet_type != "method_need"
+            ):
+                continue
+            candidate_component_id = _component_id(candidate)
+            if candidate_component_id != component_id:
+                continue
+            method_facets[candidate.facet_id] = candidate
+    return list(method_facets.values())
+
+
+def _identification_mode_origin(facet: ClaimDecompositionFacet) -> str:
+    """Recompute mode origin from the grammar rule, never from the mode value."""
+
+    metadata = facet.metadata
+    rule_ref = _facet_derivation_rule_ref(facet)
+    if rule_ref is not None:
+        origin = identification_mode_origin_for_rule(rule_ref)
+        supplied_origin = metadata.get("identification_mode_origin")
+        if supplied_origin is not None and supplied_origin != origin:
+            raise ValueError("claim_method_identification_mode_origin_mismatch")
+        try:
+            mode = IdentificationMode(facet.value)
+        except ValueError as exc:
+            raise ValueError("claim_method_identification_mode_unknown") from exc
+        if origin == "default_point" and mode is not IdentificationMode.POINT_IDENTIFIED:
+            raise ValueError("claim_method_identification_mode_origin_value_mismatch")
+        if origin == "inferred_sequential" and mode is not IdentificationMode.SEQUENTIAL:
+            raise ValueError("claim_method_identification_mode_origin_value_mismatch")
+        return origin
+    if _has_grammar_provenance(metadata):
+        return "not_established"
+    if facet.source_class in _LLM_SOURCE_CLASSES:
+        return "not_established"
+    # A direct typed facet is a user/application constraint. It constrains method
+    # admission but does not establish scientific identification or authority.
+    return "declared_constraint"
+
+
+def _facet_derivation_rule_ref(facet: ClaimDecompositionFacet) -> str | None:
+    """Return a nonempty grammar rule ref; malformed supplied refs stay unknown."""
+
+    if "derivation_rule_ref" not in facet.metadata:
+        return None
+    value = facet.metadata.get("derivation_rule_ref")
+    if not isinstance(value, str) or not value.strip():
+        return ""
+    return value.strip()
+
+
+def _has_grammar_provenance(metadata: Mapping[str, Any]) -> bool:
+    """Recognize grammar case identities even when old rows lack exact rule refs."""
+
+    return any(
+        key in metadata
+        for key in (
+            "case_id",
+            "intent_id",
+            "source_intent_sha256",
+            "source_intervention_sha256",
+            "grammar_case_schema_version",
+        )
+    )
+
+
+def _component_id(facet: ClaimDecompositionFacet) -> str | None:
+    value = facet.metadata.get("component_id")
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
+def _facet_context_rows(
+    item: ClaimDecompositionInput,
+    facet_refs: Iterable[str],
+) -> list[dict[str, Any]]:
+    """Preserve the exact selected source facets and their producer metadata."""
+
+    selected = set(facet_refs)
+    rows: list[dict[str, Any]] = []
+    for facet in item.facets:
+        if facet.facet_id not in selected:
+            continue
+        metadata = dict(facet.metadata)
+        if facet.facet_type == "method_need":
+            metadata["identification_mode_origin"] = _identification_mode_origin(facet)
+        rows.append(
+            {
+                "facet_ref": facet.facet_id,
+                "facet_type": facet.facet_type,
+                "value": facet.value,
+                "source_class": facet.source_class.value,
+                "metadata": metadata,
+            }
+        )
+    return rows
+
+
+def _source_grammar_limitation_records(
+    source_facet_contexts: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Expose complete grammar warnings on each claim derived from the selected context."""
+
+    records: list[dict[str, Any]] = []
+    by_identity: dict[str, dict[str, Any]] = {}
+    for context in source_facet_contexts:
+        metadata = context.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        fields = (
+            "grammar_limitations",
+            "grammar_limitation_messages",
+            "grammar_limitation_details",
+        )
+        supplied = [field in metadata for field in fields]
+        if not any(supplied):
+            continue
+        if not all(supplied):
+            raise ValueError("claim_grammar_limitation_metadata_incomplete")
+        codes = metadata["grammar_limitations"]
+        messages = metadata["grammar_limitation_messages"]
+        details = metadata["grammar_limitation_details"]
+        if (
+            not isinstance(codes, Sequence)
+            or isinstance(codes, str | bytes | bytearray)
+            or not isinstance(messages, Sequence)
+            or isinstance(messages, str | bytes | bytearray)
+            or not isinstance(details, Sequence)
+            or isinstance(details, str | bytes | bytearray)
+            or len(codes) != len(messages)
+            or len(codes) != len(details)
+            or any(not isinstance(code, str) or not code.strip() for code in codes)
+            or any(not isinstance(message, str) or not message.strip() for message in messages)
+            or any(not isinstance(detail, Mapping) for detail in details)
+        ):
+            raise ValueError("claim_grammar_limitation_metadata_invalid")
+        provenance = metadata.get("semantic_scope_provenance")
+        if provenance is not None and (not isinstance(provenance, str) or not provenance.strip()):
+            raise ValueError("claim_grammar_limitation_provenance_invalid")
+        facet_ref = context.get("facet_ref")
+        if not isinstance(facet_ref, str) or not facet_ref.strip():
+            raise ValueError("claim_grammar_limitation_source_facet_missing")
+        for code, message, detail in zip(codes, messages, details, strict=True):
+            identity = json.dumps(
+                [code, message, dict(detail), provenance],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            existing = by_identity.get(identity)
+            if existing is None:
+                existing = {
+                    "code": code,
+                    "message": message,
+                    "details": dict(detail),
+                    "semantic_scope_provenance": provenance,
+                    "source_facet_refs": [],
+                }
+                by_identity[identity] = existing
+                records.append(existing)
+            if facet_ref not in existing["source_facet_refs"]:
+                existing["source_facet_refs"].append(facet_ref)
+    return records
 
 
 def _assignment_for_claim(*, run_id: str, claim: ClaimRecord) -> ClaimFamilyAssignment:

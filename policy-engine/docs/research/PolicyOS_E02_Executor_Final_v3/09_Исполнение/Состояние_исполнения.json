@@ -9083,7 +9083,7 @@
         "archive_sha256": "af7a3fdc9b237c7dcf783c130a0cfc70041c2e99137fea457bc43d6b0c944bd2",
         "source_base": "3a10e21d9bcf28fa77d8d9ebf43ae4773cfdecc7",
         "source_tree": "fd75a2748a303be2f53dc5f3bc708d2488364570",
-        "status": "RECONCILED_IMPLEMENTATION_IN_PROGRESS",
+        "status": "AUTHOR_AUDIT_REPAIRS_COMPOSED_WITH_BOUNDED_VERIFICATION",
         "bundle_integrity": {
           "result": "PASS_ARTIFACT_COVERAGE_AND_INTEGRITY_ONLY",
           "checks": 36,
@@ -9100,11 +9100,10 @@
           "RD-01",
           "MA-01",
           "MA-02",
-          "MA-03"
-        ],
-        "remaining_component_contract": [
+          "MA-03",
           "DC-01"
         ],
+        "remaining_component_contract": [],
         "conditional_qualification": [
           "FLOW-01"
         ],
@@ -9117,7 +9116,7 @@
               "PASS": 39
             },
             "independent_source_review": "GO",
-            "native_composed_consumers": "UNRUN",
+            "native_composed_consumers": "PASS_BOUNDED_CATALOG_AND_HORIZON; FULL_SERVED_GATE_A_UNRUN",
             "native_catalog": {
               "PASS": 3,
               "FAIL": 0,
@@ -9139,7 +9138,7 @@
               "PASS": 14
             },
             "independent_source_review": "GO",
-            "downstream_method_bridge": "IN_PROGRESS"
+            "downstream_method_bridge": "PASS_BOUNDED_REAL_DID_MODE_GATE_NOT_SCIENTIFIC_ADMISSION"
           },
           "MA-01_MA-02_MA-03": {
             "root_composed_tests": {
@@ -9175,10 +9174,94 @@
               "max_process_rss_bytes": 1971175424
             },
             "note": "Direct scenario fixture seed now uses the actual authenticated request tenant and generated cell. Stable head 200 and post-OPA changed-head 409 remain required; no product gate weakened, no inherited-red attribution or retroactive combined PASS."
+          },
+          "DC-01": {
+            "grammar_owner_tests": {
+              "PASS": 53
+            },
+            "graph_owner_tests": {
+              "PASS": 12
+            },
+            "independent_source_review": "GO_BOUNDED_COMPONENT_GRAPH",
+            "ordinary_served_route": "UNRUN"
+          },
+          "EC-01": {
+            "full_native_owner_tests": {
+              "PASS": 226,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+            "independent_source_review": "GO_BOUNDED_SCOPE_AND_MULTI_BINDING",
+            "legacy_query_v1_limit": "One geography field; strict selected ProgramGraph intake verifies jurisdiction/geography independently."
+          },
+          "FG-03": {
+            "real_host_and_default_drift_tests": {
+              "PASS": 2
+            },
+            "unknown_metric_control": {
+              "PASS": 1
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+            "late_workflow_parameter_projection": "UNRUN",
+            "note": "Earlier tuple-valued cases did not exercise the claimed branches; corrected string parameter cases do."
+          },
+          "EC-02": {
+            "final_affected_tests": {
+              "PASS": 98,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "independent_source_review": "GO",
+            "scope": "Exact mode origin plus compiler and selector reconstruction from surviving linked contexts; other actual method gates remain required."
           }
         },
         "g_acceptance": false,
-        "note": "Audit findings are source-reconciled supplemental work, not a replacement criterion denominator or product/acceptance PASS. See the single E02-WORK-PLAN audit table."
+        "note": "Audit findings are source-reconciled supplemental work, not a replacement criterion denominator or product/acceptance PASS. See the single E02-WORK-PLAN audit table.",
+        "ordinary_served_component_qualification": "UNRUN",
+        "root_composed_wave": {
+          "PASS": 404,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0,
+          "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-final/",
+          "wall_seconds": 78.572,
+          "peak_sampled_process_tree_rss_bytes": 2089467904,
+          "unchanged_python_inputs": 32,
+          "failure": "Real DiD adapter test expected registry FQN but actual output uses existing difference_in_differences identity; correct test contract, then verify the mode gate.",
+          "later_delta": {
+            "PASS": 98,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "wall_seconds": 53.726,
+            "peak_sampled_process_tree_rss_bytes": 1842839552,
+            "unchanged_python_inputs": 33,
+            "output": "policy-engine/_cache/e02/lane01-audit-composed/origin-delta-final/",
+            "note": "Correct actual DiD output identity, independent +3 numerical oracle and compiler/selector projection-removal controls. Reuse unchanged owner/consumer cases; do not retroactively relabel the original 404/1 cohort."
+          }
+        },
+        "architecture": {
+          "full_generated": "UNRUN: existing shared Node installation resolves outside this checkout; six freshness probes unavailable.",
+          "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
+          "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
+          "final_static_output": "policy-engine/_cache/e02/lane01-audit-architecture/facade-final-static-check.log"
+        },
+        "next_execution": {
+          "N6_source_only": "UNRUN_ON_FINAL_SOURCE; R23 failure was historical before forward fix 2fa8129c4. A source-only PASS will not establish through-use.",
+          "retained_C": "Pending attempt0/head(2,1); original decision expired. Generic versioned append-only authority refresh is being implemented/tested in the admitted secondary checkout, preserving original job/request/history and A/B four spent standard units. No retained C dispatch or N5 yet.",
+          "integration_scenarios": "E02-I01-A/B/C remain NOT_RUN; scoped tests do not replace original 11/66/64 denominator.",
+          "variable_binding": "Gate A and the metadata-only held-out after freeze precede P06-P08/Gate B.",
+          "secondary_base": {
+            "commit": "dfa7ee776b0cd84d171ea38facbd9ef8a5be8486",
+            "tree": "da9221168de25482db404df35e89f37dc2c760c0",
+            "admission": "admitted",
+            "note": "Ordinary merge, exact committed-main e4b tree; no reset/rebase or new checkout/environment."
+          }
+        },
+        "ruff": "PASS check/format on 33 changed/new Python paths"
       },
       "sequence": 8,
       "implementation_status": "IN_PROGRESS",

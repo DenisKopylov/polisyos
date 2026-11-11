@@ -248,6 +248,7 @@ def build_default_registry_bundle(
     store: ArtifactStore,
     *,
     return_selected_profile: bool = False,
+    metric_registry: MetricRegistry | None = None,
 ) -> RegistryBundle:
     """Persist the built-in IR kernel registries as one default bundle snapshot.
 
@@ -256,6 +257,8 @@ def build_default_registry_bundle(
         return_selected_profile: Return the exact profile selected by each new write
             for the bundle and all registry members. The default preserves legacy
             profile selection behavior and does not upgrade existing artifacts.
+        metric_registry: Optional host-selected metric registry for this bundle.
+            When omitted, the canonical default metric registry is used.
 
     Returns:
         The typed registry bundle and its member references.
@@ -267,7 +270,9 @@ def build_default_registry_bundle(
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
         constraint_registry=DEFAULT_CONSTRAINT_REGISTRY,
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
-        metric_registry=DEFAULT_METRIC_REGISTRY,
+        metric_registry=(
+            metric_registry if metric_registry is not None else DEFAULT_METRIC_REGISTRY
+        ),
         units_registry=DEFAULT_UNITS_REGISTRY,
         return_selected_profile=return_selected_profile,
     )

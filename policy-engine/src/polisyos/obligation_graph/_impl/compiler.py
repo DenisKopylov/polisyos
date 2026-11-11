@@ -7,6 +7,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -221,6 +222,15 @@ def _candidates_from_governed_rules(
     facets: Sequence[FacetSnapshot],
     intent_text: str | None,
 ) -> tuple[ObligationCandidateInput, ...]:
+    component_groups = _component_facet_groups(facets)
+    if component_groups is not None:
+        return _component_candidates_from_governed_rules(
+            rules,
+            groups=component_groups,
+            all_facets=facets,
+            intent_text=intent_text,
+        )
+
     facet_values = {(facet.facet_type, facet.value) for facet in facets}
     candidates: list[ObligationCandidateInput] = []
     for rule in rules:
@@ -233,7 +243,30 @@ def _candidates_from_governed_rules(
             intent_text=intent_text,
         ):
             continue
+        matched_facet_refs = _matched_component_facet_refs(
+            rule,
+            facets=facets,
+            intent_text=intent_text,
+        )
+        if matched_facet_refs is None:
+            continue
+        context_facet_refs = (
+            tuple(sorted(facet.facet_id for facet in facets)) if not matched_facet_refs else ()
+        )
+        selected_facet_refs = matched_facet_refs or context_facet_refs
+        case_context_metadata = _selected_case_context_metadata(facets, selected_facet_refs)
+        case_facet_refs = case_context_metadata.get(
+            "selected_case_facet_refs",
+            selected_facet_refs,
+        )
         metadata = _candidate_metadata_for_rule(rule)
+        metadata.update(
+            {
+                "matched_facet_refs": matched_facet_refs,
+                **case_context_metadata,
+                **_grammar_limitation_metadata(facets, case_facet_refs),
+            }
+        )
         candidates.append(
             ObligationCandidateInput(
                 candidate_id=f"rule:{rule.rule_id}",
@@ -256,7 +289,7 @@ def _candidates_from_governed_rules(
                 degradation_risk=rule.degradation_risk,
                 reviewer_burden_minutes=rule.reviewer_burden_minutes,
                 complexity_cost=rule.complexity_cost,
-                lineage_refs=rule.lineage_refs,
+                lineage_refs=(*rule.lineage_refs, *case_facet_refs),
                 deadline_at=rule.deadline_at,
                 escalation_owner=rule.escalation_owner or rule.owner,
                 metadata={
@@ -269,6 +302,316 @@ def _candidates_from_governed_rules(
             )
         )
     return tuple(candidates)
+
+
+def _component_facet_groups(
+    facets: Sequence[FacetSnapshot],
+) -> dict[str, tuple[FacetSnapshot, ...]] | None:
+    """Validate and group explicit component facets; preserve the legacy path otherwise."""
+    component_rows = ["component_id" in facet.metadata for facet in facets]
+    if not any(component_rows):
+        return None
+    if not all(component_rows):
+        raise ObligationGraphCompileError(
+            "component_facet_lineage_incomplete",
+            "Component and unscoped facets cannot be mixed in one component projection.",
+        )
+
+    grouped: dict[str, list[FacetSnapshot]] = defaultdict(list)
+    seen_ids: set[str] = set()
+    for facet in facets:
+        component_id = facet.metadata.get("component_id")
+        source_digest = facet.metadata.get("source_intervention_sha256")
+        if (
+            not isinstance(component_id, str)
+            or not component_id
+            or component_id != component_id.strip()
+            or not isinstance(source_digest, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", source_digest) is None
+        ):
+            raise ObligationGraphCompileError(
+                "component_facet_lineage_incomplete",
+                "Each component facet needs an exact intervention id and content digest.",
+            )
+        if facet.facet_id in seen_ids:
+            raise ObligationGraphCompileError(
+                "component_facet_identity_ambiguous",
+                "Component facet ids must be unique within the obligation graph input.",
+            )
+        seen_ids.add(facet.facet_id)
+        grouped[component_id].append(facet)
+
+    result: dict[str, tuple[FacetSnapshot, ...]] = {}
+    source_digests_by_component: dict[str, str] = {}
+    for component_id, rows in sorted(grouped.items()):
+        digests = {str(row.metadata["source_intervention_sha256"]) for row in rows}
+        if len(digests) != 1:
+            raise ObligationGraphCompileError(
+                "component_facet_lineage_conflict",
+                "One component cannot bind facets to multiple intervention digests.",
+            )
+        source_digests_by_component[component_id] = next(iter(digests))
+        contract_ref_rows = [row.metadata.get("source_contract_refs") for row in rows]
+        if (
+            any(
+                not isinstance(refs, (list, tuple))
+                or not refs
+                or any(not isinstance(ref, str) or not ref.strip() for ref in refs)
+                for refs in contract_ref_rows
+            )
+            or len({tuple(refs) for refs in contract_ref_rows}) != 1
+        ):
+            raise ObligationGraphCompileError(
+                "component_facet_lineage_incomplete",
+                "Every component facet must preserve the same source contract references.",
+            )
+        for field in ("component_limitations", "component_limitation_messages"):
+            limitation_rows = [row.metadata.get(field, ()) for row in rows]
+            if (
+                any(
+                    not isinstance(items, (list, tuple))
+                    or any(not isinstance(item, str) or not item.strip() for item in items)
+                    for items in limitation_rows
+                )
+                or len({tuple(items) for items in limitation_rows}) != 1
+            ):
+                raise ObligationGraphCompileError(
+                    "component_facet_lineage_conflict",
+                    f"{field} must remain identical across the component facet projection.",
+                )
+        if len({(row.scope, row.temporal_window, row.authority_profile) for row in rows}) != 1:
+            raise ObligationGraphCompileError(
+                "component_facet_scope_inconsistent",
+                "Scope, authority profile, and time window must agree within a component.",
+            )
+        values_by_type: dict[str, set[str]] = defaultdict(set)
+        for row in rows:
+            values_by_type[row.facet_type].add(row.value)
+        if any(len(values) != 1 for values in values_by_type.values()):
+            raise ObligationGraphCompileError(
+                "component_facet_axis_ambiguous",
+                "Conflicting values for one facet type cannot be collapsed to one component.",
+            )
+        result[component_id] = tuple(sorted(rows, key=lambda row: (row.facet_type, row.facet_id)))
+
+    if len(set(source_digests_by_component.values())) != len(source_digests_by_component):
+        raise ObligationGraphCompileError(
+            "component_facet_lineage_conflict",
+            "Distinct intervention ids cannot share one selected content digest.",
+        )
+
+    optional_shared_fields = ("source_intent_sha256",)
+    for field in optional_shared_fields:
+        supplied = [field in facet.metadata for facet in facets]
+        if any(supplied) and not all(supplied):
+            raise ObligationGraphCompileError(
+                "component_facet_lineage_incomplete",
+                f"{field} must be present on every component facet or none.",
+            )
+        if all(supplied):
+            values = {str(facet.metadata[field]) for facet in facets}
+            if len(values) != 1 or re.fullmatch(r"sha256:[0-9a-f]{64}", next(iter(values))) is None:
+                raise ObligationGraphCompileError(
+                    "component_facet_lineage_conflict",
+                    f"{field} must bind all components to one exact source intent.",
+                )
+
+    return result
+
+
+def _component_candidates_from_governed_rules(
+    rules: Sequence[GovernedObligationRule],
+    *,
+    groups: Mapping[str, Sequence[FacetSnapshot]],
+    all_facets: Sequence[FacetSnapshot],
+    intent_text: str | None,
+) -> tuple[ObligationCandidateInput, ...]:
+    """Match component-bound obligations without cross-joining unrelated facets."""
+    candidates: list[ObligationCandidateInput] = []
+    for rule in rules:
+        if rule.status != "governed":
+            continue
+        metadata = _candidate_metadata_for_rule(rule)
+        component_matches: list[tuple[str, Sequence[FacetSnapshot], tuple[str, ...]]] = []
+        has_context_only_match = False
+        for component_id, rows in sorted(groups.items()):
+            matched_refs = _matched_component_facet_refs(
+                rule,
+                facets=rows,
+                intent_text=intent_text,
+            )
+            if matched_refs is None:
+                continue
+            if matched_refs:
+                component_matches.append((component_id, rows, matched_refs))
+            else:
+                # Rules with no component facet predicate remain one shared
+                # context obligation under their previous whole-intent semantics.
+                has_context_only_match = True
+
+        if has_context_only_match and _rule_matches_facets(
+            rule,
+            facets=all_facets,
+            facet_values={(facet.facet_type, facet.value) for facet in all_facets},
+            intent_text=intent_text,
+        ):
+            context_facet_refs = tuple(sorted(facet.facet_id for facet in all_facets))
+            candidates.append(
+                _governed_rule_candidate(
+                    rule,
+                    metadata={
+                        **metadata,
+                        "context_facet_refs": context_facet_refs,
+                        **_selected_case_context_metadata(all_facets, context_facet_refs),
+                        **_grammar_limitation_metadata(all_facets, context_facet_refs),
+                    },
+                    candidate_id=f"rule:{rule.rule_id}",
+                    lineage_refs=(*rule.lineage_refs, *context_facet_refs),
+                )
+            )
+
+        for component_id, rows, matched_refs in component_matches:
+            first = rows[0]
+            component_facet_refs = tuple(sorted(row.facet_id for row in rows))
+            digest = str(first.metadata["source_intervention_sha256"])
+            component_metadata = {
+                **metadata,
+                "rule_scope": rule.scope,
+                "component_id": component_id,
+                "source_intervention_sha256": digest,
+                "component_scope": first.scope,
+                "component_temporal_window": first.temporal_window,
+                "component_authority_profile": first.authority_profile,
+                "component_facet_refs": component_facet_refs,
+                "matched_component_facet_refs": matched_refs,
+                "source_contract_refs": tuple(first.metadata["source_contract_refs"]),
+                "component_limitations": tuple(first.metadata.get("component_limitations", ())),
+                "component_limitation_messages": tuple(
+                    first.metadata.get("component_limitation_messages", ())
+                ),
+                **_selected_case_context_metadata(rows, component_facet_refs),
+                **_grammar_limitation_metadata(rows, component_facet_refs),
+            }
+            for optional_field in ("source_intent_sha256",):
+                if optional_field in first.metadata:
+                    component_metadata[optional_field] = first.metadata[optional_field]
+            candidates.append(
+                _governed_rule_candidate(
+                    rule,
+                    metadata=component_metadata,
+                    candidate_id=(
+                        f"rule:{rule.rule_id}:component:{sha256(component_id.encode()).hexdigest()}"
+                    ),
+                    lineage_refs=(
+                        *rule.lineage_refs,
+                        *component_facet_refs,
+                        *tuple(first.metadata["source_contract_refs"]),
+                    ),
+                    source_ref=(
+                        f"rule://{_slug(rule.rule_id)}@{_slug(rule.rule_version)}"
+                        f"#component={sha256(component_id.encode()).hexdigest()}"
+                        f"&intervention={digest.removeprefix('sha256:')}"
+                    ),
+                )
+            )
+    return tuple(candidates)
+
+
+def _matched_component_facet_refs(
+    rule: GovernedObligationRule,
+    *,
+    facets: Sequence[FacetSnapshot],
+    intent_text: str | None,
+) -> tuple[str, ...] | None:
+    """Return the exact facet ids used by a successful component rule match."""
+    by_type: dict[str, tuple[str, tuple[str, ...]]] = {}
+    rows_by_type: dict[str, list[FacetSnapshot]] = defaultdict(list)
+    for facet in facets:
+        rows_by_type[facet.facet_type].append(facet)
+    by_type = {
+        facet_type: (
+            values[0].value,
+            tuple(sorted(facet.facet_id for facet in values)),
+        )
+        for facet_type, values in rows_by_type.items()
+    }
+    logic = _model_mapping(rule.logic)
+    if _has_structured_facet_pattern(logic):
+        if not _structured_pattern_matches(logic, facets=facets, intent_text=intent_text):
+            return None
+        used_types: set[str] = set()
+        for predicate in _sequence_of_mappings(logic.get("facet_match_all")):
+            facet_type = _text_or_none(predicate.get("facet_type"))
+            if facet_type:
+                used_types.add(facet_type)
+        any_predicates = _sequence_of_mappings(logic.get("facet_match_any"))
+        if any_predicates:
+            values_by_type = {key: value[0] for key, value in by_type.items()}
+            for predicate in any_predicates:
+                if _facet_predicate_matches(predicate, by_type=values_by_type):
+                    facet_type = _text_or_none(predicate.get("facet_type"))
+                    if facet_type:
+                        used_types.add(facet_type)
+                        break
+        for key in ("geography_predicate_eq", "population_predicate_eq"):
+            if _text_or_none(logic.get(key)):
+                facet_type = (
+                    "geography_predicate" if key.startswith("geography") else "population_predicate"
+                )
+                used_types.add(facet_type)
+    else:
+        used_types = set()
+        for facet_type, expected in rule.required_facets.items():
+            actual = by_type.get(facet_type)
+            if actual is None or actual[0] != expected:
+                return None
+            used_types.add(facet_type)
+
+    return tuple(
+        sorted(
+            facet_id
+            for facet_type in used_types
+            for facet_id in by_type.get(facet_type, ("", ()))[1]
+        )
+    )
+
+
+def _governed_rule_candidate(
+    rule: GovernedObligationRule,
+    *,
+    metadata: Mapping[str, Any],
+    candidate_id: str,
+    scope: str | None = None,
+    lineage_refs: Sequence[str] | None = None,
+    source_ref: str | None = None,
+) -> ObligationCandidateInput:
+    """Build a candidate while preserving the governed rule's promotion contract."""
+    return ObligationCandidateInput(
+        candidate_id=candidate_id,
+        family=rule.rule_family,
+        obligation_text=rule.obligation_text,
+        source_class=SourceClass.GOVERNED_RULE,
+        source_ref=source_ref or f"rule://{_slug(rule.rule_id)}@{_slug(rule.rule_version)}",
+        owner=rule.owner,
+        scope=scope if scope is not None else rule.scope,
+        authority_profile=rule.authority_profile,
+        temporal_window=rule.temporal_window,
+        remedy_path=rule.remedy_path,
+        priority_hint=rule.priority_ceiling,
+        authority_allowance_passed=rule.authority_allowance_passed,
+        admissibility_passed=rule.admissibility_passed,
+        current_run_relevance_passed=rule.current_run_relevance_passed,
+        material_public_risk_passed=rule.material_public_risk_passed,
+        marginal_assurance_value=rule.marginal_assurance_value,
+        expected_cost=rule.expected_cost,
+        degradation_risk=rule.degradation_risk,
+        reviewer_burden_minutes=rule.reviewer_burden_minutes,
+        complexity_cost=rule.complexity_cost,
+        lineage_refs=tuple(lineage_refs if lineage_refs is not None else rule.lineage_refs),
+        deadline_at=rule.deadline_at,
+        escalation_owner=rule.escalation_owner or rule.owner,
+        metadata=dict(metadata),
+    )
 
 
 def _rule_matches_facets(
@@ -374,6 +717,185 @@ def _candidate_metadata_for_rule(rule: GovernedObligationRule) -> dict[str, Any]
     if "evidence_family" in metadata and "data_family" not in metadata:
         metadata["data_family"] = metadata["evidence_family"]
     return metadata
+
+
+def _selected_case_context_metadata(
+    facets: Sequence[FacetSnapshot],
+    selected_facet_refs: Sequence[str],
+) -> dict[str, Any]:
+    """Bind selected facets to one exact source case and its full same-scope context."""
+    selected_ref_set = set(selected_facet_refs)
+    if not selected_ref_set:
+        return {}
+    selected_facets = tuple(facet for facet in facets if facet.facet_id in selected_ref_set)
+    if {facet.facet_id for facet in selected_facets} != selected_ref_set:
+        raise ObligationGraphCompileError(
+            "selected_case_facet_binding_incomplete",
+            "A selected case facet reference is absent from the facet input.",
+        )
+
+    case_fields_present = [
+        "case_id" in facet.metadata or "intent_id" in facet.metadata for facet in selected_facets
+    ]
+    if not any(case_fields_present):
+        return {}
+    if not all(
+        isinstance(facet.metadata.get("case_id"), str)
+        and facet.metadata["case_id"].strip()
+        and isinstance(facet.metadata.get("intent_id"), str)
+        and facet.metadata["intent_id"].strip()
+        for facet in selected_facets
+    ):
+        raise ObligationGraphCompileError(
+            "selected_case_binding_incomplete",
+            "Selected case facets need both case_id and intent_id provenance.",
+        )
+
+    identities = {
+        (
+            facet.metadata["case_id"],
+            facet.metadata["intent_id"],
+            facet.scope,
+            facet.temporal_window,
+            facet.authority_profile,
+        )
+        for facet in selected_facets
+    }
+    if len(identities) != 1:
+        # Context-only rules over explicit multi-component cases may cover
+        # several applicability scopes. Keep them unbound rather than
+        # inventing one union scope for a public claim.
+        if all("component_id" in facet.metadata for facet in selected_facets):
+            return {}
+        raise ObligationGraphCompileError(
+            "selected_case_binding_ambiguous",
+            "A governed candidate cannot combine multiple case/scope/time/authority bindings.",
+        )
+
+    case_id, intent_id, scope, temporal_window, authority_profile = next(iter(identities))
+    context_refs = tuple(
+        sorted(
+            {
+                facet.facet_id
+                for facet in facets
+                if facet.metadata.get("case_id") == case_id
+                and facet.metadata.get("intent_id") == intent_id
+                and facet.scope == scope
+                and facet.temporal_window == temporal_window
+                and facet.authority_profile == authority_profile
+            }
+        )
+    )
+    if not selected_ref_set.issubset(context_refs):
+        raise ObligationGraphCompileError(
+            "selected_case_context_mismatch",
+            "The selected case context does not contain every matched facet reference.",
+        )
+    return {
+        "selected_case_facet_refs": context_refs,
+        "selected_case_binding": {
+            "case_id": case_id,
+            "scope": scope,
+            "authority_profile": authority_profile,
+            "temporal_window": temporal_window,
+        },
+    }
+
+
+def _grammar_limitation_metadata(
+    facets: Sequence[FacetSnapshot],
+    selected_facet_refs: Sequence[str],
+) -> dict[str, Any]:
+    """Carry all grammar warnings bound to the selected case/component context."""
+    selected_ref_set = set(selected_facet_refs)
+    if not selected_ref_set:
+        return {}
+    selected_facets = tuple(
+        sorted(
+            (facet for facet in facets if facet.facet_id in selected_ref_set),
+            key=lambda facet: facet.facet_id,
+        )
+    )
+    if {facet.facet_id for facet in selected_facets} != selected_ref_set:
+        raise ObligationGraphCompileError(
+            "grammar_limitation_facet_binding_incomplete",
+            "A selected grammar limitation reference is absent from the facet input.",
+        )
+
+    records: list[tuple[str, str, dict[str, Any]]] = []
+    seen_records: set[str] = set()
+    semantic_scope_values: set[str] = set()
+    field_names = (
+        "grammar_limitations",
+        "grammar_limitation_messages",
+        "grammar_limitation_details",
+    )
+    for facet in selected_facets:
+        metadata = facet.metadata
+        supplied = [name in metadata for name in field_names]
+        if any(supplied) and not all(supplied):
+            raise ObligationGraphCompileError(
+                "grammar_limitation_metadata_incomplete",
+                "Grammar limitation codes, messages, and details must be bound together.",
+            )
+        if "semantic_scope_provenance" in metadata:
+            provenance = metadata["semantic_scope_provenance"]
+            if not isinstance(provenance, str) or not provenance.strip():
+                raise ObligationGraphCompileError(
+                    "grammar_limitation_metadata_invalid",
+                    "Grammar semantic-scope provenance must be non-empty text.",
+                )
+            semantic_scope_values.add(provenance)
+        if not all(supplied):
+            continue
+
+        codes = metadata["grammar_limitations"]
+        messages = metadata["grammar_limitation_messages"]
+        details = metadata["grammar_limitation_details"]
+        if (
+            not isinstance(codes, (list, tuple))
+            or not isinstance(messages, (list, tuple))
+            or not isinstance(details, (list, tuple))
+            or len(codes) != len(messages)
+            or len(codes) != len(details)
+            or any(not isinstance(code, str) or not code.strip() for code in codes)
+            or any(not isinstance(message, str) or not message.strip() for message in messages)
+            or any(not isinstance(detail, Mapping) for detail in details)
+        ):
+            raise ObligationGraphCompileError(
+                "grammar_limitation_metadata_invalid",
+                "Grammar limitation metadata must contain aligned typed records.",
+            )
+
+        for code, message, raw_detail in zip(codes, messages, details, strict=True):
+            detail = dict(raw_detail)
+            record = (code, message, detail)
+            record_key = json.dumps(
+                record,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            if record_key not in seen_records:
+                seen_records.add(record_key)
+                records.append(record)
+
+    if semantic_scope_values and len(semantic_scope_values) != 1:
+        raise ObligationGraphCompileError(
+            "grammar_limitation_metadata_conflict",
+            "Selected facets disagree on semantic-scope provenance.",
+        )
+    if not records:
+        return {}
+
+    limitation_metadata: dict[str, Any] = {
+        "grammar_limitations": tuple(record[0] for record in records),
+        "grammar_limitation_messages": tuple(record[1] for record in records),
+        "grammar_limitation_details": tuple(record[2] for record in records),
+    }
+    if semantic_scope_values:
+        limitation_metadata["semantic_scope_provenance"] = next(iter(semantic_scope_values))
+    return limitation_metadata
 
 
 def _ledger_entry(
@@ -511,7 +1033,7 @@ def _promotion_blockers(
 def _bundle_ledger(
     candidate_ledger: Sequence[CandidateLedgerEntry],
 ) -> tuple[ObligationBundle, ...]:
-    groups: dict[tuple[str, str, str, str, str], list[CandidateLedgerEntry]] = defaultdict(list)
+    groups: dict[tuple[str, ...], list[CandidateLedgerEntry]] = defaultdict(list)
     for entry in candidate_ledger:
         groups[_key_tuple(entry.bundle_key)].append(entry)
 
@@ -796,22 +1318,84 @@ def _assert_no_llm_authority_leakage(graph: ObligationGraph) -> None:
 
 
 def _bundle_key(candidate: ObligationCandidateInput) -> BundleKey:
+    component_id = candidate.metadata.get("component_id")
+    component_binding: dict[str, str] = {}
+    if component_id is not None:
+        if candidate.source_class is not SourceClass.GOVERNED_RULE:
+            raise ObligationGraphCompileError(
+                "component_candidate_source_not_governed",
+                "Component-scoped candidates must preserve the governed-rule source class.",
+            )
+        required = (
+            "source_intervention_sha256",
+            "rule_scope",
+            "component_scope",
+            "component_temporal_window",
+            "component_authority_profile",
+            "component_facet_refs",
+        )
+        if any(key not in candidate.metadata for key in required):
+            raise ObligationGraphCompileError(
+                "component_candidate_lineage_incomplete",
+                "A component candidate needs its selected scope and facet lineage.",
+            )
+        digest = candidate.metadata["source_intervention_sha256"]
+        facet_refs = candidate.metadata["component_facet_refs"]
+        if (
+            not isinstance(component_id, str)
+            or not component_id
+            or component_id != component_id.strip()
+            or not isinstance(digest, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+            or not isinstance(facet_refs, tuple)
+            or not facet_refs
+            or any(not isinstance(ref, str) or not ref for ref in facet_refs)
+            or not set(facet_refs).issubset(candidate.lineage_refs)
+            or candidate.scope != candidate.metadata["rule_scope"]
+        ):
+            raise ObligationGraphCompileError(
+                "component_candidate_lineage_incomplete",
+                "A component candidate has inconsistent scope or intervention lineage.",
+            )
+        component_binding = {
+            "component_id": component_id,
+            "source_intervention_sha256": digest,
+            "applicability_scope": _required_text(candidate.metadata["component_scope"]),
+            "applicability_temporal_window": _required_text(
+                candidate.metadata["component_temporal_window"]
+            ),
+            "applicability_authority_profile": _required_text(
+                candidate.metadata["component_authority_profile"]
+            ),
+        }
+
     return BundleKey(
         family=_canonical_token(candidate.family),
         scope=_canonical_token(candidate.scope),
         authority_profile=_canonical_token(candidate.authority_profile),
         temporal_window=_canonical_token(candidate.temporal_window),
         remedy_path=_canonical_token(candidate.remedy_path),
+        **component_binding,
     )
 
 
-def _key_tuple(key: BundleKey) -> tuple[str, str, str, str, str]:
-    return (
+def _key_tuple(key: BundleKey) -> tuple[str, ...]:
+    base = (
         key.family,
         key.scope,
         key.authority_profile,
         key.temporal_window,
         key.remedy_path,
+    )
+    if key.component_id is None:
+        return base
+    return (
+        *base,
+        key.component_id or "",
+        key.source_intervention_sha256 or "",
+        key.applicability_scope or "",
+        key.applicability_temporal_window or "",
+        key.applicability_authority_profile or "",
     )
 
 

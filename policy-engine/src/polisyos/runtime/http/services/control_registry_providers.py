@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.contracts import CapabilityResolverPort, CatalogRunProfile
     from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
+    from polisyos.ir.kernel import MetricRegistry
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedExperimentPolicyTemplate,
         CandidateUnpricedPolicyBinding,
@@ -72,6 +73,7 @@ class ControlRegistryProviders:
     capability_resolver: CapabilityResolverPort | None = None
     candidate_unpriced_policy_bindings: tuple[CandidateUnpricedPolicyBinding, ...] = ()
     candidate_unpriced_policy_templates: tuple[CandidateUnpricedExperimentPolicyTemplate, ...] = ()
+    metric_registry: MetricRegistry | None = None
 
     def __post_init__(self) -> None:
         """Validate explicitly configured owners and catalog scope without defaults."""
@@ -80,6 +82,7 @@ class ControlRegistryProviders:
         _validate_catalog_source_selection(self.catalog_source_selection)
         _validate_candidate_unpriced_policy_bindings(self.candidate_unpriced_policy_bindings)
         _validate_candidate_unpriced_policy_templates(self.candidate_unpriced_policy_templates)
+        _validate_metric_registry(self.metric_registry)
         if self.catalog_source_selection is not None:
             profile = self.catalog_source_selection.catalog_run_profile
             if self.catalog_run_profile not in (None, profile):
@@ -111,6 +114,7 @@ def resolve_control_registry_providers(
     capability_resolver: CapabilityResolverPort | None = None,
     candidate_unpriced_policy_bindings: tuple[CandidateUnpricedPolicyBinding, ...] = (),
     candidate_unpriced_policy_templates: tuple[CandidateUnpricedExperimentPolicyTemplate, ...] = (),
+    metric_registry: MetricRegistry | None = None,
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -221,7 +225,18 @@ def resolve_control_registry_providers(
         capability_resolver=capability_resolver,
         candidate_unpriced_policy_bindings=candidate_unpriced_policy_bindings,
         candidate_unpriced_policy_templates=candidate_unpriced_policy_templates,
+        metric_registry=metric_registry,
     )
+
+
+def _validate_metric_registry(registry: object) -> None:
+    """Accept only the canonical typed metric vocabulary from the host."""
+    if registry is None:
+        return
+    from polisyos.ir.kernel import MetricRegistry
+
+    if type(registry) is not MetricRegistry:
+        raise ValueError("control_metric_registry_untyped")
 
 
 def _validate_candidate_unpriced_policy_bindings(bindings: object) -> None:

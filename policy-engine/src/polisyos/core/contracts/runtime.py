@@ -626,6 +626,7 @@ class UniversalPolicyGrammarBlocker(BaseModel):
     facet_name: UniversalPolicyFacetName | None = None
     pattern_refs: tuple[str, ...] = Field(default=())
     missing_capability_label: UniversalPolicyCapabilityRealityLabel | None = None
+    details: dict[str, JsonValue] = Field(default_factory=dict, exclude_if=lambda value: not value)
 
 
 class UniversalPolicyDesignCaseAuditSurface(BaseModel):
@@ -643,14 +644,30 @@ class UniversalPolicyDesignCaseAuditSurface(BaseModel):
     capability_reality_label: UniversalPolicyCapabilityRealityLabel
 
 
+class UniversalPolicyComponentFacets(BaseModel):
+    """One declared intervention's compiled facets, without scientific authority.
+
+    The source digest identifies the declared intervention bytes. It does not
+    independently establish the intervention's meaning or admissibility.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    component_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$", strict=True)
+    source_intervention_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    facets: UniversalPolicyFacets
+    source_contract_refs: tuple[str, ...] = Field(min_length=1)
+
+
 class UniversalPolicyDesignCase(BaseModel):
     """Compilation-only universal policy design case produced by W6.A."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["policyos.universal_policy_design_case.v1"] = (
-        "policyos.universal_policy_design_case.v1"
-    )
+    schema_version: Literal[
+        "policyos.universal_policy_design_case.v1",
+        "policyos.universal_policy_design_case.v2",
+    ] = "policyos.universal_policy_design_case.v1"
     case_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1)
     status: UniversalPolicyGrammarStatus
@@ -659,6 +676,14 @@ class UniversalPolicyDesignCase(BaseModel):
     concept_spine_ref: str = Field(min_length=1)
     jurisdiction_spine_ref: str = Field(min_length=1)
     facets: UniversalPolicyFacets | None = None
+    components: tuple[UniversalPolicyComponentFacets, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    source_intent_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        exclude_if=lambda value: value is None,
+    )
     blockers: tuple[UniversalPolicyGrammarBlocker, ...] = Field(default=())
     downstream_consumer_components: tuple[str, ...] = Field(
         default=("obligation_graph", "claim_decomposition", "requirement_compilers")
@@ -677,8 +702,33 @@ class UniversalPolicyDesignCase(BaseModel):
 
     @model_validator(mode="after")
     def _validate_compilation_state(self) -> UniversalPolicyDesignCase:
-        if self.status == "compiled" and self.facets is None:
-            raise ValueError("compiled universal policy design case requires facets")
+        if self.schema_version == "policyos.universal_policy_design_case.v1":
+            if (
+                self.components
+                or self.source_intent_sha256 is not None
+                or self.model_fields_set.intersection({"components", "source_intent_sha256"})
+            ):
+                raise ValueError("v1 universal policy design case cannot carry components")
+            if any("details" in blocker.model_fields_set for blocker in self.blockers):
+                raise ValueError("v1 universal policy design case cannot carry blocker details")
+            if self.status == "compiled" and self.facets is None:
+                raise ValueError("compiled universal policy design case requires facets")
+        else:
+            if self.facets is not None and self.components:
+                raise ValueError("v2 case cannot mix scalar facets and components")
+            if self.source_intent_sha256 is None:
+                raise ValueError("v2 case requires its source intent digest")
+            if self.status != "blocked" and self.facets is None and not self.components:
+                raise ValueError("v2 case requires scalar facets or compiled components")
+            if self.status != "blocked" and any(
+                blocker.severity == "blocked" for blocker in self.blockers
+            ):
+                raise ValueError("v2 component case cannot compile a blocking component")
+            if self.status == "blocked" and (self.components or self.facets is not None):
+                raise ValueError("blocked v2 case cannot expose partial facets or components")
+            ids = tuple(component.component_id for component in self.components)
+            if len(ids) != len(set(ids)):
+                raise ValueError("v2 component case requires unique component identities")
         if self.status == "blocked" and not self.blockers:
             raise ValueError("blocked universal policy design case requires blockers")
         return self
@@ -10479,6 +10529,7 @@ __all__ = [
     "TrustMetadataRef",
     "UnitRef",
     "UniversalAuthorityProfile",
+    "UniversalPolicyComponentFacets",
     "UniversalPolicyDesignCase",
     "UniversalPolicyDesignCaseAuditSurface",
     "UniversalPolicyFacets",

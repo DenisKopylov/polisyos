@@ -32,13 +32,13 @@ from polisyos.core.contracts import (
     ScopedMeasurementOccurrenceRef,
     ScopedSourceSelection,
     SelectedVariableBindingRef,
-    VariableRepresentation,
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
     epoch,
     evaluate_scoped_correspondence_basis,
     load_program_graph_input_interface,
+    load_variable_representation,
     replay_scoped_measurement_occurrence,
     scoped_correspondence_basis_manifest_inputs,
     scoped_measurement_occurrence_manifest_inputs,
@@ -138,9 +138,7 @@ def assess_measurement_to_model_candidate(
         source_definition = validate_core_model_json_artifact(
             VariableSemanticDefinition, store, source_definition_ref
         )
-        source_representation = validate_core_model_json_artifact(
-            VariableRepresentation, store, source_representation_ref
-        )
+        source_representation = load_variable_representation(store, source_representation_ref)
         interface = load_program_graph_input_interface(store, model_interface_ref)
         selected_ports = tuple(port for port in interface.ports if port.port_id == port_id)
         if len(selected_ports) != 1:
@@ -152,9 +150,7 @@ def assess_measurement_to_model_candidate(
         target_definition = validate_core_model_json_artifact(
             VariableSemanticDefinition, store, target_definition_ref
         )
-        target_representation = validate_core_model_json_artifact(
-            VariableRepresentation, store, target_representation_ref
-        )
+        target_representation = load_variable_representation(store, target_representation_ref)
         profile = validate_core_model_json_artifact(MeasurementBindingProfile, store, profile_ref)
         _reopen_definition_evidence(store, source_definition)
 

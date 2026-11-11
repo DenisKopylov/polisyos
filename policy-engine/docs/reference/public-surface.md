@@ -378,7 +378,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 853 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 855 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
@@ -813,7 +813,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (853)</summary>
+<details><summary>Entrypoint exports (855)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -850,6 +850,7 @@ VariableRepresentationRef
 VariableSemanticDefinition
 VariableSemanticDefinitionRef
 evaluate_scoped_correspondence_basis
+load_variable_representation
 load_model_input_obligation_set
 load_model_input_port_declaration
 load_program_graph_input_interface
@@ -862,6 +863,7 @@ replay_scoped_measurement_occurrence
 scoped_correspondence_basis_manifest_inputs
 scoped_measurement_occurrence_manifest_inputs
 scoped_source_selection_from_passport_mapping
+variable_representation_manifest_inputs
 verify_model_input_port_semantics
 FetchPlan
 IngestionExecutionContext

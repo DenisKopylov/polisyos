@@ -9259,7 +9259,24 @@
           }
         },
         "architecture": {
-          "full_generated": "UNRUN: supported private retained probe uses frozen offline sync; external UV cache lacks required locked package bytes including JAX/JAXlib0.8.2. Existing working .venv retained. No probe launched against known-incomplete cache.",
+          "full_generated": {
+            "result": "FAIL_GENERATED_OUTPUT_DRIFT",
+            "source_commit": "da07d9fa731eedabf97f7bd0d1d1116d40f972dd",
+            "source_tree": "bfe8a098885836e7d2a32429d700fc3f44e183d0",
+            "clean_families": [
+              "runtime-openapi-snapshot",
+              "runtime-api-client",
+              "runtime-dashboard-api-types",
+              "foundry-method-stubs",
+              "runtime-quality-authority-envelope-v2-schema"
+            ],
+            "drift_family": "trust-claim-posture-register",
+            "drift_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+            "output": "policy-engine/_cache/e02/lane01-generated-full-r2/",
+            "wall_seconds": 445.633,
+            "peak_sampled_process_tree_rss_bytes": 2240397312,
+            "earlier_setup": "r1 HARNESS_ERROR/UNRUN probes; r2 cached frozen setup completed; working .venv preserved"
+          },
           "origin_static": "FAIL: four new IR leaf deep imports; stable IR facade companion in progress. No baseline waiver.",
           "final_static": "PASS with freshness explicitly omitted; public inventory regenerated and IR facade added, no deep-import baseline changes.",
           "final_static_output": "policy-engine/_cache/e02/lane01-audit-architecture/facade-final-static-check.log",
@@ -9402,6 +9419,60 @@
             "collection_output": "policy-engine/_cache/e02/lane01-live-initial-n5-collection-r1/",
             "collection_wall_seconds": 31.116,
             "collection_peak_sampled_process_tree_rss_bytes": 1730379776
+          },
+          "N6_source_only_r2": {
+            "source_commit": "da07d9fa731eedabf97f7bd0d1d1116d40f972dd",
+            "source_tree": "bfe8a098885836e7d2a32429d700fc3f44e183d0",
+            "result": "FAIL_SOURCE_ADMISSION",
+            "N5": "UNRUN",
+            "reason": "unsupported direct source binding polisyos.scientist.methods.search.strategies._deps.ExactMarginalLogLikelihood",
+            "wall_seconds": 1281.616,
+            "peak_sampled_process_tree_rss_bytes": 3690545152,
+            "output": "policy-engine/_cache/e02/lane01-n6-source-admission-r2/",
+            "repair_state": "IN_PROGRESS: four independent source-route findings; no actual numerical bypass claim; real 17-binding family not qualified",
+            "plain_pytest_profile": {
+              "tests": 13,
+              "result": "PASS",
+              "independent_review": "GO",
+              "state": "REVIEWED_WORKING_TREE_NOT_YET_COMMITTED"
+            }
+          },
+          "methodology_v05": {
+            "state": "REVIEWED_WORKING_TREE_RUNTIME_VARIANT_PENDING",
+            "changed_paths": 12,
+            "core": {
+              "PASS": 50,
+              "output": "SECONDARY/policy-engine/_cache/e02/variable-methodology-stream-core-r1/"
+            },
+            "catalog_source_discovery": {
+              "PASS": 25,
+              "wall_seconds": 64.121,
+              "peak_sampled_process_tree_rss_bytes": 1937604608,
+              "unchanged_inputs": 12,
+              "output": "SECONDARY/policy-engine/_cache/e02/variable-methodology-composed-r1/"
+            },
+            "independent_review": "GO",
+            "semantics": "Explicit v2 selected raw methodology document; unchanged v1 bytes/defaults; optional unknown carries typed candidate limitation; no external method validity or authority",
+            "next": "public companions and separate served v2 Runtime/Foundry/fresh reader positive and target-only removal control; no v1 numerical repeat"
+          },
+          "REQ_REQ_01_06_current_composition": "UNRUN current-source census/wheel/legacy-flag requalification; historical r3/r4 remain qualified only on recorded source",
+          "retained_C_preflight": {
+            "result": "PASS_READ_ONLY",
+            "source_commit": "da07d9fa731eedabf97f7bd0d1d1116d40f972dd",
+            "source_tree": "bfe8a098885836e7d2a32429d700fc3f44e183d0",
+            "wall_seconds": 96.054,
+            "peak_sampled_process_tree_rss_bytes": 2033467392,
+            "unchanged_pins": 9,
+            "ledger_revision_before": 36,
+            "ledger_revision_after": 36,
+            "N5": 0,
+            "worker_dispatches": 0,
+            "ledger_writes": 0,
+            "original_state_preserved": true,
+            "receipt": "/private/tmp/e02-lane01-retained-c-current-preflight-r1/receipt.json",
+            "receipt_sha256": "db74c8d393de740d34dccbb1d36d7c8c8ba8dc39083eead08c98acbdde9b61d7",
+            "output": "policy-engine/_cache/e02/lane01-retained-c-current-preflight-r1/",
+            "actual_C": "UNRUN"
           }
         },
         "ruff": "PASS check/format on 33 changed/new Python paths"

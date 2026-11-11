@@ -27,6 +27,7 @@ from polisyos.core.artifacts.manifest import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts.model_input_requirements import ModelInputPort
 
 _SELECTED_PROFILE_SHA256 = r"^sha256:[0-9a-f]{64}$"
@@ -93,6 +94,7 @@ class MeasurementAxis(StrEnum):
     AGGREGATION = "aggregation"
     GRAIN = "grain"
     POPULATION_REF = "population_ref"
+    METHODOLOGY_REF = "methodology_ref"
 
 
 class ModelInputScope(BaseModel):
@@ -418,13 +420,16 @@ class VariableRepresentation(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.VariableRepresentation"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
-        "1.0": "polisyos.catalog.variable_representation.v1"
+        "1.0": "polisyos.catalog.variable_representation.v1",
+        "2.0": "polisyos.catalog.variable_representation.v2",
     }
 
-    schema_version: Literal["polisyos.catalog.variable_representation.v1"] = (
-        "polisyos.catalog.variable_representation.v1"
-    )
+    schema_version: Literal[
+        "polisyos.catalog.variable_representation.v1",
+        "polisyos.catalog.variable_representation.v2",
+    ] = "polisyos.catalog.variable_representation.v1"
     representation_id: str = Field(pattern=_NAMESPACED_ID, strict=True)
     revision: str = Field(min_length=1, strict=True)
     semantic_definition_ref: VariableSemanticDefinitionRef
@@ -454,6 +459,20 @@ class VariableRepresentation(BaseModel):
     aggregation: Literal["identity", "mean", "sum", "last"] | None = None
     grain: tuple[str, ...] | None = None
     population_ref: str | None = Field(default=None, min_length=1, strict=True)
+    methodology_ref: SelectedVariableBindingRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def _methodology_matches_transport_version(self) -> VariableRepresentation:
+        if self.schema_version == "polisyos.catalog.variable_representation.v1" and (
+            "methodology_ref" in self.model_fields_set
+        ):
+            raise ValueError("variable_representation_methodology_requires_v2")
+        if self.methodology_ref is not None and self.methodology_ref.kind != "fabric.doc.raw":
+            raise ValueError("variable_representation_methodology_document_kind_mismatch")
+        return self
 
     @field_validator("scale_to_unit")
     @classmethod
@@ -500,13 +519,16 @@ class MeasurementBindingProfile(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.MeasurementBindingProfile"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
-        "1.0": "polisyos.catalog.measurement_binding_profile.v1"
+        "1.0": "polisyos.catalog.measurement_binding_profile.v1",
+        "2.0": "polisyos.catalog.measurement_binding_profile.v2",
     }
 
-    schema_version: Literal["polisyos.catalog.measurement_binding_profile.v1"] = (
-        "polisyos.catalog.measurement_binding_profile.v1"
-    )
+    schema_version: Literal[
+        "polisyos.catalog.measurement_binding_profile.v1",
+        "polisyos.catalog.measurement_binding_profile.v2",
+    ] = "polisyos.catalog.measurement_binding_profile.v1"
     profile_id: str = Field(pattern=_NAMESPACED_ID, strict=True)
     revision: str = Field(min_length=1, strict=True)
     required_axes: tuple[MeasurementAxis, ...] = Field(min_length=4)
@@ -522,7 +544,95 @@ class MeasurementBindingProfile(BaseModel):
             raise ValueError("measurement_binding_profile_axis_both_required_and_optional")
         if not _HARD_REQUIRED_AXES.issubset(required):
             raise ValueError("measurement_binding_profile_cannot_weaken_required_axes")
+        if self.schema_version == "polisyos.catalog.measurement_binding_profile.v1" and (
+            MeasurementAxis.METHODOLOGY_REF in required | optional
+        ):
+            raise ValueError("measurement_binding_profile_methodology_requires_v2")
         return self
+
+
+def variable_representation_manifest_inputs(value: VariableRepresentation) -> tuple[InputRef, ...]:
+    """Return exact declared dependencies for a selected measurement representation.
+
+    The methodology document records the represented method's declared source,
+    not verification of its scientific validity or authority.
+    """
+    inputs = [
+        input_ref_from_artifact_ref(value.semantic_definition_ref, role="semantic_definition")
+    ]
+    if value.methodology_ref is not None:
+        inputs.append(input_ref_from_artifact_ref(value.methodology_ref, role="methodology"))
+    return tuple(inputs)
+
+
+def load_variable_representation(
+    store: CoreJSONArtifactStore,
+    ref: VariableRepresentationRef,
+) -> VariableRepresentation:
+    """Load a selected representation and its v2 declared document dependencies.
+
+    Legacy v1 retains its existing selected-payload checks. V2 additionally binds
+    every declared dependency in the selected manifest and opens any methodology
+    document's exact bytes. Document availability and identity establish neither
+    external empirical validity nor permission for a new current use.
+
+    Streaming Core owners verify the complete document through fixed-size reads;
+    this bounds its payload working memory, not total bytes or time. A legacy
+    reader without the existing stream protocol retains the full-byte fallback.
+
+    Args:
+        store: Existing Core artifact read owner.
+        ref: Exact selected representation manifest view.
+
+    Returns:
+        Strictly validated representation with its unchanged declared semantics.
+
+    Raises:
+        ValueError: A v2 dependency, document profile, or document bytes disagree.
+        OSError: Referenced artifact bytes are unavailable.
+    """
+    from polisyos.core.artifacts import (
+        CoreJSONArtifactStreamingReader,
+        artifact_manifest_profile_sha256,
+        validate_core_model_json_artifact,
+    )
+
+    value = validate_core_model_json_artifact(VariableRepresentation, store, ref)
+    if value.schema_version == "polisyos.catalog.variable_representation.v1":
+        return value
+    if tuple(store.get_manifest(ref).inputs) != variable_representation_manifest_inputs(value):
+        raise ValueError("variable_representation_manifest_inputs_mismatch")
+    validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, value.semantic_definition_ref
+    )
+    methodology = value.methodology_ref
+    if methodology is not None:
+        manifest = store.get_manifest(methodology)
+        if (
+            manifest.artifact_id != methodology.artifact_id
+            or manifest.kind != methodology.kind
+            or manifest.media_type != methodology.media_type
+            or artifact_manifest_profile_sha256(manifest) != methodology.manifest_profile_sha256
+        ):
+            raise ValueError("variable_representation_methodology_profile_mismatch")
+        if (
+            manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "fabric.doc.raw"
+            or manifest.artifact_schema.version != "1.0"
+        ):
+            raise ValueError("variable_representation_methodology_document_schema_mismatch")
+        if isinstance(store, CoreJSONArtifactStreamingReader):
+            # The existing owner checks the exact selected manifest, size and
+            # full payload digest at EOF/context exit; no second codec or
+            # caller-supplied integrity declaration stands in for that check.
+            with store.open_member(methodology, "blob") as member:
+                while member.read(64 * 1024):
+                    pass
+        else:
+            raw = store.get_bytes(methodology)
+            if hashlib.sha256(raw).hexdigest() != methodology.artifact_id.hex:
+                raise ValueError("variable_representation_methodology_bytes_mismatch")
+    return value
 
 
 class MeasurementCorrespondenceResult(BaseModel):
@@ -1074,6 +1184,11 @@ def evaluate_scoped_correspondence_basis(
         limitation_codes=(
             "external_empirical_origin_not_established",
             "source_currentness_not_established",
+            *(
+                ("optional_axis_unknown:methodology_ref",)
+                if MeasurementAxis.METHODOLOGY_REF in optional_unknown
+                else ()
+            ),
         ),
     )
 
@@ -1252,8 +1367,10 @@ __all__ = [
     "VariableSemanticDefinition",
     "VariableSemanticDefinitionRef",
     "evaluate_scoped_correspondence_basis",
+    "load_variable_representation",
     "replay_scoped_measurement_occurrence",
     "scoped_correspondence_basis_manifest_inputs",
     "scoped_measurement_occurrence_manifest_inputs",
     "scoped_source_selection_from_passport_mapping",
+    "variable_representation_manifest_inputs",
 ]

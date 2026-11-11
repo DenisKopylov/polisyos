@@ -38,6 +38,8 @@ from polisyos.core.contracts import (
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
+    load_variable_representation,
+    variable_representation_manifest_inputs,
 )
 from polisyos.fabric.connectors import verify_selected_cache_payload_ref
 from polisyos.fabric.data_plane import parse_datetime_utc
@@ -1731,10 +1733,8 @@ class CanonicalAcquisitionAuthority:
                     artifact_store,
                     source_definition_ref,
                 )
-                source_representation = artifacts.validate_core_model_json_artifact(
-                    VariableRepresentation,
-                    artifact_store,
-                    source_representation_ref,
+                source_representation = load_variable_representation(
+                    artifact_store, source_representation_ref
                 )
                 _reopen_selected_semantic_definition_evidence(
                     artifact_store,
@@ -1755,11 +1755,8 @@ class CanonicalAcquisitionAuthority:
                     "model_input_source_descriptor_artifact_unavailable",
                     entry.entry_id,
                 ) from exc
-            expected_representation_inputs = (
-                artifacts.input_ref_from_artifact_ref(
-                    source_definition_ref,
-                    role="semantic_definition",
-                ),
+            expected_representation_inputs = variable_representation_manifest_inputs(
+                source_representation
             )
             if tuple(source_representation_manifest.inputs) != expected_representation_inputs:
                 reason = "source_representation_lineage_mismatch"

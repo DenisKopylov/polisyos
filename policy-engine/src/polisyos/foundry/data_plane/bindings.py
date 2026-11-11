@@ -81,6 +81,7 @@ from polisyos.core.contracts import (
     evaluate_scoped_correspondence_basis,
     load_model_input_obligation_set,
     load_resolved_input_binding_manifest,
+    load_variable_representation,
     persist_resolved_input_binding_manifest,
     replay_scoped_measurement_occurrence,
     scoped_correspondence_basis_manifest_inputs,
@@ -2786,17 +2787,13 @@ def _verify_scoped_measurement(
             VariableSemanticDefinition, store, proof.source_definition_ref
         ),
         source_representation_ref=proof.source_representation_ref,
-        source_representation=validate_core_model_json_artifact(
-            VariableRepresentation, store, proof.source_representation_ref
-        ),
+        source_representation=load_variable_representation(store, proof.source_representation_ref),
         target_definition_ref=port.semantic_definition_ref,
         target_definition=validate_core_model_json_artifact(
             VariableSemanticDefinition, store, port.semantic_definition_ref
         ),
         target_representation_ref=port.representation_ref,
-        target_representation=validate_core_model_json_artifact(
-            VariableRepresentation, store, port.representation_ref
-        ),
+        target_representation=load_variable_representation(store, port.representation_ref),
         binding_profile_ref=port.binding_profile_ref,
         profile=validate_core_model_json_artifact(
             MeasurementBindingProfile, store, port.binding_profile_ref

@@ -13,6 +13,12 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 ## Key Concepts
 
 - **Typed refs** - every artifact family uses explicit `kind` and `media_type` checks.
+- **Measurement methodology** - `variable_binding.py` keeps legacy v1 representation/profile
+  bytes unchanged and admits an explicit v2 methodology-document axis. Its shared selected
+  representation loader reconciles declared inputs and actual `fabric.doc.raw` bytes. An absent
+  optional methodology remains a candidate limitation; document identity establishes no empirical
+  validity, causal authority, or current-use permission. Existing streaming owners read fixed-size
+  payload chunks; total document bytes/time and legacy full-byte fallback are not thereby bounded.
 - **Runtime/control DTOs** - HTTP and orchestration payloads live here so routes stay thin.
 - **Owned HTE attempt anchors** - `owned_attempt_anchor.py` defines the profiled pre-output capture and ephemeral completed-owner association. The stable facade exports the ref and associated DTOs because Runtime, Scientist Search, and audit consumers share this typed boundary; an association reconciles one exact owner event but grants no scientific or publication authority.
 - **Physical HTE materialization binding** - `OwnedAttemptPhysicalSourceBindingRef` carries one selected Foundry physical source-to-array binding into the Runtime anchor and its completed/projection associations. It establishes only physical materialization; variable identity, units, population, and causal alignment remain separately `not_established`.

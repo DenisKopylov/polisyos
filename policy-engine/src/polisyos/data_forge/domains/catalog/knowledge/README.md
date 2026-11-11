@@ -44,6 +44,12 @@ transportability layer over the dataset catalog built by the batch pipeline.
 - **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates. Its private K_ref prepared reader exposes the complete ordered alignment projection in bounded batches under one read-only transaction; Runtime computes the existing full profile before replaying rows for edge derivation.
 - **Proxy resolution** - `proxy_resolver.py` builds fallback chains when direct observations are missing.
 - **Variable alignment** - `variable_alignment.py` maps canonical SKG variables onto dataset variables.
+- **Measurement correspondence** - assessment and pre-acquisition descriptor discovery use the
+  shared Core representation loader for v1 and explicit v2 profiles, including the model-port
+  verifier. V2 may compare an exact methodology-document reference;
+  omission of an optional method carries a limitation, while an unresolved or corrupt declared
+  document refuses. Required denominator mismatches still refuse. Candidate correspondence does
+  not establish external empirical validity or current-use authority.
 - **Derivation catalog selection** - `derivation_catalog_selection.py` strictly loads
   purpose-addressable family policies and evaluates candidates against exact metric/canonical
   owner edges plus rights, alignment, binding, and completeness evidence.

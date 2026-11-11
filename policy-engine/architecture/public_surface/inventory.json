@@ -2206,8 +2206,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 853,
-          "known_export_count": 853,
+          "export_count": 855,
+          "known_export_count": 855,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2243,6 +2243,7 @@
             "VariableSemanticDefinition",
             "VariableSemanticDefinitionRef",
             "evaluate_scoped_correspondence_basis",
+            "load_variable_representation",
             "load_model_input_obligation_set",
             "load_model_input_port_declaration",
             "load_program_graph_input_interface",
@@ -2255,6 +2256,7 @@
             "scoped_correspondence_basis_manifest_inputs",
             "scoped_measurement_occurrence_manifest_inputs",
             "scoped_source_selection_from_passport_mapping",
+            "variable_representation_manifest_inputs",
             "verify_model_input_port_semantics",
             "FetchPlan",
             "IngestionExecutionContext",
@@ -3087,8 +3089,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 89105,
-                "sha256": "8c00941cc2137e9a2a581d17e4c0a0ff239959ce8eb8deaf8c862eaff8a78207"
+                "bytes": 89366,
+                "sha256": "27bd4bec4f1f5d5a202a28275f8194e77bbeef023e10c693026c7a001162105c"
               },
               {
                 "path": "src/polisyos/core/contracts",

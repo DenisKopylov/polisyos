@@ -4,13 +4,20 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
+from contextlib import contextmanager
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactIntegrityError
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputPhysicalEncoding,
     ModelInputPort,
@@ -31,8 +38,10 @@ from polisyos.core.contracts.variable_binding import (
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
     evaluate_scoped_correspondence_basis,
+    load_variable_representation,
     replay_scoped_measurement_occurrence,
     scoped_source_selection_from_passport_mapping,
+    variable_representation_manifest_inputs,
 )
 from polisyos.data_forge.domains.catalog.knowledge import overlay
 
@@ -396,6 +405,352 @@ def test_same_definition_recomputes_only_a_candidate_and_preserves_unknown_origi
     assert result.optional_unknown_axes == (MeasurementAxis.POPULATION_REF,)
     assert "external_empirical_origin_not_established" in result.limitation_codes
     assert "source_currentness_not_established" in result.limitation_codes
+
+
+def _methodology_document(
+    store: FileSystemCAS,
+    body: bytes = b"Test-owned measurement protocol r1; external validity is not established.\n",
+) -> SelectedVariableBindingRef:
+    return SelectedVariableBindingRef.model_validate(
+        store.put_bytes(
+            body,
+            PutOptions(
+                kind="fabric.doc.raw",
+                media_type="text/plain",
+                schema=SchemaInfo(name="fabric.doc.raw", version="1.0"),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+
+
+def _stored_representation(store: FileSystemCAS) -> VariableRepresentation:
+    case = _correspondence_case()
+    evidence = store.put_bytes(
+        b"Test-owned scalar definition; external empirical meaning is not established.\n",
+        PutOptions(kind="test.definition_evidence", media_type="text/plain"),
+        return_selected_profile=True,
+    )
+    definition = case.definition.model_copy(
+        update={
+            "definition_evidence_refs": (
+                SelectedVariableBindingRef.model_validate(evidence.model_dump()),
+            )
+        }
+    )
+    definition_ref = store.put_json(
+        definition,
+        PutOptions(
+            kind=definition.ARTIFACT_KIND,
+            media_type=definition.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=definition.ARTIFACT_SCHEMA_NAME, version="1.0"),
+            inputs=[input_ref_from_artifact_ref(evidence, role="definition_evidence")],
+        ),
+        return_selected_profile=True,
+    )
+    return case.representation.model_copy(
+        update={
+            "semantic_definition_ref": VariableSemanticDefinitionRef.model_validate(
+                definition_ref.model_dump()
+            )
+        }
+    )
+
+
+def _persist_representation(
+    store: FileSystemCAS,
+    value: VariableRepresentation,
+    *,
+    manifest_version: str,
+    include_inputs: bool = True,
+) -> VariableRepresentationRef:
+    return VariableRepresentationRef.model_validate(
+        store.put_json(
+            value,
+            PutOptions(
+                kind=value.ARTIFACT_KIND,
+                media_type=value.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(name=value.ARTIFACT_SCHEMA_NAME, version=manifest_version),
+                inputs=(
+                    list(variable_representation_manifest_inputs(value)) if include_inputs else []
+                ),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+
+
+def test_v1_representation_preserves_its_exact_legacy_field_set_and_selected_read(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    representation = _correspondence_case().representation
+    legacy_payload = {
+        "schema_version": "polisyos.catalog.variable_representation.v1",
+        "representation_id": "test.source",
+        "revision": "1",
+        "semantic_definition_ref": representation.semantic_definition_ref.model_dump(mode="json"),
+        "quantity_kind": "stock",
+        "measure_form": "absolute",
+        "unit_id": "usd",
+        "scale_to_unit": None,
+        "numerator_ref": None,
+        "denominator_ref": None,
+        "time_support": "state_start",
+        "temporal_granularity": "annual",
+        "aggregation": "identity",
+        "grain": ["geography", "period"],
+        "population_ref": None,
+    }
+    legacy_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            {key: value for key, value in legacy_payload.items() if value is not None},
+            PutOptions(
+                kind=representation.ARTIFACT_KIND,
+                media_type=representation.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(name=representation.ARTIFACT_SCHEMA_NAME, version="1.0"),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+    current_ref = _persist_representation(
+        store, representation, manifest_version="1.0", include_inputs=False
+    )
+
+    assert representation.model_dump(mode="json") == legacy_payload
+    assert current_ref == legacy_ref
+    assert store.get_bytes(current_ref) == store.get_bytes(legacy_ref)
+    assert load_variable_representation(store, legacy_ref) == representation
+
+
+@pytest.mark.parametrize("present_value", [None, "document"])
+def test_v1_representation_rejects_a_present_methodology_field(
+    tmp_path: Path,
+    present_value: str | None,
+) -> None:
+    payload = _correspondence_case().representation.model_dump()
+    payload["methodology_ref"] = (
+        _methodology_document(FileSystemCAS(tmp_path / "cas"))
+        if present_value is not None
+        else None
+    )
+
+    with pytest.raises(ValueError, match="variable_representation_methodology_requires_v2"):
+        VariableRepresentation.model_validate(payload)
+
+
+def test_methodology_axis_requires_an_explicit_v2_binding_profile() -> None:
+    case = _correspondence_case()
+    payload = case.profile.model_dump()
+    payload["optional_axes"] = (MeasurementAxis.METHODOLOGY_REF,)
+
+    with pytest.raises(ValueError, match="measurement_binding_profile_methodology_requires_v2"):
+        MeasurementBindingProfile.model_validate(payload)
+    payload["schema_version"] = "polisyos.catalog.measurement_binding_profile.v2"
+    profile = MeasurementBindingProfile.model_validate(payload)
+    assert profile.optional_axes == (MeasurementAxis.METHODOLOGY_REF,)
+
+
+@pytest.mark.parametrize(("payload_version", "manifest_version"), [("v1", "2.0"), ("v2", "1.0")])
+def test_representation_manifest_and_payload_versions_must_match(
+    tmp_path: Path,
+    payload_version: str,
+    manifest_version: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    representation = _correspondence_case().representation.model_copy(
+        update={"schema_version": f"polisyos.catalog.variable_representation.{payload_version}"}
+    )
+    ref = _persist_representation(store, representation, manifest_version=manifest_version)
+
+    with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_version_mismatch"):
+        load_variable_representation(store, ref)
+
+
+def test_v2_representation_requires_exact_document_inputs_and_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    methodology = _methodology_document(store)
+    representation = _stored_representation(store).model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "methodology_ref": methodology,
+        }
+    )
+    missing_inputs_ref = _persist_representation(
+        store, representation, manifest_version="2.0", include_inputs=False
+    )
+    with pytest.raises(ValueError, match="variable_representation_manifest_inputs_mismatch"):
+        load_variable_representation(store, missing_inputs_ref)
+
+    ref = _persist_representation(store, representation, manifest_version="2.0")
+    assert load_variable_representation(store, ref) == representation
+    assert store.get_manifest(ref).inputs == [
+        input_ref_from_artifact_ref(
+            representation.semantic_definition_ref, role="semantic_definition"
+        ),
+        input_ref_from_artifact_ref(methodology, role="methodology"),
+    ]
+    read = store.get_bytes
+
+    def reject_full_document_read(selected):
+        if selected == methodology:
+            raise AssertionError("FileSystemCAS methodology must use its verified member stream")
+        return read(selected)
+
+    with monkeypatch.context() as controlled:
+        controlled.setattr(store, "get_bytes", reject_full_document_read)
+        assert load_variable_representation(store, ref) == representation
+    blob_path, _ = store._paths(methodology.artifact_id)
+    original_bytes = blob_path.read_bytes()
+    blob_path.write_bytes(b"X" + original_bytes[1:])
+    try:
+        with pytest.raises(ArtifactIntegrityError, match="CAS member changed while streaming"):
+            load_variable_representation(store, ref)
+    finally:
+        blob_path.write_bytes(original_bytes)
+    assert load_variable_representation(store, ref) == representation
+
+
+def test_v2_present_methodology_ref_requires_an_available_selected_view(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    methodology = _methodology_document(store).model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    representation = _stored_representation(store).model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "methodology_ref": methodology,
+        }
+    )
+    ref = _persist_representation(store, representation, manifest_version="2.0")
+
+    with pytest.raises(FileNotFoundError):
+        load_variable_representation(store, ref)
+
+
+def test_v2_representation_reconciles_an_available_document_view_with_its_exact_input(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    original = _methodology_document(store)
+    alternate = SelectedVariableBindingRef.model_validate(
+        store.put_bytes(
+            store.get_bytes(original),
+            PutOptions(
+                kind="fabric.doc.raw",
+                media_type="text/plain",
+                schema=SchemaInfo(name="fabric.doc.raw", version="1.0"),
+                producer=ProducerInfo(component="test.protocol-document", version="alternate-view"),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+    assert original.artifact_id == alternate.artifact_id
+    assert original.manifest_profile_sha256 != alternate.manifest_profile_sha256
+    assert store.get_bytes(original) == store.get_bytes(alternate)
+    assert store.get_manifest(original).producer != store.get_manifest(alternate).producer
+    original_representation = _stored_representation(store).model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "methodology_ref": original,
+        }
+    )
+    changed = original_representation.model_copy(update={"methodology_ref": alternate})
+    wrong_inputs_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            changed,
+            PutOptions(
+                kind=changed.ARTIFACT_KIND,
+                media_type=changed.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(name=changed.ARTIFACT_SCHEMA_NAME, version="2.0"),
+                inputs=list(variable_representation_manifest_inputs(original_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+
+    with pytest.raises(ValueError, match="variable_representation_manifest_inputs_mismatch"):
+        load_variable_representation(store, wrong_inputs_ref)
+
+    rebound_ref = _persist_representation(store, changed, manifest_version="2.0")
+    assert load_variable_representation(store, rebound_ref) == changed
+
+
+def test_v2_representation_reopens_its_selected_document_in_a_fresh_reader(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    methodology = _methodology_document(store)
+    representation = _stored_representation(store).model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "methodology_ref": methodology,
+        }
+    )
+    ref = _persist_representation(store, representation, manifest_version="2.0")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import json,sys; "
+            "from polisyos.core.artifacts.store import FileSystemCAS; "
+            "from polisyos.core.contracts.variable_binding import "
+            "VariableRepresentationRef,load_variable_representation; "
+            "value=load_variable_representation(FileSystemCAS(sys.argv[1]),"
+            "VariableRepresentationRef.model_validate_json(sys.argv[2])); "
+            "print(value.model_dump_json())",
+            str(store.root),
+            ref.model_dump_json(),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert VariableRepresentation.model_validate_json(result.stdout) == representation
+
+
+def test_methodology_stream_reads_fixed_chunks_and_still_checks_the_full_document(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    body = b"Test-owned protocol.\n" * 10_000
+    methodology = _methodology_document(store, body)
+    representation = _stored_representation(store).model_copy(
+        update={
+            "schema_version": "polisyos.catalog.variable_representation.v2",
+            "methodology_ref": methodology,
+        }
+    )
+    ref = _persist_representation(store, representation, manifest_version="2.0")
+    original_open = store.open_member
+    observed_bytes: list[int] = []
+
+    @contextmanager
+    def counted_open(selected, member):
+        with original_open(selected, member) as stream:
+            if selected != methodology:
+                yield stream
+            else:
+
+                class CountedStream:
+                    def read(self, size: int = -1) -> bytes:
+                        assert size == 64 * 1024
+                        chunk = stream.read(size)
+                        observed_bytes.append(len(chunk))
+                        return chunk
+
+                yield CountedStream()
+
+    monkeypatch.setattr(store, "open_member", counted_open)
+
+    assert load_variable_representation(store, ref) == representation
+    assert sum(observed_bytes) == len(body)
+    assert len(observed_bytes) >= 4
+    assert observed_bytes[-1] == 0
 
 
 def _aggregated_correspondence_case(

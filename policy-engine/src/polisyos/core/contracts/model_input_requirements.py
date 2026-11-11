@@ -35,6 +35,7 @@ from .variable_binding import (
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
+    load_variable_representation,
 )
 
 
@@ -549,9 +550,7 @@ def verify_model_input_port_semantics(
     validate_core_model_json_artifact(
         VariableSemanticDefinition, store, port.semantic_definition_ref
     )
-    representation = validate_core_model_json_artifact(
-        VariableRepresentation, store, port.representation_ref
-    )
+    representation = load_variable_representation(store, port.representation_ref)
     profile = validate_core_model_json_artifact(
         MeasurementBindingProfile, store, port.binding_profile_ref
     )

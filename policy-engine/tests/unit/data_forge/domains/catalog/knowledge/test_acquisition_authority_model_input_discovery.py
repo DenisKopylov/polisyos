@@ -8,19 +8,22 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
     ArtifactRef,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputPhysicalEncoding,
     ModelInputPort,
     ProgramGraphInputInterface,
+    load_program_graph_input_interface,
     persist_program_graph_input_interface,
+    verify_model_input_port_semantics,
 )
 from polisyos.core.contracts.variable_binding import (
     MeasurementAxis,
@@ -32,6 +35,8 @@ from polisyos.core.contracts.variable_binding import (
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
+    load_variable_representation,
+    variable_representation_manifest_inputs,
 )
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
@@ -53,13 +58,14 @@ def _put_selected_model_json(
     *,
     kind: str,
     name: str,
+    manifest_version: str = "1.0",
 ) -> ArtifactRef:
     return store.put_json(
         value,
         PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(name=name, version="1.0"),
+            schema=SchemaInfo(name=name, version=manifest_version),
         ),
         return_selected_profile=True,
     )
@@ -98,6 +104,9 @@ def _model_inputs(
     definition_meaning: str = (
         "Government fiscal balance measured for a bounded population and period."
     ),
+    source_methodology_ref: SelectedVariableBindingRef | None = None,
+    target_methodology_ref: SelectedVariableBindingRef | None = None,
+    compare_methodology: bool = False,
 ) -> tuple[
     VariableSemanticDefinitionRef,
     VariableRepresentationRef,
@@ -119,6 +128,9 @@ def _model_inputs(
     )
     definition_ref = _put_semantic_definition(store, definition)
 
+    uses_v2_representation = (
+        source_methodology_ref is not None or target_methodology_ref is not None
+    )
     representation = VariableRepresentation(
         representation_id="test.fiscal.balance.source",
         revision="r1",
@@ -132,6 +144,14 @@ def _model_inputs(
         aggregation="mean",
         grain=("country", "period"),
         population_ref="population:whole-country",
+        **(
+            {
+                "schema_version": "polisyos.catalog.variable_representation.v2",
+                "methodology_ref": source_methodology_ref,
+            }
+            if uses_v2_representation
+            else {}
+        ),
     )
     representation_ref = VariableRepresentationRef.model_validate(
         store.put_json(
@@ -141,9 +161,9 @@ def _model_inputs(
                 media_type=representation.ARTIFACT_MEDIA_TYPE,
                 schema=SchemaInfo(
                     name=representation.ARTIFACT_SCHEMA_NAME,
-                    version=representation.ARTIFACT_SCHEMA_VERSION,
+                    version="2.0" if uses_v2_representation else "1.0",
                 ),
-                inputs=[input_ref_from_artifact_ref(definition_ref, role="semantic_definition")],
+                inputs=list(variable_representation_manifest_inputs(representation)),
             ),
             return_selected_profile=True,
         ).model_dump(mode="json")
@@ -153,6 +173,7 @@ def _model_inputs(
         update={
             "representation_id": "test.fiscal.balance.model",
             "quantity_kind": "stock",
+            **({"methodology_ref": target_methodology_ref} if uses_v2_representation else {}),
         }
     )
     model_representation_ref = VariableRepresentationRef.model_validate(
@@ -163,9 +184,9 @@ def _model_inputs(
                 media_type=model_representation.ARTIFACT_MEDIA_TYPE,
                 schema=SchemaInfo(
                     name=model_representation.ARTIFACT_SCHEMA_NAME,
-                    version=model_representation.ARTIFACT_SCHEMA_VERSION,
+                    version="2.0" if uses_v2_representation else "1.0",
                 ),
-                inputs=[input_ref_from_artifact_ref(definition_ref, role="semantic_definition")],
+                inputs=list(variable_representation_manifest_inputs(model_representation)),
             ),
             return_selected_profile=True,
         ).model_dump(mode="json")
@@ -184,6 +205,14 @@ def _model_inputs(
             MeasurementAxis.GRAIN,
             MeasurementAxis.POPULATION_REF,
         ),
+        **(
+            {
+                "schema_version": "polisyos.catalog.measurement_binding_profile.v2",
+                "optional_axes": (MeasurementAxis.METHODOLOGY_REF,),
+            }
+            if compare_methodology
+            else {}
+        ),
     )
     profile_ref = MeasurementBindingProfileRef.model_validate(
         _put_selected_model_json(
@@ -191,6 +220,7 @@ def _model_inputs(
             profile,
             kind=profile.ARTIFACT_KIND,
             name=profile.ARTIFACT_SCHEMA_NAME,
+            manifest_version="2.0" if compare_methodology else "1.0",
         ).model_dump(mode="json")
     )
 
@@ -327,6 +357,224 @@ def test_catalog_discovers_one_exact_model_input_source_descriptor(
         "claim_evidence",
         "source_currentness",
     }
+
+
+def _methodology_document(store: FileSystemCAS, body: bytes) -> SelectedVariableBindingRef:
+    return SelectedVariableBindingRef.model_validate(
+        store.put_bytes(
+            body,
+            PutOptions(
+                kind="fabric.doc.raw",
+                media_type="text/plain",
+                schema=SchemaInfo(name="fabric.doc.raw", version="1.0"),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+
+
+@pytest.mark.parametrize("source_method_present", [True, False])
+def test_catalog_source_discovery_admits_v2_document_edges_without_inventing_authority(
+    tmp_path: Path,
+    *,
+    source_method_present: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    method = _methodology_document(
+        store, b"Test-owned measurement protocol, no empirical authority.\n"
+    )
+    definition_ref, source_ref, _, interface_ref = _model_inputs(
+        store,
+        source_methodology_ref=method if source_method_present else None,
+        target_methodology_ref=method,
+        compare_methodology=True,
+    )
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner", authority_entry=_authority_entry(definition_ref, source_ref)
+    )
+
+    candidate = authority.discover_model_input_source_descriptor(
+        store, model_input_interface_ref=interface_ref, port_id="fiscal-balance-input"
+    )
+
+    assert candidate.source_representation_ref == source_ref
+    assert candidate.semantic_correspondence == "not_established"
+    assert "fetch_permission" in candidate.may_not_use_for
+    if source_method_present:
+        assert MeasurementAxis.METHODOLOGY_REF in candidate.recomputed_axes
+        assert candidate.unknown_optional_axes == ()
+    else:
+        assert candidate.unknown_optional_axes == (MeasurementAxis.METHODOLOGY_REF,)
+
+
+@pytest.mark.parametrize("damage", ["missing", "corrupt"])
+def test_catalog_source_discovery_checks_source_document_separately_from_valid_target(
+    tmp_path: Path,
+    damage: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_method = _methodology_document(store, b"Test-owned source protocol.\n")
+    target_method = _methodology_document(store, b"Test-owned independent target protocol.\n")
+    assert source_method.artifact_id != target_method.artifact_id
+    definition_ref, source_ref, _, interface_ref = _model_inputs(
+        store, source_methodology_ref=source_method, target_methodology_ref=target_method
+    )
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner", authority_entry=_authority_entry(definition_ref, source_ref)
+    )
+    (port,) = load_program_graph_input_interface(store, interface_ref).ports
+    assert verify_model_input_port_semantics(store, port).methodology_ref == target_method
+    assert (
+        authority.discover_model_input_source_descriptor(
+            store, model_input_interface_ref=interface_ref, port_id=port.port_id
+        ).source_representation_ref
+        == source_ref
+    )
+    blob, _ = store._paths(source_method.artifact_id)
+    held_blob = tmp_path / "held-source-protocol"
+    original = blob.read_bytes()
+    if damage == "missing":
+        blob.rename(held_blob)
+    else:
+        blob.write_bytes(b"X" + original[1:])
+    try:
+        assert verify_model_input_port_semantics(store, port).methodology_ref == target_method
+        with pytest.raises(
+            AcquisitionAuthorityError, match="model_input_source_descriptor_artifact_unavailable"
+        ):
+            authority.discover_model_input_source_descriptor(
+                store, model_input_interface_ref=interface_ref, port_id=port.port_id
+            )
+    finally:
+        if damage == "missing":
+            held_blob.rename(blob)
+        else:
+            blob.write_bytes(original)
+    assert (
+        authority.discover_model_input_source_descriptor(
+            store, model_input_interface_ref=interface_ref, port_id=port.port_id
+        ).source_representation_ref
+        == source_ref
+    )
+
+
+@pytest.mark.parametrize("damage", ["missing", "corrupt"])
+def test_actual_port_verifier_refuses_target_document_without_harming_valid_source(
+    tmp_path: Path,
+    damage: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_method = _methodology_document(store, b"Test-owned valid source protocol.\n")
+    target_method = _methodology_document(store, b"Test-owned distinct target protocol.\n")
+    assert source_method.artifact_id != target_method.artifact_id
+    definition_ref, source_ref, _, interface_ref = _model_inputs(
+        store, source_methodology_ref=source_method, target_methodology_ref=target_method
+    )
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner", authority_entry=_authority_entry(definition_ref, source_ref)
+    )
+    (port,) = load_program_graph_input_interface(store, interface_ref).ports
+    assert load_variable_representation(store, source_ref).methodology_ref == source_method
+    assert verify_model_input_port_semantics(store, port).methodology_ref == target_method
+    blob, _ = store._paths(target_method.artifact_id)
+    held_blob = tmp_path / "held-target-protocol"
+    original = blob.read_bytes()
+    if damage == "missing":
+        blob.rename(held_blob)
+    else:
+        blob.write_bytes(b"X" + original[1:])
+    try:
+        assert load_variable_representation(store, source_ref).methodology_ref == source_method
+        expected_error = FileNotFoundError if damage == "missing" else ArtifactIntegrityError
+        with pytest.raises(expected_error):
+            verify_model_input_port_semantics(store, port)
+        with pytest.raises(
+            AcquisitionAuthorityError, match="model_input_source_port_semantics_unavailable"
+        ):
+            authority.discover_model_input_source_descriptor(
+                store, model_input_interface_ref=interface_ref, port_id=port.port_id
+            )
+        assert load_variable_representation(store, source_ref).methodology_ref == source_method
+    finally:
+        if damage == "missing":
+            held_blob.rename(blob)
+        else:
+            blob.write_bytes(original)
+    assert verify_model_input_port_semantics(store, port).methodology_ref == target_method
+
+
+@pytest.mark.parametrize("side", ["source", "target"])
+def test_catalog_source_discovery_refuses_an_available_foreign_document_view_in_wrong_lineage(
+    tmp_path: Path,
+    side: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    original = _methodology_document(store, b"Test-owned source protocol.\n")
+    alternate = SelectedVariableBindingRef.model_validate(
+        store.put_bytes(
+            store.get_bytes(original),
+            PutOptions(
+                kind="fabric.doc.raw",
+                media_type="text/plain",
+                schema=SchemaInfo(name="fabric.doc.raw", version="1.0"),
+                producer=ProducerInfo(component="test.protocol-document", version="alternate"),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+    assert original.artifact_id == alternate.artifact_id
+    assert original.manifest_profile_sha256 != alternate.manifest_profile_sha256
+    assert store.get_bytes(original) == store.get_bytes(alternate)
+    store.get_manifest(alternate)
+    independent = _methodology_document(store, b"Test-owned independent protocol.\n")
+    definition_ref, source_ref, _, interface_ref = _model_inputs(
+        store,
+        source_methodology_ref=original if side == "source" else independent,
+        target_methodology_ref=independent if side == "source" else original,
+    )
+    interface = load_program_graph_input_interface(store, interface_ref)
+    (port,) = interface.ports
+    selected_ref = source_ref if side == "source" else port.representation_ref
+    selected_representation = load_variable_representation(store, selected_ref)
+    changed = selected_representation.model_copy(update={"methodology_ref": alternate})
+    wrong_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            changed,
+            PutOptions(
+                kind=changed.ARTIFACT_KIND,
+                media_type=changed.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(name=changed.ARTIFACT_SCHEMA_NAME, version="2.0"),
+                inputs=list(variable_representation_manifest_inputs(selected_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump()
+    )
+    if side == "target":
+        wrong_port = port.model_copy(update={"representation_ref": wrong_ref})
+        interface_ref = persist_program_graph_input_interface(
+            store, interface.model_copy(update={"ports": (wrong_port,)})
+        )
+        assert load_variable_representation(store, source_ref).methodology_ref == independent
+        with pytest.raises(ValueError, match="variable_representation_manifest_inputs_mismatch"):
+            verify_model_input_port_semantics(store, wrong_port)
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner",
+        authority_entry=_authority_entry(
+            definition_ref, wrong_ref if side == "source" else source_ref
+        ),
+    )
+
+    with pytest.raises(ValueError, match="variable_representation_manifest_inputs_mismatch"):
+        load_variable_representation(store, wrong_ref)
+    expected = (
+        "model_input_source_descriptor_artifact_unavailable"
+        if side == "source"
+        else "model_input_source_port_semantics_unavailable"
+    )
+    with pytest.raises(AcquisitionAuthorityError, match=expected):
+        authority.discover_model_input_source_descriptor(
+            store, model_input_interface_ref=interface_ref, port_id="fiscal-balance-input"
+        )
 
 
 def test_scoped_query_envelope_ignores_unrelated_registry_metadata(

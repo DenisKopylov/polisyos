@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts import input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
@@ -28,6 +32,8 @@ from polisyos.core.contracts.variable_binding import (
     VariableRepresentation,
     VariableRepresentationRef,
     VariableSemanticDefinition,
+    load_variable_representation,
+    variable_representation_manifest_inputs,
 )
 from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
     _AssessmentRefusal,
@@ -37,7 +43,6 @@ from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
 from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
-    _put_selected_model_json,
     _put_semantic_definition,
 )
 
@@ -55,12 +60,19 @@ def _definition(store: FileSystemCAS, namespace: str, stable_id: str, meaning: s
             stable_id=stable_id,
             revision="fixture-r1",
             meaning=meaning,
-            definition_evidence_refs=(SelectedVariableBindingRef.model_validate(evidence.model_dump()),),
+            definition_evidence_refs=(
+                SelectedVariableBindingRef.model_validate(evidence.model_dump()),
+            ),
         ),
     )
 
 
-def _representation(store: FileSystemCAS, spec: tuple):
+def _representation(
+    store: FileSystemCAS,
+    spec: tuple,
+    *,
+    methodology_ref: SelectedVariableBindingRef | None = None,
+):
     representation_id, meaning_ref, numerator_ref, denominator_ref, quantity_kind = spec
     representation = VariableRepresentation(
         representation_id=representation_id,
@@ -77,6 +89,14 @@ def _representation(store: FileSystemCAS, spec: tuple):
         aggregation="mean",
         grain=("jurisdiction", "period"),
         population_ref="population:country",
+        **(
+            {
+                "schema_version": "polisyos.catalog.variable_representation.v2",
+                "methodology_ref": methodology_ref,
+            }
+            if methodology_ref is not None
+            else {}
+        ),
     )
     ref = store.put_json(
         representation,
@@ -85,9 +105,9 @@ def _representation(store: FileSystemCAS, spec: tuple):
             media_type=representation.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=representation.ARTIFACT_SCHEMA_NAME,
-                version=representation.ARTIFACT_SCHEMA_VERSION,
+                version="2.0" if methodology_ref is not None else "1.0",
             ),
-            inputs=[input_ref_from_artifact_ref(meaning_ref, role="semantic_definition")],
+            inputs=list(variable_representation_manifest_inputs(representation)),
         ),
         return_selected_profile=True,
     )
@@ -96,6 +116,8 @@ def _representation(store: FileSystemCAS, spec: tuple):
 
 def _fixture_model_interface(
     store: FileSystemCAS,
+    *,
+    methodology_ref: SelectedVariableBindingRef | None = None,
 ) -> tuple[SelectedVariableBindingRef, dict[str, ArtifactRef]]:
     definitions = {
         key: _definition(store, namespace, stable_id, meaning)
@@ -109,19 +131,28 @@ def _fixture_model_interface(
         )
     }
     representations = {
-        key: _representation(store, spec)
+        key: _representation(store, spec, methodology_ref=methodology_ref)
         for key, spec in {
             "target": (
-                "test.model.tax-rate.ratio", definitions["tax_rate"],
-                definitions["tax_liability"], definitions["tax_base"], "parameter",
+                "test.model.tax-rate.ratio",
+                definitions["tax_rate"],
+                definitions["tax_liability"],
+                definitions["tax_base"],
+                "parameter",
             ),
             "source_tax": (
-                "test.catalog.tax-rate.ratio", definitions["tax_rate"],
-                definitions["tax_liability"], definitions["tax_base"], "parameter",
+                "test.catalog.tax-rate.ratio",
+                definitions["tax_rate"],
+                definitions["tax_liability"],
+                definitions["tax_base"],
+                "parameter",
             ),
             "fiscal": (
-                "test.catalog.balance-gdp.ratio", definitions["balance_gdp"],
-                definitions["balance"], definitions["gdp"], "flow",
+                "test.catalog.balance-gdp.ratio",
+                definitions["balance_gdp"],
+                definitions["balance"],
+                definitions["gdp"],
+                "flow",
             ),
         }.items()
     }
@@ -140,12 +171,26 @@ def _fixture_model_interface(
             MeasurementAxis.GRAIN,
             MeasurementAxis.POPULATION_REF,
         ),
+        **(
+            {
+                "schema_version": "polisyos.catalog.measurement_binding_profile.v2",
+                "optional_axes": (MeasurementAxis.METHODOLOGY_REF,),
+            }
+            if methodology_ref is not None
+            else {}
+        ),
     )
-    profile_ref = _put_selected_model_json(
-        store,
+    profile_ref = store.put_json(
         profile,
-        kind=profile.ARTIFACT_KIND,
-        name=profile.ARTIFACT_SCHEMA_NAME,
+        PutOptions(
+            kind=profile.ARTIFACT_KIND,
+            media_type=profile.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=profile.ARTIFACT_SCHEMA_NAME,
+                version="2.0" if methodology_ref is not None else "1.0",
+            ),
+        ),
+        return_selected_profile=True,
     )
     port = ModelInputPort(
         port_id="income-tax-rate",
@@ -157,9 +202,13 @@ def _fixture_model_interface(
         representation_ref=representations["target"],
         binding_profile_ref=MeasurementBindingProfileRef.model_validate(profile_ref.model_dump()),
         scope=ModelInputScope(
-            population_ref="population:country", geography_ref="UA", jurisdiction_ref="UA",
-            period_start=date(2022, 1, 1), period_end=date(2022, 12, 31),
-            time_role="observation_time", period_basis="calendar_year",
+            population_ref="population:country",
+            geography_ref="UA",
+            jurisdiction_ref="UA",
+            period_start=date(2022, 1, 1),
+            period_end=date(2022, 12, 31),
+            time_role="observation_time",
+            period_basis="calendar_year",
         ),
     )
     selected_refs = {
@@ -341,8 +390,229 @@ def test_native_catalog_ratio_candidate_distinguishes_tax_rate_from_fiscal_balan
         )
         assert fiscal_negative.correspondence_basis_ref is None
 
-        assert assess(
-            tax_projection, tax_row, "tax_rate_definition", "tax_rate_representation"
-        ).status == "candidate"
+        assert (
+            assess(tax_projection, tax_row, "tax_rate_definition", "tax_rate_representation").status
+            == "candidate"
+        )
+    finally:
+        native_owner.overlay.close()
+
+
+def _fresh_correspondence_result(store: FileSystemCAS, basis_ref: ArtifactRef) -> dict:
+    """Replay a persisted Catalog basis offline, without current-use permission."""
+    code = """
+import sys
+from polisyos.core.artifacts import validate_core_model_json_artifact
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts import load_program_graph_input_interface
+from polisyos.core.contracts.epoch import load_verified_epoch_statement
+from polisyos.core.contracts.variable_binding import (
+    MeasurementBindingProfile, ScopedCorrespondenceBasis, ScopedCorrespondenceBasisRef,
+    ScopedMeasurementOccurrence, VariableSemanticDefinition,
+    evaluate_scoped_correspondence_basis, load_variable_representation,
+    replay_scoped_measurement_occurrence, scoped_source_selection_from_passport_mapping,
+)
+store = FileSystemCAS(sys.argv[1])
+ref = ScopedCorrespondenceBasisRef.model_validate_json(sys.argv[2])
+basis = validate_core_model_json_artifact(ScopedCorrespondenceBasis, store, ref)
+occurrence = validate_core_model_json_artifact(
+    ScopedMeasurementOccurrence, store, basis.occurrence_ref,
+)
+passport = load_verified_epoch_statement(
+    store=store, ref=occurrence.source_passport_ref,
+    expected_kind="epoch.acquisition_passport_snapshot",
+)
+source = scoped_source_selection_from_passport_mapping(
+    passport, source_receipt_ref=occurrence.source_receipt_ref,
+    source_passport_ref=occurrence.source_passport_ref,
+    source_boundary_candidate_ref=occurrence.source_boundary_candidate_ref,
+    source_record_ref=occurrence.source_record_ref,
+)
+replayed = replay_scoped_measurement_occurrence(
+    store.get_bytes(source.source_record_ref), observation_id=occurrence.observation_id,
+    source_selection=source, unit_transform_evidence=occurrence.unit_transform_evidence,
+)
+interface = load_program_graph_input_interface(store, basis.model_interface_ref)
+ports = [port for port in interface.ports if port.port_id == basis.model_port_id]
+assert len(ports) == 1
+result = evaluate_scoped_correspondence_basis(
+    basis=basis, occurrence_ref=basis.occurrence_ref, occurrence=occurrence,
+    replayed_occurrence=replayed, source_selection=source,
+    source_definition_ref=basis.source_definition_ref,
+    source_definition=validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, basis.source_definition_ref,
+    ),
+    source_representation_ref=basis.source_representation_ref,
+    source_representation=load_variable_representation(store, basis.source_representation_ref),
+    target_definition_ref=basis.target_definition_ref,
+    target_definition=validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, basis.target_definition_ref,
+    ),
+    target_representation_ref=basis.target_representation_ref,
+    target_representation=load_variable_representation(store, basis.target_representation_ref),
+    binding_profile_ref=basis.binding_profile_ref,
+    profile=validate_core_model_json_artifact(MeasurementBindingProfile, store, basis.binding_profile_ref),
+    model_interface_ref=basis.model_interface_ref, model_port=ports[0],
+)
+print(result.model_dump_json())
+"""
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", code, str(store.root), basis_ref.model_dump_json()],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    return json.loads(result.stdout)
+
+
+def test_native_catalog_optional_methodology_is_limited_while_required_denominator_still_refuses(
+    tmp_path: Path,
+) -> None:
+    """Exercise V05 through admitted source, selected artifacts and a fresh basis reader."""
+    from polisyos.fabric.docs.ingestion import ingest_doc_bytes
+    from polisyos.fabric.docs.types import DocSourceSpec
+
+    store = FileSystemCAS(tmp_path / "cas")
+    document = ingest_doc_bytes(
+        cas=store,
+        fact_log_root=tmp_path / "methodology-facts",
+        source=DocSourceSpec(
+            source_locator="repo://test/measurement-protocol/r1",
+            license="test-owned",
+        ),
+        raw_bytes=b"Test-owned measurement protocol. Empirical validity is not established.\n",
+        mime="text/plain",
+    )
+    document_manifest = store.get_manifest(document.raw_ref)
+    methodology_ref = SelectedVariableBindingRef(
+        artifact_id=document_manifest.artifact_id,
+        kind=document_manifest.kind,
+        media_type=document_manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(document_manifest),
+    )
+    interface_ref, selected = _fixture_model_interface(store, methodology_ref=methodology_ref)
+    original_ref = VariableRepresentationRef.model_validate(
+        selected["tax_rate_representation"].model_dump()
+    )
+    original = load_variable_representation(store, original_ref)
+    native_owner = make_native_multivariable_active_projections(
+        tmp_path / "native-catalog",
+        source_rows=[
+            {
+                "country_code": "UA",
+                "year": 2022,
+                "rate_pct": 20.0,
+                "condition_json": json.dumps(
+                    {
+                        "population_ref": "population:country",
+                        "geography_ref": "UA",
+                        "jurisdiction_ref": "UA",
+                        "time_period_basis": "calendar_year",
+                    },
+                    sort_keys=True,
+                ),
+            }
+        ],
+        variable_specs=(
+            {
+                "target_variable": "test.policy.income_tax_rate",
+                "raw_field": "rate_pct",
+                "raw_unit": "percent",
+                "canonical_unit": "ratio",
+                "unit_transform": "fixed_multiplicative",
+                "unit_transform_ref": "fabric://units/fixed-multiplicative/v1",
+                "valid_min": 0.0,
+                "valid_max": 100.0,
+            },
+        ),
+        condition_units_by_raw_field={"rate_pct": "percent"},
+        artifact_store=store,
+        return_selected_raw_profile=True,
+    )
+    try:
+        projection = native_owner.projections["test.policy.income_tax_rate"]
+        (row,) = projection.observations
+        passport = AdmissionPassport.model_validate(
+            load_verified_epoch_statement(
+                store=store,
+                ref=projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        )
+
+        def persist(value: VariableRepresentation) -> VariableRepresentationRef:
+            return VariableRepresentationRef.model_validate(
+                store.put_json(
+                    value,
+                    PutOptions(
+                        kind=value.ARTIFACT_KIND,
+                        media_type=value.ARTIFACT_MEDIA_TYPE,
+                        schema=SchemaInfo(name=value.ARTIFACT_SCHEMA_NAME, version="2.0"),
+                        inputs=list(variable_representation_manifest_inputs(value)),
+                    ),
+                    return_selected_profile=True,
+                ).model_dump()
+            )
+
+        def assess(representation_ref: VariableRepresentationRef):
+            return assess_measurement_to_model_candidate(
+                store,
+                native_owner.overlay,
+                receipt_ref=projection.receipt_ref,
+                passport=passport,
+                authority=native_owner.authority,
+                observation_id=row.observation.observation_id,
+                source_definition_ref=selected["tax_rate_definition"],
+                source_representation_ref=representation_ref,
+                model_interface_ref=interface_ref,
+                port_id="income-tax-rate",
+            )
+
+        positive = assess(original_ref)
+        assert positive.status == "candidate", positive.refusal_codes
+        assert MeasurementAxis.METHODOLOGY_REF in positive.recomputed_axes
+        assert positive.optional_unknown_axes == ()
+        assert positive.independent_origin == positive.source_currentness == "not_established"
+
+        missing_method_ref = persist(original.model_copy(update={"methodology_ref": None}))
+        limited = assess(missing_method_ref)
+        assert limited.status == "candidate", limited.refusal_codes
+        assert limited.optional_unknown_axes == (MeasurementAxis.METHODOLOGY_REF,)
+        assert "optional_axis_unknown:methodology_ref" in limited.limitation_codes
+        assert limited.independent_origin == limited.source_currentness == "not_established"
+        assert limited.correspondence_basis_ref is not None
+        fresh = _fresh_correspondence_result(store, limited.correspondence_basis_ref)
+        assert fresh["status"] == "candidate"
+        assert fresh["optional_unknown_axes"] == ["methodology_ref"]
+        assert "optional_axis_unknown:methodology_ref" in fresh["limitation_codes"]
+        assert "external_empirical_origin_not_established" in fresh["limitation_codes"]
+
+        for denominator in (
+            None,
+            _definition(store, "test.economy", "other_gdp_flow", "A different GDP denominator."),
+            _definition(
+                store, "test.fiscal", "other_revenue_flow", "A different revenue denominator."
+            ),
+        ):
+            wrong_ref = persist(original.model_copy(update={"denominator_ref": denominator}))
+            refused = assess(wrong_ref)
+            assert refused.status == "refused"
+            assert refused.semantic_correspondence == "not_established"
+            expected = "unknown" if denominator is None else "mismatch"
+            assert f"required_axis_{expected}:denominator_ref" in refused.refusal_codes
+            assert refused.correspondence_basis_ref is None
+
+        document_path, _ = store._paths(methodology_ref.artifact_id)
+        original_bytes = document_path.read_bytes()
+        document_path.write_bytes(b"X" + original_bytes[1:])
+        try:
+            refused = assess(original_ref)
+            assert refused.status == "refused"
+            assert refused.refusal_codes == ("selected_owner_input_invalid",)
+            assert refused.correspondence_basis_ref is None
+        finally:
+            document_path.write_bytes(original_bytes)
+        assert assess(original_ref).status == "candidate"
     finally:
         native_owner.overlay.close()

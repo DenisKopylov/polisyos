@@ -62,12 +62,12 @@ from polisyos.core.contracts import (
     ScopedMeasurementOccurrence,
     SelectedVariableBindingRef,
     ValueOuterSet,
-    VariableRepresentation,
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
     evaluate_scoped_correspondence_basis,
     load_program_graph_input_interface,
+    load_variable_representation,
     replay_scoped_measurement_occurrence,
     scoped_correspondence_basis_manifest_inputs,
     scoped_measurement_occurrence_manifest_inputs,
@@ -1177,15 +1177,13 @@ def _verify_acquired_semantic_input_selection(
         source_definition = validate_core_model_json_artifact(
             VariableSemanticDefinition, store, selection.source_definition_ref
         )
-        source_representation = validate_core_model_json_artifact(
-            VariableRepresentation, store, selection.source_representation_ref
+        source_representation = load_variable_representation(
+            store, selection.source_representation_ref
         )
         target_definition = validate_core_model_json_artifact(
             VariableSemanticDefinition, store, basis.target_definition_ref
         )
-        target_representation = validate_core_model_json_artifact(
-            VariableRepresentation, store, basis.target_representation_ref
-        )
+        target_representation = load_variable_representation(store, basis.target_representation_ref)
         binding_profile = validate_core_model_json_artifact(
             MeasurementBindingProfile, store, basis.binding_profile_ref
         )

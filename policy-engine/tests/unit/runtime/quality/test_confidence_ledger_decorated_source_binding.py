@@ -997,6 +997,78 @@ def test_optional_import_uses_actual_source_owned_provider(optional_import_case)
     assert _route(root, facade, "selected") == ("symbol", provider.__name__, "selected")
 
 
+@pytest.mark.parametrize(
+    "bookkeeping",
+    [
+        "    AVAILABLE = True\n",
+        "    EXPORTS = (selected,)\n    AVAILABLE = True\n",
+        "    EXPORTS: tuple[object, ...] = (selected,)\n    AVAILABLE = True\n",
+    ],
+)
+def test_optional_import_allows_passive_success_bookkeeping(tmp_path, monkeypatch, bookkeeping):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.optional_provider_fixture", _OPTIONAL_PROVIDER_SOURCE
+    )
+    source = _OPTIONAL_FACADE_SOURCE.replace(
+        "except ModuleNotFoundError", bookkeeping + "except ModuleNotFoundError"
+    )
+    facade = _load_fixture_module(root, monkeypatch, "polisyos.optional_passive_fixture", source)
+    assert facade.selected is provider.selected
+    assert _route(root, facade, "selected") == ("symbol", provider.__name__, "selected")
+
+
+@pytest.mark.parametrize(
+    "suffix",
+    [
+        "    EXPORTS = (selected,)\n    selected = alternate\n",
+        "    EXPORTS = (selected,)\n    EXPORTS.append(selected)\n",
+        "    EXPORTS = {selected}\n",
+        "    EXPORTS = (selected.__name__,)\n",
+        "    EXPORTS = tuple((selected,))\n",
+        "    EXPORTS = (unknown_name,)\n",
+    ],
+)
+def test_optional_import_bookkeeping_refuses_rebinding_or_effects(tmp_path, monkeypatch, suffix):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.optional_provider_fixture", _OPTIONAL_PROVIDER_SOURCE
+    )
+    source = _OPTIONAL_FACADE_SOURCE.replace(
+        "    from polisyos.optional_provider_fixture import selected",
+        "    from polisyos.optional_provider_fixture import selected, alternate",
+    ).replace("except ModuleNotFoundError", suffix + "except ModuleNotFoundError")
+    # Undefined reads and unavailable list methods need not execute to be refused;
+    # retain the original live import while changing only the candidate source.
+    facade = _load_fixture_module(
+        root, monkeypatch, "polisyos.optional_passive_reject_fixture", _OPTIONAL_FACADE_SOURCE
+    )
+    Path(facade.__file__).write_text(source, encoding="utf-8")
+    assert facade.selected is provider.selected
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "selected")
+
+
+def test_actual_fabric_optional_conflict_functions_keep_source_owners():
+    from polisyos.fabric import claims
+    from polisyos.fabric.claims.conflicts import detect, resolve
+
+    root = ledger._loaded_policy_engine_root()
+    for export, provider in (("detect_conflicts", detect), ("resolve_conflicts", resolve)):
+        assert vars(claims)[export] is vars(provider)[export]
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            claims.__name__,
+            export,
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+            discovery_only=True,
+        )
+        assert candidate.route == ("symbol", provider.__name__, export)
+        assert candidate.binding_basis == "direct"
+        assert candidate.package_initializer_effect_unknown is True
+
+
 def test_optional_import_retains_real_fallback_refusal(tmp_path, monkeypatch):
     root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
     source = _OPTIONAL_FACADE_SOURCE.replace(

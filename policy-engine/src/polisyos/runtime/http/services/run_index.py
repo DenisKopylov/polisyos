@@ -7,9 +7,12 @@
 
 from __future__ import annotations
 
+import threading
 import time
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -20,7 +23,7 @@ from polisyos.scientist.validation.decision_validity import DecisionValidityServ
 from .adapters.core_run import CoreRunAdapterResult, load_core_run
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Mapping
     from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -53,12 +56,48 @@ class _RunDirFingerprint:
     finalize_journal_size: int
 
 
+@dataclass(frozen=True)
+class _RunIndexEntry:
+    """Small complete-catalogue row retained independently from decoded details."""
+
+    run_id: str
+    run_dir: Path
+    fingerprint: _RunDirFingerprint
+    summary: RunSummary
+    artifact_tenants: tuple[tuple[str, str], ...]
+    sort_mtime_ns: int
+
+
+@dataclass(frozen=True)
+class _CachedIndexedRun:
+    """One bounded full record associated with its source generation."""
+
+    run_dir: Path
+    fingerprint: _RunDirFingerprint
+    record: IndexedRunRecord
+
+
+@dataclass(frozen=True)
+class _RunIndexSnapshot:
+    """One complete catalogue generation and its separately bounded detail cache."""
+
+    entries_by_path: Mapping[Path, _RunIndexEntry]
+    entries_by_id: Mapping[str, _RunIndexEntry]
+    artifact_tenants: Mapping[str, frozenset[str]]
+    decoded_cache: OrderedDict[str, _CachedIndexedRun]
+    decoded_cache_lock: Any
+    built_at: float
+    decision_validity_generation_ref: str | None
+
+
 class RunIndexService:
     """Provide TTL-refreshed run listings and artifact-to-tenant lookups.
 
     The index is rebuilt from `core_runs_root` on demand and cached for
-    `refresh_ttl_seconds`. Invalid pagination cursors raise `ValueError`, and
-    unknown run ids raise `KeyError`.
+    `refresh_ttl_seconds`. The complete run summaries and artifact-owner map
+    remain indexed independently from the bounded cache of full decoded run
+    records. Invalid pagination cursors raise `ValueError`, and unknown run ids
+    raise `KeyError`.
     """
 
     def __init__(
@@ -73,15 +112,20 @@ class RunIndexService:
         self._store = store
         self._core_runs_root = core_runs_root
         self._refresh_ttl_seconds = max(refresh_ttl_seconds, 0.1)
-        self._max_cached_runs = max(int(max_cached_runs), 1)
+        self._max_cached_decoded_records = max(int(max_cached_runs), 1)
         self._metrics = metrics
         self._decision_validity_service = DecisionValidityService(store)
-        self._cache: dict[str, IndexedRunRecord] = {}
-        self._artifact_tenants: dict[str, str] = {}
-        self._dir_fingerprints: dict[Path, _RunDirFingerprint] = {}
-        self._cache_built_at: float = 0.0
-        self._cache_decision_validity_generation_ref = (
-            self._decision_validity_service.current_projection_generation_ref()
+        self._refresh_lock = threading.Lock()
+        self._snapshot = _RunIndexSnapshot(
+            entries_by_path=MappingProxyType({}),
+            entries_by_id=MappingProxyType({}),
+            artifact_tenants=MappingProxyType({}),
+            decoded_cache=OrderedDict(),
+            decoded_cache_lock=threading.RLock(),
+            built_at=0.0,
+            decision_validity_generation_ref=(
+                self._decision_validity_service.current_projection_generation_ref()
+            ),
         )
 
     @property
@@ -91,27 +135,30 @@ class RunIndexService:
 
     def refresh(self, *, force: bool = False) -> None:
         """Rebuild the cached index when TTL expired or `force=True`."""
+        with self._refresh_lock:
+            self._refresh_locked(force=force)
+
+    def _refresh_locked(self, *, force: bool) -> None:
+        """Refresh while serializing publishers for this service instance."""
         now = time.monotonic()
         validity_generation = self._decision_validity_service.current_projection_generation_ref()
-        if self._cache_built_at > 0.0:
-            self._record_cache_staleness(now - self._cache_built_at)
+        snapshot = self._snapshot
+        if snapshot.built_at > 0.0:
+            self._record_cache_staleness(now - snapshot.built_at)
         if (
             not force
-            and validity_generation == self._cache_decision_validity_generation_ref
-            and (now - self._cache_built_at) < self._refresh_ttl_seconds
+            and validity_generation == snapshot.decision_validity_generation_ref
+            and (now - snapshot.built_at) < self._refresh_ttl_seconds
         ):
             self._record_cache_event(operation="refresh", outcome="cache_hit")
             return
         started = time.perf_counter()
-        self._cache, self._artifact_tenants = self._refresh_index_incremental()
-        self._cache_built_at = now
-        self._cache_decision_validity_generation_ref = (
-            self._decision_validity_service.current_projection_generation_ref()
-        )
+        next_snapshot = self._refresh_index_incremental()
+        self._snapshot = next_snapshot
         self._record_cache_event(operation="refresh", outcome="incremental_rebuild")
         self._record_cache_rebuild(
             duration_seconds=time.perf_counter() - started,
-            item_count=len(self._cache),
+            item_count=len(next_snapshot.entries_by_id),
         )
 
     def list_runs(
@@ -152,51 +199,49 @@ class RunIndexService:
         normalized_query = q.strip().lower() if isinstance(q, str) and q.strip() else None
         status_normalized = status.lower() if isinstance(status, str) else None
 
-        runs: list[IndexedRunRecord] = []
-        for cached_run in self._cache.values():
-            run = self._with_current_validity(cached_run)
-            run_started = _as_utc(run.summary.started_at)
-            if status_normalized and run.summary.status.lower() != status_normalized:
-                continue
-            if tenant_id:
-                if run.summary.tenant_id:
-                    if run.summary.tenant_id != tenant_id:
-                        continue
-                else:
-                    continue
-            if normalized_from and run_started and run_started < normalized_from:
-                continue
-            if normalized_to and run_started and run_started > normalized_to:
-                continue
-            if normalized_query:
-                search_haystack = " ".join(
-                    [
-                        run.summary.run_id,
-                        run.summary.status,
-                        str(run.summary.source_kind),
-                    ]
-                ).lower()
-                if normalized_query not in search_haystack:
-                    continue
-            runs.append(run)
+        for _ in range(3):
+            snapshot = self._snapshot
+            entries = [
+                entry
+                for entry in snapshot.entries_by_id.values()
+                if _matches_run_filters(
+                    entry.summary,
+                    status=status_normalized,
+                    tenant_id=tenant_id,
+                    from_ts=normalized_from,
+                    to_ts=normalized_to,
+                    query=normalized_query,
+                )
+            ]
+            entries.sort(key=_entry_sort_key)
 
-        runs.sort(key=_run_sort_key)
+            offset = _parse_cursor(cursor)
+            page_limit = min(max(int(limit), 1), 200)
+            page_entries = entries[offset : offset + page_limit]
+            try:
+                page_items = [
+                    self._with_current_validity(self._record_for_entry(entry, snapshot))
+                    for entry in page_entries
+                ]
+            except KeyError:
+                if snapshot is self._snapshot:
+                    raise
+                continue
+            if snapshot is not self._snapshot:
+                continue
 
-        offset = _parse_cursor(cursor)
-        page_limit = min(max(int(limit), 1), 200)
-        page_items = runs[offset : offset + page_limit]
-        next_cursor = None
-        if offset + page_limit < len(runs):
-            next_cursor = str(offset + page_limit)
-
-        page = CursorPage(
-            limit=page_limit,
-            cursor=cursor,
-            next_cursor=next_cursor,
-            count=len(page_items),
-            total=len(runs),
-        )
-        return [item.summary for item in page_items], page
+            next_cursor = None
+            if offset + page_limit < len(entries):
+                next_cursor = str(offset + page_limit)
+            page = CursorPage(
+                limit=page_limit,
+                cursor=cursor,
+                next_cursor=next_cursor,
+                count=len(page_items),
+                total=len(entries),
+            )
+            return [item.summary for item in page_items], page
+        raise RuntimeError("run_index_generation_changed_during_list")
 
     def get_run(self, run_id: str) -> IndexedRunRecord:
         """Return one indexed run snapshot.
@@ -205,12 +250,13 @@ class RunIndexService:
             KeyError: If `run_id` is unknown after refreshing the cache.
         """
         self.refresh()
-        record = self._cache.get(run_id)
-        if record is None:
+        snapshot = self._snapshot
+        entry = snapshot.entries_by_id.get(run_id)
+        if entry is None:
             self._record_cache_event(operation="lookup_run", outcome="miss")
             raise KeyError(run_id)
         self._record_cache_event(operation="lookup_run", outcome="hit")
-        return self._with_current_validity(record)
+        return self._with_current_validity(self._record_for_entry(entry, snapshot))
 
     def _with_current_validity(self, record: IndexedRunRecord) -> IndexedRunRecord:
         """Overlay owner validity on every read, independently of run-directory cache state."""
@@ -249,15 +295,23 @@ class RunIndexService:
             sort_mtime_ns=record.sort_mtime_ns,
         )
 
-    def get_artifact_tenant(self, artifact_id: str) -> str | None:
-        """Return the tenant owning an artifact id when the run index can infer it."""
+    def get_artifact_tenants(self, artifact_id: str) -> frozenset[str]:
+        """Return every tenant whose indexed run references an artifact id."""
         self.refresh()
-        tenant_id = self._artifact_tenants.get(artifact_id)
+        snapshot = self._snapshot
+        tenant_ids = snapshot.artifact_tenants.get(artifact_id, frozenset())
         self._record_cache_event(
             operation="lookup_artifact_tenant",
-            outcome="hit" if tenant_id is not None else "miss",
+            outcome="hit" if tenant_ids else "miss",
         )
-        return tenant_id
+        return tenant_ids
+
+    def get_artifact_tenant(self, artifact_id: str) -> str | None:
+        """Return the sole indexed tenant, or `None` when ownership is absent/ambiguous."""
+        tenant_ids = self.get_artifact_tenants(artifact_id)
+        if len(tenant_ids) != 1:
+            return None
+        return next(iter(tenant_ids))
 
     def resolve_root_artifact_refs(
         self,
@@ -299,39 +353,152 @@ class RunIndexService:
         )
         return [ref.artifact_id if isinstance(ref, ArtifactRef) else ref for ref in refs]
 
-    def _refresh_index_incremental(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
-        index: dict[str, IndexedRunRecord] = {}
-        artifact_tenants: dict[str, str] = {}
-        next_fingerprints: dict[Path, _RunDirFingerprint] = {}
+    def _refresh_index_incremental(
+        self,
+    ) -> _RunIndexSnapshot:
+        previous = self._snapshot
+        with previous.decoded_cache_lock:
+            previous_decoded_cache = OrderedDict(previous.decoded_cache)
+        entries_by_path: dict[Path, _RunIndexEntry] = {}
+        entries_by_id: dict[str, _RunIndexEntry] = {}
+        artifact_tenants: dict[str, set[str]] = {}
+        decoded_cache = previous_decoded_cache
 
         if self._core_runs_root.exists():
-            for run_dir in sorted(_iter_run_dirs(self._core_runs_root)):
-                if len(index) >= self._max_cached_runs:
-                    self._record_cache_event(operation="refresh", outcome="capacity_eviction")
-                    break
+            run_dirs = sorted(_iter_run_dirs(self._core_runs_root))
+            current_run_dirs = set(run_dirs)
+            for run_id, cached in tuple(decoded_cache.items()):
+                if cached.run_dir not in current_run_dirs:
+                    del decoded_cache[run_id]
+            for run_dir in run_dirs:
                 fingerprint = _fingerprint_run_dir(run_dir)
                 if fingerprint is None:
+                    for run_id, cached in tuple(decoded_cache.items()):
+                        if cached.run_dir == run_dir:
+                            del decoded_cache[run_id]
                     continue
-                cached = self._cache.get(run_dir.name)
-                record: IndexedRunRecord | None
-                if cached is not None and self._dir_fingerprints.get(run_dir) == fingerprint:
-                    record = cached
+                previous_entry = previous.entries_by_path.get(run_dir)
+                if previous_entry is not None and previous_entry.fingerprint == fingerprint:
+                    entry = previous_entry
                     self._record_cache_event(operation="adapt_run", outcome="unchanged")
                 else:
-                    record = self._adapt_core_run(run_dir)
-                    fingerprint = _fingerprint_run_dir(run_dir)
+                    for run_id, cached in tuple(decoded_cache.items()):
+                        if cached.run_dir == run_dir:
+                            del decoded_cache[run_id]
+                    record, fingerprint = self._adapt_stable_run(run_dir, fingerprint)
                     self._record_cache_event(
                         operation="adapt_run",
                         outcome="updated" if record is not None else "skipped",
                     )
-                if record is None or fingerprint is None:
-                    continue
-                next_fingerprints[run_dir] = fingerprint
-                index[record.run_id] = record
-                _register_artifact_tenants(artifact_tenants, record)
+                    if record is None or fingerprint is None:
+                        continue
+                    entry = _entry_from_record(record, run_dir, fingerprint)
+                    decoded_cache[entry.run_id] = _CachedIndexedRun(
+                        run_dir=run_dir,
+                        fingerprint=fingerprint,
+                        record=record,
+                    )
+                    decoded_cache.move_to_end(entry.run_id)
+                    while len(decoded_cache) > self._max_cached_decoded_records:
+                        decoded_cache.popitem(last=False)
+                entries_by_path[run_dir] = entry
+                entries_by_id[entry.run_id] = entry
+                for artifact_id, tenant_id in entry.artifact_tenants:
+                    artifact_tenants.setdefault(artifact_id, set()).add(tenant_id)
 
-        self._dir_fingerprints = next_fingerprints
-        return index, artifact_tenants
+        for run_id, cached in tuple(decoded_cache.items()):
+            selected = entries_by_id.get(run_id)
+            if (
+                selected is None
+                or selected.run_dir != cached.run_dir
+                or selected.fingerprint != cached.fingerprint
+            ):
+                del decoded_cache[run_id]
+        while len(decoded_cache) > self._max_cached_decoded_records:
+            decoded_cache.popitem(last=False)
+
+        return _RunIndexSnapshot(
+            entries_by_path=MappingProxyType(entries_by_path),
+            entries_by_id=MappingProxyType(entries_by_id),
+            artifact_tenants=MappingProxyType(
+                {
+                    artifact_id: frozenset(tenant_ids)
+                    for artifact_id, tenant_ids in artifact_tenants.items()
+                }
+            ),
+            decoded_cache=decoded_cache,
+            decoded_cache_lock=threading.RLock(),
+            built_at=time.monotonic(),
+            decision_validity_generation_ref=(
+                self._decision_validity_service.current_projection_generation_ref()
+            ),
+        )
+
+    def _adapt_stable_run(
+        self,
+        run_dir: Path,
+        fingerprint: _RunDirFingerprint,
+    ) -> tuple[IndexedRunRecord | None, _RunDirFingerprint | None]:
+        """Adapt only a source generation whose fingerprint stayed stable while read."""
+        for _ in range(3):
+            record = self._adapt_core_run(run_dir)
+            current_fingerprint = _fingerprint_run_dir(run_dir)
+            if current_fingerprint == fingerprint:
+                return record, fingerprint
+            if current_fingerprint is None:
+                return None, None
+            fingerprint = current_fingerprint
+        raise RuntimeError("run_index_source_changed_during_refresh")
+
+    def _record_for_entry(
+        self,
+        entry: _RunIndexEntry,
+        snapshot: _RunIndexSnapshot,
+    ) -> IndexedRunRecord:
+        """Load one full record from a complete generation and bounded detail cache."""
+        for _ in range(3):
+            source_changed = False
+            with snapshot.decoded_cache_lock:
+                cached = snapshot.decoded_cache.get(entry.run_id)
+                if (
+                    cached is not None
+                    and cached.run_dir == entry.run_dir
+                    and cached.fingerprint == entry.fingerprint
+                ):
+                    snapshot.decoded_cache.move_to_end(entry.run_id)
+                    return cached.record
+
+                if _fingerprint_run_dir(entry.run_dir) != entry.fingerprint:
+                    source_changed = True
+                else:
+                    record = self._adapt_core_run(entry.run_dir)
+                    fingerprint = _fingerprint_run_dir(entry.run_dir)
+                    if (
+                        record is not None
+                        and record.run_id == entry.run_id
+                        and fingerprint == entry.fingerprint
+                    ):
+                        cached_record = _CachedIndexedRun(
+                            run_dir=entry.run_dir,
+                            fingerprint=entry.fingerprint,
+                            record=record,
+                        )
+                        snapshot.decoded_cache[entry.run_id] = cached_record
+                        snapshot.decoded_cache.move_to_end(entry.run_id)
+                        while len(snapshot.decoded_cache) > self._max_cached_decoded_records:
+                            snapshot.decoded_cache.popitem(last=False)
+                        return record
+                    source_changed = True
+
+            if source_changed:
+                self.refresh(force=True)
+                snapshot = self._snapshot
+                refreshed_entry = snapshot.entries_by_id.get(entry.run_id)
+                if refreshed_entry is None:
+                    raise KeyError(entry.run_id)
+                entry = refreshed_entry
+                continue
+        raise RuntimeError("run_index_source_changed_during_read")
 
     def _adapt_core_run(self, run_dir: Path) -> IndexedRunRecord | None:
         result = load_core_run(store=self._store, run_dir=run_dir)
@@ -506,12 +673,64 @@ def _as_utc(value: datetime | None) -> datetime | None:
 
 
 def _run_sort_key(record: IndexedRunRecord) -> tuple[float, str]:
-    started = _as_utc(record.summary.started_at)
+    return _sort_key(record.summary, record.sort_mtime_ns)
+
+
+def _entry_sort_key(entry: _RunIndexEntry) -> tuple[float, str]:
+    return _sort_key(entry.summary, entry.sort_mtime_ns)
+
+
+def _sort_key(summary: RunSummary, sort_mtime_ns: int) -> tuple[float, str]:
+    started = _as_utc(summary.started_at)
     started_ns = int(started.timestamp() * 1_000_000_000) if started is not None else 0
-    freshness_ns = max(int(record.sort_mtime_ns), started_ns)
+    freshness_ns = max(int(sort_mtime_ns), started_ns)
     if freshness_ns <= 0:
-        return (float("inf"), record.run_id)
-    return (-float(freshness_ns), record.run_id)
+        return (float("inf"), summary.run_id)
+    return (-float(freshness_ns), summary.run_id)
+
+
+def _matches_run_filters(
+    summary: RunSummary,
+    *,
+    status: str | None,
+    tenant_id: str | None,
+    from_ts: datetime | None,
+    to_ts: datetime | None,
+    query: str | None,
+) -> bool:
+    started = _as_utc(summary.started_at)
+    if status and summary.status.lower() != status:
+        return False
+    if tenant_id and summary.tenant_id != tenant_id:
+        return False
+    if from_ts and started and started < from_ts:
+        return False
+    if to_ts and started and started > to_ts:
+        return False
+    if query:
+        search_haystack = " ".join(
+            [summary.run_id, summary.status, str(summary.source_kind)]
+        ).lower()
+        if query not in search_haystack:
+            return False
+    return True
+
+
+def _entry_from_record(
+    record: IndexedRunRecord,
+    run_dir: Path,
+    fingerprint: _RunDirFingerprint,
+) -> _RunIndexEntry:
+    artifact_tenants: dict[str, str] = {}
+    _register_artifact_tenants(artifact_tenants, record)
+    return _RunIndexEntry(
+        run_id=record.run_id,
+        run_dir=run_dir,
+        fingerprint=fingerprint,
+        summary=record.summary.model_copy(deep=True),
+        artifact_tenants=tuple(artifact_tenants.items()),
+        sort_mtime_ns=record.sort_mtime_ns,
+    )
 
 
 def _register_artifact_tenants(

@@ -7,6 +7,7 @@ from fastapi import Request
 from polisyos.core.contracts.runtime import ScenarioCreateRequest
 from polisyos.core.security.authz import AuthzDecision, AuthzResult
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.permissions import permissions_for_roles
 from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -58,14 +59,14 @@ def _secure_viewer_client(runtime_api_env, *, opa_client, suffix: str):
         "Authorization": f"Bearer {bearer}",
         "X-Tenant-ID": runtime_api_env["tenant_a"],
     }
-    return client, headers
+    return client, headers, cell.cell_id
 
 
 def test_server_emitted_run_telemetry_lineage_is_owned_before_opa(
     runtime_api_env,
 ) -> None:
     opa = _CaptureOPA()
-    client, headers = _secure_viewer_client(
+    client, headers, _ = _secure_viewer_client(
         runtime_api_env,
         opa_client=opa,
         suffix="run-telemetry-lineage",
@@ -90,7 +91,7 @@ def test_scenario_lineage_head_change_after_opa_binding_fails_before_projection(
     runtime_api_env,
 ) -> None:
     opa = _LineageInterleavingOPA()
-    client, headers = _secure_viewer_client(
+    client, headers, request_cell_id = _secure_viewer_client(
         runtime_api_env,
         opa_client=opa,
         suffix="scenario-lineage-race",
@@ -112,11 +113,18 @@ def test_scenario_lineage_head_change_after_opa_binding_fails_before_projection(
     with client:
         ctx = client.app.state.runtime_container.runtime_api_context
         run = ctx.run_index.get_run(runtime_api_env["core_run_id"])
-        first = ctx.scenarios.create_for_run(
-            run=run,
-            request=scenario_request,
-            temporal_scope=None,
-        )
+        scenario_tenant_id = run.details.tenant_id
+        assert scenario_tenant_id is not None
+        with tenant_scope(
+            None,
+            tenant_id=scenario_tenant_id,
+            cell_id=request_cell_id,
+        ):
+            first = ctx.scenarios.create_for_run(
+                run=run,
+                request=scenario_request,
+                temporal_scope=None,
+            )
         assert first.revision == 1
         stable = client.post(
             "/api/v1/lineage/batch",

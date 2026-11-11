@@ -9154,6 +9154,27 @@
             "independent_source_review": "GO_BOUNDED_MECHANISM",
             "application_cache_caller": "NOT_ESTABLISHED",
             "currentness_protocol": "Live registry qualification before restore/use; bare validity is integrity only."
+          },
+          "NS-01_NS-03": {
+            "focused_tests": {
+              "PASS": 4
+            },
+            "independent_source_review": "GO",
+            "root_affected_cohort": {
+              "PASS": 19,
+              "FAIL": 1,
+              "ERROR": 0,
+              "SKIP": 0,
+              "output": "policy-engine/_cache/e02/lane01-audit-index-consumers/",
+              "pytest_seconds": 484.42
+            },
+            "fixture_forward_correction": {
+              "PASS": 1,
+              "output": "policy-engine/_cache/e02/lane01-audit-index-scenario-fixture/final/",
+              "real_seconds": 82.04,
+              "max_process_rss_bytes": 1971175424
+            },
+            "note": "Direct scenario fixture seed now uses the actual authenticated request tenant and generated cell. Stable head 200 and post-OPA changed-head 409 remain required; no product gate weakened, no inherited-red attribution or retroactive combined PASS."
           }
         },
         "g_acceptance": false,

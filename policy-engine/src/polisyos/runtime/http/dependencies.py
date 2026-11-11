@@ -386,6 +386,7 @@ def _record_tenant_ownership_denial(
     resource_kind: str,
     denial_reason: str,
     target_tenant_id: str | None = None,
+    target_tenant_ids: frozenset[str] | None = None,
 ) -> None:
     """Append a caller-scoped denial to the existing data-access trail.
 
@@ -409,7 +410,11 @@ def _record_tenant_ownership_denial(
         # append fails; an audit outage must never release the protected data.
         _LOGGER.exception("Runtime tenant ownership denial audit append failed")
 
-    if target_tenant_id is None or target_tenant_id == scope.tenant_id:
+    targets = target_tenant_ids or (
+        frozenset({target_tenant_id}) if target_tenant_id is not None else frozenset()
+    )
+    targets = targets - {scope.tenant_id}
+    if not targets:
         return
     try:
         from .container import resolve_runtime_metrics
@@ -417,11 +422,12 @@ def _record_tenant_ownership_denial(
         metrics = resolve_runtime_metrics(request)
         record_violation = getattr(metrics, "record_tenant_boundary_violation", None)
         if callable(record_violation):
-            record_violation(
-                source_tenant=scope.tenant_id,
-                target_tenant=target_tenant_id,
-                resource_type=resource_kind.removeprefix("runtime."),
-            )
+            for target_tenant in sorted(targets):
+                record_violation(
+                    source_tenant=scope.tenant_id,
+                    target_tenant=target_tenant,
+                    resource_type=resource_kind.removeprefix("runtime."),
+                )
     except Exception:
         # Telemetry failure cannot change or weaken the ownership refusal.
         _LOGGER.exception("Runtime tenant boundary violation metric failed")
@@ -474,8 +480,8 @@ def enforce_artifact_tenant_access(
 ) -> str | None:  # pragma: no cover
     """Deny cross-tenant artifact access unless unscoped CAS objects are explicitly allowed."""
     scope = require_access_scope(request)
-    tenant_id = ctx.run_index.get_artifact_tenant(str(artifact_id))
-    if tenant_id is None:
+    tenant_ids = ctx.run_index.get_artifact_tenants(str(artifact_id))
+    if not tenant_ids:
         if ctx.allow_unscoped_artifacts:
             return None
         _record_tenant_ownership_denial(
@@ -489,20 +495,20 @@ def enforce_artifact_tenant_access(
             "Artifact is not linked to a tenant-scoped run",
             code="artifact_tenant_unscoped",
         )
-    if scope.tenant_id != tenant_id:
+    if scope.tenant_id not in tenant_ids:
         _record_tenant_ownership_denial(
             request,
             scope=scope,
             resource_id=str(artifact_id),
             resource_kind="runtime.artifact",
             denial_reason="artifact_tenant_mismatch",
-            target_tenant_id=tenant_id,
+            target_tenant_ids=tenant_ids,
         )
         raise forbidden(
             "Artifact belongs to a different tenant",
             code="artifact_tenant_mismatch",
         )
-    return cast("str | None", tenant_id)
+    return scope.tenant_id
 
 
 def parse_artifact_ids(values: list[str]) -> list[ArtifactID]:

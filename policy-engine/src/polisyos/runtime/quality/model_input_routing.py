@@ -8,6 +8,8 @@ to independently activated Catalog evidence for candidate model-input use.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, Self
 
@@ -57,7 +59,20 @@ MODEL_INPUT_ROUTING_REPORT_KIND = "runtime.quality.model_input_routing_report"
 MODEL_INPUT_ROUTING_REPORT_SCHEMA_NAME = "polisyos.runtime.quality.ModelInputRoutingReport"
 MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION = "1.0"
 MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2 = "2.0"
+MODEL_INPUT_ROUTING_COMPATIBILITY_RULE_VERSION = "model_input_source_compatibility@1.0"
+MODEL_INPUT_ROUTING_USE_DECISION_KIND = "runtime.quality.model_input_routing_use_decision"
+MODEL_INPUT_ROUTING_USE_DECISION_SCHEMA = (
+    "polisyos.runtime.quality.ModelInputRoutingUseDecision"
+)
+MODEL_INPUT_ROUTING_USE_DECISION_VERSION = "1.0"
 _MODEL_INPUT_ROUTING_PROHIBITED_USES = (
+    "measurement_admission",
+    "fetch_permission",
+    "claim_evidence",
+    "source_currentness",
+    "publication",
+)
+_MODEL_INPUT_ROUTING_USE_DECISION_PROHIBITED_USES = (
     "measurement_admission",
     "fetch_permission",
     "claim_evidence",
@@ -266,6 +281,108 @@ class ModelInputRoutingReport(_StrictModel):
         return self
 
 
+class ModelInputRoutingUseDecision(_StrictModel):
+    """Candidate-only record of the exact route rechecked at a current use."""
+
+    ARTIFACT_KIND: ClassVar[str] = MODEL_INPUT_ROUTING_USE_DECISION_KIND
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = MODEL_INPUT_ROUTING_USE_DECISION_SCHEMA
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = MODEL_INPUT_ROUTING_USE_DECISION_VERSION
+
+    schema_version: Literal["polisyos.runtime.quality.ModelInputRoutingUseDecision@1.0"] = (
+        "polisyos.runtime.quality.ModelInputRoutingUseDecision@1.0"
+    )
+    authority_purpose: Literal["candidate_model_input_route_recheck_only"] = (
+        "candidate_model_input_route_recheck_only"
+    )
+    routing_report_ref: ArtifactRef
+    query_key_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    query_envelope_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_registry_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    compatibility_rule_version: str = Field(min_length=1)
+    reverse_view_status: Literal["recomputed", "not_established"]
+    cas_owner_generation_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    report_inventory_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    active_tenant_id: str | None = None
+    active_cell_id: str | None = None
+    may_not_use_for: tuple[
+        Literal[
+            "measurement_admission",
+            "fetch_permission",
+            "claim_evidence",
+            "source_currentness",
+            "publication",
+        ],
+        ...,
+    ] = _MODEL_INPUT_ROUTING_USE_DECISION_PROHIBITED_USES
+
+    @model_validator(mode="after")
+    def _selection_and_inventory_are_bound(self) -> Self:
+        if (
+            self.routing_report_ref.kind != MODEL_INPUT_ROUTING_REPORT_KIND
+            or self.routing_report_ref.media_type != "application/json"
+            or self.routing_report_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("model_input_routing_use_decision_report_unselected")
+        if self.may_not_use_for != _MODEL_INPUT_ROUTING_USE_DECISION_PROHIBITED_USES:
+            raise ValueError("model_input_routing_use_decision_boundary_invalid")
+        inventory_values = (
+            self.cas_owner_generation_sha256,
+            self.report_inventory_sha256,
+            self.active_tenant_id,
+        )
+        if self.reverse_view_status == "recomputed":
+            if any(value is None for value in inventory_values):
+                raise ValueError("model_input_routing_use_decision_inventory_incomplete")
+        elif any(value is not None for value in inventory_values[:2]):
+            raise ValueError("model_input_routing_use_decision_inventory_status_mismatch")
+        return self
+
+
+@dataclass(frozen=True, slots=True)
+class _RoutingQueryKey:
+    """Exact query inputs without result rows or their derived envelope hash."""
+
+    canonical_projection: str
+    sha256: str
+    coarse_key: tuple[
+        tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]
+    ]
+
+
+@dataclass(frozen=True, slots=True)
+class _RoutingReverseView:
+    """Rebuildable metadata-only reverse view of selected routing-report manifests."""
+
+    owner_generation_sha256: str
+    report_inventory_sha256: str
+    authority_registry_content_sha256: str
+    compatibility_rule_version: str
+    active_tenant_id: str
+    active_cell_id: str | None
+    coarse_memberships: tuple[
+        tuple[
+            tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]],
+            ArtifactRef,
+        ],
+        ...,
+    ]
+    complete: bool
+    reason_code: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _RoutingReverseViewStatus:
+    """Current reverse-view identity, or the precise reason it was unavailable."""
+
+    view: _RoutingReverseView | None
+    reason_code: str | None = None
+
+
 @dataclass(frozen=True)
 class ModelInputRoutingResult:
     """Persisted compiler and candidate-routing artifacts for a selected N5."""
@@ -361,6 +478,35 @@ def _verify_model_input_routing_report_current(
 ) -> tuple[ModelInputRoutingReport, ModelInputRoutingReport]:
     """Return the frozen report and its freshly rederived current counterpart."""
 
+    report, current, _view_status = _verify_model_input_routing_report_current_with_view(
+        store,
+        report_ref,
+        expected_obligation_set_ref=expected_obligation_set_ref,
+        selected_basis=selected_basis,
+        catalog_authority=catalog_authority,
+    )
+    return report, current
+
+
+def _verify_model_input_routing_report_current_with_view(
+    store: CoreJSONArtifactStore,
+    report_ref: ArtifactRef,
+    *,
+    expected_obligation_set_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis,
+    catalog_authority: CanonicalAcquisitionAuthority,
+) -> tuple[
+    ModelInputRoutingReport,
+    ModelInputRoutingReport,
+    _RoutingReverseViewStatus,
+]:
+    """Reopen current route facts and qualify a complete reverse-view snapshot.
+
+    A missing inventory capability, unscoped store, incomplete manifest row, or
+    query refinement problem disables only the optimization. The selected
+    route is always rederived directly from the current Catalog below.
+    """
+
     canonical_authority = _require_canonical_acquisition_authority(catalog_authority)
     report = read_model_input_routing_report(store, report_ref)
     if artifact_ref_identity_key(report.obligation_set_ref) != artifact_ref_identity_key(
@@ -379,6 +525,12 @@ def _verify_model_input_routing_report_current(
         expected_context=selected_basis.context,
         expected_interface_ref=interface_ref,
         expected_obligation_set_ref=expected_obligation_set_ref,
+    )
+    reverse_view_status = _build_routing_reverse_view_status(
+        store,
+        canonical_authority,
+        report_ref=report_ref,
+        report=report,
     )
     expected = _build_report(
         selected_basis=selected_basis,
@@ -401,7 +553,23 @@ def _verify_model_input_routing_report_current(
         matches_current = _v2_routing_report_matches_current(report, expected)
     if not matches_current:
         raise ValueError("model_input_routing_report_selection_mismatch")
-    return report, expected
+    if reverse_view_status.view is not None:
+        current_registry_sha256 = _current_authority_registry_sha256(canonical_authority)
+        descriptors = tuple(
+            route.source_descriptor for route in expected.routes if route.source_descriptor
+        )
+        if (
+            reverse_view_status.view.authority_registry_content_sha256 != current_registry_sha256
+            or any(
+                descriptor.authority_registry_content_sha256 != current_registry_sha256
+                for descriptor in descriptors
+            )
+        ):
+            reverse_view_status = _RoutingReverseViewStatus(
+                view=None,
+                reason_code="model_input_routing_reverse_view_registry_changed",
+            )
+    return report, expected, reverse_view_status
 
 
 def _v2_routing_report_matches_current(
@@ -446,6 +614,321 @@ def _v2_routing_report_matches_current(
         ):
             return False
     return True
+
+
+def _routing_json_bytes(value: object) -> bytes:
+    """Serialize the small typed routing projections used as exact keys."""
+
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+
+
+def _manifest_input_identity(value: object) -> tuple[str, str] | None:
+    """Return the selected blob/profile identity from one manifest input role."""
+
+    artifact_id = getattr(value, "artifact_id", None)
+    profile = getattr(value, "manifest_profile_sha256", None)
+    if artifact_id is None or not isinstance(profile, str):
+        return None
+    return str(artifact_id), profile
+
+
+def _routing_query_key(envelope: ModelInputSourceQueryEnvelope) -> _RoutingQueryKey:
+    """Project exact query scope without matching on rows or the derived hash."""
+
+    projection = envelope.identity_payload()
+    projection.pop("rows", None)
+    projection.pop("content_sha256", None)
+    encoded = _routing_json_bytes(projection)
+    coarse = (
+        artifact_ref_identity_key(envelope.model_input_interface_ref),
+        artifact_ref_identity_key(envelope.model_semantic_definition_ref),
+        artifact_ref_identity_key(envelope.model_representation_ref),
+        artifact_ref_identity_key(envelope.binding_profile_ref),
+    )
+    return _RoutingQueryKey(
+        canonical_projection=encoded.decode("utf-8"),
+        sha256="sha256:" + hashlib.sha256(encoded).hexdigest(),
+        coarse_key=tuple(
+            (identity[0], identity[3] or "") for identity in coarse
+        ),
+    )
+
+
+def _coarse_route_memberships(
+    manifest: object,
+) -> tuple[
+    tuple[tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]], ...],
+    str | None,
+]:
+    """Extract coarse selected-ref edges from report manifest roles only."""
+
+    inputs = getattr(manifest, "inputs", None)
+    if type(inputs) is not list or not inputs:
+        return (), "model_input_routing_reverse_view_manifest_inputs_missing"
+    route_numbers: set[str] = set()
+    role_rows: dict[str, list[object]] = {}
+    for item in inputs:
+        role = getattr(item, "role", None)
+        if not isinstance(role, str):
+            return (), "model_input_routing_reverse_view_manifest_role_invalid"
+        role_rows.setdefault(role, []).append(item)
+        if role.startswith("route."):
+            parts = role.split(".", 2)
+            if len(parts) == 3 and parts[1].isdigit():
+                route_numbers.add(parts[1])
+    selected_interface = role_rows.get("selected_input_interface", ())
+    if len(selected_interface) != 1:
+        return (), "model_input_routing_reverse_view_interface_role_incomplete"
+    interface_identity = _manifest_input_identity(selected_interface[0])
+    if interface_identity is None:
+        return (), "model_input_routing_reverse_view_interface_profile_missing"
+    if not route_numbers:
+        return (), "model_input_routing_reverse_view_route_roles_missing"
+
+    memberships = []
+    for route_number in sorted(route_numbers, key=int):
+        prefix = f"route.{route_number}."
+
+        def exact_input(route_prefix: str, *suffixes: str) -> object | None:
+            matches = [
+                item
+                for suffix in suffixes
+                for item in role_rows.get(route_prefix + suffix, ())
+            ]
+            return matches[0] if len(matches) == 1 else None
+
+        semantic = exact_input(
+            prefix, "model_semantic_definition", "query.model_semantic_definition"
+        )
+        representation = exact_input(
+            prefix, "model_representation", "query.model_representation"
+        )
+        profile = exact_input(
+            prefix, "measurement_binding_profile", "query.measurement_binding_profile"
+        )
+        identities = tuple(
+            _manifest_input_identity(item) for item in (semantic, representation, profile)
+        )
+        if any(identity is None for identity in identities):
+            return (), "model_input_routing_reverse_view_query_roles_incomplete"
+        memberships.append((interface_identity, *identities))
+    return tuple(memberships), None
+
+
+def _current_authority_registry_sha256(
+    authority: CanonicalAcquisitionAuthority,
+) -> str:
+    """Reopen the canonical registry and provision before binding a view."""
+
+    authority._require_provision_unchanged()
+    registry = authority._load_registry()
+    authority._require_provision_unchanged()
+    return registry.content_sha256
+
+
+def _active_store_owner_scope(store: object) -> tuple[str, str | None] | None:
+    """Return the concrete tenant view used by the optional CAS inventory API."""
+
+    resolver = getattr(store, "_resolve_owner", None)
+    if not callable(resolver):
+        return None
+    try:
+        tenant_id, cell_id = resolver(required=False)
+    except (OSError, TypeError, ValueError, RuntimeError):
+        return None
+    if not isinstance(tenant_id, str) or not tenant_id:
+        return None
+    if cell_id is not None and not isinstance(cell_id, str):
+        return None
+    return tenant_id, cell_id
+
+
+def _build_routing_reverse_view_status(
+    store: CoreJSONArtifactStore,
+    authority: CanonicalAcquisitionAuthority,
+    *,
+    report_ref: ArtifactRef,
+    report: ModelInputRoutingReport,
+) -> _RoutingReverseViewStatus:
+    """Build a metadata-only coarse view and refine only the selected query.
+
+    The concrete manifest-inventory capability is intentionally optional and
+    stays outside the CoreJSONArtifactStore protocol. Unsupported or incomplete
+    inventories always fall back to the fresh direct Catalog query.
+    """
+
+    tenant_scope = _active_store_owner_scope(store)
+    if tenant_scope is None:
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_active_tenant_unestablished",
+        )
+    inventory_method = getattr(store, "manifest_inventory_snapshot", None)
+    if not callable(inventory_method):
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_inventory_capability_unavailable",
+        )
+    try:
+        registry_sha256 = _current_authority_registry_sha256(authority)
+        snapshot = inventory_method(kind=MODEL_INPUT_ROUTING_REPORT_KIND)
+    except (AcquisitionAuthorityError, OSError, RuntimeError, TypeError, ValueError):
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_inventory_unavailable",
+        )
+    if (
+        getattr(snapshot, "verdict", None) != "pass"
+        or not isinstance(getattr(snapshot, "owner_generation_sha256", None), str)
+        or not snapshot.owner_generation_sha256.startswith("sha256:")
+        or type(getattr(snapshot, "entries", None)) is not tuple
+    ):
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_inventory_incomplete",
+        )
+
+    inventory_rows: list[tuple[str, str, str, str | None]] = []
+    memberships: list[
+        tuple[
+            tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]],
+            ArtifactRef,
+        ]
+    ] = []
+    complete = True
+    reason_code = None
+    tenant_id, cell_id = tenant_scope
+    for entry in snapshot.entries:
+        manifest = getattr(entry, "manifest", None)
+        manifest_hash = getattr(entry, "manifest_sha256", None)
+        manifest_profile = getattr(entry, "manifest_profile_sha256", None)
+        if (
+            getattr(manifest, "kind", None) != MODEL_INPUT_ROUTING_REPORT_KIND
+            or not isinstance(manifest_hash, str)
+            or not isinstance(manifest_profile, str)
+            or not hasattr(manifest, "artifact_id")
+            or getattr(manifest, "tenant_context", None) is None
+            or getattr(manifest.tenant_context, "tenant_id", None) != tenant_id
+            or getattr(manifest.tenant_context, "cell_id", None) != cell_id
+        ):
+            complete = False
+            reason_code = reason_code or (
+                "model_input_routing_reverse_view_tenant_or_manifest_unbound"
+            )
+            continue
+        exact_ref = ArtifactRef(
+            artifact_id=manifest.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=manifest_profile,
+        )
+        inventory_rows.append(
+            (
+                str(exact_ref.artifact_id),
+                manifest_profile,
+                manifest_hash,
+                tenant_id,
+            )
+        )
+        route_memberships, error = _coarse_route_memberships(manifest)
+        if error is not None:
+            complete = False
+            reason_code = reason_code or error
+        else:
+            memberships.extend((membership, exact_ref) for membership in route_memberships)
+
+    inventory_rows.sort()
+    inventory_sha256 = "sha256:" + hashlib.sha256(_routing_json_bytes(inventory_rows)).hexdigest()
+    try:
+        current_registry_sha256 = _current_authority_registry_sha256(authority)
+    except (AcquisitionAuthorityError, OSError, RuntimeError, TypeError, ValueError):
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_registry_unavailable",
+        )
+    if current_registry_sha256 != registry_sha256:
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_registry_changed",
+        )
+    view = _RoutingReverseView(
+        owner_generation_sha256=snapshot.owner_generation_sha256,
+        report_inventory_sha256=inventory_sha256,
+        authority_registry_content_sha256=registry_sha256,
+        compatibility_rule_version=MODEL_INPUT_ROUTING_COMPATIBILITY_RULE_VERSION,
+        active_tenant_id=tenant_id,
+        active_cell_id=cell_id,
+        coarse_memberships=tuple(memberships),
+        complete=complete,
+        reason_code=reason_code,
+    )
+    if not complete:
+        return _RoutingReverseViewStatus(view=None, reason_code=reason_code)
+    if report.schema_version != MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2:
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_report_query_unavailable",
+        )
+    report_ref_key = artifact_ref_identity_key(report_ref)
+    target_keys = tuple(
+        _routing_query_key(route.query_envelope)
+        for route in report.routes
+        if route.query_envelope is not None
+    )
+    if len(target_keys) != len(report.routes):
+        return _RoutingReverseViewStatus(
+            view=None,
+            reason_code="model_input_routing_reverse_view_query_incomplete",
+        )
+    for key in target_keys:
+        subscribers, complete_query = _refine_routing_query_subscribers(store, view, key)
+        if not complete_query or not any(
+            artifact_ref_identity_key(subscriber) == report_ref_key for subscriber in subscribers
+        ):
+            return _RoutingReverseViewStatus(
+                view=None,
+                reason_code="model_input_routing_reverse_view_query_refinement_incomplete",
+            )
+    return _RoutingReverseViewStatus(view=view)
+
+
+def _refine_routing_query_subscribers(
+    store: CoreJSONArtifactStore,
+    view: _RoutingReverseView,
+    query_key: _RoutingQueryKey,
+) -> tuple[tuple[ArtifactRef, ...], bool]:
+    """Read only coarse-matching report payloads to group exact query keys."""
+
+    candidates = tuple(
+        report_ref
+        for coarse_key, report_ref in view.coarse_memberships
+        if coarse_key == query_key.coarse_key
+    )
+    subscribers: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+    complete = view.complete
+    for candidate_ref in candidates:
+        try:
+            candidate_report = read_model_input_routing_report(store, candidate_ref)
+        except (OSError, TypeError, ValueError):
+            complete = False
+            continue
+        if candidate_report.schema_version != MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2:
+            complete = False
+            continue
+        for route in candidate_report.routes:
+            envelope = route.query_envelope
+            if envelope is None:
+                complete = False
+                continue
+            if _routing_query_key(envelope) == query_key:
+                subscribers[artifact_ref_identity_key(candidate_ref)] = candidate_ref
+    return tuple(subscribers[key] for key in sorted(subscribers)), complete
 
 
 def resolve_model_input_routing_activation(

@@ -398,6 +398,204 @@ def test_same_definition_recomputes_only_a_candidate_and_preserves_unknown_origi
     assert "source_currentness_not_established" in result.limitation_codes
 
 
+def _aggregated_correspondence_case(
+    *,
+    operation: str,
+    declared_aggregation: str | None,
+    raw_values: tuple[int, ...] = (2, 6),
+):
+    """Use the real source projection and replay, without claiming source authority."""
+    case = _correspondence_case()
+    condition = {
+        "population_ref": case.port.scope.population_ref,
+        "geography_ref": case.port.scope.geography_ref,
+        "jurisdiction_ref": case.port.scope.jurisdiction_ref,
+        "time_period_basis": "calendar_year",
+    }
+    raw_body = json.dumps(
+        [
+            {
+                "value": value,
+                "country_code": "USA",
+                "year": 2024,
+                "condition_json": condition,
+            }
+            for value in raw_values
+        ],
+        separators=(",", ":"),
+    ).encode()
+    watermark = "sha256:" + hashlib.sha256(raw_body).hexdigest()
+    binding = overlay.build_metric_field_binding(
+        dataset_id=case.selection.dataset_id,
+        distribution_id="test.dataset.json",
+        raw_field="value",
+        canonical_variable=case.selection.canonical_variable,
+        raw_unit="usd",
+        canonical_unit="usd",
+        unit_transform="identity",
+        unit_transform_ref="fabric://units/usd-identity/v1",
+        aggregation_method=operation,
+        alignment_method="semantic",
+        alignment_confidence=0.9,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://test/measurement-definition",),
+        valid_min=0.0,
+        valid_max=100.0,
+    )
+    (owner_row,) = overlay.derive_canonical_observations(
+        raw_body,
+        passport=SimpleNamespace(
+            epoch_id=case.selection.epoch_id,
+            source_watermark=watermark,
+            dataset_version=case.selection.dataset_version,
+            observation_class=overlay.ObservationProvenanceClass.OBSERVED,
+        ),
+        registration=SimpleNamespace(
+            catalog_dataset_id=case.selection.dataset_id,
+            field_binding=binding,
+        ),
+    )
+    case.selection = case.selection.model_copy(
+        update={
+            "source_watermark": watermark,
+            "binding_id": binding.binding_id,
+            "aggregation_method": operation,
+        }
+    )
+    case.occurrence = replay_scoped_measurement_occurrence(
+        raw_body,
+        observation_id=owner_row.observation_id,
+        source_selection=case.selection,
+        unit_transform_evidence=None,
+    )
+    assert Decimal(case.occurrence.canonical_value) == Decimal(str(owner_row.value))
+    for attribute in ("representation", "target_representation"):
+        representation = getattr(case, attribute)
+        setattr(
+            case,
+            attribute,
+            representation.model_copy(
+                update={
+                    "aggregation": declared_aggregation,
+                    "population_ref": case.port.scope.population_ref,
+                }
+            ),
+        )
+    case.profile = case.profile.model_copy(
+        update={
+            "required_axes": (
+                *_HARD_AXES,
+                MeasurementAxis.AGGREGATION,
+                MeasurementAxis.POPULATION_REF,
+            ),
+            "optional_axes": (),
+        }
+    )
+    return case
+
+
+@pytest.mark.parametrize(
+    ("operation", "declared_aggregation", "raw_values", "expected"),
+    [
+        ("sum", "sum", (2, 6), "8"),
+        ("mean", "mean", (2, 6), "4"),
+        ("last", "last", (2, 6), "6"),
+        # Reading one provider-produced mean does not recompute that upstream mean.
+        ("identity", "mean", (6,), "6"),
+    ],
+)
+def test_correspondence_binds_the_performed_projection_without_inventing_upstream_mean(
+    operation: str,
+    declared_aggregation: str,
+    raw_values: tuple[int, ...],
+    expected: str,
+) -> None:
+    case = _aggregated_correspondence_case(
+        operation=operation,
+        declared_aggregation=declared_aggregation,
+        raw_values=raw_values,
+    )
+
+    result = _evaluate(case)
+
+    assert Decimal(case.occurrence.canonical_value) == Decimal(expected)
+    assert result.status == "candidate"
+    assert result.semantic_correspondence == "recomputed"
+    assert "external_empirical_origin_not_established" in result.limitation_codes
+    assert "source_currentness_not_established" in result.limitation_codes
+
+
+@pytest.mark.parametrize(
+    ("operation", "declared_aggregation"),
+    [("sum", "mean"), ("mean", "sum"), ("last", "mean"), ("sum", None)],
+)
+@pytest.mark.parametrize("axis_selected", [True, False])
+def test_equal_aggregation_declarations_do_not_override_the_performed_projection(
+    operation: str,
+    declared_aggregation: str | None,
+    *,
+    axis_selected: bool,
+) -> None:
+    case = _aggregated_correspondence_case(
+        operation=operation,
+        declared_aggregation=declared_aggregation,
+    )
+    if not axis_selected:
+        case.profile = case.profile.model_copy(
+            update={
+                "required_axes": tuple(
+                    axis
+                    for axis in case.profile.required_axes
+                    if axis != MeasurementAxis.AGGREGATION
+                )
+            }
+        )
+
+    result = _evaluate(case)
+
+    assert result.status == "refused"
+    assert result.semantic_correspondence == "not_established"
+    assert "source_occurrence_aggregation_not_established" in result.refusal_codes
+
+
+@pytest.mark.parametrize("side", ["source", "target", "both"])
+@pytest.mark.parametrize("axis_selected", [True, False])
+def test_representation_population_is_joined_to_its_occurrence_and_model_scope(
+    side: str,
+    *,
+    axis_selected: bool,
+) -> None:
+    case = _aggregated_correspondence_case(operation="mean", declared_aggregation="mean")
+    if not axis_selected:
+        case.profile = case.profile.model_copy(
+            update={
+                "required_axes": tuple(
+                    axis
+                    for axis in case.profile.required_axes
+                    if axis != MeasurementAxis.POPULATION_REF
+                )
+            }
+        )
+    if side in {"source", "both"}:
+        case.representation = case.representation.model_copy(
+            update={"population_ref": "population:other"}
+        )
+    if side in {"target", "both"}:
+        case.target_representation = case.target_representation.model_copy(
+            update={"population_ref": "population:other"}
+        )
+
+    result = _evaluate(case)
+
+    assert result.status == "refused"
+    assert result.semantic_correspondence == "not_established"
+    if side in {"source", "both"}:
+        assert "source_representation_population_scope_mismatch" in result.refusal_codes
+    if side in {"target", "both"}:
+        assert "target_representation_population_scope_mismatch" in result.refusal_codes
+
+
 def test_model_input_scope_omits_unset_period_basis_for_legacy_wire_shape() -> None:
     scope = ModelInputScope(
         population_ref="population:test",

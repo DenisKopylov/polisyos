@@ -25,32 +25,29 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.registry import MethodRegistry
 
+_LEGACY_TEST_UNIT = Unit("none", "1")
 
-def _legacy_method_class() -> type:
-    unit = Unit("none", "1")
 
-    class LegacyMethod:
-        signature = MethodSignature(
-            name="sample",
-            namespace="legacy.group",
-            version="1.0.0",
-            input_slots=frozenset({SlotSpec("x", SlotType.SCALAR, unit)}),
-            output_slots=frozenset({SlotSpec("y", SlotType.SCALAR, unit)}),
-            parameters=(),
-            fidelity=FidelityLevel.LOW,
-            complexity=ComplexityClass.O_1,
-        )
-        metadata = MethodMetadata(
-            description="legacy test method",
-            tags=frozenset({"legacy"}),
-        )
+class _LegacyBridgeMethod:
+    signature = MethodSignature(
+        name="sample",
+        namespace="legacy.group",
+        version="1.0.0",
+        input_slots=frozenset({SlotSpec("x", SlotType.SCALAR, _LEGACY_TEST_UNIT)}),
+        output_slots=frozenset({SlotSpec("y", SlotType.SCALAR, _LEGACY_TEST_UNIT)}),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+    )
+    metadata = MethodMetadata(
+        description="legacy test method",
+        tags=frozenset({"legacy"}),
+    )
 
-        @staticmethod
-        def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
-            del params
-            return state
-
-    return LegacyMethod
+    @staticmethod
+    def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
+        del params
+        return state
 
 
 @dataclass(frozen=True)
@@ -66,7 +63,7 @@ def test_components_bridge_registers_methods_without_legacy_bootstrap_adapter() 
     MethodRegistry.reset_instance()
     registry = MethodRegistry.get_instance()
 
-    method_class = _legacy_method_class()
+    method_class = _LegacyBridgeMethod
     metadata = ComponentMetadata(
         component_id=ComponentId.parse("legacy.group.sample@1.0.0"),
         kind=ComponentKind.FOUNDRY_METHOD,

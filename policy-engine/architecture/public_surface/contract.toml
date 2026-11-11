@@ -161,6 +161,7 @@ supported_entrypoints = [
   "polisyos.core.compiler",
   "polisyos.core.components",
   "polisyos.core.contracts",
+  "polisyos.core.contracts.forecast_profile_member",
   "polisyos.core.governance",
   "polisyos.core.llm",
   "polisyos.core.llm.cache_settlement",

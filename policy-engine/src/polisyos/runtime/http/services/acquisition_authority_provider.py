@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.http.services.model_input_successor_action import (
         ModelInputSuccessorActionRequest,
+        ModelInputSuccessorIdentity,
         SelectedModelInputSuccessorAction,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
@@ -100,7 +101,7 @@ if TYPE_CHECKING:
 type _AuthorityOrigin = (
     VerifiedAcquisitionRouteClosure
     | VerifiedCandidateExperimentOrigin
-    | SelectedModelInputSuccessorAction
+    | ModelInputSuccessorIdentity
     | CandidateExperimentReuseActionSelection
 )
 
@@ -776,6 +777,30 @@ class ProductionAcquisitionAuthorityProvider:
             expected_action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
             expected_request=selection.request,
         )
+
+    def load_model_input_use_decision_history(
+        self,
+        *,
+        identity: ModelInputSuccessorIdentity,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Authenticate the original selected-use approval for historical readback."""
+        history = self._load_signed_decision_history(
+            closure=identity, job_id=identity.job_id, decision_ref=decision_ref
+        )
+        self._require_persisted_action_tuple(
+            history.decision,
+            action_tuple=model_input_successor_action_tuple(identity),
+            expected_action_kind=MODEL_INPUT_USE_ACTION_KIND,
+            expected_human_decision_record_ref=identity.request.human_decision_record_ref,
+            expected_request=identity.request,
+        )
+        if (
+            history.decision.outcome != "allowed"
+            or history.decision.human_decision_record_ref is None
+        ):
+            raise AgentActionAuthorityRecordingError("model_input_use_history_approval_missing")
+        return history
 
     def load_candidate_experiment_decision_history(
         self,

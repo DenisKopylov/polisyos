@@ -2678,6 +2678,7 @@ class CatalogAcquisitionOverlay:
             passport,
             artifact_store=artifact_store,
             authority=authority,
+            active_refs=(receipt_ref, admitted.passport_ref),
         )
         observation_class = ObservationProvenanceClass(_enum_value(passport.observation_class))
         if observation_class in {
@@ -2788,6 +2789,10 @@ class CatalogAcquisitionOverlay:
             or self._require_baseline_unchanged().content_sha256 != statement.baseline_after_sha256
         ):
             raise OverlayAdmissionError("active_epoch_member_denominator_mismatch")
+        from .acquisition_authority import CanonicalAcquisitionAuthority
+
+        if type(authority) is CanonicalAcquisitionAuthority:
+            authority._require_model_input_activation_registry()
         return (
             OverlayAdmissionReceipt(
                 **statement.model_dump(mode="python"),
@@ -4030,6 +4035,7 @@ def _validate_passport_owner_evidence(
     *,
     artifact_store: _ArtifactStore,
     authority: _CanonicalAuthority,
+    active_refs: tuple[ArtifactRef, ArtifactRef] | None = None,
 ) -> bytes:
     raw_ref = passport.raw_evidence_ref
     if not isinstance(raw_ref, JournalEventRef):
@@ -4071,10 +4077,27 @@ def _validate_passport_owner_evidence(
         resolved = authority.resolve(str(passport.authority_entry_id))
     except Exception as exc:
         raise OverlayAdmissionError("acquisition_authority_unresolved", type(exc).__name__) from exc
+    from .acquisition_authority import (
+        CanonicalAcquisitionAuthority,
+        resolve_source_observation_class,
+    )
+
+    if active_refs is not None and type(authority) is CanonicalAcquisitionAuthority:
+        registry_matches = authority._model_input_activation_registry_matches(
+            receipt_ref=active_refs[0],
+            passport_ref=active_refs[1],
+            entry_id=str(passport.authority_entry_id),
+            source_lane=str(passport.source_lane),
+            original_registry_sha256=str(passport.authority_registry_content_sha256),
+            resolved=resolved,
+        )
+    else:
+        registry_matches = str(getattr(resolved, "registry_content_sha256", "")) == str(
+            passport.authority_registry_content_sha256
+        )
     authority_projection = (
         str(getattr(resolved, "authority_provision_id", "")),
         str(getattr(resolved, "authority_provision_content_sha256", "")),
-        str(getattr(resolved, "registry_content_sha256", "")),
         str(getattr(resolved, "baseline_content_sha256", "")),
         str(getattr(resolved, "upstream_catalog_projection_sha256", "")),
         getattr(resolved, "registration", None),
@@ -4083,15 +4106,13 @@ def _validate_passport_owner_evidence(
     embedded_projection = (
         str(passport.authority_provision_id),
         str(passport.authority_provision_content_sha256),
-        str(passport.authority_registry_content_sha256),
         str(passport.baseline_content_sha256),
         str(passport.upstream_catalog_projection_sha256),
         passport.registration,
         passport.field_binding,
     )
-    if authority_projection != embedded_projection:
+    if not registry_matches or authority_projection != embedded_projection:
         raise OverlayAdmissionError("acquisition_authority_drift")
-    from .acquisition_authority import resolve_source_observation_class
 
     try:
         actual_source_class = resolve_source_observation_class(resolved)

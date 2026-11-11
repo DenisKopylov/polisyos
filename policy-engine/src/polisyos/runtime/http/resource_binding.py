@@ -2406,8 +2406,20 @@ def _resolve_owned_artifact(
             code="authorization_binding_artifact_invalid",
         ) from exc
     try:
+        tenant_ids = ctx.run_index.get_artifact_tenants(str(artifact_id))
+    except Exception as exc:
+        raise service_unavailable(
+            "Artifact ownership resolver failed",
+            code="authorization_binding_resolver_failed",
+        ) from exc
+    if tenant_ids and scope.tenant_id not in tenant_ids:
+        raise forbidden(
+            "Artifact resource belongs to a different tenant",
+            code="authorization_binding_artifact_tenant_mismatch",
+        )
+    try:
+        # The CAS owner check also binds the active cell and selected manifest view.
         exists = ctx.store.has(artifact_id)
-        tenant_id = ctx.run_index.get_artifact_tenant(str(artifact_id))
     except Exception as exc:
         raise service_unavailable(
             "Artifact ownership resolver failed",
@@ -2418,17 +2430,12 @@ def _resolve_owned_artifact(
             "Artifact resource could not be resolved",
             code="authorization_binding_artifact_unresolved",
         )
-    if not isinstance(tenant_id, str) or not tenant_id:
+    if scope.tenant_id not in tenant_ids:
         raise forbidden(
             "Artifact resource has no verified tenant ownership",
             code="authorization_binding_artifact_unscoped",
         )
-    if tenant_id != scope.tenant_id:
-        raise forbidden(
-            "Artifact resource belongs to a different tenant",
-            code="authorization_binding_artifact_tenant_mismatch",
-        )
-    return str(artifact_id), tenant_id
+    return str(artifact_id), scope.tenant_id
 
 
 def _require_runtime_context(request: Request) -> RuntimeApiContext:

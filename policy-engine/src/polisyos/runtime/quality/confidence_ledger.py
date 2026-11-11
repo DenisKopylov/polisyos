@@ -7110,6 +7110,8 @@ class _N5LockedOptionalImports:
         provider: str,
         node: ast.ImportFrom,
         alias: ast.alias,
+        *,
+        expected_export: object = _NO_EXECUTION_BINDING,
     ) -> _InitializerImportEdge:
         importer = self.capture.completed(importer_name)
         source = self.analysis.source_bytes(self.root / importer.relative_path)
@@ -7130,6 +7132,10 @@ class _N5LockedOptionalImports:
         self.capture.assert_import_binding(
             event, importer_attribute=local, provider_export=alias.name
         )
+        if expected_export is not _NO_EXECUTION_BINDING and (
+            _passive_capture_lookup(event.retained_exports, alias.name) is not expected_export
+        ):
+            raise ValueError("n5_optional_initializer_export_changed")
         return importer_name, event.caller_line, importer.source_sha256, provider, alias.name, local
 
     def retains_repository_source(self, module: object, module_name: str, relative: Path) -> bool:
@@ -7215,7 +7221,7 @@ class _N5LockedOptionalImports:
         mapping_names: frozenset[str],
         export: str,
         route: tuple[str, str, str | None],
-    ) -> None:
+    ) -> str | None:
         """Bind a loaded proxy route to its initializer-held objects.
 
         An unloaded facade remains a source candidate; this check makes no
@@ -7224,7 +7230,7 @@ class _N5LockedOptionalImports:
 
         declarations = _source_literal_proxy_facade_declarations(tree, mapping_names)
         if not declarations:
-            return
+            return None
         source_maps = self.proxy_facade_maps.get(module_name)
         if source_maps is None:
             source_maps, invalid, _unknown = _source_declared_facade_mapping_values(
@@ -7235,7 +7241,7 @@ class _N5LockedOptionalImports:
             self.proxy_facade_maps[module_name] = source_maps
         matched = [name for name, mapping in source_maps.items() if export in mapping]
         if not matched:
-            return
+            return None
         if len(matched) != 1 or route[0] != "symbol" or route[2] is None:
             raise ValueError("proxy_facade_route_unqualified")
         module = _passive_capture_lookup(sys.modules, module_name)
@@ -7244,7 +7250,7 @@ class _N5LockedOptionalImports:
                 type(key) is str and key == module_name for key in sys.modules
             ):
                 raise ValueError("proxy_facade_module_unqualified")
-            return
+            return None
         if type(module) is not types.ModuleType:
             raise ValueError("proxy_facade_module_unqualified")
         namespace = vars(module)
@@ -7291,6 +7297,23 @@ class _N5LockedOptionalImports:
             _live_facade_map_matches(tree, mapping_name, source_maps[mapping_name], namespace)
         ):
             raise ValueError("proxy_facade_map_changed")
+        return mapping_name
+
+    def reconcile_proxy_constructor(
+        self, module_name: str, tree: ast.Module, mapping_name: str
+    ) -> None:
+        """Bind the initializer's sole direct proxy constructor to its import event."""
+
+        declarations = _source_literal_proxy_facade_declarations(tree, frozenset({mapping_name}))
+        if mapping_name not in declarations:
+            raise ValueError("proxy_facade_constructor_source_unqualified")
+        _declaration, constructor = declarations[mapping_name]
+        ((kind, statement, alias),) = _module_scope_direct_binding_sites(tree, constructor)
+        if kind != "import_from" or not isinstance(statement, ast.ImportFrom) or alias is None:
+            raise ValueError("proxy_facade_constructor_import_unqualified")
+        self._initializer_edge(
+            module_name, "types", statement, alias, expected_export=type(type.__dict__)
+        )
 
     def reconcile_first_party(
         self,
@@ -9808,25 +9831,9 @@ def _source_literal_proxy_facade_declarations(
     return declarations
 
 
-def _source_declared_facade_mapping_values(
-    tree: ast.Module,
-    mapping_names: frozenset[str],
-    *,
-    external_mappings: Mapping[str, dict[str, object]] | None = None,
-    source_module_name: str | None = None,
-) -> tuple[dict[str, dict[str, object]], frozenset[str], bool]:
-    """Project selected map values from source while separating unrelated init effects.
+def _source_inline_proxy_effect_tree(tree: ast.Module, mapping_names: frozenset[str]) -> ast.Module:
+    """Expose exact inline proxy literals to the finite initializer transfer."""
 
-    These maps are declarations parsed from exact source bytes, not runtime evidence.
-    Consumers must reconcile the loaded map and selected provider/importer references
-    to this projection before accepting a source-owned binding.
-    """
-
-    watched_names = mapping_names | {
-        _SOURCE_FACADE_NAMESPACE_EFFECT_GUARD,
-        "__name__",
-        "__package__",
-    }
     declarations = _source_literal_proxy_facade_declarations(tree, mapping_names)
     if declarations:
         # Reuse the finite literal-map transfer for the proxy's inline dict.
@@ -9859,6 +9866,29 @@ def _source_declared_facade_mapping_values(
         effect_tree = ast.Module(body=body, type_ignores=tree.type_ignores)
     else:
         effect_tree = tree
+    return effect_tree
+
+
+def _source_declared_facade_mapping_values(
+    tree: ast.Module,
+    mapping_names: frozenset[str],
+    *,
+    external_mappings: Mapping[str, dict[str, object]] | None = None,
+    source_module_name: str | None = None,
+) -> tuple[dict[str, dict[str, object]], frozenset[str], bool]:
+    """Project selected map values from source while separating unrelated init effects.
+
+    These maps are declarations parsed from exact source bytes, not runtime evidence.
+    Consumers must reconcile the loaded map and selected provider/importer references
+    to this projection before accepting a source-owned binding.
+    """
+
+    watched_names = mapping_names | {
+        _SOURCE_FACADE_NAMESPACE_EFFECT_GUARD,
+        "__name__",
+        "__package__",
+    }
+    effect_tree = _source_inline_proxy_effect_tree(tree, mapping_names)
     maps, invalid = _static_facade_mapping_values(
         effect_tree,
         watched_names,
@@ -13817,7 +13847,9 @@ def _module_scope_direct_binding_sites(
     return tuple(sites)
 
 
-def _source_package_initializer_effect_is_unknown(tree: ast.Module) -> bool:
+def _source_package_initializer_effect_is_unknown(
+    tree: ast.Module, *, qualified_proxy_map: str | None = None
+) -> bool:
     """Return whether bounded transfer cannot establish package namespace stability.
 
     Only a top-level class with no bases, decorators, keywords, type parameters, or
@@ -13878,6 +13910,10 @@ def _source_package_initializer_effect_is_unknown(tree: ast.Module) -> bool:
         body=[statement for statement in tree.body if not inert_class(statement)],
         type_ignores=tree.type_ignores,
     )
+    if qualified_proxy_map is not None:
+        effect_tree = _source_inline_proxy_effect_tree(
+            effect_tree, frozenset({qualified_proxy_map})
+        )
     values, invalid = _static_facade_mapping_values(
         effect_tree,
         watched_names,
@@ -14561,7 +14597,7 @@ def _source_module_import_route_candidate_body(
             and callable_facade is None
         ):
             try:
-                recorded.reconcile_loaded_proxy_facade(
+                proxy_map = recorded.reconcile_loaded_proxy_facade(
                     module_name,
                     relative,
                     tree,
@@ -14581,6 +14617,16 @@ def _source_module_import_route_candidate_body(
                     "canonical_loaded_runtime_mismatch",
                     f"live proxy facade is unqualified: {module_name}.{export_name}",
                 ) from exc
+            if initializer_effect_unknown and proxy_map is not None:
+                try:
+                    recorded.reconcile_proxy_constructor(module_name, tree, proxy_map)
+                except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
+                    # A valid live getter/map does not prove what its initializer executed.
+                    pass
+                else:
+                    initializer_effect_unknown = _source_package_initializer_effect_is_unknown(
+                        tree, qualified_proxy_map=proxy_map
+                    )
         if callable_facade is not None:
             if recorded is None or route[0] != "symbol" or route[2] is None:
                 raise ConfidenceLedgerError(

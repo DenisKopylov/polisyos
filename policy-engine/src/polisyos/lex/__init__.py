@@ -119,7 +119,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     # api
     "assemble_norm_pack": ("polisyos.lex.api", "assemble_norm_pack"),
     "build_legal_authority_report": (
-        "polisyos.lex.normpack",
+        "polisyos.lex.normpack.legal_authority",
         "build_legal_authority_report",
     ),
     "build_legal_authority_requirement_artifact": (
@@ -168,7 +168,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
     # interventions
     "HierarchicalPolicySearchPlan": (
-        "polisyos.lex.interventions",
+        "polisyos.lex.interventions.strategic_response",
         "HierarchicalPolicySearchPlan",
     ),
     "InterventionKnobDictionaryEntry": (
@@ -206,7 +206,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "StrategicResponseSpecRegistry",
     ),
     "TemporalInterventionSequencer": (
-        "polisyos.lex.interventions",
+        "polisyos.lex.interventions.sequencing",
         "TemporalInterventionSequencer",
     ),
     "TemporalInterventionStepInput": (

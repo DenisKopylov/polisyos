@@ -9078,6 +9078,108 @@
     },
     {
       "lane_id": "LANE-01",
+      "independent_audit_20261111": {
+        "reference_archive": "policy-engine/docs/archive/PolicyOS_E02_Audit_Integration_Main_2026-11-11.zip",
+        "archive_sha256": "af7a3fdc9b237c7dcf783c130a0cfc70041c2e99137fea457bc43d6b0c944bd2",
+        "source_base": "3a10e21d9bcf28fa77d8d9ebf43ae4773cfdecc7",
+        "source_tree": "fd75a2748a303be2f53dc5f3bc708d2488364570",
+        "status": "RECONCILED_IMPLEMENTATION_IN_PROGRESS",
+        "bundle_integrity": {
+          "result": "PASS_ARTIFACT_COVERAGE_AND_INTEGRITY_ONLY",
+          "checks": 36,
+          "total_rows": 116,
+          "lane01_primary_rows": 13
+        },
+        "active_repairs": [
+          "NS-01",
+          "NS-03",
+          "DC-02",
+          "EC-01",
+          "EC-02",
+          "FG-03",
+          "RD-01",
+          "MA-01",
+          "MA-02",
+          "MA-03"
+        ],
+        "remaining_component_contract": [
+          "DC-01"
+        ],
+        "conditional_qualification": [
+          "FLOW-01"
+        ],
+        "preserved_legacy_contract": [
+          "PG-01"
+        ],
+        "author_evidence": {
+          "RD-01": {
+            "core_tests": {
+              "PASS": 39
+            },
+            "independent_source_review": "GO",
+            "native_composed_consumers": "UNRUN",
+            "native_catalog": {
+              "PASS": 3,
+              "FAIL": 0,
+              "ERROR": 0,
+              "output": "policy-engine/_cache/e02/lane01-audit-rd01-consumers/",
+              "pytest_seconds": 52.743,
+              "max_process_rss_bytes": 1940078592
+            },
+            "native_foundry_horizon": {
+              "PASS": 1,
+              "FAIL": 0,
+              "output": "policy-engine/_cache/e02/lane01-audit-semantic-horizon/",
+              "pytest_seconds": 95.62,
+              "max_process_rss_bytes": 1765883904
+            }
+          },
+          "DC-02": {
+            "compiler_tests": {
+              "PASS": 14
+            },
+            "independent_source_review": "GO",
+            "downstream_method_bridge": "IN_PROGRESS"
+          },
+          "MA-01_MA-02_MA-03": {
+            "root_composed_tests": {
+              "PASS": 104,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "output": "policy-engine/_cache/e02/lane01-audit-method-cache-consumers/",
+            "pytest_seconds": 2.05,
+            "max_process_rss_bytes": 243433472,
+            "independent_source_review": "GO_BOUNDED_MECHANISM",
+            "application_cache_caller": "NOT_ESTABLISHED",
+            "currentness_protocol": "Live registry qualification before restore/use; bare validity is integrity only."
+          },
+          "NS-01_NS-03": {
+            "focused_tests": {
+              "PASS": 4
+            },
+            "independent_source_review": "GO",
+            "root_affected_cohort": {
+              "PASS": 19,
+              "FAIL": 1,
+              "ERROR": 0,
+              "SKIP": 0,
+              "output": "policy-engine/_cache/e02/lane01-audit-index-consumers/",
+              "pytest_seconds": 484.42
+            },
+            "fixture_forward_correction": {
+              "PASS": 1,
+              "output": "policy-engine/_cache/e02/lane01-audit-index-scenario-fixture/final/",
+              "real_seconds": 82.04,
+              "max_process_rss_bytes": 1971175424
+            },
+            "note": "Direct scenario fixture seed now uses the actual authenticated request tenant and generated cell. Stable head 200 and post-OPA changed-head 409 remain required; no product gate weakened, no inherited-red attribution or retroactive combined PASS."
+          }
+        },
+        "g_acceptance": false,
+        "note": "Audit findings are source-reconciled supplemental work, not a replacement criterion denominator or product/acceptance PASS. See the single E02-WORK-PLAN audit table."
+      },
       "sequence": 8,
       "implementation_status": "IN_PROGRESS",
       "local_qualification": "COMPONENTS_QUALIFIED_SHARED_ROUTE_PENDING",
@@ -14487,7 +14589,182 @@
           "chain_owner_backend_check": "VERIFY:policy-engine/_cache/e02/lane01-n6-chain-owner-r1",
           "chain_owner_backend_pass": 12,
           "combined_a_collection": "VERIFY:policy-engine/_cache/e02/lane01-opt-in-a-collection-r2",
+          "strict_n6_r20": {
+            "source_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+            "source_tree": "f31951280c63f856ce91debb82e22076b24a2890",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r20",
+            "classification": "FAIL_BEFORE_N5_DEPENDENCY_EVIDENCE_IMPORT",
+            "stable_pins": 89,
+            "wall_seconds": 749.548
+          },
+          "composed_ir_foundry_focused_delta": {
+            "output": "MAIN:policy-engine/_cache/e02/lane01-n6-batch-ir-and-foundry-focused-r2",
+            "base_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+            "classification": "PASS_SCOPED_AUTHORED_DELTA",
+            "pass": 12,
+            "wall_seconds": 62.059
+          },
+          "batch_diagnostic_r3": {
+            "source_commit": "01ce69a5cd2e81a172303cc23f0e0ffbc140704f",
+            "source_tree": "aaf1e61700586b32c626663671cf83ad7a5798e0",
+            "output": "VERIFY:policy-engine/_cache/e02/lane01-a-batched-import-diagnostic-r3",
+            "classification": "COMPLETE_DISCOVERY_ONLY",
+            "reached_modules": 2338,
+            "refused_edges": 157,
+            "refused_importers": 62,
+            "stable_pins": 79,
+            "wall_seconds": 2052.280
+          },
           "scope": "Current real grounded sibling N5 and fresh GET, information and budget controls, protected/unknown-price quota and interrupted results, two complete children and partial frontier through fresh GET. DA-06 retains the actual loaded-build dependency. Strict N6 R18 stops at the missing Foundry chain_executor re-export binding, with no numerical execution."
+        },
+        "lane01_n6_published_owner_route_batch": {
+          "source_commit": "071b38b0b4c7b9d11f419f6fb25a7f760728b285",
+          "source_tree": "ef218fb82ef8816aca55132adf1a2c5a52a14a19",
+          "architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-batch-owner-architecture-r2",
+          "proxy_removal_control": "MAIN:policy-engine/_cache/e02/lane01-n6-immutable-proxy-effect-r4",
+          "runtime_affected": "MAIN:policy-engine/_cache/e02/lane01-n6-control-public-affected-r2",
+          "uncertainty_affected": "MAIN:policy-engine/_cache/e02/lane01-n6-uncertainty-affected-r1",
+          "funnel_calibration": "MAIN:policy-engine/_cache/e02/lane01-n6-funnel-and-calibration-owners-r1",
+          "calibration_directory": "MAIN:policy-engine/_cache/e02/lane01-n6-calibration-directory-r2",
+          "opaque_initializer_baseline_red": "VERIFY:policy-engine/_cache/e02/lane01-n6-opaque-baseline-r1",
+          "runtime_baseline_red": "VERIFY:policy-engine/_cache/e02/lane01-n6-control-refusals-baseline-r1",
+          "static_route_followup": "MAIN:policy-engine/_cache/e02/lane01-n6-known-route-targets-current-r2",
+          "static_route_targets": 117,
+          "static_route_occurrences": 157,
+          "static_direct_refusals": 59,
+          "causal_owner_cold_and_static": "MAIN:policy-engine/_cache/e02/lane01-n6-causal-final-facade-r2",
+          "causal_owner_static_probe": "MAIN:policy-engine/_cache/e02/lane01-n6-known-route-targets-causal-r4",
+          "causal_owner_declared_exports": 230,
+          "causal_source_candidates": 32,
+          "direct_refusals_after_causal_owner": 27,
+          "n8_wrong_candidate_early_refusal": "MAIN:policy-engine/_cache/e02/lane01-n6-causal-actual-consumers-r1",
+          "n8_source_method_and_negative_controls": "MAIN:policy-engine/_cache/e02/lane01-n8-source-selection-negative-r3",
+          "n8_source_method_authored_base": "95715e9dd11ca0ec24e5872285a1e3cda7b7926e",
+          "n8_source_method_stable_pins": 6,
+          "n8_source_method_wall_seconds": 284.45,
+          "signed_held_out_and_fiscal_semantics": "MAIN:policy-engine/_cache/e02/lane01-heldout-signed-stock-current-r1",
+          "strict_r21_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r21",
+          "strict_r21_source_commit": "95715e9dd11ca0ec24e5872285a1e3cda7b7926e",
+          "strict_r21_source_tree": "2610cc3477d413e94ffd20b01da926d664fc092f",
+          "strict_r21_stable_pins": 107,
+          "strict_r21_first_refusal": "non-literal repository re-export: polisyos.fabric.storage.DuckDBStorageAdapter",
+          "post_r21_fabric": "MAIN:policy-engine/_cache/e02/lane01-n6-fabric-storage-owner-r1",
+          "post_r21_lex_scientist": "MAIN:policy-engine/_cache/e02/lane01-n6-lex-scientist-owner-r1",
+          "post_r21_runtime_foundry": "MAIN:policy-engine/_cache/e02/lane01-n6-final-direct-owner-r1",
+          "post_r21_static_probe": "MAIN:policy-engine/_cache/e02/lane01-n6-known-route-targets-remaining-r7",
+          "post_r21_static_direct_refusal_occurrences": 23,
+          "post_r21_executable_imports_matching_static_direct_refusals": 0,
+          "post_r21_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-final-owner-architecture-r1",
+          "strict_r22_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r22",
+          "strict_r22_source_commit": "20c0cdcc4742fd05ccb5b0c74268b76be2e252c8",
+          "strict_r22_source_tree": "32d0d2de00c45b95102815059cd7d08d1c481f54",
+          "strict_r22_stable_pins": 122,
+          "strict_r22_wall_seconds": 903.643,
+          "strict_r22_first_refusal": "package initializer namespace effect is unresolved: polisyos.core.contracts.FORECAST_PROFILE_MEMBER_KIND",
+          "forecast_member_cold_owner": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-cold-r2",
+          "forecast_member_consumer_wave": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-consumers-r1",
+          "forecast_member_consumer_baseline": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-consumers-baseline-r1",
+          "forecast_member_consumer_baseline_commit": "d20b5b47ef3a2b75cab3396cac0bb1550ee1bc37",
+          "forecast_member_architecture": "MAIN:policy-engine/_cache/e02/lane01-n6-forecast-member-architecture-r1",
+          "strict_r23_source_commit": "aff49a7d53efba45c1344f69297920a86dc1aaef",
+          "strict_r23_source_tree": "c84a04471f4b96ab32a5d9c6f93729a0f6b8a109",
+          "strict_r23_output": "MAIN:policy-engine/_cache/e02/lane01-a-then-7x1-strict-r23",
+          "strict_r23_stable_pins": 132,
+          "strict_r23_wall_seconds": 1556.161,
+          "strict_r23_first_refusal": "side-effecting direct source assignment is unresolved: polisyos.runtime.quality.report_registry.QUALITY_REPORT_BODY_REF_KEYS",
+          "report_registry_affected_checks": "MAIN:policy-engine/_cache/e02/lane01-n6-runtime-report-registry-affected-r1",
+          "report_registry_affected_passed": 86,
+          "scope": "The recorded source-only route candidates do not constitute early-host capture or live N5. The exact published product includes the independently reviewed owner paths and five regenerated source fingerprints. Semantic simulation, permissions and selected report semantics remain at their existing owners."
+        },
+        "lane01_p05_v13_local_lift_locality": {
+          "base_commit": "2fa8129c491e9625c6a2e9f1d8cd1364b6837c98",
+          "base_tree": "9d757169d769e6a8fe48dc56176ba102a46f4782",
+          "locality_baseline_red": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-registry-locality-diagnostic-r1",
+          "previous_oracle_fail": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-scoped-local-lift-r2",
+          "composed_result": "MAIN:policy-engine/_cache/e02/lane01-p05-v13-scoped-local-lift-r3",
+          "stable_pins": 11,
+          "passed": 3,
+          "wall_seconds": 165.282,
+          "scope": "Exact V2 local_lift, one real approved ProgramGraph worker, same selected entry, fresh current decision required, competitor and removed activation before any extra reservation. Original historic GET and signature controls pass. Live-fetch, legacy and institutional release currentness are outside this verified expansion."
+        },
+        "lane01_p05_configured_source_withdrawal_history": {
+          "source_base": "da5acf1016af5e8385b1642e46bc8faec01b87f3",
+          "source_base_tree": "8582d26998f1f7fa55b5c7b3268285122eeffbfb",
+          "baseline_red": "MAIN:policy-engine/_cache/e02/lane01-p05-heldout-source-withdrawal-r1",
+          "composed_result": "MAIN:policy-engine/_cache/e02/lane01-p05-heldout-source-withdrawal-r2",
+          "stable_pins": 11,
+          "passed": 6,
+          "wall_seconds": 211.433,
+          "scope": "Runtime authenticates original signed PA2 and verifies the exact completed job/phase/Foundry lineage without requiring the selected source to remain in the current Catalog. Current POST refusal, historical GET, missing signature, unchanged reservations, and related Runtime controls pass. No institutional release revocation or same-scalar reuse verdict."
+        },
+        "lane01_p05_r5_completed_b_profile_oracle": {
+          "source_commit": "36b9c080a493eb5dc309e1dfb253cc631eeddf8d",
+          "source_tree": "f31951280c63f856ce91debb82e22076b24a2890",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r5",
+          "classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C",
+          "stable_pins": 19,
+          "wall_seconds": 3834.945,
+          "b_terminal_head": [
+            1,
+            5
+          ],
+          "b_terminal_ref": "sha256:1f8ccd748e07fe200aaf604423ae150db5994360d710cc9ad6915f86d589a1f6",
+          "b_terminal_profile": "sha256:ab54c7e174c994fdb7007fc5a9eff890ad95adbde3114e0ac2751fee9e00419f",
+          "physical_standard_completed": 4,
+          "targeted_owned_cas_replay": "VERIFY:policy-engine/_cache/e02/lane01-p05-r5-selected-a-profile-replay-r2",
+          "targeted_replay_status": "PASS",
+          "targeted_prior_source_read_counts": {
+            "before": 4,
+            "after": 1
+          },
+          "c_r6_source_commit": "cac53160f29242ef7e779b7db5bf4a5cc1490402",
+          "c_r6_source_tree": "b3a737c0e90f5f086cc84b65340c6ec4c25cad93",
+          "c_r6_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r6",
+          "c_r6_classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C_OWNER_LIFETIME",
+          "c_r6_wall_seconds": 3747.707,
+          "c_r6_stable_pins": 19,
+          "c_r6_b_terminal_ref": "sha256:7afce59ae4ba1fe35b5229de245f84e8ce2e16dc85c57340de4d262dbd4de8b8",
+          "c_r6_b_terminal_profile": "sha256:57c4991874054e304850057b166687e2d30c71d52c120a9acfec537826673204",
+          "c_r6_retained_preflight": "VERIFY:policy-engine/_cache/e02/lane01-p05-c-r6-retained-preflight-r2",
+          "c_r6_retained_preflight_stable_pins": 6,
+          "c_r6_retained_preflight_outcome": "PASS_WITHOUT_POST_WORKER_TRANSPORT_OR_N5",
+          "c_r6_retained_append_output": "VERIFY:policy-engine/_cache/e02/lane01-p05-c-r6-retained-append-r1",
+          "c_r6_retained_append_classification": "HARNESS_FAIL_AFTER_SIGNED_REQUEST_BEFORE_WORKER",
+          "c_r6_retained_append_stable_pins": 9,
+          "c_r6_retained_append_wall_seconds": 479.226,
+          "c_r6_pending_head": [2, 1],
+          "c_r6_pending_job_id": "candidate-experiment-7f60c0aefed82941777789b562342d493dc3aab447d8746d8132fa3198a882aa",
+          "c_r6_pending_decision_ref": "sha256:aeb403bd0b41dba98092d134474188320c32ba66d45f9c1936d6eb31f5a60c9f",
+          "c_r6_fixture_authority_expiry": "2026-11-09T20:44:58+02:00",
+          "c_r6_pending_worker_attempt": 0,
+          "c_r6_unchanged_ledger_revision": 36,
+          "v12_interrupted_trial": "MAIN:policy-engine/_cache/e02/lane01-p05-same-scalar-new-release-r1",
+          "v12_interrupted_classification": "STOPPED_AFTER_A_BEFORE_NEW_RELEASE_CONTROL",
+          "scope": "The prior A control refuses the same tenant/cell with an unowned profile, a foreign tenant and a mismatched selected input. The retained replay performs no N5. R5 never issued C. The reopened test retains separate B and C authority and quotas."
+        },
+        "lane01_p05_r4_completed_b_stale_unit_oracle": {
+          "source_commit": "607f273f43e4eff82b31b7f96e02ab994a630994",
+          "source_tree": "e5a7275ed0f2155d5df071bb459a5bd672ae3113",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-p05-changed-c-separate-authority-r4",
+          "classification": "FAIL_AFTER_B_TERMINAL_BEFORE_C",
+          "stable_pins": 19,
+          "wall_seconds": 4296.159,
+          "typed_retained_reader": "MAIN:policy-engine/_cache/e02/lane01-p05-r4-retained-typed-b-r2",
+          "reader_output_sha256": "f6ddcc01543cdfcc029c6d1b93ff4618647e2611c8aed9a8bcd4b52e037254e0",
+          "reader_product_source_commit": "01ce69a5cd2e81a172303cc23f0e0ffbc140704f",
+          "reader_product_source_tree": "aaf1e61700586b32c626663671cf83ad7a5798e0",
+          "selected_b_receipt": "sha256:91b4188a671eeb78c41a64e1ec36a4f5193c5471fb7a8afc0cddbc5cd20c9953",
+          "selected_b_receipt_profile": "sha256:c6bc5accbeb558f3599a824fad903965e03f86df8c7f3b4a2ce78dde3709c968",
+          "selected_b_n5_result": {
+            "artifact_id": "sha256:f74f663c5b0e2bd3e65f538e6d13203f94cce6d101163e21c82fdc74c3c4fde4",
+            "kind": "polisyos.runtime.joint_simulation_result",
+            "manifest_profile_sha256": "sha256:7f575a2faa1ecf121e515cf58af62cee576b71fc25968bede24fba30453dc2dd",
+            "media_type": "application/json"
+          },
+          "basis_reason_codes": [
+            "n5_prior_live_implementation_not_established"
+          ],
+          "scope": "Real completed B then test-only exact-unit expectation failure. Retained typed reader uses selected manifests and original bytes, establishes two observed physical units and the conditional effect with no new N5. C, live implementation witness, source authority and full 7/1 remain open."
         },
         "lane01_n6_source_preflight_facade_boundaries": {
           "r7_commit": "e0dd3ae631e72b3f40e9b081c986ec12adafc3ca",

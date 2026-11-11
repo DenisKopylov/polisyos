@@ -7445,9 +7445,26 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         update={"content_hash": intervention_atom_content_hash(wrong_source_subject_atom)}
     )
     wrong_source_subject_candidate = replace(candidate, atom=wrong_source_subject_atom)
+    # The persisted selection receipt is bound to candidate_signal, including
+    # diversity_key. Keep this as a distinct early-rejection control rather
+    # than accidentally coupling it to the foreign-subject source check below.
+    wrong_diversity_candidate = replace(
+        candidate,
+        diversity_key=(*candidate.diversity_key[:3], "different_selection_signal"),
+    )
+    # Reuse the original selected candidate context and change only the typed
+    # atom's treatment so the owner/source semantic join is the deciding gate.
+    wrong_treatment_candidate = replace(
+        candidate,
+        atom=(
+            _avg_income_typed_atom_candidate(
+                problem, treatment_variable="government.balance"
+            ).atom
+        ),
+    )
     wrong_join_candidates = (
         (
-            foreign_subject_candidate,
+            wrong_diversity_candidate,
             "value_method_selection_context_hash_mismatch",
         ),
         (
@@ -7455,7 +7472,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
             "value_owner_source_atom_subject_mismatch",
         ),
         (
-            _avg_income_typed_atom_candidate(problem, treatment_variable="government.balance"),
+            wrong_treatment_candidate,
             "value_owner_source_atom_treatment_mismatch",
         ),
         (
@@ -7463,7 +7480,10 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
             "value_owner_source_atom_expression_projection_mismatch",
         ),
         (
-            _avg_income_typed_atom_candidate(problem, unit_id="synthetic_score"),
+            replace(
+                candidate,
+                atom=_avg_income_typed_atom_candidate(problem, unit_id="synthetic_score").atom,
+            ),
             "value_owner_source_atom_unit_mismatch",
         ),
         (

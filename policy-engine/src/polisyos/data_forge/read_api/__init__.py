@@ -135,9 +135,8 @@ def __getattr__(name: str) -> object:
         module = import_module(_READ_API_SURFACE_MODULES[name])
         globals()[name] = module
         return module
-    target = _EXPORTS.get(name)
-    if target is not None:
-        module_name, attribute_name = target
+    if name in _EXPORTS:
+        module_name, attribute_name = _EXPORTS[name]
         value = getattr(import_module(module_name), attribute_name)
         globals()[name] = value
         return value

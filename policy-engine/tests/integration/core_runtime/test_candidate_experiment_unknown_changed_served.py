@@ -328,3 +328,153 @@ def test_separately_authorized_changed_source_executes_new_n5(
     )
     assert scenario["source_status"] == "completed"
     assert len(completed) == 1
+
+
+def test_separately_authorized_same_scalar_new_release_is_recorded_and_blocked(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: object,
+) -> None:
+    """A new provider release with the same scalar is retained but cannot promote B."""
+    import json
+    from datetime import UTC, datetime, timedelta
+
+    from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from tests._helpers.candidate_experiment_served_execution import (
+        run_candidate_experiment_served_execution,
+    )
+    from tests._helpers.lane01_wdi_profiles import (
+        UNEMPLOYMENT_PROFILE,
+        fixture_wdi_response,
+    )
+    from tests.integration.core_runtime.test_candidate_experiment_generations_served import (
+        _forbid_retained_generation_n5,
+    )
+
+    second_attempt = "served-labor-same-scalar-new-release-attempt"
+    completed = []
+
+    def after_first_execution(**first_values: object) -> None:
+        first = first_values["execution"]
+        first_history = first.terminal_history
+        assert first.standard_invocation_units_after == 4
+        policy = first_values["policy"]
+        assert (first_values["quota"].total_units, first_values["quota"].protected_units) == (
+            7,
+            1,
+        )
+        assert tuple(item.attempt_id for item in policy.authorized_source_attempts) == (
+            first_history.action.attempt_id,
+            second_attempt,
+        )
+
+        def execute_released_same_scalar(**action_values: object) -> None:
+            origin = action_values["origin"]
+            assert origin.candidate_terminal_history_chain == (first_history,)
+            assert origin.source_attempt_prefix == (first_history.action.attempt_id,)
+
+            response = json.loads(fixture_wdi_response(UNEMPLOYMENT_PROFILE))
+            response[0]["lastupdated"] = "2026-10-09"
+            response_bytes = json.dumps(
+                response, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8")
+            with _forbid_retained_generation_n5() as n5_entries:
+                released = run_candidate_experiment_served_execution(
+                    values=action_values["values"],
+                    origin=origin,
+                    request=action_values["request"],
+                    decision_ref=action_values["decision_ref"],
+                    policy_owner=first_values["policy_owner"],
+                    monkeypatch=monkeypatch,
+                    wdi_response_bytes=response_bytes,
+                )
+
+            history = released.terminal_history
+            assert n5_entries == []
+            assert history.action.attempt_id == second_attempt
+            assert history.origin.source_attempt_prefix == (first_history.action.attempt_id,)
+            assert history.origin.candidate_terminal_history_chain == (first_history,)
+            assert len(released.execution_owner.transport_calls) == 1
+            assert (
+                released.standard_invocation_units_before,
+                released.standard_invocation_units_after,
+            ) == (4, 4)
+
+            assert artifacts.artifact_ref_identity_key(
+                history.action.candidate_source_ref
+            ) != artifacts.artifact_ref_identity_key(first_history.action.candidate_source_ref)
+            first_source, current_source = first_history.source, history.source
+            assert artifacts.artifact_ref_identity_key(current_source.raw_source_ref) != (
+                artifacts.artifact_ref_identity_key(first_source.raw_source_ref)
+            )
+            assert first_source.observation == current_source.observation == pytest.approx(0.175)
+            with tenant_scope(None, tenant_id=origin.tenant_id, cell_id=origin.cell_id):
+                store = first_values["control"]._artifact_store
+                previous_raw = json.loads(store.get_bytes(first_source.raw_source_ref))
+                current_raw = json.loads(store.get_bytes(current_source.raw_source_ref))
+            assert "lastupdated" not in previous_raw[0]
+            assert current_raw[0]["lastupdated"] == "2026-10-09"
+            assert current_raw[1] == previous_raw[1]
+            assert current_source.status == "candidate_only"
+
+            assert history.decision is not None
+            assert history.decision.comparison_result == "not_established"
+            assert history.decision.predicate_provenance == "not_established"
+            assert history.decision.observed_admission is False
+            assert history.decision.publication_authority is False
+            assert "candidate_experiment_input_change_not_established" in (
+                history.decision.reason_codes
+            )
+            assert history.terminal.terminal_outcome == "candidate_blocked"
+            assert history.terminal.blocker_reason == (
+                "candidate_experiment_input_change_not_established"
+            )
+            assert history.terminal.selected_evaluation is None
+            assert history.terminal.observed_data_authority is False
+            assert history.terminal.publication_authority is False
+            assert first_history.selected_basis.basis_role == "blocked"
+            assert first_history.selected_basis.predicate_provenance == "not_established"
+            assert history.current_basis is not None
+            assert history.current_basis.basis_role == "prospective"
+            assert history.selected_basis == history.current_basis
+            assert released.current_action.status == "blocked"
+            assert released.current_action.candidate_n5_result is None
+            assert released.current_action.selected_receipt_ref == released.terminal_ref
+
+            prior_result = released.current_action.prior_candidate_n5_result
+            assert prior_result is not None
+            assert prior_result.prior_action_ref == first_history.terminal.candidate_action_ref
+            assert prior_result.prior_action_generation == first_history.head.action_generation
+            assert prior_result.n5_result.terminal_receipt_ref == first.terminal_ref
+            assert first_history.reentry_evaluation is not None
+            assert prior_result.n5_result.result_body.artifact_ref == (
+                first_history.reentry_evaluation.selected.n5_result_ref
+            )
+            assert history.terminal.authority_decision_ref == action_values["decision_ref"]
+            assert history.terminal_ref != first_history.terminal_ref
+            completed.append(history.terminal_ref)
+
+        run_candidate_experiment_action_oracle(
+            tmp_path=tmp_path / "authorized-same-scalar-new-release",
+            values=first_values["values"],
+            policy_ref=first_values["policy_ref"],
+            monkeypatch=monkeypatch,
+            idempotency_key="served-candidate-same-scalar-new-release",
+            exercise_controls=False,
+            after_replay=execute_released_same_scalar,
+            authority_valid_until=datetime.now(UTC) + timedelta(minutes=90),
+        )
+
+    scenario = run_genuine_candidate_experiment_scenario(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        gateway=served_recorded_candidate_gateway,
+        total_units=7,
+        expected_blocked=True,
+        subsequent_attempt_ids=(second_attempt,),
+        after_execution=after_first_execution,
+        authority_valid_until=lambda: datetime.now(UTC) + timedelta(minutes=90),
+    )
+    assert scenario["source_status"] == "completed"
+    assert len(completed) == 1

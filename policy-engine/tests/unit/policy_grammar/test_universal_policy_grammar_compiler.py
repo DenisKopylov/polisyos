@@ -166,6 +166,94 @@ def test_compiler_reuses_problem_frame_and_policy_spec_without_new_ir_enum_strin
     )
 
 
+@pytest.mark.parametrize("mode", tuple(IdentificationMode))
+def test_compiler_preserves_each_explicit_identification_mode(mode: IdentificationMode) -> None:
+    policy_spec = PolicySpec(
+        policy_id=f"policy_{mode.value}",
+        interventions=[
+            InterventionSpec(
+                intervention_id="action_one",
+                kind="service",
+                target=SelectorPredicate(
+                    kind="predicate",
+                    field="population",
+                    operator="==",
+                    value="selected",
+                ),
+                schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                params={"monthly_budget": Decimal("1000")},
+                target_population_type="children",
+                target_region_ids=["rural"],
+                identification_mode=mode,
+            )
+        ],
+    )
+    intent = PolicyGrammarIntent.from_problem_policy(
+        intent_id=f"explicit_{mode.value}",
+        problem_frame=ProblemFrame(
+            problem_id="problem_one",
+            domain=ProblemDomain.CUSTOM,
+            narrative="Improve an outcome for the selected population.",
+        ),
+        policy_spec=policy_spec,
+    )
+
+    compiled = PolicyGrammarCompiler().compile(
+        intent=intent,
+        authority_profile=_authority_profile(PolicyLayerLevel.LOCAL),
+        concept_spine_refs=_concept_spine_refs(intent.intent_id),
+    )
+
+    assert compiled.status == "compiled"
+    assert compiled.facets is not None
+    assert compiled.facets.method_need.value is mode
+
+
+def test_compiler_blocks_conflicting_explicit_identification_modes() -> None:
+    interventions = [
+        InterventionSpec(
+            intervention_id=f"action_{index}",
+            kind="service",
+            target=SelectorPredicate(
+                kind="predicate",
+                field="population",
+                operator="==",
+                value="selected",
+            ),
+            schedule=ScheduleSpec(start_step=0, duration_steps=12),
+            params={"monthly_budget": Decimal("1000")},
+            target_population_type="children",
+            target_region_ids=["rural"],
+            identification_mode=mode,
+        )
+        for index, mode in enumerate(
+            (IdentificationMode.POINT_IDENTIFIED, IdentificationMode.BOUNDS_ONLY)
+        )
+    ]
+    intent = PolicyGrammarIntent.from_problem_policy(
+        intent_id="conflicting_methods",
+        problem_frame=ProblemFrame(
+            problem_id="problem_one",
+            domain=ProblemDomain.CUSTOM,
+            narrative="Improve an outcome for the selected population.",
+        ),
+        policy_spec=PolicySpec(policy_id="policy_one", interventions=interventions),
+    )
+
+    compiled = PolicyGrammarCompiler().compile(
+        intent=intent,
+        authority_profile=_authority_profile(PolicyLayerLevel.LOCAL),
+        concept_spine_refs=_concept_spine_refs(intent.intent_id),
+    )
+
+    assert compiled.status == "blocked"
+    assert compiled.facets is None
+    assert _blocker_codes(compiled) == {"policy_grammar_identification_modes_conflict"}
+    blocker = compiled.blockers[0]
+    assert blocker.facet_name == "method_need"
+    assert blocker.missing_capability_label == "bridge_missing"
+
+
 def test_missing_concept_spine_refs_blocks_consumer_ready_facets() -> None:
     compiled = PolicyGrammarCompiler().compile(
         intent=PolicyGrammarIntent(

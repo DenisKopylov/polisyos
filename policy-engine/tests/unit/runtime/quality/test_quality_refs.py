@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+import polisyos.runtime.quality.refs as quality_refs
+from polisyos.runtime.quality import report_registry
 from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
 from polisyos.runtime.quality.refs import (
     KNOWN_QUALITY_REF_KEYS,
@@ -839,6 +841,22 @@ def test_canonical_report_registry_rejects_every_role_across_supported_sources()
         for item in direct.rejections
     )
     assert privacy_ref_key not in direct.unrejected_refs()
+
+
+def test_refs_exports_and_default_arguments_use_canonical_registry_objects() -> None:
+    assert quality_refs.QUALITY_REPORT_REF_KEYS is report_registry.QUALITY_REPORT_REF_KEYS
+    assert quality_refs.QUALITY_REPORT_BODY_REF_KEYS is report_registry.QUALITY_REPORT_BODY_REF_KEYS
+    assert quality_refs.QUALITY_REPORT_BODY_KEYS is report_registry.QUALITY_REPORT_BODY_KEYS
+
+    for intake_function in (
+        quality_refs._iter_quality_ref_matches,
+        quality_refs._quality_ref_keys_from_mapping,
+        quality_refs._quality_ref_keys_from_text,
+    ):
+        defaults = intake_function.__kwdefaults__
+        assert defaults is not None
+        assert defaults["known_ref_keys"] == frozenset(report_registry.QUALITY_REPORT_REF_KEYS)
+        assert defaults["report_body_ref_keys"] is report_registry.QUALITY_REPORT_BODY_REF_KEYS
 
 
 def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() -> None:

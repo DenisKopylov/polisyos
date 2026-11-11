@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from polisyos.core.artifacts import (
+    ArtifactID,
     ArtifactRef,
     FileSystemCAS,
     PutOptions,
@@ -25,6 +26,11 @@ from polisyos.core.contracts.model_input_requirements import (
 from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorResponse
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.data_forge.read_api.catalog import (
+    AcquisitionAuthorityError,
+    build_authority_entry,
+    build_authority_registry,
+)
 from polisyos.foundry.execute import admit_semantic_horizon_step_chain, load_state_snapshot
 from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.runtime.http.app import create_runtime_api_app
@@ -40,6 +46,7 @@ from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
     ModelInputSuccessorActionRequest,
     ModelInputUseActionCheckpoint,
+    resolve_model_input_successor_action,
 )
 from polisyos.runtime.quality import agent_action_authority as authority
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -57,7 +64,7 @@ from tests._helpers.acquisition_human_decision import (
     _mandate_authority_evidence,
     persist_signed,
 )
-from tests._helpers.acquisition_production import bind_fixture_l1_catalog_source
+from tests._helpers.acquisition_production import _entry, bind_fixture_l1_catalog_source
 from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 from tests._helpers.lane01_candidate_action_served import _approve_candidate_action
 from tests._helpers.program_graph_tax_subsidy_input import (
@@ -342,8 +349,17 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                 )
 
         seeds = []
+        unrelated_entry = _entry()
 
         def launch_before_activation(catalog: CanonicalAcquisitionAuthority) -> None:
+            registry = catalog._load_registry()
+            assert unrelated_entry.source_semantic_definition_ref is None
+            initial_registry = build_authority_registry(
+                baseline_content_sha256=registry.baseline_content_sha256,
+                l5_measurement_registry_sha256=registry.l5_measurement_registry_sha256,
+                entries=(*registry.entries, unrelated_entry),
+            )
+            catalog.registry_path.write_text(initial_registry.model_dump_json(), encoding="utf-8")
             root = catalog.repo_root
             skg_prior = _stock_grounding_source(root)
             prior_catalog = default_substrate_catalog_paths(root).l1_dcat_path
@@ -408,6 +424,24 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
             (entry,) = active.entries
             projection = active.projections[entry.target_variable]
             (selected_observation,) = projection.observations
+        registry_path = active.authority.registry_path
+        registry_bytes = registry_path.read_bytes()
+        registry = active.authority._load_registry()
+        assert entry in registry.entries and unrelated_entry in registry.entries
+        renamed = build_authority_entry(
+            **{
+                **unrelated_entry.identity_payload(),
+                "title": unrelated_entry.title + " (corrected title)",
+            }
+        )
+        updated = build_authority_registry(
+            baseline_content_sha256=registry.baseline_content_sha256,
+            l5_measurement_registry_sha256=registry.l5_measurement_registry_sha256,
+            entries=tuple(
+                renamed if item == unrelated_entry else item for item in registry.entries
+            ),
+        )
+        assert updated.content_sha256 != registry.content_sha256
         ((job, profile),) = seeds
         run_id = job.run_id
         assert run_id is not None
@@ -595,14 +629,18 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                 )
                 assert execute.status_code == 200, execute.text
                 assert execute.json()["job_id"] == action_job_id
-                assert (
-                    dispatch_one_control_job(
-                        store=control._control_store,
-                        handler=control._process_control_job,
-                        expected_job_id=action_job_id,
+                try:
+                    registry_path.write_text(updated.model_dump_json(), encoding="utf-8")
+                    assert (
+                        dispatch_one_control_job(
+                            store=control._control_store,
+                            handler=control._process_control_job,
+                            expected_job_id=action_job_id,
+                        )
+                        == action_job_id
                     )
-                    == action_job_id
-                )
+                finally:
+                    registry_path.write_bytes(registry_bytes)
                 action = control._control_store.get_job(action_job_id)
                 assert action is not None and action.state == "completed", (
                     None if action is None else action.error_message
@@ -684,3 +722,161 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
                 assert limited.simulation_result_ref is None and limited.result_body is None
             finally:
                 withheld.rename(blob)
+
+        try:
+            registry_path.write_text(updated.model_dump_json(), encoding="utf-8")
+            with (
+                trust.authorization_exchange("acquisition-operator"),
+                TestClient(app(root, profile)) as current_reader,
+            ):
+                current_control = current_reader.app.state.runtime_container.control_service
+                stop_embedded_control_worker(current_control)
+                ledger = current_control.llm_producer_settlement_store._ledger
+                reservations = ledger.snapshot().invocation_reservations
+                assert len(reservations) == 1
+                current_decision, current_digest = trust.post(
+                    current_reader,
+                    path + "/decision-request",
+                    mutation.model_dump(mode="json"),
+                    route=_ROUTE_TEMPLATE + "/decision-request",
+                )
+                if current_decision.status_code == 200:
+                    # A cached response for the old job cannot satisfy a fresh
+                    # current selection of the same activated observation.
+                    with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
+                        fresh_selection = resolve_model_input_successor_action(
+                            current_control,
+                            tenant_id=served.TENANT,
+                            cell_id=served.CELL,
+                            run_id=run_id,
+                            request=mutation.model_copy(
+                                update={"idempotency_key": "unrelated-metadata-fresh-use"}
+                            ),
+                        )
+                    assert fresh_selection.route_id == route_id
+                    assert fresh_selection.job_id != action_job_id
+                    assert fresh_selection.passport_ref == projection.passport_ref
+                    activation_blob, _ = fresh._paths(mutation.activation_receipt_ref.artifact_id)
+                    withheld_activation = tmp_path / "withheld-activation-after-registry-update"
+                    activation_blob.rename(withheld_activation)
+                    try:
+                        refused_missing, _ = trust.post(
+                            current_reader,
+                            path + "/decision-request",
+                            mutation.model_copy(
+                                update={
+                                    "idempotency_key": "missing-activation-after-registry-update"
+                                }
+                            ).model_dump(mode="json"),
+                            route=_ROUTE_TEMPLATE + "/decision-request",
+                        )
+                        assert refused_missing.status_code == 409, refused_missing.text
+                        assert refused_missing.json()["code"] == (
+                            "model_input_use_source_not_established"
+                        )
+                    finally:
+                        withheld_activation.rename(activation_blob)
+                    competitor = build_authority_entry(
+                        **{**entry.identity_payload(), "title": entry.title + " (competing entry)"}
+                    )
+                    ambiguous = build_authority_registry(
+                        baseline_content_sha256=updated.baseline_content_sha256,
+                        l5_measurement_registry_sha256=updated.l5_measurement_registry_sha256,
+                        entries=(*updated.entries, competitor),
+                    )
+                    registry_path.write_text(ambiguous.model_dump_json(), encoding="utf-8")
+                    refused_competitor, _ = trust.post(
+                        current_reader,
+                        path + "/decision-request",
+                        mutation.model_copy(
+                            update={"idempotency_key": "competing-catalog-source"}
+                        ).model_dump(mode="json"),
+                        route=_ROUTE_TEMPLATE + "/decision-request",
+                    )
+                    assert refused_competitor.status_code == 409, refused_competitor.text
+                    assert refused_competitor.json()["code"] == (
+                        "model_input_use_source_not_established"
+                    )
+                assert ledger.snapshot().invocation_reservations == reservations
+        finally:
+            registry_path.write_bytes(registry_bytes)
+
+        # Withdraw only the current source entry through the canonical registry
+        # format. Keep the original activation, signed action and numerical
+        # evidence available for historical replay.
+        withdrawn = build_authority_registry(
+            baseline_content_sha256=registry.baseline_content_sha256,
+            l5_measurement_registry_sha256=registry.l5_measurement_registry_sha256,
+            entries=tuple(item for item in registry.entries if item.entry_id != entry.entry_id),
+        )
+        try:
+            registry_path.write_text(withdrawn.model_dump_json(), encoding="utf-8")
+            with pytest.raises(AcquisitionAuthorityError, match="authority_entry_unresolved"):
+                active.authority.resolve(entry.entry_id)
+
+            with (
+                trust.authorization_exchange("acquisition-operator") as operator_authorization,
+                TestClient(app(root)) as historical_reader,
+            ):
+                historical_control = historical_reader.app.state.runtime_container.control_service
+                stop_embedded_control_worker(historical_control)
+                ledger = historical_control.llm_producer_settlement_store._ledger
+                reservations = ledger.snapshot().invocation_reservations
+                assert len(reservations) == 1
+                new_use = mutation.model_copy(update={"idempotency_key": "withdrawn-stock-use"})
+                refused, _ = trust.post(
+                    historical_reader,
+                    path + "/decision-request",
+                    new_use.model_dump(mode="json"),
+                    route=_ROUTE_TEMPLATE + "/decision-request",
+                )
+                assert refused.status_code == 409, refused.text
+                assert refused.json()["code"] == "model_input_use_source_not_established"
+
+                with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
+                    _assert_foundry_successor(
+                        fresh,
+                        original=original,
+                        mutation=mutation,
+                        action_job_id=action_job_id,
+                        checkpoint=checkpoint,
+                    )
+                historical_headers = {
+                    "Authorization": operator_authorization,
+                    "X-Tenant-ID": served.TENANT,
+                }
+                historical = historical_reader.get(result_path, headers=historical_headers)
+                assert ledger.snapshot().invocation_reservations == reservations
+                assert historical.status_code == 200, historical.text
+                replayed = RunModelInputUseN5SuccessorResponse.model_validate(historical.json())
+                assert replayed.result == selected, historical.text
+
+                decision_id = ArtifactID.model_validate(execution_body["decision_ref"])
+                signature = fresh._sig_path(decision_id)
+                withheld_signature = tmp_path / "withheld-successor-approval-signature"
+                signature.rename(withheld_signature)
+                try:
+                    unsigned = historical_reader.get(result_path, headers=historical_headers)
+                    assert unsigned.status_code == 200, unsigned.text
+                    unverified = RunModelInputUseN5SuccessorResponse.model_validate(
+                        unsigned.json()
+                    ).result
+                    assert unverified.action_status == "completed"
+                    assert unverified.result_status == "not_established"
+                    assert unverified.limitation_code == (
+                        "model_input_use_history_approval_not_established"
+                    )
+                    assert unverified.simulation_result_ref is None
+                    assert unverified.result_body is None
+                finally:
+                    withheld_signature.rename(signature)
+        finally:
+            registry_path.write_bytes(registry_bytes)
+
+        assert current_decision.status_code == 200, current_decision.text
+        assert current_digest == digest
+        decision = current_decision.json()
+        assert decision["outcome"] == "decision_required", current_decision.text
+        assert decision["route_id"] == route_id
+        assert decision["job_id"] == action_job_id
+        assert decision["authority_decision_ref"] != execution_body["decision_ref"]

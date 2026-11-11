@@ -592,6 +592,7 @@ class TestLazyLoading:
         factory = MagicMock(return_value=mock_method)
 
         sig = create_method_signature("test", "ns", "1.0.0", frozenset(), frozenset())
+        mock_method.signature = sig
         meta = MethodMetadata(description="test")
 
         registry.register_lazy(sig, meta, factory)
@@ -610,6 +611,7 @@ class TestLazyLoading:
         factory = MagicMock(return_value=mock_method)
 
         sig = create_method_signature("test", "ns", "1.0.0", frozenset(), frozenset())
+        mock_method.signature = sig
         meta = MethodMetadata(description="test")
 
         registry.register_lazy(sig, meta, factory)
@@ -622,6 +624,7 @@ class TestLazyLoading:
 
     def test_lazy_concurrent_loading(self):
         registry = MethodRegistry()
+        sig = create_method_signature("test", "ns", "1.0.0", frozenset(), frozenset())
         load_count = {"count": 0}
         lock = threading.Lock()
 
@@ -629,9 +632,10 @@ class TestLazyLoading:
             with lock:
                 load_count["count"] += 1
             time.sleep(0.1)
-            return create_mock_method("test", "ns", "1.0.0")
+            method = create_mock_method("test", "ns", "1.0.0")
+            method.signature = sig
+            return method
 
-        sig = create_method_signature("test", "ns", "1.0.0", frozenset(), frozenset())
         meta = MethodMetadata(description="test")
         registry.register_lazy(sig, meta, slow_factory)
 
@@ -965,6 +969,7 @@ class TestSnapshot:
         )
         metadata = MethodMetadata(description="lazy snapshot")
         lazy_method = create_mock_method("lazy", "ns", "1.0.0")
+        lazy_method.signature = signature
         registry.register_lazy(signature, metadata, lambda: lazy_method)
 
         snapshot = registry.snapshot()

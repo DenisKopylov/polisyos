@@ -6636,8 +6636,10 @@ class ControlPlaneStore:
             _validated_execution_owner_binding,
         )
         from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
-        from polisyos.runtime.quality.report_registry import QUALITY_REPORT_REF_KEYS
+        from polisyos.runtime.quality.report_registry import quality_report_ref_intake_registry
         from polisyos.runtime.quality.run_state import RunIntentBinding
+
+        quality_report_ref_keys, _ = quality_report_ref_intake_registry()
 
         admission = None
         if fence is not None:
@@ -6784,7 +6786,7 @@ class ControlPlaneStore:
                         )
         for key in (
             *current_projection_keys,
-            *QUALITY_REPORT_REF_KEYS,
+            *quality_report_ref_keys,
             *current_quality_ref_keys,
         ):
             source_present = key in current_progress

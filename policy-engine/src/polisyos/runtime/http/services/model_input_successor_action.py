@@ -166,15 +166,12 @@ class ModelInputUseActionCheckpoint(BaseModel):
 
 
 @dataclass(frozen=True, slots=True)
-class SelectedModelInputSuccessorAction:
-    """Owner-replayed source inputs before a separate PA2 decision is applied."""
+class ModelInputSuccessorIdentity:
+    """Exact action inputs shared by current admission and historical replay."""
 
     origin: VerifiedModelInputRoutingOrigin
     request: ModelInputSuccessorActionRequest
-    catalog_source: CatalogServingSourcePaths
-    catalog_authority: CanonicalAcquisitionAuthority
     passport_ref: ArtifactRef
-    passport: AdmissionPassport
     observation_content_sha256: str
     route_id: str
     job_id: str
@@ -195,6 +192,84 @@ class SelectedModelInputSuccessorAction:
         return self.origin.run_id
 
 
+@dataclass(frozen=True, slots=True)
+class SelectedModelInputSuccessorAction(ModelInputSuccessorIdentity):
+    """Owner-replayed current inputs before a separate PA2 decision is applied."""
+
+    catalog_source: CatalogServingSourcePaths
+    catalog_authority: CanonicalAcquisitionAuthority
+    passport: AdmissionPassport
+
+
+def _resolve_model_input_successor_origin(
+    control_service: ControlPlaneService,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    request: ModelInputSuccessorActionRequest,
+) -> VerifiedModelInputRoutingOrigin:
+    origin = AcquisitionRouteLoop(
+        control_store=control_service._control_store,
+        artifact_store=control_service._artifact_store,
+        event_log=control_service._diagnostic_event_log,
+        core_source_resolver=control_service.resolve_completed_control_job_core_run_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    ).resolve_model_input_routing_origin(
+        run_id=run_id, routing_report_ref=request.routing_report_ref
+    )
+    if (
+        origin.compiled_ref != request.compiled_ref
+        or origin.n5_execution_ref != request.blocked_execution_ref
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_blocked_source_mismatch")
+    return origin
+
+
+def _model_input_successor_ids(
+    origin: VerifiedModelInputRoutingOrigin,
+    request: ModelInputSuccessorActionRequest,
+    observation_content_sha256: str,
+) -> tuple[str, str]:
+    route_id = agent_action_content_hash(
+        {
+            "action_kind": MODEL_INPUT_USE_ACTION_KIND,
+            "tenant_id": origin.tenant_id,
+            "cell_id": origin.cell_id,
+            "run_id": origin.run_id,
+            "source_job_id": origin.source_job_id,
+            "selected_inputs": request.model_dump(
+                mode="json", exclude={"idempotency_key", "human_decision_record_ref"}
+            ),
+            "observation_content_sha256": observation_content_sha256,
+        }
+    )
+    job_digest = agent_action_content_hash(
+        {"route_id": route_id, "idempotency_key": request.idempotency_key}
+    )
+    return route_id, "model-input-use." + job_digest.removeprefix("sha256:")
+
+
+def _read_model_input_activation_boundary(
+    store: CoreJSONArtifactStore, activation_ref: ArtifactRef
+) -> epoch_contract.AdmittedAcquisitionBoundaryEvidence:
+    activation = epoch_contract.ActivatedOverlayAdmissionStatement.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=activation_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+    )
+    return epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=activation.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+    )
+
+
 def resolve_model_input_successor_action(
     control_service: ControlPlaneService,
     *,
@@ -213,7 +288,10 @@ def resolve_model_input_successor_action(
         CatalogAcquisitionOverlay,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
-    from polisyos.runtime.quality.model_input_routing import verify_model_input_routing_report
+    from polisyos.runtime.quality.model_input_routing import (
+        ModelInputRoutingActivationError,
+        resolve_model_input_routing_activation,
+    )
     from polisyos.runtime.quality.substrate_registry import require_catalog_serving_source_unchanged
 
     if type(request) is not ModelInputSuccessorActionRequest:
@@ -221,21 +299,13 @@ def resolve_model_input_successor_action(
     store = control_service._artifact_store
     if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
         raise ModelInputSuccessorActionError("model_input_use_profile_store_unavailable")
-    origin = AcquisitionRouteLoop(
-        control_store=control_service._control_store,
-        artifact_store=store,
-        event_log=control_service._diagnostic_event_log,
-        core_source_resolver=control_service.resolve_completed_control_job_core_run_source,
+    origin = _resolve_model_input_successor_origin(
+        control_service,
         tenant_id=tenant_id,
         cell_id=cell_id,
-    ).resolve_model_input_routing_origin(
-        run_id=run_id, routing_report_ref=request.routing_report_ref
+        run_id=run_id,
+        request=request,
     )
-    if (
-        origin.compiled_ref != request.compiled_ref
-        or origin.n5_execution_ref != request.blocked_execution_ref
-    ):
-        raise ModelInputSuccessorActionError("model_input_use_blocked_source_mismatch")
 
     source = control_service.catalog_serving_source
     require_catalog_serving_source_unchanged(source)
@@ -244,29 +314,7 @@ def resolve_model_input_successor_action(
         baseline_path=source.substrate_paths.l1_dcat_path,
         l5_measurement_registry_path=source.substrate_paths.measurement_registry_path,
     )
-    report = verify_model_input_routing_report(
-        store,
-        request.routing_report_ref,
-        expected_obligation_set_ref=origin.routing_report.obligation_set_ref,
-        selected_basis=origin.selected_basis,
-        catalog_authority=authority,
-    )
-    if len(report.routes) != 1 or (descriptor := report.routes[0].source_descriptor) is None:
-        raise ModelInputSuccessorActionError("model_input_use_single_resolved_route_required")
-    activation = epoch_contract.ActivatedOverlayAdmissionStatement.model_validate(
-        epoch_contract.load_verified_epoch_statement(
-            store=store,
-            ref=request.activation_receipt_ref,
-            expected_kind="epoch.activated_overlay_admission_receipt",
-        )
-    )
-    admission = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
-        epoch_contract.load_verified_epoch_statement(
-            store=store,
-            ref=activation.admitted_boundary_evidence_ref,
-            expected_kind="epoch.admitted_acquisition_boundary_evidence",
-        )
-    )
+    admission = _read_model_input_activation_boundary(store, request.activation_receipt_ref)
     passport = AdmissionPassport.model_validate(
         epoch_contract.load_verified_epoch_statement(
             store=store,
@@ -274,19 +322,31 @@ def resolve_model_input_successor_action(
             expected_kind="epoch.acquisition_passport_snapshot",
         )
     )
-    if (
-        descriptor.authority_entry_id != passport.authority_entry_id
-        or descriptor.authority_registry_content_sha256
-        != passport.authority_registry_content_sha256
-    ):
-        raise ModelInputSuccessorActionError("model_input_use_activated_source_mismatch")
+    try:
+        _, active_authority = resolve_model_input_routing_activation(
+            store,
+            request.routing_report_ref,
+            expected_obligation_set_ref=origin.routing_report.obligation_set_ref,
+            selected_basis=origin.selected_basis,
+            catalog_authority=authority,
+            receipt_ref=request.activation_receipt_ref,
+            passport=passport,
+        )
+    except ModelInputRoutingActivationError as exc:
+        code = {
+            "single_obligation_required": "model_input_use_single_resolved_route_required",
+            "resolved_route_required": "model_input_use_single_resolved_route_required",
+            "activated_source_mismatch": "model_input_use_activated_source_mismatch",
+            "live_authority_drift": "acquisition_authority_drift",
+        }[exc.reason]
+        raise ModelInputSuccessorActionError(code) from exc
     overlay = CatalogAcquisitionOverlay(authority.baseline_path, source.overlay_path)
     try:
         active = overlay.read_activated_semantic_epoch_observations(
             receipt_ref=request.activation_receipt_ref,
             artifact_store=store,
             passport=passport,
-            authority=authority,
+            authority=active_authority,
         )
     finally:
         overlay.close()
@@ -299,22 +359,7 @@ def resolve_model_input_successor_action(
         raise ModelInputSuccessorActionError("model_input_use_activated_observation_not_selected")
     require_catalog_serving_source_unchanged(source)
     (row,) = rows
-    route_id = agent_action_content_hash(
-        {
-            "action_kind": MODEL_INPUT_USE_ACTION_KIND,
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "run_id": run_id,
-            "source_job_id": origin.source_job_id,
-            "selected_inputs": request.model_dump(
-                mode="json", exclude={"idempotency_key", "human_decision_record_ref"}
-            ),
-            "observation_content_sha256": row.row_content_sha256,
-        }
-    )
-    job_digest = agent_action_content_hash(
-        {"route_id": route_id, "idempotency_key": request.idempotency_key}
-    )
+    route_id, job_id = _model_input_successor_ids(origin, request, row.row_content_sha256)
     return SelectedModelInputSuccessorAction(
         origin=origin,
         request=request,
@@ -324,12 +369,12 @@ def resolve_model_input_successor_action(
         passport=passport,
         observation_content_sha256=row.row_content_sha256,
         route_id=route_id,
-        job_id="model-input-use." + job_digest.removeprefix("sha256:"),
+        job_id=job_id,
     )
 
 
 def model_input_successor_action_tuple(
-    selection: SelectedModelInputSuccessorAction,
+    selection: ModelInputSuccessorIdentity,
 ) -> tuple[OperationContract, OperationInvocationRecord, AgentActionIntent]:
     """Bind the distinct candidate-use tuple to the exact source and action job."""
     operation = OperationContract(
@@ -391,7 +436,7 @@ def _selected_json_ref(store: CoreJSONArtifactStore, raw_ref: str, *, kind: str)
 
 def _expected_phase(
     store: CoreJSONArtifactStore,
-    selection: SelectedModelInputSuccessorAction,
+    selection: ModelInputSuccessorIdentity,
     *,
     action_payload_ref: str,
     authority_decision_ref: str,
@@ -413,7 +458,7 @@ def _expected_phase(
 def _read_checkpoint_selection(
     store: CoreJSONArtifactStore,
     *,
-    selection: SelectedModelInputSuccessorAction,
+    selection: ModelInputSuccessorIdentity,
     checkpoint: ModelInputUseActionCheckpoint,
     phase: ModelInputUseActionPhase,
 ) -> ModelInputSuccessorSelection:
@@ -438,10 +483,41 @@ def _read_checkpoint_selection(
     return selected
 
 
+def resolve_model_input_successor_history(
+    control_service: ControlPlaneService,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    request: ModelInputSuccessorActionRequest,
+    checkpoint: ModelInputUseActionCheckpoint,
+) -> ModelInputSuccessorIdentity:
+    """Rebuild identity for subsequent signed decision and result verification."""
+    store = control_service._artifact_store
+    if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+        raise ModelInputSuccessorActionError("model_input_use_profile_store_unavailable")
+    origin = _resolve_model_input_successor_origin(
+        control_service, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request
+    )
+    selected = read_model_input_successor_selection(store, checkpoint.semantic_successor_ref)
+    admission = _read_model_input_activation_boundary(store, request.activation_receipt_ref)
+    route_id, job_id = _model_input_successor_ids(
+        origin, request, selected.observation_content_sha256
+    )
+    return ModelInputSuccessorIdentity(
+        origin=origin,
+        request=request,
+        passport_ref=admission.passport_ref,
+        observation_content_sha256=selected.observation_content_sha256,
+        route_id=route_id,
+        job_id=job_id,
+    )
+
+
 def verify_model_input_use_result(
     store: CoreJSONArtifactStore,
     *,
-    selection: SelectedModelInputSuccessorAction,
+    selection: ModelInputSuccessorIdentity,
     checkpoint: ModelInputUseActionCheckpoint,
     action_payload_ref: str,
     authority_decision_ref: str,

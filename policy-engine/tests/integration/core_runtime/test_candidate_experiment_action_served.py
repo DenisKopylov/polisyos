@@ -1549,6 +1549,7 @@ def run_genuine_candidate_experiment_scenario(
     )
     from tests._helpers.candidate_experiment_served_execution import (
         bind_candidate_test_execution_port_factory,
+        candidate_experiment_served_execution_owner,
     )
 
     monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "3")
@@ -1729,21 +1730,33 @@ def run_genuine_candidate_experiment_scenario(
                         raise AssertionError(
                             "after_execution policy ref differs from the selected policy"
                         )
-                    scenario_context["after_execution_result"] = after_execution(
-                        execution=execution,
-                        values=execution_values["values"],
-                        policy_ref=policy_ref,
-                        policy_owner=policy_owner,
-                        policy=policy,
-                        origin=execution_values["origin"],
-                        quota=quota,
-                        request=execution_values["request"],
-                        decision_ref=execution_values["decision_ref"],
-                        control=control,
+                    # The execution helper scopes its production port to B's
+                    # worker run. Keep the exact source-only B owner composed
+                    # while follow-up callbacks read B's terminal, issue the
+                    # next signed authority/action, and complete fresh-reader
+                    # verification. Any nested C execution temporarily
+                    # composes its own owner and restores this one on return.
+                    with candidate_experiment_served_execution_owner(
                         action_service=action_service,
-                        source_owner_root=source.root,
-                        prepared_catalog=prepared,
-                    )
+                        origin=execution_values["origin"],
+                        policy_owner=policy_owner,
+                        monkeypatch=monkeypatch,
+                    ):
+                        scenario_context["after_execution_result"] = after_execution(
+                            execution=execution,
+                            values=execution_values["values"],
+                            policy_ref=policy_ref,
+                            policy_owner=policy_owner,
+                            policy=policy,
+                            origin=execution_values["origin"],
+                            quota=quota,
+                            request=execution_values["request"],
+                            decision_ref=execution_values["decision_ref"],
+                            control=control,
+                            action_service=action_service,
+                            source_owner_root=source.root,
+                            prepared_catalog=prepared,
+                        )
 
             resolved_authority_valid_until = (
                 authority_valid_until()

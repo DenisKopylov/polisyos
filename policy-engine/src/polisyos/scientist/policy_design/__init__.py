@@ -127,10 +127,9 @@ __all__ = sorted(_SYMBOL_TO_MODULE)
 
 def __getattr__(name: str) -> object:
     """Resolve public exports lazily to keep package import cycle-free."""
-    module_name = _SYMBOL_TO_MODULE.get(name)
-    if module_name is None:
+    if name not in _SYMBOL_TO_MODULE:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module = import_module(module_name)
+    module = import_module(_SYMBOL_TO_MODULE[name])
     value = getattr(module, name)
     globals()[name] = value
     return value

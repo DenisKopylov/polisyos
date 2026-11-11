@@ -44,6 +44,18 @@ else:
 from polisyos.lex.api import (
     evaluate_transport_constraints as canonical_evaluate_transport_constraints,
 )
+from polisyos.lex.interventions import (
+    HierarchicalPolicySearchPlan as InterventionHierarchicalPolicySearchPlan,
+)
+from polisyos.lex.interventions import (
+    TemporalInterventionSequencer as InterventionTemporalInterventionSequencer,
+)
+from polisyos.lex.interventions.sequencing import (
+    TemporalInterventionSequencer as CanonicalTemporalInterventionSequencer,
+)
+from polisyos.lex.interventions.strategic_response import (
+    HierarchicalPolicySearchPlan as CanonicalHierarchicalPolicySearchPlan,
+)
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity as CanonicalConstraintSeverity,
 )
@@ -64,6 +76,12 @@ from polisyos.lex.legal_evaluation.transport_constraints import (
 )
 from polisyos.lex.legal_evaluation.transport_constraints import (
     is_transport_blocked as canonical_is_transport_blocked,
+)
+from polisyos.lex.normpack import (
+    build_legal_authority_report as normpack_build_legal_authority_report,
+)
+from polisyos.lex.normpack.legal_authority import (
+    build_legal_authority_report as canonical_build_legal_authority_report,
 )
 
 if TYPE_CHECKING:
@@ -142,6 +160,32 @@ def test_root_facade_aliases_are_the_canonical_transport_objects() -> None:
     assert LegalConstraint is CanonicalLegalConstraint
     assert LegalToDAGMapping is CanonicalLegalToDAGMapping
     assert LegalToDAGMappingType is CanonicalLegalToDAGMappingType
+
+
+def test_root_facade_preserves_canonical_legal_and_intervention_routes() -> None:
+    from polisyos.lex import (
+        HierarchicalPolicySearchPlan,
+        TemporalInterventionSequencer,
+        build_legal_authority_report,
+    )
+
+    assert {
+        "build_legal_authority_report",
+        "HierarchicalPolicySearchPlan",
+        "TemporalInterventionSequencer",
+    }.issubset(lex.__all__)
+    assert build_legal_authority_report is canonical_build_legal_authority_report
+    assert normpack_build_legal_authority_report is canonical_build_legal_authority_report
+    assert HierarchicalPolicySearchPlan is CanonicalHierarchicalPolicySearchPlan
+    assert (
+        InterventionHierarchicalPolicySearchPlan
+        is CanonicalHierarchicalPolicySearchPlan
+    )
+    assert TemporalInterventionSequencer is CanonicalTemporalInterventionSequencer
+    assert (
+        InterventionTemporalInterventionSequencer
+        is CanonicalTemporalInterventionSequencer
+    )
 
 
 def _assert_root_transport_refusal(db_path: Path) -> None:

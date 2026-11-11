@@ -7,13 +7,11 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir import governance, observation
+from polisyos.ir.governance import ProblemDomain
+from polisyos.ir.observation import IdentificationMode
 
 if TYPE_CHECKING:
     from .schema import PolicyGrammarIntent
-
-IdentificationMode = observation.IdentificationMode
-ProblemDomain = governance.ProblemDomain
 
 _TOKEN_RE = re.compile(r"[a-z0-9_]+")
 

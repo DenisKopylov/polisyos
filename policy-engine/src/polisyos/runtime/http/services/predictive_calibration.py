@@ -34,9 +34,9 @@ from polisyos.core.contracts import (
     ApiMeta,
     DataSnapshot,
     DataSnapshotRef,
-    ForecastProfileMemberV1,
     RunDetails,
 )
+from polisyos.core.contracts.forecast_profile_member import ForecastProfileMemberV1
 from polisyos.ir import (
     ArtifactRefModel,
     BacktestReport,

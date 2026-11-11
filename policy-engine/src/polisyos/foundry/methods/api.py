@@ -213,7 +213,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "FidelityLevel": ("polisyos.foundry.methods.base", "FidelityLevel"),
     "resolve_runtime_fidelity": (
-        "polisyos.foundry.extensions.registry",
+        "polisyos.foundry.methods.catalog.mechanism.runtime_registry",
         "resolve_runtime_fidelity",
     ),
     "FieldCalibrationStats": (

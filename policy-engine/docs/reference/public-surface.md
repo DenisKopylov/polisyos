@@ -332,7 +332,7 @@ timestamps
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.compiler`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.llm.cache_settlement`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`, `polisyos.core.run.worker_lifecycle`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.compiler`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.contracts.forecast_profile_member`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.llm.cache_settlement`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`, `polisyos.core.run.worker_lifecycle`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -350,6 +350,7 @@ timestamps
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 852 |
+| `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -1638,6 +1639,27 @@ SourceVerificationReportRef
 VerifiedPolicyReportRef
 c4_framed_semantic_projection_digest
 validate_producer_call_observation
+```
+
+</details>
+
+#### `polisyos.core.contracts.forecast_profile_member`
+
+- Source: `src/polisyos/core/contracts/forecast_profile_member.py`
+- Facade: `eager_exports`
+- Summary: Candidate-only binding between one forecast and an EMP-01 source member.
+
+<details><summary>Entrypoint exports (8)</summary>
+
+```text
+FORECAST_PROFILE_MEMBER_CONTRACT_VERSION
+FORECAST_PROFILE_MEMBER_KIND
+FORECAST_PROFILE_MEMBER_SCHEMA
+FORECAST_PROFILE_MEMBER_SCHEMA_VERSION
+VALUE_DATA_PROFILE_KIND
+VALUE_OWNER_PROJECTION_KIND
+ForecastProfileMemberV1
+forecast_profile_observed_series_sha256
 ```
 
 </details>

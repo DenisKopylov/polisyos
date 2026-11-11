@@ -6,15 +6,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.core import contracts
-from polisyos.ir import governance, observation
+from polisyos.ir.governance import NormativeOutcomeChannel, PolicyLayerLevel
+from polisyos.ir.observation import IdentificationMode
 
 if TYPE_CHECKING:
     from .normalizer import NormalizedPolicyIntent
     from .schema import PolicyGrammarConceptSpineRefs
 
-IdentificationMode = observation.IdentificationMode
-NormativeOutcomeChannel = governance.NormativeOutcomeChannel
-PolicyLayerLevel = governance.PolicyLayerLevel
 UniversalGeographyPredicate = contracts.UniversalGeographyPredicate
 UniversalPolicyAuthorityTypeFacet = contracts.UniversalPolicyAuthorityTypeFacet
 UniversalPolicyDeliveryChannel = contracts.UniversalPolicyDeliveryChannel
@@ -91,6 +89,25 @@ def derive_facets(
                         + ", ".join(missing_refs)
                     ),
                     pattern_refs=("P02", "P10"),
+                    missing_capability_label="bridge_missing",
+                ),
+            ),
+        )
+
+    identification_modes = tuple(dict.fromkeys(normalized.identification_modes))
+    if len(identification_modes) > 1:
+        return FacetDerivationResult(
+            facets=None,
+            blockers=(
+                UniversalPolicyGrammarBlocker(
+                    code="policy_grammar_identification_modes_conflict",
+                    message=(
+                        "W6.A cannot represent distinct intervention identification modes "
+                        "in its scalar method_need facet: "
+                        + ", ".join(mode.value for mode in identification_modes)
+                    ),
+                    facet_name="method_need",
+                    pattern_refs=("P10", "P33"),
                     missing_capability_label="bridge_missing",
                 ),
             ),
@@ -288,8 +305,8 @@ def _risk_facet(normalized: NormalizedPolicyIntent) -> UniversalPolicyRiskFacet 
 
 
 def _method_need(normalized: NormalizedPolicyIntent) -> IdentificationMode:
-    if IdentificationMode.SEQUENTIAL in normalized.identification_modes:
-        return IdentificationMode.SEQUENTIAL
+    if normalized.identification_modes:
+        return normalized.identification_modes[0]
     if normalized.has_any("phase", "phased", "rollout", "sequence"):
         return IdentificationMode.SEQUENTIAL
     return IdentificationMode.POINT_IDENTIFIED

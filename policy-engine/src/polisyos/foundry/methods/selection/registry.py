@@ -593,6 +593,13 @@ class MethodRegistry:
 
         fqn = signature.fqn
         import_module, import_qualname = _normalize_import_target(import_target)
+        if import_target is not None:
+            from polisyos.foundry.methods._internal.executable_identity import (
+                _is_import_target_syntactically_valid,
+            )
+
+            if not _is_import_target_syntactically_valid(import_module, import_qualname):
+                raise ValueError("method_import_target_not_resolvable")
 
         with self._reg_lock:
             log = LifecycleLog()
@@ -790,6 +797,24 @@ class MethodRegistry:
         with entry.load_lock:
             if not entry.loaded:
                 method_class = entry.factory()
+                from polisyos.foundry.methods._internal.executable_identity import (
+                    _resolve_import_target,
+                    _signature_matches,
+                )
+
+                if not isinstance(method_class, type) or not _signature_matches(
+                    method_class, entry.signature
+                ):
+                    raise ValueError("lazy_method_signature_mismatch")
+                if entry.import_module and entry.import_qualname:
+                    try:
+                        declared_class = _resolve_import_target(
+                            entry.import_module, entry.import_qualname
+                        )
+                    except (ImportError, AttributeError, TypeError, ValueError) as exc:
+                        raise ValueError("lazy_method_import_target_unresolvable") from exc
+                    if method_class is not declared_class:
+                        raise ValueError("lazy_method_import_target_mismatch")
                 with self._reg_lock:
                     entry._cached_class = method_class
                     entry.loaded = True

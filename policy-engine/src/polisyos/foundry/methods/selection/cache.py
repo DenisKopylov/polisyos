@@ -8,43 +8,35 @@ catalog module (O(n) Python imports with potential heavy transitive deps).
 
 Cache invalidation
 ------------------
-The cache stores a per-entry ``signature_hash`` (SHA-256 of the method
-signature's JSON repr).  On restore, the hashes are compared against the
-freshly computed hashes of the live classes.  Any mismatch causes a full
-re-registration and cache rebuild for the affected methods.
+The legacy per-entry ``signature_hash`` remains the stable ABI projection. A
+separate versioned snapshot fingerprint binds the complete signature,
+selection metadata, and qualified import target. A caller with a live registry
+can compare that fingerprint before using the cached catalog.
 
-Fast path
----------
-::
-
-    from polisyos.foundry.methods.selection.cache import RegistryPersistenceLayer
-    from pathlib import Path
-
-    cache = RegistryPersistenceLayer(Path("_cache/foundry/registry.db"))
-    with registry_scope() as reg:
-        if cache.is_cache_valid():
-            cache.restore_into(reg)          # fast — no module imports
-        else:
-            ensure_all_methods_registered(reg)
-            cache.snapshot_from(reg)         # write updated cache
+Cache admission
+---------------
+A no-argument integrity check is not a cold-start currentness proof. A caller
+that needs to claim the snapshot matches current source must first supply the
+live admitted registry to ``is_cache_valid(registry)``. There is currently no
+tracked application caller that establishes this source-qualified fast path.
 
 Limitations
 -----------
-- Only stores ``MethodSignature`` + a persistable subset of
-  ``MethodMetadata`` + import targets. The actual Python class is *not*
+- Stores the complete semantic fields of ``MethodSignature`` and
+  ``MethodMetadata`` with import targets. The actual Python class is *not*
   stored; lazy factories are reconstructed from module + qualname.
 - Lazy entries without a recoverable import target are skipped during
   snapshot/restore rather than being restored as broken placeholders.
-- Cache must be invalidated manually when ``_registry_boot.py`` files change.
-  The ``is_cache_valid()`` check uses a global catalog hash (XOR of all
-  signature hashes) stored in a ``_meta`` table.
+- ``is_cache_valid()`` verifies the persisted snapshot integrity only.
+  Supplying the live registry additionally detects semantic metadata,
+  signature, and import-target drift; callers must use that form before
+  treating the snapshot as current.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-import math
 import sqlite3
 import threading
 from contextlib import contextmanager
@@ -54,6 +46,10 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.foundry.methods._internal.executable_identity import (
+    _is_import_target_syntactically_valid,
+    _resolve_import_target,
+)
 from polisyos.foundry.methods.exceptions import FoundryMethodError
 
 __all__ = [
@@ -61,7 +57,8 @@ __all__ = [
     "RegistryPersistenceLayer",
 ]
 
-_SCHEMA_VERSION = "3"
+_SCHEMA_VERSION = "4"
+_SEMANTIC_SNAPSHOT_VERSION = 1
 
 _CREATE_META = """
 CREATE TABLE IF NOT EXISTS _meta (
@@ -175,20 +172,37 @@ class RegistryPersistenceLayer:
             fqn = entry.fqn
             sig = entry.signature
             meta = entry.metadata
+            import_target = entry.persistable_import_target
+            if import_target is None or not _is_import_target_syntactically_valid(*import_target):
+                continue
+            module, class_name = import_target
             try:
-                sig_json = json.dumps(_signature_payload(sig), sort_keys=True)
-                sig_hash = hashlib.sha256(sig_json.encode()).hexdigest()
-                meta_json = json.dumps(_metadata_payload(meta), sort_keys=True)
+                abi_json = json.dumps(_signature_payload(sig), sort_keys=True)
+                abi_hash = hashlib.sha256(abi_json.encode()).hexdigest()
+                signature_payload = _complete_signature_payload(sig)
+                sig_json = json.dumps(signature_payload, sort_keys=True)
+                metadata_payload = _complete_metadata_payload(meta)
+                meta_json = json.dumps(metadata_payload, sort_keys=True)
+                if (
+                    _complete_signature_payload(_signature_from_payload(signature_payload))
+                    != signature_payload
+                    or _complete_metadata_payload(_metadata_from_payload(metadata_payload))
+                    != metadata_payload
+                ):
+                    continue
+                semantic_hash = _semantic_snapshot_hash(
+                    fqn=fqn,
+                    signature_payload=signature_payload,
+                    metadata_payload=metadata_payload,
+                    module=module,
+                    qualname=class_name,
+                    abi_hash=abi_hash,
+                )
             except (TypeError, ValueError):
                 continue
 
-            import_target = entry.persistable_import_target
-            if import_target is None:
-                continue
-            module, class_name = import_target
-
-            rows.append((fqn, module, class_name, sig_json, sig_hash, meta_json, now))
-            catalog_hash_parts.append(sig_hash)
+            rows.append((fqn, module, class_name, sig_json, abi_hash, meta_json, now))
+            catalog_hash_parts.append(semantic_hash)
 
         catalog_hash = hashlib.sha256("|".join(sorted(catalog_hash_parts)).encode()).hexdigest()
 
@@ -243,10 +257,7 @@ class RegistryPersistenceLayer:
             # Build lazy factory
             def _make_factory(mod: str, cls: str) -> Any:
                 def _factory() -> type:
-                    import importlib
-
-                    m = importlib.import_module(mod)
-                    return getattr(m, cls)
+                    return _resolve_import_target(mod, cls)
 
                 return _factory
 
@@ -271,10 +282,10 @@ class RegistryPersistenceLayer:
         """
         Return True if the on-disk cache is up-to-date.
 
-        If *registry* is provided, computes the catalog hash from live
-        entries and compares to stored hash.  If *registry* is None,
-        just checks that the database exists and has the correct schema
-        version.
+        The stored row set is always checked for complete typed round-trip and
+        against its snapshot hash. Without *registry* this proves integrity,
+        not source currentness. Supplying the live registry also compares the
+        semantic source catalog to detect drift before the snapshot is used.
         """
         if not self._db_path.exists() and str(self._db_path) != ":memory:":
             return False
@@ -287,17 +298,18 @@ class RegistryPersistenceLayer:
                 if row is None or row[0] != _SCHEMA_VERSION:
                     return False
 
-                if registry is None:
-                    return True
-
                 stored = conn.execute(
                     "SELECT value FROM _meta WHERE key = 'catalog_hash'"
                 ).fetchone()
                 if stored is None:
                     return False
 
-                live_hash = self._compute_catalog_hash(registry)
-                return stored[0] == live_hash
+                persisted_hash = self._compute_stored_catalog_hash(conn)
+                if persisted_hash is None or stored[0] != persisted_hash:
+                    return False
+                if registry is None:
+                    return True
+                return stored[0] == self._compute_catalog_hash(registry)
         except (sqlite3.Error, TypeError, ValueError):
             return False
 
@@ -361,24 +373,131 @@ class RegistryPersistenceLayer:
 
     @staticmethod
     def _compute_catalog_hash(registry: Any) -> str:
-        """Compute a hash of all live registry entries."""
+        """Compute a complete semantic snapshot hash for persistable entries."""
         parts: list[str] = []
         snapshot = registry.snapshot()
         for entry in snapshot.entries():
+            import_target = entry.persistable_import_target
+            if import_target is None or not _is_import_target_syntactically_valid(*import_target):
+                continue
+            module, qualname = import_target
             try:
-                sig_json = json.dumps(
-                    _signature_payload(entry.signature),
-                    sort_keys=True,
+                abi_json = json.dumps(_signature_payload(entry.signature), sort_keys=True)
+                abi_hash = hashlib.sha256(abi_json.encode()).hexdigest()
+                parts.append(
+                    _semantic_snapshot_hash(
+                        fqn=entry.fqn,
+                        signature_payload=_complete_signature_payload(entry.signature),
+                        metadata_payload=_complete_metadata_payload(entry.metadata),
+                        module=module,
+                        qualname=qualname,
+                        abi_hash=abi_hash,
+                    )
                 )
-                parts.append(hashlib.sha256(sig_json.encode()).hexdigest())
             except (TypeError, ValueError):
-                parts.append(entry.fqn)
+                continue
+        return hashlib.sha256("|".join(sorted(parts)).encode()).hexdigest()
+
+    @staticmethod
+    def _compute_stored_catalog_hash(conn: sqlite3.Connection) -> str | None:
+        """Recompute the snapshot fingerprint from persisted SQLite rows."""
+        rows = conn.execute(
+            "SELECT fqn, module, class_name, signature_json, signature_hash, metadata_json "
+            "FROM method_entries ORDER BY fqn"
+        ).fetchall()
+        parts: list[str] = []
+        for fqn, module, qualname, signature_json, abi_hash, metadata_json in rows:
+            try:
+                signature_payload = json.loads(signature_json)
+                metadata_payload = json.loads(metadata_json)
+                if not _is_import_target_syntactically_valid(module, qualname):
+                    return None
+
+                # Decode then re-encode so every required field and typed value
+                # is present before a persisted fingerprint can be trusted.
+                signature = _signature_from_payload(signature_payload)
+                metadata = _metadata_from_payload(metadata_payload)
+                if (
+                    _complete_signature_payload(signature) != signature_payload
+                    or _complete_metadata_payload(metadata) != metadata_payload
+                ):
+                    return None
+
+                expected_fqn = signature.fqn
+                expected_abi_hash = hashlib.sha256(
+                    json.dumps(_signature_payload(signature), sort_keys=True).encode()
+                ).hexdigest()
+                if fqn != expected_fqn or abi_hash != expected_abi_hash:
+                    return None
+                parts.append(
+                    _semantic_snapshot_hash(
+                        fqn=fqn,
+                        signature_payload=signature_payload,
+                        metadata_payload=metadata_payload,
+                        module=module,
+                        qualname=qualname,
+                        abi_hash=abi_hash,
+                    )
+                )
+            except (KeyError, TypeError, ValueError, IndexError, OverflowError):
+                return None
         return hashlib.sha256("|".join(sorted(parts)).encode()).hexdigest()
 
 
 def _signature_payload(signature) -> dict[str, Any]:
-    """Serialize a signature using its stable, JSON-safe payload."""
+    """Serialize the legacy ABI projection without changing its digest bytes."""
     return signature._stable_dict()
+
+
+def _complete_signature_payload(signature) -> dict[str, Any]:
+    """Serialize complete signature semantics separately from the legacy ABI."""
+    payload = _signature_payload(signature)
+    # The stable ABI intentionally omits the default JAX backend. The semantic
+    # cache snapshot records every dataclass field, including that default.
+    payload["backend"] = signature.backend.value
+    for field_name, slots in (
+        ("input_slots", signature.input_slots),
+        ("output_slots", signature.output_slots),
+    ):
+        slots_by_name = {slot.name: slot for slot in slots}
+        for slot_payload in payload[field_name]:
+            slot = slots_by_name[slot_payload["name"]]
+            slot_payload["shape"] = [
+                {"__dimvar__": dim.name} if _is_dim_var(dim) else dim for dim in slot.shape
+            ]
+            slot_payload["bounds"] = list(slot.bounds)
+            slot_payload["description"] = slot.description
+            slot_payload["contract_capabilities"] = sorted(
+                capability.value for capability in slot.contract_capabilities
+            )
+            slot_payload["contract_owner"] = slot.contract_owner
+    parameters_by_name = {item.name: item for item in signature.parameters}
+    for parameter_payload in payload["parameters"]:
+        parameter = parameters_by_name[parameter_payload["name"]]
+        parameter_payload["description"] = parameter.description
+    return payload
+
+
+def _semantic_snapshot_hash(
+    *,
+    fqn: str,
+    signature_payload: dict[str, Any],
+    metadata_payload: dict[str, Any],
+    module: str,
+    qualname: str,
+    abi_hash: str,
+) -> str:
+    """Bind complete persisted semantics and the declared import target."""
+    payload = {
+        "codec_version": _SEMANTIC_SNAPSHOT_VERSION,
+        "fqn": fqn,
+        "signature": signature_payload,
+        "metadata": metadata_payload,
+        "import_target": {"module": module, "qualname": qualname},
+        "abi_hash": abi_hash,
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode()).hexdigest()
 
 
 def _metadata_payload(metadata) -> dict[str, Any]:
@@ -386,11 +505,37 @@ def _metadata_payload(metadata) -> dict[str, Any]:
     return metadata._stable_dict()
 
 
+def _complete_metadata_payload(metadata) -> dict[str, Any]:
+    """Serialize all metadata fields without changing its legacy stable digest."""
+    from polisyos.foundry.methods.base import MethodContracts
+
+    payload = _metadata_payload(metadata)
+    contracts = metadata.contracts
+    if contracts is not None and not isinstance(contracts, MethodContracts):
+        raise TypeError("MethodMetadata.contracts must be MethodContracts or None")
+    payload["contracts"] = (
+        None
+        if contracts is None
+        else {
+            "preconditions": list(contracts.preconditions),
+            "postconditions": list(contracts.postconditions),
+            "invariants": list(contracts.invariants),
+        }
+    )
+    return payload
+
+
+def _is_dim_var(value: Any) -> bool:
+    from polisyos.foundry.methods.base import DimVar
+
+    return isinstance(value, DimVar)
+
+
 def _dim_from_payload(value: Any) -> int | str | None:
-    if isinstance(value, str) and value.startswith("$DimVar:"):
+    if isinstance(value, dict) and set(value) == {"__dimvar__"}:
         from polisyos.foundry.methods.base import DimVar
 
-        return DimVar(value.split(":", 1)[1])
+        return DimVar(str(value["__dimvar__"]))
     return value
 
 
@@ -421,6 +566,8 @@ def _slot_from_payload(payload: dict[str, Any]):
         ),
         contract_owner=payload.get("contract_owner"),
         shape=tuple(_dim_from_payload(item) for item in payload.get("shape", [])),
+        description=str(payload.get("description", "")),
+        bounds=tuple(_restore_stable_value(payload.get("bounds", (None, None)))),
     )
 
 
@@ -432,7 +579,8 @@ def _parameter_from_payload(payload: dict[str, Any]):
         name=str(payload["name"]),
         default=_restore_stable_value(payload.get("default")),
         is_static=bool(payload.get("is_static", False)),
-        bounds=tuple(_restore_stable_value(item) for item in bounds),
+        bounds=tuple(_restore_stable_value(bounds)),
+        description=str(payload.get("description", "")),
     )
 
 
@@ -474,9 +622,25 @@ def _signature_from_payload(payload: dict[str, Any]):
 
 def _metadata_from_payload(payload: dict[str, Any]):
     from polisyos.core.observability import DeterminismTier
-    from polisyos.foundry.methods.base import MethodMetadata, SideEffectProfile
+    from polisyos.foundry.methods.base import MethodContracts, MethodMetadata, SideEffectProfile
 
     determinism_tier = payload.get("determinism_tier")
+    contracts_payload = payload.get("contracts")
+    if "contracts" not in payload:
+        raise ValueError("cache_metadata_contracts_missing")
+    contracts = None
+    if contracts_payload is not None:
+        if not isinstance(contracts_payload, dict) or set(contracts_payload) != {
+            "preconditions",
+            "postconditions",
+            "invariants",
+        }:
+            raise ValueError("cache_metadata_contracts_invalid")
+        contracts = MethodContracts(
+            preconditions=tuple(contracts_payload["preconditions"]),
+            postconditions=tuple(contracts_payload["postconditions"]),
+            invariants=tuple(contracts_payload["invariants"]),
+        )
     return MethodMetadata(
         description=str(payload.get("description", "")),
         tags=frozenset(payload.get("tags", [])),
@@ -501,6 +665,7 @@ def _metadata_from_payload(payload: dict[str, Any]):
         side_effect_profile=SideEffectProfile(
             str(payload.get("side_effect_profile", SideEffectProfile.NONE.value))
         ),
+        contracts=contracts,
         when_to_use=str(payload.get("when_to_use", "")),
         when_not_to_use=str(payload.get("when_not_to_use", "")),
         prerequisites=tuple(payload.get("prerequisites", [])),
@@ -536,12 +701,5 @@ def _restore_stable_value(value: Any) -> Any:
     if isinstance(value, tuple):
         return tuple(_restore_stable_value(item) for item in value)
     if isinstance(value, str):
-        if value.startswith("0x"):
-            try:
-                restored = float.fromhex(value)
-            except ValueError:
-                return value
-            if math.isfinite(restored):
-                return restored
         return value
     return value

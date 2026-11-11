@@ -23,13 +23,12 @@ from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.contracts import (
+from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.forecast_profile_member import (
     FORECAST_PROFILE_MEMBER_KIND,
     FORECAST_PROFILE_MEMBER_SCHEMA,
     FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
     VALUE_DATA_PROFILE_KIND,
-    DataSnapshot,
-    DataSnapshotRef,
     ForecastProfileMemberV1,
     forecast_profile_observed_series_sha256,
 )

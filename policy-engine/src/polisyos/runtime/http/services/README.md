@@ -3,6 +3,16 @@
 `runtime.http.services` contains the application logic behind the runtime API. It owns run indexing,
 timeline/debug views, artifact inspection, lineage traversal, and control-plane orchestration.
 
+Run indexing retains a complete run-summary and run-linked artifact ownership generation;
+`max_cached_runs` bounds only the full decoded-record LRU, including during refresh.
+Refresh publication is serialized, and exact lookup, tenant filtering and pagination do
+not lose runs beyond that cache limit. Shared artifact bytes may belong to multiple
+indexed tenants: `get_artifact_tenants` returns that membership set, while the legacy
+singular getter returns a value only for one owner. Runtime artifact guards check the
+requesting tenant's membership; subsequent CAS reads still enforce tenant, cell and
+selected-view ownership. This index does not grant access to standalone CAS owners
+without a linked run or replace configured authorization.
+
 ## Purpose
 
 Use this package for route-adjacent runtime API behavior that needs shared

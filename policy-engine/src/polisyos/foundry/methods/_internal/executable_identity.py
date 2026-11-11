@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 from collections.abc import Hashable
 from types import CodeType, FunctionType, MethodType
 from typing import TYPE_CHECKING, Any
@@ -75,3 +76,25 @@ def _signature_matches(method_class: type[Any], expected: MethodSignature) -> bo
     return isinstance(actual, MethodSignature) and _signature_binding(actual) == _signature_binding(
         expected
     )
+
+
+def _is_import_target_syntactically_valid(module: str | None, qualname: str | None) -> bool:
+    """Check dotted identifier syntax; the module and attributes resolve only at load time."""
+    return bool(
+        module
+        and all(part.isidentifier() for part in module.split("."))
+        and qualname
+        and all(part.isidentifier() for part in qualname.split("."))
+    )
+
+
+def _resolve_import_target(module: str, qualname: str) -> type[Any]:
+    """Resolve a configured method class through its complete qualified name."""
+    if not _is_import_target_syntactically_valid(module, qualname):
+        raise ValueError("method_import_target_not_resolvable")
+    target: Any = importlib.import_module(module)
+    for part in qualname.split("."):
+        target = getattr(target, part)
+    if not isinstance(target, type):
+        raise TypeError("method_import_target_not_class")
+    return target

@@ -11055,7 +11055,7 @@ def _installed_canary_owner_source_context(
             resolve_runtime_api_context,
         )
         from polisyos.runtime.http.dependencies import RuntimeApiContext
-        from polisyos.runtime.http.services.control import ControlPlaneService
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
         from polisyos.runtime.http.services.debug import DebugService
         from polisyos.runtime.http.services.run_index import RunIndexService
     except ImportError:

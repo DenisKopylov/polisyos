@@ -21,10 +21,10 @@ from polisyos.runtime.http.resilience import build_runtime_opa_async_guard
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
 )
-from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.capability_discovery import (
     CapabilityDiscoveryService,
 )
+from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,

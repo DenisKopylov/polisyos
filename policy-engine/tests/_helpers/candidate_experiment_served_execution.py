@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
+import tempfile
 from collections import deque
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager, suppress
@@ -10,7 +13,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from time import perf_counter, process_time, sleep
 from traceback import TracebackException
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from uuid import uuid4
 
 if TYPE_CHECKING:
@@ -857,6 +860,34 @@ def _candidate_experiment_reopened_runtime(
             yield client, reopened_control, sqlite_path, cas_root
 
 
+def _require_distinct_new_candidate_result(
+    *,
+    terminal_outcome: str,
+    reentry_result_ref: ArtifactRef | None,
+    current_result_ref: ArtifactRef | None,
+    prior_result_refs: tuple[ArtifactRef, ...],
+) -> None:
+    """Fence retained-result removal controls to a genuinely new current blob."""
+    from polisyos.core import artifacts
+
+    if (
+        terminal_outcome != "candidate_reentry_completed"
+        or reentry_result_ref is None
+        or current_result_ref is None
+        or reentry_result_ref.manifest_profile_sha256 is None
+        or current_result_ref.manifest_profile_sha256 is None
+        or artifacts.artifact_ref_identity_key(reentry_result_ref)
+        != artifacts.artifact_ref_identity_key(current_result_ref)
+    ):
+        raise AssertionError("candidate experiment distinct current result not established")
+    if any(
+        str(prior.artifact_id) == str(current_result_ref.artifact_id) for prior in prior_result_refs
+    ):
+        # Distinct profiles can select the SAME underlying CAS blob. Protect
+        # retained bytes by artifact ID as well as the full current identity.
+        raise AssertionError("candidate experiment removal would touch a retained result")
+
+
 def _read_candidate_experiment_with_reopened_owner(
     *,
     control: ControlPlaneService,
@@ -868,6 +899,7 @@ def _read_candidate_experiment_with_reopened_owner(
     monkeypatch: pytest.MonkeyPatch,
     fresh_reader_observer: Callable[..., None] | None = None,
     reopened_settlement_store: BudgetMiddleware | None = None,
+    require_new_result: bool = False,
 ) -> CandidateExperimentCurrentActionProjection:
     """Replay terminal action state through an independent app and storage owner."""
     import sqlite3
@@ -1008,7 +1040,23 @@ def _read_candidate_experiment_with_reopened_owner(
                 if phase_ref.manifest_profile_sha256 != phase_head.receipt_manifest_profile_sha256:
                     raise AssertionError("candidate experiment selected phase ref profile mismatch")
                 phase_heads.append((phase, phase_head, phase_ref))
-            if len(phase_heads) != 5 or phase_heads[-1][1] != terminal_head:
+            refresh_count = sum(
+                phase.receipt.receipt_phase == "authorization_refreshed"
+                for phase, _, _ in phase_heads
+            )
+            expected_phases = (
+                "requested",
+                *("authorization_refreshed" for _ in range(refresh_count)),
+                "executing",
+                "outcome_selected",
+                "candidate_input_reentry_pending",
+                "terminal",
+            )
+            if (
+                tuple(phase.receipt.receipt_phase for phase, _, _ in phase_heads) != expected_phases
+                or len(phase_heads) != terminal_head.head_generation
+                or phase_heads[-1][1] != terminal_head
+            ):
                 raise AssertionError("candidate experiment full selected phase chain changed")
             expected_status, expected_disposition, expected_evaluation, expected_reason = (
                 _terminal_projection_expectations(terminal_history=reopened_history)
@@ -1027,6 +1075,34 @@ def _read_candidate_experiment_with_reopened_owner(
                 != terminal_head.receipt_manifest_profile_sha256
             ):
                 raise AssertionError("candidate experiment independent terminal GET mismatch")
+
+            if require_new_result:
+                prior_result_refs = []
+                for prior in reopened_history.origin.candidate_terminal_history_chain:
+                    for evaluation in (prior.evaluation, prior.reentry_evaluation):
+                        if evaluation is not None and evaluation.selected.n5_result_ref is not None:
+                            prior_result_refs.append(evaluation.selected.n5_result_ref)
+                    if prior.reentry is not None and prior.reentry.n5_result_ref is not None:
+                        prior_result_refs.append(prior.reentry.n5_result_ref)
+                current_result = selected_action.candidate_n5_result
+                reentry = reopened_history.reentry
+                reentry_evaluation = reopened_history.reentry_evaluation
+                if (
+                    reentry is None
+                    or reentry_evaluation is None
+                    or reentry_evaluation.selected.n5_result_ref != reentry.n5_result_ref
+                ):
+                    raise AssertionError("candidate experiment new result reentry not established")
+                _require_distinct_new_candidate_result(
+                    terminal_outcome=reopened_history.terminal.terminal_outcome,
+                    reentry_result_ref=reentry.n5_result_ref,
+                    current_result_ref=(
+                        current_result.result_body.artifact_ref
+                        if current_result is not None
+                        else None
+                    ),
+                    prior_result_refs=tuple(prior_result_refs),
+                )
 
             if fresh_reader_observer is not None:
                 fresh_reader_observer(
@@ -1051,14 +1127,24 @@ def _read_candidate_experiment_with_reopened_owner(
                 wrong_profile_head.action_generation,
                 wrong_profile_head.head_generation,
             )
+            selected_row_sql = (
+                "SELECT * FROM runtime_acquisition_action_heads "
+                "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
+                "AND source_job_id = ? AND route_id = ? "
+                "AND action_generation = ? AND head_generation = ?"
+            )
             with sqlite3.connect(sqlite_path) as connection:
+                row_preimage = connection.execute(selected_row_sql, head_scope).fetchone()
+                if row_preimage is None:
+                    raise AssertionError("candidate experiment selected ancestor disappeared")
                 updated = connection.execute(
                     "UPDATE runtime_acquisition_action_heads "
                     "SET receipt_manifest_profile_sha256 = ? "
                     "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
                     "AND source_job_id = ? AND route_id = ? "
-                    "AND action_generation = ? AND head_generation = ?",
-                    (wrong_profile, *head_scope),
+                    "AND action_generation = ? AND head_generation = ? "
+                    "AND receipt_manifest_profile_sha256 = ?",
+                    (wrong_profile, *head_scope, selected_profile),
                 ).rowcount
             if updated != 1:
                 raise AssertionError(
@@ -1073,10 +1159,12 @@ def _read_candidate_experiment_with_reopened_owner(
                         "SET receipt_manifest_profile_sha256 = ? "
                         "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
                         "AND source_job_id = ? AND route_id = ? "
-                        "AND action_generation = ? AND head_generation = ?",
-                        (selected_profile, *head_scope),
+                        "AND action_generation = ? AND head_generation = ? "
+                        "AND receipt_manifest_profile_sha256 = ?",
+                        (selected_profile, *head_scope, wrong_profile),
                     ).rowcount
-                if restored != 1:
+                    restored_row = connection.execute(selected_row_sql, head_scope).fetchone()
+                if restored != 1 or restored_row != row_preimage:
                     raise AssertionError(
                         "candidate experiment wrong-profile control did not restore selected ancestor"
                     )
@@ -1147,6 +1235,8 @@ def _read_candidate_experiment_with_reopened_owner(
                 artifacts.ArtifactID.model_validate(result_ref.artifact_id)
             )
             result_payload = result_blob_path.read_bytes()
+            result_mode = result_blob_path.stat().st_mode
+            result_digest = hashlib.sha256(result_payload).hexdigest()
             result_blob_path.unlink()
             try:
                 missing_result_response = reader.get(path, headers=read_headers())
@@ -1171,7 +1261,19 @@ def _read_candidate_experiment_with_reopened_owner(
                         "candidate experiment missing-result 503 was misclassified"
                     )
             finally:
-                result_blob_path.write_bytes(result_payload)
+                descriptor, restore_name = tempfile.mkstemp(
+                    prefix=f"{result_blob_path.name}.restore-", dir=result_blob_path.parent
+                )
+                with os.fdopen(descriptor, "wb") as restore_stream:
+                    restore_stream.write(result_payload)
+                    restore_stream.flush()
+                    os.fsync(restore_stream.fileno())
+                os.chmod(restore_name, result_mode)
+                os.replace(restore_name, result_blob_path)
+                if hashlib.sha256(result_blob_path.read_bytes()).hexdigest() != result_digest:
+                    raise AssertionError(
+                        "candidate experiment removal control did not restore bytes"
+                    )
 
             restored_action = read_current_action()
             if (
@@ -1220,13 +1322,17 @@ def run_candidate_experiment_served_execution(
     wdi_response_bytes: bytes | None = None,
     fresh_reader_observer: Callable[..., None] | None = None,
     current_action_profile_path: Path | None = None,
+    expected_admission_phase: Literal["requested", "authorization_refreshed"] = "requested",
+    require_new_result: bool = False,
 ) -> CandidateExperimentServedExecutionResult:
     """Execute a replayed candidate action through HTTP, the real worker and fresh GET.
 
     ``before_first_delivery`` runs after the execute POST and its requested head
     have been read back, immediately before the worker claims the queued job.
     Recovery mode is reserved for a test-owned one-shot ``KeyboardInterrupt``
-    at a durable writer boundary. By default, the second delivery reclaims the
+    at a durable writer boundary. ``expected_admission_phase`` explicitly opts
+    into a verified pre-effect authorization refresh; ordinary callers continue
+    to require the original requested phase. By default, the second delivery reclaims the
     same job through the original service after the first worker lease expires.
     An explicit ``fresh_runtime_recovery`` callback can instead reopen the
     runtime, perform the lease-expired retry there, and return the reclaimed
@@ -1242,11 +1348,14 @@ def run_candidate_experiment_served_execution(
     from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
     from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
         AcquisitionCandidateExperimentTerminalReceipt,
     )
     from tests._helpers import acquisition_served_history as served
     from tests._helpers.control_worker import dispatch_one_control_job
 
+    if expected_admission_phase not in {"requested", "authorization_refreshed"}:
+        raise ValueError("candidate_experiment_expected_admission_phase_invalid")
     control = values["control"]
     client, trust = values["client"], values["trust"]
     action_service = values["action_service"]
@@ -1358,11 +1467,22 @@ def run_candidate_experiment_served_execution(
                 origin=origin,
                 outcome=request_outcome,
             )
+        admission_receipt = request_outcome.latest_receipt
         if (
-            request_head.receipt_phase != "requested"
+            type(admission_receipt) is not AcquisitionCandidateExperimentPhaseReceipt
+            or request_head.receipt_phase != expected_admission_phase
+            or admission_receipt.receipt_phase != expected_admission_phase
+            or admission_receipt.job_id != job_id
+            or admission_receipt.action_generation != request_head.action_generation
+            or str(admission_receipt.authority_decision_ref.artifact_id) != decision_ref
+            or admission_receipt.coarse_phase != "requested"
+            or admission_receipt.recovery_state != "none"
             or not request_head.receipt_manifest_profile_sha256
+            or not request_outcome.phase_chain
+            or request_outcome.phase_chain[-1].receipt_ref != request_head.receipt_ref
+            or request_outcome.phase_chain[-1].receipt != admission_receipt
         ):
-            raise AssertionError("candidate experiment requested receipt profile missing")
+            raise AssertionError("candidate experiment admitted receipt profile/identity mismatch")
 
         before_delivery_response = client.get(get_path, headers=read_headers())
         if before_delivery_response.status_code != 200:
@@ -1383,7 +1503,8 @@ def run_candidate_experiment_served_execution(
         if (
             request_action.status != "in_progress"
             or request_action.job_id != job_id
-            or request_action.receipt_phase != "requested"
+            or request_action.receipt_phase != expected_admission_phase
+            or request_action.action_generation != request_head.action_generation
             or request_action.selected_receipt_ref != expected_request_ref
             or request_action.selected_receipt_ref.manifest_profile_sha256
             != request_head.receipt_manifest_profile_sha256
@@ -1827,6 +1948,7 @@ def run_candidate_experiment_served_execution(
             terminal_history=terminal_history,
             monkeypatch=monkeypatch,
             fresh_reader_observer=fresh_reader_observer,
+            require_new_result=require_new_result,
         )
         units_after = _standard_invocation_units(control=control, run_id=origin.run_id)
         if recover_worker_crash and units_after != interrupted_units:

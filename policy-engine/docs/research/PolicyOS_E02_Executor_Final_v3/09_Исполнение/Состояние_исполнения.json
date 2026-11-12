@@ -9740,7 +9740,7 @@
               "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
             }
           },
-          "next": "Measure actual served operation on composed decode-once/exact-comparison source before another full continuation replay; implement affected raw Layer3 v5 consumer. Full 7/1 and GDP reentry remain unqualified. Gate A then P06–P08/Gate B; no next lane/G closure.",
+          "next": "Finish expected-QA freshness and independently review/compose; diagnose actual persisted B public reader without repeated N5 before another full 7/1 route. Genuine signed replay/cache follows composed source freeze. Gate A then P06–P08/Gate B; no next lane/G closure.",
           "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
           "foundation_composed": {
             "PASS": 48,
@@ -9937,8 +9937,7 @@
               "final_material_delta_PASS": 13,
               "final_output": "secondary:policy-engine/_cache/e02/n5-reuse-current-race-r2/",
               "final_wall_seconds": 47.503,
-              "final_peak_sampled_rss_bytes": 1720000000,
-              "peak_note": "Rounded author summary; exact value remains in result.json.",
+              "final_peak_sampled_rss_bytes": 1719844864,
               "fixed_class": "Actual owner-selected existing execution shares one fresh intended-launcher identity gate after concurrency selection and a cheap selected-ledger fence. Historical self-comparison and early-classification bypass removed.",
               "no_kernel_probe_output": "secondary:policy-engine/_cache/e02/n5-native-profile-probe-r1/",
               "probe_boundary": "Real assigned context observed before helper extraction; not final image equality or N5.",
@@ -10116,13 +10115,33 @@
             "scope": "Existing ContextVar joins public service/sink operations; worker fresh; no authority/head/permission memo. Real CAS with explicit upstream double. Genuine env hook measures GET only, not all decision/history counters."
           },
           "raw_v5_quality_consumer": {
-            "status": "FOCUSED_REVIEW_GO_FULL_CLI_FIXTURES_IN_PROGRESS",
+            "status": "FULL_LIVE_AUDIT_PASS_INDEPENDENT_GO_FRESHNESS_PENDING",
             "final_consumer_PASS": 1,
             "output": "policy-engine/_cache/e02/n5-v5-wire-keys-r4/",
             "boundary": "Actual v5 producer/CAS/expected-request/typed checker; rehashed extra keys/draw/interaction/numeric classification and unsupported lookup controls. v4 preserved.",
             "full_CLI_R1": "ERROR_NO_JOINT_STATIC_CALLER_REQUESTED_MULTIPERIOD",
-            "full_CLI_output": "policy-engine/_cache/e02/n5-v5-quality-live-r1/",
-            "caller_followup": "Single-point static request, explicit dynamic consumers; batch preflight preserves actual assignment conflict and runtime refusal gates. Full CLI/generated freshness not yet PASS."
+            "full_CLI_output": "policy-engine/_cache/e02/n5-v5-quality-live-r4/rederive-audit-final/",
+            "caller_followup": "Static/dynamic horizons, compatible shared-node overrides, exact schema, explicit aggregation and actual persisted ABM diagnostic; no authority upgrade. Expected-QA versioned reference freshness pending independent review/integration.",
+            "full_CLI_PASS": true,
+            "full_CLI_wall_seconds": 70.668,
+            "full_CLI_peak_sampled_rss_bytes": 1389740032,
+            "independent_final_review": "GO",
+            "abm_control_PASS": 1,
+            "abm_output": "policy-engine/_cache/e02/n5-v5-quality-live-r4/abm-probe/"
+          },
+          "composed_chain_R5": {
+            "status": "RESOURCE_ABORT",
+            "source": "1c4f5a139bdc74ffbc914dcdb65c6194b642e8c0",
+            "tree": "b53345a607466bfefbb63e94d7bcb5b62374948d",
+            "wall_seconds": 1800.145,
+            "peak_sampled_rss_bytes": 2074034176,
+            "unchanged_named_pins": 3037,
+            "group_quiescent": true,
+            "new_B_N5_result": "PERSISTED_NOT_TERMINAL_QUALIFIED",
+            "A": "sha256:34e834c76b644a404505ed6c8c1b50d23760929ca7b987fa66d591c6ce571445",
+            "B": "sha256:63f2936a676f9be7f79015cd97396a6003190002c9407482a07ea7623d4f6e42",
+            "output": "policy-engine/_cache/e02/lane01-v3-generations-7of1-r5/",
+            "boundary": "Generation1/head4 pending; full continuation and B-reuse/C unqualified. Read-only selected-B diagnosis next, zero repeated N5."
           }
         }
       },

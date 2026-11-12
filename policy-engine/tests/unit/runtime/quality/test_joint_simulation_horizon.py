@@ -1370,22 +1370,226 @@ def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map(
     if wire == "v4":
         assert {issue["code"] for issue in issues} == {"replication_sample_metric_mapping_invalid"}
     else:
-        # This separate legacy quality gate does not yet support v5. The typed
-        # v5 reader must nevertheless reject malformed draw values itself.
-        assert {issue["code"] for issue in issues} == {"replication_schema_version_not_v4"}
-        payload = copy.deepcopy(result.content_bound_payload())
-        payload["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0][
-            "outcomes"
-        ] = None
-        receipt = build_content_bound_simulation_receipt(
-            engine_kind=result.receipt.engine_kind,
-            payload=payload,
-            diagnostics=payload["diagnostics"],
+        assert {issue["code"] for issue in issues} == {"replication_typed_result_invalid"}
+        assert "outcomes" in issues[0]["detail"]
+
+
+def test_layer3_v5_quality_consumer_reconciles_persisted_result_and_rejects_rehashed_corruption(
+    tmp_path: Path,
+) -> None:
+    """The N5 gate consumes v5's typed wire, not only its projected status fields."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from tests.unit.remediation.test_sim_03 import (
+        _native_expression_request,
+        _with_native_conditional_comparator,
+    )
+    from tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract import (
+        _interaction_sampling_issues,
+        _replication_sampling_issues,
+        _replication_sampling_projection,
+        _validate_gate,
+    )
+
+    request = _with_native_conditional_comparator(
+        _native_expression_request(
+            "u + 2 * income_delta + 3 * balance_delta + 4 * income_delta * balance_delta",
+            replications=2,
         )
-        with pytest.raises(ValueError, match="outcomes"):
-            JointSimulationResult.model_validate(
-                {**payload, "receipt": receipt.model_dump(mode="json")}
+    )
+    produced = JointSimulationHorizonController().run(request)
+    assert produced.schema_version == "policyos.runtime.joint_simulation_horizon.v5"
+    assert produced.diagnostics["interaction_numerical_tolerance"]["status"] == "qualified"
+
+    store = FileSystemCAS(tmp_path / "n5-v5-quality-consumer-cas")
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-quality-consumer", cell_id="cell-n5"):
+            result_ref = persist_joint_simulation_result(produced, store=store)
+            result = load_joint_simulation_result(
+                result_ref,
+                store=store,
+                expected_request=request,
             )
+        projection = _replication_sampling_projection(result)
+        assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v5"
+        assert projection["receipt"] == result.receipt.model_dump(mode="json")
+        assert (
+            _validate_gate(
+                projection,
+                expected_engine="ncm_parallel_worlds",
+                expected_temporal="static",
+                expected_output_shape="static_point",
+                expected_semantics="static_SCM",
+                require_evolving_state=False,
+            )
+            == []
+        )
+        assert _replication_sampling_issues(projection, expected_count=2) == []
+        assert _interaction_sampling_issues(projection) == []
+
+        unknown_numeric_claim = copy.deepcopy(result.content_bound_payload())
+        unknown_numeric_claim["unexpected_numeric_claim"] = {
+            "status": "qualified",
+            "value": 1,
+        }
+        unknown_numeric_claim_receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=unknown_numeric_claim,
+            diagnostics=unknown_numeric_claim["diagnostics"],
+        )
+        verify_simulation_receipt(unknown_numeric_claim_receipt, unknown_numeric_claim)
+        unknown_numeric_claim["receipt"] = unknown_numeric_claim_receipt.model_dump(mode="json")
+        unknown_numeric_claim_gate = {**projection, **unknown_numeric_claim}
+        unknown_numeric_claim_gate["receipt_payload_hash"] = (
+            unknown_numeric_claim_receipt.payload_hash
+        )
+        unknown_numeric_claim_issues = _replication_sampling_issues(
+            unknown_numeric_claim_gate,
+            expected_count=2,
+        )
+        assert unknown_numeric_claim_issues == [
+            {
+                "code": "replication_projection_keyset_mismatch",
+                "missing_fields": [],
+                "unexpected_fields": ["unexpected_numeric_claim"],
+            }
+        ]
+
+        unsupported_result = JointSimulationHorizonController().run(
+            _request().model_copy(update={"coupling_graph": _coupling_graph("shared_resource")})
+        )
+        assert unsupported_result.schema_version == ("policyos.runtime.joint_simulation_horizon.v5")
+        assert unsupported_result.engine_decisions[0].decision == "unsupported"
+        assert unsupported_result.trajectories == ()
+        unsupported_wire = unsupported_result.model_dump(mode="json")
+        unsupported_wire["joint_atom_ids"] = list(unsupported_result.atom_ids)
+        assert _replication_sampling_issues(unsupported_wire, expected_count=None) == [
+            {"code": "replication_joint_trajectory_unavailable"}
+        ]
+        assert _interaction_sampling_issues(unsupported_wire) == [
+            {"code": "interaction_joint_trajectory_unavailable"}
+        ]
+
+        empty_joint_points = copy.deepcopy(result.content_bound_payload())
+        joint_wire = next(
+            trajectory
+            for trajectory in empty_joint_points["trajectories"]
+            if trajectory["run_level"] == "joint"
+        )
+        joint_wire["points"] = []
+        empty_joint_receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=empty_joint_points,
+            diagnostics=empty_joint_points["diagnostics"],
+        )
+        verify_simulation_receipt(empty_joint_receipt, empty_joint_points)
+        empty_joint_points["receipt"] = empty_joint_receipt.model_dump(mode="json")
+        try:
+            JointSimulationResult.model_validate(empty_joint_points)
+        except (ProofReceiptError, TypeError, ValueError) as exc:
+            empty_joint_schema_valid = False
+            empty_joint_schema_error = str(exc)
+        else:
+            empty_joint_schema_valid = True
+            empty_joint_schema_error = ""
+        empty_joint_gate = {**projection, **empty_joint_points}
+        empty_joint_gate["receipt_payload_hash"] = empty_joint_receipt.payload_hash
+        empty_joint_issues = _replication_sampling_issues(
+            empty_joint_gate,
+            expected_count=2,
+        )
+        if empty_joint_schema_valid:
+            assert empty_joint_issues == [{"code": "replication_joint_trajectory_unavailable"}]
+        else:
+            assert len(empty_joint_issues) == 1
+            assert empty_joint_issues[0]["code"] == "replication_typed_result_invalid"
+            assert "interaction_sampling_issue_recomputation_mismatch" in (empty_joint_schema_error)
+            assert "interaction_sampling_issue_recomputation_mismatch" in empty_joint_issues[0].get(
+                "detail", ""
+            )
+            assert "payload_hash" not in empty_joint_issues[0].get("detail", "")
+
+        projection_only_mutation = copy.deepcopy(projection)
+        projection_only_mutation["joint_terminal_outcomes"]["firm_survival"] += 1.0
+        projection_issues = _validate_gate(
+            projection_only_mutation,
+            expected_engine="ncm_parallel_worlds",
+            expected_temporal="static",
+            expected_output_shape="static_point",
+            expected_semantics="static_SCM",
+            require_evolving_state=False,
+        )
+        assert any(
+            issue["code"] == "sampling_projection_mismatch"
+            and issue.get("field") == "joint_terminal_outcomes"
+            for issue in projection_issues
+        )
+
+        corrupt_draw = copy.deepcopy(result.content_bound_payload())
+        draw = corrupt_draw["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]
+        draw["engine_state"]["corrupt_draw_binding"] = True
+        draw_receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=corrupt_draw,
+            diagnostics=corrupt_draw["diagnostics"],
+        )
+        corrupt_draw["receipt"] = draw_receipt.model_dump(mode="json")
+        corrupt_draw_gate = {**projection, **corrupt_draw}
+        corrupt_draw_gate["receipt_payload_hash"] = draw_receipt.payload_hash
+        draw_issues = _replication_sampling_issues(corrupt_draw_gate, expected_count=2)
+        assert any(
+            issue["code"] == "replication_typed_result_invalid"
+            and "replication_engine_state_binding_mismatch" in issue.get("detail", "")
+            and "payload_hash" not in issue.get("detail", "")
+            for issue in draw_issues
+        ), draw_issues
+
+        corrupt_interaction = copy.deepcopy(result.content_bound_payload())
+        term = corrupt_interaction["interaction_terms"][0]
+        step = next(iter(term["by_step"]))
+        term["by_step"][step] += 1.0
+        interaction_receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=corrupt_interaction,
+            diagnostics=corrupt_interaction["diagnostics"],
+        )
+        corrupt_interaction["receipt"] = interaction_receipt.model_dump(mode="json")
+        corrupt_interaction_gate = {**projection, **corrupt_interaction}
+        corrupt_interaction_gate["receipt_payload_hash"] = interaction_receipt.payload_hash
+        interaction_issues = _interaction_sampling_issues(corrupt_interaction_gate)
+        assert any(
+            issue["code"] == "interaction_typed_result_invalid"
+            and "JointSimulationResult" in issue.get("detail", "")
+            and "payload_hash" not in issue.get("detail", "")
+            for issue in interaction_issues
+        ), interaction_issues
+
+        assert result.feedback_classification.numeric_interaction == "non_additive"
+        corrupt_tolerance = copy.deepcopy(result.content_bound_payload())
+        corrupt_tolerance["feedback_classification"]["numeric_interaction"] = "additive"
+        tolerance_receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=corrupt_tolerance,
+            diagnostics=corrupt_tolerance["diagnostics"],
+        )
+        corrupt_tolerance["receipt"] = tolerance_receipt.model_dump(mode="json")
+        corrupt_tolerance_gate = {**projection, **corrupt_tolerance}
+        corrupt_tolerance_gate["receipt_payload_hash"] = tolerance_receipt.payload_hash
+        tolerance_issues = _interaction_sampling_issues(corrupt_tolerance_gate)
+        assert any(
+            issue["code"] == "interaction_typed_result_invalid"
+            and "numeric_interaction_classification_recomputation_mismatch"
+            in issue.get("detail", "")
+            for issue in tolerance_issues
+        )
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
 
 
 def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
@@ -3468,9 +3672,21 @@ def test_n5_abm_strangle_probe_censuses_every_production_stub_caller() -> None:
     probe = _abm_stub_strangle_probe()
 
     assert probe["production_stub_callers"] == []
+    assert probe["content_bound_without_diagnostic_limited"] is True
+    assert probe["persisted_diagnostic_content_bound"] is True
+    assert probe["diagnostic_authority_not_established"] is True
+    assert _validate_abm_stub_strangle(probe) == []
     mutated = {**probe, "production_stub_callers": ["simulation/coupled.py:140"]}
     assert "abm_production_stub_caller_present" in {
         issue["code"] for issue in _validate_abm_stub_strangle(mutated)
+    }
+    unattached = {**probe, "persisted_diagnostic_content_bound": False}
+    assert "abm_persisted_diagnostic_binding_missing" in {
+        issue["code"] for issue in _validate_abm_stub_strangle(unattached)
+    }
+    promoted = {**probe, "diagnostic_authority_not_established": False}
+    assert "abm_diagnostic_authority_limit_missing" in {
+        issue["code"] for issue in _validate_abm_stub_strangle(promoted)
     }
 
 

@@ -34,17 +34,28 @@ from typing import Any
 
 import jax.numpy as jnp
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import (
     ExecPlan,
+    ExecPlanRef,
     LoweredIR,
     LoweredIRRef,
+    MetricsRef,
     ProgramGraph,
     ProgramGraphRef,
     ProgramNode,
     ProgramOp,
+    SimulationResult,
+    SimulationResultRef,
+)
+from polisyos.foundry.calibration import (
+    IdentifiabilityDiagnosticConfig,
+    attach_abm_identifiability_certificate_ref,
+    identifiability_diagnostic,
+    load_identifiability_diagnostic_result,
 )
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
@@ -59,6 +70,7 @@ from polisyos.ir.analytics.interventions import (
     identification_plan_for_intervention,
 )
 from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
+from polisyos.ir.analytics.phase4_dynamics import load_abm_result
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -87,11 +99,13 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_target_selector_ref,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
     EnginePlan,
     HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationRequest,
+    JointSimulationResult,
     ProofReceiptError,
     ReplicationSamplingSummary,
     SimulationTrajectory,
@@ -101,6 +115,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _interaction_sampling_status,
     _interaction_terms_from_fields,
     _numeric_interaction_classification,
+    build_content_bound_simulation_receipt,
     verify_simulation_receipt,
 )
 from polisyos.runtime.quality.world_model_record import (
@@ -135,6 +150,91 @@ def _replication_sampling_projection(result: Any) -> dict[str, Any]:
     return _result_gate(result, tuple(result.atom_ids))
 
 
+def _typed_v5_result_issues(
+    projection: Mapping[str, Any],
+    *,
+    issue_prefix: str,
+    expected_count: int | None = None,
+) -> list[dict[str, Any]]:
+    """Validate the complete v5 result wire and its quality-gate projection."""
+
+    if (
+        projection.get("schema_version")
+        != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+    ):
+        return [{"code": f"{issue_prefix}_schema_version_not_v5"}]
+    raw_result = {
+        field_name: projection[field_name]
+        for field_name in JointSimulationResult.model_fields
+        if field_name in projection
+    }
+    try:
+        result = JointSimulationResult.model_validate(raw_result)
+        if result.schema_version != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+            return [{"code": f"{issue_prefix}_typed_result_schema_version_invalid"}]
+        expected_wire = result.model_dump(mode="json")
+        if to_canonical_bytes(raw_result, _REPLICATION_ENGINE_STATE_CANON_SPEC) != (
+            to_canonical_bytes(expected_wire, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+        ):
+            return [{"code": f"{issue_prefix}_typed_result_wire_mismatch"}]
+    except (ProofReceiptError, TypeError, ValueError) as exc:
+        return [{"code": f"{issue_prefix}_typed_result_invalid", "detail": str(exc)}]
+
+    joint_atom_ids = projection.get("joint_atom_ids")
+    if not isinstance(joint_atom_ids, list) or tuple(joint_atom_ids) != result.atom_ids:
+        return [{"code": f"{issue_prefix}_joint_atom_projection_mismatch"}]
+    if expected_count is not None and result.diagnostics.get("requested_replications") != (
+        expected_count
+    ):
+        return [{"code": f"{issue_prefix}_request_count_mismatch"}]
+
+    try:
+        expected_projection = _result_gate(result, tuple(joint_atom_ids))
+    except LookupError:
+        return [{"code": f"{issue_prefix}_joint_trajectory_unavailable"}]
+    if set(projection) != set(expected_projection):
+        return [
+            {
+                "code": f"{issue_prefix}_projection_keyset_mismatch",
+                "missing_fields": sorted(
+                    str(field) for field in set(expected_projection) - set(projection)
+                ),
+                "unexpected_fields": sorted(
+                    str(field) for field in set(projection) - set(expected_projection)
+                ),
+            }
+        ]
+
+    try:
+        payload_without_receipt = dict(raw_result)
+        payload_without_receipt.pop("receipt", None)
+        verify_simulation_receipt(result.receipt, payload_without_receipt)
+    except (ProofReceiptError, TypeError, ValueError) as exc:
+        return [{"code": f"{issue_prefix}_typed_result_invalid", "detail": str(exc)}]
+
+    for field_name, expected_value in expected_projection.items():
+        try:
+            matches = field_name in projection and to_canonical_bytes(
+                projection[field_name], _REPLICATION_ENGINE_STATE_CANON_SPEC
+            ) == to_canonical_bytes(expected_value, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+        except (TypeError, ValueError) as exc:
+            return [
+                {
+                    "code": f"{issue_prefix}_projection_invalid",
+                    "field": field_name,
+                    "detail": str(exc),
+                }
+            ]
+        if not matches:
+            return [
+                {
+                    "code": f"{issue_prefix}_projection_mismatch",
+                    "field": field_name,
+                }
+            ]
+    return []
+
+
 _REPLICATION_ENGINE_STATE_CANON_SPEC = CanonSpec(
     forbid_floats=False,
     forbid_nan_inf=True,
@@ -149,11 +249,60 @@ def _replication_engine_state_bytes(value: Any) -> bytes:
     return to_canonical_bytes(value, _REPLICATION_ENGINE_STATE_CANON_SPEC)
 
 
+def _refresh_v5_mutation_receipt(gate: dict[str, Any]) -> None:
+    """Rebind a controlled v5 wire mutation before testing its semantic refusal."""
+
+    if gate.get("schema_version") != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+        return
+    raw_result = {
+        field_name: gate[field_name]
+        for field_name in JointSimulationResult.model_fields
+        if field_name in gate
+    }
+    previous_receipt = raw_result.get("receipt")
+    if not isinstance(previous_receipt, Mapping):
+        return
+    payload = dict(raw_result)
+    payload.pop("receipt", None)
+    diagnostics = payload.get("diagnostics")
+    if not isinstance(diagnostics, Mapping):
+        return
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=str(previous_receipt.get("engine_kind")),
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+    gate["receipt"] = receipt.model_dump(mode="json")
+    gate["receipt_payload_hash"] = receipt.payload_hash
+
+
+def _has_v5_typed_refusal(
+    issues: list[dict[str, Any]], *, issue_prefix: str, detail_fragment: str
+) -> bool:
+    """Match the exact typed-owner refusal without accepting a stale-receipt error."""
+
+    return any(
+        issue.get("code") == f"{issue_prefix}_typed_result_invalid"
+        and detail_fragment in str(issue.get("detail", ""))
+        and "payload_hash" not in str(issue.get("detail", ""))
+        for issue in issues
+    )
+
+
 def _replication_sampling_issues(
     projection: Mapping[str, Any], *, expected_count: int | None
 ) -> list[dict[str, Any]]:
     """Recompute means and standard errors from the complete persisted draw values."""
 
+    if (
+        projection.get("schema_version")
+        == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+    ):
+        return _typed_v5_result_issues(
+            projection,
+            issue_prefix="replication",
+            expected_count=expected_count,
+        )
     issues: list[dict[str, Any]] = []
     if projection.get("schema_version") != "policyos.runtime.joint_simulation_horizon.v4":
         return [{"code": "replication_schema_version_not_v4"}]
@@ -373,6 +522,8 @@ def _replication_sampling_issues(
 def _interaction_sampling_issues(gate: Mapping[str, Any]) -> list[dict[str, Any]]:
     """Recompute every pair and aggregate residual sample from common-seed trajectories."""
 
+    if gate.get("schema_version") == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+        return _typed_v5_result_issues(gate, issue_prefix="interaction")
     issues: list[dict[str, Any]] = []
     if gate.get("schema_version") != "policyos.runtime.joint_simulation_horizon.v4":
         return [{"code": "interaction_sampling_schema_version_not_v4"}]
@@ -513,8 +664,19 @@ def _validate_replication_uncertainty_gate(gate: Mapping[str, Any]) -> list[dict
         if not isinstance(projection, Mapping):
             issues.append({"code": f"replication_{label}_missing"})
             continue
-        issues.extend(_replication_sampling_issues(projection, expected_count=expected_count))
-        issues.extend(_interaction_sampling_issues(projection))
+        if projection.get("schema_version") == (
+            JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+        ):
+            issues.extend(
+                _typed_v5_result_issues(
+                    projection,
+                    issue_prefix=f"replication_{label}",
+                    expected_count=expected_count,
+                )
+            )
+        else:
+            issues.extend(_replication_sampling_issues(projection, expected_count=expected_count))
+            issues.extend(_interaction_sampling_issues(projection))
     return issues
 
 
@@ -1109,6 +1271,7 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
     interaction_gate = interaction_sample_removed["positive_gate"]["dynamic_horizon"]
     first_interaction = interaction_gate["interaction_terms"][0]
     first_interaction["replication_sampling_by_step"] = {}
+    _refresh_v5_mutation_receipt(interaction_gate)
     interaction_sampling_removed_issues = _validate_payload_core(interaction_sample_removed)
     reports.append(
         {
@@ -1117,6 +1280,11 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             if any(
                 issue.get("code") == "interaction_sampling_terms_source_mismatch"
                 for issue in interaction_sampling_removed_issues
+            )
+            or _has_v5_typed_refusal(
+                interaction_sampling_removed_issues,
+                issue_prefix="sampling",
+                detail_fragment="interaction_sampling_source_recomputation_mismatch",
             )
             else "green",
         }
@@ -1167,6 +1335,8 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             point_state = point.get("engine_state")
             if isinstance(point_state, dict):
                 point_state.pop("replication_engine_states", None)
+    dynamic_gate = sampling_state_removed["positive_gate"]["dynamic_horizon"]
+    _refresh_v5_mutation_receipt(dynamic_gate)
     sampling_state_removed_issues = _validate_payload_core(sampling_state_removed)
     reports.append(
         {
@@ -1175,6 +1345,11 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             if any(
                 issue.get("code") == "replication_engine_state_denominator_invalid"
                 for issue in sampling_state_removed_issues
+            )
+            or _has_v5_typed_refusal(
+                sampling_state_removed_issues,
+                issue_prefix="sampling",
+                detail_fragment="replication_engine_state_denominator_mismatch",
             )
             else "green",
         }
@@ -1193,6 +1368,8 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             summary["seeds"][0] = True
             summary["samples"][0]["seed"] = True
             point["engine_state"]["replication_seeds"][0] = True
+    _refresh_v5_mutation_receipt(one_draw)
+    _refresh_v5_mutation_receipt(two_draw)
     sampling_boolean_issues = _validate_payload_core(sampling_boolean_tampered)
     reports.append(
         {
@@ -1206,6 +1383,21 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
                     "replication_engine_state_denominator_invalid",
                 }
                 for issue in sampling_boolean_issues
+            )
+            or _has_v5_typed_refusal(
+                sampling_boolean_issues,
+                issue_prefix="replication_one_draw",
+                detail_fragment="replication_count_invalid",
+            )
+            or _has_v5_typed_refusal(
+                sampling_boolean_issues,
+                issue_prefix="replication_two_draw",
+                detail_fragment="replication_seed_not_integer",
+            )
+            or _has_v5_typed_refusal(
+                sampling_boolean_issues,
+                issue_prefix="replication_two_draw",
+                detail_fragment="replication_sample_seed_invalid",
             )
             else "green",
         }
@@ -1222,6 +1414,7 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
                 for sample in summary.get("samples", []):
                     if isinstance(sample, dict):
                         sample.pop("engine_state", None)
+    _refresh_v5_mutation_receipt(sampling_sample_state_removed["positive_gate"]["dynamic_horizon"])
     sampling_sample_state_removed_issues = _validate_payload_core(sampling_sample_state_removed)
     reports.append(
         {
@@ -1230,6 +1423,11 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             if any(
                 issue.get("code") == "replication_samples_invalid"
                 for issue in sampling_sample_state_removed_issues
+            )
+            or _has_v5_typed_refusal(
+                sampling_sample_state_removed_issues,
+                issue_prefix="sampling",
+                detail_fragment="engine_state",
             )
             else "green",
         }
@@ -1240,6 +1438,7 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
     for trajectory in dynamic_trajectories:
         for point in trajectory.get("points", []):
             point.pop("replication_sampling", None)
+    _refresh_v5_mutation_receipt(sampling_removed["positive_gate"]["dynamic_horizon"])
     sampling_removed_issues = _validate_payload_core(sampling_removed)
     reports.append(
         {
@@ -1248,6 +1447,11 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             if any(
                 issue.get("code") == "replication_sampling_summary_missing"
                 for issue in sampling_removed_issues
+            )
+            or _has_v5_typed_refusal(
+                sampling_removed_issues,
+                issue_prefix="sampling",
+                detail_fragment="replication_sampling_summary_missing",
             )
             else "green",
         }
@@ -1299,7 +1503,7 @@ def _equilibrium_resolution_gate(result: Any) -> dict[str, Any]:
 
 
 def _abm_stub_strangle_probe(repo_root: Path | None = None) -> dict[str, Any]:
-    """Exercise the real fence and census every production simulation caller."""
+    """Exercise stub fencing and the persisted candidate-diagnostic attachment path."""
 
     root = (repo_root or Path(__file__).resolve().parents[3]).resolve()
     payload = {
@@ -1323,12 +1527,139 @@ def _abm_stub_strangle_probe(repo_root: Path | None = None) -> dict[str, Any]:
         payload=payload,
         diagnostics=diagnostics,
     )
+    standalone_certificate = content_bound.identifiability_certificate
+    standalone_limited = (
+        standalone_certificate is not None
+        and standalone_certificate.status == "not_available"
+        and standalone_certificate.diagnostic_ref is None
+        and "not resolved from CAS" in (standalone_certificate.summary or "")
+    )
+
+    diagnostic_content_bound = False
+    diagnostic_authority_not_established = False
+    with tempfile.TemporaryDirectory(prefix="gy-n5-abm-identifiability-") as temp_dir:
+        cas_root = Path(temp_dir) / "cas"
+        store = FileSystemCAS(cas_root)
+        exec_plan_ref = store.put_json(
+            {
+                "program_ref": {
+                    "artifact_id": _ref("a"),
+                    "kind": "foundry.program_graph",
+                    "media_type": "application/json",
+                },
+                "order": [],
+            },
+            PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+        )
+        metrics_ref = store.put_json(
+            {"values": {"welfare": 1}},
+            PutOptions(kind="foundry.metrics", media_type="application/json"),
+        )
+        simulation = SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        )
+        simulation_ref_payload = store.put_json(
+            simulation,
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                    version=simulation.schema_version,
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        simulation_ref = SimulationResultRef.model_validate(
+            simulation_ref_payload.model_dump(mode="python")
+        )
+        diagnostic = identifiability_diagnostic(
+            store,
+            simulation_result_ref=simulation_ref,
+            observed_moment_bundle={"mean_y": 1.0, "q50_y": 2.0},
+            parameter_center={"alpha": 1.0},
+            summary_evaluator=lambda theta, _seed: {
+                "mean_y": float(theta["alpha"]),
+                "q50_y": float(2.0 * theta["alpha"]),
+            },
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=3,
+            ),
+        )
+        diagnostic_ref = diagnostic.diagnostic_ref
+        if diagnostic_ref is not None:
+            abm_ref = attach_abm_identifiability_certificate_ref(
+                store,
+                simulation_result_ref=simulation_ref,
+                diagnostic_ref=diagnostic_ref,
+            )
+            fresh_store = FileSystemCAS(cas_root)
+            loaded_diagnostic = load_identifiability_diagnostic_result(
+                fresh_store,
+                diagnostic_ref,
+            )
+            loaded_abm_result = load_abm_result(
+                ensure_ir_artifact_store(fresh_store),
+                abm_ref,
+            )
+            diagnostic_manifest = fresh_store.get_manifest(diagnostic_ref)
+            abm_manifest = fresh_store.get_manifest(abm_ref)
+            diagnostic_source_inputs = [
+                item for item in diagnostic_manifest.inputs if item.role == "simulation_result"
+            ]
+            abm_diagnostic_inputs = [
+                item
+                for item in abm_manifest.inputs
+                if item.role == "artifact.identifiability_diagnostic_ref"
+            ]
+            attached_ref = loaded_abm_result.identifiability_diagnostic_ref
+            certificate = loaded_abm_result.identifiability_certificate
+            reference_matches = (
+                attached_ref is not None
+                and certificate is not None
+                and certificate.diagnostic_ref is not None
+                and str(attached_ref.artifact_id) == str(diagnostic_ref.artifact_id)
+                and attached_ref.manifest_profile_sha256 == diagnostic_ref.manifest_profile_sha256
+                and str(certificate.diagnostic_ref.artifact_id) == str(diagnostic_ref.artifact_id)
+                and certificate.diagnostic_ref.manifest_profile_sha256
+                == diagnostic_ref.manifest_profile_sha256
+            )
+            diagnostic_content_bound = (
+                loaded_diagnostic.schema_version == "1.0"
+                and loaded_diagnostic.diagnostic_ref is not None
+                and loaded_diagnostic.parameter_names == ("alpha",)
+                and set(loaded_diagnostic.observed_moments) == {"mean_y", "q50_y"}
+                and set(loaded_diagnostic.fitted_moments) == {"mean_y", "q50_y"}
+                and len(diagnostic_source_inputs) == 1
+                and str(diagnostic_source_inputs[0].artifact_id) == str(simulation_ref.artifact_id)
+                and diagnostic_source_inputs[0].manifest_profile_sha256
+                == simulation_ref.manifest_profile_sha256
+                and len(abm_diagnostic_inputs) == 1
+                and str(abm_diagnostic_inputs[0].artifact_id) == str(diagnostic_ref.artifact_id)
+                and abm_diagnostic_inputs[0].manifest_profile_sha256
+                == diagnostic_ref.manifest_profile_sha256
+                and reference_matches
+                and certificate is not None
+                and certificate.status == "diagnostic_attached"
+            )
+            diagnostic_authority_not_established = (
+                certificate is not None
+                and certificate.identified is None
+                and certificate.metadata.get("evidence_grade") == "candidate"
+                and "diagnostic_verifier_provenance_not_admitted"
+                in certificate.metadata.get("limitation_codes", [])
+                and certificate.metadata.get("reported_diagnostic_status")
+                == loaded_diagnostic.status.value
+            )
     return {
         "stub_rejected": stub_rejected,
-        "content_bound_has_diagnostic": (
-            content_bound.identifiability_certificate is not None
-            and content_bound.identifiability_certificate.status == "diagnostic_attached"
-        ),
+        "content_bound_without_diagnostic_limited": standalone_limited,
+        "persisted_diagnostic_content_bound": diagnostic_content_bound,
+        "diagnostic_authority_not_established": diagnostic_authority_not_established,
         "legacy_stub_marker_absent": "phase4_abm_result_stub"
         not in content_bound.model_dump_json(),
         "fixture_only_is_non_authority": (
@@ -1370,34 +1701,11 @@ def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]
     ]
     joint = result.trajectory_for("joint", joint_atom_ids)
     return {
-        "schema_version": result.schema_version,
-        "world_model_record_ref": result.world_model_record_ref,
-        "world_model_record_content_hash": result.world_model_record_content_hash,
-        "engine_decisions": [item.model_dump(mode="json") for item in result.engine_decisions],
-        "equilibrium_semantics": result.equilibrium_semantics,
-        "selected_outcomes": list(result.selected_outcomes),
+        **result.model_dump(mode="json"),
         "trajectory_levels": sorted({item.run_level for item in result.trajectories}),
         "horizon_steps": [point.step for point in joint.points],
-        "trajectories": [item.model_dump(mode="json") for item in result.trajectories],
-        "diagnostics": result.diagnostics,
-        "receipt": result.receipt.model_dump(mode="json"),
         "receipt_payload_hash": result.receipt.payload_hash,
-        "uncertainty_kind": result.uncertainty_kind,
-        "world_credal_state_before": result.world_credal_state_before,
-        "world_credal_state_after": result.world_credal_state_after,
         "interaction_terms": interaction_terms,
-        "higher_order_residuals": {
-            outcome: {str(step): value for step, value in by_step.items()}
-            for outcome, by_step in result.higher_order_residuals.items()
-        },
-        "higher_order_residual_sampling": {
-            outcome: {
-                str(step): summary.model_dump(mode="json") for step, summary in by_step.items()
-            }
-            for outcome, by_step in result.higher_order_residual_sampling.items()
-        },
-        "feedback_classification": result.feedback_classification.model_dump(mode="json"),
-        "atom_ids": list(result.atom_ids),
         "expected_horizon_steps": list(result.horizon.steps()),
         "interaction_sampling_issues": list(
             result.diagnostics.get("interaction_sampling_issues", ())
@@ -1405,6 +1713,7 @@ def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]
         "interaction_evidence_issues": list(
             result.diagnostics.get("interaction_evidence_issues", ())
         ),
+        "joint_atom_ids": list(joint_atom_ids),
         "joint_terminal_outcomes": joint.points[-1].outcomes,
     }
 
@@ -1442,8 +1751,11 @@ def _validate_gate(
         objective = str(decisions[0].get("objective_ref"))
         if semantics.get(objective) != expected_semantics:
             issues.append({"code": "equilibrium_semantics_mismatch"})
-    issues.extend(_replication_sampling_issues(gate, expected_count=None))
-    issues.extend(_interaction_sampling_issues(gate))
+    if gate.get("schema_version") == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+        issues.extend(_typed_v5_result_issues(gate, issue_prefix="sampling"))
+    else:
+        issues.extend(_replication_sampling_issues(gate, expected_count=None))
+        issues.extend(_interaction_sampling_issues(gate))
     trajectories = gate.get("trajectories")
     if not isinstance(trajectories, list) or not trajectories:
         issues.append({"code": "trajectories_missing"})
@@ -1572,7 +1884,7 @@ def _validate_registry_output_shape_gate(gate: Mapping[str, Any]) -> list[dict[s
         issues.append({"code": "registry_output_shape_gate_reason_wrong"})
     if "output_shape:scalar_final_value" not in blockers:
         issues.append({"code": "registry_output_shape_blocker_missing"})
-    if "declared_semantics_unbacked:agent_based_model" not in blockers:
+    if "declared_semantics_unbacked:dynamic_SCM" not in blockers:
         issues.append({"code": "registry_output_shape_semantics_blocker_missing"})
     if gate.get("trajectory_count") != 0:
         issues.append({"code": "registry_output_shape_ran_engine"})
@@ -1588,8 +1900,12 @@ def _validate_abm_stub_strangle(probe: Mapping[str, Any]) -> list[dict[str, Any]
     issues: list[dict[str, Any]] = []
     if probe.get("stub_rejected") is not True:
         issues.append({"code": "abm_stub_not_strangled"})
-    if probe.get("content_bound_has_diagnostic") is not True:
-        issues.append({"code": "abm_content_bound_diagnostic_missing"})
+    if probe.get("content_bound_without_diagnostic_limited") is not True:
+        issues.append({"code": "abm_unresolved_diagnostic_limitation_missing"})
+    if probe.get("persisted_diagnostic_content_bound") is not True:
+        issues.append({"code": "abm_persisted_diagnostic_binding_missing"})
+    if probe.get("diagnostic_authority_not_established") is not True:
+        issues.append({"code": "abm_diagnostic_authority_limit_missing"})
     if probe.get("legacy_stub_marker_absent") is not True:
         issues.append({"code": "abm_legacy_stub_marker_present"})
     if probe.get("fixture_only_is_non_authority") is not True:
@@ -2007,7 +2323,7 @@ def _request(
         intervention_atoms=atoms,
         selected_outcomes=("firm_survival",),
         baseline_state={"income_delta": 0.0, "balance_delta": 0.0, "firm_survival": 1.0},
-        horizon=HorizonSpec(start=0, end=3, step=1),
+        horizon=HorizonSpec(start=0, end=0, step=1),
         engine_plan=(
             EnginePlan(
                 engine_kind="ncm_parallel_worlds",
@@ -2039,11 +2355,14 @@ def _program_graph_request(tmp_path: Path) -> JointSimulationRequest:
             "engine_plan": (_program_graph_plan(tmp_path),),
             "selected_outcomes": ("mean_income",),
             "baseline_state": {"mean_income": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
         }
     )
 
 
 def _program_graph_plan(tmp_path: Path) -> EnginePlan:
+    """Build a shared-node execution smoke, not independent atom-rate semantics."""
+
     store = FileSystemCAS(tmp_path / "cas")
     ir_ref = store.put_json(
         {"fixture": "joint_simulation_program_graph_contract"},
@@ -2103,7 +2422,7 @@ def _program_graph_plan(tmp_path: Path) -> EnginePlan:
         PutOptions(
             kind="foundry.program_graph",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2"),
+            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2.0"),
         ),
     )
     exec_plan_ref = store.put_json(
@@ -2114,7 +2433,7 @@ def _program_graph_plan(tmp_path: Path) -> EnginePlan:
         PutOptions(
             kind="foundry.exec_plan",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2"),
+            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
         ),
     )
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
@@ -2133,13 +2452,14 @@ def _program_graph_plan(tmp_path: Path) -> EnginePlan:
         program_base_state=base_state,
         program_parameter_overrides_by_atom={
             "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
-            "balance_grant": {"apply_subsidy": {"rate": 0.20}},
+            "balance_grant": {"apply_subsidy": {"rate": 0.10}},
         },
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
         slot_registry=DEFAULT_SLOT_REGISTRY,
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         constraint_registry=ConstraintRegistry(constraints={}),
+        outcome_aggregations={"mean_income": {"method": "mean", "unit": "usd"}},
     )
 
 
@@ -2198,6 +2518,7 @@ def _coupled_request() -> JointSimulationRequest:
             "coupling_graph": _coupling_graph("shared_resource"),
             "selected_outcomes": ("final_queue_length",),
             "baseline_state": {"final_queue_length": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
             "engine_plan": (
                 EnginePlan(
                     engine_kind="coupled_des_abm",
@@ -2229,22 +2550,29 @@ def _coupled_request() -> JointSimulationRequest:
 
 
 def _queue_tag_counterexample_request() -> JointSimulationRequest:
+    """Create a scalar queue result that must not claim dynamic trajectory output."""
+
     return _request(policy_domain="unemployment_claims_benefit").model_copy(
         update={
             "selected_outcomes": ("final_queue_length",),
             "baseline_state": {"final_queue_length": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
             "engine_plan": (
                 EnginePlan(
                     engine_kind="method_registry_estimator",
                     objective_ref="objective://queue-tag-counterexample",
                     method_fqn="simulation.discrete_event.queue@1.0.0",
-                    declared_equilibrium_semantics="agent_based_model",
+                    declared_equilibrium_semantics="dynamic_SCM",
                     eligibility_conditions=("multi_period", "agent_based_model"),
                     variable_map={
                         "agents.income": "arrival_rate",
                         "government.balance": "service_rate",
                     },
-                    coupled_state={"queue_length": 0.0},
+                    coupled_state={
+                        "queue_length": 0.0,
+                        "arrival_rate": 2.0,
+                        "service_rate": 1.0,
+                    },
                     system_dynamics_params={
                         "service_rate": 1.0,
                         "arrival_rate": 2.0,

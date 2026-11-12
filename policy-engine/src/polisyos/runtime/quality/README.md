@@ -85,9 +85,23 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   durable quota owner; USD cost remains unknown. A small attempt journal resumes
   executed results without another kernel and permits only bounded infrastructure
   retries. The parent reopens and projects both actual results with the fixed
-  comparator. This candidate demonstration does not isolate the shared OS/user,
-  issue an institutional appointment, sign independent verifier evidence or grant
-  protected use. Fresh numerical qualification is separate from unit admission.
+  comparator. An explicitly provided, service-held appointed-launcher signer can
+  publish a signed v2 completion statement bound to the comparison, child and
+  ledger evidence. V1 launcher statements remain readable but cannot establish a
+  completed semantic hit. The locked completion pointer is only a locator: reuse
+  reopens signed CAS evidence, both numerical results and physical accounting,
+  and rechecks current organizational role keys and appointment admission.
+  Existing-execution reuse and publication recovery share the same current-identity
+  gate after the attempt owner selects the execution. It first checks that
+  execution's ledger, then observes the actual selected callable/configuration,
+  native profile and image through `tools/authority runtime scientist
+  n5-replay-profile-preflight`. This source-only preflight opens no numerical
+  budget and calls no kernel; a semantic hit may start that process but spends no
+  N5 units. Historical profile rows are never substituted for a current observation.
+  This candidate demonstration does not isolate the shared OS/user, issue an
+  institutional appointment, establish scientific independence or grant protected
+  use. Production remains `verifier_unappointed` without real external appointment
+  evidence. Fresh signed execution/cache qualification is separate from unit admission.
 
 - `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
   bounds do not establish empirical calibration, source units or causal validity.

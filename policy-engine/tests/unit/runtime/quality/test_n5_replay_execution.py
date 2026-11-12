@@ -3,6 +3,7 @@
 import hashlib
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -362,3 +363,234 @@ def test_managed_worker_observes_nested_executor_and_rejects_foreign_pid(tmp_pat
     finally:
         foreign.terminate()
         foreign.wait(timeout=5)
+
+
+def test_completed_attempt_retains_execution_times_for_publication_recovery(tmp_path: Path) -> None:
+    spec = _spec()
+    first = _begin_attempt(tmp_path, key="c" * 64, spec=spec, quota=2, limit=1)
+    start = datetime(2026, 1, 1, tzinfo=UTC)
+    first = _settle_attempt(tmp_path, first, started_at=start)
+    completed = _settle_attempt(
+        tmp_path,
+        first,
+        status="executed",
+        finished_at=start,
+        child_pid=40,
+        executor_pid=41,
+        executor_created_us=123,
+        execution_ref=spec.execution_profile_ref,
+        ledger_hash="sha256:" + "a" * 64,
+        ledger_revision=1,
+    )
+    terminal = _settle_attempt(
+        tmp_path, completed, status="equal", comparison_ref=spec.comparator_ref
+    )
+    assert terminal.started_at == start and terminal.finished_at == start
+    assert terminal.executor_pid == 41 and terminal.child_pid == 40
+
+
+def test_native_preflight_uses_fresh_profile_and_refuses_changed_provider(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from polisyos.runtime.quality.n5_replay_execution import (
+        N5ReplayNativePreflightAction,
+        N5ReplayNativePreflightObservation,
+        _verify_n5_replay_native_preflight,
+    )
+    from tests.unit.runtime.quality.test_n5_execution_profile import (
+        _module,
+        _profile_for_module_set,
+        _source_image,
+    )
+
+    provider = tmp_path / "site-packages" / "replay_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"replay_provider": _module("replay_provider", provider)}
+    )
+    fresh = _profile_for_module_set(monkeypatch, tmp_path, {})
+    image = _source_image(tmp_path)
+    spec = _spec()
+    action = N5ReplayNativePreflightAction(launch_spec=spec, cas_root=str(tmp_path))
+    observation = N5ReplayNativePreflightObservation(
+        pid=42,
+        action_hash=security.raw_content_hash(action.model_dump_json().encode()),
+        native_profile=fresh.model_dump(mode="json"),
+        production_image=image.model_dump(mode="json"),
+        callable_hash=spec.declared_callable_content_hash,
+        numerical_intent_hash=spec.declared_numerical_intent_content_hash,
+        seed_schedule_hash=spec.seed_schedule_hash,
+        planned_units=spec.planned_physical_units,
+    )
+    _verify_n5_replay_native_preflight(
+        action=action, observation=observation, recorded_profile=recorded, recorded_image=image
+    )
+    provider.write_bytes(b"selected = False\n")
+    with pytest.raises(ValueError, match="native_preflight_mismatch"):
+        _verify_n5_replay_native_preflight(
+            action=action, observation=observation, recorded_profile=recorded, recorded_image=image
+        )
+    provider.write_bytes(b"selected = True\n")
+    changed_settings = _profile_for_module_set(
+        monkeypatch, tmp_path, {}, declared_settings={"replications": 4, "numeric_mode": "float64"}
+    )
+    with pytest.raises(ValueError, match="native_preflight_mismatch"):
+        _verify_n5_replay_native_preflight(
+            action=action,
+            observation=observation.model_copy(
+                update={"native_profile": changed_settings.model_dump(mode="json")}
+            ),
+            recorded_profile=recorded,
+            recorded_image=image,
+        )
+
+
+@pytest.mark.parametrize(
+    "reuse_path", ["signed_pointer", "lost_ack", "executed_checkpoint", "concurrent_checkpoint"]
+)
+@pytest.mark.parametrize("drift", ["provider_bytes", "numerical_settings"])
+def test_all_recovery_paths_refuse_current_native_drift_without_numerical_work(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, reuse_path: str, drift: str
+) -> None:
+    from polisyos.runtime.quality import n5_replay_execution as replay
+    from tests.unit.runtime.quality.test_n5_execution_profile import (
+        _module,
+        _profile_for_module_set,
+        _source_image,
+    )
+
+    provider = tmp_path / "site-packages" / "selected_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"selected_provider": _module("selected_provider", provider)}
+    )
+    settings = (
+        {"replications": 4, "numeric_mode": "float64"} if drift == "numerical_settings" else None
+    )
+    fresh = _profile_for_module_set(monkeypatch, tmp_path, {}, declared_settings=settings)
+    image = _source_image(tmp_path)
+    spec = _spec()
+    workspace = tmp_path / "replay"
+    first = _begin_attempt(workspace, key="d" * 64, spec=spec, quota=2, limit=1)
+    _, middleware = _open_diagnostic_budget(spec, workspace / "diagnostic-ledger.json", 2)
+    ledger = workspace / "diagnostic-ledger.json"
+    before_ledger = ledger.read_bytes()
+    started = datetime(2026, 1, 1, tzinfo=UTC)
+    first = _settle_attempt(workspace, first, started_at=started)
+    if reuse_path == "concurrent_checkpoint":
+        assert replay._existing_execution_precondition(
+            workspace, key="d" * 64, spec=spec, publishing=False
+        ) == (False, False)
+    executed = _settle_attempt(
+        workspace,
+        first,
+        status="executed",
+        finished_at=started,
+        child_pid=40,
+        executor_pid=41,
+        executor_created_us=123,
+        execution_ref=spec.execution_profile_ref,
+        ledger_hash=security.raw_content_hash(before_ledger),
+        ledger_revision=middleware.snapshot_safe().revision,
+    )
+    selected_attempt = executed
+    if reuse_path == "concurrent_checkpoint":
+        selected_attempt = _begin_attempt(workspace, key="d" * 64, spec=spec, quota=2, limit=1)
+        assert selected_attempt == executed
+    if reuse_path not in {"executed_checkpoint", "concurrent_checkpoint"}:
+        selected_attempt = _settle_attempt(
+            workspace, executed, status="equal", comparison_ref=spec.comparator_ref
+        )
+    if reuse_path == "signed_pointer":
+        (workspace / "completed-evidence.json").write_text(spec.comparator_ref.model_dump_json())
+    state_before = (workspace / "state.json").read_bytes()
+    if drift == "provider_bytes":
+        provider.write_bytes(b"selected = False\n")
+    calls = []
+
+    def only_preflight(command, *_args, **_kwargs):
+        assert "n5-replay-profile-preflight" in command
+        assert "n5-blind-replay" not in command
+        action = replay.N5ReplayNativePreflightAction.model_validate_json(
+            Path(command[-1]).read_bytes()
+        )
+        observation = replay.N5ReplayNativePreflightObservation(
+            pid=42,
+            action_hash=security.raw_content_hash(action.model_dump_json().encode()),
+            native_profile=fresh.model_dump(mode="json"),
+            production_image=image.model_dump(mode="json"),
+            callable_hash=spec.declared_callable_content_hash,
+            numerical_intent_hash=spec.declared_numerical_intent_content_hash,
+            seed_schedule_hash=spec.seed_schedule_hash,
+            planned_units=spec.planned_physical_units,
+        )
+        calls.append(command)
+        return 40, 0, replay._WORKER_RESULT_PREFIX + observation.model_dump_json(), {42: 123}
+
+    monkeypatch.setattr(replay, "_run_managed_worker", only_preflight)
+    with pytest.raises(ValueError, match="native_preflight_mismatch"):
+        replay._preflight_existing_execution(
+            workspace,
+            attempt=selected_attempt,
+            spec=spec,
+            cas_root=str(tmp_path),
+            recorded_profile=recorded,
+            recorded_image=image,
+        )
+    assert len(calls) == 1
+    assert ledger.read_bytes() == before_ledger
+    assert (workspace / "state.json").read_bytes() == state_before
+
+
+def test_owner_selected_execution_rejects_changed_ledger_before_preflight(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from polisyos.runtime.quality import n5_replay_execution as replay
+
+    spec = _spec()
+    first = _begin_attempt(tmp_path, key="f" * 64, spec=spec, quota=2, limit=1)
+    _, middleware = _open_diagnostic_budget(spec, tmp_path / "diagnostic-ledger.json", 2)
+    raw = (tmp_path / "diagnostic-ledger.json").read_bytes()
+    executed = _settle_attempt(
+        tmp_path,
+        first,
+        status="executed",
+        child_pid=40,
+        executor_pid=41,
+        executor_created_us=123,
+        execution_ref=spec.execution_profile_ref,
+        ledger_hash="sha256:" + "0" * 64,
+        ledger_revision=middleware.snapshot_safe().revision,
+    )
+    monkeypatch.setattr(replay, "_run_managed_worker", lambda *_a, **_kw: pytest.fail("launched"))
+    with pytest.raises(ValueError, match="attempt_ledger_changed"):
+        replay._preflight_existing_execution(
+            tmp_path,
+            attempt=executed,
+            spec=spec,
+            cas_root=str(tmp_path),
+            recorded_profile=None,
+            recorded_image=None,
+        )
+    assert (tmp_path / "diagnostic-ledger.json").read_bytes() == raw
+
+
+@pytest.mark.parametrize("state_present", [False, True])
+def test_completed_pointer_requires_terminal_state_before_preflight(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, state_present: bool
+) -> None:
+    from polisyos.runtime.quality import n5_replay_execution as replay
+
+    spec = _spec()
+    if state_present:
+        _begin_attempt(tmp_path, key="e" * 64, spec=spec, quota=2, limit=1)
+    (tmp_path / "completed-evidence.json").write_text(spec.comparator_ref.model_dump_json())
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("preflight ran before journal refusal")
+
+    monkeypatch.setattr(replay, "_run_managed_worker", forbidden)
+    with pytest.raises(ValueError, match="completed_attempt_not_established"):
+        replay._existing_execution_precondition(tmp_path, key="e" * 64, spec=spec, publishing=False)

@@ -507,6 +507,44 @@ class N5AppointedReplayRecord(_FrozenModel):
         return self
 
 
+class N5AppointedReplayRecordV2(N5AppointedReplayRecord):
+    """Signed launcher statement bound to the completed parent reconciliation."""
+
+    schema_version: Literal["policyos.n5_replay.launcher_record.v2"] = (
+        "policyos.n5_replay.launcher_record.v2"
+    )
+    publication_id: str = Field(min_length=1)
+    original_producer_evidence_ref: artifacts.ArtifactRef
+    original_execution_ref: artifacts.ArtifactRef
+    appointment_evidence_ref: artifacts.ArtifactRef
+    appointment_verification_evidence_ref: artifacts.ArtifactRef
+    candidate_comparison_ref: artifacts.ArtifactRef
+    child_execution_ref: artifacts.ArtifactRef
+    diagnostic_ledger_snapshot_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _completed_refs(self) -> Self:
+        if (
+            self.outcome != "completed"
+            or self.replay_result_projection_ref is None
+            or self.replay_result_projection_ref.kind
+            != "runtime.quality.n5_numerical_result_projection_bytes"
+            or self.replay_result_projection_ref.media_type != "application/octet-stream"
+            or str(self.replay_result_projection_ref.artifact_id)
+            != self.replay_result_projection_hash
+            or self.candidate_comparison_ref.kind
+            != "runtime.quality.n5_replay_candidate_comparison"
+            or self.child_execution_ref.kind != "runtime.quality.n5_blind_replay_execution"
+            or self.diagnostic_ledger_snapshot_ref.kind
+            != "runtime.quality.n5_diagnostic_ledger_snapshot"
+            or self.candidate_comparison_ref.media_type != "application/json"
+            or self.child_execution_ref.media_type != "application/json"
+            or self.diagnostic_ledger_snapshot_ref.media_type != "application/octet-stream"
+        ):
+            raise ValueError("n5_replay_record_completed_binding_invalid")
+        return self
+
+
 class N5ReplayRecordVerification(_FrozenModel):
     """Authenticated launcher statement, distinct from comparison/accounting proof."""
 
@@ -652,6 +690,7 @@ class N5ReplayAppointmentResolver:
             N5OriginalProducerSeal: "runtime.quality.n5_original_producer_seal",
             N5OriginalProducerSealV2: "runtime.quality.n5_original_producer_seal",
             N5AppointedReplayRecord: "runtime.quality.n5_appointed_replay_record",
+            N5AppointedReplayRecordV2: "runtime.quality.n5_appointed_replay_record",
         }.get(model)
         if expected_kind is None or statement_ref.kind != expected_kind:
             raise ValueError("n5_replay_signed_statement_kind_mismatch")
@@ -670,6 +709,15 @@ class N5ReplayAppointmentResolver:
                     signature.key_id,
                     row,
                 )
+        if model is N5AppointedReplayRecord:
+            try:
+                parsed_v2_record = security.parse_canonical_statement(
+                    evidence.blob_bytes, N5AppointedReplayRecordV2
+                )
+            except ValueError:
+                pass
+            else:
+                return cast("_ModelT", parsed_v2_record), statement_ref, signature.key_id, row
         return (
             cast(
                 "_ModelT",
@@ -1248,6 +1296,11 @@ class N5ReplayAppointmentResolver:
                 trust,
             )
             launch = admission.launch_spec
+            if isinstance(record, N5AppointedReplayRecordV2):
+                executable = self.resolve_executable(query)
+                if executable.status != "appointed" or executable.launch_spec is None:
+                    raise ValueError("n5_replay_executable_record_not_admitted")
+                launch = executable.launch_spec
             if (
                 trust.snapshot_hash != admission.trust_snapshot_hash
                 or key != appointment.launcher_key_id

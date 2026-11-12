@@ -135,6 +135,24 @@ from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v2"
+EXPECTED_QA_REFERENCE_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_expected_qa.v1"
+)
+EXPECTED_QA_REFERENCE_LIMITATIONS = [
+    "non_authoritative_expected_qa_reference_only",
+    "source_identity_not_asserted",
+    "historical_cas_membership_not_asserted",
+    "protected_replay_not_permitted",
+    "receipt_payload_hash_alias_not_compared",
+]
+_N5_RESULT_REQUIRED_WIRE_FIELDS = frozenset(
+    {"schema_version"}
+    | {
+        field_name
+        for field_name, field in JointSimulationResult.model_fields.items()
+        if field.is_required()
+    }
+)
 ABM_STUB_SOURCE_FLIP_MUTATION_ID = "source_flip_abm_production_stub_restored"
 
 
@@ -150,6 +168,30 @@ def _replication_sampling_projection(result: Any) -> dict[str, Any]:
     return _result_gate(result, tuple(result.atom_ids))
 
 
+def _typed_v5_result_wire(
+    projection: Mapping[str, Any],
+) -> tuple[JointSimulationResult | None, dict[str, Any], dict[str, str] | None]:
+    """Construct a V5 result from present wire fields and reconcile its canonical wire."""
+
+    raw_result = {
+        field_name: projection[field_name]
+        for field_name in JointSimulationResult.model_fields
+        if field_name in projection
+    }
+    try:
+        result = JointSimulationResult.model_validate(raw_result)
+        if result.schema_version != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+            return None, raw_result, {"code": "typed_result_schema_version_invalid"}
+        expected_wire = result.model_dump(mode="json")
+        if to_canonical_bytes(raw_result, _REPLICATION_ENGINE_STATE_CANON_SPEC) != (
+            to_canonical_bytes(expected_wire, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+        ):
+            return None, raw_result, {"code": "typed_result_wire_mismatch"}
+    except (ProofReceiptError, TypeError, ValueError) as exc:
+        return None, raw_result, {"code": "typed_result_invalid", "detail": str(exc)}
+    return result, raw_result, None
+
+
 def _typed_v5_result_issues(
     projection: Mapping[str, Any],
     *,
@@ -163,22 +205,12 @@ def _typed_v5_result_issues(
         != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
     ):
         return [{"code": f"{issue_prefix}_schema_version_not_v5"}]
-    raw_result = {
-        field_name: projection[field_name]
-        for field_name in JointSimulationResult.model_fields
-        if field_name in projection
-    }
-    try:
-        result = JointSimulationResult.model_validate(raw_result)
-        if result.schema_version != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
-            return [{"code": f"{issue_prefix}_typed_result_schema_version_invalid"}]
-        expected_wire = result.model_dump(mode="json")
-        if to_canonical_bytes(raw_result, _REPLICATION_ENGINE_STATE_CANON_SPEC) != (
-            to_canonical_bytes(expected_wire, _REPLICATION_ENGINE_STATE_CANON_SPEC)
-        ):
-            return [{"code": f"{issue_prefix}_typed_result_wire_mismatch"}]
-    except (ProofReceiptError, TypeError, ValueError) as exc:
-        return [{"code": f"{issue_prefix}_typed_result_invalid", "detail": str(exc)}]
+    result, raw_result, typed_issue = _typed_v5_result_wire(projection)
+    if typed_issue is not None:
+        issue = {key: value for key, value in typed_issue.items() if key != "code"}
+        return [{"code": f"{issue_prefix}_{typed_issue['code']}", **issue}]
+    if result is None:
+        return [{"code": f"{issue_prefix}_typed_result_invalid"}]
 
     joint_atom_ids = projection.get("joint_atom_ids")
     if not isinstance(joint_atom_ids, list) or tuple(joint_atom_ids) != result.atom_ids:
@@ -909,19 +941,136 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _project_n5_result_gates(value: Any) -> tuple[Any, int]:
+    """Replace full V5 result wires with the canonical expected-QA projection bytes."""
+
+    if isinstance(value, Mapping):
+        if value.get(
+            "schema_version"
+        ) == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION and set(
+            _N5_RESULT_REQUIRED_WIRE_FIELDS
+        ).issubset(value):
+            from polisyos.runtime.quality.n5_replay_numerical_projection import (
+                project_n5_diagnostic_freshness_bytes,
+            )
+
+            result, _raw_result, typed_issue = _typed_v5_result_wire(value)
+            if typed_issue is not None or result is None:
+                detail = "" if typed_issue is None else typed_issue.get("detail", "")
+                code = "typed_result_invalid" if typed_issue is None else typed_issue["code"]
+                raise ValueError(f"{code}:{detail}")
+            projection_bytes = project_n5_diagnostic_freshness_bytes(result)
+            if type(projection_bytes) is not bytes:
+                raise ValueError("n5_expected_qa_projection_bytes_invalid")
+            projection_text = projection_bytes.decode("utf-8")
+            try:
+                projection = json.loads(projection_text)
+            except json.JSONDecodeError as exc:
+                raise ValueError("n5_expected_qa_projection_json_invalid") from exc
+            if (
+                not isinstance(projection, dict)
+                or set(projection) != {"mapping"}
+                or not isinstance(projection.get("mapping"), list)
+            ):
+                raise ValueError("n5_expected_qa_projection_contract_invalid")
+
+            projected_gate: dict[str, Any] = {
+                "n5_diagnostic_freshness_json": projection_text,
+            }
+            nested_count = 0
+            for field_name, field_value in value.items():
+                if field_name in JointSimulationResult.model_fields:
+                    continue
+                # The helper explicitly declares this duplicate receipt alias as not compared;
+                # the full typed receipt remains verified and projected inside its canonical bytes.
+                if field_name == "receipt_payload_hash":
+                    continue
+                projected_gate[field_name], field_count = _project_n5_result_gates(field_value)
+                nested_count += field_count
+            return projected_gate, 1 + nested_count
+
+        projected_mapping: dict[str, Any] = {}
+        count = 0
+        for field_name, field_value in value.items():
+            projected_value, nested_count = _project_n5_result_gates(field_value)
+            projected_mapping[field_name] = projected_value
+            count += nested_count
+        return projected_mapping, count
+    if isinstance(value, (tuple, list)):
+        projected_items: list[Any] = []
+        count = 0
+        for item in value:
+            projected_item, nested_count = _project_n5_result_gates(item)
+            projected_items.append(projected_item)
+            count += nested_count
+        return projected_items, count
+    return value, 0
+
+
+def _expected_qa_reference(live_payload: dict[str, Any]) -> dict[str, Any]:
+    """Build a nonauthoritative expected-QA reference from a validated live payload."""
+
+    projected_contract, result_count = _project_n5_result_gates(live_payload)
+    if result_count == 0:
+        raise ValueError("n5_expected_qa_result_projection_missing")
+    return {
+        "schema_version": EXPECTED_QA_REFERENCE_SCHEMA_VERSION,
+        "authority_purpose": "expected_qa_contract_only",
+        "limitations": list(EXPECTED_QA_REFERENCE_LIMITATIONS),
+        "contract": projected_contract,
+    }
+
+
+def _expected_qa_projection_issue(exc: Exception) -> dict[str, Any]:
+    """Return a stable failure when a live result cannot form the QA reference."""
+
+    return {
+        "code": "joint_simulation_expected_qa_projection_not_established",
+        "detail": str(exc),
+    }
+
+
 def check(repo_root: Path) -> dict[str, Any]:
-    """Validate committed artifact drift and live behavior."""
+    """Validate fresh raw behavior before comparing the stored expected-QA reference."""
 
     output_path = repo_root / OUTPUT_PATH
-    issues: list[dict[str, Any]] = []
-    if not output_path.exists():
-        issues.append({"code": "joint_simulation_contract_missing", "path": OUTPUT_PATH})
-        return {"status": "fail", "issues": issues}
-    committed = json.loads(output_path.read_text(encoding="utf-8"))
     live = build_live_payload(repo_root)
-    if committed != live:
-        issues.append({"code": "joint_simulation_contract_drift", "path": OUTPUT_PATH})
-    issues.extend(validate_payload(committed)["issues"])
+    live_report = validate_payload(live)
+    if live_report["status"] != "pass":
+        return {
+            "status": "fail",
+            "issues": [
+                {"code": "joint_simulation_live_payload_invalid"},
+                *live_report["issues"],
+            ],
+        }
+    try:
+        expected = _expected_qa_reference(live)
+    except (ImportError, TypeError, UnicodeDecodeError, ValueError) as exc:
+        return {"status": "fail", "issues": [_expected_qa_projection_issue(exc)]}
+
+    if not output_path.exists():
+        return {
+            "status": "fail",
+            "issues": [{"code": "joint_simulation_contract_missing", "path": OUTPUT_PATH}],
+        }
+    try:
+        committed = json.loads(output_path.read_text(encoding="utf-8"))
+        matches = to_canonical_bytes(
+            committed,
+            _REPLICATION_ENGINE_STATE_CANON_SPEC,
+        ) == to_canonical_bytes(expected, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        return {
+            "status": "fail",
+            "issues": [
+                {
+                    "code": "joint_simulation_expected_qa_reference_invalid",
+                    "detail": str(exc),
+                }
+            ],
+        }
+    issues = [] if matches else [{"code": "joint_simulation_contract_drift", "path": OUTPUT_PATH}]
     return {"status": "pass" if not issues else "fail", "issues": issues}
 
 
@@ -937,15 +1086,21 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
     return validate_payload(build_live_payload(repo_root))
 
 
-def write(repo_root: Path) -> None:
-    """Write the recomputed N5 contract artifact."""
+def write(repo_root: Path) -> dict[str, Any]:
+    """Write one expected-QA reference only after the fresh raw payload passes its gate."""
 
+    live = build_live_payload(repo_root)
+    live_report = validate_payload(live)
+    if live_report["status"] != "pass":
+        return live_report
+    try:
+        expected = _expected_qa_reference(live)
+    except (ImportError, TypeError, UnicodeDecodeError, ValueError) as exc:
+        return {"status": "fail", "issues": [_expected_qa_projection_issue(exc)]}
     output_path = repo_root / OUTPUT_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        json.dumps(build_live_payload(repo_root), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    output_path.write_text(json.dumps(expected, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return {"status": "pass", "issues": []}
 
 
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
@@ -1475,7 +1630,7 @@ def _coupling_gate_result(blocked: Any, supported: Any) -> dict[str, Any]:
             "engine_kind": supported.engine_decisions[0].engine_kind,
             "trajectory_levels": sorted({item.run_level for item in supported.trajectories}),
             "feedback_classification": supported.feedback_classification.model_dump(mode="json"),
-            "receipt": supported.receipt.model_dump(mode="json"),
+            "result": _result_gate(supported, tuple(supported.atom_ids)),
         },
     }
 
@@ -1849,6 +2004,44 @@ def _validate_coupling_gate(gate: Mapping[str, Any]) -> list[dict[str, Any]]:
                 issues.append({"code": "supported_coupled_shared_resource_missing"})
         else:
             issues.append({"code": "supported_coupled_classification_missing"})
+        result_gate = supported.get("result")
+        if not isinstance(result_gate, Mapping):
+            issues.append({"code": "supported_coupled_result_missing"})
+        else:
+            issues.extend(
+                _validate_gate(
+                    result_gate,
+                    expected_engine="coupled_des_abm",
+                    expected_temporal="multi_period",
+                    expected_output_shape="time_series_trajectory",
+                    expected_semantics="agent_based_model",
+                    require_evolving_state=True,
+                )
+            )
+            decisions = result_gate.get("engine_decisions")
+            if not isinstance(decisions, list) or len(decisions) != 1:
+                issues.append({"code": "supported_coupled_result_decision_binding_invalid"})
+            else:
+                decision = decisions[0]
+                if not isinstance(decision, Mapping) or (
+                    decision.get("decision") != supported.get("decision")
+                    or decision.get("engine_kind") != supported.get("engine_kind")
+                ):
+                    issues.append({"code": "supported_coupled_result_decision_binding_mismatch"})
+            if result_gate.get("trajectory_levels") != supported.get("trajectory_levels"):
+                issues.append({"code": "supported_coupled_result_trajectory_binding_mismatch"})
+            try:
+                classification_matches = to_canonical_bytes(
+                    result_gate.get("feedback_classification"),
+                    _REPLICATION_ENGINE_STATE_CANON_SPEC,
+                ) == to_canonical_bytes(
+                    classification,
+                    _REPLICATION_ENGINE_STATE_CANON_SPEC,
+                )
+            except (TypeError, ValueError):
+                classification_matches = False
+            if not classification_matches:
+                issues.append({"code": "supported_coupled_result_classification_binding_mismatch"})
     return issues
 
 
@@ -2669,7 +2862,14 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0 if report["status"] == "pass" else 1
     if args.write:
-        write(repo_root)
+        write_report = write(repo_root)
+        if write_report["status"] != "pass":
+            write_report["validator_wall_time_seconds"] = round(
+                time.perf_counter() - started_at,
+                6,
+            )
+            print(json.dumps(write_report, indent=2, sort_keys=True))
+            return 1
     if args.corrupt_field_drift_check:
         report = corrupt_field_drift_check(repo_root)
         report["validator_wall_time_seconds"] = round(time.perf_counter() - started_at, 6)

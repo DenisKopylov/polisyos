@@ -3712,6 +3712,219 @@ def test_n5_rederive_audit_validates_live_payload_without_frozen_artifact(
     assert runner(Path.cwd()) == {"status": "pass", "issues": []}
 
 
+def test_n5_expected_qa_reference_reconciles_fresh_v5_results_and_refuses_tampering(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as contract,
+    )
+
+    repo_root = Path(__file__).resolve().parents[4]
+    reference_path = tmp_path / "expected-qa-reference.json"
+    monkeypatch.setattr(contract, "OUTPUT_PATH", reference_path)
+
+    live_builder = contract.build_live_payload
+    first_live = live_builder(repo_root)
+    assert contract.validate_payload(first_live) == {"status": "pass", "issues": []}
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: first_live)
+    assert contract.write(repo_root) == {"status": "pass", "issues": []}
+    reference = json.loads(reference_path.read_text(encoding="utf-8"))
+
+    assert reference["schema_version"] == contract.EXPECTED_QA_REFERENCE_SCHEMA_VERSION
+    assert reference["authority_purpose"] == "expected_qa_contract_only"
+    assert "source_identity_not_asserted" in reference["limitations"]
+    assert reference["contract"]["behavioral_mutations"] == first_live["behavioral_mutations"]
+    expected_gate = reference["contract"]["positive_gate"]["dynamic_horizon"]
+    assert "n5_diagnostic_freshness_json" in expected_gate
+    assert "trajectories" not in expected_gate
+    assert "receipt_payload_hash" not in expected_gate
+    assert "interaction_terms" not in expected_gate
+    assert '"str":"interaction_terms"' in expected_gate["n5_diagnostic_freshness_json"]
+    assert (
+        '"str":"policyos.runtime.n5_diagnostic_freshness.v1"'
+        in expected_gate["n5_diagnostic_freshness_json"]
+    )
+    assert '"str":"expected_qa_contract_only"' in expected_gate["n5_diagnostic_freshness_json"]
+    assert '"str":"protected_use_not_permitted"' in expected_gate["n5_diagnostic_freshness_json"]
+    typed_result, _, typed_issue = contract._typed_v5_result_wire(
+        first_live["positive_gate"]["dynamic_horizon"]
+    )
+    assert typed_issue is None
+    assert typed_result is not None and typed_result.interaction_terms
+    from polisyos.runtime.quality.n5_replay_numerical_projection import (
+        project_n5_diagnostic_freshness_bytes,
+    )
+
+    assert expected_gate["n5_diagnostic_freshness_json"] == (
+        project_n5_diagnostic_freshness_bytes(typed_result).decode("utf-8")
+    )
+    coupled_summary = reference["contract"]["positive_gate"]["coupling_gate"][
+        "supported_coupled_des_abm"
+    ]
+    assert "receipt" not in coupled_summary
+    coupled_result_gate = coupled_summary["result"]
+    assert "n5_diagnostic_freshness_json" in coupled_result_gate
+    coupled_typed_result, _, coupled_typed_issue = contract._typed_v5_result_wire(
+        first_live["positive_gate"]["coupling_gate"]["supported_coupled_des_abm"]["result"]
+    )
+    assert coupled_typed_issue is None
+    assert coupled_typed_result is not None
+    assert coupled_result_gate["n5_diagnostic_freshness_json"] == (
+        project_n5_diagnostic_freshness_bytes(coupled_typed_result).decode("utf-8")
+    )
+
+    # The second producer run creates fresh physical IDs and CAS receipts. The reference should
+    # still match because the canonical owner validates those joins and marks only its declared
+    # identity/time fields as not compared.
+    monkeypatch.setattr(contract, "build_live_payload", live_builder)
+    expected_builder = contract._expected_qa_reference
+    fresh_references: list[dict[str, Any]] = []
+
+    def _capture_expected_reference(payload: dict[str, Any]) -> dict[str, Any]:
+        expected = expected_builder(payload)
+        fresh_references.append(expected)
+        return expected
+
+    monkeypatch.setattr(contract, "_expected_qa_reference", _capture_expected_reference)
+
+    def _first_changed_path(left: Any, right: Any, path: str = "", depth: int = 0) -> str | None:
+        if type(left) is not type(right):
+            return path or "$"
+        if depth >= 12:
+            return None if left == right else path or "$"
+        if isinstance(left, dict):
+            for key in sorted(set(left) | set(right)):
+                child_path = f"{path}.{key}" if path else str(key)
+                if key not in left or key not in right:
+                    return child_path
+                changed_path = _first_changed_path(left[key], right[key], child_path, depth + 1)
+                if changed_path is not None:
+                    return changed_path
+            return None
+        if isinstance(left, list):
+            if len(left) != len(right):
+                return f"{path}.length" if path else "$.length"
+            for index, (left_item, right_item) in enumerate(zip(left, right, strict=True)):
+                changed_path = _first_changed_path(
+                    left_item,
+                    right_item,
+                    f"{path}[{index}]",
+                    depth + 1,
+                )
+                if changed_path is not None:
+                    return changed_path
+            return None
+        if left != right:
+            return path or "$"
+        return None
+
+    check_report = contract.check(repo_root)
+    if check_report["status"] != "pass":
+        mismatch_path = (
+            None if not fresh_references else _first_changed_path(reference, fresh_references[-1])
+        )
+        pytest.fail(f"fresh expected-QA reference drift at {mismatch_path}: {check_report}")
+
+    # Keep artifact-corruption controls cheap while exercising the real check comparator.
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: first_live)
+    monkeypatch.setattr(contract, "_expected_qa_reference", lambda _payload: reference)
+
+    def _assert_reference_drift(mutated: dict[str, Any]) -> None:
+        reference_path.write_text(json.dumps(mutated, indent=2, sort_keys=True) + "\n")
+        report = contract.check(repo_root)
+        assert report["status"] == "fail"
+        assert "joint_simulation_contract_drift" in {issue["code"] for issue in report["issues"]}
+
+    status_changed = copy.deepcopy(reference)
+    status_changed["contract"]["positive_gate"]["status"] = "limited"
+    _assert_reference_drift(status_changed)
+
+    numeric_changed = copy.deepcopy(reference)
+    numeric_gate = numeric_changed["contract"]["positive_gate"]["dynamic_horizon"]
+    numeric_projection = json.loads(numeric_gate["n5_diagnostic_freshness_json"])
+
+    def _change_first_float(node: Any) -> bool:
+        if isinstance(node, dict):
+            if set(node) == {"float"} and isinstance(node["float"], str):
+                node["float"] = (float.fromhex(node["float"]) + 0.125).hex()
+                return True
+            return any(_change_first_float(value) for value in node.values())
+        if isinstance(node, list):
+            return any(_change_first_float(value) for value in node)
+        return False
+
+    assert _change_first_float(numeric_projection)
+    numeric_gate["n5_diagnostic_freshness_json"] = json.dumps(
+        numeric_projection,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    _assert_reference_drift(numeric_changed)
+
+    result_removed = copy.deepcopy(reference)
+    result_removed["contract"]["positive_gate"]["dynamic_horizon"].pop(
+        "n5_diagnostic_freshness_json"
+    )
+    _assert_reference_drift(result_removed)
+
+    # A stale receipt on the fresh raw wire must fail before reference projection/comparison.
+    invalid_raw = copy.deepcopy(first_live)
+    invalid_raw["positive_gate"]["dynamic_horizon"]["receipt"]["payload_hash"] = (
+        "sha256:" + "0" * 64
+    )
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: invalid_raw)
+    monkeypatch.setattr(
+        contract,
+        "_expected_qa_reference",
+        lambda _payload: pytest.fail("invalid raw payload reached expected-QA comparison"),
+    )
+    invalid_report = contract.check(repo_root)
+    assert invalid_report["status"] == "fail"
+    assert "joint_simulation_live_payload_invalid" in {
+        issue["code"] for issue in invalid_report["issues"]
+    }
+
+    coupled_result_removed = copy.deepcopy(first_live)
+    coupled_result_removed["positive_gate"]["coupling_gate"]["supported_coupled_des_abm"].pop(
+        "result"
+    )
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: coupled_result_removed)
+    removed_result_report = contract.check(repo_root)
+    assert "supported_coupled_result_missing" in {
+        issue["code"] for issue in removed_result_report["issues"]
+    }
+
+    coupled_receipt_corrupted = copy.deepcopy(first_live)
+    coupled_receipt_corrupted["positive_gate"]["coupling_gate"]["supported_coupled_des_abm"][
+        "result"
+    ]["receipt"]["payload_hash"] = "sha256:" + "0" * 64
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: coupled_receipt_corrupted)
+    coupled_receipt_report = contract.check(repo_root)
+    assert any(
+        issue["code"] == "sampling_typed_result_invalid"
+        and "receipt_content_mismatch" in issue.get("detail", "")
+        for issue in coupled_receipt_report["issues"]
+    )
+
+    # The writer applies the same raw gate and leaves its target absent on refusal.
+    invalid_output = tmp_path / "must-not-be-written.json"
+    monkeypatch.setattr(contract, "OUTPUT_PATH", invalid_output)
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: coupled_result_removed)
+    write_report = contract.write(repo_root)
+    assert write_report["status"] == "fail"
+    assert not invalid_output.exists()
+
+    historical_v4 = {
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v4",
+        "trajectory": [{"step": 0, "outcomes": {"candidate": 1.0}}],
+    }
+    unchanged_v4, projected_count = contract._project_n5_result_gates(historical_v4)
+    assert unchanged_v4 == historical_v4
+    assert projected_count == 0
+
+
 def test_n5_abm_source_flip_runs_behavior_and_restores_bytes(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

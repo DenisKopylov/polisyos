@@ -23,6 +23,7 @@ from polisyos.runtime.quality.n5_replay_appointment import (
 from polisyos.runtime.quality.n5_replay_execution import (
     N5BlindReplayExecution,
     N5OriginalProducerAction,
+    N5ReplayLauncherSigningService,
     _read_blind_action,
     produce_n5_replay_basis_for_original,
     run_appointed_n5_replay,
@@ -35,13 +36,20 @@ from polisyos.runtime.quality.n5_replay_numerical_projection import (
 from tests.unit.runtime.quality.test_n5_replay_appointment import (
     _write,
 )
+from tests.unit.runtime.quality.test_n5_replay_appointment import (
+    demonstration_test_trust_root as _demonstration_test_trust_root,
+)
 
-pytest_plugins = ("tests.unit.runtime.quality.test_n5_replay_appointment",)
+
+@pytest.fixture
+def demo_trust_root_fixture(tmp_path: Path) -> object:
+    """Construct the shared demonstration-only signing fixture in this module."""
+    return _demonstration_test_trust_root.__wrapped__(tmp_path)
 
 
 @pytest.mark.integration
 def test_retained_source_fresh_original_and_blind_repeat(
-    tmp_path: Path, demonstration_test_trust_root: object
+    tmp_path: Path, demo_trust_root_fixture: object, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Exercise real source, fresh processes, separate ledgers, and parent comparison.
 
@@ -88,7 +96,7 @@ def test_retained_source_fresh_original_and_blind_repeat(
         producer_instance_id=f"candidate-original-{suffix}",
         produced_at=datetime.now(UTC),
     )
-    demo = demonstration_test_trust_root
+    demo = demo_trust_root_fixture
     demo.store = store
     demo.now = datetime.now(UTC)
     demo.state = replace(
@@ -149,7 +157,15 @@ def test_retained_source_fresh_original_and_blind_repeat(
         replay_run_id=f"replay-{suffix}",
         replay_job_id=f"replay-job-{suffix}",
     )
-    comparison, comparison_ref = run_appointed_n5_replay(resolver=demo.resolver(), query=query)
+    service = N5ReplayLauncherSigningService(
+        signer=demo.signers["launcher"],
+        signing_profile_ref=_write(store, b"demo-launcher-profile", "test.n5.signing_profile"),
+        signer_provenance_ref=_write(store, b"demo-launcher", "test.n5.signer_provenance"),
+        launcher_instance_id=f"demo-launcher-{suffix}",
+    )
+    comparison, comparison_ref = run_appointed_n5_replay(
+        resolver=demo.resolver(), query=query, launcher_signing_service=service
+    )
     assert comparison.status == "equal"
     assert comparison.protected_use_allowed is False
     assert comparison.child_pid != original.execution.pid
@@ -173,3 +189,120 @@ def test_retained_source_fresh_original_and_blind_repeat(
     assert store.verify(child.ledger_snapshot_ref).ok
     if preserved is not None:
         assert Path(preserved_path).read_bytes() == preserved
+
+    # A fresh occurrence with the same numerical basis must reuse the signed
+    # completion after native revalidation, with no child or ledger mutation.
+    from polisyos.runtime.quality import n5_replay_execution as replay_owner
+
+    managed_worker = replay_owner._run_managed_worker
+
+    def only_native_preflight(command, *args, **kwargs):
+        if "n5-replay-profile-preflight" not in command:
+            raise AssertionError("completed semantic hit launched numerical work")
+        return managed_worker(command, *args, **kwargs)
+
+    monkeypatch.setattr(replay_owner, "_run_managed_worker", only_native_preflight)
+    claim_dir = store.root.parent / ".n5-replay-attempts" / comparison.attempt_key
+    before_ledger = (claim_dir / "diagnostic-ledger.json").read_bytes()
+    before_state = (claim_dir / "state.json").read_bytes()
+    later_query = query.model_copy(
+        update={"replay_run_id": f"reuse-{suffix}", "replay_job_id": f"reuse-job-{suffix}"}
+    )
+    reused, reused_ref = run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+    assert reused == comparison and reused_ref == comparison_ref
+    assert (claim_dir / "diagnostic-ledger.json").read_bytes() == before_ledger
+    assert (claim_dir / "state.json").read_bytes() == before_state
+    for role in ("issuer", "admin", "launcher"):
+        revoked = demo.state.config.model_copy(
+            update={"revoked_key_ids": (demo.signers[role].key_id,)}
+        )
+        original_state = demo.state
+        try:
+            demo.state = replace(demo.state, config=revoked)
+            with pytest.raises(ValueError):
+                run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+        finally:
+            demo.state = original_state
+    assert (claim_dir / "diagnostic-ledger.json").read_bytes() == before_ledger
+    assert (claim_dir / "state.json").read_bytes() == before_state
+
+    # A discovered completion can never trigger a replacement numerical attempt
+    # when its native journal is absent or nonterminal.
+    state_path = claim_dir / "state.json"
+    held_state_path = claim_dir / "state.held"
+    state_path.rename(held_state_path)
+    try:
+        with pytest.raises(ValueError, match="completed_attempt_not_established"):
+            run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+        active = json.loads(before_state)
+        active.update(status="active", history=[])
+        state_path.write_text(json.dumps(active), encoding="utf-8")
+        with pytest.raises(ValueError, match="completed_attempt_not_established"):
+            run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+    finally:
+        state_path.unlink(missing_ok=True)
+        held_state_path.rename(state_path)
+    ledger_path = claim_dir / "diagnostic-ledger.json"
+    ledger_path.write_bytes(b"{}")
+    try:
+        with pytest.raises(ValueError):
+            run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+    finally:
+        ledger_path.write_bytes(before_ledger)
+    assert state_path.read_bytes() == before_state
+
+    # The pointer and signed claim are both untrusted until the real source,
+    # result, and accounting closure has been reopened.
+    from polisyos.runtime.quality import n5_replay_appointment as appointment_owner
+
+    pointer_path = claim_dir / "completed-evidence.json"
+    before_pointer = pointer_path.read_bytes()
+    evidence_ref = artifacts.ArtifactRef.model_validate_json(before_pointer)
+    record, _, _, _ = demo.resolver()._signed(
+        evidence_ref,
+        appointment_owner.N5AppointedReplayRecordV2,
+        "appointed_launcher",
+        appointment_owner._trust(demo.state.config),
+    )
+    changed_projection = _write(
+        store, b"changed result", "runtime.quality.n5_numerical_result_projection_bytes"
+    )
+    wrong_original = _write(
+        store, b"wrong source execution", "runtime.quality.n5_original_producer_execution"
+    )
+    for changes in (
+        {"original_execution_ref": wrong_original},
+        {
+            "replay_result_projection_ref": changed_projection,
+            "replay_result_projection_hash": str(changed_projection.artifact_id),
+        },
+    ):
+        forged = appointment_owner.N5AppointedReplayRecordV2.model_validate(
+            record.model_copy(update={"publication_id": uuid4().hex, **changes}).model_dump()
+        )
+        forged_ref = demo.signed(forged, "launcher", "runtime.quality.n5_appointed_replay_record")
+        pointer_path.write_text(forged_ref.model_dump_json(), encoding="utf-8")
+        try:
+            with pytest.raises(ValueError):
+                run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+        finally:
+            pointer_path.write_bytes(before_pointer)
+    pointer_path.unlink()
+    try:
+        with pytest.raises(ValueError):
+            run_appointed_n5_replay(resolver=demo.resolver(), query=later_query)
+    finally:
+        pointer_path.write_bytes(before_pointer)
+    assert ledger_path.read_bytes() == before_ledger
+    assert state_path.read_bytes() == before_state
+
+    # Losing only the publication pointer is recoverable from the completed
+    # exact occurrence; a new signed statement is emitted without new work.
+    pointer_path.unlink()
+    recovered, recovered_ref = run_appointed_n5_replay(
+        resolver=demo.resolver(), query=query, launcher_signing_service=service
+    )
+    assert recovered == comparison and recovered_ref == comparison_ref
+    assert pointer_path.is_file()
+    assert ledger_path.read_bytes() == before_ledger
+    assert state_path.read_bytes() == before_state

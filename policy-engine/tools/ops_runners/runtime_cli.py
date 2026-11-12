@@ -128,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "scientist" and args.scientist_command in {
         "n5-blind-replay",
         "n5-original-producer",
+        "n5-replay-profile-preflight",
     }:
         for name in (
             "OMP_NUM_THREADS",
@@ -139,6 +140,20 @@ def main(argv: list[str] | None = None) -> int:
             os.environ[name] = "1"
         os.environ["POLISYOS_STRICT"] = "1"
         os.environ["FOUNDRY_SHAPE_CHECK"] = "0"
+        if args.scientist_command == "n5-replay-profile-preflight":
+            from polisyos.runtime.quality.n5_replay_execution import (
+                _WORKER_RESULT_PREFIX,
+                N5ReplayNativePreflightAction,
+                observe_n5_replay_native_preflight,
+            )
+
+            action = N5ReplayNativePreflightAction.model_validate_json(
+                Path(args.action).read_bytes()
+            )
+            print(
+                _WORKER_RESULT_PREFIX + observe_n5_replay_native_preflight(action).model_dump_json()
+            )
+            return 0
         if args.scientist_command == "n5-original-producer":
             from polisyos.runtime.quality.n5_replay_execution import (
                 _WORKER_RESULT_PREFIX,
@@ -991,6 +1006,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
     blind_replay = scientist_sub.add_parser("n5-blind-replay")
     blind_replay.add_argument("--action", required=True, help="Candidate-only blind action JSON")
+    replay_profile_preflight = scientist_sub.add_parser("n5-replay-profile-preflight")
+    replay_profile_preflight.add_argument(
+        "--action", required=True, help="Source-only preflight JSON"
+    )
     original_producer = scientist_sub.add_parser("n5-original-producer")
     original_producer.add_argument("--action", required=True, help="Candidate original action JSON")
 

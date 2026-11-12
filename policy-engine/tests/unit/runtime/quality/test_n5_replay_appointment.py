@@ -1117,3 +1117,50 @@ def test_v2_cache_key_uses_recomputed_numerical_identity_axes_only(
     )
     assert changed_intent != baseline
     assert changed_result != baseline
+
+
+def test_launcher_v2_signed_completion_binding_and_foreign_signer(demonstration_test_trust_root):
+    demo = demonstration_test_trust_root
+    admission = demo.resolver().resolve(demo.query)
+    fields = demo.record(admission).model_dump(mode="python")
+    fields.update(
+        schema_version="policyos.n5_replay.launcher_record.v2",
+        publication_id="test-publication",
+        replay_result_projection_ref=_write(
+            demo.store, b"numerical", "runtime.quality.n5_numerical_result_projection_bytes"
+        ),
+        replay_result_projection_hash=_digest("numerical"),
+        original_producer_evidence_ref=demo.query.original_producer_evidence_ref,
+        original_execution_ref=_write(
+            demo.store, b"original", "runtime.quality.n5_original_producer_execution"
+        ),
+        appointment_evidence_ref=demo.state.config.appointment_evidence_ref,
+        appointment_verification_evidence_ref=demo.state.config.verification_evidence_ref,
+        candidate_comparison_ref=_write(
+            demo.store, b"comparison", "runtime.quality.n5_replay_candidate_comparison"
+        ).model_copy(update={"media_type": "application/json"}),
+        child_execution_ref=_write(
+            demo.store, b"execution", "runtime.quality.n5_blind_replay_execution"
+        ).model_copy(update={"media_type": "application/json"}),
+        diagnostic_ledger_snapshot_ref=_write(
+            demo.store, b"ledger", "runtime.quality.n5_diagnostic_ledger_snapshot"
+        ),
+    )
+    record = owner.N5AppointedReplayRecordV2.model_validate(fields)
+    trust = owner._trust(demo.state.config)
+    evidence = demo.signed(record, "launcher", "runtime.quality.n5_appointed_replay_record")
+    parsed, _, key, _ = demo.resolver()._signed(
+        evidence, owner.N5AppointedReplayRecord, "appointed_launcher", trust
+    )
+    assert parsed == record and key == demo.appointment.launcher_key_id
+    forged = demo.signed(
+        record.model_copy(update={"launcher_instance_id": "foreign-producer"}),
+        "producer",
+        "runtime.quality.n5_appointed_replay_record",
+    )
+    with pytest.raises(ValueError, match="signature_untrusted_or_revoked"):
+        demo.resolver()._signed(forged, owner.N5AppointedReplayRecord, "appointed_launcher", trust)
+    with pytest.raises(ValidationError, match="completed_binding_invalid"):
+        owner.N5AppointedReplayRecordV2.model_validate(
+            {**fields, "outcome": "infrastructure_error"}
+        )

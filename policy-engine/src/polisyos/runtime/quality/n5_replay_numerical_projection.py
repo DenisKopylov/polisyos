@@ -484,3 +484,580 @@ def project_n5_numerical_result_v1(
         semantic_input_limitation_codes=limitations or (),
         completed_physical_units=len(observation.completion.completed_units),
     )
+
+
+_DIAGNOSTIC_TRAJECTORY_FIELDS = frozenset(N5_TRAJECTORY_DIAGNOSTIC_ROLES) | frozenset(
+    [
+        "coverage_status",
+        "covered_steps",
+        "requested_steps",
+        "hold_last",
+        "source_time_trace",
+        "source_time_trace_status",
+        "source_time_trace_reason",
+        "requested_time_step",
+        "method_time_step_parameter",
+        "effective_method_time_step",
+        "declared_step_parameter_matches_request",
+        "time_alignment_status",
+        "source_row_count",
+        "retained_row_count",
+        "excluded_source_rows",
+        "row_contract",
+        "slice_basis",
+        "source_coordinate_basis",
+        "final_summary",
+        "row_count_coverage",
+        "state_delta_refs",
+        "metrics_ref_count",
+        "method_execution_sources",
+        "method_execution_capture_status",
+        "requested_step_dispatch_status",
+        "replication_method_execution_sources",
+    ]
+)
+_DIAGNOSTIC_STATE_FIELDS = {
+    "ncm_parallel_worlds": frozenset(["intervention"]),
+    "system_dynamics": frozenset(["stock_values", "row_role", "source_coordinate"]),
+    "method_registry_estimator": frozenset(["stock_values", "row_role", "source_coordinate"]),
+    "coupled_des_abm": frozenset(["coupled_summary", "queue_length"]),
+    "program_graph": frozenset(
+        [
+            "simulation_result_ref",
+            "semantic_input_notes",
+            "outcome_aggregation_basis",
+            "state_delta_ref",
+            "metrics_ref_produced",
+            "state_delta_artifact_ref",
+            "metrics_artifact_ref",
+            "method_execution",
+        ]
+    ),
+}
+_DIAGNOSTIC_PHYSICAL_FIELDS = frozenset(
+    [
+        "schema_version",
+        "invocation_id",
+        "event_id",
+        "physical_spec_ref",
+        "effective_seed",
+        "status",
+        "started_at",
+        "completed_at",
+        "duration_seconds",
+        "work_units",
+        "work_unit",
+        "observation_basis",
+        "scientific_authenticity",
+        "usd_cost",
+        "usd_cost_status",
+        "budget_status",
+        "budget_source_basis_digest",
+        "error_type",
+        "error_code",
+        "error_context",
+        "invocation_quota_operation_id",
+        "invocation_quota_request_digest",
+        "invocation_quota_profile_digest",
+        "invocation_quota_purpose",
+        "invocation_quota_status",
+    ]
+)
+_DIAGNOSTIC_PHYSICAL_VOLATILE = frozenset(
+    [
+        "invocation_id",
+        "event_id",
+        "started_at",
+        "completed_at",
+        "duration_seconds",
+        "invocation_quota_operation_id",
+        "invocation_quota_request_digest",
+    ]
+)
+_DIAGNOSTIC_RECEIPT_VOLATILE = frozenset(
+    ["receipt_id", "payload_hash", "trajectory_hash", "diagnostics_hash"]
+)
+_DIAGNOSTIC_RECEIPT_FIELDS = frozenset(
+    [
+        "schema_version",
+        "receipt_id",
+        "engine_kind",
+        "payload_hash",
+        "trajectory_hash",
+        "metrics_hash",
+        "diagnostics_hash",
+        "diagnostics_attached",
+        "trajectory_count",
+        "uncertainty_kind",
+        "authoritative_for",
+        "may_not_use_for",
+        "calibration_status",
+    ]
+)
+_DIAGNOSTIC_WORLD_STATE_FIELDS = frozenset(
+    [
+        "world_model_record_content_hash",
+        "input_bindings_ref",
+        "bound_state_snapshot_ref",
+        "state_blob_content_hash",
+        "state_slot_digest",
+        "selected_slot_paths",
+        "program_graph_ref",
+        "exec_plan_ref",
+        "exec_plan_manifest_profile_sha256",
+        "exec_plan_provenance",
+        "horizon_time_alignment",
+    ]
+)
+
+
+def _diagnostic_identity(value: object, *, kind: str) -> JsonValue:
+    """Mark one schema-owned locator as not compared without hiding its shape."""
+    if value is None:
+        return {"comparison": "not_compared", "kind": kind, "present": False}
+    if type(value) is not str or not value:
+        raise ValueError("n5_diagnostic_identity_not_established")
+    return {"comparison": "not_compared", "kind": kind, "present": True}
+
+
+def _diagnostic_ref(value: object) -> JsonValue:
+    from polisyos.core.artifacts import ArtifactRef
+
+    if value is None:
+        return {"comparison": "not_compared", "kind": "artifact_ref", "present": False}
+    if type(value) is not dict:
+        raise ValueError("n5_diagnostic_ref_not_established")
+    ref = ArtifactRef.model_validate(value)
+    if set(value) - {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}:
+        raise ValueError("n5_diagnostic_ref_not_established")
+    return {
+        "comparison": "not_compared",
+        "kind": "artifact_ref",
+        "present": True,
+        "artifact_kind": ref.kind,
+        "media_type": ref.media_type,
+        "profile_selected": ref.manifest_profile_sha256 is not None,
+    }
+
+
+def _diagnostic_occurrences(value: object) -> JsonValue:
+    if type(value) is not list:
+        raise ValueError("n5_diagnostic_occurrence_not_established")
+    output = []
+    for row in value:
+        if type(row) is not dict or set(row) != {
+            "occurrence_id",
+            "invocation_id",
+            "node_id",
+            "status",
+        }:
+            raise ValueError("n5_diagnostic_occurrence_not_established")
+        output.append(
+            {
+                "occurrence_id": _diagnostic_identity(
+                    row["occurrence_id"], kind="method_occurrence"
+                ),
+                "invocation_id": _diagnostic_identity(
+                    row["invocation_id"], kind="method_invocation"
+                ),
+                "node_id": _json(row["node_id"]),
+                "status": _json(row["status"]),
+            }
+        )
+    return output
+
+
+def _diagnostic_work_events(value: object) -> JsonValue:
+    if type(value) is not list:
+        raise ValueError("n5_diagnostic_work_event_not_established")
+    return [_diagnostic_identity(ref, kind="physical_work_event") for ref in value]
+
+
+def _diagnostic_failure_capture(value: object) -> JsonValue:
+    from polisyos.runtime.quality.joint_simulation_horizon import MethodMetricHorizonFailureCapture
+
+    capture = MethodMetricHorizonFailureCapture.model_validate(value)
+    expected = {
+        "schema_version",
+        "step",
+        "status",
+        "method_metric_binding_set_ref",
+        "method_execution_bundle_ref",
+        "step_source",
+        "physical_work_event_id",
+        "invocation_id",
+        "occurrences",
+    }
+    if exact_n5_model_field_names(capture) != expected:
+        raise ValueError("n5_diagnostic_failure_role_not_established")
+    source = capture.step_source
+    if exact_n5_model_field_names(source) != {
+        "step",
+        "source_status",
+        "prestate_ref",
+        "occurrence_ids",
+    }:
+        raise ValueError("n5_diagnostic_failure_role_not_established")
+    return {
+        "schema_version": capture.schema_version,
+        "step": capture.step,
+        "status": capture.status,
+        "method_metric_binding_set_ref": _diagnostic_ref(
+            capture.method_metric_binding_set_ref.model_dump(mode="json")
+        ),
+        "method_execution_bundle_ref": _diagnostic_ref(
+            capture.method_execution_bundle_ref.model_dump(mode="json")
+        ),
+        "physical_work_event_id": _diagnostic_identity(
+            capture.physical_work_event_id, kind="physical_work_event"
+        ),
+        "invocation_id": _diagnostic_identity(capture.invocation_id, kind="method_invocation"),
+        "step_source": {
+            "step": source.step,
+            "source_status": source.source_status,
+            "prestate_ref": _diagnostic_ref(source.prestate_ref.model_dump(mode="json")),
+            "occurrence_ids": [
+                _diagnostic_identity(ref, kind="method_occurrence") for ref in source.occurrence_ids
+            ],
+        },
+        "occurrences": _diagnostic_occurrences(
+            [row.model_dump(mode="json") for row in capture.occurrences]
+        ),
+    }
+
+
+def _diagnostic_method_execution(value: object) -> JsonValue:
+    if type(value) is not dict or set(value) != {
+        "status",
+        "method_metric_binding_set_ref",
+        "method_execution_bundle_ref",
+        "prestate_ref",
+        "occurrences",
+    }:
+        raise ValueError("n5_diagnostic_method_execution_not_established")
+    return {
+        "status": _json(value["status"]),
+        "method_metric_binding_set_ref": _diagnostic_ref(value["method_metric_binding_set_ref"]),
+        "method_execution_bundle_ref": _diagnostic_ref(value["method_execution_bundle_ref"]),
+        "prestate_ref": _diagnostic_ref(value["prestate_ref"]),
+        "occurrences": _diagnostic_occurrences(value["occurrences"]),
+    }
+
+
+def _diagnostic_method_sources(value: object, *, replicated: bool = False) -> JsonValue:
+    if type(value) is not list:
+        raise ValueError("n5_diagnostic_method_source_not_established")
+    if replicated:
+        return [_diagnostic_method_sources(rows) for rows in value]
+    output = []
+    base = {"step", "prestate_ref", "state_delta_ref", "metrics_ref", "occurrence_ids"}
+    extra = {"method_metric_binding_set_ref", "method_execution_bundle_ref", "occurrences"}
+    for row in value:
+        if type(row) is not dict or set(row) not in (base, base | extra):
+            raise ValueError("n5_diagnostic_method_source_not_established")
+        if type(row["occurrence_ids"]) is not list:
+            raise ValueError("n5_diagnostic_method_source_not_established")
+        projected = {
+            "step": _json(row["step"]),
+            "prestate_ref": _diagnostic_ref(row["prestate_ref"]),
+            "state_delta_ref": _diagnostic_ref(row["state_delta_ref"]),
+            "metrics_ref": _diagnostic_ref(row["metrics_ref"]),
+            "occurrence_ids": [
+                _diagnostic_identity(x, kind="method_occurrence") for x in row["occurrence_ids"]
+            ],
+        }
+        if extra <= row.keys():
+            projected.update(
+                {
+                    "method_metric_binding_set_ref": _diagnostic_ref(
+                        row["method_metric_binding_set_ref"]
+                    ),
+                    "method_execution_bundle_ref": _diagnostic_ref(
+                        row["method_execution_bundle_ref"]
+                    ),
+                    "occurrences": _diagnostic_occurrences(row["occurrences"]),
+                }
+            )
+        output.append(projected)
+    return output
+
+
+def _diagnostic_state(
+    value: object,
+    engine: str,
+    *,
+    derived: bool = False,
+) -> dict[str, JsonValue]:
+    if type(value) is not dict or engine not in _DIAGNOSTIC_STATE_FIELDS:
+        raise ValueError("n5_diagnostic_state_not_established")
+    if derived:
+        if set(value) != {"source_scope_engine_states"}:
+            raise ValueError("n5_diagnostic_state_not_established")
+        scopes = value["source_scope_engine_states"]
+        if type(scopes) is not dict or any(type(key) is not str for key in scopes):
+            raise ValueError("n5_diagnostic_state_not_established")
+        return {
+            "source_scope_engine_states": {
+                key: _diagnostic_state(item, engine) for key, item in scopes.items()
+            }
+        }
+    allowed = _DIAGNOSTIC_STATE_FIELDS[engine] | frozenset(_REPLICATION_STATE_ROLES)
+    if set(value) - allowed:
+        raise ValueError("n5_diagnostic_state_not_established")
+    output = {key: _json(item) for key, item in value.items() if key != "replication_engine_states"}
+    for field in ("simulation_result_ref", "state_delta_artifact_ref", "metrics_artifact_ref"):
+        if field in value:
+            output[field] = _diagnostic_ref(value[field])
+    if "state_delta_ref" in value:
+        output["state_delta_ref"] = _diagnostic_identity(
+            value["state_delta_ref"], kind="artifact_id"
+        )
+    if "method_execution" in value:
+        output["method_execution"] = _diagnostic_method_execution(value["method_execution"])
+    if "replication_engine_states" in value:
+        samples = value["replication_engine_states"]
+        if type(samples) is not list:
+            raise ValueError("n5_diagnostic_state_not_established")
+        output["replication_engine_states"] = [_diagnostic_state(item, engine) for item in samples]
+    return output
+
+
+def _diagnostic_nested(
+    value: object,
+    engine: str,
+    *,
+    derived: bool = False,
+) -> JsonValue:
+    from polisyos.runtime.quality import joint_simulation_horizon as horizon
+
+    if isinstance(value, BaseModel):
+        name = type(value).__name__
+        roles = N5_TYPED_FIELD_ROLES.get(name)
+        if (
+            roles is None
+            or type(value) is not getattr(horizon, name, None)
+            or exact_n5_model_field_names(value) != roles.keys()
+        ):
+            raise ValueError("n5_diagnostic_field_role_not_established")
+        result: dict[str, JsonValue] = {}
+        for field in roles:
+            item = getattr(value, field)
+            if field == "engine_state":
+                result[field] = _diagnostic_state(item, engine, derived=derived)
+            elif name == "SimulationTrajectory" and field == "diagnostics":
+                if type(item) is not dict or set(item) - _DIAGNOSTIC_TRAJECTORY_FIELDS:
+                    raise ValueError("n5_diagnostic_trajectory_role_not_established")
+                result[field] = {
+                    key: (
+                        _diagnostic_method_sources(
+                            child, replicated=key == "replication_method_execution_sources"
+                        )
+                        if key
+                        in {"method_execution_sources", "replication_method_execution_sources"}
+                        else [_diagnostic_identity(ref, kind="artifact_id") for ref in child]
+                        if key == "state_delta_refs" and type(child) is list
+                        else _json(child)
+                    )
+                    if key != "physical_work_event_ids"
+                    else _diagnostic_work_events(child)
+                    for key, child in item.items()
+                }
+            elif name == "SimulationTrajectory" and field == "semantic_program_graph_replications":
+                if any(
+                    type(entry) is not horizon.SemanticProgramGraphReplication
+                    or exact_n5_model_field_names(entry) != {"replication_seed", "step_result_refs"}
+                    for entry in item
+                ):
+                    raise ValueError("n5_diagnostic_semantic_role_not_established")
+                result[field] = [
+                    {
+                        "replication_seed": entry.replication_seed,
+                        "step_result_refs": [
+                            _diagnostic_ref(ref.model_dump(mode="json"))
+                            for ref in entry.step_result_refs
+                        ],
+                    }
+                    for entry in item
+                ]
+            else:
+                result[field] = _diagnostic_nested(
+                    item,
+                    engine,
+                    derived=derived
+                    or field in {"replication_sampling_by_step", "higher_order_residual_sampling"},
+                )
+        return result
+    if type(value) in (tuple, list):
+        return [_diagnostic_nested(item, engine, derived=derived) for item in value]
+    if type(value) is dict:
+        if any(type(key) not in (str, int) for key in value) or len(
+            {str(key) for key in value}
+        ) != len(value):
+            raise ValueError("n5_projection_mapping_key_not_established")
+        return {
+            str(key): _diagnostic_nested(item, engine, derived=derived)
+            for key, item in value.items()
+        }
+    return _json(value)
+
+
+def project_n5_diagnostic_freshness_bytes(result: JointSimulationResult) -> bytes:
+    """Validate a V5 result and return transient candidate diagnostic comparison bytes.
+
+    Volatile work IDs and clocks are removed only after their typed joins and
+    receipt are checked. This comparison grants no scientific or use authority.
+    Unsupported producer fields fail closed.
+    """
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
+        JointSimulationResult,
+        PhysicalSimulationWorkObservation,
+        SimulationProofReceipt,
+        verify_simulation_receipt,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import _candidate_result_payload
+
+    if (
+        type(result) is not JointSimulationResult
+        or result.schema_version != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+    ):
+        raise ValueError("n5_diagnostic_result_not_established")
+    if exact_n5_model_field_names(result) != N5_TYPED_FIELD_ROLES["JointSimulationResult"].keys():
+        raise ValueError("n5_diagnostic_field_role_not_established")
+    payload = _candidate_result_payload(result)
+    verify_simulation_receipt(result.receipt, payload)
+    fresh = JointSimulationResult.model_validate_json(result.model_dump_json())
+    _ = fresh.physical_work_observations
+    if set(PhysicalSimulationWorkObservation.model_fields) != _DIAGNOSTIC_PHYSICAL_FIELDS:
+        raise ValueError("n5_diagnostic_physical_role_not_established")
+    selected = [decision for decision in fresh.engine_decisions if decision.decision == "selected"]
+    if len(selected) == 1:
+        engine = selected[0].engine_kind
+    elif not selected and not fresh.trajectories and fresh.engine_decisions:
+        engine = fresh.engine_decisions[0].engine_kind
+    else:
+        raise ValueError("n5_diagnostic_engine_not_established")
+    if engine not in _DIAGNOSTIC_STATE_FIELDS:
+        raise ValueError("n5_diagnostic_engine_not_established")
+    output: dict[str, JsonValue] = {}
+    for field in N5_TYPED_FIELD_ROLES["JointSimulationResult"]:
+        item = getattr(fresh, field)
+        if field == "receipt":
+            if (
+                type(item) is not SimulationProofReceipt
+                or exact_n5_model_field_names(item) != _DIAGNOSTIC_RECEIPT_FIELDS
+            ):
+                raise ValueError("n5_diagnostic_receipt_role_not_established")
+            receipt_values = item.model_dump(mode="json")
+            for name in _DIAGNOSTIC_RECEIPT_VOLATILE:
+                receipt_values[name] = _diagnostic_identity(
+                    receipt_values[name], kind="receipt_content_identity"
+                )
+            output[field] = _json(receipt_values)
+        elif field == "diagnostics":
+            extra_fields = {
+                "physical_work_interruption",
+                "method_metric_horizon_failure_capture",
+                "projection_error_code",
+                "projection_error_context",
+                "budget_interruption_basis",
+            }
+            if type(item) is not dict or set(item) - (
+                N5_ROOT_DIAGNOSTIC_ROLES.keys() | extra_fields
+            ):
+                raise ValueError("n5_diagnostic_root_role_not_established")
+            if (
+                "candidate_n5_execution_content_observation" in item
+                or "n5_execution_implementation_witness" in item
+            ):
+                raise ValueError("n5_diagnostic_content_owner_not_established")
+            diagnostics = {
+                key: _json(value)
+                for key, value in item.items()
+                if key
+                not in {
+                    "physical_work_observations",
+                    "ncm_conditional_comparator",
+                    "method_metric_horizon_failure_capture",
+                }
+            }
+            if "method_metric_horizon_failure_capture" in item:
+                diagnostics["method_metric_horizon_failure_capture"] = _diagnostic_failure_capture(
+                    item["method_metric_horizon_failure_capture"]
+                )
+            if "physical_work_observations" in item:
+                work_rows = []
+                for work in fresh.physical_work_observations:
+                    row = work.model_dump(mode="json")
+                    for name in _DIAGNOSTIC_PHYSICAL_VOLATILE:
+                        value = row.get(name)
+                        if name == "duration_seconds":
+                            if type(value) not in (int, float):
+                                raise ValueError("n5_diagnostic_work_time_not_established")
+                            row[name] = {
+                                "comparison": "not_compared",
+                                "kind": "duration_seconds",
+                                "present": True,
+                            }
+                        else:
+                            row[name] = _diagnostic_identity(value, kind=name)
+                    work_rows.append(_json(row))
+                diagnostics["physical_work_observations"] = work_rows
+            if "ncm_conditional_comparator" in item:
+                comparator = item["ncm_conditional_comparator"]
+                if type(comparator) is not dict or set(comparator) != {
+                    "schema_version",
+                    "estimand",
+                    "request",
+                    "input",
+                    "result",
+                }:
+                    raise ValueError("n5_diagnostic_comparator_not_established")
+                c = _json(comparator)
+                if not isinstance(c, dict):
+                    raise ValueError("n5_diagnostic_comparator_not_established")
+                raw_result = c["result"]
+                if (
+                    not isinstance(raw_result, dict)
+                    or set(raw_result) != {"samples"}
+                    or not isinstance(raw_result["samples"], list)
+                ):
+                    raise ValueError("n5_diagnostic_comparator_not_established")
+                for sample in raw_result["samples"]:
+                    if not isinstance(sample, dict) or set(sample) != {
+                        "seed",
+                        "outcomes",
+                        "physical_work_event_id",
+                    }:
+                        raise ValueError("n5_diagnostic_comparator_not_established")
+                    sample["physical_work_event_id"] = _diagnostic_identity(
+                        sample["physical_work_event_id"], kind="physical_work_event"
+                    )
+                diagnostics["ncm_conditional_comparator"] = c
+            output[field] = diagnostics
+        elif isinstance(item, BaseModel) and type(item).__name__ == "WorldStateConsumptionRecord":
+            from polisyos.runtime.quality.joint_simulation_horizon import (
+                WorldStateConsumptionRecord,
+            )
+
+            if (
+                type(item) is not WorldStateConsumptionRecord
+                or exact_n5_model_field_names(item) != _DIAGNOSTIC_WORLD_STATE_FIELDS
+            ):
+                raise ValueError("n5_diagnostic_world_state_role_not_established")
+            output[field] = _json(item.model_dump(mode="json"))
+        else:
+            output[field] = _diagnostic_nested(item, engine)
+    return exact_n5_content_bytes(
+        {
+            "schema_version": "policyos.runtime.n5_diagnostic_freshness.v1",
+            "authority_purpose": "expected_qa_contract_only",
+            "limitations": [
+                "external_artifact_contents_not_asserted",
+                "historical_producer_identity_not_asserted",
+                "intra_result_excluded_provenance_id_alias_equality_not_compared",
+                "protected_use_not_permitted",
+            ],
+            "result": output,
+        }
+    )

@@ -24,6 +24,7 @@ from polisyos.runtime.quality.n5_replay_execution import (
     _open_diagnostic_budget,
     _process_group_quiescent,
     _read_blind_action,
+    _require_observed_executor,
     _run_managed_worker,
     _settle_attempt,
     _worker_result_payload,
@@ -267,6 +268,8 @@ def test_infrastructure_retry_keeps_charged_units_and_mismatch_is_final(tmp_path
         second,
         status="executed",
         child_pid=43,
+        executor_pid=44,
+        executor_created_us=123,
         execution_ref=spec.execution_profile_ref,
         ledger_hash=security.raw_content_hash((tmp_path / "diagnostic-ledger.json").read_bytes()),
         ledger_revision=middleware.snapshot_safe().revision,
@@ -300,7 +303,7 @@ def test_live_process_group_is_not_quiescent() -> None:
 
 @pytest.mark.parametrize("exit_code", [0, 17])
 def test_managed_worker_retains_output_and_exit(tmp_path: Path, exit_code: int) -> None:
-    pid, actual, stdout = _run_managed_worker(
+    pid, actual, stdout, observed = _run_managed_worker(
         [
             sys.executable,
             "-c",
@@ -311,6 +314,7 @@ def test_managed_worker_retains_output_and_exit(tmp_path: Path, exit_code: int) 
         timeout=5,
     )
     assert pid != 0 and actual == exit_code and stdout == "out\n"
+    assert pid in observed
     assert (tmp_path / "child-stderr.log").read_text() == "err\n"
 
 
@@ -334,3 +338,27 @@ def test_managed_worker_timeout_retains_logs(tmp_path: Path) -> None:
             timeout=0.3,
         )
     assert (tmp_path / "child-stdout.log").read_text() == "started\n"
+
+
+def test_managed_worker_observes_nested_executor_and_rejects_foreign_pid(tmp_path: Path) -> None:
+    code = (
+        "import subprocess,sys; "
+        "subprocess.run([sys.executable, '-c', "
+        '"import os,time; print(os.getpid(), flush=True); time.sleep(0.5)"], check=True)'
+    )
+    leader, status, stdout, observed = _run_managed_worker(
+        [sys.executable, "-c", code], tmp_path, "", timeout=5
+    )
+    executor = int(stdout.strip())
+    assert status == 0 and executor != leader
+    assert _require_observed_executor(executor, observed) == observed[executor]
+    foreign = subprocess.Popen(  # noqa: S603
+        [sys.executable, "-c", "import time; time.sleep(30)"], start_new_session=True
+    )
+    try:
+        assert foreign.pid != leader and foreign.pid != executor
+        with pytest.raises(ValueError, match="executor_not_observed"):
+            _require_observed_executor(foreign.pid, observed)
+    finally:
+        foreign.terminate()
+        foreign.wait(timeout=5)

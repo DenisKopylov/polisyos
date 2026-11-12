@@ -78,7 +78,9 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   blind execution/accounting and protected-use admission remain separate.
 - `n5_replay_execution.py` rebuilds a selected V5 NCM request through its native
   owner and launches a new original and a blind repeat under the same assigned
-  runtime profile. Parent-only result/action/ledger bindings are separated from
+  runtime profile. The parent observes actual executor PID/creation time within
+  the owned launcher session, retaining the session leader separately for group
+  cleanup and restart state. Parent-only result/action/ledger bindings are separated from
   source-only child input lineage. Each diagnostic physical unit uses the native
   durable quota owner; USD cost remains unknown. A small attempt journal resumes
   executed results without another kernel and permits only bounded infrastructure

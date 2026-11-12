@@ -332,7 +332,7 @@ class _WorkerLifecycleError(ValueError):
 
 def _run_managed_worker(
     command: list[str], workspace: Path, suffix: str, *, timeout: float = 600
-) -> tuple[int, int, str]:
+) -> tuple[int, int, str, dict[int, int]]:
     """Hold the session leader until its owned group is observed empty and reaped."""
     if (
         signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL
@@ -392,9 +392,34 @@ def _run_managed_worker(
         except OSError as exc:
             raise _WorkerLaunchError(str(exc)) from exc
         reason: str | None = None
+        observed: dict[int, int] = {}
+        ambiguous: set[int] = set()
+
+        def observe_members() -> None:
+            try:
+                leader = psutil.Process(process.pid)
+                members = [leader, *leader.children(recursive=True)]
+                for member in members:
+                    try:
+                        if (
+                            os.getpgid(member.pid) != process.pid
+                            or os.getsid(member.pid) != process.pid
+                        ):
+                            continue
+                        created = int(member.create_time() * 1_000_000)
+                        if member.pid in observed and observed[member.pid] != created:
+                            ambiguous.add(member.pid)
+                        else:
+                            observed[member.pid] = created
+                    except (ProcessLookupError, psutil.NoSuchProcess, psutil.ZombieProcess):
+                        continue
+            except (psutil.NoSuchProcess, psutil.ZombieProcess):
+                return
+
         try:
             deadline = time.monotonic() + timeout
             while not peek(process.pid):
+                observe_members()
                 if time.monotonic() >= deadline:
                     reason = "timeout"
                     break
@@ -424,7 +449,20 @@ def _run_managed_worker(
                 process.wait(timeout=2)
     if reason is not None:
         raise _WorkerLifecycleError(reason, process.pid)
-    return process.pid, process.returncode, stdout_path.read_text(encoding="utf-8")
+    return (
+        process.pid,
+        process.returncode,
+        stdout_path.read_text(encoding="utf-8"),
+        {pid: created for pid, created in observed.items() if pid not in ambiguous},
+    )
+
+
+def _require_observed_executor(pid: int, observed: dict[int, int]) -> int:
+    """Bind a reported executor to a unique observed member of this session."""
+    created = observed.get(pid)
+    if created is None or created <= 0 or pid == os.getpid():
+        raise ValueError("n5_worker_executor_not_observed")
+    return created
 
 
 class N5ReplayCandidateComparison(BaseModel):
@@ -461,6 +499,8 @@ class N5ReplayAttemptEntry(BaseModel):
     attempt_number: int = Field(ge=1, strict=True)
     status: Literal["infrastructure_error", "equal", "mismatch", "unknown"]
     child_pid: int | None = Field(default=None, gt=0)
+    executor_pid: int | None = Field(default=None, gt=0)
+    executor_created_us: int | None = Field(default=None, gt=0)
     execution_ref: artifacts.ArtifactRef | None = None
     comparison_ref: artifacts.ArtifactRef | None = None
     ledger_hash: str | None = None
@@ -482,6 +522,8 @@ class N5ReplayAttemptState(BaseModel):
     attempt_number: int = Field(ge=0, strict=True)
     status: Literal["active", "infrastructure_error", "executed", "equal", "mismatch", "unknown"]
     child_pid: int | None = Field(default=None, gt=0)
+    executor_pid: int | None = Field(default=None, gt=0)
+    executor_created_us: int | None = Field(default=None, gt=0)
     execution_ref: artifacts.ArtifactRef | None = None
     comparison_ref: artifacts.ArtifactRef | None = None
     ledger_hash: str | None = None
@@ -509,6 +551,8 @@ class N5ReplayAttemptState(BaseModel):
                     not self.history
                     or self.history[-1].status != self.status
                     or self.history[-1].child_pid != self.child_pid
+                    or self.history[-1].executor_pid != self.executor_pid
+                    or self.history[-1].executor_created_us != self.executor_created_us
                     or self.history[-1].execution_ref != self.execution_ref
                     or self.history[-1].comparison_ref != self.comparison_ref
                     or self.history[-1].ledger_hash != self.ledger_hash
@@ -523,6 +567,8 @@ class N5ReplayAttemptState(BaseModel):
                 self.status == "executed"
                 and (
                     self.child_pid is None
+                    or self.executor_pid is None
+                    or self.executor_created_us is None
                     or self.execution_ref is None
                     or self.ledger_hash is None
                     or self.ledger_revision is None
@@ -532,6 +578,8 @@ class N5ReplayAttemptState(BaseModel):
                 self.status in {"equal", "mismatch"}
                 and (
                     self.child_pid is None
+                    or self.executor_pid is None
+                    or self.executor_created_us is None
                     or self.execution_ref is None
                     or self.comparison_ref is None
                     or self.ledger_hash is None
@@ -637,6 +685,8 @@ def _begin_attempt(
                     "status": "active",
                     "attempt_number": prior.attempt_number + 1,
                     "child_pid": None,
+                    "executor_pid": None,
+                    "executor_created_us": None,
                     "execution_ref": None,
                     "ledger_hash": None,
                     "ledger_revision": None,
@@ -663,6 +713,8 @@ def _settle_attempt(
                 attempt_number=current.attempt_number,
                 status=payload["status"],
                 child_pid=payload["child_pid"],
+                executor_pid=payload["executor_pid"],
+                executor_created_us=payload["executor_created_us"],
                 execution_ref=payload["execution_ref"],
                 comparison_ref=payload["comparison_ref"],
                 ledger_hash=payload["ledger_hash"],
@@ -1001,7 +1053,7 @@ def run_original_n5_producer(
     executable = Path(__file__).resolve().parents[4] / "tools" / "authority"
     # The executable and argument layout are fixed; no shell is used.
     try:
-        child_pid, returncode, stdout = _run_managed_worker(
+        _launcher_pid, returncode, stdout, observed_processes = _run_managed_worker(
             [
                 str(executable),
                 "runtime",
@@ -1029,10 +1081,9 @@ def run_original_n5_producer(
         kind="runtime.quality.n5_original_producer_execution",
         schema_version="1.0",
     )
+    _require_observed_executor(persisted.pid, observed_processes)
     if (
         persisted != outcome.execution
-        or persisted.pid != child_pid
-        or persisted.pid == os.getpid()
         or _read_original_action(store, persisted.action_ref, persisted.action_hash) != action
         or persisted.source_input_ref != action.source_input_ref
         or persisted.source_run_id != action.source_run_id
@@ -1492,12 +1543,13 @@ def run_appointed_n5_replay(
         ):
             raise ValueError("n5_replay_recovered_action_mismatch")
         child_pid = attempt.child_pid
+        observed_processes = {attempt.executor_pid: attempt.executor_created_us}
     else:
         action_path.write_text(action.model_dump_json(), encoding="utf-8")
         executable = Path(__file__).resolve().parents[4] / "tools" / "authority"
         # Fixed repository authority executable and argv; no shell or caller command.
         try:
-            child_pid, returncode, stdout = _run_managed_worker(
+            child_pid, returncode, stdout, observed_processes = _run_managed_worker(
                 [
                     str(executable),
                     "runtime",
@@ -1538,9 +1590,9 @@ def run_appointed_n5_replay(
                 failure = N5ReplayInfrastructureFailure.model_validate_json(
                     _worker_result_payload(stdout)
                 )
+                _require_observed_executor(failure.pid, observed_processes)
                 if (
-                    failure.pid != child_pid
-                    or failure.attempt_number != attempt.attempt_number
+                    failure.attempt_number != attempt.attempt_number
                     or failure.action_hash != security.raw_content_hash(_blind_action_bytes(action))
                 ):
                     raise ValueError("n5_replay_infrastructure_failure_unbound")
@@ -1571,10 +1623,9 @@ def run_appointed_n5_replay(
                 )
             raise ValueError("n5_replay_child_execution_failed")
         execution = N5BlindReplayExecution.model_validate_json(_worker_result_payload(stdout))
+    executor_created_us = _require_observed_executor(execution.pid, observed_processes)
     if (
-        execution.pid != child_pid
-        or execution.pid == os.getpid()
-        or execution.replay_run_id != spec.replay_run_id
+        execution.replay_run_id != spec.replay_run_id
         or execution.replay_job_id != spec.replay_job_id
         or execution.attempt_number != attempt.attempt_number
         or execution.action_hash != security.raw_content_hash(_blind_action_bytes(action))
@@ -1685,6 +1736,8 @@ def run_appointed_n5_replay(
             attempt,
             status="executed",
             child_pid=child_pid,
+            executor_pid=execution.pid,
+            executor_created_us=executor_created_us,
             execution_ref=execution_ref,
             ledger_hash=security.raw_content_hash(ledger_bytes),
             ledger_revision=snapshot.revision,
@@ -1720,7 +1773,7 @@ def run_appointed_n5_replay(
     result = N5ReplayCandidateComparison(
         status=comparison.status,
         parent_pid=os.getpid(),
-        child_pid=child_pid,
+        child_pid=execution.pid,
         attempt_key=claim_key,
         original_result_ref=original_execution.result_ref,
         replay_result_ref=execution.result_ref,

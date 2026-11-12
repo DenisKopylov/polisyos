@@ -9897,6 +9897,19 @@
               "output": "policy-engine/_cache/e02/n5-blind-original-replay-real-r1/",
               "execution_artifact_id": "sha256:7394ff4883a630d9db58b81409c4c211a7ca0352c3437a7fdc95ea0fe92a5515",
               "cause": "Authority launcher starts a separate real runtime worker; parent wrongly equates executor PID to session leader PID."
+            },
+            "pid_correction": {
+              "status": "IMPLEMENTED_FOCUSED_PASS",
+              "lifecycle_recovery_cohort_PASS": 7,
+              "final_real_foreign_pid_control_PASS": 1,
+              "independent_review": "GO_FINAL",
+              "source_sha256": "7ee7903dcedd731093910577c4e4b96be5eabcb7dc6a872ab2495f98383c4121",
+              "test_sha256": "473374843d20a8d6cf681b5ffcac6c9ee08e8725e92fc1fdd90a980471f60986",
+              "outputs": [
+                "policy-engine/_cache/e02/n5-replay-pid-observation-r2/",
+                "policy-engine/_cache/e02/n5-replay-foreign-executor-r1/"
+              ],
+              "scope": "Owned-session observed executor and separate leader identity; genuine numerical comparison still pending."
             }
           },
           "gdp_fixture_catalog_followup": {

@@ -108,7 +108,7 @@ def _assert_selected_n4_source_replay_is_consolidated(
                 expected_cell_id=expected_cell_id,
             ),
         )
-        assert baseline_source_loads == 4
+        assert baseline_source_loads == 3
         assert batched_source_loads == 1
         assert tuple(item.model_dump(mode="json") for item in baseline) == tuple(
             item.model_dump(mode="json") for item in resolved[:3]

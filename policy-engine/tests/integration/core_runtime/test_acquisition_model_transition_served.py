@@ -82,6 +82,84 @@ def test_selected_target_baseline_tracks_the_actually_acquired_slot() -> None:
         check(None, "same", acquired_slot="outcome", target_slot="intervention")
 
 
+def test_gdp_fixture_bootstrap_keeps_candidate_catalog_scope_and_owner_roots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An independent fixture owner cannot borrow the active candidate catalog."""
+    import json
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.security.tenant_context import get_current_cell_id, get_current_tenant_id
+    from polisyos.runtime.quality import substrate_registry
+    from tests._helpers import generic_n4_served_replay
+    from tests._helpers.acquisition_epoch_production import production_admission_inputs
+    from tests._helpers.annual_gdp_candidate import (
+        ANNUAL_GDP_WDI_PROFILE,
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests._helpers.lane01_wdi_profiles import build_fixture_wdi_authority
+
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "candidate-source",
+        outcome_variable="global.gdp",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "served_tax_global_scalar"
+        ),
+    )
+    fixture_root = tmp_path / "authority-owner"
+    fixture_root.mkdir()
+    authority, _entry = build_fixture_wdi_authority(fixture_root, ANNUAL_GDP_WDI_PROFILE)
+    store = FileSystemCAS(tmp_path / "fixture-cas")
+    expected_scope = fixture._candidate_refresh_epoch_inputs(
+        ANNUAL_GDP_WDI_PROFILE, annual_gdp_candidate_problem()
+    )
+    assert expected_scope == {
+        "epoch_scope_payload": {
+            "domain": "economic",
+            "jurisdiction": "USA",
+            "year": 2024,
+            "population": "national_economy",
+        },
+        "authority_purpose": "candidate_simulation",
+    }
+    with annual_gdp_catalog_source(source.root, monkeypatch) as (_selection, active, _registry):
+        assert substrate_registry.current_catalog_serving_source() is active
+        with pytest.raises(
+            substrate_registry.SubstrateRegistryError, match="catalog_source_repo_root_mismatch"
+        ):
+            substrate_registry.default_substrate_catalog_paths(fixture_root)
+
+        def resolve_owner() -> tuple[Path, str, str | None, dict[str, object]]:
+            assert substrate_registry.current_catalog_serving_source() is None
+            paths = substrate_registry.default_substrate_catalog_paths(fixture_root)
+            prepared = production_admission_inputs(
+                tmp_path / "owner-inputs",
+                store=store,
+                authority=authority,
+                overlay_path=tmp_path / "overlay.duckdb",
+                epoch_history_root=tmp_path / "epochs",
+                scope_payload=expected_scope["epoch_scope_payload"],
+                authority_purpose=expected_scope["authority_purpose"],
+            )
+            return paths.production_root, get_current_tenant_id(), get_current_cell_id(), prepared
+
+        root, tenant, cell, prepared = fixture._independent_fixture_bootstrap(resolve_owner)
+        assert root == fixture_root / substrate_registry.DEFAULT_PRODUCTION_DATA_ROOT
+        assert (tenant, cell) == (fixture.TENANT, fixture.CELL)
+        assert prepared["repo_root"] == fixture_root
+        assert (
+            json.loads(prepared["epoch_scope_identity"].identity_bytes)
+            == (expected_scope["epoch_scope_payload"])
+        )
+        assert prepared["authority_purpose"] == "candidate_simulation"
+        assert substrate_registry.current_catalog_serving_source() is active
+
+
 def _with_model_values(
     declaration: CandidateSimulationSyntheticModelDeclarationV1, **updates: float
 ) -> CandidateSimulationSyntheticModelDeclarationV1:

@@ -10,7 +10,7 @@ import time
 import uuid
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
-from contextvars import ContextVar, Token
+from contextvars import Context, ContextVar, Token
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -146,6 +146,44 @@ def _within_fixture_owner(call, *args, **kwargs):
     """Emit external fixture inputs under their actual tenant/cell ownership."""
     with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
         return call(*args, **kwargs)
+
+
+def _independent_fixture_bootstrap(call, *args, **kwargs):
+    """Initialize an unrelated fixture owner outside the active catalog context."""
+    from polisyos.core.security.tenant_context import (
+        get_current_access_scope_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+    )
+
+    access = get_current_access_scope_or_none()
+
+    def run():
+        token = set_current_access_scope(access) if access is not None else None
+        try:
+            return _within_fixture_owner(call, *args, **kwargs)
+        finally:
+            if token is not None:
+                reset_current_access_scope(token)
+
+    return Context().run(run)
+
+
+def _candidate_refresh_epoch_inputs(profile, problem) -> dict[str, object]:
+    """Derive candidate-only epoch coordinates from the selected typed source."""
+    from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
+
+    if type(profile) is not CandidateWDIProfile:
+        raise TypeError("served_candidate_refresh_profile_untyped")
+    return {
+        "epoch_scope_payload": {
+            "domain": problem.domain,
+            "jurisdiction": profile.country_code,
+            "year": profile.year,
+            "population": profile.population,
+        },
+        "authority_purpose": "candidate_simulation",
+    }
 
 
 def _safe_validation_error_fields(exception):
@@ -1890,7 +1928,13 @@ def _produce_served_acquisition_history(
                         target_slot_id=candidate_refresh_variable,
                     ),
                 )
-            case = _within_fixture_owner(
+            active_source = substrate_registry.current_catalog_serving_source()
+            bootstrap = (
+                _independent_fixture_bootstrap
+                if candidate_refresh_profile is not None
+                else _within_fixture_owner
+            )
+            case = bootstrap(
                 acquisition_chain.make_wdi_port_case,
                 tmp_path / "wdi",
                 port_patch,
@@ -1909,6 +1953,11 @@ def _produce_served_acquisition_history(
                 # A compute cap establishes neither authority nor causal coupling.
                 reentry_budget_usd=Decimal("0.50"),
                 **(
+                    _candidate_refresh_epoch_inputs(candidate_refresh_profile, recorded_problem)
+                    if candidate_refresh_profile is not None
+                    else {}
+                ),
+                **(
                     {
                         "fixture_epoch_id": sequential_oracle.epoch_id,
                         "fixture_attempt_ids": sequential_oracle.attempt_ids,
@@ -1917,6 +1966,7 @@ def _produce_served_acquisition_history(
                     else {}
                 ),
             )
+            assert substrate_registry.current_catalog_serving_source() is active_source
             cases.append(case)
             if sequential_oracle is not None:
                 sequential_oracle.observe_case(case, port_patch)

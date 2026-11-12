@@ -277,8 +277,9 @@ def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
         for family in l6_bundle.slot_family_manifest["families"].values()
         for slot in family["slots"]
     }
-    assert candidate_source.profile.rule.target_world_slot == "government.balance"
-    assert "government.balance" in declared_slots
+    expected_target = values.get("expected_target_slot", "government.balance")
+    assert candidate_source.profile.rule.target_world_slot == expected_target
+    assert expected_target in declared_slots
 
     n5_input = CandidateSimulationN5InputV5.model_validate(
         load_core_json_artifact(fresh, input_ref)
@@ -291,6 +292,8 @@ def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
     )
     expected_world_model_hash = n5_input.materialization.world_model_record_hash
     expected_outcome = candidate_source.source_record.model_declaration.outcome_variable
+    if "expected_outcome_slot" in values:
+        assert expected_outcome == values["expected_outcome_slot"]
     selected_atom_id = candidate_source.candidate.atom.intervention_id
     assert expected_outcome == n5_input.outcome_variable
     assert selected_atom_id == n5_input.materialization.derived_n5_atom.intervention_id

@@ -71,8 +71,27 @@ def _run_genuine_first_b(
         **custom_source,
     )
     called: list[str] = []
+    seed_observed: list[tuple[str, str]] = []
+
+    def observe_custom_seed(**values: Any) -> None:
+        from tests.integration.runtime_quality.test_n5_implementation_witness import (
+            assert_live_initial_a_capture,
+        )
+
+        assert seed_problem is not None
+        levers = seed_problem.candidate_lever_space.candidate_levers
+        assert len(levers) == 1
+        seed_observed.append(
+            assert_live_initial_a_capture(
+                **values,
+                expected_target_slot=levers[0].target_slot,
+                expected_outcome_slot=seed_problem.outcome_of_interest.target_variable,
+            )
+        )
 
     def after_real_b(**values: Any) -> None:
+        if seed_problem is not None:
+            assert len(seed_observed) == 1
         actual = values["actual_b"]
         witness = values["witness"]
         assert actual.result.trajectories
@@ -139,9 +158,12 @@ def _run_genuine_first_b(
             candidate_profile_builder=candidate_profile_builder,
             candidate_provider_builder=candidate_provider_builder,
             candidate_refresh_profile=candidate_refresh_profile,
+            seed_continuation_observer=observe_custom_seed if seed_problem is not None else None,
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
     assert len(called) == 1, "the callback must follow one genuine first-B witness"
+    if seed_problem is not None:
+        assert len(seed_observed) == 1 and seed_observed[0][0] == result["run_id"]
 
 
 def test_real_b_receiver_dispatch_and_settings_are_consumed(

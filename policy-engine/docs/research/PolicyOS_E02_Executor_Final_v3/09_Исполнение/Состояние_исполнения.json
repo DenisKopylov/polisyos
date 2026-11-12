@@ -9680,7 +9680,7 @@
             }
           },
           "native_content_bridge": {
-            "status": "FROZEN_COMPONENT_PASS_SERVED_UNRUN",
+            "status": "COMPONENT_AND_REAL_INITIAL_A_PASS_RETENTION_UNQUALIFIED",
             "PASS": 9,
             "FAIL": 0,
             "output": "policy-engine/_cache/e02/n5-candidate-content-native-r3/",
@@ -9740,7 +9740,7 @@
               "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
             }
           },
-          "next": "Finish shared ordinary/candidate numerical-rule projection and fresh native cold-byte retention; freeze source then full7/1 continuation plus genuine GDP outcome trio in isolated stores. Build blind diagnostic replay bridge; Gate A then P06–P08/Gate B. No next lane/G closure.",
+          "next": "Finish/review bounded hashing and optional diagnostic profiler changes, keep all controls, then admit another measured continuation/checkpoint/GDP wave. In parallel build canonical numerical projection and blind replay bridge; freeze for deciding runs. Gate A then P06–P08/Gate B; no next lane/G closure.",
           "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
           "foundation_composed": {
             "PASS": 48,
@@ -9766,6 +9766,51 @@
             "wall_seconds": 20.004,
             "peak_sampled_process_tree_rss_bytes": 143949824,
             "boundary": "No deep baseline rewrite; full architecture/generated checks separate."
+          },
+          "composed_served_wave": {
+            "source_commit": "bd071cc6ab162ead90a531330f4a89dabc77b188",
+            "source_tree": "24936909f29207b3963078a76655ba67444621e3",
+            "g_acceptance": false,
+            "full_7of1": {
+              "status": "RESOURCE_ABORT",
+              "semantic": "UNQUALIFIED_FULL_SELECTOR",
+              "output": "policy-engine/_cache/e02/lane01-v3-generations-7of1-r1/",
+              "wall_seconds": 1200.156,
+              "peak_sampled_process_tree_rss_bytes": 1838645248,
+              "unchanged_named_pins": 2998,
+              "process_group_quiescence_observed": true
+            },
+            "checkpoint_recovery": {
+              "status": "RESOURCE_ABORT",
+              "semantic": "UNQUALIFIED_FULL_SELECTOR",
+              "output": "policy-engine/_cache/e02/lane01-v3-checkpoint-fresh-worker-r1/",
+              "wall_seconds": 900.164,
+              "peak_sampled_process_tree_rss_bytes": 1964867584,
+              "unchanged_named_pins": 2983,
+              "process_group_quiescence_observed": true
+            },
+            "gdp_outcome": {
+              "status": "COMMAND_FAIL",
+              "semantic": "UNQUALIFIED_FULL_SELECTOR",
+              "output": "policy-engine/_cache/e02/lane01-v3-gdp-outcome-trio-r1/",
+              "wall_seconds": 88.079,
+              "peak_sampled_process_tree_rss_bytes": 1836433408,
+              "unchanged_named_pins": 2997,
+              "process_group_quiescence_observed": true
+            }
+          },
+          "gdp_fixture_delta": {
+            "PASS": 2,
+            "FAIL": 0,
+            "output": "policy-engine/_cache/e02/n5-gdp-fixture-preflight-r1/",
+            "independent_review": "GO_CURRENT_PIN_22de9408",
+            "boundary": "Continuing real seed observer, distinct acquired outcome and intervention baseline, test-only GDP cost; full source/N5/GDP trio UNRUN."
+          },
+          "appointment_facade_delta": {
+            "PASS": 23,
+            "FAIL": 0,
+            "output": "policy-engine/_build/.tmp/e02/n5-replay-appointment-native-r1/",
+            "boundary": "Existing public facades and exact signed-evidence repository; final whole static check pending; no production appointment."
           }
         }
       },

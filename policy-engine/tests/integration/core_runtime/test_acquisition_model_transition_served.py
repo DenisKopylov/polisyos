@@ -44,6 +44,44 @@ from tests.integration.core_runtime.test_acquisition_receiver_constructor_served
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
+def test_custom_seed_observation_continues_without_changing_legacy_stop() -> None:
+    """A custom seed requires proof; legacy seed-only hooks still stop."""
+    mode = fixture._seed_observer_mode
+    assert mode(seed_only=False, seed_only_context=False, continuing=False, custom_seed=False) == (
+        "none"
+    )
+    assert mode(seed_only=True, seed_only_context=False, continuing=False, custom_seed=True) == (
+        "stop"
+    )
+    assert mode(seed_only=False, seed_only_context=True, continuing=False, custom_seed=True) == (
+        "stop"
+    )
+    assert mode(seed_only=False, seed_only_context=False, continuing=True, custom_seed=True) == (
+        "continue"
+    )
+    with pytest.raises(ValueError, match="served_candidate_seed_observer_missing"):
+        mode(seed_only=False, seed_only_context=False, continuing=False, custom_seed=True)
+    with pytest.raises(ValueError, match="served_candidate_seed_observer_mode_conflict"):
+        mode(seed_only=True, seed_only_context=False, continuing=True, custom_seed=True)
+    with pytest.raises(
+        ValueError, match="served_candidate_continuing_observer_requires_custom_seed"
+    ):
+        mode(seed_only=False, seed_only_context=False, continuing=True, custom_seed=False)
+
+
+def test_selected_target_baseline_tracks_the_actually_acquired_slot() -> None:
+    """A changed outcome does not imply a changed intervention-target baseline."""
+    check = fixture._assert_selected_target_baseline_relation
+    check("same", "same", acquired_slot="outcome", target_slot="intervention")
+    check("before", "after", acquired_slot="target", target_slot="target")
+    with pytest.raises(AssertionError):
+        check("before", "after", acquired_slot="outcome", target_slot="intervention")
+    with pytest.raises(AssertionError):
+        check("same", "same", acquired_slot="target", target_slot="target")
+    with pytest.raises(AssertionError):
+        check(None, "same", acquired_slot="outcome", target_slot="intervention")
+
+
 def _with_model_values(
     declaration: CandidateSimulationSyntheticModelDeclarationV1, **updates: float
 ) -> CandidateSimulationSyntheticModelDeclarationV1:
@@ -479,6 +517,7 @@ def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
     """A real changed outcome replays through the V2 source and numerical owners."""
     import json
 
+    from polisyos.runtime.quality import acquisition_planner
     from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationBasisV2
     from polisyos.runtime.quality.acquisition_model_transition import (
         _native_facets,
@@ -502,6 +541,16 @@ def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
     base_payload = dict(world_model_record.FABRIC_PAYLOAD)
     base_payload.update(gdp=0.0, tax_rate=0.5)
     monkeypatch.setattr(world_model_record, "FABRIC_PAYLOAD", base_payload)
+    monkeypatch.setitem(
+        acquisition_planner._ACQUISITION_GAP_BASIS,
+        "global.gdp",
+        {
+            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
+            "collection_mode": "fixture-only annual source routing input",
+            "expert_hours": 1,
+            "calendar_days": 1,
+        },
+    )
     _authority, entry = build_fixture_wdi_authority(
         tmp_path / "gdp-entry",
         ANNUAL_GDP_WDI_PROFILE,

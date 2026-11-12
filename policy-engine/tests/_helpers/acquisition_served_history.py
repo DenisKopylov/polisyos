@@ -915,6 +915,29 @@ def _key_config(tmp_path, trust):
     return signers, identities
 
 
+def _seed_observer_mode(
+    *, seed_only: bool, seed_only_context: bool, continuing: bool, custom_seed: bool
+) -> Literal["none", "stop", "continue"]:
+    """Choose an explicit seed-observation path before launching a served job."""
+    if continuing and (seed_only or seed_only_context):
+        raise ValueError("served_candidate_seed_observer_mode_conflict")
+    if continuing and not custom_seed:
+        raise ValueError("served_candidate_continuing_observer_requires_custom_seed")
+    if custom_seed and not (seed_only or seed_only_context or continuing):
+        raise ValueError("served_candidate_seed_observer_missing")
+    if continuing:
+        return "continue"
+    return "stop" if seed_only or seed_only_context else "none"
+
+
+def _assert_selected_target_baseline_relation(
+    previous: str | None, current: str | None, *, acquired_slot: str, target_slot: str
+) -> None:
+    """Check the selected-target projection against this fixture's changed slot."""
+    assert previous is not None and current is not None
+    assert (previous != current) == (acquired_slot == target_slot)
+
+
 def _produce_served_acquisition_history(
     tmp_path,
     monkeypatch,
@@ -929,6 +952,7 @@ def _produce_served_acquisition_history(
     provider_mode: str = "recorded_capture",
     seed_only_observer: Callable[..., None] | None = None,
     seed_only_context_observer: Callable[..., None] | None = None,
+    seed_continuation_observer: Callable[..., None] | None = None,
     run_budget_usd: float | None = None,
     run_budget_scope: RunBudgetScope | None = None,
     candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = None,
@@ -1004,6 +1028,12 @@ def _produce_served_acquisition_history(
 
     if provider_mode not in {"recorded_capture", "synthetic_settled_candidate"}:
         raise ValueError("served_acquisition_provider_mode_unknown")
+    seed_observer_mode = _seed_observer_mode(
+        seed_only=seed_only_observer is not None,
+        seed_only_context=seed_only_context_observer is not None,
+        continuing=seed_continuation_observer is not None,
+        custom_seed=seed_problem is not None,
+    )
     if seed_problem is not None:
         if type(seed_problem) is not DesignProblem:
             raise TypeError("served_candidate_seed_problem_untyped")
@@ -1011,8 +1041,6 @@ def _produce_served_acquisition_history(
             raise ValueError("served_candidate_seed_profile_ambiguous")
         if candidate_profile_builder is None or candidate_provider_builder is None:
             raise ValueError("served_candidate_seed_producers_missing")
-        if seed_only_observer is None and seed_only_context_observer is None:
-            raise ValueError("served_candidate_seed_observer_missing")
     elif candidate_profile_builder is not None or candidate_provider_builder is not None:
         raise ValueError("served_candidate_seed_problem_missing")
     if candidate_refresh_profile is not None and seed_problem is None:
@@ -1725,7 +1753,7 @@ def _produce_served_acquisition_history(
                 _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
             assert persisted_job_payload["llm_models"] == [served_n4_model_id]
-            if seed_only_observer is not None or seed_only_context_observer is not None:
+            if seed_observer_mode != "none":
                 # This explicit test hook observes the real completed NL/N5
                 # producer before the existing WDI-only route continuation.
                 observer_values = {
@@ -1748,7 +1776,10 @@ def _produce_served_acquisition_history(
                         identities=identities,
                         key_root=tmp_path,
                     )
-                return {"run_id": run_id, "job_id": seed_job_id}
+                if seed_continuation_observer is not None:
+                    _within_fixture_owner(seed_continuation_observer, **observer_values)
+                if seed_observer_mode == "stop":
+                    return {"run_id": run_id, "job_id": seed_job_id}
             closure, request = _within_fixture_owner(
                 resolve_completed_wdi_route,
                 control,
@@ -2716,11 +2747,11 @@ def _produce_served_acquisition_history(
                 == (continuation["selected_profile_selection_ref"])
             )
             assert continuation["selected_target_world_slot"] == expected_candidate_target
-            assert continuation["previous_selected_target_baseline_hash"] is not None
-            assert continuation["selected_target_baseline_hash"] is not None
-            assert (
-                continuation["previous_selected_target_baseline_hash"]
-                != (continuation["selected_target_baseline_hash"])
+            _assert_selected_target_baseline_relation(
+                continuation["previous_selected_target_baseline_hash"],
+                continuation["selected_target_baseline_hash"],
+                acquired_slot=candidate_refresh_variable,
+                target_slot=expected_candidate_target,
             )
             assert continuation["n9_status"] == continued_run.promotion_port.status
             assert continuation["n9_reason"] == continued_run.promotion_port.reason

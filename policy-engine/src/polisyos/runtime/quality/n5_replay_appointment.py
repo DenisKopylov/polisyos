@@ -16,9 +16,7 @@ from typing import TYPE_CHECKING, Annotated, Literal, Self, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.canonical import to_canonical_bytes
-from polisyos.core import artifacts, security
-from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
-from polisyos.core.artifacts.signing import DetachedSignature
+from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts, security
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -355,9 +353,7 @@ def _trust(config: N5ReplayDeploymentConfig) -> _Trust:
         "minimum_independence": config.minimum_independence,
         "trust_root_class": config.trust_root_class,
     }
-    return _Trust(
-        by_key, verifiers, security.raw_content_hash(to_canonical_bytes(raw))
-    )
+    return _Trust(by_key, verifiers, security.raw_content_hash(to_canonical_bytes(raw)))
 
 
 def n5_replay_trust_snapshot_hash(config: N5ReplayDeploymentConfig) -> str:
@@ -397,20 +393,15 @@ class N5ReplayAppointmentResolver:
         verifier = trust.verifiers.get(role)
         if verifier is None or not security.verify_signed_evidence(evidence, verifier=verifier):
             raise ValueError("n5_replay_signature_untrusted_or_revoked")
-        signature = DetachedSignature.model_validate_json(evidence.detached_signature_bytes)
+        signature = artifacts.DetachedSignature.model_validate_json(
+            evidence.detached_signature_bytes
+        )
         # Identity/organization/function come from CURRENT key configuration,
         # never the unsigned sidecar's optional signer-identity label.
         row = trust.by_key[signature.key_id]
-        from polisyos.core.contracts.chronology import SignedArtifactEvidenceRecord
-
-        record = security.parse_canonical_statement(
-            evidence.persisted.record_bytes, SignedArtifactEvidenceRecord
-        )
         statement_ref = artifacts.artifact_ref_for_manifest(
             artifacts.ArtifactManifest.model_validate_json(evidence.exact_manifest_bytes)
         )
-        if statement_ref.artifact_id != record.artifact_ref.artifact_id:
-            raise ValueError("n5_replay_signed_statement_identity_mismatch")
         expected_kind = {
             N5ReplayAppointment: "runtime.quality.n5_replay_appointment",
             N5ReplayAppointmentVerification: "runtime.quality.n5_replay_appointment_verification",

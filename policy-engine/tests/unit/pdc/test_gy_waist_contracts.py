@@ -1890,3 +1890,77 @@ def test_artifact_envelope_preserves_optional_selected_payload_profile() -> None
                 "payload_manifest_profile_sha256": "sha256:bad",
             }
         )
+
+
+def test_gy_hash_exclusion_preserves_lowered_string_subclass_protocol() -> None:
+    """A public string subtype may distinguish scalar and tuple suffix checks."""
+    calls: list[object] = []
+
+    class Lowered(str):
+        def endswith(self, suffix, *args):
+            calls.append(suffix)
+            if type(suffix) is not str:
+                raise TypeError("this string subtype accepts only one scalar suffix")
+            return super().endswith(suffix, *args)
+
+    class Key(str):
+        def lower(self):
+            return Lowered(super().lower())
+
+    for text in ("PAYLOAD_MS", "PAYLOAD_MSX", "ΔΕΙΓΜΑ_LATENCY", "elapsed", "ẞ_duration"):
+        key = Key(text)
+        expected = _reference_gy_content_hash_excluded_field(key)
+        reference_calls = tuple(calls)
+        calls.clear()
+        assert is_gy_content_hash_excluded_field(key) is expected
+        assert tuple(calls) == reference_calls
+        assert all(type(suffix) is str for suffix in calls)
+        calls.clear()
+
+
+def test_gy_hash_scalar_fallback_and_signed_zero_keep_exact_legacy_bytes() -> None:
+    from decimal import Decimal
+
+    payloads = (
+        {"value": 0.0, "nested": [{"unit": "ratio", "created_at": "excluded"}]},
+        {"value": -0.0, "nested": [{"unit": "ratio", "created_at": "excluded"}]},
+        {"value": Decimal("1.00"), "negative_zero": Decimal("-0.00")},
+        {"value": (Decimal("1.00"), -0.0, b"\xff"), "δ_ms": "excluded"},
+        {True: "bool-key", "True": "last stringified key wins", None: {"ITEM_MS": 3}},
+    )
+    for payload in payloads:
+        assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+    assert gy_content_hash(payloads[0]) != gy_content_hash(payloads[1])
+
+
+def test_gy_hash_cycles_keep_included_failure_and_excluded_branch_behavior() -> None:
+    cycle: dict[str, object] = {}
+    cycle["self"] = cycle
+    for operation in (gy_content_hash, _reference_gy_content_hash):
+        with pytest.raises(RecursionError):
+            operation(cycle)
+    for payload in (
+        {"value": 1, "timestamp": cycle},
+        {"value": 1, "nested": {"FINISHED_AT": cycle}},
+        {"value": 1, "rows": [{"payload_latency": cycle, "semantic": "retained"}]},
+    ):
+        assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+
+
+def test_gy_hash_recomputes_mutable_values_and_rebound_exclusion_rules(monkeypatch) -> None:
+    payload = {"row_ms": 1, "row_tail": 2, "semantic": {"value": -0.0}}
+    before = gy_content_hash(payload)
+    payload["row_ms"] = 99
+    assert gy_content_hash(payload) == before
+    payload["semantic"]["value"] = 1.0
+    assert gy_content_hash(payload) != before
+    assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+    for rules in (("semantic", "*_tail"), ("*",), (), ("row_ms",)):
+        with monkeypatch.context() as scope:
+            scope.setattr(gy_waist_module, "GY_CONTENT_HASH_EXCLUDED_FIELDS", rules)
+            scope.setattr(pdc_module, "GY_CONTENT_HASH_EXCLUDED_FIELDS", rules)
+            assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+            for key in ("row_ms", "ROW_MS", "row_tail", "semantic", "ΔΕΙΓΜΑ_MS"):
+                assert is_gy_content_hash_excluded_field(key) is (
+                    _reference_gy_content_hash_excluded_field(key)
+                )

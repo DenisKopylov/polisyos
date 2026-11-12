@@ -191,9 +191,7 @@ def _install_candidate_mandate(
 
     now = datetime.now(UTC)
     effective_authority_valid_until = (
-        authority_valid_until
-        if authority_valid_until is not None
-        else now + timedelta(hours=1)
+        authority_valid_until if authority_valid_until is not None else now + timedelta(hours=1)
     )
     contract = served._contract()
     envelope = contract.action_envelopes[0].model_copy(
@@ -1530,6 +1528,7 @@ def run_genuine_candidate_experiment_scenario(
     after_execution: Callable[..., object] | None = None,
     authority_valid_until: datetime | Callable[[], datetime] | None = None,
     before_action_observer: Callable[..., object] | None = None,
+    current_action_profile_path: Path | None = None,
 ) -> dict[str, object]:
     """Serve the genuine source and first candidate action; optionally continue inline."""
     from dataclasses import replace
@@ -1673,7 +1672,7 @@ def run_genuine_candidate_experiment_scenario(
                     decision_ref=execution_values["decision_ref"],
                     policy_owner=policy_owner,
                     monkeypatch=monkeypatch,
-                    current_action_profile_path=tmp_path / "first-current-action-profile",
+                    current_action_profile_path=current_action_profile_path,
                 )
                 assert execution.standard_invocation_units_before == 2
                 assert execution.standard_invocation_units_after == 4

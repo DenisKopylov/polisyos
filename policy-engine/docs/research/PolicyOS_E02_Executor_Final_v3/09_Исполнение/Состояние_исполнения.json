@@ -9811,6 +9811,22 @@
             "FAIL": 0,
             "output": "policy-engine/_build/.tmp/e02/n5-replay-appointment-native-r1/",
             "boundary": "Existing public facades and exact signed-evidence repository; final whole static check pending; no production appointment."
+          },
+          "hashing_and_profiler_delta": {
+            "PASS": 81,
+            "FAIL": 0,
+            "independent_review": "GO_FINAL_SIMPLIFIED_DELTA",
+            "output": "policy-engine/_cache/e02/gy-native-flat-fastpath-r1/final/",
+            "actual_receipt_hash_preserved": true,
+            "local_hash_median_cpu_seconds_before": 0.221013,
+            "local_hash_median_cpu_seconds_after": 0.182752,
+            "boundary": "Exact native suffix operation plus optional diagnostic profiling only; batching removed. No full pipeline speed/PASS claim."
+          },
+          "retained_reader_diagnostic": {
+            "result": "PASS_FIVE_READ_ONLY_OPERATIONS",
+            "output": "policy-engine/_cache/e02/n5-historical-read-cost-r1/qualified-r2/",
+            "N5": "UNRUN",
+            "finding": "Selected evaluation loads/verifies the same result twice inside one operation. Explicit private owner transport reuse in progress, authority/head reads remain fresh. Diagnostic cProfile does not explain the entire timeout."
           }
         }
       },

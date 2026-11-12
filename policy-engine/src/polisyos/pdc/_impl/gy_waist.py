@@ -584,9 +584,11 @@ def is_gy_content_hash_excluded_field(key: str) -> bool:
             normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
             for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
         )
-    return normalized in _GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS or any(
-        normalized.endswith(suffix) for suffix in _GY_CONTENT_HASH_EXCLUDED_SUFFIXES
-    )
+    if normalized in _GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS:
+        return True
+    if type(normalized) is str:
+        return normalized.endswith(_GY_CONTENT_HASH_EXCLUDED_SUFFIXES)
+    return any(normalized.endswith(suffix) for suffix in _GY_CONTENT_HASH_EXCLUDED_SUFFIXES)
 
 
 def is_gy_declared_non_authority_block(value: object) -> bool:

@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
+import struct
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import pytest
-from numpy._core import _methods as numpy_methods
 
 from polisyos.core.artifacts import artifact_ref_identity_key
 from polisyos.core.security.tenant_context import tenant_scope
-from polisyos.foundry.methods.catalog.causal import ncm_engine
-from polisyos.runtime.quality import joint_simulation_horizon as horizon_module
-from polisyos.runtime.quality import n5_execution_basis as basis
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationResult,
     build_content_bound_simulation_receipt,
@@ -28,13 +24,9 @@ from tests.integration.core_runtime.test_acquisition_retained_sequential_served 
     _OwnerCallMonitor,
     _SequentialOracle,
 )
-from tests.integration.runtime_quality._n5_consumed_binding_falsifiers import (
-    assert_real_n5_instance_entry_shadows_refused,
-    assert_unconsumed_slots_do_not_change_real_n5_witness,
-)
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
-_KEY = "n5_execution_implementation_witness"
+_KEY = "candidate_n5_execution_content_observation"
 
 
 def _replace_payload(
@@ -61,7 +53,15 @@ def test_served_actual_v5_n5_witness_reconciles_owner_quantities(
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway: Any,
 ) -> None:
-    """The actual served B owns its witness; changed inputs, results and owners do not."""
+    """Compare the actual V5 request with its owned numerical projection."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        read_candidate_n5_content_observation,
+        read_candidate_n5_declared_implementation,
+    )
+
     checked: list[str] = []
 
     def check_real_result(
@@ -74,234 +74,118 @@ def test_served_actual_v5_n5_witness_reconciles_owner_quantities(
         capture: Any,
         issue_equal_source: Any,
     ) -> None:
-        del ctx, issue_equal_source
+        del oracle, issue_equal_source
         with tenant_scope(None, tenant_id=fixture.TENANT, cell_id=fixture.CELL):
             result = actual_b.result
             input_ref = selected_b.n5_input_ref
-            result_ref = selected_b.n5_result_ref
             candidate, problem = actual_b.source.candidate, actual_b.source.problem
-            assert capture._admission is not None
-            port = capture._admission.port
-            assert capture._admission.controller is capture._controller is port._controller
-            assert capture._admission.request is capture._request
-            assert artifact_ref_identity_key(capture._admission.input_ref) == (
-                artifact_ref_identity_key(input_ref)
+            assert capture.request is not None
+            assert artifact_ref_identity_key(capture.input_ref) == artifact_ref_identity_key(
+                input_ref
             )
-            assert capture._admission.input_content_hash == actual_b.input_record.content_hash
-            assert basis.reconcile_live_n5_implementation(result, input_ref=input_ref) == witness
-            assert witness.predicate_provenance == "recomputed" and not witness.reason_codes
-            assert witness.input_ref_identity == artifact_ref_identity_key(input_ref)
-            assert input_ref.manifest_profile_sha256 is not None
-            assert result.trajectories
-            consumed_configuration = horizon_module.read_joint_simulation_configuration(
-                capture._controller
-            )
-            prepared_configuration = horizon_module.prepare_joint_simulation_configuration()
-            assert (
-                type(consumed_configuration) is horizon_module.PreparedJointSimulationConfiguration
-            )
-            assert witness.consumed_configuration_values == basis._exact_native_content(
-                consumed_configuration
-            )
-            assert witness.consumed_configuration_values == basis._exact_native_content(
-                prepared_configuration
-            )
-            observed = {
-                (row[0], row[1]) for row in witness.implementation["source"]["executed_code"]
-            }
-            controller_run = horizon_module.JointSimulationHorizonController.run
-            numerical_entry = ncm_engine.NCMEngineMethod.pure_step
-            assert (controller_run.__module__, controller_run.__code__.co_qualname) in observed
-            assert (numerical_entry.__module__, numerical_entry.__code__.co_qualname) in observed
-            # Capture-only configuration introspection is not numerical work.
-            # No production callable is swapped to manufacture this context.
-            for introspection in (
-                horizon_module.read_joint_simulation_configuration,
-                horizon_module.prepare_joint_simulation_configuration,
-            ):
-                assert (
-                    introspection.__module__,
-                    introspection.__code__.co_qualname,
-                ) not in observed
-            monitor_callback = oracle.monitor._on_start.__func__
-            assert (
-                monitor_callback.__module__,
-                monitor_callback.__code__.co_qualname,
-            ) not in observed
-            assert any(
-                row[0] == ncm_engine.__name__ and row[1] == "_parallel_worlds"
-                for row in witness.implementation["source"]["executed_code"]
-            ), "the selected NCM helper was not observed"
+            assert read_candidate_n5_content_observation(result, input_ref=input_ref) == witness
+            assert witness.protected_use_allowed is False
+            assert witness.independent_verification == "not_established"
+            assert witness.completion.status == "recomputed"
+            removed = deepcopy(result.content_bound_payload())
+            removed["diagnostics"].pop(_KEY)
+            without_observation = _replace_payload(result, removed, rebuild_receipt=True)
+            with pytest.raises(ValueError, match="candidate_n5_content_observation_missing"):
+                read_candidate_n5_content_observation(without_observation, input_ref=input_ref)
+            from fastapi.testclient import TestClient
 
-            # Reconstruct only the unbound copy of this actual result, for
-            # adversarial relabeling checks; never use it as a positive witness.
-            original_payload = deepcopy(result.content_bound_payload())
-            del original_payload["diagnostics"][_KEY]
-            original = _replace_payload(result, original_payload, rebuild_receipt=True)
-            assert basis.exact_n5_content_bytes(original.content_bound_payload()) == (
-                capture._result_bytes
-            )
-
-            # Both selectors name real CAS artifacts from this execution.
-            assert artifact_ref_identity_key(result_ref) != artifact_ref_identity_key(input_ref)
-            with pytest.raises(ValueError, match="n5_execution_witness_input_mismatch"):
-                basis.reconcile_live_n5_implementation(result, input_ref=result_ref)
-            with pytest.raises(ValueError, match="n5_execution_capture_input_relabelled"):
-                basis.bind_n5_execution_implementation(
-                    original, input_ref=result_ref, capture=capture
-                )
-
-            # This input changes the actual result's world state. GY's legacy
-            # hash drops the key recursively and cannot decide this equality.
-            changed_request = capture._request.model_copy(deep=True)
-            assert changed_request.world_credal_state_before.get("runtime_metrics") != {
-                "witness_probe": 1
-            }
-            changed_request.world_credal_state_before["runtime_metrics"] = {"witness_probe": 1}
-            with (
-                pytest.raises(ValueError, match="n5_implementation_input_request_mismatch"),
-                basis.observe_candidate_n5_execution_input(
-                    port=port,
-                    candidate=candidate,
-                    problem=problem,
-                    request=changed_request,
+            with TestClient(ctx.app()) as client:
+                source_store = client.app.state.runtime_container.control_service._artifact_store
+                expected_request = rebuild_selected_candidate_n5_request(
+                    store=source_store,
                     input_ref=input_ref,
-                ),
+                    run_id=selected_b.evaluation_run_id,
+                    job_id=selected_b.evaluation_job_id,
+                    tenant_id=fixture.TENANT,
+                    cell_id=fixture.CELL,
+                )
+            from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+            assert exact_n5_content_bytes(expected_request) == exact_n5_content_bytes(
+                capture.request
+            )
+            assert read_candidate_n5_declared_implementation(
+                result,
+                input_ref=input_ref,
+                prepared_configuration=capture.controller._prepared_configuration,
+                expected_request=expected_request,
+            )
+            # This is the ordinary acquired-observation V5 producer, not the
+            # candidate-source reentry route. Compare the native request its
+            # actual builder supplied with the same numerical role projection.
+            from polisyos.runtime.quality.candidate_simulation import (
+                prepare_candidate_n5_request_projection_v2,
+            )
+            from polisyos.runtime.quality.generation_cycle import (
+                JointSimulationPort,
+                _value_outcome_variable,
+            )
+
+            request = capture.request
+            configured = actual_b.input_record.n5
+            projected = prepare_candidate_n5_request_projection_v2(configured)
+            numerical = projected.numerical
+            assert numerical.horizon == tuple(request.horizon.model_dump().items())
+            assert numerical.seed == request.seed
+            assert numerical.replications == request.replications
+            assert numerical.baseline_state_ieee754_hex == tuple(
+                (name, struct.pack("!d", value).hex())
+                for name, value in sorted(request.baseline_state.items())
+            )
+            assert len(request.engine_plan) == 1
+            plan = request.engine_plan[0]
+            assert plan.engine_kind == numerical.engine_kind
+            atom = actual_b.input_record.materialization.derived_n5_atom
+            assert request.intervention_atoms == (atom,)
+            outcome = _value_outcome_variable(candidate, problem)
+            assert request.selected_outcomes == (outcome,)
+            assert plan.variable_map == JointSimulationPort._joint_simulation_variable_map(
+                atoms=(atom,), outcome=outcome, raw_hint=None
+            )
+            from polisyos.core.artifacts import load_core_json_artifact
+            from polisyos.ir import NCMSpec
+
+            with TestClient(ctx.app()) as client:
+                store = client.app.state.runtime_container.control_service._artifact_store
+                selected_ncm = NCMSpec.model_validate(
+                    load_core_json_artifact(store, actual_b.input_record.ncm_ref)
+                )
+            assert plan.ncm_spec == selected_ncm
+            for name in (
+                "evidence_state",
+                "comparator_profile",
+                "coupling_graph",
+                "world_credal_state_before",
+                "candidate_intent",
+                "member_basis",
+                "source_candidate_relationship",
+                "composition_status",
+                "composition_limitation_code",
+                "child_to_parent_refinement_status",
+                "child_to_parent_refinement_limitation_code",
             ):
-                pass
-            # A receipt digest is not the equality predicate: force a collision.
-            with monkeypatch.context() as mutation:
-                mutation.setattr(
-                    basis, "exact_n5_content_hash", lambda _value: "sha256:" + "0" * 64
+                assert getattr(request, name) == type(request).model_fields[name].get_default(
+                    call_default_factory=True
                 )
-                with (
-                    pytest.raises(ValueError, match="n5_implementation_input_request_mismatch"),
-                    basis.observe_candidate_n5_execution_input(
-                        port=port,
-                        candidate=candidate,
-                        problem=problem,
-                        request=changed_request,
-                        input_ref=input_ref,
-                    ),
-                ):
-                    pass
-
-            # The legacy GY receipt ignores this field. A witness must bind the
-            # complete actual result even when that ordinary receipt still verifies.
-            altered_payload = deepcopy(result.content_bound_payload())
-            for key in ("world_credal_state_before", "world_credal_state_after"):
-                altered_payload[key]["runtime_metrics"] = {"witness_probe": 1}
-            altered = _replace_payload(result, altered_payload, rebuild_receipt=False)
-            with pytest.raises(ValueError, match="n5_execution_witness_result_mismatch"):
-                basis.reconcile_live_n5_implementation(altered, input_ref=input_ref)
-            unbound_payload = deepcopy(original.content_bound_payload())
-            for key in ("world_credal_state_before", "world_credal_state_after"):
-                unbound_payload[key]["runtime_metrics"] = {"witness_probe": 1}
-            altered_original = _replace_payload(original, unbound_payload, rebuild_receipt=False)
-            with pytest.raises(ValueError, match="n5_execution_capture_result_relabelled"):
-                basis.bind_n5_execution_implementation(
-                    altered_original, input_ref=input_ref, capture=capture
-                )
-
-            # A rehashed caller witness is structurally valid, but was not issued
-            # by the real producer's registry.
-            forged_payload = deepcopy(result.content_bound_payload())
-            forged_witness = forged_payload["diagnostics"][_KEY]
-            forged_witness["request_content_hash"] = "sha256:" + "e" * 64
-            forged_witness["content_hash"] = basis.exact_n5_content_hash(
-                {name: value for name, value in forged_witness.items() if name != "content_hash"}
+            assert projected.operational.budget_ref == request.budget_ref
+            assert projected.output_labels.comparator_evidence_refs == request.comparator_refs
+            assert (
+                prepare_candidate_n5_request_projection_v2(
+                    configured.model_copy(update={"budget_ref": configured.budget_ref + ".other"})
+                ).numerical
+                == numerical
             )
-            forged = _replace_payload(result, forged_payload, rebuild_receipt=True)
-            with pytest.raises(ValueError, match="n5_execution_witness_not_producer_observed"):
-                basis.reconcile_live_n5_implementation(forged, input_ref=input_ref)
-
-            # Independent controls keep genuine selected output/source markers
-            # intact while changing the actual next-call entry binding.
-            assert_real_n5_instance_entry_shadows_refused(
-                port=port,
-                result=result,
-                request=capture._request,
-                input_ref=input_ref,
-                monkeypatch=monkeypatch,
+            assert (
+                prepare_candidate_n5_request_projection_v2(
+                    configured.model_copy(update={"replications": configured.replications + 1})
+                ).numerical
+                != numerical
             )
-            assert_unconsumed_slots_do_not_change_real_n5_witness(
-                result=result,
-                input_ref=input_ref,
-                monkeypatch=monkeypatch,
-            )
-
-            real_helper = ncm_engine._parallel_worlds
-            with monkeypatch.context() as mutation:
-                mutation.setattr(ncm_engine, "_parallel_worlds", lambda *a, **k: [])
-                with pytest.raises(ValueError):
-                    basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-            assert ncm_engine._parallel_worlds is real_helper
-
-            # NCM reads np.mean for each actual outcome. This transitive Python
-            # helper is called by NumPy without changing np.mean or native images.
-            real_numpy_mean = numpy_methods._mean
-            sample = np.asarray([0.0, 2.0])
-            assert float(np.mean(sample)) == 1.0
-
-            def shifted_numpy_mean(*args: Any, **kwargs: Any) -> Any:
-                return real_numpy_mean(*args, **kwargs) + 1.0
-
-            with monkeypatch.context() as mutation:
-                mutation.setattr(numpy_methods, "_mean", shifted_numpy_mean)
-                assert float(np.mean(sample)) == 2.0
-                with pytest.raises(ValueError):
-                    basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-            assert numpy_methods._mean is real_numpy_mean
-
-            # The already-active numerical caller resolves this imported class to
-            # construct the actual NCM query. Keep the original type admissible to
-            # NCM while changing the evidence supplied to its constructor.
-            original_query_type = horizon_module.NCMQueryData
-            ncm_spec = capture._request.engine_plan[0].ncm_spec
-            evidence = dict(capture._request.baseline_state)
-            assert ncm_spec is not None and evidence
-
-            class ChangedQueryData(original_query_type):
-                def __init__(self, **values: Any) -> None:
-                    values["evidence"] = {
-                        name: value + 1.0 for name, value in values["evidence"].items()
-                    }
-                    super().__init__(**values)
-
-            original_query = original_query_type(ncm_spec=ncm_spec, evidence=evidence)
-            with monkeypatch.context() as mutation:
-                mutation.setattr(horizon_module, "NCMQueryData", ChangedQueryData)
-                changed_query = horizon_module.NCMQueryData(ncm_spec=ncm_spec, evidence=evidence)
-                assert isinstance(changed_query, original_query_type)
-                assert changed_query.evidence != original_query.evidence
-                with pytest.raises(ValueError):
-                    basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-            assert horizon_module.NCMQueryData is original_query_type
-
-            # Replace the actual registry entry while retaining its FQN and
-            # signature. The original historical NCM class remains live.
-            registry = port._controller._registry
-            decision = next(item for item in result.engine_decisions if item.decision == "selected")
-            assert decision.method_fqn is not None
-            entry = registry.get_entry(decision.method_fqn)
-            assert entry is not None
-            original_method = registry.get(decision.method_fqn)
-
-            class SameFQNReplacement:
-                signature = original_method.signature
-                metadata = original_method.metadata
-
-                @staticmethod
-                def pure_step(*args: Any, **kwargs: Any) -> dict[str, Any]:
-                    return {"counterfactual_result": {"world_summaries": []}}
-
-            with monkeypatch.context() as mutation:
-                mutation.setattr(entry, "_cached_class", SameFQNReplacement)
-                assert registry.get(decision.method_fqn) is SameFQNReplacement
-                with pytest.raises(ValueError):
-                    basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-            assert registry.get(decision.method_fqn) is original_method
-            assert basis.reconcile_live_n5_implementation(result, input_ref=input_ref) == witness
             checked.append(actual_b.input_record.content_hash)
 
     source = build_candidate_cycle_substrate_route_inputs(
@@ -319,7 +203,7 @@ def test_served_actual_v5_n5_witness_reconciles_owner_quantities(
             provider_mode="synthetic_settled_candidate",
         )
     assert produced is not None and produced["run_id"] and produced["candidate_id"]
-    assert len(checked) == 1, "no genuine served B result reached the witness oracle"
+    assert len(checked) == 1
 
 
 def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
@@ -423,27 +307,37 @@ def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
     assert result.receipt.engine_kind == "ncm_parallel_worlds"
     assert result.diagnostics.get("physical_work_capture_status") == "observed"
     assert result.diagnostics.get("physical_work_units") == 2
-    witness = basis.reconcile_live_n5_implementation(result, input_ref=input_ref)
-    assert witness.predicate_provenance == "recomputed" and not witness.reason_codes
-    assert witness.input_ref_identity == artifact_ref_identity_key(input_ref)
-    with basis._LOCK:
-        issued = basis._ISSUED.get(witness.content_hash)
-    assert issued is not None and issued.witness == witness
-    capture = issued.capture
-    assert capture._admission is not None
-    assert artifact_ref_identity_key(capture._admission.input_ref) == (
-        artifact_ref_identity_key(input_ref)
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
     )
-    assert capture._admission.input_content_hash == n5_input.content_hash
-    executed = {(row[0], row[1]) for row in witness.implementation["source"]["executed_code"]}
-    assert (
-        horizon_module.JointSimulationHorizonController.run.__module__,
-        horizon_module.JointSimulationHorizonController.run.__code__.co_qualname,
-    ) in executed
-    assert (
-        ncm_engine.NCMEngineMethod.pure_step.__module__,
-        ncm_engine.NCMEngineMethod.pure_step.__code__.co_qualname,
-    ) in executed
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PreparedJointSimulationConfiguration,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        read_candidate_n5_content_observation,
+        read_candidate_n5_declared_implementation,
+    )
+
+    observation = read_candidate_n5_content_observation(result, input_ref=input_ref)
+    assert observation.completion.status == "recomputed"
+    assert observation.protected_use_allowed is False
+    assert observation.independent_verification == "not_established"
+    expected_request = rebuild_selected_candidate_n5_request(
+        store=fresh,
+        input_ref=input_ref,
+        run_id=run_id,
+        job_id=job.job_id,
+        tenant_id=fixture.TENANT,
+        cell_id=fixture.CELL,
+    )
+    assert read_candidate_n5_declared_implementation(
+        result,
+        input_ref=input_ref,
+        expected_request=expected_request,
+        prepared_configuration=PreparedJointSimulationConfiguration.model_validate(
+            observation.consumed_configuration
+        ),
+    )
     result = (run_id, cycle.selected_candidate_ref)
     print(
         json.dumps(
@@ -455,7 +349,7 @@ def assert_live_initial_a_capture(**values: Any) -> tuple[str, str]:
                 "n5_input_ref": str(input_ref),
                 "n5_result_ref": str(result_ref),
                 "n5_input_content_hash": n5_input.content_hash,
-                "witness_content_hash": witness.content_hash,
+                "witness_content_hash": observation.content_hash,
             },
             sort_keys=True,
         ),

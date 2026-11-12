@@ -2,16 +2,29 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Literal, get_args, get_origin
 
 import pytest
 from pydantic import BaseModel, ValidationError
 
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateScenarioN5Config,
+    CandidateScenarioSetToRule,
+    CandidateSimulationContextHandoff,
+    CandidateSimulationContextInputs,
+    CandidateSimulationScenarioProfile,
+    candidate_simulation_profile_ref,
+)
+from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     JointSimulationPort,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    HorizonSpec,
     JointSimulationControllerPolicy,
     JointSimulationHorizonController,
     PreparedJointSimulationConfiguration,
@@ -67,6 +80,99 @@ def _changed_valid_field(model: BaseModel, name: str) -> BaseModel | None:
     changed = type(model).model_validate(values)
     assert exact_n5_content_bytes(changed) != exact_n5_content_bytes(model)
     return changed
+
+
+def _candidate_context_fixture(
+    tmp_path: Path, *, domain: str = "education"
+) -> tuple[CycleSubstrateContext, CandidateSimulationContextHandoff, FileSystemCAS]:
+    """Build typed context and handoff using the existing cycle-substrate fixture."""
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+
+    problem_ref = gy_content_hash({"fixture": "native-n5-context", "domain": domain})
+    context = _cycle_context(domain=domain, design_problem_ref=problem_ref)
+    inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+    )
+    profile_values = {
+        "profile_id": "native-n5-context-fixture",
+        "profile_selection_ref": gy_content_hash({"profile": domain}),
+        "context_inputs": inputs,
+        "rule": CandidateScenarioSetToRule(
+            operator_kind="set_to",
+            parameter_id="intensity",
+            target_world_slot=f"{domain}.teaching_method",
+            unit_id="synthetic_score",
+            minimum=0,
+            maximum=1,
+        ),
+        "n5": CandidateScenarioN5Config(
+            budget_ref="budget://native-n5-context-fixture",
+            horizon=HorizonSpec(start=0, end=0),
+        ),
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_values, content_hash="sha256:" + "0" * 64
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_values,
+            "content_hash": gy_content_hash(
+                draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    handoff = CandidateSimulationContextHandoff(
+        context=context,
+        context_job_ref=ArtifactRef(
+            artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+            kind="runtime.quality.cycle_substrate_context_job",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        ),
+        profile=profile,
+        profile_config_ref=candidate_simulation_profile_ref(profile),
+        job_id="native-context-fixture-job",
+        run_id="native-context-fixture-run",
+        tenant_id="native-context-fixture-tenant",
+        cell_id="native-context-fixture-cell",
+    )
+    store = FileSystemCAS(
+        tmp_path / f"{domain}-native-context-cas",
+        tenant_id=handoff.tenant_id,
+        cell_id=handoff.cell_id,
+        ownership_enforced=True,
+    )
+    return context, handoff, store
+
+
+def _bound_candidate_port(
+    tmp_path: Path, prepared: PreparedJointSimulationConfiguration
+) -> tuple[
+    JointSimulationPort,
+    CycleSubstrateContext,
+    CandidateSimulationContextHandoff,
+    FileSystemCAS,
+]:
+    """Return a real port bound to the existing typed context fixture."""
+    context, handoff, store = _candidate_context_fixture(tmp_path)
+    port = JointSimulationPort(_prepared_n5_configuration=prepared)
+    port.bind_candidate_context_once(
+        context=context,
+        handoff=handoff,
+        artifact_store=store,
+        currentness_resolver=lambda: True,
+    )
+    return port, context, handoff, store
 
 
 def test_prepared_configuration_is_strict_complete_and_carries_actual_defaults() -> None:
@@ -150,7 +256,7 @@ def test_default_rebuild_cannot_change_a_prepared_controller_or_forwarding_chain
         _RuntimeSettings.model_rebuild(force=True)
 
 
-def test_explicit_policy_controller_and_port_conflicts_are_refused() -> None:
+def test_explicit_policy_conflicts_and_matching_prepared_port_are_handled() -> None:
     prepared = prepare_joint_simulation_configuration()
     with pytest.raises(ValueError, match=r"^n5_prepared_policy_conflict$"):
         JointSimulationHorizonController(
@@ -160,8 +266,156 @@ def test_explicit_policy_controller_and_port_conflicts_are_refused() -> None:
     with pytest.raises(ValueError, match=r"^n5_prepared_controller_conflict$"):
         JointSimulationPort(controller=controller, _prepared_n5_configuration=prepared)
     port = JointSimulationPort(_prepared_n5_configuration=prepared)
-    with pytest.raises(ValueError, match=r"^generation_cycle_prepared_n5_port_conflict$"):
-        GenerationCycleController(simulation_port=port, _prepared_n5_configuration=prepared)
+    generation = GenerationCycleController(
+        simulation_port=port, _prepared_n5_configuration=prepared
+    )
+    assert generation._simulation_port is port
+    assert generation._simulation_port._controller is port._controller
+    _assert_consumes_exact_configuration(port._controller, prepared)
+
+    changed_settings = _changed_valid_field(prepared.runtime_settings, "shrink_world_credal_state")
+    assert changed_settings is not None
+    mismatched = prepared.model_copy(update={"runtime_settings": changed_settings})
+    with pytest.raises(ValueError, match=r"^n5_prepared_configuration_not_consumed$"):
+        GenerationCycleController(simulation_port=port, _prepared_n5_configuration=mismatched)
+
+
+def test_candidate_port_binds_validated_handoff_once_and_generation_reuses_it(
+    tmp_path: Path,
+) -> None:
+    """A matching native port is retained through context binding and construction."""
+    prepared = prepare_joint_simulation_configuration()
+    port, context, handoff, store = _bound_candidate_port(tmp_path, prepared)
+    generation = GenerationCycleController(
+        simulation_port=port,
+        _prepared_n5_configuration=prepared,
+        artifact_store=store,
+        cycle_substrate_context=context,
+        candidate_simulation_handoff=handoff,
+        candidate_simulation_currentness_resolver=lambda: True,
+        authority_scope="contract_testing",
+    )
+
+    assert generation._simulation_port is port
+    assert port._controller is generation._simulation_port._controller
+    assert port._candidate_simulation_handoff == handoff
+    assert port._cycle_substrate_context == context
+    assert port._artifact_store is store
+    assert port._candidate_context_bound_once is True
+    _assert_consumes_exact_configuration(port._controller, prepared)
+
+
+def test_candidate_port_context_binding_refuses_stale_or_mismatched_handoff(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_joint_simulation_configuration()
+    port = JointSimulationPort(_prepared_n5_configuration=prepared)
+    context, handoff, store = _candidate_context_fixture(tmp_path)
+    other_context, other_handoff, _other_store = _candidate_context_fixture(
+        tmp_path, domain="economics"
+    )
+    with pytest.raises(ValueError, match=r"^candidate_n5_native_context_handoff_mismatch$"):
+        port.bind_candidate_context_once(
+            context=context,
+            handoff=other_handoff,
+            artifact_store=store,
+            currentness_resolver=lambda: True,
+        )
+    assert port._candidate_context_bound_once is False
+    with pytest.raises(
+        ValueError, match=r"^candidate_n5_native_context_currentness_not_established$"
+    ):
+        port.bind_candidate_context_once(
+            context=context,
+            handoff=handoff,
+            artifact_store=store,
+            currentness_resolver=lambda: False,
+        )
+    assert port._candidate_context_bound_once is False
+    port.bind_candidate_context_once(
+        context=context,
+        handoff=handoff,
+        artifact_store=store,
+        currentness_resolver=lambda: True,
+    )
+    with pytest.raises(ValueError, match=r"^candidate_n5_native_context_already_bound_or_used$"):
+        port.bind_candidate_context_once(
+            context=other_context,
+            handoff=other_handoff,
+            artifact_store=store,
+            currentness_resolver=lambda: True,
+        )
+
+
+def test_candidate_port_refuses_context_binding_after_real_port_entry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The native port becomes single-bind before any producer work is attempted."""
+    prepared = prepare_joint_simulation_configuration()
+    port = JointSimulationPort(_prepared_n5_configuration=prepared)
+
+    def stop_before_n5(**_kwargs: object) -> None:
+        raise RuntimeError("stopped before N5")
+
+    monkeypatch.setattr(port, "_produce", stop_before_n5)
+    with pytest.raises(RuntimeError, match="stopped before N5"):
+        port(candidate=object(), problem=object(), cycle_index=0)
+    context, handoff, store = _candidate_context_fixture(tmp_path)
+    with pytest.raises(ValueError, match=r"^candidate_n5_native_context_already_bound_or_used$"):
+        port.bind_candidate_context_once(
+            context=context,
+            handoff=handoff,
+            artifact_store=store,
+            currentness_resolver=lambda: True,
+        )
+
+
+def test_generation_controller_refuses_bound_port_with_different_budget_observer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The prepared native port cannot be rebound to another invocation observer."""
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+    from tests.unit.runtime.quality.test_acquisition_candidate_budget_window import _unit_window
+
+    budget_case = _unit_window(tmp_path / "observer", monkeypatch)
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=1)})
+    observer_args = {
+        "settlement_store": budget_case.service._llm_producer_settlement_store,
+        "producer_run_binding": budget_case.binding,
+        "budget_state": state,
+    }
+    original_observer = ProducerBudgetObserver(**observer_args)
+    other_observer = ProducerBudgetObserver(**observer_args)
+    prepared = prepare_joint_simulation_configuration()
+    controller = JointSimulationHorizonController(
+        _prepared_configuration=prepared,
+        producer_budget_observer=original_observer,
+    )
+    port = JointSimulationPort(
+        controller=controller,
+        producer_budget_observer=original_observer,
+    )
+    context, handoff, store = _candidate_context_fixture(tmp_path)
+    port.bind_candidate_context_once(
+        context=context,
+        handoff=handoff,
+        artifact_store=store,
+        currentness_resolver=lambda: True,
+    )
+
+    with pytest.raises(
+        ValueError, match=r"^generation_cycle_native_candidate_port_binding_mismatch$"
+    ):
+        GenerationCycleController(
+            simulation_port=port,
+            _prepared_n5_configuration=prepared,
+            artifact_store=store,
+            cycle_substrate_context=context,
+            candidate_simulation_handoff=handoff,
+            _producer_budget_reconciler=other_observer,
+            authority_scope="contract_testing",
+        )
 
 
 def test_untyped_descriptor_never_becomes_a_prepared_configuration() -> None:

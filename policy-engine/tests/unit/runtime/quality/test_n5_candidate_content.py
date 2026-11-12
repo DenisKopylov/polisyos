@@ -1,0 +1,252 @@
+"""Completion controls and the actual candidate numerical-call bridge."""
+
+from __future__ import annotations
+
+import json
+from copy import deepcopy
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.runtime.quality import n5_candidate_content as content
+
+
+@pytest.mark.parametrize(
+    ("completed", "failed", "interrupted", "expected"),
+    [
+        (("a", "b", "c"), (), None, "recomputed"),
+        (("a", "b"), (), None, "not_established"),
+        (("a", "b", "b"), (), None, "not_established"),
+        (("a", "b", "c"), ("d",), None, "not_established"),
+        (("a", "b", "d"), (), None, "not_established"),
+        (("a", "b", "c"), (), "n5_replication_projection_failed", "not_established"),
+    ],
+)
+def test_completion_compares_full_physical_identity_not_just_counts(
+    completed: tuple[str, ...],
+    failed: tuple[str, ...],
+    interrupted: str | None,
+    expected: str,
+) -> None:
+    work = tuple(
+        SimpleNamespace(physical_spec_ref=key, effective_seed=7, status="completed")
+        for key in completed
+    ) + tuple(
+        SimpleNamespace(physical_spec_ref=key, effective_seed=7, status="failed") for key in failed
+    )
+    result = SimpleNamespace(
+        physical_work_observations=work,
+        diagnostics={} if interrupted is None else {"physical_work_interruption": interrupted},
+    )
+    observed = content._completion(result, (("a", 7), ("b", 7), ("c", 7)))
+    assert observed.status == expected
+    assert observed.completed_units == tuple(sorted((key, 7) for key in completed))
+
+
+def test_empty_physical_plan_cannot_claim_complete() -> None:
+    result = SimpleNamespace(physical_work_observations=(), diagnostics={})
+    assert content._completion(result, ()).status == "not_established"
+
+
+def test_declared_completion_marker_does_not_override_missing_work() -> None:
+    with pytest.raises(ValidationError, match="candidate_n5_completion_status_mismatch"):
+        content.CandidateN5Completion(
+            planned_units=(("a", 7), ("b", 7), ("c", 7)),
+            completed_units=(("a", 7), ("b", 7)),
+            status="recomputed",
+        )
+
+
+@pytest.mark.parametrize("value", [None, {}, SimpleNamespace(diagnostics={})])
+def test_non_result_object_cannot_supply_content_observation(value: object) -> None:
+    with pytest.raises(ValueError, match="candidate_n5_content_result_untyped"):
+        content._candidate_result_payload(value)
+
+
+@pytest.mark.integration
+def test_real_ncm_bridge_records_selected_calls_and_binds_result(tmp_path: Path) -> None:
+    """Exercise numerical producer; source-input authority is a separate port test."""
+    from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        HorizonSpec,
+        JointSimulationHorizonController,
+        JointSimulationResult,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+    configured_registry = MethodRegistry._create_fresh()
+    controller = JointSimulationHorizonController(method_registry=configured_registry)
+    singleton = MethodRegistry.get_instance()
+    ensure_causal_methods_registered(singleton)
+    selected_input = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime.quality.candidate_simulation_n5_input",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    scope = content.CandidateN5ContentRun(
+        controller=controller, request=request, input_ref=selected_input
+    )
+    selection = controller._select_engine(request)
+    assert selection.decision.decision == "selected"
+    assert selection.decision.method_fqn is not None
+    selected_step = configured_registry.get(selection.decision.method_fqn).pure_step
+    preflight = content._native_profile(
+        controller._prepared_configuration, numerical_callable=selected_step
+    )
+    (tmp_path / "profile-preflight.json").write_text(preflight.model_dump_json(), encoding="utf-8")
+    assert preflight.profile_identity_predicate == "recomputed", preflight.reason_codes
+    token = content._ACTIVE.set(scope)
+    try:
+        original = controller.run(request)
+    finally:
+        content._ACTIVE.reset(token)
+    result = content.bind_candidate_n5_content_observation(original, scope=scope)
+    # Keep the deciding bytes even when a later invariant fails. Reconciliation
+    # of the saved native profiles needs no second physical numerical run.
+    (tmp_path / "result.json").write_text(result.model_dump_json(), encoding="utf-8")
+    (tmp_path / "request.json").write_text(request.model_dump_json(), encoding="utf-8")
+    assert scope.profile is not None
+    (tmp_path / "profile-before.json").write_text(scope.profile.model_dump_json(), encoding="utf-8")
+    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(11.0)
+    assert controller._last_n5_implementation_capture is None
+    observed = content.read_candidate_n5_content_observation(
+        result, input_ref=selected_input, expected_request=request
+    )
+    (tmp_path / "profile-after.json").write_text(
+        observed.execution_profile.model_dump_json(), encoding="utf-8"
+    )
+    comparison = content.reconcile_recorded_n5_profile_content(
+        scope.profile, observed.execution_profile
+    )
+    (tmp_path / "profile-comparison.json").write_text(
+        comparison.model_dump_json(), encoding="utf-8"
+    )
+    assert observed.witness.schema_version == "N5ExecutionContentWitness@3.0"
+    assert len(observed.witness.observed_calls) == len(observed.completion.planned_units) == 3
+    assert observed.completion.status == "recomputed"
+    assert observed.protected_use_allowed is False
+    assert observed.independent_verification == "not_established"
+    assert observed.profile_stability == "recomputed", {
+        "before": scope.profile.reason_codes,
+        "after": observed.execution_profile.reason_codes,
+        "comparison": comparison.reason_codes,
+        "missing": comparison.missing_provider_identities,
+        "changed": comparison.changed_provider_identities,
+    }
+    assert observed.source_image_stability == "recomputed"
+    assert observed.execution_profile.profile_identity_predicate == "recomputed"
+    identity = content.read_candidate_n5_declared_implementation(
+        result,
+        input_ref=selected_input,
+        prepared_configuration=controller._prepared_configuration,
+        expected_request=request,
+    )
+    assert (
+        content.reconcile_candidate_n5_declared_implementation(
+            result,
+            input_ref=selected_input,
+            prepared_configuration=controller._prepared_configuration,
+            expected_request=request,
+            current_n5_controller=controller,
+        )
+        == identity
+    )
+    changed_request = request.model_copy(update={"replications": 2})
+    with pytest.raises(ValueError, match="candidate_n5_content_source_plan_mismatch"):
+        content.read_candidate_n5_declared_implementation(
+            result,
+            input_ref=selected_input,
+            prepared_configuration=controller._prepared_configuration,
+            expected_request=changed_request,
+        )
+    with pytest.raises(ValueError, match="candidate_n5_content_source_request_not_established"):
+        content.read_candidate_n5_declared_implementation(
+            result,
+            input_ref=selected_input,
+            prepared_configuration=controller._prepared_configuration,
+        )
+    # A producer cannot make two out of three units look complete by shortening
+    # its own denominator. Rehashing the envelope still leaves the independently
+    # resolved request's three-unit plan unchanged.
+    short_values = observed.model_dump(mode="json", exclude={"content_hash"})
+    short_units = short_values["completion"]["planned_units"][:2]
+    short_values["completion"].update(
+        planned_units=short_units, completed_units=deepcopy(short_units)
+    )
+    shortened = content.CandidateN5ContentObservation.model_validate_json(
+        json.dumps(
+            {**short_values, "content_hash": content.exact_n5_content_hash(short_values)},
+            allow_nan=False,
+        )
+    )
+    with pytest.raises(ValueError, match="candidate_n5_content_source_plan_mismatch"):
+        content._require_resolved_request_binding(shortened, result, request)
+
+    # Change the actual configured registry, leaving the global registry alone.
+    # The same FQN/signature does not imply the same callable at execution.
+    selected_method = configured_registry.get(observed.method_fqn)
+    singleton_method = singleton.get(observed.method_fqn)
+
+    class ChangedConfiguredMethod(selected_method):
+        @staticmethod
+        def pure_step(*args: object, **kwargs: object) -> object:
+            raise AssertionError("retention must not execute the changed numerical callable")
+
+    configured_registry.register(ChangedConfiguredMethod, override=True)
+    try:
+        assert singleton.get(observed.method_fqn) is singleton_method
+        with pytest.raises(ValueError, match="candidate_n5_current_declared_identity_changed"):
+            content.reconcile_candidate_n5_declared_implementation(
+                result,
+                input_ref=selected_input,
+                prepared_configuration=controller._prepared_configuration,
+                expected_request=request,
+                current_n5_controller=controller,
+            )
+    finally:
+        configured_registry.register(selected_method, override=True)
+    # A new model instance has no producer issuance map or local-object token
+    # lookup. The persisted content reader still verifies the exact joins.
+    fresh = JointSimulationResult.model_validate_json(result.model_dump_json())
+    assert (
+        content.read_candidate_n5_content_observation(fresh, input_ref=selected_input) == observed
+    )
+    stale_cache = fresh.model_copy(update={"world_model_record_ref": "forged-world"})
+    stale_cache._content_payload = deepcopy(result.content_bound_payload())
+    with pytest.raises(ValueError, match="candidate_n5_content_result_payload_mismatch"):
+        content.read_candidate_n5_content_observation(stale_cache, input_ref=selected_input)
+    foreign = selected_input.model_copy(update={"manifest_profile_sha256": "sha256:" + "c" * 64})
+    with pytest.raises(ValueError, match="candidate_n5_content_input_mismatch"):
+        content.read_candidate_n5_content_observation(fresh, input_ref=foreign)
+    # Removal keeps the ordinary numerical receipt, but cannot supply identity.
+    with pytest.raises(ValueError, match="candidate_n5_content_observation_missing"):
+        content.read_candidate_n5_content_observation(original, input_ref=selected_input)
+
+    # Seal must reread the actual consumer aliases, even if its prepared object
+    # remains unchanged. No numerical call or result is repeated for this check.
+    original_settings = controller._settings
+    controller._settings = original_settings.model_copy(
+        update={"fabricate_interaction_terms": not original_settings.fabricate_interaction_terms}
+    )
+    try:
+        changed = content.bind_candidate_n5_content_observation(original, scope=scope)
+        changed_observation = content.read_candidate_n5_content_observation(
+            changed, input_ref=selected_input, expected_request=request
+        )
+        assert changed_observation.profile_stability == "not_established"
+        with pytest.raises(ValueError, match="candidate_n5_declared_identity_not_established"):
+            content.read_candidate_n5_declared_implementation(
+                changed,
+                input_ref=selected_input,
+                prepared_configuration=controller._prepared_configuration,
+                expected_request=request,
+            )
+    finally:
+        controller._settings = original_settings

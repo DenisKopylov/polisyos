@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
+    from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
@@ -943,6 +944,7 @@ def _produce_served_acquisition_history(
         ..., tuple[dict[str, Any], SyntheticCandidateProviderProfile]
     ]
     | None = None,
+    candidate_refresh_profile: CandidateWDIProfile | None = None,
     prepared_catalog: tuple[
         substrate_registry.CatalogServingSourceSelection,
         substrate_registry.CatalogServingSourcePaths,
@@ -1013,6 +1015,8 @@ def _produce_served_acquisition_history(
             raise ValueError("served_candidate_seed_observer_missing")
     elif candidate_profile_builder is not None or candidate_provider_builder is not None:
         raise ValueError("served_candidate_seed_problem_missing")
+    if candidate_refresh_profile is not None and seed_problem is None:
+        raise ValueError("served_candidate_refresh_profile_requires_seed_problem")
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
@@ -1251,6 +1255,39 @@ def _produce_served_acquisition_history(
         served_recorded_candidate_gateway.set_fixture(
             controlled_recording, problem=recorded_problem, provider_profile=provider_profile
         )
+    expected_candidate_outcome = recorded_problem.outcome_of_interest.target_variable
+    expected_candidate_target = profile.rule.target_world_slot
+    candidate_refresh_variable = "government.balance"
+    if candidate_refresh_profile is not None:
+        from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
+
+        if type(candidate_refresh_profile) is not CandidateWDIProfile:
+            raise TypeError("served_candidate_refresh_profile_untyped")
+        # `construct` is a retrieval label; only the typed source profile's
+        # target slot may select the observation-to-world refresh coordinate.
+        candidate_refresh_variable = candidate_refresh_profile.target_slot
+        refresh_binding = profile.context_inputs.world_model_record.slot_binding(
+            candidate_refresh_variable
+        )
+        world = profile.context_inputs.world_model_record
+        source_year = str(candidate_refresh_profile.year)
+        if (
+            not candidate_refresh_variable
+            or candidate_refresh_variable != expected_candidate_outcome
+            or candidate_refresh_variable == expected_candidate_target
+            or candidate_refresh_profile.raw_unit != candidate_refresh_profile.canonical_unit
+            or candidate_refresh_profile.transform != "identity"
+            or not candidate_refresh_profile.transform_ref
+            or refresh_binding is None
+            or refresh_binding.unit != candidate_refresh_profile.canonical_unit
+            or candidate_refresh_profile.country_code != recorded_problem.jurisdiction_time.region
+            or source_year != recorded_problem.jurisdiction_time.data_time
+            or candidate_refresh_profile.population != world.population_scope
+            or world.region_or_jurisdiction != candidate_refresh_profile.country_code
+            or world.valid_time_scope != f"{source_year}-01-01/{source_year}-12-31"
+            or candidate_refresh_variable not in profile.n5.baseline_state
+        ):
+            raise ValueError("served_candidate_refresh_profile_binding_mismatch")
     source_root_witness_json = None
     actual_kref_witnesses = []
     if selected_source_root is not None:
@@ -1818,8 +1855,8 @@ def _produce_served_acquisition_history(
                         run_id=closure.run_id,
                         route_id=closure.route_id,
                         profile_selection_ref=profile.profile_selection_ref,
-                        canonical_variable_id="government.balance",
-                        target_slot_id="government.balance",
+                        canonical_variable_id=candidate_refresh_variable,
+                        target_slot_id=candidate_refresh_variable,
                     ),
                 )
             case = _within_fixture_owner(
@@ -2286,8 +2323,8 @@ def _produce_served_acquisition_history(
                 )
             )
             assert n5_input.original_candidate_id == cycle.selected_candidate_ref
-            assert n5_input.outcome_variable == "global.tax_rate"
-            assert n5_input.profile.rule.target_world_slot == "government.balance"
+            assert n5_input.outcome_variable == expected_candidate_outcome
+            assert n5_input.profile.rule.target_world_slot == expected_candidate_target
             assert n5_input.profile.context_inputs.world_model_record.authority_status == "limited"
             assert {
                 "source_time_not_established",
@@ -2678,7 +2715,7 @@ def _produce_served_acquisition_history(
                 continuation["previous_profile_selection_ref"]
                 == (continuation["selected_profile_selection_ref"])
             )
-            assert continuation["selected_target_world_slot"] == "government.balance"
+            assert continuation["selected_target_world_slot"] == expected_candidate_target
             assert continuation["previous_selected_target_baseline_hash"] is not None
             assert continuation["selected_target_baseline_hash"] is not None
             assert (
@@ -2975,7 +3012,7 @@ def _produce_served_acquisition_history(
             selected_rows = tuple(
                 item
                 for item in projection.observations
-                if item.observation.canonical_var == "government.balance"
+                if item.observation.canonical_var == candidate_refresh_variable
             )
             assert len(selected_rows) == 1
             selected = selected_rows[0]
@@ -3094,7 +3131,7 @@ def _produce_served_acquisition_history(
             trajectory = joint_trajectories[0]
             assert trajectory.engine_kind == selected_result_decision.engine_kind
             assert trajectory.method_fqn == selected_result_decision.method_fqn
-            assert "global.tax_rate" in n5_result.selected_outcomes
+            assert expected_candidate_outcome in n5_result.selected_outcomes
             assert n5_result.world_model_record_content_hash == (
                 n5_input.materialization.world_model_record_hash
             )
@@ -3166,7 +3203,7 @@ def _produce_served_acquisition_history(
             assert source_v2.model_declaration.target_baseline != pytest.approx(
                 model_declaration.target_baseline
             )
-            computed_outcome = trajectory.points[-1].outcomes["global.tax_rate"]
+            computed_outcome = trajectory.points[-1].outcomes[expected_candidate_outcome]
             if remove_acquired_n5_baseline:
                 assert removal_probe_n5_baselines, (
                     "removal probe did not reach the owner N5 request builder"

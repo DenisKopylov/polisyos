@@ -41,6 +41,7 @@ from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMidd
 
 __all__ = [
     "BudgetInvocationCapacityObservation",
+    "N5DiagnosticCapacityObservation",
     "BudgetInvocationExhaustionWitness",
     "ProducerBudgetObservation",
     "ProducerBudgetObserver",
@@ -200,6 +201,57 @@ class BudgetInvocationCapacityObservation(BaseModel):
             or (self.status == "exhausted") != (remaining == 0)
         ):
             raise ValueError("invocation_capacity_projection_invalid")
+        return self
+
+
+class N5DiagnosticCapacityObservation(BaseModel):
+    """Advisory view of the shared diagnostic/counterevidence allocation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.n5_diagnostic_invocation_capacity.v1"] = (
+        "scientist.n5_diagnostic_invocation_capacity.v1"
+    )
+    status: Literal["available", "exhausted", "not_established"]
+    predicate_basis: Literal["independently_reconciled", "not_established"]
+    reason_code: str | None = None
+    run_binding: BudgetLedgerProducerRunBinding
+    settlement_owner: tuple[str, str, str]
+    resource_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    profile_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    protected_limit_units: int | None = Field(default=None, ge=0, strict=True)
+    protected_remaining_units: int | None = Field(default=None, ge=0, strict=True)
+    source_revision: int | None = Field(default=None, ge=0, strict=True)
+    source_anchor: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    not_a_permit: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_projection(self) -> N5DiagnosticCapacityObservation:
+        facts = (
+            self.profile_digest,
+            self.protected_limit_units,
+            self.protected_remaining_units,
+            self.source_revision,
+            self.source_anchor,
+        )
+        if self.status == "not_established":
+            if (
+                self.predicate_basis != "not_established"
+                or not self.reason_code
+                or any(value is not None for value in facts)
+            ):
+                raise ValueError("diagnostic_capacity_unknown_projection_invalid")
+            return self
+        if (
+            self.predicate_basis != "independently_reconciled"
+            or self.reason_code is not None
+            or any(value is None for value in facts)
+            or self.protected_limit_units is None
+            or self.protected_remaining_units is None
+            or self.protected_remaining_units > self.protected_limit_units
+            or (self.status == "exhausted") != (self.protected_remaining_units == 0)
+        ):
+            raise ValueError("diagnostic_capacity_projection_invalid")
         return self
 
 
@@ -497,9 +549,7 @@ def _selected_invocation_profile(
     if policy is None and purpose != "standard":
         raise ProducerBudgetSourceError("n5_protected_purpose_not_established")
     return (
-        BudgetLedgerInvocationProfile.from_policy(binding, policy)
-        if policy is not None
-        else None
+        BudgetLedgerInvocationProfile.from_policy(binding, policy) if policy is not None else None
     )
 
 
@@ -653,6 +703,123 @@ class ProducerBudgetObserver:
             require_existing_lock=require_existing_lock,
         )
 
+    def _read_invocation_capacity_basis(
+        self, profile: BudgetLedgerInvocationProfile
+    ) -> (
+        tuple[
+            tuple[str, str, str],
+            tuple[int, int, str, int, int],
+            tuple[int, str],
+            int,
+            int,
+            int,
+            int,
+            tuple[tuple[str, int], ...],
+        ]
+        | str
+    ):
+        """Reopen and reconcile both quota pools against the canonical owner."""
+        try:
+            if "_capacity_owner_snapshot" in vars(self):
+                raise ValueError("invocation_capacity_source_shadowed")
+            owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
+                self
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return "quota_source_not_established"
+        if (
+            owner != self._owner
+            or resource != self._reconciliation.resource
+            or type(snapshot) is not BudgetLedgerSnapshot
+            or snapshot.revision != anchor[0]
+            or snapshot.invocation_profiles.get(self._binding.run_id) != profile
+            or (
+                self._reentry_window is not None
+                and snapshot.reentry_budget_windows.get(self._reentry_window.window_id)
+                != self._reentry_window
+            )
+        ):
+            return "quota_owner_basis_not_established"
+        records = tuple(
+            record
+            for record in snapshot.invocation_reservations.values()
+            if record.run_id == self._binding.run_id
+        )
+        if any(record.status not in {"completed", "failed"} for record in records):
+            return "quota_invocation_unresolved"
+        standard_limit = profile.total_units - profile.protected_units
+        standard = tuple(record for record in records if record.purpose == "standard")
+        protected = tuple(record for record in records if record.purpose != "standard")
+        standard_remaining = standard_limit - sum(record.units for record in standard)
+        protected_remaining = profile.protected_units - sum(record.units for record in protected)
+        if standard_remaining < 0 or protected_remaining < 0:
+            return "quota_capacity_inconsistent"
+        return (
+            owner,
+            resource,
+            anchor,
+            standard_limit,
+            standard_remaining,
+            profile.protected_units,
+            protected_remaining,
+            tuple(sorted((record.operation_id, record.revision) for record in standard)),
+        )
+
+    def _unknown_diagnostic_capacity(self, reason: str) -> N5DiagnosticCapacityObservation:
+        return N5DiagnosticCapacityObservation(
+            status="not_established",
+            predicate_basis="not_established",
+            reason_code=reason,
+            run_binding=self._binding,
+            settlement_owner=self._owner,
+            resource_digest=_capacity_resource_digest(self._reconciliation.resource),
+        )
+
+    def observe_diagnostic_invocation_capacity(self) -> N5DiagnosticCapacityObservation:
+        """Observe selected diagnostic capacity without reserving or permitting work."""
+        with self._lock:
+            try:
+                ProducerBudgetObserver.require_bound_state(self, self._state)
+            except ProducerBudgetSourceError:
+                return ProducerBudgetObserver._unknown_diagnostic_capacity(
+                    self, "budget_state_not_established"
+                )
+            profile = self._invocation_profile
+            if self._invocation_selection_pending or profile is None:
+                return ProducerBudgetObserver._unknown_diagnostic_capacity(
+                    self, "quota_profile_not_established"
+                )
+            # A context-local override is not a selected diagnostic profile.
+            if self._invocation_purpose != "diagnostic" or self.invocation_purpose != "diagnostic":
+                return ProducerBudgetObserver._unknown_diagnostic_capacity(
+                    self, "diagnostic_purpose_not_selected"
+                )
+            basis = ProducerBudgetObserver._read_invocation_capacity_basis(self, profile)
+            if isinstance(basis, str):
+                return ProducerBudgetObserver._unknown_diagnostic_capacity(self, basis)
+            (
+                owner,
+                resource,
+                anchor,
+                _standard_limit,
+                _standard_remaining,
+                limit,
+                remaining,
+                _witnesses,
+            ) = basis
+            return N5DiagnosticCapacityObservation(
+                status="exhausted" if remaining == 0 else "available",
+                predicate_basis="independently_reconciled",
+                run_binding=self._binding,
+                settlement_owner=owner,
+                resource_digest=_capacity_resource_digest(resource),
+                profile_digest=profile.profile_digest,
+                protected_limit_units=limit,
+                protected_remaining_units=remaining,
+                source_revision=anchor[0],
+                source_anchor=anchor[1],
+            )
+
     def observe_standard_invocation_capacity(self) -> BudgetInvocationCapacityObservation:
         """Read current standard quota without consuming a unit or granting a permit.
 
@@ -680,50 +847,19 @@ class ProducerBudgetObserver:
                 return ProducerBudgetObserver._unknown_standard_capacity(
                     self, "zero_standard_partition_not_established"
                 )
-            try:
-                if "_capacity_owner_snapshot" in vars(self):
-                    raise ValueError("invocation_capacity_source_shadowed")
-                owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
-                    self
-                )
-            except (OSError, RuntimeError, TypeError, ValueError):
-                return ProducerBudgetObserver._unknown_standard_capacity(
-                    self, "quota_source_not_established"
-                )
-            if (
-                owner != self._owner
-                or resource != self._reconciliation.resource
-                or type(snapshot) is not BudgetLedgerSnapshot
-                or snapshot.revision != anchor[0]
-                or snapshot.invocation_profiles.get(self._binding.run_id) != profile
-                or (
-                    self._reentry_window is not None
-                    and snapshot.reentry_budget_windows.get(self._reentry_window.window_id)
-                    != self._reentry_window
-                )
-            ):
-                return ProducerBudgetObserver._unknown_standard_capacity(
-                    self, "quota_owner_basis_not_established"
-                )
-            records = tuple(
-                record
-                for record in snapshot.invocation_reservations.values()
-                if record.run_id == self._binding.run_id
-            )
-            if any(record.status not in {"completed", "failed"} for record in records):
-                return ProducerBudgetObserver._unknown_standard_capacity(
-                    self, "quota_invocation_unresolved"
-                )
-            standard = tuple(record for record in records if record.purpose == "standard")
-            protected = tuple(record for record in records if record.purpose != "standard")
-            remaining = standard_limit - sum(record.units for record in standard)
-            protected_remaining = profile.protected_units - sum(
-                record.units for record in protected
-            )
-            if remaining < 0 or protected_remaining < 0:
-                return ProducerBudgetObserver._unknown_standard_capacity(
-                    self, "quota_capacity_inconsistent"
-                )
+            basis = ProducerBudgetObserver._read_invocation_capacity_basis(self, profile)
+            if isinstance(basis, str):
+                return ProducerBudgetObserver._unknown_standard_capacity(self, basis)
+            (
+                owner,
+                resource,
+                anchor,
+                _standard_limit,
+                remaining,
+                _protected_limit,
+                protected_remaining,
+                witnesses,
+            ) = basis
             return BudgetInvocationCapacityObservation(
                 status="exhausted" if remaining == 0 else "available",
                 predicate_basis="independently_reconciled",
@@ -737,9 +873,7 @@ class ProducerBudgetObserver:
                 protected_remaining_units=protected_remaining,
                 source_revision=anchor[0],
                 source_anchor=anchor[1],
-                terminal_witnesses=tuple(
-                    sorted((record.operation_id, record.revision) for record in standard)
-                ),
+                terminal_witnesses=witnesses,
             )
 
     def verify_standard_invocation_exhaustion(
@@ -844,11 +978,9 @@ class ProducerBudgetObserver:
             try:
                 if "_capacity_owner_snapshot" in vars(self):
                     raise ValueError("invocation_capacity_source_shadowed")
-                owner, resource, anchor, snapshot = (
-                    ProducerBudgetObserver._capacity_owner_snapshot(
-                        self,
-                        require_existing_lock=True,
-                    )
+                owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
+                    self,
+                    require_existing_lock=True,
                 )
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
                 raise ProducerBudgetSourceError(

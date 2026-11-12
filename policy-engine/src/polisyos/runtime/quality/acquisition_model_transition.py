@@ -15,14 +15,20 @@ from typing import TYPE_CHECKING, Literal, TypedDict, Unpack
 from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
+    AcquisitionEvaluationBasisV2,
     AcquisitionEvaluationDecision,
+    AcquisitionEvaluationDecisionV2,
     CandidateAcquisitionEvaluationBasis,
+    CandidateAcquisitionEvaluationBasisV2,
     CandidateAcquisitionEvaluationDecision,
+    CandidateAcquisitionEvaluationDecisionV2,
     CandidateEvaluationTerminalHistory,
     _candidate_model_values_same,
     _candidate_ref_same,
     _declaration_meaning,
-    read_acquisition_evaluation_artifact,
+    read_acquisition_basis_or_decision_artifact,
+    read_candidate_acquisition_evaluation_basis_artifact,
+    read_candidate_acquisition_evaluation_decision_artifact,
     replay_acquisition_basis_for_history,
     replay_candidate_acquisition_basis_for_history,
     resolve_selected_acquisition_evaluation_parts,
@@ -46,7 +52,6 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
-    from polisyos.runtime.quality.n5_execution_basis import N5ExecutionImplementationWitness
 
 
 @dataclass(frozen=True, slots=True)
@@ -159,7 +164,7 @@ def _read_completed_candidate_n5_witness(
     run_id: str,
     tenant_id: str,
     cell_id: str,
-) -> N5ExecutionImplementationWitness:
+) -> dict[str, object]:
     """Require the actual numerical owner's completion before reading its witness."""
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 
@@ -200,12 +205,46 @@ def _read_completed_candidate_n5_witness(
         evaluation.result.content_bound_payload()
     ):
         raise ValueError("candidate_source_model_revision_completed_n5_mismatch")
+    from polisyos.runtime.quality.n5_candidate_content import (
+        CONTENT_OBSERVATION_KEY,
+        read_candidate_n5_content_observation,
+        read_candidate_n5_declared_implementation,
+    )
+
+    if CONTENT_OBSERVATION_KEY in actual.result.diagnostics:
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            rebuild_selected_candidate_n5_request,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            PreparedJointSimulationConfiguration,
+        )
+
+        observation = read_candidate_n5_content_observation(
+            actual.result, input_ref=evaluation.selected.n5_input_ref
+        )
+        configuration = PreparedJointSimulationConfiguration.model_validate(
+            observation.consumed_configuration
+        )
+        request = rebuild_selected_candidate_n5_request(
+            store=artifact_store,
+            input_ref=evaluation.selected.n5_input_ref,
+            run_id=run_id,
+            job_id=evaluation.source.job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        return read_candidate_n5_declared_implementation(
+            actual.result,
+            input_ref=evaluation.selected.n5_input_ref,
+            prepared_configuration=configuration,
+            expected_request=request,
+        )
     witness = read_n5_execution_implementation_witness(
         actual.result, input_ref=evaluation.selected.n5_input_ref
     )
     if witness.predicate_provenance != "recomputed" or witness.reason_codes:
         raise ValueError("candidate_source_model_revision_implementation_not_established")
-    return witness
+    return witness.implementation
 
 
 def _native_facets(
@@ -261,7 +300,13 @@ def is_prospective_candidate_model_revision(
     Other differences remain on the ordinary acquisition evaluation path.
     """
     if (
-        type(previous) not in {AcquisitionEvaluationBasis, CandidateAcquisitionEvaluationBasis}
+        type(previous)
+        not in {
+            AcquisitionEvaluationBasis,
+            AcquisitionEvaluationBasisV2,
+            CandidateAcquisitionEvaluationBasis,
+            CandidateAcquisitionEvaluationBasisV2,
+        }
         or type(prospective) is not type(previous)
         or previous.predicate_provenance != "recomputed"
         or prospective.predicate_provenance != "recomputed"
@@ -340,7 +385,9 @@ def _require_model_revision_facets(
         type(previous)
         not in {
             AcquisitionEvaluationBasis,
+            AcquisitionEvaluationBasisV2,
             CandidateAcquisitionEvaluationBasis,
+            CandidateAcquisitionEvaluationBasisV2,
         }
         or type(prospective) is not type(previous)
         or type(selected) is not type(previous)
@@ -350,7 +397,8 @@ def _require_model_revision_facets(
     pending = _native_facets(prospective)
     new = _native_facets(selected)
     model_fields = {"declared_model", "selected_native_ncm"}
-    implementation = "actual_live_implementation"
+    v2 = type(previous) in (AcquisitionEvaluationBasisV2, CandidateAcquisitionEvaluationBasisV2)
+    implementation = "n5_declared_implementation" if v2 else "actual_live_implementation"
     if (
         set(old) != set(pending)
         or set(old) != set(new)
@@ -369,8 +417,18 @@ def _require_model_revision_facets(
         or new[implementation] != json.loads(exact_n5_content_bytes(selected_implementation))
     ):
         raise ValueError("candidate_model_revision_implementation_binding_mismatch")
-    previous_code = _implementation_without_reconciled_ncm(previous_implementation, previous_ncm)
-    selected_code = _implementation_without_reconciled_ncm(selected_implementation, selected_ncm)
+    if v2:
+        # NCM is an independently owner-resolved numerical facet in V2; the
+        # implementation mapping contains the image, profile and callable only.
+        previous_code = previous_implementation
+        selected_code = selected_implementation
+    else:
+        previous_code = _implementation_without_reconciled_ncm(
+            previous_implementation, previous_ncm
+        )
+        selected_code = _implementation_without_reconciled_ncm(
+            selected_implementation, selected_ncm
+        )
     if exact_n5_content_bytes(previous_code) != exact_n5_content_bytes(selected_code):
         raise ValueError("candidate_model_revision_implementation_changed")
 
@@ -488,9 +546,9 @@ def _require_outcome_state_baselines(
 
 
 def _require_outcome_revision_facets(
-    previous: AcquisitionEvaluationBasis,
-    prospective: AcquisitionEvaluationBasis,
-    selected: AcquisitionEvaluationBasis,
+    previous: AcquisitionEvaluationBasis | AcquisitionEvaluationBasisV2,
+    prospective: AcquisitionEvaluationBasis | AcquisitionEvaluationBasisV2,
+    selected: AcquisitionEvaluationBasis | AcquisitionEvaluationBasisV2,
     *,
     previous_implementation: dict[str, object],
     selected_implementation: dict[str, object],
@@ -499,21 +557,23 @@ def _require_outcome_revision_facets(
     previous_state: tuple[StateSnapshotValueLeaf, ...],
     selected_state: tuple[StateSnapshotValueLeaf, ...],
     state_path: str,
+    source_owner_values: tuple[dict[str, object], dict[str, object]] | None = None,
 ) -> None:
     """Bind changed source/state/model values to the actual selected N5 execution."""
 
     old = _native_facets(previous)
     pending = _native_facets(prospective)
     new = _native_facets(selected)
-    implementation = "actual_live_implementation"
+    v2 = type(previous) is AcquisitionEvaluationBasisV2
+    implementation = "n5_declared_implementation" if v2 else "actual_live_implementation"
     changed = {
-        "controlled_observation",
         "foundry_state",
         "declared_model",
         "selected_native_ncm",
         "n5_request_values",
-        "world",
     }
+    if not v2:
+        changed.update({"controlled_observation", "world"})
     if (
         set(old) != set(pending)
         or set(old) != set(new)
@@ -524,9 +584,21 @@ def _require_outcome_revision_facets(
         raise ValueError("acquired_outcome_revision_source_state_model_not_changed")
     if any(old[name] != new[name] for name in old.keys() - changed - {implementation}):
         raise ValueError("acquired_outcome_revision_unrelated_basis_changed")
+    if v2:
+        if source_owner_values is None:
+            raise ValueError("acquired_outcome_revision_source_owner_not_established")
+        old_source, new_source = source_owner_values
+        if any(
+            set(source) != {"controlled_observation", "world"} for source in source_owner_values
+        ):
+            raise ValueError("acquired_outcome_revision_source_owner_not_established")
+        old_owner = {**old, **_native_mapping(json.loads(exact_n5_content_bytes(old_source)))}
+        new_owner = {**new, **_native_mapping(json.loads(exact_n5_content_bytes(new_source)))}
+    else:
+        old_owner, new_owner = old, new
     _require_outcome_owner_values(
-        old,
-        new,
+        old_owner,
+        new_owner,
         previous_state=previous_state,
         selected_state=selected_state,
         state_path=state_path,
@@ -539,8 +611,16 @@ def _require_outcome_revision_facets(
         or new[implementation] != json.loads(exact_n5_content_bytes(selected_implementation))
     ):
         raise ValueError("acquired_outcome_revision_implementation_binding_mismatch")
-    previous_code = _implementation_without_reconciled_ncm(previous_implementation, previous_ncm)
-    selected_code = _implementation_without_reconciled_ncm(selected_implementation, selected_ncm)
+    if v2:
+        previous_code = previous_implementation
+        selected_code = selected_implementation
+    else:
+        previous_code = _implementation_without_reconciled_ncm(
+            previous_implementation, previous_ncm
+        )
+        selected_code = _implementation_without_reconciled_ncm(
+            selected_implementation, selected_ncm
+        )
     if exact_n5_content_bytes(previous_code) != exact_n5_content_bytes(selected_code):
         raise ValueError("acquired_outcome_revision_implementation_changed")
 
@@ -595,14 +675,14 @@ def _resolve_candidate_revision(
     ):
         raise ValueError("candidate_model_revision_continuation_mismatch")
 
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision_ref,
-        record_type=AcquisitionEvaluationDecision,
+        kind="decision",
     )
     if (
-        type(decision) is not AcquisitionEvaluationDecision
+        type(decision) not in (AcquisitionEvaluationDecision, AcquisitionEvaluationDecisionV2)
         or decision.comparison_result != "different"
         or decision.predicate_provenance != "recomputed"
         or decision.reason_codes
@@ -652,29 +732,36 @@ def _resolve_candidate_revision(
     ):
         raise ValueError("candidate_model_revision_evaluation_scope_mismatch")
 
-    previous_basis = read_acquisition_evaluation_artifact(
+    previous_basis = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.prior_basis_ref,
-        record_type=AcquisitionEvaluationBasis,
+        kind="basis",
     )
-    prospective_basis = read_acquisition_evaluation_artifact(
+    prospective_basis = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.current_basis_ref,
-        record_type=AcquisitionEvaluationBasis,
+        kind="basis",
     )
-    selected_basis = read_acquisition_evaluation_artifact(
+    selected_basis = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=selected_basis_ref,
-        record_type=AcquisitionEvaluationBasis,
+        kind="basis",
     )
     if not all(
-        type(value) is AcquisitionEvaluationBasis
+        type(value) in (AcquisitionEvaluationBasis, AcquisitionEvaluationBasisV2)
         for value in (previous_basis, prospective_basis, selected_basis)
     ):
         raise ValueError("candidate_model_revision_basis_untyped")
+    if (
+        type(previous_basis) is not type(prospective_basis)
+        or type(selected_basis) is not type(prospective_basis)
+        or (type(decision) is AcquisitionEvaluationDecisionV2)
+        != (type(prospective_basis) is AcquisitionEvaluationBasisV2)
+    ):
+        raise ValueError("candidate_model_revision_basis_version_mismatch")
     if (
         previous_basis.evaluation != previous.selected
         or prospective_basis.evaluation is not None
@@ -748,20 +835,23 @@ def _resolve_candidate_revision(
     ):
         raise ValueError("candidate_model_revision_declaration_difference_not_established")
 
-    previous_witness = read_n5_execution_implementation_witness(
-        previous.result, input_ref=previous.selected.n5_input_ref
+    previous_witness = _read_completed_candidate_n5_witness(
+        artifact_store=artifact_store,
+        evaluation=previous,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
     )
-    selected_witness = read_n5_execution_implementation_witness(
-        selected.result, input_ref=selected.selected.n5_input_ref
+    selected_witness = _read_completed_candidate_n5_witness(
+        artifact_store=artifact_store,
+        evaluation=selected,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
     )
-    if (
-        previous_witness.predicate_provenance != "recomputed"
-        or selected_witness.predicate_provenance != "recomputed"
-    ):
-        raise ValueError("candidate_model_revision_implementation_not_established")
     comparison = {
-        "previous_implementation": previous_witness.implementation,
-        "selected_implementation": selected_witness.implementation,
+        "previous_implementation": previous_witness,
+        "selected_implementation": selected_witness,
         "previous_ncm": ncms[0],
         "selected_ncm": ncms[1],
     }
@@ -838,6 +928,30 @@ def _resolve_candidate_revision(
         )
     except (AttributeError, TypeError, ValueError) as exc:
         raise ValueError("acquired_outcome_revision_state_baseline_mismatch") from exc
+    source_owner_values = None
+    if type(previous_basis) is AcquisitionEvaluationBasisV2:
+        from polisyos.runtime.quality.data_state_substrate import (
+            read_acquired_observation_semantic_values,
+            read_acquired_observation_world_semantic_values,
+        )
+
+        resolved_sources = []
+        for world in (old_world, new_world):
+            views = world_model_artifact_views(world)
+            observation = read_acquired_observation_semantic_values(
+                artifact_store, views.data_snapshot_ref
+            )
+            world_values = read_acquired_observation_world_semantic_values(
+                store=artifact_store,
+                world_model_record=world,
+                registry_bundle_ref=views.registry_bundle_ref,
+            )
+            if world_values["predicate_provenance"] != "recomputed":
+                raise ValueError("acquired_outcome_revision_source_owner_not_established")
+            resolved_sources.append(
+                {"controlled_observation": observation, "world": world_values["effective_values"]}
+            )
+        source_owner_values = (resolved_sources[0], resolved_sources[1])
     _require_outcome_revision_facets(
         previous_basis,
         prospective_basis,
@@ -846,6 +960,7 @@ def _resolve_candidate_revision(
         previous_state=state_snapshot_value_projection(old_state_value),
         selected_state=state_snapshot_value_projection(new_state_value),
         state_path=state_path,
+        source_owner_values=source_owner_values,
     )
     return AcquiredOutcomeRevision(
         **refs,
@@ -959,14 +1074,14 @@ def resolve_candidate_source_model_revision(
         expected_selected_action_ref=terminal.candidate_action_ref,
     )
     validate_candidate_source_continuation(prior_closure.generation_run, reentry)
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_candidate_acquisition_evaluation_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=terminal.evaluation_decision_ref,
-        record_type=CandidateAcquisitionEvaluationDecision,
     )
     if (
-        type(decision) is not CandidateAcquisitionEvaluationDecision
+        type(decision)
+        not in (CandidateAcquisitionEvaluationDecision, CandidateAcquisitionEvaluationDecisionV2)
         or decision.comparison_result != "different"
         or decision.predicate_provenance != "recomputed"
         or decision.reason_codes
@@ -1033,32 +1148,37 @@ def resolve_candidate_source_model_revision(
         or selected.source.job_id != terminal.job_id
     ):
         raise ValueError("candidate_source_model_revision_selected_n5_mismatch")
-    previous_basis = read_acquisition_evaluation_artifact(
+    previous_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.prior_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
-    prospective_basis = read_acquisition_evaluation_artifact(
+    prospective_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.current_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
-    selected_basis = read_acquisition_evaluation_artifact(
+    selected_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=terminal.selected_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
     if (
         any(
-            type(basis) is not CandidateAcquisitionEvaluationBasis
+            type(basis)
+            not in (CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationBasisV2)
             for basis in (previous_basis, prospective_basis, selected_basis)
         )
         or not prior_closure.candidate_basis_transitions
     ):
         raise ValueError("candidate_source_model_revision_basis_not_established")
+    if (
+        type(previous_basis) is not type(prospective_basis)
+        or type(selected_basis) is not type(prospective_basis)
+        or (type(decision) is CandidateAcquisitionEvaluationDecisionV2)
+        != (type(prospective_basis) is CandidateAcquisitionEvaluationBasisV2)
+    ):
+        raise ValueError("candidate_source_model_revision_basis_version_mismatch")
     previous_receipt = prior_closure.candidate_basis_transitions[-1]
     predecessors = _candidate_source_predecessors_for_verified_closure(
         store=artifact_store, closure=prior_closure
@@ -1288,8 +1408,8 @@ def resolve_candidate_source_model_revision(
         previous_basis,
         prospective_basis,
         selected_basis,
-        previous_implementation=old_witness.implementation,
-        selected_implementation=new_witness.implementation,
+        previous_implementation=old_witness,
+        selected_implementation=new_witness,
         previous_ncm=ncms[0],
         selected_ncm=ncms[1],
     )

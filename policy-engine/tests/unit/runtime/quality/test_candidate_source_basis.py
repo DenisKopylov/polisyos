@@ -23,6 +23,10 @@ from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.foundry.execute import state_snapshot_value_projection
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.acquisition_evaluation import (
+    _foundry_binding_numerical_values,
+    _ordinary_numerical_binding_rules,
+)
 from polisyos.runtime.quality.acquisition_executor import (
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
@@ -43,6 +47,7 @@ from polisyos.runtime.quality.candidate_source_basis import (
     _same_view,
     _selected_n5_world_model_matches_exact_n4_context,
     prepare_candidate_source_basis_values,
+    prepare_candidate_source_numerical_basis_values_v2,
 )
 from polisyos.runtime.quality.data_state_substrate import build_candidate_acquisition_world
 from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
@@ -420,6 +425,24 @@ def test_candidate_source_basis_replays_actual_float32_world_without_writes(
         assert exact_n5_content_bytes(prospective.effective_values) == exact_n5_content_bytes(
             actual.effective_values
         )
+        numerical = prepare_candidate_source_numerical_basis_values_v2(
+            store=fresh,
+            problem=case.problem,
+            inputs=inputs,
+            data_snapshot_ref=case.materialization.data_snapshot_ref,
+            world_model_ref=built.world_model.record_ref,
+        )
+        assert numerical.reason_codes == ()
+        assert set(numerical.effective_values) == {
+            "foundry_state",
+            "applied_rules",
+            "selected_native_ncm",
+            "declared_model",
+            "n5_request_values",
+        }
+        request = numerical.effective_values["n5_request_values"]
+        assert "budget_ref" not in request.model_fields_set
+        assert request.replications == actual.prospective_model.n5_config.replications
         assert _files(tmp_path) == before
         float32_rate = struct.unpack("!f", struct.pack("!f", 0.175))[0]
         assert (
@@ -453,6 +476,129 @@ def test_candidate_source_basis_replays_actual_float32_world_without_writes(
             fresh, world_model_artifact_views(case.base.record).input_bindings_ref
         )
         assert retained == [item.model_dump(mode="json") for item in original.rules]
+
+
+def test_v2_numerical_rules_separate_provenance_from_consumed_values(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Producer rules separate provenance notes while value and transforms remain decisive."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotSourceRowNotEstablishedError,
+        validate_data_snapshot_owner_lineage,
+    )
+
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        results = []
+        variants = (
+            ("modeled", UNEMPLOYMENT_PROFILE.fixture_value),
+            ("changed-value", UNEMPLOYMENT_PROFILE.fixture_value + 0.05),
+        )
+        for label, value in variants:
+            profile = replace(UNEMPLOYMENT_PROFILE, fixture_value=value)
+            root = tmp_path / label
+            case = _case_with_explicit_empty_prior(
+                root,
+                monkeypatch,
+                candidate_case=_candidate_world_case(root, monkeypatch, source_profile=profile),
+            )
+            inputs = _inputs(case)
+            legacy = prepare_candidate_source_basis_values(
+                store=case.store, problem=case.problem, inputs=inputs
+            )
+            numerical = prepare_candidate_source_numerical_basis_values_v2(
+                store=case.store, problem=case.problem, inputs=inputs
+            )
+            assert legacy.predicate_provenance == numerical.predicate_provenance == "recomputed"
+            assert not legacy.reason_codes and not numerical.reason_codes
+            assert (
+                legacy.effective_values["candidate_source"]["scientific_authority"][
+                    "observation_class"
+                ]
+                == "model_output"
+            )
+            assert (
+                legacy.effective_values["candidate_source"]["scientific_authority"][
+                    "publication_authority"
+                ]
+                is False
+            )
+            snapshot = DataSnapshot.model_validate(
+                load_core_json_artifact(case.store, case.materialization.data_snapshot_ref)
+            )
+            lineage = validate_data_snapshot_owner_lineage(
+                case.store, case.materialization.data_snapshot_ref, snapshot, candidate_only=True
+            )
+            with pytest.raises(DataSnapshotSourceRowNotEstablishedError):
+                validate_data_snapshot_owner_lineage(
+                    case.store, case.materialization.data_snapshot_ref, snapshot
+                )
+            results.append((inputs, legacy, numerical, lineage))
+
+        first, changed_value = results
+        assert "candidate_source_not_an_observation" in first[3].required_admissibility_blockers
+        assert (
+            first[2].effective_values["foundry_state"]
+            != (changed_value[2].effective_values["foundry_state"])
+        )
+        assert exact_n5_content_bytes(first[2].effective_values) != exact_n5_content_bytes(
+            changed_value[2].effective_values
+        )
+        rules = first[1].effective_values["applied_rules"]
+        target = first[0].slot_binding.target_slot_id
+        hypothetical = tuple(
+            {
+                **rule,
+                "notes": [
+                    "source_provenance:observed"
+                    if note == "source_provenance:model_output"
+                    else note
+                    for note in rule["notes"]
+                ]
+                + ["candidate_source_ref:other-occurrence", "evidence:review-required"],
+            }
+            if rule["target_slot_id"] == target
+            else {**rule, "notes": [*rule["notes"], "retained:evidence-only"]}
+            for rule in rules
+        )
+        assert hypothetical != rules  # V1 preserves this difference as evidence.
+        assert (
+            tuple(_foundry_binding_numerical_values(rule) for rule in hypothetical)
+            == (first[2].effective_values["applied_rules"])
+        )
+        from polisyos.core.contracts import FoundryInputBindingRule
+
+        def ordinary(values: object) -> tuple[dict[str, object], ...]:
+            assert isinstance(values, tuple)
+            return _ordinary_numerical_binding_rules(
+                [FoundryInputBindingRule.model_validate(rule) for rule in values],
+                owned_target_slot=target,
+            )
+
+        assert ordinary(rules) == ordinary(hypothetical)
+        assert {next(iter(rule)) for rule in ordinary(rules)} == {
+            "acquired_owner_values",
+            "retained_rule",
+        }
+        with pytest.raises(ValueError, match="acquisition_numerical_rule_census_not_established"):
+            _foundry_binding_numerical_values({**rules[0], "new_unknown_field": 1})
+        for field, value in (
+            ("transforms", [{"op": "scale", "params": {"factor": 2.0}}]),
+            ("source_path", "different.input.value"),
+            ("target_slot_id", "different.target"),
+            ("binding_id", "different.binding"),
+            ("default_value", 123.0),
+            ("required", False),
+        ):
+            changed = tuple(
+                {**rule, field: value} if rule["target_slot_id"] == target else rule
+                for rule in rules
+            )
+            assert exact_n5_content_bytes(
+                tuple(_foundry_binding_numerical_values(rule) for rule in changed)
+            ) != (exact_n5_content_bytes(first[2].effective_values["applied_rules"]))
+            assert ordinary(changed) != ordinary(rules)
 
 
 def test_candidate_source_basis_distinguishes_model_coefficient_from_fixed_n5_request(
@@ -759,7 +905,7 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
             selection,
             context.phase,
             context.admission,
-                action.model_copy(update={"decision_ref": _hash("d")})
+            action.model_copy(update={"decision_ref": _hash("d")})
             if context_state == "changed_final_owner"
             else action,
         ),
@@ -803,17 +949,26 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
 
     monkeypatch.setattr(basis_module, "prepare_candidate_source_basis_values", prepare_values)
     initial_context = None if context_state == "direct" else context
-    result, _result_ref, result_intent = basis_module.prepare_live_candidate_experiment_source_basis_values(
-        bridge=bridge,
-        origin=origin,
-        candidate_action_ref=phase.candidate_receipt_ref,
-        pending_phase_ref=canonical_head.receipt_ref,
-        initial_reentry_context=initial_context,
+    result, _result_ref, result_intent = (
+        basis_module.prepare_live_candidate_experiment_source_basis_values(
+            bridge=bridge,
+            origin=origin,
+            candidate_action_ref=phase.candidate_receipt_ref,
+            pending_phase_ref=canonical_head.receipt_ref,
+            initial_reentry_context=initial_context,
+        )
     )
 
-    if context_state in {"foreign_scope", "same_bytes_wrong_profile", "changed_head", "changed_admission"}:
+    if context_state in {
+        "foreign_scope",
+        "same_bytes_wrong_profile",
+        "changed_head",
+        "changed_admission",
+    }:
         assert result.predicate_provenance == "not_established"
-        assert "candidate_experiment_source_basis_reentry_context_not_current" in result.reason_codes
+        assert (
+            "candidate_experiment_source_basis_reentry_context_not_current" in result.reason_codes
+        )
         assert prepared_inputs == []
         assert final_replays == []
         return
@@ -846,8 +1001,8 @@ def test_v2_blocker_carries_verified_source_without_a_physical_predecessor(
         _reuse_effective_source_case,
     )
 
-    origin, generation_run, source_cycle, history, _frontier = (
-        _reuse_effective_source_case("candidate_blocked")
+    origin, generation_run, source_cycle, history, _frontier = _reuse_effective_source_case(
+        "candidate_blocked"
     )
     assert type(history.terminal) is AcquisitionCandidateExperimentTerminalReceiptV2
     assert history.terminal.terminal_outcome == "candidate_blocked"

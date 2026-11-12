@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from types import CodeType, FrameType, SimpleNamespace
@@ -1322,3 +1323,271 @@ def test_v3_pydantic_field_set_is_content_and_private_extra_carriers_are_unknown
     assert calls[0].numerical_content_hash != calls[1].numerical_content_hash
     assert all(call.arguments_content is None for call in calls[2:])
     assert effects == []
+
+
+def _owned_native_graph():
+    from polisyos.ir import CausalGraphModel
+    from polisyos.ir.analytics.causal_graph import CausalEdge
+
+    return CausalGraphModel(
+        graph_type="dag",
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", metadata={"weights": [1, 2]})],
+        metadata={"nested": {"notes": ["initial"]}},
+    )
+
+
+def test_v3_actual_owner_graph_nested_frozen_values_capture_actual_call_arguments(content_image):
+    _root, image = content_image
+    graph = _owned_native_graph()
+
+    def operation(value):
+        return value.edges[0].metadata["weights"][0] + len(value.nodes)
+
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(operation, graph) == 3
+    first = capture.observed_calls[0]
+    assert first.arguments_content is not None and first.numerical_content_hash is not None
+    rows = json.loads(first.arguments_content)["nodes"]
+    carriers = [row for row in rows if row["kind"] == "canonical_immutable_container"]
+    assert {row["container_kind"] for row in carriers} == {"list", "mapping"}
+    assert all(
+        row["owner_profile"] == "polisyos.ir.canonical_immutable_container/1" for row in carriers
+    )
+    list.__setitem__(graph.edges[0].metadata["weights"], 0, 5)
+    assert capture.observe_numerical_call(operation, graph) == 7
+    second = capture.seal().observed_calls[1]
+    assert first.callable_content == second.callable_content
+    assert first.arguments_content != second.arguments_content
+    assert first.numerical_content_hash != second.numerical_content_hash
+    assert first.arguments_content == capture.observed_calls[0].arguments_content
+
+
+def test_v3_owned_carrier_cycles_and_callable_argument_aliases_remain_exact(content_image):
+    from polisyos.ir import read_canonical_immutable_container
+
+    _root, image = content_image
+    graph = _owned_native_graph()
+    state = graph.metadata["nested"]["notes"]
+    list.append(state, state)
+    assert read_canonical_immutable_container(state)[1][1] is state
+
+    def operation(value):
+        return value is state and value[1] is state
+
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(operation, state)
+    call = capture.seal().observed_calls[0]
+    assert call.callable_content is not None and call.arguments_content is not None
+    assert call.numerical_content_hash is not None
+    rows = json.loads(call.arguments_content)["nodes"]
+    cyclic = [row for row in rows if row["kind"] == "canonical_immutable_container"]
+    assert len(cyclic) == 1
+    index = rows.index(cyclic[0])
+    assert cyclic[0]["items"][1] == {"ref": index}
+
+
+def test_v3_owned_container_adapter_does_not_admit_extra_state_subclasses_or_callbacks(
+    content_image, monkeypatch
+):
+    _root, image = content_image
+    graph = _owned_native_graph()
+    owned_type = type(graph.nodes)
+    effects = []
+
+    class Extra(owned_type):
+        __slots__ = ("hidden",)
+
+        def __iter__(self):
+            effects.append("iterated")
+            raise AssertionError("unknown extra state must not run")
+
+    capture = _graph_capture(image)
+    value = Extra(["X"])
+    value.hidden = 1
+    assert capture.observe_numerical_call(lambda item: item.hidden, value) == 1
+    assert capture.observed_calls[0].arguments_content is None
+
+    def hostile_iterator(self):
+        effects.append("iterated")
+        raise AssertionError("replaced accessor must not run")
+
+    monkeypatch.setattr(owned_type, "__iter__", hostile_iterator)
+    assert capture.observe_numerical_call(lambda item: list.__len__(item), graph.nodes) == 2
+    assert capture.seal().observed_calls[1].arguments_content is None
+    assert effects == []
+
+
+@pytest.mark.skipif(
+    os.environ.get("FOUNDRY_SHAPE_CHECK") != "0",
+    reason="actual native codec seam requires the explicitly selected shape-check-zero profile",
+)
+def test_v3_real_scm_repeated_numerical_calls_keep_exact_pre_call_state(content_image, tmp_path):
+    from collections import Counter
+    from dataclasses import fields, is_dataclass
+    from types import GetSetDescriptorType, MemberDescriptorType
+
+    from pydantic import BaseModel
+
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
+    from polisyos.ir import read_canonical_immutable_container
+    from tests.unit.foundry.methods.catalog.causal.test_ncm_engine import _chain_ncm
+
+    _root, image = content_image
+    retained_ncm = _chain_ncm(noise_std=0.0)
+    query = NCMQueryData(
+        ncm_spec=retained_ncm,
+        evidence={"X": 1.0},
+        interventions=[{"X": 0.0}, {"X": 1.0}],
+        query_vars=["Y"],
+        n_samples=16,
+    )
+    state = {"ncm_query_data": query}
+    intent = {"query": query, "seeds": (17, 18), "profile": "actual-scm-chain-codec-unit-v1"}
+    capture = _graph_capture(image, effective_inputs=intent)
+    entry = NCMEngineMethod.pure_step
+    evidence = tmp_path / "actual-scm-seam"
+    evidence.mkdir()
+
+    def save(name, value):
+        (evidence / name).write_text(json.dumps(value, sort_keys=True, indent=2) + "\n")
+
+    def type_label(value):
+        cls = type(value)
+        return cls.__module__ + "." + cls.__qualname__
+
+    def encode(value):
+        try:
+            return {"status": "exact", "wire": basis.N5ControlledCallCaptureV3._native_wire(value)}
+        except (ValueError, TypeError, RuntimeError, AttributeError) as error:
+            return {"status": "unknown", "error": str(error), "error_type": type(error).__name__}
+
+    def storage_census(value, path, active, rows):
+        row = {"path": path, "native_type": type_label(value), **encode(value)}
+        rows.append(row)
+        if id(value) in active:
+            row["cycle_backref"] = True
+            return
+        active = active | {id(value)}
+        kind = type(value)
+        children = []
+        if isinstance(value, BaseModel):
+            actual = object.__getattribute__(value, "__dict__")
+            declared = type(value).model_fields
+            row["declared_fields"] = sorted(declared)
+            row["actual_dictionary"] = {name: type_label(item) for name, item in actual.items()}
+            row["extra_instance_fields"] = sorted(set(actual) - set(declared))
+            descriptors = []
+            for owner in type(value).__mro__:
+                for descriptor in vars(owner).values():
+                    if type(descriptor) in (GetSetDescriptorType, MemberDescriptorType):
+                        descriptors.append(
+                            {
+                                "owner": owner.__module__ + "." + owner.__qualname__,
+                                "name": descriptor.__name__,
+                                "kind": type(descriptor).__name__,
+                            }
+                        )
+            row["actual_storage_descriptors"] = descriptors
+            children.extend((item, path + "." + name) for name, item in actual.items())
+            for slot in ("__pydantic_private__", "__pydantic_extra__", "__pydantic_fields_set__"):
+                item = object.__getattribute__(value, slot)
+                row[slot + "_type"] = type_label(item)
+                if slot == "__pydantic_fields_set__":
+                    row[slot + "_value"] = sorted(item)
+                children.append((item, path + ".@" + slot))
+        elif kind is dict:
+            children.extend(
+                (item, path + "[" + json.dumps(key) + "]") for key, item in value.items()
+            )
+        elif kind in (list, tuple, set, frozenset):
+            children.extend(
+                (item, path + "[" + str(index) + "]") for index, item in enumerate(value)
+            )
+        elif is_dataclass(value) and not isinstance(value, type):
+            children.extend(
+                (object.__getattribute__(value, field.name), path + "." + field.name)
+                for field in fields(value)
+            )
+        else:
+            owned = read_canonical_immutable_container(value)
+            if owned is not None:
+                tag, items = owned
+                children.extend(
+                    ((item, path + "[" + str(index) + "]") for index, item in enumerate(items))
+                    if tag == "list"
+                    else ((item, path + "[" + json.dumps(key) + "]") for key, item in items)
+                )
+        for child, child_path in children:
+            storage_census(child, child_path, active, rows)
+
+    def audit(stage, params):
+        rows = []
+        storage_census({"intent": intent, "state": state, "params": params}, "$", set(), rows)
+        unknown = [row for row in rows if row["status"] == "unknown"]
+        observation = {
+            "stage": stage,
+            "unit_profile": "tiny synthetic source image; no production code attestation",
+            "frozen_intent_content": capture._intent,
+            "frozen_intent_hash": capture.numerical_intent_content_hash,
+            "current_intent": encode(intent),
+            "current_callable": basis.snapshot_n5_callable_content_v3(entry),
+            "current_arguments": encode((entry, (state, params), {})),
+            "all_storage": rows,
+            "all_unknown": unknown,
+            "unknown_class_counts": dict(Counter(row["native_type"] for row in unknown)),
+        }
+        save(stage + ".json", observation)
+        return observation
+
+    observations = []
+    outputs = []
+    for seed in (17, 18):
+        params = {"__seed__": seed, "n_samples": 16}
+        before = audit("before-" + str(seed), params)
+        try:
+            result = capture.observe_numerical_call(entry, state, params)
+            outputs.append(result)
+            save("result-" + str(seed) + ".json", result)
+        finally:
+            after = audit("after-" + str(seed), params)
+        observations.append((before, after))
+    witness = capture.seal()
+    (evidence / "witness.json").write_text(witness.model_dump_json(indent=2) + "\n")
+    save(
+        "execution-count.json",
+        {
+            "actual_ncm_calls": len(outputs),
+            "seeds": [17, 18],
+            "worlds_per_call": 2,
+            "samples_per_world": 16,
+        },
+    )
+
+    # All evidence above survives a refusal, including a second-call cache or
+    # metadata mutation. The zero-noise independent chain is Y = 0.5 + 2 * X.
+    assert len(outputs) == len(witness.observed_calls) == 2
+    assert witness.numerical_intent_content_hash is not None
+    for result, call, (before, after) in zip(
+        outputs, witness.observed_calls, observations, strict=True
+    ):
+        summary = result["counterfactual_result"]
+        assert summary["n_worlds"] == 2 and summary["n_samples"] == 16
+        assert [world["Y"]["mean"] for world in summary["world_summaries"]] == pytest.approx(
+            [0.5, 2.5], rel=0, abs=1e-12
+        )
+        assert before["all_unknown"] == after["all_unknown"] == []
+        assert (
+            before["current_intent"]["wire"] == after["current_intent"]["wire"] == capture._intent
+        )
+        assert before["current_callable"] == after["current_callable"] == call.callable_content
+        assert before["current_arguments"]["wire"] == after["current_arguments"]["wire"]
+        assert before["current_arguments"]["wire"] == call.arguments_content
+        assert call.callable_content_hash is not None and call.numerical_content_hash is not None
+        assert call.status == "returned"
+    assert (
+        witness.observed_calls[0].numerical_content_hash
+        != witness.observed_calls[1].numerical_content_hash
+    )
+    assert basis.read_n5_execution_content_witness(witness) == witness

@@ -10,7 +10,10 @@ from dataclasses import asdict
 import pytest
 
 from polisyos.foundry.execute import StateSnapshotValueLeaf
-from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationBasis
+from polisyos.runtime.quality.acquisition_evaluation import (
+    AcquisitionEvaluationBasis,
+    AcquisitionEvaluationBasisV2,
+)
 from polisyos.runtime.quality.acquisition_model_transition import (
     _native_facets,
     _require_model_revision_facets,
@@ -122,7 +125,6 @@ def test_model_revision_requires_both_model_facets_and_identical_other_values() 
         )
 
     compare(selected)
-
     for mutation in (
         {**selected, "controlled_observation": {"value": 0.25, "year": 2021}},
         {**selected, "foundry_state": {"tax_rate": 0.3}},
@@ -241,6 +243,50 @@ def test_outcome_revision_requires_changed_source_state_and_actual_n5() -> None:
         )
 
     compare(selected)
+    # V2 has an independent NCM facet and a content/profile/callable mapping;
+    # it must not be interpreted as the legacy selected-engine witness.
+    identity = {"content_image": "same", "execution_profile": "same", "callable_identity": "same"}
+    old_owner = values(100.0, old_state)
+    new_owner = values(120.0, new_state)
+    v2_previous = {
+        **{k: v for k, v in old_owner.items() if k not in {"controlled_observation", "world"}},
+        "n5_declared_implementation": identity,
+    }
+    v2_selected = {
+        **{k: v for k, v in new_owner.items() if k not in {"controlled_observation", "world"}},
+        "n5_declared_implementation": identity,
+    }
+
+    def v2_basis(value: object) -> AcquisitionEvaluationBasisV2:
+        return AcquisitionEvaluationBasisV2.model_construct(
+            effective_native_values_hex=exact_n5_content_bytes(value).hex()
+        )
+
+    v2_arguments = {
+        "previous_implementation": identity,
+        "selected_implementation": identity,
+        "previous_ncm": old_ncm,
+        "selected_ncm": new_ncm,
+        "previous_state": old_state,
+        "selected_state": new_state,
+        "state_path": "gdp",
+        "source_owner_values": (
+            {k: old_owner[k] for k in ("controlled_observation", "world")},
+            {k: new_owner[k] for k in ("controlled_observation", "world")},
+        ),
+    }
+    _require_outcome_revision_facets(
+        v2_basis(v2_previous), v2_basis(v2_selected), v2_basis(v2_selected), **v2_arguments
+    )
+    changed_identity = {**identity, "callable_identity": "changed"}
+    with pytest.raises(ValueError, match="acquired_outcome_revision_implementation_changed"):
+        _require_outcome_revision_facets(
+            v2_basis(v2_previous),
+            v2_basis(v2_selected),
+            v2_basis({**v2_selected, "n5_declared_implementation": changed_identity}),
+            **{**v2_arguments, "selected_implementation": changed_identity},
+        )
+
     for name in (
         "controlled_observation",
         "foundry_state",

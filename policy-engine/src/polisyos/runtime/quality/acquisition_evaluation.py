@@ -46,6 +46,7 @@ from polisyos.runtime.quality.n5_execution_basis import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
+    from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.runtime.http.services.control.run_lifecycle import VerifiedAcquisitionActionPhase
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
@@ -87,7 +88,11 @@ if TYPE_CHECKING:
         GenerationCycleRun,
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
-    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationRequest,
+        JointSimulationResult,
+    )
     from polisyos.scientist.orchestration.engine import (
         BudgetLedgerReentryBudgetWindow,
     )
@@ -288,6 +293,33 @@ class AcquisitionEvaluationBasis(_Record):
         return self
 
 
+class AcquisitionEvaluationBasisV2(AcquisitionEvaluationBasis):
+    """Declared numerical acquired-observation basis with candidate-only scope."""
+
+    schema_version: Literal["AcquisitionEvaluationBasis@2.0"] = "AcquisitionEvaluationBasis@2.0"
+    comparison_profile: Literal["controlled_acquired_observation_numerical_v2"] = (
+        "controlled_acquired_observation_numerical_v2"
+    )
+    closure_residuals: tuple[str, ...] = (
+        "arbitrary_code_read_set_completeness_not_established",
+        "same_process_transient_slot_cell_registry_mutations_not_established",
+        "opaque_seam_values_not_established",
+        "generated_code_provenance_not_established",
+        "loaded_code_to_file_bytes_association_not_independently_reconciled",
+        "cross_machine_bitwise_reproducibility_not_established",
+        "interpreter_os_integrity_not_established",
+        "protected_reuse_not_established",
+    )
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _fixed_residuals(self) -> AcquisitionEvaluationBasisV2:
+        if self.closure_residuals != type(self).model_fields["closure_residuals"].default:
+            raise ValueError("acquisition_evaluation_v2_closure_residuals_mismatch")
+        return self
+
+
 def _candidate_selected_ref(ref: ArtifactRef | None, kind: str) -> bool:
     return bool(
         isinstance(ref, ArtifactRef)
@@ -408,6 +440,36 @@ class CandidateAcquisitionEvaluationBasis(_Record):
         return self
 
 
+CANDIDATE_N5_CLOSURE_RESIDUALS_V2 = (
+    "arbitrary_code_read_set_completeness_not_established",
+    "same_process_transient_slot_cell_registry_mutations_not_established",
+    "opaque_seam_values_not_established",
+    "generated_code_provenance_not_established",
+    "loaded_code_to_file_bytes_association_not_independently_reconciled",
+    "cross_machine_bitwise_reproducibility_not_established",
+    "interpreter_os_integrity_not_established",
+    "protected_reuse_not_established",
+)
+
+
+class CandidateAcquisitionEvaluationBasisV2(CandidateAcquisitionEvaluationBasis):
+    """Candidate equality of a declared numerical basis, never protected authority."""
+
+    schema_version: Literal["CandidateAcquisitionEvaluationBasis@2.0"] = (
+        "CandidateAcquisitionEvaluationBasis@2.0"
+    )
+    comparison_profile: Literal["candidate_source_declared_numerical_basis_v2"] = (
+        "candidate_source_declared_numerical_basis_v2"
+    )
+    closure_residuals: tuple[str, ...] = CANDIDATE_N5_CLOSURE_RESIDUALS_V2
+
+    @model_validator(mode="after")
+    def _fixed_closure_residuals(self) -> CandidateAcquisitionEvaluationBasisV2:
+        if self.closure_residuals != CANDIDATE_N5_CLOSURE_RESIDUALS_V2:
+            raise ValueError("candidate_evaluation_v2_closure_residuals_mismatch")
+        return self
+
+
 class AcquisitionEvaluationDecision(_Record):
     """A recomputed comparison, bound to a particular action and frontier.
 
@@ -473,6 +535,17 @@ class AcquisitionEvaluationDecision(_Record):
         ):
             raise ValueError("acquisition_evaluation_decision_predicate_mismatch")
         return self
+
+
+class AcquisitionEvaluationDecisionV2(AcquisitionEvaluationDecision):
+    """Candidate-only decision over the acquired numerical V2 basis."""
+
+    schema_version: Literal["AcquisitionEvaluationDecision@2.0"] = (
+        "AcquisitionEvaluationDecision@2.0"
+    )
+    comparison_rule: Literal["AD-E02-B09-01/declared-numerical-basis/v2"] = (
+        "AD-E02-B09-01/declared-numerical-basis/v2"
+    )
 
 
 class CandidateAcquisitionEvaluationDecision(_Record):
@@ -564,6 +637,17 @@ class CandidateAcquisitionEvaluationDecision(_Record):
         return self
 
 
+class CandidateAcquisitionEvaluationDecisionV2(CandidateAcquisitionEvaluationDecision):
+    """Candidate decision comparing the declared numerical v2 basis only."""
+
+    schema_version: Literal["CandidateAcquisitionEvaluationDecision@2.0"] = (
+        "CandidateAcquisitionEvaluationDecision@2.0"
+    )
+    comparison_rule: Literal["candidate-source-declared-numerical-basis.v2"] = (
+        "candidate-source-declared-numerical-basis.v2"
+    )
+
+
 def _candidate_issuance_ref(ref: ArtifactRef | None) -> dict[str, object] | None:
     """Serialize a complete reference without reducing a subtype's meaning."""
     if ref is None:
@@ -608,6 +692,7 @@ def issue_candidate_acquisition_evaluation_basis(
     selected_world_model_ref: ArtifactRef | None = None,
     evaluation: AcquisitionSelectedEvaluation | None = None,
     reuse_occurrence_ref: ArtifactRef | None = None,
+    basis_version: Literal["1.0", "2.0"] = "1.0",
 ) -> CandidateAcquisitionEvaluationBasis:
     """Construct a candidate basis from caller-replayed inputs and values.
 
@@ -642,11 +727,17 @@ def issue_candidate_acquisition_evaluation_basis(
     if type(values) is not dict or any(not isinstance(name, str) for name in values):
         raise TypeError("candidate_evaluation_issuance_values_untyped")
     _require_candidate_issuance_reasons(reason_codes)
+    if basis_version not in ("1.0", "2.0"):
+        raise ValueError("candidate_evaluation_basis_version_unsupported")
     encoded = exact_n5_content_bytes(values)
     payload = {
-        "schema_version": "CandidateAcquisitionEvaluationBasis@1.0",
+        "schema_version": "CandidateAcquisitionEvaluationBasis@" + basis_version,
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_profile": "candidate_source_complete_native_values_v1",
+        "comparison_profile": (
+            "candidate_source_complete_native_values_v1"
+            if basis_version == "1.0"
+            else "candidate_source_declared_numerical_basis_v2"
+        ),
         "basis_role": basis_role,
         "tenant_id": tenant_id,
         "cell_id": cell_id,
@@ -679,9 +770,11 @@ def issue_candidate_acquisition_evaluation_basis(
     }
     if reuse_occurrence_ref is not None:
         payload["reuse_occurrence_ref"] = _candidate_issuance_ref(reuse_occurrence_ref)
-    return CandidateAcquisitionEvaluationBasis.model_validate(
-        {**payload, "content_hash": exact_n5_content_hash(payload)}
-    )
+    record_type = CandidateAcquisitionEvaluationBasis
+    if basis_version == "2.0":
+        payload["closure_residuals"] = list(CANDIDATE_N5_CLOSURE_RESIDUALS_V2)
+        record_type = CandidateAcquisitionEvaluationBasisV2
+    return record_type.model_validate({**payload, "content_hash": exact_n5_content_hash(payload)})
 
 
 def issue_candidate_acquisition_evaluation_decision(
@@ -711,6 +804,7 @@ def issue_candidate_acquisition_evaluation_decision(
     expected_frontier_ref: str | None,
     generated_at: str,
     reuse_occurrence_ref: ArtifactRef | None = None,
+    decision_version: Literal["1.0", "2.0"] = "1.0",
 ) -> CandidateAcquisitionEvaluationDecision:
     """Construct the caller's candidate comparison without granting retention.
 
@@ -730,10 +824,16 @@ def issue_candidate_acquisition_evaluation_decision(
     ):
         raise TypeError("candidate_evaluation_issuance_evaluation_untyped")
     _require_candidate_issuance_reasons(reason_codes)
+    if decision_version not in ("1.0", "2.0"):
+        raise ValueError("candidate_evaluation_decision_version_unsupported")
     payload = {
-        "schema_version": "CandidateAcquisitionEvaluationDecision@1.0",
+        "schema_version": "CandidateAcquisitionEvaluationDecision@" + decision_version,
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_rule": "candidate-source-complete-native-values.v1",
+        "comparison_rule": (
+            "candidate-source-complete-native-values.v1"
+            if decision_version == "1.0"
+            else "candidate-source-declared-numerical-basis.v2"
+        ),
         "tenant_id": tenant_id,
         "cell_id": cell_id,
         "run_id": run_id,
@@ -765,9 +865,12 @@ def issue_candidate_acquisition_evaluation_decision(
     }
     if reuse_occurrence_ref is not None:
         payload["reuse_occurrence_ref"] = _candidate_issuance_ref(reuse_occurrence_ref)
-    return CandidateAcquisitionEvaluationDecision.model_validate(
-        {**payload, "content_hash": exact_n5_content_hash(payload)}
+    record_type = (
+        CandidateAcquisitionEvaluationDecision
+        if decision_version == "1.0"
+        else CandidateAcquisitionEvaluationDecisionV2
     )
+    return record_type.model_validate({**payload, "content_hash": exact_n5_content_hash(payload)})
 
 
 @dataclass(frozen=True)
@@ -780,6 +883,76 @@ class ResolvedAcquisitionEvaluation:
     execution: CandidateSimulationExecutionV5
     result: JointSimulationResult
     handoff: CandidateSimulationContextHandoff
+
+
+def rebuild_selected_candidate_n5_request(
+    *,
+    store: CoreJSONArtifactStore,
+    input_ref: ArtifactRef,
+    run_id: str,
+    job_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> JointSimulationRequest:
+    """Reopen the selected V5 source and rebuild its producer-owned request.
+
+    This historical reconstruction grants neither current use nor authority.
+    The caller independently binds the selected input to its own route and result.
+    """
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generation_cycle import (
+        _value_outcome_variable,
+        build_candidate_n5_request_from_resolved_values,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV3,
+    )
+
+    expected = {
+        "expected_run_id": run_id,
+        "expected_job_id": job_id,
+        "expected_tenant_id": tenant_id,
+        "expected_cell_id": cell_id,
+    }
+    repository = GenerationSourceRepository(store)
+    record = repository.resolve_candidate_simulation_v5(ref=input_ref, **expected)
+    if type(record) is not CandidateSimulationN5InputV5:
+        raise ValueError("candidate_n5_source_request_input_not_established")
+    source = repository.load_candidate_scenario_source_for_n5(record.n4_source_ref, **expected)
+    if type(source) is not N4CandidateScenarioSourceRecordV3:
+        raise ValueError("candidate_n5_source_request_source_not_established")
+    context = (
+        CycleSubstrateContextArtifactOwner(store=store)
+        .resolve_historical_job_artifact(record.context_job_ref, problem=source.problem, **expected)
+        .context
+    )
+    _, ncm = repository.load_candidate_declared_ncm(
+        declaration_ref=record.model_declaration_ref,
+        ncm_ref=record.ncm_ref,
+        expected_profile=record.profile,
+        **expected,
+    )
+    outcome = _value_outcome_variable(source.candidate, source.problem)
+    if (
+        outcome != record.outcome_variable
+        or source.candidate.candidate_id != record.original_candidate_id
+        or source.candidate.atom.content_hash != record.original_candidate_hash
+        or context.content_hash != record.materialization.context_hash
+        or context.world_model_record.content_hash != record.materialization.world_model_record_hash
+        or str(record.ncm_ref.artifact_id)
+        not in context.world_model_record.simulation_model_ref.ncm_refs
+        or exact_n5_content_bytes(source.profile) != exact_n5_content_bytes(record.profile)
+    ):
+        raise ValueError("candidate_n5_source_request_binding_mismatch")
+    return build_candidate_n5_request_from_resolved_values(
+        world_record=context.world_model_record,
+        derived_atom=record.materialization.derived_n5_atom,
+        outcome=outcome,
+        ncm_spec=ncm,
+        n5_config=record.n5,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1043,9 +1216,15 @@ def _candidate_evaluation_event_id(
         CandidateRetainedPortCapture,
     )
 
-    if type(record) is CandidateAcquisitionEvaluationDecision:
+    if type(record) in (
+        CandidateAcquisitionEvaluationDecision,
+        CandidateAcquisitionEvaluationDecisionV2,
+    ):
         role = "decision"
-    elif type(record) is CandidateAcquisitionEvaluationBasis:
+    elif type(record) in (
+        CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationBasisV2,
+    ):
         role = "prospective_basis" if record.basis_role == "prospective" else "outcome_basis"
     elif type(record) is CandidateAcquisitionRetainedContinuation:
         role = "retained_continuation"
@@ -1119,9 +1298,13 @@ def persist_acquisition_evaluation_artifact(
 
     if type(record) not in {
         AcquisitionEvaluationBasis,
+        AcquisitionEvaluationBasisV2,
         AcquisitionEvaluationDecision,
+        AcquisitionEvaluationDecisionV2,
         CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationBasisV2,
         CandidateAcquisitionEvaluationDecision,
+        CandidateAcquisitionEvaluationDecisionV2,
         CandidateAcquisitionRetainedContinuation,
         CandidateRetainedPortCapture,
         AcquisitionRetainedContinuation,
@@ -1145,7 +1328,20 @@ def persist_acquisition_evaluation_artifact(
         artifacts.ArtifactWriteOptions(
             kind=record.ARTIFACT_KIND,
             media_type="application/json",
-            schema=artifacts.SchemaInfo(name=record.ARTIFACT_SCHEMA_NAME, version="1.0"),
+            schema=artifacts.SchemaInfo(
+                name=record.ARTIFACT_SCHEMA_NAME,
+                version=(
+                    "2.0"
+                    if type(record)
+                    in (
+                        CandidateAcquisitionEvaluationBasisV2,
+                        CandidateAcquisitionEvaluationDecisionV2,
+                        AcquisitionEvaluationBasisV2,
+                        AcquisitionEvaluationDecisionV2,
+                    )
+                    else "1.0"
+                ),
+            ),
             producer=artifacts.ProducerInfo(component=PRODUCER, version="1.0"),
             inputs=[input_ref_from_artifact_ref(ref, role=path) for path, ref in typed_refs],
         ),
@@ -1155,7 +1351,17 @@ def persist_acquisition_evaluation_artifact(
         provenance_kind="runtime_emitted",
         owner="team-runtime-quality",
         reader_contract=record.ARTIFACT_KIND + ".reader",
-        reader_contract_version="1.0",
+        reader_contract_version=(
+            "2.0"
+            if type(record)
+            in (
+                CandidateAcquisitionEvaluationBasisV2,
+                CandidateAcquisitionEvaluationDecisionV2,
+                AcquisitionEvaluationBasisV2,
+                AcquisitionEvaluationDecisionV2,
+            )
+            else "1.0"
+        ),
         tenant_id=record.tenant_id,
         cell_id=record.cell_id,
         run_id=record.run_id,
@@ -1256,9 +1462,13 @@ def read_acquisition_evaluation_artifact(
 
     if record_type not in {
         AcquisitionEvaluationBasis,
+        AcquisitionEvaluationBasisV2,
         AcquisitionEvaluationDecision,
+        AcquisitionEvaluationDecisionV2,
         CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationBasisV2,
         CandidateAcquisitionEvaluationDecision,
+        CandidateAcquisitionEvaluationDecisionV2,
         CandidateAcquisitionRetainedContinuation,
         CandidateRetainedPortCapture,
         AcquisitionRetainedContinuation,
@@ -1275,7 +1485,18 @@ def read_acquisition_evaluation_artifact(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != record_type.ARTIFACT_SCHEMA_NAME
-        or manifest.artifact_schema.version != "1.0"
+        or manifest.artifact_schema.version
+        != (
+            "2.0"
+            if record_type
+            in (
+                CandidateAcquisitionEvaluationBasisV2,
+                CandidateAcquisitionEvaluationDecisionV2,
+                AcquisitionEvaluationBasisV2,
+                AcquisitionEvaluationDecisionV2,
+            )
+            else "1.0"
+        )
         or manifest.producer is None
         or manifest.producer.component != PRODUCER
         or manifest.producer.version != "1.0"
@@ -1347,17 +1568,105 @@ def read_acquisition_evaluation_artifact(
     return record
 
 
+def read_acquisition_basis_or_decision_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    ref: ArtifactRef,
+    kind: Literal["basis", "decision"],
+) -> AcquisitionEvaluationBasis | AcquisitionEvaluationDecision:
+    """Dispatch ordinary acquired-observation records by their persisted version."""
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise ValueError("acquisition_evaluation_artifact_profile_missing")
+    schema = store.get_manifest(ref).artifact_schema
+    classes = {
+        ("basis", "1.0"): AcquisitionEvaluationBasis,
+        ("basis", "2.0"): AcquisitionEvaluationBasisV2,
+        ("decision", "1.0"): AcquisitionEvaluationDecision,
+        ("decision", "2.0"): AcquisitionEvaluationDecisionV2,
+    }
+    record_type = classes.get((kind, schema.version)) if schema is not None else None
+    if record_type is None or schema.name != record_type.ARTIFACT_SCHEMA_NAME:
+        raise ValueError("acquisition_evaluation_artifact_version_not_established")
+    record = read_acquisition_evaluation_artifact(
+        store=store, event_log=event_log, ref=ref, record_type=record_type
+    )
+    if not isinstance(record, (AcquisitionEvaluationBasis, AcquisitionEvaluationDecision)):
+        raise TypeError("acquisition_evaluation_artifact_reader_untyped")
+    return record
+
+
+def read_candidate_acquisition_evaluation_basis_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    ref: ArtifactRef,
+) -> CandidateAcquisitionEvaluationBasis:
+    """Dispatch the selected candidate basis by its persisted manifest version.
+
+    The ordinary reader verifies the full selected profile, producer and event
+    after this dispatch. Unknown versions are not comparable.
+    """
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise ValueError("acquisition_evaluation_artifact_profile_missing")
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != CandidateAcquisitionEvaluationBasis.ARTIFACT_SCHEMA_NAME:
+        raise ValueError("candidate_evaluation_basis_schema_not_established")
+    if schema.version == "1.0":
+        record_type = CandidateAcquisitionEvaluationBasis
+    elif schema.version == "2.0":
+        record_type = CandidateAcquisitionEvaluationBasisV2
+    else:
+        raise ValueError("candidate_evaluation_basis_version_unsupported")
+    record = read_acquisition_evaluation_artifact(
+        store=store, event_log=event_log, ref=ref, record_type=record_type
+    )
+    if not isinstance(record, CandidateAcquisitionEvaluationBasis):
+        raise TypeError("candidate_evaluation_basis_reader_untyped")
+    return record
+
+
+def read_candidate_acquisition_evaluation_decision_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    ref: ArtifactRef,
+) -> CandidateAcquisitionEvaluationDecision:
+    """Read the selected candidate decision under its declared version."""
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise ValueError("acquisition_evaluation_artifact_profile_missing")
+    schema = store.get_manifest(ref).artifact_schema
+    if schema is None or schema.name != CandidateAcquisitionEvaluationDecision.ARTIFACT_SCHEMA_NAME:
+        raise ValueError("candidate_evaluation_decision_schema_not_established")
+    if schema.version == "1.0":
+        record_type = CandidateAcquisitionEvaluationDecision
+    elif schema.version == "2.0":
+        record_type = CandidateAcquisitionEvaluationDecisionV2
+    else:
+        raise ValueError("candidate_evaluation_decision_version_unsupported")
+    record = read_acquisition_evaluation_artifact(
+        store=store, event_log=event_log, ref=ref, record_type=record_type
+    )
+    if not isinstance(record, CandidateAcquisitionEvaluationDecision):
+        raise TypeError("candidate_evaluation_decision_reader_untyped")
+    return record
+
+
 def basis_exact_values_equal(
     left: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
     right: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
 ) -> bool:
     """Compare the complete admitted native quantity, without hash-only equality."""
+    if type(left) is not type(right) or left.comparison_profile != right.comparison_profile:
+        return False
     if (
         isinstance(left, CandidateAcquisitionEvaluationBasis)
         or isinstance(right, CandidateAcquisitionEvaluationBasis)
     ) and (
-        type(left) is not CandidateAcquisitionEvaluationBasis
-        or type(right) is not CandidateAcquisitionEvaluationBasis
+        type(left) is not type(right)
+        or type(left)
+        not in (CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationBasisV2)
         or left.comparison_profile != right.comparison_profile
     ):
         return False
@@ -1381,6 +1690,8 @@ def recompute_candidate_acquisition_basis_values(
     selected_data_snapshot_ref: ArtifactRef | None = None,
     selected_world_model_ref: ArtifactRef | None = None,
     historical_read_only: bool = False,
+    basis_version: Literal["1.0", "2.0"] = "1.0",
+    current_n5_controller: JointSimulationHorizonController | None = None,
 ) -> tuple[dict[str, object], tuple[str, ...]]:
     """Recompute supported candidate values without asserting source authority.
 
@@ -1388,6 +1699,21 @@ def recompute_candidate_acquisition_basis_values(
     chain. Historical mode reads a prior witness only; live retention additionally
     requires current implementation reconciliation and a native/SQL fence.
     """
+    if basis_version == "2.0":
+        return recompute_candidate_acquisition_basis_values_v2(
+            artifact_store=artifact_store,
+            problem=problem,
+            preparation_inputs=preparation_inputs,
+            predecessors=predecessors,
+            prior=prior,
+            prepared_n5_configuration=prepared_n5_configuration,
+            selected_data_snapshot_ref=selected_data_snapshot_ref,
+            selected_world_model_ref=selected_world_model_ref,
+            historical_read_only=historical_read_only,
+            current_n5_controller=current_n5_controller,
+        )
+    if basis_version != "1.0":
+        return {}, ("candidate_evaluation_basis_version_unsupported",)
     from polisyos.runtime.quality.candidate_source_basis import (
         prepare_candidate_source_basis_values,
     )
@@ -1467,6 +1793,160 @@ def recompute_candidate_acquisition_basis_values(
     return values, ()
 
 
+def _candidate_v5_numerical_request_facets(
+    *, prior: ResolvedAcquisitionEvaluation, problem: DesignProblem, rule: object
+) -> dict[str, object]:
+    """Rebuild the canonical V5 builder's non-config request facets."""
+    from polisyos.runtime.quality.generation_cycle import (
+        JointSimulationPort,
+        _value_outcome_variable,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+
+    # This exact V5 builder supplies the first group and leaves the second
+    # group at constructor defaults. Fail closed on any new request field.
+    supplied = {
+        "world_model_record_ref",
+        "world_model_record",
+        "intervention_atoms",
+        "selected_outcomes",
+        "horizon",
+        "engine_plan",
+        "baseline_state",
+        "comparator_refs",
+        "budget_ref",
+        "seed",
+        "replications",
+    }
+    defaulted = {
+        "evidence_state",
+        "comparator_profile",
+        "coupling_graph",
+        "world_credal_state_before",
+        "candidate_intent",
+        "member_basis",
+        "source_candidate_relationship",
+        "composition_status",
+        "composition_limitation_code",
+        "child_to_parent_refinement_status",
+        "child_to_parent_refinement_limitation_code",
+    }
+    if supplied & defaulted or supplied | defaulted != set(JointSimulationRequest.model_fields):
+        raise ValueError("candidate_evaluation_v5_request_census_not_established")
+    atom = prior.input_record.materialization.derived_n5_atom
+    outcome = _value_outcome_variable(prior.source.candidate, problem)
+    if not outcome:
+        raise ValueError("candidate_evaluation_numerical_outcome_not_established")
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=(atom,), outcome=outcome, raw_hint=None
+    )
+    return {
+        "numerical_atom": {
+            "operator_kind": atom.operator_kind,
+            "target_world_slots": atom.target_world_slots,
+            "causal_do_expr": atom.causal_do_expr,
+            "outcome_variable": outcome,
+            "variable_map": variable_map,
+            "current_rule": rule,
+        },
+        "n5_request_defaults": {
+            name: JointSimulationRequest.model_fields[name].get_default(call_default_factory=True)
+            for name in sorted(defaulted)
+        },
+    }
+
+
+def recompute_candidate_acquisition_basis_values_v2(
+    *,
+    artifact_store: CoreJSONArtifactStore,
+    problem: DesignProblem,
+    preparation_inputs: CandidateSourceBasisInputs,
+    predecessors: tuple[CandidateSourceBasisPredecessor, ...],
+    prior: ResolvedAcquisitionEvaluation | None,
+    prepared_n5_configuration: PreparedJointSimulationConfiguration | None,
+    selected_data_snapshot_ref: ArtifactRef | None = None,
+    selected_world_model_ref: ArtifactRef | None = None,
+    historical_read_only: bool = False,
+    current_n5_controller: JointSimulationHorizonController | None = None,
+) -> tuple[dict[str, object], tuple[str, ...]]:
+    """Recompute candidate numerical identity with a current, completed N5 seam.
+
+    A successful comparison establishes only equality of this declared basis.
+    The caller separately verifies current use, semantic and evidence bindings,
+    and must never treat this candidate observation as protected authority.
+    """
+    from polisyos.runtime.quality.candidate_source_basis import (
+        prepare_candidate_source_numerical_basis_values_v2,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        read_candidate_n5_declared_implementation,
+        reconcile_candidate_n5_declared_implementation,
+    )
+
+    try:
+        if type(prior) is not ResolvedAcquisitionEvaluation:
+            raise ValueError("candidate_evaluation_prior_execution_not_established")
+        if type(prepared_n5_configuration) is not PreparedJointSimulationConfiguration:
+            raise ValueError("candidate_evaluation_configuration_not_established")
+        prepared = prepare_candidate_source_numerical_basis_values_v2(
+            store=artifact_store,
+            problem=problem,
+            inputs=preparation_inputs,
+            predecessors=predecessors,
+            data_snapshot_ref=selected_data_snapshot_ref,
+            world_model_ref=selected_world_model_ref,
+        )
+        if prepared.predicate_provenance != "recomputed" or prepared.reason_codes:
+            raise ValueError(
+                prepared.reason_codes[0]
+                if prepared.reason_codes
+                else "candidate_evaluation_preparation_not_established"
+            )
+        implementation_reader = (
+            read_candidate_n5_declared_implementation
+            if historical_read_only
+            else reconcile_candidate_n5_declared_implementation
+        )
+        expected_request = rebuild_selected_candidate_n5_request(
+            store=artifact_store,
+            input_ref=prior.selected.n5_input_ref,
+            run_id=prior.selected.evaluation_run_id,
+            job_id=prior.selected.evaluation_job_id,
+            tenant_id=prior.input_record.tenant_id,
+            cell_id=prior.input_record.cell_id,
+        )
+        reader_args = {
+            "input_ref": prior.selected.n5_input_ref,
+            "prepared_configuration": prepared_n5_configuration,
+            "expected_request": expected_request,
+        }
+        if historical_read_only:
+            identity = implementation_reader(prior.result, **reader_args)
+        else:
+            identity = reconcile_candidate_n5_declared_implementation(
+                prior.result, **reader_args, current_n5_controller=current_n5_controller
+            )
+        if (
+            type(identity) is not dict
+            or set(identity) != {"content_image", "execution_profile", "callable_identity"}
+            or any(value is None for value in identity.values())
+        ):
+            raise ValueError("candidate_evaluation_identity_not_established")
+        numerical_request = _candidate_v5_numerical_request_facets(
+            prior=prior, problem=problem, rule=preparation_inputs.configured_profile.rule
+        )
+        values = {
+            **prepared.effective_values,
+            **numerical_request,
+            "n5_execution_configuration": _exact_native_content(prepared_n5_configuration),
+            "n5_declared_implementation": identity,
+        }
+        exact_n5_content_bytes(values)
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        return {}, (str(getattr(exc, "code", None) or exc),)
+    return values, ()
+
+
 def replay_candidate_acquisition_basis_for_history(
     *,
     artifact_store: CoreJSONArtifactStore,
@@ -1486,7 +1966,10 @@ def replay_candidate_acquisition_basis_for_history(
     replay against an actual historical N5 result while retaining no selected
     evaluation claim on the basis itself.
     """
-    if type(basis) is not CandidateAcquisitionEvaluationBasis:
+    if type(basis) not in (
+        CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationBasisV2,
+    ):
         raise TypeError("candidate_evaluation_history_basis_untyped")
     if basis.basis_role == "evaluated":
         if type(
@@ -1497,19 +1980,34 @@ def replay_candidate_acquisition_basis_for_history(
             raise ValueError("candidate_evaluation_history_selected_n5_mismatch")
     elif basis.basis_role == "blocked" and basis.evaluation is not None:
         raise ValueError("candidate_evaluation_history_blocked_has_selected_n5")
-    values, reasons = recompute_candidate_acquisition_basis_values(
-        artifact_store=artifact_store,
-        problem=problem,
-        preparation_inputs=basis.preparation_inputs,
-        predecessors=predecessors,
-        prior=selected_evaluation,
-        prepared_n5_configuration=basis.prepared_n5_configuration,
-        fresh_limit_usd=fresh_limit_usd,
-        global_limit_usd=global_limit_usd,
-        selected_data_snapshot_ref=basis.selected_data_snapshot_ref,
-        selected_world_model_ref=basis.selected_world_model_ref,
-        historical_read_only=True,
-    )
+    common = {
+        "artifact_store": artifact_store,
+        "problem": problem,
+        "preparation_inputs": basis.preparation_inputs,
+        "predecessors": predecessors,
+        "prior": selected_evaluation,
+        "prepared_n5_configuration": basis.prepared_n5_configuration,
+        "selected_data_snapshot_ref": basis.selected_data_snapshot_ref,
+        "selected_world_model_ref": basis.selected_world_model_ref,
+        "historical_read_only": True,
+    }
+    if type(basis) is CandidateAcquisitionEvaluationBasisV2:
+        values, reasons = recompute_candidate_acquisition_basis_values_v2(**common)
+    else:
+        values, reasons = recompute_candidate_acquisition_basis_values(
+            **common, fresh_limit_usd=fresh_limit_usd, global_limit_usd=global_limit_usd
+        )
+    if (
+        type(basis) is CandidateAcquisitionEvaluationBasisV2
+        and basis.predicate_provenance == "not_established"
+        and basis.reason_codes
+        and bytes.fromhex(basis.effective_native_values_hex) == exact_n5_content_bytes({})
+        and not reasons
+    ):
+        # A historical read can establish the selected old observation, not
+        # reconstruct why the then-current implementation was incomparable.
+        # Preserve only the recorded refusal; this branch grants no equality.
+        return basis
     if (
         basis.predicate_provenance != ("not_established" if reasons else "recomputed")
         or basis.reason_codes != reasons
@@ -1570,6 +2068,45 @@ class _BasisScope(Protocol):
     design_problem_basis: DesignProblem
 
 
+def _foundry_binding_numerical_values(rule: object) -> dict[str, object]:
+    """Project the complete Foundry rule census onto its numerical roles."""
+    from polisyos.core.contracts import FoundryInputBindingRule
+
+    expected = {
+        "binding_id",
+        "source_path",
+        "target_slot_id",
+        "required",
+        "default_value",
+        "transforms",
+        "notes",
+    }
+    if (
+        set(FoundryInputBindingRule.model_fields) != expected
+        or not isinstance(rule, dict)
+        or set(rule) != expected
+    ):
+        raise ValueError("acquisition_numerical_rule_census_not_established")
+    notes = rule["notes"]
+    if not isinstance(notes, list) or any(not isinstance(note, str) for note in notes):
+        raise ValueError("acquisition_numerical_rule_notes_not_established")
+    return {name: rule[name] for name in expected - {"notes"}}
+
+
+def _ordinary_numerical_binding_rules(
+    rules: list[FoundryInputBindingRule], *, owned_target_slot: str
+) -> tuple[dict[str, object], ...]:
+    """Preserve the ordinary owner's acquired and retained rule distinctions."""
+    return tuple(
+        {
+            "acquired_owner_values"
+            if rule.target_slot_id == owned_target_slot
+            else "retained_rule": _foundry_binding_numerical_values(rule.model_dump(mode="json"))
+        }
+        for rule in rules
+    )
+
+
 def recompute_acquisition_basis_values(
     *,
     bridge: _BasisContext,
@@ -1578,6 +2115,8 @@ def recompute_acquisition_basis_values(
     prior: ResolvedAcquisitionEvaluation | None,
     actual_evaluation: bool,
     _historical_read_only: bool = False,
+    basis_version: Literal["1.0", "2.0"] = "1.0",
+    current_n5_controller: JointSimulationHorizonController | None = None,
 ) -> tuple[dict[str, object], tuple[str, ...]]:
     """Resolve every supported consumed facet through its actual producer owner.
 
@@ -1696,25 +2235,59 @@ def recompute_acquisition_basis_values(
             else {"retained_rule": rule}
             for rule in rules
         )
-        witness = (
-            read_n5_execution_implementation_witness(
-                prior.result,
-                input_ref=prior.selected.n5_input_ref,
-            )
-            if _historical_read_only
-            else reconcile_live_n5_implementation(
-                prior.result,
-                input_ref=prior.selected.n5_input_ref,
-            )
-        )
-        if witness.predicate_provenance != "recomputed":
-            raise ValueError("acquisition_prior_implementation_was_not_established")
-        consumed_configuration = witness.consumed_configuration_values
         prepared_configuration = _exact_native_content(prepared.n5_execution_configuration)
-        if actual_evaluation and exact_n5_content_bytes(
-            consumed_configuration
-        ) != exact_n5_content_bytes(prepared_configuration):
-            raise ValueError("acquisition_evaluation_configuration_not_consumed")
+        if basis_version == "2.0":
+            from polisyos.runtime.quality.n5_candidate_content import (
+                read_candidate_n5_declared_implementation,
+                reconcile_candidate_n5_declared_implementation,
+            )
+
+            reader = (
+                read_candidate_n5_declared_implementation
+                if _historical_read_only
+                else reconcile_candidate_n5_declared_implementation
+            )
+            expected_request = rebuild_selected_candidate_n5_request(
+                store=bridge.artifact_store,
+                input_ref=prior.selected.n5_input_ref,
+                run_id=prior.selected.evaluation_run_id,
+                job_id=prior.selected.evaluation_job_id,
+                tenant_id=prior.input_record.tenant_id,
+                cell_id=prior.input_record.cell_id,
+            )
+            reader_args = {
+                "input_ref": prior.selected.n5_input_ref,
+                "prepared_configuration": prepared.n5_execution_configuration,
+                "expected_request": expected_request,
+            }
+            if _historical_read_only:
+                implementation = reader(prior.result, **reader_args)
+            else:
+                implementation = reconcile_candidate_n5_declared_implementation(
+                    prior.result, **reader_args, current_n5_controller=current_n5_controller
+                )
+            consumed_configuration = prepared_configuration
+        else:
+            witness = (
+                read_n5_execution_implementation_witness(
+                    prior.result,
+                    input_ref=prior.selected.n5_input_ref,
+                )
+                if _historical_read_only
+                else reconcile_live_n5_implementation(
+                    prior.result,
+                    input_ref=prior.selected.n5_input_ref,
+                )
+            )
+            if witness.predicate_provenance != "recomputed":
+                raise ValueError("acquisition_prior_implementation_was_not_established")
+            consumed_configuration = witness.consumed_configuration_values
+            prepared_configuration = _exact_native_content(prepared.n5_execution_configuration)
+            if actual_evaluation and exact_n5_content_bytes(
+                consumed_configuration
+            ) != exact_n5_content_bytes(prepared_configuration):
+                raise ValueError("acquisition_evaluation_configuration_not_consumed")
+            implementation = witness.implementation
         declaration_meaning = _declaration_meaning(declaration, profile)
         if not actual_evaluation:
             from dataclasses import fields
@@ -1746,13 +2319,34 @@ def recompute_acquisition_basis_values(
             "profile_schema": profile.schema_version,
             "profile_purpose": profile.purpose,
             "profile_limitations": profile.limitations,
-            "actual_live_implementation": witness.implementation,
+            "actual_live_implementation": implementation,
             "n5_execution_configuration": consumed_configuration
             if actual_evaluation
             else prepared_configuration,
             "skipped_execution_scope": "configured_single_candidate_n4_and_ncm_n5_only",
             "current_continuation_policy": "actual_grounding_value_voi_requirement_rerun",
         }
+        if basis_version == "2.0":
+            from polisyos.runtime.quality.candidate_simulation import (
+                prepare_candidate_n5_request_projection_v2,
+            )
+
+            values = {
+                "foundry_state": values["foundry_state"],
+                "applied_rules": _ordinary_numerical_binding_rules(
+                    rules, owned_target_slot=owned_rule.target_slot_id
+                ),
+                "selected_native_ncm": values["selected_native_ncm"],
+                "declared_model": values["declared_model"],
+                "n5_request_values": prepare_candidate_n5_request_projection_v2(n5).numerical,
+                **_candidate_v5_numerical_request_facets(
+                    prior=prior, problem=closure.design_problem_basis, rule=profile.rule
+                ),
+                "n5_execution_configuration": prepared_configuration,
+                "n5_declared_implementation": implementation,
+            }
+        elif basis_version != "1.0":
+            raise ValueError("acquisition_evaluation_basis_version_unsupported")
         # Walk the full native quantity now. Unknown Any/native fields are not
         # encoded with repr(), omitted, or accepted through a caller marker.
         exact_n5_content_bytes(values)
@@ -1770,6 +2364,8 @@ def issue_acquisition_evaluation_basis(
     prepared: object,
     prior: ResolvedAcquisitionEvaluation | None,
     actual_evaluation: bool,
+    basis_version: Literal["1.0", "2.0"] = "1.0",
+    current_n5_controller: JointSimulationHorizonController | None = None,
 ) -> AcquisitionEvaluationBasis:
     """Issue only after actual owner recomputation; unsupported facets stay typed."""
     values, reasons = recompute_acquisition_basis_values(
@@ -1778,6 +2374,8 @@ def issue_acquisition_evaluation_basis(
         prepared=prepared,
         prior=prior,
         actual_evaluation=actual_evaluation,
+        basis_version=basis_version,
+        current_n5_controller=current_n5_controller,
     )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionCandidatePreparation
 
@@ -1800,9 +2398,13 @@ def issue_acquisition_evaluation_basis(
         n5_configuration_reason_codes=prepared.n5_configuration_reason_codes,
     )
     payload = {
-        "schema_version": "AcquisitionEvaluationBasis@1.0",
+        "schema_version": "AcquisitionEvaluationBasis@" + basis_version,
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_profile": "controlled_acquired_observation_ncm_v1",
+        "comparison_profile": (
+            "controlled_acquired_observation_ncm_v1"
+            if basis_version == "1.0"
+            else "controlled_acquired_observation_numerical_v2"
+        ),
         "tenant_id": closure.tenant_id,
         "cell_id": closure.cell_id,
         "run_id": closure.run_id,
@@ -1820,7 +2422,13 @@ def issue_acquisition_evaluation_basis(
         "effective_native_values_hex": encoded.hex(),
         "effective_values_sha256": "sha256:" + hashlib.sha256(encoded).hexdigest(),
     }
-    return AcquisitionEvaluationBasis.model_validate(
+    record_type = AcquisitionEvaluationBasis
+    if basis_version == "2.0":
+        payload["closure_residuals"] = list(CANDIDATE_N5_CLOSURE_RESIDUALS_V2)
+        payload["observed_admission"] = False
+        payload["publication_authority"] = False
+        record_type = AcquisitionEvaluationBasisV2
+    return record_type.model_validate(
         {
             **payload,
             "content_hash": exact_n5_content_hash(payload),
@@ -1998,6 +2606,7 @@ def replay_acquisition_basis_for_history(
         prior=prior_evaluation,
         actual_evaluation=basis.evaluation is not None,
         _historical_read_only=True,
+        basis_version="2.0" if type(basis) is AcquisitionEvaluationBasisV2 else "1.0",
     )
     encoded = exact_n5_content_bytes(values)
     if reasons or encoded != bytes.fromhex(basis.effective_native_values_hex):

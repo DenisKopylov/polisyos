@@ -13,11 +13,14 @@ from polisyos.scientist.orchestration.engine.budget import (
     BudgetState,
 )
 from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetInvocationQuotaPolicy,
+    BudgetLedgerInvocationProfile,
     BudgetLedgerProducerRunBinding,
     FileBudgetLedger,
 )
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.producer_budget import (
+    N5DiagnosticCapacityObservation,
     ProducerBudgetObserver,
     ProducerBudgetSourceError,
 )
@@ -53,6 +56,197 @@ def _settle(middleware, binding, name, amount, origin="reported"):
             amount=Decimal(amount) if amount is not None else None,
             cost_origin=origin,
         )
+
+
+def _diagnostic_owner(
+    tmp_path, *, total=3, protected=2, purpose="diagnostic", pending=False, missing=False
+):
+    ledger = FileBudgetLedger(tmp_path / "diagnostic-ledger.json")
+    middleware = BudgetMiddleware(BudgetState(), ledger=ledger)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="run-current",
+        tenant_id="tenant-current",
+        cell_id="cell-current",
+        profile_id="profile-current",
+        control_job_id="job-current",
+    )
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="diagnostic-capacity-test",
+        total_units=total,
+        protected_units=protected,
+    )
+    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=None if pending or missing else profile,
+        invocation_purpose=purpose,
+        invocation_selection_pending=pending,
+    )
+    return ledger, middleware, binding, policy, observer
+
+
+def _finish_invocation(observer, policy, name, purpose, outcome="completed"):
+    with observer.invocation_purpose_scope_from_selected_owner(policy, purpose=purpose):
+        reservation = observer.reserve_invocation(_digest(name), _digest(name + "-request"))
+        assert reservation is not None
+        observer.finish_invocation(reservation.operation_id, reservation.request_digest, outcome)
+    return reservation
+
+
+def _diagnostic_capacity(observer):
+    method = getattr(observer, "observe_diagnostic_invocation_capacity", None)
+    assert callable(method), "canonical owner must expose diagnostic capacity observation"
+    return method()
+
+
+def test_diagnostic_observation_reads_shared_protected_units_without_writing(tmp_path):
+    path = tmp_path / "diagnostic-ledger.json"
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
+        tmp_path, total=4, protected=3
+    )
+    _finish_invocation(observer, _policy, "standard", "standard", "failed")
+    _finish_invocation(observer, _policy, "diagnostic", "diagnostic")
+    _finish_invocation(observer, _policy, "counterevidence", "counterevidence", "failed")
+    before = path.read_bytes()
+
+    observation = _diagnostic_capacity(observer)
+
+    assert path.read_bytes() == before
+    assert type(observation) is N5DiagnosticCapacityObservation
+    assert observation.status == "available"
+    assert observation.protected_limit_units == 3
+    assert observation.protected_remaining_units == 1
+    assert observation.not_a_permit is True
+    assert observation.reason_code is None
+    assert observation.predicate_basis == "independently_reconciled"
+
+
+def test_diagnostic_observation_allows_zero_standard_partition_and_reports_exhaustion(tmp_path):
+    path = tmp_path / "diagnostic-ledger.json"
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
+        tmp_path, total=2, protected=2
+    )
+    _finish_invocation(observer, _policy, "diagnostic-a", "diagnostic")
+    _finish_invocation(observer, _policy, "counterevidence-b", "counterevidence", "failed")
+    before = path.read_bytes()
+
+    observation = _diagnostic_capacity(observer)
+
+    assert path.read_bytes() == before
+    assert observation.status == "exhausted"
+    assert observation.protected_limit_units == 2
+    assert observation.protected_remaining_units == 0
+    assert not hasattr(observation, "exhaustion_witness")
+
+
+def test_zero_protected_pool_is_reconciled_as_exhausted_not_missing(tmp_path):
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
+        tmp_path, total=2, protected=0
+    )
+    observation = _diagnostic_capacity(observer)
+    assert observation.status == "exhausted"
+    assert observation.protected_limit_units == 0
+    assert observation.protected_remaining_units == 0
+    assert observation.predicate_basis == "independently_reconciled"
+
+
+@pytest.mark.parametrize(
+    ("purpose", "pending", "expected"),
+    [
+        ("standard", False, "diagnostic_purpose_not_selected"),
+        ("diagnostic", True, "quota_profile_not_established"),
+    ],
+)
+def test_diagnostic_capacity_requires_selected_purpose_and_complete_profile(
+    tmp_path, purpose, pending, expected
+):
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
+        tmp_path, purpose=purpose, pending=pending
+    )
+    if purpose == "standard":
+        with observer.invocation_purpose_scope_from_selected_owner(_policy, purpose="diagnostic"):
+            observation = _diagnostic_capacity(observer)
+    else:
+        observation = _diagnostic_capacity(observer)
+    assert observation.status == "not_established"
+    assert observation.reason_code == expected
+    assert observation.protected_remaining_units is None
+
+
+@pytest.mark.parametrize("pending", [False, True])
+def test_diagnostic_capacity_without_profile_is_unknown(tmp_path, pending):
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
+        tmp_path,
+        purpose="standard" if not pending else "diagnostic",
+        pending=pending,
+        missing=not pending,
+    )
+    observation = _diagnostic_capacity(observer)
+    assert observation.status == "not_established"
+    assert observation.reason_code == "quota_profile_not_established"
+
+
+def test_unresolved_invocation_makes_diagnostic_capacity_unknown_without_writes(tmp_path):
+    path = tmp_path / "diagnostic-ledger.json"
+    _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(tmp_path)
+    with observer.invocation_purpose_scope_from_selected_owner(_policy, purpose="diagnostic"):
+        reservation = observer.reserve_invocation(_digest("pending"), _digest("pending-request"))
+    assert reservation is not None
+    before = path.read_bytes()
+    observation = _diagnostic_capacity(observer)
+    assert path.read_bytes() == before
+    assert observation.status == "not_established"
+    assert observation.reason_code == "quota_invocation_unresolved"
+
+
+@pytest.mark.parametrize("target", ["owner", "middleware"])
+def test_diagnostic_capacity_rejects_shadowed_or_changed_current_source(
+    tmp_path, monkeypatch, target
+):
+    _ledger, middleware, _binding, _policy, observer = _diagnostic_owner(tmp_path)
+    if target == "owner":
+        monkeypatch.setattr(
+            observer,
+            "_capacity_owner_snapshot",
+            lambda: (_ for _ in ()).throw(OSError()),
+        )
+    else:
+        monkeypatch.setattr(
+            middleware,
+            "_continuation_state",
+            lambda: (_ for _ in ()).throw(OSError()),
+        )
+    observation = _diagnostic_capacity(observer)
+    assert observation.status == "not_established"
+    assert observation.reason_code == "quota_source_not_established"
+
+
+def test_diagnostic_capacity_rejects_a_replaced_current_profile(tmp_path, monkeypatch):
+    ledger, middleware, binding, policy, observer = _diagnostic_owner(tmp_path)
+    changed = BudgetInvocationQuotaPolicy(
+        allocation_id=policy.allocation_id + "-replacement",
+        total_units=policy.total_units,
+        protected_units=policy.protected_units,
+    )
+    owner, resource, anchor, snapshot = middleware._continuation_state()
+    changed_profile = BudgetLedgerInvocationProfile.from_policy(binding, changed)
+    changed_snapshot = snapshot.model_copy(
+        update={"invocation_profiles": {binding.run_id: changed_profile}}
+    )
+
+    def changed_profile_snapshot(_ledger):
+        return owner, resource, anchor, changed_snapshot
+
+    monkeypatch.setattr(FileBudgetLedger, "_continuation_state", changed_profile_snapshot)
+    observation = _diagnostic_capacity(observer)
+    assert observation.status == "not_established"
+    assert observation.reason_code == "quota_owner_basis_not_established"
+    assert (
+        ledger.snapshot().invocation_profiles[binding.run_id] == observer.invocation_quota_profile
+    )
 
 
 def test_actual_snapshot_refresh_exhaustion_and_stable_source_identity(tmp_path):

@@ -221,6 +221,17 @@ def test_candidate_n5_projection_binds_candidate_result_and_refuses_head_advance
     assert foreign.value.code == "candidate_experiment_action_history_conflict"
 
 
+def test_candidate_n5_projection_refuses_malformed_v3_without_legacy_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An invalid present observation cannot borrow a legacy display witness."""
+    history, _ = _history()
+    _patch_supported_observation(monkeypatch)
+    history.reentry_evaluation.result.diagnostics["candidate_n5_execution_content_observation"] = {}
+    service = _service(latest_heads=[history.head])
+    assert service._candidate_experiment_n5_result_projection(history) is None
+
+
 @pytest.mark.parametrize(
     ("error", "expected_code"),
     [

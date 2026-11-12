@@ -6,11 +6,21 @@ import hashlib
 import importlib
 import json
 import operator
+import types
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Protocol, Self, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    NoReturn,
+    Protocol,
+    Self,
+    runtime_checkable,
+)
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -149,9 +159,15 @@ def _declared_cached_property_names(model_type: type[BaseModel]) -> frozenset[st
 
 def _snapshot_canonical_value(value: object) -> object:
     """Copy canonical container values without trusting caller-defined iterators."""
-    if isinstance(value, list) and type(value) in (list, _FrozenList):
+    owned = read_canonical_immutable_container(value)
+    if owned is not None:
+        kind, items = owned
+        if kind == "list":
+            return [_snapshot_canonical_value(item) for item in items]
+        return {key: _snapshot_canonical_value(item) for key, item in items}
+    if type(value) is list:
         return [_snapshot_canonical_value(item) for item in list.__iter__(value)]
-    if isinstance(value, dict) and type(value) in (dict, _FrozenDict):
+    if type(value) is dict:
         return {key: _snapshot_canonical_value(item) for key, item in dict.items(value)}
     if type(value) is tuple:
         return tuple(_snapshot_canonical_value(item) for item in value)
@@ -473,6 +489,82 @@ class _FrozenDict(dict[Any, Any]):
             ((deepcopy(key, memo), deepcopy(value, memo)) for key, value in self.items()),
         )
         return copied
+
+
+# Hold this owner's actual classes and their complete declared shape. These
+# anchors establish only the current supported carrier contract, not interpreter
+# integrity or absence of transient mutation between observations.
+_CANONICAL_IMMUTABLE_CONTAINER_BINDINGS = tuple(
+    (
+        cls,
+        base,
+        tag,
+        tuple(vars(cls).items()),
+        tuple(
+            (item, item.__code__, item.__defaults__, item.__kwdefaults__, item.__closure__)
+            for item in vars(cls).values()
+            if type(item) is types.FunctionType
+        ),
+    )
+    for cls, base, tag in ((_FrozenList, list, "list"), (_FrozenDict, dict, "mapping"))
+)
+
+
+def read_canonical_immutable_container(
+    value: object,
+) -> (
+    tuple[Literal["list"], tuple[object, ...]]
+    | tuple[Literal["mapping"], tuple[tuple[object, object], ...]]
+    | None
+):
+    """Read immediate children of this owner's native immutable containers.
+
+    The reader accepts the actual canonical classes with their complete original
+    storage/read contract. It never invokes instance iteration, custom accessors,
+    serializers, or an opt-in protocol. Children retain their actual identities,
+    so a consuming graph codec can preserve aliases and cycles. Every call reads
+    the native backing store again; immutability does not justify pointer caches.
+
+    Args:
+        value: A possible owner-produced immutable list or dictionary.
+
+    Returns:
+        A carrier tag and immediate native items, or None for unsupported types.
+        Mapping items are key/value pairs in their actual insertion order.
+
+    Raises:
+        ValueError: A recognized carrier's actual class contract has changed.
+    """
+    kind = type(value)
+    for cls, base, tag, declared, functions in _CANONICAL_IMMUTABLE_CONTAINER_BINDINGS:
+        if kind is not cls:
+            continue
+        namespace = vars(cls)
+        expected_mro = (cls, base, object)
+        actual_mro = type.__dict__["__mro__"].__get__(cls, type(cls))
+        if (
+            type(cls) is not type
+            or len(actual_mro) != len(expected_mro)
+            or any(a is not b for a, b in zip(actual_mro, expected_mro, strict=True))
+            or type(namespace.get("__slots__")) is not tuple
+            or namespace["__slots__"] != ()
+            or len(namespace) != len(declared)
+            or any(name not in namespace or namespace[name] is not item for name, item in declared)
+            or globals().get(cls.__name__) is not cls
+        ):
+            raise ValueError("canonical_immutable_container_contract_changed")
+        for function, code, defaults, keyword_defaults, closure in functions:
+            if (
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keyword_defaults
+                or function.__closure__ is not closure
+            ):
+                raise ValueError("canonical_immutable_container_contract_changed")
+        if tag == "list":
+            return "list", tuple(list.__iter__(value))
+        return "mapping", tuple(dict.items(value))
+    return None
 
 
 def _freeze_value(value: object) -> object:
@@ -1420,4 +1512,5 @@ __all__ = [
     "load_causal_graph_model",
     "persist_causal_graph_model",
     "project_graph_to_dag",
+    "read_canonical_immutable_container",
 ]

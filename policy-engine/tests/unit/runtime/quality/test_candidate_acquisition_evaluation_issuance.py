@@ -18,13 +18,19 @@ from polisyos.core import artifacts
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.acquisition_evaluation import (
+    CANDIDATE_N5_CLOSURE_RESIDUALS_V2,
     CandidateAcquisitionEvaluationBasis,
+    CandidateAcquisitionEvaluationBasisV2,
     CandidateAcquisitionEvaluationDecision,
+    CandidateAcquisitionEvaluationDecisionV2,
     _candidate_evaluation_role_event_id,
+    basis_exact_values_equal,
     issue_candidate_acquisition_evaluation_basis,
     issue_candidate_acquisition_evaluation_decision,
     persist_acquisition_evaluation_artifact,
     read_acquisition_evaluation_artifact,
+    read_candidate_acquisition_evaluation_basis_artifact,
+    read_candidate_acquisition_evaluation_decision_artifact,
 )
 from polisyos.runtime.quality.candidate_source_basis import prepare_candidate_source_basis_values
 from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
@@ -117,6 +123,19 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
         assert basis.content_hash == exact_n5_content_hash(
             basis.model_dump(mode="json", exclude={"content_hash"})
         )
+        v2 = issue_candidate_acquisition_evaluation_basis(**basis_inputs, basis_version="2.0")
+        assert type(v2) is CandidateAcquisitionEvaluationBasisV2
+        assert v2.comparison_profile == "candidate_source_declared_numerical_basis_v2"
+        assert v2.closure_residuals == CANDIDATE_N5_CLOSURE_RESIDUALS_V2
+        assert not v2.observed_admission and not v2.publication_authority
+        assert not basis_exact_values_equal(basis, v2)
+        altered = v2.model_dump(mode="json")
+        altered["closure_residuals"] = []
+        altered["content_hash"] = exact_n5_content_hash(
+            {name: value for name, value in altered.items() if name != "content_hash"}
+        )
+        with pytest.raises(ValueError, match="closure_residuals_mismatch"):
+            CandidateAcquisitionEvaluationBasisV2.model_validate(altered)
 
         with closing(
             ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
@@ -134,6 +153,28 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
                 )
                 == basis
             )
+            v2_action = component_parent(
+                "runtime_quality.acquisition_candidate_action_receipt", "v2-action"
+            )
+            v2_scoped_basis = issue_candidate_acquisition_evaluation_basis(
+                **{**basis_inputs, "candidate_action_ref": v2_action}, basis_version="2.0"
+            )
+            v2_ref = persist_acquisition_evaluation_artifact(
+                store=case.store, event_log=events, record=v2_scoped_basis
+            )
+            assert (
+                read_candidate_acquisition_evaluation_basis_artifact(
+                    store=case.store, event_log=events, ref=v2_ref
+                )
+                == v2_scoped_basis
+            )
+            with pytest.raises(ValueError, match="artifact_owner_mismatch"):
+                read_acquisition_evaluation_artifact(
+                    store=case.store,
+                    event_log=events,
+                    ref=v2_ref,
+                    record_type=CandidateAcquisitionEvaluationBasis,
+                )
             decision_inputs = {
                 **scope,
                 "compiled_ref": str(case.source_case.binding.compiler_report_ref.artifact_id),
@@ -147,6 +188,25 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
                 "expected_frontier_ref": None,
                 "generated_at": TRANSACTION_TIME.isoformat(),
             }
+            decision_v2 = issue_candidate_acquisition_evaluation_decision(
+                **{
+                    **decision_inputs,
+                    "candidate_action_ref": v2_action,
+                    "current_basis_ref": v2_ref,
+                },
+                decision_version="2.0",
+            )
+            assert type(decision_v2) is CandidateAcquisitionEvaluationDecisionV2
+            assert decision_v2.comparison_rule == "candidate-source-declared-numerical-basis.v2"
+            decision_v2_ref = persist_acquisition_evaluation_artifact(
+                store=case.store, event_log=events, record=decision_v2
+            )
+            assert (
+                read_candidate_acquisition_evaluation_decision_artifact(
+                    store=case.store, event_log=events, ref=decision_v2_ref
+                )
+                == decision_v2
+            )
             decision = issue_candidate_acquisition_evaluation_decision(**decision_inputs)
             assert issue_candidate_acquisition_evaluation_decision(**decision_inputs) == decision
             assert "reuse_occurrence_ref" not in decision.model_dump(mode="json")

@@ -18,13 +18,12 @@ from polisyos.core.artifacts import ArtifactRef, artifact_ref_for_manifest
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteMutationRequest,
 )
-from polisyos.runtime.quality import n5_execution_basis as n5_basis
 from polisyos.runtime.quality.acquisition_evaluation import (
-    AcquisitionEvaluationBasis,
-    AcquisitionEvaluationDecision,
+    AcquisitionEvaluationBasisV2,
+    AcquisitionEvaluationDecisionV2,
     AcquisitionSelectedEvaluation,
     basis_exact_values_equal,
-    read_acquisition_evaluation_artifact,
+    read_acquisition_basis_or_decision_artifact,
     resolve_selected_acquisition_evaluation_parts,
 )
 from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -45,7 +44,6 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.n5_execution_basis import (
     exact_n5_content_bytes,
-    reconcile_live_n5_implementation,
 )
 from tests._helpers import acquisition_chain, acquisition_production
 from tests._helpers import acquisition_served_history as fixture
@@ -198,12 +196,26 @@ class _SequentialOracle:
         monitor: _OwnerCallMonitor,
         *,
         after_real_b: Any | None = None,
+        acquisition_slot: str | None = None,
+        initial_source_value: float = -17.1,
     ) -> None:
         self.monkeypatch = monkeypatch
         self.monitor = monitor
         self.after_real_b = after_real_b
+        self.acquisition_slot = acquisition_slot
         self.epoch_id = 1
-        self.value = -17.1
+        self.value = initial_source_value
+        self.content_scopes: list[Any] = []
+        from polisyos.runtime.quality.n5_candidate_content import CandidateN5ContentRun
+
+        original_prepare = CandidateN5ContentRun.prepare
+
+        @wraps(original_prepare)
+        def observe_content_scope(scope: Any, plan: Any, decision: Any) -> None:
+            original_prepare(scope, plan, decision)
+            self.content_scopes.append(scope)
+
+        monkeypatch.setattr(CandidateN5ContentRun, "prepare", observe_content_scope)
         real_rows = acquisition_production._normalized_rows
 
         @wraps(real_rows)
@@ -461,9 +473,10 @@ class _SequentialOracle:
         ctx = SimpleNamespace(**values)
         assert ctx.reentry.new_cycle == ctx.closure.source_cycle
         assert ctx.growth.selection.epoch_id == 1 and ctx.growth.admitted_observation_delta > 0
+        acquisition_slot = self.acquisition_slot or ctx.target_world_slot
         assert (
-            ctx.seed_input.n5.baseline_state[ctx.target_world_slot]
-            != ctx.evaluated_input.n5.baseline_state[ctx.target_world_slot]
+            ctx.seed_input.n5.baseline_state[acquisition_slot]
+            != ctx.evaluated_input.n5.baseline_state[acquisition_slot]
         )
         observed = self.monitor.snapshot()
         assert all(
@@ -501,46 +514,34 @@ class _SequentialOracle:
             assert fixture._within_fixture_owner(
                 control._artifact_store.verify, selected_b.context_job_ref
             ).ok
-            from polisyos.core.artifacts import read_core_manifest_profile
+            from polisyos.core.artifacts import (
+                artifact_ref_identity_key,
+                read_core_manifest_profile,
+            )
 
             context_manifest = fixture._within_fixture_owner(
                 read_core_manifest_profile, control._artifact_store, selected_b.context_job_ref
             )[0]
             assert artifact_ref_for_manifest(context_manifest) == selected_b.context_job_ref
+            from polisyos.runtime.quality.n5_candidate_content import (
+                read_candidate_n5_content_observation,
+            )
+
             witness = fixture._within_fixture_owner(
-                reconcile_live_n5_implementation,
+                read_candidate_n5_content_observation,
                 actual_b.result,
                 input_ref=selected_b.n5_input_ref,
             )
-            assert witness.predicate_provenance == "recomputed" and not witness.reason_codes
-            with n5_basis._LOCK:
-                issued = n5_basis._ISSUED.get(witness.content_hash)
-            assert issued is not None and issued.witness == witness
-            capture = issued.capture
-            from polisyos.runtime.quality.joint_simulation_horizon import (
-                JointSimulationHorizonController,
-            )
-
-            source = witness.implementation.get("source")
-            assert isinstance(source, dict)
-            executed = source.get("executed_code")
-            assert isinstance(executed, list) and executed
-            assert all(
-                isinstance(row, list)
-                and len(row) == 3
-                and all(isinstance(item, str) for item in row)
-                for row in executed
-            )
-            callback = self.monitor._on_start.__func__
-            callback_identity = (callback.__globals__["__name__"], callback.__code__.co_qualname)
-            controller = JointSimulationHorizonController.run
-            controller_identity = (
-                controller.__globals__["__name__"],
-                controller.__code__.co_qualname,
-            )
-            observed_identities = {(row[0], row[1]) for row in executed}
-            assert controller_identity in observed_identities
-            assert callback_identity not in observed_identities
+            assert witness.schema_version == "CandidateN5ContentObservation@1.0"
+            assert witness.protected_use_allowed is False
+            captures = [
+                scope
+                for scope in self.content_scopes
+                if artifact_ref_identity_key(scope.input_ref)
+                == artifact_ref_identity_key(selected_b.n5_input_ref)
+            ]
+            assert len(captures) == 1
+            capture = captures[0]
             assert selected_b.evaluation_job_id != ctx.source_job_id
             retained_refs = (
                 selected_b.n4_source_ref,
@@ -627,29 +628,29 @@ class _SequentialOracle:
                 for ref, raw in retained_bytes:
                     assert fixture._within_fixture_owner(store.get_bytes, ref) == raw
                 decision = fixture._within_fixture_owner(
-                    read_acquisition_evaluation_artifact,
+                    read_acquisition_basis_or_decision_artifact,
                     store=store,
                     event_log=events,
                     ref=terminal.evaluation_decision_ref,
-                    record_type=AcquisitionEvaluationDecision,
+                    kind="decision",
                 )
-                assert type(decision) is AcquisitionEvaluationDecision
+                assert type(decision) is AcquisitionEvaluationDecisionV2
                 assert decision.comparison_result == "equivalent"
                 prior = fixture._within_fixture_owner(
-                    read_acquisition_evaluation_artifact,
+                    read_acquisition_basis_or_decision_artifact,
                     store=store,
                     event_log=events,
                     ref=decision.prior_basis_ref,
-                    record_type=AcquisitionEvaluationBasis,
+                    kind="basis",
                 )
                 current = fixture._within_fixture_owner(
-                    read_acquisition_evaluation_artifact,
+                    read_acquisition_basis_or_decision_artifact,
                     store=store,
                     event_log=events,
                     ref=decision.current_basis_ref,
-                    record_type=AcquisitionEvaluationBasis,
+                    kind="basis",
                 )
-                assert type(prior) is type(current) is AcquisitionEvaluationBasis
+                assert type(prior) is type(current) is AcquisitionEvaluationBasisV2
                 assert basis_exact_values_equal(prior, current)
                 assert str(decision.growth_receipt_ref.artifact_id) != ctx.growth_ref
                 growth = AcquisitionWorldGrowthReceipt.model_validate(
@@ -798,30 +799,30 @@ class _SequentialOracle:
             control = client.app.state.runtime_container.control_service
             store, events = control._artifact_store, control._diagnostic_event_log
             changed_decision = fixture._within_fixture_owner(
-                read_acquisition_evaluation_artifact,
+                read_acquisition_basis_or_decision_artifact,
                 store=store,
                 event_log=events,
                 ref=changed_c.receipt.evaluation_decision_ref,
-                record_type=AcquisitionEvaluationDecision,
+                kind="decision",
             )
-            assert type(changed_decision) is AcquisitionEvaluationDecision
+            assert type(changed_decision) is AcquisitionEvaluationDecisionV2
             assert changed_decision.comparison_result == "different"
             assert changed_decision.predicate_provenance == "recomputed"
             changed_prior = fixture._within_fixture_owner(
-                read_acquisition_evaluation_artifact,
+                read_acquisition_basis_or_decision_artifact,
                 store=store,
                 event_log=events,
                 ref=changed_decision.prior_basis_ref,
-                record_type=AcquisitionEvaluationBasis,
+                kind="basis",
             )
             changed_current = fixture._within_fixture_owner(
-                read_acquisition_evaluation_artifact,
+                read_acquisition_basis_or_decision_artifact,
                 store=store,
                 event_log=events,
                 ref=changed_decision.current_basis_ref,
-                record_type=AcquisitionEvaluationBasis,
+                kind="basis",
             )
-            assert type(changed_prior) is type(changed_current) is AcquisitionEvaluationBasis
+            assert type(changed_prior) is type(changed_current) is AcquisitionEvaluationBasisV2
             assert not basis_exact_values_equal(changed_prior, changed_current)
             assert changed_decision.prior_evaluation is not None
             assert exact_n5_content_bytes(
@@ -1106,11 +1107,11 @@ def test_retained_join_reopens_persisted_current_source_and_compiler(
             store, events = control._artifact_store, control._diagnostic_event_log
             fresh = FileSystemCAS(store.root, ownership_enforced=True)
             decision = fixture._within_fixture_owner(
-                read_acquisition_evaluation_artifact,
+                read_acquisition_basis_or_decision_artifact,
                 store=fresh,
                 event_log=events,
                 ref=terminal.evaluation_decision_ref,
-                record_type=AcquisitionEvaluationDecision,
+                kind="decision",
             )
 
             def reopen(ref: ArtifactRef, selected_terminal: Any = terminal) -> Any:

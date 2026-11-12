@@ -121,6 +121,64 @@ def _candidate_reentry_configuration_case(
     return bridge, origin, receipt, prepared, selected
 
 
+def test_candidate_reentry_malformed_v3_never_falls_back_to_legacy_witness(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A present invalid V3 marker cannot borrow a valid older witness."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import _exact_native_content
+
+    prepared = prepare_joint_simulation_configuration()
+    bridge, origin, receipt, prepared, selected = _candidate_reentry_configuration_case(
+        monkeypatch, consumed_configuration=_exact_native_content(prepared)
+    )
+    selected.result.diagnostics["candidate_n5_execution_content_observation"] = {}
+    with pytest.raises(ValueError):
+        bridge._verify_candidate_reentry_prepared_configuration(
+            closure=None,
+            origin=origin,
+            receipt=receipt,
+            prepared_n5_configuration=prepared,
+        )
+
+
+def test_native_port_selection_reuses_controller_without_quota_or_n5(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Planning carries the real selected controller without admitting a call."""
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        HorizonSpec,
+        JointSimulationHorizonController,
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    def forbidden(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("native comparison must not reserve quota or execute N5")
+
+    monkeypatch.setattr(ProducerBudgetObserver, "admit", forbidden)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", forbidden)
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.repo_root = None
+    prepared = prepare_joint_simulation_configuration()
+    native = bridge._prepare_candidate_n5_native_context(prepared_configuration=prepared)
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+    selected = native.controller._select_engine(request)
+    assert selected.decision.decision == "selected"
+    controller = GenerationCycleController(
+        simulation_port=native.port,
+        _prepared_n5_configuration=prepared,
+    )
+    assert controller._simulation_port is native.port
+    assert controller._simulation_port._controller is native.controller
+    assert native.budget_observer is None and native.budget_state is None
+    assert controller._simulation_port._controller._select_engine(request) == selected
+
+
 def test_candidate_experiment_reentry_accepts_historical_observation_without_promoting_witness(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -115,6 +115,7 @@ if TYPE_CHECKING:
         MethodRegistry,
         MethodSelectionReceipt,
     )
+    from polisyos.ir import NCMSpec
     from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
         CandidateAcquisitionEvaluationCurrentOwner,
@@ -125,6 +126,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedPlannerInputs,
     )
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
     from polisyos.runtime.quality.candidate_source_reentry_history import (
         CandidateSourceReentryN5Checkpoint,
     )
@@ -134,6 +136,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.design_generation import N4SelectedProgramGraphLinkContext
     from polisyos.runtime.quality.generation_source import _GenerationSourceReadExpectations
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
     from polisyos.runtime.quality.model_input_requirements import (
         ProgramGraphInputPreflight,
         SelectedProgramGraphInputBasis,
@@ -5653,6 +5656,49 @@ def _bind_scoped_n5_invocation_policy(
     return invocation_scope
 
 
+def build_candidate_n5_request_from_resolved_values(
+    *,
+    world_record: WorldModelRecord,
+    derived_atom: InterventionAtomBinding,
+    outcome: str,
+    ncm_spec: NCMSpec,
+    n5_config: CandidateScenarioN5Config,
+) -> JointSimulationRequest:
+    """Construct the shared numerical request after its owners resolve inputs.
+
+    This pure constructor runs no simulator and asserts no source authority.
+    Producer and historical consumers pass their independently resolved selected
+    source values through the same request owner, including its actual defaults.
+    """
+    from polisyos.runtime.quality.candidate_simulation import prepare_candidate_n5_request_values
+    from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
+
+    prepared = prepare_candidate_n5_request_values(n5_config)
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=(derived_atom,), outcome=outcome, raw_hint=None
+    )
+    plan = EnginePlan(
+        engine_kind=prepared.engine_kind,
+        objective_ref=f"objective://{outcome}",
+        eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
+        ncm_spec=ncm_spec,
+        variable_map=variable_map,
+    )
+    return JointSimulationRequest(
+        world_model_record_ref=world_record.world_model_record_id,
+        world_model_record=world_record,
+        intervention_atoms=(derived_atom,),
+        selected_outcomes=(outcome,),
+        horizon=prepared.horizon_spec,
+        engine_plan=(plan,),
+        baseline_state=prepared.baseline_values(),
+        comparator_refs=prepared.comparator_refs,
+        budget_ref=prepared.budget_ref,
+        seed=prepared.seed,
+        replications=prepared.replications,
+    )
+
+
 class JointSimulationPort:
     """Default N5 port assembling and calling the canonical joint controller."""
 
@@ -5717,6 +5763,61 @@ class JointSimulationPort:
         self._cycle_substrate_context = cycle_substrate_context
         self._boundary_world_cache: dict[str, WorldModelRecord] = {}
         self._boundary_world_cache_index: dict[str, str] = {}
+        self._candidate_context_bound_once = False
+        self._candidate_execution_started = False
+
+    def bind_candidate_context_once(
+        self,
+        *,
+        context: CycleSubstrateContext,
+        handoff: CandidateSimulationContextHandoff,
+        artifact_store: ArtifactStore,
+        currentness_resolver: Callable[[], bool],
+    ) -> None:
+        """Bind a source-validated handoff to the already planned native port.
+
+        Construction and selection consume no invocation quota. The action owner
+        supplies its freshly checked context; actual N5 still reopens the exact
+        source and enforces its own lease, currentness and physical-budget fence.
+        The controller, registry, observer and numerical configuration stay the
+        same objects that were used for prospective comparison.
+        """
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        if type(self) is not JointSimulationPort or (
+            self._candidate_context_bound_once
+            or self._candidate_execution_started
+            or self._cycle_substrate_context is not None
+            or self._candidate_simulation_handoff is not None
+            or self._boundary_world_cache
+            or self._boundary_world_cache_index
+            or self._generic_cycle_simulation_handoff is not None
+        ):
+            raise ValueError("candidate_n5_native_context_already_bound_or_used")
+        if self._artifact_store is not None and self._artifact_store is not artifact_store:
+            raise ValueError("candidate_n5_native_context_store_mismatch")
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            raise TypeError("candidate_n5_native_context_handoff_untyped")
+        checked = CandidateSimulationContextHandoff.model_validate_json(handoff.model_dump_json())
+        revalidate_cycle_substrate_context(context)
+        if checked.context.content_hash != context.content_hash:
+            raise ValueError("candidate_n5_native_context_handoff_mismatch")
+        if currentness_resolver() is not True:
+            raise ValueError("candidate_n5_native_context_currentness_not_established")
+        # Validate the actual aliases; a descriptor alone does not establish
+        # that this retained controller still consumes its prepared values.
+        require_prepared_joint_simulation_configuration(
+            self._controller, self._controller._prepared_configuration
+        )
+        self._artifact_store = artifact_store
+        self._cycle_substrate_context = checked.context
+        self._candidate_simulation_handoff = checked
+        self._candidate_context_bound_once = True
 
     def __call__(
         self,
@@ -5738,6 +5839,7 @@ class JointSimulationPort:
         generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
     ) -> SimulationPortObservation:
         """Produce N5 and seal its admitted generic execution exactly once."""
+        self._candidate_execution_started = True
         production = self._produce(
             candidate=candidate,
             problem=problem,
@@ -5779,6 +5881,7 @@ class JointSimulationPort:
         )
         from polisyos.runtime.quality.n5_execution_basis import _default_receiver_protocol
 
+        self._candidate_execution_started = True
         if type(self) is not JointSimulationPort:
             raise GenerationCycleError("n5_semantic_successor_owner_not_established")
         owner = self._generic_cycle_simulation_admission_owner
@@ -6316,24 +6419,20 @@ class JointSimulationPort:
                     and type(candidate_simulation_input) is CandidateSimulationN5InputV5
                     and candidate_simulation_input_ref is not None
                 ):
-                    from polisyos.runtime.quality.n5_execution_basis import (
-                        bind_n5_execution_implementation,
-                        observe_candidate_n5_execution_input,
+                    from polisyos.runtime.quality.n5_candidate_content import (
+                        bind_candidate_n5_content_observation,
+                        observe_candidate_n5_content_input,
                     )
 
-                    with observe_candidate_n5_execution_input(
+                    with observe_candidate_n5_content_input(
                         port=self,
                         candidate=candidate,
                         problem=problem,
                         request=request,
                         input_ref=candidate_simulation_input_ref,
-                    ) as request:
+                    ) as (request, content_scope):
                         result = self._controller.run(request)
-                    result = bind_n5_execution_implementation(
-                        result,
-                        input_ref=candidate_simulation_input_ref,
-                        capture=getattr(self._controller, "_last_n5_implementation_capture", None),
-                    )
+                    result = bind_candidate_n5_content_observation(result, scope=content_scope)
                 elif selected_program_profile and admitted_input is not None:
                     from polisyos.runtime.quality.joint_simulation_horizon import (
                         JointSimulationControllerError,
@@ -7484,7 +7583,6 @@ class JointSimulationPort:
         from polisyos.runtime.quality.intervention_atom_binding import (
             InterventionAtomBinding,
         )
-        from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
         if isinstance(input_record, CandidateSimulationN5InputV2):
             if type(input_record) is not CandidateSimulationN5InputV2:
@@ -7685,30 +7783,12 @@ class JointSimulationPort:
                 problem=problem,
                 world_record=world_record,
             )
-        variable_map = self._joint_simulation_variable_map(
-            atoms=(derived_atom,),
+        return build_candidate_n5_request_from_resolved_values(
+            world_record=world_record,
+            derived_atom=derived_atom,
             outcome=outcome,
-            raw_hint=None,
-        )
-        plan = EnginePlan(
-            engine_kind=prepared_n5.engine_kind,
-            objective_ref=f"objective://{outcome}",
-            eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
             ncm_spec=ncm_spec,
-            variable_map=variable_map,
-        )
-        return JointSimulationRequest(
-            world_model_record_ref=world_record.world_model_record_id,
-            world_model_record=world_record,
-            intervention_atoms=(derived_atom,),
-            selected_outcomes=(outcome,),
-            horizon=prepared_n5.horizon_spec,
-            engine_plan=(plan,),
-            baseline_state=prepared_n5.baseline_values(),
-            comparator_refs=prepared_n5.comparator_refs,
-            budget_ref=prepared_n5.budget_ref,
-            seed=prepared_n5.seed,
-            replications=prepared_n5.replications,
+            n5_config=input_record.n5,
         )
 
     @staticmethod
@@ -11095,7 +11175,11 @@ class GenerationCycleController:
         )
         self._grounding_port = grounding_port or PolicyGroundingPort()
         if simulation_port is not None and _prepared_n5_configuration is not None:
-            raise ValueError("generation_cycle_prepared_n5_port_conflict")
+            if type(simulation_port) is not JointSimulationPort:
+                raise ValueError("generation_cycle_prepared_n5_port_conflict")
+            require_prepared_joint_simulation_configuration(
+                simulation_port._controller, _prepared_n5_configuration
+            )
         self._simulation_port = simulation_port or JointSimulationPort(
             _prepared_n5_configuration=_prepared_n5_configuration,
             repo_root=repo_root,
@@ -11113,6 +11197,27 @@ class GenerationCycleController:
             generic_cycle_simulation_child_selection=(generic_cycle_simulation_child_selection),
             generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
         )
+        if (
+            type(self._simulation_port) is JointSimulationPort
+            and self._simulation_port._candidate_context_bound_once
+        ):
+            native = self._simulation_port
+            if (
+                artifact_store is not native._artifact_store
+                or cycle_substrate_context is None
+                or native._cycle_substrate_context is None
+                or cycle_substrate_context.content_hash
+                != native._cycle_substrate_context.content_hash
+                or candidate_simulation_handoff is None
+                or candidate_simulation_handoff != native._candidate_simulation_handoff
+                or native._controller._producer_budget_observer
+                is not (
+                    _producer_budget_reconciler
+                    if type(_producer_budget_reconciler) is ProducerBudgetObserver
+                    else None
+                )
+            ):
+                raise ValueError("generation_cycle_native_candidate_port_binding_mismatch")
         self._physical_n5_budget_scope = physical_n5_budget_scope
         if physical_n5_budget_scope is not None:
             from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope

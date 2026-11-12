@@ -17,7 +17,7 @@ import types
 from collections import Counter
 from importlib.machinery import EXTENSION_SUFFIXES, ModuleSpec
 from itertools import islice
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Literal, Self
 
 from packaging.utils import canonicalize_name
@@ -29,20 +29,48 @@ from polisyos.common.hashing import content_hash, streaming_hash
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
+    from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+
 _MAX_DISTRIBUTIONS = 10_000
 _MAX_SYS_PATH_ENTRIES = 256
 _MAX_MODULES = 20_000
-# A module can expose separate origin, source-file, and cached-bytecode paths.
+# A module can expose distinct spec-origin and __file__ paths. __cached__ is a
+# hint and is excluded unless the bytecode path is itself an observed origin/file.
 # Keep the finite image bound tied to the complete bounded module denominator.
-_MAX_PROVIDER_PATHS_PER_MODULE = 3
+_MAX_PROVIDER_PATHS_PER_MODULE = 2
 _MAX_MODULE_FILES = _MAX_MODULES * _MAX_PROVIDER_PATHS_PER_MODULE + 1
 _MAX_DECLARED_SETTINGS = 256
 _MAX_TEXT_LENGTH = 4_096
 _MAX_MODULE_FILE_BYTES = 256 * 1024 * 1024
 _MAX_MODULE_IMAGE_BYTES = 2 * 1024 * 1024 * 1024
 _MODULE_HASH_CHUNK_BYTES = 1024 * 1024
+_CURRENT_BYTES_READ_LIMIT = 2 * 1024 * 1024 * 1024
 
 type ProfileScalar = str | int | float | bool | None
+
+
+def _safe_relative_identity(value: str) -> bool:
+    if not value or "\\" in value:
+        return False
+    path = PurePosixPath(value)
+    if path.is_absolute() or ".." in path.parts or path.as_posix() != value:
+        return False
+    parts = path.parts
+    if len(parts) >= 3 and parts[0] == "sys_path":
+        index, *relative = parts[1:]
+        return (
+            index.isdecimal() and str(int(index)) == index and bool(relative) and relative != ["."]
+        )
+    if len(parts) >= 3 and parts[:2] == ("first_party", "polisyos"):
+        return parts[-1].endswith(".py")
+    if len(parts) >= 2 and parts[0] == "interpreter":
+        suffix = PurePosixPath(*parts[1:])
+        return (
+            not suffix.is_absolute()
+            and ".." not in suffix.parts
+            and suffix.as_posix() == "/".join(parts[1:])
+        )
+    return False
 
 
 class _StrictModel(BaseModel):
@@ -142,6 +170,8 @@ class N5LoadedModuleFileImage(_StrictModel):
 
     @model_validator(mode="after")
     def _file_image_state(self) -> Self:
+        if not _safe_relative_identity(self.relative_identity):
+            raise ValueError("n5_loaded_module_relative_identity_invalid")
         streamed = self.coverage == "streamed_file_bytes"
         if streamed:
             complete = self.byte_length is not None and self.content_hash is not None
@@ -153,6 +183,13 @@ class N5LoadedModuleFileImage(_StrictModel):
             raise ValueError("n5_loaded_module_file_reason_mismatch")
         if self.module_names != tuple(sorted(set(self.module_names))):
             raise ValueError("n5_loaded_module_names_invalid")
+        if (self.file_kind == "interpreter") != (self.profile_scope == "interpreter"):
+            raise ValueError("n5_loaded_module_interpreter_scope_mismatch")
+        if self.coverage == "delegated_to_n5_production_image" and (
+            not self.relative_identity.startswith("first_party/polisyos/")
+            or self.file_kind != "python_source"
+        ):
+            raise ValueError("n5_loaded_module_delegated_scope_invalid")
         return self
 
 
@@ -692,15 +729,14 @@ def _observe_loaded_module_images(
         raw_paths: list[tuple[str, bool]] = []
         if type(origin) is str and origin and not origin.startswith("<"):
             raw_paths.append((origin, True))
-        for attribute, required in (("__file__", True), ("__cached__", False)):
-            value = namespace.get(attribute)
-            if (
-                type(value) is str
-                and value
-                and value not in {path for path, _required in raw_paths}
-                and not value.startswith("<")
-            ):
-                raw_paths.append((value, required))
+        file_path_value = namespace.get("__file__")
+        if (
+            type(file_path_value) is str
+            and file_path_value
+            and file_path_value not in {path for path, _required in raw_paths}
+            and not file_path_value.startswith("<")
+        ):
+            raw_paths.append((file_path_value, True))
         if not raw_paths:
             if (
                 origin is not None
@@ -1347,6 +1383,245 @@ def reconcile_recorded_n5_profile_content(
     )
 
 
+def reconcile_recorded_n5_profile_current_bytes(
+    recorded: N5NativeExecutionProfile,
+    current: N5NativeExecutionProfile,
+    *,
+    recorded_source_image: N5ProductionImage,
+    current_source_image: N5ProductionImage,
+) -> N5ProfileContentComparison:
+    """Compare recorded provider bytes with current admitted roots without imports.
+
+    This is a current-byte check, not a loaded-code or execution claim. It
+    accepts a recorded provider file that is not loaded in the current process
+    only when its bytes can be re-observed under the current, matching
+    ``sys.path``. First-party source rows are covered by equal complete source
+    images; interpreter rows are checked only against the fresh interpreter
+    row. The loaded-module census remains an independently recorded residual.
+
+    Args:
+        recorded: Validated profile captured after the earlier execution.
+        current: Fresh native profile for the current-use process.
+        recorded_source_image: Complete source image sealed with the earlier
+            execution witness.
+        current_source_image: Complete current source image from the native
+            image owner.
+
+    Returns:
+        A typed comparison. Missing, changed, unsafe, unsupported, or
+        over-budget file evidence fails closed.
+    """
+    from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+
+    if (
+        type(recorded) is not N5NativeExecutionProfile
+        or type(current) is not N5NativeExecutionProfile
+        or type(recorded_source_image) is not N5ProductionImage
+        or type(current_source_image) is not N5ProductionImage
+    ):
+        raise TypeError("n5_profile_current_bytes_input_type_invalid")
+    try:
+        recorded = N5NativeExecutionProfile.model_validate_json(recorded.model_dump_json())
+        current = N5NativeExecutionProfile.model_validate_json(current.model_dump_json())
+        recorded_source_image = N5ProductionImage.model_validate_json(
+            recorded_source_image.model_dump_json()
+        )
+        current_source_image = N5ProductionImage.model_validate_json(
+            current_source_image.model_dump_json()
+        )
+    except (TypeError, ValueError):
+        raise ValueError("n5_profile_current_bytes_input_invalid") from None
+
+    reasons: set[str] = set()
+    matched: list[str] = []
+    missing: list[str] = []
+    changed: list[str] = []
+    if (
+        recorded.profile_identity_predicate != "recomputed"
+        or current.profile_identity_predicate != "recomputed"
+    ):
+        reasons.add("profile_identity_not_established")
+    if _profile_base_comparison_payload(recorded) != _profile_base_comparison_payload(current):
+        reasons.add("profile_content_changed")
+    if (
+        recorded_source_image.provenance != "recomputed"
+        or current_source_image.provenance != "recomputed"
+    ):
+        reasons.add("source_image_not_established")
+    elif recorded_source_image.content_hash != current_source_image.content_hash:
+        reasons.add("profile_content_changed")
+
+    # Do not resolve or open any recorded file until all profile bases and the
+    # separately owned complete source image match.
+    if reasons:
+        status: Literal["recomputed", "changed", "not_established"] = (
+            "changed"
+            if "profile_content_changed" in reasons
+            and "profile_identity_not_established" not in reasons
+            and "source_image_not_established" not in reasons
+            else "not_established"
+        )
+        return N5ProfileContentComparison(
+            status=status,
+            recorded_numerical_profile_content_hash=recorded.numerical_profile_content_hash,
+            current_numerical_profile_content_hash=current.numerical_profile_content_hash,
+            reason_codes=tuple(sorted(reasons)),
+        )
+
+    recorded_images = _current_bytes_image_index(recorded)
+    current_images = _current_bytes_image_index(current)
+    if recorded_images is None or current_images is None:
+        return N5ProfileContentComparison(
+            status="not_established",
+            recorded_numerical_profile_content_hash=recorded.numerical_profile_content_hash,
+            current_numerical_profile_content_hash=current.numerical_profile_content_hash,
+            reason_codes=("provider_image_index_not_established",),
+        )
+
+    recorded_sources = {
+        source.relative_path: source.content_hash for source in recorded_source_image.python_sources
+    }
+    current_sources = {
+        source.relative_path: source.content_hash for source in current_source_image.python_sources
+    }
+    if len(recorded_images) > _MAX_MODULE_FILES:
+        return N5ProfileContentComparison(
+            status="not_established",
+            recorded_numerical_profile_content_hash=recorded.numerical_profile_content_hash,
+            current_numerical_profile_content_hash=current.numerical_profile_content_hash,
+            reason_codes=("provider_image_denominator_over_limit",),
+        )
+
+    remaining_bytes = _CURRENT_BYTES_READ_LIMIT
+    for identity, row in sorted(recorded_images.items()):
+        if row.profile_scope == "entrypoint":
+            continue
+        if row.profile_scope == "interpreter":
+            current_row = current_images.get(identity)
+            if current_row is None:
+                missing.append(identity)
+            elif _provider_bytes_identity(row) != _provider_bytes_identity(current_row):
+                changed.append(identity)
+            else:
+                matched.append(identity)
+            continue
+
+        if row.coverage == "delegated_to_n5_production_image":
+            if row.file_kind != "python_source" or not identity.startswith("first_party/polisyos/"):
+                missing.append(identity)
+                reasons.add("provider_file_identity_not_established")
+                continue
+            relative_source = identity.removeprefix("first_party/polisyos/")
+            source_identity = f"src/polisyos/{relative_source}"
+            recorded_hash = recorded_sources.get(source_identity)
+            current_hash = current_sources.get(source_identity)
+            if recorded_hash is None or current_hash is None:
+                missing.append(identity)
+                reasons.add("provider_file_identity_not_established")
+            elif current_hash != recorded_hash:
+                changed.append(identity)
+            else:
+                matched.append(identity)
+            continue
+
+        if row.coverage != "streamed_file_bytes" or row.file_kind not in {
+            "python_source",
+            "python_bytecode",
+            "native_library",
+        }:
+            missing.append(identity)
+            reasons.add("provider_file_identity_not_established")
+            continue
+        current_row = current_images.get(identity)
+        if current_row is not None:
+            if _provider_bytes_identity(row) != _provider_bytes_identity(current_row):
+                changed.append(identity)
+            else:
+                matched.append(identity)
+            continue
+
+        path = _admitted_current_provider_path(identity, current.sys_path, row.file_kind)
+        if path is None:
+            missing.append(identity)
+            reasons.add("provider_file_bytes_not_established")
+            continue
+        result = _stream_file_image(path, remaining_bytes=remaining_bytes)
+        if result is None:
+            missing.append(identity)
+            reasons.add("provider_file_bytes_not_established")
+            continue
+        byte_length, digest = result
+        remaining_bytes -= byte_length
+        if byte_length != row.byte_length or digest != row.content_hash:
+            changed.append(identity)
+        else:
+            matched.append(identity)
+
+    if changed:
+        reasons.add("provider_file_bytes_changed")
+    if missing and not reasons:
+        reasons.add("provider_file_bytes_not_established")
+    if missing:
+        status = "not_established"
+    elif changed:
+        status = "changed"
+    else:
+        status = "recomputed"
+    return N5ProfileContentComparison(
+        status=status,
+        recorded_numerical_profile_content_hash=recorded.numerical_profile_content_hash,
+        current_numerical_profile_content_hash=current.numerical_profile_content_hash,
+        matched_provider_identities=tuple(matched),
+        missing_provider_identities=tuple(missing),
+        changed_provider_identities=tuple(changed),
+        reason_codes=tuple(sorted(reasons)),
+    )
+
+
+def _current_bytes_image_index(
+    profile: N5NativeExecutionProfile,
+) -> dict[str, N5LoadedModuleFileImage] | None:
+    rows: dict[str, N5LoadedModuleFileImage] = {}
+    for row in profile.loaded_module_observation.file_images:
+        if row.row_status != "recomputed" or row.relative_identity in rows:
+            return None
+        rows[row.relative_identity] = row
+    return rows
+
+
+def _admitted_current_provider_path(
+    identity: str,
+    sys_path: tuple[str, ...],
+    file_kind: str,
+) -> Path | None:
+    if not _safe_relative_identity(identity):
+        return None
+    parts = PurePosixPath(identity).parts
+    if len(parts) < 3 or parts[0] != "sys_path":
+        return None
+    path_index = int(parts[1])
+    if path_index >= len(sys_path):
+        return None
+    root_value = sys_path[path_index]
+    try:
+        if type(root_value) is not str or not Path(root_value).is_absolute():
+            return None
+        root = Path(root_value).resolve(strict=True)
+        relative = PurePosixPath(*parts[2:])
+        if relative.is_absolute() or ".." in relative.parts:
+            return None
+        path = (root / Path(*relative.parts)).resolve(strict=True)
+        if not path.is_relative_to(root) or not path.is_file():
+            return None
+        observed_kind = _module_file_kind(path)
+        expected_kind: str = observed_kind or "other_file"
+        if expected_kind != file_kind:
+            return None
+        return path
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+
 def _profile_base_comparison_payload(profile: N5NativeExecutionProfile) -> tuple[object, ...]:
     return (
         profile.interpreter,
@@ -1388,6 +1663,17 @@ def _provider_image_identity(row: N5LoadedModuleFileImage) -> tuple[object, ...]
     )
 
 
+def _provider_bytes_identity(row: N5LoadedModuleFileImage) -> tuple[object, ...]:
+    """Return stable bytes identity without the process-local scope label."""
+    return (
+        row.file_kind,
+        row.coverage,
+        row.byte_length,
+        row.content_hash,
+        row.row_status,
+    )
+
+
 def _profile_hash(payload: object) -> str:
     canonical = to_canonical_bytes(
         payload,
@@ -1408,4 +1694,5 @@ __all__ = [
     "bind_n5_backend_observation",
     "observe_n5_native_execution_profile",
     "reconcile_recorded_n5_profile_content",
+    "reconcile_recorded_n5_profile_current_bytes",
 ]

@@ -4477,8 +4477,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 541,
-      "known_export_count": 541,
+      "export_count": 542,
+      "known_export_count": 542,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -5015,6 +5015,7 @@
         "proof_bundle_from_negative_certificate",
         "proof_bundle_from_transportability_result",
         "put_json_artifact",
+        "read_canonical_immutable_container",
         "run_outer_search",
         "sensitivity_analysis_bundle_from_result",
         "stable_world_id_from_canon",
@@ -5031,8 +5032,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 541,
-          "known_export_count": 541,
+          "export_count": 542,
+          "known_export_count": 542,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -5569,6 +5570,7 @@
             "proof_bundle_from_negative_certificate",
             "proof_bundle_from_transportability_result",
             "put_json_artifact",
+            "read_canonical_immutable_container",
             "run_outer_search",
             "sensitivity_analysis_bundle_from_result",
             "stable_world_id_from_canon",
@@ -5600,8 +5602,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 76084,
-                "sha256": "aa43a7345faf29454ee3b53f824dac57053e6a06adc39746d8ff8d77072e4aed"
+                "bytes": 76410,
+                "sha256": "cf72b39579f9fa7b650209d5fb1c666a43ffa479d7fabfa158b3630b7ef136ca"
               },
               {
                 "path": "src/polisyos/ir",
@@ -15264,12 +15266,13 @@
         {
           "module": "polisyos.scientist.orchestration.engine",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 126,
-          "known_export_count": 126,
+          "export_count": 127,
+          "known_export_count": 127,
           "exports": [
             "ProducerBudgetObservation",
             "ProducerBudgetSourceError",
             "BudgetInvocationCapacityObservation",
+            "N5DiagnosticCapacityObservation",
             "BudgetInvocationExhaustionWitness",
             "ProducerBudgetObserver",
             "ATTR_CACHE_HIT",
@@ -15418,8 +15421,8 @@
                 "path": "src/polisyos/scientist/orchestration/engine/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 19808,
-                "sha256": "808a2be39958206d2afdf58015177685dcf61f9b74abb4fec7aa6ba22e0af7f2"
+                "bytes": 20005,
+                "sha256": "06ca83d83089ac432e3642346a80b390d39abd9ceefbf7f9ae7bfedf93641d54"
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine",
@@ -19894,7 +19897,25 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/n5_candidate_content.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/n5_execution_basis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/n5_execution_profile.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/n5_replay_appointment.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

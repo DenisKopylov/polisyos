@@ -22,7 +22,8 @@ from polisyos.ir import prepare_ncm_spec_selected_values
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationDecision,
-    read_acquisition_evaluation_artifact,
+    AcquisitionEvaluationDecisionV2,
+    read_acquisition_basis_or_decision_artifact,
     resolve_selected_acquisition_evaluation_parts,
 )
 from polisyos.runtime.quality.acquisition_model_transition import (
@@ -99,13 +100,13 @@ def _reopen(
         design_problem_ref=ctx.closure.design_problem_ref,
     )
     decision = fixture._within_fixture_owner(
-        read_acquisition_evaluation_artifact,
+        read_acquisition_basis_or_decision_artifact,
         store=store,
         event_log=events,
         ref=terminal.evaluation_decision_ref,
-        record_type=AcquisitionEvaluationDecision,
+        kind="decision",
     )
-    assert type(decision) is AcquisitionEvaluationDecision
+    assert type(decision) in (AcquisitionEvaluationDecision, AcquisitionEvaluationDecisionV2)
     assert decision.comparison_result == "different"
     assert decision.predicate_provenance == "recomputed" and not decision.reason_codes
     assert terminal.selected_evaluation is not None
@@ -248,7 +249,13 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
         previous, old_selected = values["actual_b"], values["selected_b"]
         original = ctx.candidate_model_declaration
         assert type(original) is CandidateSimulationSyntheticModelDeclarationV1
-        oracle.monitor.watch("model_revision_native_ncm", values["capture"].method.pure_step)
+        capture = values["capture"]
+        numerical_callable = (
+            capture.selected_callable
+            if hasattr(capture, "selected_callable")
+            else capture.method.pure_step
+        )
+        oracle.monitor.watch("model_revision_native_ncm", numerical_callable)
         with TestClient(ctx.app()) as client:
             store = client.app.state.runtime_container.control_service._artifact_store
             prior_refs = (
@@ -462,3 +469,192 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
         oracle.monitor.assert_slots_unchanged()
 
     _run_genuine_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)
+
+
+def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+) -> None:
+    """A real changed outcome replays through the V2 source and numerical owners."""
+    import json
+
+    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationBasisV2
+    from polisyos.runtime.quality.acquisition_model_transition import (
+        _native_facets,
+        resolve_acquired_outcome_revision,
+    )
+    from tests._helpers import acquisition_chain, acquisition_production, world_model_record
+    from tests._helpers.annual_gdp_candidate import (
+        ANNUAL_GDP_VALUE_USD,
+        ANNUAL_GDP_WDI_PROFILE,
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+        build_annual_gdp_candidate_profile,
+        build_annual_gdp_candidate_provider,
+    )
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+    from tests._helpers.lane01_wdi_profiles import build_fixture_wdi_authority
+    from tests.integration.core_runtime.test_acquisition_retained_sequential_served import (
+        _SequentialOracle,
+    )
+
+    base_payload = dict(world_model_record.FABRIC_PAYLOAD)
+    base_payload.update(gdp=0.0, tax_rate=0.5)
+    monkeypatch.setattr(world_model_record, "FABRIC_PAYLOAD", base_payload)
+    _authority, entry = build_fixture_wdi_authority(
+        tmp_path / "gdp-entry",
+        ANNUAL_GDP_WDI_PROFILE,
+        attempt_id=_SequentialOracle.attempt_ids[0],
+        subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
+    )
+    monkeypatch.setattr(acquisition_chain, "_entry", lambda: entry)
+
+    def gdp_authority(repo_root: Path, **_kwargs: object) -> Any:
+        return build_fixture_wdi_authority(
+            repo_root,
+            ANNUAL_GDP_WDI_PROFILE,
+            attempt_id=_SequentialOracle.attempt_ids[0],
+            subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
+        )
+
+    monkeypatch.setattr(acquisition_chain, "_resolver", gdp_authority)
+    monkeypatch.setattr(acquisition_production, "_COUNTRY_CODE", "USA")
+    monkeypatch.setattr(acquisition_production, "_START_YEAR", 2024)
+    monkeypatch.setattr(acquisition_production, "_END_YEAR", 2024)
+    monkeypatch.setattr(acquisition_production, "_INDICATOR_ID", "NY.GDP.MKTP.CD")
+    monkeypatch.setattr(
+        acquisition_production,
+        "_normalized_rows",
+        lambda **_kwargs: [
+            {
+                "country_code": "USA",
+                "country_name": "United States",
+                "indicator_id": "NY.GDP.MKTP.CD",
+                "indicator_name": "GDP (current US$)",
+                "year": 2024,
+                "value": ANNUAL_GDP_VALUE_USD,
+                "unit": "",
+                "decimal": 0,
+            }
+        ],
+    )
+
+    def gdp_raw_body(rows: list[dict[str, object]], **_kwargs: object) -> bytes:
+        # The changed C value is an explicit synthetic response, not a new
+        # external observation; all coordinates and units stay from the capture.
+        assert len(rows) == 1
+        envelope = json.loads(wdi_response_for_year(2024))
+        envelope[1][0]["value"] = rows[0]["value"]
+        return json.dumps(envelope, separators=(",", ":")).encode()
+
+    monkeypatch.setattr(acquisition_production, "_raw_body", gdp_raw_body)
+
+    observed: list[object] = []
+
+    def check(**values: Any) -> None:
+        ctx, oracle = values["ctx"], values["oracle"]
+        previous = values["actual_b"]
+        outcome = previous.source.problem.outcome_of_interest.target_variable
+        assert outcome == "global.gdp"
+        assert previous.input_record.profile.rule.target_world_slot == "global.tax_rate"
+        # A controlled second response is fixture input, not an external GDP claim.
+        oracle.value = float(ANNUAL_GDP_VALUE_USD + 1_000_000)
+        changed = _pair(ctx, oracle, epoch=2, name="outcome-change")
+        terminal = changed.receipt
+        assert terminal.terminal_outcome == "reentry_completed"
+        assert changed.after_calls["n5"] > changed.before_calls["n5"]
+        with TestClient(ctx.app()) as client:
+            control = client.app.state.runtime_container.control_service
+            replay = _reopen(
+                ctx,
+                control,
+                terminal,
+                previous_run=ctx.closure.generation_run,
+                previous_cycle=ctx.closure.source_cycle,
+            )
+            assert type(replay.decision) is AcquisitionEvaluationDecisionV2
+            assert (
+                previous.input_record.n5.baseline_state[outcome]
+                != (replay.selected.input_record.n5.baseline_state[outcome])
+            )
+            revision = fixture._within_fixture_owner(
+                resolve_acquired_outcome_revision, **replay.arguments
+            )
+            assert revision.outcome_world_slot == outcome
+            from polisyos.runtime.quality import data_state_substrate
+
+            real_world_reader = data_state_substrate.read_acquired_observation_world_semantic_values
+            source_reads: list[object] = []
+
+            def unavailable_world(**kwargs: Any) -> dict[str, object]:
+                source_reads.append(kwargs["world_model_record"])
+                result = real_world_reader(**kwargs)
+                return {
+                    **result,
+                    "predicate_provenance": "not_established",
+                    "reason_codes": ("test_source_owner_unavailable",),
+                }
+
+            with monkeypatch.context() as removal:
+                removal.setattr(
+                    data_state_substrate,
+                    "read_acquired_observation_world_semantic_values",
+                    unavailable_world,
+                )
+                with pytest.raises(
+                    ValueError,
+                    match=r"^acquisition_historical_basis_owner_replay_mismatch:"
+                    r"test_source_owner_unavailable$",
+                ):
+                    fixture._within_fixture_owner(
+                        resolve_acquired_outcome_revision, **replay.arguments
+                    )
+                assert source_reads
+            assert (
+                fixture._within_fixture_owner(resolve_acquired_outcome_revision, **replay.arguments)
+                == revision
+            )
+            store, events = control._artifact_store, control._diagnostic_event_log
+            bases = tuple(
+                fixture._within_fixture_owner(
+                    read_acquisition_basis_or_decision_artifact,
+                    store=store,
+                    event_log=events,
+                    ref=ref,
+                    kind="basis",
+                )
+                for ref in (
+                    replay.decision.prior_basis_ref,
+                    replay.decision.current_basis_ref,
+                    terminal.selected_basis_ref,
+                )
+            )
+            assert all(type(basis) is AcquisitionEvaluationBasisV2 for basis in bases)
+            old, prospective, actual = map(_native_facets, bases)
+            assert {"controlled_observation", "world"}.isdisjoint(old)
+            assert old["foundry_state"] != actual["foundry_state"]
+            assert old["declared_model"] != actual["declared_model"]
+            assert old["selected_native_ncm"] != actual["selected_native_ncm"]
+            assert old["n5_request_values"] != actual["n5_request_values"]
+            assert all(
+                prospective[name] == actual[name]
+                for name in actual.keys() - {"n5_declared_implementation"}
+            )
+            observed.append(revision)
+
+    _run_genuine_first_b(
+        tmp_path,
+        monkeypatch,
+        served_recorded_candidate_gateway,
+        check,
+        seed_problem=annual_gdp_candidate_problem(),
+        candidate_profile_builder=build_annual_gdp_candidate_profile,
+        candidate_provider_builder=build_annual_gdp_candidate_provider,
+        acquisition_slot="global.gdp",
+        initial_source_value=float(ANNUAL_GDP_VALUE_USD),
+        catalog_source_factory=annual_gdp_catalog_source,
+        candidate_refresh_profile=ANNUAL_GDP_WDI_PROFILE,
+        source_knob_profile="served_tax_global_scalar",
+    )
+    assert len(observed) == 1

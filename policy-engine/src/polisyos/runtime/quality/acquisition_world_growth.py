@@ -100,10 +100,12 @@ if TYPE_CHECKING:
         CandidateSourceReentryReceipt,
         GenerationCycleRecord,
         GenerationCycleRun,
+        JointSimulationPort,
         SimulationPortObservation,
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
     from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
         PreparedJointSimulationConfiguration,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -655,6 +657,42 @@ class CandidateSourceWorldHandoff:
     experiment_reentry_budget: _CandidateExperimentReentryBudgetReconciliation | None = (
         dataclass_field(default=None, repr=False, compare=False)
     )
+
+
+@dataclass(frozen=True)
+class CandidateN5NativeContext:
+    """Operation-local native port and its original budget-owner inputs.
+
+    This object is neither a permit nor a persisted comparison assertion. The
+    same port must be bound to the selected world and carried into any new N5.
+    """
+
+    port: JointSimulationPort
+    prepared_configuration: PreparedJointSimulationConfiguration
+    budget_state: BudgetState | None = None
+    budget_observer: ProducerBudgetObserver | None = None
+    action_ref: artifacts.ArtifactRef | None = None
+    budget_scope: BudgetLedgerReentryBudgetScope | None = None
+
+    @property
+    def controller(self) -> JointSimulationHorizonController:
+        """Return the actual port-owned controller after a strict native type check."""
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationHorizonController,
+            read_joint_simulation_configuration,
+        )
+
+        if type(self.port) is not JointSimulationPort:
+            raise ValueError("candidate_n5_native_port_not_established")
+        controller = self.port._controller
+        if (
+            type(controller) is not JointSimulationHorizonController
+            or read_joint_simulation_configuration(controller) != self.prepared_configuration
+            or controller._producer_budget_observer is not self.budget_observer
+        ):
+            raise ValueError("candidate_n5_native_controller_not_established")
+        return controller
 
 
 @dataclass(frozen=True)
@@ -1453,6 +1491,96 @@ class AcquisitionWorldGrowthBridge:
             bridge=self,
             origin=origin,
             selection=selection,
+        )
+
+    def _prepare_candidate_n5_native_context(
+        self,
+        *,
+        prepared_configuration: PreparedJointSimulationConfiguration,
+        origin: VerifiedCandidateExperimentOrigin | None = None,
+        closure: VerifiedAcquisitionRouteClosure | None = None,
+        candidate_action_ref: artifacts.ArtifactRef | None = None,
+    ) -> CandidateN5NativeContext:
+        """Create the actual operation-local N5 port before comparison.
+
+        An experiment binds its current budget observer without admitting or
+        reserving a physical invocation. The later producer must reuse this
+        very port and revalidate the action, budget and selected world.
+        """
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            PreparedJointSimulationConfiguration,
+        )
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+        if type(prepared_configuration) is not PreparedJointSimulationConfiguration:
+            raise ValueError("candidate_n5_native_configuration_not_established")
+        state = None
+        observer = None
+        scope = None
+        if origin is not None and closure is not None:
+            raise ValueError("candidate_n5_native_action_scope_invalid")
+        if origin is not None:
+            if candidate_action_ref is None or self._source_control_service is None:
+                raise ValueError("candidate_n5_native_action_not_established")
+            action_context = self._resolve_candidate_experiment_reentry_action_context(
+                origin=origin, candidate_action_ref=candidate_action_ref
+            )
+            window = action_context.budget_window
+            scope = window.scope
+            state = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+            )
+            pending_ref = self._candidate_experiment_pending_reentry_locator_ref(origin=origin)
+            svc = self._source_control_service
+            build_observer = svc._build_candidate_experiment_reentry_budget_observer_from_context
+            observer = build_observer(
+                origin=origin,
+                world_growth_bridge=self,
+                candidate_action_ref=candidate_action_ref,
+                budget_state=state,
+                reentry_budget_scope=scope,
+                pending_phase_ref=pending_ref,
+                context=action_context,
+            )
+            if type(observer) is not ProducerBudgetObserver:
+                raise ValueError("candidate_n5_native_budget_observer_not_established")
+            ProducerBudgetObserver.require_bound_state(observer, state)
+            ProducerBudgetObserver.observe(observer)
+        elif closure is not None:
+            if candidate_action_ref is None or self._source_control_service is None:
+                raise ValueError("candidate_n5_native_action_not_established")
+            action = self._require_selected_candidate_action(
+                closure=closure, candidate_action_ref=candidate_action_ref
+            )
+            window = self._resolve_candidate_source_budget_window(
+                closure=closure, action_phase_ref=action.action_phase_ref
+            )
+            scope = window.scope
+            state = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+            )
+            observer = self._source_control_service.build_acquisition_source_budget_observer(
+                closure=closure, budget_state=state, reentry_budget_scope=scope
+            )
+            if type(observer) is not ProducerBudgetObserver:
+                raise ValueError("candidate_n5_native_budget_observer_not_established")
+            ProducerBudgetObserver.require_bound_state(observer, state)
+            ProducerBudgetObserver.observe(observer)
+        elif candidate_action_ref is not None:
+            raise ValueError("candidate_n5_native_action_scope_invalid")
+        port = JointSimulationPort(
+            _prepared_n5_configuration=prepared_configuration,
+            repo_root=self.repo_root,
+            producer_budget_observer=observer,
+        )
+        return CandidateN5NativeContext(
+            port=port,
+            prepared_configuration=prepared_configuration,
+            budget_state=state,
+            budget_observer=observer,
+            action_ref=candidate_action_ref,
+            budget_scope=scope,
         )
 
     def candidate_experiment_source_reentry_preflight(
@@ -4519,6 +4647,7 @@ class AcquisitionWorldGrowthBridge:
         refs: tuple[str, ...],
         *,
         prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
+        native_context: CandidateN5NativeContext | None = None,
     ) -> str:
         """Read verified native activation and enter the original case at the next cycle."""
         from polisyos.core.artifacts import load_core_json_artifact
@@ -4658,6 +4787,21 @@ class AcquisitionWorldGrowthBridge:
                     "candidate_simulation_currentness_resolver": currentness_resolver,
                     "_prepared_n5_configuration": prepared_n5_configuration,
                 }
+                if native_context is not None:
+                    if (
+                        type(native_context) is not CandidateN5NativeContext
+                        or native_context.prepared_configuration != prepared_n5_configuration
+                        or native_context.budget_observer is not None
+                    ):
+                        raise ValueError("acquisition_n5_native_context_mismatch")
+                    _ = native_context.controller
+                    native_context.port.bind_candidate_context_once(
+                        context=context,
+                        handoff=handoff,
+                        artifact_store=self.artifact_store,
+                        currentness_resolver=currentness_resolver,
+                    )
+                    controller_kwargs["simulation_port"] = native_context.port
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
                 model_id=model,
@@ -5815,6 +5959,7 @@ class AcquisitionWorldGrowthBridge:
         origin: VerifiedCandidateExperimentOrigin | None = None,
         candidate_action_ref: artifacts.ArtifactRef,
         prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
+        native_context: CandidateN5NativeContext | None = None,
     ) -> tuple[
         artifacts.ArtifactRef,
         CandidateSourceReentryReceipt,
@@ -6022,9 +6167,20 @@ class AcquisitionWorldGrowthBridge:
                 or window.record_digest != action.candidate_budget_window_digest
             ):
                 raise ValueError("candidate_source_budget_window_binding_mismatch")
-            state = BudgetState.model_validate(
-                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
-            )
+            if native_context is not None:
+                if (
+                    type(native_context) is not CandidateN5NativeContext
+                    or native_context.action_ref != candidate_action_ref
+                    or native_context.budget_scope != window.scope
+                    or native_context.prepared_configuration != prepared_n5_configuration
+                    or type(native_context.budget_state) is not BudgetState
+                ):
+                    raise ValueError("candidate_source_reentry_native_context_mismatch")
+                state = native_context.budget_state
+            else:
+                state = BudgetState.model_validate(
+                    {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+                )
             if resume_context_ref is not None:
                 selected_world = self._candidate_source_context_handoff(
                     origin=origin,
@@ -6062,6 +6218,53 @@ class AcquisitionWorldGrowthBridge:
                         else {}
                     ),
                 )
+            if native_context is not None:
+                # The normal preflight above reconciles current admission and
+                # selects the finite quota. Reopen that exact selected policy
+                # on the pre-comparison observer without replacing the port.
+                if type(native_context.budget_observer) is not ProducerBudgetObserver:
+                    raise ValueError("candidate_source_reentry_native_observer_not_established")
+                original_observer = native_context.budget_observer
+                ProducerBudgetObserver.require_bound_state(original_observer, state)
+                if origin is not None:
+                    quota_owner = self._candidate_experiment_prior_owner(
+                        origin=origin, selection=action.selection
+                    )
+                    quota = self._candidate_experiment_standard_quota_policy(quota_owner)
+                elif closure is not None:
+                    profile, _, _ = self._candidate_source_prior_owner(closure=closure)
+                    quota = profile.n5.invocation_quota_policy
+                else:
+                    raise ValueError("candidate_source_reentry_native_action_not_established")
+                selected_quota = (
+                    original_observer.bind_existing_invocation_policy_from_selected_owner(
+                        quota, purpose="standard"
+                    )
+                    if quota is not None
+                    else None
+                )
+                original_budget = ProducerBudgetObserver.observe(original_observer)
+                if original_budget.remaining_usd < Decimal(0):
+                    raise ValueError("candidate_source_reentry_native_capacity_not_established")
+                if resume_context_ref is None and ProducerBudgetObserver.admit(
+                    original_observer
+                ).remaining_usd <= Decimal(0):
+                    raise ValueError("candidate_source_reentry_native_capacity_not_established")
+                if selected_quota is not None:
+                    original_capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(
+                        original_observer
+                    )
+                    if original_capacity.profile_digest != selected_quota.profile_digest or (
+                        resume_context_ref is None and original_capacity.status != "available"
+                    ):
+                        raise ValueError("candidate_source_reentry_native_capacity_not_established")
+                observer = original_observer
+                native_context.port.bind_candidate_context_once(
+                    context=selected_world.context,
+                    handoff=selected_world.handoff,
+                    artifact_store=self.artifact_store,
+                    currentness_resolver=selected_world.currentness_resolver,
+                )
             payload = load_core_json_artifact(self.artifact_store, identity.source_payload_ref)
             models = payload.get("llm_models")
             if not isinstance(models, list) or not models or not isinstance(models[0], str):
@@ -6074,6 +6277,7 @@ class AcquisitionWorldGrowthBridge:
                 candidate_simulation_handoff=selected_world.handoff,
                 candidate_simulation_currentness_resolver=selected_world.currentness_resolver,
                 _producer_budget_reconciler=observer,
+                **({"simulation_port": native_context.port} if native_context is not None else {}),
                 **(
                     {"_prepared_n5_configuration": prepared_n5_configuration}
                     if prepared_n5_configuration is not None
@@ -6236,20 +6440,35 @@ class AcquisitionWorldGrowthBridge:
             or not _candidate_ref_same(selected.selected.n5_result_ref, receipt.n5_result_ref)
         ):
             raise ValueError("candidate_source_reentry_configuration_witness_mismatch")
-        witness = read_n5_execution_implementation_witness(
-            selected.result, input_ref=selected.selected.n5_input_ref
+        from polisyos.runtime.quality.n5_candidate_content import (
+            CONTENT_OBSERVATION_KEY,
+            read_candidate_n5_content_observation,
         )
-        if origin is None:
-            supported = (
-                witness.predicate_provenance == "recomputed"
-                and _candidate_n5_historical_configuration_matches(
+
+        if CONTENT_OBSERVATION_KEY in selected.result.diagnostics:
+            observation = read_candidate_n5_content_observation(
+                selected.result, input_ref=selected.selected.n5_input_ref
+            )
+            supported = observation.consumed_configuration == prepared_n5_configuration.model_dump(
+                mode="json"
+            )
+            # This establishes only the recorded candidate configuration,
+            # not a complete numerical identity or any retention permission.
+        else:
+            witness = read_n5_execution_implementation_witness(
+                selected.result, input_ref=selected.selected.n5_input_ref
+            )
+            if origin is None:
+                supported = (
+                    witness.predicate_provenance == "recomputed"
+                    and _candidate_n5_historical_configuration_matches(
+                        witness, prepared_n5_configuration
+                    )
+                )
+            else:
+                supported = _candidate_n5_experiment_observation_supported(
                     witness, prepared_n5_configuration
                 )
-            )
-        else:
-            supported = _candidate_n5_experiment_observation_supported(
-                witness, prepared_n5_configuration
-            )
         if not supported:
             reason = (
                 "candidate_source_reentry_configuration_not_consumed"

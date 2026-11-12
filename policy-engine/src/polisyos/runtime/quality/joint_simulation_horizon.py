@@ -13,6 +13,7 @@ import itertools
 import math
 import re
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import nullcontext
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -4565,15 +4566,32 @@ class JointSimulationHorizonController:
         # registry replacement cannot redirect this already prepared call.
         selected_step = method.pure_step
 
+        from polisyos.runtime.quality.n5_candidate_content import (
+            active_candidate_n5_content_run,
+        )
         from polisyos.runtime.quality.n5_execution_basis import N5ImplementationCapture
 
-        capture = N5ImplementationCapture(
-            method=method,
-            selected_step=selected_step,
-            request=request,
-            controller=self,
-            method_fqn=decision.method_fqn,
+        content_run = active_candidate_n5_content_run(self)
+        if content_run is not None:
+            content_run.selected_callable = selected_step
+            content_run.prepare(plan, decision)
+        capture = (
+            N5ImplementationCapture(
+                method=method,
+                selected_step=selected_step,
+                request=request,
+                controller=self,
+                method_fqn=decision.method_fqn,
+            )
+            if content_run is None
+            else None
         )
+
+        def call_selected(data: dict[str, Any], parameters: dict[str, Any]) -> dict[str, Any]:
+            if content_run is not None:
+                return content_run.invoke(selected_step, data, parameters)
+            return selected_step(data, parameters)
+
         comparator_query = (
             _ncm_comparator_input(request, plan) if request.comparator_profile is not None else None
         )
@@ -4583,8 +4601,8 @@ class JointSimulationHorizonController:
         def comparator_once(replication_seed: int) -> dict[str, float]:
             if comparator_query is None:
                 raise JointSimulationControllerError("ncm_comparator_request_binding_invalid")
-            with capture.observe_numerical_call():
-                output = selected_step(
+            with capture.observe_numerical_call() if capture is not None else nullcontext():
+                output = call_selected(
                     {"ncm_query_data": comparator_query}, {"__seed__": int(replication_seed)}
                 )
                 outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
@@ -4596,12 +4614,12 @@ class JointSimulationHorizonController:
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            with capture.observe_numerical_call():
+            with capture.observe_numerical_call() if capture is not None else nullcontext():
                 intervention = _ncm_intervention(subset, plan)
                 evidence_state, _ = _effective_evidence_state(request)
                 evidence = _resolved_ncm_evidence(evidence_state, plan)
                 step = request.horizon.start
-                output = selected_step(
+                output = call_selected(
                     {
                         "ncm_query_data": NCMQueryData(
                             ncm_spec=plan.ncm_spec,
@@ -4662,7 +4680,7 @@ class JointSimulationHorizonController:
             }
 
         try:
-            with capture:
+            with capture if capture is not None else nullcontext():
                 trajectories = _run_cached_replicates(
                     request,
                     plan,
@@ -4725,7 +4743,8 @@ class JointSimulationHorizonController:
             if type(trajectories) is not _PhysicalRunOutput:
                 raise JointSimulationControllerError("ncm_comparator_capture_missing")
             trajectories.comparator_record = comparator_record()
-        capture.bind_trajectories(trajectories)
+        if capture is not None:
+            capture.bind_trajectories(trajectories)
         self._last_n5_implementation_capture = capture
         return trajectories
 

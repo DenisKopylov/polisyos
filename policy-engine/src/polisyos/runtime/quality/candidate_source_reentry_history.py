@@ -283,7 +283,31 @@ def _replay_checkpoint_n5(
         prior_source_ref=prior_ref,
         prior_origin_ref=prior.origin_source_ref,
     )
-    read_n5_execution_implementation_witness(n5.result, input_ref=execution.n5_input_ref)
+    from polisyos.runtime.quality.n5_candidate_content import (
+        CONTENT_OBSERVATION_KEY,
+        read_candidate_n5_content_observation,
+    )
+
+    if CONTENT_OBSERVATION_KEY in n5.result.diagnostics:
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            rebuild_selected_candidate_n5_request,
+        )
+
+        expected_request = rebuild_selected_candidate_n5_request(
+            store=store,
+            input_ref=execution.n5_input_ref,
+            run_id=head.run_id,
+            job_id=head.job_id,
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+        )
+        observation = read_candidate_n5_content_observation(
+            n5.result, input_ref=execution.n5_input_ref, expected_request=expected_request
+        )
+        if observation.completion.status != "recomputed":
+            return None
+    else:
+        read_n5_execution_implementation_witness(n5.result, input_ref=execution.n5_input_ref)
     work = n5.result.physical_work_observations
     if n5.result.diagnostics.get("physical_work_capture_status") != "observed" or not work:
         raise ValueError("candidate_reentry_n5_checkpoint_physical_work_unverified")
@@ -1135,7 +1159,17 @@ def _verify_n5(
             ),
         )
         if execution is not None:
-            read_n5_execution_implementation_witness(result, input_ref=receipt.n5_input_ref)
+            from polisyos.runtime.quality.n5_candidate_content import (
+                CONTENT_OBSERVATION_KEY,
+                read_candidate_n5_content_observation,
+            )
+
+            if CONTENT_OBSERVATION_KEY in result.diagnostics:
+                # Historical output remains candidate-only; no retention or
+                # source-complete numerical identity is inferred here.
+                read_candidate_n5_content_observation(result, input_ref=receipt.n5_input_ref)
+            else:
+                read_n5_execution_implementation_witness(result, input_ref=receipt.n5_input_ref)
     if simulation.status == "joint_simulated" and execution is None:
         raise ValueError("candidate_reentry_history_n5_completion_unwitnessed")
 

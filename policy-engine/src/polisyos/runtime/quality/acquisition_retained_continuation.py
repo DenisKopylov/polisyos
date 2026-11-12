@@ -497,6 +497,7 @@ def read_candidate_acquisition_retained_continuation(
     """
     from polisyos.runtime.quality.acquisition_evaluation import (
         CandidateAcquisitionEvaluationDecision,
+        CandidateAcquisitionEvaluationDecisionV2,
         resolve_selected_acquisition_evaluation_parts,
     )
     from polisyos.runtime.quality.acquisition_planner import (
@@ -528,7 +529,8 @@ def read_candidate_acquisition_retained_continuation(
     )
     source_count = int(prior_closure is not None) + int(prior_experiment_origin is not None)
     if (
-        type(decision) is not CandidateAcquisitionEvaluationDecision
+        type(decision)
+        not in (CandidateAcquisitionEvaluationDecision, CandidateAcquisitionEvaluationDecisionV2)
         or type(terminal) not in (AcquisitionCandidateRouteLoopReceipt, *experiment_types)
         or source_count != 1
         or (

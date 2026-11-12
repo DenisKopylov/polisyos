@@ -1888,19 +1888,30 @@ class AcquisitionActionService:
         prepared = basis.prepared_n5_configuration
         if prepared is None:
             return None
+        from polisyos.runtime.quality.n5_candidate_content import (
+            CONTENT_OBSERVATION_KEY,
+            read_candidate_n5_content_observation,
+        )
         from polisyos.runtime.quality.n5_execution_basis import (
             _candidate_n5_experiment_observation_supported,
             read_n5_execution_implementation_witness,
         )
 
         try:
-            witness = read_n5_execution_implementation_witness(
-                evaluation.result,
-                input_ref=selected.n5_input_ref,
-            )
-        except ValueError:
+            if CONTENT_OBSERVATION_KEY in evaluation.result.diagnostics:
+                observation = read_candidate_n5_content_observation(
+                    evaluation.result, input_ref=selected.n5_input_ref
+                )
+                supported = observation.consumed_configuration == prepared.model_dump(mode="json")
+            else:
+                witness = read_n5_execution_implementation_witness(
+                    evaluation.result,
+                    input_ref=selected.n5_input_ref,
+                )
+                supported = _candidate_n5_experiment_observation_supported(witness, prepared)
+        except (AttributeError, TypeError, ValueError):
             return None
-        if not _candidate_n5_experiment_observation_supported(witness, prepared):
+        if not supported:
             return None
 
         try:

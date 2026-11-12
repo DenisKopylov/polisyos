@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from types import MethodType
 from typing import Any
 
 import pytest
@@ -14,9 +13,8 @@ from polisyos.core import canon
 from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
 from polisyos.runtime.quality import joint_simulation_horizon as horizon_owner
 from polisyos.runtime.quality.acquisition_evaluation import (
-    AcquisitionEvaluationBasis,
-    AcquisitionEvaluationDecision,
-    read_acquisition_evaluation_artifact,
+    read_acquisition_basis_or_decision_artifact,
+    rebuild_selected_candidate_n5_request,
 )
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
 from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
@@ -26,10 +24,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
 from polisyos.runtime.quality.n5_execution_basis import (
-    _exact_native_content,
     exact_n5_content_bytes,
-    read_n5_execution_implementation_witness,
-    reconcile_live_n5_implementation,
 )
 from tests._helpers import acquisition_served_history as fixture
 from tests.integration.core_runtime.test_acquisition_retained_sequential_served import (
@@ -45,28 +40,93 @@ def _run_genuine_first_b(
     monkeypatch: pytest.MonkeyPatch,
     gateway: Any,
     callback: Callable[..., None],
+    *,
+    seed_problem: Any | None = None,
+    candidate_profile_builder: Callable[..., Any] | None = None,
+    candidate_provider_builder: Callable[..., Any] | None = None,
+    acquisition_slot: str | None = None,
+    initial_source_value: float = -17.1,
+    catalog_source_factory: Callable[..., Any] | None = None,
+    candidate_refresh_profile: Any | None = None,
+    source_knob_profile: str = "controlled_overlay",
 ) -> None:
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
         complete_candidate_cycle_catalog_source,
     )
 
+    custom_source: dict[str, Any] = {}
+    if seed_problem is not None:
+        from tests._helpers import generic_n4_served_replay
+
+        custom_source = {
+            "outcome_variable": seed_problem.outcome_of_interest.target_variable,
+            "owner_knob_dictionary": generic_n4_served_replay._declared_generic_component_knobs(
+                source_knob_profile
+            ),
+        }
     source = build_candidate_cycle_substrate_route_inputs(
-        tmp_path / "candidate-source", include_owner_slot_manifest=True
+        tmp_path / "candidate-source",
+        include_owner_slot_manifest=True,
+        **custom_source,
     )
     called: list[str] = []
 
     def after_real_b(**values: Any) -> None:
-        assert values["witness"].predicate_provenance == "recomputed"
-        assert values["actual_b"].result.trajectories
-        called.append(values["witness"].content_hash)
+        actual = values["actual_b"]
+        witness = values["witness"]
+        assert actual.result.trajectories
+        from polisyos.runtime.quality.n5_candidate_content import (
+            CONTENT_OBSERVATION_KEY,
+            read_candidate_n5_declared_implementation,
+        )
+
+        if CONTENT_OBSERVATION_KEY in actual.result.diagnostics:
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                rebuild_selected_candidate_n5_request,
+            )
+
+            ctx = values["ctx"]
+            selected = values["selected_b"]
+            with TestClient(ctx.app()) as client:
+                store = client.app.state.runtime_container.control_service._artifact_store
+                request = fixture._within_fixture_owner(
+                    rebuild_selected_candidate_n5_request,
+                    store=store,
+                    input_ref=selected.n5_input_ref,
+                    run_id=selected.evaluation_run_id,
+                    job_id=selected.evaluation_job_id,
+                    tenant_id=fixture.TENANT,
+                    cell_id=fixture.CELL,
+                )
+                implementation = fixture._within_fixture_owner(
+                    read_candidate_n5_declared_implementation,
+                    actual.result,
+                    input_ref=selected.n5_input_ref,
+                    expected_request=request,
+                    prepared_configuration=values["capture"].controller._prepared_configuration,
+                )
+            assert implementation and witness.completion.status == "recomputed"
+            assert witness.protected_use_allowed is False
+            assert witness.independent_verification == "not_established"
+        else:
+            assert witness.predicate_provenance == "recomputed"
+        called.append(witness.content_hash)
         callback(**values)
 
     with (
-        complete_candidate_cycle_catalog_source(source.root, monkeypatch) as prepared,
+        (catalog_source_factory or complete_candidate_cycle_catalog_source)(
+            source.root, monkeypatch
+        ) as prepared,
         _OwnerCallMonitor() as monitor,
     ):
-        oracle = _SequentialOracle(monkeypatch, monitor, after_real_b=after_real_b)
+        oracle = _SequentialOracle(
+            monkeypatch,
+            monitor,
+            after_real_b=after_real_b,
+            acquisition_slot=acquisition_slot,
+            initial_source_value=initial_source_value,
+        )
         result = fixture._produce_served_acquisition_history(
             tmp_path,
             monkeypatch,
@@ -75,6 +135,10 @@ def _run_genuine_first_b(
             prepared_catalog=prepared,
             sequential_oracle=oracle,
             provider_mode="synthetic_settled_candidate",
+            seed_problem=seed_problem,
+            candidate_profile_builder=candidate_profile_builder,
+            candidate_provider_builder=candidate_provider_builder,
+            candidate_refresh_profile=candidate_refresh_profile,
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
     assert len(called) == 1, "the callback must follow one genuine first-B witness"
@@ -85,76 +149,69 @@ def test_real_b_receiver_dispatch_and_settings_are_consumed(
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway: Any,
 ) -> None:
-    """Preserve code/registry markers while changing only actual receiver meaning."""
+    """Reconcile the actual selected controller without another numerical call."""
 
     def check(**values: Any) -> None:
-        actual_b, selected, witness = values["actual_b"], values["selected_b"], values["witness"]
-        receiver = values["capture"]._controller
-        prior_settings = receiver._settings
-        baseline = fixture._within_fixture_owner(
-            reconcile_live_n5_implementation,
-            actual_b.result,
-            input_ref=selected.n5_input_ref,
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            rebuild_selected_candidate_n5_request,
         )
-        assert baseline == witness
-        # Equal typed settings in a fresh object do not change effective meaning.
-        with monkeypatch.context() as mutation:
-            mutation.setattr(receiver, "_settings", prior_settings.model_copy(deep=True))
-            assert (
-                fixture._within_fixture_owner(
-                    reconcile_live_n5_implementation,
-                    actual_b.result,
-                    input_ref=selected.n5_input_ref,
-                )
-                == witness
+        from polisyos.runtime.quality.n5_candidate_content import (
+            reconcile_candidate_n5_declared_implementation,
+        )
+
+        ctx = values["ctx"]
+        actual, selected = values["actual_b"], values["selected_b"]
+        capture = values["capture"]
+        receiver = capture.controller
+        configuration = receiver._prepared_configuration
+        with TestClient(ctx.app()) as client:
+            store = client.app.state.runtime_container.control_service._artifact_store
+            request = fixture._within_fixture_owner(
+                rebuild_selected_candidate_n5_request,
+                store=store,
+                input_ref=selected.n5_input_ref,
+                run_id=selected.evaluation_run_id,
+                job_id=selected.evaluation_job_id,
+                tenant_id=fixture.TENANT,
+                cell_id=fixture.CELL,
             )
+        arguments = {
+            "input_ref": selected.n5_input_ref,
+            "expected_request": request,
+            "prepared_configuration": configuration,
+            "current_n5_controller": receiver,
+        }
+        with monkeypatch.context() as no_n5:
 
-        original_runner = JointSimulationHorizonController._run_ncm_horizon
-        invoked: list[str] = []
+            def forbidden(*_args: Any, **_kwargs: Any) -> None:
+                raise AssertionError("reconciliation invoked N5")
 
-        def changed_runner(self: Any, request: Any, plan: Any, decision: Any) -> list[Any]:
-            invoked.append("receiver numerical call")
-            return original_runner(self, request, plan, decision)
-
-        def changed_dispatch(self: Any) -> dict[str, Any]:
-            invoked.append("receiver dispatcher call")
-            return {"ncm_parallel_worlds": MethodType(changed_runner, self)}
-
-        for name, replacement, reason in (
-            (
-                "_engine_runners",
-                MethodType(changed_dispatch, receiver),
-                "n5_consumed_receiver_dispatch_not_established",
-            ),
-            (
-                "_run_ncm_horizon",
-                MethodType(changed_runner, receiver),
-                "n5_consumed_receiver_dispatch_not_established",
-            ),
-            (
-                "_settings",
-                prior_settings.model_copy(update={"shrink_world_credal_state": True}),
-                "n5_prepared_configuration_not_consumed",
-            ),
-        ):
+            no_n5.setattr(JointSimulationHorizonController, "run", forbidden)
+            baseline = fixture._within_fixture_owner(
+                reconcile_candidate_n5_declared_implementation, actual.result, **arguments
+            )
+            settings = receiver._settings
             with monkeypatch.context() as mutation:
-                mutation.setattr(receiver, name, replacement)
-                with pytest.raises(ValueError, match="^" + reason + "$"):
+                mutation.setattr(receiver, "_settings", settings.model_copy(deep=True))
+                assert (
                     fixture._within_fixture_owner(
-                        reconcile_live_n5_implementation,
-                        actual_b.result,
-                        input_ref=selected.n5_input_ref,
+                        reconcile_candidate_n5_declared_implementation, actual.result, **arguments
                     )
-            assert (
-                fixture._within_fixture_owner(
-                    reconcile_live_n5_implementation,
-                    actual_b.result,
-                    input_ref=selected.n5_input_ref,
+                    == baseline
                 )
-                == witness
-            )
-        assert not invoked, "a current implementation verifier must not run N5"
-        assert receiver._settings is prior_settings
+            with monkeypatch.context() as mutation:
+                mutation.setattr(
+                    receiver,
+                    "_settings",
+                    settings.model_copy(update={"shrink_world_credal_state": True}),
+                )
+                with pytest.raises(
+                    ValueError, match="candidate_n5_intended_controller_not_established"
+                ):
+                    fixture._within_fixture_owner(
+                        reconcile_candidate_n5_declared_implementation, actual.result, **arguments
+                    )
+            assert receiver._settings is settings
 
     _run_genuine_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)
 
@@ -180,9 +237,10 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
         ctx, oracle = values["ctx"], values["oracle"]
         actual_b, selected, witness = values["actual_b"], values["selected_b"], values["witness"]
         capture = values["capture"]
-        old_receiver = capture._controller
-        original_method, original_step = capture.method, capture.method.pure_step
-        old_request = exact_n5_content_bytes(capture._request)
+        old_receiver = capture.controller
+        original_method = old_receiver._registry.get(capture.method_fqn)
+        original_step = original_method.pure_step
+        old_request = exact_n5_content_bytes(capture.request)
         old_settings = exact_n5_content_bytes(old_receiver._settings)
         original_init = JointSimulationHorizonController.__init__
         original_lookup = generation_cycle_owner.JointSimulationHorizonController
@@ -199,11 +257,11 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
         horizon_owner.require_prepared_joint_simulation_configuration(old_receiver, consumed)
         assert consumed.runtime_settings.shrink_world_credal_state is False
         consumed_bytes = exact_n5_content_bytes(consumed)
-        assert witness.consumed_configuration_values == _exact_native_content(consumed)
+        assert witness.consumed_configuration == consumed.model_dump(mode="json")
         owner_before = horizon_owner.prepare_joint_simulation_configuration()
         assert type(owner_before) is configuration_type
         assert exact_n5_content_bytes(owner_before) == consumed_bytes
-        assert witness.consumed_configuration_values == _exact_native_content(owner_before)
+        assert witness.consumed_configuration == owner_before.model_dump(mode="json")
         oracle.monitor.watch("constructor_oracle_ncm", original_step)
         constructed: list[Any] = []
 
@@ -222,13 +280,28 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
             change_new_receiver(receiver)
             return receiver
 
-        assert (
-            fixture._within_fixture_owner(
-                reconcile_live_n5_implementation,
-                actual_b.result,
+        from polisyos.runtime.quality.n5_candidate_content import (
+            reconcile_candidate_n5_declared_implementation,
+        )
+
+        with TestClient(ctx.app()) as client:
+            store = client.app.state.runtime_container.control_service._artifact_store
+            request = fixture._within_fixture_owner(
+                rebuild_selected_candidate_n5_request,
+                store=store,
                 input_ref=selected.n5_input_ref,
+                run_id=selected.evaluation_run_id,
+                job_id=selected.evaluation_job_id,
+                tenant_id=fixture.TENANT,
+                cell_id=fixture.CELL,
             )
-            == witness
+        assert fixture._within_fixture_owner(
+            reconcile_candidate_n5_declared_implementation,
+            actual_b.result,
+            input_ref=selected.n5_input_ref,
+            prepared_configuration=consumed,
+            expected_request=request,
+            current_n5_controller=old_receiver,
         )
         with monkeypatch.context() as mutation:
             try:
@@ -258,9 +331,9 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
                         generation_cycle_owner.JointSimulationHorizonController is original_lookup
                     )
                 assert JointSimulationHorizonController.run is original_run
-                assert old_receiver._registry.get(capture._method_fqn) is original_method
+                assert old_receiver._registry.get(capture.method_fqn) is original_method
                 assert original_method.pure_step is original_step
-                assert exact_n5_content_bytes(capture._request) == old_request
+                assert exact_n5_content_bytes(capture.request) == old_request
                 assert old_receiver._run_ncm_horizon.__func__ is original_ncm
                 assert exact_n5_content_bytes(old_receiver._settings) == old_settings
                 assert exact_n5_content_bytes(consumed) == consumed_bytes
@@ -384,11 +457,11 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
                             if ref.kind != "runtime_quality.acquisition_evaluation_decision":
                                 continue
                             candidate = fixture._within_fixture_owner(
-                                read_acquisition_evaluation_artifact,
+                                read_acquisition_basis_or_decision_artifact,
                                 store=store,
                                 event_log=events,
                                 ref=ref,
-                                record_type=AcquisitionEvaluationDecision,
+                                kind="decision",
                             )
                             if (
                                 candidate.action_job_id == positive.job_id
@@ -402,11 +475,11 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
                         assert len(matched) == 1, matched
                         decision_ref = next(iter(matched.values()))
                     decision = fixture._within_fixture_owner(
-                        read_acquisition_evaluation_artifact,
+                        read_acquisition_basis_or_decision_artifact,
                         store=store,
                         event_log=events,
                         ref=decision_ref,
-                        record_type=AcquisitionEvaluationDecision,
+                        kind="decision",
                     )
                     assert decision.action_job_id == positive.job_id
                     assert decision.comparison_result == "not_established"
@@ -417,11 +490,11 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
                     else:
                         assert "n5_receiver_construction_not_established" in decision.reason_codes
                     current_basis = fixture._within_fixture_owner(
-                        read_acquisition_evaluation_artifact,
+                        read_acquisition_basis_or_decision_artifact,
                         store=store,
                         event_log=events,
                         ref=decision.current_basis_ref,
-                        record_type=AcquisitionEvaluationBasis,
+                        kind="basis",
                     )
                     if construction_edge == "unsupported_model_default":
                         assert current_basis.predicate_provenance == "not_established"
@@ -464,19 +537,24 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
                         )
                         assert fresh_result.trajectories
                         assert simulation.candidate_simulation_n5_input_ref is not None
+                        from polisyos.runtime.quality.n5_candidate_content import (
+                            read_candidate_n5_content_observation,
+                        )
+
                         produced_witness = fixture._within_fixture_owner(
-                            read_n5_execution_implementation_witness,
+                            read_candidate_n5_content_observation,
                             fresh_result,
                             input_ref=simulation.candidate_simulation_n5_input_ref,
                         )
                         # A descriptor is producer-observed even if software
                         # equivalence stays NE; it does not upgrade authority.
-                        assert produced_witness.consumed_configuration_values == (
-                            _exact_native_content(fresh_configuration)
+                        assert (
+                            produced_witness.consumed_configuration
+                            == fresh_configuration.model_dump(mode="json")
                         )
-                        assert produced_witness.consumed_configuration_values == (
-                            _exact_native_content(
-                                current_basis.preparation_inputs.n5_execution_configuration
+                        assert produced_witness.consumed_configuration == (
+                            current_basis.preparation_inputs.n5_execution_configuration.model_dump(
+                                mode="json"
                             )
                         )
                         assert selected.n5_result_ref != simulation.simulation_result_ref
@@ -528,7 +606,7 @@ def test_changed_fresh_horizon_constructor_cannot_retain_on_ordinary_equal_sourc
         assert generation_cycle_owner.JointSimulationHorizonController is original_lookup
         assert settings_type.model_fields[setting_name].default is original_field_default
         assert original_method.pure_step is original_step
-        assert exact_n5_content_bytes(capture._request) == old_request
+        assert exact_n5_content_bytes(capture.request) == old_request
         assert exact_n5_content_bytes(old_receiver._settings) == old_settings
 
     _run_genuine_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)

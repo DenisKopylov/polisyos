@@ -9672,7 +9672,12 @@
             "PASS": 14,
             "FAIL": 0,
             "output": "policy-engine/_cache/e02/process-guard-exit-diagnosis-20261112-01/custom-reaper-cohort/",
-            "boundary": "SIGCHLD ignored/custom handler refuses prelaunch; real exit0/17 preserved. Historical trigger remains unproven."
+            "boundary": "SIGCHLD ignored/custom handler refuses prelaunch; real exit0/17 preserved. Historical trigger remains unproven.",
+            "later_delta": {
+              "PASS": 20,
+              "output": "policy-engine/_build/.tmp/e02/process-guard-root-rss-race-c49-r2/",
+              "boundary": "Only confirmed same-child WNOWAIT terminal RSS race clears measurement failure; unconfirmed/foreign cases stay refused."
+            }
           },
           "native_content_bridge": {
             "status": "FROZEN_COMPONENT_PASS_SERVED_UNRUN",
@@ -9705,7 +9710,17 @@
             "failure": "Fresh V5 source reconstruction cannot establish numerical intent; both observed/prospective intent/hashNone.",
             "cause": "Complete no-N5 census: canonical IR frozen-container family unsupported; two actual callable observations exact, argument observations absent.",
             "forensics": "policy-engine/_cache/e02/n5-served-intent-forensics-r1/evidence/",
-            "next": "Canonical owner/generic codec adapter then frozen new producer; no retrospective upgrade."
+            "next": "Canonical owner/generic codec adapter then frozen new producer; no retrospective upgrade.",
+            "later_delta": {
+              "PASS": 1,
+              "FAIL": 0,
+              "output": "policy-engine/_cache/e02/lane01-v3-served-initial-a-r2/",
+              "physical_units": 2,
+              "wall_seconds": 81.659,
+              "peak_sampled_process_tree_rss_bytes": 2022866944,
+              "unchanged_pinned_inputs": 2982,
+              "boundary": "Real V5 source/CAS producer and canonical fresh-request/declared-identity read; candidate-only. Historical R1 witness unchanged; full 7/1 retention UNRUN."
+            }
           },
           "affected_unit_composition": {
             "PASS": 80,
@@ -9713,6 +9728,44 @@
             "output": "policy-engine/_cache/e02/lane01-n5-p05-composed-unit-r1/",
             "unchanged_pinned_inputs": 2907,
             "later_delta": "Shared exact result-type guard;12 affected no-N5 controlsPASS withstablepins at policy-engine/_cache/e02/n5-malformed-content-unit-r1/; original80notrepeated."
+          },
+          "canonical_immutable_input": {
+            "PASS": 117,
+            "independent_review": "GO",
+            "output": "policy-engine/_cache/e02/n6-owned-container-adapter-r1/",
+            "additional_real_seam": {
+              "PASS": 1,
+              "physical_ncm_calls": 2,
+              "output": "policy-engine/_cache/e02/n6-real-scm-codec-repeat-r1/",
+              "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
+            }
+          },
+          "next": "Finish shared ordinary/candidate numerical-rule projection and fresh native cold-byte retention; freeze source then full7/1 continuation plus genuine GDP outcome trio in isolated stores. Build blind diagnostic replay bridge; Gate A then P06–P08/Gate B. No next lane/G closure.",
+          "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
+          "foundation_composed": {
+            "PASS": 48,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "output": "policy-engine/_cache/e02/n5-foundation-composed-r1/",
+            "wall_seconds": 54.331,
+            "peak_sampled_process_tree_rss_bytes": 1710456832,
+            "unchanged_pinned_inputs": 2981,
+            "boundary": "Full native installed-profile and diagnostic-capacity unit modules; cold unloaded-byte controls and current owner reads; no N5."
+          },
+          "shared_rule_projection": {
+            "PASS": 3,
+            "FAIL": 0,
+            "output": "policy-engine/_cache/e02/n5-rule-roles-shared-r1/",
+            "independent_review": "GO",
+            "boundary": "One seven-field census/six-numerical-value owner shared by ordinary and candidate V2; source notes preserved as evidence/V1."
+          },
+          "inventory_sync": {
+            "result": "PASS_SYNC_AND_FOCUSED_SKIP_BASELINE_TEST",
+            "output": "policy-engine/_cache/e02/lane01-public-owner-surface-sync-r2/",
+            "wall_seconds": 20.004,
+            "peak_sampled_process_tree_rss_bytes": 143949824,
+            "boundary": "No deep baseline rewrite; full architecture/generated checks separate."
           }
         }
       },

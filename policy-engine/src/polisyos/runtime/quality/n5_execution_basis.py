@@ -2092,7 +2092,20 @@ class _N5ContentGraph:
                 raise ValueError("n5_reference_binding_not_established")
             row.update(kind="recorded_binding", binding=binding)
         else:
-            raise ValueError("n5_native_content_not_established")
+            from polisyos.ir import read_canonical_immutable_container
+
+            owned = read_canonical_immutable_container(value)
+            if owned is None:
+                raise ValueError("n5_native_content_not_established")
+            container_kind, items = owned
+            row.update(
+                kind="canonical_immutable_container",
+                owner_profile="polisyos.ir.canonical_immutable_container/1",
+                container_kind=container_kind,
+                items=[encode(item) for item in items]
+                if container_kind == "list"
+                else [[encode(key), encode(item)] for key, item in items],
+            )
         return {"ref": position}
 
     @staticmethod

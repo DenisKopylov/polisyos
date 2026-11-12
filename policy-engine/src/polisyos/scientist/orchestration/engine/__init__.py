@@ -8,6 +8,7 @@ __all__ = [
     "ProducerBudgetObservation",
     "ProducerBudgetSourceError",
     "BudgetInvocationCapacityObservation",
+    "N5DiagnosticCapacityObservation",
     "BudgetInvocationExhaustionWitness",
     "ProducerBudgetObserver",
     "ATTR_CACHE_HIT",
@@ -149,6 +150,10 @@ _EXPORTS = {
     "BudgetInvocationCapacityObservation": (
         "polisyos.scientist.orchestration.engine.producer_budget",
         "BudgetInvocationCapacityObservation",
+    ),
+    "N5DiagnosticCapacityObservation": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "N5DiagnosticCapacityObservation",
     ),
     "BudgetInvocationExhaustionWitness": (
         "polisyos.scientist.orchestration.engine.producer_budget",

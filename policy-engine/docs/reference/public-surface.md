@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 541 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 542 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -2155,7 +2155,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 541 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 542 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -2175,7 +2175,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (541)</summary>
+<details><summary>Entrypoint exports (542)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2713,6 +2713,7 @@ proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
 put_json_artifact
+read_canonical_immutable_container
 run_outer_search
 sensitivity_analysis_bundle_from_result
 stable_world_id_from_canon
@@ -3839,7 +3840,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (541)</summary>
+<details><summary>Supported exports (542)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -4377,6 +4378,7 @@ proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
 put_json_artifact
+read_canonical_immutable_container
 run_outer_search
 sensitivity_analysis_bundle_from_result
 stable_world_id_from_canon
@@ -6558,7 +6560,7 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 35 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
-| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 126 |
+| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 127 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `eager_exports` | 20 |
 | `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `eager_exports` | 28 |
@@ -6884,12 +6886,13 @@ validate_source_invalidation_event
 - Facade: `lazy_facade`
 - Summary: Scientist workflow engine public facade with lazy exports.
 
-<details><summary>Entrypoint exports (126)</summary>
+<details><summary>Entrypoint exports (127)</summary>
 
 ```text
 ProducerBudgetObservation
 ProducerBudgetSourceError
 BudgetInvocationCapacityObservation
+N5DiagnosticCapacityObservation
 BudgetInvocationExhaustionWitness
 ProducerBudgetObserver
 ATTR_CACHE_HIT

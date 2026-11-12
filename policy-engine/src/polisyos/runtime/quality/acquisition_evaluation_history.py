@@ -28,7 +28,9 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationDecision,
     ResolvedAcquisitionEvaluation,
     basis_exact_values_equal,
-    read_acquisition_evaluation_artifact,
+    read_acquisition_basis_or_decision_artifact,
+    read_candidate_acquisition_evaluation_basis_artifact,
+    read_candidate_acquisition_evaluation_decision_artifact,
     resolve_selected_acquisition_evaluation_parts,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
@@ -251,29 +253,26 @@ def verify_candidate_terminal_history(
     ):
         raise ValueError("candidate_terminal_history_action_mismatch")
 
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_candidate_acquisition_evaluation_decision_artifact(
         store=store,
         event_log=events,
         ref=terminal.evaluation_decision_ref,
-        record_type=CandidateAcquisitionEvaluationDecision,
     )
-    if type(decision) is not CandidateAcquisitionEvaluationDecision:
+    if not isinstance(decision, CandidateAcquisitionEvaluationDecision):
         raise ValueError("candidate_terminal_history_decision_untyped")
-    current = read_acquisition_evaluation_artifact(
+    current = read_candidate_acquisition_evaluation_basis_artifact(
         store=store,
         event_log=events,
         ref=decision.current_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
-    selected = read_acquisition_evaluation_artifact(
+    selected = read_candidate_acquisition_evaluation_basis_artifact(
         store=store,
         event_log=events,
         ref=terminal.selected_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
     if (
-        type(current) is not CandidateAcquisitionEvaluationBasis
-        or type(selected) is not CandidateAcquisitionEvaluationBasis
+        not isinstance(current, CandidateAcquisitionEvaluationBasis)
+        or not isinstance(selected, CandidateAcquisitionEvaluationBasis)
         or current.basis_role != "prospective"
         or not _candidate_ref_same(decision.candidate_action_ref, terminal.candidate_action_ref)
         or not _candidate_ref_same(current.candidate_action_ref, terminal.candidate_action_ref)
@@ -412,16 +411,15 @@ def verify_candidate_terminal_history(
     if decision.prior_basis_ref is not None:
         if prior is None or not predecessors or not histories:
             raise ValueError("candidate_terminal_history_prior_not_established")
-        previous = read_acquisition_evaluation_artifact(
+        previous = read_candidate_acquisition_evaluation_basis_artifact(
             store=store,
             event_log=events,
             ref=decision.prior_basis_ref,
-            record_type=CandidateAcquisitionEvaluationBasis,
         )
         latest = histories[-1]
         previous_receipt = prior_closure.candidate_basis_transitions[-1]
         if (
-            type(previous) is not CandidateAcquisitionEvaluationBasis
+            not isinstance(previous, CandidateAcquisitionEvaluationBasis)
             or previous.basis_role != "evaluated"
             or not _candidate_ref_same(
                 previous.candidate_action_ref, previous_receipt.candidate_action_ref
@@ -999,25 +997,24 @@ def _verify_candidate_experiment_reuse_terminal_history(
     decision_ref_artifact = terminal.blocker_ref if blocked else terminal.evaluation_decision_ref
     if decision_ref_artifact is None:
         raise ValueError("candidate_experiment_reuse_decision_missing")
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_candidate_acquisition_evaluation_decision_artifact(
         store=store,
         event_log=events,
         ref=decision_ref_artifact,
-        record_type=CandidateAcquisitionEvaluationDecision,
     )
-    current_basis = read_acquisition_evaluation_artifact(
+    current_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=store,
         event_log=events,
         ref=decision.current_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
     expected_prior = prior_evaluation.selected.model_copy(
         update={"basis_ref": previous.terminal.selected_basis_ref}
     )
     previous_frontier = previous.frontier_after
     if (
-        type(decision) is not CandidateAcquisitionEvaluationDecision
-        or type(current_basis) is not CandidateAcquisitionEvaluationBasis
+        not isinstance(decision, CandidateAcquisitionEvaluationDecision)
+        or not isinstance(current_basis, CandidateAcquisitionEvaluationBasis)
+        or decision.schema_version.endswith("@2.0") != current_basis.schema_version.endswith("@2.0")
         or current_basis.basis_role != "prospective"
         or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
         != (head.tenant_id, head.cell_id, head.run_id, head.source_job_id)
@@ -1587,24 +1584,22 @@ def verify_candidate_experiment_terminal_history(
 
         if terminal.blocker_reason != "candidate_experiment_input_change_not_established":
             raise ValueError("candidate_experiment_blocker_owner_not_established")
-        decision = read_acquisition_evaluation_artifact(
+        decision = read_candidate_acquisition_evaluation_decision_artifact(
             store=store,
             event_log=events,
             ref=terminal.blocker_ref,
-            record_type=CandidateAcquisitionEvaluationDecision,
         )
-        if type(decision) is not CandidateAcquisitionEvaluationDecision:
+        if not isinstance(decision, CandidateAcquisitionEvaluationDecision):
             raise ValueError("candidate_experiment_blocker_decision_untyped")
-        current_basis = read_acquisition_evaluation_artifact(
+        current_basis = read_candidate_acquisition_evaluation_basis_artifact(
             store=store,
             event_log=events,
             ref=decision.current_basis_ref,
-            record_type=CandidateAcquisitionEvaluationBasis,
         )
         prior_history = _candidate_experiment_unselected_prior(origin)
         prior = None if prior_history is None else prior_history.reentry_evaluation
         if (
-            type(current_basis) is not CandidateAcquisitionEvaluationBasis
+            not isinstance(current_basis, CandidateAcquisitionEvaluationBasis)
             or current_basis.basis_role != "prospective"
             or prior is None
             or decision.comparison_result != "not_established"
@@ -1743,28 +1738,26 @@ def verify_candidate_experiment_terminal_history(
             frontier_before=None,
             frontier_after=None,
         )
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_candidate_acquisition_evaluation_decision_artifact(
         store=store,
         event_log=events,
         ref=terminal.evaluation_decision_ref,
-        record_type=CandidateAcquisitionEvaluationDecision,
     )
-    current_basis = read_acquisition_evaluation_artifact(
+    current_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=store,
         event_log=events,
         ref=decision.current_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
-    selected_basis = read_acquisition_evaluation_artifact(
+    selected_basis = read_candidate_acquisition_evaluation_basis_artifact(
         store=store,
         event_log=events,
         ref=terminal.selected_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
     )
     if (
-        type(decision) is not CandidateAcquisitionEvaluationDecision
-        or type(current_basis) is not CandidateAcquisitionEvaluationBasis
-        or type(selected_basis) is not CandidateAcquisitionEvaluationBasis
+        not isinstance(decision, CandidateAcquisitionEvaluationDecision)
+        or not isinstance(current_basis, CandidateAcquisitionEvaluationBasis)
+        or decision.schema_version.endswith("@2.0") != current_basis.schema_version.endswith("@2.0")
+        or not isinstance(selected_basis, CandidateAcquisitionEvaluationBasis)
         or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
         != (head.tenant_id, head.cell_id, head.run_id, head.source_job_id)
         or decision.action_job_id != head.job_id
@@ -2521,13 +2514,13 @@ def verify_retained_route_accumulator(
     if exact_n5_content_bytes(persisted_terminal) != exact_n5_content_bytes(terminal):
         raise ValueError("acquisition_retained_terminal_payload_mismatch")
 
-    decision = read_acquisition_evaluation_artifact(
+    decision = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=terminal.evaluation_decision_ref,
-        record_type=AcquisitionEvaluationDecision,
+        kind="decision",
     )
-    if type(decision) is not AcquisitionEvaluationDecision:
+    if not isinstance(decision, AcquisitionEvaluationDecision):
         raise ValueError("acquisition_retained_decision_untyped")
     if (
         decision.comparison_result != "equivalent"
@@ -2586,22 +2579,24 @@ def verify_retained_route_accumulator(
     ) or not _same_ref(terminal.selected_evaluation_witness_ref, selected.n5_execution_ref):
         raise ValueError("acquisition_retained_selected_evaluation_mismatch")
 
-    prior_basis = read_acquisition_evaluation_artifact(
+    prior_basis = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.prior_basis_ref,
-        record_type=AcquisitionEvaluationBasis,
+        kind="basis",
     )
-    current_basis = read_acquisition_evaluation_artifact(
+    current_basis = read_acquisition_basis_or_decision_artifact(
         store=artifact_store,
         event_log=event_log,
         ref=decision.current_basis_ref,
-        record_type=AcquisitionEvaluationBasis,
+        kind="basis",
     )
-    if type(prior_basis) is not AcquisitionEvaluationBasis or type(current_basis) is not (
-        AcquisitionEvaluationBasis
+    if not isinstance(prior_basis, AcquisitionEvaluationBasis) or not isinstance(
+        current_basis, AcquisitionEvaluationBasis
     ):
         raise ValueError("acquisition_retained_basis_untyped")
+    if decision.schema_version.endswith("@2.0") != current_basis.schema_version.endswith("@2.0"):
+        raise ValueError("acquisition_retained_comparison_version_mismatch")
     for basis in (prior_basis, current_basis):
         if (
             (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id)
@@ -2655,8 +2650,8 @@ def verify_retained_route_accumulator(
         control_service=None,
     )
     if (
-        type(replayed_prior) is not AcquisitionEvaluationBasis
-        or type(replayed_current) is not AcquisitionEvaluationBasis
+        not isinstance(replayed_prior, AcquisitionEvaluationBasis)
+        or not isinstance(replayed_current, AcquisitionEvaluationBasis)
         or exact_n5_content_bytes(replayed_prior) != exact_n5_content_bytes(prior_basis)
         or exact_n5_content_bytes(replayed_current) != exact_n5_content_bytes(current_basis)
         or not basis_exact_values_equal(replayed_prior, replayed_current)

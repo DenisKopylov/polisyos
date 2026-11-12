@@ -20,6 +20,9 @@ from polisyos.ir.api import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_graph import (
+        read_canonical_immutable_container as read_canonical_immutable_container,
+    )
     from polisyos.ir.analytics.uncertainty import (
         OutputContractDeclaration as OutputContractDeclaration,
     )
@@ -564,6 +567,7 @@ __all__ = [
     "proof_bundle_from_negative_certificate",
     "proof_bundle_from_transportability_result",
     "put_json_artifact",
+    "read_canonical_immutable_container",
     "run_outer_search",
     "sensitivity_analysis_bundle_from_result",
     "stable_world_id_from_canon",
@@ -2056,6 +2060,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "load_intervention_query": (
         "polisyos.ir.analytics.interventions",
         "load_intervention_query",
+    ),
+    "read_canonical_immutable_container": (
+        "polisyos.ir.analytics.causal_graph",
+        "read_canonical_immutable_container",
     ),
     "graph_for_analysis": ("polisyos.ir.analytics.causal_graph", "graph_for_analysis"),
     "project_graph_to_dag": ("polisyos.ir.analytics.causal_graph", "project_graph_to_dag"),

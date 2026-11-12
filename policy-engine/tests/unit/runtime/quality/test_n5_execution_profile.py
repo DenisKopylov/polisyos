@@ -12,6 +12,8 @@ import pytest
 import polisyos.runtime.quality.n5_execution_profile as profile_module
 from polisyos.runtime.quality.n5_execution_profile import (
     N5BackendObservation,
+    N5LoadedModuleFileImage,
+    N5NativeExecutionProfile,
     _observe_loaded_module_images,
     bind_n5_backend_observation,
     observe_n5_native_execution_profile,
@@ -114,6 +116,12 @@ def _profile_for_module_set(
         "_observe_loaded_module_images",
         lambda **_kwargs: observation,
     )
+    profile_sys_path = (str(tmp_path.resolve()),)
+    monkeypatch.setattr(
+        profile_module,
+        "_observe_sys_path",
+        lambda: (profile_sys_path, "recomputed"),
+    )
     distributions: list[object] = [
         _Distribution("demo-package", "1.0", str(tmp_path / "demo.dist-info"))
     ]
@@ -136,7 +144,38 @@ def _module(name: str, path: Path) -> ModuleType:
     return module
 
 
-def _modules_with_three_provider_paths(tmp_path: Path, count: int) -> dict[str, ModuleType]:
+def _source_image(tmp_path: Path):
+    from polisyos.runtime.quality.n5_execution_basis import capture_n5_production_image
+
+    first_party_root = _first_party_root(tmp_path)
+    (first_party_root / "identity_source.py").write_text("value = 1\n", encoding="utf-8")
+    (tmp_path / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    return capture_n5_production_image(
+        root=tmp_path,
+        admitted_profile={"authority_scope": "candidate_observation_only"},
+    )
+
+
+def _replace_profile_file_identity(
+    profile: N5NativeExecutionProfile,
+    old_identity: str,
+    new_identity: str,
+) -> N5NativeExecutionProfile:
+    payload = profile.model_dump(
+        mode="python", exclude={"content_hash", "numerical_profile_content_hash"}
+    )
+    observation = profile.loaded_module_observation
+    rows = tuple(
+        row.model_copy(update={"relative_identity": new_identity})
+        if row.relative_identity == old_identity
+        else row
+        for row in observation.file_images
+    )
+    payload["loaded_module_observation"] = observation.model_copy(update={"file_images": rows})
+    return profile_module._assemble_profile(payload)
+
+
+def _modules_with_two_observed_paths(tmp_path: Path, count: int) -> dict[str, ModuleType]:
     modules: dict[str, ModuleType] = {}
     provider_root = tmp_path / "site-packages"
     provider_root.mkdir(parents=True, exist_ok=True)
@@ -144,13 +183,10 @@ def _modules_with_three_provider_paths(tmp_path: Path, count: int) -> dict[str, 
         name = f"provider_{index}"
         origin = provider_root / f"{name}_origin.py"
         source = provider_root / f"{name}_source.py"
-        bytecode = provider_root / f"{name}.pyc"
         origin.write_bytes(f"origin_{index} = True\n".encode())
         source.write_bytes(f"source_{index} = True\n".encode())
-        bytecode.write_bytes(f"bytecode_{index}".encode())
         module = _module(name, origin)
         module.__file__ = str(source)
-        module.__cached__ = str(bytecode)
         modules[name] = module
     return modules
 
@@ -434,7 +470,7 @@ def test_empty_module_mapping_without_interpreter_image_is_not_a_pass(tmp_path: 
     assert "interpreter_binary_not_established" in observation.reason_codes
 
 
-def test_module_image_cap_covers_three_paths_for_every_bounded_module(
+def test_module_image_cap_covers_two_observed_paths_for_every_bounded_module(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -445,7 +481,7 @@ def test_module_image_cap_covers_three_paths_for_every_bounded_module(
         "_MAX_MODULE_FILES",
         module_limit * profile_module._MAX_PROVIDER_PATHS_PER_MODULE + 1,
     )
-    modules = _modules_with_three_provider_paths(tmp_path, module_limit)
+    modules = _modules_with_two_observed_paths(tmp_path, module_limit)
     interpreter = tmp_path / "venv" / "bin" / "python"
     interpreter.parent.mkdir(parents=True)
     interpreter.write_bytes(b"interpreter-image")
@@ -457,7 +493,7 @@ def test_module_image_cap_covers_three_paths_for_every_bounded_module(
         interpreter_path=str(interpreter),
     )
 
-    expected_image_cap = 3 * module_limit + 1
+    expected_image_cap = 2 * module_limit + 1
     assert expected_image_cap == profile_module._MAX_MODULE_FILES
     assert len(observation.file_images) == expected_image_cap
     assert observation.census_predicate == "recomputed"
@@ -469,8 +505,8 @@ def test_module_image_denominator_overflow_remains_not_established(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    modules = _modules_with_three_provider_paths(tmp_path, count=4)
-    monkeypatch.setattr(profile_module, "_MAX_MODULE_FILES", 10)
+    modules = _modules_with_two_observed_paths(tmp_path, count=4)
+    monkeypatch.setattr(profile_module, "_MAX_MODULE_FILES", 8)
     interpreter = tmp_path / "venv" / "bin" / "python"
     interpreter.parent.mkdir(parents=True)
     interpreter.write_bytes(b"interpreter-image")
@@ -482,7 +518,7 @@ def test_module_image_denominator_overflow_remains_not_established(
         interpreter_path=str(interpreter),
     )
 
-    assert len(observation.file_images) == 10
+    assert len(observation.file_images) == 8
     assert observation.census_predicate == "not_established"
     assert observation.file_backed_bytes_predicate == "not_established"
     assert "loaded_module_file_denominator_over_limit" in observation.reason_codes
@@ -635,3 +671,308 @@ def test_profile_reconciliation_detects_declared_profile_changes(
 
     assert comparison.status == "changed"
     assert expected_reason in comparison.reason_codes
+
+
+def test_current_bytes_reconciliation_accepts_unloaded_available_provider(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    provider = tmp_path / "site-packages" / "selected_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"selected_provider": _module("selected_provider", provider)}
+    )
+    current = _profile_for_module_set(monkeypatch, tmp_path, {})
+    source_image = _source_image(tmp_path)
+
+    comparison = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+
+    identity = next(
+        row.relative_identity
+        for row in recorded.loaded_module_observation.file_images
+        if row.module_names == ("selected_provider",)
+    )
+    assert comparison.status == "recomputed"
+    assert identity in comparison.matched_provider_identities
+    assert comparison.missing_provider_identities == ()
+
+
+def test_current_bytes_reconciliation_rejects_changed_or_missing_provider(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    provider = tmp_path / "site-packages" / "selected_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"selected_provider": _module("selected_provider", provider)}
+    )
+    current = _profile_for_module_set(monkeypatch, tmp_path, {})
+    source_image = _source_image(tmp_path)
+
+    provider.write_bytes(b"selected = False\n")
+    changed = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert changed.status == "changed"
+    assert changed.changed_provider_identities
+
+    provider.unlink()
+    missing = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert missing.status == "not_established"
+    assert missing.missing_provider_identities
+
+
+def test_current_bytes_reconciliation_uses_source_image_for_unloaded_first_party(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    first_party = _first_party_root(tmp_path)
+    provider = first_party / "selected.py"
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"polisyos.selected": _module("polisyos.selected", provider)}
+    )
+    current = _profile_for_module_set(monkeypatch, tmp_path, {})
+    source_image = _source_image(tmp_path)
+
+    same_source = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert same_source.status == "recomputed"
+    assert any(
+        identity.startswith("first_party/polisyos/")
+        for identity in same_source.matched_provider_identities
+    )
+
+    provider.write_bytes(b"selected = False\n")
+    changed_image = _source_image(tmp_path)
+    changed_source = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=changed_image,
+    )
+    assert changed_source.status == "changed"
+    assert "profile_content_changed" in changed_source.reason_codes
+
+
+def test_optional_cached_path_is_not_a_new_profile_dependency(tmp_path: Path) -> None:
+    first_party_root = _first_party_root(tmp_path)
+    source = tmp_path / "site-packages" / "module.py"
+    cached = tmp_path / "site-packages" / "__pycache__" / "module.pyc"
+    source.parent.mkdir(parents=True)
+    cached.parent.mkdir(parents=True)
+    source.write_bytes(b"source = True\n")
+    cached.write_bytes(b"cache-one")
+    interpreter = tmp_path / "venv" / "bin" / "python"
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_bytes(b"interpreter-image")
+    module = _module("module", source)
+    module.__file__ = str(source)
+    module.__cached__ = str(cached)
+    inputs = {
+        "first_party_root": first_party_root,
+        "modules": {"module": module},
+        "sys_path": (str(tmp_path),),
+        "interpreter_path": str(interpreter),
+    }
+
+    before = _observe_loaded_module_images(**inputs)
+    cached.write_bytes(b"cache-two")
+    after = _observe_loaded_module_images(**inputs)
+    cached.unlink()
+    after_cache_removal = _observe_loaded_module_images(**inputs)
+
+    assert before.file_images == after.file_images
+    assert before.file_images == after_cache_removal.file_images
+    assert not any("__pycache__" in row.relative_identity for row in after.file_images)
+
+
+def test_sourceless_bytecode_origin_remains_a_required_image(tmp_path: Path) -> None:
+    first_party_root = _first_party_root(tmp_path)
+    bytecode = tmp_path / "site-packages" / "sourceless.pyc"
+    bytecode.parent.mkdir(parents=True)
+    bytecode.write_bytes(b"bytecode-one")
+    interpreter = tmp_path / "venv" / "bin" / "python"
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_bytes(b"interpreter-image")
+    module = _module("sourceless", bytecode)
+    module.__file__ = str(bytecode)
+    module.__cached__ = str(bytecode)
+    inputs = {
+        "first_party_root": first_party_root,
+        "modules": {"sourceless": module},
+        "sys_path": (str(tmp_path),),
+        "interpreter_path": str(interpreter),
+    }
+
+    before = _observe_loaded_module_images(**inputs)
+    bytecode.write_bytes(b"bytecode-two")
+    after = _observe_loaded_module_images(**inputs)
+
+    before_row = next(row for row in before.file_images if row.file_kind == "python_bytecode")
+    after_row = next(row for row in after.file_images if row.file_kind == "python_bytecode")
+    assert before_row.content_hash != after_row.content_hash
+
+
+def test_current_bytes_reconciliation_keeps_recorded_sourceless_bytecode_required(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    bytecode = tmp_path / "site-packages" / "sourceless.pyc"
+    bytecode.parent.mkdir(parents=True)
+    bytecode.write_bytes(b"bytecode-one")
+    sourceless = _module("sourceless", bytecode)
+    sourceless.__file__ = str(bytecode)
+    sourceless.__cached__ = str(bytecode)
+    recorded = _profile_for_module_set(monkeypatch, tmp_path, {"sourceless": sourceless})
+    current = _profile_for_module_set(monkeypatch, tmp_path, {})
+    source_image = _source_image(tmp_path)
+
+    bytecode.write_bytes(b"bytecode-two")
+    comparison = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+
+    assert comparison.status == "changed"
+    assert comparison.changed_provider_identities
+
+
+def test_current_bytes_reconciliation_refuses_unsafe_and_unknown_paths(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    provider = tmp_path / "site-packages" / "selected_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch, tmp_path, {"selected_provider": _module("selected_provider", provider)}
+    )
+    current = _profile_for_module_set(monkeypatch, tmp_path, {})
+    source_image = _source_image(tmp_path)
+    provider_identity = next(
+        row.relative_identity
+        for row in recorded.loaded_module_observation.file_images
+        if row.module_names == ("selected_provider",)
+    )
+    out_of_range = _replace_profile_file_identity(
+        recorded,
+        provider_identity,
+        "sys_path/9/site-packages/selected_provider.py",
+    )
+    unsupported_path = tmp_path / "site-packages" / "unsupported.data"
+    unsupported_path.write_bytes(b"unsupported")
+    unsupported = _profile_for_module_set(
+        monkeypatch, tmp_path, {"unsupported": _module("unsupported", unsupported_path)}
+    )
+
+    escaped_root = tmp_path.parent / f"{tmp_path.name}-outside"
+    escaped_path = escaped_root / "escaped.py"
+    escaped_path.parent.mkdir()
+    escaped_path.write_bytes(b"outside")
+    escaped_link = tmp_path / "site-packages" / "escaped.py"
+    escaped_link.symlink_to(escaped_path)
+    escaped = _replace_profile_file_identity(
+        recorded,
+        provider_identity,
+        "sys_path/0/site-packages/escaped.py",
+    )
+
+    def forbidden_file_read(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("out_of_range_root_must_not_read")
+
+    monkeypatch.setattr(profile_module, "_stream_file_image", forbidden_file_read)
+    unsafe_root = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        out_of_range,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert unsafe_root.status == "not_established"
+    assert unsafe_root.missing_provider_identities
+
+    escaped_result = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        escaped,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert escaped_result.status == "not_established"
+    assert escaped_result.missing_provider_identities
+
+    with pytest.raises(ValueError, match="relative_identity_invalid"):
+        N5LoadedModuleFileImage(
+            relative_identity="sys_path/0/../../outside.py",
+            module_names=("outside",),
+            file_kind="python_source",
+            coverage="streamed_file_bytes",
+            profile_scope="numerical_provider",
+            byte_length=1,
+            content_hash="sha256:" + "0" * 64,
+            row_status="recomputed",
+        )
+
+    unsupported_result = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        unsupported,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+    assert unsupported_result.status == "not_established"
+    assert "provider_file_identity_not_established" in unsupported_result.reason_codes
+
+
+def test_current_bytes_base_change_refuses_before_provider_file_reads(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    provider = tmp_path / "site-packages" / "selected_provider.py"
+    provider.parent.mkdir(parents=True)
+    provider.write_bytes(b"selected = True\n")
+    recorded = _profile_for_module_set(
+        monkeypatch,
+        tmp_path,
+        {"selected_provider": _module("selected_provider", provider)},
+    )
+    current = _profile_for_module_set(
+        monkeypatch,
+        tmp_path,
+        {},
+        declared_settings={"replications": 4},
+    )
+    source_image = _source_image(tmp_path)
+
+    def forbidden_file_read(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("changed_base_must_not_read_provider")
+
+    monkeypatch.setattr(profile_module, "_stream_file_image", forbidden_file_read)
+    comparison = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+
+    assert comparison.status == "changed"
+    assert "profile_content_changed" in comparison.reason_codes

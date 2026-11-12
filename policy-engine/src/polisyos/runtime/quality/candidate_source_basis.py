@@ -1037,6 +1037,62 @@ def prepare_candidate_source_basis_values(
     )
 
 
+def prepare_candidate_source_numerical_basis_values_v2(
+    *,
+    store: artifacts.ArtifactStore,
+    problem: DesignProblem,
+    inputs: CandidateSourceBasisInputs,
+    data_snapshot_ref: artifacts.ArtifactRef | None = None,
+    world_model_ref: artifacts.ArtifactRef | None = None,
+    predecessors: tuple[CandidateSourceBasisPredecessor, ...] = (),
+) -> CandidateSourceBasisValues:
+    """Replay the owner chain and project only the declared numerical facets.
+
+    This candidate-only quantity is not a permission or occurrence check. The
+    caller must still verify current rights, semantic bindings and selected
+    evidence on every use. The complete v1 projection remains unchanged.
+    """
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.acquisition_evaluation import _foundry_binding_numerical_values
+    from polisyos.runtime.quality.candidate_simulation import (
+        prepare_candidate_n5_request_projection_v2,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    prepared = prepare_candidate_source_basis_values(
+        store=store,
+        problem=problem,
+        inputs=inputs,
+        data_snapshot_ref=data_snapshot_ref,
+        world_model_ref=world_model_ref,
+        predecessors=predecessors,
+    )
+    if prepared.predicate_provenance != "recomputed" or prepared.prospective_model is None:
+        return prepared
+    try:
+        values = {
+            name: prepared.effective_values[name]
+            for name in ("foundry_state", "applied_rules", "selected_native_ncm", "declared_model")
+        }
+        rules = values["applied_rules"]
+        if not isinstance(rules, tuple):
+            raise ValueError("acquisition_numerical_rule_census_not_established")
+        values["applied_rules"] = tuple(_foundry_binding_numerical_values(rule) for rule in rules)
+        values["n5_request_values"] = prepare_candidate_n5_request_projection_v2(
+            prepared.prospective_model.n5_config
+        ).numerical
+        exact_n5_content_bytes(values)
+    except (TypeError, ValueError, KeyError, AttributeError) as exc:
+        return replace(
+            prepared,
+            predicate_provenance="not_established",
+            reason_codes=(str(getattr(exc, "code", None) or exc),),
+            effective_values={},
+        )
+    return replace(prepared, effective_values=values)
+
+
 def _candidate_source_predecessors_from_selected_transitions(
     *,
     store: artifacts.ArtifactStore,

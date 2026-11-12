@@ -729,3 +729,115 @@ def test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencie
     assert isinstance(refusal.value.__cause__, ValidationError)
     cause_message = str(refusal.value.__cause__)
     assert "PAG requires at most one edge per unordered node pair" in cause_message
+
+
+def test_canonical_immutable_container_reader_is_public_and_preserves_immediate_identity() -> None:
+    from polisyos.ir import read_canonical_immutable_container
+    from polisyos.ir.analytics.causal_graph import (
+        read_canonical_immutable_container as owner_reader,
+    )
+
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", metadata={"nested": [1]})],
+        metadata={"nested": {"values": [1]}},
+    )
+    assert read_canonical_immutable_container is owner_reader
+    assert owner_reader(graph.nodes) == ("list", ("X", "Y"))
+    edge_snapshot = owner_reader(graph.edges)
+    assert edge_snapshot is not None and edge_snapshot[1][0] is graph.edges[0]
+    metadata_snapshot = owner_reader(graph.metadata)
+    assert metadata_snapshot is not None
+    assert metadata_snapshot[1][0][1] is graph.metadata["nested"]
+    with pytest.raises(AttributeError):
+        object.__setattr__(graph.nodes, "hidden", 1)
+
+
+@pytest.mark.parametrize("kind", ["list", "mapping"])
+def test_canonical_immutable_container_reader_refuses_subclasses_and_fake_carriers(kind) -> None:
+    from polisyos.ir import read_canonical_immutable_container
+
+    effects = []
+    base = _FrozenList if kind == "list" else _FrozenDict
+
+    class ExtraState(base):
+        __slots__ = ("hidden",)
+
+        def __iter__(self):
+            effects.append("iterated")
+            raise AssertionError("unknown subtype protocol must not run")
+
+    class Fake:
+        def __getattribute__(self, name):
+            effects.append(name)
+            raise AssertionError("unknown object protocol must not run")
+
+    value = ExtraState([1]) if kind == "list" else ExtraState({"x": 1})
+    value.hidden = 2
+    assert read_canonical_immutable_container(value) is None
+    assert read_canonical_immutable_container(Fake()) is None
+    assert read_canonical_immutable_container([1]) is None
+    assert read_canonical_immutable_container({"x": 1}) is None
+    fake_type = type(
+        base.__name__,
+        (list if kind == "list" else dict,),
+        {"__module__": base.__module__, "__slots__": ()},
+    )
+    same_name = fake_type([1]) if kind == "list" else fake_type({"x": 1})
+    assert read_canonical_immutable_container(same_name) is None
+    assert effects == []
+
+
+@pytest.mark.parametrize("kind", ["list", "mapping"])
+def test_canonical_immutable_container_reader_guards_actual_class_read_contract(
+    kind, monkeypatch
+) -> None:
+    from polisyos.ir import read_canonical_immutable_container
+
+    effects = []
+    base = _FrozenList if kind == "list" else _FrozenDict
+    value = base([1]) if kind == "list" else base({"x": 1})
+
+    def hostile_iterator(self):
+        effects.append("called")
+        raise AssertionError("replaced accessor must not run")
+
+    monkeypatch.setattr(base, "__iter__", hostile_iterator)
+    with pytest.raises(ValueError, match="canonical_immutable_container_contract_changed"):
+        read_canonical_immutable_container(value)
+    assert effects == []
+
+
+def test_canonical_immutable_container_reader_guards_same_function_code_substitution(
+    monkeypatch,
+) -> None:
+    from polisyos.ir import read_canonical_immutable_container
+
+    original = _FrozenList._immutable
+
+    def substituted(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(original, "__code__", substituted.__code__)
+    with pytest.raises(ValueError, match="canonical_immutable_container_contract_changed"):
+        read_canonical_immutable_container(_FrozenList([1]))
+
+
+def test_canonical_immutable_container_reader_rereads_builtin_backing_and_keeps_cycles() -> None:
+    from polisyos.ir import read_canonical_immutable_container
+
+    sequence = _FrozenList([1])
+    mapping = _FrozenDict({"x": sequence})
+    assert read_canonical_immutable_container(sequence) == ("list", (1,))
+    list.__setitem__(sequence, 0, 2)
+    assert read_canonical_immutable_container(sequence) == ("list", (2,))
+    list.append(sequence, mapping)
+    dict.__setitem__(mapping, "added", 3)
+    assert read_canonical_immutable_container(mapping)[1][-1] == ("added", 3)
+    dict.__delitem__(mapping, "added")
+    dict.__setitem__(mapping, "self", mapping)
+    current = read_canonical_immutable_container(sequence)
+    assert current is not None and current[1][1] is mapping
+    current_mapping = read_canonical_immutable_container(mapping)
+    assert current_mapping is not None and current_mapping[1][1][1] is mapping

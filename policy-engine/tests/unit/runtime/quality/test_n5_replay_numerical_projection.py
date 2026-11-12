@@ -165,6 +165,10 @@ def test_real_conditional_comparator_retains_baseline_draws_and_numeric_contract
     assert tolerance["status"] == "qualified"
     assert tolerance["contract"]["scopes"]
     assert tolerance["contract"]["residuals"]
+    repeated = horizon.JointSimulationHorizonController().run(request)
+    assert projection.project_n5_diagnostic_freshness_bytes(result) == (
+        projection.project_n5_diagnostic_freshness_bytes(repeated)
+    )
 
 
 def test_unqualified_same_draw_comparator_preserves_declared_unit_difference() -> None:
@@ -427,3 +431,210 @@ def test_public_projection_requires_actual_content_completion_and_persists(
             prepared_configuration=controller._prepared_configuration,
             store=fresh_store,
         )
+
+
+def test_diagnostic_freshness_validates_joins_and_ignores_only_work_occurrence(
+    actual_ncm_result: horizon.JointSimulationResult,
+) -> None:
+    """Two genuine executions compare numerically, while changed evidence still matters."""
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    request = _request().model_copy(
+        update={"horizon": horizon.HorizonSpec(start=0, end=0), "replications": 2}
+    )
+    other = horizon.JointSimulationHorizonController().run(request)
+    first_ids = {work.event_id for work in actual_ncm_result.physical_work_observations}
+    assert first_ids.isdisjoint(work.event_id for work in other.physical_work_observations)
+    first = projection.project_n5_diagnostic_freshness_bytes(actual_ncm_result)
+    assert first == projection.project_n5_diagnostic_freshness_bytes(other)
+
+    def rehashed(wire: dict) -> horizon.JointSimulationResult:
+        payload = {key: value for key, value in wire.items() if key != "receipt"}
+        wire["receipt"] = horizon.build_content_bound_simulation_receipt(
+            engine_kind=wire["receipt"]["engine_kind"],
+            payload=payload,
+            diagnostics=wire["diagnostics"],
+        ).model_dump(mode="json")
+        return horizon.JointSimulationResult.model_validate(wire)
+
+    status = actual_ncm_result.model_dump(mode="json")
+    status["diagnostics"]["invocation_quota_capacity"] = "protected_profile_configured"
+    assert first != projection.project_n5_diagnostic_freshness_bytes(rehashed(status))
+
+    broken_join = actual_ncm_result.model_dump(mode="json")
+    broken_join["trajectories"][0]["diagnostics"]["physical_work_event_ids"][0] = "a" * 32
+    with pytest.raises(ValueError, match="n5_physical_work_trajectory_binding_mismatch"):
+        rehashed(broken_join)
+
+    changed_draw = actual_ncm_result.model_dump(mode="json")
+    changed_draw["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]["outcomes"][
+        "firm_survival"
+    ] += 1
+    with pytest.raises(ValueError):
+        rehashed(changed_draw)
+
+    changed_seed = actual_ncm_result.model_dump(mode="json")
+    changed_seed["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]["seed"] += 1
+    with pytest.raises(ValueError):
+        rehashed(changed_seed)
+
+    changed_state = actual_ncm_result.model_dump(mode="json")
+    changed_state["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0][
+        "engine_state"
+    ]["intervention"]["income_delta"] = 123.0
+    with pytest.raises(ValueError):
+        rehashed(changed_state)
+
+    changed_interaction = actual_ncm_result.model_dump(mode="json")
+    changed_interaction["interaction_terms"][0]["by_step"]["0"] += 1.0
+    with pytest.raises(ValueError):
+        rehashed(changed_interaction)
+
+    unknown = actual_ncm_result.model_dump(mode="json")
+    unknown["diagnostics"]["unexpected_scope"] = "not-classified"
+    with pytest.raises(ValueError, match="n5_diagnostic_root_role_not_established"):
+        projection.project_n5_diagnostic_freshness_bytes(rehashed(unknown))
+
+
+@pytest.mark.parametrize("engine", ["system_dynamics", "coupled_des_abm", "program_graph"])
+def test_diagnostic_freshness_real_engine_variants(engine: str, tmp_path: Path) -> None:
+    """Compare two real invocations with the existing selected engine plans."""
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+        _coupling_graph,
+        _program_graph_plan,
+        _request,
+        _shared_resource_stock_flow_fallback_request,
+    )
+
+    if engine == "system_dynamics":
+        request = _shared_resource_stock_flow_fallback_request(
+            candidate_order=("system_dynamics", "method_registry_estimator")
+        )
+    elif engine == "coupled_des_abm":
+        request = _request(policy_domain="unemployment_claims_benefit").model_copy(
+            update={
+                "coupling_graph": _coupling_graph("shared_resource"),
+                "selected_outcomes": ("final_queue_length",),
+                "baseline_state": {"final_queue_length": 0.0},
+                "engine_plan": (
+                    horizon.EnginePlan(
+                        engine_kind="coupled_des_abm",
+                        objective_ref="objective://claims-queue",
+                        eligibility_conditions=(
+                            "unemployment_claims",
+                            "benefit_queue",
+                            "service_queue",
+                        ),
+                        variable_map={
+                            "agents.income": "benefit_amount",
+                            "government.balance": "service_rate",
+                        },
+                        coupled_state={
+                            "initial_income": [1000.0, 600.0, 400.0],
+                            "initial_savings": [0.0, 0.0, 0.0],
+                            "is_employed": [0.0, 0.0, 0.0],
+                        },
+                        coupled_params={
+                            "benefit_amount": 0.0,
+                            "service_rate": 0.5,
+                            "initial_queue_length": 0.0,
+                            "seed": 7,
+                        },
+                    ),
+                ),
+            }
+        )
+    else:
+        request = _request().model_copy(
+            update={
+                "engine_plan": (_program_graph_plan(tmp_path),),
+                "selected_outcomes": ("mean_income",),
+                "baseline_state": {"mean_income": 0.0},
+            }
+        )
+    controller = horizon.JointSimulationHorizonController()
+    first, second = controller.run(request), controller.run(request)
+    assert first.engine_decisions[0].engine_kind == engine
+    assert first.engine_decisions[0].decision == "selected"
+    assert {work.event_id for work in first.physical_work_observations}.isdisjoint(
+        work.event_id for work in second.physical_work_observations
+    )
+    store = request.engine_plan[0].program_store if engine == "program_graph" else None
+    if engine == "program_graph":
+        with pytest.raises(
+            ValueError, match="n5_diagnostic_program_graph_metrics_owner_not_established"
+        ):
+            projection.project_n5_diagnostic_freshness_bytes(first)
+        with pytest.raises(ValueError, match="n5_diagnostic_metrics_ref_not_established"):
+            projection.project_n5_diagnostic_freshness_bytes(first, store=store)
+        return
+    left = projection.project_n5_diagnostic_freshness_bytes(first, store=store)
+    right = projection.project_n5_diagnostic_freshness_bytes(second, store=store)
+    assert left == right
+
+
+def test_diagnostic_selected_program_graph_actual_producer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A selected method-metric plan emits actual profile-bound PG evidence."""
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from tests.unit.foundry.runtime.test_method_metric_capture import (
+        _make_graph_and_plan,
+        _ReturnsMetricScalar,
+        _test_environment_manifest,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+        _program_graph_plan,
+        _request,
+    )
+
+    store = artifacts.FileSystemCAS(tmp_path / "selected-program-cas")
+    base = _program_graph_plan(tmp_path, store=store)
+    graph_ref, plan_ref = _make_graph_and_plan(store)
+    registry = MethodRegistry.get_instance()
+    registry.register(_ReturnsMetricScalar, override=True)
+    monkeypatch.setattr(
+        "polisyos.foundry.execute._internal.graph.capture_environment",
+        lambda **_kwargs: _test_environment_manifest(),
+    )
+    plan = base.model_copy(
+        update={
+            "program_graph_ref": graph_ref,
+            "exec_plan_ref": plan_ref,
+            "program_parameter_overrides_by_atom": {},
+        }
+    )
+    request = _request().model_copy(
+        update={
+            "engine_plan": (plan,),
+            "horizon": horizon.HorizonSpec(start=0, end=0),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+    first = horizon.JointSimulationHorizonController().run(request)
+    second = horizon.JointSimulationHorizonController().run(request)
+    assert first.engine_decisions[0].decision == "selected"
+    assert first.trajectories and second.trajectories
+    assert all(
+        point.engine_state["metrics_artifact_ref"]["manifest_profile_sha256"]
+        for trajectory in first.trajectories
+        for point in trajectory.points
+    )
+    for result in (first, second):
+        with pytest.raises(
+            ValueError, match="n5_diagnostic_method_execution_owner_not_established"
+        ):
+            projection.project_n5_diagnostic_freshness_bytes(result, store=store)
+
+    malformed = first.model_dump(mode="json")
+    malformed["trajectories"][0]["diagnostics"]["method_execution_sources"][0]["step"] += 1
+    payload = {key: value for key, value in malformed.items() if key != "receipt"}
+    malformed["receipt"] = horizon.build_content_bound_simulation_receipt(
+        engine_kind=malformed["receipt"]["engine_kind"],
+        payload=payload,
+        diagnostics=malformed["diagnostics"],
+    ).model_dump(mode="json")
+    changed = horizon.JointSimulationResult.model_validate(malformed)
+    with pytest.raises(ValueError, match="n5_diagnostic_metrics_source_join_not_established"):
+        projection.project_n5_diagnostic_freshness_bytes(changed, store=store)

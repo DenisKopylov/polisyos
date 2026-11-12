@@ -9663,14 +9663,27 @@
             "boundary": "SIGCHLD ignored/custom handler refuses prelaunch; real exit0/17 preserved. Historical trigger remains unproven."
           },
           "native_content_bridge": {
-            "status": "WIP_RUNTIME_FAIL_PRESERVED",
-            "PASS": 8,
-            "FAIL": 1,
-            "output": "policy-engine/_cache/e02/n5-candidate-content-native-r1/",
-            "actual": "Three physical units; expected joint11.0; failed profile stability. No overall N5 retention qualification.",
-            "diagnostic": "No-N5 preflight r3 identifies complete-file census over cap10000; retained rows all hashed. Source/profile/current-use requalification remains required.",
-            "diagnostic_output": "policy-engine/_cache/e02/n5-profile-preflight-r3/"
-          }
+            "status": "FROZEN_COMPONENT_PASS_SERVED_UNRUN",
+            "PASS": 9,
+            "FAIL": 0,
+            "output": "policy-engine/_cache/e02/n5-candidate-content-native-r3/",
+            "physical_units": 3,
+            "expected_joint_value": 11.0,
+            "wall_seconds": 100.011,
+            "peak_sampled_process_tree_rss_bytes": 2038104064,
+            "unchanged_source_test_inputs": 2901,
+            "checks": "Actual kernel, full declared plan, actual controller registry/currentness, fresh typed model, stale cache, missing observation, shortened denominator and post-call configuration-alias drift.",
+            "limits": "Synthetic component/unscoped physical work, not authentic V5 source/CAS/served or 7/1 qualification; prior R1/R2 failures retained. Diagnostic independent unit-request reconstruction r1/r2 remains failed/unqualified."
+          },
+          "native_profile": {
+            "PASS": 21,
+            "FAIL": 0,
+            "independent_review": "GO",
+            "output": "policy-engine/_cache/e02/n5-execution-profile-cap-r1/",
+            "bounds": "20000modules, at most3observed paths each plusinterpreter;256MiBperfile/2GiBtotal streamedbytes; complete overflow refuses.",
+            "authority": "Producer content observation only; code association and institutional admission remain not_established."
+          },
+          "ordinary_outcome_fixture": "Reuse unit-compatible annual GDP observation/profile/provider and distinct tax intervention; percent-GDP balance cannot be typed as USD without declared derivation. Genuine source-generated V2 outcome trio UNRUN."
         }
       },
       "sequence": 8,

@@ -45,6 +45,12 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   established by an LLM response. The canonical context owner selects V6 when
   they are present and preserves them in problem/profile identities and CAS
   replay. Existing requests keep their frozen V1–V5 projections and bytes.
+- `n5_execution_profile.py` records the actual installed distribution inventory,
+  interpreter, loaded file-backed source/bytecode/native images and observed
+  backend/settings. Current comparison requires every recorded provider image
+  while allowing additional ambient modules. Complete bounded observations are
+  distinct from code-to-file association, institutional admission and protected
+  permission; those are not established by matching hashes.
 - `n5_replay_appointment.py` verifies exact externally signed appointments,
   separate deployment checks and launcher-record authenticity against current
   public role keys/revocations and a native deployed-component observation.

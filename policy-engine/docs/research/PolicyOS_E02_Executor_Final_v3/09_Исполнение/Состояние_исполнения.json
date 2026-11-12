@@ -9560,15 +9560,27 @@
             "next": "Compose numerical facet with the actual effective basis while retaining evidence, semantic currentness and operational admission as separate axes."
           },
           "p05_reverse_view_draft": {
-            "state": "SOURCE_AND_FOCUSED_UNIT_QUALIFIED_SERVED_UNRUN",
+            "state": "IMPLEMENTED_WITH_FOCUSED_AND_V2_SERVED_QUALIFICATION",
             "author_commit": "301a2da66c576da057f2d2eadef3ab98dee7e8f9",
             "source_sha256": "412a260f4f5a51bc21beb806b1dd8b7b1eb4f83478e0dde184a5099b833479ea",
             "checks": "3 frozen focused PASS, independent static GO; full served and wider affected family UNRUN.",
             "gaps": [
-              "Actual served action and fresh consumer qualification pending composed freeze; source remains visible uncommitted WIP."
+              "Sibling stock selector and whole LANE-01 composition remain UNRUN.",
+              "Qualification is on exact pinned working composition; independent G acceptance remains separate."
             ],
             "current_output": "policy-engine/_cache/e02/p05-use-decision-current-r1/",
-            "latest_contract": "Same query remains current after unrelated registry mutation; old one-use decision refuses changed revision; fresh current decision succeeds. Same-query competitor invalidates route."
+            "latest_contract": "Same query remains current after unrelated registry mutation; old one-use decision refuses changed revision; fresh current decision succeeds. Same-query competitor invalidates route.",
+            "served": {
+              "PASS": 1,
+              "FAIL": 0,
+              "physical_units": 1,
+              "output": "policy-engine/_cache/e02/p05-v2-served-current-r1/",
+              "wall_seconds": 163.027,
+              "peak_sampled_process_tree_rss_bytes": 2162802688,
+              "unchanged_pinned_inputs": 2984,
+              "profile": "Outer strict1/shape0/CPU and BLAS1; test explicitly selects development Runtime and test trust.",
+              "controls": "Real selected decision/manifest, final registry drift and byte removal, unchanged ledger/job state on refusal, actual Foundry arithmetic, fresh API/codes/403/currentness/withdrawal/history."
+            }
           },
           "appointed_replay_draft": {
             "state": "DEMO_INTAKE23PASS_INDEPENDENT_REVIEW_GO; PROTECTED_LIFECYCLE_MISSING",
@@ -9683,7 +9695,25 @@
             "bounds": "20000modules, at most3observed paths each plusinterpreter;256MiBperfile/2GiBtotal streamedbytes; complete overflow refuses.",
             "authority": "Producer content observation only; code association and institutional admission remain not_established."
           },
-          "ordinary_outcome_fixture": "Reuse unit-compatible annual GDP observation/profile/provider and distinct tax intervention; percent-GDP balance cannot be typed as USD without declared derivation. Genuine source-generated V2 outcome trio UNRUN."
+          "ordinary_outcome_fixture": "Reuse unit-compatible annual GDP observation/profile/provider and distinct tax intervention; percent-GDP balance cannot be typed as USD without declared derivation. Genuine source-generated V2 outcome trio UNRUN.",
+          "served_initial_a": {
+            "PASS": 0,
+            "FAIL": 1,
+            "physical_units": 2,
+            "output": "policy-engine/_cache/e02/lane01-v3-served-initial-a-r1/",
+            "unchanged_pinned_inputs": 2982,
+            "failure": "Fresh V5 source reconstruction cannot establish numerical intent; both observed/prospective intent/hashNone.",
+            "cause": "Complete no-N5 census: canonical IR frozen-container family unsupported; two actual callable observations exact, argument observations absent.",
+            "forensics": "policy-engine/_cache/e02/n5-served-intent-forensics-r1/evidence/",
+            "next": "Canonical owner/generic codec adapter then frozen new producer; no retrospective upgrade."
+          },
+          "affected_unit_composition": {
+            "PASS": 80,
+            "FAIL": 1,
+            "output": "policy-engine/_cache/e02/lane01-n5-p05-composed-unit-r1/",
+            "unchanged_pinned_inputs": 2907,
+            "later_delta": "Shared exact result-type guard;12 affected no-N5 controlsPASS withstablepins at policy-engine/_cache/e02/n5-malformed-content-unit-r1/; original80notrepeated."
+          }
         }
       },
       "sequence": 8,

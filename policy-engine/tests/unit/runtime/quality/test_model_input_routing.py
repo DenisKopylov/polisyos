@@ -19,7 +19,7 @@ from polisyos.core.artifacts import (
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
+from polisyos.core.contracts.foundry import ExecPlanRef, FoundryInputBindingsRef, ProgramGraphRef
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
     ModelInputPhysicalEncoding,
@@ -47,10 +47,22 @@ from polisyos.runtime.quality.model_input_requirements import (
     preflight_program_graph_inputs,
 )
 from polisyos.runtime.quality.model_input_routing import (
+    _coarse_route_memberships,
+    _current_authority_registry_sha256,
     _discover_port_routes,
+    _routing_query_key,
     _verify_model_input_routing_report_current,
+    persist_current_model_input_routing_use_decision,
     plan_selected_model_input_routing,
+    read_model_input_routing_report,
+    read_model_input_routing_use_decision,
     verify_model_input_routing_report,
+    verify_model_input_routing_use_decision_current,
+)
+from polisyos.runtime.quality.model_input_successor_selection import (
+    ModelInputSuccessorSelection,
+    persist_model_input_successor_selection,
+    read_model_input_successor_selection,
 )
 from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
 from tests._helpers.acquisition_production import _entry, _resolver
@@ -98,6 +110,20 @@ def _replace_authority_registry(
     registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
     registry_path.write_text(registry.model_dump_json(), encoding="utf-8")
     return registry.content_sha256
+
+
+def _candidate_route_ref(
+    store: FileSystemCAS,
+    kind: str,
+    *,
+    media_type: str = "application/json",
+) -> ArtifactRef:
+    """Persist a selected non-authoritative ref for the successor wire fixture."""
+    return store.put_bytes(
+        kind.encode("utf-8"),
+        PutOptions(kind=kind, media_type=media_type),
+        return_selected_profile=True,
+    )
 
 
 def _fiscal_input_declaration(
@@ -175,6 +201,555 @@ def _select_program_graph_routing_inputs(
     )
     assert len(preflight.obligation_refs) == 1
     return port, basis, preflight
+
+
+def test_routing_rederives_registry_metadata_without_changing_exact_model_inputs(
+    tmp_path: Path,
+) -> None:
+    """Refresh routing after metadata changes without changing numerical inputs."""
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path,
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        model_input_port_declaration_builder=_fiscal_input_declaration,
+    )
+    try:
+        port, selected_basis, preflight = _select_program_graph_routing_inputs(
+            case,
+            run_id="model-input-routing-metadata-refresh",
+        )
+        selected_entry = _authority_entry(port.semantic_definition_ref, port.representation_ref)
+        unrelated_fields = _entry().model_dump(mode="python", exclude={"entry_id"})
+        unrelated_fields["title"] = "Unrelated registry metadata before refresh."
+        unrelated_before = build_authority_entry(**unrelated_fields)
+        authority, _ = _resolver(
+            tmp_path / "catalog-metadata-refresh",
+            authority_entry=selected_entry,
+        )
+        initial_registry_hash = _replace_authority_registry(
+            authority, (selected_entry, unrelated_before)
+        )
+        old_route = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (old_binding,) = old_route.report.routes
+        assert old_binding.source_descriptor is not None
+        assert old_binding.query_envelope is not None
+        assert (
+            old_binding.source_descriptor.authority_registry_content_sha256 == initial_registry_hash
+        )
+
+        # An unrelated row's display metadata changes the registry digest, but
+        # the selected model-input query and its exact source refs are unchanged.
+        unrelated_fields["title"] = "Unrelated registry metadata after refresh."
+        unrelated_after = build_authority_entry(**unrelated_fields)
+        unrelated_registry_hash = _replace_authority_registry(
+            authority, (selected_entry, unrelated_after)
+        )
+        fresh_unrelated = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (unrelated_binding,) = fresh_unrelated.report.routes
+        assert unrelated_binding.source_descriptor is not None
+        assert unrelated_binding.query_envelope == old_binding.query_envelope
+        assert unrelated_binding.source_descriptor.authority_registry_content_sha256 == (
+            unrelated_registry_hash
+        )
+        assert unrelated_binding.source_descriptor.source_semantic_definition_ref == (
+            old_binding.source_descriptor.source_semantic_definition_ref
+        )
+        assert unrelated_binding.source_descriptor.source_representation_ref == (
+            old_binding.source_descriptor.source_representation_ref
+        )
+        assert unrelated_binding.source_descriptor.model_semantic_definition_ref == (
+            old_binding.source_descriptor.model_semantic_definition_ref
+        )
+        assert unrelated_binding.source_descriptor.model_representation_ref == (
+            old_binding.source_descriptor.model_representation_ref
+        )
+        assert (
+            verify_model_input_routing_report(
+                case.store,
+                old_route.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            == old_route.report
+        )
+
+        # A title/description-only revision of the same selected semantic
+        # definition is likewise a discovery-metadata change: the fresh query
+        # must expose its current content-addressed entry while preserving the
+        # exact model and numerical request basis.
+        selected_fields = selected_entry.model_dump(mode="python", exclude={"entry_id"})
+        selected_fields["title"] = "Fiscal balance source alias, revised for discovery."
+        selected_fields["description"] = (
+            "Updated searchable label; exact measurement and semantic refs are unchanged."
+        )
+        selected_metadata_revision = build_authority_entry(**selected_fields)
+        assert selected_metadata_revision.entry_id != selected_entry.entry_id
+        assert selected_metadata_revision.source_semantic_definition_ref == (
+            selected_entry.source_semantic_definition_ref
+        )
+        assert selected_metadata_revision.source_representation_ref == (
+            selected_entry.source_representation_ref
+        )
+        assert selected_metadata_revision.raw_field == selected_entry.raw_field
+        assert selected_metadata_revision.canonical_unit == selected_entry.canonical_unit
+        current_registry_hash = _replace_authority_registry(
+            authority, (selected_metadata_revision, unrelated_after)
+        )
+        fresh_current = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (current_binding,) = fresh_current.report.routes
+        assert fresh_current.report_ref != fresh_unrelated.report_ref
+        assert fresh_current.report.selected_invocation == old_route.report.selected_invocation
+        assert fresh_current.report.obligation_set_ref == old_route.report.obligation_set_ref
+        assert (
+            fresh_current.report.compilation_report_ref == old_route.report.compilation_report_ref
+        )
+        assert current_binding.source_descriptor is not None
+        assert current_binding.query_envelope is not None
+        assert current_binding.source_descriptor.authority_entry_id == (
+            selected_metadata_revision.entry_id
+        )
+        assert current_binding.source_descriptor.authority_registry_content_sha256 == (
+            current_registry_hash
+        )
+        assert current_binding.query_envelope != old_binding.query_envelope
+        assert current_binding.source_descriptor.source_semantic_definition_ref == (
+            old_binding.source_descriptor.source_semantic_definition_ref
+        )
+        assert current_binding.source_descriptor.source_representation_ref == (
+            old_binding.source_descriptor.source_representation_ref
+        )
+        assert current_binding.source_descriptor.model_semantic_definition_ref == (
+            old_binding.source_descriptor.model_semantic_definition_ref
+        )
+        assert current_binding.source_descriptor.model_representation_ref == (
+            old_binding.source_descriptor.model_representation_ref
+        )
+        assert (
+            selected_basis.invocation(current_binding.source_descriptor.model_input_interface_ref)
+            == old_route.report.selected_invocation
+        )
+        assert (
+            verify_model_input_routing_report(
+                case.store,
+                fresh_current.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            == fresh_current.report
+        )
+        # The selected entry is content-addressed, so its revised discovery
+        # metadata changes the exact query identity. The old report remains
+        # readable as historical evidence, but it must no longer verify as the
+        # current route.
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_report_selection_mismatch",
+        ):
+            verify_model_input_routing_report(
+                case.store,
+                old_route.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+        assert read_model_input_routing_report(case.store, old_route.report_ref) == old_route.report
+
+        # New exact compatible competitors are different: they change the
+        # route's scoped query envelope and must invalidate the current selection.
+        relevant_countercandidate = _authority_entry(
+            port.semantic_definition_ref,
+            port.representation_ref,
+            suffix="metadata-refresh-countercandidate",
+        )
+        _replace_authority_registry(
+            authority,
+            (selected_metadata_revision, unrelated_after, relevant_countercandidate),
+        )
+        with pytest.raises(ValueError, match="model_input_routing_report_selection_mismatch"):
+            verify_model_input_routing_report(
+                case.store,
+                fresh_current.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+    finally:
+        case.close()
+
+
+def test_routing_use_decision_persists_query_and_fences_registry_currentness(
+    tmp_path: Path,
+) -> None:
+    """Persist an actual route recheck and refuse the old registry binding."""
+    scoped_store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        ownership_enforced=False,
+    )
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path,
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        model_input_port_declaration_builder=_fiscal_input_declaration,
+        store=scoped_store,
+    )
+    try:
+        port, selected_basis, preflight = _select_program_graph_routing_inputs(
+            case,
+            run_id="model-input-routing-use-decision",
+        )
+        selected_entry = _authority_entry(port.semantic_definition_ref, port.representation_ref)
+        unrelated_fields = _entry().model_dump(mode="python", exclude={"entry_id"})
+        unrelated_fields["title"] = "Unrelated row before use decision."
+        unrelated_before = build_authority_entry(**unrelated_fields)
+        authority, _ = _resolver(
+            tmp_path / "catalog-use-decision",
+            authority_entry=selected_entry,
+        )
+        _replace_authority_registry(authority, (selected_entry, unrelated_before))
+        route_result = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (route,) = route_result.report.routes
+        assert route.query_envelope is not None
+
+        # The reverse query key preserves exact scope and port identity while
+        # ignoring result rows and the envelope's derived self-hash.
+        rowless_envelope = route.query_envelope.model_copy(
+            update={"rows": (), "content_sha256": "sha256:" + "0" * 64}
+        )
+        assert _routing_query_key(rowless_envelope) == _routing_query_key(route.query_envelope)
+        other_port_envelope = route.query_envelope.model_copy(
+            update={"model_input_port_id": "other-port"}
+        )
+        assert _routing_query_key(other_port_envelope) != _routing_query_key(route.query_envelope)
+        other_scope = route.query_envelope.scope.model_copy(update={"period_basis": "fiscal_year"})
+        other_scope_envelope = route.query_envelope.model_copy(update={"scope": other_scope})
+        assert _routing_query_key(other_scope_envelope) != _routing_query_key(route.query_envelope)
+
+        use_decision_ref, decision = persist_current_model_input_routing_use_decision(
+            case.store,
+            route_result.report_ref,
+            expected_obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            route_port_id=route.port_id,
+        )
+        assert decision.reverse_view_status == "recomputed"
+        assert decision.cas_owner_generation_sha256 is not None
+        assert decision.query_subscriber_refs == (route_result.report_ref,)
+        assert read_model_input_routing_use_decision(case.store, use_decision_ref) == decision
+        assert (
+            verify_model_input_routing_use_decision_current(
+                case.store,
+                use_decision_ref,
+                expected_report_ref=route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            == decision
+        )
+
+        foundry_bindings_ref = _candidate_route_ref(case.store, "foundry.input_bindings")
+        successor = ModelInputSuccessorSelection(
+            schema_version="polisyos.runtime.ModelInputSuccessorSelection@2.0",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            run_id="run-a",
+            source_job_id="source-job",
+            compiled_ref=_candidate_route_ref(
+                case.store, "runtime.compiled_recursive_generation_cycle"
+            ),
+            blocked_execution_ref=_candidate_route_ref(
+                case.store, "runtime.quality.generic_cycle_simulation_n5_execution"
+            ),
+            routing_report_ref=route_result.report_ref,
+            routing_use_decision_ref=use_decision_ref,
+            activation_receipt_ref=_candidate_route_ref(
+                case.store,
+                "epoch.activated_overlay_admission_receipt",
+                media_type="application/vnd.polisyos.epoch+json",
+            ),
+            observation_id="selected-observation",
+            observation_content_sha256="sha256:" + "b" * 64,
+            route_id="sha256:" + "c" * 64,
+            action_job_id="action-job",
+            action_worker_id="worker-a",
+            action_attempt=1,
+            action_phase_ref=_candidate_route_ref(
+                case.store, "runtime.quality.model_input_use_action_phase"
+            ),
+            authority_decision_ref=_candidate_route_ref(
+                case.store, "runtime_quality.agent_action_authority_decision"
+            ),
+            reentry_budget_window_id="d" * 64,
+            reentry_budget_window_digest="e" * 64,
+            semantic_foundry_input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                foundry_bindings_ref.model_dump(mode="python")
+            ),
+        )
+        successor_ref = persist_model_input_successor_selection(case.store, successor)
+        assert read_model_input_successor_selection(case.store, successor_ref) == successor
+        assert (
+            verify_model_input_routing_use_decision_current(
+                case.store,
+                use_decision_ref,
+                expected_report_ref=route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            == decision
+        )
+
+        unrelated_fields["title"] = "Unrelated row after use decision."
+        unrelated_after = build_authority_entry(**unrelated_fields)
+        _replace_authority_registry(authority, (selected_entry, unrelated_after))
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_use_decision_currentness_mismatch",
+        ):
+            verify_model_input_routing_use_decision_current(
+                case.store,
+                use_decision_ref,
+                expected_report_ref=route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+
+        # The registry revision is part of one use decision's final fence,
+        # while unrelated metadata does not change the route/query binding.
+        # Reverify the original report and issue a fresh decision for that
+        # same route without changing its selected source or envelope.
+        verified_after_unrelated_change = verify_model_input_routing_report(
+            case.store,
+            route_result.report_ref,
+            expected_obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+        )
+        assert verified_after_unrelated_change == route_result.report
+        (verified_route_after_unrelated_change,) = verified_after_unrelated_change.routes
+        assert verified_route_after_unrelated_change.query_envelope == route.query_envelope
+        assert verified_route_after_unrelated_change.source_descriptor is not None
+        assert route.source_descriptor is not None
+        assert (
+            verified_route_after_unrelated_change.source_descriptor.source_semantic_definition_ref
+            == route.source_descriptor.source_semantic_definition_ref
+        )
+        assert (
+            verified_route_after_unrelated_change.source_descriptor.source_representation_ref
+            == route.source_descriptor.source_representation_ref
+        )
+        assert (
+            verified_route_after_unrelated_change.source_descriptor.model_semantic_definition_ref
+            == route.source_descriptor.model_semantic_definition_ref
+        )
+        assert (
+            verified_route_after_unrelated_change.source_descriptor.model_representation_ref
+            == route.source_descriptor.model_representation_ref
+        )
+        fresh_use_decision_ref, fresh_decision = persist_current_model_input_routing_use_decision(
+            case.store,
+            route_result.report_ref,
+            expected_obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            route_port_id=route.port_id,
+        )
+        assert fresh_use_decision_ref != use_decision_ref
+        assert fresh_decision.routing_report_ref == route_result.report_ref
+        assert fresh_decision.query_key_sha256 == decision.query_key_sha256
+        assert (
+            fresh_decision.query_envelope_content_sha256 == decision.query_envelope_content_sha256
+        )
+        assert (
+            fresh_decision.authority_registry_content_sha256
+            == _current_authority_registry_sha256(authority)
+        )
+        assert fresh_decision.authority_registry_content_sha256 != (
+            decision.authority_registry_content_sha256
+        )
+        assert fresh_decision.query_subscriber_refs == decision.query_subscriber_refs
+        assert (
+            verify_model_input_routing_use_decision_current(
+                case.store,
+                fresh_use_decision_ref,
+                expected_report_ref=route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            == fresh_decision
+        )
+
+        # A same-query compatible countercandidate changes the semantic
+        # selection and invalidates both the report and any fresh decision.
+        countercandidate = _authority_entry(
+            port.semantic_definition_ref,
+            port.representation_ref,
+            suffix="use-decision-countercandidate",
+        )
+        _replace_authority_registry(authority, (selected_entry, unrelated_after, countercandidate))
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_report_selection_mismatch",
+        ):
+            verify_model_input_routing_report(
+                case.store,
+                route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+        with pytest.raises(ValueError, match="model_input_routing_report_selection_mismatch"):
+            persist_current_model_input_routing_use_decision(
+                case.store,
+                route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                route_port_id=route.port_id,
+            )
+        _replace_authority_registry(authority, (selected_entry, unrelated_before))
+
+        # A late same-query report written without tenant metadata is visible
+        # in the complete inventory and makes the earlier subscriber view
+        # unestablished instead of silently leaving the new report out.
+        second_basis = replace(
+            selected_basis,
+            context=selected_basis.context.model_copy(
+                update={"run_id": "model-input-routing-use-decision-late"}
+            ),
+        )
+        second_preflight = preflight_program_graph_inputs(
+            case.store,
+            interface_ref=preflight.invocation.interface_ref,
+            program_graph_ref=second_basis.program_graph_ref,
+            exec_plan_ref=second_basis.exec_plan_ref,
+            registry_bundle_ref=second_basis.registry_bundle_ref,
+            input_bindings_ref=second_basis.input_bindings_ref,
+            context=second_basis.context,
+            steps=second_basis.steps,
+            parameter_override_bundle_ref=second_basis.parameter_override_bundle_ref,
+        )
+        unscoped_store = FileSystemCAS(scoped_store.root)
+        late_report = plan_selected_model_input_routing(
+            unscoped_store,
+            obligation_set_ref=second_preflight.obligation_set_ref,
+            selected_basis=second_basis,
+            catalog_authority=authority,
+            report_version="2.0",
+        )
+        (late_route,) = late_report.report.routes
+        assert late_route.query_envelope is not None
+        assert _routing_query_key(late_route.query_envelope) == _routing_query_key(
+            route.query_envelope
+        )
+        assert late_report.report_ref != route_result.report_ref
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_use_decision_inventory_stale",
+        ):
+            verify_model_input_routing_use_decision_current(
+                case.store,
+                use_decision_ref,
+                expected_report_ref=route_result.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+
+    finally:
+        case.close()
+
+
+def test_routing_reverse_view_requires_complete_typed_query_roles() -> None:
+    """Manifest role extraction fails closed instead of treating gaps as no routes."""
+    from types import SimpleNamespace
+
+    def role(role_name: str, artifact_id: str) -> SimpleNamespace:
+        return SimpleNamespace(
+            role=role_name,
+            artifact_id=artifact_id,
+            manifest_profile_sha256="sha256:" + "a" * 64,
+        )
+
+    complete_manifest = SimpleNamespace(
+        inputs=[
+            role("selected_input_interface", "interface"),
+            role("route.0.model_semantic_definition", "definition"),
+            role("route.0.model_representation", "representation"),
+            role("route.0.measurement_binding_profile", "profile"),
+        ]
+    )
+    memberships, error = _coarse_route_memberships(complete_manifest)
+    assert error is None
+    assert memberships == (
+        (
+            ("interface", "sha256:" + "a" * 64),
+            ("definition", "sha256:" + "a" * 64),
+            ("representation", "sha256:" + "a" * 64),
+            ("profile", "sha256:" + "a" * 64),
+        ),
+    )
+
+    incomplete_manifest = SimpleNamespace(inputs=complete_manifest.inputs[:-1])
+    missing_memberships, missing_error = _coarse_route_memberships(incomplete_manifest)
+    assert missing_memberships == ()
+    assert missing_error == "model_input_routing_reverse_view_query_roles_incomplete"
+
+    malformed_manifest = SimpleNamespace(
+        inputs=[*complete_manifest.inputs, role("route.malformed.definition", "ignored")]
+    )
+    malformed_memberships, malformed_error = _coarse_route_memberships(malformed_manifest)
+    assert malformed_memberships == ()
+    assert malformed_error == "model_input_routing_reverse_view_manifest_role_invalid"
+
+    gapped_manifest = SimpleNamespace(
+        inputs=[
+            *complete_manifest.inputs,
+            role("route.2.model_semantic_definition", "definition-2"),
+            role("route.2.model_representation", "representation-2"),
+            role("route.2.measurement_binding_profile", "profile-2"),
+        ]
+    )
+    gapped_memberships, gapped_error = _coarse_route_memberships(gapped_manifest)
+    assert gapped_memberships == ()
+    assert gapped_error == "model_input_routing_reverse_view_route_roles_incomplete"
 
 
 def test_new_semantic_definition_revision_rebinds_selected_model_input(

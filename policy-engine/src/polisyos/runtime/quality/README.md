@@ -31,6 +31,12 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
 - `candidate_source_reentry_history.py` verifies persisted candidate history
   without acquiring a current lease or rerunning N5. Current-route admission
   remains with the acquisition route owner.
+- `model_input_routing.py` derives the query-scoped metadata view and persists
+  per-use decisions bound to report, query envelope, registry revision and rule.
+  `model_input_successor_selection.py` links explicit v2 selections to that
+  decision; the action service reopens it at the final protected-action fence.
+  Unrelated registry changes permit a fresh decision on the same current query,
+  while an already checked revision cannot silently authorize a later action.
 - `model_input_successor_selection.py` checks the exact historical input selected by a protected candidate N5 action.
 - `acquisition_model_transition.py` replays bounded candidate model/outcome
   changes through the existing evaluation and N5 owners.

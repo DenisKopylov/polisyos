@@ -483,6 +483,40 @@ def _read_checkpoint_selection(
     return selected
 
 
+def _verify_selected_routing_use_decision_current(
+    store: CoreJSONArtifactStore,
+    selection: SelectedModelInputSuccessorAction,
+    selected: ModelInputSuccessorSelection,
+) -> None:
+    """Reopen the persisted candidate decision and fence its current route."""
+
+    from polisyos.runtime.quality.model_input_routing import (
+        MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2,
+        verify_model_input_routing_use_decision_current,
+    )
+
+    is_v2 = selected.schema_version == "polisyos.runtime.ModelInputSuccessorSelection@2.0"
+    report_is_v2 = (
+        selection.origin.routing_report.schema_version
+        == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+    )
+    if is_v2 != report_is_v2 or (is_v2 and selected.routing_use_decision_ref is None):
+        raise ModelInputSuccessorActionError("model_input_use_routing_decision_not_selected")
+    if not is_v2:
+        return
+    decision_ref = selected.routing_use_decision_ref
+    if decision_ref is None:
+        raise ModelInputSuccessorActionError("model_input_use_routing_decision_not_selected")
+    verify_model_input_routing_use_decision_current(
+        store,
+        decision_ref,
+        expected_report_ref=selection.origin.routing_report_ref,
+        expected_obligation_set_ref=selection.origin.routing_report.obligation_set_ref,
+        selected_basis=selection.origin.selected_basis,
+        catalog_authority=selection.catalog_authority,
+    )
+
+
 def resolve_model_input_successor_history(
     control_service: ControlPlaneService,
     *,
@@ -628,7 +662,9 @@ def _materialize_semantic_successor(
 ) -> ArtifactRef:
     from polisyos.data_forge.read_api.catalog import CatalogAcquisitionOverlay
     from polisyos.runtime.quality.model_input_routing import (
+        MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2,
         materialize_routed_model_input_observation,
+        persist_current_model_input_routing_use_decision,
     )
 
     origin = selection.origin
@@ -656,6 +692,28 @@ def _materialize_semantic_successor(
     worker_id = admission.job.lease_owner
     if foundry_ref is None or not worker_id:
         raise ModelInputSuccessorActionError("model_input_use_semantic_input_not_established")
+    routing_use_decision_ref = None
+    selection_schema_version = "polisyos.runtime.ModelInputSuccessorSelection@1.0"
+    if origin.routing_report.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2:
+        if len(origin.routing_report.routes) != 1:
+            raise ModelInputSuccessorActionError("model_input_use_single_resolved_route_required")
+        (route,) = origin.routing_report.routes
+        try:
+            routing_use_decision_ref, _decision = persist_current_model_input_routing_use_decision(
+                store,
+                origin.routing_report_ref,
+                expected_obligation_set_ref=origin.routing_report.obligation_set_ref,
+                selected_basis=origin.selected_basis,
+                catalog_authority=selection.catalog_authority,
+                tenant_id=selection.tenant_id,
+                cell_id=selection.cell_id,
+                route_port_id=route.port_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ModelInputSuccessorActionError(
+                "model_input_use_routing_decision_not_established"
+            ) from exc
+        selection_schema_version = "polisyos.runtime.ModelInputSuccessorSelection@2.0"
     return persist_model_input_successor_selection(
         store,
         ModelInputSuccessorSelection(
@@ -666,6 +724,8 @@ def _materialize_semantic_successor(
             compiled_ref=origin.compiled_ref,
             blocked_execution_ref=origin.n5_execution_ref,
             routing_report_ref=origin.routing_report_ref,
+            schema_version=selection_schema_version,
+            routing_use_decision_ref=routing_use_decision_ref,
             activation_receipt_ref=selection.request.activation_receipt_ref,
             observation_id=selection.request.observation_id,
             observation_content_sha256=selection.observation_content_sha256,
@@ -712,10 +772,16 @@ def _run_model_input_use_n5(
     )
 
     def require_current_action() -> bool:
-        return (
-            currentness_resolver() is True
-            and settlement_store.resolve_reentry_budget_window_safe(window.scope) == window
-        )
+        if currentness_resolver() is not True:
+            return False
+        try:
+            selected_input = read_model_input_successor_selection(
+                store, checkpoint.semantic_successor_ref
+            )
+            _verify_selected_routing_use_decision_current(store, selection, selected_input)
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return False
+        return settlement_store.resolve_reentry_budget_window_safe(window.scope) == window
 
     observation = JointSimulationPort(
         repo_root=selection.catalog_source.repo_root,
@@ -778,6 +844,7 @@ def run_model_input_use_action(
         previous = _read_checkpoint_selection(
             store, selection=selection, checkpoint=checkpoint, phase=phase
         )
+        _verify_selected_routing_use_decision_current(store, selection, previous)
         window = _resolve_action_budget_window(
             control, selection=selection, phase_ref=checkpoint.phase_ref, open_if_missing=False
         )
@@ -797,6 +864,7 @@ def run_model_input_use_action(
         )
         if currentness_resolver() is not True:
             raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+        _verify_selected_routing_use_decision_current(store, selection, previous)
         return checkpoint
 
     phase_ref = persist_model_input_use_action_phase(store, phase)
@@ -850,4 +918,8 @@ def run_model_input_use_action(
     )
     if currentness_resolver() is not True:
         raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+    persisted_selection = read_model_input_successor_selection(
+        store, completed.semantic_successor_ref
+    )
+    _verify_selected_routing_use_decision_current(store, selection, persisted_selection)
     return completed

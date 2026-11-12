@@ -100,6 +100,8 @@ def test_model_input_phase_and_selection_reopen_exact_wire_and_profile(tmp_path:
         payload = read_core_json_artifact(reopened, ref).value
         assert schema is not None and schema.version == "1.0"
         assert payload["schema_version"] == wire_version
+        if expected is selection:
+            assert "routing_use_decision_ref" not in payload
         options = PutOptions(
             kind=manifest.kind,
             media_type=manifest.media_type,
@@ -117,7 +119,17 @@ def test_model_input_phase_and_selection_reopen_exact_wire_and_profile(tmp_path:
         (issue,) = wrong_wire.value.errors()
         assert issue["type"] == "literal_error"
         assert issue["input"] == "1.0"
-        assert issue["ctx"]["expected"] == repr(wire_version)
+        if expected is selection:
+            assert (
+                repr("polisyos.runtime.ModelInputSuccessorSelection@1.0")
+                in issue["ctx"]["expected"]
+            )
+            assert (
+                repr("polisyos.runtime.ModelInputSuccessorSelection@2.0")
+                in issue["ctx"]["expected"]
+            )
+        else:
+            assert issue["ctx"]["expected"] == repr(wire_version)
 
         other_profile = store.put_bytes(
             store.get_bytes(ref),
@@ -126,8 +138,28 @@ def test_model_input_phase_and_selection_reopen_exact_wire_and_profile(tmp_path:
         )
         assert other_profile.artifact_id == ref.artifact_id
         assert other_profile.manifest_profile_sha256 != ref.manifest_profile_sha256
+        profile_error = (
+            "canon_profile_typed_artifact_schema_version_mismatch"
+            if expected is selection
+            else "canon_profile_typed_artifact_schema_version_unsupported"
+        )
         with pytest.raises(
             CanonicalProfileRefusalError,
-            match="canon_profile_typed_artifact_schema_version_unsupported",
+            match=profile_error,
         ):
             read(reopened, other_profile)
+
+    v2_payload = selection.model_dump(mode="python")
+    v2_payload["schema_version"] = "polisyos.runtime.ModelInputSuccessorSelection@2.0"
+    with pytest.raises(
+        ValidationError,
+        match="model_input_successor_use_decision_version_mismatch",
+    ):
+        ModelInputSuccessorSelection.model_validate(v2_payload)
+    decision_ref = _selected_input(store, "runtime.quality.model_input_routing_use_decision")
+    v2_payload["routing_use_decision_ref"] = decision_ref
+    v2_selection = ModelInputSuccessorSelection.model_validate(v2_payload)
+    assert v2_selection.routing_use_decision_ref == decision_ref
+    assert v2_selection.model_dump(mode="python")[
+        "routing_use_decision_ref"
+    ] == decision_ref.model_dump(mode="python")

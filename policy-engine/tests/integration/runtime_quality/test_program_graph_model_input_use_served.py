@@ -66,6 +66,7 @@ from polisyos.runtime.http.services.control import generation_cycle as generatio
 from polisyos.runtime.http.services.control.generation_cycle import (
     CompiledRecursiveGenerationCycleRun,
 )
+from polisyos.runtime.http.services import model_input_successor_action as successor_action_owner
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
     ModelInputSuccessorActionRequest,
@@ -81,7 +82,13 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationN5ExecutionV5,
     parse_generic_cycle_simulation_n5_execution,
 )
-from polisyos.runtime.quality.model_input_routing import read_model_input_routing_report
+from polisyos.runtime.quality.model_input_routing import (
+    MODEL_INPUT_ROUTING_COMPATIBILITY_RULE_VERSION,
+    MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2,
+    _routing_query_key,
+    read_model_input_routing_report,
+    read_model_input_routing_use_decision,
+)
 from polisyos.runtime.quality.model_input_successor_selection import (
     persist_model_input_successor_selection,
     read_model_input_successor_selection,
@@ -416,6 +423,9 @@ def _assert_foundry_successor(
         target_representation_manifest = store.get_manifest(
             correspondence.target_representation_ref
         )
+        assert source_representation.schema_version == (
+            "polisyos.catalog.variable_representation.v1"
+        )
         assert source_representation.methodology_ref is None
         assert target_representation.schema_version == (
             "polisyos.catalog.variable_representation.v2"
@@ -446,6 +456,21 @@ def _assert_foundry_successor(
         verified_limitations = result.verified_semantic_input_limitation_codes
         assert verified_limitations is not None
         assert "optional_axis_unknown:methodology_ref" in verified_limitations
+    else:
+        source_representation = load_variable_representation(
+            store, correspondence.source_representation_ref
+        )
+        target_representation = load_variable_representation(
+            store, correspondence.target_representation_ref
+        )
+        assert source_representation.schema_version == (
+            "polisyos.catalog.variable_representation.v1"
+        )
+        assert target_representation.schema_version == (
+            "polisyos.catalog.variable_representation.v1"
+        )
+        assert source_representation.methodology_ref is None
+        assert target_representation.methodology_ref is None
     (route,) = read_model_input_routing_report(store, mutation.routing_report_ref).routes
     assert artifact_ref_identity_key(route.obligation_ref) == artifact_ref_identity_key(
         measurement.model_input_obligation_ref
@@ -471,6 +496,83 @@ def _assert_foundry_successor(
             )
             assert float(state.government_balance) == expected
         assert trajectory.points[-1].outcomes[_OUTCOME] == _EXPECTED_BALANCES[-1]
+
+
+def _assert_routing_use_selection(
+    store: FileSystemCAS,
+    *,
+    mutation: ModelInputSuccessorActionRequest,
+    checkpoint: ModelInputUseActionCheckpoint,
+    run_id: str,
+    source_job_id: str,
+    action_job_id: str,
+    expected_registry_sha256: str,
+) -> None:
+    """Reopen the public action's exact selection and any linked current-use decision."""
+    selection = read_model_input_successor_selection(store, checkpoint.semantic_successor_ref)
+    report = read_model_input_routing_report(store, mutation.routing_report_ref)
+    assert report.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+    assert selection.schema_version == "polisyos.runtime.ModelInputSuccessorSelection@2.0"
+    assert selection.tenant_id == served.TENANT
+    assert selection.cell_id == served.CELL
+    assert selection.run_id == run_id
+    assert selection.source_job_id == source_job_id
+    assert selection.action_job_id == action_job_id
+    assert selection.compiled_ref == mutation.compiled_ref
+    assert selection.blocked_execution_ref == mutation.blocked_execution_ref
+    assert selection.routing_report_ref == mutation.routing_report_ref
+    assert selection.activation_receipt_ref == mutation.activation_receipt_ref
+    assert selection.observation_id == mutation.observation_id
+
+    manifest = store.get_manifest(checkpoint.semantic_successor_ref)
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == "2.0"
+    assert manifest.producer is not None
+    assert manifest.producer.version == "2.0"
+    assert manifest.tenant_context is not None
+    assert manifest.tenant_context.tenant_id == served.TENANT
+    assert manifest.tenant_context.cell_id == served.CELL
+    decision_ref = selection.routing_use_decision_ref
+    assert decision_ref is not None
+    decision = read_model_input_routing_use_decision(store, decision_ref)
+    (route,) = report.routes
+    assert route.query_envelope is not None
+    assert route.source_descriptor is not None
+    assert route.disposition == "resolved"
+    assert len(report.routes) == 1
+    assert decision.routing_report_ref == mutation.routing_report_ref
+    assert decision.route_port_id == route.port_id
+    assert decision.query_key_sha256 == _routing_query_key(route.query_envelope).sha256
+    assert decision.query_envelope_content_sha256 == route.query_envelope.content_sha256
+    assert decision.authority_registry_content_sha256 == (
+        route.source_descriptor.authority_registry_content_sha256
+    )
+    assert decision.authority_registry_content_sha256 == expected_registry_sha256
+    assert decision.compatibility_rule_version == MODEL_INPUT_ROUTING_COMPATIBILITY_RULE_VERSION
+    assert decision.active_tenant_id == served.TENANT
+    assert decision.active_cell_id == served.CELL
+    assert decision.authority_purpose == "candidate_model_input_route_recheck_only"
+    linked = tuple(
+        item
+        for item in manifest.inputs
+        if item.role == "model_input_routing_use_decision"
+    )
+    assert len(linked) == 1
+    assert linked[0].artifact_id == decision_ref.artifact_id
+    assert linked[0].manifest_profile_sha256 == decision_ref.manifest_profile_sha256
+    decision_manifest = store.get_manifest(decision_ref)
+    assert decision_manifest.artifact_schema is not None
+    assert decision_manifest.artifact_schema.version == "1.0"
+    assert decision_manifest.tenant_context is not None
+    assert decision_manifest.tenant_context.tenant_id == served.TENANT
+    assert decision_manifest.tenant_context.cell_id == served.CELL
+    (report_input,) = tuple(
+        item for item in decision_manifest.inputs if item.role == "routing_report"
+    )
+    assert report_input.artifact_id == mutation.routing_report_ref.artifact_id
+    assert report_input.manifest_profile_sha256 == (
+        mutation.routing_report_ref.manifest_profile_sha256
+    )
 
 
 def _assert_semantic_input_selection_refusals(
@@ -1076,8 +1178,81 @@ def _run_activated_held_out_stock_scenario(
                 )
                 assert execute.status_code == 200, execute.text
                 assert execute.json()["job_id"] == action_job_id
+                final_fence_controls = {"exercised": False}
+                verify_selected_routing_use_decision = (
+                    successor_action_owner._verify_selected_routing_use_decision_current
+                )
+
+                def verify_with_pre_n5_controls(
+                    selected_store: FileSystemCAS,
+                    selected_action: Any,
+                    selected_record: Any,
+                ) -> None:
+                    verify_selected_routing_use_decision(
+                        selected_store, selected_action, selected_record
+                    )
+                    if final_fence_controls["exercised"]:
+                        return
+                    assert selected_record.routing_use_decision_ref is not None
+                    persisted_job = control._control_store.get_job(action_job_id)
+                    assert persisted_job is not None and persisted_job.state == "running"
+                    persisted_checkpoint = ModelInputUseActionCheckpoint.model_validate(
+                        persisted_job.progress["model_input_use"]
+                    )
+                    assert persisted_checkpoint.execution_ref is None
+                    assert persisted_checkpoint.result_ref is None
+                    _assert_routing_use_selection(
+                        selected_store,
+                        mutation=mutation,
+                        checkpoint=persisted_checkpoint,
+                        run_id=run_id,
+                        source_job_id=job.job_id,
+                        action_job_id=action_job_id,
+                        expected_registry_sha256=registry.content_sha256,
+                    )
+                    ledger = control.llm_producer_settlement_store._ledger
+                    reservations_before_controls = ledger.snapshot().invocation_reservations
+                    progress_before_controls = persisted_job.progress
+                    try:
+                        registry_path.write_text(updated.model_dump_json(), encoding="utf-8")
+                        with pytest.raises(
+                            ValueError,
+                            match="model_input_routing_use_decision_currentness_mismatch",
+                        ):
+                            verify_selected_routing_use_decision(
+                                selected_store, selected_action, selected_record
+                            )
+                    finally:
+                        registry_path.write_bytes(registry_bytes)
+
+                    decision_blob, _ = selected_store._paths(
+                        selected_record.routing_use_decision_ref.artifact_id
+                    )
+                    withheld_decision = tmp_path / "withheld-routing-use-decision"
+                    decision_blob.rename(withheld_decision)
+                    try:
+                        with pytest.raises(
+                            (FileNotFoundError, CanonicalProfileRefusalError)
+                        ):
+                            verify_selected_routing_use_decision(
+                                selected_store, selected_action, selected_record
+                            )
+                    finally:
+                        withheld_decision.rename(decision_blob)
+                    assert ledger.snapshot().invocation_reservations == (
+                        reservations_before_controls
+                    )
+                    assert control._control_store.get_job(action_job_id).progress == (
+                        progress_before_controls
+                    )
+                    final_fence_controls["exercised"] = True
+
+                monkeypatch.setattr(
+                    successor_action_owner,
+                    "_verify_selected_routing_use_decision_current",
+                    verify_with_pre_n5_controls,
+                )
                 try:
-                    registry_path.write_text(updated.model_dump_json(), encoding="utf-8")
                     assert (
                         dispatch_one_control_job(
                             store=control._control_store,
@@ -1088,12 +1263,22 @@ def _run_activated_held_out_stock_scenario(
                     )
                 finally:
                     registry_path.write_bytes(registry_bytes)
+                assert final_fence_controls["exercised"]
                 action = control._control_store.get_job(action_job_id)
                 assert action is not None and action.state == "completed", (
                     None if action is None else action.error_message
                 )
                 checkpoint = ModelInputUseActionCheckpoint.model_validate(
                     action.progress["model_input_use"]
+                )
+                _assert_routing_use_selection(
+                    store,
+                    mutation=mutation,
+                    checkpoint=checkpoint,
+                    run_id=run_id,
+                    source_job_id=job.job_id,
+                    action_job_id=action_job_id,
+                    expected_registry_sha256=registry.content_sha256,
                 )
                 assert (
                     len(

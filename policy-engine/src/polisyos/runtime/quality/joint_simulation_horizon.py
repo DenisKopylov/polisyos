@@ -3176,11 +3176,13 @@ def bind_world_state_consumption(
 _RECEIPT_MEMO: ContextVar[dict[object, bytes] | None] = ContextVar(
     "joint_simulation_receipt_operation", default=None
 )
-_RECEIPT_CAS_BINDING: ContextVar[tuple[bytes, object, str, int] | None] = ContextVar(
-    "joint_simulation_receipt_cas_binding", default=None
+_RECEIPT_CAS_BINDING: ContextVar[tuple[bytes, object, str, int, object, object, object] | None] = (
+    ContextVar("joint_simulation_receipt_cas_binding", default=None)
 )
 _RECEIPT_MEMO_MAX_ENTRIES = 8
 _RECEIPT_MEMO_MAX_BYTES = 32 * 1024 * 1024
+_NATIVE_GY_HASH = gy_content_hash
+_NATIVE_GY_RULE_IDENTITY = gy_content_hash_operation_rule_identity()
 
 
 @contextmanager
@@ -3227,19 +3229,61 @@ def _cas_receipt_verification_binding(
     """Bind only freshly verified selected CAS bytes during the current read."""
     from polisyos.core.artifacts import CanonInfo
 
-    if (
-        _RECEIPT_MEMO.get() is None
-        or type(payload_bytes) is not bytes
-        or type(canon) is not CanonInfo
-        or canon.name != "polisyos.canon.json"
-    ):
-        yield
-        return
-    token = _RECEIPT_CAS_BINDING.set((payload_bytes, identity, canon.version, canon.max_depth))
+    token = _RECEIPT_CAS_BINDING.set(None)
     try:
+        if (
+            _RECEIPT_MEMO.get() is not None
+            and type(payload_bytes) is bytes
+            and len(payload_bytes) <= _RECEIPT_MEMO_MAX_BYTES
+            and type(canon) is CanonInfo
+            and canon.name == "polisyos.canon.json"
+        ):
+            try:
+                rules = _receipt_rule_identity()
+                decoded = from_canonical_bytes(
+                    payload_bytes, max_depth=canon.max_depth, version=canon.version
+                )
+                if type(decoded) is not dict or "receipt" not in decoded:
+                    raise ValueError("receipt_binding_invalid")
+                receipt = decoded.pop("receipt")
+                frozen_payload = _freeze_receipt_json(decoded)
+                frozen_receipt = _freeze_receipt_json(receipt)
+                if _receipt_rule_identity() != rules:
+                    raise ValueError("receipt_binding_rule_changed")
+            except (TypeError, ValueError, RecursionError):
+                pass
+            else:
+                _RECEIPT_CAS_BINDING.set(
+                    (
+                        payload_bytes,
+                        identity,
+                        canon.version,
+                        canon.max_depth,
+                        rules,
+                        frozen_payload,
+                        frozen_receipt,
+                    )
+                )
         yield
     finally:
         _RECEIPT_CAS_BINDING.reset(token)
+
+
+def _freeze_receipt_json(value: object) -> object:
+    """Detach and freeze the native JSON tree decoded inside one CAS binding."""
+    if type(value) is dict:
+        if any(type(key) is not str for key in value):
+            raise ValueError("receipt_binding_invalid_key")
+        return types.MappingProxyType(
+            {key: _freeze_receipt_json(item) for key, item in value.items()}
+        )
+    if type(value) is list:
+        return tuple(_freeze_receipt_json(item) for item in value)
+    if type(value) is float and not math.isfinite(value):
+        raise ValueError("receipt_binding_nonfinite")
+    if type(value) not in (str, int, float, bool, type(None)):
+        raise ValueError("receipt_binding_invalid_value")
+    return value
 
 
 def _same_exact_json(left: object, right: object) -> bool:
@@ -3247,6 +3291,16 @@ def _same_exact_json(left: object, right: object) -> bool:
     pending = [(left, right)]
     while pending:
         a, b = pending.pop()
+        if type(a) is types.MappingProxyType and type(b) is dict:
+            if a.keys() != b.keys():
+                return False
+            pending.extend((a[key], b[key]) for key in a)
+            continue
+        if type(a) is tuple and type(b) is list:
+            if len(a) != len(b):
+                return False
+            pending.extend(zip(a, b, strict=True))
+            continue
         if type(a) is not type(b):
             return False
         if type(a) is dict:
@@ -3322,19 +3376,15 @@ def _receipt_cas_memo_key(
     memo, binding = _RECEIPT_MEMO.get(), _RECEIPT_CAS_BINDING.get()
     if memo is None or binding is None:
         return None
-    raw, identity, version, max_depth = binding
-    if len(raw) > _RECEIPT_MEMO_MAX_BYTES:
-        return None
+    raw, identity, version, max_depth, rules, frozen_payload, frozen_receipt = binding
     try:
-        decoded = from_canonical_bytes(raw, max_depth=max_depth, version=version)
-        if type(decoded) is not dict or "receipt" not in decoded:
+        if _receipt_rule_identity() != rules:
             return None
-        raw_receipt = decoded.pop("receipt")
-        if not _same_exact_json(decoded, payload) or not _same_exact_json(
-            raw_receipt, receipt.model_dump(mode="json")
+        if not _same_exact_json(frozen_payload, payload) or not _same_exact_json(
+            frozen_receipt, receipt.model_dump(mode="json")
         ):
             return None
-        key = (identity, raw, version, max_depth, _receipt_rule_identity())
+        key = (identity, raw, version, max_depth, rules)
         hash(key)
         return key
     except (TypeError, ValueError, RecursionError):
@@ -3985,7 +4035,17 @@ class JointSimulationHorizonController:
                 # Reconstruct and verify their complete serialized projection.
                 payload = actual
             verify_simulation_receipt(result.receipt, payload)
-            if gy_content_hash(payload) != gy_content_hash(actual):
+            try:
+                _receipt_rule_identity()
+                exactly_equal = (
+                    _NATIVE_GY_RULE_IDENTITY is not None
+                    and gy_content_hash is _NATIVE_GY_HASH
+                    and gy_content_hash_operation_rule_identity() == _NATIVE_GY_RULE_IDENTITY
+                    and _same_exact_json(payload, actual)
+                )
+            except (TypeError, ValueError, RecursionError):
+                exactly_equal = False
+            if not exactly_equal and gy_content_hash(payload) != gy_content_hash(actual):
                 raise ValueError("result_model_receipt_payload_mismatch")
             if (
                 result.world_model_record_ref != request.world_model_record_ref

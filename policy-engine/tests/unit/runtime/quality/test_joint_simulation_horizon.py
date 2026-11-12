@@ -867,53 +867,78 @@ def test_operation_receipt_memo_with_explicit_retained_selected_cas(
 
     fixture_root = os.environ.get("POLISYOS_TEST_RECEIPT_RETAINED_CAS")
     selected_json = os.environ.get("POLISYOS_TEST_RECEIPT_COMPILED_REF")
+    selected_inputs = os.environ.get("POLISYOS_TEST_RECEIPT_SELECTED_INPUTS")
     tenant = os.environ.get("POLISYOS_TEST_RECEIPT_TENANT")
     cell = os.environ.get("POLISYOS_TEST_RECEIPT_CELL")
-    if not fixture_root or not selected_json or not tenant or not cell:
-        pytest.skip("explicit retained CAS, compiled ref, tenant and cell are required")
-    compiled_ref = ArtifactRef.model_validate_json(selected_json)
+    if not fixture_root or not (selected_json or selected_inputs) or not tenant or not cell:
+        pytest.skip("explicit retained CAS, selected refs, tenant and cell are required")
     store = FileSystemCAS.open_existing_read_only(Path(fixture_root))
     calls: list[int] = []
     verification_entries: list[int] = []
+    gy_calls: list[int] = []
+    selected_gy_calls: list[int] = []
+    binding_decodes: list[int] = []
     monitoring = sys.monitoring
     tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
     monitoring.use_tool_id(tool_id, "receipt-retained-test")
 
     code = owner.build_content_bound_simulation_receipt.__code__
     verify_code = owner.verify_simulation_receipt.__code__
+    gy_code = owner.gy_content_hash.__code__
+    decode_code = owner.from_canonical_bytes.__code__
+    selected_code = owner.JointSimulationHorizonController.validate_selected_result.__code__
+    binding_code = owner._cas_receipt_verification_binding.__wrapped__.__code__
 
     def counted(observed_code: object, _offset: int) -> None:
         if observed_code is code:
             calls.append(1)
         elif observed_code is verify_code:
             verification_entries.append(1)
+        elif observed_code is gy_code:
+            gy_calls.append(1)
+            if sys._getframe(1).f_back.f_code is selected_code:
+                selected_gy_calls.append(1)
+        elif observed_code is decode_code and sys._getframe(1).f_back.f_code is binding_code:
+            binding_decodes.append(1)
 
     monitoring.register_callback(tool_id, monitoring.events.PY_START, counted)
     monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
     monitoring.set_local_events(tool_id, verify_code, monitoring.events.PY_START)
+    monitoring.set_local_events(tool_id, gy_code, monitoring.events.PY_START)
+    monitoring.set_local_events(tool_id, decode_code, monitoring.events.PY_START)
 
     def reset_monitoring() -> None:
         monitoring.set_local_events(tool_id, code, 0)
         monitoring.set_local_events(tool_id, verify_code, 0)
+        monitoring.set_local_events(tool_id, gy_code, 0)
+        monitoring.set_local_events(tool_id, decode_code, 0)
         monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
         monitoring.free_tool_id(tool_id)
 
     request.addfinalizer(reset_monitoring)
     with tenant_scope(None, tenant_id=tenant, cell_id=cell):
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            load_core_json_artifact(store, compiled_ref)
-        )
-        cycles = tuple(
-            cycle
-            for leaf in compiled.recursive_run.leaf_nodes
-            if leaf.cycle_run is not None
-            for cycle in leaf.cycle_run.cycles
-        )
-        assert len(cycles) == 1
-        simulation = cycles[0].simulation
-        input_ref = simulation.candidate_simulation_n5_input_ref
-        result_ref = simulation.simulation_result_ref
-        assert input_ref is not None and result_ref is not None
+        if selected_inputs is not None:
+            selected = json.loads(Path(selected_inputs).read_text())
+            assert selected["tenant_id"] == tenant and selected["cell_id"] == cell
+            input_ref = ArtifactRef.model_validate(selected["input"]["ref"])
+            result_ref = ArtifactRef.model_validate(selected["result"]["ref"])
+        else:
+            assert selected_json is not None
+            compiled_ref = ArtifactRef.model_validate_json(selected_json)
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                load_core_json_artifact(store, compiled_ref)
+            )
+            cycles = tuple(
+                cycle
+                for leaf in compiled.recursive_run.leaf_nodes
+                if leaf.cycle_run is not None
+                for cycle in leaf.cycle_run.cycles
+            )
+            assert len(cycles) == 1
+            simulation = cycles[0].simulation
+            input_ref = simulation.candidate_simulation_n5_input_ref
+            result_ref = simulation.simulation_result_ref
+            assert input_ref is not None and result_ref is not None
         input_record = CandidateSimulationN5InputV5.model_validate(
             load_core_json_artifact(store, input_ref)
         )
@@ -927,6 +952,9 @@ def test_operation_receipt_memo_with_explicit_retained_selected_cas(
         )
         calls.clear()
         verification_entries.clear()
+        gy_calls.clear()
+        selected_gy_calls.clear()
+        binding_decodes.clear()
         start = perf_counter()
         with owner._receipt_verification_operation():
             first = load_joint_simulation_result(result_ref, store=store, expected_request=expected)
@@ -937,6 +965,9 @@ def test_operation_receipt_memo_with_explicit_retained_selected_cas(
             )
             total_elapsed = perf_counter() - start
             two_load_entries = len(verification_entries)
+            two_load_gy_calls = len(gy_calls)
+            assert len(selected_gy_calls) == 0
+            assert len(binding_decodes) == 2
             assert first_count == 1 and len(calls) == 1
             assert two_load_entries >= 4
             assert first is not second and first.receipt == second.receipt
@@ -973,6 +1004,7 @@ def test_operation_receipt_memo_with_explicit_retained_selected_cas(
         print(
             f"RETAINED_RECEIPT_BUILDS first={first_count} two_load_builds=1 "
             f"two_load_verifications={two_load_entries} two_load_hits={two_load_entries - 1} "
+            f"gy_calls={two_load_gy_calls} selected_gy_calls=0 binding_decodes=2 "
             f"first_seconds={first_elapsed:.6f} two_loads_seconds={total_elapsed:.6f}",
             flush=True,
         )
@@ -1140,7 +1172,40 @@ def test_joint_simulation_v4_result_replays_byte_exactly_with_interaction_summar
             close()
 
 
-def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> None:
+def _paired_sampling_result_for_wire(tmp_path: Path, wire: str) -> JointSimulationResult:
+    """Build a current result or a schema-qualified v4 fixture freshly read from CAS."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import persist_joint_simulation_result
+    from tests.unit.remediation.test_cyc_02 import _persist_legacy_n5_result
+
+    result = JointSimulationHorizonController().run(
+        _request().model_copy(
+            update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+        )
+    )
+    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v5"
+    if wire == "v5":
+        return result
+    assert wire == "v4"
+    store = FileSystemCAS(tmp_path / "historical-paired-sampling")
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            current_ref = persist_joint_simulation_result(result, store=store)
+        _, historical = _persist_legacy_n5_result(
+            result, store=store, source_ref=current_ref, schema_version=4
+        )
+        assert historical.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        return historical
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+@pytest.mark.parametrize("wire", ["v4", "v5"])
+def test_sampling_and_interaction_summaries_are_recomputed_and_required(
+    tmp_path: Path, wire: str
+) -> None:
     """B21: signed summary markers cannot replace the selected draw substance."""
 
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -1148,12 +1213,9 @@ def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> 
         build_content_bound_simulation_receipt,
     )
 
-    request = _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
-    )
-    result = JointSimulationHorizonController().run(request)
+    result = _paired_sampling_result_for_wire(tmp_path, wire)
     payload = result.content_bound_payload()
-    assert payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    assert payload["schema_version"] == f"policyos.runtime.joint_simulation_horizon.{wire}"
     point = payload["trajectories"][0]["points"][0]
     summary = point["replication_sampling"]
     assert summary["status"] == "estimated"
@@ -1240,7 +1302,8 @@ def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> 
         )
 
 
-def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> None:
+@pytest.mark.parametrize("wire", ["v4", "v5"])
+def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path, wire: str) -> None:
     """A content-bound CAS payload cannot replace the selected draw mean."""
 
     from polisyos.core.canon import CanonSpec
@@ -1251,12 +1314,8 @@ def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> No
         load_joint_simulation_result,
     )
 
-    result = JointSimulationHorizonController().run(
-        _request().model_copy(
-            update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
-        )
-    )
-    forged = result.content_bound_payload()
+    result = _paired_sampling_result_for_wire(tmp_path, wire)
+    forged = copy.deepcopy(result.content_bound_payload())
     point = forged["trajectories"][0]["points"][0]
     key = next(iter(point["outcomes"]))
     point["outcomes"][key] += 1.0
@@ -1275,7 +1334,7 @@ def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> No
                 media_type="application/json",
                 schema=SchemaInfo(
                     name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
-                    version="4.0.0",
+                    version={"v4": "4.0.0", "v5": "5.0.0"}[wire],
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
@@ -1290,7 +1349,10 @@ def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> No
             close()
 
 
-def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map() -> None:
+@pytest.mark.parametrize("wire", ["v4", "v5"])
+def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map(
+    tmp_path: Path, wire: str
+) -> None:
     """A supplied malformed draw map returns a typed issue, not an uncaught error."""
 
     from tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract import (
@@ -1298,18 +1360,32 @@ def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map()
         _replication_sampling_projection,
     )
 
-    result = JointSimulationHorizonController().run(
-        _request().model_copy(
-            update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
-        )
-    )
+    result = _paired_sampling_result_for_wire(tmp_path, wire)
     projection = _replication_sampling_projection(result)
-    assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    assert projection["schema_version"] == f"policyos.runtime.joint_simulation_horizon.{wire}"
     projection["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]["outcomes"] = (
         None
     )
     issues = _replication_sampling_issues(projection, expected_count=2)
-    assert {issue["code"] for issue in issues} == {"replication_sample_metric_mapping_invalid"}
+    if wire == "v4":
+        assert {issue["code"] for issue in issues} == {"replication_sample_metric_mapping_invalid"}
+    else:
+        # This separate legacy quality gate does not yet support v5. The typed
+        # v5 reader must nevertheless reject malformed draw values itself.
+        assert {issue["code"] for issue in issues} == {"replication_schema_version_not_v4"}
+        payload = copy.deepcopy(result.content_bound_payload())
+        payload["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0][
+            "outcomes"
+        ] = None
+        receipt = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=payload,
+            diagnostics=payload["diagnostics"],
+        )
+        with pytest.raises(ValueError, match="outcomes"):
+            JointSimulationResult.model_validate(
+                {**payload, "receipt": receipt.model_dump(mode="json")}
+            )
 
 
 def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
@@ -3693,12 +3769,23 @@ def test_system_dynamics_grid_coverage_uses_real_rows_and_retains_limits(
     controller = JointSimulationHorizonController(method_registry=MethodRegistry._create_fresh())
 
     if producer_rows == "empty":
-        with pytest.raises(
-            JointSimulationControllerError,
-            match="trajectory_coverage_incomplete",
-        ):
-            controller.run(request)
-        assert len(emitted_by_inflows) == 1
+        for engine_plan in (request.engine_plan, request.engine_plan[:1]):
+            emitted_by_inflows.clear()
+            result = controller.run(request.model_copy(update={"engine_plan": engine_plan}))
+            assert result.engine_decisions[0].decision == "selected"
+            assert result.engine_decisions[0].engine_kind == "system_dynamics"
+            assert result.trajectories == ()
+            assert result.diagnostics["engine_run_claimed"] is False
+            assert result.diagnostics["physical_work_interruption"] == "n5_physical_work_failed"
+            assert (
+                "n5_physical_work_failed"
+                in result.promotion_ready_value_packet["authority_blockers"]
+            )
+            assert len(result.physical_work_observations) == 1
+            work = result.physical_work_observations[0]
+            assert work.status == "failed"
+            assert work.error_code == "trajectory_coverage_incomplete"
+            assert len(emitted_by_inflows) == 1
         only_emission = next(iter(emitted_by_inflows.values()))
         assert only_emission["requested_dt"] == 2.0
         assert only_emission["used_dt"] == 2.0
@@ -4371,3 +4458,111 @@ def test_semantic_source_replay_uses_all_owner_codes_instead_of_copied_notes(
         )
         == expected
     )
+
+
+def test_receipt_binding_snapshot_and_selected_comparison_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """Exact fast paths cannot certify changed decoders, rules, or mutable payloads."""
+    import sys
+
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    selected_request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+    )
+    produced = JointSimulationHorizonController().run(selected_request)
+    store = FileSystemCAS(tmp_path / "binding-snapshot")
+    ref = persist_joint_simulation_result(produced, store=store)
+    raw, canon = store.get_bytes(ref), store.get_manifest(ref).canon
+    calls: list[int] = []
+    native_comparison_hashes: list[int] = []
+    code = owner.build_content_bound_simulation_receipt.__code__
+    gy_code = owner.gy_content_hash.__code__
+    selected_code = owner.JointSimulationHorizonController.validate_selected_result.__code__
+    monitoring = sys.monitoring
+    tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
+    monitoring.use_tool_id(tool_id, "receipt-snapshot-test")
+
+    def count_native(observed: object, _offset: int) -> None:
+        if observed is code:
+            calls.append(1)
+        elif observed is gy_code and sys._getframe(1).f_back.f_code is selected_code:
+            native_comparison_hashes.append(1)
+
+    monitoring.register_callback(tool_id, monitoring.events.PY_START, count_native)
+    monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
+    monitoring.set_local_events(tool_id, gy_code, monitoring.events.PY_START)
+
+    def reset_monitoring() -> None:
+        monitoring.set_local_events(tool_id, code, 0)
+        monitoring.set_local_events(tool_id, gy_code, 0)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(tool_id)
+
+    request.addfinalizer(reset_monitoring)
+    with owner._receipt_verification_operation():
+        loaded = load_joint_simulation_result(ref, store=store, expected_request=selected_request)
+        with owner._cas_receipt_verification_binding(raw, ("test",), canon=canon):
+            binding = owner._RECEIPT_CAS_BINDING.get()
+            assert binding is not None
+            with owner._cas_receipt_verification_binding(raw, ("unsupported",), canon=object()):
+                assert owner._RECEIPT_CAS_BINDING.get() is None
+                assert (
+                    owner._receipt_cas_memo_key(loaded.receipt, loaded.content_bound_payload())
+                    is None
+                )
+            assert owner._RECEIPT_CAS_BINDING.get() is binding
+            with pytest.raises(TypeError):
+                binding[5]["diagnostics"] = {}  # type: ignore[index]
+            owner.verify_simulation_receipt(loaded.receipt, loaded.content_bound_payload())
+            assert owner._receipt_cas_memo_key(loaded.receipt, loaded.content_bound_payload())
+            before = len(calls)
+            original_decoder = owner.from_canonical_bytes
+            with monkeypatch.context() as changed:
+                changed.setattr(
+                    owner, "from_canonical_bytes", lambda *a, **kw: original_decoder(*a, **kw)
+                )
+                assert (
+                    owner._receipt_cas_memo_key(loaded.receipt, loaded.content_bound_payload())
+                    is None
+                )
+                owner.verify_simulation_receipt(loaded.receipt, loaded.content_bound_payload())
+            assert len(calls) == before + 1
+
+    controller = JointSimulationHorizonController()
+    volatile = loaded.model_copy(deep=True)
+    volatile._content_payload["diagnostics"]["timestamp"] = "fixture-only volatile occurrence"
+    native_comparison_hashes.clear()
+    controller.validate_selected_result(request=selected_request, result=loaded)
+    assert native_comparison_hashes == []
+    controller.validate_selected_result(request=selected_request, result=volatile)
+    assert len(native_comparison_hashes) == 2
+    original_gy = owner.gy_content_hash
+    comparison_hashes: list[int] = []
+
+    def custom_gy(value: object) -> str:
+        if sys._getframe(1).f_code is selected_code:
+            comparison_hashes.append(1)
+        return original_gy(value)
+
+    with monkeypatch.context() as changed:
+        changed.setattr(owner, "gy_content_hash", custom_gy)
+        controller.validate_selected_result(request=selected_request, result=loaded)
+        assert len(comparison_hashes) == 2
+        controller.validate_selected_result(request=selected_request, result=volatile)
+        assert len(comparison_hashes) == 4
+    altered = loaded.model_copy(deep=True)
+    altered._content_payload["world_model_record_ref"] = "changed"
+    with pytest.raises(JointSimulationControllerError):
+        controller.validate_selected_result(request=selected_request, result=altered)
+    numeric = loaded.model_copy(deep=True)
+    numeric._content_payload["horizon"]["end"] += 1
+    with pytest.raises(JointSimulationControllerError):
+        controller.validate_selected_result(request=selected_request, result=numeric)
+    assert not owner._same_exact_json({"v": -0.0}, {"v": 0.0})
+    assert not owner._same_exact_json({"v": True}, {"v": 1})

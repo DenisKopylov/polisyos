@@ -9740,7 +9740,7 @@
               "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
             }
           },
-          "next": "Finish expected-QA freshness and independently review/compose; diagnose actual persisted B public reader without repeated N5 before another full 7/1 route. Genuine signed replay/cache follows composed source freeze. Gate A then P06–P08/Gate B; no next lane/G closure.",
+          "next": "Qualify genuine signed original/replay/cache on frozen composed source while finishing expected-QA reference; then full 7/1 and GDP reentry on actual resources. Gate A precedes P06–P08/Gate B; no next lane/G closure.",
           "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
           "foundation_composed": {
             "PASS": 48,
@@ -10142,6 +10142,82 @@
             "B": "sha256:63f2936a676f9be7f79015cd97396a6003190002c9407482a07ea7623d4f6e42",
             "output": "policy-engine/_cache/e02/lane01-v3-generations-7of1-r5/",
             "boundary": "Generation1/head4 pending; full continuation and B-reuse/C unqualified. Read-only selected-B diagnosis next, zero repeated N5."
+          },
+          "expected_QA_projection": {
+            "composed_commit": "d0105fae5c9a2c2e09563357aeddbbb1fc8810e9",
+            "purpose": "expected_qa_contract_only",
+            "guard_qualified_PASS": 9,
+            "output": "secondary:policy-engine/_cache/e02/n5-expected-qa-contract-r2/",
+            "independent_review": "GO_FINAL_NARROW_PURPOSE",
+            "final_extra_foreign_ID_case": "PYTEST_PASS_GUARD_RESOURCE_ABORT_RSS_EXIT_RACE",
+            "extra_output": "secondary:policy-engine/_cache/e02/n5-expected-qa-alias-r1/",
+            "limitations": [
+              "external_artifact_contents_not_asserted",
+              "historical_producer_identity_not_asserted",
+              "intra_result_excluded_provenance_id_alias_equality_not_compared",
+              "protected_use_not_permitted"
+            ],
+            "caller_reference_freshness": "IMPLEMENTING"
+          },
+          "post_B_reader_diagnosis": {
+            "status": "PASS_READ_ONLY_ZERO_N5",
+            "output": "policy-engine/_cache/e02/lane01-post-b-reader-cost-r1/",
+            "source_paths_unchanged": 3122,
+            "public_repeat_seconds": 2.974,
+            "public_repeat_N4_cumulative_seconds": 2.085,
+            "declared_first_seconds": 3.693,
+            "declared_repeat_seconds": 4.006,
+            "scope": "Profiled owner operations, not whole-route attribution. Separate source/input/result call-local transport and one validated content read in progress."
+          },
+          "post_Gate_A_P06_preparation": {
+            "status": "SOURCE_BACKED_ORACLE_PREPARED_IMPLEMENTATION_ORDER_PRESERVED",
+            "canonical_operator_owner": "runtime/quality/derived_observations.py",
+            "oracle": "Decimal(-0.03)*Decimal(200000000000)=Decimal(-6000000000), annual USD flow; ratio already normalized",
+            "controls": "AND operands / OR suppliers, exact role/time/base/definition/currency, stock-flow refusal, cycle/node/depth budget, shared source/cost/authority dedupe; fresh N7/Foundry consumer",
+            "current_gate_A_remaining": "Equivalent B retention/currentness/new history and changed C actual N5; old tax_rate descriptor finding belongs to different historical fixture."
+          },
+          "V5_call_local_read_transport": {
+            "composed_commit": "78139f19a2b43ebc467dd9f26548d46efe6207f7",
+            "author_commit": "4f09f305ef2ae6b8708a1bab3043e55f0a6fceac",
+            "unit_PASS": 7,
+            "independent_review": "GO_FINAL",
+            "output": "secondary:policy-engine/_cache/e02/n5-v5-source-read-owner-r2/",
+            "wall_seconds": 46.951,
+            "peak_sampled_rss_bytes": 1637072896,
+            "scope": "One recursive verified input/source/result transport per call; numerical reader retains selected outcome/receipt/context/lease checks. Synthetic upstream component fixture; genuine B reader benchmark pending."
+          },
+          "N6_single_content_read": {
+            "source_sha256": "f077a5171f94126e57c57198a04e171a1f85fc46e32be442d0ce2126ce78556e",
+            "test_sha256": "13a24d77fff69bb9befb0ebdca51e17d863eb95a40c9913c9144c4d3259022c4",
+            "PASS": 30,
+            "FAIL": 0,
+            "independent_review": "GO_FINAL",
+            "output": "policy-engine/_cache/e02/n5-content-declared-read-once-r1/qualified-r2/",
+            "wall_seconds": 77.215,
+            "peak_sampled_rss_bytes": 1747124224,
+            "physical_calls_final_cohort": 3,
+            "physical_calls_both_cohorts": 6,
+            "prior_cohort": "24PASS1FAIL_NAN_FIXTURE_NORMALIZED_TO_NONE_RETAINED",
+            "scope": "One historical observation/witness validation; native exact-JSON fastpositive with original hash fallback for unsupported/custom/mutated values; all current controller/profile/image/callable checks fresh."
+          },
+          "post_B_composed_read_check": {
+            "status": "PASS_EIGHT_POSITIVES_SEVEN_REFUSALS_ZERO_PROFILED_N5",
+            "output": "policy-engine/_cache/e02/lane01-post-b-reader-cost-r1/composed-r1/",
+            "base": "78139f19a2b43ebc467dd9f26548d46efe6207f7",
+            "working_source_N6_sha256": "f077a5171f94126e57c57198a04e171a1f85fc46e32be442d0ce2126ce78556e",
+            "unchanged_source_paths": 3122,
+            "wall_seconds": 73.574,
+            "peak_sampled_rss_bytes": 1638252544,
+            "public_repeat_before_after_seconds": [
+              2.974,
+              1.852
+            ],
+            "declared_repeat_before_after_seconds": [
+              4.006,
+              2.948
+            ],
+            "remaining_declared_receipt_build_seconds": 1.786,
+            "scope": "Real complete B state/result/execution/outcome/receipt; wrong scope/selected profile and two explicitly injected read-proxy faults. No CAS mutation, N5 or whole-route speed/current-authority claim."
           }
         }
       },

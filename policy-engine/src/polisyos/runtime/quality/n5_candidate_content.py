@@ -25,10 +25,10 @@ from polisyos.runtime.quality.n5_execution_basis import (
     N5ControlledCallCaptureV3,
     N5ExecutionContentWitnessV3,
     N5ProductionImage,
+    _require_n5_json_wire_domain,
     capture_n5_production_image,
     exact_n5_content_bytes,
     exact_n5_content_hash,
-    read_n5_execution_content_witness,
     snapshot_n5_callable_content_v3,
 )
 from polisyos.runtime.quality.n5_execution_profile import (
@@ -635,15 +635,31 @@ def _candidate_result_payload(result: JointSimulationResult) -> dict[str, object
     content-observation writer emits the full typed result, so a fresh model
     can reconstruct it; an existing private cache cannot hide changed fields.
     """
-    from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+    from polisyos.pdc import gy_content_hash, gy_content_hash_operation_rule_identity
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        _NATIVE_GY_HASH,
+        _NATIVE_GY_RULE_IDENTITY,
+        JointSimulationResult,
+        _freeze_receipt_json,
+        _same_exact_json,
+    )
 
     if type(result) is not JointSimulationResult:
         raise ValueError("candidate_n5_content_result_untyped")
     actual = result.model_dump(mode="json", exclude={"receipt"})
     cached = result.content_bound_payload()
-    if cached and gy_content_hash(cached) != gy_content_hash(actual):
-        raise ValueError("candidate_n5_content_result_payload_mismatch")
+    if cached:
+        try:
+            exactly_equal = (
+                _NATIVE_GY_RULE_IDENTITY is not None
+                and gy_content_hash is _NATIVE_GY_HASH
+                and gy_content_hash_operation_rule_identity() == _NATIVE_GY_RULE_IDENTITY
+                and _same_exact_json(_freeze_receipt_json(cached), actual)
+            )
+        except (TypeError, ValueError, RecursionError):
+            exactly_equal = False
+        if not exactly_equal and gy_content_hash(cached) != gy_content_hash(actual):
+            raise ValueError("candidate_n5_content_result_payload_mismatch")
     return cached or actual
 
 
@@ -658,12 +674,8 @@ def read_candidate_n5_content_observation(
 
     complete_payload = _candidate_result_payload(result)
     verify_simulation_receipt(result.receipt, complete_payload)
-    raw = result.diagnostics.get(CONTENT_OBSERVATION_KEY)
-    if type(raw) is not dict:
-        raise ValueError("candidate_n5_content_observation_missing")
-    read_n5_execution_content_witness(raw.get("witness"))
-    observation = CandidateN5ContentObservation.model_validate_json(
-        json.dumps(raw, allow_nan=False)
+    observation = _read_candidate_n5_observation_wire(
+        result.diagnostics.get(CONTENT_OBSERVATION_KEY)
     )
     if observation.input_ref_identity != artifact_ref_identity_key(input_ref):
         raise ValueError("candidate_n5_content_input_mismatch")
@@ -679,6 +691,17 @@ def read_candidate_n5_content_observation(
     if expected_request is not None:
         _require_resolved_request_binding(observation, result, expected_request)
     return observation
+
+
+def _read_candidate_n5_observation_wire(raw: object) -> CandidateN5ContentObservation:
+    """Admit inert native JSON and validate the complete nested witness once."""
+    if type(raw) is not dict:
+        raise ValueError("candidate_n5_content_observation_missing")
+    witness_wire = raw.get("witness")
+    if type(witness_wire) is not dict:
+        raise ValueError("n5_content_witness_wire_required")
+    _require_n5_json_wire_domain(witness_wire)
+    return CandidateN5ContentObservation.model_validate_json(json.dumps(raw, allow_nan=False))
 
 
 def _require_resolved_request_binding(
@@ -735,6 +758,23 @@ def read_candidate_n5_declared_implementation(
     expected_request: JointSimulationRequest | None = None,
 ) -> dict[str, object]:
     """Reconstruct the recorded numerical identity, never a historical permit."""
+    _, declared = _read_candidate_n5_declared_implementation(
+        result,
+        input_ref=input_ref,
+        prepared_configuration=prepared_configuration,
+        expected_request=expected_request,
+    )
+    return declared
+
+
+def _read_candidate_n5_declared_implementation(
+    result: JointSimulationResult,
+    *,
+    input_ref: ArtifactRef,
+    prepared_configuration: PreparedJointSimulationConfiguration,
+    expected_request: JointSimulationRequest | None = None,
+) -> tuple[CandidateN5ContentObservation, dict[str, object]]:
+    """Reconstruct the recorded numerical identity, never a historical permit."""
     if expected_request is None:
         raise ValueError("candidate_n5_content_source_request_not_established")
     observation = read_candidate_n5_content_observation(
@@ -766,7 +806,7 @@ def read_candidate_n5_declared_implementation(
     callables = tuple(dict.fromkeys(call.callable_content for call in calls))
     if len(callables) != 1:
         raise ValueError("candidate_n5_declared_callable_changed_during_run")
-    return {
+    return observation, {
         "content_image": witness.production_image.model_dump(mode="json"),
         "execution_profile": {
             "schema_version": observation.execution_profile.schema_version,
@@ -795,7 +835,7 @@ def reconcile_candidate_n5_declared_implementation(
 
     if expected_request is None:
         raise ValueError("candidate_n5_content_source_request_not_established")
-    recorded = read_candidate_n5_declared_implementation(
+    observation, recorded = _read_candidate_n5_declared_implementation(
         result,
         input_ref=input_ref,
         prepared_configuration=prepared_configuration,
@@ -806,7 +846,6 @@ def reconcile_candidate_n5_declared_implementation(
         or read_joint_simulation_configuration(current_n5_controller) != prepared_configuration
     ):
         raise ValueError("candidate_n5_intended_controller_not_established")
-    observation = read_candidate_n5_content_observation(result, input_ref=input_ref)
     selected = current_n5_controller._select_engine(expected_request)
     if (
         selected.decision.decision != "selected"

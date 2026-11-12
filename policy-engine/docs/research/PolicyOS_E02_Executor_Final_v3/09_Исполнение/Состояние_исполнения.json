@@ -9638,7 +9638,7 @@
           "g_acceptance": false
         },
         "resumption_20261112": {
-          "status": "ACTIVE_PARALLEL_LANE01_IMPLEMENTATION",
+          "status": "PAUSED_USER_REQUESTED_DAY_STOP",
           "source_at_admission": "088d6d6c47614c8f9df101adfb65f65c40aa3fcd",
           "tree_at_admission": "fd6d22a5ffeb9871a3286e90e74bcbd6b6592acb",
           "direction": "Accepted consultant decisions remain priority implementation/falsifiers; no next lane or G closure.",
@@ -9740,7 +9740,7 @@
               "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
             }
           },
-          "next": "Full 7/1 R6 and four-selector GDP route are running on frozen source2f; inspect actual final outcomes before any retry. Gate A precedes P06–P08/Gate B. Late DA06/07/08 remain in shared register; no next lane/G closure.",
+          "next": "Tomorrow: retained A/B no-N5 history/full-operation cost and authority/lease reconciliation; parallel strict typed L5 provenance producer/resolver repair; then reviewed freeze and complete continuation/GDP qualification. Gate A before P06/P07/P08; no next lane/G closure.",
           "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
           "foundation_composed": {
             "PASS": 48,
@@ -10250,7 +10250,7 @@
             "scope": "Real complete B state/result/execution/outcome/receipt; wrong scope/selected profile and two explicitly injected read-proxy faults. No CAS mutation, N5 or whole-route speed/current-authority claim."
           },
           "composed_chain_R6": {
-            "status": "RUNNING",
+            "status": "USER_STOP_INCOMPLETE",
             "source": "2f635b57707a6ee46069e870124a1e271f9b1aeb",
             "tree": "34bd5db4bfbdd9f755f2042e504c4d10744c2a32",
             "output": "secondary:policy-engine/_cache/e02/lane01-v3-generations-7of1-r6/",
@@ -10258,7 +10258,16 @@
             "wall_cap_seconds": 5100,
             "quota": "total7/protected1_UNCHANGED",
             "authority": "Existing90minute_action_approval_and_fresh60minute_exchange_bearer_UNCHANGED",
-            "semantic_verdict": "PENDING_NO_TERMINAL_OR_FULL_CHAIN_PASS"
+            "semantic_verdict": "NO_TERMINAL_B_REUSE_OR_C_VERDICT",
+            "raw_guard_status": "COMMAND_FAIL",
+            "raw_exit": -2,
+            "wall_seconds": 3493.955,
+            "peak_sampled_rss_bytes": 2028257280,
+            "unchanged_named_pins": 3694,
+            "group_quiescent": true,
+            "durable_state": "Source job complete; acquisition job still durably running; g1 reentry pending/recovery required; two distinct N5 results/two V5 executions.",
+            "junit": "NOT_EMITTED",
+            "completed_module_origins": "NOT_EMITTED"
           },
           "readers_static_final": {
             "PASS": true,
@@ -10270,12 +10279,20 @@
             "public_sync_output": "policy-engine/_cache/e02/lane01-readers-public-sync-r1/"
           },
           "gdp_fullroute_qualification": {
-            "status": "RUNNING_FOUR_SELECTORS",
+            "status": "USER_STOP_INCOMPLETE",
             "source": "2f635b57707a6ee46069e870124a1e271f9b1aeb",
             "output": "policy-engine/_cache/e02/lane01-gdp-fullroute-r1/",
             "wall_cap_seconds": 3000,
             "rss_cap_bytes": 3221225472,
-            "scope": "Inline captured WDI rows/declared synthetic coefficient; 3 source-to-N5 cases plus distinct API action5/1+freshreader/removal controls. Production rights/time/measurement/coupling remain not_established."
+            "scope": "Inline captured WDI rows/declared synthetic coefficient; 3 source-to-N5 cases plus distinct API action5/1+freshreader/removal controls. Production rights/time/measurement/coupling remain not_established.",
+            "outer_exit": 130,
+            "supervisor_status": "KEYBOARD_INTERRUPT_NO_COMPLETED_GUARD_RESULT",
+            "junit": "NOT_EMITTED",
+            "case_traceback": "NOT_EMITTED",
+            "raw_progress": "..F",
+            "unchanged_named_pins": 2991,
+            "known_groups_quiescent": "TWO_ROOT_PROCESS_TABLE_OBSERVATIONS",
+            "stop_observation": "policy-engine/_cache/e02/lane01-gdp-fullroute-r1/run/user-stop-observation.json"
           },
           "final_horizon_QA_affected_units": {
             "status": "PASS_COMPLETE_MODULE_PAIR",
@@ -10290,6 +10307,31 @@
             "unchanged_source_test_artifact_input_pins": 3127,
             "group_quiescent": true,
             "selected_module_origins": "PRIMARY_CONFIRMED"
+          },
+          "gdp_L5_provenance_gap": {
+            "status": "PRODUCER_RESOLVER_MISSING_BEFORE_N5",
+            "failure_code_observed": "epoch_scope_unresolved",
+            "artifact_kind": "l5.schema_regime_scope_relation",
+            "artifact_id": "sha256:973109844f07fb7e564114833a06d4f5c193490f3c865c271234ae6cd698736a",
+            "current_payload": "fixture note, not typed provenance evidence",
+            "Core_codec": "unresolved_reference_INTENTIONAL",
+            "existing_owner": "Core L5SchemaRegimeScopeRelation/substrate registry/semantic_epoch L5 snapshot verifier",
+            "diagnosis": "policy-engine/_cache/e02/lane01-gdp-fullroute-r1/third-readonly-diagnosis/diagnosis.json",
+            "diagnosis_sha256": "521bdeadbfd108c678875016ca97d7e39165b2bcf91ee7f2dda7f46c26fc1bb6",
+            "third_case_manifest_census": 174,
+            "third_case_distinct_artifact_kind_media": 87,
+            "third_case_V5_or_N5_views": 0,
+            "recommended_repair": "Extend existing strict versioned relation-provenance producer/resolver and semantic regime/scope/knowledge/admission joins; preserve old unresolved notes/policy gates. Test rehashed wrong scope/regime/time. No generic JSON whitelist/new invented institution.",
+            "separate_unproven_cause": "Fiscal/economic prepared scope fixture divergence"
+          },
+          "day_stop_20261112": {
+            "user_requested": true,
+            "all_local_numerical_groups_stopped": true,
+            "new_jobs_started_after_stop": 0,
+            "published_implementation": "034b256c7b8e62eca1648105d1a5c43d46ba9ce7",
+            "source_of_running_wave": "2f635b57707a6ee46069e870124a1e271f9b1aeb",
+            "resources": "About7.7GiB free,258.5MiB swap used; source/environments/production inputs retained; Trash not emptied.",
+            "no_G_acceptance_or_next_lane": true
           }
         }
       },

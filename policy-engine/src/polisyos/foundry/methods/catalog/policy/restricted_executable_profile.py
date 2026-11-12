@@ -10,10 +10,11 @@ from __future__ import annotations
 import hashlib
 import json
 import marshal
+import struct
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
-from types import CodeType, FunctionType, MethodType, ModuleType
+from types import CodeType, FunctionType, GetSetDescriptorType, MethodType, ModuleType
 from typing import Any
 
 from polisyos.foundry.methods._internal.executable_identity import (
@@ -21,7 +22,7 @@ from polisyos.foundry.methods._internal.executable_identity import (
     _signature_binding,
 )
 from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
-from polisyos.foundry.methods.base import MethodSignature
+from polisyos.foundry.methods.base import MethodContracts, MethodSignature, foundry_method
 from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
 
 _EXANTE_FQN = "policy.evaluation.ex_ante_simulation@1.0.0"
@@ -32,6 +33,7 @@ _PARAMETER_READS = ("poverty_line",)
 _SUPPORTED_PARAMETER_ORIGINS = ("signature_default", "explicit_parameter")
 _OUTPUT_SLOT = "result"
 _OUTPUT_PATH = ("mean_change",)
+_UNSUPPORTED_BINDING = object()
 
 
 def _function(value: Any) -> FunctionType | None:
@@ -40,11 +42,74 @@ def _function(value: Any) -> FunctionType | None:
     return value if isinstance(value, FunctionType) else None
 
 
+def _strict_wrapper_leaf(
+    function: FunctionType,
+    *,
+    method_class: type[Any],
+    signature: MethodSignature,
+) -> FunctionType | None:
+    """Resolve only the actual source-owned strict wrapper and its captured leaf."""
+    if function.__closure__ is None:
+        return function
+    if function.__globals__ is not foundry_method.__globals__:
+        return None
+    pending = [foundry_method.__code__]
+    seen: set[int] = set()
+    while pending:
+        code = pending.pop()
+        if id(code) in seen:
+            continue
+        seen.add(id(code))
+        if code is function.__code__:
+            break
+        pending.extend(item for item in code.co_consts if type(item) is CodeType)
+    else:
+        return None
+
+    freevars = function.__code__.co_freevars
+    cells = function.__closure__
+    if len(freevars) != len(cells) or set(freevars) != {"_contracts", "_fqn", "original_fn"}:
+        return None
+    captured: dict[str, object] = {}
+    for name, cell in zip(freevars, cells, strict=True):
+        try:
+            captured[name] = cell.cell_contents
+        except ValueError:
+            return None
+    original = captured["original_fn"]
+    contracts = captured["_contracts"]
+    metadata = type.__getattribute__(method_class, "__dict__").get("metadata")
+    try:
+        expected_contracts = object.__getattribute__(metadata, "contracts")
+    except (AttributeError, TypeError):
+        return None
+    if (
+        type(original) is not FunctionType
+        or original.__closure__ is not None
+        or captured["_fqn"] != signature.fqn
+        or contracts is not expected_contracts
+        or (contracts is not None and type(contracts) is not MethodContracts)
+        or type(function.__dict__) is not dict
+        or function.__dict__.get("__wrapped__") is not original
+    ):
+        return None
+    return original
+
+
 def _function_sha256(value: Any) -> str | None:
     """Hash executable code and ABI-shaped defaults for one Python function."""
     function = _function(value)
-    if function is None or function.__closure__ is not None:
+    if function is None:
         return None
+    if function.__closure__ is not None:
+        binding = _exact_function_binding(
+            function, active=set(), budget=[4096, 1024 * 1024], depth=0
+        )
+        if binding is None:
+            return None
+        return hashlib.sha256(
+            json.dumps(binding, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
     metadata = {
         "module": function.__module__,
         "qualname": function.__qualname__,
@@ -57,6 +122,233 @@ def _function_sha256(value: Any) -> str | None:
     digest.update(b"\x00")
     digest.update(marshal.dumps(_portable_code(function.__code__)))
     return digest.hexdigest()
+
+
+def _exact_function_binding(
+    function: FunctionType,
+    *,
+    active: set[int],
+    budget: list[int],
+    depth: int,
+) -> dict[str, object] | None:
+    """Bind a closure-bearing function through a bounded exact native domain.
+
+    This admits the strict ``foundry_method`` wrapper and its inert captured
+    contract data without treating a wrapper name or ``__wrapped__`` pointer as
+    its implementation. Opaque, cyclic, mutable, or unsupported captures are
+    unavailable rather than reduced to a type label.
+    """
+    if depth > 40 or type(function) is not FunctionType or id(function) in active:
+        return None
+    active.add(id(function))
+    try:
+        module = function.__module__
+        qualname = function.__qualname__
+        if (module is not None and type(module) is not str) or type(qualname) is not str:
+            return None
+        budget[1] -= len(qualname.encode("utf-8"))
+        if module is not None:
+            budget[1] -= len(module.encode("utf-8"))
+        code_bytes = marshal.dumps(_portable_code(function.__code__))
+        budget[1] -= len(code_bytes)
+        if budget[1] < 0:
+            return None
+        defaults = _exact_binding_value(
+            function.__defaults__, active=active, budget=budget, depth=depth + 1
+        )
+        kwdefaults = _exact_keyword_defaults(
+            function.__kwdefaults__, active=active, budget=budget, depth=depth + 1
+        )
+        if defaults is _UNSUPPORTED_BINDING or kwdefaults is _UNSUPPORTED_BINDING:
+            return None
+        closure: list[object] = []
+        for cell in function.__closure__ or ():
+            try:
+                value = cell.cell_contents
+            except ValueError:
+                return None
+            encoded = _exact_binding_value(value, active=active, budget=budget, depth=depth + 1)
+            if encoded is _UNSUPPORTED_BINDING:
+                return None
+            closure.append(encoded)
+        return {
+            "module": module,
+            "qualname": qualname,
+            "code_sha256": hashlib.sha256(code_bytes).hexdigest(),
+            "defaults": defaults,
+            "kwdefaults": kwdefaults,
+            "closure": closure,
+        }
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return None
+    finally:
+        active.remove(id(function))
+
+
+def _exact_binding_value(
+    value: object,
+    *,
+    active: set[int],
+    budget: list[int],
+    depth: int,
+) -> object:
+    """Encode immutable scalar, tuple, function, and frozen-dataclass content."""
+    budget[0] -= 1
+    if depth > 40 or budget[0] < 0:
+        return _UNSUPPORTED_BINDING
+    kind = type(value)
+    if value is None or kind is bool or kind is int or kind is str:
+        if kind is str:
+            budget[1] -= len(value.encode("utf-8"))
+        elif kind is int:
+            budget[1] -= (value.bit_length() + 7) // 8
+        return value if budget[1] >= 0 else _UNSUPPORTED_BINDING
+    if kind is float:
+        budget[1] -= 8
+        return (
+            {"float_ieee754": struct.pack(">d", value).hex()}
+            if budget[1] >= 0
+            else _UNSUPPORTED_BINDING
+        )
+    if kind is bytes:
+        budget[1] -= len(value)
+        return {"bytes": value.hex()} if budget[1] >= 0 else _UNSUPPORTED_BINDING
+    if kind is tuple:
+        if id(value) in active or len(value) > budget[0]:
+            return _UNSUPPORTED_BINDING
+        active.add(id(value))
+        try:
+            items = [
+                _exact_binding_value(item, active=active, budget=budget, depth=depth + 1)
+                for item in value
+            ]
+            return (
+                {"tuple": items}
+                if all(item is not _UNSUPPORTED_BINDING for item in items)
+                else _UNSUPPORTED_BINDING
+            )
+        finally:
+            active.remove(id(value))
+    if kind is FunctionType:
+        binding = _exact_function_binding(value, active=active, budget=budget, depth=depth + 1)
+        return _UNSUPPORTED_BINDING if binding is None else {"function": binding}
+    if not issubclass(kind, type):
+        try:
+            class_namespace = type.__getattribute__(kind, "__dict__")
+            mro = type.__getattribute__(kind, "__mro__")
+            declared = class_namespace.get("__dataclass_fields__")
+            params = class_namespace.get("__dataclass_params__")
+            if (
+                type(declared) is not dict
+                or not declared
+                or any(type(name) is not str for name in declared)
+                or any(
+                    type(field).__module__ != "dataclasses" or type(field).__qualname__ != "Field"
+                    for field in declared.values()
+                )
+                or params is None
+                or object.__getattribute__(params, "frozen") is not True
+                or any(
+                    (
+                        "__dict__" in type.__getattribute__(owner, "__dict__")
+                        and type(type.__getattribute__(owner, "__dict__").get("__dict__"))
+                        is not GetSetDescriptorType
+                    )
+                    or any(
+                        slot not in {"__dict__", "__weakref__"}
+                        for slot in _declared_slots(type.__getattribute__(owner, "__dict__"))
+                    )
+                    for owner in mro
+                )
+            ):
+                return _UNSUPPORTED_BINDING
+        except (AttributeError, TypeError, ValueError):
+            return _UNSUPPORTED_BINDING
+        try:
+            names = tuple(declared)
+            instance_state = object.__getattribute__(value, "__dict__")
+        except (AttributeError, TypeError, ValueError):
+            return _UNSUPPORTED_BINDING
+        if type(instance_state) is not dict or set(instance_state) != set(names):
+            return _UNSUPPORTED_BINDING
+        type_module = type.__getattribute__(type(value), "__module__")
+        type_qualname = type.__getattribute__(type(value), "__qualname__")
+        if type(type_module) is not str or type(type_qualname) is not str:
+            return _UNSUPPORTED_BINDING
+        budget[1] -= len(type_module.encode("utf-8")) + len(type_qualname.encode("utf-8"))
+        if budget[1] < 0:
+            return _UNSUPPORTED_BINDING
+        if id(value) in active:
+            return _UNSUPPORTED_BINDING
+        active.add(id(value))
+        try:
+            members = []
+            for name in names:
+                budget[1] -= len(name.encode("utf-8"))
+                if budget[1] < 0:
+                    return _UNSUPPORTED_BINDING
+                encoded = _exact_binding_value(
+                    instance_state[name], active=active, budget=budget, depth=depth + 1
+                )
+                if encoded is _UNSUPPORTED_BINDING:
+                    return _UNSUPPORTED_BINDING
+                members.append([name, encoded])
+            return {
+                "frozen_dataclass": [type_module, type_qualname],
+                "fields": members,
+            }
+        finally:
+            active.remove(id(value))
+    return _UNSUPPORTED_BINDING
+
+
+def _declared_slots(namespace: Mapping[str, object]) -> tuple[str, ...]:
+    """Return native slot names, using an empty tuple for unsupported layouts."""
+    if "__slots__" not in namespace:
+        return ()
+    slots = namespace["__slots__"]
+    if type(slots) is str:
+        return (slots,)
+    if type(slots) is tuple and all(type(slot) is str for slot in slots):
+        return slots
+    return ("<unsupported-slots>",)
+
+
+def _exact_keyword_defaults(
+    value: object,
+    *,
+    active: set[int],
+    budget: list[int],
+    depth: int,
+) -> object:
+    """Snapshot the native keyword-default mapping without accepting maps elsewhere."""
+    if depth > 40:
+        return _UNSUPPORTED_BINDING
+    if value is None:
+        return None
+    if type(value) is not dict or id(value) in active:
+        return _UNSUPPORTED_BINDING
+    if any(type(key) is not str for key in value):
+        return _UNSUPPORTED_BINDING
+    if len(value) > budget[0]:
+        return _UNSUPPORTED_BINDING
+    budget[1] -= sum(len(key.encode("utf-8")) for key in value)
+    if budget[1] < 0:
+        return _UNSUPPORTED_BINDING
+    active.add(id(value))
+    try:
+        pairs = [
+            [
+                key,
+                _exact_binding_value(item, active=active, budget=budget, depth=depth + 1),
+            ]
+            for key, item in sorted(value.items())
+        ]
+        if any(item is _UNSUPPORTED_BINDING for _key, item in pairs):
+            return _UNSUPPORTED_BINDING
+        return {"keyword_defaults": pairs}
+    finally:
+        active.remove(id(value))
 
 
 def _portable_code(code: CodeType) -> CodeType:
@@ -113,6 +405,33 @@ class RestrictedExAnteNumpyProfile:
     parameter_reads: tuple[str, ...]
     output_slot: str
     output_path: tuple[str, ...]
+    strict_wrapper_active: bool
+
+    @property
+    def expected_state_reads(self) -> tuple[str, ...]:
+        """Return the verified distinct input slots exposed in evidence."""
+        return self.state_reads
+
+    @property
+    def expected_parameter_reads(self) -> tuple[str, ...]:
+        """Return the verified distinct parameter slots exposed in evidence."""
+        return self.parameter_reads
+
+    @property
+    def expected_observed_state_reads(self) -> tuple[str, ...]:
+        """Return the complete ordered Law F plus numerical-call read sequence."""
+        return (
+            self.state_reads + self.state_reads if self.strict_wrapper_active else self.state_reads
+        )
+
+    @property
+    def expected_observed_parameter_reads(self) -> tuple[str, ...]:
+        """Return the complete ordered Law F plus numerical-call read sequence."""
+        return (
+            self.parameter_reads + self.parameter_reads
+            if self.strict_wrapper_active
+            else self.parameter_reads
+        )
 
     def method_matches(
         self,
@@ -123,14 +442,22 @@ class RestrictedExAnteNumpyProfile:
         postprocessor: Any,
     ) -> bool:
         """Require the exact registered class/callable/code/ABI and no postprocessor."""
-        function = _function(operation)
         if (
             method_class is not self.method_class
             or signature.stable_digest() != self.signature.stable_digest()
-            or function is not self.method_operation
             or postprocessor is not None
-            or _function_sha256(function) != self.method_code_sha256
-            or function.__globals__.get("np") is not self.numpy_module
+        ):
+            return False
+        function = _function(operation)
+        if function is None or function is not self.method_operation:
+            return False
+        implementation = _strict_wrapper_leaf(
+            function, method_class=method_class, signature=signature
+        )
+        if (
+            _function_sha256(function) != self.method_code_sha256
+            or implementation is None
+            or implementation.__globals__.get("np") is not self.numpy_module
             or any(
                 getattr(self.numpy_module, name, None) is not expected
                 for name, expected in self.numpy_operations
@@ -178,8 +505,8 @@ class RestrictedExAnteNumpyProfile:
 
         output_sha256 = _selected_scalar_sha256(output)
         verified = (
-            state_reads == self.state_reads
-            and parameter_reads == self.parameter_reads
+            state_reads == self.expected_observed_state_reads
+            and parameter_reads == self.expected_observed_parameter_reads
             and parameter_origin in _SUPPORTED_PARAMETER_ORIGINS
             and output_sha256 is not None
             and runner_verified
@@ -196,8 +523,10 @@ class RestrictedExAnteNumpyProfile:
             method_callable_sha256=self.method_code_sha256,
             runner_callable_sha256=self.runner_code_sha256 if runner_verified else None,
             backend_runtime_fingerprint=backend_runtime_fingerprint,
-            state_reads=state_reads,
-            parameter_reads=parameter_reads,
+            # The ordered recorder sequence is validated above. The persisted
+            # schema carries its distinct observed input-slot projection.
+            state_reads=self.expected_state_reads,
+            parameter_reads=self.expected_parameter_reads,
             parameter_origin=parameter_origin,
             poverty_line_value=None,
             output_slot_id=self.output_slot,
@@ -218,7 +547,7 @@ class _ReadSetMapping(Mapping[str, Any]):
         allowed: tuple[str, ...],
     ) -> None:
         self._source = source
-        self._allowed = frozenset(allowed)
+        self._allowed = allowed
         self._reads: list[str] = []
 
     def __getitem__(self, key: str) -> Any:
@@ -233,6 +562,14 @@ class _ReadSetMapping(Mapping[str, Any]):
     def __len__(self) -> int:
         raise TypeError("restricted_exante_mapping_length_refused")
 
+    def values(self) -> tuple[Any, ...]:
+        """Expose and record permitted values traversed by strict Law F.
+
+        Validation reads count as producer reads and therefore use the same
+        bounded, ordered recorder as operation-level indexing.
+        """
+        return tuple(self[key] for key in self._allowed if key in self._source)
+
     @property
     def reads(self) -> tuple[str, ...]:
         return tuple(self._reads)
@@ -244,6 +581,9 @@ def _make_trusted_profile() -> RestrictedExAnteNumpyProfile:
     method_operation = method_class.pure_step
     runner_class = NumpyRunner
     runner_operation = runner_class.execute
+    method_implementation = _strict_wrapper_leaf(
+        method_operation, method_class=method_class, signature=signature
+    )
     method_code = _function_sha256(method_operation)
     runner_code = _function_sha256(runner_operation)
     if method_code is None or runner_code is None:
@@ -254,11 +594,12 @@ def _make_trusted_profile() -> RestrictedExAnteNumpyProfile:
         or tuple(parameter.name for parameter in signature.parameters) != _PARAMETER_READS
         or signature.parameters[0].default is not None
         or signature.backend.value != "numpy"
-        or getattr(method_operation, "__closure__", None) is not None
+        or method_implementation is None
+        or method_implementation.__closure__ is not None
     ):
         raise RuntimeError("restricted_exante_builtin_abi_or_literal_profile_mismatch")
     try:
-        numpy_module = method_operation.__globals__["np"]
+        numpy_module = method_implementation.__globals__["np"]
     except (AttributeError, KeyError) as exc:
         raise RuntimeError("restricted_exante_builtin_numpy_dependency_missing") from exc
     if not isinstance(numpy_module, ModuleType):
@@ -283,6 +624,7 @@ def _make_trusted_profile() -> RestrictedExAnteNumpyProfile:
         "abi": signature.abi_digest(),
         "method_code": method_code,
         "runner_code": runner_code,
+        "strict_wrapper_validation_reads": method_implementation is not method_operation,
         "state_reads": list(_STATE_READS),
         "parameter_reads": list(_PARAMETER_READS),
         "parameter_origins": list(_SUPPORTED_PARAMETER_ORIGINS),
@@ -313,6 +655,7 @@ def _make_trusted_profile() -> RestrictedExAnteNumpyProfile:
         parameter_reads=_PARAMETER_READS,
         output_slot=_OUTPUT_SLOT,
         output_path=_OUTPUT_PATH,
+        strict_wrapper_active=method_implementation is not method_operation,
     )
 
 
@@ -509,8 +852,8 @@ def bind_occurrence_call_witness(
             and evidence.method_callable_sha256 == profile.method_code_sha256
             and evidence.runner_callable_sha256 == profile.runner_code_sha256
             and evidence.backend_runtime_fingerprint is not None
-            and evidence.state_reads == profile.state_reads
-            and evidence.parameter_reads == profile.parameter_reads
+            and evidence.state_reads == profile.expected_state_reads
+            and evidence.parameter_reads == profile.expected_parameter_reads
             and evidence.parameter_origin in _SUPPORTED_PARAMETER_ORIGINS
             and evidence.poverty_line_value is None
             and evidence.output_slot_id == profile.output_slot
@@ -601,8 +944,8 @@ def verify_persisted_restricted_call_witness(
             expected_backend_runtime_fingerprint is None
             or witness.backend_runtime_fingerprint == expected_backend_runtime_fingerprint
         )
-        and witness.state_reads == profile.state_reads
-        and witness.parameter_reads == profile.parameter_reads
+        and witness.state_reads == profile.expected_state_reads
+        and witness.parameter_reads == profile.expected_parameter_reads
         and witness.parameter_origin in _SUPPORTED_PARAMETER_ORIGINS
         and (
             expected_parameter_origin is None

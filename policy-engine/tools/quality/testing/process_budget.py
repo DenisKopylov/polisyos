@@ -165,11 +165,32 @@ def _sample_process_tree(root_pid: int) -> _Sample:
     return _Sample(rss_bytes, tuple(observed_pids), tuple(raced_pids))
 
 
-def _waitid_supported() -> bool:
-    """Return whether WNOWAIT can hold a child's PID until group cleanup ends."""
-    return callable(getattr(os, "waitid", None)) and all(
+def _waitid_supported(*, sigchld_disposition: str | None = None) -> bool:
+    """Return whether WNOWAIT can reserve a child PID through group cleanup."""
+    if not callable(getattr(os, "waitid", None)) or not all(
         hasattr(os, name) for name in ("P_PID", "WEXITED", "WNOHANG", "WNOWAIT")
-    )
+    ):
+        return False
+    disposition = sigchld_disposition or _sigchld_disposition()
+    # An arbitrary Python handler may reap child status with waitpid; only the
+    # default disposition establishes WNOWAIT's required PID reservation.
+    return disposition == "SIG_DFL"
+
+
+def _sigchld_disposition() -> str:
+    """Return the current SIGCHLD disposition without exposing handler details."""
+    sigchld = getattr(signal, "SIGCHLD", None)
+    if sigchld is None:
+        return "unavailable"
+    try:
+        disposition = signal.getsignal(sigchld)
+    except (OSError, RuntimeError, ValueError):
+        return "unavailable"
+    if disposition == signal.SIG_IGN:
+        return "SIG_IGN"
+    if disposition == signal.SIG_DFL:
+        return "SIG_DFL"
+    return "custom_handler"
 
 
 def _peek_child_exit(pid: int) -> Any | None:
@@ -461,7 +482,8 @@ def run_command(
     process_group_measurement_issue: str | None = None
     rss_measurement_failure: dict[str, str | int | None] | None = None
     cleanup_runtime_error: dict[str, str | int | None] | None = None
-    waitid_wnowait_available = _waitid_supported()
+    sigchld_disposition = _sigchld_disposition()
+    waitid_wnowait_available = _waitid_supported(sigchld_disposition=sigchld_disposition)
     limitations = [
         "RSS is sampled; short-lived processes may fall between samples.",
         "Summed per-process RSS can double-count shared pages and is conservative.",
@@ -671,6 +693,7 @@ def run_command(
             "process_group_measurement_issue": process_group_measurement_issue,
             "rss_measurement_failure": rss_measurement_failure,
             "cleanup_runtime_error": cleanup_runtime_error,
+            "sigchld_disposition": sigchld_disposition,
             "waitid_wnowait_available": waitid_wnowait_available,
             "cleanup_signals": cleanup_escalations,
             "limitations": limitations,

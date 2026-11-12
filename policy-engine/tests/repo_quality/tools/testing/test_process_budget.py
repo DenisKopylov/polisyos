@@ -46,6 +46,8 @@ def test_process_budget_captures_combined_output_and_success(tmp_path: Path) -> 
     assert result["status"] == "PASS"
     assert result["actual_exit_code"] == 0
     assert result["primary_reason"] is None
+    assert result["sigchld_disposition"] == "SIG_DFL"
+    assert result["waitid_wnowait_available"] is True
     command_log = Path(str(result["command_log"]))
     assert command_log.read_text(encoding="utf-8").splitlines() == ["out", "err"]
     receipt = json.loads((tmp_path / "run-output" / "result.json").read_text(encoding="utf-8"))
@@ -153,6 +155,8 @@ def test_process_budget_preserves_child_failure(tmp_path: Path) -> None:
     assert result["status"] == "COMMAND_FAIL"
     assert result["actual_exit_code"] == 17
     assert result["primary_reason"] is None
+    assert result["sigchld_disposition"] == "SIG_DFL"
+    assert result["waitid_wnowait_available"] is True
 
 
 def test_process_budget_aborts_when_sampled_rss_exceeds_cap(tmp_path: Path) -> None:
@@ -368,6 +372,105 @@ def test_process_budget_refuses_to_run_without_waitid_wnowait(
     assert result["primary_reason"] == "waitid_wnowait_unavailable"
     assert result["waitid_wnowait_available"] is False
     assert not marker.exists()
+
+
+def test_process_budget_refuses_sigchld_ignore_in_isolated_runner(tmp_path: Path) -> None:
+    runner = Path(__file__).resolve().parents[4] / "tools/quality/testing/process_budget.py"
+    output_dir = tmp_path / "sigchld-ignore-output"
+    marker = tmp_path / "must-not-run-under-sigchld-ignore"
+    command = [
+        str(runner),
+        "--output-dir",
+        str(output_dir),
+        "--cwd",
+        str(tmp_path),
+        "--max-rss-bytes",
+        str(512 * 1024 * 1024),
+        "--wall-seconds",
+        "5",
+        "--disk-floor-bytes",
+        "1",
+        "--",
+        sys.executable,
+        "-c",
+        f"open({str(marker)!r}, 'w').write('ran')",
+    ]
+    isolated_runner = (
+        "import runpy, signal, sys; "
+        "signal.signal(signal.SIGCHLD, signal.SIG_IGN); "
+        f"sys.argv = {command!r}; "
+        "runpy.run_path(sys.argv[0], run_name='__main__')"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", isolated_runner],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert completed.returncode == 3, completed.stderr
+    result = json.loads(completed.stdout)
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "waitid_wnowait_unavailable"
+    assert result["actual_exit_code"] is None
+    assert result["waitid_wnowait_available"] is False
+    assert result["sigchld_disposition"] == "SIG_IGN"
+    assert not marker.exists()
+    persisted = json.loads((output_dir / "result.json").read_text(encoding="utf-8"))
+    assert persisted == result
+
+
+def test_process_budget_refuses_custom_sigchld_reaper_in_isolated_runner(tmp_path: Path) -> None:
+    runner = Path(__file__).resolve().parents[4] / "tools/quality/testing/process_budget.py"
+    output_dir = tmp_path / "sigchld-handler-output"
+    marker = tmp_path / "must-not-run-under-sigchld-handler"
+    command = [
+        str(runner),
+        "--output-dir",
+        str(output_dir),
+        "--cwd",
+        str(tmp_path),
+        "--max-rss-bytes",
+        str(512 * 1024 * 1024),
+        "--wall-seconds",
+        "5",
+        "--disk-floor-bytes",
+        "1",
+        "--",
+        sys.executable,
+        "-c",
+        f"open({str(marker)!r}, 'w').write('ran')",
+    ]
+    isolated_runner = (
+        "import os, runpy, signal, sys; "
+        "def_reaper = 'def reap(signum, frame):\\n'"
+        "'    try:\\n        os.waitpid(-1, os.WNOHANG)\\n'"
+        "'    except ChildProcessError:\\n        pass\\n'; "
+        "exec(def_reaper); signal.signal(signal.SIGCHLD, reap); "
+        f"sys.argv = {command!r}; "
+        "runpy.run_path(sys.argv[0], run_name='__main__')"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", isolated_runner],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert completed.returncode == 3, completed.stderr
+    result = json.loads(completed.stdout)
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "waitid_wnowait_unavailable"
+    assert result["actual_exit_code"] is None
+    assert result["waitid_wnowait_available"] is False
+    assert result["sigchld_disposition"] == "custom_handler"
+    assert not marker.exists()
+    persisted = json.loads((output_dir / "result.json").read_text(encoding="utf-8"))
+    assert persisted == result
 
 
 def test_process_budget_records_rss_measurement_failure_cause(

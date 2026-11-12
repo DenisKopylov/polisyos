@@ -9560,16 +9560,15 @@
             "next": "Compose numerical facet with the actual effective basis while retaining evidence, semantic currentness and operational admission as separate axes."
           },
           "p05_reverse_view_draft": {
-            "state": "UNVERIFIED_WIP_ON_EXISTING_AUTHOR_BRANCH",
+            "state": "SOURCE_AND_FOCUSED_UNIT_QUALIFIED_SERVED_UNRUN",
             "author_commit": "301a2da66c576da057f2d2eadef3ab98dee7e8f9",
             "source_sha256": "412a260f4f5a51bc21beb806b1dd8b7b1eb4f83478e0dde184a5099b833479ea",
-            "checks": "Syntax, targeted Ruff and diff PASS; new routing behavior and served action UNRUN. Existing195-line metadata oracle preserved, not extended by this draft owner.",
+            "checks": "3 frozen focused PASS, independent static GO; full served and wider affected family UNRUN.",
             "gaps": [
-              "Coarse route-role completeness and missing/gapped groups unproven.",
-              "Unchanged owner generation/new report, exact profile/scope query and stale-view adversarial tests missing.",
-              "Durable use-decision persist/read, explicit selection v2, actual action consumer and final revision fence missing.",
-              "Private concrete CAS/Catalog seams need independent review; direct fresh Catalog rederivation remains in use."
-            ]
+              "Actual served action and fresh consumer qualification pending composed freeze; source remains visible uncommitted WIP."
+            ],
+            "current_output": "policy-engine/_cache/e02/p05-use-decision-current-r1/",
+            "latest_contract": "Same query remains current after unrelated registry mutation; old one-use decision refuses changed revision; fresh current decision succeeds. Same-query competitor invalidates route."
           },
           "appointed_replay_draft": {
             "state": "DEMO_INTAKE23PASS_INDEPENDENT_REVIEW_GO; PROTECTED_LIFECYCLE_MISSING",
@@ -9640,7 +9639,38 @@
             "Replay appointment intake",
             "Strict-profile ExAnte compatibility"
           ],
-          "resources": "Python3.14.3,16GiBRAM,8CPU,266.5MiBswap; about6.8GiBdisk initially, later5.1GiB. No cloud/environment copies. Numerical source freeze remains required."
+          "resources": "16GiBRAM/8CPU,266.5MiBswap; about10.4GiBfree after requested Trash transfer. No cloud/environment copies; 3GiB disk floor, 6–8GiB measured aggregate process-tree budget.",
+          "trash_transfer": {
+            "moved_old_scratch_directories": 74,
+            "allocated_estimate_bytes": 6131511296,
+            "trash_emptied_by_coordinator": false,
+            "summary": "policy-engine/_cache/e02/trash-move-summary-20261112.json",
+            "protected": "Current R33, retained R6, latest V05 stores, all source/docs/Git/environments/production data retained."
+          },
+          "strict_profile": {
+            "PASS": 12,
+            "FAIL": 0,
+            "independent_review": "GO",
+            "output": "policy-engine/_cache/e02/strict-profile-compat-r4/",
+            "wall_seconds": 8.309,
+            "peak_sampled_process_tree_rss_bytes": 666189824,
+            "boundary": "Real strict dispatch, full observed read sequence, canonical read-set projection, occurrence bind and persisted verify. No N5."
+          },
+          "process_guard": {
+            "PASS": 14,
+            "FAIL": 0,
+            "output": "policy-engine/_cache/e02/process-guard-exit-diagnosis-20261112-01/custom-reaper-cohort/",
+            "boundary": "SIGCHLD ignored/custom handler refuses prelaunch; real exit0/17 preserved. Historical trigger remains unproven."
+          },
+          "native_content_bridge": {
+            "status": "WIP_RUNTIME_FAIL_PRESERVED",
+            "PASS": 8,
+            "FAIL": 1,
+            "output": "policy-engine/_cache/e02/n5-candidate-content-native-r1/",
+            "actual": "Three physical units; expected joint11.0; failed profile stability. No overall N5 retention qualification.",
+            "diagnostic": "No-N5 preflight r3 identifies complete-file census over cap10000; retained rows all hashed. Source/profile/current-use requalification remains required.",
+            "diagnostic_output": "policy-engine/_cache/e02/n5-profile-preflight-r3/"
+          }
         }
       },
       "sequence": 8,

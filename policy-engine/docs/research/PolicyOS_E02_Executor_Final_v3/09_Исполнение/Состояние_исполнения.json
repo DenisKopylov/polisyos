@@ -9923,15 +9923,29 @@
               "scope": "Candidate same-kernel same-seed reproducibility only; no production appointment/protected/G acceptance."
             },
             "internal_remaining": [
-              "signed_launcher_record_publisher",
-              "completed_semantic_key_reuse_consumer"
+              "genuine_signed_completion_recovery_and_semantic_hit_on_composed_source"
             ],
             "completion_followup": {
-              "status": "SECONDARY_IMPLEMENTATION_NO_GO_PENDING_CURRENT_IDENTITY_REPAIR",
-              "review_finding": "Historical profile compared to itself, so provider/native-setting changes can escape. Must observe intended launcher callable/profile and cold-reconcile; no historical normalization.",
-              "recommended_path": "Existing assigned-launcher no-kernel preflight; zero N5/quota spend, possible explicitly measured preflight child.",
-              "genuine_signed_completion_and_semantic_hit": "UNRUN_AFTER_FINAL_COMPOSED_FREEZE",
-              "historical_R2_key": "Ephemeral demonstration key unavailable; do not retroactively re-sign old action."
+              "status": "COMPOSED_INDEPENDENT_REVIEW_GO_GENUINE_UNRUN",
+              "author_commit": "b7f46623b",
+              "composed_commit": "5bff58354f016100db444a8540f976592c409d0f",
+              "composed_tree": "95914305463da1e1f111e1632c22fb3ffa2d826c",
+              "execution_sha256": "8bbe4c3ec8bb433c7e723312ef459a8c076ce0c723a58a639bbf9ec7086d1efb",
+              "full_unit_CLI_PASS": 47,
+              "full_unit_output": "secondary:policy-engine/_cache/e02/n5-completed-replay-unit-r1/",
+              "full_unit_source_boundary": "Before final owner-selected convergence correction; retained separately, not counted as a final complete-module rerun.",
+              "final_material_delta_PASS": 13,
+              "final_output": "secondary:policy-engine/_cache/e02/n5-reuse-current-race-r2/",
+              "final_wall_seconds": 47.503,
+              "final_peak_sampled_rss_bytes": 1720000000,
+              "peak_note": "Rounded author summary; exact value remains in result.json.",
+              "fixed_class": "Actual owner-selected existing execution shares one fresh intended-launcher identity gate after concurrency selection and a cheap selected-ledger fence. Historical self-comparison and early-classification bypass removed.",
+              "no_kernel_probe_output": "secondary:policy-engine/_cache/e02/n5-native-profile-probe-r1/",
+              "probe_boundary": "Real assigned context observed before helper extraction; not final image equality or N5.",
+              "genuine_signed_completion_and_semantic_hit": "UNRUN_AFTER_COMPOSED_FREEZE",
+              "physical_spend_on_hit": "ZERO_N5_UNITS_PREFLIGHT_PROCESS_MAY_RUN",
+              "production_appointment": "verifier_unappointed",
+              "protected_use_allowed": false
             }
           },
           "gdp_fixture_catalog_followup": {
@@ -10100,6 +10114,15 @@
             "pins_unchanged": true,
             "group_quiescent": true,
             "scope": "Existing ContextVar joins public service/sink operations; worker fresh; no authority/head/permission memo. Real CAS with explicit upstream double. Genuine env hook measures GET only, not all decision/history counters."
+          },
+          "raw_v5_quality_consumer": {
+            "status": "FOCUSED_REVIEW_GO_FULL_CLI_FIXTURES_IN_PROGRESS",
+            "final_consumer_PASS": 1,
+            "output": "policy-engine/_cache/e02/n5-v5-wire-keys-r4/",
+            "boundary": "Actual v5 producer/CAS/expected-request/typed checker; rehashed extra keys/draw/interaction/numeric classification and unsupported lookup controls. v4 preserved.",
+            "full_CLI_R1": "ERROR_NO_JOINT_STATIC_CALLER_REQUESTED_MULTIPERIOD",
+            "full_CLI_output": "policy-engine/_cache/e02/n5-v5-quality-live-r1/",
+            "caller_followup": "Single-point static request, explicit dynamic consumers; batch preflight preserves actual assignment conflict and runtime refusal gates. Full CLI/generated freshness not yet PASS."
           }
         }
       },

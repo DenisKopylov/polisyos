@@ -4772,6 +4772,44 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 str(ref) for child in served_children for ref in child.source_atom_refs
             }
             assert len(observed_child_semantics) == 2
+            # This fixture deliberately serves two different source-derived
+            # intervention targets. Check their actual fresh-reader results
+            # against this fixture's independent linear oracle; do not impose
+            # a general rule that every pair of children must differ numerically.
+            distinct_child_witnesses = sorted(
+                numerical_witnesses,
+                key=lambda witness: float(witness["expected_effect"]),
+            )
+            assert len(distinct_child_witnesses) == 2
+            assert [witness["target"] for witness in distinct_child_witnesses] == [
+                "global.tax_rate",
+                "cells.distress_score",
+            ]
+            assert [witness["target_unit"] for witness in distinct_child_witnesses] == [
+                "ratio",
+                "synthetic_score",
+            ]
+            assert {witness["outcome"] for witness in distinct_child_witnesses} == {
+                "employment_retention"
+            }
+            assert {witness["outcome_unit"] for witness in distinct_child_witnesses} == {
+                "synthetic_score"
+            }
+            expected_child_effects = (0.125, 0.15)
+            assert tuple(
+                float(witness["expected_effect"]) for witness in distinct_child_witnesses
+            ) == pytest.approx(expected_child_effects, abs=1e-12)
+            fresh_reader_child_effects = tuple(
+                tuple(float(effect) for effect in witness["observed_effects"])
+                for witness in distinct_child_witnesses
+            )
+            for observed, expected in zip(
+                fresh_reader_child_effects,
+                expected_child_effects,
+                strict=True,
+            ):
+                assert observed == pytest.approx((expected, expected), abs=1e-12)
+            assert fresh_reader_child_effects[0] != fresh_reader_child_effects[1]
     if recording_mode == "served_tax_global_scalar":
         assert prepared.recorded_problem.domain == "fiscal"
         assert prepared.recorded_problem.outcome_of_interest.target_variable == "government.balance"

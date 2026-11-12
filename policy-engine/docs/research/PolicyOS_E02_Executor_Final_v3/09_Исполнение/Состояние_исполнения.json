@@ -9857,7 +9857,7 @@
             "output": "secondary:policy-engine/_cache/e02/lane01-v3-generations-7of1-r2/"
           },
           "blind_replay_composition": {
-            "status": "IMPLEMENTED_FOCUSED_QUALIFICATION_COMPLETE",
+            "status": "PASS_GENUINE_CANDIDATE_ORIGINAL_AND_BLIND_REPEAT",
             "projection_unit_PASS": 21,
             "historical_projector": "PASS_ZERO_N5",
             "historical_writer": "PASS_ZERO_N5",
@@ -9865,7 +9865,7 @@
               "policy-engine/_cache/e02/n5-replay-projection-retained-a2-r1/",
               "policy-engine/_cache/e02/n5-replay-historical-writer-r1/"
             ],
-            "fresh_original_and_blind_child": "UNRUN",
+            "fresh_original_and_blind_child": "PASS_2_PLUS_2_DIAGNOSTIC_UNITS",
             "production_appointment": "verifier_unappointed",
             "protected_use_allowed": false,
             "boundary": "Demo intake and unit checks do not establish fresh numerical replay. Historical A2 profile differs from runtime launcher; create a real new original on the assigned launcher before comparison.",
@@ -9910,7 +9910,22 @@
                 "policy-engine/_cache/e02/n5-replay-foreign-executor-r1/"
               ],
               "scope": "Owned-session observed executor and separate leader identity; genuine numerical comparison still pending."
-            }
+            },
+            "genuine_R2": {
+              "source": "18ec3fc25373b9fb81ea7a9b65a2d0e2c21f125c",
+              "tree": "58c407e10dd6e480a6885e26ca317e151e442fa1",
+              "PASS": 1,
+              "wall_seconds": 399.415,
+              "peak_sampled_rss_bytes": 3370385408,
+              "unchanged_named_pins": 2912,
+              "group_quiescent": true,
+              "qualification": "policy-engine/_cache/e02/n5-blind-original-replay-real-r2/qualification.json",
+              "scope": "Candidate same-kernel same-seed reproducibility only; no production appointment/protected/G acceptance."
+            },
+            "internal_remaining": [
+              "signed_launcher_record_publisher",
+              "completed_semantic_key_reuse_consumer"
+            ]
           },
           "gdp_fixture_catalog_followup": {
             "full_trio_R2": "COMMAND_FAIL_CATALOG_CONTEXT",
@@ -9945,6 +9960,35 @@
             "peak_sampled_rss_bytes": 1881554944,
             "stable_production_python_pins": 2901,
             "boundary": "Metadata-only stock profile extension through actual compiler/acquisition/manifest/Foundry/fresh GET; not broad free growth or full Gate A."
+          },
+          "composed_chain_R3": {
+            "status": "RESOURCE_ABORT",
+            "source": "6d0c620976b54df257d2ef01ba71e23d8129eae0",
+            "wall_seconds": 600.165,
+            "peak_sampled_rss_bytes": 1997291520,
+            "unchanged_named_pins": 3004,
+            "group_quiescent": true,
+            "new_B_N5_result": "UNRUN",
+            "output": "secondary:policy-engine/_cache/e02/lane01-v3-generations-7of1-r3/",
+            "boundary": "Pre-worker POST predecessor-authority/receipt replay; no semantic verdict."
+          },
+          "two_child_current_contrast": {
+            "PASS": 1,
+            "source": "18ec3fc25373b9fb81ea7a9b65a2d0e2c21f125c",
+            "standard_physical_units": 4,
+            "effects": [
+              0.125,
+              0.15
+            ],
+            "exact_cap_and_protected_reserve": "PASS",
+            "fresh_reader": "NEW_STORE_AND_INDEX_SAME_PROCESS",
+            "wall_seconds": 113.964,
+            "sampled_peak_rss_bytes": 2106490880,
+            "output": "policy-engine/persistent_cache/e02/lane01-cyc05-two-child-current-r4/",
+            "independent_review": "GO_FINAL",
+            "supervisor": "CUSTOM_RESULT_EXIT_0_GROUP_QUIESCENCE_NOT_RECORDED",
+            "source_binding": "PINNED_TEST_HELPER_AND_COORDINATOR_SOURCE_FREEZE_NOT_COMPLETE_READSET",
+            "scope": "Candidate-only fixture contrast, not a global child-inequality or production-currentness claim."
           }
         }
       },

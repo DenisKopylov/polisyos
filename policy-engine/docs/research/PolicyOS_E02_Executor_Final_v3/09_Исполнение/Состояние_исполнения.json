@@ -9651,7 +9651,7 @@
             "Replay appointment intake",
             "Strict-profile ExAnte compatibility"
           ],
-          "resources": "16GiBRAM/8CPU,266.5MiBswap; about10.4GiBfree after requested Trash transfer. No cloud/environment copies; 3GiB disk floor, 6–8GiB measured aggregate process-tree budget.",
+          "resources": "16GiB RAM/8CPU; 258.5MiB swap and about8.5GiB free at current admission. Existing two checkouts/shared environment, no cloud/copies;3GiB disk floor; measured concurrent-process budget.",
           "trash_transfer": {
             "moved_old_scratch_directories": 74,
             "allocated_estimate_bytes": 6131511296,
@@ -9740,7 +9740,7 @@
               "boundary": "Actual SCM/NCM unit seam, exact pre-call values, no native storage mutation; not full Horizon N5."
             }
           },
-          "next": "Finish/review bounded hashing and optional diagnostic profiler changes, keep all controls, then admit another measured continuation/checkpoint/GDP wave. In parallel build canonical numerical projection and blind replay bridge; freeze for deciding runs. Gate A then P06–P08/Gate B; no next lane/G closure.",
+          "next": "Measure actual served operation on composed decode-once/exact-comparison source before another full continuation replay; implement affected raw Layer3 v5 consumer. Full 7/1 and GDP reentry remain unqualified. Gate A then P06–P08/Gate B; no next lane/G closure.",
           "verification_economy": "Native pytest for ordinary functional unit properties; authority only for actual source/provenance/early-host requirements. Skip-baseline inventory sync no longer scans imports it will not write; full checks unchanged.",
           "foundation_composed": {
             "PASS": 48,
@@ -9868,7 +9868,7 @@
             "fresh_original_and_blind_child": "PASS_2_PLUS_2_DIAGNOSTIC_UNITS",
             "production_appointment": "verifier_unappointed",
             "protected_use_allowed": false,
-            "boundary": "Demo intake and unit checks do not establish fresh numerical replay. Historical A2 profile differs from runtime launcher; create a real new original on the assigned launcher before comparison.",
+            "boundary": "Genuine original+blind-repeat now passes in candidate same-kernel demonstration scope. No production appointment, protected use or G acceptance.",
             "final_unit_PASS": 23,
             "explicit_source_integration_SKIP": 1,
             "final_unit_output": "policy-engine/_cache/e02/n5-replay-facades-r1/",
@@ -9909,7 +9909,7 @@
                 "policy-engine/_cache/e02/n5-replay-pid-observation-r2/",
                 "policy-engine/_cache/e02/n5-replay-foreign-executor-r1/"
               ],
-              "scope": "Owned-session observed executor and separate leader identity; genuine numerical comparison still pending."
+              "scope": "Owned-session observed executor and separate launcher leader identity; genuine R2 separately qualifies actual numerical comparison."
             },
             "genuine_R2": {
               "source": "18ec3fc25373b9fb81ea7a9b65a2d0e2c21f125c",
@@ -9989,6 +9989,76 @@
             "supervisor": "CUSTOM_RESULT_EXIT_0_GROUP_QUIESCENCE_NOT_RECORDED",
             "source_binding": "PINNED_TEST_HELPER_AND_COORDINATOR_SOURCE_FREEZE_NOT_COMPLETE_READSET",
             "scope": "Candidate-only fixture contrast, not a global child-inequality or production-currentness claim."
+          },
+          "receipt_operation_memo": {
+            "source": "5757852b299659aa73c7fc87ea6601331ec71e30",
+            "tree": "6c4ab4721ab4874bc45de0e788bfd0c7f9b8620b",
+            "status": "COMPOSED_COMPONENT_PASS_WHOLE_ROUTE_UNQUALIFIED",
+            "retained_actual_reads": 2,
+            "verification_entries": 4,
+            "receipt_builds": 1,
+            "memo_hits": 3,
+            "output": "secondary:policy-engine/_cache/e02/n5-receipt-memo-retained-r3/",
+            "boundary": "Pure computation only; manifest/owner/bytes/request/currentness read afresh. Next decode-once/exact-native comparison refinement awaits final independent review/composition.",
+            "later_refinement": {
+              "source": "e00d203846f1f822bdb2aea53b68088f2c700ded",
+              "tree": "3222083e2201c0779a4a014d34ec31f68943ef27",
+              "status": "COMPOSED_INDEPENDENT_REVIEW_GO",
+              "PASS": 144,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0,
+              "wall_seconds": 124.414,
+              "peak_sampled_rss_bytes": 1786757120,
+              "pins_unchanged": true,
+              "secondary_import_origins_checked": true,
+              "group_quiescent": true,
+              "output": "secondary:policy-engine/_cache/e02/n5-receipt-memo-composed-unit-r2/",
+              "junit_sha256": "3a27fe83e07a9f6dfdd4e50ffc6d18ba0e2759014c466a5f131ecdad96e6d920",
+              "two_read_builds": 1,
+              "two_read_verifier_entries": 4,
+              "two_read_binding_decodes": 2,
+              "two_read_selected_comparison_GY_calls": 0,
+              "boundary": "Exact native content computation shortcut; full changed-value/rule path, all fresh owner/request/currentness checks retained. Whole-route speed unqualified."
+            }
+          },
+          "composed_chain_R4": {
+            "status": "RESOURCE_ABORT",
+            "source": "5757852b299659aa73c7fc87ea6601331ec71e30",
+            "tree": "6c4ab4721ab4874bc45de0e788bfd0c7f9b8620b",
+            "wall_seconds": 1200.16,
+            "peak_sampled_rss_bytes": 2093760512,
+            "group_quiescent": true,
+            "pins_unchanged": true,
+            "new_B_N5_result": "NOT_ESTABLISHED",
+            "output": "policy-engine/_cache/e02/lane01-v3-generations-7of1-r4/",
+            "boundary": "Acquisition running/reentry pending; canonical JSON processing during served POST. No terminal, JUnit, final module-origin receipt or semantic verdict."
+          },
+          "receipt_affected_consumer_tests": {
+            "cohort_total": 140,
+            "PASS": 135,
+            "FAIL": 4,
+            "SKIP": 1,
+            "output": "policy-engine/_cache/e02/n5-receipt-memo-composed-unit-r1/",
+            "exact_pre_memo_replay": "SAME_FOUR_FAIL",
+            "prebase_output": "secondary:policy-engine/_cache/e02/n5-receipt-memo-prebase-four-r1/",
+            "attribution": "No blanket inherited-red claim; intersecting inputs. Repair full v4/v5 schema-qualified oracles and actual captured failed-work behavior.",
+            "repair_focused_PASS": 11,
+            "repair_output": "secondary:policy-engine/_cache/e02/n5-horizon-four-repair-r2/",
+            "repair_composition": "COMPOSED_REVIEW_GO_FINAL_COHORT_144_PASS",
+            "internal_followup": "Raw Layer3 quality consumer v5 semantic support remains required."
+          },
+          "req01_refresh": {
+            "source": "5757852b299659aa73c7fc87ea6601331ec71e30",
+            "census_paths": 7201,
+            "unique_blobs": 7124,
+            "parse_errors": 0,
+            "installed_legacy_PASS": 2,
+            "wheel_sha256": "35c702837a005acca0bcea7d3302c08141b6418c246ed1280e153f4566af9656",
+            "output": "policy-engine/_cache/e02/lane01-req01-refresh-r1/",
+            "public_shape_PASS": 6,
+            "shape_output": "policy-engine/_cache/e02/req01-public-shape-current-r1/",
+            "boundary": "Maintained first-party census, actual installed-wheel origins, public metadata declaration and pre-resolver top-level refusal. Shared N7/full lane/LANE12 readiness not established."
           }
         }
       },

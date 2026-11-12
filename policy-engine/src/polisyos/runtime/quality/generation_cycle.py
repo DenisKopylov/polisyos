@@ -1987,7 +1987,6 @@ def load_joint_simulation_result(
     from polisyos.core.artifacts import artifact_manifest_profile_sha256
     from polisyos.runtime.quality.joint_simulation_horizon import (
         SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX,
-        _cas_receipt_verification_binding,
         semantic_program_graph_result_inputs,
         verify_semantic_program_graph_result_sources,
     )
@@ -2086,70 +2085,63 @@ def load_joint_simulation_result(
         _joint_simulation_result_integrity_error("artifact_payload_schema_mismatch")
     payload_without_receipt = dict(payload)
     payload_without_receipt.pop("receipt", None)
-    identity = (id(store), artifact_ref_identity_key(resolved_ref))
-    with _cas_receipt_verification_binding(payload_bytes, identity, canon=manifest.canon):
-        try:
-            result = JointSimulationResult.model_validate(payload)
-            result._content_payload = payload_without_receipt
-            verify_simulation_receipt(result.receipt, result.content_bound_payload())
-        except (ProofReceiptError, TypeError, ValueError) as exc:
-            _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
-        if (
-            expected_receipt_payload_hash is not None
-            and result.receipt.payload_hash != expected_receipt_payload_hash
-        ):
-            _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
-        comparator_refs_verified = _verify_ncm_comparator_parts(
-            result, store=store, result_manifest=manifest
-        )
-        _validate_loaded_joint_simulation_result(
-            result,
-            expected_world_model_record_content_hash=expected_world_model_record_content_hash,
-            expected_atom_ids=expected_atom_ids,
-            expected_selected_outcomes=expected_selected_outcomes,
-        )
-        semantic_input_limitation_codes: tuple[str, ...] | None = None
-        try:
-            semantic_edges = [
-                edge
-                for edge in manifest.inputs
-                if edge.role.startswith(SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX)
-            ]
-            if semantic_edges != semantic_program_graph_result_inputs(result):
-                raise ValueError("semantic_program_graph_result_input_closure_mismatch")
-            if semantic_edges:
-                if expected_request is None:
-                    raise _JointSimulationBindingMismatchError(
-                        "joint_simulation_semantic_expected_request_required"
-                    )
-                semantic_input_limitation_codes = verify_semantic_program_graph_result_sources(
-                    store, result, expected_request=expected_request
-                )
-        except _JointSimulationBindingMismatchError:
-            raise
-        except (FileNotFoundError, ArtifactOwnershipError, RuntimeDependencyError, OSError) as exc:
-            raise GenerationCycleError("joint_simulation_semantic_sources_unavailable") from exc
-        except (CanonicalProfileRefusalError, ArtifactIntegrityError, TypeError, ValueError) as exc:
-            _joint_simulation_result_integrity_error(
-                "semantic_program_graph_result_sources_invalid", exc
-            )
-        if expected_request is not None:
-            try:
-                JointSimulationHorizonController().validate_selected_result(
-                    request=expected_request, result=result
-                )
-            except (
-                JointSimulationControllerError,
-                ProofReceiptError,
-                TypeError,
-                ValueError,
-            ) as exc:
+    try:
+        result = JointSimulationResult.model_validate(payload)
+        result._content_payload = payload_without_receipt
+        verify_simulation_receipt(result.receipt, result.content_bound_payload())
+    except (ProofReceiptError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
+    if (
+        expected_receipt_payload_hash is not None
+        and result.receipt.payload_hash != expected_receipt_payload_hash
+    ):
+        _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
+    comparator_refs_verified = _verify_ncm_comparator_parts(
+        result, store=store, result_manifest=manifest
+    )
+    _validate_loaded_joint_simulation_result(
+        result,
+        expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=expected_selected_outcomes,
+    )
+    semantic_input_limitation_codes: tuple[str, ...] | None = None
+    try:
+        semantic_edges = [
+            edge
+            for edge in manifest.inputs
+            if edge.role.startswith(SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX)
+        ]
+        if semantic_edges != semantic_program_graph_result_inputs(result):
+            raise ValueError("semantic_program_graph_result_input_closure_mismatch")
+        if semantic_edges:
+            if expected_request is None:
                 raise _JointSimulationBindingMismatchError(
-                    "joint_simulation_result_execution_binding_invalid", str(exc)
-                ) from exc
-        result._comparator_refs_verified = comparator_refs_verified
-        result._verified_semantic_input_limitation_codes = semantic_input_limitation_codes
-        return result
+                    "joint_simulation_semantic_expected_request_required"
+                )
+            semantic_input_limitation_codes = verify_semantic_program_graph_result_sources(
+                store, result, expected_request=expected_request
+            )
+    except _JointSimulationBindingMismatchError:
+        raise
+    except (FileNotFoundError, ArtifactOwnershipError, RuntimeDependencyError, OSError) as exc:
+        raise GenerationCycleError("joint_simulation_semantic_sources_unavailable") from exc
+    except (CanonicalProfileRefusalError, ArtifactIntegrityError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error(
+            "semantic_program_graph_result_sources_invalid", exc
+        )
+    if expected_request is not None:
+        try:
+            JointSimulationHorizonController().validate_selected_result(
+                request=expected_request, result=result
+            )
+        except (JointSimulationControllerError, ProofReceiptError, TypeError, ValueError) as exc:
+            raise _JointSimulationBindingMismatchError(
+                "joint_simulation_result_execution_binding_invalid", str(exc)
+            ) from exc
+    result._comparator_refs_verified = comparator_refs_verified
+    result._verified_semantic_input_limitation_codes = semantic_input_limitation_codes
+    return result
 
 
 class ValueArtifactBindingRefV1(_StrictModel):

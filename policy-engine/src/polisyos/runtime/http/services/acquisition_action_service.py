@@ -59,10 +59,6 @@ from polisyos.runtime.quality.candidate_experiment_reuse import (
     CandidateExperimentReuseActionRequest,
     CandidateExperimentReuseActionSelection,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import (
-    _receipt_verification_scoped,
-    _receipt_verification_worker_scoped,
-)
 
 from .control.run_lifecycle import ControlPlaneService
 from .human_decisions import HumanDecisionService
@@ -2504,7 +2500,6 @@ class AcquisitionActionService:
             )
         return selection
 
-    @_receipt_verification_scoped
     def execute_candidate_experiment_reuse(
         self,
         *,
@@ -3096,7 +3091,6 @@ class AcquisitionActionService:
             **model_input_use_terminal_progress(completed),
         }
 
-    @_receipt_verification_worker_scoped
     def _handle_candidate_experiment_reuse_job(
         self,
         job: ControlJobRecord,
@@ -3661,7 +3655,6 @@ class AcquisitionActionService:
             selection=selection, admission=admission, gateway=gateway, decision=decision
         )
 
-    @_receipt_verification_scoped
     def execute_candidate_experiment(
         self,
         *,
@@ -4124,7 +4117,6 @@ class AcquisitionActionService:
             manifest_profile_sha256=head.receipt_manifest_profile_sha256,
         )
 
-    @_receipt_verification_worker_scoped
     def _handle_candidate_experiment_job(
         self,
         job: ControlJobRecord,

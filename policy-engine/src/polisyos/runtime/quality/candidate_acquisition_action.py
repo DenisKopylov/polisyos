@@ -733,6 +733,7 @@ def _current_candidate_experiment_action_context(
             run_id=origin.run_id,
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
+            verified_origin=current_origin,
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_action_history_not_verified") from exc

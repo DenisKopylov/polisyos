@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -154,9 +154,7 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
     )
     phase = AcquisitionCandidateExperimentPhaseReceipt.model_validate(phase_values)
 
-    control_store = ControlPlaneStore(
-        backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"
-    )
+    control_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     event_log = RuntimeDiagnosticEventLog(store=control_store, artifact_store=store)
     phase_sink = AcquisitionRouteLoopAuthoritySink(
         artifact_store=store,
@@ -258,9 +256,7 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
         }
         binding = WorldBankWDIRouteExecutionBinding(
             **binding_values,
-            binding_id=(
-                "acquisition-route-binding:" + data_plane.content_sha256(binding_values)
-            ),
+            binding_id=("acquisition-route-binding:" + data_plane.content_sha256(binding_values)),
         )
         receipt = CandidateAcquisitionActionReceipt(
             tenant_id=origin.tenant_id,
@@ -368,9 +364,7 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
         wrong_source_ref = source_case.source_ref.model_copy(
             update={"kind": "runtime.quality.unrelated_candidate_source"}
         )
-        wrong_kind_receipt = receipt.model_copy(
-            update={"candidate_source_ref": wrong_source_ref}
-        )
+        wrong_kind_receipt = receipt.model_copy(update={"candidate_source_ref": wrong_source_ref})
         assert {
             key: value
             for key, value in wrong_kind_receipt.model_dump(mode="json").items()
@@ -390,3 +384,155 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
             )
     finally:
         control_store.close()
+
+
+@pytest.mark.parametrize("drift", [None, "head", "owner", "source", "history_head"])
+def test_current_context_reuses_fresh_origin_and_preserves_final_fences(
+    drift: str | None, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Wire the fresh resolver result through the real context and final sink.
+
+    Deep source/phase replay and source selection are controlled owner seams.
+    The current-context code, final sink fold/source comparison, typed admission
+    comparison and drift refusals are real; this does not establish authority.
+    """
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoop,
+        _ResolvedCurrentCandidateExperiment,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _outcome,
+        _selection_case,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
+        _create_job,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
+        _requested_phase,
+    )
+
+    @dataclass(frozen=True)
+    class ComponentCycle:
+        voi_decision: object
+
+    incoming, _ = _selection_case(1)
+    incoming = replace(
+        incoming,
+        generation_run=None,
+        source_cycle=ComponentCycle(_requested_phase().voi_decision),
+        design_problem_basis=None,
+    )
+    phase = _requested_phase().model_copy(
+        update={"coarse_phase": "executing", "receipt_phase": "executing"}
+    )
+    outcome = _outcome(phase, 1)
+    outcome = replace(outcome, executing_phase=phase, executing_phase_ref=outcome.head.receipt_ref)
+    fresh = replace(incoming, current_action_head=outcome.head)
+    assert fresh is not incoming and incoming.current_action_head is None
+    outcomes = (outcome,)
+    store = FileSystemCAS(tmp_path / "cas")
+    sql = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    try:
+        admission = _create_job(sql, job_id=phase.job_id, running=True)
+        admission_reads = 0
+        head_list_reads = 0
+
+        def read_admission():
+            nonlocal admission_reads
+            admission_reads += 1
+            if drift == "owner" and admission_reads == 2:
+                return replace(admission, attempt=admission.attempt + 1)
+            return admission
+
+        def list_heads(**_kwargs):
+            nonlocal head_list_reads
+            head_list_reads += 1
+            if drift == "history_head" and head_list_reads == 2:
+                return (replace(outcome.head, receipt_ref=_hash("0")),)
+            return (outcome.head,)
+
+        control = SimpleNamespace(
+            current_execution_job_admission=read_admission,
+            get_acquisition_action_head=lambda **_: (
+                replace(outcome.head, receipt_ref=_hash("0")) if drift == "head" else outcome.head
+            ),
+            list_acquisition_action_heads=list_heads,
+        )
+        event_log = object()
+        service = object.__new__(ControlPlaneService)
+        service._artifact_store = store
+        service._control_store = control
+        service._diagnostic_event_log = event_log
+        sink = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=store,
+            control_store=control,
+            event_log=event_log,
+            core_source_resolver=service.resolve_completed_control_job_core_run_source,
+        )
+        service._acquisition_route_sink = sink
+        bridge = object.__new__(AcquisitionWorldGrowthBridge)
+        bridge.artifact_store, bridge.control_store = store, control
+        bridge.event_log, bridge.action_head_sink = event_log, sink
+        bridge._source_control_service = service
+        monkeypatch.setattr(
+            AcquisitionRouteLoop,
+            "_resolve_current_candidate_experiment_resolution",
+            lambda self, **_: _ResolvedCurrentCandidateExperiment(fresh, outcomes),
+        )
+        selection = object()
+        monkeypatch.setattr(actions, "_candidate_experiment_source_selection", lambda *_: selection)
+        monkeypatch.setattr(
+            AcquisitionRouteLoopAuthoritySink,
+            "_verify_action_head_with_origin",
+            lambda self, head, **_: outcome,
+        )
+        monkeypatch.setattr(
+            AcquisitionRouteLoopAuthoritySink,
+            "_resolve_candidate_experiment_source",
+            lambda self, **_: (
+                replace(incoming, request_content_hash=_hash("0"))
+                if drift == "source"
+                else incoming
+            ),
+        )
+        forwarded = []
+        actual_fold = AcquisitionRouteLoopAuthoritySink.experiment_action_outcomes
+
+        def observed_fold(self, **kwargs):
+            forwarded.append(kwargs["verified_origin"])
+            assert kwargs["verified_origin"] is fresh
+            return actual_fold(self, **kwargs)
+
+        monkeypatch.setattr(
+            AcquisitionRouteLoopAuthoritySink, "experiment_action_outcomes", observed_fold
+        )
+
+        def invoke():
+            return actions._current_candidate_experiment_action_context(
+                bridge, incoming, outcome.head.receipt_ref
+            )
+
+        if drift is None:
+            context = invoke()
+            assert context.outcome == outcome and context.selection is selection
+            assert forwarded == [fresh]
+            assert admission_reads == head_list_reads == 2
+        else:
+            message = (
+                "live_owner_changed"
+                if drift in {"head", "owner"}
+                else "action_history_not_verified"
+            )
+            with pytest.raises(ValueError, match=message):
+                invoke()
+            assert forwarded == ([] if drift in {"head", "owner"} else [fresh])
+    finally:
+        sql.close()

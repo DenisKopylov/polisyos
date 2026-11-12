@@ -3414,6 +3414,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             {
                 "model_declaration_ref": declaration_ref,
                 "ncm_ref": ncm_ref,
+                "outcome_variable": "fixture-outcome",
             }
         )
     input_record = input_types[schema_version].model_construct(**input_fields)
@@ -3540,18 +3541,51 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
                 model_declaration_ref=declaration_ref,
                 ncm_ref=ncm_ref,
             )
+            # This component fixture substitutes its upstream source/input;
+            # it does not establish canonical source authority.
+            from polisyos.runtime.quality.generation_source import (
+                _CandidateSimulationV5RecordRead,
+                _GenerationSourceReadProvenance,
+            )
+
+            object.__setattr__(
+                source_v2,
+                "_generation_source_read_provenance",
+                _GenerationSourceReadProvenance(
+                    canon_read_status="declared",
+                    source_materialization="reader_materialized",
+                    producer_attestation_status="not_established",
+                    selected_artifact_id=str(n4_ref.artifact_id),
+                    selected_manifest_profile_sha256=n4_ref.manifest_profile_sha256,
+                ),
+            )
+            selected_input = [input_record]
+            input_reads = []
+            original_read = repository._read_candidate_simulation_v5_record
+
+            def component_input_read(**kwargs):
+                if kwargs["ref"] == input_ref:
+                    input_reads.append(kwargs)
+                    item = selected_input[0]
+                    return _CandidateSimulationV5RecordRead(item, None, item, source_v2)
+                return original_read(**kwargs)
+
             monkeypatch.setattr(
-                repository,
-                "load_candidate_scenario_source_for_n5",
-                lambda *_args, **_kwargs: source_v2,
+                repository, "_read_candidate_simulation_v5_record", component_input_read
             )
         loaded_result = SimpleNamespace(
             receipt=SimpleNamespace(payload_hash=execution.n5_result_content_hash)
         )
+        result_reads = []
+
+        def component_result_read(*_args, **kwargs):
+            result_reads.append(kwargs)
+            return loaded_result
+
         monkeypatch.setattr(
             generation_cycle_module,
             "load_joint_simulation_result",
-            lambda *_args, **_kwargs: loaded_result,
+            component_result_read,
         )
         resolver = getattr(repository, f"resolve_candidate_simulation_{schema_version}")
         replayed = resolver(
@@ -3565,6 +3599,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         if schema_version == "v5":
             # Transport-only component seam: the result loader above is a
             # substitute, so this checks API shape, not canonical result proof.
+            before_input, before_result = len(input_reads), len(result_reads)
             transported = repository._read_candidate_simulation_v5_record(
                 ref=execution_ref,
                 expected_run_id=run_id,
@@ -3574,6 +3609,26 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             )
             assert transported.record == replayed
             assert transported.result is loaded_result
+            assert transported.input_record is input_record and transported.source is source_v2
+            assert len(input_reads) == before_input + 1
+            assert len(result_reads) == before_result + 1
+            assert input_reads[-1]["expected_run_id"] == run_id
+            assert input_reads[-1]["expected_job_id"] == job_id
+            assert input_reads[-1]["expected_tenant_id"] == tenant_id
+            assert input_reads[-1]["expected_cell_id"] == cell_id
+            repository._read_candidate_simulation_v5_record(
+                ref=execution_ref,
+                expected_run_id=run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                _require_selected_outcome=True,
+            )
+            assert result_reads[-1]["expected_selected_outcomes"] == ("fixture-outcome",)
+            assert (
+                result_reads[-1]["expected_receipt_payload_hash"]
+                == execution.n5_result_content_hash
+            )
         from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 
         replayed_read = _generation_source_read_result(replayed)
@@ -3623,11 +3678,14 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
                 ),
             }
         )
-        monkeypatch.setattr(
-            repository,
-            f"_load_candidate_simulation_input_{schema_version}",
-            lambda _ref: foreign_input,
-        )
+        if schema_version == "v5":
+            selected_input[0] = foreign_input
+        else:
+            monkeypatch.setattr(
+                repository,
+                f"_load_candidate_simulation_input_{schema_version}",
+                lambda _ref: foreign_input,
+            )
         with pytest.raises(
             ValueError,
             match=f"candidate_simulation_{schema_version}_execution_input_mismatch",
@@ -3642,11 +3700,14 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
 
         # Restoring the selected source and input preserves replay of the exact
         # previously written execution, including its selected CAS views.
-        monkeypatch.setattr(
-            repository,
-            f"_load_candidate_simulation_input_{schema_version}",
-            lambda _ref: input_record,
-        )
+        if schema_version == "v5":
+            selected_input[0] = input_record
+        else:
+            monkeypatch.setattr(
+                repository,
+                f"_load_candidate_simulation_input_{schema_version}",
+                lambda _ref: input_record,
+            )
         assert (
             resolver(
                 ref=execution_ref,

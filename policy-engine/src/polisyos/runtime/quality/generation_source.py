@@ -103,10 +103,12 @@ class _GenerationSourceReadExpectations:
 
 @dataclass(frozen=True)
 class _CandidateSimulationV5RecordRead:
-    """Carry a canonical record and its result only within the current owner read."""
+    """Carry verified V5 source facts only within the current owner read."""
 
     record: object
     result: JointSimulationResult | None
+    input_record: CandidateSimulationN5InputV5
+    source: N4CandidateScenarioSourceRecordV2 | N4CandidateScenarioSourceRecordV3
 
 
 @dataclass(frozen=True)
@@ -3860,6 +3862,7 @@ class GenerationSourceRepository:
         _source_ref: ArtifactRef | None = None,
         _input_snapshot: object | None = None,
         _input_ref: ArtifactRef | None = None,
+        _require_selected_outcome: bool = False,
     ) -> _CandidateSimulationV5RecordRead:
         """Validate one V5 record; only the paired owner path supplies snapshots."""
         import hashlib
@@ -3964,7 +3967,19 @@ class GenerationSourceRepository:
         elif _input_snapshot is None:
             if _input_ref is not None or (_source_snapshot is not None and _source_ref is None):
                 raise ValueError("candidate_simulation_v5_execution_input_mismatch")
-            input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
+            input_read = self._read_candidate_simulation_v5_record(
+                ref=record.n5_input_ref,
+                expected_run_id=record.run_id,
+                expected_job_id=record.job_id,
+                expected_tenant_id=record.tenant_id,
+                expected_cell_id=record.cell_id,
+                _source_snapshot=_source_snapshot,
+                _source_ref=_source_ref,
+            )
+            input_record = input_read.record
+            if _source_snapshot is None:
+                _source_snapshot = input_read.source
+                _source_ref = input_read.input_record.n4_source_ref
         else:
             input_read = _generation_source_read_result(_input_snapshot)
             if (
@@ -4075,6 +4090,12 @@ class GenerationSourceRepository:
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
                 expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+                expected_selected_outcomes=(input_record.outcome_variable,)
+                if _require_selected_outcome
+                else None,
+                expected_receipt_payload_hash=record.n5_result_content_hash
+                if _require_selected_outcome
+                else None,
             )
             if (
                 result.receipt.payload_hash != record.n5_result_content_hash
@@ -4086,7 +4107,7 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v5_current_lease_not_established")
         record = _mark_canonical_profile_read(record, profile_read, ref)
-        return _CandidateSimulationV5RecordRead(record, result)
+        return _CandidateSimulationV5RecordRead(record, result, input_record, source)
 
     def _read_candidate_simulation_v5_numerical_output(
         self,
@@ -4103,10 +4124,7 @@ class GenerationSourceRepository:
             CandidateSimulationN5InputV5,
         )
         from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
-        from polisyos.runtime.quality.generation_cycle import (
-            _joint_simulation_port_outcome,
-            load_joint_simulation_result,
-        )
+        from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 
         expected = {
             "expected_run_id": expected_run_id,
@@ -4114,7 +4132,10 @@ class GenerationSourceRepository:
             "expected_tenant_id": expected_tenant_id,
             "expected_cell_id": expected_cell_id,
         }
-        execution = self.resolve_candidate_simulation_v5(ref=ref, **expected)
+        selected_read = self._read_candidate_simulation_v5_record(
+            ref=ref, _require_selected_outcome=True, **expected
+        )
+        execution = selected_read.record
         if type(execution) is not CandidateSimulationExecutionV5:
             raise ValueError("candidate_simulation_v5_numerical_execution_required")
         selected_refs = (
@@ -4125,10 +4146,10 @@ class GenerationSourceRepository:
         )
         if any(selected.manifest_profile_sha256 is None for selected in selected_refs):
             raise ValueError("candidate_simulation_v5_numerical_selected_view_missing")
-        input_record = self.resolve_candidate_simulation_v5(ref=execution.n5_input_ref, **expected)
+        input_record = selected_read.input_record
         if type(input_record) is not CandidateSimulationN5InputV5:
             raise ValueError("candidate_simulation_v5_numerical_input_required")
-        source = self.load_candidate_scenario_source_for_n5(execution.n4_source_ref, **expected)
+        source = selected_read.source
         if type(source) not in (
             N4CandidateScenarioSourceRecordV2,
             N4CandidateScenarioSourceRecordV3,
@@ -4144,14 +4165,9 @@ class GenerationSourceRepository:
             or context.context.content_hash != input_record.materialization.context_hash
         ):
             raise ValueError("candidate_simulation_v5_numerical_context_mismatch")
-        result = load_joint_simulation_result(
-            execution.n5_result_ref,
-            store=self.store,
-            expected_world_model_record_content_hash=execution.world_model_record_hash,
-            expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
-            expected_selected_outcomes=(input_record.outcome_variable,),
-            expected_receipt_payload_hash=execution.n5_result_content_hash,
-        )
+        result = selected_read.result
+        if result is None:
+            raise ValueError("candidate_simulation_v5_execution_result_required")
         status, blockers = _joint_simulation_port_outcome(result)
         if status != "joint_simulated":
             raise ValueError("candidate_simulation_v5_numerical_result_not_completed")

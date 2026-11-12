@@ -8,3 +8,6 @@
 - `gy_content_hash_rows(columns, rows)` streams the canonical historical `{columns, rows}` envelope
   through the same volatile-field projection as `gy_content_hash`; it accepts built-in JSON row
   sequences and fails closed for unsupported one-shot row values.
+- `gy_content_hash_operation_rule_identity()` supplies an opaque process-local discriminator for
+  bounded memoization; it is not an authority claim or a persisted identity and returns `None`
+  when supported native rule state is unavailable.

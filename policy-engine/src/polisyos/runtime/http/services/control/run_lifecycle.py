@@ -2501,6 +2501,7 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_generation_not_reopenable")
         return latest.head.action_generation + 1
 
+    @_receipt_verification_scoped
     def action_outcomes(
         self,
         *,
@@ -4624,6 +4625,7 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         return chain
 
+    @_receipt_verification_scoped
     def verify_action_head(
         self, head: AcquisitionActionHeadRecord
     ) -> VerifiedAcquisitionActionOutcome:
@@ -4769,6 +4771,7 @@ class AcquisitionRouteLoopAuthoritySink:
             candidate_experiment_terminal_history=candidate_experiment_history,
         )
 
+    @_receipt_verification_scoped
     def experiment_action_outcomes(
         self,
         *,
@@ -5678,6 +5681,7 @@ class AcquisitionRouteLoopAuthoritySink:
             candidate_experiment_orphan_ref=candidate_experiment_orphan_ref,
         )
 
+    @_receipt_verification_scoped
     def recover_candidate_experiment_terminal(
         self,
         expected: AcquisitionCandidateExperimentTerminalReceipt,

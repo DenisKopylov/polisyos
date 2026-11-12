@@ -475,6 +475,58 @@ def run_candidate_experiment_action_oracle(
         )
 
 
+def _assert_genuine_candidate_route_receipt_scope(action_service, *, run_id: str) -> None:
+    """Measure receipt recomputation inside two independently reopened real routes."""
+    import sys
+    from collections import Counter
+
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from tests._helpers import acquisition_served_history as served
+
+    monitoring = sys.monitoring
+    tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
+    monitoring.use_tool_id(tool_id, "genuine-candidate-route-receipt")
+    load_code = load_joint_simulation_result.__code__
+    build_code = owner.build_content_bound_simulation_receipt.__code__
+    reads: Counter[object] = Counter()
+    builds: Counter[object] = Counter()
+
+    def count(observed: object, _offset: int) -> None:
+        if observed is load_code:
+            frame = sys._getframe(1)
+            ref = frame.f_locals["ref"]
+            key = (id(frame.f_locals["store"]), artifacts.artifact_ref_identity_key(ref))
+            reads[key] += 1
+        elif observed is build_code:
+            binding = owner._RECEIPT_CAS_BINDING.get()
+            if binding is not None:
+                builds[binding[1]] += 1
+
+    monitoring.register_callback(tool_id, monitoring.events.PY_START, count)
+    monitoring.set_local_events(tool_id, load_code, monitoring.events.PY_START)
+    monitoring.set_local_events(tool_id, build_code, monitoring.events.PY_START)
+    try:
+        outcomes = []
+        for _ in range(2):
+            reads.clear()
+            builds.clear()
+            projection = action_service.get_candidate_experiment_route(
+                tenant_id=served.TENANT, cell_id=served.CELL, run_id=run_id
+            )
+            repeated = {key for key, count in reads.items() if count >= 2}
+            assert repeated, "real candidate route did not repeat a selected result read"
+            assert all(builds[key] == 1 for key in repeated)
+            assert owner._RECEIPT_MEMO.get() is None
+            outcomes.append(projection)
+        assert outcomes[0] == outcomes[1]
+    finally:
+        monitoring.set_local_events(tool_id, load_code, 0)
+        monitoring.set_local_events(tool_id, build_code, 0)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(tool_id)
+
+
 def _run_candidate_experiment_action_oracle(
     *,
     tmp_path: Path,
@@ -510,6 +562,10 @@ def _run_candidate_experiment_action_oracle(
     run_id = str(values["run_id"])
     client, trust = values["client"], values["trust"]
     action_service = values["action_service"]
+    import os
+
+    if os.environ.get("POLISYOS_TEST_CANDIDATE_ROUTE_RECEIPT_SCOPE") == "1":
+        _assert_genuine_candidate_route_receipt_scope(action_service, run_id=run_id)
     projection = action_service.get_candidate_experiment_route(
         tenant_id=served.TENANT,
         cell_id=served.CELL,

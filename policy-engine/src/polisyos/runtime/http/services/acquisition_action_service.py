@@ -1485,6 +1485,7 @@ class AcquisitionActionService:
         if getattr(self, "_movement_service", None) is not None:
             self._movement_service.consume_terminal(supplier_receipt_ref=receipt_ref)
 
+    @_receipt_verification_scoped
     def get_candidate_experiment_route(
         self, *, tenant_id: str, cell_id: str, run_id: str
     ) -> CandidateExperimentRouteProjection:
@@ -2204,6 +2205,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
         return projection
 
+    @_receipt_verification_scoped
     def replay_candidate_experiment_authority(
         self,
         *,
@@ -2245,6 +2247,7 @@ class AcquisitionActionService:
             effect_handler=effect_handler,
         )
 
+    @_receipt_verification_scoped
     def load_candidate_experiment_decision_history(
         self,
         *,
@@ -2289,6 +2292,7 @@ class AcquisitionActionService:
             decision_ref=decision_ref,
         )
 
+    @_receipt_verification_scoped
     def request_candidate_experiment_decision(
         self,
         *,
@@ -2358,6 +2362,7 @@ class AcquisitionActionService:
             ),
         )
 
+    @_receipt_verification_scoped
     def request_candidate_experiment_reuse_decision(
         self,
         *,

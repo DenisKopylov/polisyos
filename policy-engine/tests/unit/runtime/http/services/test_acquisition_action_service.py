@@ -1528,3 +1528,95 @@ def test_completed_candidate_reentry_projects_blocked_evaluation() -> None:
             selected_evaluation=_candidate_selected_evaluation(),
             blocker_reason="candidate_evaluation_basis_not_established",
         )
+
+
+def test_candidate_route_operation_scopes_real_cas_reads_and_resets_on_refusal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """Exercise the real service scope and receipt owner with an upstream route double."""
+    import json
+    import sys
+
+    from polisyos.runtime.quality import joint_simulation_horizon as receipt_owner
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+        GenerationCycleError,
+        load_joint_simulation_result,
+    )
+
+    fixture = Path(__file__).resolve().parents[5] / (
+        "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
+    payload = json.loads(fixture.read_text())["recursive_runs"][0]["nodes"][2]["joint_simulation"]
+    store = artifacts.FileSystemCAS(tmp_path / "operation-cas")
+    ref = store.put_json(
+        payload,
+        artifacts.ArtifactWriteOptions(
+            kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA, version="1.0.0"
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        return_selected_profile=True,
+    )
+    builds: list[int] = []
+    reads: list[int] = []
+    real_get_bytes = store.get_bytes
+    missing_on_second_read = False
+
+    def get_bytes(*args: Any, **kwargs: Any) -> bytes:
+        reads.append(1)
+        if missing_on_second_read and len(reads) % 2 == 0:
+            raise FileNotFoundError("selected source removed")
+        return real_get_bytes(*args, **kwargs)
+
+    monkeypatch.setattr(store, "get_bytes", get_bytes)
+    selected = object()
+
+    class RouteLoop:
+        def resolve_current_candidate_experiment(self, *, run_id: str) -> object:
+            assert run_id == "run-receipt-scope"
+            load_joint_simulation_result(ref, store=store)
+            load_joint_simulation_result(ref, store=store)
+            return selected
+
+    service = object.__new__(AcquisitionActionService)
+    monkeypatch.setattr(service, "_candidate_experiment_loop", lambda **_kwargs: RouteLoop())
+    monkeypatch.setattr(
+        service,
+        "_candidate_experiment_projection",
+        lambda origin: SimpleNamespace(model_copy=lambda *, update: (origin, update)),
+    )
+    monkeypatch.setattr(service, "_candidate_experiment_current_action_projection", lambda _: None)
+
+    monitoring = sys.monitoring
+    tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
+    monitoring.use_tool_id(tool_id, "candidate-route-receipt-scope-test")
+    code = receipt_owner.build_content_bound_simulation_receipt.__code__
+    monitoring.register_callback(
+        tool_id, monitoring.events.PY_START, lambda *_args: builds.append(1)
+    )
+    monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
+
+    def reset_monitoring() -> None:
+        monitoring.set_local_events(tool_id, code, 0)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(tool_id)
+
+    request.addfinalizer(reset_monitoring)
+    scope = {"tenant_id": "tenant", "cell_id": "cell", "run_id": "run-receipt-scope"}
+    assert service.get_candidate_experiment_route(**scope)[0] is selected
+    assert len(reads) == 2 and len(builds) == 1
+    assert receipt_owner._RECEIPT_MEMO.get() is None
+    assert service.get_candidate_experiment_route(**scope)[0] is selected
+    assert len(reads) == 4 and len(builds) == 2
+    missing_on_second_read = True
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+        service.get_candidate_experiment_route(**scope)
+    assert receipt_owner._RECEIPT_MEMO.get() is None
+    missing_on_second_read = False
+    assert service.get_candidate_experiment_route(**scope)[0] is selected
+    assert len(builds) == 4

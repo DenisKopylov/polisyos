@@ -559,17 +559,8 @@ def test_diagnostic_freshness_real_engine_variants(engine: str, tmp_path: Path) 
     assert {work.event_id for work in first.physical_work_observations}.isdisjoint(
         work.event_id for work in second.physical_work_observations
     )
-    store = request.engine_plan[0].program_store if engine == "program_graph" else None
-    if engine == "program_graph":
-        with pytest.raises(
-            ValueError, match="n5_diagnostic_program_graph_metrics_owner_not_established"
-        ):
-            projection.project_n5_diagnostic_freshness_bytes(first)
-        with pytest.raises(ValueError, match="n5_diagnostic_metrics_ref_not_established"):
-            projection.project_n5_diagnostic_freshness_bytes(first, store=store)
-        return
-    left = projection.project_n5_diagnostic_freshness_bytes(first, store=store)
-    right = projection.project_n5_diagnostic_freshness_bytes(second, store=store)
+    left = projection.project_n5_diagnostic_freshness_bytes(first)
+    right = projection.project_n5_diagnostic_freshness_bytes(second)
     assert left == right
 
 
@@ -621,11 +612,8 @@ def test_diagnostic_selected_program_graph_actual_producer(
         for trajectory in first.trajectories
         for point in trajectory.points
     )
-    for result in (first, second):
-        with pytest.raises(
-            ValueError, match="n5_diagnostic_method_execution_owner_not_established"
-        ):
-            projection.project_n5_diagnostic_freshness_bytes(result, store=store)
+    original = projection.project_n5_diagnostic_freshness_bytes(first)
+    assert original == projection.project_n5_diagnostic_freshness_bytes(second)
 
     malformed = first.model_dump(mode="json")
     malformed["trajectories"][0]["diagnostics"]["method_execution_sources"][0]["step"] += 1
@@ -636,5 +624,65 @@ def test_diagnostic_selected_program_graph_actual_producer(
         diagnostics=malformed["diagnostics"],
     ).model_dump(mode="json")
     changed = horizon.JointSimulationResult.model_validate(malformed)
-    with pytest.raises(ValueError, match="n5_diagnostic_metrics_source_join_not_established"):
-        projection.project_n5_diagnostic_freshness_bytes(changed, store=store)
+    assert original != projection.project_n5_diagnostic_freshness_bytes(changed)
+
+    changed_status = first.model_dump(mode="json")
+    rows = changed_status["trajectories"][0]["diagnostics"]["method_execution_sources"][0][
+        "occurrences"
+    ]
+    assert rows and rows[0]["status"] == "succeeded"
+    rows[0]["status"] = "failed"
+    status_payload = {key: value for key, value in changed_status.items() if key != "receipt"}
+    changed_status["receipt"] = horizon.build_content_bound_simulation_receipt(
+        engine_kind=changed_status["receipt"]["engine_kind"],
+        payload=status_payload,
+        diagnostics=changed_status["diagnostics"],
+    ).model_dump(mode="json")
+    assert original != projection.project_n5_diagnostic_freshness_bytes(
+        horizon.JointSimulationResult.model_validate(changed_status)
+    )
+
+    foreign = first.model_dump(mode="json")
+    ids = foreign["trajectories"][0]["diagnostics"]["method_execution_sources"][0]["occurrence_ids"]
+    assert ids
+    ids[0] = "foreign:0:method"
+    foreign["trajectories"][0]["diagnostics"]["replication_method_execution_sources"][0][0][
+        "occurrence_ids"
+    ][0] = "foreign:0:method"
+    foreign_payload = {key: value for key, value in foreign.items() if key != "receipt"}
+    foreign["receipt"] = horizon.build_content_bound_simulation_receipt(
+        engine_kind=foreign["receipt"]["engine_kind"],
+        payload=foreign_payload,
+        diagnostics=foreign["diagnostics"],
+    ).model_dump(mode="json")
+    # Provenance-ID alias equality is explicitly outside this QA-only profile.
+    admitted = horizon.JointSimulationResult.model_validate(foreign)
+    assert original == projection.project_n5_diagnostic_freshness_bytes(admitted)
+    assert b"intra_result_excluded_provenance_id_alias_equality_not_compared" in original
+
+
+def test_diagnostic_freshness_preserves_real_work_failure_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.foundry.methods.catalog.simulation.dynamics import (
+        StockFlowSystemDynamicsEstimator,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+        _shared_resource_stock_flow_fallback_request,
+    )
+
+    def fail_step(_state: object, _params: object) -> object:
+        raise ValueError("controlled producer interruption")
+
+    monkeypatch.setattr(StockFlowSystemDynamicsEstimator, "pure_step", staticmethod(fail_step))
+    request = _shared_resource_stock_flow_fallback_request(
+        candidate_order=("system_dynamics", "method_registry_estimator")
+    )
+    first = horizon.JointSimulationHorizonController().run(request)
+    second = horizon.JointSimulationHorizonController().run(request)
+    assert first.trajectories == ()
+    assert first.diagnostics["physical_work_interruption"] == "n5_physical_work_failed"
+    assert first.physical_work_observations[0].status == "failed"
+    assert projection.project_n5_diagnostic_freshness_bytes(first) == (
+        projection.project_n5_diagnostic_freshness_bytes(second)
+    )

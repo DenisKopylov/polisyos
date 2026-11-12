@@ -102,6 +102,14 @@ class _GenerationSourceReadExpectations:
 
 
 @dataclass(frozen=True)
+class _CandidateSimulationV5RecordRead:
+    """Carry a canonical record and its result only within the current owner read."""
+
+    record: object
+    result: JointSimulationResult | None
+
+
+@dataclass(frozen=True)
 class _CandidateSimulationV5NumericalRead:
     """Actual selected V5 facts reopened by the existing source/result owners."""
 
@@ -3749,13 +3757,15 @@ class GenerationSourceRepository:
         N4CandidateScenarioSourceRecordV3,
         object,
         object,
+        JointSimulationResult,
     ]:
         """Resolve one selected N4 source and its paired V5 input/execution.
 
         The source snapshot is created by this repository under the unchanged
         run/tenant/cell and exact selected CAS view. It is shared only between
         the two V5 membership checks in this call; it is not an admission or a
-        reusable permission result.
+        reusable permission result. The execution result travels with this read
+        so its immediate consumer does not reopen the same selected CAS view.
         """
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationExecutionV5,
@@ -3771,7 +3781,7 @@ class GenerationSourceRepository:
         if type(source) is not N4CandidateScenarioSourceRecordV3:
             raise ValueError("acquisition_prior_source_semantics_unobserved")
 
-        input_record = self._resolve_candidate_simulation_v5_record(
+        input_read = self._read_candidate_simulation_v5_record(
             ref=input_ref,
             expected_run_id=expected_run_id,
             expected_job_id=source.job_id,
@@ -3780,10 +3790,11 @@ class GenerationSourceRepository:
             _source_snapshot=source,
             _source_ref=source_ref,
         )
+        input_record = input_read.record
         if type(input_record) is not CandidateSimulationN5InputV5:
             raise ValueError("candidate_simulation_v5_input_record_required")
 
-        execution = self._resolve_candidate_simulation_v5_record(
+        execution_read = self._read_candidate_simulation_v5_record(
             ref=execution_ref,
             expected_run_id=expected_run_id,
             expected_job_id=source.job_id,
@@ -3794,9 +3805,12 @@ class GenerationSourceRepository:
             _input_snapshot=input_record,
             _input_ref=input_ref,
         )
+        execution = execution_read.record
         if type(execution) is not CandidateSimulationExecutionV5:
             raise ValueError("candidate_simulation_v5_execution_record_required")
-        return source, execution, input_record
+        if execution_read.result is None:
+            raise ValueError("candidate_simulation_v5_execution_result_required")
+        return source, execution, input_record, execution_read.result
 
     def _resolve_candidate_simulation_v5_record(
         self,
@@ -3815,6 +3829,38 @@ class GenerationSourceRepository:
         _input_snapshot: object | None = None,
         _input_ref: ArtifactRef | None = None,
     ) -> object:
+        """Return the canonical record without exposing its ephemeral result read."""
+        return self._read_candidate_simulation_v5_record(
+            ref=ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            require_current_lease=require_current_lease,
+            current_lease_resolver=current_lease_resolver,
+            _source_snapshot=_source_snapshot,
+            _source_ref=_source_ref,
+            _input_snapshot=_input_snapshot,
+            _input_ref=_input_ref,
+        ).record
+
+    def _read_candidate_simulation_v5_record(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        require_current_lease: bool = False,
+        current_lease_resolver: Callable[[object], bool] | None = None,
+        _source_snapshot: N4CandidateScenarioSourceRecordV2
+        | N4CandidateScenarioSourceRecordV3
+        | None = None,
+        _source_ref: ArtifactRef | None = None,
+        _input_snapshot: object | None = None,
+        _input_ref: ArtifactRef | None = None,
+    ) -> _CandidateSimulationV5RecordRead:
         """Validate one V5 record; only the paired owner path supplies snapshots."""
         import hashlib
 
@@ -3999,6 +4045,7 @@ class GenerationSourceRepository:
             or source_v1.candidate.atom.content_hash != record.original_n4_atom_hash
         ):
             raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+        result: JointSimulationResult | None = None
         if is_input:
             materialization = record.materialization
             if (
@@ -4039,7 +4086,7 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v5_current_lease_not_established")
         record = _mark_canonical_profile_read(record, profile_read, ref)
-        return record
+        return _CandidateSimulationV5RecordRead(record, result)
 
     def _read_candidate_simulation_v5_numerical_output(
         self,

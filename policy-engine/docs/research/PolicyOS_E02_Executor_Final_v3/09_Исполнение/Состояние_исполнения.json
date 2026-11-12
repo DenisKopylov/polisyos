@@ -9827,6 +9827,19 @@
             "output": "policy-engine/_cache/e02/n5-historical-read-cost-r1/qualified-r2/",
             "N5": "UNRUN",
             "finding": "Selected evaluation loads/verifies the same result twice inside one operation. Explicit private owner transport reuse in progress, authority/head reads remain fresh. Diagnostic cProfile does not explain the entire timeout."
+          },
+          "duplicate_result_read_repair": {
+            "status": "IMPLEMENTED_RETAINED_READER_QUALIFIED",
+            "unit_PASS": 9,
+            "genuine_complete_consumer_reads": 2,
+            "result_fetches_per_read": 1,
+            "receipt_verifications_per_read": 1,
+            "negative_refusals": 7,
+            "independent_review": "GO",
+            "output": "policy-engine/_cache/e02/n5-duplicate-result-read-r1/run/",
+            "wall_seconds": 84.95,
+            "peak_sampled_process_tree_rss_bytes": 1591689216,
+            "boundary": "Explicit same-operation verified-result transport; public record-only API, full joins and lease guards preserved; no N5/HTTP/full-pipeline speed claim."
           }
         }
       },

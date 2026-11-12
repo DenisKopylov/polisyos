@@ -1074,13 +1074,15 @@ def resolve_selected_acquisition_evaluation_parts(
     if any(ref is None for ref in (source_ref, context_ref, input_ref, result_ref)):
         raise ValueError("acquisition_prior_selected_evaluation_refs_missing")
     repository = GenerationSourceRepository(artifact_store)
-    source, execution, input_record = repository._resolve_selected_candidate_simulation_v5_pair(
-        source_ref=source_ref,
-        execution_ref=execution_ref,
-        input_ref=input_ref,
-        expected_run_id=run_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
+    source, execution, input_record, result = (
+        repository._resolve_selected_candidate_simulation_v5_pair(
+            source_ref=source_ref,
+            execution_ref=execution_ref,
+            input_ref=input_ref,
+            expected_run_id=run_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
     )
     if (
         type(execution) is not CandidateSimulationExecutionV5
@@ -1128,11 +1130,12 @@ def resolve_selected_acquisition_evaluation_parts(
         expected_tenant_id=tenant_id,
         expected_cell_id=cell_id,
     )
-    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_cycle import (
+        _validate_loaded_joint_simulation_result,
+    )
 
-    result = load_joint_simulation_result(
-        result_ref,
-        store=artifact_store,
+    _validate_loaded_joint_simulation_result(
+        result,
         expected_world_model_record_content_hash=execution.world_model_record_hash,
         expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
         expected_selected_outcomes=(input_record.outcome_variable,),

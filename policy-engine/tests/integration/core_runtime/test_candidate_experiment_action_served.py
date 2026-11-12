@@ -111,8 +111,9 @@ def _assert_selected_n4_source_replay_is_consolidated(
         assert baseline_source_loads == 4
         assert batched_source_loads == 1
         assert tuple(item.model_dump(mode="json") for item in baseline) == tuple(
-            item.model_dump(mode="json") for item in resolved
+            item.model_dump(mode="json") for item in resolved[:3]
         )
+        assert resolved[3].receipt.payload_hash == resolved[1].n5_result_content_hash
         baseline_source, _, baseline_input = baseline
 
         bad_source_ref = source_ref.model_copy(

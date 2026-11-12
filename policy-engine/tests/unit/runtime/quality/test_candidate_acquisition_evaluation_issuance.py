@@ -387,3 +387,43 @@ def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_ev
         corrupt["effective_native_values_hex"] = exact_n5_content_bytes({"changed": True}).hex()
         with pytest.raises(ValueError, match="candidate_evaluation_basis_values_hash_mismatch"):
             CandidateAcquisitionEvaluationBasis.model_validate(corrupt)
+
+
+@pytest.mark.parametrize(
+    ("field", "changed", "expected_error"),
+    [
+        ("world_model_record_content_hash", "sha256:" + "b" * 64, "wmr_mismatch"),
+        ("atom_ids", ("foreign-atom",), "atom_binding_mismatch"),
+        ("selected_outcomes", ("foreign-outcome",), "selected_outcomes_binding_mismatch"),
+    ],
+)
+def test_selected_result_bindings_reject_constructed_or_mutated_values(
+    field, changed, expected_error
+) -> None:
+    """The reused semantic validator still checks actual values, not a read marker."""
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        _validate_loaded_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+
+    # Only refusal is tested here. This deliberately incomplete construction
+    # cannot stand in for the canonical CAS/receipt read exercised by the owner.
+    values = {
+        "uncertainty_kind": "K_sim",
+        "state_consumption": None,
+        "world_model_record_content_hash": "sha256:" + "a" * 64,
+        "atom_ids": ("selected-atom",),
+        "selected_outcomes": ("selected-outcome",),
+    }
+    for result in (
+        JointSimulationResult.model_construct(**{**values, field: changed}),
+        JointSimulationResult.model_construct(**values).model_copy(update={field: changed}),
+    ):
+        with pytest.raises(GenerationCycleError, match=expected_error):
+            _validate_loaded_joint_simulation_result(
+                result,
+                expected_world_model_record_content_hash=values["world_model_record_content_hash"],
+                expected_atom_ids=values["atom_ids"],
+                expected_selected_outcomes=values["selected_outcomes"],
+            )

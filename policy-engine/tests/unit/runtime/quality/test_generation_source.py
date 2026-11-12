@@ -3545,12 +3545,13 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
                 "load_candidate_scenario_source_for_n5",
                 lambda *_args, **_kwargs: source_v2,
             )
+        loaded_result = SimpleNamespace(
+            receipt=SimpleNamespace(payload_hash=execution.n5_result_content_hash)
+        )
         monkeypatch.setattr(
             generation_cycle_module,
             "load_joint_simulation_result",
-            lambda *_args, **_kwargs: SimpleNamespace(
-                receipt=SimpleNamespace(payload_hash=execution.n5_result_content_hash)
-            ),
+            lambda *_args, **_kwargs: loaded_result,
         )
         resolver = getattr(repository, f"resolve_candidate_simulation_{schema_version}")
         replayed = resolver(
@@ -3561,6 +3562,18 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             expected_cell_id=cell_id,
         )
         assert replayed == execution
+        if schema_version == "v5":
+            # Transport-only component seam: the result loader above is a
+            # substitute, so this checks API shape, not canonical result proof.
+            transported = repository._read_candidate_simulation_v5_record(
+                ref=execution_ref,
+                expected_run_id=run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            assert transported.record == replayed
+            assert transported.result is loaded_result
         from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 
         replayed_read = _generation_source_read_result(replayed)

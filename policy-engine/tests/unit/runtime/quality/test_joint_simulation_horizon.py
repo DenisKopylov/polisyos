@@ -673,6 +673,311 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
 
+def test_operation_receipt_memo_requires_fresh_cas_and_exact_signed_payload(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """Memoize only a freshly selected CAS receipt, never its mutable result."""
+    import sys
+
+    from polisyos.core.artifacts.manifest import WarningRecord
+    from polisyos.core.canon.canon_json import CanonSpec
+    from polisyos.pdc._impl import gy_waist
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+        GenerationCycleError,
+        load_joint_simulation_result,
+    )
+
+    fixture_path = (
+        Path(__file__).resolve().parents[4]
+        / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
+    payload = json.loads(fixture_path.read_text())["recursive_runs"][0]["nodes"][2][
+        "joint_simulation"
+    ]
+    store = FileSystemCAS(tmp_path / "receipt-cas")
+    options = PutOptions(
+        kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA, version="1.0.0"),
+    )
+    ref = store.put_json(
+        payload,
+        options,
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        return_selected_profile=True,
+    )
+    original = owner.build_content_bound_simulation_receipt
+    calls: list[int] = []
+
+    def counted(_code: object, _offset: int) -> None:
+        calls.append(1)
+
+    monitoring = sys.monitoring
+    tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
+    monitoring.use_tool_id(tool_id, "receipt-test")
+    monitoring.register_callback(tool_id, monitoring.events.PY_START, counted)
+    monitoring.set_local_events(tool_id, original.__code__, monitoring.events.PY_START)
+
+    def reset_monitoring() -> None:
+        monitoring.set_local_events(tool_id, original.__code__, 0)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(tool_id)
+
+    request.addfinalizer(reset_monitoring)
+    with owner._receipt_verification_operation():
+        first = load_joint_simulation_result(ref, store=store)
+        second = load_joint_simulation_result(ref, store=store)
+        assert first is not second and len(calls) == 1
+        with owner._receipt_verification_operation():
+            load_joint_simulation_result(ref, store=store)
+            assert len(calls) == 1
+        outer_memo = owner._RECEIPT_MEMO.get()
+
+        @owner._receipt_verification_worker_scoped
+        def worker() -> None:
+            assert owner._RECEIPT_MEMO.get() is not outer_memo
+            assert owner._RECEIPT_CAS_BINDING.get() is None
+            load_joint_simulation_result(ref, store=store)
+            assert len(calls) == 2
+
+        worker()
+        assert owner._RECEIPT_MEMO.get() is outer_memo
+        load_joint_simulation_result(ref, store=store)
+        assert len(calls) == 2
+
+        @owner._receipt_verification_worker_scoped
+        def failed_worker() -> None:
+            assert owner._RECEIPT_MEMO.get() is not outer_memo
+            assert owner._RECEIPT_CAS_BINDING.get() is None
+            raise RuntimeError("worker failed")
+
+        with owner._cas_receipt_verification_binding(
+            store.get_bytes(ref), ("fixture",), canon=store.get_manifest(ref).canon
+        ):
+            outer_binding = owner._RECEIPT_CAS_BINDING.get()
+            assert outer_binding is not None
+            with pytest.raises(RuntimeError, match="worker failed"):
+                failed_worker()
+            assert owner._RECEIPT_CAS_BINDING.get() is outer_binding
+            assert owner._RECEIPT_MEMO.get() is outer_memo
+        # A returned mutable object is not the next read's cached object.
+        first._content_payload["world_model_record_ref"] = "mutated"
+        with pytest.raises(ProofReceiptError):
+            owner.verify_simulation_receipt(first.receipt, first.content_bound_payload())
+        before = len(calls)
+        third = load_joint_simulation_result(ref, store=store)
+        assert (
+            len(calls) == before and third.content_bound_payload() == second.content_bound_payload()
+        )
+        # Current rules are part of the key; no previous result certifies them.
+        with monkeypatch.context() as changed:
+            changed.setattr(
+                gy_waist,
+                "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+                (*gy_waist.GY_CONTENT_HASH_EXCLUDED_FIELDS, "not_present_in_payload"),
+            )
+            load_joint_simulation_result(ref, store=store)
+            assert len(calls) == before + 1
+        baseline_calls = len(calls)
+        original_exclusion = gy_waist.is_gy_content_hash_excluded_field
+
+        def same_rule_but_closure(key: str) -> bool:
+            return original_exclusion(key)
+
+        with monkeypatch.context() as changed:
+            changed.setattr(gy_waist, "is_gy_content_hash_excluded_field", same_rule_but_closure)
+            load_joint_simulation_result(ref, store=store)
+            load_joint_simulation_result(ref, store=store)
+        assert len(calls) == baseline_calls + 2
+        alternate = store.put_json(
+            payload,
+            PutOptions(
+                kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA, version="1.0.0"),
+                warnings=[WarningRecord(code="test.alternate_profile", msg="different view")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            return_selected_profile=True,
+        )
+        assert alternate.artifact_id == ref.artifact_id
+        assert alternate.manifest_profile_sha256 != ref.manifest_profile_sha256
+        before_alternate = len(calls)
+        load_joint_simulation_result(alternate, store=store)
+        assert len(calls) == before_alternate + 1
+
+        # Every hit still reads the selected manifest and source bytes.
+        def missing(*_args: Any, **_kwargs: Any) -> bytes:
+            raise FileNotFoundError("selected payload removed")
+
+        with monkeypatch.context() as removed:
+            removed.setattr(store, "get_bytes", missing)
+            with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+                load_joint_simulation_result(ref, store=store)
+        with monkeypatch.context() as removed:
+            removed.setattr(store, "get_raw_manifest_bytes", missing)
+            with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+                load_joint_simulation_result(ref, store=store)
+
+        def revoked(*_args: Any, **_kwargs: Any) -> bytes:
+            raise ArtifactOwnershipError("fixture owner revoked")
+
+        with monkeypatch.context() as denied:
+            denied.setattr(store, "get_bytes", revoked)
+            with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+                load_joint_simulation_result(ref, store=store)
+        forged = copy.deepcopy(payload)
+        forged["receipt"]["payload_hash"] = "sha256:" + "a" * 64
+        forged_ref = store.put_json(
+            forged,
+            options,
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            return_selected_profile=True,
+        )
+        with pytest.raises(GenerationCycleError, match="receipt_or_payload_invalid"):
+            load_joint_simulation_result(forged_ref, store=store)
+    after = len(calls)
+    with owner._receipt_verification_operation():
+        load_joint_simulation_result(ref, store=store)
+    assert len(calls) == after + 1
+
+
+def test_operation_receipt_memo_with_explicit_retained_selected_cas(
+    request: pytest.FixtureRequest,
+) -> None:
+    """Measure the exact retained selected result without running another engine."""
+    import os
+    import sys
+    from time import perf_counter
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    fixture_root = os.environ.get("POLISYOS_TEST_RECEIPT_RETAINED_CAS")
+    selected_json = os.environ.get("POLISYOS_TEST_RECEIPT_COMPILED_REF")
+    tenant = os.environ.get("POLISYOS_TEST_RECEIPT_TENANT")
+    cell = os.environ.get("POLISYOS_TEST_RECEIPT_CELL")
+    if not fixture_root or not selected_json or not tenant or not cell:
+        pytest.skip("explicit retained CAS, compiled ref, tenant and cell are required")
+    compiled_ref = ArtifactRef.model_validate_json(selected_json)
+    store = FileSystemCAS.open_existing_read_only(Path(fixture_root))
+    calls: list[int] = []
+    verification_entries: list[int] = []
+    monitoring = sys.monitoring
+    tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
+    monitoring.use_tool_id(tool_id, "receipt-retained-test")
+
+    code = owner.build_content_bound_simulation_receipt.__code__
+    verify_code = owner.verify_simulation_receipt.__code__
+
+    def counted(observed_code: object, _offset: int) -> None:
+        if observed_code is code:
+            calls.append(1)
+        elif observed_code is verify_code:
+            verification_entries.append(1)
+
+    monitoring.register_callback(tool_id, monitoring.events.PY_START, counted)
+    monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
+    monitoring.set_local_events(tool_id, verify_code, monitoring.events.PY_START)
+
+    def reset_monitoring() -> None:
+        monitoring.set_local_events(tool_id, code, 0)
+        monitoring.set_local_events(tool_id, verify_code, 0)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(tool_id)
+
+    request.addfinalizer(reset_monitoring)
+    with tenant_scope(None, tenant_id=tenant, cell_id=cell):
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            load_core_json_artifact(store, compiled_ref)
+        )
+        cycles = tuple(
+            cycle
+            for leaf in compiled.recursive_run.leaf_nodes
+            if leaf.cycle_run is not None
+            for cycle in leaf.cycle_run.cycles
+        )
+        assert len(cycles) == 1
+        simulation = cycles[0].simulation
+        input_ref = simulation.candidate_simulation_n5_input_ref
+        result_ref = simulation.simulation_result_ref
+        assert input_ref is not None and result_ref is not None
+        input_record = CandidateSimulationN5InputV5.model_validate(
+            load_core_json_artifact(store, input_ref)
+        )
+        expected = rebuild_selected_candidate_n5_request(
+            store=store,
+            input_ref=input_ref,
+            run_id=input_record.run_id,
+            job_id=input_record.job_id,
+            tenant_id=input_record.tenant_id,
+            cell_id=input_record.cell_id,
+        )
+        calls.clear()
+        verification_entries.clear()
+        start = perf_counter()
+        with owner._receipt_verification_operation():
+            first = load_joint_simulation_result(result_ref, store=store, expected_request=expected)
+            first_elapsed = perf_counter() - start
+            first_count = len(calls)
+            second = load_joint_simulation_result(
+                result_ref, store=store, expected_request=expected
+            )
+            total_elapsed = perf_counter() - start
+            two_load_entries = len(verification_entries)
+            assert first_count == 1 and len(calls) == 1
+            assert two_load_entries >= 4
+            assert first is not second and first.receipt == second.receipt
+            changed = expected.model_copy(update={"replications": expected.replications + 1})
+            with pytest.raises(
+                ValueError, match="joint_simulation_result_execution_binding_invalid"
+            ):
+                load_joint_simulation_result(result_ref, store=store, expected_request=changed)
+            assert len(calls) == 1
+            changed_comparator = expected.model_copy(
+                update={
+                    "comparator_profile": owner.NCMConditionalComparatorProfile(
+                        outcome_units=dict.fromkeys(expected.selected_outcomes, "fixture-unit")
+                    ),
+                    "evidence_state": expected.evidence_state or {},
+                }
+            )
+            with pytest.raises(
+                ValueError, match="joint_simulation_result_execution_binding_invalid"
+            ):
+                load_joint_simulation_result(
+                    result_ref, store=store, expected_request=changed_comparator
+                )
+            controller = JointSimulationHorizonController()
+            altered_model = first.model_copy(update={"world_model_record_ref": "mutated"})
+            with pytest.raises(JointSimulationControllerError) as model_refusal:
+                controller.validate_selected_result(request=expected, result=altered_model)
+            assert str(model_refusal.value.__cause__) == "result_model_receipt_payload_mismatch"
+            altered_payload = second.model_copy(deep=True)
+            altered_payload._content_payload["world_model_record_ref"] = "mutated"
+            with pytest.raises(JointSimulationControllerError) as payload_refusal:
+                controller.validate_selected_result(request=expected, result=altered_payload)
+            assert isinstance(payload_refusal.value.__cause__, ProofReceiptError)
+        print(
+            f"RETAINED_RECEIPT_BUILDS first={first_count} two_load_builds=1 "
+            f"two_load_verifications={two_load_entries} two_load_hits={two_load_entries - 1} "
+            f"first_seconds={first_elapsed:.6f} two_loads_seconds={total_elapsed:.6f}",
+            flush=True,
+        )
+
+
 def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
     tmp_path: Path,
 ) -> None:

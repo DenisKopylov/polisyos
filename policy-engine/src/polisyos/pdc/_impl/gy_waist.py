@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import types
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
@@ -805,6 +806,57 @@ def gy_content_hash(value: object) -> str:
     except _GyContentHashStreamFallbackError:
         return _legacy_gy_content_hash(value)
     return "sha256:" + digest.hexdigest()
+
+
+def gy_content_hash_operation_rule_identity() -> tuple[object, ...] | None:
+    """Return an opaque, process-local discriminator for the current GY hash rules.
+
+    This supports bounded operation-local memoization only; it is neither a
+    persisted identity nor proof of code integrity or authority. Unsupported
+    callables or mutable rule configurations return ``None``.
+    """
+    functions = (
+        gy_content_hash,
+        _gy_content_hash_plain_json,
+        _iter_gy_content_hash_json,
+        _legacy_gy_content_hash,
+        strip_gy_volatile_fields,
+        is_gy_content_hash_excluded_field,
+    )
+    if any(
+        type(fn) is not types.FunctionType
+        or fn.__closure__ is not None
+        or (fn.__kwdefaults__ is not None and type(fn.__kwdefaults__) is not dict)
+        for fn in functions
+    ):
+        return None
+    if (
+        type(GY_CONTENT_HASH_EXCLUDED_FIELDS) is not tuple
+        or any(type(rule) is not str for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS)
+        or type(_GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS) is not frozenset
+        or type(_GY_CONTENT_HASH_EXCLUDED_SUFFIXES) is not tuple
+    ):
+        return None
+    try:
+        identity = (
+            tuple(
+                (fn, fn.__code__, fn.__defaults__, tuple(sorted((fn.__kwdefaults__ or {}).items())))
+                for fn in functions
+            ),
+            tuple(GY_CONTENT_HASH_EXCLUDED_FIELDS),
+            GY_CONTENT_HASH_EXCLUDED_FIELDS is _GY_CONTENT_HASH_EXCLUDED_SOURCE_RULES,
+            _GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS,
+            _GY_CONTENT_HASH_EXCLUDED_SUFFIXES,
+            json.JSONEncoder,
+            json.JSONEncoder.encode,
+            json.JSONEncoder.iterencode,
+            json.dumps,
+            hashlib.sha256,
+        )
+        hash(identity)
+        return identity
+    except (AttributeError, TypeError, ValueError):
+        return None
 
 
 def gy_content_hash_rows(columns: Sequence[str], rows: Iterable[Sequence[object]]) -> str:
@@ -2581,6 +2633,7 @@ __all__ = [
     "WorkspaceContract",
     "assert_ring2_verifier_provenance",
     "gy_content_hash",
+    "gy_content_hash_operation_rule_identity",
     "gy_content_hash_rows",
     "is_gy_content_hash_excluded_field",
     "strip_gy_volatile_fields",

@@ -120,6 +120,37 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
     )
 
 
+def test_gy_operation_rule_identity_tracks_live_policy_and_refuses_closures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The local discriminator is not a persisted hash or authority claim."""
+    identity = pdc_module.gy_content_hash_operation_rule_identity()
+    assert identity is not None
+    assert pdc_module.gy_content_hash_operation_rule_identity() == identity
+    with monkeypatch.context() as changed:
+        changed.setattr(
+            gy_waist_module,
+            "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+            (*gy_waist_module.GY_CONTENT_HASH_EXCLUDED_FIELDS, "extra_field"),
+        )
+        assert pdc_module.gy_content_hash_operation_rule_identity() != identity
+    original = gy_waist_module.is_gy_content_hash_excluded_field
+
+    def closure(key: str) -> bool:
+        return original(key)
+
+    with monkeypatch.context() as changed:
+        changed.setattr(gy_waist_module, "is_gy_content_hash_excluded_field", closure)
+        assert pdc_module.gy_content_hash_operation_rule_identity() is None
+    with monkeypatch.context() as changed:
+        changed.setattr(
+            gy_waist_module,
+            "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+            list(gy_waist_module.GY_CONTENT_HASH_EXCLUDED_FIELDS),
+        )
+        assert pdc_module.gy_content_hash_operation_rule_identity() is None
+
+
 def _reference_gy_content_hash_excluded_field(key: str) -> bool:
     """Retain the pre-index predicate as an independent behavioral oracle."""
 

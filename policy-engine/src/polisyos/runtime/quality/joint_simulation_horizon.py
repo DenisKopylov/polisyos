@@ -10,15 +10,19 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import json
 import math
 import re
-from collections.abc import Callable, Mapping, Sequence
-from contextlib import nullcontext
+import types
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager, nullcontext
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
+from functools import wraps
 from statistics import pstdev
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Literal, Protocol
@@ -44,7 +48,7 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
     raise_artifact_read_access_error,
 )
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts import (
     ExecuteRequest,
     FoundryInputBindingsRef,
@@ -72,7 +76,7 @@ from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics import ProofKernelInterventionType
 from polisyos.ir.analytics.ncm import NCMSpec  # Pydantic validates at runtime.
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_content_hash, gy_content_hash_operation_rule_identity
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     BoundaryCouplingKind,
     CouplingGraph,
@@ -3169,12 +3173,184 @@ def bind_world_state_consumption(
     return bound
 
 
+_RECEIPT_MEMO: ContextVar[dict[object, bytes] | None] = ContextVar(
+    "joint_simulation_receipt_operation", default=None
+)
+_RECEIPT_CAS_BINDING: ContextVar[tuple[bytes, object, str, int] | None] = ContextVar(
+    "joint_simulation_receipt_cas_binding", default=None
+)
+_RECEIPT_MEMO_MAX_ENTRIES = 8
+_RECEIPT_MEMO_MAX_BYTES = 32 * 1024 * 1024
+
+
+@contextmanager
+def _receipt_verification_operation(*, fresh: bool = False) -> Iterator[None]:
+    """Join one operation-local receipt memo and discard it at the outer boundary."""
+    if not fresh and _RECEIPT_MEMO.get() is not None:
+        yield
+        return
+    token = _RECEIPT_MEMO.set({})
+    binding_token = _RECEIPT_CAS_BINDING.set(None)
+    try:
+        yield
+    finally:
+        _RECEIPT_CAS_BINDING.reset(binding_token)
+        _RECEIPT_MEMO.reset(token)
+
+
+def _receipt_verification_scoped[**P, R](function: Callable[P, R]) -> Callable[P, R]:
+    """Limit memo lifetime to one synchronous action or worker operation."""
+
+    @wraps(function)
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:
+        with _receipt_verification_operation():
+            return function(*args, **kwargs)
+
+    return wrapped
+
+
+def _receipt_verification_worker_scoped[**P, R](function: Callable[P, R]) -> Callable[P, R]:
+    """Never inherit a POST or earlier worker's receipt memo across a job boundary."""
+
+    @wraps(function)
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:
+        with _receipt_verification_operation(fresh=True):
+            return function(*args, **kwargs)
+
+    return wrapped
+
+
+@contextmanager
+def _cas_receipt_verification_binding(
+    payload_bytes: bytes, identity: object, *, canon: object
+) -> Iterator[None]:
+    """Bind only freshly verified selected CAS bytes during the current read."""
+    from polisyos.core.artifacts import CanonInfo
+
+    if (
+        _RECEIPT_MEMO.get() is None
+        or type(payload_bytes) is not bytes
+        or type(canon) is not CanonInfo
+        or canon.name != "polisyos.canon.json"
+    ):
+        yield
+        return
+    token = _RECEIPT_CAS_BINDING.set((payload_bytes, identity, canon.version, canon.max_depth))
+    try:
+        yield
+    finally:
+        _RECEIPT_CAS_BINDING.reset(token)
+
+
+def _same_exact_json(left: object, right: object) -> bool:
+    """Compare decoded JSON without bool/int or signed-zero coercion."""
+    pending = [(left, right)]
+    while pending:
+        a, b = pending.pop()
+        if type(a) is not type(b):
+            return False
+        if type(a) is dict:
+            if any(type(key) is not str for key in a) or a.keys() != b.keys():
+                return False
+            pending.extend((a[key], b[key]) for key in a)
+        elif type(a) is list:
+            if len(a) != len(b):
+                return False
+            pending.extend(zip(a, b, strict=True))
+        elif type(a) is float:
+            if not math.isfinite(a) or a.hex() != b.hex():
+                return False
+        elif type(a) in (str, int, bool, type(None)):
+            if a != b:
+                return False
+        else:
+            return False
+    return True
+
+
+def _receipt_rule_identity() -> tuple[object, ...]:
+    """Capture the live receipt and GY rule configuration, including exclusions."""
+    functions = (
+        build_content_bound_simulation_receipt,
+        _json_ready,
+        _trajectory_count,
+        _contains_negative_zero,
+        gy_content_hash,
+        from_canonical_bytes,
+    )
+    if any(
+        type(fn) is not types.FunctionType
+        or fn.__closure__ is not None
+        or (fn.__kwdefaults__ is not None and type(fn.__kwdefaults__) is not dict)
+        for fn in functions
+    ):
+        raise ValueError("receipt_rule_identity_not_established")
+    gy_identity = gy_content_hash_operation_rule_identity()
+    if gy_identity is None:
+        raise ValueError("receipt_gy_rule_identity_not_established")
+    return (
+        tuple(
+            (
+                fn,
+                getattr(fn, "__code__", None),
+                getattr(fn, "__defaults__", None),
+                tuple(sorted((getattr(fn, "__kwdefaults__", None) or {}).items())),
+            )
+            for fn in functions
+        ),
+        gy_identity,
+        _JOINT_SIMULATION_HORIZON_SCHEMA_VERSIONS,
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+        tuple(SimulationProofReceipt.model_fields),
+        SimulationProofReceipt.__eq__,
+        SimulationProofReceipt.__pydantic_validator__,
+        SimulationProofReceipt.__pydantic_serializer__,
+        json.JSONEncoder,
+        json.JSONEncoder.encode,
+        json.JSONEncoder.iterencode,
+        json.dumps,
+        hashlib.sha256,
+        np.signbit,
+        np.any,
+    )
+
+
+def _receipt_cas_memo_key(
+    receipt: SimulationProofReceipt, payload: Mapping[str, Any]
+) -> tuple[object, ...] | None:
+    memo, binding = _RECEIPT_MEMO.get(), _RECEIPT_CAS_BINDING.get()
+    if memo is None or binding is None:
+        return None
+    raw, identity, version, max_depth = binding
+    if len(raw) > _RECEIPT_MEMO_MAX_BYTES:
+        return None
+    try:
+        decoded = from_canonical_bytes(raw, max_depth=max_depth, version=version)
+        if type(decoded) is not dict or "receipt" not in decoded:
+            return None
+        raw_receipt = decoded.pop("receipt")
+        if not _same_exact_json(decoded, payload) or not _same_exact_json(
+            raw_receipt, receipt.model_dump(mode="json")
+        ):
+            return None
+        key = (identity, raw, version, max_depth, _receipt_rule_identity())
+        hash(key)
+        return key
+    except (TypeError, ValueError, RecursionError):
+        return None
+
+
 def verify_simulation_receipt(
     receipt: SimulationProofReceipt,
     payload: Mapping[str, Any],
 ) -> None:
     """Recompute and verify a simulation receipt against a real run payload."""
 
+    key = _receipt_cas_memo_key(receipt, payload)
+    memo = _RECEIPT_MEMO.get()
+    if key is not None and memo is not None and key in memo:
+        return
     diagnostics = payload.get("diagnostics", {}) if isinstance(payload, Mapping) else {}
     trajectories = payload.get("trajectories", ()) if isinstance(payload, Mapping) else ()
     trajectory_count = _trajectory_count(payload) if isinstance(payload, Mapping) else 0
@@ -3204,6 +3380,14 @@ def verify_simulation_receipt(
         )
     if not receipt.diagnostics_attached:
         raise ProofReceiptError("receipt_diagnostics_missing")
+    if key is not None and memo is not None:
+        raw = _RECEIPT_CAS_BINDING.get()[0]
+        while memo and (
+            len(memo) >= _RECEIPT_MEMO_MAX_ENTRIES
+            or sum(map(len, memo.values())) + len(raw) > _RECEIPT_MEMO_MAX_BYTES
+        ):
+            memo.pop(next(iter(memo)))
+        memo[key] = raw
 
 
 def _trajectory_count(payload: Mapping[str, Any]) -> int:

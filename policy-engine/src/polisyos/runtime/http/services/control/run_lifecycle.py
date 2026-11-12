@@ -266,6 +266,7 @@ from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
     RuntimeDiagnosticEventLog,
 )
+from polisyos.runtime.quality.joint_simulation_horizon import _receipt_verification_scoped
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.source_truth import (
     SourceTruthContractError,
@@ -5300,6 +5301,7 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("candidate_experiment_phase_recovery_chain_readback_failed")
         return head
 
+    @_receipt_verification_scoped
     def prepare_experiment_phase_publication(
         self,
         receipt: AcquisitionCandidateExperimentPhaseReceipt,

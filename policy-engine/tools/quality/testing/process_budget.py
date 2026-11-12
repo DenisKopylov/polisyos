@@ -552,6 +552,15 @@ def run_command(
                                 root_exit_observed = _peek_child_exit(process.pid) is not None
                             except (ChildProcessError, OSError, RuntimeError):
                                 primary_reason = "process_exit_measurement_unavailable"
+                            if root_exit_observed and (
+                                exc.reason == "root_rss_not_observed"
+                                and exc.operation == "memory_info"
+                                and exc.pid == process.pid
+                                and exc.exception_type in {"NoSuchProcess", "ZombieProcess"}
+                            ):
+                                # WNOWAIT confirms this exact child exited during RSS sampling.
+                                rss_measurement_failure = None
+                                raced_process_count += 1
                             if not root_exit_observed and primary_reason is None:
                                 primary_reason = "rss_measurement_unavailable"
                             break

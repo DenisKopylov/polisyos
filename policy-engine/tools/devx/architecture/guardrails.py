@@ -9179,7 +9179,11 @@ def run_sync(args: argparse.Namespace) -> int:
     public_generated_families = _parse_public_generated_artifact_families(args.public_manifest)
     public_inventory = build_public_surface_inventory(public_policies)
     families = _parse_generated_artifacts(args.generated_manifest)
-    deep_import_edges = collect_deep_import_edges(public_policies)
+    deep_import_edges = (
+        collect_deep_import_edges(public_policies)
+        if not args.skip_deep_import_baseline
+        else None
+    )
 
     _write_if_changed(
         args.public_json,
@@ -9189,7 +9193,7 @@ def run_sync(args: argparse.Namespace) -> int:
         ),
     )
     _write_if_changed(args.public_md, render_public_surface_markdown(public_inventory))
-    if not args.skip_deep_import_baseline:
+    if deep_import_edges is not None:
         _write_if_changed(
             args.deep_import_baseline,
             render_deep_import_baseline_json(deep_import_edges),

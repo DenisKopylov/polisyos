@@ -19,6 +19,9 @@ this records only observed quiescence in the original group, not a guarantee tha
 stopped. Inaccessible membership scans remain unresolved. The tool does not install
 dependencies, select workloads, record environment values, or establish product evidence.
 
+Use direct pytest for ordinary in-process unit tests. Tests whose results depend on admitted
+source/provenance checks or an early host-admission profile must retain `./tools/authority`.
+
 ```bash
 python tools/quality/testing/process_budget.py \
   --output-dir _build/.tmp/e02/n6-r24 \
@@ -27,9 +30,7 @@ python tools/quality/testing/process_budget.py \
   --wall-seconds 2700 \
   --disk-floor-bytes 3382286745 \
   --sample-interval-seconds 0.5 \
-  -- ./tools/authority \
-    --wheel-dir <admitted-wheel-directory> \
-    test <source-qualified-test-arguments>
+  -- .venv/bin/python -B -m pytest <source-qualified-test-arguments>
 ```
 
 ### Explicit live initial-N5 witness profile

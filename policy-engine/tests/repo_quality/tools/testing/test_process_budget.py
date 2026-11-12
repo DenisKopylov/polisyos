@@ -159,6 +159,112 @@ def test_process_budget_preserves_child_failure(tmp_path: Path) -> None:
     assert result["waitid_wnowait_available"] is True
 
 
+@pytest.mark.parametrize("exit_code", [0, 17])
+@pytest.mark.parametrize("sample_exception", [psutil.NoSuchProcess, psutil.ZombieProcess])
+def test_process_budget_counts_wnowait_confirmed_root_exit_during_rss_sample_as_race(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    exit_code: int,
+    sample_exception: type[psutil.NoSuchProcess],
+) -> None:
+    real_peek = process_budget._peek_child_exit
+
+    def root_exits_during_sample(root_pid: int) -> process_budget._Sample:
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            if real_peek(root_pid) is not None:
+                raise process_budget._RssUnavailableError(
+                    "root_rss_not_observed",
+                    operation="memory_info",
+                    pid=root_pid,
+                    exception_type=sample_exception.__name__,
+                )
+            time.sleep(0.001)
+        raise AssertionError("test child did not exit during root RSS sampling")
+
+    monkeypatch.setattr(process_budget, "_sample_process_tree", root_exits_during_sample)
+    result = _run(
+        tmp_path,
+        [sys.executable, "-c", f"raise SystemExit({exit_code})"],
+        sample_interval_seconds=0.01,
+    )
+
+    expected_status = "PASS" if exit_code == 0 else "COMMAND_FAIL"
+    assert result["status"] == expected_status
+    assert result["primary_reason"] is None
+    assert result["actual_exit_code"] == exit_code
+    assert result["rss_measurement_failure"] is None
+    assert result["rss_raced_process_count"] == 1
+    assert result["process_group_quiescence_observed"] is True
+
+
+def test_process_budget_keeps_unconfirmed_root_rss_disappearance_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root_pid: list[int] = []
+
+    def unconfirmed_sample(root_process_id: int) -> process_budget._Sample:
+        root_pid.append(root_process_id)
+        raise process_budget._RssUnavailableError(
+            "root_rss_not_observed",
+            operation="memory_info",
+            pid=root_process_id,
+            exception_type="NoSuchProcess",
+        )
+
+    monkeypatch.setattr(process_budget, "_sample_process_tree", unconfirmed_sample)
+    result = _run(tmp_path, [sys.executable, "-c", "import time; time.sleep(30)"])
+
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "rss_measurement_unavailable"
+    assert result["rss_measurement_failure"] == {
+        "reason": "root_rss_not_observed",
+        "operation": "memory_info",
+        "pid": root_pid[0],
+        "exception_type": "NoSuchProcess",
+    }
+    assert result["actual_exit_code"] is not None
+    assert result["process_group_quiescence_observed"] is True
+
+
+def test_process_budget_keeps_unavailable_wait_status_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root_pid: list[int] = []
+    peek_calls = 0
+
+    def foreign_reap_sample(root_process_id: int) -> process_budget._Sample:
+        assert root_process_id == root_pid[0]
+        raise process_budget._RssUnavailableError(
+            "root_rss_not_observed",
+            operation="memory_info",
+            pid=root_process_id,
+            exception_type="ZombieProcess",
+        )
+
+    def unavailable_after_initial_peek(pid: int) -> object | None:
+        nonlocal peek_calls
+        if not root_pid:
+            root_pid.append(pid)
+        assert pid == root_pid[0]
+        peek_calls += 1
+        if peek_calls == 1:
+            return None
+        raise ChildProcessError("simulated foreign waitpid")
+
+    monkeypatch.setattr(process_budget, "_sample_process_tree", foreign_reap_sample)
+    monkeypatch.setattr(process_budget, "_peek_child_exit", unavailable_after_initial_peek)
+    result = _run(
+        tmp_path,
+        [sys.executable, "-c", "import time; time.sleep(0.1); raise SystemExit(17)"],
+    )
+
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "process_exit_measurement_unavailable"
+    assert result["rss_measurement_failure"]["exception_type"] == "ZombieProcess"
+    assert result["actual_exit_code"] == 17
+
+
 def test_process_budget_aborts_when_sampled_rss_exceeds_cap(tmp_path: Path) -> None:
     result = _run(
         tmp_path,

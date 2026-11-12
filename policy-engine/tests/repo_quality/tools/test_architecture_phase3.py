@@ -1563,6 +1563,64 @@ def test_guardrails_check_discloses_the_standalone_status_gate(
     assert guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE in capsys.readouterr().out.splitlines()
 
 
+def test_guardrail_sync_collects_deep_imports_only_when_writing_baseline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    collection_calls: list[list[guardrails.PackagePolicy]] = []
+    edges = [
+        guardrails.DeepImportEdge(
+            source_module="polisyos.runtime.example",
+            source_root="runtime",
+            source_file="src/polisyos/runtime/example.py",
+            target_module="polisyos.core.internal",
+            target_root="core",
+        )
+    ]
+
+    def collect_spy(policies: list[guardrails.PackagePolicy]) -> list[guardrails.DeepImportEdge]:
+        collection_calls.append(policies)
+        return edges
+
+    monkeypatch.setattr(guardrails, "_parse_public_surface", lambda _path: [])
+    monkeypatch.setattr(guardrails, "_parse_public_generated_artifact_families", lambda _path: [])
+    monkeypatch.setattr(guardrails, "build_public_surface_inventory", lambda _policies: [])
+    monkeypatch.setattr(guardrails, "_parse_generated_artifacts", lambda _path: [])
+    monkeypatch.setattr(guardrails, "collect_deep_import_edges", collect_spy)
+
+    def sync_args(root: Path, *, skip_baseline: bool) -> argparse.Namespace:
+        baseline = root / "deep-import-baseline.json"
+        if skip_baseline:
+            baseline.parent.mkdir(parents=True, exist_ok=True)
+            baseline.write_text("preserve existing baseline\n", encoding="utf-8")
+        return argparse.Namespace(
+            public_manifest=guardrails.DEFAULT_PUBLIC_MANIFEST,
+            public_json=root / "public-inventory.json",
+            public_md=root / "public-surface.md",
+            generated_manifest=guardrails.DEFAULT_GENERATED_MANIFEST,
+            generated_md=root / "generated-artifacts.md",
+            deep_import_baseline=baseline,
+            skip_deep_import_baseline=skip_baseline,
+        )
+
+    skipped = sync_args(tmp_path / "skipped", skip_baseline=True)
+    assert guardrails.run_sync(skipped) == 0
+    assert collection_calls == []
+    assert skipped.deep_import_baseline.read_text(encoding="utf-8") == (
+        "preserve existing baseline\n"
+    )
+
+    written = sync_args(tmp_path / "written", skip_baseline=False)
+    assert guardrails.run_sync(written) == 0
+    assert len(collection_calls) == 1
+    assert guardrails._parse_public_surface(written.public_manifest) == collection_calls[0]
+    assert written.deep_import_baseline.read_text(encoding="utf-8") == (
+        guardrails.render_deep_import_baseline_json(edges)
+    )
+
+    for attribute in ("public_json", "public_md", "generated_md"):
+        assert getattr(skipped, attribute).read_bytes() == getattr(written, attribute).read_bytes()
+
+
 def test_guardrail_cli_cannot_waive_an_unrun_required_measurement(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

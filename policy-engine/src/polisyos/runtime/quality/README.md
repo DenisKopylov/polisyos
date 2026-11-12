@@ -45,6 +45,14 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   established by an LLM response. The canonical context owner selects V6 when
   they are present and preserves them in problem/profile identities and CAS
   replay. Existing requests keep their frozen V1–V5 projections and bytes.
+- `n5_replay_appointment.py` verifies exact externally signed appointments,
+  separate deployment checks and launcher-record authenticity against current
+  public role keys/revocations and a native deployed-component observation.
+  Empty production trust remains `verifier_unappointed`. A demonstration trust
+  root proves only that intake mechanism. Configured organizational/function
+  separation is not scientific independence; this contract/resolver stage never
+  grants protected use. Blind launch, actual diagnostic quota/physical accounting
+  and the fixed comparator remain separate required lifecycle consumers.
 - `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
   bounds do not establish empirical calibration, source units or causal validity.
 

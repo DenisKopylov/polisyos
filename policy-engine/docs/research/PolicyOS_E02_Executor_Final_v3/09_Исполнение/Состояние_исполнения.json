@@ -9572,24 +9572,41 @@
             ]
           },
           "appointed_replay_draft": {
-            "state": "UNVERIFIED_WIP; NEW_MODULE_INTEGRATION_DEFECT",
+            "state": "DEMO_INTAKE23PASS_INDEPENDENT_REVIEW_GO; PROTECTED_LIFECYCLE_MISSING",
             "author_commit": "301a2da66c576da057f2d2eadef3ab98dee7e8f9",
-            "PASS": 0,
+            "PASS": 23,
             "FAIL": 0,
-            "ERROR": 20,
+            "ERROR": 0,
             "SKIP": 0,
-            "output": "policy-engine/_cache/e02/n5-replay-appointment-r3/",
+            "output": "policy-engine/_cache/e02/n5-replay-appointment-r8/",
             "resource_result": {
-              "status": "COMMAND_FAIL",
-              "actual_exit_code": 1,
-              "elapsed_seconds": 50.187,
-              "peak_sampled_process_tree_rss_bytes": 1720451072,
-              "disk_free_bytes_min_observed": 6868578304,
-              "primary_reason": null
+              "status": "PASS",
+              "actual_exit_code": 0,
+              "elapsed_seconds": 52.945,
+              "peak_sampled_process_tree_rss_bytes": 1686618112,
+              "disk_free_bytes_min_observed": 7520096256
             },
-            "reason": "_trust calls security.canonical_exact_mapping_bytes, not exported by the Core security facade. EarlierR1/R2 collection errors preserved; not backend absence.",
-            "next": "Replace unsupported facade call with supported common.canonical.to_canonical_bytes for this module-owned versioned trust projection; rerun the one20-case cohort, then independent review.",
-            "bounds": "No N5 or replay, no original ledger mutation, protected_use_allowed=false. Blind launcher, actual diagnostic capacity accounting/comparison and production appointment remain unestablished."
+            "reason": "Earlier serializer/fixture defects and both independent-review findings repaired at canonical owner.",
+            "next": "Compose intake with native appointed blind launcher, separate diagnostic quota/actual-work accounting and fixed comparator; production remains verifier_unappointed. No protected numerical-use claim.",
+            "bounds": "No N5 or replay, no original ledger mutation, protected_use_allowed=false. Blind launcher, actual diagnostic capacity accounting/comparison and production appointment remain unestablished.",
+            "independent_review": "GO after exact selected-byte/hash binding and result-user/control principal separation fixes",
+            "source_pins": "policy-engine/_cache/e02/n5-replay-appointment-r8.source-sha256.{before,after}.txt; reviewer reconciled actual source/test bytes",
+            "prior_outcomes": "R3 setup20ERROR; R4 5PASS15FAIL comparator canonical-profile fixture; R5 20PASS before review; R6 22PASS1setupERROR; R7 prelaunch output-directory refusal. All outputs preserved."
+          },
+          "n6_candidate_content_v3": {
+            "state": "CODEC65PASS_INDEPENDENT_REVIEW_GO; APPLICATION_BRIDGE_WIP",
+            "PASS": 65,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "output": "policy-engine/_cache/e02/n6-codec-v3-storage-r3/",
+            "source_sha256": "738eddaaa76a309db27596679a265e71c37eccee99e93abb99524ecc9065abb1",
+            "test_sha256": "0a7ef37e0b3df55fa16cb2ecfe785b512bfdd9634efaccd83f62d4236be179e3",
+            "source_pins": "before/after three-file pins in command.log stable; legacy ledger unchanged",
+            "independent_review": "GO after generic MRO slot/dictionary denominator repair; actual hidden-slot output1vs2 controls no longer compare equal",
+            "scope": "Versioned callable/argument alias graph, recursive functions, exact passive native typed state, actual recorder reference membership. Globals/readset/transient substitution/protected admission remain declared residuals.",
+            "native_strict_profile": "First import under strict1/shape0 refused restricted_exante_builtin_executable_identity_unavailable before NCM/call. Existing profile owner repairing generic strict-wrapper compatibility; no runtime PASS assumed.",
+            "next": "Root actual Horizon/Generation persistence and consumers plus native profile currently WIP/unrun; not a completed retention capability."
           }
         },
         "ruff": "PASS check on15 reviewed Python paths; final format check found one integration test layout delta, corrected with Ruff; no runtime assertion weakened.",
@@ -9608,6 +9625,22 @@
             "Requalify generated trust posture and maintained installed/compiler consumers against freeze; continue retained C and original A/B/B/B/C, Gate A then P06-P08/Gate B, original66 requirements."
           ],
           "g_acceptance": false
+        },
+        "resumption_20261112": {
+          "status": "ACTIVE_PARALLEL_LANE01_IMPLEMENTATION",
+          "source_at_admission": "088d6d6c47614c8f9df101adfb65f65c40aa3fcd",
+          "tree_at_admission": "fd6d22a5ffeb9871a3286e90e74bcbd6b6592acb",
+          "direction": "Accepted consultant decisions remain priority implementation/falsifiers; no next lane or G closure.",
+          "parallel_owners": [
+            "V3 exact callable graph",
+            "Native installed/provider execution profile",
+            "Horizon/Generation bridge",
+            "Versioned ordinary and candidate numerical-basis consumers/history",
+            "P05 use-decision/action/served companions",
+            "Replay appointment intake",
+            "Strict-profile ExAnte compatibility"
+          ],
+          "resources": "Python3.14.3,16GiBRAM,8CPU,266.5MiBswap; about6.8GiBdisk initially, later5.1GiB. No cloud/environment copies. Numerical source freeze remains required."
         }
       },
       "sequence": 8,

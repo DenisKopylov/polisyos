@@ -817,3 +817,508 @@ def test_v2_reader_json_domain_refuses_protocols_and_cycles_before_encoding(cont
         with pytest.raises(ValueError, match="n5_content_witness_wire_required"):
             basis.read_n5_execution_content_witness(raw)
     assert effects == []
+
+
+def _graph_capture(image, *, effective_inputs=None):
+    return basis.N5ControlledCallCaptureV3(
+        effective_inputs={"numerical_input": 0} if effective_inputs is None else effective_inputs,
+        production_image=image,
+    )
+
+
+def test_v3_recursive_functions_and_native_cycles_have_positional_backrefs(content_image):
+    _root, image = content_image
+
+    def recursive(value=3):
+        return value if value == 0 else recursive(value - 1) + 1
+
+    cycle = []
+    cycle.append(cycle)
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(recursive) == 3
+    assert capture.observe_numerical_call(lambda value: value is value[0], cycle)
+    calls = capture.seal().observed_calls
+    graph = json.loads(calls[0].callable_content)
+    assert graph["root"] == {"ref": 0}
+    assert graph["nodes"][0]["kind"] == "function"
+    assert graph["nodes"][0]["closure"] == [{"ref": 0}]
+    assert all(call.numerical_content_hash is not None for call in calls)
+    # Same shape, different alias relation must remain distinct.
+    assert basis._N5ContentGraph().wire((cycle, cycle)) != basis._N5ContentGraph().wire(
+        ([[]], [[]])
+    )
+
+
+def test_v3_mutable_defaults_kwdefaults_and_closure_are_reencoded_per_call(content_image):
+    _root, image = content_image
+    shared = [1]
+
+    options = {"value": 1}
+
+    def operation(default=shared, *, options=options):
+        return default[0] + options["value"] + shared[0]
+
+    capture = _graph_capture(image)
+    for number in (1, 2, 3):
+        shared[0] = number
+        operation.__kwdefaults__["options"]["value"] = number
+        assert capture.observe_numerical_call(operation) == 3 * number
+    before = tuple(call.callable_content for call in capture.observed_calls)
+    shared[0] = 99
+    witness = capture.seal()
+    assert tuple(call.callable_content for call in witness.observed_calls) == before
+    assert len(set(before)) == 3
+    assert len({call.local_callable_token for call in witness.observed_calls}) == 1
+    assert all(call.numerical_content_hash is not None for call in witness.observed_calls)
+
+
+def test_v3_same_code_functions_bind_captured_native_content(content_image):
+    _root, image = content_image
+    capture = _graph_capture(image)
+    functions = [_closed_value(number) for number in (1, 2, 1)]
+    assert all(function.__code__ is functions[0].__code__ for function in functions)
+    for function in functions:
+        capture.observe_numerical_call(function)
+    calls = capture.seal().observed_calls
+    assert calls[0].numerical_content_hash == calls[2].numerical_content_hash
+    assert calls[0].numerical_content_hash != calls[1].numerical_content_hash
+
+
+def test_v3_slotted_opaque_objects_never_become_type_only_equality(content_image):
+    _root, image = content_image
+    effects = []
+
+    class Slotted:
+        __slots__ = ("value",)
+
+        def __getattribute__(self, name):
+            effects.append(name)
+            raise AssertionError("opaque getter must not run")
+
+    capture = _graph_capture(image)
+    for value in (Slotted(), Slotted()):
+
+        def operation(hidden=value):
+            return hidden is not None
+
+        assert capture.observe_numerical_call(operation)
+    calls = capture.seal().observed_calls
+    assert effects == []
+    assert all(
+        call.callable_content is None and call.numerical_content_hash is None for call in calls
+    )
+
+
+def test_v3_typed_native_fields_preserve_exact_bits_and_do_not_run_serializers(content_image):
+    import struct
+    from dataclasses import dataclass
+    from datetime import datetime
+    from decimal import Decimal
+    from enum import Enum
+
+    from pydantic import BaseModel, ConfigDict, model_serializer
+
+    _root, image = content_image
+    effects = []
+
+    class Mode(Enum):
+        FIRST = "first"
+
+    class Input(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        values: list[float]
+        mode: Mode
+
+        @model_serializer
+        def serialize(self):
+            effects.append("serializer")
+            raise AssertionError("serializer must not run")
+
+    @dataclass(frozen=True, slots=True)
+    class Frozen:
+        amount: Decimal
+        when: datetime
+        payload: bytes
+
+    capture = _graph_capture(image)
+    for bits in ("7ff8000000000001", "7ff8000000000002", "8000000000000000"):
+        value = Input(values=[struct.unpack(">d", bytes.fromhex(bits))[0]], mode=Mode.FIRST)
+        assert capture.observe_numerical_call(lambda item: item, value) is value
+    for fold in (0, 1):
+        value = Frozen(Decimal("1.00"), datetime(2026, 11, 1, 1, 30, fold=fold), b"bytes")
+        assert capture.observe_numerical_call(lambda item: item, value) is value
+    calls = capture.seal().observed_calls
+    assert effects == []
+    assert all(call.arguments_content is not None for call in calls)
+    assert len({call.arguments_content for call in calls}) == len(calls)
+
+
+def test_v3_mutable_dataclasses_and_constructed_model_extra_state_stay_unknown(content_image):
+    from dataclasses import dataclass
+
+    from pydantic import BaseModel, ConfigDict
+
+    _root, image = content_image
+
+    @dataclass
+    class Mutable:
+        value: int
+
+    class Input(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        value: int
+
+    missing = Input.model_construct()
+    extra = Input.model_construct(value=1)
+    extra.__dict__["hidden"] = 2
+    capture = _graph_capture(image)
+    for value in (Mutable(1), missing, extra):
+        assert capture.observe_numerical_call(lambda item: item, value) is value
+    assert all(call.arguments_content is None for call in capture.seal().observed_calls)
+
+
+def test_v3_real_strict_pure_step_under_explicit_shape_check_zero_profile(
+    content_image, monkeypatch
+):
+    from polisyos.foundry.methods.base import (
+        ComplexityClass,
+        ComputeBackend,
+        FidelityLevel,
+        MethodContracts,
+        MethodMetadata,
+        MethodSignature,
+        _beartype_enabled,
+        foundry_method,
+    )
+    from polisyos.foundry.methods.exceptions import ContractViolationError
+
+    _root, image = content_image
+    monkeypatch.setenv("POLISYOS_STRICT", "1")
+    monkeypatch.setenv("FOUNDRY_SHAPE_CHECK", "0")
+    assert not _beartype_enabled()
+    method_signature = MethodSignature(
+        name="codec_contract",
+        namespace="test.codec",
+        version="1.0.0",
+        backend=ComputeBackend.NUMPY,
+        input_slots=frozenset(),
+        output_slots=frozenset(),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    @foundry_method(namespace="test.codec")
+    class Method:
+        signature = method_signature
+        metadata = MethodMetadata(
+            description="Strict codec qualification",
+            contracts=MethodContracts(preconditions=("state['value'] > 0",)),
+        )
+
+        @staticmethod
+        def pure_step(state, params):
+            return {"value": state["value"] + params["offset"]}
+
+    capture = _graph_capture(image)
+    entry = Method.pure_step
+    assert "strict_pure_step" in entry.__code__.co_qualname
+    assert capture.observe_numerical_call(entry, {"value": 1}, {"offset": 2}) == {"value": 3}
+    with pytest.raises(ContractViolationError):
+        capture.observe_numerical_call(entry, {"value": 0}, {"offset": 2})
+    calls = capture.seal().observed_calls
+    assert all(call.callable_content is not None for call in calls)
+    graph = json.loads(calls[0].callable_content)
+    assert len([row for row in graph["nodes"] if row["kind"] == "function"]) == 2
+    assert any(row["kind"] == "dataclass" for row in graph["nodes"])
+    assert calls[1].status == "raised"
+    assert all(call.numerical_content_hash is not None for call in calls)
+
+
+def test_v3_roundtrip_dispatch_is_versioned_and_refuses_constructed_nested_models(content_image):
+    _root, image = content_image
+    capture = _graph_capture(image)
+    capture.observe_numerical_call(_closed_value(1))
+    witness = capture.seal()
+    assert witness.schema_version == "N5ExecutionContentWitness@3.0"
+    assert witness.normalization_profile == "supported-native-callable-graph/3"
+    assert (
+        type(basis.read_n5_execution_content_witness(witness)) is basis.N5ExecutionContentWitnessV3
+    )
+    raw = json.loads(witness.model_dump_json())
+    raw["normalization_profile"] = "supported-native-pre-invocation-content/2"
+    raw["content_hash"] = basis._v2_hash({k: v for k, v in raw.items() if k != "content_hash"})
+    with pytest.raises(ValueError):
+        basis.read_n5_execution_content_witness(raw)
+    invalid = witness.observed_calls[0].model_copy(update={"output_content": "not JSON"})
+    with pytest.raises(ValueError):
+        basis.read_n5_execution_content_witness(
+            witness.model_copy(update={"observed_calls": (invalid,)})
+        )
+
+
+def test_v3_classes_and_modules_require_actual_recorder_completed_binding(tmp_path, monkeypatch):
+    import hashlib
+    import importlib
+
+    from tools import loaded_execution_capture as recorder_owner
+    from tools.loaded_execution_capture import ExpectedSource, SourceExecutionCapture
+
+    source = """import sys
+self_module = sys.modules[__name__]
+class Token:
+    pass
+def factory():
+    cls = Token
+    mod = self_module
+    def operation():
+        return cls is Token and mod is self_module
+    return operation
+operation = factory()
+"""
+    module_name = "codec_ref_sample"
+    path = tmp_path / (module_name + ".py")
+    path.write_text(source)
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    recorder = SourceExecutionCapture(
+        tmp_path,
+        {module_name: ExpectedSource(path.name, digest)},
+        exports={module_name: {"Token", "self_module", "operation"}},
+    )
+    slot = "_polisyos_loaded_execution_owner_v1"
+    assert slot not in vars(sys), "test trust root requires a fresh recorder slot"
+    # Restore the test process's initially absent slot after closing this actual
+    # recorder. This cleanup never restarts/reappoints a production capture.
+    monkeypatch.setitem(vars(sys), slot, None)
+    monkeypatch.delitem(vars(sys), slot)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    # This test trust root selects the recorder's supported clean import profile;
+    # pytest's assertion-rewrite finder is restored at fixture teardown.
+    assert recorder_owner._PROCESS_CAPTURE is None
+    monkeypatch.setattr(recorder_owner, "_PROCESS_CAPTURE", None)
+    monkeypatch.setattr(
+        sys,
+        "meta_path",
+        [
+            importlib.machinery.BuiltinImporter,
+            importlib.machinery.FrozenImporter,
+            importlib.machinery.PathFinder,
+        ],
+    )
+    recorder.install()
+    try:
+        module = importlib.import_module(module_name)
+        monkeypatch.setattr(
+            ledger, "_retained_n5_host_capture", lambda: (SimpleNamespace(capture=recorder), None)
+        )
+        wire = basis._N5ContentGraph().wire(module.operation)
+        rows = json.loads(wire)["nodes"]
+        bindings = [row["binding"] for row in rows if row["kind"] == "recorded_binding"]
+        assert {row["export"] for row in bindings} == {"Token", "self_module"}
+        assert all(row["source_hash"] == digest for row in bindings)
+        replacement = type("Token", (), {"__module__": module_name})
+        with pytest.raises(ValueError, match="n5_reference_binding_not_established"):
+            basis._N5ContentGraph().wire(replacement)
+        module.Token = replacement
+        with pytest.raises(ValueError, match="n5_reference_binding_not_established"):
+            basis._N5ContentGraph().wire(module.operation)
+    finally:
+        recorder.close()
+        sys.modules.pop(module_name, None)
+
+
+def test_v3_shared_callable_argument_aliases_enter_the_numerical_key(content_image):
+    _root, image = content_image
+    captured = [1]
+
+    def operation(argument):
+        return argument is captured
+
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(operation, captured)
+    assert not capture.observe_numerical_call(operation, [1])
+    first, second = capture.seal().observed_calls
+    assert first.callable_content == second.callable_content
+    assert first.arguments_content != second.arguments_content
+    assert first.numerical_content_hash != second.numerical_content_hash
+
+
+def test_v3_current_callable_snapshot_does_not_invoke_and_tracks_mutation(content_image):
+    _root, image = content_image
+    effects = []
+    captured = [1]
+
+    def operation():
+        effects.append("called")
+        return captured[0]
+
+    before = basis.snapshot_n5_callable_content_v3(operation)
+    assert before is not None
+    assert effects == []
+    captured[0] = 2
+    after = basis.snapshot_n5_callable_content_v3(operation)
+    assert before != after
+    assert effects == []
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(operation) == 2
+    assert capture.seal().observed_calls[0].callable_content == after
+    assert basis.snapshot_n5_callable_content_v3(object()) is None
+
+
+def test_v3_enum_custom_state_is_content_or_unknown_without_getters(content_image):
+    from enum import Enum
+
+    _root, image = content_image
+
+    class Choice(Enum):
+        SELECTED = "selected"
+
+    capture = _graph_capture(image)
+    member = Choice.SELECTED
+    member.extra = [1]
+    capture.observe_numerical_call(lambda item: item, member)
+    member.extra[0] = 2
+    capture.observe_numerical_call(lambda item: item, member)
+    member.extra = object()
+    capture.observe_numerical_call(lambda item: item, member)
+    calls = capture.seal().observed_calls
+    assert calls[0].arguments_content != calls[1].arguments_content
+    assert calls[0].arguments_content is not None and calls[1].arguments_content is not None
+    assert calls[2].arguments_content is None
+
+
+@pytest.mark.parametrize("carrier", ["dataclass", "model", "enum"])
+@pytest.mark.parametrize("inherited", [False, True])
+def test_v3_typed_instance_extra_slots_stay_unknown_despite_equal_declared_fields(
+    content_image, carrier, inherited
+):
+    from dataclasses import dataclass
+    from enum import Enum
+
+    from pydantic import BaseModel, ConfigDict
+
+    _root, image = content_image
+    if carrier == "dataclass":
+        if inherited:
+
+            class Base:
+                __slots__ = ("hidden",)
+
+            @dataclass(frozen=True, slots=True)
+            class Payload(Base):
+                x: int
+        else:
+
+            @dataclass(frozen=True)
+            class Payload:
+                __slots__ = ("hidden", "x")
+                x: int
+
+        left, right = Payload(1), Payload(1)
+    elif carrier == "model":
+
+        class Base(BaseModel):
+            model_config = ConfigDict(extra="forbid")
+            __slots__ = ("hidden",) if inherited else ()
+            x: int
+
+        class Payload(Base):
+            __slots__ = () if inherited else ("hidden",)
+
+        left, right = Payload(x=1), Payload(x=1)
+    else:
+        if inherited:
+
+            class Base:
+                __slots__ = ("hidden",)
+
+            class Payload(Base, Enum):
+                FIRST = 1
+                SECOND = 2
+        else:
+
+            class Payload(Enum):
+                __slots__ = ("hidden",)
+                FIRST = 1
+                SECOND = 2
+
+        left = right = Payload.FIRST
+
+    def read_hidden(item):
+        return item.hidden
+
+    capture = _graph_capture(image)
+    object.__setattr__(left, "hidden", 1)
+    assert capture.observe_numerical_call(read_hidden, left) == 1
+    object.__setattr__(right, "hidden", 2)
+    assert capture.observe_numerical_call(read_hidden, right) == 2
+    calls = capture.seal().observed_calls
+    assert all(
+        call.arguments_content is None and call.numerical_content_hash is None for call in calls
+    )
+
+
+def test_v3_shadowed_dataclass_dictionary_does_not_hide_extra_actual_state(content_image):
+    from dataclasses import dataclass
+
+    _root, image = content_image
+    effects = []
+
+    class Base:
+        pass
+
+    @dataclass(frozen=True)
+    class Payload(Base):
+        x: int
+
+        @property
+        def __dict__(self):
+            effects.append("getter")
+            raise AssertionError("shadowing getter must not run")
+
+    value = Payload(1)
+    object.__setattr__(value, "hidden", 2)
+    capture = _graph_capture(image)
+    assert capture.observe_numerical_call(lambda item: item.hidden, value) == 2
+    call = capture.seal().observed_calls[0]
+    assert effects == []
+    assert call.arguments_content is None and call.numerical_content_hash is None
+
+
+def test_v3_pydantic_field_set_is_content_and_private_extra_carriers_are_unknown(content_image):
+    from pydantic import BaseModel, ConfigDict
+
+    _root, image = content_image
+    effects = []
+
+    class Payload(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        x: int = 1
+
+    class Falsey:
+        def __bool__(self):
+            effects.append("bool")
+            raise AssertionError("unsupported private/extra carrier must not run")
+
+    capture = _graph_capture(image)
+    for value, expected in ((Payload(), 0), (Payload(x=1), 1)):
+        assert (
+            capture.observe_numerical_call(
+                lambda item: len(item.model_dump(exclude_unset=True)), value
+            )
+            == expected
+        )
+    for slot in ("__pydantic_private__", "__pydantic_extra__"):
+        for unsupported in ({}, Falsey()):
+            value = Payload()
+            object.__setattr__(value, slot, unsupported)
+            assert capture.observe_numerical_call(lambda item: item.x, value) == 1
+    calls = capture.seal().observed_calls
+    assert calls[0].arguments_content is not None and calls[1].arguments_content is not None
+    assert calls[0].arguments_content != calls[1].arguments_content
+    assert calls[0].numerical_content_hash != calls[1].numerical_content_hash
+    assert all(call.arguments_content is None for call in calls[2:])
+    assert effects == []

@@ -17,6 +17,7 @@ from polisyos.core.artifacts import (
     PutOptions,
     artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
+    input_ref_from_artifact_ref,
     read_core_json_artifact,
     validate_core_model_json_artifact,
 )
@@ -44,6 +45,8 @@ from polisyos.core.contracts.variable_binding import (
     MeasurementBindingProfileRef,
     SelectedVariableBindingRef,
     VariableRepresentationRef,
+    VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
@@ -62,11 +65,11 @@ from polisyos.runtime.http.deployment_security import (
     DeploymentSecurityConfig,
     build_deployment_security,
 )
+from polisyos.runtime.http.services import model_input_successor_action as successor_action_owner
 from polisyos.runtime.http.services.control import generation_cycle as generation_owner
 from polisyos.runtime.http.services.control.generation_cycle import (
     CompiledRecursiveGenerationCycleRun,
 )
-from polisyos.runtime.http.services import model_input_successor_action as successor_action_owner
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
     ModelInputSuccessorActionRequest,
@@ -111,6 +114,8 @@ from tests.integration.runtime_quality.test_generic_n4_child_profile_set_served 
 )
 from tests.integration.runtime_quality.test_program_graph_held_out_fund_binding import (
     _activated_fund,
+    _bind_activated_fund,
+    _fund_port,
     _held_out_declaration,
 )
 from tests.integration.runtime_quality.test_program_graph_model_input_served import (
@@ -123,6 +128,18 @@ from tests.integration.runtime_quality.test_program_graph_model_input_served imp
 )
 from tests.integration.runtime_quality.test_program_graph_stock_n7_served import (
     _configure_stock_provider,
+)
+from tests.unit.runtime.quality.test_model_input_requirements import (
+    _context as _input_context,
+)
+from tests.unit.runtime.quality.test_model_input_requirements import (
+    _interface as _input_interface,
+)
+from tests.unit.runtime.quality.test_model_input_requirements import (
+    _opening_stock_port,
+)
+from tests.unit.runtime.quality.test_model_input_requirements import (
+    _preflight as _input_preflight,
 )
 
 if TYPE_CHECKING:
@@ -232,6 +249,83 @@ def _held_out_methodology_declaration(
         store, ModelInputPortDeclaration(ports=(target_port,))
     )
     return target_declaration_ref, source_port, methodology_ref
+
+
+def _held_out_transport_reserve_declaration(store: FileSystemCAS) -> ArtifactRef:
+    """Enroll an unrelated transport reserve on the existing opening-stock profile."""
+    template_ref = _held_out_declaration(store)
+    (template_port,) = load_model_input_port_declaration(store, template_ref).ports
+    port = _fund_port(store, template_port, fund="transport-maintenance-reserve")
+    return persist_model_input_port_declaration(store, ModelInputPortDeclaration(ports=(port,)))
+
+
+def _misrepresented_transport_source_port(
+    store: FileSystemCAS,
+    port: ModelInputPort,
+    *,
+    axis: str,
+) -> ModelInputPort:
+    """Make same-label source metadata with one representation axis corrupted."""
+    representation = load_variable_representation(store, port.representation_ref)
+    updates: dict[str, object]
+    if axis == "quantity_kind":
+        updates = {"quantity_kind": "flow"}
+    elif axis == "denominator_ref":
+        evidence_ref = store.put_bytes(
+            b"Test-only unrelated annual output definition; no empirical authority.\n",
+            PutOptions(
+                kind="tests.transport_reserve_denominator_definition",
+                media_type="text/plain",
+            ),
+            return_selected_profile=True,
+        )
+        definition_ref = store.put_json(
+            VariableSemanticDefinition(
+                namespace="test.national-output",
+                stable_id="annual-total",
+                revision="1",
+                meaning="Test-only annual economy-wide output denominator.",
+                definition_evidence_refs=(
+                    SelectedVariableBindingRef.model_validate(
+                        evidence_ref.model_dump(mode="python")
+                    ),
+                ),
+            ),
+            PutOptions(
+                kind="catalog.variable_semantic_definition",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.catalog.VariableSemanticDefinition",
+                    version="1.0",
+                ),
+                inputs=[input_ref_from_artifact_ref(evidence_ref, role="definition_evidence")],
+            ),
+            return_selected_profile=True,
+        )
+        updates = {
+            "denominator_ref": VariableSemanticDefinitionRef.model_validate(
+                definition_ref.model_dump(mode="python")
+            )
+        }
+    else:
+        raise ValueError(f"unsupported test representation axis: {axis}")
+    wrong_representation = representation.model_copy(update=updates)
+    wrong_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            wrong_representation,
+            PutOptions(
+                kind=wrong_representation.ARTIFACT_KIND,
+                media_type=wrong_representation.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=wrong_representation.ARTIFACT_SCHEMA_NAME,
+                    version="1.0",
+                ),
+                inputs=list(variable_representation_manifest_inputs(wrong_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump(mode="python")
+    )
+    return port.model_copy(update={"representation_ref": wrong_ref})
 
 
 def _sign_model_input_mandate(
@@ -553,9 +647,7 @@ def _assert_routing_use_selection(
     assert decision.active_cell_id == served.CELL
     assert decision.authority_purpose == "candidate_model_input_route_recheck_only"
     linked = tuple(
-        item
-        for item in manifest.inputs
-        if item.role == "model_input_routing_use_decision"
+        item for item in manifest.inputs if item.role == "model_input_routing_use_decision"
     )
     assert len(linked) == 1
     assert linked[0].artifact_id == decision_ref.artifact_id
@@ -762,6 +854,7 @@ def _run_activated_held_out_stock_scenario(
     controlled_candidate_gateway: ControlledCandidateGateway,
     *,
     methodology_v2: bool,
+    fund: str = "public-benefit-fund",
 ) -> None:
     """Exercise one selected held-out stock profile through the served successor route."""
     pytest.importorskip("fastapi")
@@ -774,8 +867,11 @@ def _run_activated_held_out_stock_scenario(
     cas_root = tmp_path / "cas"
     runs_root = cas_root / "runs"
     problem_data = _fiscal_problem().model_dump(mode="json")
+    fund_label = (
+        "public-benefit fund" if fund == "public-benefit-fund" else "regional transport reserve"
+    )
     problem_data["nl_provenance"]["raw_request"] = (
-        "Evaluate one bounded tax subsidy using the public-benefit fund's opening cash in USD. "
+        f"Evaluate one bounded tax subsidy using the {fund_label}'s opening cash in USD. "
         "Do not promote generated candidates."
     )
     problem = DesignProblem.model_validate(problem_data)
@@ -785,7 +881,11 @@ def _run_activated_held_out_stock_scenario(
 
     def build_port_declaration(store: FileSystemCAS) -> ArtifactRef:
         if not methodology_v2:
-            return _held_out_declaration(store)
+            return (
+                _held_out_declaration(store)
+                if fund == "public-benefit-fund"
+                else _held_out_transport_reserve_declaration(store)
+            )
         declaration_ref, source_port, methodology_ref = _held_out_methodology_declaration(
             store,
             fact_log_root=tmp_path / "fabric-methodology-facts",
@@ -926,7 +1026,7 @@ def _run_activated_held_out_stock_scenario(
                 tmp_path / "held-out-activation",
                 store=store,
                 port=source_port,
-                fund="public-benefit-fund",
+                fund=fund,
                 before_activation=launch_before_activation,
             ) as active,
         ):
@@ -1016,6 +1116,16 @@ def _run_activated_held_out_stock_scenario(
             store, original.model_input_obligation_set_ref
         )
         assert obligation.port == port and obligation.dependencies[0].first_required_step == 2
+        assert port.semantic_definition_ref is not None
+        definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, port.semantic_definition_ref
+        )
+        if fund == "transport-maintenance-reserve":
+            assert definition.namespace == "test.transport-maintenance-reserve"
+            assert definition.stable_id == "opening-cash"
+            assert port.binding_profile_ref == _opening_stock_port(store).binding_profile_ref
+            assert entry.target_variable == "test.transport-maintenance-reserve.opening-cash"
+            assert entry.raw_field == "opening_cash_usd"
         report = read_model_input_routing_report(store, report_ref)
         (route,) = report.routes
         descriptor = route.source_descriptor
@@ -1030,7 +1140,7 @@ def _run_activated_held_out_stock_scenario(
             routing_report_ref=report_ref,
             activation_receipt_ref=projection.receipt_ref,
             observation_id=selected_observation.observation.observation_id,
-            idempotency_key="held-out-fund-opening-cash-use",
+            idempotency_key=f"held-out-{fund}-opening-cash-use",
         )
         path = f"/api/v1/runs/{run_id}/model-input-use"
 
@@ -1231,9 +1341,7 @@ def _run_activated_held_out_stock_scenario(
                     withheld_decision = tmp_path / "withheld-routing-use-decision"
                     decision_blob.rename(withheld_decision)
                     try:
-                        with pytest.raises(
-                            (FileNotFoundError, CanonicalProfileRefusalError)
-                        ):
+                        with pytest.raises((FileNotFoundError, CanonicalProfileRefusalError)):
                             verify_selected_routing_use_decision(
                                 selected_store, selected_action, selected_record
                             )
@@ -1554,6 +1662,98 @@ def _run_activated_held_out_stock_scenario(
         assert decision["route_id"] == route_id
         assert decision["job_id"] == action_job_id
         assert decision["authority_decision_ref"] != execution_body["decision_ref"]
+
+
+@pytest.mark.integration
+def test_transport_reserve_metadata_only_stock_uses_served_successor_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """A differently named transport stock reaches Foundry as a candidate input."""
+    _run_activated_held_out_stock_scenario(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        methodology_v2=False,
+        fund="transport-maintenance-reserve",
+    )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("wrong_axis", [("quantity_kind",), ("denominator_ref",)])
+def test_transport_reserve_catalog_rejects_same_label_wrong_stock_semantics(
+    tmp_path: Path,
+    wrong_axis: tuple[str],
+) -> None:
+    """The real Catalog binding validator rejects a mislabeled transport source."""
+    from polisyos.runtime.quality.data_state_substrate import (
+        DataStateSubstrateError,
+    )
+    from polisyos.runtime.quality.model_input_requirements import (
+        SelectedProgramGraphInputBasis,
+    )
+    from polisyos.runtime.quality.model_input_routing import plan_selected_model_input_routing
+
+    axis = wrong_axis[0]
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        model_input_port_declaration_builder=_held_out_transport_reserve_declaration,
+        snapshot_id="held-out-transport-reserve-adversarial",
+    )
+    try:
+        interface_ref = _input_interface(case)
+        assert case.model_input_port_declaration_ref is not None
+        (target_port,) = load_model_input_port_declaration(
+            case.store, case.model_input_port_declaration_ref
+        ).ports
+        preflight = _input_preflight(case, interface_ref, _input_context(case), steps=(0,))
+        invocation = preflight.invocation
+        selected = SelectedProgramGraphInputBasis(
+            context=invocation.context,
+            program_graph_ref=invocation.program_graph_ref,
+            exec_plan_ref=invocation.exec_plan_ref,
+            registry_bundle_ref=invocation.registry_bundle_ref,
+            input_bindings_ref=invocation.input_bindings_ref,
+            steps=(0,),
+        )
+        wrong_port = _misrepresented_transport_source_port(case.store, target_port, axis=axis)
+        routes = []
+
+        def route_source(authority: CanonicalAcquisitionAuthority) -> None:
+            routes.append(
+                plan_selected_model_input_routing(
+                    case.store,
+                    obligation_set_ref=preflight.obligation_set_ref,
+                    selected_basis=selected,
+                    catalog_authority=authority,
+                )
+            )
+
+        with (
+            _activated_fund(
+                tmp_path / f"transport-reserve-{axis}",
+                store=case.store,
+                port=wrong_port,
+                fund="transport-maintenance-reserve",
+                before_activation=route_source,
+            ) as active,
+            pytest.raises(
+                DataStateSubstrateError,
+                match="acquisition_semantic_correspondence_not_candidate",
+            ),
+        ):
+            _bind_activated_fund(
+                case,
+                active=active,
+                routing=routes.pop(),
+                preflight=preflight,
+                source_port=wrong_port,
+                workspace=tmp_path / f"refused-transport-{axis}",
+            )
+    finally:
+        case.close()
 
 
 @pytest.mark.integration

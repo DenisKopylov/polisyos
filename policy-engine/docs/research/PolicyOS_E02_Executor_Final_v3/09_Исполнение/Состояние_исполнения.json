@@ -9847,8 +9847,14 @@
             "superseded_draft_checkpoint": "2204379c7",
             "history_only_merge": true,
             "product_tree_unchanged": true,
-            "status": "RUNNING_7_OF_1_AND_GDP_WITH_ISOLATED_STORES",
-            "boundary": "Frozen published source only; primary blind-replay composition is not qualified by these jobs."
+            "status": "RESOURCE_ABORT_FULL_7_OF_1_R2",
+            "boundary": "Repeated current-action receipt verification before new source acquisition/N5; no semantic PASS/FAIL. Current-origin fix is newer than this frozen source.",
+            "wall_seconds": 1200.15,
+            "peak_sampled_rss_bytes": 2134016000,
+            "unchanged_named_inputs": 3002,
+            "process_group_quiescent": true,
+            "new_B_N5_result": "UNRUN",
+            "output": "secondary:policy-engine/_cache/e02/lane01-v3-generations-7of1-r2/"
           },
           "blind_replay_composition": {
             "status": "IMPLEMENTED_FOCUSED_QUALIFICATION_COMPLETE",
@@ -9878,6 +9884,19 @@
               "output": "policy-engine/_cache/e02/n5-replay-static-architecture-r3/",
               "required_generated_freshness": "UNRUN_EXPLICITLY_OMITTED",
               "baseline_widened": false
+            },
+            "genuine_R1": {
+              "source": "6969a519558e3de01b8e1710e5a254ab3bbb0d6e",
+              "status": "COMMAND_FAIL_PARENT_PROCESS_RECONCILIATION",
+              "actual_original_diagnostic_units": 2,
+              "blind_child": "UNRUN",
+              "wall_seconds": 171.721,
+              "peak_sampled_rss_bytes": 3400712192,
+              "unchanged_named_pins": 2912,
+              "group_quiescent": true,
+              "output": "policy-engine/_cache/e02/n5-blind-original-replay-real-r1/",
+              "execution_artifact_id": "sha256:7394ff4883a630d9db58b81409c4c211a7ca0352c3437a7fdc95ea0fe92a5515",
+              "cause": "Authority launcher starts a separate real runtime worker; parent wrongly equates executor PID to session leader PID."
             }
           },
           "gdp_fixture_catalog_followup": {
@@ -9899,6 +9918,20 @@
             "independent_review": "GO_FINAL",
             "output": "policy-engine/_cache/e02/n5-current-origin-forward-r1/qualified-r2/",
             "scope": "Fresh current origin passed to canonical final history fold; all source/head/owner/history fences retained. Deep unit seams controlled; no N5 or whole-scenario performance claim."
+          },
+          "metadata_only_transport_heldout": {
+            "status": "PASS_BOUNDED_SERVED_ROUTE",
+            "served_PASS": 1,
+            "catalog_refusal_PASS": 2,
+            "independent_review": "GO_FINAL",
+            "outputs": [
+              "policy-engine/_cache/e02/p06-transport-served-r2/",
+              "policy-engine/_cache/e02/p06-transport-catalog-controls-r3/"
+            ],
+            "wall_seconds": 181.511,
+            "peak_sampled_rss_bytes": 1881554944,
+            "stable_production_python_pins": 2901,
+            "boundary": "Metadata-only stock profile extension through actual compiler/acquisition/manifest/Foundry/fresh GET; not broad free growth or full Gate A."
           }
         }
       },

@@ -63,8 +63,30 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   Empty production trust remains `verifier_unappointed`. A demonstration trust
   root proves only that intake mechanism. Configured organizational/function
   separation is not scientific independence; this contract/resolver stage never
-  grants protected use. Blind launch, actual diagnostic quota/physical accounting
-  and the fixed comparator remain separate required lifecycle consumers.
+  grants protected use. Executable V2 admission reopens the actual parent-only
+  producer execution and reconciles its input, profile, action, ledger and result
+  observation before issuing a blind-safe child spec; V1 reading is preserved.
+- `n5_replay_numerical_projection.py` derives a fixed candidate comparison
+  projection from completed V5 NCM or semantic ProgramGraph result values. It
+  preserves raw draws, SE, interactions, residuals, declared units and numerical
+  time contracts; unknown fields or unsupported variants refuse projection.
+  The caller must reopen the selected result through its canonical CAS owner and
+  rebuild the request through the selected V5 source owner. A decoded projection
+  document alone verifies neither source membership nor execution. Parent replay
+  comparison must reproject both selected results and reconcile the stored exact
+  numerical bytes. Projection support does not establish an engine replay seam;
+  blind execution/accounting and protected-use admission remain separate.
+- `n5_replay_execution.py` rebuilds a selected V5 NCM request through its native
+  owner and launches a new original and a blind repeat under the same assigned
+  runtime profile. Parent-only result/action/ledger bindings are separated from
+  source-only child input lineage. Each diagnostic physical unit uses the native
+  durable quota owner; USD cost remains unknown. A small attempt journal resumes
+  executed results without another kernel and permits only bounded infrastructure
+  retries. The parent reopens and projects both actual results with the fixed
+  comparator. This candidate demonstration does not isolate the shared OS/user,
+  issue an institutional appointment, sign independent verifier evidence or grant
+  protected use. Fresh numerical qualification is separate from unit admission.
+
 - `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
   bounds do not establish empirical calibration, source units or causal validity.
 

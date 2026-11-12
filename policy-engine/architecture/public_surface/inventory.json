@@ -15266,8 +15266,8 @@
         {
           "module": "polisyos.scientist.orchestration.engine",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 127,
-          "known_export_count": 127,
+          "export_count": 128,
+          "known_export_count": 128,
           "exports": [
             "ProducerBudgetObservation",
             "ProducerBudgetSourceError",
@@ -15303,6 +15303,7 @@
             "BudgetLedgerProducerRecord",
             "BudgetLedgerProducerRunBinding",
             "BudgetLedgerSnapshot",
+            "decode_budget_ledger_snapshot",
             "BudgetLedgerWriter",
             "BudgetLimit",
             "BudgetMiddleware",
@@ -15421,8 +15422,8 @@
                 "path": "src/polisyos/scientist/orchestration/engine/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 20005,
-                "sha256": "06ca83d83089ac432e3642346a80b390d39abd9ceefbf7f9ae7bfedf93641d54"
+                "bytes": 20194,
+                "sha256": "93553b528ebdcf5b2c40f8ff9e32a1eaddecc49cf6b9c4f3a057cff2821ba1b0"
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine",
@@ -19916,6 +19917,18 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/n5_replay_appointment.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/n5_replay_execution.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/n5_replay_numerical_projection.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

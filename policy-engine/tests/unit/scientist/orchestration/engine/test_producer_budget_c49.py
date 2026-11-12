@@ -102,6 +102,76 @@ def _diagnostic_capacity(observer):
     return method()
 
 
+def test_invocation_only_diagnostic_never_invents_a_usd_settlement(tmp_path):
+    middleware, binding, state = _owner(tmp_path, cap="0")
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="diagnostic-only", total_units=2, protected_units=2
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=BudgetLedgerInvocationProfile.from_policy(binding, policy),
+        invocation_purpose="diagnostic",
+    )
+    capacity = observer.admit_diagnostic_invocation_only()
+    assert capacity.protected_remaining_units == 2
+    assert middleware.snapshot_safe().producer_settlements == {}
+    with pytest.raises(BudgetExhaustedError):
+        observer.admit()
+    reservation = observer.reserve_invocation(_digest("one"), _digest("one-request"))
+    assert reservation is not None
+    with pytest.raises(ProducerBudgetSourceError, match="capacity_unavailable"):
+        observer.admit_diagnostic_invocation_only()
+    observer.finish_invocation(reservation.operation_id, reservation.request_digest, "completed")
+    assert observer.admit_diagnostic_invocation_only().protected_remaining_units == 1
+    second = observer.reserve_invocation(_digest("two"), _digest("two-request"))
+    assert second is not None
+    observer.finish_invocation(second.operation_id, second.request_digest, "completed")
+    with pytest.raises(ProducerBudgetSourceError, match="capacity_unavailable"):
+        observer.admit_diagnostic_invocation_only()
+    state.limits["run"] = BudgetLimit(key="run", max_usd=Decimal("1"))
+    with pytest.raises(ProducerBudgetSourceError, match="run_limit_changed"):
+        observer.admit_diagnostic_invocation_only()
+
+
+@pytest.mark.parametrize("case", ["standard", "positive_cap", "standard_pool", "zero_quota"])
+def test_invocation_only_diagnostic_refuses_inapplicable_profiles(tmp_path, case):
+    middleware, binding, state = _owner(tmp_path, cap="1" if case == "positive_cap" else "0")
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="wrong-diagnostic",
+        total_units=0 if case == "zero_quota" else 2,
+        protected_units=0 if case == "zero_quota" else 1 if case == "standard_pool" else 2,
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=BudgetLedgerInvocationProfile.from_policy(binding, policy),
+        invocation_purpose="standard" if case == "standard" else "diagnostic",
+    )
+    with pytest.raises(ProducerBudgetSourceError, match="invocation_only_not_established"):
+        observer.admit_diagnostic_invocation_only()
+    if case == "positive_cap":
+        with pytest.raises(ProducerBudgetSourceError, match="producer_events_not_established"):
+            observer.admit()
+
+
+def test_invocation_only_diagnostic_rejects_changed_ledger_owner(tmp_path):
+    middleware, binding, state = _owner(tmp_path, cap="0")
+    policy = BudgetInvocationQuotaPolicy(allocation_id="owner", total_units=1, protected_units=1)
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=BudgetLedgerInvocationProfile.from_policy(binding, policy),
+        invocation_purpose="diagnostic",
+    )
+    observer._owner = ("foreign-ledger", "foreign-contract", "foreign-mode")
+    with pytest.raises(ProducerBudgetSourceError, match="capacity_unavailable"):
+        observer.admit_diagnostic_invocation_only()
+
+
 def test_diagnostic_observation_reads_shared_protected_units_without_writing(tmp_path):
     path = tmp_path / "diagnostic-ledger.json"
     _ledger, _middleware, _binding, _policy, observer = _diagnostic_owner(
@@ -361,3 +431,19 @@ def test_unrelated_global_revision_does_not_renew_the_selected_source_basis(tmp_
     assert current.ledger_revision > first.ledger_revision
     assert current.source_basis_digest == first.source_basis_digest
     assert current.producer_events == first.producer_events
+
+
+def test_fenced_raw_snapshot_uses_owner_validation_and_rejects_corruption(tmp_path):
+    from polisyos.scientist.orchestration.engine import decode_budget_ledger_snapshot
+
+    path = tmp_path / "ledger.json"
+    ledger = FileBudgetLedger(path)
+    ledger.load_or_bootstrap(BudgetState())
+    snapshot, raw = ledger.snapshot_with_raw_bytes()
+    assert raw == path.read_bytes()
+    assert decode_budget_ledger_snapshot(raw) == snapshot
+    with pytest.raises(ValueError):
+        decode_budget_ledger_snapshot(b"{}")
+    path.write_bytes(b"{}")
+    with pytest.raises(ValueError):
+        ledger.snapshot_with_raw_bytes()

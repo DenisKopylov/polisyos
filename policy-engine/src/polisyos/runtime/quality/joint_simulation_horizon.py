@@ -2018,6 +2018,7 @@ def _run_cached_replicates(
     physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
     comparator_once: Callable[[int], Mapping[str, float]] | None = None,
     comparator_samples: list[dict[str, Any]] | None = None,
+    diagnostic_replay_scope: object | None = None,
 ) -> list[SimulationTrajectory]:
     """Admit each physical seed once; role projections do not create new work.
 
@@ -2031,8 +2032,20 @@ def _run_cached_replicates(
         or "observe" in vars(producer_budget_observer)
         or "reserve_invocation" in vars(producer_budget_observer)
         or "finish_invocation" in vars(producer_budget_observer)
+        or "admit_diagnostic_invocation_only" in vars(producer_budget_observer)
     ):
         raise JointSimulationControllerError("n5_budget_observer_not_canonical")
+    if diagnostic_replay_scope is not None:
+        from polisyos.runtime.quality.n5_candidate_content import CandidateN5ContentRun
+
+        if (
+            type(diagnostic_replay_scope) is not CandidateN5ContentRun
+            or producer_budget_observer is None
+            or not diagnostic_replay_scope.diagnostic_replay_preflight_passed(
+                producer_budget_observer
+            )
+        ):
+            raise JointSimulationControllerError("n5_diagnostic_replay_scope_not_established")
     cache: dict[str, SimulationTrajectory] = {}
     output: list[SimulationTrajectory] = []
     observations: list[PhysicalSimulationWorkObservation] = []
@@ -2064,7 +2077,10 @@ def _run_cached_replicates(
             ) from exc
         if producer_budget_observer is not None:
             try:
-                budget_observation = producer_budget_observer.admit()
+                if diagnostic_replay_scope is not None:
+                    producer_budget_observer.admit_diagnostic_invocation_only()
+                else:
+                    budget_observation = producer_budget_observer.admit()
             except (BudgetExhaustedError, ProducerBudgetSourceError) as exc:
                 last_checked = producer_budget_observer.last_checked
                 if last_checked is not None:
@@ -2092,7 +2108,8 @@ def _run_cached_replicates(
                         ),
                     },
                 ) from exc
-            budget_bases[budget_observation.source_basis_digest] = budget_observation
+            if budget_observation is not None:
+                budget_bases[budget_observation.source_basis_digest] = budget_observation
         physical_spec_ref = _physical_spec_digest(physical_ref)
         operation_id, request_digest = _physical_invocation_binding(
             invocation_id, physical_spec_ref, seed
@@ -3281,6 +3298,11 @@ class JointSimulationHorizonController:
             resolve_intervention_atom_world_binding(atom, request.world_model_record)
 
         selected = self._select_engine(request)
+        from polisyos.runtime.quality.n5_candidate_content import active_candidate_n5_content_run
+
+        content_run = active_candidate_n5_content_run(self)
+        if content_run is not None:
+            content_run.require_replay_engine(selected.decision)
         decision = selected.decision
         selected_plan = selected.plan
         decisions = selected.decisions
@@ -4690,6 +4712,14 @@ class JointSimulationHorizonController:
                     physical_n5_budget_scope=self._physical_n5_budget_scope,
                     comparator_once=comparator_once if comparator_query is not None else None,
                     comparator_samples=comparator_samples if comparator_query is not None else None,
+                    diagnostic_replay_scope=(
+                        content_run
+                        if content_run is not None
+                        and content_run.diagnostic_replay_preflight_passed(
+                            self._producer_budget_observer
+                        )
+                        else None
+                    ),
                 )
         except _PhysicalWorkInterruptedError as exc:
             if comparator_query is not None and len(comparator_samples) == request.replications:

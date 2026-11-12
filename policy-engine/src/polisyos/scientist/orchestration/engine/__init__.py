@@ -39,6 +39,7 @@ __all__ = [
     "BudgetLedgerProducerRecord",
     "BudgetLedgerProducerRunBinding",
     "BudgetLedgerSnapshot",
+    "decode_budget_ledger_snapshot",
     "BudgetLedgerWriter",
     "BudgetLimit",
     "BudgetMiddleware",
@@ -459,6 +460,10 @@ _EXPORTS = {
     "BudgetLedgerProducerRunBinding": (
         "polisyos.scientist.orchestration.engine.budget_ledger",
         "BudgetLedgerProducerRunBinding",
+    ),
+    "decode_budget_ledger_snapshot": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "decode_budget_ledger_snapshot",
     ),
     "BudgetLedgerSnapshot": (
         "polisyos.scientist.orchestration.engine.budget_ledger",

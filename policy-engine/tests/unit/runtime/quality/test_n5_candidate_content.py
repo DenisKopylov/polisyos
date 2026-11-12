@@ -66,6 +66,171 @@ def test_non_result_object_cannot_supply_content_observation(value: object) -> N
         content._candidate_result_payload(value)
 
 
+def _replay_test_binding(tmp_path: Path, input_ref: ArtifactRef):
+    from decimal import Decimal
+
+    from polisyos.runtime.quality.n5_replay_appointment import N5BlindReplayLaunchSpecV2
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+
+    spec = N5BlindReplayLaunchSpecV2.model_construct(
+        selected_candidate_simulation_n5_input_ref=input_ref,
+        source_run_id="original-run",
+        source_job_id="original-job",
+        original_run_id="original-run",
+        original_job_id="original-job",
+        tenant_id="tenant",
+        cell_id="cell",
+    )
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="replay",
+        control_job_id="replay-job",
+        tenant_id="tenant",
+        cell_id="cell",
+        profile_id="test",
+    )
+    policy = BudgetInvocationQuotaPolicy(allocation_id="test", total_units=1, protected_units=1)
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal(0))})
+    budget = ProducerBudgetObserver(
+        settlement_store=BudgetMiddleware(
+            BudgetState(), ledger=FileBudgetLedger(tmp_path / "ledger")
+        ),
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=BudgetLedgerInvocationProfile.from_policy(binding, policy),
+        invocation_purpose="diagnostic",
+    )
+    return spec, budget
+
+
+def test_rebuilt_replay_scope_refuses_before_any_numerical_call(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A failed whole-plan preflight cannot reach the selected callable."""
+    from polisyos.runtime.quality import acquisition_evaluation
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.runtime.quality.n5_replay_execution import N5ReplayPreflight
+
+    request = object()
+    input_ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime.quality.candidate_simulation_n5_input",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    rebuilt: list[dict[str, object]] = []
+
+    def rebuild(**kwargs: object) -> object:
+        rebuilt.append(kwargs)
+        return request
+
+    monkeypatch.setattr(acquisition_evaluation, "rebuild_selected_candidate_n5_request", rebuild)
+    monkeypatch.setattr(content, "_native_profile", lambda *a, **k: object())
+    monkeypatch.setattr(content, "capture_n5_production_image", lambda **k: object())
+    monkeypatch.setattr(content, "N5ControlledCallCaptureV3", lambda **k: object())
+    monkeypatch.setattr(content, "_numerical_intent", lambda *a: {})
+    monkeypatch.setattr(content, "_planned_units", lambda *a: (("unit", 1),))
+    monkeypatch.setattr(
+        JointSimulationHorizonController,
+        "_select_engine",
+        lambda *a: SimpleNamespace(
+            decision=SimpleNamespace(decision="selected", engine_kind="ncm_parallel_worlds")
+        ),
+    )
+    calls: list[str] = []
+
+    def refuse(_binding: object, scope: content.CandidateN5ContentRun) -> None:
+        assert scope.planned_units == (("unit", 1),)
+        calls.append("preflight")
+        raise ValueError("insufficient_capacity")
+
+    monkeypatch.setattr(N5ReplayPreflight, "check", refuse)
+    spec, budget = _replay_test_binding(tmp_path, input_ref)
+    controller = JointSimulationHorizonController(producer_budget_observer=budget)
+    with content.observe_source_rebuilt_candidate_n5_input(
+        store=object(),
+        controller=controller,
+        spec=spec,
+        budget=budget,
+    ) as (actual, scope):
+        assert actual is request
+        assert content.active_candidate_n5_content_run(controller) is scope
+        with pytest.raises(ValueError, match="insufficient_capacity"):
+            scope.prepare(object(), SimpleNamespace(method_fqn="selected"))
+        with pytest.raises(ValueError, match="preflight_not_passed"):
+            scope.invoke(lambda: calls.append("numerical"))
+    assert calls == ["preflight"]
+    assert rebuilt[0]["run_id"] == "original-run"
+    assert rebuilt[0]["job_id"] == "original-job"
+    assert content.active_candidate_n5_content_run(controller) is None
+    with (
+        pytest.raises(ValueError, match="budget_binding_mismatch"),
+        content.observe_source_rebuilt_candidate_n5_input(
+            store=object(), controller=JointSimulationHorizonController(), spec=spec, budget=budget
+        ),
+    ):
+        pass
+
+
+def test_actual_controller_rejects_replay_engine_change_before_dispatch(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A later PG selection cannot bypass the NCM pre-call guard."""
+    from polisyos.runtime.quality import acquisition_evaluation
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    request = _request()
+    selected_input = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime.quality.candidate_simulation_n5_input",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    spec, budget = _replay_test_binding(tmp_path, selected_input)
+    controller = JointSimulationHorizonController(producer_budget_observer=budget)
+    ncm = SimpleNamespace(decision="selected", engine_kind="ncm_parallel_worlds")
+    decision = SimpleNamespace(decision="selected", engine_kind="program_graph")
+    selections = iter((ncm, decision))
+    monkeypatch.setattr(
+        controller, "_select_engine", lambda _request: SimpleNamespace(decision=next(selections))
+    )
+    monkeypatch.setattr(
+        acquisition_evaluation, "rebuild_selected_candidate_n5_request", lambda **_kwargs: request
+    )
+    with (
+        content.observe_source_rebuilt_candidate_n5_input(
+            store=object(),
+            controller=controller,
+            spec=spec,
+            budget=budget,
+        ),
+        pytest.raises(ValueError, match="replay_engine_capture_unsupported"),
+    ):
+        controller.run(request)
+    # Existing ordinary producer contexts do not acquire this replay restriction.
+    ordinary = content.CandidateN5ContentRun(
+        controller=controller, request=request, input_ref=selected_input
+    )
+    ordinary.require_replay_engine(decision)
+    with pytest.raises(ValueError, match="preflight_not_canonical"):
+        content.CandidateN5ContentRun(
+            controller=controller,
+            request=request,
+            input_ref=selected_input,
+            replay_preflight=lambda _scope: None,
+        )
+
+
 @pytest.mark.integration
 def test_real_ncm_bridge_records_selected_calls_and_binds_result(tmp_path: Path) -> None:
     """Exercise numerical producer; source-input authority is a separate port test."""

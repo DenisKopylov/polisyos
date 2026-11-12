@@ -24,6 +24,7 @@ from polisyos.core.artifacts import artifact_ref_identity_key
 from polisyos.runtime.quality.n5_execution_basis import (
     N5ControlledCallCaptureV3,
     N5ExecutionContentWitnessV3,
+    N5ProductionImage,
     capture_n5_production_image,
     exact_n5_content_bytes,
     exact_n5_content_hash,
@@ -43,7 +44,7 @@ from polisyos.runtime.quality.n5_execution_profile import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore
     from polisyos.runtime.quality.joint_simulation_horizon import (
         EngineDecision,
         EnginePlan,
@@ -52,6 +53,13 @@ if TYPE_CHECKING:
         JointSimulationResult,
         PreparedJointSimulationConfiguration,
     )
+    from polisyos.runtime.quality.n5_replay_appointment import N5BlindReplayLaunchSpecV2
+    from polisyos.runtime.quality.n5_replay_execution import (
+        N5OriginalPreflight,
+        N5OriginalProducerAction,
+        N5ReplayPreflight,
+    )
+    from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
 
 CONTENT_OBSERVATION_KEY = "candidate_n5_execution_content_observation"
 _ResultT = TypeVar("_ResultT")
@@ -298,7 +306,16 @@ class CandidateN5ContentRun:
         controller: JointSimulationHorizonController,
         request: JointSimulationRequest,
         input_ref: ArtifactRef,
+        replay_preflight: N5ReplayPreflight | N5OriginalPreflight | None = None,
     ) -> None:
+        if replay_preflight is not None:
+            from polisyos.runtime.quality.n5_replay_execution import (
+                N5OriginalPreflight,
+                N5ReplayPreflight,
+            )
+
+            if type(replay_preflight) not in {N5ReplayPreflight, N5OriginalPreflight}:
+                raise ValueError("candidate_n5_replay_preflight_not_canonical")
         self.controller = controller
         self.request = request
         self.input_ref = input_ref
@@ -308,6 +325,9 @@ class CandidateN5ContentRun:
         self.profile: N5NativeExecutionProfile | None = None
         self.selected_callable: object | None = None
         self.configuration: PreparedJointSimulationConfiguration | None = None
+        self.production_image: N5ProductionImage | None = None
+        self._replay_preflight = replay_preflight
+        self._preflight_passed = replay_preflight is None
 
     def prepare(
         self,
@@ -330,6 +350,7 @@ class CandidateN5ContentRun:
         image = capture_n5_production_image(
             root=_product_root(), admitted_profile=_prepared_image_descriptor(configuration)
         )
+        self.production_image = image
         # Operational admission and copied occurrence labels are separate from
         # these request values. The wider source-basis owner enforces its field
         # role census; this producer binds the concrete plan it actually uses.
@@ -337,6 +358,17 @@ class CandidateN5ContentRun:
         self.capture = N5ControlledCallCaptureV3(effective_inputs=numerical, production_image=image)
         self.method_fqn = decision.method_fqn
         self.planned_units = _planned_units(self.request, plan, decision)
+        if self._replay_preflight is not None:
+            from polisyos.runtime.quality.n5_replay_execution import (
+                N5OriginalPreflight,
+                N5ReplayPreflight,
+            )
+
+            if type(self._replay_preflight) is N5ReplayPreflight:
+                N5ReplayPreflight.check(self._replay_preflight, self)
+            else:
+                N5OriginalPreflight.check(self._replay_preflight, self)
+            self._preflight_passed = True
 
     def invoke(
         self, function: Callable[..., _ResultT], /, *args: object, **kwargs: object
@@ -344,9 +376,26 @@ class CandidateN5ContentRun:
         """Invoke the retained selected callable through the actual seam."""
         if self.capture is None:
             raise ValueError("candidate_n5_content_plan_missing")
+        if not self._preflight_passed:
+            raise ValueError("candidate_n5_content_preflight_not_passed")
         if function is not self.selected_callable:
             raise ValueError("candidate_n5_content_retained_callable_mismatch")
         return self.capture.observe_numerical_call(function, *args, **kwargs)
+
+    def require_replay_engine(self, decision: EngineDecision) -> None:
+        """Stop unsupported replay dispatch before reservation or numerical work."""
+        if self._replay_preflight is not None and (
+            decision.decision != "selected" or decision.engine_kind != "ncm_parallel_worlds"
+        ):
+            raise ValueError("candidate_n5_replay_engine_capture_unsupported")
+
+    def diagnostic_replay_preflight_passed(self, budget: object) -> bool:
+        """Bind invocation-only admission to this preflighted controller."""
+        return (
+            self._replay_preflight is not None
+            and self._preflight_passed
+            and self.controller._producer_budget_observer is budget
+        )
 
 
 def active_candidate_n5_content_run(
@@ -355,6 +404,109 @@ def active_candidate_n5_content_run(
     """Return only this actual controller's scoped native producer operation."""
     active = _ACTIVE.get()
     return active if active is not None and active.controller is controller else None
+
+
+@contextmanager
+def observe_source_rebuilt_candidate_n5_input(
+    *,
+    store: CoreJSONArtifactStore,
+    controller: JointSimulationHorizonController,
+    spec: N5BlindReplayLaunchSpecV2,
+    budget: ProducerBudgetObserver,
+) -> Iterator[tuple[JointSimulationRequest, CandidateN5ContentRun]]:
+    """Rebuild a historical candidate input for a limited diagnostic execution.
+
+    The canonical preflight runs after actual controller selection and before
+    its first numerical call, and admits the complete physical plan.
+    This context itself grants no authority or quota permission.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from polisyos.runtime.quality.n5_replay_execution import N5ReplayPreflight
+
+    if type(controller) is not JointSimulationHorizonController:
+        raise ValueError("candidate_n5_content_controller_not_canonical")
+    if _ACTIVE.get() is not None:
+        raise ValueError("candidate_n5_content_scope_already_active")
+    binding = N5ReplayPreflight(spec=spec, store=store, budget=budget)
+    if controller._producer_budget_observer is not budget:
+        raise ValueError("candidate_n5_replay_budget_binding_mismatch")
+    request = rebuild_selected_candidate_n5_request(
+        store=store,
+        input_ref=spec.selected_candidate_simulation_n5_input_ref,
+        run_id=spec.source_run_id,
+        job_id=spec.source_job_id,
+        tenant_id=spec.tenant_id,
+        cell_id=spec.cell_id,
+    )
+    selection = controller._select_engine(request)
+    if (
+        selection.decision.decision != "selected"
+        or selection.decision.engine_kind != "ncm_parallel_worlds"
+    ):
+        raise ValueError("candidate_n5_replay_engine_capture_unsupported")
+    scope = CandidateN5ContentRun(
+        controller=controller,
+        request=request,
+        input_ref=spec.selected_candidate_simulation_n5_input_ref,
+        replay_preflight=binding,
+    )
+    token = _ACTIVE.set(scope)
+    try:
+        yield request, scope
+    finally:
+        _ACTIVE.reset(token)
+
+
+@contextmanager
+def observe_source_rebuilt_original_n5_input(
+    *,
+    store: CoreJSONArtifactStore,
+    controller: JointSimulationHorizonController,
+    action: N5OriginalProducerAction,
+    budget: ProducerBudgetObserver,
+) -> Iterator[tuple[JointSimulationRequest, CandidateN5ContentRun]]:
+    """Reopen a retained V5 input for a distinct candidate original producer."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.runtime.quality.n5_replay_execution import N5OriginalPreflight
+
+    if type(controller) is not JointSimulationHorizonController or _ACTIVE.get() is not None:
+        raise ValueError("candidate_n5_original_scope_not_established")
+    binding = N5OriginalPreflight(action=action, budget=budget)
+    if controller._producer_budget_observer is not budget:
+        raise ValueError("candidate_n5_original_budget_binding_mismatch")
+    request = rebuild_selected_candidate_n5_request(
+        store=store,
+        input_ref=action.source_input_ref,
+        run_id=action.source_run_id,
+        job_id=action.source_job_id,
+        tenant_id=action.tenant_id,
+        cell_id=action.cell_id,
+    )
+    selection = controller._select_engine(request)
+    if (
+        selection.decision.decision != "selected"
+        or selection.decision.engine_kind != "ncm_parallel_worlds"
+    ):
+        raise ValueError("candidate_n5_original_engine_capture_unsupported")
+    scope = CandidateN5ContentRun(
+        controller=controller,
+        request=request,
+        input_ref=action.source_input_ref,
+        replay_preflight=binding,
+    )
+    token = _ACTIVE.set(scope)
+    try:
+        yield request, scope
+    finally:
+        _ACTIVE.reset(token)
 
 
 @contextmanager

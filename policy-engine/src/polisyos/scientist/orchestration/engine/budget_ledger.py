@@ -776,6 +776,18 @@ def _require_nonnegative_amounts(value: object) -> None:
             _require_nonnegative_amounts(item)
 
 
+def decode_budget_ledger_snapshot(raw: bytes) -> BudgetLedgerSnapshot:
+    """Decode and validate the exact persisted ledger bytes.
+
+    Args:
+        raw: Complete UTF-8 ledger snapshot bytes.
+
+    Returns:
+        The validated persisted snapshot.
+    """
+    return _decode_snapshot(raw.decode("utf-8"))
+
+
 def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
     """Decode complete persisted wire data without treating corruption as defaults."""
     if not raw.strip():
@@ -1320,6 +1332,22 @@ class FileBudgetLedger:
                 )
             self._confirm_snapshot_durability("ledger-snapshot", snapshot)
             return self._normalize_snapshot(snapshot)
+
+    def snapshot_with_raw_bytes(self) -> tuple[BudgetLedgerSnapshot, bytes]:
+        """Read and reconcile a concrete snapshot and its bytes under the owner lock."""
+        if self._path.is_symlink():
+            raise ValueError("budget_ledger_path_is_symlink")
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, require_concrete=True, create_if_missing=False),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger snapshot is unavailable")
+            raw = self._path.read_bytes()
+            if decode_budget_ledger_snapshot(raw) != snapshot:
+                raise ValueError("budget ledger bytes changed during snapshot")
+            return snapshot, raw
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:

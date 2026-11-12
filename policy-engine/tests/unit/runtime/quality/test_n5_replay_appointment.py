@@ -29,7 +29,7 @@ class _DemonstrationTestTrustRoot:
     state: owner.N5ReplayDeploymentState
     query: owner.N5ReplayUseQuery
     appointment: owner.N5ReplayAppointment
-    producer: owner.N5OriginalProducerSeal
+    producer: owner.N5OriginalProducerSeal | owner.N5OriginalProducerSealV2
     now: datetime
 
     def resolver(self) -> owner.N5ReplayAppointmentResolver:
@@ -443,11 +443,11 @@ def test_result_user_cannot_reuse_control_actor_identity_with_another_key_and_fu
     demonstration_test_trust_root,
 ) -> None:
     demo = demonstration_test_trust_root
-    issuer = next(row for row in demo.state.config.trusted_keys if "appointment_issuer" in row.roles)
+    issuer = next(
+        row for row in demo.state.config.trusted_keys if "appointment_issuer" in row.roles
+    )
     keys = tuple(
-        row.model_copy(update={"identity": issuer.identity})
-        if "result_user" in row.roles
-        else row
+        row.model_copy(update={"identity": issuer.identity}) if "result_user" in row.roles else row
         for row in demo.state.config.trusted_keys
     )
     demo.state = replace(
@@ -511,3 +511,609 @@ def test_current_deployment_scope_cannot_be_supplied_by_the_request(
     assert result.status == "refused"
     assert result.code == "n5_replay_current_deployment_scope_unappointed"
     assert result.candidate_work_allowed and not result.protected_use_allowed
+
+
+def _install_v2_intent(
+    demo,
+    *,
+    selected_input_ref=None,
+    comparator_profile=None,
+    source_run_id=None,
+    source_job_id=None,
+):
+    from polisyos.core.canon import CanonSpec
+    from polisyos.runtime.quality import n5_execution_basis
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+    from polisyos.runtime.quality.n5_execution_profile import (
+        N5NativeExecutionProfile,
+        observe_n5_native_execution_profile,
+    )
+    from polisyos.runtime.quality.n5_replay_numerical_projection import (
+        N5_NUMERICAL_RESULT_PROJECTION_SCHEMA,
+        N5_REPLAY_EXCLUDED_TIME_IDENTITY_PATHS,
+    )
+
+    def put_core(
+        kind: str,
+        version: str,
+        payload: object,
+        *,
+        schema_name: str | None = None,
+        inputs: tuple[artifacts.ArtifactRef, ...] = (),
+    ):
+        canon_spec = CanonSpec(forbid_floats=False, forbid_nan_inf=True, exclude_none=False)
+        return demo.store.put_json(
+            payload,
+            artifacts.ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                inputs=[
+                    artifacts.input_ref_from_artifact_ref(ref, role="selected_input")
+                    for ref in inputs
+                ],
+                schema=artifacts.SchemaInfo(name=schema_name or kind, version=version),
+                canon=artifacts.CanonInfo.from_spec(canon_spec),
+            ),
+            canon_spec=canon_spec,
+            return_selected_profile=True,
+        )
+
+    fixture_generation = getattr(demo, "_v2_intent_generation", 0) + 1
+    demo._v2_intent_generation = fixture_generation
+    input_ref = selected_input_ref or put_core(
+        "runtime.quality.candidate_simulation_n5_input",
+        "5.0",
+        {
+            "fixture": "synthetic selected candidate simulation V5 input",
+            "generation": fixture_generation,
+        },
+    )
+    if demo.state.component.execution_profile_ref.kind != owner.N5_REPLAY_EXECUTION_PROFILE_KIND:
+        native_profile = observe_n5_native_execution_profile(
+            first_party_root=Path(__file__).resolve().parents[4] / "src" / "polisyos",
+            declared_settings={"fixture": "demonstration"},
+        )
+        profile_ref = put_core(
+            owner.N5_REPLAY_EXECUTION_PROFILE_KIND,
+            owner.N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+            native_profile.model_dump(mode="json"),
+            inputs=(input_ref,),
+        )
+        demo.state = replace(
+            demo.state,
+            component=replace(demo.state.component, execution_profile_ref=profile_ref),
+        )
+        demo.producer = demo.producer.model_copy(update={"execution_profile_ref": profile_ref})
+        demo.query = demo.query.model_copy(update={"execution_profile_ref": profile_ref})
+    else:
+        native_profile = artifacts.validate_core_model_json_artifact(
+            N5NativeExecutionProfile,
+            demo.store,
+            demo.state.component.execution_profile_ref,
+        )
+
+    source_run_id = source_run_id or demo.producer.original_run_id
+    source_job_id = source_job_id or demo.producer.original_job_id
+    producer_run_id = f"producer-run-{fixture_generation}"
+    producer_job_id = f"producer-job-{fixture_generation}"
+    prepared = prepare_joint_simulation_configuration()
+    prepared_ref = put_core(
+        owner.N5_REPLAY_PREPARED_CONFIGURATION_KIND,
+        owner.N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+        prepared.model_dump(mode="json"),
+        inputs=(input_ref,),
+    )
+    prepared_hash = exact_n5_content_hash(prepared)
+    # A synthetic, explicitly demonstration-only source image keeps this unit
+    # test bounded; production image capture remains native child work.
+    image_payload = {
+        "schema_version": "N5ProductionImage@2.0",
+        "source_scope": "all_first_party_production_python",
+        "python_sources": [
+            {
+                "relative_path": "tests/fixtures/synthetic_replay_callable.py",
+                "content_hash": _digest("synthetic source bytes"),
+            }
+        ],
+        "lock_content_hash": _digest("synthetic lock bytes"),
+        "platform_content": '{"fixture":"demonstration"}',
+        "selected_profile_content": '{"fixture":"demonstration"}',
+        "provenance": "recomputed",
+        "reason_codes": [],
+    }
+    image = n5_execution_basis.N5ProductionImage.model_validate(
+        {
+            **image_payload,
+            "content_hash": n5_execution_basis._v2_hash(image_payload),
+        }
+    )
+    image_ref = put_core(
+        owner.N5_REPLAY_PRODUCTION_IMAGE_KIND,
+        owner.N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+        image.model_dump(mode="json"),
+        inputs=(input_ref,),
+    )
+    intent_fields = {
+        "selected_candidate_simulation_n5_input_ref": input_ref,
+        "source_run_id": source_run_id,
+        "source_job_id": source_job_id,
+        "original_run_id": producer_run_id,
+        "original_job_id": producer_job_id,
+        "tenant_id": demo.query.scope.tenant_id,
+        "cell_id": demo.query.scope.cell_id,
+        "declared_numerical_intent_content_hash": _digest("captured numerical graph"),
+        "declared_callable_content_hash": _digest("synthetic callable content"),
+        "production_image_ref": image_ref,
+        "production_image_content_hash": security.raw_content_hash(demo.store.get_bytes(image_ref)),
+        "prepared_configuration_ref": prepared_ref,
+        "prepared_configuration_content_hash": security.raw_content_hash(
+            demo.store.get_bytes(prepared_ref)
+        ),
+        "prepared_configuration_hash": prepared_hash,
+    }
+    intent = owner.N5ReplayNumericalIntentV2.model_validate(intent_fields)
+    intent_ref = put_core(
+        owner.N5_REPLAY_NUMERICAL_INTENT_KIND,
+        owner.N5_REPLAY_INTENT_V2_CORE_SCHEMA_VERSION,
+        intent.model_dump(mode="json"),
+        inputs=(input_ref,),
+    )
+    demo._v2_intent_ref = intent_ref
+    comparator = comparator_profile or owner.N5ReplayComparatorProfile(
+        numerical_projection_schema=N5_NUMERICAL_RESULT_PROJECTION_SCHEMA,
+        excluded_time_identity_paths=N5_REPLAY_EXCLUDED_TIME_IDENTITY_PATHS,
+    )
+    comparator_ref = put_core(
+        "runtime.quality.n5_replay_comparator_profile",
+        "1.0",
+        comparator.model_dump(mode="json"),
+    )
+    from polisyos.runtime.quality.n5_replay_execution import (
+        N5OriginalProducerAction,
+        N5OriginalProducerExecution,
+    )
+
+    original_result_ref = put_core(
+        "polisyos.runtime.joint_simulation_result",
+        "1.0",
+        {"fixture": "demonstration-only parent result"},
+    )
+    ledger_snapshot_ref = _write(
+        demo.store,
+        b"demonstration-only ledger snapshot",
+        "runtime.quality.n5_diagnostic_ledger_snapshot",
+    )
+    assert input_ref.kind == "runtime.quality.candidate_simulation_n5_input"
+    assert input_ref.manifest_profile_sha256 is not None
+    assert producer_run_id != source_run_id and producer_job_id != source_job_id
+    assert original_result_ref.kind == "polisyos.runtime.joint_simulation_result"
+    assert original_result_ref.manifest_profile_sha256 is not None
+    assert ledger_snapshot_ref.kind == "runtime.quality.n5_diagnostic_ledger_snapshot"
+    assert ledger_snapshot_ref.media_type == "application/octet-stream"
+    assert ledger_snapshot_ref.manifest_profile_sha256 is not None
+    action = N5OriginalProducerAction(
+        source_input_ref=input_ref,
+        source_run_id=source_run_id,
+        source_job_id=source_job_id,
+        producer_run_id=producer_run_id,
+        producer_job_id=producer_job_id,
+        tenant_id=demo.query.scope.tenant_id,
+        cell_id=demo.query.scope.cell_id,
+        cas_root="/demonstration/cas",
+        ledger_path=f"/demonstration/ledger-{fixture_generation}.json",
+        quota_units=1,
+    )
+    demo._v2_action = action
+    action_ref = put_core(
+        owner.N5_REPLAY_ORIGINAL_ACTION_KIND,
+        owner.N5_REPLAY_ORIGINAL_ACTION_SCHEMA_VERSION,
+        action.model_dump(mode="json"),
+        schema_name=owner.N5_REPLAY_ORIGINAL_ACTION_SCHEMA_NAME,
+        inputs=(input_ref,),
+    )
+    action_hash = security.raw_content_hash(demo.store.get_bytes(action_ref))
+    execution = N5OriginalProducerExecution(
+        source_input_ref=input_ref,
+        source_run_id=source_run_id,
+        source_job_id=source_job_id,
+        producer_run_id=producer_run_id,
+        producer_job_id=producer_job_id,
+        tenant_id=demo.query.scope.tenant_id,
+        cell_id=demo.query.scope.cell_id,
+        pid=1,
+        action_hash=action_hash,
+        action_ref=action_ref,
+        result_ref=original_result_ref,
+        numerical_intent_ref=intent_ref,
+        execution_profile_ref=demo.state.component.execution_profile_ref,
+        ledger_owner=("demonstration", "owner", "candidate"),
+        ledger_revision=1,
+        ledger_hash=security.raw_content_hash(demo.store.get_bytes(ledger_snapshot_ref)),
+        ledger_snapshot_ref=ledger_snapshot_ref,
+        operation_ids=(f"demo-operation-{fixture_generation}",),
+    )
+    demo._v2_execution = execution
+    execution_ref = put_core(
+        owner.N5_REPLAY_ORIGINAL_EXECUTION_KIND,
+        owner.N5_REPLAY_ORIGINAL_EXECUTION_SCHEMA_VERSION,
+        execution.model_dump(mode="json"),
+    )
+    seal_fields = demo.producer.model_dump(mode="python")
+    seal_fields.update(
+        {
+            "schema_version": "policyos.n5_replay.producer_seal.v2",
+            "original_run_id": producer_run_id,
+            "original_job_id": producer_job_id,
+            "original_execution_ref": execution_ref,
+            "numerical_intent_ref": intent_ref,
+            "numerical_intent_hash": security.raw_content_hash(demo.store.get_bytes(intent_ref)),
+            "numerical_projection_schema": N5_NUMERICAL_RESULT_PROJECTION_SCHEMA,
+        }
+    )
+    demo.producer = owner.N5OriginalProducerSealV2.model_validate(seal_fields)
+    producer_ref = demo.signed(
+        demo.producer, "producer", "runtime.quality.n5_original_producer_seal"
+    )
+    demo.query = demo.query.model_copy(
+        update={"original_producer_evidence_ref": producer_ref, "comparator_ref": comparator_ref}
+    )
+    demo.install_appointment(
+        demo.appointment.model_copy(
+            update={
+                "comparator_ref": comparator_ref,
+                "comparator_content_hash": str(comparator_ref.artifact_id),
+                "attempt_limit": demo.appointment.attempt_limit + 1,
+            }
+        )
+    )
+    return input_ref, intent, native_profile, image
+
+
+def test_v2_executable_intake_resolves_selected_cas_and_emits_result_blind_spec(
+    demonstration_test_trust_root,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import n5_replay_execution
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    demo = demonstration_test_trust_root
+    input_ref, intent, _native_profile, _image = _install_v2_intent(
+        demo, source_run_id="source-input-run", source_job_id="source-input-job"
+    )
+    record = CandidateSimulationN5InputV5.model_construct(
+        authority_purpose="candidate_scenario_n5_only",
+        run_id=intent.source_run_id,
+        job_id=intent.source_job_id,
+        tenant_id=intent.tenant_id,
+        cell_id=intent.cell_id,
+    )
+    calls = []
+
+    def resolve(repository, **kwargs):
+        calls.append((repository.store, kwargs))
+        return record
+
+    monkeypatch.setattr(GenerationSourceRepository, "resolve_candidate_simulation_v5", resolve)
+    original_reopens = []
+
+    def reopen_original(**kwargs):
+        original_reopens.append(kwargs)
+        return demo._v2_execution, None, None
+
+    monkeypatch.setattr(
+        n5_replay_execution,
+        "_reopen_verified_original",
+        reopen_original,
+    )
+    result = demo.resolver().resolve_executable(demo.query)
+    assert result.status == "appointed", result.code
+    assert result.launch_spec is not None
+    assert calls == [
+        (
+            demo.store,
+            {
+                "ref": input_ref,
+                "expected_run_id": intent.source_run_id,
+                "expected_job_id": intent.source_job_id,
+                "expected_tenant_id": intent.tenant_id,
+                "expected_cell_id": intent.cell_id,
+            },
+        )
+    ]
+    assert original_reopens == [
+        {
+            "store": demo.store,
+            "original_execution_ref": demo.producer.original_execution_ref,
+            "scope": demo.query.scope,
+        }
+    ]
+    child = result.launch_spec.model_dump(mode="json")
+    assert child["selected_candidate_simulation_n5_input_ref"] == input_ref.model_dump(mode="json")
+    assert child["source_run_id"] == "source-input-run"
+    assert child["source_job_id"] == "source-input-job"
+    assert child["original_run_id"] != child["source_run_id"]
+    assert child["original_job_id"] != child["source_job_id"]
+    assert "original_producer_evidence_ref" not in child
+    assert "original_execution_ref" not in child
+    assert "action_ref" not in child
+    assert "result_ref" not in child
+    assert "numerical_result_projection_ref" not in child
+    assert "numerical_result_projection_hash" not in child
+    assert child["invocation_purpose"] == "diagnostic"
+    for ref in (
+        demo._v2_intent_ref,
+        intent.production_image_ref,
+        intent.prepared_configuration_ref,
+        demo.state.component.execution_profile_ref,
+    ):
+        manifest, _ = artifacts.read_core_manifest_profile(demo.store, ref)
+        assert [(item.artifact_id, item.role) for item in manifest.inputs] == [
+            (input_ref.artifact_id, "selected_input")
+        ]
+    intent_payload = intent.model_dump(mode="json")
+    assert (
+        not {
+            "original_execution_ref",
+            "result_ref",
+            "numerical_result_projection_ref",
+            "producer_seal_ref",
+        }
+        & intent_payload.keys()
+    )
+    with pytest.raises(ValidationError):
+        owner.N5BlindReplayLaunchSpecV2.model_validate(
+            {
+                **child,
+                "numerical_result_projection_ref": demo.producer.numerical_result_projection_ref,
+            }
+        )
+    with pytest.raises(ValidationError):
+        owner.N5BlindReplayLaunchSpecV2.model_validate(
+            {**child, "replay_run_id": child["source_run_id"]}
+        )
+
+
+def test_v1_or_corrupt_selected_input_never_reaches_executable_intake(
+    demonstration_test_trust_root,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    demo = demonstration_test_trust_root
+    # The preserved v1 opaque intent still supports read-only appointment intake.
+    assert demo.resolver().resolve(demo.query).status == "appointed"
+    result = demo.resolver().resolve_executable(demo.query)
+    assert result.status == "refused"
+    assert result.launch_spec is None
+
+    input_ref, intent, _native_profile, _image = _install_v2_intent(demo)
+    corrupted_ref = input_ref.model_copy(update={"artifact_id": _digest("foreign input")})
+    _install_v2_intent(demo, selected_input_ref=corrupted_ref)
+    called = False
+
+    def forbidden_resolve(*_args, **_kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("invalid selected CAS view reached source owner")
+
+    monkeypatch.setattr(
+        GenerationSourceRepository, "resolve_candidate_simulation_v5", forbidden_resolve
+    )
+    result = demo.resolver().resolve_executable(demo.query)
+    assert result.status == "refused"
+    assert result.code == "n5_replay_selected_candidate_input_unavailable"
+    assert not called
+    assert intent.selected_candidate_simulation_n5_input_ref == input_ref
+
+    unknown_version = intent.model_copy(
+        update={"schema_version": "policyos.n5_replay.numerical_intent.v3"}
+    )
+    from polisyos.core.canon import CanonSpec
+
+    canon_spec = CanonSpec(forbid_floats=False, forbid_nan_inf=True, exclude_none=False)
+    unknown_ref = demo.store.put_json(
+        unknown_version.model_dump(mode="json"),
+        artifacts.ArtifactWriteOptions(
+            kind=owner.N5_REPLAY_NUMERICAL_INTENT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=owner.N5_REPLAY_NUMERICAL_INTENT_KIND,
+                version=owner.N5_REPLAY_INTENT_V2_CORE_SCHEMA_VERSION,
+            ),
+            canon=artifacts.CanonInfo.from_spec(canon_spec),
+        ),
+        canon_spec=canon_spec,
+        return_selected_profile=True,
+    )
+    unknown_bytes = demo.store.get_bytes(unknown_ref)
+    producer = demo.producer.model_copy(
+        update={
+            "numerical_intent_ref": unknown_ref,
+            "numerical_intent_hash": security.raw_content_hash(unknown_bytes),
+        }
+    )
+    producer_ref = demo.signed(producer, "producer", "runtime.quality.n5_original_producer_seal")
+    demo.query = demo.query.model_copy(update={"original_producer_evidence_ref": producer_ref})
+    malformed = demo.resolver().resolve_executable(demo.query)
+    assert malformed.status == "refused"
+    assert malformed.launch_spec is None
+    assert not called
+
+
+def test_v2_seal_rejects_mismatched_parent_execution_bindings(
+    demonstration_test_trust_root,
+) -> None:
+    from polisyos.core.canon import CanonSpec
+
+    demo = demonstration_test_trust_root
+    _input_ref, _intent, _native_profile, _image = _install_v2_intent(demo)
+    execution = demo._v2_execution
+    canon_spec = CanonSpec(forbid_floats=False, forbid_nan_inf=True, exclude_none=False)
+
+    def persist_execution(execution_record):
+        return demo.store.put_json(
+            execution_record.model_dump(mode="json"),
+            artifacts.ArtifactWriteOptions(
+                kind=owner.N5_REPLAY_ORIGINAL_EXECUTION_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=owner.N5_REPLAY_ORIGINAL_EXECUTION_KIND,
+                    version=owner.N5_REPLAY_ORIGINAL_EXECUTION_SCHEMA_VERSION,
+                ),
+                canon=artifacts.CanonInfo.from_spec(canon_spec),
+            ),
+            canon_spec=canon_spec,
+            return_selected_profile=True,
+        )
+
+    for execution_record, expected_code in (
+        (
+            execution.model_copy(
+                update={
+                    "producer_run_id": "different-producer-run",
+                    "producer_job_id": "different-producer-job",
+                }
+            ),
+            "n5_replay_original_execution_binding_mismatch",
+        ),
+        (
+            execution.model_copy(
+                update={
+                    "numerical_intent_ref": demo.producer.numerical_intent_ref.model_copy(
+                        update={"manifest_profile_sha256": _digest("wrong intent profile")}
+                    )
+                }
+            ),
+            "n5_replay_original_execution_binding_mismatch",
+        ),
+        (
+            execution.model_copy(
+                update={
+                    "execution_profile_ref": demo.producer.execution_profile_ref.model_copy(
+                        update={"manifest_profile_sha256": _digest("wrong runtime profile")}
+                    )
+                }
+            ),
+            "n5_replay_original_execution_binding_mismatch",
+        ),
+        (
+            execution.model_copy(update={"action_hash": _digest("wrong action bytes")}),
+            "n5_replay_original_action_binding_mismatch",
+        ),
+        (
+            execution.model_copy(update={"ledger_hash": _digest("wrong ledger bytes")}),
+            "n5_replay_original_ledger_snapshot_mismatch",
+        ),
+    ):
+        execution_ref = persist_execution(execution_record)
+        seal = demo.producer.model_copy(update={"original_execution_ref": execution_ref})
+        evidence = demo.signed(seal, "producer", "runtime.quality.n5_original_producer_seal")
+        demo.query = demo.query.model_copy(update={"original_producer_evidence_ref": evidence})
+
+        result = demo.resolver().resolve_executable(demo.query)
+
+        assert result.status == "refused"
+        assert result.code == expected_code
+        assert result.launch_spec is None
+
+
+def test_v2_intent_wrong_scope_and_unsupported_comparator_fail_closed(
+    demonstration_test_trust_root,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.n5_replay_numerical_projection import (
+        N5_NUMERICAL_RESULT_PROJECTION_SCHEMA,
+    )
+
+    demo = demonstration_test_trust_root
+    _input_ref, intent, _native_profile, _image = _install_v2_intent(demo)
+    mismatched_record = CandidateSimulationN5InputV5.model_construct(
+        authority_purpose="candidate_scenario_n5_only",
+        run_id=intent.source_run_id,
+        job_id=intent.source_job_id,
+        tenant_id=demo.query.scope.tenant_id,
+        cell_id="foreign-cell",
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "resolve_candidate_simulation_v5",
+        lambda *_args, **_kwargs: mismatched_record,
+    )
+    wrong_scope = demo.resolver().resolve_executable(demo.query)
+    assert wrong_scope.status == "refused"
+    assert wrong_scope.code == "n5_replay_selected_candidate_input_not_established"
+
+    unsupported = owner.N5ReplayComparatorProfile(
+        numerical_projection_schema=N5_NUMERICAL_RESULT_PROJECTION_SCHEMA,
+        excluded_time_identity_paths=("caller.selected.path",),
+    )
+    _input_ref, intent, _native_profile, _image = _install_v2_intent(
+        demo, comparator_profile=unsupported
+    )
+    matching_record = CandidateSimulationN5InputV5.model_construct(
+        authority_purpose="candidate_scenario_n5_only",
+        run_id=intent.source_run_id,
+        job_id=intent.source_job_id,
+        tenant_id=demo.query.scope.tenant_id,
+        cell_id=demo.query.scope.cell_id,
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "resolve_candidate_simulation_v5",
+        lambda *_args, **_kwargs: matching_record,
+    )
+    wrong_comparator = demo.resolver().resolve_executable(demo.query)
+    assert wrong_comparator.status == "refused"
+    assert wrong_comparator.code == "n5_replay_comparator_not_established"
+
+
+def test_v2_cache_key_uses_recomputed_numerical_identity_axes_only(
+    demonstration_test_trust_root,
+) -> None:
+    demo = demonstration_test_trust_root
+    _input_ref, intent, native_profile, image = _install_v2_intent(demo)
+    build_key = owner.build_n5_replay_verification_cache_key_v2
+    fixed = {
+        "declared_numerical_intent_content_hash": intent.declared_numerical_intent_content_hash,
+        "declared_callable_content_hash": intent.declared_callable_content_hash,
+        "native_profile": native_profile,
+        "production_image": image,
+        "comparator_ref": demo.query.comparator_ref,
+        "tier": demo.query.tier,
+        "seed_schedule_hash": _digest("ordered actual replay seeds"),
+        "numerical_result_projection_hash": demo.producer.numerical_result_projection_hash,
+    }
+    baseline = build_key(**fixed)
+    # Appointment, source ref, run/job labels, and allocation never enter the key.
+    assert set(baseline.model_fields_set) == {
+        "declared_numerical_intent_content_hash",
+        "declared_callable_content_hash",
+        "numerical_profile_content_hash",
+        "production_image_content_hash",
+        "comparator_ref",
+        "comparator_content_hash",
+        "tier",
+        "seed_schedule_hash",
+        "numerical_result_projection_hash",
+    }
+    assert build_key(**fixed) == baseline
+    changed_intent = build_key(
+        **{
+            **fixed,
+            "declared_numerical_intent_content_hash": _digest("different numerical graph"),
+        }
+    )
+    changed_result = build_key(
+        **{
+            **fixed,
+            "numerical_result_projection_hash": _digest("different original projection"),
+        }
+    )
+    assert changed_intent != baseline
+    assert changed_result != baseline

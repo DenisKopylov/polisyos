@@ -820,6 +820,40 @@ class ProducerBudgetObserver:
                 source_anchor=anchor[1],
             )
 
+    def admit_diagnostic_invocation_only(self) -> N5DiagnosticCapacityObservation:
+        """Check bounded diagnostic capacity with no priced-producer authority.
+
+        This is an invocation-only observation, not a reservation or a USD
+        spend statement. The actual physical call still reserves and settles
+        one unit against the same durable owner.
+        """
+        with self._lock:
+            if any(
+                name in vars(self)
+                for name in (
+                    "require_bound_state",
+                    "_current_limit",
+                    "observe_diagnostic_invocation_capacity",
+                    "admit_diagnostic_invocation_only",
+                )
+            ):
+                raise ProducerBudgetSourceError("n5_diagnostic_invocation_only_source_shadowed")
+            ProducerBudgetObserver.require_bound_state(self, self._state)
+            profile = self._invocation_profile
+            if (
+                self._limit.max_usd != Decimal(0)
+                or self._invocation_purpose != "diagnostic"
+                or self.invocation_purpose != "diagnostic"
+                or profile is None
+                or profile.total_units != profile.protected_units
+                or profile.protected_units < 1
+            ):
+                raise ProducerBudgetSourceError("n5_diagnostic_invocation_only_not_established")
+            observation = ProducerBudgetObserver.observe_diagnostic_invocation_capacity(self)
+            if observation.status != "available":
+                raise ProducerBudgetSourceError("n5_diagnostic_invocation_capacity_unavailable")
+            return observation
+
     def observe_standard_invocation_capacity(self) -> BudgetInvocationCapacityObservation:
         """Read current standard quota without consuming a unit or granting a permit.
 

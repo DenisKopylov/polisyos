@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Literal, Self, TypeVar
+from typing import TYPE_CHECKING, Annotated, Literal, Self, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -20,6 +20,9 @@ from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts,
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+    from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 ReplayTier = Literal[
@@ -33,6 +36,17 @@ ReplayTrustRole = Literal[
     "result_user",
 ]
 ConfiguredIndependence = Literal["same_organization_separate_function", "external_organization"]
+N5_REPLAY_PREPARED_CONFIGURATION_KIND = "runtime.quality.n5_prepared_configuration"
+N5_REPLAY_PRODUCTION_IMAGE_KIND = "runtime.quality.n5_production_image"
+N5_REPLAY_EXECUTION_PROFILE_KIND = "runtime.quality.n5_execution_profile"
+N5_REPLAY_NUMERICAL_INTENT_KIND = "runtime.quality.n5_replay_numerical_intent"
+N5_REPLAY_V1_CORE_SCHEMA_VERSION = "1.0"
+N5_REPLAY_INTENT_V2_CORE_SCHEMA_VERSION = "2.0"
+N5_REPLAY_ORIGINAL_EXECUTION_KIND = "runtime.quality.n5_original_producer_execution"
+N5_REPLAY_ORIGINAL_EXECUTION_SCHEMA_VERSION = "1.0"
+N5_REPLAY_ORIGINAL_ACTION_KIND = "runtime.quality.n5_original_producer_action"
+N5_REPLAY_ORIGINAL_ACTION_SCHEMA_NAME = "policyos.runtime.n5_replay.original_producer_action.v1"
+N5_REPLAY_ORIGINAL_ACTION_SCHEMA_VERSION = "1.0"
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
 
@@ -103,6 +117,60 @@ class N5OriginalProducerSeal(_FrozenModel):
     numerical_result_projection_hash: Digest
     seed_schedule_hash: Digest
     produced_at: datetime
+
+
+class N5OriginalProducerSealV2(N5OriginalProducerSeal):
+    """Signed producer seal with a parent-only original execution binding."""
+
+    schema_version: Literal["policyos.n5_replay.producer_seal.v2"] = (
+        "policyos.n5_replay.producer_seal.v2"
+    )
+    original_execution_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _execution_ref_kind(self) -> Self:
+        if (
+            self.original_execution_ref.kind != N5_REPLAY_ORIGINAL_EXECUTION_KIND
+            or self.original_execution_ref.media_type != "application/json"
+        ):
+            raise ValueError("n5_replay_original_execution_ref_kind_mismatch")
+        return self
+
+
+class N5ReplayNumericalIntentV2(_FrozenModel):
+    """Versioned blind action intent bound to one selected candidate V5 input."""
+
+    schema_version: Literal["policyos.n5_replay.numerical_intent.v2"] = (
+        "policyos.n5_replay.numerical_intent.v2"
+    )
+    selected_candidate_simulation_n5_input_ref: artifacts.ArtifactRef
+    source_run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    original_run_id: str = Field(min_length=1)
+    original_job_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    declared_numerical_intent_content_hash: Digest
+    declared_callable_content_hash: Digest
+    production_image_ref: artifacts.ArtifactRef
+    production_image_content_hash: Digest
+    prepared_configuration_ref: artifacts.ArtifactRef
+    prepared_configuration_content_hash: Digest
+    prepared_configuration_hash: Digest
+
+    @model_validator(mode="after")
+    def _check_intent_binding(self) -> Self:
+        if (
+            self.selected_candidate_simulation_n5_input_ref.kind
+            != "runtime.quality.candidate_simulation_n5_input"
+            or self.selected_candidate_simulation_n5_input_ref.media_type != "application/json"
+            or self.production_image_ref.kind != N5_REPLAY_PRODUCTION_IMAGE_KIND
+            or self.production_image_ref.media_type != "application/json"
+            or self.prepared_configuration_ref.kind != N5_REPLAY_PREPARED_CONFIGURATION_KIND
+            or self.prepared_configuration_ref.media_type != "application/json"
+        ):
+            raise ValueError("n5_replay_intent_artifact_kind_mismatch")
+        return self
 
 
 class N5ReplayAppointment(_FrozenModel):
@@ -219,6 +287,55 @@ class N5BlindReplayLaunchSpec(_FrozenModel):
     invocation_purpose: Literal["diagnostic"] = "diagnostic"
 
 
+class N5BlindReplayLaunchSpecV2(_FrozenModel):
+    """Child-process action contract with selected source and no original result."""
+
+    schema_version: Literal["policyos.n5_replay.blind_launch.v2"] = (
+        "policyos.n5_replay.blind_launch.v2"
+    )
+    scope: N5ReplayScope
+    numerical_intent_ref: artifacts.ArtifactRef
+    numerical_intent_hash: Digest
+    selected_candidate_simulation_n5_input_ref: artifacts.ArtifactRef
+    source_run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    original_run_id: str = Field(min_length=1)
+    original_job_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    declared_numerical_intent_content_hash: Digest
+    declared_callable_content_hash: Digest
+    production_image_ref: artifacts.ArtifactRef
+    production_image_content_hash: Digest
+    prepared_configuration_ref: artifacts.ArtifactRef
+    prepared_configuration_content_hash: Digest
+    prepared_configuration_hash: Digest
+    execution_profile_ref: artifacts.ArtifactRef
+    launcher_profile_ref: artifacts.ArtifactRef
+    comparator_ref: artifacts.ArtifactRef
+    tier: ReplayTier
+    seed_schedule_hash: Digest
+    planned_physical_units: int = Field(ge=1, strict=True)
+    replay_run_id: str = Field(min_length=1)
+    replay_job_id: str = Field(min_length=1)
+    invocation_purpose: Literal["diagnostic"] = "diagnostic"
+
+    @model_validator(mode="after")
+    def _check_child_scope(self) -> Self:
+        if (
+            self.selected_candidate_simulation_n5_input_ref.kind
+            != "runtime.quality.candidate_simulation_n5_input"
+            or self.production_image_ref.kind != N5_REPLAY_PRODUCTION_IMAGE_KIND
+            or self.prepared_configuration_ref.kind != N5_REPLAY_PREPARED_CONFIGURATION_KIND
+            or self.replay_run_id in {self.source_run_id, self.original_run_id}
+            or self.replay_job_id in {self.source_job_id, self.original_job_id}
+            or self.scope.tenant_id != self.tenant_id
+            or self.scope.cell_id != self.cell_id
+        ):
+            raise ValueError("n5_replay_blind_intent_scope_mismatch")
+        return self
+
+
 class N5ReplayVerificationCacheKey(_FrozenModel):
     """Comparison identity only; an identity hit does not grant permission."""
 
@@ -233,6 +350,77 @@ class N5ReplayVerificationCacheKey(_FrozenModel):
     def content_hash(self) -> str:
         """Hash exactly the declared key, excluding appointment/permission."""
         return security.raw_content_hash(security.canonical_statement_bytes(self))
+
+
+class N5ReplayVerificationCacheKeyV2(_FrozenModel):
+    """Native numerical identity, excluding source labels and appointment state."""
+
+    schema_version: Literal["policyos.n5_replay.cache_key.v2"] = "policyos.n5_replay.cache_key.v2"
+    declared_numerical_intent_content_hash: Digest
+    declared_callable_content_hash: Digest
+    numerical_profile_content_hash: Digest
+    production_image_content_hash: Digest
+    comparator_ref: artifacts.ArtifactRef
+    comparator_content_hash: Digest
+    tier: ReplayTier
+    seed_schedule_hash: Digest
+    numerical_result_projection_hash: Digest
+
+    @model_validator(mode="after")
+    def _comparator_binding(self) -> Self:
+        if (
+            self.comparator_ref.kind != "runtime.quality.n5_replay_comparator_profile"
+            or self.comparator_content_hash != str(self.comparator_ref.artifact_id)
+        ):
+            raise ValueError("n5_replay_cache_comparator_binding_mismatch")
+        return self
+
+    @property
+    def content_hash(self) -> str:
+        """Hash native numerical identity, not appointment/provenance labels."""
+        return security.raw_content_hash(security.canonical_statement_bytes(self))
+
+
+def build_n5_replay_verification_cache_key_v2(
+    *,
+    declared_numerical_intent_content_hash: str,
+    declared_callable_content_hash: str,
+    native_profile: N5NativeExecutionProfile,
+    production_image: N5ProductionImage,
+    comparator_ref: artifacts.ArtifactRef,
+    tier: ReplayTier,
+    seed_schedule_hash: str,
+    numerical_result_projection_hash: str,
+) -> N5ReplayVerificationCacheKeyV2:
+    """Build a semantic cache identity from already recomputed native inputs.
+
+    Call only after the selected source/request have been rebuilt, ordered seeds
+    recomputed, the original projection reprojected from the selected result,
+    and current appointment permissions rechecked. This constructor does not
+    perform those checks or grant protected use.
+    """
+    from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+    from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
+
+    if type(native_profile) is not N5NativeExecutionProfile:
+        raise TypeError("n5_replay_cache_native_profile_untyped")
+    if type(production_image) is not N5ProductionImage:
+        raise TypeError("n5_replay_cache_production_image_untyped")
+    native_profile = N5NativeExecutionProfile.model_validate(
+        native_profile.model_dump(mode="python")
+    )
+    production_image = N5ProductionImage.model_validate(production_image.model_dump(mode="python"))
+    return N5ReplayVerificationCacheKeyV2(
+        declared_numerical_intent_content_hash=declared_numerical_intent_content_hash,
+        declared_callable_content_hash=declared_callable_content_hash,
+        numerical_profile_content_hash=native_profile.numerical_profile_content_hash,
+        production_image_content_hash=production_image.content_hash,
+        comparator_ref=comparator_ref,
+        comparator_content_hash=str(comparator_ref.artifact_id),
+        tier=tier,
+        seed_schedule_hash=seed_schedule_hash,
+        numerical_result_projection_hash=numerical_result_projection_hash,
+    )
 
 
 class N5ReplayAppointmentResolution(_FrozenModel):
@@ -250,6 +438,31 @@ class N5ReplayAppointmentResolution(_FrozenModel):
     scientific_independence: Literal["not_established"] = "not_established"
     candidate_work_allowed: Literal[True] = True
     protected_use_allowed: Literal[False] = False
+
+
+class N5ReplayExecutableResolution(_FrozenModel):
+    """Separate executable intake; v1 cache identity never grants reuse permission.
+
+    ``cache_key_v2`` remains absent until the child rebuilds the native request,
+    recomputes ordered seeds and reprojects the original selected result.
+    """
+
+    status: Literal["appointed", "verifier_unappointed", "refused"]
+    code: str | None = None
+    appointment_resolution: N5ReplayAppointmentResolution
+    launch_spec: N5BlindReplayLaunchSpecV2 | None = None
+    cache_key_v2: N5ReplayVerificationCacheKeyV2 | None = None
+    protected_use_allowed: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _resolution_shape(self) -> Self:
+        if (
+            (self.status == "appointed") != (self.launch_spec is not None)
+            or (self.launch_spec is not None and self.appointment_resolution.status != "appointed")
+            or (self.cache_key_v2 is not None and self.launch_spec is None)
+        ):
+            raise ValueError("n5_replay_executable_resolution_shape_mismatch")
+        return self
 
 
 class N5AppointedReplayRecord(_FrozenModel):
@@ -356,6 +569,37 @@ def _trust(config: N5ReplayDeploymentConfig) -> _Trust:
     return _Trust(by_key, verifiers, security.raw_content_hash(to_canonical_bytes(raw)))
 
 
+def _read_n5_versioned_core_json[T: BaseModel](
+    store: artifacts.ArtifactStore,
+    ref: artifacts.ArtifactRef,
+    model: type[T],
+    *,
+    kind: str,
+    schema_version: str,
+    schema_name: str | None = None,
+) -> tuple[T, bytes]:
+    """Read one selected typed Core JSON profile with exact kind/schema/CAS binding."""
+    if ref.kind != kind or ref.media_type != "application/json":
+        raise ValueError("n5_replay_core_artifact_kind_mismatch")
+    manifest, _ = artifacts.read_core_manifest_profile(store, ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != kind
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != (schema_name or kind)
+        or schema.version != schema_version
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("n5_replay_core_artifact_schema_mismatch")
+    raw = store.get_bytes(ref)
+    if security.raw_content_hash(raw) != str(ref.artifact_id):
+        raise ValueError("n5_replay_core_artifact_content_hash_mismatch")
+    return artifacts.validate_core_model_json_artifact(
+        model, store, ref, raw_payload_bytes=raw
+    ), raw
+
+
 def n5_replay_trust_snapshot_hash(config: N5ReplayDeploymentConfig) -> str:
     """Recompute public roles/key fingerprints/revocations from current key bytes."""
     return _trust(config).snapshot_hash
@@ -406,12 +650,31 @@ class N5ReplayAppointmentResolver:
             N5ReplayAppointment: "runtime.quality.n5_replay_appointment",
             N5ReplayAppointmentVerification: "runtime.quality.n5_replay_appointment_verification",
             N5OriginalProducerSeal: "runtime.quality.n5_original_producer_seal",
+            N5OriginalProducerSealV2: "runtime.quality.n5_original_producer_seal",
             N5AppointedReplayRecord: "runtime.quality.n5_appointed_replay_record",
         }.get(model)
         if expected_kind is None or statement_ref.kind != expected_kind:
             raise ValueError("n5_replay_signed_statement_kind_mismatch")
+        statement_model = model
+        if model is N5OriginalProducerSeal:
+            try:
+                parsed_v2 = security.parse_canonical_statement(
+                    evidence.blob_bytes, N5OriginalProducerSealV2
+                )
+            except ValueError:
+                pass
+            else:
+                return (
+                    cast("_ModelT", parsed_v2),
+                    statement_ref,
+                    signature.key_id,
+                    row,
+                )
         return (
-            security.parse_canonical_statement(evidence.blob_bytes, model),
+            cast(
+                "_ModelT",
+                security.parse_canonical_statement(evidence.blob_bytes, statement_model),
+            ),
             statement_ref,
             signature.key_id,
             row,
@@ -483,6 +746,285 @@ class N5ReplayAppointmentResolver:
                 status="refused",
                 code=str(exc) or "n5_replay_admission_error",
                 trust_root_class=root,
+            )
+
+    def resolve_executable(self, query: N5ReplayUseQuery) -> N5ReplayExecutableResolution:
+        """Resolve only a typed v2 intent into a blind child-process spec.
+
+        The full v1 appointment path runs first and remains non-executable on
+        its own. This method then reopens the signed producer seal, typed V5
+        input, prepared native configuration, and fixed comparator under the
+        same current trust snapshot. Original result and seal refs never enter
+        the returned child spec.
+        """
+        admission = self.resolve(query)
+        if admission.status != "appointed":
+            return N5ReplayExecutableResolution(
+                status=admission.status,
+                code=admission.code,
+                appointment_resolution=admission,
+            )
+        try:
+            state = self._current_state()
+            if type(query) is not N5ReplayUseQuery:
+                raise TypeError("replay query is untyped")
+            query = N5ReplayUseQuery.model_validate(query.model_dump(mode="python"))
+            config = state.config
+            trust = _trust(config)
+            if (
+                admission.trust_snapshot_hash != trust.snapshot_hash
+                or state.component is None
+                or admission.appointment_ref is None
+                or admission.verification_ref is None
+            ):
+                raise ValueError("n5_replay_deployment_changed_during_admission")
+            base = admission.launch_spec
+            if base is None:
+                raise ValueError("n5_replay_appointment_launch_spec_not_established")
+            producer, _, _, _ = self._signed(
+                query.original_producer_evidence_ref,
+                N5OriginalProducerSeal,
+                "original_producer",
+                trust,
+            )
+            if type(producer) is not N5OriginalProducerSealV2:
+                raise ValueError("n5_replay_original_execution_binding_not_established")
+            intent_ref = producer.numerical_intent_ref
+            intent_payload, intent_bytes = _read_n5_versioned_core_json(
+                self._store,
+                intent_ref,
+                N5ReplayNumericalIntentV2,
+                kind=N5_REPLAY_NUMERICAL_INTENT_KIND,
+                schema_version=N5_REPLAY_INTENT_V2_CORE_SCHEMA_VERSION,
+            )
+            if security.raw_content_hash(intent_bytes) != producer.numerical_intent_hash:
+                raise ValueError("n5_replay_numerical_intent_content_hash_mismatch")
+            intent = intent_payload
+            if (
+                intent.original_run_id != producer.original_run_id
+                or intent.original_job_id != producer.original_job_id
+                or intent.tenant_id != query.scope.tenant_id
+                or intent.cell_id != query.scope.cell_id
+                or producer.scope != query.scope
+            ):
+                raise ValueError("n5_replay_intent_source_scope_mismatch")
+
+            from polisyos.runtime.quality.n5_replay_execution import (
+                N5OriginalProducerAction,
+                N5OriginalProducerExecution,
+            )
+
+            original_execution, _execution_bytes = _read_n5_versioned_core_json(
+                self._store,
+                producer.original_execution_ref,
+                N5OriginalProducerExecution,
+                kind=N5_REPLAY_ORIGINAL_EXECUTION_KIND,
+                schema_version=N5_REPLAY_ORIGINAL_EXECUTION_SCHEMA_VERSION,
+            )
+            if (
+                original_execution.source_input_ref
+                != intent.selected_candidate_simulation_n5_input_ref
+                or original_execution.source_run_id != intent.source_run_id
+                or original_execution.source_job_id != intent.source_job_id
+                or original_execution.producer_run_id != producer.original_run_id
+                or original_execution.producer_job_id != producer.original_job_id
+                or original_execution.numerical_intent_ref != intent_ref
+                or original_execution.execution_profile_ref != producer.execution_profile_ref
+                or original_execution.execution_profile_ref != base.execution_profile_ref
+                or original_execution.tenant_id != intent.tenant_id
+                or original_execution.cell_id != intent.cell_id
+                or original_execution.authority_purpose != "candidate_original_n5_only"
+                or original_execution.protected_use_allowed
+            ):
+                raise ValueError("n5_replay_original_execution_binding_mismatch")
+            if (
+                not self._store.verify(original_execution.result_ref).ok
+                or not self._store.verify(original_execution.ledger_snapshot_ref).ok
+            ):
+                raise ValueError("n5_replay_original_execution_artifacts_unavailable")
+            ledger_bytes = self._store.get_bytes(original_execution.ledger_snapshot_ref)
+            if security.raw_content_hash(
+                ledger_bytes
+            ) != original_execution.ledger_hash or security.raw_content_hash(ledger_bytes) != str(
+                original_execution.ledger_snapshot_ref.artifact_id
+            ):
+                raise ValueError("n5_replay_original_ledger_snapshot_mismatch")
+            original_action, action_bytes = _read_n5_versioned_core_json(
+                self._store,
+                original_execution.action_ref,
+                N5OriginalProducerAction,
+                kind=N5_REPLAY_ORIGINAL_ACTION_KIND,
+                schema_name=N5_REPLAY_ORIGINAL_ACTION_SCHEMA_NAME,
+                schema_version=N5_REPLAY_ORIGINAL_ACTION_SCHEMA_VERSION,
+            )
+            if (
+                security.raw_content_hash(action_bytes) != original_execution.action_hash
+                or security.raw_content_hash(action_bytes)
+                != str(original_execution.action_ref.artifact_id)
+                or original_action.source_input_ref != original_execution.source_input_ref
+                or original_action.source_run_id != original_execution.source_run_id
+                or original_action.source_job_id != original_execution.source_job_id
+                or original_action.producer_run_id != original_execution.producer_run_id
+                or original_action.producer_job_id != original_execution.producer_job_id
+                or original_action.tenant_id != original_execution.tenant_id
+                or original_action.cell_id != original_execution.cell_id
+                or original_action.authority_purpose != "candidate_original_n5_only"
+            ):
+                raise ValueError("n5_replay_original_action_binding_mismatch")
+
+            from polisyos.runtime.quality.candidate_simulation import (
+                CandidateSimulationN5InputV5,
+            )
+            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+            from polisyos.runtime.quality.joint_simulation_horizon import (
+                PreparedJointSimulationConfiguration,
+            )
+            from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+
+            selected_input_ref = intent.selected_candidate_simulation_n5_input_ref
+            if (
+                selected_input_ref.manifest_profile_sha256 is None
+                or not self._store.verify(selected_input_ref).ok
+            ):
+                raise ValueError("n5_replay_selected_candidate_input_unavailable")
+            input_record = GenerationSourceRepository(self._store).resolve_candidate_simulation_v5(
+                ref=selected_input_ref,
+                expected_run_id=intent.source_run_id,
+                expected_job_id=intent.source_job_id,
+                expected_tenant_id=intent.tenant_id,
+                expected_cell_id=intent.cell_id,
+            )
+            if (
+                type(input_record) is not CandidateSimulationN5InputV5
+                or input_record.authority_purpose != "candidate_scenario_n5_only"
+                or input_record.run_id != intent.source_run_id
+                or input_record.job_id != intent.source_job_id
+                or input_record.tenant_id != intent.tenant_id
+                or input_record.cell_id != intent.cell_id
+            ):
+                raise ValueError("n5_replay_selected_candidate_input_not_established")
+
+            image_ref = intent.production_image_ref
+            image, image_bytes = _read_n5_versioned_core_json(
+                self._store,
+                image_ref,
+                N5ProductionImage,
+                kind=N5_REPLAY_PRODUCTION_IMAGE_KIND,
+                schema_version=N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+            )
+            if (
+                security.raw_content_hash(image_bytes) != intent.production_image_content_hash
+                or security.raw_content_hash(image_bytes) != str(image_ref.artifact_id)
+                or not image.python_sources
+                or image.lock_content_hash is None
+                or image.selected_profile_content is None
+                or image.reason_codes
+            ):
+                raise ValueError("n5_replay_production_image_content_not_established")
+
+            prepared_ref = intent.prepared_configuration_ref
+            prepared, prepared_bytes = _read_n5_versioned_core_json(
+                self._store,
+                prepared_ref,
+                PreparedJointSimulationConfiguration,
+                kind=N5_REPLAY_PREPARED_CONFIGURATION_KIND,
+                schema_version=N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+            )
+            from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+
+            if (
+                security.raw_content_hash(prepared_bytes)
+                != intent.prepared_configuration_content_hash
+                or security.raw_content_hash(prepared_bytes) != str(prepared_ref.artifact_id)
+                or exact_n5_content_hash(prepared) != intent.prepared_configuration_hash
+            ):
+                raise ValueError("n5_replay_prepared_configuration_content_hash_mismatch")
+
+            profile_ref = base.execution_profile_ref
+            from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
+
+            _native_profile, _profile_bytes = _read_n5_versioned_core_json(
+                self._store,
+                profile_ref,
+                N5NativeExecutionProfile,
+                kind=N5_REPLAY_EXECUTION_PROFILE_KIND,
+                schema_version=N5_REPLAY_V1_CORE_SCHEMA_VERSION,
+            )
+
+            comparator_payload = artifacts.load_core_json_artifact(
+                self._store, query.comparator_ref
+            )
+            comparator = N5ReplayComparatorProfile.model_validate(comparator_payload)
+            from polisyos.runtime.quality.n5_replay_numerical_projection import (
+                require_supported_n5_replay_comparator,
+            )
+
+            require_supported_n5_replay_comparator(comparator)
+            if comparator.numerical_projection_schema != producer.numerical_projection_schema:
+                raise ValueError("n5_replay_projection_schema_mismatch")
+
+            from polisyos.runtime.quality.n5_replay_execution import _reopen_verified_original
+
+            verified_execution, _original_request, _original_result = _reopen_verified_original(
+                store=self._store,
+                original_execution_ref=producer.original_execution_ref,
+                scope=query.scope,
+            )
+            if verified_execution != original_execution:
+                raise ValueError("n5_replay_original_execution_reconciliation_mismatch")
+
+            latest_admission = self.resolve(query)
+            if (
+                latest_admission.status != "appointed"
+                or latest_admission.appointment_ref != admission.appointment_ref
+                or latest_admission.verification_ref != admission.verification_ref
+                or latest_admission.trust_snapshot_hash != admission.trust_snapshot_hash
+                or latest_admission.launch_spec != base
+            ):
+                raise ValueError("n5_replay_deployment_changed_during_admission")
+            launch = N5BlindReplayLaunchSpecV2(
+                scope=query.scope,
+                numerical_intent_ref=intent_ref,
+                numerical_intent_hash=producer.numerical_intent_hash,
+                selected_candidate_simulation_n5_input_ref=(
+                    intent.selected_candidate_simulation_n5_input_ref
+                ),
+                source_run_id=intent.source_run_id,
+                source_job_id=intent.source_job_id,
+                original_run_id=intent.original_run_id,
+                original_job_id=intent.original_job_id,
+                tenant_id=intent.tenant_id,
+                cell_id=intent.cell_id,
+                declared_numerical_intent_content_hash=(
+                    intent.declared_numerical_intent_content_hash
+                ),
+                declared_callable_content_hash=intent.declared_callable_content_hash,
+                production_image_ref=image_ref,
+                production_image_content_hash=intent.production_image_content_hash,
+                prepared_configuration_ref=prepared_ref,
+                prepared_configuration_content_hash=intent.prepared_configuration_content_hash,
+                prepared_configuration_hash=intent.prepared_configuration_hash,
+                execution_profile_ref=profile_ref,
+                launcher_profile_ref=base.launcher_profile_ref,
+                comparator_ref=base.comparator_ref,
+                tier=base.tier,
+                seed_schedule_hash=base.seed_schedule_hash,
+                planned_physical_units=base.planned_physical_units,
+                replay_run_id=base.replay_run_id,
+                replay_job_id=base.replay_job_id,
+            )
+            return N5ReplayExecutableResolution(
+                status="appointed",
+                appointment_resolution=admission,
+                launch_spec=launch,
+            )
+        except artifacts.ArtifactOwnershipError:
+            raise
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            return N5ReplayExecutableResolution(
+                status="refused",
+                code=str(exc) or "n5_replay_executable_intent_not_established",
+                appointment_resolution=admission,
             )
 
     def _resolve(

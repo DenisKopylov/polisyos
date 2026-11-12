@@ -9840,6 +9840,65 @@
             "wall_seconds": 84.95,
             "peak_sampled_process_tree_rss_bytes": 1591689216,
             "boundary": "Explicit same-operation verified-result transport; public record-only API, full joins and lease guards preserved; no N5/HTTP/full-pipeline speed claim."
+          },
+          "frozen_secondary_verification": {
+            "commit": "dbc4ec6ed6f0932038cd7925fa5bd2d30cb11eef",
+            "tree": "f2b66072247641a10effe2725be6825ce4716fea",
+            "superseded_draft_checkpoint": "2204379c7",
+            "history_only_merge": true,
+            "product_tree_unchanged": true,
+            "status": "RUNNING_7_OF_1_AND_GDP_WITH_ISOLATED_STORES",
+            "boundary": "Frozen published source only; primary blind-replay composition is not qualified by these jobs."
+          },
+          "blind_replay_composition": {
+            "status": "IMPLEMENTED_FOCUSED_QUALIFICATION_COMPLETE",
+            "projection_unit_PASS": 21,
+            "historical_projector": "PASS_ZERO_N5",
+            "historical_writer": "PASS_ZERO_N5",
+            "historical_outputs": [
+              "policy-engine/_cache/e02/n5-replay-projection-retained-a2-r1/",
+              "policy-engine/_cache/e02/n5-replay-historical-writer-r1/"
+            ],
+            "fresh_original_and_blind_child": "UNRUN",
+            "production_appointment": "verifier_unappointed",
+            "protected_use_allowed": false,
+            "boundary": "Demo intake and unit checks do not establish fresh numerical replay. Historical A2 profile differs from runtime launcher; create a real new original on the assigned launcher before comparison.",
+            "final_unit_PASS": 23,
+            "explicit_source_integration_SKIP": 1,
+            "final_unit_output": "policy-engine/_cache/e02/n5-replay-facades-r1/",
+            "appointment_final_binding_PASS": 4,
+            "appointment_output": "policy-engine/_cache/e02/n5-replay-appointment-final-binding-r1/",
+            "managed_worker_controls_PASS": 4,
+            "execution_source_sha256": "5be4cdba16983771647368402dde3fb3918dc78c0c9c0c2a5ff615d4b228b4cd",
+            "independent_execution_review": "GO_MATERIAL_LIFECYCLE_DELTA",
+            "independent_budget_review": "GO",
+            "facade_snapshot_review": "GO_NATIVE_OWNER_PRESERVED",
+            "static_architecture": {
+              "status": "PASS_STATIC_ONLY",
+              "output": "policy-engine/_cache/e02/n5-replay-static-architecture-r3/",
+              "required_generated_freshness": "UNRUN_EXPLICITLY_OMITTED",
+              "baseline_widened": false
+            }
+          },
+          "gdp_fixture_catalog_followup": {
+            "full_trio_R2": "COMMAND_FAIL_CATALOG_CONTEXT",
+            "full_trio_seconds": 121.431,
+            "full_import_origin_set": "not_established",
+            "no_n5_preflight_PASS": 1,
+            "preflight_output": "policy-engine/_cache/e02/n5-gdp-catalog-preflight-r2/",
+            "preflight_seconds": 88.745,
+            "preflight_peak_rss_bytes": 1862418432,
+            "preflight_unchanged_named_inputs": 2979,
+            "boundary": "Real authority fixture owner and restored candidate Catalog context only; full GDP route remains UNRUN after this repair.",
+            "independent_review": "GO"
+          },
+          "fresh_origin_forwarding": {
+            "status": "IMPLEMENTED_FOCUSED_PASS",
+            "PASS": 6,
+            "FAIL": 0,
+            "independent_review": "GO_FINAL",
+            "output": "policy-engine/_cache/e02/n5-current-origin-forward-r1/qualified-r2/",
+            "scope": "Fresh current origin passed to canonical final history fold; all source/head/owner/history fences retained. Deep unit seams controlled; no N5 or whole-scenario performance claim."
           }
         }
       },

@@ -26,7 +26,10 @@ orchestration stack.
 - Checkpoint helpers in [`checkpoint.py`](checkpoint.py): `resume_from_checkpoint(...)`, `acquire_run_lock(...)`, and workflow fingerprint utilities
 - Idempotency/cache helpers in [`idempotency.py`](idempotency.py)
 - Durable budget accounting in [`budget_ledger.py`](budget_ledger.py) and
-  [`budget_middleware.py`](budget_middleware.py)
+  [`budget_middleware.py`](budget_middleware.py); the existing
+  ledger exposes `snapshot_with_raw_bytes()` under its native concrete-file lock,
+  and facade `decode_budget_ledger_snapshot(bytes)` applies the same strict wire
+  decoder to retained bytes. Neither read grants capacity or changes accounting.
 - Runner backends and configuration in [`runner/`](runner/): `WorkflowRunnerConfig`, `WorkflowRunnerBackend`, and `build_workflow_runner(...)`
 
 ## Depends On / Depended On By

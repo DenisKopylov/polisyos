@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import importlib
 import json
+import os
 import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -124,6 +125,62 @@ def main(argv: list[str] | None = None) -> int:
         return _dispatch_core("._cli_lex", "_cmd_lex_impact", args)
     if args.command == "scientist" and args.scientist_command == "burn-in":
         return _cmd_scientist_burn_in(args)
+    if args.command == "scientist" and args.scientist_command in {
+        "n5-blind-replay",
+        "n5-original-producer",
+    }:
+        for name in (
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+        ):
+            os.environ[name] = "1"
+        os.environ["POLISYOS_STRICT"] = "1"
+        os.environ["FOUNDRY_SHAPE_CHECK"] = "0"
+        if args.scientist_command == "n5-original-producer":
+            from polisyos.runtime.quality.n5_replay_execution import (
+                _WORKER_RESULT_PREFIX,
+                N5OriginalProducerAction,
+                N5OriginalProducerOutcome,
+                execute_original_n5_producer,
+            )
+
+            action = N5OriginalProducerAction.model_validate_json(Path(args.action).read_bytes())
+            execution, execution_ref = execute_original_n5_producer(action)
+            print(
+                _WORKER_RESULT_PREFIX
+                + N5OriginalProducerOutcome(
+                    execution=execution, execution_ref=execution_ref
+                ).model_dump_json()
+            )
+            return 0
+        from polisyos.runtime.quality.n5_replay_execution import (
+            _WORKER_RESULT_PREFIX,
+            N5BlindReplayAction,
+            N5ReplayInfrastructureFailure,
+            _blind_action_bytes,
+            execute_blind_n5_replay,
+        )
+
+        action = N5BlindReplayAction.model_validate_json(Path(args.action).read_bytes())
+        try:
+            execution = execute_blind_n5_replay(action)
+        except OSError:
+            from polisyos.core.security import raw_content_hash
+
+            print(
+                _WORKER_RESULT_PREFIX
+                + N5ReplayInfrastructureFailure(
+                    pid=os.getpid(),
+                    attempt_number=action.attempt_number,
+                    action_hash=raw_content_hash(_blind_action_bytes(action)),
+                ).model_dump_json()
+            )
+            return 1
+        print(_WORKER_RESULT_PREFIX + execution.model_dump_json())
+        return 0
     if args.command == "scientist" and args.scientist_command == "calibration-report":
         return _cmd_scientist_calibration_report(args)
     if (
@@ -931,6 +988,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
     cmd_scientist = components.add_parser("scientist")
     scientist_sub = cmd_scientist.add_subparsers(dest="scientist_command")
+
+    blind_replay = scientist_sub.add_parser("n5-blind-replay")
+    blind_replay.add_argument("--action", required=True, help="Candidate-only blind action JSON")
+    original_producer = scientist_sub.add_parser("n5-original-producer")
+    original_producer.add_argument("--action", required=True, help="Candidate original action JSON")
 
     burn_in = scientist_sub.add_parser("burn-in")
     burn_in.add_argument("--config", required=True, help="JSON config path")

@@ -10509,20 +10509,55 @@
             "completed_standard_units": 4,
             "protected_units_used": 0,
             "diagnosis": "Selected candidate-experiment terminal schema shares the loop kind. API demanded the legacy schema before schema dispatch; fix exact kind/schema/version dispatch and reuse canonical history verifier.",
-            "api_repair": "Independent material GO; final backend74PASS; UI3PASS296SKIP; full affected describe3PASS65SKIP; locale49PASS; full dashboard TS and generator commands PASS. Core/Zod mixed-outcome semantics and localized explicit projection-gap surface agree. Retained real API read still UNRUN; no N5 replay authorized by this repair.",
-            "output": "policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/"
+            "api_repair": "Independent material GO; final backend74PASS; UI3PASS296SKIP; full affected describe3PASS65SKIP; locale49PASS; full dashboard TS and generator commands PASS. Core/Zod mixed-outcome semantics and localized explicit projection-gap surface agree. Separate retained real API reader PASS as recorded; original wholeFAIL preserved; no N5 replay.",
+            "output": "policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/",
+            "retained_api_reader": {
+              "status": "PASS_SEPARATE_FROM_ORIGINAL_FAILED_COMMAND",
+              "source_commit": "a9af35fdfd81bd6fa6d5aaab78b6fbf215b1440a",
+              "source_tree": "bba65556f0774265c65f9d1eef2c3455b643d907",
+              "http_status": 200,
+              "history_entries": 1,
+              "result_status": "resolved",
+              "candidate_status": "candidate_unverified",
+              "authority": "Declared candidate model; publication/admission false; original approval deadline unchanged; historical read only.",
+              "elapsed_seconds": 69.839,
+              "peak_sampled_rss_bytes": 1956265984,
+              "source_pins": 6682,
+              "retained_input_files": 727,
+              "pins_equal": true,
+              "sql_jobs_heads_frontiers_equal": true,
+              "n5_calls": 0,
+              "source_transport_calls": 0,
+              "origins_after_imports": 1809,
+              "origins_after_get": 2049,
+              "wrong_origins": 0,
+              "quiescent": true,
+              "earlier_r1": "Pre-GET HARNESS_ERROR at Runtime construction without outer tenant_scope; retained inputs unchanged. r2 wrapper enters exact creation-event scope; source helper unchanged.",
+              "output": "policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/api-repaired-reader-r2/",
+              "response_bytes": 33575
+            }
           },
           "generic_continuation_implementation": {
             "secondary_commit": "b5e781af948f2130971f4202f876b21f951913e2",
             "secondary_tree": "566e2175dcf9ab3870fa8d42c5f9f2c9de9c159b",
             "phase_hoists": "Published five paths; independent GO.48unaffectedPASS original command plus30corrected current-outcomePASS; not one whole78PASS wave or route timing.",
             "stock_fixture": "Native source/routing/materialization1PASS77.384s/1925824512B; stable5pins plus identity,1821correctorigins.640/640/602.5 horizon steps are not A/B/C admissions.",
-            "producer": "17path WIP actual Generic tinyN5 and snapshot controls3PASS135.398s/1894875136B,7093stablepins,1858correctorigins/quiescent. Independent NO_GO exact-value JAX subclass/Enum state intake; author repairing with distinguishing controls. Loaded-code file association remains explicit candidate closure residual, not established protected provenance.",
-            "store": "2path WIP final focusedSQLite8PASS50.834s/1785659392B/quiescent/RuffPASS. Initial33PASS8FAIL and intervening failures retained; PG executionUNRUN; independent review in progress.",
-            "action": "Normal owner implementation started in existing service, current action/PA2 separate from retained original numerical refs; no current end-to-end PASS. Stable5subject, initial evaluated seed, equivalent check-only samefrontier, changed/NE actual new evaluated replacement after reconciliation.",
+            "producer": "Released17paths; independentGO finitecallvalueprofile/3 and mandatoryprofilepresence. R6stable7100pins/1989origins/HEAD80e7eee:5producer/codecPASS+53CorePASS+API5PASS5FAIL, wholeFAIL141.715s/2032599040B. No equalB/fullaction/appointedauthorityclaim.",
+            "store": "Released2source/test paths plusrealPGtestcompanion.43/43PASS SQLite41+PG2,58.874s/1644576768B/quiescent;4mechanismpins+HEAD andallactualimportedAPI/action/Corefilesstable. PG16.15 localhost54329,16MiBsharedbuffers,10connections,fsyncon,WAL2-16MiB,29MiBdata. IndependentstoreGO;syntheticsemanticrecordsnotproducerproof.",
+            "action": "V2Core/API16boundary/checkpointPASS qualified; subsequentworker18/API11passunchangedproductionpins within35/36non-greencombinedcommand (servicefixture andtestdrift). Corrected7service recovery/noN5controls underway. Canonicalcompletionpreparer+finalPA2/currentnesscallback feedatomictypedCAS; fullservedproducerbridgeUNRUN.",
             "state": "bridge_missing",
             "g_acceptance": false,
-            "closure_ids": []
+            "closure_ids": [],
+            "main_foundation": {
+              "base_commit": "970809e9fe5f86374e386f58cd7f38742ec5f600",
+              "base_tree": "bb81771a7bb2ef5460db2a6295a0a8c82071d79c",
+              "released_footprint": 20,
+              "composition": "47PASS0fail/errorskip107.076s/1797603328B;7097declaredpins+HEADstable,1733correctorigins0wrong,quiescent;CPU1/JAXCPU. NotfullGenericN5/retentionwave.",
+              "output": "policy-engine/_cache/e02/generic-producer-main-compose-20261113/unit-r3/",
+              "earlier_results": "unitR1pytest47PASS but COMMAND_FAIL broadsourcecensusdrift afterauthorwrong-checkoutintegrationtestedit; exactHEADrestore andfinalcompleteR3repeatPASS. unitR2selectorpathharnessERRORbeforetests,retained.",
+              "companions": "PublicinventorysyncPASS19.098s/69681152B; trustposturecanonicalwrite/checkPASS; SDKREADMEfrontendimpactnote; threeRuffformatsASTequal."
+            },
+            "remaining_key_defect": "Genericall-field intentincludesbudgetref/outputlabels/selectedsourceIDs; acceptedsharedexhaustiveroleprojection+versionedactualproducerdigestinprogress. NCMV2alreadyhascorrectoperational/labelsplit; preservelegacybytes. No equalBclaimuntilrepair+servedproof."
           },
           "installed_current_consumer": {
             "source_commit": "f9ec76d5b54745575eb5f037d0ae3c81917d45a9",
@@ -10530,6 +10565,23 @@
             "installed": "2selectorsPASS27.737s/2323939328B;30pins and source identity stable;fresh noneditable wheel actual sitepackages origins. -S plus explicit new sitepackages isolates editable source. cwd named outside-checkout physically remains under repo _cache; no literal outside-repo-cwd claim.",
             "wheel_sha256": "119b2db53606505ab21aae501e99e7763c837d386c2882982318b5fff2164c28",
             "output": "policy-engine/_cache/e02/lane01-req01-current-installed-r1/"
+          },
+          "source_scope_and_normalized_replay": {
+            "state": "IMPLEMENTED_COMPONENT_QUALIFIED_REVIEW_NORMALIZED_WRITER_GAP_OPEN",
+            "consumer_wave": "54/54PASS59.48s/1862MB,12namedpinsstable/quiescent; Corevariablebinding andrealhistoricalsource replay,raw/normhash distinction+changednormalizer+rawprofilegraft controls.",
+            "source_fixture": "R9PASS1/1 native3controlledfetch/admission640/640/602.5 sameCatalog/overlay,UA/UA source-declaredscope withcapturedUKR,withdrawnentryrefuses/restorationreads;64.136s/1.68GB,14pinsstable/quiescent;independentreviewGO. NoFoundry/N5proof.",
+            "review_gap": "SharedreaderstillneedsexistingFabricnormalizedpayload+sourceintentwriterprofilequalification; canonicalownerextractionapproved, actualsamebytesforeignnormalizedprofilecontrolrequired.",
+            "source_roles": "Explicitcontent-boundsourcepopulation/jurisdiction/geographymapping/period,passportv3; absentdeclarationrefuses,neverfilledfrommodelrequest. Rawcaptureandnormalizedrowhasheskeptdistinct,selectedrefgraphcanonicalCoreJSON and evidence-onlydocumentleaf.",
+            "output": "SECONDARY policy-engine/_cache/e02/scoped-source-composed-r3/ and native-live-history-r9-20261113/",
+            "g_acceptance": false,
+            "closure_ids": []
+          },
+          "ci_a9_remaining": {
+            "commit": "a9af35fdfd81bd6fa6d5aaab78b6fbf215b1440a",
+            "frontend_docs": "Missingfrontendimpactnote identified; existingSDKREADMEcorrected.",
+            "generated_trust": "Actualsourcehashdriftidentified; canonicalregisterregenerated/narrowcheckPASS,notnewAtlasimplementation.",
+            "scientist_phase1": "Exactgateartifact14051502305:32explicitmodel_copy(deep=True)sitesover656sourcefiles,tests/benchmarks/othergatespass;syntaxdoesnotproveeachcopyunnecessary. Noallowlistrelaxation.",
+            "scientist_phase0": "Linux3.14.10onlysync-after_bodytestfailsfresh_worker.dispatch_once afterearlierreaping/fencingchecks;rowstate/otherworkerclaimnotcaptured,attributionunknown. NeedminimalrealLinuxqueuecapture,notMacsimulation."
           }
         }
       },
@@ -10590,6 +10642,81 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "generic_a_b1_retained_20261113": {
+          "source_commit": "e9c330cbe40db03ab5ed8326b94d2f2ebf89d85e",
+          "source_tree": "a278ff684f77333d11f8e89027667ea4881936f5",
+          "output": "policy-engine/_cache/e02/generic-served-sequence-r2-20261113/",
+          "whole_command": "FAIL: test hashes mutable ArtifactRef objects in sets after A and B1 succeed; B2/B3/C UNRUN.",
+          "verified_boundary": "Real A completed via durable-V5 recovery attempt2; equal B1 completes attempt1 with equivalent/recomputed retained prior number, fresh current decision/history and zero additional N5.",
+          "completed_standard_units": 1,
+          "protected_units": 0,
+          "frontier_revision": 1,
+          "result_id": "sha256:d6b0d3d1ca0d9942cdf809756a85ceba29f8a18fa181eda975cd511ec052186c",
+          "result_profile": "sha256:ef9e390f64970d2e0d37f57d0e61232e67fec13acc05def89a0957fc5b2851af",
+          "fixture_repair": "All ref sets use full canonical four-field keys; independent complete AST set/hash census GO; no product change.",
+          "retained_suffix_limit": "Separate native epoch private custodian signer was in memory only; no supported full C continuation without new protocol. Preserve old state; use a fresh explicit test fixture.",
+          "G_acceptance": false
+        },
+        "generic_final_sealing_20261113": {
+          "initial_composed_source": "7c48b4f2b4e4f5e005e27173cf51adf39c31fff8",
+          "initial_full_command": "FAIL: generic_program_graph_content_result_mismatch after genuine A and no-duplicate worker recovery; one completed standard unit.",
+          "output_initial": "policy-engine/_cache/e02/generic-served-sequence-r1-20261113/",
+          "cause": "Exact retained payload proves the request diagnostic was appended after observation sealing.",
+          "repair": "Seal captured Generic/NCM observation after all result annotations; strict consumers and old artifacts unchanged.",
+          "source_sha256": "f963f69b41ff77c5392dbad670919a788517b3ca0f0fa9dacc54b9e26227f4e0",
+          "test_sha256": "82e588826ef82cd08f2b3f0f783fbc027947a9487b19594a74ffbf7a1b361602",
+          "qualified_regression": {
+            "output": "secondary:policy-engine/_cache/e02/generic-final-seal-r2-20261113/",
+            "PASS": 1,
+            "scope": "Actual public port, persisted V5/result joins, fresh CAS observation reader and both independently outer-rehashed request-diagnostic deletion/alteration refusals; intentional stop before unrelated workflow surface checks."
+          },
+          "review": "GO",
+          "full_corrected_sequence": "UNRUN before enclosing checkpoint",
+          "G_acceptance": false
+        },
+        "generic_composition_checkpoint_20261113": {
+          "commit": "073870b797f0183e805cd0e450dd697e0565b230",
+          "tree": "88a1d25d54f8d98670f00bdaeeec1b6cfa07f8a0",
+          "remote": "origin/main",
+          "delivered_paths": 61,
+          "readback": "All 61 committed files byte-match local worktree; Git ls-remote and GitHub git/commit identity exact. Ordinary commit/push hooks pass.",
+          "prerequisite_attempts": {
+            "r1": "FAIL before numerical work: synthetic source label not recognized by current bounded Catalog unit reader.",
+            "r2": "FAIL before numerical work: broad test HTTP interception blocked actual OPA. Both full outputs/pins preserved."
+          },
+          "repair_status": "Independent GO for exact accepted test source-unit metadata and WorldBank-only session interception; actual loopback OPA deny plus source controls PASS; next composed preflight required.",
+          "cyc03_boundary": "No new CYC-03 closure; selected NCM/request/acquisition-basis/dispatcher bindings distinct from Generic current-use. Quota 7/1 is not an original requirement invariant.",
+          "G_acceptance": false
+        },
+        "generic_retained_use_composed_20261113": {
+          "status": "INTERNAL_COMPONENT_QUALIFIED_SERVED_SEQUENCE_PENDING",
+          "source_base": "71fedf730b76e5d098a5c49375c5115778859683",
+          "outputs": [
+            "policy-engine/_cache/e02/model-input-composed-r1-20261113/",
+            "policy-engine/_cache/e02/model-input-composed-r2-20261113/"
+          ],
+          "observed_first": {
+            "PASS": 165,
+            "FAIL": 3
+          },
+          "observed_affected_repeat": {
+            "PASS": 3,
+            "FAIL": 0
+          },
+          "distinct_cases": 168,
+          "note": "Three first-command failures were the coordinator's inapplicable no-N5 entry guard on real no-run controller controls. Only these three were repeated. Both source/input sets stable and correct origins; not one whole green wave or served/crash acceptance.",
+          "independent_reviews": "GO for numerical roles, source qualification, API projection and canonical worker/durable recovery.",
+          "next": "Zero-N5 served preflight; genuine A/B1/B2/B3/C with one-shot durable-V5-before-pointer cuts at A and C, no duplicate physical units."
+        },
+        "live_v3_foundry_preflight_20261113": {
+          "status": "PASS",
+          "output": "secondary:policy-engine/_cache/e02/live-v3-foundry-preflight-r3/",
+          "tests": 1,
+          "loaded_origins": 1869,
+          "test_sha256": "000e96f508d1fcf111d969dc915253da9b016e6a1d1ea11741a87340f2ef2f0c",
+          "property": "Real controlled acquisition/native activation and persisted selected occurrence/basis reach fresh Foundry bindings/state at 640 USD; same-value foreign fund and raw removal refuse; restoration passes.",
+          "limitations": "No N5, empirical provenance/currentness, protected authority or G acceptance."
+        },
         "cyc02_fresh_native_composed_r1": {
           "source_commit": "9fd207054d4ceacdc046f0801f9b1526455dd4cf",
           "output": "MAIN:policy-engine/_cache/e02/lane01-cyc02-fresh-remediation-composed-r1",

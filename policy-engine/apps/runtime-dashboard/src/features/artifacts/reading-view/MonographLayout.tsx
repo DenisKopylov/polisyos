@@ -22,7 +22,7 @@ import { ProvenanceStrip } from "@/shared/ui";
 import HTEOutcomeView, {
   InvalidHTEOutcomeView,
 } from "../components/HTEOutcomeView";
-import { parseDecisionPacketHTEProjection } from "../domain/decisionPacketHte";
+import { parseDecisionPacketHTEProjection } from "@/shared/lib/domain/decisionPacketHte";
 import {
   AuthoredText,
   normalizeAuthoredNarrativeBlock,

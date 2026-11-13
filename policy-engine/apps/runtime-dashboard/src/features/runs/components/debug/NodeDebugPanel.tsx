@@ -3,7 +3,7 @@ import type { RunNodeRecord } from "@polisyos/runtime-api-client";
 
 import type { NodeDebugPayload, RunNodesPayload } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
+import { buildArtifactHref } from "@/features/artifacts";
 import {
   evidenceArtifactRefKey,
   type EvidenceArtifactRef,

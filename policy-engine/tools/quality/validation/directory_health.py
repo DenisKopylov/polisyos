@@ -19,6 +19,7 @@ from typing import Any
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import repo_root_from
 from tools.quality.validation import (
+    directory_health_archives,
     directory_health_dashboard,
     directory_health_inventory,
     directory_hygiene_assets,
@@ -57,7 +58,9 @@ PHASE_LOCAL_JUNK_SCRATCH_POLICY = "explicitly_ignored"
 SCHEMA_DATA_SUFFIXES = {".json", ".md", ".toml", ".yaml", ".yml"}
 MEASUREMENT = {
     "measured": "Directory contracts, tracked-file volume and local-document presence, "
-    "fixture registrations, and the configured filesystem-residue scopes.",
+    "fixture registrations, and the configured filesystem-residue scopes. Frozen archive "
+    "exclusions require exact Git/HEAD/index/worktree reconciliation; active and total depth "
+    "are reported separately when that scope is selected.",
     "omission": "Not measured: documentation substance, runtime behavior, fixture adequacy, "
     "or hosted CI. Tracked-file metrics exclude untracked/ignored contents; missing local "
     "roots are not inspected. Filesystem-residue checks use their separate on-disk scopes.",
@@ -99,6 +102,9 @@ def build_report(
     directory_contracts = _read_toml(
         repo_root / "architecture" / "policies" / "directory_contracts.toml"
     )
+    historical_scope = directory_health_archives.measure_frozen_archives(
+        repo_root, directory_contracts
+    )
     generated_artifacts = _read_toml(repo_root / "architecture" / "generated_artifacts.toml")
     hygiene = directory_hygiene_assets.build_report(repo_root)
 
@@ -108,8 +114,11 @@ def build_report(
         contract,
         directory_contracts,
         generated_artifacts,
+        historical_scope=historical_scope,
     )
-    dashboard = _build_dashboard(repo_root, contract, directory_contracts, hygiene)
+    dashboard = _build_dashboard(
+        repo_root, contract, directory_contracts, hygiene, historical_scope=historical_scope
+    )
     metrics = dashboard["metrics"]
     regressions = _metric_regressions(contract, metrics)
 
@@ -121,7 +130,7 @@ def build_report(
         if contract_errors or regressions or (fail_closed_closure and closure_findings)
         else "passed"
     )
-    return {
+    report = {
         "phase": "6.2",
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "contract": _rel(contract_path, repo_root),
@@ -140,6 +149,9 @@ def build_report(
         "regressions": [finding.as_dict() for finding in regressions],
         "dashboard": dashboard,
     }
+    if historical_scope is not None:
+        report["historical_archive_scope"] = historical_scope.measurement
+    return report
 
 
 def dump_json(payload: dict[str, Any]) -> str:
@@ -148,7 +160,10 @@ def dump_json(payload: dict[str, Any]) -> str:
 
 def render_markdown(payload: dict[str, Any]) -> str:
     if payload["status"] == "UNRUN":
-        return f"# Directory Health: UNRUN\n\n{payload['reason']}\n\n{MEASUREMENT['omission']}\n"
+        return (
+            f"# Directory Health: UNRUN\n\n{payload['reason']}\n\n{MEASUREMENT['omission']}\n"
+            + _render_archive_measurement(payload.get("historical_archive_scope"))
+        )
     dashboard = payload["dashboard"]
     metrics = dashboard["metrics"]
     lines = [
@@ -202,7 +217,11 @@ def render_markdown(payload: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## Maximum Directory Depth By Root",
+            (
+                "## Maximum Active Directory Depth By Root"
+                if "historical_archive_scope" in payload
+                else "## Maximum Directory Depth By Root"
+            ),
             "",
             "| Root | Depth |",
             "| --- | ---: |",
@@ -210,6 +229,13 @@ def render_markdown(payload: dict[str, Any]) -> str:
     )
     for root, depth in sorted(dashboard["max_directory_depth_by_root"].items()):
         lines.append(f"| `{root}` | {depth} |")
+
+    if "all_directory_depth_by_root" in dashboard:
+        lines.extend(["", "## Complete Filesystem Depth (Including Historical Inputs)", ""])
+        lines.extend(["| Root | Depth |", "| --- | ---: |"])
+        for root, depth in sorted(dashboard["all_directory_depth_by_root"].items()):
+            lines.append(f"| `{root}` | {depth} |")
+        lines.append(_render_archive_measurement(payload.get("historical_archive_scope")))
 
     lines.extend(
         [
@@ -236,6 +262,14 @@ def render_markdown(payload: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _render_archive_measurement(measurement: dict[str, Any] | None) -> str:
+    if measurement is None:
+        return ""
+    # The compact JSON block carries identical deciding selectors/read identities
+    # in both supported report formats, without a second per-file inventory.
+    return "\n## Frozen Historical Input Scope\n\n```json\n" + dump_json(measurement) + "```\n"
+
+
 def run_cli(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
@@ -251,6 +285,15 @@ def run_cli(argv: list[str] | None = None) -> int:
     contract_path = args.contract if args.contract.is_absolute() else repo_root / args.contract
     try:
         payload = build_report(repo_root, contract_path=contract_path)
+    except directory_health_archives.FrozenArchiveInspectionError as exc:
+        payload = {
+            "status": "UNRUN",
+            "complete_verdict": False,
+            "finding_coverage": "partial",
+            "measurement": MEASUREMENT,
+            "historical_archive_scope": exc.measurement,
+            "reason": f"{type(exc).__name__}: {exc}",
+        }
     except (OSError, ValueError, SyntaxError, subprocess.CalledProcessError) as exc:
         payload = {
             "status": "UNRUN",
@@ -579,6 +622,8 @@ def _collect_closure_findings(
     contract: dict[str, Any],
     directory_contracts: dict[str, Any],
     generated_artifacts: dict[str, Any],
+    *,
+    historical_scope: directory_health_archives.FrozenArchiveScope | None = None,
 ) -> list[Finding]:
     findings: list[Finding] = []
     thresholds = contract.get("thresholds", {})
@@ -639,7 +684,9 @@ def _collect_closure_findings(
             )
     findings.extend(sorted(lifecycle_findings, key=lambda finding: finding.subject))
 
-    findings.extend(_non_product_init_findings(repo_root, thresholds))
+    findings.extend(
+        _non_product_init_findings(repo_root, thresholds, historical_scope=historical_scope)
+    )
     findings.extend(_product_import_findings(repo_root, contract))
     findings.extend(_data_only_test_findings(repo_root, thresholds))
     findings.extend(_frontend_fixture_findings(repo_root, thresholds))
@@ -651,15 +698,31 @@ def _collect_closure_findings(
     return findings
 
 
-def _non_product_init_findings(repo_root: Path, thresholds: dict[str, Any]) -> list[Finding]:
+def _non_product_init_findings(
+    repo_root: Path,
+    thresholds: dict[str, Any],
+    *,
+    historical_scope: directory_health_archives.FrozenArchiveScope | None = None,
+) -> list[Finding]:
     allowed_roots = {
         str(item).rstrip("/") for item in thresholds.get("allowed_non_product_init_roots", [])
     }
     findings: list[Finding] = []
-    for path in _walk_files(repo_root):
+    paths = {path for path in _walk_files(repo_root) if path.name == "__init__.py"}
+    if historical_scope is not None:
+        # The archive census treats a directory symlink as an opaque leaf. Do not
+        # let resolving its target relabel a docs initializer as product source.
+        paths.update(
+            repo_root / relative
+            for relative in historical_scope.observed_files
+            if Path(relative).name == "__init__.py"
+        )
+    for path in paths:
         if path.name != "__init__.py":
             continue
-        relative = _rel(path, repo_root)
+        relative = path.relative_to(repo_root).as_posix()
+        if historical_scope is not None and relative in historical_scope.files:
+            continue
         if relative.startswith("src/polisyos/"):
             continue
         root = relative.split("/", 1)[0]
@@ -1000,9 +1063,16 @@ def _build_dashboard(
     contract: dict[str, Any],
     directory_contracts: dict[str, Any],
     hygiene: dict[str, Any],
+    *,
+    historical_scope: directory_health_archives.FrozenArchiveScope | None = None,
 ) -> dict[str, Any]:
     return directory_health_dashboard.build_dashboard(
-        repo_root, contract, directory_contracts, hygiene, dependencies=_dashboard_dependencies()
+        repo_root,
+        contract,
+        directory_contracts,
+        hygiene,
+        dependencies=_dashboard_dependencies(),
+        historical_scope=historical_scope,
     )
 
 

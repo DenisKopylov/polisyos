@@ -1,10 +1,10 @@
-import { hteRef } from "@/features/artifacts/domain/__test__/decisionPacketHteFixtures";
+import { hteRef } from "@/test/fixtures/decisionPacketHte";
 import {
   RUN_HTE_LIMITATIONS,
   r5RunHteSelectedProjection,
   runHteIntervalSelectedProjection,
   runHteSelectedProjection,
-} from "./__test__/runExecutionHteFixtures";
+} from "@/test/fixtures/runExecutionHte";
 import { parseRunExecutionHteProjection } from "./runExecutionHte";
 
 describe("RunDetails GET direct-method HTE consumer", () => {

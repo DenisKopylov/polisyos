@@ -16,8 +16,11 @@ requires `waitid(WNOWAIT)`; the runner refuses admission if the platform lacks i
 unreaped session leader until cleanup signals finish. It enumerates live group members by process
 and session identity, requiring consecutive empty observations before declaring the group quiescent;
 this records only observed quiescence in the original group, not a guarantee that all descendants
-stopped. Inaccessible membership scans remain unresolved. The tool does not install
-dependencies, select workloads, record environment values, or establish product evidence.
+stopped. If psutil reports that the root disappeared during RSS sampling, the runner briefly waits
+for `waitid(WNOWAIT)` to confirm that exact child exit; any unconfirmed disappearance or other RSS
+measurement failure remains a resource abort. Inaccessible membership scans remain unresolved.
+The tool does not install dependencies, select workloads, record environment values, or establish
+product evidence.
 
 Use direct pytest for ordinary in-process unit tests. Tests whose results depend on admitted
 source/provenance checks or an early host-admission profile must retain `./tools/authority`.

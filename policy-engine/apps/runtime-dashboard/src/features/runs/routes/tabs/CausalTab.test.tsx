@@ -108,7 +108,7 @@ import {
   runDetailsSchema,
   type RunConditionalTransportCandidateProjectionView,
 } from "@/api/validators";
-import { r5RunHteSelectedProjection } from "@/features/runs/domain/__test__/runExecutionHteFixtures";
+import { r5RunHteSelectedProjection } from "@/test/fixtures/runExecutionHte";
 
 import CausalTab, {
   createCausalDraftPersistence,

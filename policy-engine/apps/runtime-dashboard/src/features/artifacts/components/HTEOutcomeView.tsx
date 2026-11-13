@@ -6,7 +6,7 @@ import type {
   DecisionPacketHTEProjection,
   HTEArtifactRef,
   HTETargetRelationDisplay,
-} from "../domain/decisionPacketHte";
+} from "@/shared/lib/domain/decisionPacketHte";
 
 export type {
   HTEIntervalOutcomeDisplay,
@@ -14,7 +14,7 @@ export type {
   HTEPointOutcomeDisplay,
   HTERefusalOutcomeDisplay,
   HTETargetRelationDisplay,
-} from "../domain/decisionPacketHte";
+} from "@/shared/lib/domain/decisionPacketHte";
 
 type HTEOutcomeViewProps = {
   outcome: DecisionPacketHTEProjection;

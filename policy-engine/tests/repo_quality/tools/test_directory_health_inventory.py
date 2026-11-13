@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from tools.quality.validation import (
     directory_health,
+    directory_health_archives,
     directory_health_dashboard,
     directory_health_inventory,
 )
@@ -125,3 +129,132 @@ def test_generated_api_header_probe_reads_only_its_decision_prefix() -> None:
         _HeaderPath(reader),  # type: ignore[arg-type]
     )
     assert reader.requested_size == 1000
+
+
+@pytest.mark.parametrize("view", ["files", "directories", "archive"])
+def test_directory_swap_never_enumerates_the_external_sentinel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, view: str
+) -> None:
+    repo = tmp_path / "repo"
+    root = repo / "archive"
+    victim = root / "victim"
+    victim.mkdir(parents=True)
+    (victim / "inside.txt").write_text("inside\n")
+    external = tmp_path / "external"
+    external.mkdir()
+    (external / "OUTSIDE_SENTINEL").write_text("must never be enumerated\n")
+    external_stat = external.stat()
+    parked = tmp_path / "original-victim"
+    swapped = False
+    external_entries: list[str] = []
+    original_open, original_scandir = os.open, os.scandir
+
+    def swap() -> None:
+        nonlocal swapped
+        if not swapped:
+            victim.rename(parked)
+            victim.symlink_to(external, target_is_directory=True)
+            swapped = True
+
+    def guarded_open(path, flags, *args, **kwargs):
+        if os.fspath(path) == victim.name and kwargs.get("dir_fd") is not None:
+            # The directory entry has been checked; replace it before the child
+            # open. The descriptor walker must not follow the replacement link.
+            swap()
+        return original_open(path, flags, *args, **kwargs)
+
+    class ObservedScandir:
+        def __init__(self, entries, outside: bool) -> None:
+            self.entries, self.outside = entries, outside
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            entry = next(self.entries)
+            if self.outside:
+                external_entries.append(entry.name)
+            return entry
+
+        def close(self) -> None:
+            self.entries.close()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args) -> None:
+            self.close()
+
+    def guarded_scandir(target):
+        if not isinstance(target, int) and Path(target) == victim:
+            # This also triggers the former path-based implementation at its
+            # later reopen, so a late UNRUN cannot hide sentinel enumeration.
+            swap()
+        observed = os.fstat(target) if isinstance(target, int) else os.stat(target)
+        outside = (observed.st_dev, observed.st_ino) == (
+            external_stat.st_dev,
+            external_stat.st_ino,
+        )
+        return ObservedScandir(original_scandir(target), outside)
+
+    monkeypatch.setattr(os, "open", guarded_open)
+    monkeypatch.setattr(os, "scandir", guarded_scandir)
+    failure = None
+    try:
+        if view == "archive":
+            directory_health_archives._observed_paths(repo, "archive")
+        elif view == "files":
+            list(directory_health_inventory.iter_files(root))
+        else:
+            list(directory_health_inventory.iter_directories(root))
+    except (OSError, ValueError) as error:
+        failure = error
+
+    assert swapped
+    assert external_entries == []
+    if view == "archive":
+        assert failure is not None
+
+
+def test_descriptor_walk_closes_owned_descriptors_when_stopped_early(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "root"
+    nested = root / "a" / "b"
+    nested.mkdir(parents=True)
+    (nested / "leaf.txt").write_text("leaf\n")
+    original_open = os.open
+    descriptors: list[int] = []
+
+    def capture_open(*args, **kwargs):
+        descriptor = original_open(*args, **kwargs)
+        descriptors.append(descriptor)
+        return descriptor
+
+    monkeypatch.setattr(os, "open", capture_open)
+    walk = directory_health_inventory.iter_directories(root)
+    assert next(walk) == root
+    assert next(walk) == root / "a"
+    assert next(walk) == nested
+    walk.close()
+
+    assert len(descriptors) == 3
+    for descriptor in descriptors:
+        with pytest.raises(OSError):
+            os.fstat(descriptor)
+
+
+@pytest.mark.parametrize("escape", ["parent", "absolute"])
+def test_beneath_open_cannot_escape_its_admitted_root(tmp_path: Path, escape: str) -> None:
+    root = tmp_path / "root"
+    root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    parts = ("..",) if escape == "parent" else (str(outside),)
+
+    def attempt() -> None:
+        descriptor = directory_health_inventory.open_directory_beneath(root, parts)
+        os.close(descriptor)
+
+    with pytest.raises(ValueError, match="literal names"):
+        attempt()

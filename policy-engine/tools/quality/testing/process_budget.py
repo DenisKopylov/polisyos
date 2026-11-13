@@ -25,6 +25,8 @@ import psutil
 _INT_GRACE_SECONDS = 2.0
 _TERM_GRACE_SECONDS = 2.0
 _KILL_GRACE_SECONDS = 2.0
+_RSS_ROOT_EXIT_CONFIRM_SECONDS = 0.1
+_RSS_ROOT_EXIT_POLL_SECONDS = 0.01
 _RESULT_SCHEMA = "policyos.process-budget-result.v1"
 
 
@@ -338,6 +340,30 @@ def _wait_child_exit(pid: int, timeout_seconds: float) -> bool:
         return False
 
 
+def _is_root_exit_race(exc: _RssUnavailableError, root_pid: int) -> bool:
+    """Return whether an RSS failure specifically says the root disappeared."""
+    if exc.pid != root_pid or exc.exception_type not in {"NoSuchProcess", "ZombieProcess"}:
+        return False
+    if exc.reason == "root_rss_not_observed" and exc.operation == "memory_info":
+        return True
+    return exc.reason == "process_disappeared" and exc.operation in {
+        "root_process",
+        "recursive_children",
+    }
+
+
+def _confirm_root_exit_after_rss_race(pid: int) -> bool:
+    """Briefly wait for WNOWAIT to expose exit after psutil lost the root."""
+    deadline = time.monotonic() + _RSS_ROOT_EXIT_CONFIRM_SECONDS
+    while True:
+        if _peek_child_exit(pid) is not None:
+            return True
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(_RSS_ROOT_EXIT_POLL_SECONDS, remaining))
+
+
 def _stop_owned_root_only(pid: int) -> list[str]:
     """Stop only the unreaped Popen child when its group identity is unverified."""
     escalations: list[str] = []
@@ -548,20 +574,23 @@ def run_command(
                             sample = _sample_process_tree(process.pid)
                         except _RssUnavailableError as exc:
                             rss_measurement_failure = exc.to_record()
-                            try:
-                                root_exit_observed = _peek_child_exit(process.pid) is not None
-                            except (ChildProcessError, OSError, RuntimeError):
-                                primary_reason = "process_exit_measurement_unavailable"
-                            if root_exit_observed and (
-                                exc.reason == "root_rss_not_observed"
-                                and exc.operation == "memory_info"
-                                and exc.pid == process.pid
-                                and exc.exception_type in {"NoSuchProcess", "ZombieProcess"}
-                            ):
-                                # WNOWAIT confirms this exact child exited during RSS sampling.
-                                rss_measurement_failure = None
-                                raced_process_count += 1
-                            if not root_exit_observed and primary_reason is None:
+                            if _is_root_exit_race(exc, process.pid):
+                                try:
+                                    root_exit_observed = _confirm_root_exit_after_rss_race(
+                                        process.pid
+                                    )
+                                except (ChildProcessError, OSError, RuntimeError):
+                                    primary_reason = "process_exit_measurement_unavailable"
+                                if root_exit_observed:
+                                    # WNOWAIT confirms this exact child exited during RSS sampling.
+                                    rss_measurement_failure = None
+                                    raced_process_count += 1
+                            else:
+                                try:
+                                    root_exit_observed = _peek_child_exit(process.pid) is not None
+                                except (ChildProcessError, OSError, RuntimeError):
+                                    primary_reason = "process_exit_measurement_unavailable"
+                            if rss_measurement_failure is not None and primary_reason is None:
                                 primary_reason = "rss_measurement_unavailable"
                             break
                         sample_count += 1

@@ -1,6 +1,5 @@
-import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
-import type { HTEArtifactRef } from "@/features/artifacts/domain/decisionPacketHte";
-import { parseRunExecutionHteProjection } from "@/features/runs/domain/runExecutionHte";
+import { buildArtifactHref, type HTEArtifactRef } from "@/features/artifacts";
+import { parseRunExecutionHteProjection } from "@/shared/lib/domain/runExecutionHte";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatNumber } from "@/shared/lib/utils";
 

@@ -12,7 +12,7 @@ import { ChatMessage } from "./ChatMessage";
 import { ClerkFollowUpBar } from "./ClerkFollowUpBar";
 import { ExportConversation } from "./ExportConversation";
 import { ConversationHistorySearch } from "./ConversationHistorySearch";
-import { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/ControlPreAdmissionRecoveryNotice";
+import { ControlPreAdmissionRecoveryNotice } from "@/features/runs";
 
 export function ChatContainer() {
   const { t } = useI18n();

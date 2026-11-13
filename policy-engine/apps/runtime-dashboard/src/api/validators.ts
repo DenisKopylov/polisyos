@@ -16,7 +16,7 @@ import {
   decisionGradeSchema,
   simulationGradeRequiresCalibration,
 } from "@/shared/lib/domain/decisionGrade";
-import { parseRunExecutionHteProjection } from "@/features/runs/domain/runExecutionHte";
+import { parseRunExecutionHteProjection } from "@/shared/lib/domain/runExecutionHte";
 import {
   isGeneratedProjectionAuthority,
   normalizeApiProjectionFailClosed,

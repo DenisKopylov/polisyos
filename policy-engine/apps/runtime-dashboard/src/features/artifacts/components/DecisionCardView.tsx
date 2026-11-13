@@ -31,7 +31,7 @@ import {
   parseDecisionCardPayload,
   type DecisionCardViewModel,
 } from "@/shared/lib/domain/decision";
-import { parseDecisionPacketHTEProjection } from "../domain/decisionPacketHte";
+import { parseDecisionPacketHTEProjection } from "@/shared/lib/domain/decisionPacketHte";
 import { useGlobalShortcut } from "@/shared/lib/hooks/useKeyboardShortcuts";
 import { formatDate, formatDuration } from "@/shared/lib/utils";
 import { triggerPrint } from "@/shared/export/printExport";

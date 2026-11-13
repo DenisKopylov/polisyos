@@ -96,6 +96,40 @@ aggregation live in `directory_health_dashboard.py`; calls receive the active fa
 so report generation continues to use the same tracked-file, filesystem, contract, and finding
 inputs as the CLI and imported API.
 
+`directory_health_archives.py` reconciles explicitly frozen historical inputs declared
+by `archive_class` in `architecture/policies/directory_contracts.toml`. An exclusion
+requires the same relative path, Git mode and blob in the frozen tree, current HEAD,
+stage-zero index, and actual working-tree bytes. Location or an archive label alone
+never suffices. Git replacement-object semantics are disabled for every deciding
+Git read, so a local `refs/replace` mapping cannot redefine the frozen tree.
+A more specific active directory contract overrides the historical
+class; a broader active owner must explicitly permit archive children. These are
+literal directory selectors; unsupported selectors leave classification UNRUN. New,
+untracked, staged, changed and missing entries remain outside the exemption; the
+scanner continues to inspect its ordinary filesystem scope. Symlink bodies are
+checked without following their targets.
+
+The archive census and ordinary inventory share the descriptor-backed recursive
+walker in `directory_health_inventory.py`. Child opens use `O_NOFOLLOW` and
+`O_DIRECTORY`, reconcile the opened directory identity, and pass descriptors to
+`scandir`; a checked path is never reopened for traversal. The walk owns only the
+descriptors along its current depth and closes them on completion, failure, or
+early generator close. Ordinary views retain their admitted-root, symlink
+classification and skip-name semantics; the archive census admits its root with
+no-follow component opens and treats symlinks as opaque leaves.
+
+The existing `max_directory_depth` ratchet measures active directories. The complete
+filesystem depth, including retained historical inputs, stays visible separately.
+Both JSON and Markdown reports include the frozen tree selectors, actual policy and
+Git reads, complete leaf/directory counts, content-read digest and exclusion counts.
+This binds one operation's observed structural inputs, not runtime or institutional
+authority, an atomic filesystem snapshot, or future contents. A missing frozen tree
+in a shallow checkout or an unreadable deciding input yields a named UNRUN result;
+the checker does not fetch objects or turn missing inputs into a green exemption.
+The unchanged subtree is directly reachable from HEAD even in a shallow checkout.
+An intentional archive change requires a reviewed new frozen identity, or the
+changed content remains active. No historical paths or receipts are rewritten.
+
 ## Repository-structure inventory
 
 `repository_structure_phase0.py` retains the CLI, gate composition, and compatibility facade. `repository_structure_phase0_inventory.py` owns the inventory scan; the facade passes its current helpers and policy constants as typed dependencies so existing callers and monkeypatch seams continue to work.

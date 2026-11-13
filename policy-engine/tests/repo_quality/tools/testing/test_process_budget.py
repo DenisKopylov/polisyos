@@ -160,6 +160,106 @@ def test_process_budget_preserves_child_failure(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("exit_code", [0, 17])
+def test_process_budget_waits_briefly_for_root_exit_after_rss_disappearance(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    exit_code: int,
+) -> None:
+    real_peek = process_budget._peek_child_exit
+    hide_one_confirmed_exit = False
+
+    def hide_first_post_sample_status(pid: int):
+        nonlocal hide_one_confirmed_exit
+        if hide_one_confirmed_exit:
+            hide_one_confirmed_exit = False
+            return None
+        return real_peek(pid)
+
+    def disappear_after_root_exit(root_pid: int) -> process_budget._Sample:
+        nonlocal hide_one_confirmed_exit
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            if real_peek(root_pid) is not None:
+                # Model the narrow race where psutil reports NoSuchProcess but
+                # the immediate WNOWAIT recheck has not observed status yet.
+                hide_one_confirmed_exit = True
+                raise process_budget._RssUnavailableError(
+                    "root_rss_not_observed",
+                    operation="memory_info",
+                    pid=root_pid,
+                    exception_type="NoSuchProcess",
+                )
+            time.sleep(0.001)
+        raise AssertionError("test child did not exit during root RSS sampling")
+
+    monkeypatch.setattr(process_budget, "_peek_child_exit", hide_first_post_sample_status)
+    monkeypatch.setattr(process_budget, "_sample_process_tree", disappear_after_root_exit)
+    result = _run(
+        tmp_path,
+        [sys.executable, "-c", f"raise SystemExit({exit_code})"],
+        sample_interval_seconds=0.01,
+    )
+
+    expected_status = "PASS" if exit_code == 0 else "COMMAND_FAIL"
+    assert result["status"] == expected_status
+    assert result["primary_reason"] is None
+    assert result["actual_exit_code"] == exit_code
+    assert result["rss_measurement_failure"] is None
+    assert result["rss_raced_process_count"] == 1
+    assert result["process_group_quiescence_observed"] is True
+    assert result["cleanup_signals"] == []
+    assert result["cleanup_runtime_error"] is None
+
+
+def test_process_budget_does_not_ignore_rss_failure_when_root_exits_after_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_peek = process_budget._peek_child_exit
+    rss_failure_reported = False
+    observed_root_pid: list[int] = []
+
+    def exit_after_rss_failure(pid: int):
+        nonlocal rss_failure_reported
+        if rss_failure_reported:
+            rss_failure_reported = False
+            process_budget.os.kill(pid, signal.SIGTERM)
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                info = real_peek(pid)
+                if info is not None:
+                    return info
+                time.sleep(0.001)
+            raise AssertionError("test child did not exit after RSS failure")
+        return real_peek(pid)
+
+    def deny_root_rss(root_pid: int) -> process_budget._Sample:
+        nonlocal rss_failure_reported
+        observed_root_pid.append(root_pid)
+        rss_failure_reported = True
+        raise process_budget._RssUnavailableError(
+            "rss_access_denied",
+            operation="memory_info",
+            pid=root_pid,
+            exception_type="AccessDenied",
+        )
+
+    monkeypatch.setattr(process_budget, "_peek_child_exit", exit_after_rss_failure)
+    monkeypatch.setattr(process_budget, "_sample_process_tree", deny_root_rss)
+    result = _run(tmp_path, [sys.executable, "-c", "import time; time.sleep(30)"])
+
+    assert result["status"] == "RESOURCE_ABORT"
+    assert result["primary_reason"] == "rss_measurement_unavailable"
+    assert result["rss_measurement_failure"] == {
+        "reason": "rss_access_denied",
+        "operation": "memory_info",
+        "pid": observed_root_pid[0],
+        "exception_type": "AccessDenied",
+    }
+    assert result["actual_exit_code"] == -signal.SIGTERM
+
+
+@pytest.mark.parametrize("exit_code", [0, 17])
 @pytest.mark.parametrize("sample_exception", [psutil.NoSuchProcess, psutil.ZombieProcess])
 def test_process_budget_counts_wnowait_confirmed_root_exit_during_rss_sample_as_race(
     tmp_path: Path,

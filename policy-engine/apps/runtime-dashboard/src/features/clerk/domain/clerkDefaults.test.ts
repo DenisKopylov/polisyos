@@ -1,4 +1,4 @@
-import { buildNaturalLanguageLaunchRequest } from "@/features/composer/domain/forms";
+import { buildNaturalLanguageLaunchRequest } from "@/features/composer";
 
 import { buildClerkFormDefaults } from "./clerkDefaults";
 

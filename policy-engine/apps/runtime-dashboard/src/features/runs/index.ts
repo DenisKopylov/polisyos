@@ -8,6 +8,7 @@ export {
   getDecisionQueue,
   groupRunsByStatus,
 } from "@/features/runs/domain/status";
+export { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/ControlPreAdmissionRecoveryNotice";
 export {
   buildEvidenceHref,
   LEGACY_RUN_DETAIL_TAB_MAP,

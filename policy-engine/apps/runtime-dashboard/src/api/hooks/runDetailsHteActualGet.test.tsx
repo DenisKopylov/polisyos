@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 
 import { RunHteExecutionSummary } from "@/features/runs/components/RunHteExecutionSummary";
-import { parseRunExecutionHteProjection } from "@/features/runs/domain/runExecutionHte";
+import { parseRunExecutionHteProjection } from "@/shared/lib/domain/runExecutionHte";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import actualResponseBytes from "./__fixtures__/r7-run-details-response.content?raw";
 import { runDetailsQueryOptions } from "./useRunDetails";

@@ -9,12 +9,12 @@ import {
   pointSummary,
   r5DualObservationSummary,
   refusalSummary,
-} from "@/features/artifacts/domain/__test__/decisionPacketHteFixtures";
+} from "@/test/fixtures/decisionPacketHte";
 import HTEOutcomeView from "./HTEOutcomeView";
 import {
   parseDecisionPacketHTEProjection,
   parseDirectMethodExecutionHTESummary,
-} from "@/features/artifacts/domain/decisionPacketHte";
+} from "@/shared/lib/domain/decisionPacketHte";
 
 function parseSummary(summary: Record<string, unknown>) {
   const parsed = parseDecisionPacketHTEProjection({ hte: summary });

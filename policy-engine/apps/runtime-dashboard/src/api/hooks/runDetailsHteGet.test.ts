@@ -1,4 +1,4 @@
-import { r5RunHteSelectedProjection } from "@/features/runs/domain/__test__/runExecutionHteFixtures";
+import { r5RunHteSelectedProjection } from "@/test/fixtures/runExecutionHte";
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 import { runDetailsQueryOptions } from "./useRunDetails";
 

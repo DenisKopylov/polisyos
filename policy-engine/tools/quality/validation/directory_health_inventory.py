@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
+import stat
 import subprocess
 from collections.abc import Iterable, Iterator, Set
-from contextlib import suppress
+from contextlib import closing, suppress
 from pathlib import Path
 from typing import Any
 
@@ -87,43 +88,119 @@ def iter_child_directories(root: Path) -> Iterator[Path]:
 
 
 def _iter_scandir_paths(root: Path, *, files: bool, skip_dir_names: Set[str]) -> Iterator[Path]:
+    with closing(iter_tree_entries(root, skip_dir_names=skip_dir_names)) as entries:
+        for path, is_directory in entries:
+            if (files and not is_directory) or (not files and is_directory):
+                yield path
+
+
+def iter_tree_entries(
+    root: Path,
+    *,
+    skip_dir_names: Set[str] = frozenset(),
+    root_descriptor: int | None = None,
+    opaque_symlinks: bool = False,
+) -> Iterator[tuple[Path, bool]]:
+    """Walk one admitted root through anchored, no-follow child descriptors.
+
+    The ordinary view retains its prior file/directory symlink classification
+    and declared skip names. A caller supplying an already admitted descriptor
+    can request opaque symlink leaves, without even inspecting target metadata.
+    That descriptor is duplicated; ownership remains with the caller. Directory
+    descriptors and scandir iterators are retained only along the current depth.
+    """
+    flags = _directory_flags()
     try:
-        root_entries = os.scandir(root)
+        descriptor = (
+            os.dup(root_descriptor)
+            if root_descriptor is not None
+            else os.open(root, flags & ~os.O_NOFOLLOW)
+        )
     except (FileNotFoundError, NotADirectoryError):
         return
-
-    stack: list[Iterator[Any]] = [root_entries]
+    stack: list[tuple[int, Path, Iterator[Any]]] = []
     try:
-        if not files:
-            yield root
+        try:
+            stack.append((descriptor, root, os.scandir(descriptor)))
+        except BaseException:
+            os.close(descriptor)
+            raise
+        yield root, True
         while stack:
-            entries = stack[-1]
+            parent_descriptor, logical_parent, entries = stack[-1]
             try:
                 entry = next(entries)
             except StopIteration:
                 entries.close()
+                os.close(parent_descriptor)
                 stack.pop()
                 continue
+            path = logical_parent / entry.name
             try:
-                is_directory = entry.is_dir(follow_symlinks=True)
+                before = entry.stat(follow_symlinks=False)
             except FileNotFoundError:
+                if opaque_symlinks:
+                    raise
                 continue
-            if is_directory:
+            if stat.S_ISLNK(before.st_mode) and not opaque_symlinks:
                 try:
-                    is_symlink = entry.is_symlink()
+                    if entry.is_dir(follow_symlinks=True):
+                        continue
                 except FileNotFoundError:
                     continue
-                if entry.name in skip_dir_names or is_symlink:
-                    continue
-                try:
-                    child_entries = os.scandir(entry.path)
-                except (FileNotFoundError, NotADirectoryError):
-                    continue
-                stack.append(child_entries)
-                if not files:
-                    yield Path(entry.path)
-            elif files:
-                yield Path(entry.path)
+            if not stat.S_ISDIR(before.st_mode):
+                yield path, False
+                continue
+            if entry.name in skip_dir_names:
+                continue
+            try:
+                child = os.open(entry.name, _directory_flags(), dir_fd=parent_descriptor)
+            except (FileNotFoundError, NotADirectoryError):
+                if opaque_symlinks:
+                    raise
+                continue
+            try:
+                opened = os.fstat(child)
+                if (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino):
+                    raise OSError(f"directory changed during inventory: {path}")
+                child_entries = os.scandir(child)
+            except BaseException:
+                os.close(child)
+                raise
+            stack.append((child, path, child_entries))
+            yield path, True
     finally:
-        for entries in reversed(stack):
+        for open_descriptor, _, entries in reversed(stack):
             entries.close()
+            os.close(open_descriptor)
+
+
+def open_directory_beneath(root: Path, parts: tuple[str, ...]) -> int:
+    """Open literal directory components without following an alias at any step.
+
+    The caller owns the returned descriptor. This does not create directories or
+    change permissions, and a missing/unreadable component remains an exception.
+    """
+    if any(
+        not isinstance(part, str) or part in {"", ".", ".."} or "/" in part or "\0" in part
+        for part in parts
+    ):
+        raise ValueError("directory components must be single literal names")
+    descriptor = os.open(root, _directory_flags())
+    try:
+        for part in parts:
+            child = os.open(part, _directory_flags(), dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _directory_flags() -> int:
+    directory = getattr(os, "O_DIRECTORY", None)
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if directory is None or nofollow is None:
+        raise OSError("directory inventory requires O_DIRECTORY and O_NOFOLLOW")
+    return os.O_RDONLY | directory | nofollow | getattr(os, "O_CLOEXEC", 0)

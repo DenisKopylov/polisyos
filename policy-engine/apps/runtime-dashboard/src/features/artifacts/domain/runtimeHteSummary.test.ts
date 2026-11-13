@@ -3,8 +3,8 @@ import {
   pointSummary,
   r4PointSummary,
   r5DualObservationSummary,
-} from "./__test__/decisionPacketHteFixtures";
-import { parseDirectMethodExecutionHTESummary } from "./decisionPacketHte";
+} from "@/test/fixtures/decisionPacketHte";
+import { parseDirectMethodExecutionHTESummary } from "@/shared/lib/domain/decisionPacketHte";
 
 function runtimePointSummary(): Record<string, unknown> {
   return pointSummary();

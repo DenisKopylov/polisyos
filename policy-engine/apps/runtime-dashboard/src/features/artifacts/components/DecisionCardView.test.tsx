@@ -4,7 +4,7 @@ import { renderWithProviders } from "@/test/render";
 import {
   legacyLimitedProjection,
   pointSummary,
-} from "../domain/__test__/decisionPacketHteFixtures";
+} from "@/test/fixtures/decisionPacketHte";
 
 vi.mock("@/shared/charts", () => ({
   UncertaintyBand: ({ identifiability }: { identifiability: string }) => (

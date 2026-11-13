@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 
 import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
 import {
+  buildArtifactHref,
   renderArtifactViewer,
   resolveArtifactPreviewPayload,
 } from "@/features/artifacts";
-import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useI18n } from "@/shared/i18n/LocaleProvider";

@@ -301,6 +301,18 @@ max_file_count = 300
 max_file_size_kib = 2048
 
 [[archive_class]]
+id = "frozen_e02_execution_handoffs"
+allowed_roots = ["docs/research/e02-cloud-test-plan/implementation-handoffs/"]
+owner = "team-docs"
+commit_policy = "immutable_historical_inputs"
+promotion_path = "Current authoring uses E02-WORK-PLAN.md and canonical source/tests, not this frozen input tree."
+naming = "Preserve original paths, source snapshots, prototypes, and transported input names."
+retention = "Preserve while referenced; the Git tree binds the historical path, mode, and body denominator."
+promotion_criteria = ["Historical input already published", "No active package contract applies", "Exact Git, index, and working-tree identity reconciled by directory-health"]
+frozen_scope_schema = "polisyos.directory-health.frozen-git-tree.v1"
+frozen_git_tree = "001b7ecb6a7a20639f3552e8070d37a856bcd1c1"
+
+[[archive_class]]
 id = "release_evidence"
 allowed_roots = ["release/", "docs/archive/reports/release/"]
 local_roots = ["_build/release/"]

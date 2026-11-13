@@ -46,7 +46,7 @@ import {
   Textarea,
 } from "@polisyos/atlas-ui";
 import { ApiErrorAlert } from "@/shared/ui";
-import { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/ControlPreAdmissionRecoveryNotice";
+import { ControlPreAdmissionRecoveryNotice } from "@/features/runs";
 import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,

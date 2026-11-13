@@ -1,7 +1,7 @@
 import {
   parseDirectMethodExecutionHTESummary,
   type HTEOutcomeDisplayModel,
-} from "@/features/artifacts/domain/decisionPacketHte";
+} from "@/shared/lib/domain/decisionPacketHte";
 
 const PROJECTION_STATUSES = [
   "withheld",

@@ -5,7 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from tools.quality.validation.directory_health_archives import FrozenArchiveScope
 
 
 class DashboardFinding(Protocol):
@@ -49,6 +52,8 @@ def build_dashboard(
     directory_contracts: dict[str, Any],
     hygiene: dict[str, Any],
     dependencies: DashboardDependencies,
+    *,
+    historical_scope: FrozenArchiveScope | None = None,
 ) -> dict[str, Any]:
     thresholds = contract.get("thresholds", {})
     tracked = (
@@ -66,11 +71,12 @@ def build_dashboard(
     high_volume = dependencies.high_volume_subtrees(repo_root, thresholds)
     documented_high_volume_count = sum(1 for item in high_volume if item["documented"])
     non_product_python_roots = dependencies.non_product_python_root_inventory(repo_root)
-    closure_findings = dependencies.collect_closure_findings(
-        repo_root,
-        contract,
-        directory_contracts,
-        dependencies.read_toml(dependencies.generated_artifacts),
+    generated = dependencies.read_toml(dependencies.generated_artifacts)
+    closure_args = (repo_root, contract, directory_contracts, generated)
+    closure_findings = (
+        dependencies.collect_closure_findings(*closure_args)
+        if historical_scope is None
+        else dependencies.collect_closure_findings(*closure_args, historical_scope=historical_scope)
     )
     closure_counts = dependencies.closure_counts(closure_findings)
     local_residue_by_class = dependencies.local_residue_by_class(repo_root, hygiene, thresholds)
@@ -78,6 +84,13 @@ def build_dashboard(
     empty_dirs = dependencies.empty_dirs_outside_ignored_roots(repo_root, thresholds)
     frontend_undocumented = dependencies.undocumented_frontend_subtrees(repo_root, thresholds)
     max_depth_by_root = dependencies.max_directory_depth_by_root(repo_root)
+    all_depth_by_root = max_depth_by_root
+    if historical_scope is not None:
+        max_depth_by_root = max_directory_depth_by_root(
+            repo_root,
+            dependencies=dependencies,
+            excluded_directories=historical_scope.directories,
+        )
     max_depth = max(max_depth_by_root.values(), default=0)
     largest_subtrees = dependencies.largest_subtrees_by_tracked_file_count(
         repo_root, tracked, thresholds
@@ -107,7 +120,7 @@ def build_dashboard(
         "max_directory_depth": max_depth,
         **closure_counts,
     }
-    return {
+    dashboard = {
         "metrics": metrics,
         "top_level_directories": {
             "present": actual_top_level_dirs,
@@ -123,6 +136,9 @@ def build_dashboard(
         "max_directory_depth_by_root": max_depth_by_root,
         "largest_subtrees_by_tracked_file_count": largest_subtrees,
     }
+    if historical_scope is not None:
+        dashboard["all_directory_depth_by_root"] = all_depth_by_root
+    return dashboard
 
 
 def percent(numerator: int, denominator: int) -> float:
@@ -313,12 +329,15 @@ def undocumented_frontend_subtrees(
 
 
 def max_directory_depth_by_root(
-    repo_root: Path, *, dependencies: DashboardDependencies
+    repo_root: Path,
+    *,
+    dependencies: DashboardDependencies,
+    excluded_directories: frozenset[str] = frozenset(),
 ) -> dict[str, int]:
     depths: dict[str, int] = {}
     for directory in dependencies.walk_dirs(repo_root):
         relative = dependencies.rel(directory, repo_root)
-        if relative == ".":
+        if relative == "." or relative in excluded_directories:
             continue
         parts = Path(relative).parts
         root = parts[0]

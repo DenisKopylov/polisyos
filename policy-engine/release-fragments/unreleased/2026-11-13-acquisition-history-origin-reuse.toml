@@ -1,0 +1,18 @@
+id = "2026-11-13-acquisition-history-origin-reuse"
+title = "Reuse verified source within one acquisition history read"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Historical phase and signed PA2 reads carry the phase's verified origin through the canonical service, reducing source traversals from four to two per operation. Current source rows, creation records, selected parent bytes, policy and the complete source-head conflict set are checked again. Requested and latest phases remain independent."
+evidence = [
+  "src/polisyos/runtime/http/services/acquisition_action_service.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/quality/acquisition_route_loop.py",
+  "src/polisyos/runtime/quality/acquisition_unpriced_candidate_policy.py",
+  "tests/unit/runtime/http/services/test_acquisition_action_service.py",
+]
+compatibility = "Existing receipt wires, provider identity fences and current source-budget custody are preserved. The optional carried origin is an internal historical-read input."
+surface_classification = "internal: acquisition lifecycle and signed history readers"
+migration = "No stored-artifact rewrite or deployment configuration change is required."
+limitations = "PA2 history remains not_revalidated. This operation-local reuse is not a live permission or budget reservation, and its timing does not measure the post-outcome terminal tail."
+generated_client_compatibility = "not_applicable"

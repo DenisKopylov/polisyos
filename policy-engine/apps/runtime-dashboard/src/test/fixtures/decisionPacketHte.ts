@@ -1,11 +1,11 @@
-import actualR4Interval from "./wire/runtime-r4-interval.json";
-import actualR4Point from "./wire/runtime-r4-point.json";
-import actualR4Refusal from "./wire/runtime-r4-refusal.json";
-import actualR5OwnerPoint from "./wire/runtime-r5-point-owner-builder.json";
-import actualR5DualPoint from "./wire/runtime-r5-dual-observation-point.json";
-import actualLegacyWire from "./wire/legacy-builder-wire.json";
-import actualLegacyLimited from "./wire/legacy-limited-preview.json";
-import actualLegacyUnavailable from "./wire/legacy-unavailable-preview.json";
+import actualR4Interval from "./decisionPacketHte-wire/runtime-r4-interval.json";
+import actualR4Point from "./decisionPacketHte-wire/runtime-r4-point.json";
+import actualR4Refusal from "./decisionPacketHte-wire/runtime-r4-refusal.json";
+import actualR5OwnerPoint from "./decisionPacketHte-wire/runtime-r5-point-owner-builder.json";
+import actualR5DualPoint from "./decisionPacketHte-wire/runtime-r5-dual-observation-point.json";
+import actualLegacyWire from "./decisionPacketHte-wire/legacy-builder-wire.json";
+import actualLegacyLimited from "./decisionPacketHte-wire/legacy-limited-preview.json";
+import actualLegacyUnavailable from "./decisionPacketHte-wire/legacy-unavailable-preview.json";
 
 export type HTEWire = Record<string, unknown>;
 

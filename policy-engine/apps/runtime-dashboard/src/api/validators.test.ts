@@ -21,7 +21,7 @@ import {
   runEvidenceContextSchema,
   runsListSchema,
 } from "./validators";
-import { runHteSelectedProjection } from "@/features/runs/domain/__test__/runExecutionHteFixtures";
+import { runHteSelectedProjection } from "@/test/fixtures/runExecutionHte";
 import {
   acquisitionGrowthPayloadSchema,
   acquisitionRouteListResponseSchema,

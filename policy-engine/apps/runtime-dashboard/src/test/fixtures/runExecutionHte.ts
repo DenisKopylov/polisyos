@@ -3,7 +3,7 @@ import {
   intervalSummary,
   pointSummary,
   type HTEWire,
-} from "@/features/artifacts/domain/__test__/decisionPacketHteFixtures";
+} from "@/test/fixtures/decisionPacketHte";
 
 export const RUN_HTE_LIMITATIONS = [
   "candidate_input_not_external_truth",

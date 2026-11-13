@@ -5,7 +5,7 @@ import {
   pointSummary,
   refusalSummary,
   hteRef,
-} from "./__test__/decisionPacketHteFixtures";
+} from "@/test/fixtures/decisionPacketHte";
 import { parseDecisionPacketHTEProjection } from "./decisionPacketHte";
 
 function parseLegacyProjectionForTest(legacy: Record<string, unknown>) {

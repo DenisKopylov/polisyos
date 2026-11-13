@@ -5001,6 +5001,10 @@ def _schema_regime_decision(
         or l5.project_scoped_schema_regimes(receipt=receipt) != projection
     ):
         raise DataStateSubstrateError("l5_schema_regime_projection_not_owner_recomputed")
+    try:
+        l5.require_schema_regime_authority(receipt=receipt)
+    except SubstrateRegistryError as exc:
+        raise DataStateSubstrateError("l5_schema_regime_authority_unavailable") from exc
     regimes = []
     for regime_id, observed_hash in zip(
         projection.applicable_regime_ids,

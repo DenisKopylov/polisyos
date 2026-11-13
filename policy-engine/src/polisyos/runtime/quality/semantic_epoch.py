@@ -349,6 +349,10 @@ def _load_selected_acquisition_mapping(
     store: ArtifactStore, ref: ArtifactRef, *, expected_kind: str
 ) -> dict[str, object]:
     """Resolve one selected acquisition payload through its registered byte codec."""
+    if expected_kind == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND:
+        return epoch_contract.load_l5_candidate_scope_assumption(store=store, ref=ref).model_dump(
+            mode="json"
+        )
     codec = epoch_contract.acquisition_artifact_codec(expected_kind, media_type=ref.media_type)
     if codec is not None and codec.payload_format == "epoch_frame" and codec.canon is not None:
         return epoch_contract.load_verified_epoch_statement(
@@ -702,6 +706,29 @@ def _walk_verified_reference_graph(
             if resolved_key in resolved:
                 continue
             resolved.add(resolved_key)
+            if ref.kind == "l5.schema_regime_owner_snapshot":
+                _verify_l5_candidate_scope_snapshot(
+                    store=store, snapshot=mapping, authority_purpose="candidate_simulation"
+                )
+            elif ref.kind == "l5.schema_regime_denominator_receipt":
+                receipt = epoch_contract.L5SchemaRegimeDenominatorReceipt.model_validate(mapping)
+                snapshot_ref, snapshot = _load_owner_projection_mapping(
+                    store, receipt.owner_source_snapshot_ref
+                )
+                _verify_l5_snapshot(
+                    payload=store.get_bytes(snapshot_ref),
+                    receipt=receipt,
+                    expected_query=receipt.query,
+                )
+                candidate_refs = _verify_l5_candidate_scope_snapshot(
+                    store=store,
+                    snapshot=snapshot,
+                    authority_purpose=receipt.query.authority_purpose,
+                )
+                if candidate_refs:
+                    _replay_l5_candidate_receipt(store=store, snapshot=snapshot, receipt=receipt)
+            elif ref.kind == "epoch.boundary_denominator_receipt":
+                _verify_l5_candidate_scope_evidence(store=store, mapping=mapping)
             if codec.payload_format == "native_coordinate":
                 role = epoch_contract.acquisition_native_coordinate_role(selected_ref.kind)
                 if role is None:
@@ -1471,7 +1498,18 @@ class EpochBoundaryOwnerBatch(_EpochModel):
                 "semantic_projection_verification",
             ),
         }[self.owner_kind]
-        if evidence_roles != required_roles:
+        if self.owner_kind == "l5_schema_regime":
+            roles_match = evidence_roles[:1] == required_roles and all(
+                role == "candidate_scope_assumption" for role in evidence_roles[1:]
+            )
+            roles_match = roles_match and all(
+                row.artifact_ref.kind == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND
+                and row.content_hash == str(row.artifact_ref.artifact_id)
+                for row in self.supporting_evidence[1:]
+            )
+        else:
+            roles_match = evidence_roles == required_roles
+        if not roles_match:
             raise ValueError("owner batch supporting-evidence role denominator differs")
         if len({str(ref.artifact_id) for ref in evidence_refs}) != len(evidence_refs):
             raise ValueError("owner batch repeats an evidence artifact")
@@ -2689,13 +2727,23 @@ class CatalogAcquisitionBoundaryOwner(Protocol):
 def _require_owner_reference_role(
     ref: ArtifactRef, *, expected_kind: str
 ) -> epoch_contract.AcquisitionArtifactCodec:
-    codec = epoch_contract.acquisition_artifact_codec(expected_kind)
-    if codec is None or ref.kind != expected_kind or ref.media_type != codec.media_type:
+    actual_kind = (
+        ref.kind
+        if expected_kind == "l5.schema_regime_scope_relation"
+        and ref.kind == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND
+        else expected_kind
+    )
+    codec = epoch_contract.acquisition_artifact_codec(actual_kind, media_type=ref.media_type)
+    if codec is None or ref.kind != actual_kind or ref.media_type != codec.media_type:
         raise ValueError("owner artifact role mismatch")
     if codec.payload_format in {"identity_token", "unresolved_reference"} and (
         ref.manifest_profile_sha256 is not None
     ):
         raise ValueError("non-content owner reference cannot select a CAS profile")
+    if actual_kind == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND and (
+        ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("candidate scope owner reference requires its selected profile")
     return codec
 
 
@@ -3398,6 +3446,156 @@ def _admit_owner_snapshot(
     )
 
 
+def _verify_l5_candidate_scope_snapshot(
+    *, store: ArtifactStore, snapshot: object, authority_purpose: str
+) -> tuple[ArtifactRef, ...]:
+    """Reopen every candidate premise and reconcile it to its native source row."""
+    parsed = _L5OwnerSnapshot.model_validate(snapshot)
+    refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+    for relation in parsed.scope_relations:
+        ref = relation.relation_provenance_ref
+        if ref.kind != epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND:
+            continue
+        regime = parsed.regimes.get(relation.schema_regime_id)
+        if regime is None:
+            raise ValueError("candidate L5 scope has no corresponding owner regime row")
+        epoch_contract.verify_l5_candidate_scope_assumption(
+            store=store,
+            relation=relation,
+            regime_row=regime,
+            authority_purpose=authority_purpose,
+        )
+        refs[(*_selected_ref_identity(ref), ref.manifest_profile_sha256)] = ref
+    return tuple(refs[key] for key in sorted(refs))
+
+
+def _replay_l5_candidate_receipt(
+    *,
+    store: ArtifactStore,
+    snapshot: object,
+    receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt,
+) -> epoch_contract.ScopedSchemaRegimeProjection:
+    """Use the native L5 owner to replay a candidate receipt from its frozen rows."""
+    from polisyos.runtime.quality.substrate_registry import replay_l5_candidate_scope_projection
+
+    parsed = _L5OwnerSnapshot.model_validate(snapshot)
+    return replay_l5_candidate_scope_projection(
+        regimes=parsed.regimes,
+        relations=parsed.scope_relations,
+        changepoints=parsed.changepoints,
+        receipt=receipt,
+        artifacts=store,
+    )
+
+
+def _verify_l5_candidate_scope_evidence(
+    *, store: ArtifactStore, mapping: dict[str, object]
+) -> None:
+    """Bind candidate limitations in the boundary receipt to its whole L5 snapshot."""
+    boundary = EpochBoundaryDenominatorReceipt.model_validate(mapping)
+    for batch in boundary.batches:
+        if batch.owner_kind != "l5_schema_regime":
+            continue
+        _, snapshot = _load_owner_projection_mapping(store, batch.owner_source_snapshot_ref)
+        expected = _verify_l5_candidate_scope_snapshot(
+            store=store, snapshot=snapshot, authority_purpose=boundary.query.authority_purpose
+        )
+        expected_views = {
+            (*_selected_ref_identity(ref), ref.manifest_profile_sha256) for ref in expected
+        }
+        actual_views = {
+            (*_selected_ref_identity(row.artifact_ref), row.artifact_ref.manifest_profile_sha256)
+            for row in batch.supporting_evidence
+            if row.role == "candidate_scope_assumption"
+        }
+        if actual_views != expected_views:
+            raise ValueError("L5 candidate scope evidence differs from the owner snapshot")
+        if not expected:
+            continue
+        registrations = tuple(
+            EpochBoundarySourceRegistration(
+                registration_id=row.registration_id,
+                owner_kind=row.owner_kind,
+                owner_source_ref=row.owner_source_ref,
+                opaque_scope_binding_ref=row.opaque_scope_binding_ref,
+            )
+            for row in boundary.batches
+        )
+        if build_boundary_registry(registrations).registry_content_hash != (
+            boundary.boundary_registry_content_hash
+        ):
+            raise ValueError("L5 boundary source registrations differ from the frozen registry")
+        native_query = SemanticEpochService._owner_query_from_evidence(
+            artifact_store=store, kind="l5_schema_regime", query=boundary.query
+        )
+        if not isinstance(native_query, epoch_contract.L5SchemaRegimeResolutionQuery):
+            raise TypeError("L5 owner query has a different native type")
+        receipt = epoch_contract.L5SchemaRegimeDenominatorReceipt.model_validate(
+            _load_selected_acquisition_mapping(
+                store,
+                batch.denominator_receipt_ref,
+                expected_kind="l5.schema_regime_denominator_receipt",
+            )
+        )
+        snapshot_payload = store.get_bytes(batch.owner_source_snapshot_ref)
+        _verify_l5_snapshot(payload=snapshot_payload, receipt=receipt, expected_query=native_query)
+        if (
+            not _selected_cas_ref_matches_owner_projection(
+                batch.owner_source_snapshot_ref, receipt.owner_source_snapshot_ref
+            )
+            or batch.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot_payload)
+            or batch.denominator_receipt_content_hash
+            != _model_hash(b"l5.schema_regime_denominator_receipt\0", receipt)
+        ):
+            raise ValueError("L5 boundary source or denominator binding differs")
+        expected_projection = _replay_l5_candidate_receipt(
+            store=store, snapshot=snapshot, receipt=receipt
+        )
+        projection_binding = batch.supporting_evidence[0]
+        projection = epoch_contract.ScopedSchemaRegimeProjection.model_validate(
+            _load_selected_acquisition_mapping(
+                store,
+                projection_binding.artifact_ref,
+                expected_kind="epoch.l5_scoped_schema_regime_projection",
+            )
+        )
+        if (
+            projection != expected_projection
+            or not _selected_cas_ref_matches_owner_projection(
+                batch.denominator_receipt_ref, projection.denominator_receipt_ref
+            )
+            or projection_binding.content_hash
+            != _model_hash(b"epoch.l5_scoped_schema_regime_projection\0", projection)
+            or batch.assessments != _l5_boundary_assessments(receipt, projection)
+        ):
+            raise ValueError("L5 boundary projection differs from its recomputed native owner")
+
+
+def _l5_boundary_assessments(
+    receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt,
+    projection: epoch_contract.ScopedSchemaRegimeProjection,
+) -> tuple[EpochBoundaryAssessment, ...]:
+    """Project the real L5 denominator using the owner's selected projection."""
+    return tuple(
+        EpochBoundaryAssessment(
+            native_member_ref=row.regime_source_ref,
+            native_member_content_hash=row.regime_content_hash,
+            semantic_value_hash=(
+                _sha256(
+                    b"polisyos.epoch.l5-scoped-regime.v1\0",
+                    row.regime_content_hash.encode(),
+                    projection.projection_content_hash.encode(),
+                )
+                if row.disposition == "applicable"
+                else None
+            ),
+            disposition=row.disposition,
+            failure_code=row.failure_code,
+        )
+        for row in receipt.assessments
+    )
+
+
 def _verify_l5_snapshot(
     *,
     payload: bytes,
@@ -3695,6 +3893,11 @@ class L5EpochBoundaryOwnerAdapter:
             raise ValueError("L5 owner snapshot semantic hash differs from its bytes")
         _verify_l5_snapshot(payload=snapshot, receipt=receipt, expected_query=owner_query)
         snapshot_mapping = json.loads(snapshot)
+        scope_assumption_refs = _verify_l5_candidate_scope_snapshot(
+            store=self._artifacts,
+            snapshot=snapshot_mapping,
+            authority_purpose=owner_query.authority_purpose,
+        )
         source_loader = self._owner.load_schema_regime_source_artifact_bytes
         registry_inputs = []
         for source_ref, source_hash, expected_kind in (
@@ -3781,24 +3984,7 @@ class L5EpochBoundaryOwnerAdapter:
         projection_failures = set(receipt.failure_codes)
         if projection.status != "resolved":
             projection_failures.add(f"{self.owner_kind}_projection_{projection.status}")
-        assessments = tuple(
-            EpochBoundaryAssessment(
-                native_member_ref=row.regime_source_ref,
-                native_member_content_hash=row.regime_content_hash,
-                semantic_value_hash=(
-                    _sha256(
-                        b"polisyos.epoch.l5-scoped-regime.v1\0",
-                        row.regime_content_hash.encode(),
-                        projection.projection_content_hash.encode(),
-                    )
-                    if row.disposition == "applicable"
-                    else None
-                ),
-                disposition=row.disposition,
-                failure_code=row.failure_code,
-            )
-            for row in receipt.assessments
-        )
+        assessments = _l5_boundary_assessments(receipt, projection)
         return EpochBoundaryOwnerBatch(
             registration_id=registration.registration_id,
             owner_kind=self.owner_kind,
@@ -3814,6 +4000,14 @@ class L5EpochBoundaryOwnerAdapter:
                     role="scoped_projection",
                     artifact_ref=projection_ref,
                     content_hash=projection_hash,
+                ),
+                *(
+                    EpochOwnerEvidenceBinding(
+                        role="candidate_scope_assumption",
+                        artifact_ref=ref,
+                        content_hash=str(ref.artifact_id),
+                    )
+                    for ref in scope_assumption_refs
                 ),
             ),
             projection_status=projection.status,
@@ -4382,17 +4576,18 @@ class SemanticEpochService:
         if not self._resolution_components_established:
             raise RuntimeError("epoch_resolution_owner_components_not_established")
 
-    def _owner_query(
-        self, *, kind: BoundaryOwnerKind, query: EpochResolutionQuery
+    @staticmethod
+    def _owner_query_from_evidence(
+        *, artifact_store: ArtifactStore, kind: BoundaryOwnerKind, query: EpochResolutionQuery
     ) -> (
         epoch_contract.L5SchemaRegimeResolutionQuery
         | epoch_contract.LegalAmendmentWindowResolutionQuery
         | epoch_contract.AcquisitionBoundaryResolutionQuery
     ):
         def raw(ref: ArtifactRef) -> bytes:
-            report = self._artifact_store.verify(ref)
-            payload = self._artifact_store.get_bytes(ref)
-            manifest = self._artifact_store.get_manifest(ref)
+            report = artifact_store.verify(ref)
+            payload = artifact_store.get_bytes(ref)
+            manifest = artifact_store.get_manifest(ref)
             if (
                 not report.ok
                 or _raw_cas_hash(payload) != str(ref.artifact_id)
@@ -4518,6 +4713,17 @@ class SemanticEpochService:
                 coordinate_bytes=valid,
             ),
             **common,
+        )
+
+    def _owner_query(
+        self, *, kind: BoundaryOwnerKind, query: EpochResolutionQuery
+    ) -> (
+        epoch_contract.L5SchemaRegimeResolutionQuery
+        | epoch_contract.LegalAmendmentWindowResolutionQuery
+        | epoch_contract.AcquisitionBoundaryResolutionQuery
+    ):
+        return SemanticEpochService._owner_query_from_evidence(
+            artifact_store=self._artifact_store, kind=kind, query=query
         )
 
     def _collect(

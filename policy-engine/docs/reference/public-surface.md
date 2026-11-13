@@ -378,7 +378,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 855 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 861 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
@@ -813,7 +813,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (855)</summary>
+<details><summary>Entrypoint exports (861)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -1007,6 +1007,10 @@ VerifiedPredicatePolicyOwnerRelation
 VerifiedRetentionOutcome
 chronology_bundle_content_hash
 AcquisitionArtifactCodec
+L5CandidateScopeAssumption
+L5_CANDIDATE_SCOPE_ASSUMPTION_KIND
+L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA
+L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA
 BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
 C4_PERSISTED_PROFILE_SPECS
 CAPABILITY_DISCOVERY_SCHEMA_VERSION
@@ -1650,6 +1654,7 @@ epoch
 epoch_staleness_semantic_hash
 evaluate_skip_blocker_policy
 external_epoch_statement_canon_info
+load_l5_candidate_scope_assumption
 forecast_profile_observed_series_sha256
 legacy_family_for_construct
 require_production_approval_currentness_receipt
@@ -1657,6 +1662,7 @@ scope_adjudication_candidate_digest
 scoped_schema_regime_projection_content_hash
 serialize_skip_blocker_record
 verify_scope_adjudication_candidate
+verify_l5_candidate_scope_assumption
 CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
 NO_CALL_REASON_VALUES
 PRODUCER_CALL_STATE_VALUES

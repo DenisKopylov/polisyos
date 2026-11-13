@@ -14,7 +14,7 @@ import json
 from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -606,6 +606,67 @@ def resolve_catalog_serving_source(
     return replace(source, read_source_identity=_catalog_read_source_identity(source))
 
 
+def _schema_regimes_from_rows(
+    rows: Mapping[str, Mapping[str, Any]], *, schema_ref: str
+) -> dict[str, SubstrateSchemaRegime]:
+    """Interpret L5 schema rows identically for live loading and snapshot replay."""
+    return {
+        str(regime_id): SubstrateSchemaRegime(
+            schema_regime_id=str(row.get("schema_regime_id") or regime_id),
+            authority_ref=f"{schema_ref}#/regimes/{regime_id}",
+            effective_start=_optional_str(row.get("effective_start")),
+            effective_end=_optional_str(row.get("effective_end")),
+            boundary_buffer_periods=_optional_int(row.get("boundary_buffer_periods")),
+            source_version=_optional_str(row.get("source_version")),
+        )
+        for regime_id, row in rows.items()
+    }
+
+
+def persist_l5_candidate_scope_assumption(
+    store: ArtifactStore,
+    *,
+    schema_regime_id: str,
+    regime_row: Mapping[str, object],
+    scope_identity_refs: tuple[epoch_contract.Digest, ...],
+    visibility_knowledge_from: datetime,
+    purpose_admission_from: datetime,
+) -> ArtifactRef:
+    """Persist one explicitly synthetic candidate premise, without scope authority."""
+    if regime_row.get("schema_regime_id") != schema_regime_id:
+        raise ValueError("candidate L5 regime row identity differs")
+    row_bytes = epoch_contract.canonical_epoch_bytes(dict(regime_row))
+    statement = epoch_contract.L5CandidateScopeAssumption(
+        schema_version="polisyos.l5.schema-regime-scope-assumption.v1",
+        schema_regime_id=schema_regime_id,
+        regime_content_hash=f"sha256:{hashlib.sha256(row_bytes).hexdigest()}",
+        scope_identity_refs=scope_identity_refs,
+        visibility_knowledge_from=visibility_knowledge_from,
+        purpose_admission_from=purpose_admission_from,
+        synthetic=True,
+        predicate_class="consumer_asserted",
+        institutional_authority="not_established",
+        authority_purpose="candidate_simulation",
+        limitations=("institutional_scope_authority_not_established",),
+    )
+    raw = epoch_contract.canonical_epoch_bytes(statement)
+    ref = store.put_bytes(
+        len(raw).to_bytes(8, "big") + raw,
+        core.artifacts.ArtifactWriteOptions(
+            kind=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND,
+            media_type=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA,
+            schema=core.artifacts.SchemaInfo(
+                name=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA, version="1"
+            ),
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    if epoch_contract.load_l5_candidate_scope_assumption(store=store, ref=ref) != statement:
+        raise ValueError("candidate L5 scope assumption readback differs")
+    return ref
+
+
 @dataclass(frozen=True)
 class L5CatalogAuthority:
     """L5 authority rows used to cap coverage, trust, and identification."""
@@ -627,6 +688,7 @@ class L5CatalogAuthority:
     epoch_schema_regime_scope_registry_content_hash: epoch_contract.Digest
     epoch_schema_regime_registry_source_bytes: bytes = b""
     epoch_schema_regime_scope_registry_source_bytes: bytes = b""
+    scope_relation_artifacts: ArtifactStore | None = field(default=None, compare=False, repr=False)
 
     def load_schema_regime_source_artifact_bytes(self, *, ref: ArtifactRef) -> bytes:
         """Return exact registry bytes only for the matching owner-issued file ref."""
@@ -694,7 +756,47 @@ class L5CatalogAuthority:
             role="purpose_admission_cutoff",
         )
         relations_by_regime: dict[str, list[epoch_contract.L5SchemaRegimeScopeRelation]] = {}
+        unresolved_regimes: set[str] = set()
         for relation in self.schema_regime_scope_relations:
+            ref = relation.relation_provenance_ref
+            if ref.kind == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND:
+                try:
+                    row = self.schema_regime_rows[relation.schema_regime_id]
+                    if self.scope_relation_artifacts is None:
+                        raise ValueError("candidate L5 scope artifact store is not established")
+                    epoch_contract.verify_l5_candidate_scope_assumption(
+                        store=self.scope_relation_artifacts,
+                        relation=relation,
+                        regime_row=dict(row),
+                        authority_purpose=query.authority_purpose,
+                    )
+                except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+                    unresolved_regimes.add(relation.schema_regime_id)
+                    continue
+            elif ref.kind == "l5.schema_regime_scope_relation":
+                if ref.media_type != "application/json" or ref.manifest_profile_sha256 is not None:
+                    unresolved_regimes.add(relation.schema_regime_id)
+                    continue
+                # A content-bearing candidate cannot become a legacy row by
+                # erasing or changing its manifest selector. Missing legacy
+                # bytes retain their historical row-reconciliation behavior.
+                if self.scope_relation_artifacts is not None:
+                    try:
+                        payload = self.scope_relation_artifacts.get_bytes(ref.artifact_id)
+                        if (
+                            len(payload) >= 8
+                            and int.from_bytes(payload[:8], "big") == len(payload) - 8
+                        ):
+                            epoch_contract.L5CandidateScopeAssumption.model_validate_json(
+                                payload[8:]
+                            )
+                            unresolved_regimes.add(relation.schema_regime_id)
+                            continue
+                    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+                        pass
+            else:
+                unresolved_regimes.add(relation.schema_regime_id)
+                continue
             if (
                 relation.visibility_knowledge_from <= visibility_cutoff
                 and relation.purpose_admission_from <= admission_cutoff
@@ -732,7 +834,9 @@ class L5CatalogAuthority:
             }
             relation: epoch_contract.L5SchemaRegimeScopeRelation | None = None
             failure_code: str | None = None
-            if not relations:
+            if regime_id in unresolved_regimes:
+                failure_code = "schema_regime_scope_provenance_unresolved"
+            elif not relations:
                 failure_code = "schema_regime_scope_missing"
             elif len(distinct_relations) != 1:
                 failure_code = "schema_regime_scope_ambiguous"
@@ -858,6 +962,20 @@ class L5CatalogAuthority:
             **mapping,
             projection_content_hash=projection_content_hash,
         )
+
+    def require_schema_regime_authority(
+        self, *, receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt
+    ) -> None:
+        """Refuse candidate assumptions at consumers requiring L5 authority."""
+        if self.resolve_schema_regime_denominator(query=receipt.query) != receipt:
+            raise SubstrateRegistryError("l5_schema_regime_receipt_stale")
+        if any(
+            row.scope_relation is not None
+            and row.scope_relation.relation_provenance_ref.kind
+            == epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND
+            for row in receipt.assessments
+        ):
+            raise SubstrateRegistryError("l5_candidate_scope_cannot_grant_authority")
 
     def latest_schema_regime(self) -> SubstrateSchemaRegime:
         """Return the latest effective L5 schema regime."""
@@ -989,6 +1107,38 @@ def _trust_tier_strength_key(
         float(tier.trust_multiplier),
         tier.tier,
     )
+
+
+def replay_l5_candidate_scope_projection(
+    *,
+    regimes: Mapping[str, Mapping[str, Any]],
+    relations: tuple[epoch_contract.L5SchemaRegimeScopeRelation, ...],
+    changepoints: tuple[Mapping[str, Any], ...],
+    receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt,
+    artifacts: ArtifactStore,
+) -> epoch_contract.ScopedSchemaRegimeProjection:
+    """Recompute a candidate receipt and projection from the frozen L5 snapshot."""
+    owner = L5CatalogAuthority(
+        measurement_registry_ref="snapshot-only",
+        identification_mode_registry_ref="snapshot-only",
+        schema_regime_registry_ref="snapshot-only",
+        coverage_rules={},
+        trust_tiers={},
+        proxy_mappings={},
+        identification_modes={},
+        schema_regimes=_schema_regimes_from_rows(regimes, schema_ref="snapshot-only"),
+        schema_regime_rows=regimes,
+        schema_regime_scope_relations=relations,
+        schema_regime_changepoints=changepoints,
+        epoch_schema_regime_registry_ref=receipt.regime_registry_ref,
+        epoch_schema_regime_registry_content_hash=receipt.regime_registry_content_hash,
+        epoch_schema_regime_scope_registry_ref=receipt.scope_registry_ref,
+        epoch_schema_regime_scope_registry_content_hash=receipt.scope_registry_content_hash,
+        scope_relation_artifacts=artifacts,
+    )
+    if owner.resolve_schema_regime_denominator(query=receipt.query) != receipt:
+        raise SubstrateRegistryError("l5_candidate_snapshot_receipt_mismatch")
+    return owner.project_scoped_schema_regimes(receipt=receipt)
 
 
 def _l5_cutoff_datetime(raw: bytes, *, role: str) -> datetime:
@@ -1210,6 +1360,7 @@ def load_l5_catalog_authority(
     *,
     repo_root: Path,
     source_owner_root: Path | None = None,
+    scope_relation_artifacts: ArtifactStore | None = None,
 ) -> L5CatalogAuthority:
     """Load L5 data metadata and code-owned epoch registries from their roots."""
 
@@ -1282,17 +1433,7 @@ def load_l5_catalog_authority(
                 str(regime_id),
             )
     complete_regime_rows = {**dynamic_regime_rows, **static_regime_rows}
-    regimes = {
-        str(regime_id): SubstrateSchemaRegime(
-            schema_regime_id=str(row.get("schema_regime_id") or regime_id),
-            authority_ref=f"{schema_ref}#/regimes/{regime_id}",
-            effective_start=_optional_str(row.get("effective_start")),
-            effective_end=_optional_str(row.get("effective_end")),
-            boundary_buffer_periods=_optional_int(row.get("boundary_buffer_periods")),
-            source_version=_optional_str(row.get("source_version")),
-        )
-        for regime_id, row in complete_regime_rows.items()
-    }
+    regimes = _schema_regimes_from_rows(complete_regime_rows, schema_ref=schema_ref)
     relations = tuple(
         epoch_contract.L5SchemaRegimeScopeRelation.model_validate(row)
         for row in epoch_scope.get("relations", ())
@@ -1339,6 +1480,7 @@ def load_l5_catalog_authority(
         epoch_schema_regime_scope_registry_content_hash=epoch_scope_hash,
         epoch_schema_regime_registry_source_bytes=epoch_regime_source_bytes,
         epoch_schema_regime_scope_registry_source_bytes=epoch_scope_source_bytes,
+        scope_relation_artifacts=scope_relation_artifacts,
     )
 
 
@@ -1827,6 +1969,7 @@ def _entries_from_l5(
         or l5.project_scoped_schema_regimes(receipt=receipt) != projection
     ):
         raise SubstrateRegistryError("l5_scoped_schema_regime_evidence_mismatch")
+    l5.require_schema_regime_authority(receipt=receipt)
     if projection.status != "resolved" or not projection.applicable_regime_ids:
         raise SubstrateRegistryError("l5_scoped_schema_regime_projection_unresolved")
     for regime_id, observed_hash in zip(

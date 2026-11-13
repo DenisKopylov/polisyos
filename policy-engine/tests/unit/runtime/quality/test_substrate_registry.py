@@ -4,16 +4,16 @@ import ast
 import hashlib
 import json
 from dataclasses import replace
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import duckdb
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef, WarningRecord
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef, SchemaInfo, WarningRecord
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts import epoch as epoch_contract
-from polisyos.runtime.quality import data_state_substrate
+from polisyos.runtime.quality import data_state_substrate, semantic_epoch
 from polisyos.runtime.quality import substrate_registry as substrate_module
 from polisyos.runtime.quality.substrate_registry import (
     L5CatalogAuthority,
@@ -655,6 +655,27 @@ def test_split_catalog_roots_keep_code_epoch_and_selected_data_inputs_separate(
         "boundary_buffer_periods": 0,
     }
     _write_catalog_fixture_json(code_paths.epoch_schema_regime_registry_path, code_epoch)
+    code_scope = json.loads(
+        code_paths.epoch_schema_regime_scope_registry_path.read_text(encoding="utf-8")
+    )
+    # This test-owned row exercises the existing legacy inventory
+    # reconciliation; it is not institutional provenance or publication authority.
+    scope_ref = code_scope["relations"][0]["scope_identity_refs"][0]
+    scope_note = "sha256:" + hashlib.sha256(b"split-catalog-test-owned-scope").hexdigest()
+    code_scope["relations"].append(
+        {
+            "schema_regime_id": "code_root_only",
+            "scope_identity_refs": [scope_ref],
+            "relation_provenance_ref": {
+                "artifact_id": scope_note,
+                "kind": "l5.schema_regime_scope_relation",
+                "media_type": "application/json",
+            },
+            "visibility_knowledge_from": "2025-01-01T00:00:00Z",
+            "purpose_admission_from": "2025-01-01T00:00:00Z",
+        }
+    )
+    _write_catalog_fixture_json(code_paths.epoch_schema_regime_scope_registry_path, code_scope)
     data_epoch = json.loads(
         data_paths.epoch_schema_regime_registry_path.read_text(encoding="utf-8")
     )
@@ -708,6 +729,11 @@ def test_split_catalog_roots_keep_code_epoch_and_selected_data_inputs_separate(
     assert authority.trust_tiers["weak_anchor"].trust_multiplier == 0.61
     assert "code_root_only" in authority.schema_regimes
     assert "data_root_decoy" not in authority.schema_regimes
+    assert any(
+        row.schema_regime_id == "code_root_only"
+        and str(row.relation_provenance_ref.artifact_id) == scope_note
+        for row in authority.schema_regime_scope_relations
+    )
     expected_epoch_digest = (
         "sha256:"
         + hashlib.sha256(code_paths.epoch_schema_regime_registry_path.read_bytes()).hexdigest()
@@ -1264,6 +1290,229 @@ def test_l5_scope_relation_not_projection_mapping_decides_applicability(
         )
 
 
+def test_candidate_l5_scope_assumption_is_bound_and_cannot_authorize_siblings(
+    catalog_root: Path, tmp_path: Path
+) -> None:
+    """A synthetic health-scope premise can drive only its selected candidate query."""
+    store = FileSystemCAS(tmp_path / "l5-candidate-cas")
+    loaded = load_l5_catalog_authority(
+        default_substrate_catalog_paths(catalog_root), repo_root=catalog_root
+    )
+    regime_id = "synthetic_health_schema_v1"
+    regime_row = {
+        "schema_regime_id": regime_id,
+        "source_version": "synthetic-v1",
+        "effective_start": "2020-01-01",
+        "effective_end": None,
+        "boundary_buffer_periods": 0,
+    }
+    scope_ref = "sha256:" + hashlib.sha256(b"synthetic-health-scope").hexdigest()
+    known_from = datetime(2020, 1, 1, tzinfo=UTC)
+    admitted_from = datetime(2020, 1, 2, tzinfo=UTC)
+
+    def make_ref() -> ArtifactRef:
+        return substrate_module.persist_l5_candidate_scope_assumption(
+            store,
+            schema_regime_id=regime_id,
+            regime_row=regime_row,
+            scope_identity_refs=(scope_ref,),
+            visibility_knowledge_from=known_from,
+            purpose_admission_from=admitted_from,
+        )
+
+    selected_ref = make_ref()
+    statement = epoch_contract.load_l5_candidate_scope_assumption(store=store, ref=selected_ref)
+    assert statement.predicate_class == "consumer_asserted"
+    assert statement.institutional_authority == "not_established"
+    assert statement.limitations
+    assert selected_ref.manifest_profile_sha256 is not None
+    relation = epoch_contract.L5SchemaRegimeScopeRelation(
+        schema_regime_id=regime_id,
+        scope_identity_refs=(scope_ref,),
+        relation_provenance_ref=selected_ref,
+        visibility_knowledge_from=known_from,
+        purpose_admission_from=admitted_from,
+    )
+    regime = SubstrateSchemaRegime(
+        schema_regime_id=regime_id,
+        authority_ref="fixture://health/schema",
+        effective_start="2020-01-01",
+        effective_end=None,
+        boundary_buffer_periods=0,
+        source_version="synthetic-v1",
+    )
+    owner = replace(
+        loaded,
+        schema_regimes={regime_id: regime},
+        schema_regime_rows={regime_id: regime_row},
+        schema_regime_scope_relations=(relation,),
+        schema_regime_changepoints=(),
+        scope_relation_artifacts=store,
+    )
+
+    def resolve(candidate: L5CatalogAuthority, purpose: str):
+        return resolve_l5_schema_regime_projection(
+            candidate,
+            scope_identity_ref=scope_ref,
+            valid_effect_value=date(2025, 1, 1),
+            authority_purpose=purpose,
+        )
+
+    receipt, projection = resolve(owner, "candidate_simulation")
+    assert receipt.status == projection.status == "resolved"
+    assert projection.applicable_regime_ids == (regime_id,)
+    with pytest.raises(SubstrateRegistryError, match="candidate_scope"):
+        substrate_module._entries_from_l5(owner, receipt=receipt, projection=projection)
+    with pytest.raises(data_state_substrate.DataStateSubstrateError, match="authority_unavailable"):
+        data_state_substrate._schema_regime_decision(
+            owner,
+            receipt=receipt,
+            projection=projection,
+            period_start="2025-01",
+            period_end="2025-01",
+        )
+    for purpose in ("publication", "data_state_binding", "substrate_inventory"):
+        blocked_receipt, blocked_projection = resolve(owner, purpose)
+        assert blocked_receipt.status == blocked_projection.status == "unresolved"
+        with pytest.raises(SubstrateRegistryError):
+            substrate_module._entries_from_l5(
+                owner, receipt=blocked_receipt, projection=blocked_projection
+            )
+        with pytest.raises(data_state_substrate.DataStateSubstrateError):
+            data_state_substrate._schema_regime_decision(
+                owner,
+                receipt=blocked_receipt,
+                projection=blocked_projection,
+                period_start="2025-01",
+                period_end="2025-01",
+            )
+
+    # A freshly hashed statement is still wrong if any outer relation field,
+    # including the distinct temporal roles, differs from its own bytes.
+    for changed_relation in (
+        relation.model_copy(update={"scope_identity_refs": ("sha256:" + "a" * 64,)}),
+        relation.model_copy(update={"schema_regime_id": "other-regime"}),
+        relation.model_copy(update={"visibility_knowledge_from": known_from + timedelta(days=1)}),
+        relation.model_copy(update={"purpose_admission_from": admitted_from + timedelta(days=1)}),
+    ):
+        altered = replace(owner, schema_regime_scope_relations=(changed_relation,))
+        assert resolve(altered, "candidate_simulation")[0].status == "unresolved"
+    altered_row = replace(
+        owner, schema_regime_rows={regime_id: regime_row | {"source_version": "v2"}}
+    )
+    assert resolve(altered_row, "candidate_simulation")[0].status == "unresolved"
+    missing_store = replace(owner, scope_relation_artifacts=None)
+    assert resolve(missing_store, "candidate_simulation")[0].status == "unresolved"
+
+    def snapshot_ref(candidate: L5CatalogAuthority) -> ArtifactRef:
+        return store.put_bytes(
+            candidate._schema_regime_owner_snapshot_bytes(),
+            PutOptions(
+                kind="l5.schema_regime_owner_snapshot",
+                media_type="application/json",
+                canon=epoch_contract.epoch_canon_info(),
+            ),
+            return_selected_profile=True,
+        )
+
+    snapshot = snapshot_ref(owner)
+    assert (
+        semantic_epoch._resolve_selected_reference_graph(store, {"snapshot": snapshot}) is not None
+    )
+    statement_options = PutOptions(
+        kind=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_KIND,
+        media_type=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA,
+        schema=SchemaInfo(name=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA, version="1"),
+        canon=epoch_contract.epoch_canon_info(),
+    )
+    for field, changed in (
+        ("schema_regime_id", "other-regime"),
+        ("regime_content_hash", "sha256:" + "c" * 64),
+        ("scope_identity_refs", ("sha256:" + "b" * 64,)),
+        ("visibility_knowledge_from", known_from + timedelta(days=1)),
+        ("purpose_admission_from", admitted_from + timedelta(days=1)),
+    ):
+        changed_statement = statement.model_copy(update={field: changed})
+        raw = epoch_contract.canonical_epoch_bytes(changed_statement)
+        changed_ref = store.put_bytes(
+            len(raw).to_bytes(8, "big") + raw, statement_options, return_selected_profile=True
+        )
+        changed_relation = relation.model_copy(update={"relation_provenance_ref": changed_ref})
+        changed_owner = replace(owner, schema_regime_scope_relations=(changed_relation,))
+        assert resolve(changed_owner, "candidate_simulation")[0].status == "unresolved"
+        assert (
+            semantic_epoch._resolve_selected_reference_graph(
+                store, {"snapshot": snapshot_ref(changed_owner)}
+            )
+            is None
+        )
+
+    legacy_retag = selected_ref.model_copy(
+        update={"kind": "l5.schema_regime_scope_relation", "media_type": "application/json"}
+    )
+    for retag in (legacy_retag, legacy_retag.model_copy(update={"manifest_profile_sha256": None})):
+        changed_relation = relation.model_copy(update={"relation_provenance_ref": retag})
+        changed_owner = replace(owner, schema_regime_scope_relations=(changed_relation,))
+        assert resolve(changed_owner, "publication")[0].status == "unresolved"
+
+    with pytest.raises(ValueError):
+        epoch_contract.load_l5_candidate_scope_assumption(
+            store=store, ref=selected_ref.model_copy(update={"manifest_profile_sha256": None})
+        )
+    raw = store.get_bytes(selected_ref)
+    for changed_options in (
+        replace(statement_options, canon=epoch_contract.external_epoch_statement_canon_info()),
+        replace(
+            statement_options,
+            schema=SchemaInfo(
+                name=epoch_contract.L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA, version="2"
+            ),
+        ),
+    ):
+        other_view = store.put_bytes(raw, changed_options, return_selected_profile=True)
+        with pytest.raises(ValueError):
+            epoch_contract.load_l5_candidate_scope_assumption(store=store, ref=other_view)
+
+    for changes in (
+        {"unexpected_field": True},
+        {"schema_version": "polisyos.l5.schema-regime-scope-assumption.v2"},
+    ):
+        body = epoch_contract.canonical_epoch_bytes(statement.model_dump(mode="json") | changes)
+        malformed = store.put_bytes(
+            len(body).to_bytes(8, "big") + body,
+            statement_options,
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError):
+            epoch_contract.load_l5_candidate_scope_assumption(store=store, ref=malformed)
+
+    note_ref = store.put_json(
+        {"fixture_only": True, "scope_identity_ref": scope_ref, "source": "synthetic note"},
+        PutOptions(kind="l5.schema_regime_scope_relation", media_type="application/json"),
+    )
+    note_relation = relation.model_copy(update={"relation_provenance_ref": note_ref})
+    note_owner = replace(owner, schema_regime_scope_relations=(note_relation,))
+    assert (
+        semantic_epoch._resolve_selected_reference_graph(
+            store, {"snapshot": snapshot_ref(note_owner)}
+        )
+        is None
+    )
+
+    blob, _ = store._paths(selected_ref.artifact_id)
+    held_blob = blob.with_suffix(".held-by-test")
+    blob.rename(held_blob)
+    try:
+        assert (
+            semantic_epoch._resolve_selected_reference_graph(store, {"snapshot": snapshot}) is None
+        )
+    finally:
+        held_blob.rename(blob)
+    assert (
+        semantic_epoch._resolve_selected_reference_graph(store, {"snapshot": snapshot}) is not None
+    )
+
+
 def test_l5_projection_recomputes_hash_from_typed_no_profile_refs(
     catalog_root: Path,
 ) -> None:
@@ -1459,7 +1708,7 @@ def test_complete_regime_producer_reader_census_rejects_sibling_declaration() ->
     expected = {
         (
             "src/polisyos/runtime/quality/substrate_registry.py",
-            "load_l5_catalog_authority",
+            "_schema_regimes_from_rows",
         ),
         ("src/polisyos/runtime/quality/substrate_registry.py", "_entries_from_l1_dcat"),
         (

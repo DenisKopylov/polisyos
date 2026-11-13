@@ -385,6 +385,151 @@ def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
     assert resolved.admitted_observation_count == 2
 
 
+def test_candidate_scope_assumption_reaches_policy_gate_and_exact_demo_appointment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real selected assumption reaches the existing policy gate without promotion."""
+    from datetime import date
+
+    from polisyos.core.contracts import epoch as epoch_contract
+    from polisyos.runtime.quality import acquisition_executor, semantic_epoch, substrate_registry
+    from tests._helpers.acquisition_epoch_production import build_production_admission_case
+
+    case = build_production_admission_case(
+        tmp_path,
+        monkeypatch,
+        scope_payload={"domain": "public-finance", "jurisdiction": "UA"},
+        authority_purpose="candidate_simulation",
+    )
+    assert case.negative.failure_codes == ("policy_admission_missing",)
+    admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=case.negative.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+    )
+    assert semantic_epoch._resolve_selected_reference_graph(case.store, admitted) is not None
+    boundary = semantic_epoch.EpochBoundaryDenominatorReceipt.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=case.prepared.stamp.boundary_denominator_receipt_ref,
+            expected_kind="epoch.boundary_denominator_receipt",
+        )
+    )
+    assumptions = [
+        item.artifact_ref
+        for batch in boundary.batches
+        if batch.owner_kind == "l5_schema_regime"
+        for item in batch.supporting_evidence
+        if item.role == "candidate_scope_assumption"
+    ]
+    assert len(assumptions) == 1
+    statement = epoch_contract.load_l5_candidate_scope_assumption(
+        store=case.store, ref=assumptions[0]
+    )
+    assert statement.synthetic is True
+    assert statement.predicate_class == "consumer_asserted"
+    assert statement.institutional_authority == "not_established"
+    assert statement.authority_purpose == "candidate_simulation"
+
+    # A valid independently regenerated native receipt for another query
+    # remains readable by itself, but cannot be grafted into this boundary.
+    l5_batch = next(batch for batch in boundary.batches if batch.owner_kind == "l5_schema_regime")
+    native_receipt = epoch_contract.L5SchemaRegimeDenominatorReceipt.model_validate(
+        semantic_epoch._load_selected_acquisition_mapping(
+            case.store,
+            l5_batch.denominator_receipt_ref,
+            expected_kind="l5.schema_regime_denominator_receipt",
+        )
+    )
+    native_query = native_receipt.query
+    owner_root = case.call_args["repo_root"]
+    l5_owner = substrate_registry.load_l5_catalog_authority(
+        substrate_registry.default_substrate_catalog_paths(owner_root),
+        repo_root=owner_root,
+        scope_relation_artifacts=case.store,
+    )
+    foreign_valid = date(2024, 12, 31)
+    foreign_visibility = b"2025-01-31T00:00:00Z"
+    foreign_admission = b"2025-02-01T00:00:00Z"
+    foreign_queries = (
+        {"scope_identity_ref": "sha256:" + "d" * 64},
+        {
+            "valid_effect_value": foreign_valid,
+            "valid_effect_coordinate_ref": epoch_contract.native_coordinate_ref(
+                family="l5_schema_regime",
+                role="valid_effect",
+                schema_profile=native_query.valid_effect_coordinate_schema_profile,
+                coordinate_bytes=foreign_valid.isoformat().encode(),
+            ),
+        },
+        {
+            "visibility_knowledge_cutoff_bytes": foreign_visibility,
+            "visibility_knowledge_cutoff_ref": epoch_contract.native_coordinate_ref(
+                family="l5_schema_regime",
+                role="visibility_knowledge_cutoff",
+                schema_profile=native_query.visibility_knowledge_cutoff_schema_profile,
+                coordinate_bytes=foreign_visibility,
+            ),
+        },
+        {
+            "purpose_admission_cutoff_bytes": foreign_admission,
+            "purpose_admission_cutoff_ref": epoch_contract.native_coordinate_ref(
+                family="l5_schema_regime",
+                role="purpose_admission_cutoff",
+                schema_profile=native_query.purpose_admission_cutoff_schema_profile,
+                coordinate_bytes=foreign_admission,
+            ),
+        },
+    )
+    for changes in foreign_queries:
+        foreign_query = epoch_contract.L5SchemaRegimeResolutionQuery.model_validate(
+            native_query.model_dump(mode="python") | changes
+        )
+        foreign_receipt = l5_owner.resolve_schema_regime_denominator(query=foreign_query)
+        foreign_ref, foreign_hash = semantic_epoch._persist_model(
+            store=case.store,
+            value=foreign_receipt,
+            kind="l5.schema_regime_denominator_receipt",
+            return_selected_profile=True,
+        )
+        assert (
+            semantic_epoch._resolve_selected_reference_graph(case.store, {"receipt": foreign_ref})
+            is not None
+        )
+        foreign_batch = l5_batch.model_copy(
+            update={
+                "denominator_receipt_ref": foreign_ref,
+                "denominator_receipt_content_hash": foreign_hash,
+            }
+        )
+        grafted_boundary = semantic_epoch.EpochBoundaryDenominatorReceipt.model_validate(
+            boundary.model_dump(mode="python")
+            | {
+                "batches": tuple(
+                    foreign_batch if batch is l5_batch else batch for batch in boundary.batches
+                )
+            }
+        )
+        grafted_ref, _ = semantic_epoch._persist_model(
+            store=case.store,
+            value=grafted_boundary,
+            kind="epoch.boundary_denominator_receipt",
+            return_selected_profile=True,
+        )
+        assert (
+            semantic_epoch._resolve_selected_reference_graph(case.store, {"boundary": grafted_ref})
+            is None
+        )
+
+    activation = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
+        **case.call_args, epoch_deployment=case.deployment
+    )
+    assert isinstance(activation, acquisition_executor.ActivatedSemanticEpochAdmissionReceipt)
+    assert activation.prepared_epoch_ref == case.negative.prepared_epoch_ref
+
+
 def test_runtime_store_scope_retains_native_writer_after_consumer_construction(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

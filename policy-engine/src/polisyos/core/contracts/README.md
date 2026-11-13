@@ -44,6 +44,10 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Chronology proof contracts** - `chronology.py` defines the policy-free full-prefix wire
   algebra, owner-qualified native reconciliation, and typed retained limitations. It deliberately
   does not own native denominator completeness, acceptance, authority heads, or custody.
+- **Candidate L5 scope assumptions** - `epoch.py` defines an exact selected-view synthetic
+  statement and a row/scope/knowledge/admission reconciliation. Its applicability premise is
+  consumer asserted, its institutional authority is not established, and its only permitted
+  purpose is candidate simulation. Reconciliation of bytes is not institutional evidence.
 - **Epoch-validity intake contracts** - `decision_validity.py` carries sealed pre-N9 subjects,
   persisted gate evidence, complete pending/completed batch receipts, and the exact persisted
   completion evidence used by downstream owners. Request DTOs never carry status, targets,

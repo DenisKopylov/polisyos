@@ -2144,6 +2144,7 @@ def admit_acquisition_with_production_semantic_epoch(
             l5_paths,
             repo_root=root,
             source_owner_root=effective_source_owner_root,
+            scope_relation_artifacts=artifact_store,
         )
         from polisyos.lex.knowledge import LegalKnowledgeStore
 

@@ -2206,8 +2206,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 855,
-          "known_export_count": 855,
+          "export_count": 861,
+          "known_export_count": 861,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2400,6 +2400,10 @@
             "VerifiedRetentionOutcome",
             "chronology_bundle_content_hash",
             "AcquisitionArtifactCodec",
+            "L5CandidateScopeAssumption",
+            "L5_CANDIDATE_SCOPE_ASSUMPTION_KIND",
+            "L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA",
+            "L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA",
             "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
             "C4_PERSISTED_PROFILE_SPECS",
             "CAPABILITY_DISCOVERY_SCHEMA_VERSION",
@@ -3043,6 +3047,7 @@
             "epoch_staleness_semantic_hash",
             "evaluate_skip_blocker_policy",
             "external_epoch_statement_canon_info",
+            "load_l5_candidate_scope_assumption",
             "forecast_profile_observed_series_sha256",
             "legacy_family_for_construct",
             "require_production_approval_currentness_receipt",
@@ -3050,6 +3055,7 @@
             "scoped_schema_regime_projection_content_hash",
             "serialize_skip_blocker_record",
             "verify_scope_adjudication_candidate",
+            "verify_l5_candidate_scope_assumption",
             "CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES",
             "NO_CALL_REASON_VALUES",
             "PRODUCER_CALL_STATE_VALUES",
@@ -3089,8 +3095,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 89366,
-                "sha256": "27bd4bec4f1f5d5a202a28275f8194e77bbeef023e10c693026c7a001162105c"
+                "bytes": 90125,
+                "sha256": "09736cf5c3eaa2bacd0ddabf8ba99b119743a4f7ed836869f14e598071ca9289"
               },
               {
                 "path": "src/polisyos/core/contracts",

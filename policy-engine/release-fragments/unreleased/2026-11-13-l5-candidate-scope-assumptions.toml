@@ -1,0 +1,52 @@
+id = "2026-11-13-l5-candidate-scope-assumptions"
+title = "Bind synthetic L5 scope assumptions to selected owner evidence"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "The L5 owner persists a strict selected synthetic scope assumption and replays its exact regime row, scope, knowledge time, admission time, native query, and projection through the semantic epoch boundary. The premise remains consumer asserted and usable only for candidate simulation."
+evidence = [
+  "src/polisyos/core/contracts/epoch.py",
+  "src/polisyos/core/contracts/__init__.py",
+  "src/polisyos/runtime/quality/substrate_registry.py",
+  "src/polisyos/runtime/quality/semantic_epoch.py",
+  "src/polisyos/runtime/quality/data_state_substrate.py",
+  "tests/unit/runtime/quality/test_substrate_registry.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+]
+compatibility = "The new l5.schema_regime_scope_relation.candidate.v1 kind uses a distinct schema, media type, canonical frame, and selected manifest profile. Historical L5 relation bytes and the legacy unresolved graph codec are unchanged; older consumers cannot read the new selected kind."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts candidate L5 scope statement and selected readers; internal: Runtime L5 owner and semantic epoch consumer"
+migration = "Deploy readers supporting the candidate-v1 kind before enabling its producer. Keep historical artifacts and refs unchanged; do not retag legacy notes or infer missing manifest selectors. A candidate statement cannot authorize publication, data-state binding, or substrate inventory."
+api = "Core adds L5CandidateScopeAssumption, the L5_CANDIDATE_SCOPE_ASSUMPTION_KIND, MEDIA and SCHEMA constants, and selected load/verify functions. AcquisitionArtifactCodec keeps its existing tuple shape and now recognizes the distinct candidate kind."
+limitations = "Byte and owner-row reconciliation do not establish institutional scope applicability. The synthetic premise retains consumer_asserted and institutional_authority=not_established limitations. Existing profileless legacy direct-row reconciliation remains outside this change; the semantic epoch selected graph continues to refuse unresolved legacy references. No HTTP schema or institutional issuer is added."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/contracts/README.md", "src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "l5-candidate-scope-core-public-api"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.core.contracts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add a candidate-only L5 scope statement and selected-view load and verification functions. They do not attest institutional scope authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/contracts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "l5-candidate-scope-selected-artifact-v1"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: selected L5 candidate scope assumption artifact"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Consumers must support the new selected candidate-v1 artifact before its producer is enabled. Historical relation bytes are not rewritten and legacy graph references remain unresolved."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

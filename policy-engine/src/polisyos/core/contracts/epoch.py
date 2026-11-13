@@ -31,6 +31,10 @@ from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)]
 
+L5_CANDIDATE_SCOPE_ASSUMPTION_KIND = "l5.schema_regime_scope_relation.candidate.v1"
+L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA = "application/vnd.polisyos.l5-scope-assumption+json"
+L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA = "polisyos.l5.SchemaRegimeScopeAssumption"
+
 _CANON = CanonSpec(
     name="polisyos.canon.json",
     version="0.2.0",
@@ -481,6 +485,16 @@ def acquisition_artifact_codec(
         return AcquisitionArtifactCodec("text/plain", "identity_token", None)
     if kind == "l5.schema_regime_scope_relation":
         return AcquisitionArtifactCodec("application/json", "unresolved_reference", None)
+    if kind == L5_CANDIDATE_SCOPE_ASSUMPTION_KIND:
+        if media_type not in (None, L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA):
+            return None
+        return AcquisitionArtifactCodec(
+            L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA,
+            "epoch_frame",
+            epoch_canon_info(),
+            L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA,
+            "1",
+        )
     return None
 
 
@@ -775,13 +789,98 @@ class L5SchemaRegimeScopeRelation(_EpochModel):
         return self
 
 
+class L5CandidateScopeAssumption(_EpochModel):
+    """Synthetic L5 scope premise for candidate simulation, without institutional authority.
+
+    The row digest permits a consumer to recompute the mechanical binding. The
+    assumption and its temporal applicability are supplied by its author; they
+    do not establish that an institution adopted the relation.
+    """
+
+    schema_version: Literal["polisyos.l5.schema-regime-scope-assumption.v1"]
+    schema_regime_id: str = Field(min_length=1)
+    regime_content_hash: Digest
+    scope_identity_refs: tuple[Digest, ...] = Field(min_length=1)
+    visibility_knowledge_from: datetime
+    purpose_admission_from: datetime
+    synthetic: Literal[True]
+    predicate_class: Literal["consumer_asserted"]
+    institutional_authority: Literal["not_established"]
+    authority_purpose: Literal["candidate_simulation"]
+    limitations: tuple[Literal["institutional_scope_authority_not_established"]]
+
+    @model_validator(mode="after")
+    def _validate_scope_and_history(self) -> Self:
+        if len(set(self.scope_identity_refs)) != len(self.scope_identity_refs):
+            raise ValueError("candidate L5 scope identities must be unique")
+        if (
+            self.visibility_knowledge_from.tzinfo is None
+            or self.purpose_admission_from.tzinfo is None
+        ):
+            raise ValueError("candidate L5 scope history must be timezone-aware")
+        return self
+
+
+def load_l5_candidate_scope_assumption(
+    *, store: _EpochArtifactStore, ref: ArtifactRef
+) -> L5CandidateScopeAssumption:
+    """Resolve the exact selected synthetic L5 scope statement and wire profile."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("candidate L5 scope assumption requires a selected manifest")
+    mapping = load_verified_epoch_statement(
+        store=store,
+        ref=ref,
+        expected_kind=L5_CANDIDATE_SCOPE_ASSUMPTION_KIND,
+        expected_media_type=L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA,
+    )
+    statement = L5CandidateScopeAssumption.model_validate(mapping)
+    if store.get_bytes(ref) != _frame(canonical_epoch_bytes(statement)):
+        raise ValueError("candidate L5 scope assumption differs from its typed wire bytes")
+    return statement
+
+
+def verify_l5_candidate_scope_assumption(
+    *,
+    store: _EpochArtifactStore,
+    relation: L5SchemaRegimeScopeRelation,
+    regime_row: dict[str, Any],
+    authority_purpose: str,
+) -> L5CandidateScopeAssumption:
+    """Reconcile a selected candidate premise with its complete L5 owner row.
+
+    This verifies only mechanical correspondence. It does not authorize any
+    institutional scope claim or a purpose other than candidate simulation.
+    """
+    statement = load_l5_candidate_scope_assumption(
+        store=store, ref=relation.relation_provenance_ref
+    )
+    if (
+        authority_purpose != statement.authority_purpose
+        or statement.schema_regime_id != relation.schema_regime_id
+        or regime_row.get("schema_regime_id") != relation.schema_regime_id
+        or statement.regime_content_hash != _sha256(canonical_epoch_bytes(regime_row))
+        or statement.scope_identity_refs != relation.scope_identity_refs
+        or statement.visibility_knowledge_from != relation.visibility_knowledge_from
+        or statement.purpose_admission_from != relation.purpose_admission_from
+    ):
+        raise ValueError("candidate L5 scope assumption does not match its owner relation")
+    return statement
+
+
 class L5SchemaRegimeAssessment(_EpochModel):
     schema_regime_id: str = Field(min_length=1)
     regime_source_ref: ArtifactRef
     regime_content_hash: Digest
     scope_relation: L5SchemaRegimeScopeRelation | None
     disposition: Literal["applicable", "not_applicable", "unresolved"]
-    failure_code: Literal["schema_regime_scope_missing", "schema_regime_scope_ambiguous"] | None
+    failure_code: (
+        Literal[
+            "schema_regime_scope_missing",
+            "schema_regime_scope_ambiguous",
+            "schema_regime_scope_provenance_unresolved",
+        ]
+        | None
+    )
 
     @model_validator(mode="after")
     def _failure_matches_disposition(self) -> Self:
@@ -793,6 +892,12 @@ class L5SchemaRegimeAssessment(_EpochModel):
 
 
 class L5SchemaRegimeDenominatorReceipt(_EpochModel):
+    """Complete owner-row denominator, not an institutional applicability attestation.
+
+    ``predicate_class`` describes reconciliation of the denominator. Any
+    separate scope premise and its limitations remain in its provenance ref.
+    """
+
     query: L5SchemaRegimeResolutionQuery
     owner_source_snapshot_ref: ArtifactRef
     owner_source_snapshot_content_hash: Digest
@@ -1523,7 +1628,11 @@ def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInput
         "fabric.retrieval_summary",
     }:
         return _ExactManifestInputClosure(())
-    if expected_kind in {"epoch.semantic_facet_source.v1", "epoch.chronology_query_context"}:
+    if expected_kind in {
+        "epoch.semantic_facet_source.v1",
+        "epoch.chronology_query_context",
+        L5_CANDIDATE_SCOPE_ASSUMPTION_KIND,
+    }:
         return _ExactManifestInputClosure(())
     if expected_kind == "core.chronology.full_prefix.verification_result":
         return _PayloadDerivedManifestInputClosure(expected_kind, "ordered")
@@ -1711,6 +1820,9 @@ class SemanticEpochHistoryAppendReceiptStatement(_EpochModel):
 
 
 __all__ = [
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_KIND",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA",
     "AcquisitionArtifactCodec",
     "AcquisitionBoundaryResolutionQuery",
     "AcquisitionNativeMemberAssessment",
@@ -1724,6 +1836,7 @@ __all__ = [
     "ActivatedOverlayAdmissionStatement",
     "AdmittedAcquisitionBoundaryEvidence",
     "Digest",
+    "L5CandidateScopeAssumption",
     "L5SchemaRegimeAssessment",
     "L5SchemaRegimeDenominatorReceipt",
     "L5SchemaRegimeResolutionQuery",
@@ -1748,7 +1861,9 @@ __all__ = [
     "epoch_query_context_ref",
     "epoch_semantic_content_hash",
     "external_epoch_statement_canon_info",
+    "load_l5_candidate_scope_assumption",
     "load_verified_epoch_statement",
     "native_coordinate_ref",
     "scoped_schema_regime_projection_content_hash",
+    "verify_l5_candidate_scope_assumption",
 ]

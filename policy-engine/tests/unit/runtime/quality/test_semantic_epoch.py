@@ -2094,9 +2094,14 @@ def test_controlled_l5_owner_rows_and_registry_files_round_trip_through_cas(
 
 def test_l5_owner_row_role_is_checked_before_cas_or_projection(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[4]
+    source_owner_root = tmp_path / "controlled-l5-source-owner"
+    _write_controlled_l5_data_owner(source_owner_root)
     owner = substrate_registry.load_l5_catalog_authority(
-        substrate_registry.default_substrate_catalog_paths(repo_root),
+        substrate_registry.default_substrate_catalog_paths(
+            repo_root, source_owner_root=source_owner_root
+        ),
         repo_root=repo_root,
+        source_owner_root=source_owner_root,
     )
     seed, _ = substrate_registry.resolve_l5_schema_regime_projection(
         owner,

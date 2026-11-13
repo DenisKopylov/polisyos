@@ -1021,6 +1021,10 @@ _MODULE_SYMBOLS[".epoch"] = (
     "ActivatedOverlayAdmissionStatement",
     "AdmittedAcquisitionBoundaryEvidence",
     "Digest",
+    "L5CandidateScopeAssumption",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_KIND",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA",
     "L5SchemaRegimeAssessment",
     "L5SchemaRegimeDenominatorReceipt",
     "L5SchemaRegimeResolutionQuery",
@@ -1045,8 +1049,10 @@ _MODULE_SYMBOLS[".epoch"] = (
     "epoch_semantic_content_hash",
     "external_epoch_statement_canon_info",
     "load_verified_epoch_statement",
+    "load_l5_candidate_scope_assumption",
     "native_coordinate_ref",
     "scoped_schema_regime_projection_content_hash",
+    "verify_l5_candidate_scope_assumption",
 )
 
 _SUBMODULES = frozenset({"chronology", "epoch"})
@@ -1220,13 +1226,19 @@ if TYPE_CHECKING:
         OrdinalPovertyReportRef,
     )
     from .epoch import (
+        L5_CANDIDATE_SCOPE_ASSUMPTION_KIND,
+        L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA,
+        L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA,
         AcquisitionArtifactCodec,
+        L5CandidateScopeAssumption,
         acquisition_artifact_canon_info,
         acquisition_artifact_codec,
         acquisition_native_coordinate_role,
         canonical_external_epoch_statement_bytes,
         external_epoch_statement_canon_info,
+        load_l5_candidate_scope_assumption,
         scoped_schema_regime_projection_content_hash,
+        verify_l5_candidate_scope_assumption,
     )
     from .execution_plan import (
         BudgetSpec,
@@ -1863,6 +1875,10 @@ __all__ = [
     "IngestionExecutionContext",
     *_CHRONOLOGY_EXPORTS,
     "AcquisitionArtifactCodec",
+    "L5CandidateScopeAssumption",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_KIND",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_MEDIA",
+    "L5_CANDIDATE_SCOPE_ASSUMPTION_SCHEMA",
     "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
     "C4_PERSISTED_PROFILE_SPECS",
     "CAPABILITY_DISCOVERY_SCHEMA_VERSION",
@@ -2506,6 +2522,7 @@ __all__ = [
     "epoch_staleness_semantic_hash",
     "evaluate_skip_blocker_policy",
     "external_epoch_statement_canon_info",
+    "load_l5_candidate_scope_assumption",
     "forecast_profile_observed_series_sha256",
     "legacy_family_for_construct",
     "require_production_approval_currentness_receipt",
@@ -2513,6 +2530,7 @@ __all__ = [
     "scoped_schema_regime_projection_content_hash",
     "serialize_skip_blocker_record",
     "verify_scope_adjudication_candidate",
+    "verify_l5_candidate_scope_assumption",
 ]
 
 __all__.extend(

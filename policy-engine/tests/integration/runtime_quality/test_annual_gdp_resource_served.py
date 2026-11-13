@@ -1082,12 +1082,10 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         canonical_variable_id="global.gdp",
         target_slot_id="global.gdp",
     )
-    gdp_epoch_scope = {
-        "domain": "fiscal",
-        "jurisdiction": source_profile.country_code,
-        "year": source_profile.year,
-        "population": source_profile.population,
-    }
+    epoch_inputs = acquisition_served_history._candidate_refresh_epoch_inputs(
+        source_profile, problem
+    )
+    gdp_epoch_scope = epoch_inputs["epoch_scope_payload"]
     case = under_catalog_source(
         acquisition_chain.make_wdi_port_case,
         tmp_path / "wdi",
@@ -1097,8 +1095,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         candidate_world_refreshes=(refresh,),
         candidate_scenario_generation=True,
         candidate_generation_recording=recording,
-        epoch_scope_payload=gdp_epoch_scope,
-        authority_purpose="candidate_simulation",
+        **epoch_inputs,
     )
     assert json.loads(case.selected.epoch_scope_identity.identity_bytes) == gdp_epoch_scope
     assert case.selected.authority_purpose == "candidate_simulation"

@@ -24,6 +24,12 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
 - `candidate_acquisition_action.py` and `candidate_acquisition_source.py` bind
   candidate-only fetch work to the selected compiler, scope and exact source
   bytes. They do not issue observed-data passports or source-currentness claims.
+- `substrate_registry.py` persists and checks selected synthetic L5 scope assumptions for
+  candidate simulation. The epoch boundary receipt carries those limitations as supporting
+  evidence and reopens them against the exact owner snapshot. Current publication, data-state,
+  and inventory consumers cannot use these assumptions as authority. Legacy profileless L5
+  relation rows retain their historical direct row-reconciliation behavior; an unresolved legacy
+  reference does not establish institutional provenance.
 - `candidate_source_basis.py` reopens selected inputs for the existing
   acquisition-basis comparator. Repeated owner-generated ancestry can be folded
   only after producer replay; scientific changes and source limitations remain

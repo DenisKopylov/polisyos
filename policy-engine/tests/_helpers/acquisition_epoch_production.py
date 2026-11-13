@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Mapping
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -59,16 +60,6 @@ def production_admission_inputs(
     if scope_payload is not None:
         # A test-owned scope needs its own schema regime and provenance. The
         # copied Ukraine-only relations must not be relabeled as another place.
-        relation_ref = store.put_json(
-            {
-                "fixture_only": True,
-                "scope_identity_ref": selected_scope.scope_identity_ref,
-                "source": "test-owned synthetic schema-regime relation",
-            },
-            artifacts.PutOptions(
-                kind="l5.schema_regime_scope_relation", media_type="application/json"
-            ),
-        )
         regime_id = "fixture_country_year_v1"
         regime_payload = {
             "schema_version": "1.0",
@@ -86,6 +77,14 @@ def production_admission_inputs(
             },
             "changepoints": [],
         }
+        relation_ref = substrate_registry.persist_l5_candidate_scope_assumption(
+            store,
+            schema_regime_id=regime_id,
+            regime_row=regime_payload["regimes"][regime_id],
+            scope_identity_refs=(selected_scope.scope_identity_ref,),
+            visibility_knowledge_from=datetime(2000, 1, 1, tzinfo=UTC),
+            purpose_admission_from=datetime(2000, 1, 1, tzinfo=UTC),
+        )
         relation_payload = {
             "schema_version": "polisyos.l5.schema-regime-scope-registry.v1",
             "relations": [

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from datetime import UTC, datetime
+from math import isfinite
 from typing import TYPE_CHECKING
 
 import pytest
@@ -44,7 +45,10 @@ from polisyos.runtime.quality.model_input_routing import plan_selected_model_inp
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
 )
-from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+from tests._helpers.semantic_epoch_native import (
+    NativeEpochFixtureCustodian,
+    make_native_multivariable_active_projections,
+)
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
     _put_semantic_definition,
 )
@@ -141,6 +145,11 @@ def _held_out_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
     return persist_model_input_port_declaration(store, ModelInputPortDeclaration(ports=(port,)))
 
 
+def _treasury_stock_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
+    port = _fund_port(store, _opening_stock_port(store), fund="treasury")
+    return persist_model_input_port_declaration(store, ModelInputPortDeclaration(ports=(port,)))
+
+
 @contextmanager
 def _activated_fund(
     tmp_path: Path,
@@ -148,15 +157,25 @@ def _activated_fund(
     store: FileSystemCAS,
     port: ModelInputPort,
     fund: str,
+    opening_cash_usd: int | float = 640,
+    fixture_custodian: NativeEpochFixtureCustodian | None = None,
     before_activation: Callable[[CanonicalAcquisitionAuthority], None],
 ) -> Iterator[SimpleNamespace]:
+    if isinstance(opening_cash_usd, bool) or not isinstance(opening_cash_usd, int | float):
+        raise ValueError("activated_fund_opening_cash_must_be_finite_numeric")
+    try:
+        opening_cash_is_finite = isfinite(float(opening_cash_usd))
+    except OverflowError:
+        opening_cash_is_finite = False
+    if not opening_cash_is_finite:
+        raise ValueError("activated_fund_opening_cash_must_be_finite_numeric")
     active = make_native_multivariable_active_projections(
         tmp_path,
         source_rows=[
             {
                 "country_code": "UA",
                 "year": 2022,
-                "opening_cash_usd": 640,
+                "opening_cash_usd": opening_cash_usd,
                 "condition_json": {
                     "population_ref": port.scope.population_ref,
                     "jurisdiction_ref": "UA",
@@ -182,6 +201,7 @@ def _activated_fund(
         ),
         artifact_store=store,
         return_selected_raw_profile=True,
+        fixture_custodian=fixture_custodian,
         before_activation=before_activation,
     )
     try:
@@ -198,6 +218,7 @@ def _bind_activated_fund(
     preflight: ProgramGraphInputPreflight,
     source_port: ModelInputPort,
     workspace: Path,
+    expected_opening_cash_usd: int | float = 640,
 ) -> AcquiredObservationDataSnapshotResult:
     (entry,) = active.entries
     projection = active.projections[entry.target_variable]
@@ -209,7 +230,7 @@ def _bind_activated_fund(
             expected_kind="epoch.acquisition_passport_snapshot",
         )
     )
-    assert row.observation.value == 640
+    assert row.observation.value == expected_opening_cash_usd
     assert passport.field_binding.canonical_unit == "usd"
     assert passport.source_authority_verified
     assert passport.source_lane == "local_lift"
@@ -370,5 +391,142 @@ def test_distinct_fund_opening_cash_reaches_foundry_through_the_existing_profile
             fresh, snapshot_ref=admitted.simulation_result.state_snapshot_ref
         )
         assert float(final.government_balance) == 640 - (100 + 200) / 8
+    finally:
+        case.close()
+
+
+@pytest.mark.integration
+def test_activated_fund_selects_repeatable_stock_rows_from_separate_owner_occurrences(
+    tmp_path: Path,
+) -> None:
+    """Same source row semantics retain the stock profile while changed cash is distinct."""
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        model_input_port_declaration_builder=_treasury_stock_declaration,
+        snapshot_id="held-out-fund-source-repeatability",
+    )
+    try:
+        interface_ref = _interface(case)
+        (port,) = load_program_graph_input_interface(case.store, interface_ref).ports
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0,))
+        invocation = preflight.invocation
+        selected = SelectedProgramGraphInputBasis(
+            context=invocation.context,
+            program_graph_ref=invocation.program_graph_ref,
+            exec_plan_ref=invocation.exec_plan_ref,
+            registry_bundle_ref=invocation.registry_bundle_ref,
+            input_bindings_ref=invocation.input_bindings_ref,
+            steps=(0,),
+        )
+        routes: list[ModelInputRoutingResult] = []
+        fixture_custodian = NativeEpochFixtureCustodian.create(
+            case.store,
+            tmp_path / "native-epoch-owner",
+        )
+
+        def route_source(authority: CanonicalAcquisitionAuthority) -> None:
+            routes.append(
+                plan_selected_model_input_routing(
+                    case.store,
+                    obligation_set_ref=preflight.obligation_set_ref,
+                    selected_basis=selected,
+                    catalog_authority=authority,
+                )
+            )
+
+        values = (640, 640, 602.5)
+        observations = []
+        projections = []
+        passports = []
+        snapshots = []
+        for occurrence, value in enumerate(values, start=1):
+            with _activated_fund(
+                tmp_path / f"fund-occurrence-{occurrence}",
+                store=case.store,
+                port=port,
+                fund="treasury",
+                opening_cash_usd=value,
+                fixture_custodian=fixture_custodian,
+                before_activation=route_source,
+            ) as active:
+                routing = routes.pop()
+                (route,) = routing.report.routes
+                assert route.disposition == "resolved"
+                assert route.source_descriptor is not None
+                assert route.source_descriptor.source_semantic_definition_ref == (
+                    port.semantic_definition_ref
+                )
+                assert route.source_descriptor.source_representation_ref == port.representation_ref
+                assert route.source_descriptor.binding_profile_ref == port.binding_profile_ref
+
+                (entry,) = active.entries
+                projection = active.projections[entry.target_variable]
+                (row,) = projection.observations
+                passport = AdmissionPassport.model_validate(
+                    load_verified_epoch_statement(
+                        store=case.store,
+                        ref=projection.passport_ref,
+                        expected_kind="epoch.acquisition_passport_snapshot",
+                    )
+                )
+                representation = validate_core_model_json_artifact(
+                    VariableRepresentation,
+                    case.store,
+                    port.representation_ref,
+                )
+                assert representation.quantity_kind == "stock"
+                assert representation.measure_form == "absolute"
+                assert representation.unit_id == "usd"
+                assert representation.scale_to_unit == 1
+                assert representation.time_support == "state_start"
+                assert representation.temporal_granularity == "annual"
+                assert representation.population_ref == port.scope.population_ref
+                assert row.observation.year == 2022
+                assert row.observation.value == value
+
+                snapshot = _bind_activated_fund(
+                    case,
+                    active=active,
+                    routing=routing,
+                    preflight=preflight,
+                    source_port=port,
+                    workspace=tmp_path / f"fund-occurrence-{occurrence}-snapshot",
+                    expected_opening_cash_usd=value,
+                )
+                assert snapshot.selected_observation_id == row.observation.observation_id
+                assert snapshot.semantic_foundry_input_bindings_ref is not None
+                observations.append(row)
+                projections.append(projection)
+                passports.append(passport)
+                snapshots.append(snapshot)
+        assert not routes
+
+        first, repeat, changed = observations
+        assert first.observation.model_dump(
+            mode="json",
+            exclude={"observation_id", "dataset_version"},
+        ) == (
+            repeat.observation.model_dump(
+                mode="json",
+                exclude={"observation_id", "dataset_version"},
+            )
+        )
+        assert changed.observation.value == 602.5
+        assert changed.observation.observation_id != first.observation.observation_id
+        assert changed.row_content_sha256 != first.row_content_sha256
+
+        first_passport, repeat_passport, changed_passport = passports
+        assert first_passport.source_watermark == repeat_passport.source_watermark
+        assert first_passport.dataset_version != repeat_passport.dataset_version
+        assert changed_passport.source_watermark != first_passport.source_watermark
+        assert first_passport.raw_artifact_id == repeat_passport.raw_artifact_id
+        assert changed_passport.raw_artifact_id != first_passport.raw_artifact_id
+        assert first_passport.raw_evidence_ref != repeat_passport.raw_evidence_ref
+        assert len({passport.passport_id for passport in passports}) == len(values)
+        assert len({str(projection.receipt_ref.artifact_id) for projection in projections}) == len(
+            values
+        )
+        assert snapshots[0].selected_observation_id != snapshots[2].selected_observation_id
     finally:
         case.close()

@@ -9,7 +9,7 @@ manifest reads and the record-scope/link predicates under test remain real.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from contextlib import contextmanager
+from dataclasses import dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -38,7 +38,50 @@ from tests.unit.runtime.quality.test_candidate_acquisition_world import (
     TRANSACTION_TIME,
     _candidate_world_case,
 )
+from tests.unit.runtime.quality.test_candidate_experiment_read_operation import (
+    _PhaseRecord,
+    _Row,
+)
 from tests.unit.runtime.quality.test_candidate_source_basis import _inputs
+
+
+@dataclass(frozen=True)
+class _RecordCycle:
+    selected_candidate_ref: str
+    selected_candidate_content_hash: str
+
+
+@dataclass(frozen=True)
+class _RecordPolicy:
+    compiled_ref: artifacts.ArtifactRef
+    design_problem_ref: str
+    design_problem_basis_ref: str
+
+
+@dataclass(frozen=True)
+class _RecordOrigin:
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    route_id: str
+    effective_source_cycle: _RecordCycle
+    policy_scope: _RecordPolicy
+    candidate_terminal_history_chain: tuple[object, ...] = ()
+
+
+@dataclass(frozen=True)
+class _RecordSelection:
+    profile_selection_ref: str
+
+
+@dataclass(frozen=True)
+class _RecordAction:
+    selection: _RecordSelection
+    action_job_id: str
+    action_generation: int
+    candidate_source_ref: artifacts.ArtifactRef
+    action_phase_ref: str = "sha256:" + "a" * 64
 
 
 @pytest.fixture
@@ -65,27 +108,27 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
         intent_ref = parent("runtime_quality.acquisition_candidate_world_intent", "intent")
         compiled_ref = parent("runtime.compiled_recursive_generation_cycle", "compiled")
         problem_ref = cycle_job_design_problem_ref(world.problem)
-        cycle = SimpleNamespace(
+        cycle = _RecordCycle(
             selected_candidate_ref="component-candidate",
             selected_candidate_content_hash="sha256:" + "4" * 64,
         )
-        origin = SimpleNamespace(
+        origin = _RecordOrigin(
             tenant_id=TENANT_ID,
             cell_id=CELL_ID,
             run_id="record-component-run",
             source_job_id="record-component-source",
             route_id="sha256:" + "5" * 64,
             effective_source_cycle=cycle,
-            policy_scope=SimpleNamespace(
+            policy_scope=_RecordPolicy(
                 compiled_ref=compiled_ref,
                 design_problem_ref=problem_ref,
                 design_problem_basis_ref=problem_ref,
             ),
         )
-        selection = SimpleNamespace(
+        selection = _RecordSelection(
             profile_selection_ref=inputs.configured_profile.profile_selection_ref
         )
-        action = SimpleNamespace(
+        action = _RecordAction(
             selection=selection,
             action_job_id="record-component-action",
             action_generation=1,
@@ -96,29 +139,50 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
         bridge.event_log = events
         action_replays = []
 
-        def replay_action(*args: object) -> tuple[object, ...]:
-            action_replays.append(args)
-            return selection, None, None, action
-
-        monkeypatch.setattr(
-            action_owner, "_current_candidate_experiment_reentry_action", replay_action
+        phase = _Row("phase")
+        chain = (_PhaseRecord(action.action_phase_ref, phase),)
+        context = action_owner._VerifiedCurrentCandidateExperimentReentryAction(
+            selection=selection,
+            action=action,
+            phase=phase,
+            admission=_Row("admission"),
+            head=_Row("head"),
+            outcome=_Row("outcome", phase_chain=chain),
+            budget_window=_Row("window"),
         )
+        state = {"heads": (context.head,), "window": context.budget_window, "chain": chain}
 
-        @contextmanager
-        def read_operation(*args: object):
-            # This component fixture replaces the upstream owner replay; the
-            # dedicated read-operation controls exercise that real boundary.
-            replay_action(*args)
-            yield SimpleNamespace(selection=selection, action=action)
+        def replay_action(*args: object) -> object:
+            action_replays.append(args)
+            return context
 
         monkeypatch.setattr(
-            action_owner, "_candidate_experiment_reentry_read_operation", read_operation
+            action_owner, "_current_candidate_experiment_reentry_action_context", replay_action
+        )
+        service = SimpleNamespace(
+            acquisition_route_sink=SimpleNamespace(
+                _verified_candidate_experiment_phase_chain=lambda *_args, **_kwargs: state["chain"]
+            )
+        )
+        monkeypatch.setattr(
+            action_owner, "_require_canonical_action_bridge", lambda _bridge: service
         )
         monkeypatch.setattr(
             action_owner,
-            "_read_candidate_experiment_action_in_operation",
-            lambda **_kwargs: action,
+            "read_candidate_experiment_acquisition_action_historical",
+            lambda **_kwargs: (action, None, state["window"]),
         )
+        bridge.control_store = control
+        monkeypatch.setattr(control, "get_job", lambda _job: None)
+        monkeypatch.setattr(control, "get_job_created_event_payload", lambda _job: None)
+        monkeypatch.setattr(control, "get_job_created_outbox_event", lambda _job: None)
+        monkeypatch.setattr(
+            control, "list_acquisition_action_heads_for_source", lambda **_kwargs: state["heads"]
+        )
+        monkeypatch.setattr(
+            control, "get_acquisition_action_head", lambda **_kwargs: state["heads"][0]
+        )
+        monkeypatch.setattr(control, "current_execution_job_admission", lambda: context.admission)
         monkeypatch.setattr(
             action_owner, "_candidate_experiment_source_selection", lambda *_args: selection
         )
@@ -182,17 +246,21 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
                 generated_at=TRANSACTION_TIME.isoformat(),
             )
 
-        def select(record: object) -> artifacts.ArtifactRef:
+        def select(record: object, *, read_context=None) -> artifacts.ArtifactRef:
             return dispatch._select_candidate_experiment_evaluation_artifact(
                 bridge=bridge,
                 origin=origin,
                 pending_phase_ref="sha256:" + "6" * 64,
                 candidate_action_ref=action_ref,
                 record=record,
+                _read_context=read_context,
             )
 
         def read_current(
-            basis_ref: artifacts.ArtifactRef, decision_ref: artifacts.ArtifactRef
+            basis_ref: artifacts.ArtifactRef,
+            decision_ref: artifacts.ArtifactRef,
+            *,
+            read_context=None,
         ) -> tuple[CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationDecision]:
             owner = SimpleNamespace(
                 bridge=bridge,
@@ -202,7 +270,9 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
                 current_basis_ref=basis_ref,
                 decision_ref=decision_ref,
             )
-            return dispatch._read_current_candidate_experiment_evaluation_records(owner)
+            return dispatch._read_current_candidate_experiment_evaluation_records(
+                owner, _read_context=read_context
+            )
 
         try:
             yield SimpleNamespace(
@@ -214,6 +284,11 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
                 parent=parent,
                 read_current=read_current,
                 action_replays=action_replays,
+                bridge=bridge,
+                origin=origin,
+                action_ref=action_ref,
+                context=context,
+                state=state,
             )
         finally:
             control.close()
@@ -241,7 +316,7 @@ def test_experiment_decision_reopens_its_real_selected_prospective_basis(
     case.action_replays.clear()
     assert case.read_current(basis_ref, decision_ref) == (basis, decision)
     # Decision and basis keep their own content checks but share the action prefix.
-    assert len(case.action_replays) == 1
+    assert len(case.action_replays) == 2
     assert (
         read_acquisition_evaluation_artifact(
             store=case.store,
@@ -251,6 +326,77 @@ def test_experiment_decision_reopens_its_real_selected_prospective_basis(
         )
         == basis
     )
+
+
+@pytest.mark.parametrize("saved", [False, True])
+def test_experiment_record_bundle_shares_one_complete_owner_operation(
+    record_case: SimpleNamespace, saved: bool
+) -> None:
+    """Real CAS/event/pointer work keeps one entry/exit fold, including recovery."""
+    case = record_case
+    basis = case.basis()
+    if saved:
+        basis_ref = case.select(basis)
+        case.select(case.decision(basis_ref))
+    case.action_replays.clear()
+    with action_owner._candidate_experiment_reentry_read_operation(
+        case.bridge, case.origin, "sha256:" + "6" * 64, case.action_ref
+    ) as context:
+        basis_ref = case.select(basis, read_context=context)
+        recovered = dispatch._candidate_experiment_decision_for_recovery(
+            bridge=case.bridge,
+            origin=case.origin,
+            pending_phase_ref="sha256:" + "6" * 64,
+            candidate_action_ref=case.action_ref,
+            _read_context=context,
+        )
+        decision = case.decision(basis_ref)
+        assert (recovered is not None) is saved
+        if recovered is not None:
+            assert recovered[1] == decision
+        decision_ref = case.select(decision, read_context=context)
+        assert case.read_current(basis_ref, decision_ref, read_context=context) == (
+            basis,
+            decision,
+        )
+        assert len(case.action_replays) == 1
+    assert len(case.action_replays) == 2
+    with pytest.raises(ValueError, match="read_operation_changed"):
+        case.select(basis, read_context=context)
+
+
+@pytest.mark.parametrize("change", ["head", "phase", "window"])
+def test_experiment_record_bundle_refuses_changes_between_real_records(
+    record_case: SimpleNamespace, change: str
+) -> None:
+    """A shared proof never makes a later decision valid after its live parents change."""
+    case = record_case
+    decision = None
+    with action_owner._candidate_experiment_reentry_read_operation(
+        case.bridge, case.origin, "sha256:" + "6" * 64, case.action_ref
+    ) as context:
+        basis_ref = case.select(case.basis(), read_context=context)
+        decision = case.decision(basis_ref)
+        if change == "head":
+            case.state["heads"] = (replace(case.context.head, values={"profile": "changed"}),)
+        elif change == "phase":
+            case.state["chain"] = (
+                _PhaseRecord(case.context.action.action_phase_ref, _Row("changed-phase")),
+            )
+        else:
+            case.state["window"] = _Row("changed-window")
+        with pytest.raises(
+            ValueError, match=r"read_operation_(changed|phase_changed|parents_changed)"
+        ):
+            case.select(decision, read_context=context)
+        # Restore the live dependency so the enclosing operation may close.
+        case.state.update(
+            heads=(case.context.head,),
+            chain=case.context.outcome.phase_chain,
+            window=case.context.budget_window,
+        )
+    assert decision is not None
+    assert not case.events.list_events(event_id=_candidate_evaluation_event_id(decision), limit=2)
 
 
 def test_current_experiment_evaluation_requires_the_decisions_exact_profile(

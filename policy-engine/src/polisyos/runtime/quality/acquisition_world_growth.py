@@ -2858,22 +2858,36 @@ class AcquisitionWorldGrowthBridge:
         configured_profile: CandidateSimulationScenarioProfile,
         original_model_declaration: CandidateSimulationSyntheticModelDeclarationV1,
         create: bool = True,
+        _read_context: _VerifiedCurrentCandidateExperimentReentryAction | None = None,
     ) -> tuple[artifacts.ArtifactRef, CandidateAcquisitionWorldIntent]:
         """Recover or issue one transaction time for this exact candidate action."""
+        if _read_context is not None and origin is None:
+            raise ValueError("candidate_world_intent_read_operation_source_mismatch")
         if (closure is None) == (origin is None):
             raise ValueError("candidate_world_intent_source_identity_ambiguous")
         if origin is not None:
             from polisyos.runtime.quality.candidate_acquisition_action import (
                 _candidate_experiment_source_selection,
+                _read_candidate_experiment_action_in_operation,
                 read_candidate_experiment_acquisition_action,
             )
 
-            receipt = read_candidate_experiment_acquisition_action(
-                bridge=self,
-                origin=origin,
-                receipt_ref=candidate_action_ref,
-                require_current_action=False,
-            )
+            def read_action() -> CandidateAcquisitionActionReceipt:
+                if _read_context is not None:
+                    return _read_candidate_experiment_action_in_operation(
+                        bridge=self,
+                        origin=origin,
+                        receipt_ref=candidate_action_ref,
+                        context=_read_context,
+                    )
+                return read_candidate_experiment_acquisition_action(
+                    bridge=self,
+                    origin=origin,
+                    receipt_ref=candidate_action_ref,
+                    require_current_action=False,
+                )
+
+            receipt = read_action()
             selected = _candidate_experiment_source_selection(self, origin)
             tenant_id, cell_id, run_id, source_job_id = (
                 origin.tenant_id,
@@ -3010,12 +3024,7 @@ class AcquisitionWorldGrowthBridge:
                 or intent.configured_profile != configured_profile
                 or intent.original_model_declaration != original_model_declaration
                 or (
-                    read_candidate_experiment_acquisition_action(
-                        bridge=self,
-                        origin=origin,
-                        receipt_ref=candidate_action_ref,
-                        require_current_action=False,
-                    )
+                    read_action()
                     if origin is not None
                     else self._require_selected_candidate_action(
                         closure=closure, candidate_action_ref=candidate_action_ref

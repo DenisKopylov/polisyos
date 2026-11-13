@@ -98,6 +98,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
+        _VerifiedCurrentCandidateExperimentReentryAction,
     )
     from polisyos.runtime.quality.candidate_experiment_reuse import (
         CandidateExperimentReuseActionSelection,
@@ -5572,6 +5573,7 @@ def _require_candidate_experiment_evaluation_record_scope(
     | CandidateAcquisitionRetainedContinuation
     | CandidateRetainedPortCapture,
     selected_reentry_ref: ArtifactRef | None = None,
+    _read_context: _VerifiedCurrentCandidateExperimentReentryAction | None = None,
 ) -> object:
     """Bind one candidate basis/decision to the current typed experiment action."""
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -5579,9 +5581,9 @@ def _require_candidate_experiment_evaluation_record_scope(
         CandidateRetainedPortCapture,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_reentry_read_operation,
         _candidate_experiment_source_selection,
-        _current_candidate_experiment_reentry_action,
-        read_candidate_experiment_acquisition_action,
+        _read_candidate_experiment_action_in_operation,
     )
 
     if type(record) not in {
@@ -5593,17 +5595,25 @@ def _require_candidate_experiment_evaluation_record_scope(
         CandidateRetainedPortCapture,
     }:
         raise TypeError("candidate_experiment_evaluation_record_untyped")
-    selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
-        bridge,
-        origin,
-        pending_phase_ref,
-        candidate_action_ref,
-    )
-    current_action = read_candidate_experiment_acquisition_action(
+    if _read_context is None:
+        with _candidate_experiment_reentry_read_operation(
+            bridge, origin, pending_phase_ref, candidate_action_ref
+        ) as read_context:
+            return _require_candidate_experiment_evaluation_record_scope(
+                bridge=bridge,
+                origin=origin,
+                pending_phase_ref=pending_phase_ref,
+                candidate_action_ref=candidate_action_ref,
+                record=record,
+                selected_reentry_ref=selected_reentry_ref,
+                _read_context=read_context,
+            )
+    selection, action = _read_context.selection, _read_context.action
+    current_action = _read_candidate_experiment_action_in_operation(
         bridge=bridge,
         origin=origin,
         receipt_ref=candidate_action_ref,
-        require_current_action=False,
+        context=_read_context,
     )
     if (
         current_action != action
@@ -5710,6 +5720,7 @@ def _require_candidate_experiment_evaluation_record_scope(
         configured_profile=profile,
         original_model_declaration=declaration,
         create=False,
+        _read_context=_read_context,
     )
     if type(record) in (CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationBasisV2):
         basis = record
@@ -5740,6 +5751,7 @@ def _require_candidate_experiment_evaluation_record_scope(
             pending_phase_ref=pending_phase_ref,
             candidate_action_ref=candidate_action_ref,
             record=basis,
+            _read_context=_read_context,
         )
     else:
         selected_decision = read_candidate_acquisition_evaluation_decision_artifact(
@@ -5779,6 +5791,7 @@ def _require_candidate_experiment_evaluation_record_scope(
             pending_phase_ref=pending_phase_ref,
             candidate_action_ref=candidate_action_ref,
             record=selected_decision,
+            _read_context=_read_context,
         )
         _require_candidate_experiment_evaluation_record_scope(
             bridge=bridge,
@@ -5786,6 +5799,7 @@ def _require_candidate_experiment_evaluation_record_scope(
             pending_phase_ref=pending_phase_ref,
             candidate_action_ref=candidate_action_ref,
             record=basis,
+            _read_context=_read_context,
         )
         if not _candidate_model_values_same(
             selected_decision.prior_evaluation,
@@ -5945,6 +5959,7 @@ def _select_candidate_experiment_evaluation_artifact(
     | CandidateAcquisitionRetainedContinuation
     | CandidateRetainedPortCapture,
     selected_reentry_ref: ArtifactRef | None = None,
+    _read_context: _VerifiedCurrentCandidateExperimentReentryAction | None = None,
 ) -> ArtifactRef:
     """Persist or recover one experiment basis/decision under its actual action owner."""
     from polisyos.runtime.quality.acquisition_evaluation import (
@@ -5952,8 +5967,23 @@ def _select_candidate_experiment_evaluation_artifact(
         _candidate_evaluation_event_id,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_reentry_read_operation,
         _candidate_experiment_source_selection,
     )
+
+    if _read_context is None:
+        with _candidate_experiment_reentry_read_operation(
+            bridge, origin, pending_phase_ref, candidate_action_ref
+        ) as read_context:
+            return _select_candidate_experiment_evaluation_artifact(
+                bridge=bridge,
+                origin=origin,
+                pending_phase_ref=pending_phase_ref,
+                candidate_action_ref=candidate_action_ref,
+                record=record,
+                selected_reentry_ref=selected_reentry_ref,
+                _read_context=read_context,
+            )
 
     action = _require_candidate_experiment_evaluation_record_scope(
         bridge=bridge,
@@ -5962,6 +5992,7 @@ def _select_candidate_experiment_evaluation_artifact(
         candidate_action_ref=candidate_action_ref,
         record=record,
         selected_reentry_ref=selected_reentry_ref,
+        _read_context=_read_context,
     )
     selection = _candidate_experiment_source_selection(bridge, origin)
     overlay_path, _ = bridge._paths(selection, create=False)
@@ -5987,6 +6018,7 @@ def _select_candidate_experiment_evaluation_artifact(
             candidate_action_ref=candidate_action_ref,
             record=value,
             selected_reentry_ref=selected_reentry_ref,
+            _read_context=_read_context,
         )
         return value
 

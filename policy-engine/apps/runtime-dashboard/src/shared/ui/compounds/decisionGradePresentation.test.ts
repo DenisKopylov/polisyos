@@ -3,6 +3,10 @@ import path from "node:path";
 import * as ts from "typescript";
 
 import type { components as DashboardApiComponents } from "@/api/types";
+import {
+  decisionGradeSchema,
+  simulationGradeRequiresCalibration,
+} from "@/shared/lib/domain/decisionGrade";
 import type { DecisionGrade } from "@polisyos/runtime-api-client";
 import * as decisionGradePresentation from "./decisionGradePresentation";
 import type { DecisionGradePresentation } from "./decisionGradePresentation";
@@ -50,8 +54,8 @@ function decisionGradeVocabularyCopiesAcrossSources(
   ownerValues: readonly string[],
 ): { authorizedRecordCount: number; findings: string[] } {
   const ownerSet = new Set(ownerValues);
-  const authorizedFilename = "shared/ui/compounds/decisionGradePresentation.ts";
-  const authorizedName = "decisionGradePresentationByOwnerGrade";
+  const authorizedFilename = "shared/lib/domain/decisionGrade.ts";
+  const authorizedName = "decisionGradePolicyByGrade";
   const findings: string[] = [];
   let authorizedRecordCount = 0;
 
@@ -594,7 +598,11 @@ function decisionGradeBypassesAcrossSources(
           ? node.left
           : node.right;
         const otherSide = gradeSide === node.left ? node.right : node.left;
-        if (!ts.isTypeOfExpression(gradeSide) && !isAbsenceCheck(otherSide)) {
+        if (
+          !ts.isTypeOfExpression(gradeSide) &&
+          !isAbsenceCheck(otherSide) &&
+          !expressionCarriesGrade(filename, otherSide)
+        ) {
           addFinding(filename, sourceFile, node, "literal-or-value comparison");
         }
       }
@@ -675,6 +683,28 @@ describe("decision-grade presentation", () => {
     });
   });
 
+  it("validates the generated vocabulary and keeps simulation calibration rules", () => {
+    const ownerValues = ownerDecisionGradeValues();
+    expect(
+      ownerValues.every(
+        (value) => decisionGradeSchema.safeParse(value).success,
+      ),
+    ).toBe(true);
+    expect(decisionGradeSchema.safeParse("future-owner-grade").success).toBe(
+      false,
+    );
+    expect(simulationGradeRequiresCalibration("unsupported")).toBe(false);
+    expect(simulationGradeRequiresCalibration("advisory_admissible")).toBe(
+      true,
+    );
+    expect(simulationGradeRequiresCalibration("decision_admissible")).toBe(
+      true,
+    );
+    expect(simulationGradeRequiresCalibration("future-owner-grade")).toBe(
+      false,
+    );
+  });
+
   it("renders a novel owner label as explicit unrecognized presentation", () => {
     expect(
       decisionGradePresentation.presentDecisionGradeLabel("future-owner-grade"),
@@ -750,7 +780,12 @@ describe("decision-grade presentation", () => {
         .filter(
           (file) =>
             file !==
-            path.join(import.meta.dirname, "decisionGradePresentation.ts"),
+              path.join(import.meta.dirname, "decisionGradePresentation.ts") &&
+            file !==
+              path.join(
+                dashboardSourceRoot,
+                "shared/lib/domain/decisionGrade.ts",
+              ),
         )
         .map((file) => [
           path.relative(dashboardSourceRoot, file),

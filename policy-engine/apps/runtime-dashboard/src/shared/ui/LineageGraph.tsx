@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 
-import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
 import {
   evidenceArtifactRefKey,
   type EvidenceArtifactRef,
@@ -38,6 +37,7 @@ type LineageArtifactRef = {
 type LineageGraphProps = {
   nodes: LineageNode[];
   edges: LineageEdge[];
+  artifactHrefFor: (ref: EvidenceArtifactRef) => string;
   rootArtifactIds?: string[];
   rootArtifactRefs?: LineageArtifactRef[];
   maxNodesForGraph?: number;
@@ -53,6 +53,7 @@ const PADDING_Y = 24;
 export default function LineageGraph({
   nodes,
   edges,
+  artifactHrefFor,
   rootArtifactIds = [],
   rootArtifactRefs,
   maxNodesForGraph = 220,
@@ -234,9 +235,7 @@ export default function LineageGraph({
                 </span>
                 <Link
                   className="text-[11px] font-semibold underline"
-                  to={buildArtifactHref(node.artifact_id, {
-                    artifactRef: nodeRef(node),
-                  })}
+                  to={artifactHrefFor(nodeRef(node))}
                 >
                   {t("common.inspect")}
                 </Link>

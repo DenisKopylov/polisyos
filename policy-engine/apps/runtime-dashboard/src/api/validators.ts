@@ -8,6 +8,14 @@ import type {
 } from "@polisyos/runtime-api-client";
 
 import type { components } from "./types";
+import {
+  coreArtifactRefSchema,
+  sameCoreArtifactRefView,
+} from "@/shared/lib/domain/evidence";
+import {
+  decisionGradeSchema,
+  simulationGradeRequiresCalibration,
+} from "@/shared/lib/domain/decisionGrade";
 import { parseRunExecutionHteProjection } from "@/features/runs/domain/runExecutionHte";
 import {
   isGeneratedProjectionAuthority,
@@ -15,6 +23,8 @@ import {
   normalizeOperatorProjectionLabelFailClosed,
   type GeneratedProjectionAuthority,
 } from "@/shared/lib/domain/projectionFailClosed";
+
+export { coreArtifactRefSchema };
 
 const apiMetaSchema = z.object({
   request_id: z.string(),
@@ -157,34 +167,6 @@ const artifactRefSchema = z.object({
     .nullable()
     .optional(),
 });
-
-export const coreArtifactRefSchema = z
-  .object({
-    artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
-    kind: z.string().min(1),
-    media_type: z.string().min(1),
-    manifest_profile_sha256: z
-      .string()
-      .regex(/^sha256:[0-9a-f]{64}$/)
-      .nullable()
-      .optional(),
-  })
-  .strict();
-
-function sameCoreArtifactRefView(
-  left: z.infer<typeof coreArtifactRefSchema> | null | undefined,
-  right: z.infer<typeof coreArtifactRefSchema> | null | undefined,
-): boolean {
-  return (
-    left != null &&
-    right != null &&
-    left.artifact_id === right.artifact_id &&
-    left.kind === right.kind &&
-    left.media_type === right.media_type &&
-    (left.manifest_profile_sha256 ?? null) ===
-      (right.manifest_profile_sha256 ?? null)
-  );
-}
 
 const controlPreAdmissionAttemptStatusSchema = z.enum([
   "started",
@@ -1398,7 +1380,6 @@ const runCandidateSimulationN5ObservationSchema = z
     if (
       candidateValuePresent &&
       (observation.n8_status !== "value_conditional" ||
-        observation.n8_candidate_decision_grade !== "low" ||
         observation.simulation_result_ref == null ||
         observation.n8_candidate_value_ref !==
           observation.simulation_result_ref.artifact_id ||
@@ -8183,15 +8164,7 @@ const predictiveCalibrationAuthorityBoundarySchema = z
       ])
       .nullable()
       .optional(),
-    decision_grade: z
-      .enum([
-        "unsupported",
-        "descriptive_only",
-        "advisory_admissible",
-        "decision_admissible",
-      ])
-      .nullable()
-      .optional(),
+    decision_grade: decisionGradeSchema.nullable().optional(),
     evidence_basis: z
       .object({
         // These owner DTO fields carry heterogeneous typed evidence, not authority grants.
@@ -8223,9 +8196,7 @@ const predictiveCalibrationAuthorityBoundarySchema = z
     // or grants the declared grade/posture any authority in the dashboard.
     if (
       boundary.evidence_kind === "simulation" &&
-      ["advisory_admissible", "decision_admissible"].includes(
-        boundary.decision_grade ?? "",
-      ) &&
+      simulationGradeRequiresCalibration(boundary.decision_grade) &&
       !boundary.evidence_basis?.calibration_refs?.length
     ) {
       ctx.addIssue({

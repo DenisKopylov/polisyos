@@ -1,9 +1,27 @@
 import { screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 
 import { renderWithProviders } from "@/test/render";
-import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 
-import LineageGraph from "./LineageGraph";
+import SourceLineageGraph from "./LineageGraph";
+
+function artifactHrefFor(ref: EvidenceArtifactRef): string {
+  const query = new URLSearchParams({
+    tab: "content",
+    artifactRefKey: evidenceArtifactRefKey(ref),
+  });
+  return `/artifacts/${ref.artifact_id}?${query.toString()}`;
+}
+
+function LineageGraph(
+  props: Omit<ComponentProps<typeof SourceLineageGraph>, "artifactHrefFor">,
+) {
+  return <SourceLineageGraph {...props} artifactHrefFor={artifactHrefFor} />;
+}
 
 describe("LineageGraph", () => {
   it("renders the empty state when there are no nodes", () => {

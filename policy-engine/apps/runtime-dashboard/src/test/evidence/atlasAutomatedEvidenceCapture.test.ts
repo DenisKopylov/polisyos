@@ -594,7 +594,10 @@ describe("Atlas automated evidence capture", watchdog, () => {
           ok: false,
           error: expect.objectContaining({
             code: "atlas_evidence_persistence_failed",
-            message: expect.stringMatching(/integrity verification failed/),
+            message: expect.stringContaining(
+              `Blob sha256 mismatch for ${persisted.raw_report_ref.artifact_id}`,
+            ),
+            type: "ArtifactIntegrityError",
           }),
         }),
       );

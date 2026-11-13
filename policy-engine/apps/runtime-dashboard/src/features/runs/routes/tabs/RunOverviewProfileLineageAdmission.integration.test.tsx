@@ -112,9 +112,9 @@ describe("run overview profile lineage admission", () => {
       await screen.findByTestId("trust-inspector-profile-context"),
     ).toBeVisible();
     expect(
-      within(screen.getByRole("dialog")).getByLabelText("Unknown", {
-        exact: true,
-      }),
+      within(
+        screen.getByRole("dialog", { name: "Trust inspector" }),
+      ).getByLabelText("Unknown", { exact: true }),
     ).toBeVisible();
     expect(
       screen.getByTestId("trust-inspector-selected-artifact-ref"),

@@ -1,11 +1,24 @@
 import { expectNoA11yViolations } from "@/test/a11y";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 
 import LineageGraph from "./LineageGraph";
+
+function artifactHrefFor(ref: EvidenceArtifactRef): string {
+  const query = new URLSearchParams({
+    tab: "content",
+    artifactRefKey: evidenceArtifactRefKey(ref),
+  });
+  return `/artifacts/${ref.artifact_id}?${query.toString()}`;
+}
 
 describe("LineageGraph accessibility", () => {
   it("has no detectable accessibility violations", async () => {
     await expectNoA11yViolations(
       <LineageGraph
+        artifactHrefFor={artifactHrefFor}
         nodes={[
           {
             artifact_id: "artifact-root",

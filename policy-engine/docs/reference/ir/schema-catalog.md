@@ -13,13 +13,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1676`.
-- Public/root-or-package facade types: `682`.
+- Public/root-or-package facade types: `692`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 541 |
+| `polisyos.ir` | 545 |
 | `polisyos.ir.analytics` | 321 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,11 +31,11 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1028 | 344 | 45 |
+| `analytics` | 1028 | 345 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
-| `linker` | 7 | 0 | 0 |
+| `linker` | 7 | 2 | 0 |
 | `migrations` | 13 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
 | `trinity` | 2 | 1 | 1 |
@@ -45,8 +45,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `loading` | 25 | 19 | 6 |
 | `model_layer` | 31 | 17 | 1 |
 | `passes` | 16 | 0 | 0 |
-| `registry` | 158 | 130 | 0 |
-| `schemas` | 6 | 0 | 0 |
+| `registry` | 158 | 131 | 0 |
+| `schemas` | 6 | 6 | 0 |
 
 ## Analytics
 
@@ -3458,7 +3458,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:CausalContrastSpec`, `polisyos.ir:CausalContrastSpec`
+- Exported from: `polisyos.ir.analytics:CausalAttributionSpec`, `polisyos.ir.analytics:CausalContrastSpec`, `polisyos.ir:CausalAttributionSpec`, `polisyos.ir:CausalContrastSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_queries.CausalRegime`, `polisyos.ir.analytics.causal_queries.InterventionSpec`
@@ -3577,7 +3577,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:CausalRegime`, `polisyos.ir:CausalRegime`
+- Exported from: `polisyos.ir.analytics:CausalContrastRegime`, `polisyos.ir.analytics:CausalRegime`, `polisyos.ir:CausalContrastRegime`, `polisyos.ir:CausalRegime`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_queries.InterventionSpec`
@@ -21612,9 +21612,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.uncertainty.OutputContractDeclaration` { #polisyos-ir-analytics-uncertainty-outputcontractdeclaration }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:OutputContractDeclaration`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -25896,9 +25896,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.linker._trinity_models.LinkedIntervention` { #polisyos-ir-linker-trinity-models-linkedintervention }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:LinkedIntervention`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -25921,13 +25921,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.linker._trinity_models.TrinityBindings`, `polisyos.ir.trinity.TrinityBundle`
+- References: `polisyos.ir.linker._trinity_models.TrinityBindings`, `polisyos.ir.trinity.contracts.TrinityBundle`
 - Summary: Bundle a Trinity payload with resolved registry bindings and stable digests after linking.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `bindings` | `polisyos.ir.linker._trinity_models.TrinityBindings` | `no` | `—` | `polisyos.ir.linker._trinity_models.TrinityBindings` |
-| `bundle` | `polisyos.ir.trinity.TrinityBundle` | `yes` | `—` | `polisyos.ir.trinity.TrinityBundle` |
+| `bundle` | `polisyos.ir.trinity.contracts.TrinityBundle` | `yes` | `—` | `polisyos.ir.trinity.contracts.TrinityBundle` |
 | `bundle_digest` | `str \| NoneType` | `no` | `—` | — |
 | `registry_digest` | `str \| NoneType` | `no` | `—` | — |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
@@ -26033,9 +26033,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.linker.reports.LinkReport` { #polisyos-ir-linker-reports-linkreport }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:LinkReport`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.linker.reports.LinkIssue`
@@ -34249,13 +34249,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.registry_fragments.RegistryBundle` { #polisyos-ir-registry-registry-fragments-registrybundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:RegistryBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.kernel.constraints.ConstraintRegistry`, `polisyos.ir.kernel.mechanisms.MechanismTypeRegistry`, `polisyos.ir.kernel.merge_rules.MergeRuleRegistry`, `polisyos.ir.kernel.metrics.MetricRegistry`, `polisyos.ir.kernel.selector_fields.SelectorFieldRegistry`, `polisyos.ir.kernel.slots.SlotRegistry`, `polisyos.ir.kernel.trust.TrustRegistry`, `polisyos.ir.kernel.units.UnitsRegistry`, `polisyos.ir.model_layer.predicate.PredicateRegistry`, `polisyos.ir.model_layer.predicate.PrivacyPolicyRegistry`, `polisyos.ir.registry.registry_fragments.ActorRegistry`, `polisyos.ir.registry.registry_fragments.ConceptRegistry`, `polisyos.ir.registry.registry_fragments.GeoRegistry`, `polisyos.ir.registry.registry_fragments.TimeAxisRegistry`
-- Summary: Registry bundle data model.
+- Summary: Collect the versioned registry sections used by IR fragment composition.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -34481,9 +34481,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRExportInfo` { #polisyos-ir-schemas-catalog-irexportinfo }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRExportInfo`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -34498,9 +34498,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRFieldInfo` { #polisyos-ir-schemas-catalog-irfieldinfo }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRFieldInfo`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -34517,9 +34517,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRPublicStatus` { #polisyos-ir-schemas-catalog-irpublicstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRPublicStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -34535,9 +34535,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRSchemaCatalog` { #polisyos-ir-schemas-catalog-irschemacatalog }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRSchemaCatalog`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -34551,9 +34551,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRTypeInfo` { #polisyos-ir-schemas-catalog-irtypeinfo }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRTypeInfo`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -34584,9 +34584,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.schemas.catalog.IRTypeKind` { #polisyos-ir-schemas-catalog-irtypekind }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:IRTypeKind`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —

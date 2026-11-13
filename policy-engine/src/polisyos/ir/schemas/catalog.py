@@ -162,7 +162,8 @@ class IRSchemaCatalog:
     def get(self, name_or_fqn: str) -> IRTypeInfo:
         lookup = str(name_or_fqn)
         for entry in self.types:
-            if entry.fqn == lookup or entry.name == lookup:
+            canonical_fqn = f"{entry.module}.{entry.qualname}"
+            if entry.fqn == lookup or canonical_fqn == lookup or entry.name == lookup:
                 return entry
         raise KeyError(f"Unknown IR type: {lookup}")
 
@@ -236,15 +237,23 @@ def get_ir_schema_catalog() -> IRSchemaCatalog:
 
     modules = _import_ir_modules()
     type_map = _collect_type_symbols(modules)
-    export_map = _collect_export_map()
-    abi_entries = _collect_abi_entries()
+    export_map = _collect_export_map(modules, type_map)
+    abi_entries = _collect_abi_entries(modules, type_map)
+    public_fqns = {
+        fqn: abi_entry.fqn if (abi_entry := abi_entries.get(fqn)) is not None else fqn
+        for fqn in type_map
+    }
+    displayed_exports = {
+        public_fqns.get(fqn, fqn): package_exports
+        for fqn, package_exports in export_map.items()
+    }
     types = tuple(
         sorted(
             (
                 _build_type_info(
                     obj,
-                    fqn=fqn,
-                    export_map=export_map,
+                    fqn=public_fqns[fqn],
+                    export_map=displayed_exports,
                     abi_entry=abi_entries.get(fqn),
                     type_index=type_map,
                 )
@@ -256,7 +265,11 @@ def get_ir_schema_catalog() -> IRSchemaCatalog:
     exports = tuple(
         sorted(
             (
-                IRExportInfo(package=package, export_name=name, target_fqn=target_fqn)
+                IRExportInfo(
+                    package=package,
+                    export_name=name,
+                    target_fqn=public_fqns.get(target_fqn, target_fqn),
+                )
                 for target_fqn, package_exports in export_map.items()
                 for package, name in sorted(package_exports)
             ),
@@ -299,23 +312,43 @@ def _collect_type_symbols(modules: tuple[Any, ...]) -> dict[str, type[Any]]:
     return result
 
 
-def _collect_export_map() -> dict[str, set[tuple[str, str]]]:
+def _collect_export_map(
+    modules: tuple[Any, ...],
+    type_index: dict[str, type[Any]],
+) -> dict[str, set[tuple[str, str]]]:
     from polisyos.ir.api import PACKAGE_FACADE_EXPORTS
 
+    module_by_name = {module.__name__: module for module in modules}
+    canonical_fqn_by_identity = {id(obj): fqn for fqn, obj in type_index.items()}
     result: dict[str, set[tuple[str, str]]] = {}
+
+    def _target_fqn(module_name: str, symbol_name: str, declared_fqn: str) -> str:
+        module = module_by_name.get(module_name)
+        if module is None:
+            return declared_fqn
+        target: Any = module
+        for part in symbol_name.split("."):
+            try:
+                target = getattr(target, part)
+            except AttributeError:
+                return declared_fqn
+        return canonical_fqn_by_identity.get(id(target), declared_fqn)
+
     for package in _public_packages():
         module = importlib.import_module(package)
         package_key = package.removeprefix(f"{_IR_PACKAGE}.")
         manifest_exports = PACKAGE_FACADE_EXPORTS.get(package_key)
         if manifest_exports is not None:
             for export_name, (export_module, export_name_in_module) in manifest_exports.items():
-                target_fqn = f"{export_module}.{export_name_in_module}"
+                declared_fqn = f"{export_module}.{export_name_in_module}"
+                target_fqn = _target_fqn(export_module, export_name_in_module, declared_fqn)
                 result.setdefault(target_fqn, set()).add((package, export_name))
             continue
         lazy_imports = getattr(module, "_LAZY_IMPORTS", None)
         if isinstance(lazy_imports, dict):
             for export_name, (export_module, export_name_in_module) in lazy_imports.items():
-                target_fqn = f"{export_module}.{export_name_in_module}"
+                declared_fqn = f"{export_module}.{export_name_in_module}"
+                target_fqn = _target_fqn(export_module, export_name_in_module, declared_fqn)
                 result.setdefault(target_fqn, set()).add((package, export_name))
             continue
         for export_name in getattr(module, "__all__", ()):
@@ -324,7 +357,8 @@ def _collect_export_map() -> dict[str, set[tuple[str, str]]]:
             target_name = getattr(target, "__qualname__", export_name)
             if target_module_value is None or not str(target_module_value).startswith(_IR_PACKAGE):
                 continue
-            target_fqn = f"{target_module_value}.{target_name}"
+            declared_fqn = f"{target_module_value}.{target_name}"
+            target_fqn = canonical_fqn_by_identity.get(id(target), declared_fqn)
             result.setdefault(target_fqn, set()).add((package, export_name))
     return result
 
@@ -337,14 +371,35 @@ def _public_packages() -> tuple[str, ...]:
     return tuple(sorted(packages))
 
 
-def _collect_abi_entries() -> dict[str, _ABIModelEntry]:
+def _collect_abi_entries(
+    modules: tuple[Any, ...],
+    type_index: dict[str, type[Any]],
+) -> dict[str, _ABIModelEntry]:
     try:
         from polisyos.schemas.abi_models import select_abi_entries
     except ImportError:  # pragma: no cover - optional for slim installs.
         return {}
 
     entries = select_abi_entries(None, include_deprecated=True)
-    return {entry.fqn: entry for entry in entries}
+    module_by_name = {module.__name__: module for module in modules}
+    canonical_fqn_by_identity = {id(obj): fqn for fqn, obj in type_index.items()}
+    result: dict[str, _ABIModelEntry] = {}
+    for entry in entries:
+        module_name, _, qualname = entry.fqn.rpartition(".")
+        module = module_by_name.get(module_name)
+        if module is None:
+            continue
+        target: Any = module
+        for part in qualname.split("."):
+            try:
+                target = getattr(target, part)
+            except AttributeError:
+                break
+        else:
+            canonical_fqn = canonical_fqn_by_identity.get(id(target))
+            if canonical_fqn is not None:
+                result[canonical_fqn] = entry
+    return result
 
 
 def _build_type_info(

@@ -46,7 +46,18 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class FragmentPrecedencePolicy:
-    """Fragment precedence policy data model."""
+    """Set fallback priorities for registry fragments from component sources.
+
+    An explicit nonzero fragment priority is preserved. When a fragment has
+    the default priority of zero, its source type and tags select one of these
+    scores; the registry composition policy consumes the resulting priority.
+
+    Attributes:
+        core_priority: Score for component entries tagged ``core_fragment``.
+        pack_priority: Score for entries that are neither core fragments nor
+            development scans.
+        dev_override_priority: Score for entries from a ``dev_scan`` source.
+    """
 
     core_priority: int = 10
     pack_priority: int = 100

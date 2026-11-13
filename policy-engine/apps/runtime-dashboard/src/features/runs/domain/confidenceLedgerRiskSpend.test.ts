@@ -80,6 +80,28 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
   );
 }
 
+function bindN6BuildIdentityRoute(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+) {
+  const routeIndex = 0;
+  const route =
+    packet.payload.registry_basis.certificate_class_routes[routeIndex];
+  if (route === undefined) throw new Error("owner registry route is missing");
+  const certificateRoute = packet.payload.certificate_routes[routeIndex];
+  if (certificateRoute === undefined)
+    throw new Error("projected certificate route is missing");
+  for (const [key, value] of Object.entries({
+    certificate_class: "n6_build_identity",
+    certificate_role: "promotion_conformance",
+    claim_polarity: "conformance_only",
+    verifier_kernel_id: "n6_build_identity_reconcile_v1",
+  })) {
+    Reflect.set(route, key, value);
+    Reflect.set(certificateRoute, key, value);
+  }
+  return route;
+}
+
 type RelatedBinding =
   AvailableConfidenceLedgerRiskSpendPacket["source"]["related_artifact_bindings"][number];
 type DependencyBinding = Extract<
@@ -837,6 +859,66 @@ describe("confidence-ledger risk-spend strict admission", watchdog, () => {
     expect(generated.length).toBeGreaterThan(0);
     expect(runtime).toEqual(generated);
   });
+
+  it("admits selected build identity refs only on the N6 conformance route", async () => {
+    const packet = availablePacket();
+    const route = bindN6BuildIdentityRoute(packet);
+    const ref = {
+      artifact_id: `sha256:${"a".repeat(64)}`,
+      kind: "runtime.quality.confidence_ledger.build_identity",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+    };
+    Reflect.set(route, "build_evidence_ref", ref);
+    await refreshConsumerSelfBoundRegistryHashes(packet);
+    await expect(
+      admitConfidenceLedgerRiskSpendPacket(packet),
+    ).resolves.toMatchObject({
+      availability: "available",
+    });
+  });
+
+  it("rejects a build identity ref attached to a non-N6 registry route", async () => {
+    const packet = availablePacket();
+    const route = packet.payload.registry_basis.certificate_class_routes[0];
+    if (route === undefined) throw new Error("owner registry route is missing");
+    Reflect.set(route, "build_evidence_ref", {
+      artifact_id: `sha256:${"a".repeat(64)}`,
+      kind: "runtime.quality.confidence_ledger.build_identity",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+    });
+    await refreshConsumerSelfBoundRegistryHashes(packet);
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /build_evidence_route_purpose_mismatch/u,
+    );
+  });
+
+  it.each([
+    ["kind", "runtime.quality.unrelated_build_identity"],
+    ["media_type", "text/plain"],
+  ])(
+    "rejects a selected build identity ref with the wrong %s",
+    async (field, value) => {
+      const packet = availablePacket();
+      const route = bindN6BuildIdentityRoute(packet);
+      const ref = {
+        artifact_id: `sha256:${"a".repeat(64)}`,
+        kind: "runtime.quality.confidence_ledger.build_identity",
+        media_type: "application/json",
+        manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+      };
+      Reflect.set(route, "build_evidence_ref", { ...ref, [field]: value });
+      await refreshConsumerSelfBoundRegistryHashes(packet);
+
+      await expect(
+        admitConfidenceLedgerRiskSpendPacket(packet),
+      ).rejects.toThrow(
+        /generated owner literal mismatch at AvailableConfidenceLedgerRiskSpendPacket\/payload\/registry_basis\/certificate_class_routes\/\*\/build_evidence_ref/u,
+      );
+    },
+  );
 
   it.each([
     ["live-probe", () => [liveProbeBinding()]],

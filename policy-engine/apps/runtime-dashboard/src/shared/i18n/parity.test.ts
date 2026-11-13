@@ -107,6 +107,7 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
     "Admitted-response cardinality from the quarantine owner projection.",
   ],
   ["accepted", "Accepted-item numerator in an accepted/total ratio."],
+  ["afterJobs", "Observed effective worker count after execution."],
   ["accuracy", "Measured correctness proportion."],
   ["act", "Ordinal Act number."],
   ["actual", "Measured value, including elapsed seconds."],
@@ -120,9 +121,12 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["bins", "Quantile-dot bin cardinality."],
   ["blocked", "Blocked-item tally."],
   ["blockers", "Blocker tally."],
+  ["beforeJobs", "Observed effective worker count before execution."],
   ["budget", "Quantitative budget denominator."],
   ["candidates", "Candidate cardinality."],
   ["completed", "Progress numerator."],
+  ["cycle", "Ordinal candidate-cycle index."],
+  ["cycleIndex", "Ordinal cycle index from the persisted candidate history."],
   [
     "completeness",
     "Preview completeness proportion formatted as a percentage.",
@@ -135,12 +139,16 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["cost", "Price per million."],
   ["demandOne", "Cardinality of backlog rows with route demand 1.0."],
   ["demandTwo", "Cardinality of backlog rows with route demand 2.0."],
+  ["denominator", "Observed sample-count denominator."],
   ["depth", "Graph or workflow depth."],
   ["docs", "Document cardinality."],
   ["duration", "Time quantity, sometimes preformatted."],
   ["durationMs", "Duration in milliseconds."],
+  ["end", "Numeric end of the displayed simulation horizon."],
+  ["entryJobs", "Observed effective worker count at joblib entry."],
   ["eValue", "E-value scalar."],
   ["events", "Event cardinality."],
+  ["exitJobs", "Observed effective worker count at joblib exit."],
   [
     "fallbacks",
     "Fallback-plan cardinality derived from the caller array length.",
@@ -160,9 +168,11 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["lower", "Numeric interval lower bound."],
   ["maxNodes", "Numeric node-rendering threshold."],
   ["minimum", "Minimum contrast ratio."],
+  ["numerator", "Observed sample-count numerator."],
   ["needs", "Need cardinality."],
   ["nodes", "Graph-node cardinality."],
   ["observed", "Observed budget quantity."],
+  ["orders", "Comma-separated checked interaction-order indices."],
   ["p10", "Tenth-percentile value."],
   ["p90", "Ninetieth-percentile value."],
   ["parameters", "Parameter cardinality."],
@@ -177,6 +187,7 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["quantities", "Estimated-quantity cardinality."],
   ["raw", "Raw-response cardinality from the quarantine owner projection."],
   ["rate", "Success-rate quantity."],
+  ["revision", "Integer candidate-frontier revision."],
   ["ratio", "Numeric ratio."],
   ["required", "Required dwell seconds."],
   ["rows", "Row cardinality."],
@@ -186,6 +197,8 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["selected", "Selected-profile cardinality."],
   ["share", "Cohort or population share."],
   ["strength", "Explicit percentage strength."],
+  ["start", "Numeric start of the displayed simulation horizon."],
+  ["step", "Numeric simulation step or step index."],
   ["success", "Successful-outcome cardinality."],
   ["target", "Section count at one use; identifier or value elsewhere."],
   ["threshold", "E-value or fairness threshold scalar."],
@@ -198,7 +211,7 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
 ]);
 
 const NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "a0b6f7002e41e851fd4c38e2a1061cbc82f827cc744a7e6c94bc5c20a30184ab";
+  "c2ceefa5b71d7cca57bbd8828442dfd36a7f566213c2cdfb47dd06155543f139";
 
 const NON_NUMERIC_VARIABLE_REASONS = new Map<string, string>(
   `actor
@@ -305,17 +318,72 @@ NON_NUMERIC_VARIABLE_REASONS.set(
   "OverviewTab renders route_id only after typeof row.route_id === string; this is an opaque route identifier, not a quantity.",
 );
 
+for (const [variable, reason] of [
+  ["action", "A typed planner-action label, not a quantity."],
+  ["afterDigest", "SHA-256 identity of estimator parameters after execution."],
+  ["afterEstimator", "Estimator class identity after execution."],
+  ["atomIds", "Comma-separated intervention atom identifiers."],
+  ["atoms", "Comma-separated intervention atom identifiers."],
+  [
+    "beforeDigest",
+    "SHA-256 identity of estimator parameters before execution.",
+  ],
+  ["beforeEstimator", "Estimator class identity before execution."],
+  ["candidateRef", "Opaque candidate artifact reference."],
+  ["certified", "Boolean N9 certification state rendered as text."],
+  ["classification", "Typed interaction-classification label."],
+  ["composition", "Typed policy-composition status."],
+  ["current", "Provenance status of the current candidate basis."],
+  ["entryBackend", "Joblib backend identity observed at entry."],
+  ["entryDigest", "SHA-256 identity of joblib configuration at entry."],
+  ["entryVersion", "Joblib implementation version observed at entry."],
+  ["exitBackend", "Joblib backend identity observed at exit."],
+  ["exitDigest", "SHA-256 identity of joblib configuration at exit."],
+  ["exitVersion", "Joblib implementation version observed at exit."],
+  ["field", "Candidate-model coefficient field name."],
+  ["front", "Typed candidate-front assignment."],
+  ["generationStatus", "Terminal status of the persisted generation run."],
+  ["grade", "Typed candidate decision-grade label."],
+  ["grounding", "Typed grounding status from the candidate projection."],
+  [
+    "groundingCurrentValid",
+    "Boolean current-grounding check rendered as text.",
+  ],
+  ["intent", "Opaque predictive-calibration intent identifier."],
+  ["issues", "Comma-separated contract issue codes."],
+  ["job", "Opaque job identifier in the retained evaluation reference."],
+  ["nextAction", "Typed value-of-information action label."],
+  ["nodeRef", "Opaque node artifact reference."],
+  ["parseWarning", "Parser warning text for a stored legacy HTE result."],
+  ["problem", "Opaque problem reference bound to the candidate attempt."],
+  ["provenance", "Typed provenance classification or state."],
+  ["refinement", "Typed candidate-refinement decision."],
+  ["relationship", "Typed relationship between candidate compositions."],
+  ["result", "Typed candidate-basis comparison outcome."],
+  ["run", "Opaque run identifier in the retained evaluation reference."],
+  ["sampling", "Typed sampling-policy label."],
+  ["scope", "Typed simulation-scope label."],
+  ["search", "Typed search-iteration status."],
+  ["simulation", "Typed simulation status."],
+  ["slot", "Candidate outcome-world slot identifier."],
+  ["stage", "Typed candidate-evaluation stage."],
+  ["terminal", "Typed terminal action or outcome label."],
+  ["unit", "Declared outcome unit label."],
+] as const) {
+  NON_NUMERIC_VARIABLE_REASONS.set(variable, reason);
+}
+
 const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "d370a8db416c042434b992f66e52e9ac9ead8574559da9c8f7e4a0de99a224b7";
+  "d2dd694a72a00a58b03e5bc576e9f86fa9814ee13fd17efee986301efca347ce";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
-  "69ca1d448f93702bf63e491507acc78e9007dd89eadf9728607f89c634eb9a73";
+  "d0467a16ab4bad801c46289bfc1e043d54793e549e82cf02398361b6fa6dd5a3";
 const ACTIVE_LOCALE_KEY_SET_SHA256 =
-  "3851823f11d15e4010e2c9a0a30c806232d0fb2d420b83e5c1877511a4149878";
-const ACTIVE_LOCALE_LEAF_COUNT = 2963;
-const NON_COUNT_MESSAGE_COUNT = 268;
-const NON_COUNT_VARIABLE_USE_COUNT = 392;
+  "eb596bcd5ca8111fec6861818e9e63404b334dd203dda156f823165804963355";
+const ACTIVE_LOCALE_LEAF_COUNT = 3322;
+const NON_COUNT_MESSAGE_COUNT = 339;
+const NON_COUNT_VARIABLE_USE_COUNT = 530;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "42d327e4e3f60e8951349d020503dfe0e001576ea7591cfb816a9417fb3da600";
+  "3c162a89965c0ae1b120cd6c07d59910aab850a3f4edae92a790aa1f58d93518";
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -496,8 +564,108 @@ NUMERIC_INVARIANT_USE_DECLARATIONS.set(
   },
 );
 
+for (const [identity, reason] of [
+  [
+    "pages.artifacts.hteOutcome.resource.estimator#{afterJobs}",
+    "HTEOutcomeView renders the observed post-run n_jobs value beside a fixed technical label.",
+  ],
+  [
+    "pages.artifacts.hteOutcome.resource.estimator#{beforeJobs}",
+    "HTEOutcomeView renders the observed pre-run n_jobs value beside a fixed technical label.",
+  ],
+  [
+    "pages.artifacts.hteOutcome.resource.joblib#{entryJobs}",
+    "HTEOutcomeView renders the joblib entry worker count after the fixed effective-jobs label.",
+  ],
+  [
+    "pages.artifacts.hteOutcome.resource.joblib#{exitJobs}",
+    "HTEOutcomeView renders the joblib exit worker count after the fixed effective-jobs label.",
+  ],
+  [
+    "pages.runs.candidateSimulation.acquisitionCurrentOccurrence#{cycle}",
+    "OverviewTab renders the typed cycle_index as an ordinal beside its fixed label.",
+  ],
+  [
+    "pages.runs.candidateSimulation.acquisitionNumericalProvenance#{cycle}",
+    "OverviewTab renders the typed cycle_index as an ordinal beside its fixed label.",
+  ],
+  [
+    "pages.runs.candidateSimulation.acquisitionRetainedOccurrence#{cycle}",
+    "OverviewTab renders the typed cycle_index as an ordinal in an identifier tuple.",
+  ],
+  [
+    "pages.runs.candidateSimulation.attemptSubject#{cycle}",
+    "OverviewTab renders the typed cycle_index as an ordinal beside the candidate identifier.",
+  ],
+  [
+    "pages.runs.candidateSimulation.candidateHistoryFrontier#{revision}",
+    "OverviewTab renders the integer frontier revision in a fixed technical label.",
+  ],
+  [
+    "pages.runs.candidateSimulation.occurrenceBasis#{cycle}",
+    "OverviewTab renders the typed candidate_basis_cycle_index as an ordinal.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.cycleHistoryEntry#{cycleIndex}",
+    "OverviewTab renders the typed cycle_index as an ordinal beside the node reference.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.effect#{value}",
+    "OverviewTab formats the numeric N5 effect with a fixed effect label.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.horizon#{end}",
+    "OverviewTab renders the numeric horizon endpoint in a fixed technical range.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.horizon#{start}",
+    "OverviewTab renders the numeric horizon start in a fixed technical range.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.horizon#{step}",
+    "OverviewTab renders the numeric horizon step after a fixed technical label.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.jointParentOrders#{orders}",
+    "OverviewTab joins checked interaction-order indices in a fixed technical list.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.jointParentResidual#{step}",
+    "OverviewTab renders the numeric N5 step index in a fixed technical label.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.jointParentResidual#{value}",
+    "OverviewTab formats the numeric higher-order residual without a count phrase.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.outcome#{value}",
+    "OverviewTab formats a numeric N5 outcome under its named outcome label.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.step#{step}",
+    "OverviewTab renders the numeric N5 step index beside a fixed label.",
+  ],
+  [
+    "pages.runs.predictiveCalibration.coverageCount#{denominator}",
+    "OverviewTab renders the observed denominator as one side of a numeric ratio.",
+  ],
+  [
+    "pages.runs.predictiveCalibration.coverageCount#{numerator}",
+    "OverviewTab renders the observed numerator as one side of a numeric ratio.",
+  ],
+  [
+    "panels.agentPipeline.ownerAttemptScope#{attempt}",
+    "AgentPipelinePanel renders the numeric ControlJob lease-attempt ordinal.",
+  ],
+] as const) {
+  NUMERIC_INVARIANT_USE_DECLARATIONS.set(identity, {
+    classification: "invariant",
+    reason,
+  });
+}
+
 const NUMERIC_INVARIANT_USE_KEY_SET_SHA256 =
-  "de6ac1b88aa2839197dfe2285a00b14c102e1846af3d277dbdcd80c6e1df7eb7";
+  "097a86845f71728c5a1c5169949e3ffbd71825d2c13faaa641e3de14214ec9a4";
 
 const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
   string,
@@ -832,13 +1000,116 @@ const QUANTITATIVE_USE_DECLARATIONS = mergeNumericUseDeclarations(
 );
 
 const QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256 =
-  "fa5adc190b751d48eb179cd0a0d7eb5b423ac015f3da4bb851165f4687b32af4";
+  "5a513b0134d31dbc46359be8aeb696c50fc6c309ada74d01b4e05cc9357485d7";
 
 const LEGACY_CONTINUITY_RU_KEY_COUNT = 2485;
 const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
   "246672ca2e2a483b99142b0b00b6918ff66519b16a5963a0cdc52c9b55a88de0";
 const LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256 =
   "ce8480d3a1c4a8876d1a007d7aa2d3d13f2ee8e4e1f33d0cbaa948f69d0e669c";
+const RU_E02_EXTENSION_ROOTS = [
+  "common.admissionRecovery",
+  "pages.composer.dataSource.profileSha256",
+  "pages.composer.dataSource.profileSelectorLegacy",
+  "pages.composer.dataSource.profileSelectorInvalid",
+  "pages.composer.dataSource.profileSelectorRequiresView",
+  "pages.composer.placeholders.manifestProfile",
+  "pages.composer.predictiveInputs",
+  "pages.composer.candidateExperiment",
+  "pages.composer.runBudgetScope",
+  "pages.runs.genericCycleSimulation",
+  "pages.runs.predictiveCalibration",
+  "pages.runs.candidateSimulation.candidateHistoryBasis",
+  "pages.runs.candidateSimulation.candidateHistoryFrontier",
+  "pages.runs.candidateSimulation.candidateHistoryComparison",
+  "pages.runs.candidateSimulation.candidateHistoryProvenance",
+  "pages.runs.candidateSimulation.candidateHistoryCheap",
+  "pages.runs.candidateSimulation.candidateHistoryScope",
+  "pages.runs.candidateSimulation.candidateHistorySimulation",
+  "pages.runs.candidateSimulation.candidateCurrentTitle",
+  "pages.runs.candidateSimulation.candidateCurrentScope",
+  "pages.runs.candidateSimulation.candidateCurrentUnavailable",
+  "pages.runs.candidateSimulation.candidateCurrentHash",
+  "pages.runs.candidateSimulation.occurrenceBasis",
+  "pages.runs.candidateSimulation.occurrenceHistorical",
+  "pages.runs.candidateSimulation.occurrenceCurrent",
+  "pages.runs.candidateSimulation.attemptHistoryTitle",
+  "pages.runs.candidateSimulation.attemptHistoryScope",
+  "pages.runs.candidateSimulation.attemptSubject",
+  "pages.runs.candidateSimulation.attemptStatuses",
+  "pages.runs.candidateSimulation.attemptBasis",
+  "pages.runs.candidateSimulation.retainedAfterFailure",
+  "pages.runs.candidateSimulation.capacityStop",
+  "pages.runs.candidateSimulation.cycleIncomplete",
+  "pages.runs.candidateSimulation.failedStage",
+  "pages.runs.candidateSimulation.valueProjectionStage",
+  "pages.runs.candidateSimulation.revisionStage",
+  "pages.runs.candidateSimulation.acquisitionRetainedExplanation",
+  "pages.runs.candidateSimulation.acquisitionAdmittedSource",
+  "pages.runs.candidateSimulation.acquisitionRetainedSource",
+  "pages.runs.candidateSimulation.acquisitionRetainedCandidate",
+  "pages.runs.candidateSimulation.acquisitionRetainedOccurrence",
+  "pages.runs.candidateSimulation.acquisitionRetentionDecision",
+  "pages.runs.candidateSimulation.acquisitionSourceReaction",
+  "pages.runs.candidateSimulation.acquisitionOriginObserved",
+  "pages.runs.candidateSimulation.acquisitionOriginVerified",
+  "pages.runs.candidateSimulation.acquisitionJoinStatus",
+  "pages.runs.candidateSimulation.acquisitionCurrentOccurrence",
+  "pages.runs.candidateSimulation.acquisitionSelectedSimulation",
+  "pages.runs.candidateSimulation.acquisitionCheapConsequences",
+  "pages.runs.candidateSimulation.acquisitionCheapGrounding",
+  "pages.runs.candidateSimulation.acquisitionCheapValue",
+  "pages.runs.candidateSimulation.acquisitionCheapAction",
+  "pages.runs.candidateSimulation.acquisitionNumericalProvenance",
+  "pages.runs.candidateSimulation.acquisitionModelRevision",
+  "pages.runs.candidateSimulation.acquisitionModelDecision",
+  "pages.runs.candidateSimulation.acquisitionOutcomeRevision",
+  "pages.runs.candidateSimulation.acquisitionHistoryLimited",
+  "pages.runs.workflowTimelineFallback",
+  "pages.runs.workflowLimitationStatusNotReported",
+  "pages.runs.profileLineage",
+  "pages.evidence.profileSelection",
+  "pages.artifacts.contentFields.canonReadStatus",
+  "pages.artifacts.predictiveCoverage",
+  "pages.artifacts.schemaFields.canonReadStatus",
+  "pages.artifacts.hteOutcome",
+  "panels.agentPipeline.reportedCost",
+  "panels.agentPipeline.estimatedCost",
+  "panels.agentPipeline.reuseEvents",
+  "panels.agentPipeline.ownerAttemptScope",
+  "panels.agentPipeline.eventCostNotAttributed",
+  "panels.agentPipeline.ownerAttemptUnknown",
+  "panels.agentPipeline.unattributedCostEvents",
+  "panels.agentPipeline.unassignedAttemptScope",
+  "panels.agentPipeline.unattributedCostScalars",
+  "panels.agentPipeline.unassignedScalarScope",
+  "panels.agentPipeline.preAdmissionAttempt",
+  "panels.agentPipeline.controlJobAttempt",
+  "panels.agentPipeline.rawDetailsNotEstablished",
+  "shared.ui.trustView.profileBindingNotEstablished",
+  "shared.ui.trustView.genericBindingNotice",
+  "shared.ui.trustView.selectedProfile",
+  "shared.ui.trustView.selectedArtifact",
+  "shared.ui.trustView.profileOrigin",
+  "shared.ui.trustView.sourceRun",
+  "shared.ui.trustView.profileBindingStatus",
+  "shared.ui.trustView.profileLineage",
+  "shared.ui.trustView.profileBindingFollowOnGeneric",
+  "shared.ui.trustView.profileBindingExportGeneric",
+  "conditionalTransport",
+  "runHte",
+] as const;
+const RU_E02_EXTENSION_KEY_COUNT = 352;
+const RU_E02_EXTENSION_KEY_SET_SHA256 =
+  "a7862a678fd6f753f8b5b8a6033fa19c557db11d5be7abc01cd7cd3b5f236453";
+const RU_E02_EXTENSION_VALUE_SHA256 =
+  "5dc3d465d1f12bbdc21ebcc0a47cad990a793ec80ad442fbf3ba51f373bbe05a";
+
+function isRuE02ExtensionPath(path: string): boolean {
+  return RU_E02_EXTENSION_ROOTS.some(
+    (root) => path === root || path.startsWith(`${root}.`),
+  );
+}
 
 function collectCountMessages(
   value: unknown,
@@ -1140,6 +1411,37 @@ function parseNumericUseIdentity(
   return variable ? [path, variable] : undefined;
 }
 
+const NON_NUMERIC_VARIABLE_USE_DECLARATIONS = new Map<string, string>([
+  [
+    "pages.runs.candidateSimulation.attemptBasis#{attempt}",
+    "OverviewTab supplies attempt_ref, an opaque reference rather than an ordinal attempt count.",
+  ],
+  [
+    "pages.runs.candidateSimulation.attemptStatuses#{value}",
+    "OverviewTab supplies value_status, a categorical status rather than a numeric value.",
+  ],
+  [
+    "pages.runs.candidateSimulation.candidateHistoryBasis#{selected}",
+    "OverviewTab supplies selected_basis_provenance, a provenance label rather than a selected-item count.",
+  ],
+  [
+    "pages.runs.candidateSimulation.candidateHistoryCheap#{value}",
+    "OverviewTab supplies value_status, a categorical status rather than a numeric value.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.cycleHistorySignals#{blockers}",
+    "OverviewTab joins blocker reason codes; the displayed list is not a blocker tally.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.cycleHistorySignals#{value}",
+    "OverviewTab supplies value_status, a categorical status rather than a numeric value.",
+  ],
+  [
+    "pages.runs.genericCycleSimulation.jointParentAuthoredComposition#{selected}",
+    "OverviewTab supplies n8_selected_member_relationship, a relationship label rather than a profile count.",
+  ],
+]);
+
 function collectNumericUseDeclarationFailures(
   catalog: unknown,
   locale: string,
@@ -1153,7 +1455,11 @@ function collectNumericUseDeclarationFailures(
   const scan = collectMessageVariables(catalog, intlLocale);
   const parseFailurePathSet = new Set(scan.parseFailurePaths);
   const actualUseKeys = scan.uses
-    .filter(([, variable]) => NUMERIC_VARIABLE_REASONS.has(variable))
+    .filter(
+      ([path, variable]) =>
+        NUMERIC_VARIABLE_REASONS.has(variable) &&
+        !NON_NUMERIC_VARIABLE_USE_DECLARATIONS.has(`${path}#{${variable}}`),
+    )
     .map(([path, variable]) => `${path}#{${variable}}`);
   const actualUseKeySet = new Set(actualUseKeys);
 
@@ -1230,7 +1536,35 @@ function collectNumericUseDeclarationFailures(
 }
 
 describe("locale catalogs", () => {
-  it("keeps the legacy-continuity Russian key set frozen", () => {
+  it("uses locale-specific plural forms for selected HTE rows", () => {
+    const path = "pages.artifacts.hteOutcome.selectedRows";
+    expect(formatIcuMessage(getMessage(en, path), "en", { count: 1 })).toBe(
+      "Computed over 1 selected evaluation row",
+    );
+    expect(formatIcuMessage(getMessage(en, path), "en", { count: 2 })).toBe(
+      "Computed over 2 selected evaluation rows",
+    );
+    expect(formatIcuMessage(getMessage(uk, path), "uk", { count: 1 })).toBe(
+      "Обчислено за 1 відібраним рядком",
+    );
+    expect(formatIcuMessage(getMessage(uk, path), "uk", { count: 2 })).toBe(
+      "Обчислено за 2 відібраними рядками",
+    );
+    expect(formatIcuMessage(getMessage(uk, path), "uk", { count: 5 })).toBe(
+      "Обчислено за 5 відібраними рядками",
+    );
+    expect(formatIcuMessage(getMessage(ru, path), "ru", { count: 1 })).toBe(
+      "Вычислено по 1 выбранной строке оценки",
+    );
+    expect(formatIcuMessage(getMessage(ru, path), "ru", { count: 2 })).toBe(
+      "Вычислено по 2 выбранным строкам оценки",
+    );
+    expect(formatIcuMessage(getMessage(ru, path), "ru", { count: 5 })).toBe(
+      "Вычислено по 5 выбранным строкам оценки",
+    );
+  });
+
+  it("preserves Russian legacy continuity alongside explicit E02 extensions", () => {
     const productCatalogs = { en, uk } as const;
     const authoredKeys = collectPaths(productCatalogs[PRIMARY_LOCALE]).sort(
       comparePaths,
@@ -1240,19 +1574,49 @@ describe("locale catalogs", () => {
     const ruLeaves = collectLeafPairs(ru).sort(([left], [right]) =>
       comparePaths(left, right),
     );
+    const ruLegacyKeys = ruKeys.filter((path) => !isRuE02ExtensionPath(path));
+    const ruLegacyLeaves = ruLeaves.filter(
+      ([path]) => !isRuE02ExtensionPath(path),
+    );
+    const ruExtensionKeys = ruKeys.filter(isRuE02ExtensionPath);
+    const ruExtensionLeaves = ruLeaves.filter(([path]) =>
+      isRuE02ExtensionPath(path),
+    );
 
     expect(PRIMARY_LOCALE).toBe("en");
+    expect(new Set(RU_E02_EXTENSION_ROOTS).size).toBe(
+      RU_E02_EXTENSION_ROOTS.length,
+    );
     expect(ukKeys).toEqual(authoredKeys);
-    expect(
-      crypto.createHash("sha256").update(JSON.stringify(ruKeys)).digest("hex"),
-    ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
-    expect(ruKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
     expect(
       crypto
         .createHash("sha256")
-        .update(JSON.stringify(ruLeaves))
+        .update(JSON.stringify(ruLegacyKeys))
+        .digest("hex"),
+    ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
+    expect(ruLegacyKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
+    expect(
+      crypto
+        .createHash("sha256")
+        .update(JSON.stringify(ruLegacyLeaves))
         .digest("hex"),
     ).toBe(LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256);
+    expect(ruExtensionKeys).toHaveLength(RU_E02_EXTENSION_KEY_COUNT);
+    expect(
+      crypto
+        .createHash("sha256")
+        .update(JSON.stringify(ruExtensionKeys))
+        .digest("hex"),
+    ).toBe(RU_E02_EXTENSION_KEY_SET_SHA256);
+    expect(
+      crypto
+        .createHash("sha256")
+        .update(JSON.stringify(ruExtensionLeaves))
+        .digest("hex"),
+    ).toBe(RU_E02_EXTENSION_VALUE_SHA256);
+    expect(ruExtensionKeys.every((path) => authoredKeys.includes(path))).toBe(
+      true,
+    );
   });
 
   it("justifies exactly every active non-ICU count-message identity", () => {
@@ -2110,7 +2474,13 @@ describe("locale catalogs", () => {
       ...new Set(
         activeScans
           .flatMap((scan) => scan.uses)
-          .filter(([, variable]) => NUMERIC_VARIABLE_REASONS.has(variable))
+          .filter(
+            ([path, variable]) =>
+              NUMERIC_VARIABLE_REASONS.has(variable) &&
+              !NON_NUMERIC_VARIABLE_USE_DECLARATIONS.has(
+                `${path}#{${variable}}`,
+              ),
+          )
           .map(([path, variable]) => `${path}#{${variable}}`),
       ),
     ].sort(comparePaths);
@@ -2165,10 +2535,10 @@ describe("locale catalogs", () => {
 
     expect(paths.size).toBe(26);
     expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(43);
-    expect(NUMERIC_VARIABLE_REASONS.size).toBe(78);
-    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(84);
-    expect(declaredVariableNames).toHaveLength(162);
-    expect(new Set(declaredVariableNames).size).toBe(162);
+    expect(NUMERIC_VARIABLE_REASONS.size).toBe(91);
+    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(128);
+    expect(declaredVariableNames).toHaveLength(219);
+    expect(new Set(declaredVariableNames).size).toBe(219);
     expect(activeLocaleKeys).toHaveLength(ACTIVE_LOCALE_LEAF_COUNT);
     expect(
       crypto
@@ -2195,11 +2565,20 @@ describe("locale catalogs", () => {
         .update(activeUseKeySets[0].join("\n"))
         .digest("hex"),
     ).toBe(NON_COUNT_VARIABLE_USE_KEY_SET_SHA256);
-    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(148);
-    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(191);
+    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(171);
+    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(214);
     expect(activeScans.flatMap((scan) => scan.parseFailurePaths)).toEqual([]);
     expect(declaredVariableNames).toEqual(activeVariableNames);
     expect(adjudicatedNumericUseKeys).toEqual(activeNumericUseKeys);
+    for (const [identity, reason] of NON_NUMERIC_VARIABLE_USE_DECLARATIONS) {
+      expect(reason.trim(), `${identity} needs a use-level reason`).not.toBe(
+        "",
+      );
+      expect(activeUseKeySets.every((keys) => keys.includes(identity))).toBe(
+        true,
+      );
+      expect(QUANTITATIVE_USE_DECLARATIONS.has(identity)).toBe(false);
+    }
     expect(
       crypto
         .createHash("sha256")
@@ -2252,7 +2631,7 @@ describe("locale catalogs", () => {
         .digest("hex"),
     ).toBe(QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256);
     expect(cohortClassifications).toEqual({ pluralized: 10, invariant: 33 });
-    expect(allClassifications).toEqual({ pluralized: 10, invariant: 181 });
+    expect(allClassifications).toEqual({ pluralized: 10, invariant: 204 });
     expect(labelGuidedPaths.size).toBe(20);
     for (const identity of NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()) {
       const parsedIdentity = parseNumericUseIdentity(identity);

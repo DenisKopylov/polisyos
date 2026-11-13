@@ -43,7 +43,7 @@ const COMPOSER_DRAFT_FAMILY = "composer-draft" as const;
 
 const workflowDraftValuesSchema = workflowLaunchDraftSchema;
 const naturalLanguageDraftValuesSchema = naturalLanguageLaunchSchema
-  .extend({
+  .safeExtend({
     nlRequest: z.string(),
     selectedLlmModels: z.array(
       naturalLanguageLaunchSchema.shape.selectedLlmModels.element,

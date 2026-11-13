@@ -110,7 +110,31 @@ class ConceptRegistry(KernelModel):
 
 
 class RegistryBundle(KernelModel):
-    """Registry bundle data model."""
+    """Collect the versioned registry sections used by IR fragment composition.
+
+    Each optional field supplies a base registry for one semantic family.
+    Fragment composition applies selected items to those base sections and
+    returns a new bundle; ``None`` means that no base registry was supplied
+    for that family.
+
+    Attributes:
+        schema_version: Version of the serialized bundle contract.
+        units: Unit definitions.
+        trust: Trust policies.
+        predicates: Scalar and edge predicates.
+        privacy: Privacy policies.
+        metrics: Metric definitions.
+        mechanisms: Mechanism types.
+        slots: Slot definitions.
+        selector_fields: Fields available to selectors.
+        merge_rules: Rules for merging registry items.
+        constraints: Constraint definitions.
+        time: Time-axis definitions.
+        geo: Geographic areas.
+        actors: Actor types.
+        concepts: Concept definitions.
+        notes: Notes attached to the bundle.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     units: UnitsRegistry | None = None

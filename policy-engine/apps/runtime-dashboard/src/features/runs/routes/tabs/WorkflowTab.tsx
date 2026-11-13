@@ -7,6 +7,7 @@ import { useSuspenseRunWorkflow } from "@/api/hooks/useRunWorkflow";
 import { RunChoreographyPanel } from "@/features/runs/components/RunChoreographyPanel";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { buildRunChoreographyView } from "@/features/runs/domain/runChoreography";
+import { buildArtifactHref } from "@/features/artifacts";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatBytes, formatNumber } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
@@ -73,6 +74,9 @@ function LineagePanelContent({ runId }: { runId: string }) {
       <LineageGraph
         nodes={lineage.nodes}
         edges={lineage.edges}
+        artifactHrefFor={(ref) =>
+          buildArtifactHref(ref.artifact_id, { artifactRef: ref })
+        }
         rootArtifactIds={lineage.root_artifact_ids}
         rootArtifactRefs={lineage.root_artifact_refs}
       />

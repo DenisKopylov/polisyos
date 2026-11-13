@@ -1,6 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import LineageGraph from "@/shared/ui/LineageGraph";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
+
+const artifactHrefFor = (ref: EvidenceArtifactRef) => {
+  const query = new URLSearchParams({
+    tab: "content",
+    artifactRefKey: evidenceArtifactRefKey(ref),
+  });
+  return `/artifacts/${ref.artifact_id}?${query.toString()}`;
+};
 
 const nodes = [
   {
@@ -52,6 +64,7 @@ const meta = {
   component: LineageGraph,
   tags: ["autodocs"],
   args: {
+    artifactHrefFor,
     rootArtifactIds: ["artifact-root"],
     nodes,
     edges,
@@ -64,12 +77,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    artifactHrefFor,
     rootArtifactIds: ["artifact-root"],
     nodes,
     edges,
   },
   render: () => (
     <LineageGraph
+      artifactHrefFor={artifactHrefFor}
       rootArtifactIds={["artifact-root"]}
       nodes={nodes}
       edges={edges}

@@ -53,7 +53,7 @@ export default function Header() {
   const header = workspace.resolveHeader(location.pathname);
   const capabilityCount = capabilitySearchQuery.data?.response.results.length;
   const reviewRuns = (runsQuery.data?.runs ?? []).filter(
-    (run) => run.decision_review_required === true,
+    (run) => run.decision_review_required,
   ).length;
   const reviewPresentation = issueReviewRequiredPresentation(
     runsQuery.data?.runs.map((run) => run.decision_review_required),

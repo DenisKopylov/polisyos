@@ -17,7 +17,7 @@ from polisyos.ir import (
     get_ir_type,
     list_ir_types,
 )
-from polisyos.ir.schemas import IRPublicStatus
+from polisyos.ir.schemas import IRPublicStatus, abi_snapshot_path
 
 
 def test_schema_catalog_exposes_root_metadata() -> None:
@@ -31,6 +31,41 @@ def test_schema_catalog_exposes_root_metadata() -> None:
 
     subgroup_field = next(field for field in hte.fields if field.name == "subgroup_effects")
     assert "polisyos.ir.analytics.hte.SubgroupEffect" in subgroup_field.references
+
+
+def test_schema_catalog_resolves_public_abi_alias_by_class_identity() -> None:
+    from polisyos.ir import TrinityBundle as PublicTrinityBundle
+    from polisyos.ir.trinity.contracts import TrinityBundle as OwnerTrinityBundle
+
+    catalog = get_ir_schema_catalog()
+    entry = get_ir_type("TrinityBundle")
+
+    assert catalog.get("polisyos.ir.trinity.contracts.TrinityBundle") is entry
+    assert catalog.get("polisyos.ir.trinity.TrinityBundle") is entry
+    assert entry.fqn == "polisyos.ir.trinity.TrinityBundle"
+    assert entry.module == "polisyos.ir.trinity.contracts"
+    assert entry.public_status is IRPublicStatus.ROOT_FACADE
+    assert "polisyos.ir:TrinityBundle" in entry.exported_from
+    assert entry.abi_key == "trinity_bundle"
+    assert entry.abi_schema_file == "trinity_bundle.schema.json"
+    assert entry.docs_link.endswith("#polisyos-ir-trinity-trinitybundle")
+    assert abi_snapshot_path(entry) == "schemas/snapshots/ir/trinity_bundle.schema.json"
+    assert PublicTrinityBundle is OwnerTrinityBundle
+    assert OwnerTrinityBundle.__module__ == entry.module
+
+    root_export = next(
+        item
+        for item in catalog.export_enumeration("root")
+        if item.export_name == "TrinityBundle"
+    )
+    assert root_export.target_fqn == entry.fqn
+
+    canonical_control = get_ir_type("HTEResult")
+    assert canonical_control.fqn == "polisyos.ir.analytics.hte.HTEResult"
+    assert canonical_control.module == "polisyos.ir.analytics.hte"
+    assert canonical_control.public_status is IRPublicStatus.ROOT_FACADE
+    assert canonical_control.abi_key == "hte_result"
+    assert abi_snapshot_path(canonical_control) == "schemas/snapshots/ir/hte_result.schema.json"
 
 
 def test_schema_catalog_lists_section_filters_and_bridge_exports() -> None:
@@ -101,7 +136,7 @@ def test_schema_catalog_tolerates_missing_optional_abi_registry(monkeypatch) -> 
 
     monkeypatch.setitem(sys.modules, "polisyos.schemas.abi_models", None)
 
-    assert schema_catalog._collect_abi_entries() == {}
+    assert schema_catalog._collect_abi_entries((), {}) == {}
 
 
 def test_generated_reference_catalog_is_current() -> None:
@@ -190,6 +225,9 @@ def test_pre_move_abi_pickle_loads_before_the_live_catalog_consumer() -> None:
         "hte_outcome",
         "hte_point_result",
         "hte_refusal_diagnostic",
+        "propagation_report_v1_1",
+        "propagation_report_v1_2",
+        "propagation_report_v1_3",
         "retained_skg_snapshot_v1_1",
     }
     assert additive_abi_keys <= {model.abi_key for model in ABI_MODELS}

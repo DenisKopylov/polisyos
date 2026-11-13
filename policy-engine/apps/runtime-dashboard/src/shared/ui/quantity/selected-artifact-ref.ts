@@ -1,5 +1,5 @@
 import type { SelectedArtifactRef } from "./quantity.types";
-import { coreArtifactRefSchema } from "@/api/validators";
+import { coreArtifactRefSchema } from "@/shared/lib/domain/evidence";
 
 export type SelectedArtifactRefProjection =
   | { status: "absent" }

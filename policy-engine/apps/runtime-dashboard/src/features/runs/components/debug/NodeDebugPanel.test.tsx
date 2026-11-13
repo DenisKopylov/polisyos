@@ -108,12 +108,14 @@ describe("NodeDebugPanel", () => {
     expect(
       screen.getByText("Planner exceeded latency budget."),
     ).toBeInTheDocument();
-    expect(
+    expectArtifactLinkToPreserveSelection(
       screen.getByRole("link", { name: "artifact-input" }),
-    ).toHaveAttribute("href", "/artifacts/artifact-input");
-    expect(
+      "artifact-input",
+    );
+    expectArtifactLinkToPreserveSelection(
       screen.getByRole("link", { name: "artifact-output" }),
-    ).toHaveAttribute("href", "/artifacts/artifact-output");
+      "artifact-output",
+    );
     expect(screen.getByText("running")).toBeInTheDocument();
     expect(screen.getByText("failed")).toBeInTheDocument();
     expect(screen.getByText("queued")).toBeInTheDocument();
@@ -174,3 +176,16 @@ describe("NodeDebugPanel", () => {
     );
   });
 });
+
+function expectArtifactLinkToPreserveSelection(
+  link: HTMLElement,
+  artifactId: string,
+) {
+  const href = new URL(link.getAttribute("href") ?? "", window.location.origin);
+
+  expect(href.pathname).toBe(`/artifacts/${artifactId}`);
+  expect(href.searchParams.get("tab")).toBe("content");
+  expect(JSON.parse(href.searchParams.get("artifactRefKey") ?? "null")).toEqual(
+    [artifactId, null, null, null],
+  );
+}

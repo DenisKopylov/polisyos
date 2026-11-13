@@ -1,4 +1,5 @@
 import {
+  coreArtifactRefSchema,
   dedupeEvidenceArtifactRefs,
   evidenceArtifactRefKey,
   findRunEvidenceNeed,
@@ -6,9 +7,35 @@ import {
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
   resolveDefaultEvidenceFocus,
+  sameCoreArtifactRefView,
 } from "@/shared/lib/domain/evidence";
 
 describe("evidence domain", () => {
+  it("validates selected Core refs without treating locator shape as authority", () => {
+    const ref = {
+      artifact_id: `sha256:${"a".repeat(64)}`,
+      kind: "runtime.quality.example",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+    };
+    expect(coreArtifactRefSchema.safeParse(ref).success).toBe(true);
+    expect(
+      coreArtifactRefSchema.safeParse({ ...ref, extra: "ignored" }).success,
+    ).toBe(false);
+    expect(
+      coreArtifactRefSchema.safeParse({ ...ref, artifact_id: "not-a-hash" })
+        .success,
+    ).toBe(false);
+    expect(sameCoreArtifactRefView(ref, { ...ref })).toBe(true);
+    expect(sameCoreArtifactRefView(ref, null)).toBe(false);
+    expect(
+      sameCoreArtifactRefView(ref, {
+        ...ref,
+        manifest_profile_sha256: `sha256:${"c".repeat(64)}`,
+      }),
+    ).toBe(false);
+  });
+
   it("normalizes context payloads and resolves defaults", () => {
     const context = normalizeRunEvidenceContext({
       data_needs: [

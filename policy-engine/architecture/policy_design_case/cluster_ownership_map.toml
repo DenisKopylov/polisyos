@@ -321,6 +321,8 @@ paths = [
   "src/polisyos/berl/benchmarks",
   "src/polisyos/berl/contracts",
   "src/polisyos/berl/metrics",
+  "src/polisyos/berl/perturbations",
+  "src/polisyos/berl/service",
 ]
 ratchet_state = "implemented"
 p01_chain = "implemented"
@@ -546,9 +548,12 @@ cell_ref = "ACTOR.legal_authority"
 coverage_mode = "subpackage_list"
 paths = [
   "src/polisyos/lex/extensions",
+  "src/polisyos/lex/exception_taxonomy",
+  "src/polisyos/lex/interventions",
   "src/polisyos/lex/knowledge",
   "src/polisyos/lex/legal_evaluation",
   "src/polisyos/lex/normpack",
+  "src/polisyos/lex/provenance",
   "src/polisyos/lex/simulator",
 ]
 ratchet_state = "implemented"
@@ -563,6 +568,7 @@ coverage_mode = "subpackage_list"
 paths = [
   "src/polisyos/runtime/extensions",
   "src/polisyos/runtime/http",
+  "src/polisyos/runtime/manifest",
   "src/polisyos/runtime/quality",
 ]
 ratchet_state = "implemented"

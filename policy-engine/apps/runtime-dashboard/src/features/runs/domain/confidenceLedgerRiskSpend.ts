@@ -7,6 +7,7 @@ import type {
   PromotionObligationClass,
   SourceBlockedConfidenceLedgerRiskSpendPacket,
 } from "@polisyos/runtime-api-client";
+import { coreArtifactRefSchema } from "@/shared/lib/domain/evidence";
 import { z } from "zod";
 
 export const CONFIDENCE_LEDGER_DECLARED_SET_RIDER =
@@ -59,8 +60,16 @@ function ownerLiteralRule(
   rootSchema: ConfidenceLedgerOwnerPacketSchema,
   path: string,
   value: ConfidenceLedgerOwnerLiteralRule["value"],
+  nullablePaths?: readonly string[],
 ): ConfidenceLedgerOwnerLiteralRule {
-  return Object.freeze({ path, rootSchema, value });
+  return Object.freeze({
+    path,
+    rootSchema,
+    value,
+    ...(nullablePaths === undefined
+      ? {}
+      : { nullablePaths: Object.freeze(nullablePaths) }),
+  });
 }
 
 const COMMON_OWNER_LITERAL_VALUES = [
@@ -232,6 +241,8 @@ const DEPENDENCY_PROFILE_LITERAL_VALUES = [
   ["rule_version", "polisyos.foundry.dependency_discriminant.v1"],
   ["schema_version", "polisyos.foundry.dependency-discriminant.v1"],
 ] as const;
+const BUILD_IDENTITY_REF_PATH =
+  "/payload/registry_basis/certificate_class_routes/*/build_evidence_ref";
 
 export const CONFIDENCE_LEDGER_OWNER_LITERAL_RULES = Object.freeze([
   ...commonOwnerLiteralRules("ArtifactMissingConfidenceLedgerRiskSpendPacket"),
@@ -249,6 +260,18 @@ export const CONFIDENCE_LEDGER_OWNER_LITERAL_RULES = Object.freeze([
   ownerLiteralRule(AVAILABLE_ROOT, "/availability", "available"),
   ...AVAILABLE_OWNER_LITERAL_VALUES.map(([path, value]) =>
     ownerLiteralRule(AVAILABLE_ROOT, path, value),
+  ),
+  ownerLiteralRule(
+    AVAILABLE_ROOT,
+    `${BUILD_IDENTITY_REF_PATH}/kind`,
+    "runtime.quality.confidence_ledger.build_identity",
+    [BUILD_IDENTITY_REF_PATH],
+  ),
+  ownerLiteralRule(
+    AVAILABLE_ROOT,
+    `${BUILD_IDENTITY_REF_PATH}/media_type`,
+    "application/json",
+    [BUILD_IDENTITY_REF_PATH],
   ),
   ...(
     [
@@ -543,8 +566,15 @@ const registryInstrument = z
   })
   .strict();
 
+const buildIdentityRef = coreArtifactRefSchema
+  .extend({
+    manifest_profile_sha256: hash,
+  })
+  .strict();
+
 const registryRoute = z
   .object({
+    build_evidence_ref: buildIdentityRef.nullable().optional(),
     certificate_class: nonEmptyString,
     certificate_role: certificateRole,
     claim_polarity: claimPolarity,
@@ -554,7 +584,22 @@ const registryRoute = z
     verifier_kernel_id: nonEmptyString,
     verifier_ref: nonEmptyString,
   })
-  .strict();
+  .strict()
+  .superRefine((route, context) => {
+    if (
+      route.build_evidence_ref != null &&
+      (route.certificate_class !== "n6_build_identity" ||
+        route.certificate_role !== "promotion_conformance" ||
+        route.claim_polarity !== "conformance_only" ||
+        route.verifier_kernel_id !== "n6_build_identity_reconcile_v1")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["build_evidence_ref"],
+        message: "build_evidence_route_purpose_mismatch",
+      });
+    }
+  });
 
 const registry = z
   .object({

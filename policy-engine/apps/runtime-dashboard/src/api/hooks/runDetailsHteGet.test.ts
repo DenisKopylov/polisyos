@@ -32,7 +32,7 @@ describe("RunDetails GET with a synthetic DTO response", () => {
     expect(result.run.method_execution_selection?.selection?.hte).toMatchObject(
       {
         kind: "point_estimate",
-        point_estimate: 0.42,
+        point_estimate: 0.25,
         materialization_binding_ref: {
           kind: "foundry.hte.physical_source_materialization_binding",
         },

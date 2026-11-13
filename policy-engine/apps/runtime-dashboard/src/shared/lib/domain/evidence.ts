@@ -1,4 +1,5 @@
 import type { RunEvidenceContextPayload } from "@/api/validators";
+import { z } from "zod";
 
 export type EvidenceArtifactRef = {
   artifact_id: string;
@@ -13,6 +14,25 @@ export type ArtifactViewResponseIdentity = {
   media_type?: string | null;
   manifest_profile_sha256?: string | null;
 };
+
+/**
+ * Parse the selected Core artifact-reference wire shape.
+ *
+ * This validates the reference tuple only. It does not resolve the artifact,
+ * establish its currentness, or grant authority to use it.
+ */
+export const coreArtifactRefSchema = z
+  .object({
+    artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    kind: z.string().min(1),
+    media_type: z.string().min(1),
+    manifest_profile_sha256: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+  })
+  .strict();
 
 const MANIFEST_PROFILE_SHA256 = /^sha256:[0-9a-f]{64}$/u;
 
@@ -91,6 +111,14 @@ export function sameResolvedArtifactView(
   right: ArtifactViewResponseIdentity,
 ): boolean {
   return evidenceArtifactRefKey(left) === evidenceArtifactRefKey(right);
+}
+
+/** Compare two selected Core references without treating missing refs as equal. */
+export function sameCoreArtifactRefView(
+  left: z.infer<typeof coreArtifactRefSchema> | null | undefined,
+  right: z.infer<typeof coreArtifactRefSchema> | null | undefined,
+): boolean {
+  return left != null && right != null && sameResolvedArtifactView(left, right);
 }
 
 /** Normalize a legacy ID/profile call or preserve a supplied full typed ref. */

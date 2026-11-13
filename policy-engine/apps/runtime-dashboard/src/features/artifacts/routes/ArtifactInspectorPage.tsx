@@ -624,6 +624,9 @@ export default function ArtifactInspector() {
                 <LineageGraph
                   nodes={lineageView.nodes}
                   edges={lineageView.edges}
+                  artifactHrefFor={(ref) =>
+                    buildArtifactHref(ref.artifact_id, { artifactRef: ref })
+                  }
                   rootArtifactIds={lineageView.root_artifact_ids}
                   rootArtifactRefs={lineageView.root_artifact_refs}
                 />

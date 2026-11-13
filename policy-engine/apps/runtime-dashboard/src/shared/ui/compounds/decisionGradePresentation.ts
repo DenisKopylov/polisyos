@@ -1,4 +1,5 @@
 import type { DecisionGrade } from "@polisyos/runtime-api-client";
+import { isDecisionGrade } from "@/shared/lib/domain/decisionGrade";
 
 export type DecisionGradePresentation =
   | Readonly<{
@@ -9,17 +10,6 @@ export type DecisionGradePresentation =
       classification: "unrecognized";
       ownerLabel: string | null;
     }>;
-
-const decisionGradePresentationByOwnerGrade = {
-  unsupported: "unsupported",
-  descriptive_only: "descriptive_only",
-  advisory_admissible: "advisory_admissible",
-  decision_admissible: "decision_admissible",
-} as const satisfies Record<DecisionGrade, DecisionGrade>;
-
-function isDecisionGrade(ownerLabel: string): ownerLabel is DecisionGrade {
-  return Object.hasOwn(decisionGradePresentationByOwnerGrade, ownerLabel);
-}
 
 /**
  * Presents an owner-issued decision grade without inventing frontend authority.
@@ -37,7 +27,7 @@ export function presentDecisionGradeLabel(
   if (ownerLabel !== null && isDecisionGrade(ownerLabel)) {
     return Object.freeze({
       classification: "recognized" as const,
-      ownerLabel: decisionGradePresentationByOwnerGrade[ownerLabel],
+      ownerLabel,
     });
   }
 

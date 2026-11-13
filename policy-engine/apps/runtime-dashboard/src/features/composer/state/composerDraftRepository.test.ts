@@ -38,6 +38,7 @@ const nlDraft: ComposerDraftRecord = {
   mode: "nl",
   updatedAt: 1_710_000_000_001,
   values: {
+    boundedCandidateExperiment: false,
     checkpointPolicy: "strict",
     domainHint: "custom",
     executionIntent: "Find constraints",
@@ -63,6 +64,7 @@ const nlDraft: ComposerDraftRecord = {
     nlRequest: "Assess the policy",
     perModelBudgetUsd: "",
     runBudgetUsd: "",
+    runBudgetScope: "",
     selectedLlmModels: ["openai/gpt-5.4"],
   },
 };
@@ -210,6 +212,25 @@ describe("composerDraftRepository", () => {
       Date.parse(storedWorkflow.envelope.expiresAt) -
         Date.parse(storedWorkflow.envelope.issuedAt),
     ).toBe(24 * 60 * 60 * 1_000);
+  });
+
+  it("keeps launch-level budget refinements when saving natural-language drafts", async () => {
+    const port = createMemoryPort();
+    const repository = createComposerDraftRepository({
+      clock: () => new Date("2026-08-14T10:00:00.000Z"),
+      database: port,
+    });
+    const invalidNlDraft: ComposerDraftRecord = {
+      ...nlDraft,
+      values: {
+        ...nlDraft.values,
+        runBudgetScope: "metered_paid_producers_and_bounded_candidate",
+        runBudgetUsd: "",
+      },
+    };
+
+    await expect(repository.save(scope, invalidNlDraft)).resolves.toBe(false);
+    expect(port.put).not.toHaveBeenCalled();
   });
 
   it("serializes a pending save before a same-key delete", async () => {

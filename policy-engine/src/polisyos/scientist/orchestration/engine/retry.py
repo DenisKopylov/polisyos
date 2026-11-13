@@ -89,7 +89,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
     decode_node_outcome,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
 
 if TYPE_CHECKING:
     from multiprocessing.context import BaseContext
@@ -2404,7 +2404,7 @@ def _typed_failure_completion(
             artifacts = [proof.payload_ref, proof.receipt_ref]
     except Exception as exc:
         raise _SettlementProofNotEstablished(exc) from exc
-    completed_state = state.model_copy(deep=True)
+    completed_state = snapshot_state(state)
     completed_state.budgets["run_spent_usd"] = total
     return NodeOutcome(
         status="fail",
@@ -2782,7 +2782,7 @@ def execute_with_retry_sync(
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
             strict_view = _issued_settlement_view(attempt_ctx)
-            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            completion_baseline = snapshot_state(state) if strict_view is not None else state
             strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
             if strict_before is not None:
                 baseline_spend["run_spent_usd"] = strict_before
@@ -2903,7 +2903,7 @@ def execute_with_retry_sync(
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
             attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
             strict_view = _issued_settlement_view(attempt_ctx)
-            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            completion_baseline = snapshot_state(state) if strict_view is not None else state
             strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
             if strict_before is not None:
                 if not strict_profile:
@@ -3236,7 +3236,7 @@ def _submit_thread_attempt(
 ) -> tuple[Any, _AttemptAuthority, list[float]]:
     authority = _AttemptAuthority(deadline)
     worker_ctx = _build_attempt_context(ctx, authority)
-    worker_state = state.model_copy(deep=True)
+    worker_state = snapshot_state(state)
     completed = [0.0]
 
     def invoke() -> NodeOutcome:
@@ -3276,7 +3276,7 @@ def _execute_with_timeout_sync(
         return _execute_with_timeout_process(
             node,
             ctx,
-            state.model_copy(deep=True),
+            snapshot_state(state),
             timeout_s=timeout_s,
             authority=authority,
             deadline_monotonic=deadline,
@@ -3289,7 +3289,7 @@ def _execute_with_timeout_sync(
         return _execute_with_timeout_process(
             node,
             ctx,
-            state.model_copy(deep=True),
+            snapshot_state(state),
             timeout_s=timeout_s,
             authority=authority,
             deadline_monotonic=deadline,
@@ -4537,7 +4537,7 @@ async def _execute_with_timeout_process_async(
             deadline,
             process_context=mp_ctx if start_method == "spawn" else None,
         )
-        state = state.model_copy(deep=True)
+        state = snapshot_state(state)
     task = None
     fork_binding = None
     spawn_capability = None
@@ -4848,7 +4848,7 @@ async def _execute_with_timeout_async(
     assert deadline is not None
     authority = _AttemptAuthority(deadline)
     worker_ctx = _build_attempt_context(ctx, authority)
-    worker_state = state.model_copy(deep=True)
+    worker_state = snapshot_state(state)
     completed = [0.0]
 
     async def invoke() -> NodeOutcome:
@@ -5270,7 +5270,7 @@ async def execute_with_retry_async(
                 ):
                     authority = _AttemptAuthority()
                     guarded_ctx = _build_attempt_context(attempt_ctx, authority)
-                    guarded_state = attempt_state.model_copy(deep=True)
+                    guarded_state = snapshot_state(attempt_state)
 
                     async def invoke_guarded() -> NodeOutcome:
                         raise_if_job_execution_interrupted(check_current_owner=True)
@@ -5336,7 +5336,7 @@ async def execute_with_retry_async(
             )
         authority = _AttemptAuthority()
         worker_ctx = _build_attempt_context(attempt_ctx, authority)
-        worker_state = attempt_state.model_copy(deep=True)
+        worker_state = snapshot_state(attempt_state)
         try:
             if physical_resource_pin is not None:
                 return await _run_pinned_blocking(
@@ -5370,9 +5370,7 @@ async def execute_with_retry_async(
             try:
                 attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
                 strict_view = _issued_settlement_view(attempt_ctx)
-                completion_baseline = (
-                    state.model_copy(deep=True) if strict_view is not None else state
-                )
+                completion_baseline = snapshot_state(state) if strict_view is not None else state
                 strict_before = (
                     _confirmed_view_spend(strict_view) if strict_view is not None else None
                 )
@@ -5603,9 +5601,7 @@ async def execute_with_retry_async(
                 attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
                 attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
                 strict_view = _issued_settlement_view(attempt_ctx)
-                completion_baseline = (
-                    state.model_copy(deep=True) if strict_view is not None else state
-                )
+                completion_baseline = snapshot_state(state) if strict_view is not None else state
                 strict_before = (
                     _confirmed_view_spend(strict_view) if strict_view is not None else None
                 )

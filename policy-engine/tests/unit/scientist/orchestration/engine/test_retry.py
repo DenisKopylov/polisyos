@@ -1929,6 +1929,66 @@ class TestExecuteWithRetryAsync:
             )
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stop", ["failure", "timeout"])
+async def test_async_attempt_snapshot_preserves_runtime_aliases_without_leaking_mutations(
+    ctx, stop: str
+) -> None:
+    """A real interrupted attempt keeps private/field aliases inside its own snapshot."""
+    from typing import Any
+
+    from pydantic import PrivateAttr
+
+    from polisyos.scientist.orchestration.engine.state_branching import snapshot_state
+
+    class StateWithPrivate(ExperimentState):
+        _shared: Any = PrivateAttr()
+
+    state = StateWithPrivate(run_id="retry-private-alias")
+    rows = [{"value": "baseline"}]
+    state.params["config"] = {"left": rows, "right": rows}
+    state._shared = rows
+    sibling = snapshot_state(state)
+    release = asyncio.Event()
+    finished = asyncio.Event()
+    observed: list[ExperimentState] = []
+
+    class Node:
+        async def execute_async(self, _ctx, attempt_state):
+            observed.append(attempt_state)
+            try:
+                assert attempt_state._shared is attempt_state.params["config"]["left"]
+                assert attempt_state._shared is attempt_state.params["config"]["right"]
+                attempt_state._shared[0]["value"] = "uncommitted"
+                if stop == "failure":
+                    raise RuntimeError("actual attempt failure")
+                await release.wait()
+                return _ok_outcome(attempt_state)
+            finally:
+                finished.set()
+
+    try:
+        if stop == "failure":
+            with pytest.raises(retry_module._CompletedAttemptError, match="actual attempt failure"):
+                await retry_module._execute_with_timeout_async(Node(), ctx, state, timeout_s=1)
+        else:
+            with pytest.raises(NodeTimeoutError):
+                await retry_module._execute_with_timeout_async(Node(), ctx, state, timeout_s=0.05)
+    finally:
+        release.set()
+        await asyncio.wait_for(finished.wait(), 1)
+        # Let the late attempt finish and its exception-consumer callback run.
+        await asyncio.sleep(0)
+
+    assert len(observed) == 1
+    assert observed[0].params["config"]["left"] == [{"value": "uncommitted"}]
+    assert state.params["config"]["left"] == [{"value": "baseline"}]
+    assert sibling.params["config"]["left"] == [{"value": "baseline"}]
+    assert state._shared is state.params["config"]["left"]
+    assert sibling._shared is sibling.params["config"]["left"]
+    assert state._shared is not sibling._shared
+
+
 class TestRetryTimeoutWorker:
     def test_timeout_worker_does_not_swallow_system_exit(self, ctx, state):
         node = MagicMock()

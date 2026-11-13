@@ -10642,6 +10642,23 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "generic_final_sealing_20261113": {
+          "initial_composed_source": "7c48b4f2b4e4f5e005e27173cf51adf39c31fff8",
+          "initial_full_command": "FAIL: generic_program_graph_content_result_mismatch after genuine A and no-duplicate worker recovery; one completed standard unit.",
+          "output_initial": "policy-engine/_cache/e02/generic-served-sequence-r1-20261113/",
+          "cause": "Exact retained payload proves the request diagnostic was appended after observation sealing.",
+          "repair": "Seal captured Generic/NCM observation after all result annotations; strict consumers and old artifacts unchanged.",
+          "source_sha256": "f963f69b41ff77c5392dbad670919a788517b3ca0f0fa9dacc54b9e26227f4e0",
+          "test_sha256": "82e588826ef82cd08f2b3f0f783fbc027947a9487b19594a74ffbf7a1b361602",
+          "qualified_regression": {
+            "output": "secondary:policy-engine/_cache/e02/generic-final-seal-r2-20261113/",
+            "PASS": 1,
+            "scope": "Actual public port, persisted V5/result joins, fresh CAS observation reader and both independently outer-rehashed request-diagnostic deletion/alteration refusals; intentional stop before unrelated workflow surface checks."
+          },
+          "review": "GO",
+          "full_corrected_sequence": "UNRUN before enclosing checkpoint",
+          "G_acceptance": false
+        },
         "generic_composition_checkpoint_20261113": {
           "commit": "073870b797f0183e805cd0e450dd697e0565b230",
           "tree": "88a1d25d54f8d98670f00bdaeeec1b6cfa07f8a0",

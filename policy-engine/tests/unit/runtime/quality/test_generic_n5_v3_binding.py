@@ -305,6 +305,142 @@ async def _prepare_generic_facade_owner_case(
     }
 
 
+def test_semantic_successor_port_seals_final_request_before_content_observation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real successor result remains bound after a fresh selected CAS read."""
+    import copy
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+        verify_simulation_receipt,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        CONTENT_OBSERVATION_KEY,
+        read_generic_program_graph_n5_content_observation,
+    )
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers.controlled_candidate_profile import ControlledCandidateGateway
+    from tests.integration.runtime_quality.test_program_graph_model_input_use_served import (
+        _run_activated_held_out_stock_scenario,
+    )
+
+    class _SelectedSealChecked(BaseException):
+        """Stop after the selected producer boundary and its negative controls."""
+
+    original = JointSimulationPort.run_semantic_successor
+    checked: list[tuple[ArtifactRef, ...]] = []
+
+    def check_selected_result(
+        port: JointSimulationPort, **kwargs: Any
+    ) -> SimulationPortObservation:
+        observation = original(port, **kwargs)
+        assert observation.status == "joint_simulated"
+        assert observation.simulation_result_ref is not None
+        assert observation.generic_n5_execution_ref is not None
+        assert observation.generic_n5_input_ref is not None
+        assert observation.generic_n5_input_ref == kwargs["expected_input_ref"]
+        binding = observation.generic_n5_request_binding
+        assert binding is not None
+        request = binding.request
+        fresh = FileSystemCAS(tmp_path / "cas").for_tenant(served.TENANT, served.CELL)
+        execution = parse_generic_cycle_simulation_n5_execution(
+            read_core_json_artifact(fresh, observation.generic_n5_execution_ref).value
+        )
+        assert type(execution) is GenericCycleSimulationN5ExecutionV5
+        assert execution.result_ref == observation.simulation_result_ref
+        assert execution.input_ref == observation.generic_n5_input_ref
+        assert execution.semantic_successor_ref == kwargs["semantic_successor_ref"]
+        assert execution.request_binding.request_content_hash == binding.request_content_hash
+        result = load_joint_simulation_result(
+            observation.simulation_result_ref, store=fresh, expected_request=request
+        )
+        assert result.diagnostics["generic_n5_request_content_hash"] == binding.request_content_hash
+        observed = read_generic_program_graph_n5_content_observation(
+            result,
+            input_ref=kwargs["expected_input_ref"],
+            semantic_successor_ref=kwargs["semantic_successor_ref"],
+            expected_request=request,
+            store=fresh,
+        )
+        assert observed.predicate_provenance == "recomputed"
+        assert observed.completion.status == "recomputed"
+        assert not observed.protected_use_allowed
+
+        # A new outer receipt cannot make a removed or altered request binding
+        # agree with the producer's retained observation.
+        assert port._artifact_store is not None
+        for replacement in (None, "sha256:" + "f" * 64):
+            payload = copy.deepcopy(result.content_bound_payload())
+            if replacement is None:
+                del payload["diagnostics"]["generic_n5_request_content_hash"]
+            else:
+                payload["diagnostics"]["generic_n5_request_content_hash"] = replacement
+            assert CONTENT_OBSERVATION_KEY in payload["diagnostics"]
+            receipt = build_content_bound_simulation_receipt(
+                engine_kind=result.receipt.engine_kind,
+                payload=payload,
+                diagnostics=payload["diagnostics"],
+            )
+            forged = JointSimulationResult.model_validate(
+                {**payload, "receipt": receipt.model_dump(mode="json")}
+            )
+            forged._content_payload = payload
+            forged_ref = persist_joint_simulation_result(
+                forged,
+                store=port._artifact_store,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=served.TENANT, cell_id=served.CELL
+                ),
+            )
+            wire = read_core_json_artifact(fresh, forged_ref).value
+            reopened = JointSimulationResult.model_validate(wire)
+            reopened._content_payload = {
+                key: value for key, value in wire.items() if key != "receipt"
+            }
+            verify_simulation_receipt(reopened.receipt, reopened.content_bound_payload())
+            with pytest.raises(ValueError, match="generic_program_graph_content_result_mismatch"):
+                read_generic_program_graph_n5_content_observation(
+                    reopened,
+                    input_ref=kwargs["expected_input_ref"],
+                    semantic_successor_ref=kwargs["semantic_successor_ref"],
+                    expected_request=request,
+                    store=fresh,
+                )
+        checked.append(
+            (
+                observation.generic_n5_input_ref,
+                execution.semantic_successor_ref,
+                observation.generic_n5_execution_ref,
+                observation.simulation_result_ref,
+            )
+        )
+        raise _SelectedSealChecked
+
+    monkeypatch.setattr(JointSimulationPort, "run_semantic_successor", check_selected_result)
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", "http://127.0.0.1:1/v1")
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-synthetic-local-gateway-key")
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_MAX_RETRIES", "0")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "0")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "0")
+    monkeypatch.setenv("POLISYOS_LLM_PROMPT_SANITIZER", "false")
+    with ControlledCandidateGateway() as gateway:
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", gateway.base_url)
+        with pytest.raises(_SelectedSealChecked):
+            _run_activated_held_out_stock_scenario(
+                tmp_path, monkeypatch, gateway, methodology_v2=False
+            )
+    assert len(checked) == 1
+    assert all(ref.manifest_profile_sha256 is not None for ref in checked[0])
+
+
 def _assert_generic_facade_execution(
     case: dict[str, Any], observation: SimulationPortObservation
 ) -> Any:

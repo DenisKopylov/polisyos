@@ -341,6 +341,10 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.n5_candidate_content import (
+        CandidateN5ContentRun,
+        GenericProgramGraphN5ContentRun,
+    )
     from polisyos.runtime.quality.open_world_risk import (
         OpenWorldRiskArtifactResolver,
         PromotionRuntime,
@@ -6422,6 +6426,8 @@ class JointSimulationPort:
                 k_world_ref_after=request.world_model_record.content_hash,
                 world_model_record=request.world_model_record,
             )
+        candidate_content_scope: CandidateN5ContentRun | None = None
+        generic_content_scope: GenericProgramGraphN5ContentRun | None = None
         try:
             with invocation_scope:
                 if (
@@ -6430,7 +6436,6 @@ class JointSimulationPort:
                     and candidate_simulation_input_ref is not None
                 ):
                     from polisyos.runtime.quality.n5_candidate_content import (
-                        bind_candidate_n5_content_observation,
                         observe_candidate_n5_content_input,
                     )
 
@@ -6440,9 +6445,8 @@ class JointSimulationPort:
                         problem=problem,
                         request=request,
                         input_ref=candidate_simulation_input_ref,
-                    ) as (request, content_scope):
+                    ) as (request, candidate_content_scope):
                         result = self._controller.run(request)
-                    result = bind_candidate_n5_content_observation(result, scope=content_scope)
                 elif selected_program_profile and admitted_input is not None:
                     from polisyos.runtime.quality.joint_simulation_horizon import (
                         JointSimulationControllerError,
@@ -6470,7 +6474,6 @@ class JointSimulationPort:
                             and admitted_input_ref is not None
                         ):
                             from polisyos.runtime.quality.n5_candidate_content import (
-                                bind_generic_program_graph_n5_content_observation,
                                 observe_generic_program_graph_n5_input,
                             )
 
@@ -6479,17 +6482,9 @@ class JointSimulationPort:
                                 request=request,
                                 input_ref=admitted_input_ref,
                                 semantic_successor_ref=semantic_successor_ref,
-                            ) as content_scope:
+                            ) as generic_content_scope:
                                 result = self._controller.run(
                                     request, _program_graph_input_preflight=preflight
-                                )
-                            # Numerical work has happened. If observation is
-                            # unavailable, retain the ordinary candidate result.
-                            with suppress(
-                                OSError, RuntimeError, TypeError, ValueError, AttributeError
-                            ):
-                                result = bind_generic_program_graph_n5_content_observation(
-                                    result, scope=content_scope
                                 )
                         else:
                             result = self._controller.run(
@@ -6591,6 +6586,37 @@ class JointSimulationPort:
                     k_world_ref_before=request.world_model_record.content_hash,
                     k_world_ref_after=request.world_model_record.content_hash,
                     world_model_record=request.world_model_record,
+                )
+        if candidate_content_scope is not None:
+            from polisyos.runtime.quality.n5_candidate_content import (
+                bind_candidate_n5_content_observation,
+            )
+
+            try:
+                result = bind_candidate_n5_content_observation(
+                    result, scope=candidate_content_scope
+                )
+            except ProducerBudgetSourceError as exc:
+                code = str(exc) or "n5_invocation_selection_not_established"
+                return produced(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=(code,),
+                    diagnostics={"port": "N5", "reason": code},
+                    k_world_ref_before=request.world_model_record.content_hash,
+                    k_world_ref_after=request.world_model_record.content_hash,
+                    world_model_record=request.world_model_record,
+                )
+        elif generic_content_scope is not None:
+            from polisyos.runtime.quality.n5_candidate_content import (
+                bind_generic_program_graph_n5_content_observation,
+            )
+
+            # Seal the original execution observation only after every result
+            # annotation. If it is unavailable, retain the ordinary result.
+            with suppress(OSError, RuntimeError, TypeError, ValueError, AttributeError):
+                result = bind_generic_program_graph_n5_content_observation(
+                    result, scope=generic_content_scope
                 )
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(

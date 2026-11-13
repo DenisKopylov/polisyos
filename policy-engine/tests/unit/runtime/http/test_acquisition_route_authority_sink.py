@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import sqlite3
+from contextlib import closing
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -7,12 +11,22 @@ from pathlib import Path
 import pytest
 
 from polisyos.core import canon
-from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactIntegrityError,
+    ArtifactRef,
+    artifact_ref_for_manifest,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
+    _read_verified_acquisition_action_phase,
 )
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import (
+    ControlDiagnosticEventRecord,
+    ControlPlaneStore,
+)
 from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateRouteLoopReceipt,
@@ -22,6 +36,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     persist_world_commit_and_reenter,
     resume_world_committed_reentry,
 )
+from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 NOW = datetime(2026, 8, 28, 12, tzinfo=UTC)
@@ -234,6 +249,153 @@ def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
         }
     )
     return sink.persist_terminal(terminal)
+
+
+class _QueryOnlyDiagnosticRows:
+    """Read actual diagnostic rows without presenting a mutable store identity."""
+
+    def __init__(self, path: Path) -> None:
+        self._path = path
+
+    def list_diagnostic_events(
+        self,
+        *,
+        event_id: str | None = None,
+        run_id: str | None = None,
+        job_id: str | None = None,
+        limit: int = 500,
+    ) -> list[ControlDiagnosticEventRecord]:
+        with closing(
+            sqlite3.connect(self._path.resolve().as_uri() + "?mode=ro", uri=True)
+        ) as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute("PRAGMA query_only=ON")
+            rows = connection.execute(
+                "SELECT row_id, event_json, payload_ref, payload_inline_json, "
+                "payload_sha256, created_at FROM control_diagnostic_events "
+                "WHERE (? IS NULL OR event_id = ?) AND (? IS NULL OR run_id = ?) "
+                "AND (? IS NULL OR job_id = ?) ORDER BY row_id ASC LIMIT ?",
+                (event_id, event_id, run_id, run_id, job_id, job_id, max(1, min(limit, 1000))),
+            ).fetchall()
+        return [
+            ControlDiagnosticEventRecord(
+                row_id=row["row_id"],
+                event=DiagnosticEvent.model_validate_json(row["event_json"]),
+                payload_ref=row["payload_ref"],
+                payload_inline=(
+                    json.loads(row["payload_inline_json"]) if row["payload_inline_json"] else None
+                ),
+                payload_sha256=row["payload_sha256"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+            )
+            for row in rows
+        ]
+
+
+@pytest.mark.parametrize(
+    ("corruption", "error_type", "message"),
+    [
+        (None, None, None),
+        ("missing_event", ValueError, "authority_orphan_cas"),
+        ("corrupt_event", ValueError, "authority_payload_mismatch"),
+        ("missing_manifest", FileNotFoundError, None),
+        ("corrupt_manifest", ArtifactIntegrityError, "Selected manifest profile mismatch"),
+        ("corrupt_receipt", ArtifactIntegrityError, None),
+    ],
+)
+def test_readonly_phase_reader_reconciles_actual_sqlite_history(
+    generation_owner,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    corruption: str | None,
+    error_type: type[Exception] | None,
+    message: str | None,
+) -> None:
+    """A fresh read needs selected bytes and actual rows, without writer capabilities."""
+    sink, database, cas = generation_owner
+    terminal = _persist_generation(
+        sink, generation=1, job_id="readonly-history", terminal_outcome="quarantined_no_growth"
+    )
+    phases = sink.current_action_outcome(**_generation_identity()).phase_chain
+    writable = {
+        phase.receipt_ref: sink._read_verified_action_phase(phase.receipt_ref) for phase in phases
+    }
+    terminal_ref = artifact_ref_for_manifest(
+        cas.get_manifest(ArtifactID.model_validate(terminal.receipt_ref))
+    )
+    assert terminal_ref.manifest_profile_sha256 is not None
+    root = tmp_path / "cas"
+    artifact_hex = terminal.receipt_ref.removeprefix("sha256:")
+    member_root = root / "artifacts" / "sha256" / artifact_hex[:2] / artifact_hex[2:4]
+    manifest = member_root / (
+        artifact_hex
+        + ".view."
+        + terminal_ref.manifest_profile_sha256.removeprefix("sha256:")
+        + ".manifest.json"
+    )
+    if corruption == "missing_event":
+        database._execute(
+            "DELETE FROM control_diagnostic_events WHERE event_id = ?",
+            (terminal.durable_event_id,),
+        )
+    elif corruption == "corrupt_event":
+        record = database.list_diagnostic_events(event_id=terminal.durable_event_id)[0]
+        altered = record.event.model_copy(update={"state_after": "requested"})
+        database._execute(
+            "UPDATE control_diagnostic_events SET event_json = ? WHERE event_id = ?",
+            (altered.model_dump_json(), terminal.durable_event_id),
+        )
+    elif corruption == "missing_manifest":
+        manifest.unlink()
+    elif corruption == "corrupt_manifest":
+        altered_manifest = json.loads(manifest.read_text())
+        altered_manifest["producer"]["version"] = "tampered"
+        manifest.write_text(json.dumps(altered_manifest))
+    elif corruption == "corrupt_receipt":
+        blob = member_root / (artifact_hex + ".blob")
+        blob.write_bytes(blob.read_bytes() + b" ")
+
+    def pins() -> dict[str, str]:
+        paths = [path for path in root.rglob("*") if path.is_file()]
+        paths.extend(
+            path for path in tmp_path.glob("control.sqlite3*") if path.suffix != ".sqlite3-shm"
+        )
+        return {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+
+    readonly = FileSystemCAS.open_existing_read_only(root)
+    events = RuntimeDiagnosticEventLog(
+        store=_QueryOnlyDiagnosticRows(tmp_path / "control.sqlite3"), artifact_store=readonly
+    )
+    # Opening an existing WAL-mode database may initialize an empty WAL/SHM.
+    # Freeze after reader setup; the proof below must preserve every data byte.
+    events.list_events(event_id=terminal.durable_event_id)
+    before = pins()
+    assert not hasattr(readonly, "put_json")
+
+    def forbid_store_construction(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("historical reader must not construct ControlPlaneStore")
+
+    monkeypatch.setattr(ControlPlaneStore, "__init__", forbid_store_construction)
+    with tenant_scope(None, tenant_id=terminal.tenant_id, cell_id=terminal.cell_id):
+        if error_type is not None:
+            with pytest.raises(error_type, match=message):
+                _read_verified_acquisition_action_phase(
+                    artifact_store=readonly,
+                    event_log=events,
+                    receipt_ref=terminal.receipt_ref,
+                    selected_ref=terminal_ref,
+                )
+        else:
+            for phase in phases:
+                assert writable[phase.receipt_ref] == _read_verified_acquisition_action_phase(
+                    artifact_store=readonly,
+                    event_log=events,
+                    receipt_ref=phase.receipt_ref,
+                    selected_ref=(
+                        terminal_ref if phase.receipt_ref == terminal.receipt_ref else None
+                    ),
+                )
+    assert pins() == before
 
 
 def test_missing_candidate_frontier_owner_has_no_authority_side_effects(

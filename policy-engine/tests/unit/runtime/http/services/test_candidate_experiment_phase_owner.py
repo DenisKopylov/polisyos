@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import closing
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -575,3 +576,29 @@ def test_reuse_terminal_reader_requires_exact_occurrence_edge_and_event_lineage(
         ValueError, match="candidate_experiment_terminal_history_owner_not_established"
     ):
         sink.verify_action_head(head)
+
+
+def test_phase_job_read_keeps_normal_service_owner_fence_before_historical_reader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A pure historical reader cannot replace the composed service owner."""
+    from polisyos.runtime.http.services.control import run_lifecycle as lifecycle
+
+    phase = _phase()
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    ) as database:
+        store = FileSystemCAS(tmp_path / "cas").for_tenant(phase.tenant_id, cell_id=phase.cell_id)
+        sink = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=store,
+            event_log=RuntimeDiagnosticEventLog(store=database, artifact_store=store),
+            control_store=database,
+        )
+
+        def forbidden(**_kwargs):
+            pytest.fail("uncomposed service reached historical job read")
+
+        monkeypatch.setattr(lifecycle, "_read_candidate_experiment_phase_job_historical", forbidden)
+        with pytest.raises(ValueError, match="candidate_experiment_control_service_owner_missing"):
+            sink._candidate_experiment_phase_job_context(phase)
+        assert database.list_diagnostic_events(run_id=phase.run_id, limit=10) == []

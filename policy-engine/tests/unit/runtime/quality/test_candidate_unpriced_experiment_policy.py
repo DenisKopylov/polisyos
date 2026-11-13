@@ -20,7 +20,10 @@ from polisyos.core import artifacts, canon
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.data_plane import build_live_execution_authorization
 from polisyos.pdc import gy_content_hash
-from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+from polisyos.runtime.http.services.control.run_lifecycle import (
+    ControlPlaneService,
+    OriginalRunBudgetScopeEvidence,
+)
 from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
@@ -526,6 +529,63 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 )
                 == policy
             )
+            # This is a component intent comparison, not a signed original
+            # snapshot or a current budget owner. The retained read profile
+            # separately composes the original SQL/CAS snapshot calculation.
+            evidence = OriginalRunBudgetScopeEvidence(
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                run_id=scope.run_id,
+                source_job_id=scope.source_job_id,
+                source_payload_ref=policy.source_payload_ref,
+                run_budget_usd=policy.original_metered_budget_usd,
+                scope_explicit=True,
+                run_budget_scope="metered_paid_producers_and_bounded_candidate",
+                request_snapshot_schema="polisyos.runtime.control_nl_request_snapshot.v5",
+                request_content_hash=policy.request_content_hash,
+                candidate_acquisition_intent_present=True,
+                candidate_acquisition_intent=policy.experiment_intent,
+            )
+            candidate_policy._require_selected_candidate_experiment_policy_historical(
+                selected=ref, policy_ref=ref, policy=policy, closure=scope, scope=scope
+            )
+            candidate_policy._require_candidate_experiment_policy_intent_historical(
+                evidence=evidence, policy=policy, scope=scope
+            )
+            for changed in (
+                replace(evidence, candidate_acquisition_intent_present=False),
+                replace(evidence, candidate_acquisition_intent=None),
+                replace(evidence, request_content_hash="sha256:" + "9" * 64),
+                replace(evidence, source_payload_ref="sha256:" + "9" * 64),
+                replace(evidence, run_id="foreign-run"),
+                replace(evidence, run_budget_usd=Decimal("4.00")),
+                replace(evidence, request_snapshot_schema=None),
+            ):
+                with pytest.raises(
+                    ValueError, match="candidate_experiment_policy_intent_not_established"
+                ):
+                    candidate_policy._require_candidate_experiment_policy_intent_historical(
+                        evidence=changed, policy=policy, scope=scope
+                    )
+            for selected, selected_policy in (
+                (ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "9" * 64}), policy),
+                (
+                    ref,
+                    policy.model_copy(
+                        update={"scope": scope.model_copy(update={"run_id": "foreign"})}
+                    ),
+                ),
+            ):
+                with pytest.raises(
+                    ValueError, match="candidate_experiment_policy_intent_not_established"
+                ):
+                    candidate_policy._require_selected_candidate_experiment_policy_historical(
+                        selected=selected,
+                        policy_ref=ref,
+                        policy=selected_policy,
+                        closure=scope,
+                        scope=scope,
+                    )
             providers = replace(
                 resolve_control_registry_providers(),
                 candidate_unpriced_policy_bindings=(

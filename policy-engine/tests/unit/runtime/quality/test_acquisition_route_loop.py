@@ -696,6 +696,35 @@ def test_historical_initial_policy_requires_the_selected_action_head(
         )
         assert service._control_store.get_job(phase.job_id) is not None
         head = _persist_requested_phase(sink, phase)
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            _read_candidate_experiment_phase_chain_historical,
+        )
+
+        def read_chain(get_head=service._control_store.get_acquisition_action_head_by_receipt):
+            return _read_candidate_experiment_phase_chain_historical(
+                artifact_store=service._artifact_store,
+                event_log=service._diagnostic_event_log,
+                get_head_by_receipt=get_head,
+                head=head,
+            )
+
+        chain = read_chain()
+        assert len(chain) == 1 and chain[0].receipt == phase
+        assert (
+            acquisition_route_loop._read_selected_candidate_experiment_receipt_historical(
+                artifact_store=service._artifact_store,
+                event_log=service._diagnostic_event_log,
+                head=head,
+            )
+            == phase
+        )
+        with pytest.raises(ValueError, match="candidate_experiment_phase_chain_sql_head_missing"):
+            read_chain(lambda **_: None)
+        from dataclasses import replace
+
+        with pytest.raises(ValueError, match="candidate_experiment_phase_chain_sql_head_conflict"):
+            read_chain(lambda **_: replace(head, job_id="foreign-job"))
+        assert read_chain() == chain
         loop = AcquisitionRouteLoop(
             control_store=service._control_store,
             artifact_store=service._artifact_store,

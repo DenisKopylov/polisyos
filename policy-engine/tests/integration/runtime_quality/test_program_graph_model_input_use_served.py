@@ -2246,9 +2246,13 @@ def _run_activated_held_out_stock_scenario(
             prior_frontier_ref = equal_result.frontier_ref
             prior_frontier_revision = equal_result.frontier_revision
             seen_action_jobs = {action_job_id, equal_result.action_job_id}
-            seen_authority_decisions = {equal_result.current_authority_decision_ref}
-            seen_use_decisions = {equal_result.current_use_decision_ref}
-            seen_semantic_successors = {equal_result.current_semantic_successor_ref}
+            seen_authority_decisions = {
+                artifact_ref_identity_key(equal_result.current_authority_decision_ref)
+            }
+            seen_use_decisions = {artifact_ref_identity_key(equal_result.current_use_decision_ref)}
+            seen_semantic_successors = {
+                artifact_ref_identity_key(equal_result.current_semantic_successor_ref)
+            }
             for sequence_key in ("same-value-b2", "same-value-b3"):
                 reused_request, reused_current, reused_checkpoint, reused_result = (
                     execute_current_without_n5(
@@ -2275,13 +2279,28 @@ def _run_activated_held_out_stock_scenario(
                 assert reused_result.frontier_revision == prior_frontier_revision
                 assert reused_result.frontier_selection == "selected"
                 assert reused_result.action_job_id not in seen_action_jobs
-                assert reused_result.current_authority_decision_ref not in seen_authority_decisions
-                assert reused_result.current_use_decision_ref not in seen_use_decisions
-                assert reused_result.current_semantic_successor_ref not in seen_semantic_successors
+                assert (
+                    artifact_ref_identity_key(reused_result.current_authority_decision_ref)
+                    not in seen_authority_decisions
+                )
+                assert (
+                    artifact_ref_identity_key(reused_result.current_use_decision_ref)
+                    not in seen_use_decisions
+                )
+                assert (
+                    artifact_ref_identity_key(reused_result.current_semantic_successor_ref)
+                    not in seen_semantic_successors
+                )
                 seen_action_jobs.add(reused_result.action_job_id)
-                seen_authority_decisions.add(reused_result.current_authority_decision_ref)
-                seen_use_decisions.add(reused_result.current_use_decision_ref)
-                seen_semantic_successors.add(reused_result.current_semantic_successor_ref)
+                seen_authority_decisions.add(
+                    artifact_ref_identity_key(reused_result.current_authority_decision_ref)
+                )
+                seen_use_decisions.add(
+                    artifact_ref_identity_key(reused_result.current_use_decision_ref)
+                )
+                seen_semantic_successors.add(
+                    artifact_ref_identity_key(reused_result.current_semantic_successor_ref)
+                )
                 assert reused_result.result_body is not None
                 for trajectory in reused_result.result_body.trajectories:
                     assert tuple(point.outcomes[_OUTCOME] for point in trajectory.points) == (

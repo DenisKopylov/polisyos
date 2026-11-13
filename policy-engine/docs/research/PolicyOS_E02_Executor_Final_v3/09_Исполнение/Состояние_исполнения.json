@@ -10642,6 +10642,21 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "generic_a_b1_retained_20261113": {
+          "source_commit": "e9c330cbe40db03ab5ed8326b94d2f2ebf89d85e",
+          "source_tree": "a278ff684f77333d11f8e89027667ea4881936f5",
+          "output": "policy-engine/_cache/e02/generic-served-sequence-r2-20261113/",
+          "whole_command": "FAIL: test hashes mutable ArtifactRef objects in sets after A and B1 succeed; B2/B3/C UNRUN.",
+          "verified_boundary": "Real A completed via durable-V5 recovery attempt2; equal B1 completes attempt1 with equivalent/recomputed retained prior number, fresh current decision/history and zero additional N5.",
+          "completed_standard_units": 1,
+          "protected_units": 0,
+          "frontier_revision": 1,
+          "result_id": "sha256:d6b0d3d1ca0d9942cdf809756a85ceba29f8a18fa181eda975cd511ec052186c",
+          "result_profile": "sha256:ef9e390f64970d2e0d37f57d0e61232e67fec13acc05def89a0957fc5b2851af",
+          "fixture_repair": "All ref sets use full canonical four-field keys; independent complete AST set/hash census GO; no product change.",
+          "retained_suffix_limit": "Separate native epoch private custodian signer was in memory only; no supported full C continuation without new protocol. Preserve old state; use a fresh explicit test fixture.",
+          "G_acceptance": false
+        },
         "generic_final_sealing_20261113": {
           "initial_composed_source": "7c48b4f2b4e4f5e005e27173cf51adf39c31fff8",
           "initial_full_command": "FAIL: generic_program_graph_content_result_mismatch after genuine A and no-duplicate worker recovery; one completed standard unit.",

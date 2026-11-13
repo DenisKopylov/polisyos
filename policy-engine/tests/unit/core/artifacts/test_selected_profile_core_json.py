@@ -1771,3 +1771,191 @@ def test_v3_bounded_reader_has_no_unbounded_backend_fallback(tmp_path) -> None:
     with pytest.raises(CanonicalProfileRefusalError):
         read_core_json_artifact_bounded(MissingBoundedBackend(), ref, limits=limits)
     assert events == []
+
+
+def test_primitive_adapter_reuse_isolated_from_mutation_and_full_config(monkeypatch) -> None:
+    """Fresh adapters share compiled schema only for the same complete configuration."""
+    from pydantic import TypeAdapter
+
+    from polisyos.core.artifacts import canonical_profile
+
+    monkeypatch.setenv("PYDANTIC_DISABLE_PLUGINS", "1")
+    config = ConfigDict(extra="forbid", str_strip_whitespace=True, str_to_lower=False)
+    first = canonical_profile._core_type_adapter(str, config)
+    second = canonical_profile._core_type_adapter(str, config)
+    assert type(first) is type(second) is TypeAdapter
+    assert first is not second and first.validator is second.validator
+    assert first.core_schema is not second.core_schema
+    assert first._config is not second._config and first._config is not config
+    assert first.validate_python("  Mixed  ", strict=True) == "Mixed"
+
+    # Neither changing a returned adapter nor changing its copied config may
+    # modify the retained compiled template or the caller's configuration.
+    first.core_schema["type"] = "int"
+    first._config["str_to_lower"] = True
+    first.validator = TypeAdapter(int).validator
+    assert config["str_to_lower"] is False
+    assert second.validate_python("  Mixed  ", strict=True) == "Mixed"
+    third = canonical_profile._core_type_adapter(str, config)
+    assert third.core_schema == {"type": "str"}
+    assert third.validate_python("  Mixed  ", strict=True) == "Mixed"
+
+    config["str_to_lower"] = True
+    changed = canonical_profile._core_type_adapter(str, config)
+    assert changed.validator is not second.validator
+    assert changed.validate_python("  Mixed  ", strict=True) == "mixed"
+    config["str_to_lower"] = False
+    assert (
+        canonical_profile._core_type_adapter(str, config).validate_python("  Mixed  ", strict=True)
+        == "Mixed"
+    )
+
+
+def test_primitive_adapter_cache_falls_back_for_mutable_or_custom_inputs(monkeypatch) -> None:
+    from polisyos.core.artifacts import canonical_profile
+
+    monkeypatch.setenv("PYDANTIC_DISABLE_PLUGINS", "1")
+    for annotation, config in (
+        (str, ConfigDict(json_schema_extra={"mutable": []})),
+        (list[str], ConfigDict(extra="forbid")),
+        (Annotated[str, Field(min_length=2)], ConfigDict(extra="forbid")),
+    ):
+        first = canonical_profile._core_type_adapter(annotation, config)
+        second = canonical_profile._core_type_adapter(annotation, config)
+        assert first is not second and first.validator is not second.validator
+
+
+def test_primitive_adapter_shape_rejects_equal_but_custom_schema() -> None:
+    from pydantic import TypeAdapter
+
+    from polisyos.core.artifacts import canonical_profile
+
+    class CustomSchema(dict):
+        pass
+
+    config = ConfigDict(extra="forbid")
+    key = canonical_profile._primitive_config_key(config)
+    assert key is not None
+    adapter = TypeAdapter(str, config=config)
+    assert canonical_profile._primitive_adapter_has_supported_shape(adapter, str, key)
+    adapter.core_schema = CustomSchema(adapter.core_schema)
+    assert adapter.core_schema == {"type": "str"}
+    assert not canonical_profile._primitive_adapter_has_supported_shape(adapter, str, key)
+
+
+def test_primitive_adapter_cache_evicts_old_configurations(monkeypatch) -> None:
+    from polisyos.core.artifacts import canonical_profile
+
+    monkeypatch.setenv("PYDANTIC_DISABLE_PLUGINS", "1")
+    config = ConfigDict(title="initial-bounded-cache-entry")
+    initial = canonical_profile._core_type_adapter(str, config)
+    assert canonical_profile._core_type_adapter(str, config).validator is initial.validator
+    for index in range(64):
+        canonical_profile._core_type_adapter(str, ConfigDict(title=f"replacement-{index}"))
+    assert canonical_profile._core_type_adapter(str, config).validator is not initial.validator
+
+
+def test_primitive_adapter_respects_active_plugin_and_changed_provider(monkeypatch) -> None:
+    from pydantic import TypeAdapter
+    from pydantic._internal._generate_schema import GenerateSchema
+    from pydantic.plugin import _loader
+
+    from polisyos.core.artifacts import canonical_profile
+
+    config = ConfigDict(extra="forbid")
+    monkeypatch.setenv("PYDANTIC_DISABLE_PLUGINS", "1")
+    cached = canonical_profile._core_type_adapter(str, config)
+    assert canonical_profile._core_type_adapter(str, config).validator is cached.validator
+
+    class Plugin:
+        calls = 0
+
+        def new_schema_validator(self, *_args):
+            self.calls += 1
+            return None, None, None
+
+    plugin = Plugin()
+    with monkeypatch.context() as patch:
+        patch.delenv("PYDANTIC_DISABLE_PLUGINS")
+        patch.setattr(_loader, "_plugins", {"test": plugin})
+        first = canonical_profile._core_type_adapter(str, config)
+        second = canonical_profile._core_type_adapter(str, config)
+        assert plugin.calls == 2
+        assert first.validator is not second.validator
+
+    class FalseyPlugin(Plugin):
+        def __bool__(self):
+            return False
+
+    falsey_plugin = FalseyPlugin()
+    with monkeypatch.context() as patch:
+        patch.delenv("PYDANTIC_DISABLE_PLUGINS")
+        patch.setattr(_loader, "_plugins", {"test": falsey_plugin})
+        first = canonical_profile._core_type_adapter(str, config)
+        second = canonical_profile._core_type_adapter(str, config)
+        assert falsey_plugin.calls == 2
+        assert first.validator is not second.validator
+
+    original_validate = TypeAdapter.validate_python
+    seen = []
+
+    def changed_validate(self, value, **kwargs):
+        seen.append(value)
+        return original_validate(self, value, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(TypeAdapter, "validate_python", changed_validate)
+        first = canonical_profile._core_type_adapter(str, config)
+        second = canonical_profile._core_type_adapter(str, config)
+        assert first.validator is not second.validator
+        assert first.validate_python("value", strict=True) == "value"
+        assert seen == ["value"]
+
+    original_generate = GenerateSchema.generate_schema
+    generated = []
+
+    def changed_generate(self, annotation):
+        generated.append(annotation)
+        return original_generate(self, annotation)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(GenerateSchema, "generate_schema", changed_generate)
+        first = canonical_profile._core_type_adapter(str, config)
+        second = canonical_profile._core_type_adapter(str, config)
+        assert first.validator is not second.validator
+        assert generated == [str, str]
+
+    with monkeypatch.context() as patch:
+        patch.setattr(canonical_profile, "_pydantic_plugin_loader", None)
+        first = canonical_profile._core_type_adapter(str, config)
+        second = canonical_profile._core_type_adapter(str, config)
+        assert first.validator is not second.validator
+        assert first.validate_python("value", strict=True) == "value"
+
+
+def test_primitive_adapter_reuse_keeps_selected_core_strict_validation(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("PYDANTIC_DISABLE_PLUGINS", "1")
+
+    class Envelope(BaseModel):
+        model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+        label: str
+        count: int
+
+    _store, ref, _raw = _profiled_core_json_store(
+        tmp_path / "accepted", {"label": "  Input  ", "count": 2}, return_selected_profile=True
+    )
+    result = validate_core_model_json_artifact(
+        Envelope, FileSystemCAS(tmp_path / "accepted" / "typed-cas"), ref
+    )
+    assert (result.label, result.count) == ("Input", 2)
+
+    _store, bad_ref, _raw = _profiled_core_json_store(
+        tmp_path / "rejected", {"label": "  Input  ", "count": "2"}, return_selected_profile=True
+    )
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            Envelope, FileSystemCAS(tmp_path / "rejected" / "typed-cas"), bad_ref
+        )

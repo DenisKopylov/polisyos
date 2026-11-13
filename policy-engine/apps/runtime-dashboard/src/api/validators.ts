@@ -3241,12 +3241,25 @@ const runCandidateSimulationProjectionSchema = z
         "acquisition_action_history_incomplete",
         "acquisition_action_history_integrity_not_established",
         "acquisition_reentry_source_not_established",
+        "acquisition_action_history_terminal_projection_unavailable",
       ])
       .nullable()
       .optional(),
   })
   .strict()
   .superRefine((projection, context) => {
+    if (
+      projection.acquisition_history.length > 0 &&
+      projection.acquisition_history_limitation_code != null &&
+      projection.acquisition_history_limitation_code !==
+        "acquisition_action_history_terminal_projection_unavailable"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["acquisition_history_limitation_code"],
+        message: "candidate_acquisition_history_limitation_with_rows_invalid",
+      });
+    }
     if (
       projection.artifact_status !== "resolved" &&
       (projection.candidate_evaluation_attempts?.length ?? 0) > 0

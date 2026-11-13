@@ -190,6 +190,108 @@ function runDetailsPayload(label: string) {
   };
 }
 
+function blockedAcquisitionHistoryV5Fixture() {
+  const ref = (kind: string, digit: string) => ({
+    artifact_id: `sha256:${digit.repeat(64)}`,
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: `sha256:${"f".repeat(64)}`,
+  });
+  const routeReceipt = ref(
+    "runtime_quality.acquisition_route_loop_receipt",
+    "1",
+  );
+  const candidateAction = ref(
+    "runtime_quality.acquisition_candidate_action_receipt",
+    "2",
+  );
+  const candidateSource = ref(
+    "runtime.quality.candidate_acquisition_source",
+    "3",
+  );
+  const reentryReceipt = ref(
+    "runtime_quality.candidate_source_reentry_receipt",
+    "4",
+  );
+  const routeId = `sha256:${"5".repeat(64)}`;
+  const basisTransition = `sha256:${"6".repeat(64)}`;
+  return {
+    schema_version:
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+    route_receipt_ref: routeReceipt,
+    route_id: routeId,
+    action_generation: 1,
+    terminal_outcome: "candidate_reentry_completed",
+    candidate_action_ref: candidateAction,
+    candidate_source_ref: candidateSource,
+    evaluation_decision_ref: ref(
+      "runtime_quality.acquisition_evaluation_decision",
+      "7",
+    ),
+    current_basis_ref: ref("runtime_quality.acquisition_evaluation_basis", "8"),
+    selected_basis_ref: ref(
+      "runtime_quality.acquisition_evaluation_basis",
+      "9",
+    ),
+    selected_evaluation_witness_ref: reentryReceipt,
+    comparison_result: "different",
+    predicate_provenance: "recomputed",
+    comparison_reason_codes: [],
+    selected_basis_role: "blocked",
+    current_basis_provenance: "recomputed",
+    selected_basis_provenance: "not_established",
+    current_basis_limitations: ["selected_candidate_blocked"],
+    selected_basis_limitations: ["selected_candidate_blocked"],
+    frontier_ref: `sha256:${"a".repeat(64)}`,
+    frontier_revision: 1,
+    frontier_selection: "selected",
+    selected_evaluation: null,
+    selected_n5_observation: null,
+    reentry: {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+      route_receipt_ref: routeReceipt,
+      reentry_receipt_ref: reentryReceipt,
+      route_id: routeId,
+      action_generation: 1,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: candidateAction,
+      candidate_source_ref: candidateSource,
+      data_snapshot_ref: ref("fabric.data_snapshot", "b"),
+      world_model_ref: ref("runtime.quality.world_model_record", "c"),
+      context_job_ref: ref("runtime.quality.cycle_substrate_context_job", "d"),
+      model_declaration_ref: ref(
+        "runtime.quality.candidate_simulation_model_declaration",
+        "e",
+      ),
+      ncm_ref: ref("ir.ncm_spec", "0"),
+      n4_source_ref: null,
+      n5_input_ref: null,
+      n5_execution_ref: null,
+      n5_result_ref: null,
+      simulation_status: "simulation_blocked",
+      simulation_authority_blockers: ["candidate_simulation_blocked"],
+      source_cycle_index: 0,
+      continued_cycle_index: 1,
+      source_generation_run_content_hash: `sha256:${"b".repeat(64)}`,
+      continued_generation_run_content_hash: `sha256:${"c".repeat(64)}`,
+      basis_transition_content_hash: basisTransition,
+      limitations: ["candidate_simulation_blocked"],
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    },
+    current_continuation_ref: null,
+    current_cheap_consequences: null,
+    evaluation_provenance: "not_established",
+    observed_admission: false,
+    currentness_status: "not_established",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+  };
+}
+
 function parentJointCandidateSimulationProjection(runId: string) {
   const artifactRef = (kind: string, digit: string) => ({
     artifact_id: `sha256:${digit.repeat(64)}`,
@@ -1594,6 +1696,63 @@ describe("runtime API validators", () => {
       candidate.acquisition_history = [{ ...row, ...change } as typeof row];
       expect(() => runDetailsSchema.parse(payload)).toThrow();
     }
+  });
+
+  it("allows only terminal-history projection limits to accompany older rows", () => {
+    const payload = runDetailsPayload("projection only");
+    const run = mutableRecord(payload.run);
+    const candidate = {
+      schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+      run_id: "run-terminal-history-limit",
+      artifact_status: "resolved",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+      source_ref: {
+        artifact_id: `sha256:${"a".repeat(64)}`,
+        kind: "runtime.compiled_recursive_generation_cycle",
+        media_type: "application/json",
+      },
+      source_content_hash: `sha256:${"a".repeat(64)}`,
+      n5_observations: [],
+      acquisition_history: [
+        blockedAcquisitionHistoryV5Fixture(),
+        retainedAcquisitionHistoryFixture(),
+      ],
+      acquisition_history_limitation_code:
+        "acquisition_action_history_terminal_projection_unavailable",
+    };
+    run.candidate_simulation = candidate;
+
+    const parsed = compiledCandidateProjection(
+      runDetailsSchema.parse(payload).run.candidate_simulation,
+    );
+    expect(parsed.acquisition_history).toHaveLength(2);
+    expect(parsed.acquisition_history[0]?.schema_version).toBe(
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+    );
+    expect(parsed.acquisition_history[1]?.schema_version).toBe(
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+    );
+
+    for (const limitation of [
+      "acquisition_n4_source_not_established",
+      "acquisition_action_history_not_observed",
+      "acquisition_action_history_incomplete",
+      "acquisition_action_history_integrity_not_established",
+      "acquisition_reentry_source_not_established",
+    ]) {
+      candidate.acquisition_history_limitation_code = limitation;
+      expect(() => runDetailsSchema.parse(payload)).toThrow(
+        "candidate_acquisition_history_limitation_with_rows_invalid",
+      );
+    }
+
+    Reflect.set(candidate, "acquisition_history_limitation_code", null);
+    expect(
+      compiledCandidateProjection(
+        runDetailsSchema.parse(payload).run.candidate_simulation,
+      ).acquisition_history,
+    ).toHaveLength(2);
   });
 
   it("preserves verified acquisition history in a freshly parsed run response", () => {

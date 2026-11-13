@@ -18484,7 +18484,7 @@ export interface components {
              */
             acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"])[];
             /** Acquisition History Limitation Code */
-            acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_reentry_source_not_established") | null;
+            acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_action_history_terminal_projection_unavailable" | "acquisition_reentry_source_not_established") | null;
             /**
              * Artifact Status
              * @enum {string}

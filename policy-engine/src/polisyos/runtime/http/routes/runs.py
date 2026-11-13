@@ -721,9 +721,27 @@ def _candidate_terminal_history_v5_projection(
     *, verified: Any, store: Any, control_store: Any, tenant_id: str, cell_id: str
 ) -> tuple[RunCandidateSimulationAcquisitionHistoryEntryV5, Any]:
     """Project only owner-replayed candidate terminal facts and a read frontier."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateEvaluationTerminalHistory,
+        CandidateExperimentTerminalHistory,
+    )
+
+    if type(verified) is CandidateExperimentTerminalHistory:
+        frontier = verified.frontier_after
+    elif type(verified) is CandidateEvaluationTerminalHistory:
+        frontier = verified.frontier
+    else:
+        raise ValueError("candidate_history_terminal_verification_missing")
+    if (
+        frontier is None
+        or verified.decision is None
+        or verified.current_basis is None
+        or verified.selected_basis is None
+    ):
+        raise ValueError("candidate_history_terminal_projection_unavailable")
     terminal = verified.terminal
     decision = verified.decision
-    current_frontier = control_store.read_acquisition_evaluation_frontier(verified.frontier.key)
+    current_frontier = control_store.read_acquisition_evaluation_frontier(frontier.key)
     if current_frontier is None:
         raise ValueError("candidate_history_current_frontier_unavailable")
     selected = (
@@ -794,9 +812,9 @@ def _candidate_terminal_history_v5_projection(
         selected_basis_provenance=verified.selected_basis.predicate_provenance,
         current_basis_limitations=verified.current_basis.limitations,
         selected_basis_limitations=verified.selected_basis.limitations,
-        frontier_ref=verified.frontier.frontier_ref,
-        frontier_revision=verified.frontier.revision,
-        frontier_selection="selected" if current_frontier == verified.frontier else "superseded",
+        frontier_ref=frontier.frontier_ref,
+        frontier_revision=frontier.revision,
+        frontier_selection="selected" if current_frontier == frontier else "superseded",
         selected_evaluation=selected,
         selected_n5_observation=observation,
         reentry=reentry_projection,
@@ -922,6 +940,8 @@ def _candidate_acquisition_history_projection(
         artifact_ref_identity_key,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionCandidateExperimentTerminalReceiptV2,
         AcquisitionCandidateRouteLoopReceipt,
         AcquisitionRouteLoopReceipt,
         AcquisitionRoutePhaseReceipt,
@@ -1079,11 +1099,14 @@ def _candidate_acquisition_history_projection(
                 ArtifactRef,
                 AcquisitionRouteLoopReceipt
                 | AcquisitionCandidateRouteLoopReceipt
+                | AcquisitionCandidateExperimentTerminalReceipt
+                | AcquisitionCandidateExperimentTerminalReceiptV2
                 | RunCandidateSimulationAcquisitionHistoryEntryV3,
                 Any,
             ]
         ] = []
         matching_incomplete = False
+        terminal_projection_unavailable = False
         for head in heads:
             verified_source = None
             if (
@@ -1101,19 +1124,57 @@ def _candidate_acquisition_history_projection(
                     kind="runtime_quality.acquisition_route_loop_receipt",
                     profile=head.receipt_manifest_profile_sha256,
                 )
+                route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
+                route_schema = route_manifest.artifact_schema
+                terminal_epochs = {
+                    "polisyos.runtime.AcquisitionRouteLoopReceipt": ("1.0", "1.1", "2.0", "3.0"),
+                    "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt": (
+                        "1.0",
+                        "2.0",
+                    ),
+                }
+                if (
+                    route_manifest.kind != "runtime_quality.acquisition_route_loop_receipt"
+                    or route_schema is None
+                    or route_schema.name not in terminal_epochs
+                    or route_schema.version not in terminal_epochs[route_schema.name]
+                ):
+                    raise ValueError("acquisition_history_terminal_schema_unsupported")
                 route_payload, _route_bytes, route_report, route_receipt_ref = (
                     _read_authority_payload(
                         route_receipt_ref,
                         expected_kind="runtime_quality.acquisition_route_loop_receipt",
-                        expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
-                        expected_version=("1.0", "1.1", "2.0", "3.0"),
+                        expected_schema=route_schema.name,
+                        expected_version=terminal_epochs[route_schema.name],
                         expected_job_id=head.job_id,
                     )
                 )
-                route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
-                route_schema = route_manifest.artifact_schema
-                if route_schema is None:
-                    raise ValueError("acquisition_history_terminal_schema_missing")
+                if (
+                    route_schema.name
+                    == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+                ):
+                    if head.receipt_manifest_profile_sha256 is None:
+                        raise ValueError("candidate_history_terminal_profile_missing")
+                    from polisyos.runtime.quality.acquisition_evaluation_history import (
+                        verify_candidate_experiment_terminal_history,
+                    )
+
+                    verified = verify_candidate_experiment_terminal_history(
+                        control_service=control_service,
+                        head=head,
+                        terminal_ref=route_receipt_ref,
+                    )
+                    if artifact_ref_identity_key(
+                        verified.terminal.compiled_ref
+                    ) != artifact_ref_identity_key(compiled_ref):
+                        continue
+                    if verified.terminal.terminal_outcome == "candidate_blocked":
+                        # V5 has no blocked-terminal variant. Preserve verified
+                        # earlier rows and report this surface gap explicitly.
+                        terminal_projection_unavailable = True
+                        continue
+                    matching_receipts.append((head, route_receipt_ref, verified.terminal, verified))
+                    continue
                 if route_schema.version == "3.0":
                     if head.receipt_manifest_profile_sha256 is None:
                         raise ValueError("candidate_history_terminal_profile_missing")
@@ -1247,6 +1308,12 @@ def _candidate_acquisition_history_projection(
             matching_receipts.append((head, route_receipt_ref, route_receipt, verified_source))
 
         if not matching_receipts and not history_entries:
+            if terminal_projection_unavailable:
+                return (
+                    (),
+                    "acquisition_action_history_terminal_projection_unavailable",
+                    current_projection,
+                )
             if matching_incomplete:
                 return (), "acquisition_action_history_incomplete", current_projection
             return (), "acquisition_action_history_not_observed", current_projection
@@ -1255,9 +1322,13 @@ def _candidate_acquisition_history_projection(
         for _head, route_receipt_ref, route_receipt, verified_source in matching_receipts:
             from polisyos.runtime.quality.acquisition_evaluation import (
                 CandidateEvaluationTerminalHistory,
+                CandidateExperimentTerminalHistory,
             )
 
-            if type(verified_source) is CandidateEvaluationTerminalHistory:
+            if type(verified_source) in {
+                CandidateEvaluationTerminalHistory,
+                CandidateExperimentTerminalHistory,
+            }:
                 entry, frontier = _candidate_terminal_history_v5_projection(
                     verified=verified_source,
                     store=store,
@@ -1848,7 +1919,13 @@ def _candidate_acquisition_history_projection(
                 for key, frontier in frontier_snapshots.items()
             ):
                 raise ValueError("candidate_history_frontier_changed_during_read")
-        return tuple(history_entries), None, current_projection
+        return (
+            tuple(history_entries),
+            "acquisition_action_history_terminal_projection_unavailable"
+            if terminal_projection_unavailable
+            else None,
+            current_projection,
+        )
     except CanonicalProfileRefusalError:
         raise
     except Exception:

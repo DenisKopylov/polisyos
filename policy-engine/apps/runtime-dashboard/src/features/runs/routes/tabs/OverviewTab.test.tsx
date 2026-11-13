@@ -2799,6 +2799,77 @@ describe("verified recursive capacity checkpoint", () => {
 });
 
 describe("candidate frontier history", () => {
+  beforeEach(() => {
+    overviewState.governanceDebugMock.mockReturnValue({
+      data: { debug: { issues: [] } },
+    });
+    overviewState.evidenceContextMock.mockReturnValue({
+      data: { context: {} },
+    });
+    overviewState.timelineMock.mockReturnValue({
+      data: { timeline: { events: [] } },
+    });
+    overviewState.predictiveCalibrationQuery = {
+      isPending: true,
+      error: undefined,
+      data: undefined,
+    };
+    overviewState.artifactContentMock.mockReturnValue({
+      data: { artifact: null },
+    });
+  });
+
+  it("renders a friendly message when terminal candidate history is unavailable", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "acquisition_history", []);
+    Reflect.set(
+      projection,
+      "acquisition_history_limitation_code",
+      "acquisition_action_history_terminal_projection_unavailable",
+    );
+    overviewState.run = parsedRun(projection);
+
+    renderWithProviders(<OverviewTab />);
+
+    const limitation = screen.getByTestId(
+      "overview-acquisition-history-limitation",
+    );
+    expect(limitation).toHaveTextContent(
+      "Some candidate acquisition history is unavailable in this view.",
+    );
+    expect(limitation).not.toHaveTextContent(
+      "acquisition_action_history_terminal_projection_unavailable",
+    );
+  });
+
+  it("keeps verified earlier rows visible with the partial-history message", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "acquisition_history", [
+      retainedAcquisitionHistoryFixture(),
+    ]);
+    Reflect.set(
+      projection,
+      "acquisition_history_limitation_code",
+      "acquisition_action_history_terminal_projection_unavailable",
+    );
+    overviewState.run = parsedRun(projection);
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-acquisition-history-retained"),
+    ).toBeInTheDocument();
+    const limitation = screen.getByTestId(
+      "overview-acquisition-history-limitation",
+    );
+    expect(limitation).toHaveTextContent(
+      "Some candidate acquisition history is unavailable in this view.",
+    );
+    expect(limitation).not.toHaveTextContent(
+      "acquisition_action_history_terminal_projection_unavailable",
+    );
+  });
+
   it("renders a blocked latest candidate without a borrowed numeric result", () => {
     const ref = (kind: string) => ({
       artifact_id: "sha256:" + "1".repeat(64),

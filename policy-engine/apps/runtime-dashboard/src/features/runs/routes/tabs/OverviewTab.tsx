@@ -880,7 +880,10 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           </p>
           {typeof acquisitionHistoryLimitation === "string" ? (
             <p data-testid="overview-acquisition-history-limitation">
-              {acquisitionHistoryLimitation}
+              {acquisitionHistoryLimitation ===
+              "acquisition_action_history_terminal_projection_unavailable"
+                ? t("pages.runs.candidateSimulation.acquisitionHistoryPartial")
+                : acquisitionHistoryLimitation}
             </p>
           ) : null}
           {acquisitionHistory.map((value, index) => {

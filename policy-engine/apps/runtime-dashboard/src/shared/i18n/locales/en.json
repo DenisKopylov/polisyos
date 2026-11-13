@@ -909,6 +909,7 @@
         "checkpointRefused": "Recursive checkpoint is unavailable.",
         "acquisitionHistoryTitle": "Acquisition and re-entry history",
         "acquisitionHistoryAuthority": "Persisted candidate history only. Currentness and publication authority are not established.",
+        "acquisitionHistoryPartial": "Some candidate acquisition history is unavailable in this view.",
         "acquisitionRetainedExplanation": "At the recorded decision, the admitted source did not require a new evaluation within the verified scope. The prior evaluation keeps its original inputs.",
         "acquisitionAdmittedSource": "Newly admitted source: {ref}",
         "acquisitionRetainedSource": "Prior evaluation source: {ref}",

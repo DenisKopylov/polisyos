@@ -317,8 +317,15 @@ def test_candidate_reentry_uses_one_late_fresh_owner_fold_and_historical_read(
     case, action_ref, _executing, events = _pending_candidate_action_case(monkeypatch)
     case["bridge"].action_head_sink = case["sink"]
 
+    owner_reads = 0
+
     def record_owner_read(**kwargs: object) -> tuple[object, ...]:
-        if kwargs.get("verified_origin") is not None:
+        nonlocal owner_reads
+        owner_reads += 1
+        assert kwargs.get("verified_origin") is (
+            case["origin"] if owner_reads == 1 else case["current_origin"]
+        )
+        if owner_reads == 1:
             events.append("initial-owner")
         else:
             events.append("reentry-fresh-owner")
@@ -346,8 +353,15 @@ def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
         lambda outcomes, **_kwargs: outcomes[-1],
     )
 
+    owner_reads = 0
+
     def record_owner_read(**kwargs: object) -> tuple[object, ...]:
-        if kwargs.get("verified_origin") is not None:
+        nonlocal owner_reads
+        owner_reads += 1
+        assert kwargs.get("verified_origin") is (
+            case["origin"] if owner_reads == 1 else case["current_origin"]
+        )
+        if owner_reads == 1:
             events.append("initial-owner")
             return case["outcomes"]
         events.append("reentry-fresh-owner")
@@ -391,8 +405,15 @@ def test_candidate_reentry_rejects_history_removed_after_final_source_selection(
         action, "_candidate_experiment_source_selection", drift_after_final_source_selection
     )
 
+    owner_reads = 0
+
     def record_owner_read(**kwargs: object) -> tuple[object, ...]:
-        if kwargs.get("verified_origin") is not None:
+        nonlocal owner_reads
+        owner_reads += 1
+        assert kwargs.get("verified_origin") is (
+            case["origin"] if owner_reads == 1 else case["current_origin"]
+        )
+        if owner_reads == 1:
             events.append("initial-owner")
             return case["outcomes"]
         events.append("reentry-fresh-owner")
@@ -416,7 +437,7 @@ def test_candidate_reentry_rejects_history_removed_after_final_source_selection(
 def test_candidate_action_reuses_owner_outcomes_and_keeps_final_currentness_fold(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """One verified fold supplies selection; the later no-origin fold remains fresh."""
+    """The late owner call remains fresh while carrying the same immutable source."""
     case = _candidate_action_case()
     _install_candidate_action_case(monkeypatch, case)
 
@@ -427,7 +448,7 @@ def test_candidate_action_reuses_owner_outcomes_and_keeps_final_currentness_fold
     assert selected is case["selections"][0]
     assert phase is case["phase"]
     assert admission is case["admission"]
-    assert case["sink_calls"] == [case["origin"], None]
+    assert case["sink_calls"] == [case["origin"], case["current_origin"]]
 
 
 @pytest.mark.parametrize(
@@ -457,7 +478,9 @@ def test_candidate_action_still_rejects_late_owner_changes(
         )
 
     assert case["sink_calls"][0] is case["origin"]
-    assert case["sink_calls"][1:] == ([None] if late_change != "changed_head" else [])
+    assert case["sink_calls"][1:] == (
+        [case["current_origin"]] if late_change != "changed_head" else []
+    )
 
 
 def test_candidate_action_maps_late_owner_replay_errors_to_history_refusal(
@@ -472,7 +495,7 @@ def test_candidate_action_maps_late_owner_replay_errors_to_history_refusal(
             case["bridge"], case["origin"], case["phase_ref"]
         )
 
-    assert case["sink_calls"] == [case["origin"], None]
+    assert case["sink_calls"] == [case["origin"], case["current_origin"]]
 
 
 def test_candidate_action_maps_mid_replay_head_advance_to_live_owner_change(
@@ -494,7 +517,7 @@ def test_candidate_action_maps_mid_replay_head_advance_to_live_owner_change(
             case["bridge"], case["origin"], case["phase_ref"]
         )
 
-    assert case["sink_calls"] == [case["origin"], None]
+    assert case["sink_calls"] == [case["origin"], case["current_origin"]]
 
 
 def test_candidate_experiment_action_requires_canonical_control_owner_before_replay(

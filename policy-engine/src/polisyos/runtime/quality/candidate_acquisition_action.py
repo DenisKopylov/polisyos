@@ -7,8 +7,9 @@ observed-data passport, semantic epoch admission, or a claim-evidence grant.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
-from dataclasses import dataclass, replace
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
+from dataclasses import dataclass, field, fields, replace
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -104,6 +105,18 @@ class _VerifiedCurrentCandidateExperimentReentryAction:
     head: AcquisitionActionHeadRecord
     outcome: VerifiedAcquisitionActionOutcome
     budget_window: BudgetLedgerReentryBudgetWindow
+    _read_operation_guard: (
+        Callable[
+            [
+                AcquisitionWorldGrowthBridge,
+                VerifiedCandidateExperimentOrigin,
+                artifacts.ArtifactRef,
+                _VerifiedCurrentCandidateExperimentReentryAction,
+            ],
+            CandidateAcquisitionActionReceipt,
+        ]
+        | None
+    ) = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -850,6 +863,177 @@ def _current_candidate_experiment_reentry_action(
         candidate_action_ref,
     )
     return context.selection, context.phase, context.admission, context.action
+
+
+def _reentry_read_context_values(
+    context: _VerifiedCurrentCandidateExperimentReentryAction,
+    *,
+    include_admission: bool = True,
+) -> dict[str, object]:
+    """Capture every carried value apart from its non-serializable local guard."""
+    return {
+        item.name: getattr(context, item.name)
+        for item in fields(context)
+        if item.name != "_read_operation_guard" and (include_admission or item.name != "admission")
+    }
+
+
+@contextmanager
+def _candidate_experiment_reentry_read_operation(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: artifacts.ArtifactRef,
+) -> Iterator[_VerifiedCurrentCandidateExperimentReentryAction]:
+    """Share one immutable replay inside a read, never across numerical work.
+
+    The complete owner fold runs at entry and before a successful return. Every
+    nested use still reopens its selected action/phase/source and signed PA2
+    parents, current source selection, head set, live admission and window.
+    Intermediate candidate artifacts cannot promote this carrier into a permit.
+    """
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    service = _require_canonical_action_bridge(bridge)
+    initial = _current_candidate_experiment_reentry_action_context(
+        bridge, origin, pending_phase_ref, candidate_action_ref
+    )
+    if type(initial) is not _VerifiedCurrentCandidateExperimentReentryAction:
+        raise ValueError("candidate_experiment_read_operation_context_unverified")
+    control = bridge.control_store
+    scope = {
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "source_job_id": origin.source_job_id,
+    }
+
+    def source_rows() -> tuple[object, object, object]:
+        return (
+            control.get_job(origin.source_job_id),
+            control.get_job_created_event_payload(origin.source_job_id),
+            control.get_job_created_outbox_event(origin.source_job_id),
+        )
+
+    source_bytes = exact_n5_content_bytes(source_rows())
+    source_heads = tuple(control.list_acquisition_action_heads_for_source(**scope))
+    if source_heads != (
+        *(item.head for item in origin.candidate_terminal_history_chain),
+        initial.head,
+    ):
+        raise ValueError("candidate_experiment_read_operation_initial_heads_changed")
+    source_head_bytes = exact_n5_content_bytes(source_heads)
+    origin_bytes = exact_n5_content_bytes(origin)
+    initial_bytes = exact_n5_content_bytes(_reentry_read_context_values(initial))
+    action_ref_bytes = exact_n5_content_bytes(candidate_action_ref)
+    active = True
+    carried: _VerifiedCurrentCandidateExperimentReentryAction
+
+    def guard(
+        supplied_bridge: AcquisitionWorldGrowthBridge,
+        supplied_origin: VerifiedCandidateExperimentOrigin,
+        supplied_ref: artifacts.ArtifactRef,
+        supplied_context: _VerifiedCurrentCandidateExperimentReentryAction,
+    ) -> CandidateAcquisitionActionReceipt:
+        if (
+            not active
+            or supplied_context is not carried
+            or supplied_bridge is not bridge
+            or _require_canonical_action_bridge(bridge) is not service
+            or exact_n5_content_bytes(supplied_origin) != origin_bytes
+            or exact_n5_content_bytes(origin) != origin_bytes
+            or exact_n5_content_bytes(supplied_ref) != action_ref_bytes
+            or exact_n5_content_bytes(_reentry_read_context_values(carried)) != initial_bytes
+            or exact_n5_content_bytes(source_rows()) != source_bytes
+            or exact_n5_content_bytes(
+                tuple(control.list_acquisition_action_heads_for_source(**scope))
+            )
+            != source_head_bytes
+        ):
+            raise ValueError("candidate_experiment_read_operation_changed")
+        admission = control.current_execution_job_admission()
+        if not admission.same_execution_identity(initial.admission):
+            raise ValueError("candidate_experiment_read_operation_owner_changed")
+        head = control.get_acquisition_action_head(
+            **scope,
+            route_id=origin.route_id,
+            action_generation=initial.head.action_generation,
+        )
+        if head != initial.head:
+            raise ValueError("candidate_experiment_read_operation_head_changed")
+        # This is the existing canonical structural/PA2 reader, supplied with
+        # the already verified source prefix. It does not resolve that source
+        # recursively or infer current permission from the historical decision.
+        chain = service.acquisition_route_sink._verified_candidate_experiment_phase_chain(
+            head, verified_origin=origin, reuse_verified_origin=True
+        )
+        if chain != initial.outcome.phase_chain:
+            raise ValueError("candidate_experiment_read_operation_phase_changed")
+        selection = _candidate_experiment_source_selection(bridge, origin)
+        if selection != initial.selection:
+            raise ValueError("candidate_experiment_read_operation_selection_changed")
+        executing = tuple(
+            item for item in chain if item.receipt_ref == initial.action.action_phase_ref
+        )
+        if len(executing) != 1:
+            raise ValueError("candidate_experiment_read_operation_executing_phase_missing")
+        receipt, _source, window = read_candidate_experiment_acquisition_action_historical(
+            bridge=bridge,
+            origin=origin,
+            receipt_ref=supplied_ref,
+            executing_phase=executing[0].receipt,
+            executing_phase_ref=executing[0].receipt_ref,
+        )
+        if (
+            receipt != initial.action
+            or window != initial.budget_window
+            or not control.current_execution_job_admission().same_execution_identity(admission)
+            or exact_n5_content_bytes(source_rows()) != source_bytes
+            or exact_n5_content_bytes(
+                tuple(control.list_acquisition_action_heads_for_source(**scope))
+            )
+            != source_head_bytes
+        ):
+            raise ValueError("candidate_experiment_read_operation_parents_changed")
+        return receipt
+
+    carried = replace(initial, _read_operation_guard=guard)
+    try:
+        yield carried
+        final = _current_candidate_experiment_reentry_action_context(
+            bridge, origin, pending_phase_ref, candidate_action_ref
+        )
+        if (
+            type(final) is not _VerifiedCurrentCandidateExperimentReentryAction
+            or not final.admission.same_execution_identity(initial.admission)
+            or exact_n5_content_bytes(_reentry_read_context_values(final, include_admission=False))
+            != exact_n5_content_bytes(
+                _reentry_read_context_values(initial, include_admission=False)
+            )
+        ):
+            raise ValueError("candidate_experiment_read_operation_final_owner_changed")
+        # The full fold may outlive a lease or overlap another head/policy
+        # transition. Its returned admission is only a snapshot; take the live
+        # cut after that potentially expensive replay, immediately before close.
+        guard(bridge, origin, candidate_action_ref, carried)
+    finally:
+        active = False
+
+
+def _read_candidate_experiment_action_in_operation(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    receipt_ref: artifacts.ArtifactRef,
+    context: _VerifiedCurrentCandidateExperimentReentryAction,
+) -> CandidateAcquisitionActionReceipt:
+    """Consume only an active local carrier; the public fresh reader is unchanged."""
+    if (
+        type(context) is not _VerifiedCurrentCandidateExperimentReentryAction
+        or context._read_operation_guard is None
+    ):
+        raise ValueError("candidate_experiment_read_operation_not_active")
+    return context._read_operation_guard(bridge, origin, receipt_ref, context)
 
 
 def _compiler_binding(

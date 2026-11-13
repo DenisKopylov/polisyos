@@ -9,6 +9,7 @@ manifest reads and the record-scope/link predicates under test remain real.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -102,9 +103,20 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
         monkeypatch.setattr(
             action_owner, "_current_candidate_experiment_reentry_action", replay_action
         )
+
+        @contextmanager
+        def read_operation(*args: object):
+            # This component fixture replaces the upstream owner replay; the
+            # dedicated read-operation controls exercise that real boundary.
+            replay_action(*args)
+            yield SimpleNamespace(selection=selection, action=action)
+
+        monkeypatch.setattr(
+            action_owner, "_candidate_experiment_reentry_read_operation", read_operation
+        )
         monkeypatch.setattr(
             action_owner,
-            "read_candidate_experiment_acquisition_action",
+            "_read_candidate_experiment_action_in_operation",
             lambda **_kwargs: action,
         )
         monkeypatch.setattr(
@@ -228,7 +240,8 @@ def test_experiment_decision_reopens_its_real_selected_prospective_basis(
 
     case.action_replays.clear()
     assert case.read_current(basis_ref, decision_ref) == (basis, decision)
-    assert len(case.action_replays) == 2  # The decision and its own prospective-basis scope.
+    # Decision and basis keep their own content checks but share the action prefix.
+    assert len(case.action_replays) == 1
     assert (
         read_acquisition_evaluation_artifact(
             store=case.store,

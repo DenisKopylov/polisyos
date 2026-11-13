@@ -302,6 +302,7 @@ def _served_wdi_candidate_profile(
     store,
     problem,
     source_owner_root: Path | None = None,
+    catalog_source_repo_root: Path | None = None,
     prepared_substrate_registry: substrate_registry.SubstrateRegistry | None = None,
     country_code: str | None = None,
     data_year: int | None = None,
@@ -357,6 +358,11 @@ def _served_wdi_candidate_profile(
     source_owner_root = (
         Path(source_owner_root).resolve(strict=True) if source_owner_root is not None else None
     )
+    catalog_source_repo_root = (
+        Path(catalog_source_repo_root).resolve(strict=True)
+        if catalog_source_repo_root is not None
+        else source_owner_root
+    )
     scoped_country_year = country_code is not None or data_year is not None
     if scoped_country_year and (
         country_code is None
@@ -392,14 +398,17 @@ def _served_wdi_candidate_profile(
         if (
             source is None
             or source_owner_root is None
-            or source.repo_root != source_owner_root
+            or catalog_source_repo_root is None
+            or source.repo_root != catalog_source_repo_root
             or source.source_owner_root != source_owner_root
         ):
             raise AssertionError("served_profile_prepared_registry_source_missing")
         substrate_registry = SubstrateRegistry.model_validate(
             prepared_substrate_registry.model_dump(mode="json")
         )
-        require_catalog_source_registry_binding(source_owner_root, substrate_registry, source)
+        require_catalog_source_registry_binding(
+            catalog_source_repo_root, substrate_registry, source
+        )
     substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
     registry_bundle = (
         build_default_registry_bundle(store, return_selected_profile=True)

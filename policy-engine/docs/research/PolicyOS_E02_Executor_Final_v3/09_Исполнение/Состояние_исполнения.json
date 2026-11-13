@@ -10365,7 +10365,15 @@
           },
           "l5_component": "IMPLEMENTED_COMPONENT_QUALIFIED: independent GO; stable affected wave79PASS/1SKIP/1FAIL (old constructor census location only), exact census companion corrected and separately1PASS including sibling injection; qualified union80PASS1SKIP, not a single green cohort. Core contract/producer/selectedartifact/bridge/graphreplay/protectedsiblings/publicfacade/readmes/releasefragment present. GDP fullroute/N5 still UNRUN.",
           "continuation_delivery": "MAIN e4d75b0df cherry-picks reviewed SECONDARY0176194d0; actual composed31PASS,65.725s/1815707648B, no N5. Full historical lifecycle calculation/profile next on isolated SECONDARY.",
-          "next": "Commit/publish released CI companions, freeze PRIMARY Python/inputs for GDPthirdselector; SECONDARY bounded historicalintent/policy/phasechain diagnosis. No nextlane/Gclosure."
+          "next": "Commit/publish released CI companions, freeze PRIMARY Python/inputs for GDPthirdselector; SECONDARY bounded historicalintent/policy/phasechain diagnosis. No nextlane/Gclosure.",
+          "published_source": {
+            "commit": "3ea979a451111fdb0335a4c8c6853c1fac30db35",
+            "tree": "71bf5bfe559347b85074592259fb3adaa8409197",
+            "ref": "refs/heads/main",
+            "readback": "git ls-remote plus GitHub git/commits API equality; ordinary pre-push typecheck PASS"
+          },
+          "gdp_third_r1": "FAIL89.705s/2079916032B,2997inputsstable/zero wrong origins,0N5. PassedL5andactivationproducer; activatedreaderdeterministicallymisdispatched NativeChronologyProjectionStatement asboundaryevidence. Forwardfixusescanonicalselectedchronologyreader+exactthreeDTOdispatch+fullnative replay;12distinctnativechecksqualified across3commands, includinggenuineprofilepositive/corruptview/removalrestore; implicitpublicationwrapperfixturecorrectedexplicitcandidate, separatepubrefusalunchanged. GDP rerunpendingnextsourcecheckpoint.",
+          "canary": "UNRUN semantic: matrix43387166210 childpreflight lacksPOLISYOS_RUNTIME_CANARY_BEARER_TOKEN; ci_safe=false laneselectedbydeterministicpolicy. Artifact5747bytes explains RuntimeError beforeappcomposition, no inventeddeploymenttrust orgreen-lanesubstitution. CorePhase1failurelogpending."
         }
       },
       "sequence": 8,
@@ -32369,7 +32377,7 @@
         "DA-01",
         "DA-07"
       ],
-      "current_assessment": "TEST-CYC-02-01: actual old v2 producer/serializer source73d6d71d1bde2b85b7910ba8e1356b888389cfc0 is available for a new transparent oldproducer_replay; API/source closure and native run UNRUN. No genuine v3-producing revision/artifact located in bounded history/fixture review; exact byte-bearing provenance/criterion disposition remains. Modern downcast tests are compatibility-shape tests only. Genuine V1/V4 R9 and configured NCM fresh-process consumer stay qualified separately."
+      "current_assessment": "TEST-CYC-02-01: saved cyc02_legacy_selected_reader_replay qualifies old-source native v2 producer/current selected consumer and native-numerical v3 compatibility, composed at494de0b36b32f11025796e8dd42fa393a84314a6 (1PASS; source/input scope retained). The earlier v2 UNRUN assessment is superseded. V3 is a newly produced compatibility wire from a real native result, not a recovered historical archive; archival provenance remains not_established, without blocking independent Gate A. Independent N8, exact profiles, unchanged saved bytes, derived limitations and refusals are covered in that scoped result; I01 and G acceptance remain separate."
     },
     {
       "packet_id": "SIM-01",

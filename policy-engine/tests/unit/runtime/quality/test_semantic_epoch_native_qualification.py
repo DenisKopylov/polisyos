@@ -209,7 +209,11 @@ def test_native_member_bytes_cannot_be_replaced_with_receipt_markers(tmp_path: P
 
 
 def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) -> None:
+    from polisyos.core import artifacts
+    from polisyos.core.canon.canon_json import CanonSpec
     from polisyos.runtime.quality.acquisition_executor import (
+        SemanticEpochAdmissionResolutionError,
+        _read_activated_native_chronology_projection,
         resolve_activated_semantic_epoch_admission,
     )
     from tests._helpers.semantic_epoch_native import (
@@ -219,6 +223,92 @@ def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) 
 
     case = make_native_epoch_case(tmp_path)
     finalized = finalize_native_epoch_case(case)
+    projection_ref = finalized.production.chronology_projection_ref
+    assert projection_ref is not None
+    assert projection_ref.manifest_profile_sha256 is None  # Historical owner wire.
+    projection = _read_activated_native_chronology_projection(
+        artifact_store=case.store, ref=projection_ref
+    )
+    assert isinstance(projection, contract.NativeChronologyProjectionStatement)
+    manifest = case.store.get_manifest(projection_ref)
+    raw = case.store.get_bytes(projection_ref)
+    assert manifest.kind == "core.chronology.native_projection"
+    assert manifest.media_type == "application/octet-stream"
+    assert len(manifest.inputs) == 2
+    selected_profile = artifacts.artifact_manifest_profile_sha256(manifest)
+    selected_projection_ref = projection_ref.model_copy(
+        update={"manifest_profile_sha256": selected_profile}
+    )
+    assert (
+        _read_activated_native_chronology_projection(
+            artifact_store=case.store, ref=selected_projection_ref
+        )
+        == projection
+    )
+
+    for changes in (
+        {"kind": "epoch.admitted_acquisition_boundary_evidence"},
+        {"media_type": "application/vnd.polisyos.epoch+json"},
+    ):
+        wrong_ref = projection_ref.model_copy(update=changes)
+        with pytest.raises(ValueError, match="projection reference profile differs"):
+            _read_activated_native_chronology_projection(artifact_store=case.store, ref=wrong_ref)
+
+    # Same bytes under another selected manifest are not the owner's evidence.
+    wrong_profiles = (
+        artifacts.PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=artifacts.SchemaInfo(name="fixture.WrongProjection", version="1"),
+            canon=manifest.canon,
+            inputs=manifest.inputs,
+        ),
+        artifacts.PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            canon=artifacts.CanonInfo.from_spec(CanonSpec(forbid_floats=False)),
+            inputs=manifest.inputs,
+        ),
+        artifacts.PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            canon=manifest.canon,
+            inputs=manifest.inputs[:-1],
+        ),
+    )
+    for options in wrong_profiles:
+        wrong_ref = case.store.put_bytes(raw, options, return_selected_profile=True)
+        assert wrong_ref.artifact_id == projection_ref.artifact_id
+        assert wrong_ref.manifest_profile_sha256 != selected_profile
+        with pytest.raises(ValueError):
+            _read_activated_native_chronology_projection(artifact_store=case.store, ref=wrong_ref)
+
+    missing_view = projection_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises((ValueError, OSError)):
+        _read_activated_native_chronology_projection(artifact_store=case.store, ref=missing_view)
+
+    # The composed consumer must refuse when the actual projection disappears,
+    # then accept the same owner bytes after restoration and native requalification.
+    blob_path, _ = case.store._paths(projection_ref.artifact_id)
+    removed_path = blob_path.with_suffix(".projection-test-removed")
+    blob_path.rename(removed_path)
+    try:
+        with pytest.raises(SemanticEpochAdmissionResolutionError) as refused:
+            resolve_activated_semantic_epoch_admission(
+                receipt=finalized.receipt,
+                artifact_store=case.store,
+                overlay=case.scenario.overlay,
+                authority=case.scenario.authority,
+                epoch_deployment=case.deployment,
+            )
+        assert refused.value.code == "basis_mismatch"
+    finally:
+        removed_path.rename(blob_path)
+
     resolved = resolve_activated_semantic_epoch_admission(
         receipt=finalized.receipt,
         artifact_store=case.store,
@@ -335,7 +425,7 @@ def test_active_read_revalidates_current_source_authority_before_positive_use(
     assert "acquisition_authority_unresolved" in refused.value.detail
 
 
-def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
+def test_production_wrapper_activates_the_signed_live_candidate_epoch_basis(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from polisyos.core.artifacts import validate_core_model_json_artifact
@@ -344,7 +434,13 @@ def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
     from polisyos.runtime.quality import acquisition_executor
     from tests._helpers.acquisition_epoch_production import build_production_admission_case
 
-    case = build_production_admission_case(tmp_path, monkeypatch)
+    case = build_production_admission_case(
+        tmp_path,
+        monkeypatch,
+        scope_payload={"domain": "public-finance", "jurisdiction": "UA"},
+        authority_purpose="candidate_simulation",
+    )
+    assert case.query.authority_purpose == "candidate_simulation"
     assert case.negative.admitted_boundary_evidence_ref is not None
     admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
         epoch_contract.load_verified_epoch_statement(

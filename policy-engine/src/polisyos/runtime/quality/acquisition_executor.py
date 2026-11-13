@@ -2272,6 +2272,28 @@ def admit_acquisition_with_production_semantic_epoch(
             lex_store.close()
 
 
+def _read_activated_native_chronology_projection(
+    *,
+    artifact_store: ArtifactStore,
+    ref: ArtifactRef,
+) -> contracts.chronology.NativeChronologyProjectionStatement:
+    """Resolve the chronology owner's exact persisted projection and manifest view."""
+    from polisyos.runtime.quality.semantic_epoch import (
+        _load_owner_projection_mapping,
+        _selected_cas_ref_matches_owner_projection,
+    )
+
+    if (
+        ref.kind != "core.chronology.native_projection"
+        or ref.media_type != "application/octet-stream"
+    ):
+        raise ValueError("activation chronology projection reference profile differs")
+    selected, mapping = _load_owner_projection_mapping(artifact_store, ref)
+    if not _selected_cas_ref_matches_owner_projection(selected, ref):
+        raise ValueError("activation chronology projection selection differs")
+    return contracts.chronology.NativeChronologyProjectionStatement.model_validate(mapping)
+
+
 def resolve_activated_semantic_epoch_admission(
     *,
     receipt: ActivatedSemanticEpochAdmissionReceipt,
@@ -2296,16 +2318,18 @@ def resolve_activated_semantic_epoch_admission(
     def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
         from polisyos.core.artifacts import load_core_json_frame_records
 
-        expected_kind = (
-            "epoch.production_receipt"
-            if model is SemanticEpochProductionReceipt
-            else "epoch.admitted_acquisition_boundary_evidence"
-        )
-        expected_media_type = (
-            "application/vnd.polisyos.epoch-production-receipt+json"
-            if model is SemanticEpochProductionReceipt
-            else "application/vnd.polisyos.epoch+json"
-        )
+        if model is chronology.NativeChronologyProjectionStatement:
+            return _read_activated_native_chronology_projection(
+                artifact_store=artifact_store, ref=ref
+            )
+        if model is SemanticEpochProductionReceipt:
+            expected_kind = "epoch.production_receipt"
+            expected_media_type = "application/vnd.polisyos.epoch-production-receipt+json"
+        elif model is epoch_contract.AdmittedAcquisitionBoundaryEvidence:
+            expected_kind = "epoch.admitted_acquisition_boundary_evidence"
+            expected_media_type = "application/vnd.polisyos.epoch+json"
+        else:
+            raise ValueError("activation evidence model is not supported")
         if ref.kind != expected_kind or ref.media_type != expected_media_type:
             raise ValueError("activation evidence reference profile differs")
         expected_inputs = (

@@ -736,6 +736,9 @@ def test_candidate_source_basis_same_scalar_cannot_cross_declared_country_scope(
         ("changed_head", 0),
         ("changed_admission", 0),
         ("changed_final_owner", 0),
+        ("active", 0),
+        ("active_changed_owner", 0),
+        ("expired", 0),
     ],
 )
 def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
@@ -865,6 +868,22 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
         outcome=context_outcome,
         budget_window=object(),
     )
+    guard_calls: list[object] = []
+
+    def operation_guard(supplied_bridge, supplied_origin, supplied_ref, supplied_context):
+        # Only the upstream admission fold is a component adapter here. The
+        # real private reader still demands the exact, active operation carrier.
+        assert supplied_bridge is bridge and supplied_origin is origin
+        assert supplied_ref == phase.candidate_receipt_ref and supplied_context is context
+        guard_calls.append(supplied_context)
+        if context_state == "expired":
+            raise ValueError("candidate_experiment_read_operation_changed")
+        if context_state == "active_changed_owner" and prepared_inputs:
+            raise ValueError("candidate_experiment_read_operation_owner_changed")
+        return action
+
+    if context_state in {"active", "active_changed_owner", "expired"}:
+        context = replace(context, _read_operation_guard=operation_guard)
     profile = SimpleNamespace(context_inputs=SimpleNamespace(world_model_record=object()))
     prior_owner = SimpleNamespace(
         profile=profile,
@@ -877,11 +896,13 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
     intent = SimpleNamespace(action_phase_ref=action.action_phase_ref, transaction_time=now)
     intent_ref = action.candidate_source_ref
     monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
-    monkeypatch.setattr(
-        bridge,
-        "_candidate_world_materialization_intent",
-        lambda **_kwargs: (intent_ref, intent),
-    )
+    intent_contexts: list[object] = []
+
+    def read_intent(**kwargs):
+        intent_contexts.append(kwargs.get("_read_context"))
+        return intent_ref, intent
+
+    monkeypatch.setattr(bridge, "_candidate_world_materialization_intent", read_intent)
     monkeypatch.setattr(
         action_module, "_candidate_experiment_source_selection", lambda *_args: selection
     )
@@ -980,12 +1001,26 @@ def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
         assert len(final_replays) == 1
         return
 
+    if context_state in {"active_changed_owner", "expired"}:
+        assert result.predicate_provenance == "not_established"
+        assert result.reason_codes == (
+            "candidate_experiment_read_operation_owner_changed"
+            if context_state == "active_changed_owner"
+            else "candidate_experiment_read_operation_changed",
+        )
+        assert bool(prepared_inputs) is (context_state == "active_changed_owner")
+        assert final_replays == []
+        assert len(guard_calls) == (2 if context_state == "active_changed_owner" else 1)
+        return
+
     assert result.predicate_provenance == "recomputed"
     assert result_intent == intent
     assert prepared_inputs
     assert len(initial_replays) == expected_initial_replays
-    assert len(final_replays) == 1
+    assert len(final_replays) == (0 if context_state == "active" else 1)
     assert len(predecessor_reads) == 2
+    assert intent_contexts == ([context, context] if context_state == "active" else [None, None])
+    assert len(guard_calls) == (2 if context_state == "active" else 0)
 
 
 def test_v2_blocker_carries_verified_source_without_a_physical_predecessor(

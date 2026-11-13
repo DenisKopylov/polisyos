@@ -7,7 +7,8 @@ The served generation scenario remains the end-to-end authority/numerical test.
 
 from __future__ import annotations
 
-from dataclasses import replace
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from types import SimpleNamespace
@@ -37,6 +38,38 @@ from tests.unit.runtime.quality.test_candidate_experiment_terminal_history impor
     _ref,
     _requested_phase,
 )
+
+
+def _record_operation_adapter(monkeypatch, bridge, context):
+    """Expose the dispatch lifetime; the deep replay is an explicit upstream adapter."""
+    state = {"active": None, "starts": 0, "closes": 0, "records": []}
+
+    @contextmanager
+    def read_operation(*_args):
+        assert state["active"] is None
+        state["starts"] += 1
+        state["active"] = context
+        try:
+            yield context
+        finally:
+            state["active"] = None
+            state["closes"] += 1
+
+    def native_context(**_kwargs):
+        assert state["active"] is None
+        context = SimpleNamespace(controller=object())
+        state["native_context"] = context
+        return context
+
+    def outside_operation(*_args):
+        assert state["active"] is None
+
+    monkeypatch.setattr(actions, "_candidate_experiment_reentry_read_operation", read_operation)
+    monkeypatch.setattr(bridge, "_prepare_candidate_n5_native_context", native_context)
+    monkeypatch.setattr(
+        dispatch.CandidateExperimentEvaluationCurrentOwner, "revalidate", outside_operation
+    )
+    return state
 
 
 def _outcome(phase, generation: int) -> VerifiedAcquisitionActionOutcome:
@@ -197,8 +230,8 @@ def _selection_case_after_v2_prefix():
         _reuse_effective_source_case,
     )
 
-    origin, _generation_run, _source_cycle, _last_history, _frontier = (
-        _reuse_effective_source_case("candidate_evaluation_retained")
+    origin, _generation_run, _source_cycle, _last_history, _frontier = _reuse_effective_source_case(
+        "candidate_evaluation_retained"
     )
     base_chain = origin.candidate_terminal_history_chain
     normalized_chain = []
@@ -315,7 +348,9 @@ def test_current_outcome_rejects_v2_terminal_subclass() -> None:
         _select(origin, outcomes)
 
 
-@pytest.mark.parametrize("stale_owner", ["head_ref", "head_scope", "phase_scope", "missing_profile"])
+@pytest.mark.parametrize(
+    "stale_owner", ["head_ref", "head_scope", "phase_scope", "missing_profile"]
+)
 def test_candidate_dispatch_rejects_locator_that_differs_from_canonical_owner(
     monkeypatch: pytest.MonkeyPatch,
     stale_owner: str,
@@ -370,14 +405,18 @@ def test_candidate_dispatch_rejects_locator_that_differs_from_canonical_owner(
         context_reads.append(args)
         return canonical_context
 
-    monkeypatch.setattr(actions, "_current_candidate_experiment_reentry_action_context", canonical_replay)
+    monkeypatch.setattr(
+        actions, "_current_candidate_experiment_reentry_action_context", canonical_replay
+    )
     monkeypatch.setattr(
         bridge,
         "_candidate_experiment_prior_owner",
         lambda **_kwargs: pytest.fail("stale pending owner reached prior-owner resolution"),
     )
 
-    with pytest.raises(ValueError, match="candidate_experiment_evaluation_pending_action_not_current"):
+    with pytest.raises(
+        ValueError, match="candidate_experiment_evaluation_pending_action_not_current"
+    ):
         dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin)
 
     assert phase_reads == [pending_ref]
@@ -471,7 +510,9 @@ def test_original_source_n5_does_not_retain_first_experiment(
         locator_calls.append(kwargs)
         return pending_phase_ref
 
-    monkeypatch.setattr(bridge, "_candidate_experiment_pending_reentry_locator_ref", pending_locator)
+    monkeypatch.setattr(
+        bridge, "_candidate_experiment_pending_reentry_locator_ref", pending_locator
+    )
     selection = object()
     action = SimpleNamespace(
         selection=selection,
@@ -499,6 +540,7 @@ def test_original_source_n5_does_not_retain_first_experiment(
         "_current_candidate_experiment_reentry_action_context",
         current_reentry_context,
     )
+    operation = _record_operation_adapter(monkeypatch, bridge, canonical_context)
     inputs = SimpleNamespace(configured_profile=SimpleNamespace(limitations=("candidate_only",)))
     prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
     window = SimpleNamespace(fresh_limit_usd=Decimal("1"), global_limit_usd=Decimal("5"))
@@ -543,22 +585,22 @@ def test_original_source_n5_does_not_retain_first_experiment(
     monkeypatch.setattr(dispatch, "recompute_candidate_acquisition_basis_values", recompute)
     monkeypatch.setattr(records, "issue_candidate_acquisition_evaluation_basis", issue_basis)
     monkeypatch.setattr(records, "issue_candidate_acquisition_evaluation_decision", issue_decision)
-    monkeypatch.setattr(
-        dispatch,
-        "_select_candidate_experiment_evaluation_artifact",
-        lambda **_kwargs: _ref("component-record", "9"),
-    )
+
+    def select_record(**kwargs):
+        assert kwargs["_read_context"] is operation["active"] is canonical_context
+        operation["records"].append(kwargs["record"])
+        return _ref("component-record", "9")
+
+    monkeypatch.setattr(dispatch, "_select_candidate_experiment_evaluation_artifact", select_record)
     monkeypatch.setattr(
         dispatch, "_candidate_experiment_decision_for_recovery", lambda **_kwargs: None
-    )
-    monkeypatch.setattr(
-        dispatch.CandidateExperimentEvaluationCurrentOwner, "revalidate", lambda _self: None
     )
 
     class FreshReentryDemandedError(Exception):
         pass
 
     def fresh_reentry(**kwargs):
+        assert operation["active"] is None
         fresh_calls.append(kwargs)
         raise FreshReentryDemandedError
 
@@ -574,10 +616,17 @@ def test_original_source_n5_does_not_retain_first_experiment(
         }
     ]
     assert len(canonical_context_calls) == 1
-    assert canonical_context_calls[0] == (bridge, origin, pending_phase_ref, pending.candidate_receipt_ref)
+    assert canonical_context_calls[0] == (
+        bridge,
+        origin,
+        pending_phase_ref,
+        pending.candidate_receipt_ref,
+    )
     assert full_outcome_reads == []
     assert source_basis_calls[0]["initial_reentry_context"] is canonical_context
     assert numerical_inputs == [source_evaluation]
+    assert operation["starts"] == operation["closes"] == 1
+    assert len(operation["records"]) == 2
     decision = next(values for kind, values in records_seen if kind == "decision")
     assert decision["comparison_result"] == "not_established"
     assert decision["prior_basis_ref"] is None
@@ -588,8 +637,172 @@ def test_original_source_n5_does_not_retain_first_experiment(
             "origin": origin,
             "candidate_action_ref": pending.candidate_receipt_ref,
             "prepared_n5_configuration": configuration_value,
+            "native_context": operation["native_context"],
         }
     ]
+
+
+def test_evaluation_owner_closes_shared_prefix_before_live_budget_observation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real owner keeps its pure-prefix lifetime out of the budget boundary.
+
+    Upstream source/record producers are component adapters here; their actual
+    CAS and carrier refusal controls live in the sibling record/read tests.
+    No ledger observation or numerical result is fabricated by this test.
+    """
+    from polisyos.runtime.quality import substrate_registry
+    from polisyos.runtime.quality.acquisition_world_growth import CandidateExperimentPriorOwner
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+    from tests.unit.runtime.quality.test_candidate_experiment_read_operation import _Row
+
+    @dataclass(frozen=True)
+    class ComponentGenerationRun:
+        cycles: tuple[object, ...]
+
+    origin, outcomes = _selection_case(1)
+    source_cycle = _Row("source-cycle")
+    origin = replace(
+        origin,
+        source_cycle=source_cycle,
+        generation_run=ComponentGenerationRun((source_cycle,)),
+    )
+    phase = outcomes[-1].latest_receipt
+    selected = object()
+    action = SimpleNamespace(candidate_source_ref=_ref("candidate-source", "6"))
+    store = object()
+    control = SimpleNamespace(read_acquisition_evaluation_frontier=lambda _key: None)
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store, service._control_store = store, control
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store, bridge.control_store = store, control
+    bridge._source_control_service = service
+    prepared = configuration.prepare_joint_simulation_configuration()
+    prior_owner = CandidateExperimentPriorOwner(
+        profile=None,
+        model_declaration=None,
+        context_owner=ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(), model_declarations=(), store=store
+        ),
+        generation_run=origin.generation_run,
+        source_cycle=origin.source_cycle,
+        selected_evaluation=None,
+        first_n4_source=None,
+    )
+    intent_ref = _ref("candidate-intent", "7")
+    action_ref = _ref("candidate-action", "8")
+    window = SimpleNamespace(fresh_limit_usd=Decimal("1"), global_limit_usd=Decimal("5"))
+    context = SimpleNamespace(
+        selection=selected,
+        phase=phase,
+        admission=SimpleNamespace(job=object()),
+        action=action,
+        budget_window=window,
+    )
+    operation = _record_operation_adapter(monkeypatch, bridge, context)
+    inputs = object()
+    current = SimpleNamespace(
+        basis_role="prospective",
+        preparation_inputs=inputs,
+        prepared_n5_configuration=prepared,
+        candidate_world_intent_ref=intent_ref,
+        candidate_source_ref=action.candidate_source_ref,
+        predicate_provenance="recomputed",
+        reason_codes=(),
+        effective_native_values_hex=exact_n5_content_bytes({"basis": "current"}).hex(),
+        limitations=("component_only",),
+    )
+    decision = SimpleNamespace(
+        candidate_action_ref=action_ref,
+        candidate_world_intent_ref=intent_ref,
+        candidate_source_ref=action.candidate_source_ref,
+        comparison_result="not_established",
+        predicate_provenance="not_established",
+        reason_codes=("candidate_evaluation_prior_basis_not_established",),
+        prior_basis_ref=None,
+        prior_evaluation=None,
+        expected_frontier_revision=0,
+        expected_frontier_ref=None,
+    )
+    action.limitations = ()
+    owner = dispatch.CandidateExperimentEvaluationCurrentOwner(
+        bridge=bridge,
+        origin=origin,
+        selection=selected,
+        pending_phase_ref=outcomes[-1].head.receipt_ref,
+        action_phase_ref=_hash("9"),
+        candidate_action_ref=action_ref,
+        candidate_world_intent_ref=intent_ref,
+        current_basis_ref=_ref("candidate-basis", "a"),
+        decision_ref=_ref("candidate-decision", "b"),
+        prior_owner=prior_owner,
+        prepared_n5_configuration=prepared,
+        budget_window=window,
+        comparison="not_established",
+    )
+    monkeypatch.setattr(
+        dispatch, "_candidate_experiment_reentry_execution_matches", lambda **_kwargs: True
+    )
+    monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
+    monkeypatch.setattr(
+        dispatch, "_candidate_experiment_verified_prior_history", lambda **_kwargs: None
+    )
+    monkeypatch.setattr(dispatch, "_candidate_experiment_inherited_limitations", lambda _origin: ())
+
+    def intent(**kwargs):
+        assert kwargs["_read_context"] is operation["active"] is context
+        return intent_ref, "same-intent"
+
+    def source_values(**kwargs):
+        assert kwargs["initial_reentry_context"] is operation["active"] is context
+        return (
+            SimpleNamespace(predicate_provenance="recomputed", reason_codes=(), inputs=inputs),
+            intent_ref,
+            "same-intent",
+        )
+
+    def record_pair(_owner, **kwargs):
+        assert kwargs["_read_context"] is operation["active"] is context
+        return current, decision
+
+    monkeypatch.setattr(bridge, "_candidate_world_materialization_intent", intent)
+    monkeypatch.setattr(
+        preparation, "prepare_live_candidate_experiment_source_basis_values", source_values
+    )
+    monkeypatch.setattr(
+        preparation,
+        "_candidate_source_predecessors_for_verified_experiment_origin",
+        lambda **_kwargs: (),
+    )
+    monkeypatch.setattr(
+        dispatch, "_read_current_candidate_experiment_evaluation_records", record_pair
+    )
+    monkeypatch.setattr(
+        dispatch,
+        "recompute_candidate_acquisition_basis_values",
+        lambda **_kwargs: ({"basis": "current"}, ()),
+    )
+
+    class BudgetBoundaryReachedError(Exception):
+        pass
+
+    def observe_budget(_owner):
+        assert operation["active"] is None
+        assert operation["starts"] == operation["closes"] == 1
+        raise BudgetBoundaryReachedError
+
+    monkeypatch.setattr(dispatch, "_candidate_experiment_budget_snapshot", observe_budget)
+    # No catalog or final action read is reached after the deliberate boundary.
+    monkeypatch.setattr(
+        substrate_registry,
+        "current_catalog_serving_source",
+        lambda: pytest.fail("budget boundary escaped"),
+    )
+    with pytest.raises(BudgetBoundaryReachedError):
+        dispatch._revalidate_candidate_experiment_evaluation_owner(owner)
 
 
 @pytest.mark.parametrize("stale_fence_read", [None, "head", "phase"])
@@ -703,9 +916,15 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         "_current_candidate_experiment_reentry_action_context",
         lambda *_args: current_context,
     )
-    inputs = SimpleNamespace(
-        configured_profile=SimpleNamespace(limitations=("candidate_only",))
-    )
+    operation = _record_operation_adapter(monkeypatch, bridge, current_context)
+
+    def persist_terminal(terminal):
+        assert operation["active"] is None
+        persisted.append(terminal)
+        return "terminal-head"
+
+    sink.persist_terminal = persist_terminal
+    inputs = SimpleNamespace(configured_profile=SimpleNamespace(limitations=("candidate_only",)))
     monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
     monkeypatch.setattr(
         bridge,
@@ -726,9 +945,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
             object(),
         ),
     )
-    monkeypatch.setattr(
-        configuration, "prepare_joint_simulation_configuration", lambda: object()
-    )
+    monkeypatch.setattr(configuration, "prepare_joint_simulation_configuration", lambda: object())
     monkeypatch.setattr(
         dispatch, "_candidate_experiment_verified_prior_history", lambda **_kwargs: None
     )
@@ -753,9 +970,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     monkeypatch.setattr(
         records,
         "issue_candidate_acquisition_evaluation_basis",
-        lambda **kwargs: SimpleNamespace(
-            record_kind="basis", limitations=kwargs["limitations"]
-        ),
+        lambda **kwargs: SimpleNamespace(record_kind="basis", limitations=kwargs["limitations"]),
     )
     monkeypatch.setattr(
         records,
@@ -764,6 +979,11 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     )
 
     def selected_record_ref(**kwargs):
+        if kwargs.get("_read_context") is not None:
+            assert kwargs["_read_context"] is operation["active"] is current_context
+            operation["records"].append(kwargs["record"])
+        else:
+            assert operation["active"] is None
         kind = (
             "runtime_quality.acquisition_evaluation_decision"
             if kwargs["record"].record_kind == "decision"
@@ -779,15 +999,17 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     monkeypatch.setattr(
         dispatch, "_candidate_experiment_decision_for_recovery", lambda **_kwargs: None
     )
-    monkeypatch.setattr(
-        dispatch.CandidateExperimentEvaluationCurrentOwner, "revalidate", lambda _self: None
-    )
     budget_state = SimpleNamespace(limits={"run": SimpleNamespace(max_usd=Decimal("5"))})
     budget_observation = SimpleNamespace(run_binding="run-binding")
+
+    def budget_snapshot(_owner):
+        assert operation["active"] is None
+        return budget_state, budget_observation
+
     monkeypatch.setattr(
         dispatch.CandidateExperimentEvaluationCurrentOwner,
         "current_budget_snapshot",
-        lambda _self: (budget_state, budget_observation),
+        budget_snapshot,
     )
     continued_generation_run = object()
     reentry = SimpleNamespace(
@@ -806,8 +1028,8 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         limitations=("component_only_no_n5",),
     )
     reentry_ref = _ref("runtime_quality.candidate_source_reentry_receipt", "c")
-    resolved_reentry_evaluation = object()
-    fallback_reentry_evaluation = object()
+    resolved_reentry_evaluation = SimpleNamespace(result=SimpleNamespace(diagnostics={}))
+    fallback_reentry_evaluation = SimpleNamespace(result=SimpleNamespace(diagnostics={}))
     resolution_calls: list[object] = []
     preparation_calls: list[dict[str, object]] = []
 
@@ -816,6 +1038,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         return fallback_reentry_evaluation
 
     def prepare_reentry(**kwargs: object) -> tuple[object, object, object | None]:
+        assert operation["active"] is None
         preparation_calls.append(kwargs)
         return (
             reentry_ref,
@@ -855,6 +1078,8 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         assert persisted == []
 
     assert len(reads) == 2
+    assert operation["starts"] == operation["closes"] == 1
+    assert len(operation["records"]) == 2
     assert all(read["verified_origin"] is origin for read in reads)
     assert len(owner_checks) == 2
     assert len(preparation_calls) == 1

@@ -1452,6 +1452,7 @@ def prepare_live_candidate_experiment_source_basis_values(
         _candidate_experiment_source_selection,
         _current_candidate_experiment_reentry_action,
         _current_candidate_experiment_reentry_action_context,
+        _read_candidate_experiment_action_in_operation,
         _VerifiedCurrentCandidateExperimentReentryAction,
         read_candidate_experiment_acquisition_action,
     )
@@ -1567,12 +1568,25 @@ def prepare_live_candidate_experiment_source_basis_values(
             ):
                 raise ValueError("candidate_experiment_source_basis_reentry_context_not_current")
         selection, action = reentry_context.selection, reentry_context.action
-        current_action = read_candidate_experiment_acquisition_action(
-            bridge=bridge,
-            origin=origin,
-            receipt_ref=candidate_action_ref,
-            require_current_action=False,
+        # An initial context alone grants no reuse. Only an operation-owned
+        # context can guard each read; expired or foreign carriers fail there.
+        read_context = (
+            reentry_context if reentry_context._read_operation_guard is not None else None
         )
+        if read_context is None:
+            current_action = read_candidate_experiment_acquisition_action(
+                bridge=bridge,
+                origin=origin,
+                receipt_ref=candidate_action_ref,
+                require_current_action=False,
+            )
+        else:
+            current_action = _read_candidate_experiment_action_in_operation(
+                bridge=bridge,
+                origin=origin,
+                receipt_ref=candidate_action_ref,
+                context=read_context,
+            )
         if current_action != action or action.selection != selection:
             raise ValueError("candidate_experiment_source_basis_action_changed")
         selected = _candidate_experiment_source_selection(bridge, origin)
@@ -1636,6 +1650,7 @@ def prepare_live_candidate_experiment_source_basis_values(
             candidate_action_ref=candidate_action_ref,
             configured_profile=profile,
             original_model_declaration=declaration,
+            _read_context=read_context,
         )
         if intent.action_phase_ref != action.action_phase_ref:
             raise ValueError("candidate_experiment_source_basis_intent_phase_mismatch")
@@ -1664,16 +1679,25 @@ def prepare_live_candidate_experiment_source_basis_values(
             inputs=inputs,
             predecessors=predecessors,
         )
-        # Preparation can be lengthy; replay both the live phase/action and
-        # policy-derived selection before exposing the values to the evaluator.
-        fresh_selection, _fresh_phase, _fresh_admission, fresh_action = (
-            _current_candidate_experiment_reentry_action(
-                bridge,
-                origin,
-                pending_phase_ref,
-                candidate_action_ref,
+        # Preparation can be lengthy. An active operation repeats its live
+        # guard; an ordinary caller still performs the full canonical replay.
+        if read_context is None:
+            fresh_selection, _fresh_phase, _fresh_admission, fresh_action = (
+                _current_candidate_experiment_reentry_action(
+                    bridge,
+                    origin,
+                    pending_phase_ref,
+                    candidate_action_ref,
+                )
             )
-        )
+        else:
+            fresh_action = _read_candidate_experiment_action_in_operation(
+                bridge=bridge,
+                origin=origin,
+                receipt_ref=candidate_action_ref,
+                context=read_context,
+            )
+            fresh_selection = _candidate_experiment_source_selection(bridge, origin)
         fresh_prior_owner = bridge._candidate_experiment_prior_owner(
             origin=origin, selection=fresh_selection
         )
@@ -1685,6 +1709,7 @@ def prepare_live_candidate_experiment_source_basis_values(
             configured_profile=fresh_profile,
             original_model_declaration=fresh_declaration,
             create=False,
+            _read_context=read_context,
         )
         if (
             fresh_action != action

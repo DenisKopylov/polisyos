@@ -47,6 +47,11 @@ from polisyos.core.contracts import (
 from polisyos.core.contracts.runtime import ApiMeta
 
 if TYPE_CHECKING:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationBasisV1,
+        GenericModelInputEvaluationDecisionV1,
+        GenericModelInputSelectedEvaluation,
+    )
     from polisyos.core.contracts import (
         ControlPreAdmissionAttemptStatus,
         ProducerCallState,
@@ -1519,6 +1524,79 @@ class AcquisitionEvaluationFrontierRecord:
 
 
 @dataclass(frozen=True)
+class GenericModelInputEvaluationFrontierKey:
+    """Stable subject identity for the separate Generic ProgramGraph frontier."""
+
+    tenant_id: str
+    cell_id: str
+    source_job_id: str
+    design_problem_ref: str
+    candidate_id: str
+    family: Literal["generic_program_graph"] = "generic_program_graph"
+
+
+@dataclass(frozen=True)
+class GenericModelInputEvaluationFrontierValue:
+    """Selected original Generic N5 evaluation and the basis that retained it."""
+
+    basis_ref: ArtifactRef
+    basis_content_hash: str
+    selected_evaluation: GenericModelInputSelectedEvaluation
+    selection_decision_ref: ArtifactRef
+
+    @property
+    def selected_evaluation_content_hash(self) -> str:
+        """Return the canonical hash over exact selected refs and profiles."""
+        return _generic_model_input_selected_hash(self.selected_evaluation)
+
+
+@dataclass(frozen=True)
+class GenericModelInputEvaluationFrontierCAS:
+    """Compare a Generic frontier and bind one current-use decision atomically."""
+
+    key: GenericModelInputEvaluationFrontierKey
+    expected_revision: int
+    expected_frontier_ref: str | None
+    action_job_id: str
+    decision_ref: ArtifactRef
+    decision: GenericModelInputEvaluationDecisionV1
+    current_basis: GenericModelInputEvaluationBasisV1
+    replacement_basis: GenericModelInputEvaluationBasisV1 | None
+    replacement: GenericModelInputEvaluationFrontierValue | None
+
+
+@dataclass(frozen=True)
+class GenericModelInputEvaluationFrontierRecord:
+    """Immutable version of one selected Generic model-input evaluation."""
+
+    key: GenericModelInputEvaluationFrontierKey
+    revision: int
+    basis_ref: ArtifactRef
+    basis_content_hash: str
+    selected_evaluation: GenericModelInputSelectedEvaluation
+    selected_evaluation_content_hash: str
+    selection_decision_ref: ArtifactRef
+    frontier_ref: str
+
+
+@dataclass(frozen=True)
+class GenericModelInputEvaluationUseRecord:
+    """Current action decision linked to the exact retained frontier version."""
+
+    key: GenericModelInputEvaluationFrontierKey
+    action_job_id: str
+    run_id: str
+    attempt: int
+    decision_ref: ArtifactRef
+    decision_content_hash: str
+    current_basis_ref: ArtifactRef
+    comparison_result: Literal["initial", "equivalent", "different", "not_established"]
+    predicate_provenance: Literal["recomputed", "not_established"]
+    frontier_revision: int
+    frontier_ref: str | None
+
+
+@dataclass(frozen=True)
 class AcquisitionActionHeadFrontierCommit:
     """Action-head append and the exact shared frontier version selected with it."""
 
@@ -1651,6 +1729,291 @@ def _acquisition_evaluation_frontier_record(
             value=value,
         ),
     )
+
+
+def _validate_generic_model_input_frontier_key(
+    key: GenericModelInputEvaluationFrontierKey,
+) -> None:
+    if type(key) is not GenericModelInputEvaluationFrontierKey:
+        raise TypeError("generic_model_input_frontier_key_untyped")
+    if key.family != "generic_program_graph":
+        raise ValueError("generic_model_input_frontier_family_invalid")
+    identities = (key.tenant_id, key.cell_id, key.source_job_id, key.candidate_id)
+    if any(type(value) is not str or not value or value != value.strip() for value in identities):
+        raise ValueError("generic_model_input_frontier_key_invalid")
+    if not _is_sha256_ref(key.design_problem_ref):
+        raise ValueError("generic_model_input_frontier_design_problem_ref_invalid")
+
+
+def _generic_model_input_frontier_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _generic_model_input_selected_hash(selected: Any) -> str:
+    return (
+        "sha256:"
+        + hashlib.sha256(
+            _generic_model_input_frontier_json(selected.model_dump(mode="json")).encode("utf-8")
+        ).hexdigest()
+    )
+
+
+def _validate_generic_model_input_frontier_value(
+    value: GenericModelInputEvaluationFrontierValue,
+) -> None:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationBasisV1,
+        GenericModelInputEvaluationDecisionV1,
+        GenericModelInputSelectedEvaluation,
+    )
+
+    if type(value) is not GenericModelInputEvaluationFrontierValue:
+        raise TypeError("generic_model_input_frontier_value_untyped")
+    if type(value.basis_ref) is not ArtifactRef or value.basis_ref.manifest_profile_sha256 is None:
+        raise ValueError("generic_model_input_frontier_basis_ref_invalid")
+    if type(value.selected_evaluation) is not GenericModelInputSelectedEvaluation:
+        raise TypeError("generic_model_input_frontier_selected_evaluation_untyped")
+    if type(value.selection_decision_ref) is not ArtifactRef:
+        raise TypeError("generic_model_input_frontier_selection_decision_ref_untyped")
+    if (
+        not _is_sha256_ref(value.basis_content_hash)
+        or value.basis_ref.kind != GenericModelInputEvaluationBasisV1.ARTIFACT_KIND
+        or value.selection_decision_ref.kind != GenericModelInputEvaluationDecisionV1.ARTIFACT_KIND
+        or value.selection_decision_ref.manifest_profile_sha256 is None
+        or not _is_sha256_ref(str(value.basis_ref.artifact_id))
+        or not _is_sha256_ref(str(value.selection_decision_ref.artifact_id))
+    ):
+        raise ValueError("generic_model_input_frontier_value_binding_invalid")
+
+
+def _validate_generic_model_input_frontier_cas(
+    cas: GenericModelInputEvaluationFrontierCAS,
+    *,
+    action_job_id: str | None = None,
+) -> None:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationBasisV1,
+        GenericModelInputEvaluationDecisionV1,
+    )
+
+    if type(cas) is not GenericModelInputEvaluationFrontierCAS:
+        raise TypeError("generic_model_input_frontier_cas_untyped")
+    _validate_generic_model_input_frontier_key(cas.key)
+    if type(cas.expected_revision) is not int or cas.expected_revision < 0:
+        raise ValueError("generic_model_input_frontier_revision_invalid")
+    if cas.expected_revision == 0:
+        if cas.expected_frontier_ref is not None:
+            raise ValueError("generic_model_input_frontier_expected_ref_invalid")
+    elif not _is_sha256_ref(cas.expected_frontier_ref):
+        raise ValueError("generic_model_input_frontier_expected_ref_invalid")
+    if type(cas.action_job_id) is not str or not cas.action_job_id.strip():
+        raise ValueError("generic_model_input_frontier_action_job_invalid")
+    if action_job_id is not None and cas.action_job_id != action_job_id:
+        raise ValueError("generic_model_input_frontier_action_job_mismatch")
+    if type(cas.decision) is not GenericModelInputEvaluationDecisionV1:
+        raise TypeError("generic_model_input_frontier_decision_untyped")
+    if type(cas.current_basis) is not GenericModelInputEvaluationBasisV1:
+        raise TypeError("generic_model_input_frontier_current_basis_untyped")
+    if (
+        cas.replacement_basis is not None
+        and type(cas.replacement_basis) is not GenericModelInputEvaluationBasisV1
+    ):
+        raise TypeError("generic_model_input_frontier_replacement_basis_untyped")
+    if type(cas.decision_ref) is not ArtifactRef:
+        raise TypeError("generic_model_input_frontier_decision_ref_untyped")
+    decision = cas.decision
+    if (
+        decision.action_job_id != cas.action_job_id
+        or decision.tenant_id != cas.key.tenant_id
+        or decision.cell_id != cas.key.cell_id
+        or decision.source_job_id != cas.key.source_job_id
+        or decision.design_problem_ref != cas.key.design_problem_ref
+        or decision.candidate_id != cas.key.candidate_id
+        or decision.expected_frontier_revision != cas.expected_revision
+        or decision.expected_frontier_ref != cas.expected_frontier_ref
+        or cas.decision_ref.kind != GenericModelInputEvaluationDecisionV1.ARTIFACT_KIND
+        or decision.current_basis_ref.kind != GenericModelInputEvaluationBasisV1.ARTIFACT_KIND
+        or decision.current_basis_ref.manifest_profile_sha256 is None
+        or cas.current_basis.tenant_id != cas.key.tenant_id
+        or cas.current_basis.cell_id != cas.key.cell_id
+        or cas.current_basis.run_id != decision.run_id
+        or cas.current_basis.source_job_id != cas.key.source_job_id
+        or cas.current_basis.design_problem_ref != cas.key.design_problem_ref
+        or cas.current_basis.design_problem_basis_ref != decision.design_problem_basis_ref
+        or cas.current_basis.candidate_id != cas.key.candidate_id
+        or cas.current_basis.action_job_id != cas.action_job_id
+        or cas.current_basis.route_id != decision.route_id
+        or cas.current_basis.semantic_successor_ref != decision.semantic_successor_ref
+    ):
+        raise ValueError("generic_model_input_frontier_decision_binding_mismatch")
+    if cas.decision_ref.manifest_profile_sha256 is None or not _is_sha256_ref(
+        str(cas.decision_ref.artifact_id)
+    ):
+        raise ValueError("generic_model_input_frontier_decision_ref_invalid")
+    if cas.decision.decision_kind == "initial":
+        if (
+            cas.decision.comparison_result is not None
+            or cas.decision.prior_basis_ref is not None
+            or cas.decision.prior_evaluation is not None
+            or cas.decision.predicate_provenance != "recomputed"
+            or cas.expected_revision != 0
+            or cas.expected_frontier_ref is not None
+            or cas.current_basis.basis_role != "evaluated"
+            or cas.current_basis.predicate_provenance != "recomputed"
+            or cas.current_basis.evaluation is None
+            or cas.current_basis.prospective_basis_ref is not None
+            or cas.current_basis.comparison_decision_ref is not None
+            or cas.replacement is None
+            or cas.replacement_basis != cas.current_basis
+        ):
+            raise ValueError("generic_model_input_frontier_initial_selection_invalid")
+    else:
+        if (
+            cas.decision.comparison_result is None
+            or cas.current_basis.evaluation is not None
+            or (
+                cas.decision.comparison_result != "not_established"
+                and cas.current_basis.basis_role != "prospective"
+            )
+            or (
+                cas.decision.comparison_result == "not_established"
+                and cas.current_basis.basis_role not in {"prospective", "blocked"}
+            )
+        ):
+            raise ValueError("generic_model_input_frontier_comparison_result_required")
+    if cas.replacement is not None:
+        _validate_generic_model_input_frontier_value(cas.replacement)
+        replacement_basis = cas.replacement_basis
+        if replacement_basis is None:
+            raise ValueError("generic_model_input_frontier_replacement_basis_required")
+        if (
+            cas.replacement.basis_content_hash != replacement_basis.content_hash
+            or cas.replacement.selection_decision_ref != cas.decision_ref
+            or replacement_basis.basis_role != "evaluated"
+            or replacement_basis.predicate_provenance != "recomputed"
+            or replacement_basis.evaluation != cas.replacement.selected_evaluation
+            or replacement_basis.action_job_id != cas.action_job_id
+            or replacement_basis.tenant_id != cas.key.tenant_id
+            or replacement_basis.cell_id != cas.key.cell_id
+            or replacement_basis.run_id != decision.run_id
+            or replacement_basis.source_job_id != cas.key.source_job_id
+            or replacement_basis.design_problem_ref != cas.key.design_problem_ref
+            or replacement_basis.design_problem_basis_ref != decision.design_problem_basis_ref
+            or replacement_basis.candidate_id != cas.key.candidate_id
+            or replacement_basis.route_id != decision.route_id
+            or replacement_basis.semantic_successor_ref != decision.semantic_successor_ref
+            or replacement_basis.evaluation.action_job_id != cas.action_job_id
+        ):
+            raise ValueError("generic_model_input_frontier_replacement_binding_mismatch")
+        if decision.decision_kind == "initial":
+            if (
+                cas.replacement_basis != cas.current_basis
+                or cas.replacement.basis_ref != decision.current_basis_ref
+                or replacement_basis.prospective_basis_ref is not None
+                or replacement_basis.comparison_decision_ref is not None
+            ):
+                raise ValueError("generic_model_input_frontier_initial_selection_mismatch")
+        elif (
+            decision.comparison_result not in {"different", "not_established"}
+            or cas.current_basis.basis_role != "prospective"
+            or replacement_basis.prospective_basis_ref != decision.current_basis_ref
+            or replacement_basis.comparison_decision_ref != cas.decision_ref
+        ):
+            raise ValueError("generic_model_input_frontier_replacement_basis_origin_mismatch")
+    elif cas.replacement_basis is not None:
+        raise ValueError("generic_model_input_frontier_unexpected_replacement_basis")
+    elif decision.decision_kind == "initial" or decision.comparison_result == "different":
+        raise ValueError("generic_model_input_frontier_replacement_required")
+    elif decision.comparison_result == "equivalent" and (
+        cas.current_basis.basis_role != "prospective" or cas.current_basis.evaluation is not None
+    ):
+        raise ValueError("generic_model_input_frontier_check_only_binding_mismatch")
+    elif decision.comparison_result == "not_established" and (
+        cas.current_basis.basis_role not in {"prospective", "blocked"}
+        or cas.current_basis.evaluation is not None
+    ):
+        raise ValueError("generic_model_input_frontier_unknown_basis_binding_mismatch")
+
+
+def _generic_model_input_frontier_ref(
+    *,
+    key: GenericModelInputEvaluationFrontierKey,
+    revision: int,
+    value: GenericModelInputEvaluationFrontierValue,
+) -> str:
+    payload = {
+        "schema_version": "polisyos.control.generic_model_input_evaluation_frontier.v1",
+        "family": key.family,
+        "tenant_id": key.tenant_id,
+        "cell_id": key.cell_id,
+        "source_job_id": key.source_job_id,
+        "design_problem_ref": key.design_problem_ref,
+        "candidate_id": key.candidate_id,
+        "revision": revision,
+        "basis_ref": value.basis_ref.model_dump(mode="json"),
+        "basis_content_hash": value.basis_content_hash,
+        "selected_evaluation": value.selected_evaluation.model_dump(mode="json"),
+        "selected_evaluation_content_hash": value.selected_evaluation_content_hash,
+        "selection_decision_ref": value.selection_decision_ref.model_dump(mode="json"),
+    }
+    raw = _generic_model_input_frontier_json(payload).encode("utf-8")
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _generic_model_input_frontier_record(
+    *,
+    key: GenericModelInputEvaluationFrontierKey,
+    revision: int,
+    value: GenericModelInputEvaluationFrontierValue,
+) -> GenericModelInputEvaluationFrontierRecord:
+    return GenericModelInputEvaluationFrontierRecord(
+        key=key,
+        revision=revision,
+        basis_ref=value.basis_ref,
+        basis_content_hash=value.basis_content_hash,
+        selected_evaluation=value.selected_evaluation,
+        selected_evaluation_content_hash=value.selected_evaluation_content_hash,
+        selection_decision_ref=value.selection_decision_ref,
+        frontier_ref=_generic_model_input_frontier_ref(
+            key=key,
+            revision=revision,
+            value=value,
+        ),
+    )
+
+
+def _generic_model_input_use_projection(
+    cas: GenericModelInputEvaluationFrontierCAS,
+) -> dict[str, Any]:
+    revision = cas.expected_revision
+    frontier_ref = cas.expected_frontier_ref
+    if cas.replacement is not None:
+        revision += 1
+        frontier_ref = _generic_model_input_frontier_ref(
+            key=cas.key,
+            revision=revision,
+            value=cas.replacement,
+        )
+    return {
+        "schema_version": "polisyos.control.generic_model_input_use_checkpoint.v1",
+        "family": cas.key.family,
+        "action_job_id": cas.action_job_id,
+        "decision_kind": cas.decision.decision_kind,
+        "decision_ref": cas.decision_ref.model_dump(mode="json"),
+        "decision_content_hash": cas.decision.content_hash,
+        "current_basis_ref": cas.decision.current_basis_ref.model_dump(mode="json"),
+        "replacement_basis_ref": (
+            cas.replacement.basis_ref.model_dump(mode="json")
+            if cas.replacement is not None
+            else None
+        ),
+        "comparison_result": (
+            "initial" if cas.decision.decision_kind == "initial" else cas.decision.comparison_result
+        ),
+        "predicate_provenance": cas.decision.predicate_provenance,
+        "frontier_revision": revision,
+        "frontier_ref": frontier_ref,
+    }
 
 
 HumanDecisionReservationState = Literal[
@@ -5027,6 +5390,434 @@ class ControlPlaneStore:
             raise ValueError("acquisition_evaluation_frontier_conflict")
         return record
 
+    def _row_to_generic_model_input_frontier(
+        self, row: Any
+    ) -> GenericModelInputEvaluationFrontierRecord:
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            GenericModelInputSelectedEvaluation,
+        )
+
+        key = GenericModelInputEvaluationFrontierKey(
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            source_job_id=str(row["source_job_id"]),
+            design_problem_ref=str(row["design_problem_ref"]),
+            candidate_id=str(row["candidate_id"]),
+            family=str(row["family"]),
+        )
+        value = GenericModelInputEvaluationFrontierValue(
+            basis_ref=ArtifactRef.model_validate(json.loads(str(row["basis_ref_json"]))),
+            basis_content_hash=str(row["basis_content_hash"]),
+            selected_evaluation=GenericModelInputSelectedEvaluation.model_validate(
+                json.loads(str(row["selected_evaluation_json"]))
+            ),
+            selection_decision_ref=ArtifactRef.model_validate(
+                json.loads(str(row["selection_decision_ref_json"]))
+            ),
+        )
+        _validate_generic_model_input_frontier_key(key)
+        _validate_generic_model_input_frontier_value(value)
+        if value.selected_evaluation_content_hash != str(row["selected_evaluation_content_hash"]):
+            raise RuntimeError("generic_model_input_frontier_record_corrupt")
+        revision = int(row["revision"])
+        record = _generic_model_input_frontier_record(key=key, revision=revision, value=value)
+        if revision < 1 or record.frontier_ref != str(row["frontier_ref"]):
+            raise RuntimeError("generic_model_input_frontier_record_corrupt")
+        return record
+
+    def get_generic_model_input_frontier_by_ref(
+        self, frontier_ref: str
+    ) -> GenericModelInputEvaluationFrontierRecord | None:
+        """Resolve one immutable Generic frontier version by its content ref."""
+        if not _is_sha256_ref(frontier_ref):
+            raise ValueError("generic_model_input_frontier_ref_invalid")
+        row = self._fetchone(
+            """
+            SELECT tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                   family, revision, frontier_ref, basis_ref_json, basis_content_hash,
+                   selected_evaluation_json, selected_evaluation_content_hash,
+                   selection_decision_ref_json
+            FROM runtime_generic_model_input_evaluation_frontier_versions
+            WHERE frontier_ref = ?
+            """,
+            (frontier_ref,),
+        )
+        return None if row is None else self._row_to_generic_model_input_frontier(row)
+
+    def read_generic_model_input_frontier(
+        self, key: GenericModelInputEvaluationFrontierKey
+    ) -> GenericModelInputEvaluationFrontierRecord | None:
+        """Read the current family-scoped Generic model-input selection."""
+        _validate_generic_model_input_frontier_key(key)
+        row = self._fetchone(
+            """
+            SELECT revision, frontier_ref
+            FROM runtime_generic_model_input_evaluation_frontier_heads
+            WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+              AND design_problem_ref = ? AND candidate_id = ? AND family = ?
+            """,
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+                key.family,
+            ),
+        )
+        if row is None:
+            return None
+        revision = int(row["revision"])
+        frontier_ref = row["frontier_ref"]
+        if revision == 0 and frontier_ref is None:
+            return None
+        if revision < 1 or not _is_sha256_ref(frontier_ref):
+            raise RuntimeError("generic_model_input_frontier_head_corrupt")
+        record = self.get_generic_model_input_frontier_by_ref(str(frontier_ref))
+        if record is None or record.key != key or record.revision != revision:
+            raise RuntimeError("generic_model_input_frontier_head_history_mismatch")
+        return record
+
+    def get_generic_model_input_use(
+        self,
+        *,
+        key: GenericModelInputEvaluationFrontierKey,
+        action_job_id: str,
+    ) -> GenericModelInputEvaluationUseRecord | None:
+        """Read one current-use decision linked to its exact frontier version."""
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            GenericModelInputEvaluationBasisV1,
+            GenericModelInputEvaluationDecisionV1,
+        )
+
+        _validate_generic_model_input_frontier_key(key)
+        row = self._fetchone(
+            """
+            SELECT tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                   family, action_job_id, run_id, attempt, decision_ref_json,
+                   decision_content_hash, current_basis_ref_json, comparison_result,
+                   predicate_provenance, frontier_revision, frontier_ref
+            FROM runtime_generic_model_input_evaluation_uses
+            WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+              AND design_problem_ref = ? AND candidate_id = ? AND family = ?
+              AND action_job_id = ?
+            """,
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+                key.family,
+                action_job_id,
+            ),
+        )
+        if row is None:
+            return None
+        use_key = GenericModelInputEvaluationFrontierKey(
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            source_job_id=str(row["source_job_id"]),
+            design_problem_ref=str(row["design_problem_ref"]),
+            candidate_id=str(row["candidate_id"]),
+            family=str(row["family"]),
+        )
+        result = str(row["comparison_result"])
+        provenance = str(row["predicate_provenance"])
+        if (
+            result not in {"initial", "equivalent", "different", "not_established"}
+            or provenance
+            not in {
+                "recomputed",
+                "not_established",
+            }
+            or (result == "not_established") != (provenance == "not_established")
+        ):
+            raise RuntimeError("generic_model_input_use_record_corrupt")
+        decision_ref = ArtifactRef.model_validate(json.loads(str(row["decision_ref_json"])))
+        basis_ref = ArtifactRef.model_validate(json.loads(str(row["current_basis_ref_json"])))
+        decision_hash = str(row["decision_content_hash"])
+        if (
+            not _is_sha256_ref(decision_hash)
+            or decision_ref.kind != GenericModelInputEvaluationDecisionV1.ARTIFACT_KIND
+            or decision_ref.manifest_profile_sha256 is None
+            or basis_ref.kind != GenericModelInputEvaluationBasisV1.ARTIFACT_KIND
+            or basis_ref.manifest_profile_sha256 is None
+        ):
+            raise RuntimeError("generic_model_input_use_record_corrupt")
+        _validate_generic_model_input_frontier_key(use_key)
+        frontier_revision = int(row["frontier_revision"])
+        frontier_ref = str(row["frontier_ref"]) if row["frontier_ref"] is not None else None
+        if frontier_revision == 0:
+            if frontier_ref is not None:
+                raise RuntimeError("generic_model_input_use_frontier_binding_corrupt")
+        else:
+            linked = (
+                self.get_generic_model_input_frontier_by_ref(frontier_ref)
+                if frontier_ref is not None
+                else None
+            )
+            if linked is None or linked.key != use_key or linked.revision != frontier_revision:
+                raise RuntimeError("generic_model_input_use_frontier_binding_corrupt")
+        return GenericModelInputEvaluationUseRecord(
+            key=use_key,
+            action_job_id=str(row["action_job_id"]),
+            run_id=str(row["run_id"]),
+            attempt=int(row["attempt"]),
+            decision_ref=decision_ref,
+            decision_content_hash=decision_hash,
+            current_basis_ref=basis_ref,
+            comparison_result=result,  # type: ignore[arg-type]
+            predicate_provenance=provenance,  # type: ignore[arg-type]
+            frontier_revision=frontier_revision,
+            frontier_ref=frontier_ref,
+        )
+
+    def _commit_generic_model_input_frontier_in_transaction(
+        self,
+        cas: GenericModelInputEvaluationFrontierCAS,
+        *,
+        job_id: str,
+        run_id: str | None,
+        fence: tuple[str, int] | None,
+    ) -> None:
+        """Commit a typed Generic use and optional frontier version in the caller transaction."""
+        _validate_generic_model_input_frontier_cas(cas, action_job_id=job_id)
+        if fence is None or self._job_execution_fence.get() != (job_id, fence[0], fence[1]):
+            raise ControlJobLeaseLostError(
+                "generic_model_input_frontier_requires_current_job_fence"
+            )
+        proof = self._require_current_job_completion_proof()
+        completed = proof.record
+        if (
+            proof.proof_phase != "completed"
+            or proof.source_event.event_type != "job_completed"
+            or completed.job_id != job_id
+            or completed.kind != "acquisition"
+            or completed.state != "completed"
+            or completed.run_id != run_id
+            or cas.decision.run_id != run_id
+            or completed.attempt != fence[1]
+            or run_id is None
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "generic_model_input_frontier_action_completion_not_verified"
+            )
+        current_scope = self.historical_completed_job_execution_scope(
+            job_id=job_id,
+            expected_run_id=run_id,
+        )
+        source_job = self.get_job(cas.key.source_job_id)
+        if (
+            current_scope.status != "established"
+            or current_scope.tenant_id != cas.key.tenant_id
+            or current_scope.cell_id != cas.key.cell_id
+            or source_job is None
+            or source_job.kind != "natural_language_run"
+            or source_job.state != "completed"
+            or source_job.run_id != run_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "generic_model_input_frontier_source_scope_not_established"
+            )
+        source_scope = self.historical_completed_job_execution_scope(
+            job_id=cas.key.source_job_id,
+            expected_run_id=run_id,
+        )
+        if (
+            source_scope.status != "established"
+            or source_scope.tenant_id != cas.key.tenant_id
+            or source_scope.cell_id != cas.key.cell_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "generic_model_input_frontier_source_scope_mismatch"
+            )
+
+        key_values = (
+            cas.key.tenant_id,
+            cas.key.cell_id,
+            cas.key.source_job_id,
+            cas.key.design_problem_ref,
+            cas.key.candidate_id,
+            cas.key.family,
+        )
+        self._execute(
+            """
+            INSERT INTO runtime_generic_model_input_evaluation_frontier_heads (
+                tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                family, revision, frontier_ref
+            ) VALUES (?, ?, ?, ?, ?, ?, 0, NULL)
+            ON CONFLICT (
+                tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id, family
+            ) DO NOTHING
+            """,
+            key_values,
+        )
+        lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+        current = self._fetchone(
+            """
+            SELECT revision, frontier_ref
+            FROM runtime_generic_model_input_evaluation_frontier_heads
+            WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+              AND design_problem_ref = ? AND candidate_id = ? AND family = ?
+            """
+            + lock_suffix,
+            key_values,
+        )
+        if current is None:
+            raise RuntimeError("generic_model_input_frontier_head_not_created")
+        revision = int(current["revision"])
+        current_ref = str(current["frontier_ref"]) if current["frontier_ref"] is not None else None
+        if revision != cas.expected_revision or current_ref != cas.expected_frontier_ref:
+            raise ValueError("generic_model_input_frontier_conflict")
+        current_record: GenericModelInputEvaluationFrontierRecord | None = None
+        if revision > 0:
+            if current_ref is None:
+                raise RuntimeError("generic_model_input_frontier_head_corrupt")
+            current_record = self.get_generic_model_input_frontier_by_ref(current_ref)
+            if (
+                current_record is None
+                or current_record.key != cas.key
+                or current_record.revision != revision
+            ):
+                raise RuntimeError("generic_model_input_frontier_head_history_mismatch")
+
+        decision = cas.decision
+        if decision.decision_kind == "initial":
+            if (
+                current_record is not None
+                or revision != 0
+                or cas.replacement is None
+                or decision.comparison_result is not None
+            ):
+                raise ValueError("generic_model_input_frontier_initial_conflict")
+        elif decision.comparison_result in {"equivalent", "different"} and (
+            current_record is None
+            or decision.prior_basis_ref != current_record.basis_ref
+            or decision.prior_evaluation != current_record.selected_evaluation
+        ):
+            raise ValueError("generic_model_input_frontier_prior_binding_mismatch")
+        if decision.decision_kind == "comparison":
+            if decision.comparison_result == "different" and cas.replacement is None:
+                raise ValueError("generic_model_input_frontier_replacement_required")
+            if decision.comparison_result == "equivalent" and cas.replacement is not None:
+                raise ValueError("generic_model_input_frontier_unexpected_replacement")
+
+        committed_record = current_record
+        if cas.replacement is not None:
+            next_revision = revision + 1
+            committed_record = _generic_model_input_frontier_record(
+                key=cas.key,
+                revision=next_revision,
+                value=cas.replacement,
+            )
+            self._execute(
+                """
+                INSERT INTO runtime_generic_model_input_evaluation_frontier_versions (
+                    tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                    family, revision, frontier_ref, basis_ref_json, basis_content_hash,
+                    selected_evaluation_json, selected_evaluation_content_hash,
+                    selection_decision_ref_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    *key_values,
+                    next_revision,
+                    committed_record.frontier_ref,
+                    _generic_model_input_frontier_json(
+                        cas.replacement.basis_ref.model_dump(mode="json")
+                    ),
+                    cas.replacement.basis_content_hash,
+                    _generic_model_input_frontier_json(
+                        cas.replacement.selected_evaluation.model_dump(mode="json")
+                    ),
+                    cas.replacement.selected_evaluation_content_hash,
+                    _generic_model_input_frontier_json(
+                        cas.replacement.selection_decision_ref.model_dump(mode="json")
+                    ),
+                    _iso(_utc_now()),
+                ),
+            )
+            if current_ref is None:
+                update_sql = """
+                    UPDATE runtime_generic_model_input_evaluation_frontier_heads
+                    SET revision = ?, frontier_ref = ?
+                    WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+                      AND design_problem_ref = ? AND candidate_id = ? AND family = ?
+                      AND revision = ? AND frontier_ref IS NULL
+                """
+                update_values = (
+                    next_revision,
+                    committed_record.frontier_ref,
+                    *key_values,
+                    revision,
+                )
+            else:
+                update_sql = """
+                    UPDATE runtime_generic_model_input_evaluation_frontier_heads
+                    SET revision = ?, frontier_ref = ?
+                    WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+                      AND design_problem_ref = ? AND candidate_id = ? AND family = ?
+                      AND revision = ? AND frontier_ref = ?
+                """
+                update_values = (
+                    next_revision,
+                    committed_record.frontier_ref,
+                    *key_values,
+                    revision,
+                    current_ref,
+                )
+            if self._execute(update_sql, update_values) != 1:
+                raise ValueError("generic_model_input_frontier_conflict")
+        current_use = GenericModelInputEvaluationUseRecord(
+            key=cas.key,
+            action_job_id=job_id,
+            run_id=run_id,
+            attempt=completed.attempt,
+            decision_ref=cas.decision_ref,
+            decision_content_hash=decision.content_hash,
+            current_basis_ref=decision.current_basis_ref,
+            comparison_result=(
+                "initial" if decision.decision_kind == "initial" else decision.comparison_result
+            ),
+            predicate_provenance=decision.predicate_provenance,
+            frontier_revision=committed_record.revision if committed_record is not None else 0,
+            frontier_ref=committed_record.frontier_ref if committed_record is not None else None,
+        )
+        try:
+            self._execute(
+                """
+                INSERT INTO runtime_generic_model_input_evaluation_uses (
+                    tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                    family, action_job_id, run_id, attempt, decision_ref_json,
+                    decision_content_hash, current_basis_ref_json, comparison_result,
+                    predicate_provenance, frontier_revision, frontier_ref, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    *key_values,
+                    current_use.action_job_id,
+                    current_use.run_id,
+                    current_use.attempt,
+                    _generic_model_input_frontier_json(
+                        current_use.decision_ref.model_dump(mode="json")
+                    ),
+                    current_use.decision_content_hash,
+                    _generic_model_input_frontier_json(
+                        current_use.current_basis_ref.model_dump(mode="json")
+                    ),
+                    current_use.comparison_result,
+                    current_use.predicate_provenance,
+                    current_use.frontier_revision,
+                    current_use.frontier_ref,
+                    _iso(_utc_now()),
+                ),
+            )
+        except Exception as exc:
+            if _is_unique_constraint_violation(exc):
+                raise ValueError("generic_model_input_use_conflict") from exc
+            raise
+
     def _require_frontier_action_owner(
         self,
         *,
@@ -6676,6 +7467,7 @@ class ControlPlaneStore:
         method_execution_selection: object | None = None,
         method_metric_projection_admission: object | None = None,
         selected_evaluation_frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        generic_model_input_frontier_cas: GenericModelInputEvaluationFrontierCAS | None = None,
         expected_lease_owner: str | None = None,
         expected_attempt: int | None = None,
     ) -> AcquisitionEvaluationFrontierRecord | None:
@@ -6692,6 +7484,21 @@ class ControlPlaneStore:
             )
             if selected_evaluation_frontier_cas.key.source_job_id != job_id:
                 raise ValueError("acquisition_evaluation_frontier_completion_source_mismatch")
+        if generic_model_input_frontier_cas is not None:
+            _validate_generic_model_input_frontier_cas(
+                generic_model_input_frontier_cas,
+                action_job_id=job_id,
+            )
+            if fence is None:
+                raise ControlJobLeaseLostError(
+                    "generic_model_input_frontier_requires_current_job_fence"
+                )
+            progress = dict(progress or {})
+            use_projection = _generic_model_input_use_projection(generic_model_input_frontier_cas)
+            existing_projection = progress.get("generic_model_input_current_use")
+            if existing_projection is not None and existing_projection != use_projection:
+                raise ValueError("generic_model_input_frontier_progress_binding_conflict")
+            progress["generic_model_input_current_use"] = use_projection
         with self._job_transaction():
             return self._complete_job_in_transaction(
                 job_id=job_id,
@@ -6702,6 +7509,7 @@ class ControlPlaneStore:
                 method_execution_selection=method_execution_selection,
                 method_metric_projection_admission=method_metric_projection_admission,
                 selected_evaluation_frontier_cas=selected_evaluation_frontier_cas,
+                generic_model_input_frontier_cas=generic_model_input_frontier_cas,
                 fence=fence,
             )
 
@@ -6913,6 +7721,7 @@ class ControlPlaneStore:
         method_execution_selection: object | None,
         method_metric_projection_admission: object | None,
         selected_evaluation_frontier_cas: AcquisitionEvaluationFrontierCAS | None,
+        generic_model_input_frontier_cas: GenericModelInputEvaluationFrontierCAS | None,
         fence: tuple[str, int] | None,
     ) -> AcquisitionEvaluationFrontierRecord | None:
         """Apply one completion and all of its evidence rows in one transaction."""
@@ -7054,6 +7863,8 @@ class ControlPlaneStore:
             if completion_failure_message is not None:
                 if selected_evaluation_frontier_cas is not None:
                     raise ValueError("acquisition_evaluation_frontier_completion_not_successful")
+                if generic_model_input_frontier_cas is not None:
+                    raise ValueError("generic_model_input_frontier_completion_not_successful")
                 self._fail_job_in_transaction(
                     job_id=job_id,
                     error_message=completion_failure_message,
@@ -7094,6 +7905,10 @@ class ControlPlaneStore:
         event_payload: dict[str, Any] = {"state": "completed"}
         if selection_payload is not None:
             event_payload["method_execution_selection"] = selection_payload
+        if generic_model_input_frontier_cas is not None:
+            event_payload["generic_model_input_current_use"] = _generic_model_input_use_projection(
+                generic_model_input_frontier_cas
+            )
         if fence is not None:
             event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
         self.append_event(job_id=job_id, event_type="job_completed", payload=event_payload)
@@ -7194,6 +8009,13 @@ class ControlPlaneStore:
                     payload=request.model_dump(mode="json"),
                 )
 
+        if generic_model_input_frontier_cas is not None:
+            self._commit_generic_model_input_frontier_in_transaction(
+                generic_model_input_frontier_cas,
+                job_id=job_id,
+                run_id=run_id,
+                fence=fence,
+            )
         if selected_evaluation_frontier_cas is None:
             return None
         cas = selected_evaluation_frontier_cas
@@ -9276,6 +10098,67 @@ class ControlPlaneStore:
                             candidate_id, revision
                         )
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_frontier_heads (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        design_problem_ref TEXT NOT NULL,
+                        candidate_id TEXT NOT NULL,
+                        family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                        revision INTEGER NOT NULL,
+                        frontier_ref TEXT,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, source_job_id, design_problem_ref,
+                            candidate_id, family
+                        )
+                    );
+                    CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_frontier_versions (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        design_problem_ref TEXT NOT NULL,
+                        candidate_id TEXT NOT NULL,
+                        family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                        revision INTEGER NOT NULL,
+                        frontier_ref TEXT NOT NULL UNIQUE,
+                        basis_ref_json TEXT NOT NULL,
+                        basis_content_hash TEXT NOT NULL,
+                        selected_evaluation_json TEXT NOT NULL,
+                        selected_evaluation_content_hash TEXT NOT NULL,
+                        selection_decision_ref_json TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, source_job_id, design_problem_ref,
+                            candidate_id, family, revision
+                        )
+                    );
+                    CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_uses (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        design_problem_ref TEXT NOT NULL,
+                        candidate_id TEXT NOT NULL,
+                        family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                        action_job_id TEXT NOT NULL,
+                        run_id TEXT NOT NULL,
+                        attempt INTEGER NOT NULL CHECK (attempt > 0),
+                        decision_ref_json TEXT NOT NULL,
+                        decision_content_hash TEXT NOT NULL,
+                        current_basis_ref_json TEXT NOT NULL,
+                        comparison_result TEXT NOT NULL CHECK (
+                            comparison_result IN ('initial', 'equivalent', 'different', 'not_established')
+                        ),
+                        predicate_provenance TEXT NOT NULL CHECK (
+                            predicate_provenance IN ('recomputed', 'not_established')
+                        ),
+                        frontier_revision INTEGER NOT NULL,
+                        frontier_ref TEXT,
+                        created_at TEXT NOT NULL,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, source_job_id, design_problem_ref,
+                            candidate_id, family, action_job_id
+                        )
+                    );
                     CREATE TABLE IF NOT EXISTS control_worker_leases (
                         worker_id TEXT PRIMARY KEY,
                         state TEXT NOT NULL,
@@ -9754,6 +10637,79 @@ class ControlPlaneStore:
                     PRIMARY KEY (
                         tenant_id, cell_id, source_job_id, design_problem_ref,
                         candidate_id, revision
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_frontier_heads (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    design_problem_ref TEXT NOT NULL,
+                    candidate_id TEXT NOT NULL,
+                    family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                    revision INTEGER NOT NULL,
+                    frontier_ref TEXT,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, source_job_id, design_problem_ref,
+                        candidate_id, family
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_frontier_versions (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    design_problem_ref TEXT NOT NULL,
+                    candidate_id TEXT NOT NULL,
+                    family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                    revision INTEGER NOT NULL,
+                    frontier_ref TEXT NOT NULL UNIQUE,
+                    basis_ref_json TEXT NOT NULL,
+                    basis_content_hash TEXT NOT NULL,
+                    selected_evaluation_json TEXT NOT NULL,
+                    selected_evaluation_content_hash TEXT NOT NULL,
+                    selection_decision_ref_json TEXT NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, source_job_id, design_problem_ref,
+                        candidate_id, family, revision
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS runtime_generic_model_input_evaluation_uses (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    design_problem_ref TEXT NOT NULL,
+                    candidate_id TEXT NOT NULL,
+                    family TEXT NOT NULL CHECK (family = 'generic_program_graph'),
+                    action_job_id TEXT NOT NULL,
+                    run_id TEXT NOT NULL,
+                    attempt INTEGER NOT NULL CHECK (attempt > 0),
+                    decision_ref_json TEXT NOT NULL,
+                    decision_content_hash TEXT NOT NULL,
+                    current_basis_ref_json TEXT NOT NULL,
+                    comparison_result TEXT NOT NULL CHECK (
+                        comparison_result IN ('initial', 'equivalent', 'different', 'not_established')
+                    ),
+                    predicate_provenance TEXT NOT NULL CHECK (
+                        predicate_provenance IN ('recomputed', 'not_established')
+                    ),
+                    frontier_revision INTEGER NOT NULL,
+                    frontier_ref TEXT,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, source_job_id, design_problem_ref,
+                        candidate_id, family, action_job_id
                     )
                 )
                 """

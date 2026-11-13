@@ -92,6 +92,8 @@ boundaries.
 | `data_plane.prepare_input_bindings()` | Resolve a selected Fabric snapshot and registry, apply the real binding rules, and inspect the complete candidate state without writing CAS artifacts. |
 | `execute.put_state_snapshot()` | Persist a state or numeric slot map through the existing state-snapshot owner, optionally retaining its selected CAS profile. |
 | `execute.apply_state_delta()` | Recompute a state from a selected base, delta and registry merge rules through the existing execution owner. |
+| `execute.ProgramGraphExecutionObserver` | Optional observer of the actual graph node census and bound mechanism calls; it cannot choose their results. |
+| `execute.prepare_program_graph_mechanism_calls()` | Prepare bounded scheduled mechanism calls from owner-admitted inputs without executing a graph or admitting reuse. |
 | `data_plane.InputBindingsPreparation` | Worker-local computed state, effective rules, applied IDs and warnings. It is neither an authority receipt nor an admitted evaluation-retention basis. |
 | `data_plane.prepare_hte_observational_input()` | Prepare a bounded, selected-profile HTE input for candidate method execution. |
 | `data_plane.PreparedHTEObservationalInput` | Worker-local prepared data plus source/effective refs and typed input metadata. |

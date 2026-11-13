@@ -5445,7 +5445,7 @@ world
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 25 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 35 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 37 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 233 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
@@ -5771,7 +5771,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (35)</summary>
+<details><summary>Entrypoint exports (37)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5779,6 +5779,7 @@ BoundedStateSnapshotInputs
 ExecutionSourceAdmission
 ExecutionSourceAdmissionRefusal
 BoundedExecutionSourceReader
+ProgramGraphExecutionObserver
 ExecutionSourceBoundedReadRefusal
 ResolvedExecutionPosture
 SnapshotStateInputReadRefusal
@@ -5798,6 +5799,7 @@ get_state_path
 load_state_snapshot
 new_method_execution_capture
 persist_method_execution_capture
+prepare_program_graph_mechanism_calls
 put_state_snapshot
 program_graph_declares_model_input_ports
 recompute_program_graph_inputs

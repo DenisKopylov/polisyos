@@ -104,6 +104,18 @@ revalidation. This client forwards caller-supplied headers; the server owns the
 run, tenant, cell, and permission checks. A client transport response alone
 does not establish candidate feasibility or independent authority.
 
+## Candidate acquisition history
+
+Run details can retain verified acquisition-history rows while reporting
+`acquisition_action_history_terminal_projection_unavailable`. This means a
+verified terminal outcome has no representation in the current history view;
+consumers should display the partial-coverage limitation alongside the available
+rows. It does not establish corruption, successful numerical execution for the
+omitted terminal, current admission, or publication authority. Other integrity
+and incomplete-history refusals retain their existing empty-history semantics.
+Regenerate the client and dashboard types from OpenAPI when adopting this added
+limitation value; the server remains the owner of terminal verification.
+
 ## Dependencies
 
 - Depends on:

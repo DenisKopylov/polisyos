@@ -13,6 +13,7 @@ __all__ = [
     "ExecutionSourceAdmission",
     "ExecutionSourceAdmissionRefusal",
     "BoundedExecutionSourceReader",
+    "ProgramGraphExecutionObserver",
     "ExecutionSourceBoundedReadRefusal",
     "ResolvedExecutionPosture",
     "SnapshotStateInputReadRefusal",
@@ -32,6 +33,7 @@ __all__ = [
     "load_state_snapshot",
     "new_method_execution_capture",
     "persist_method_execution_capture",
+    "prepare_program_graph_mechanism_calls",
     "put_state_snapshot",
     "program_graph_declares_model_input_ports",
     "recompute_program_graph_inputs",
@@ -46,6 +48,10 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ProgramGraphExecutionObserver": (
+        "polisyos.foundry.execute.observation",
+        "ProgramGraphExecutionObserver",
+    ),
     "StateSnapshotValueLeaf": (
         "polisyos.foundry.execute._internal.snapshots",
         "StateSnapshotValueLeaf",
@@ -147,6 +153,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "persist_method_execution_capture": (
         "polisyos.foundry.execute.executor",
         "persist_method_execution_capture",
+    ),
+    "prepare_program_graph_mechanism_calls": (
+        "polisyos.foundry.execute.executor",
+        "prepare_program_graph_mechanism_calls",
     ),
     "program_graph_declares_model_input_ports": (
         "polisyos.foundry.execute.model_input_requirements",

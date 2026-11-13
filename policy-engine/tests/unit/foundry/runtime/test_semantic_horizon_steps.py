@@ -444,3 +444,84 @@ def test_selected_semantic_horizon_applies_late_steps_to_exact_previous_state(
                 close()
     finally:
         case.close()
+
+
+def test_semantic_horizon_observer_sees_actual_selected_mechanism_calls(tmp_path: Path) -> None:
+    """The optional port observes the real bound call without supplying its result."""
+    from polisyos.foundry.execute.mechanisms.fiscal import TaxSubsidy
+
+    class Observer:
+        def __init__(self) -> None:
+            self.started = []
+            self.nodes = []
+            self.calls = []
+            self.finished = []
+
+        def graph_started(self, **values):
+            self.started.append(values)
+
+        def node_finished(self, **values):
+            self.nodes.append(values)
+
+        def mechanism_started(self, **values):
+            self.calls.append(values)
+
+        def mechanism_finished(self, **values):
+            self.finished.append(("call", values))
+
+        def graph_finished(self, **values):
+            self.finished.append(("graph", values))
+
+    steps = (0, 1, 2, 3, 4)
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        mechanism_start_step=3,
+        mechanism_duration_steps=2,
+        model_input_port_declaration_builder=_stock_declaration_in_source_scope,
+    )
+    try:
+        request, obligation_set_ref, invocation, _ = _bind_opening_stock(tmp_path, case, steps)
+        observer = Observer()
+        refs = []
+        for index in range(len(steps)):
+            step = SemanticHorizonStepContext(
+                obligation_set_ref=obligation_set_ref,
+                steps=steps,
+                step_index=index,
+                replication_seed=11,
+                previous_result_ref=refs[-1] if refs else None,
+            )
+            executed = execute_semantic_horizon_step(
+                case.store, request, expected_invocation=invocation, step=step, observer=observer
+            )
+            assert executed.ok and executed.simulation_result_ref is not None
+            refs.append(executed.simulation_result_ref)
+        assert [(row["step"], row["seed"]) for row in observer.started] == [
+            (index, 11 + index) for index in steps
+        ]
+        for row in observer.started:
+            expected_nodes = tuple(item[0] for item in row["nodes"])
+            actual_nodes = tuple(
+                item["node_id"] for item in observer.nodes if item["step"] == row["step"]
+            )
+            assert actual_nodes == expected_nodes
+        assert [call["step"] for call in observer.calls] == [3, 4]
+        assert all(
+            call["selected_call"].__func__ is TaxSubsidy.emit_patches
+            and type(call["selected_call"].__self__) is TaxSubsidy
+            for call in observer.calls
+        )
+        assert [item[1]["status"] for item in observer.finished if item[0] == "call"] == [
+            "returned",
+            "returned",
+        ]
+        assert len([item for item in observer.finished if item[0] == "graph"]) == len(steps)
+        final = admit_semantic_horizon_step_chain(case.store, tuple(refs))[-1]
+        assert final.simulation_result.state_snapshot_ref is not None
+        state = load_state_snapshot(
+            case.store, snapshot_ref=final.simulation_result.state_snapshot_ref
+        )
+        assert float(state.government_balance) == 920.3125
+    finally:
+        case.close()

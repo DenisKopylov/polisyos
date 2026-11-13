@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import dataclasses
 import dis
+import gc
 import hashlib
 import importlib.machinery
 import inspect
@@ -2295,6 +2296,359 @@ def snapshot_n5_callable_content_v3(function: object) -> str | None:
         return N5ControlledCallCaptureV3._callable_wire(function)
     except (OSError, TypeError, ValueError, RuntimeError, AttributeError):
         return None
+
+
+GENERIC_FOUNDRY_CALL_NORMALIZATION = "foundry-bound-call-content/3"
+
+
+def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> bytes:
+    """Encode a bounded declared receiver or JAX argument without opaque fallbacks.
+
+    This is a candidate observation of the value supplied to the real Foundry
+    call. It is not proof that the caller executed it or that external state is
+    complete. Large or unsupported values refuse rather than enter a log or a
+    hash without their bytes.
+    """
+    import jax
+    import numpy as np
+
+    try:
+        from jax._src.array import ArrayImpl
+        from jax._src.layout import Format, Layout
+        from jax._src.lib import xla_client
+        from jax._src.sharding_impls import SingleDeviceSharding
+    except (ImportError, AttributeError) as exc:
+        raise ValueError("n5_foundry_array_provider_not_established") from exc
+    if (
+        ArrayImpl is not xla_client.ArrayImpl
+        or SingleDeviceSharding is not xla_client.SingleDeviceSharding
+    ):
+        raise ValueError("n5_foundry_array_provider_not_established")
+    if type(max_bytes) is not int or not 0 < max_bytes <= 65536:
+        raise ValueError("n5_foundry_call_value_limit_invalid")
+    remaining = [max_bytes]
+    positions: dict[int, int] = {}
+
+    def require_plain_jax_array(item: object) -> None:
+        try:
+            instance_values = object.__getattribute__(item, "__dict__")
+        except AttributeError:
+            return
+        if type(instance_values) is not dict or instance_values:
+            raise ValueError("n5_foundry_array_instance_state_not_established")
+
+    def project(item: object, depth: int) -> object:
+        if depth > 32:
+            raise ValueError("n5_foundry_call_value_not_established")
+        kind = type(item)
+        if item is None or kind in (bool, int, float, str, bytes, Decimal):
+            if (kind is float and not math.isfinite(item)) or (
+                kind is Decimal and not item.is_finite()
+            ):
+                raise ValueError("n5_foundry_call_nonfinite_value")
+            encoded = exact_n5_content_bytes(item)
+            remaining[0] -= len(encoded)
+            if remaining[0] < 0:
+                raise ValueError("n5_foundry_call_value_limit_exceeded")
+            return {"native": encoded.hex()}
+        if issubclass(kind, jax.Array) and kind is not ArrayImpl:
+            # Do not read a custom subtype's size, dtype, or conversion hooks.
+            raise ValueError("n5_foundry_array_type_not_established")
+        if issubclass(kind, Enum):
+            if (
+                type(kind) is not type(Enum)
+                or inspect.getattr_static(kind, "__getattribute__") is not object.__getattribute__
+                or inspect.getattr_static(kind, "value")
+                is not inspect.getattr_static(Enum, "value")
+            ):
+                raise ValueError("n5_foundry_enum_protocol_not_established")
+            try:
+                values = _n5_typed_instance_dictionary(item, allowed_slots=frozenset())
+            except (AttributeError, TypeError, ValueError) as exc:
+                raise ValueError("n5_foundry_enum_state_not_established") from exc
+            if (
+                type(values) is not dict
+                or not {"_name_", "_value_", "__objclass__"}.issubset(values)
+                or set(values) - {"_name_", "_value_", "_sort_order_", "__objclass__"}
+                or values["__objclass__"] is not kind
+                or type(values["_name_"]) is not str
+                or ("_sort_order_" in values and type(values["_sort_order_"]) is not int)
+            ):
+                raise ValueError("n5_foundry_enum_state_not_established")
+            position = positions.get(id(item))
+            if position is not None:
+                return {"ref": position}
+            positions[id(item)] = len(positions)
+            return {
+                "enum": {
+                    "id": positions[id(item)],
+                    "type": _native_type_label(kind),
+                    "fields": {
+                        name: project(value, depth + 1)
+                        for name, value in sorted(values.items())
+                        if name != "__objclass__"
+                    },
+                }
+            }
+        if kind is ArrayImpl or kind is np.ndarray:
+            if kind is np.ndarray:
+                if item.flags.writeable:
+                    raise ValueError("n5_foundry_call_mutable_array_not_established")
+                if (
+                    not item.flags.owndata
+                    or not item.flags.c_contiguous
+                    or not item.flags.aligned
+                    or item.flags.writebackifcopy
+                    or item.base is not None
+                    or item.dtype.metadata is not None
+                ):
+                    raise ValueError("n5_foundry_call_array_layout_not_established")
+                array_profile: dict[str, object] = {
+                    "provider": "numpy_ndarray",
+                    "strides": list(item.strides),
+                    "fortran_contiguous": bool(item.flags.f_contiguous),
+                }
+            else:
+                require_plain_jax_array(item)
+                sharding = item.sharding
+                if type(sharding) is not SingleDeviceSharding:
+                    raise ValueError("n5_foundry_call_array_placement_not_established")
+                devices = sharding.device_set
+                if type(devices) is not set or len(devices) != 1:
+                    raise ValueError("n5_foundry_call_array_placement_not_established")
+                device = next(iter(devices))
+                if not any(device is known for known in jax.devices()):
+                    raise ValueError("n5_foundry_call_array_placement_not_established")
+                device_fields = {
+                    "platform": device.platform,
+                    "device_kind": device.device_kind,
+                    "device_id": device.id,
+                    "process_index": device.process_index,
+                    "memory_kind": sharding.memory_kind,
+                }
+                if (
+                    type(device_fields["platform"]) is not str
+                    or type(device_fields["device_kind"]) is not str
+                    or type(device_fields["device_id"]) is not int
+                    or type(device_fields["process_index"]) is not int
+                    or type(device_fields["memory_kind"]) not in (str, type(None))
+                    or type(item.weak_type) is not bool
+                    or type(item.committed) is not bool
+                ):
+                    raise ValueError("n5_foundry_call_array_placement_not_established")
+                array_format = item.format
+                if type(array_format) is not Format or array_format.sharding is not sharding:
+                    raise ValueError("n5_foundry_call_array_layout_not_established")
+                layout = array_format.layout
+                if (
+                    type(layout) is not Layout
+                    or type(layout.major_to_minor) is not tuple
+                    or any(type(value) is not int for value in layout.major_to_minor)
+                    or (
+                        layout.tiling is not None
+                        and (
+                            type(layout.tiling) is not tuple
+                            or any(
+                                type(tile) is not tuple
+                                or any(type(value) is not int for value in tile)
+                                for tile in layout.tiling
+                            )
+                        )
+                    )
+                    or type(layout._sub_byte_element_size_in_bits) is not int
+                ):
+                    raise ValueError("n5_foundry_call_array_layout_not_established")
+                array_profile = {
+                    "provider": "jax_array_impl",
+                    "weak_type": item.weak_type,
+                    "committed": item.committed,
+                    "placement": device_fields,
+                    "layout": {
+                        "major_to_minor": list(layout.major_to_minor),
+                        "tiling": (
+                            None
+                            if layout.tiling is None
+                            else [list(tile) for tile in layout.tiling]
+                        ),
+                        "sub_byte_element_size_in_bits": layout._sub_byte_element_size_in_bits,
+                    },
+                }
+            if int(item.size) * int(item.dtype.itemsize) > remaining[0]:
+                raise ValueError("n5_foundry_call_value_limit_exceeded")
+            try:
+                array = np.asarray(item)
+                if (
+                    array.dtype.hasobject
+                    or array.dtype.kind not in "biufc"
+                    or array.dtype.metadata is not None
+                ):
+                    raise ValueError("n5_foundry_call_array_dtype_unsupported")
+                if array.dtype.kind in "fc" and not np.all(np.isfinite(array)):
+                    raise ValueError("n5_foundry_call_nonfinite_value")
+                raw = array.tobytes(order="C")
+                if kind is ArrayImpl:
+                    require_plain_jax_array(item)
+            except (TypeError, ValueError, RuntimeError) as exc:
+                raise ValueError("n5_foundry_call_array_not_established") from exc
+            remaining[0] -= len(raw)
+            if remaining[0] < 0:
+                raise ValueError("n5_foundry_call_value_limit_exceeded")
+            position = positions.get(id(item))
+            if position is not None:
+                return {"ref": position}
+            positions[id(item)] = len(positions)
+            return {
+                "array": {
+                    "id": positions[id(item)],
+                    **array_profile,
+                    "dtype": array.dtype.str,
+                    "shape": list(array.shape),
+                    "bytes": raw.hex(),
+                }
+            }
+        declared_map = inspect.getattr_static(kind, "__dataclass_fields__", None)
+        if declared_map is not None:
+            import equinox as eqx
+
+            position = positions.get(id(item))
+            if position is not None:
+                return {"ref": position}
+            params = inspect.getattr_static(kind, "__dataclass_params__", None)
+            if (
+                type(params) is not dataclasses._DataclassParams
+                or type(declared_map) is not dict
+                or any(
+                    type(name) is not str
+                    or type(field) is not dataclasses.Field
+                    or field.name != name
+                    or field._field_type
+                    not in (
+                        dataclasses._FIELD,
+                        dataclasses._FIELD_CLASSVAR,
+                        dataclasses._FIELD_INITVAR,
+                    )
+                    for name, field in declared_map.items()
+                )
+            ):
+                raise ValueError("n5_foundry_receiver_fields_not_established")
+            # Values are recaptured after the real call; no claim of Python
+            # immutability or absence of transient mutation is made. Unknown
+            # field-access protocols cannot be reduced to stored values.
+            expected_getattribute = (
+                inspect.getattr_static(eqx.Module, "__getattribute__")
+                if issubclass(kind, eqx.Module)
+                else object.__getattribute__
+            )
+            if inspect.getattr_static(kind, "__getattribute__") is not expected_getattribute:
+                raise ValueError("n5_foundry_receiver_access_not_established")
+            declared = tuple(
+                field for field in declared_map.values() if field._field_type is dataclasses._FIELD
+            )
+            names = tuple(field.name for field in declared)
+            actual = _n5_typed_instance_dictionary(item, allowed_slots=frozenset())
+            if type(actual) is not dict or not set(actual).issubset(names):
+                raise ValueError("n5_foundry_receiver_fields_not_established")
+            positions[id(item)] = len(positions)
+            selected: dict[str, object] = {}
+            missing = object()
+            for descriptor in declared:
+                name = descriptor.name
+                class_value = inspect.getattr_static(kind, name, missing)
+                if (
+                    class_value is not missing
+                    and inspect.getattr_static(type(class_value), "__get__", None) is not None
+                ):
+                    raise ValueError("n5_foundry_receiver_descriptor_not_established")
+                if type(descriptor.metadata) is not types.MappingProxyType:
+                    raise ValueError("n5_foundry_receiver_metadata_not_established")
+                metadata_refs = gc.get_referents(descriptor.metadata)
+                if len(metadata_refs) != 1 or type(metadata_refs[0]) is not dict:
+                    raise ValueError("n5_foundry_receiver_metadata_not_established")
+                metadata_values = metadata_refs[0]
+                if any(type(key) is not str for key in metadata_values):
+                    raise ValueError("n5_foundry_receiver_metadata_not_established")
+                metadata = {
+                    key: project(value, depth + 1) for key, value in sorted(metadata_values.items())
+                }
+                if name in actual:
+                    selected[name] = {
+                        "metadata": metadata,
+                        "storage": "instance",
+                        "value": project(actual[name], depth + 1),
+                    }
+                    continue
+                if class_value is missing:
+                    raise ValueError("n5_foundry_receiver_default_not_established")
+                selected[name] = {
+                    "metadata": metadata,
+                    "storage": "class_default",
+                    "value": project(class_value, depth + 1),
+                }
+            return {
+                "dataclass": {
+                    "id": positions[id(item)],
+                    "type": _native_type_label(kind),
+                    "fields": selected,
+                }
+            }
+        raise ValueError("n5_foundry_call_value_not_established")
+
+    return exact_n5_content_bytes(
+        {"normalization_profile": GENERIC_FOUNDRY_CALL_NORMALIZATION, "value": project(value, 0)}
+    )
+
+
+def snapshot_foundry_mechanism_call(selected_call: object) -> bytes:
+    """Snapshot one real bound method's callable and complete supported receiver."""
+    from equinox._module._module import wrapper_field_names
+    from equinox._module._prebuilt import BoundMethod
+
+    wrapper_content: str | None = None
+    if type(selected_call) is types.MethodType:
+        function = selected_call.__func__
+        receiver = selected_call.__self__
+    elif type(selected_call) is BoundMethod:
+        # This is the actual Equinox provider's PyTree method wrapper. Its
+        # __call__ invokes exactly these two retained fields. Metadata copied
+        # from the function is checked, and unknown wrapper state is refused.
+        supported_metadata = frozenset(
+            {"__module__", "__name__", "__qualname__", "__doc__", "__annotations__"}
+        )
+        if type(wrapper_field_names) is not set or wrapper_field_names != supported_metadata:
+            raise ValueError("n5_foundry_bound_call_provider_not_established")
+        actual = object.__getattribute__(selected_call, "__dict__")
+        if (
+            type(actual) is not dict
+            or not {"__func__", "__self__"}.issubset(actual)
+            or (set(actual) - {"__func__", "__self__"} - supported_metadata)
+        ):
+            raise ValueError("n5_foundry_bound_call_not_established")
+        function = actual["__func__"]
+        receiver = actual["__self__"]
+        if type(function) is not types.FunctionType or any(
+            actual[name] is not getattr(function, name)
+            for name in supported_metadata.intersection(actual)
+        ):
+            raise ValueError("n5_foundry_bound_call_not_established")
+        wrapper_content = snapshot_n5_callable_content_v3(BoundMethod.__call__)
+        if wrapper_content is None:
+            raise ValueError("n5_foundry_bound_call_not_established")
+    else:
+        raise ValueError("n5_foundry_bound_call_not_established")
+    if inspect.getattr_static(type(receiver), "emit_patches", None) is not function:
+        raise ValueError("n5_foundry_bound_call_not_established")
+    callable_content = snapshot_n5_callable_content_v3(function)
+    if callable_content is None:
+        raise ValueError("n5_foundry_callable_not_established")
+    receiver_content = snapshot_foundry_call_value(receiver)
+    return exact_n5_content_bytes(
+        {
+            "normalization_profile": GENERIC_FOUNDRY_CALL_NORMALIZATION,
+            "callable": callable_content,
+            "wrapper": wrapper_content,
+            "receiver": receiver_content,
+        }
+    )
 
 
 def _require_n5_json_wire_domain(value: object) -> None:

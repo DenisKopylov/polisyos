@@ -1,9 +1,17 @@
 # Native program graph execution
 
 This private package owns `execute_program_graph`, the orchestrator behind the
-existing Foundry executor facade. Its public binding remains that single
-function; Treasury admission and key-fold helpers are private implementation
-details, with no new facade chain or runtime registry.
+existing Foundry executor facade. Treasury admission and key-fold helpers are
+private implementation details, with no new runtime registry.
+
+The optional `ProgramGraphExecutionObserver` sees the ordered node census and
+the actual bound `emit_patches` call immediately before and after Foundry invokes
+it. The observer cannot supply the patch result or replace the caller. The
+separate `prepare_program_graph_mechanism_calls` facade reuses that same factory
+and runtime-override path for selected scheduled nodes without executing them.
+Its caller must independently admit the graph, plan, registry and opening state;
+the prepared objects alone are not evidence of a run or later intermediate state.
+Unsupported nodes or unbounded inputs refuse the preparation.
 
 The compiler now selects `randomization:treasury_salts_v1` in `ExecPlan.notes`
 and binds its persisted Treasury plan through the execution manifest. This

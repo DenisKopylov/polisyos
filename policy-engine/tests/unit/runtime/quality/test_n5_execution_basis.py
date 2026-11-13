@@ -1591,3 +1591,236 @@ def test_v3_real_scm_repeated_numerical_calls_keep_exact_pre_call_state(content_
         != witness.observed_calls[1].numerical_content_hash
     )
     assert basis.read_n5_execution_content_witness(witness) == witness
+
+
+def test_foundry_bound_call_snapshot_uses_complete_receiver_and_array_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An actual mechanism receiver changes identity when its input data changes."""
+    from dataclasses import dataclass
+
+    import jax
+    import jax.numpy as jnp
+
+    from polisyos.foundry.execute.mechanisms.fiscal import TaxSubsidy
+
+    first = TaxSubsidy(rate=0.125, n_agents=3)
+    equal = TaxSubsidy(rate=0.125, n_agents=3)
+    changed_rate = TaxSubsidy(rate=0.25, n_agents=3)
+    changed_shape = TaxSubsidy(rate=0.125, n_agents=4)
+    initial = basis.snapshot_foundry_mechanism_call(first.emit_patches)
+    assert initial == basis.snapshot_foundry_mechanism_call(equal.emit_patches)
+    assert initial != basis.snapshot_foundry_mechanism_call(changed_rate.emit_patches)
+    assert initial != basis.snapshot_foundry_mechanism_call(changed_shape.emit_patches)
+    # A field inherited from the Equinox owner is still a consumed value.
+    with monkeypatch.context() as patch:
+        patch.setattr(TaxSubsidy, "debug_mode", True)
+        assert initial != basis.snapshot_foundry_mechanism_call(first.emit_patches)
+    assert initial == basis.snapshot_foundry_mechanism_call(first.emit_patches)
+    changed_wrapper = first.emit_patches
+    object.__setattr__(changed_wrapper, "unexpected_state", 1)
+    with pytest.raises(ValueError, match="n5_foundry_bound_call_not_established"):
+        basis.snapshot_foundry_mechanism_call(changed_wrapper)
+    from equinox._module import _module as equinox_module
+
+    selected_call = first.emit_patches
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            equinox_module,
+            "wrapper_field_names",
+            equinox_module.wrapper_field_names | {"unexpected_provider_field"},
+        )
+        with pytest.raises(ValueError, match="n5_foundry_bound_call_provider_not_established"):
+            basis.snapshot_foundry_mechanism_call(selected_call)
+    assert basis.snapshot_foundry_call_value(jax.random.PRNGKey(1)) != (
+        basis.snapshot_foundry_call_value(jax.random.PRNGKey(2))
+    )
+    assert basis.snapshot_foundry_call_value(jnp.array([1.0, 2.0])) != (
+        basis.snapshot_foundry_call_value(jnp.array([[1.0, 2.0]]))
+    )
+    assert basis.snapshot_foundry_call_value(jnp.array([1.0, 2.0], dtype=jnp.float32)) != (
+        basis.snapshot_foundry_call_value(jnp.array([1, 2], dtype=jnp.int32))
+    )
+    with pytest.raises(ValueError, match="n5_foundry_call_value_limit_exceeded"):
+        basis.snapshot_foundry_call_value(jnp.ones(16385, dtype=jnp.float32))
+    with pytest.raises(ValueError, match="n5_foundry_bound_call_not_established"):
+        basis.snapshot_foundry_mechanism_call(TaxSubsidy.emit_patches)
+
+    @dataclass
+    class UnsupportedReceiver:
+        opaque: object
+
+        def emit_patches(self) -> None:
+            return None
+
+    with pytest.raises(ValueError, match="n5_foundry_call_value_not_established"):
+        basis.snapshot_foundry_mechanism_call(UnsupportedReceiver(object()).emit_patches)
+
+
+def test_foundry_call_value_refuses_unowned_array_and_enum_state(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exact input identity covers provider, layout, access and stored state."""
+    from collections.abc import Iterator, Mapping
+    from dataclasses import dataclass, field
+    from enum import Enum
+
+    import jax
+    import jax.numpy as jnp
+    import numpy as np
+    from jax._src.array import ArrayImpl
+    from jax._src.lib import xla_client
+
+    from polisyos.foundry.contracts.fidelity import FidelityLevel
+
+    normal = jnp.array([1.0, 2.0], dtype=jnp.float32)
+    assert type(normal) is ArrayImpl
+    assert basis.snapshot_foundry_call_value(normal) == basis.snapshot_foundry_call_value(normal)
+    try:
+        object.__setattr__(normal, "policyos_unowned_state", "different")
+    except (AttributeError, TypeError):
+        pass
+    else:
+        with pytest.raises(ValueError, match="n5_foundry_array_instance_state_not_established"):
+            basis.snapshot_foundry_call_value(normal)
+        object.__delattr__(normal, "policyos_unowned_state")
+    same_numpy = np.array([1.0, 2.0], dtype=np.float32)
+    same_numpy.setflags(write=False)
+    assert basis.snapshot_foundry_call_value(normal) != basis.snapshot_foundry_call_value(
+        same_numpy
+    )
+    weak = jnp.asarray(1.0)
+    strong = jnp.asarray(1.0, dtype=weak.dtype)
+    assert weak.weak_type and not strong.weak_type
+    assert basis.snapshot_foundry_call_value(weak) != basis.snapshot_foundry_call_value(strong)
+    committed = jax.device_put(normal, jax.devices()[0])
+    assert committed.committed and not normal.committed
+    assert basis.snapshot_foundry_call_value(normal) != basis.snapshot_foundry_call_value(committed)
+    view = same_numpy.view()
+    with pytest.raises(ValueError, match="n5_foundry_call_array_layout_not_established"):
+        basis.snapshot_foundry_call_value(view)
+    metadata_array = np.array([1.0, 2.0], dtype=np.dtype("float32", metadata={"unit": "x"}))
+    metadata_array.setflags(write=False)
+    with pytest.raises(ValueError, match="n5_foundry_call_array_layout_not_established"):
+        basis.snapshot_foundry_call_value(metadata_array)
+    fortran = np.asfortranarray(np.arange(6, dtype=np.float32).reshape((2, 3)))
+    fortran.setflags(write=False)
+    with pytest.raises(ValueError, match="n5_foundry_call_array_layout_not_established"):
+        basis.snapshot_foundry_call_value(fortran)
+    with monkeypatch.context() as patch:
+        patch.setattr(xla_client, "ArrayImpl", object)
+        with pytest.raises(ValueError, match="n5_foundry_array_provider_not_established"):
+            basis.snapshot_foundry_call_value(normal)
+    assert basis.snapshot_foundry_call_value(FidelityLevel.SURROGATE_FLUID) != (
+        basis.snapshot_foundry_call_value(FidelityLevel.RELAXED_DISCRETE)
+    )
+
+    calls: list[str] = []
+
+    class UnownedArray(jax.Array):
+        def __init__(self) -> None:
+            self.hidden_state = "not-in-numpy-bytes"
+
+        @property
+        def size(self) -> int:
+            calls.append("size")
+            return 1
+
+        @property
+        def dtype(self) -> object:
+            calls.append("dtype")
+            return jnp.dtype("float32")
+
+        def __array__(self, *args: object, **kwargs: object) -> object:
+            calls.append("array")
+            return jnp.array([1.0])
+
+    custom = UnownedArray()
+    with pytest.raises(ValueError, match="n5_foundry_array_type_not_established"):
+        basis.snapshot_foundry_call_value(custom)
+    assert calls == []
+
+    class UnownedNumpy(np.ndarray):
+        def __array__(self, *args: object, **kwargs: object) -> object:
+            calls.append("numpy-array")
+            return np.array([1.0])
+
+    custom_numpy = np.array([1.0]).view(UnownedNumpy)
+    with pytest.raises(ValueError, match="n5_foundry_call_value_not_established"):
+        basis.snapshot_foundry_call_value(custom_numpy)
+    assert calls == []
+
+    class StatefulEnum(str, Enum):
+        MEMBER = "same"
+
+    StatefulEnum.MEMBER.extra_state = "hidden"  # type: ignore[attr-defined]
+    with pytest.raises(ValueError, match="n5_foundry_enum_state_not_established"):
+        basis.snapshot_foundry_call_value(StatefulEnum.MEMBER)
+
+    class CustomValueEnum(Enum):
+        MEMBER = "same"
+
+        @property
+        def value(self) -> str:
+            calls.append("enum-value")
+            return "same"
+
+    with pytest.raises(ValueError, match="n5_foundry_enum_protocol_not_established"):
+        basis.snapshot_foundry_call_value(CustomValueEnum.MEMBER)
+    assert calls == []
+
+    class MissingOwnerEnum(Enum):
+        MEMBER = "same"
+
+    del MissingOwnerEnum.MEMBER.__dict__["__objclass__"]
+    with pytest.raises(ValueError, match="n5_foundry_enum_state_not_established"):
+        basis.snapshot_foundry_call_value(MissingOwnerEnum.MEMBER)
+
+    @dataclass
+    class ShadowedField:
+        number: int
+
+    shadowed = ShadowedField(1)
+
+    def descriptor_getter(_self: object) -> int:
+        calls.append("descriptor")
+        return 2
+
+    with monkeypatch.context() as patch:
+        patch.setattr(ShadowedField, "number", property(descriptor_getter), raising=False)
+        with pytest.raises(ValueError, match="n5_foundry_receiver_descriptor_not_established"):
+            basis.snapshot_foundry_call_value(shadowed)
+    assert calls == []
+
+    @dataclass
+    class CustomGetter:
+        number: int
+
+        def __getattribute__(self, name: str) -> object:
+            calls.append("getter")
+            return object.__getattribute__(self, name)
+
+    with pytest.raises(ValueError, match="n5_foundry_receiver_access_not_established"):
+        basis.snapshot_foundry_call_value(CustomGetter(1))
+    assert calls == []
+
+    class CustomMetadata(Mapping[str, str]):
+        def __getitem__(self, key: str) -> str:
+            calls.append("metadata-get")
+            raise KeyError(key)
+
+        def __iter__(self) -> Iterator[str]:
+            calls.append("metadata-iter")
+            return iter(())
+
+        def __len__(self) -> int:
+            calls.append("metadata-len")
+            return 0
+
+    @dataclass
+    class CustomMetadataField:
+        number: int = field(metadata=CustomMetadata())
+
+    with pytest.raises(ValueError, match="n5_foundry_receiver_metadata_not_established"):
+        basis.snapshot_foundry_call_value(CustomMetadataField(1))
+    assert calls == []

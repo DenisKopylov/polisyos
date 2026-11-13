@@ -44,6 +44,29 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   Unrelated registry changes permit a fresh decision on the same current query,
   while an already checked revision cannot silently authorize a later action.
 - `model_input_successor_selection.py` checks the exact historical input selected by a protected candidate N5 action.
+- `acquisition_evaluation.py` owns a versioned Generic ProgramGraph candidate
+  basis and use-decision family. Its preparation replays each selected semantic
+  input through the existing Generic and Foundry owners, retains the stable
+  source subject separately from the active problem revision, and compares
+  complete selected state leaves and bounded numerical intent. The original V5
+  execution remains bound to its original action. Current action authority and
+  a fenced frontier are separate obligations; the ordinary Generic action path
+  still requires its retention bridge before this family can select a result.
+  An initial decision has no comparison result and can refer only to an actual
+  completed, owner-replayed evaluation from that current action. An unknown
+  prior comparison can advance only after a fresh, complete current evaluation;
+  it remains an unknown comparison and does not claim retention.
+- `n5_candidate_content.py` records the actual selected graph's bounded physical
+  units, nodes, calls and producer-observed before-call state snapshots. The
+  original intermediate state is not independently reconstructed from patches,
+  and a later request does not predict that trace. Unknown fields or unavailable
+  selected bytes refuse candidate retention; no publication authority follows.
+  The `/3` call-value profile admits bounded Enum and dataclass storage, the
+  concrete JAX provider array with a known single-device layout, and owning,
+  aligned, read-only NumPy arrays with a supported layout. Other values and
+  placements remain unknown. `/1` and `/2` remain readable as historical input
+  closure but cannot establish current retention. Device pointer identity,
+  transient mutation and complete external reads remain declared limitations.
 - `acquisition_model_transition.py` replays bounded candidate model/outcome
   changes through the existing evaluation and N5 owners.
   `acquisition_evidence_transition.py` distinguishes that supported route from

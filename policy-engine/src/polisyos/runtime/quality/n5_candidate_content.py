@@ -15,13 +15,15 @@ import types
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Self, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import artifact_ref_identity_key
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.runtime.quality.n5_execution_basis import (
+    GENERIC_FOUNDRY_CALL_NORMALIZATION,
     N5ControlledCallCaptureV3,
     N5ExecutionContentWitnessV3,
     N5ProductionImage,
@@ -29,6 +31,8 @@ from polisyos.runtime.quality.n5_execution_basis import (
     capture_n5_production_image,
     exact_n5_content_bytes,
     exact_n5_content_hash,
+    snapshot_foundry_call_value,
+    snapshot_foundry_mechanism_call,
     snapshot_n5_callable_content_v3,
 )
 from polisyos.runtime.quality.n5_execution_profile import (
@@ -44,7 +48,7 @@ from polisyos.runtime.quality.n5_execution_profile import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore
+    from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.runtime.quality.joint_simulation_horizon import (
         EngineDecision,
         EnginePlan,
@@ -135,6 +139,148 @@ class CandidateN5ContentObservation(BaseModel):
             self.model_dump(mode="json", exclude={"content_hash"})
         ):
             raise ValueError("candidate_n5_content_observation_hash_mismatch")
+        return self
+
+
+class GenericProgramGraphCallObservation(BaseModel):
+    """Bound call and producer-observed state from the selected Foundry graph."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    plan_index: int = Field(ge=0, strict=True)
+    node_id: str = Field(min_length=1)
+    callable_receiver_hex: str | None = Field(default=None, max_length=131072)
+    key_hex: str | None = Field(default=None, max_length=131072)
+    target_mask_hex: str | None = Field(default=None, max_length=131072)
+    state_ref: ArtifactRef | None = None
+    receiver_stable: bool = False
+    state_matches_base: bool = False
+    status: Literal["returned", "raised", "not_established"]
+    reason_codes: tuple[str, ...] = ()
+
+
+class GenericProgramGraphStepObservation(BaseModel):
+    """One physical unit's selected graph step and complete node denominator."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    physical_spec_ref: str = Field(pattern=r"^[0-9a-f]{64}$")
+    replication_seed: int = Field(strict=True)
+    step: int = Field(ge=0, strict=True)
+    effective_seed: int = Field(strict=True)
+    base_state_ref: ArtifactRef | None = None
+    planned_nodes: tuple[tuple[str, str, str | None], ...]
+    completed_nodes: tuple[tuple[int, str, Literal["succeeded", "skipped", "failed"]], ...]
+    calls: tuple[GenericProgramGraphCallObservation, ...]
+    graph_finished: bool
+    predicate_provenance: Literal["recomputed", "not_established"]
+    reason_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _complete_step(self) -> Self:
+        if (self.predicate_provenance == "recomputed") == bool(self.reason_codes):
+            raise ValueError("generic_program_graph_step_predicate_mismatch")
+        if self.predicate_provenance == "recomputed":
+            if (
+                not self.graph_finished
+                or self.base_state_ref is None
+                or self.base_state_ref.kind != "foundry.state_snapshot"
+                or self.base_state_ref.media_type != "application/json"
+                or self.base_state_ref.manifest_profile_sha256 is None
+                or any(
+                    not (
+                        (kind == "mechanism" and op_kind is None)
+                        or (
+                            kind == "op"
+                            and op_kind
+                            in {"make_mask", "apply_mechanism", "merge_state", "check_constraints"}
+                        )
+                    )
+                    for _, kind, op_kind in self.planned_nodes
+                )
+                or tuple((index, name) for index, (name, _, _) in enumerate(self.planned_nodes))
+                != tuple((index, name) for index, name, _ in self.completed_nodes)
+                or any(status == "failed" for _, _, status in self.completed_nodes)
+                or any(
+                    call.status != "returned"
+                    or call.callable_receiver_hex is None
+                    or call.key_hex is None
+                    or call.target_mask_hex is None
+                    or not call.receiver_stable
+                    or call.state_ref is None
+                    or call.state_ref.kind != "foundry.state_snapshot"
+                    or call.state_ref.media_type != "application/json"
+                    or call.state_ref.manifest_profile_sha256 is None
+                    or call.reason_codes
+                    for call in self.calls
+                )
+            ):
+                raise ValueError("generic_program_graph_step_not_complete")
+            expected_calls = tuple(
+                (index, name)
+                for (index, name, status), (_, kind, op_kind) in zip(
+                    self.completed_nodes, self.planned_nodes, strict=True
+                )
+                if status == "succeeded"
+                and (kind == "mechanism" or (kind == "op" and op_kind == "apply_mechanism"))
+            )
+            if tuple((call.plan_index, call.node_id) for call in self.calls) != expected_calls:
+                raise ValueError("generic_program_graph_step_call_census_mismatch")
+        return self
+
+
+class GenericProgramGraphContentObservationV1(BaseModel):
+    """Actual generic graph trace; no current-use or protected authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["GenericProgramGraphContentObservation@1.0"] = (
+        "GenericProgramGraphContentObservation@1.0"
+    )
+    authority_purpose: Literal["candidate_declared_numerical_basis_only"] = (
+        "candidate_declared_numerical_basis_only"
+    )
+    call_normalization_profile: Literal[
+        "foundry-bound-call-content/1",
+        "foundry-bound-call-content/2",
+        "foundry-bound-call-content/3",
+    ]
+    input_ref_identity: tuple[str, str, str, str | None]
+    semantic_successor_ref: ArtifactRef
+    source_image: N5ProductionImage
+    execution_profile: N5NativeExecutionProfile
+    profile_stability: Literal["recomputed", "not_established"]
+    source_image_stability: Literal["recomputed", "not_established"]
+    consumed_configuration: dict[str, object]
+    completion: CandidateN5Completion
+    steps: tuple[GenericProgramGraphStepObservation, ...]
+    predicate_provenance: Literal["recomputed", "not_established"]
+    reason_codes: tuple[str, ...] = ()
+    result_without_observation_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    closure_residuals: tuple[str, ...] = CANDIDATE_CONTENT_RESIDUALS
+    independent_verification: Literal["not_established"] = "not_established"
+    protected_use_allowed: Literal[False] = False
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _bound_content(self) -> Self:
+        if (
+            self.semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
+            or self.semantic_successor_ref.media_type != "application/json"
+            or self.semantic_successor_ref.manifest_profile_sha256 is None
+            or self.closure_residuals != CANDIDATE_CONTENT_RESIDUALS
+            or (self.predicate_provenance == "recomputed") == bool(self.reason_codes)
+            or self.content_hash
+            != exact_n5_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
+        ):
+            raise ValueError("generic_program_graph_content_observation_invalid")
+        if self.predicate_provenance == "recomputed" and (
+            self.completion.status != "recomputed"
+            or self.profile_stability != "recomputed"
+            or self.source_image_stability != "recomputed"
+            or self.source_image.provenance != "recomputed"
+            or self.execution_profile.profile_identity_predicate != "recomputed"
+            or not self.steps
+            or any(step.predicate_provenance != "recomputed" for step in self.steps)
+        ):
+            raise ValueError("generic_program_graph_content_incomplete")
         return self
 
 
@@ -396,6 +542,400 @@ class CandidateN5ContentRun:
             and self._preflight_passed
             and self.controller._producer_budget_observer is budget
         )
+
+
+@dataclass
+class _GenericGraphStep:
+    physical_spec_ref: str
+    replication_seed: int
+    step: int
+    effective_seed: int
+    base_state_ref: ArtifactRef | None
+    planned_nodes: tuple[tuple[str, str, str | None], ...]
+    completed_nodes: list[tuple[int, str, str]] = field(default_factory=list)
+    calls: list[dict[str, object]] = field(default_factory=list)
+    pending: dict[int, tuple[object, bytes | None]] = field(default_factory=dict, repr=False)
+    graph_finished: bool = False
+    reason_codes: list[str] = field(default_factory=list)
+
+
+class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
+    """Record one generic ProgramGraph's actual calls, not a prospective trace."""
+
+    def __init__(
+        self,
+        *,
+        controller: JointSimulationHorizonController,
+        request: JointSimulationRequest,
+        input_ref: ArtifactRef,
+        semantic_successor_ref: ArtifactRef,
+        store: CoreJSONArtifactStore,
+    ) -> None:
+        super().__init__(controller=controller, request=request, input_ref=input_ref)
+        self.semantic_successor_ref = semantic_successor_ref
+        self.store = store
+        self.source_image: N5ProductionImage | None = None
+        self.steps: list[_GenericGraphStep] = []
+        self.remaining_trace_bytes = 131072
+        self.remaining_state_bytes = 8 * 1024 * 1024
+        self.remaining_calls = 256
+
+    def prepare_program_graph(self, plan: EnginePlan, decision: EngineDecision) -> None:
+        """Observe the selected controller and its profile before physical work."""
+        from polisyos.foundry.execute import execute_semantic_horizon_step
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            read_joint_simulation_configuration,
+        )
+
+        if self.configuration is not None or decision.engine_kind != "program_graph":
+            raise ValueError("generic_program_graph_content_selection_invalid")
+        self.configuration = read_joint_simulation_configuration(self.controller)
+        self.selected_callable = execute_semantic_horizon_step
+        self.profile = _native_profile(
+            self.configuration, numerical_callable=self.selected_callable
+        )
+        self.source_image = capture_n5_production_image(
+            root=_product_root(), admitted_profile=_prepared_image_descriptor(self.configuration)
+        )
+        self.method_fqn = decision.method_fqn
+        self.planned_units = _planned_units(self.request, plan, decision)
+
+    def observer_for_unit(self, physical_spec_ref: str, seed: int) -> _GenericGraphUnitObserver:
+        """Return an explicit Foundry observer for one actual physical unit."""
+        return _GenericGraphUnitObserver(self, physical_spec_ref=physical_spec_ref, seed=seed)
+
+    def _bounded_hex(self, value: bytes) -> str:
+        self.remaining_trace_bytes -= len(value)
+        if self.remaining_trace_bytes < 0:
+            raise ValueError("generic_program_graph_trace_limit_exceeded")
+        return value.hex()
+
+    def step_observations(self) -> tuple[GenericProgramGraphStepObservation, ...]:
+        """Seal only the observed per-step node and call facts."""
+        observations = []
+        for step in self.steps:
+            reasons = list(step.reason_codes)
+            payload = {
+                "physical_spec_ref": step.physical_spec_ref,
+                "replication_seed": step.replication_seed,
+                "step": step.step,
+                "effective_seed": step.effective_seed,
+                "base_state_ref": step.base_state_ref,
+                "planned_nodes": step.planned_nodes,
+                "completed_nodes": tuple(step.completed_nodes),
+                "calls": tuple(step.calls),
+                "graph_finished": step.graph_finished,
+            }
+            if not reasons:
+                try:
+                    observations.append(
+                        GenericProgramGraphStepObservation(
+                            **payload, predicate_provenance="recomputed"
+                        )
+                    )
+                    continue
+                except (TypeError, ValueError):
+                    reasons.append("generic_program_graph_step_not_complete")
+            observations.append(
+                GenericProgramGraphStepObservation(
+                    **payload,
+                    predicate_provenance="not_established",
+                    reason_codes=tuple(dict.fromkeys(reasons)),
+                )
+            )
+        return tuple(observations)
+
+
+class _GenericGraphUnitObserver:
+    """Passively observe the Foundry-owned calls for one physical unit."""
+
+    def __init__(
+        self, scope: GenericProgramGraphN5ContentRun, *, physical_spec_ref: str, seed: int
+    ) -> None:
+        self.scope = scope
+        self.physical_spec_ref = physical_spec_ref
+        self.seed = seed
+        self.current: _GenericGraphStep | None = None
+
+    def graph_started(
+        self,
+        *,
+        step: int,
+        seed: int,
+        base_state_ref: ArtifactRef | None,
+        nodes: tuple[tuple[str, str, str | None], ...],
+    ) -> None:
+        current = _GenericGraphStep(
+            physical_spec_ref=self.physical_spec_ref,
+            replication_seed=self.seed,
+            step=step,
+            effective_seed=seed,
+            base_state_ref=base_state_ref,
+            planned_nodes=nodes,
+        )
+        if self.current is not None and not self.current.graph_finished:
+            current.reason_codes.append("generic_program_graph_prior_step_unfinished")
+        if seed != self.seed + step:
+            current.reason_codes.append("generic_program_graph_step_seed_mismatch")
+        self.scope.steps.append(current)
+        self.current = current
+
+    def mechanism_started(
+        self,
+        *,
+        step: int,
+        plan_index: int,
+        node_id: str,
+        selected_call: Callable[..., object],
+        state: object,
+        key: object,
+        target_mask: object,
+    ) -> None:
+        current = self.current
+        if current is None:
+            return
+        call: dict[str, object] = {
+            "plan_index": plan_index,
+            "node_id": node_id,
+            "callable_receiver_hex": None,
+            "key_hex": None,
+            "target_mask_hex": None,
+            "state_ref": None,
+            "receiver_stable": False,
+            "state_matches_base": False,
+            "status": "not_established",
+            "reason_codes": (),
+        }
+        receiver: bytes | None = None
+        try:
+            if current.step != step or plan_index in current.pending:
+                raise ValueError("generic_program_graph_call_scope_mismatch")
+            self.scope.remaining_calls -= 1
+            if self.scope.remaining_calls < 0:
+                raise ValueError("generic_program_graph_call_limit_exceeded")
+            receiver = snapshot_foundry_mechanism_call(selected_call)
+            call["callable_receiver_hex"] = self.scope._bounded_hex(receiver)
+            call["key_hex"] = self.scope._bounded_hex(snapshot_foundry_call_value(key))
+            call["target_mask_hex"] = self.scope._bounded_hex(
+                snapshot_foundry_call_value(target_mask)
+            )
+            from polisyos.core.artifacts import input_ref_from_artifact_ref
+            from polisyos.foundry.execute import (
+                load_state_snapshot,
+                put_state_snapshot,
+                state_snapshot_value_projection,
+            )
+
+            if current.base_state_ref is None:
+                raise ValueError("generic_program_graph_base_state_missing")
+            projection = state_snapshot_value_projection(state)
+            self.scope.remaining_state_bytes -= sum(
+                len(leaf.path.encode()) + len(leaf.dtype) + len(leaf.value_bytes)
+                for leaf in projection
+            )
+            if self.scope.remaining_state_bytes < 0:
+                raise ValueError("generic_program_graph_state_limit_exceeded")
+            persisted = load_state_snapshot(self.scope.store, snapshot_ref=current.base_state_ref)
+            call["state_matches_base"] = projection == state_snapshot_value_projection(persisted)
+            if call["state_matches_base"]:
+                call["state_ref"] = current.base_state_ref
+            else:
+                # This is the real before-call state, not a reconstruction of
+                # the preceding patches or a prediction for a later run.
+                state_ref = put_state_snapshot(
+                    self.scope.store,
+                    state=state,
+                    step=step,
+                    inputs=[
+                        input_ref_from_artifact_ref(
+                            current.base_state_ref, role="observation.step_predecessor"
+                        )
+                    ],
+                    return_selected_profile=True,
+                )
+                reopened = load_state_snapshot(self.scope.store, snapshot_ref=state_ref)
+                if projection != state_snapshot_value_projection(reopened):
+                    raise ValueError("generic_program_graph_call_state_readback_mismatch")
+                call["state_ref"] = state_ref
+        except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
+            call["reason_codes"] = ("generic_program_graph_call_identity_not_established",)
+        current.pending[plan_index] = (selected_call, receiver)
+        current.calls.append(call)
+
+    def mechanism_finished(
+        self, *, step: int, plan_index: int, node_id: str, status: Literal["returned", "raised"]
+    ) -> None:
+        current = self.current
+        if current is None or not current.calls:
+            return
+        call = current.calls[-1]
+        pending = current.pending.pop(plan_index, None)
+        if (
+            current.step != step
+            or call["plan_index"] != plan_index
+            or call["node_id"] != node_id
+            or pending is None
+        ):
+            current.reason_codes.append("generic_program_graph_call_scope_mismatch")
+            return
+        selected_call, before = pending
+        call["status"] = status
+        try:
+            call["receiver_stable"] = (
+                before is not None and snapshot_foundry_mechanism_call(selected_call) == before
+            )
+        except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
+            call["receiver_stable"] = False
+        if call["receiver_stable"] is not True:
+            call["reason_codes"] = ("generic_program_graph_receiver_not_stable",)
+
+    def node_finished(
+        self,
+        *,
+        step: int,
+        plan_index: int,
+        node_id: str,
+        status: Literal["succeeded", "skipped", "failed"],
+    ) -> None:
+        current = self.current
+        if current is None:
+            return
+        if current.step != step:
+            current.reason_codes.append("generic_program_graph_node_scope_mismatch")
+        current.completed_nodes.append((plan_index, node_id, status))
+
+    def graph_finished(self, *, step: int, seed: int) -> None:
+        current = self.current
+        if current is None:
+            return
+        if current.step != step or current.effective_seed != seed or current.pending:
+            current.reason_codes.append("generic_program_graph_graph_scope_mismatch")
+        current.graph_finished = True
+
+
+@contextmanager
+def observe_generic_program_graph_n5_input(
+    *,
+    port: object,
+    request: JointSimulationRequest,
+    input_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef,
+) -> Iterator[GenericProgramGraphN5ContentRun]:
+    """Observe a request already reopened by the canonical semantic successor owner."""
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+
+    if (
+        type(port) is not JointSimulationPort
+        or port._artifact_store is None
+        or _ACTIVE.get() is not None
+        or input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
+        or input_ref.manifest_profile_sha256 is None
+        or semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
+        or semantic_successor_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("generic_program_graph_content_scope_not_established")
+    scope = GenericProgramGraphN5ContentRun(
+        controller=port._controller,
+        request=request,
+        input_ref=input_ref,
+        semantic_successor_ref=semantic_successor_ref,
+        store=port._artifact_store,
+    )
+    token = _ACTIVE.set(scope)
+    try:
+        yield scope
+    finally:
+        _ACTIVE.reset(token)
+
+
+def bind_generic_program_graph_n5_content_observation(
+    result: JointSimulationResult, *, scope: GenericProgramGraphN5ContentRun
+) -> JointSimulationResult:
+    """Bind actual ProgramGraph observations to the producer's ordinary result."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+        read_joint_simulation_configuration,
+        verify_simulation_receipt,
+    )
+
+    if (
+        type(scope) is not GenericProgramGraphN5ContentRun
+        or scope.configuration is None
+        or scope.profile is None
+        or scope.source_image is None
+    ):
+        return result
+    payload = deepcopy(_candidate_result_payload(result))
+    verify_simulation_receipt(result.receipt, payload)
+    if CONTENT_OBSERVATION_KEY in payload["diagnostics"]:
+        raise ValueError("generic_program_graph_content_already_bound")
+    current = read_joint_simulation_configuration(scope.controller)
+    observed_profile = _native_profile(current, numerical_callable=scope.selected_callable)
+    current_image = capture_n5_production_image(
+        root=_product_root(), admitted_profile=_prepared_image_descriptor(scope.configuration)
+    )
+    profile_stable = (
+        exact_n5_content_bytes(current) == exact_n5_content_bytes(scope.configuration)
+        and reconcile_recorded_n5_profile_content(scope.profile, observed_profile).status
+        == "recomputed"
+    )
+    image_stable = current_image.content_hash == scope.source_image.content_hash
+    completion = _completion(result, scope.planned_units)
+    steps = scope.step_observations()
+    expected_steps = {
+        (physical, seed, step)
+        for physical, seed in scope.planned_units
+        for step in scope.request.horizon.steps()
+    }
+    actual_steps = tuple(
+        (item.physical_spec_ref, item.replication_seed, item.step) for item in steps
+    )
+    reasons = []
+    if completion.status != "recomputed":
+        reasons.append("generic_program_graph_physical_completion_not_established")
+    if len(actual_steps) != len(expected_steps) or set(actual_steps) != expected_steps:
+        reasons.append("generic_program_graph_step_census_not_established")
+    if any(item.predicate_provenance != "recomputed" for item in steps):
+        reasons.append("generic_program_graph_call_identity_not_established")
+    if not profile_stable or observed_profile.profile_identity_predicate != "recomputed":
+        reasons.append("generic_program_graph_execution_profile_not_established")
+    if not image_stable or scope.source_image.provenance != "recomputed":
+        reasons.append("generic_program_graph_source_image_not_established")
+    values = {
+        "schema_version": "GenericProgramGraphContentObservation@1.0",
+        "authority_purpose": "candidate_declared_numerical_basis_only",
+        "call_normalization_profile": GENERIC_FOUNDRY_CALL_NORMALIZATION,
+        "input_ref_identity": artifact_ref_identity_key(scope.input_ref),
+        "semantic_successor_ref": scope.semantic_successor_ref.model_dump(mode="json"),
+        "source_image": scope.source_image.model_dump(mode="json"),
+        "execution_profile": observed_profile.model_dump(mode="json"),
+        "profile_stability": "recomputed" if profile_stable else "not_established",
+        "source_image_stability": "recomputed" if image_stable else "not_established",
+        "consumed_configuration": scope.configuration.model_dump(mode="json"),
+        "completion": completion.model_dump(mode="json"),
+        "steps": [item.model_dump(mode="json") for item in steps],
+        "predicate_provenance": "not_established" if reasons else "recomputed",
+        "reason_codes": reasons,
+        "result_without_observation_hash": exact_n5_content_hash(payload),
+        "closure_residuals": list(CANDIDATE_CONTENT_RESIDUALS),
+        "independent_verification": "not_established",
+        "protected_use_allowed": False,
+    }
+    values = json.loads(json.dumps(values, allow_nan=False))
+    observation = GenericProgramGraphContentObservationV1.model_validate_json(
+        json.dumps({**values, "content_hash": exact_n5_content_hash(values)}, allow_nan=False)
+    )
+    payload["diagnostics"][CONTENT_OBSERVATION_KEY] = observation.model_dump(mode="json")
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind, payload=payload, diagnostics=payload["diagnostics"]
+    )
+    bound = JointSimulationResult.model_validate(
+        {**payload, "receipt": receipt.model_dump(mode="json")}
+    )
+    bound._content_payload = payload
+    verify_simulation_receipt(bound.receipt, bound.content_bound_payload())
+    return bound
 
 
 def active_candidate_n5_content_run(
@@ -690,6 +1230,156 @@ def read_candidate_n5_content_observation(
         raise ValueError("candidate_n5_content_method_mismatch")
     if expected_request is not None:
         _require_resolved_request_binding(observation, result, expected_request)
+    return observation
+
+
+def read_generic_program_graph_n5_content_observation(
+    result: JointSimulationResult,
+    *,
+    input_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef,
+    expected_request: JointSimulationRequest,
+    store: CoreJSONArtifactStore,
+) -> GenericProgramGraphContentObservationV1:
+    """Reopen original graph calls and their actual selected Foundry step chains.
+
+    This historical producer observation is not a current permission, a
+    prospective future trace, or proof of an independent numerical execution.
+    """
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.contracts import ExecPlan, ProgramGraph
+    from polisyos.foundry.execute import (
+        admit_semantic_horizon_step_chain,
+        load_state_snapshot,
+        state_snapshot_value_projection,
+    )
+    from polisyos.foundry.execute.executor import load_model
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        PreparedJointSimulationConfiguration,
+        _physical_spec_digest,
+        verify_semantic_program_graph_result_sources,
+        verify_simulation_receipt,
+    )
+
+    complete = _candidate_result_payload(result)
+    verify_simulation_receipt(result.receipt, complete)
+    raw = result.diagnostics.get(CONTENT_OBSERVATION_KEY)
+    if type(raw) is not dict:
+        raise ValueError("generic_program_graph_content_observation_missing")
+    _require_n5_json_wire_domain(raw)
+    observation = GenericProgramGraphContentObservationV1.model_validate_json(json.dumps(raw))
+    if (
+        input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
+        or input_ref.media_type != "application/json"
+        or input_ref.manifest_profile_sha256 is None
+        or semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
+        or semantic_successor_ref.media_type != "application/json"
+        or semantic_successor_ref.manifest_profile_sha256 is None
+        or not store.verify(input_ref).ok
+        or not store.verify(semantic_successor_ref).ok
+        or observation.input_ref_identity != artifact_ref_identity_key(input_ref)
+        or artifact_ref_identity_key(observation.semantic_successor_ref)
+        != artifact_ref_identity_key(semantic_successor_ref)
+        or observation.call_normalization_profile != GENERIC_FOUNDRY_CALL_NORMALIZATION
+        or observation.predicate_provenance != "recomputed"
+    ):
+        raise ValueError("generic_program_graph_content_not_established")
+    payload = deepcopy(complete)
+    del payload["diagnostics"][CONTENT_OBSERVATION_KEY]
+    if exact_n5_content_hash(payload) != observation.result_without_observation_hash:
+        raise ValueError("generic_program_graph_content_result_mismatch")
+    config = PreparedJointSimulationConfiguration.model_validate(observation.consumed_configuration)
+    controller = JointSimulationHorizonController(_prepared_configuration=config)
+    selected = controller._select_engine(expected_request)
+    if selected.decision.decision != "selected" or selected.decision.engine_kind != "program_graph":
+        raise ValueError("generic_program_graph_content_engine_mismatch")
+    planned = _planned_units(expected_request, selected.plan, selected.decision)
+    if (
+        observation.completion.planned_units != planned
+        or _completion(result, planned) != observation.completion
+        or verify_semantic_program_graph_result_sources(
+            store, result, expected_request=expected_request
+        )
+        is None
+    ):
+        raise ValueError("generic_program_graph_content_completion_mismatch")
+    plan = load_model(store, selected.plan.exec_plan_ref, ExecPlan)
+    graph = load_model(store, selected.plan.program_graph_ref, ProgramGraph)
+    node_map = {node.node_id: node for node in graph.nodes}
+    if len(node_map) != len(graph.nodes):
+        raise ValueError("generic_program_graph_content_node_census_mismatch")
+    order = plan.order or [node.node_id for node in graph.nodes]
+    if any(node_id not in node_map for node_id in order):
+        raise ValueError("generic_program_graph_content_node_census_mismatch")
+    nodes = tuple(
+        (
+            node_id,
+            str(node_map[node_id].node_kind),
+            str(node_map[node_id].op.op_kind) if node_map[node_id].op is not None else None,
+        )
+        for node_id in order
+    )
+    step_rows = {
+        (item.physical_spec_ref, item.replication_seed, item.step): item
+        for item in observation.steps
+    }
+    expected_keys = {
+        (physical, seed, step)
+        for physical, seed in planned
+        for step in expected_request.horizon.steps()
+    }
+    if (
+        len(step_rows) != len(observation.steps)
+        or set(step_rows) != expected_keys
+        or any(item.planned_nodes != nodes for item in observation.steps)
+    ):
+        raise ValueError("generic_program_graph_content_step_census_mismatch")
+    checked: set[tuple[str, int]] = set()
+    for trajectory in result.trajectories:
+        physical = _physical_spec_digest(trajectory.diagnostics.get("physical_run_ref"))
+        for replication in trajectory.semantic_program_graph_replications:
+            unit = (physical, replication.replication_seed)
+            if unit in checked:
+                continue
+            checked.add(unit)
+            chain = admit_semantic_horizon_step_chain(store, replication.step_result_refs)
+            for index, admission in enumerate(chain):
+                step = expected_request.horizon.steps()[index]
+                observed = step_rows[(physical, replication.replication_seed, step)]
+                basis = admission.basis
+                if (
+                    basis is None
+                    or observed.base_state_ref is None
+                    or artifact_ref_identity_key(observed.base_state_ref)
+                    != artifact_ref_identity_key(basis.base_state_snapshot_ref)
+                    or basis.effective_step != step
+                    or basis.effective_seed != observed.effective_seed
+                ):
+                    raise ValueError("generic_program_graph_content_step_source_mismatch")
+                for call in observed.calls:
+                    if call.state_ref is None or not store.verify(call.state_ref).ok:
+                        raise ValueError("generic_program_graph_call_state_unavailable")
+                    if call.state_matches_base:
+                        if artifact_ref_identity_key(call.state_ref) != artifact_ref_identity_key(
+                            observed.base_state_ref
+                        ):
+                            raise ValueError("generic_program_graph_call_state_source_mismatch")
+                    else:
+                        manifest = store.get_manifest(call.state_ref)
+                        edge = input_ref_from_artifact_ref(
+                            observed.base_state_ref, role="observation.step_predecessor"
+                        )
+                        if not manifest.inputs or manifest.inputs[0] != edge:
+                            raise ValueError("generic_program_graph_call_state_source_mismatch")
+                    # The snapshot owner verifies its selected wrapper and blob.
+                    # These bytes are a producer observation, not an independent
+                    # derivation of the intermediate state from prior patches.
+                    state_snapshot_value_projection(
+                        load_state_snapshot(store, snapshot_ref=call.state_ref)
+                    )
+    if checked != set(planned):
+        raise ValueError("generic_program_graph_content_physical_units_mismatch")
     return observation
 
 

@@ -12281,14 +12281,15 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 35,
-          "known_export_count": 35,
+          "export_count": 37,
+          "known_export_count": 37,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
             "ExecutionSourceAdmission",
             "ExecutionSourceAdmissionRefusal",
             "BoundedExecutionSourceReader",
+            "ProgramGraphExecutionObserver",
             "ExecutionSourceBoundedReadRefusal",
             "ResolvedExecutionPosture",
             "SnapshotStateInputReadRefusal",
@@ -12308,6 +12309,7 @@
             "load_state_snapshot",
             "new_method_execution_capture",
             "persist_method_execution_capture",
+            "prepare_program_graph_mechanism_calls",
             "put_state_snapshot",
             "program_graph_declares_model_input_ports",
             "recompute_program_graph_inputs",
@@ -12344,8 +12346,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7055,
-                "sha256": "84b379dfa293892a82d511167ce8946fd9c09c86cd35225558f6299cdb0ee34e"
+                "bytes": 7420,
+                "sha256": "baf27a855d677d7f7ca76467fe2ef2be4928dfcff9f0048bfb08fafb282284b2"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -12385,6 +12387,12 @@
               },
               {
                 "path": "src/polisyos/foundry/execute/model_input_requirements.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/execute/observation.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

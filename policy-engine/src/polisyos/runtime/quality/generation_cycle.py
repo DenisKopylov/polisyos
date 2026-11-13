@@ -5943,6 +5943,7 @@ class JointSimulationPort:
             generic_cycle_simulation_input_ref=expected_input_ref,
             generic_cycle_simulation_currentness_resolver=currentness_resolver,
             semantic_successor=successor,
+            semantic_successor_ref=semantic_successor_ref,
         )
         observation = production.observation
         if observation.status != "joint_simulated":
@@ -5981,6 +5982,7 @@ class JointSimulationPort:
         generic_cycle_simulation_input_ref: CASArtifactRef | None = None,
         generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
         semantic_successor: GenericN5SemanticSuccessorRequest | None = None,
+        semantic_successor_ref: CASArtifactRef | None = None,
     ) -> _JointSimulationProduction:
         """Run N5 from a supplied request or the data-only request builder."""
 
@@ -6462,9 +6464,37 @@ class JointSimulationPort:
                         )
 
                     try:
-                        result = self._controller.run(
-                            request, _program_graph_input_preflight=preflight
-                        )
+                        if (
+                            semantic_successor is not None
+                            and semantic_successor_ref is not None
+                            and admitted_input_ref is not None
+                        ):
+                            from polisyos.runtime.quality.n5_candidate_content import (
+                                bind_generic_program_graph_n5_content_observation,
+                                observe_generic_program_graph_n5_input,
+                            )
+
+                            with observe_generic_program_graph_n5_input(
+                                port=self,
+                                request=request,
+                                input_ref=admitted_input_ref,
+                                semantic_successor_ref=semantic_successor_ref,
+                            ) as content_scope:
+                                result = self._controller.run(
+                                    request, _program_graph_input_preflight=preflight
+                                )
+                            # Numerical work has happened. If observation is
+                            # unavailable, retain the ordinary candidate result.
+                            with suppress(
+                                OSError, RuntimeError, TypeError, ValueError, AttributeError
+                            ):
+                                result = bind_generic_program_graph_n5_content_observation(
+                                    result, scope=content_scope
+                                )
+                        else:
+                            result = self._controller.run(
+                                request, _program_graph_input_preflight=preflight
+                            )
                     except JointSimulationControllerError as exc:
                         obligation_set_ref = None
                         if isinstance(exc, ProgramGraphInputsRequiredError):

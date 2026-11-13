@@ -8,7 +8,7 @@ import json
 import logging
 import math
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, Literal, Protocol, TypedDict, TypeVar
@@ -112,6 +112,7 @@ from polisyos.foundry.execute._internal.ops import (
 )
 from polisyos.foundry.execute._internal.patching import apply_patch_map
 from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
+from polisyos.foundry.execute.observation import ProgramGraphExecutionObserver
 from polisyos.foundry.execute.patch_vm import merge_patch_records
 from polisyos.foundry.methods.backends.circuit_breaker import BackendCircuitOpenError
 from polisyos.foundry.methods.backends.dispatch import BackendNotAvailableError
@@ -153,6 +154,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "execute_program_graph",
+    "prepare_program_graph_mechanism_calls",
 ]
 
 _SELECTOR_ADAPTER = TypeAdapter(SelectorExpr)
@@ -2732,6 +2734,7 @@ def execute_program_graph(
     method_input_state_source_ref: ArtifactRef | None = None,
     finalize_method_execution_capture: bool = True,
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
+    observer: ProgramGraphExecutionObserver | None = None,
 ) -> ExecuteArtifacts:
     """Execute program graph."""
     start_time = time.perf_counter()
@@ -2857,6 +2860,22 @@ def execute_program_graph(
     effective_seed = (
         seed if seed is not None else ((exec_plan.random_seed or 0) if treasury is not None else 0)
     )
+    if observer is not None:
+        observer.graph_started(
+            step=step,
+            seed=effective_seed,
+            base_state_ref=base_ref,
+            nodes=tuple(
+                (
+                    node_id,
+                    str(node_map[node_id].node_kind) if node_id in node_map else "unknown",
+                    str(node_map[node_id].op.op_kind)
+                    if node_id in node_map and node_map[node_id].op is not None
+                    else None,
+                )
+                for node_id in order
+            ),
+        )
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
     should_capture_environment = capture_env or (
@@ -3013,6 +3032,10 @@ def execute_program_graph(
         occurrence_id = invocation_occurrence_ids.get(plan_index)
         node = node_map.get(node_id)
         if node is None:
+            if observer is not None:
+                observer.node_finished(
+                    step=step, plan_index=plan_index, node_id=node_id, status="failed"
+                )
             card = _build_failure_card(
                 ProgramNodeValidationError(
                     f"ExecPlan referenced unknown node '{node_id}'",
@@ -3108,6 +3131,8 @@ def execute_program_graph(
                         merge_registry=merge_registry,
                         tax_rate_value=tax_rate_value,
                         welfare_bound_mode=welfare_bound_mode,
+                        plan_index=plan_index,
+                        observer=observer,
                     )
                     if patch_map is None:
                         skipped_nodes += 1
@@ -3170,6 +3195,8 @@ def execute_program_graph(
                     merge_registry=merge_registry,
                     tax_rate_value=tax_rate_value,
                     welfare_bound_mode=welfare_bound_mode,
+                    plan_index=plan_index,
+                    observer=observer,
                 )
                 if patch_map is None:
                     skipped_nodes += 1
@@ -3434,6 +3461,13 @@ def execute_program_graph(
                 occurrence_status = "failed"
                 skipped_nodes += 1
         finally:
+            if observer is not None:
+                observer.node_finished(
+                    step=step,
+                    plan_index=plan_index,
+                    node_id=node_id,
+                    status=occurrence_status,
+                )
             if capture is not None and occurrence_id is not None:
                 _replace_capture_occurrence(
                     capture,
@@ -3569,6 +3603,8 @@ def execute_program_graph(
         if capture is not None and finalize_method_execution_capture
         else None
     )
+    if observer is not None:
+        observer.graph_finished(step=step, seed=effective_seed)
     return ExecuteArtifacts(
         state_delta_ref=state_delta_ref,
         metrics_ref=metrics_ref,
@@ -3872,6 +3908,143 @@ def _seed_from_key(key: jax.Array) -> int:
     return int(acc or 1)
 
 
+def _construct_program_graph_mechanism(
+    *,
+    mechanism_type: str,
+    payload: dict[str, Any],
+    n_agents: int,
+    n_firms: int,
+    mechanism_registry: MechanismTypeRegistry,
+    tax_rate_value: jnp.ndarray | None,
+) -> Any:
+    """Use the same selected factory and runtime overrides as graph execution."""
+    mechanism = create_mechanism_from_spec(
+        mechanism_type,
+        payload.get("params", {}),
+        n_agents=n_agents,
+        n_firms=n_firms,
+        mechanism_spec=mechanism_registry.mechanisms.get(mechanism_type),
+        selected_fidelity=payload.get("selected_fidelity"),
+    )
+    if (
+        tax_rate_value is not None
+        and isinstance(mechanism, AdaptiveAgentMechanism)
+        and (
+            "global.tax_rate" in mechanism.observation_space
+            or "policy.tax_rate" in mechanism.observation_space
+        )
+    ):
+        mechanism = mechanism.with_runtime_overrides(tax_rate_value=tax_rate_value)
+    return mechanism
+
+
+def prepare_program_graph_mechanism_calls(
+    store: CoreJSONArtifactStore,
+    *,
+    program_ref: ArtifactRef,
+    exec_plan_ref: ArtifactRef,
+    base_state: Any,
+    mechanism_registry: MechanismTypeRegistry,
+    steps: tuple[int, ...],
+) -> tuple[tuple[int, str, int, Callable[..., object]], ...]:
+    """Prepare the graph's scheduled bound calls without running its nodes.
+
+    This is a bounded factory observation, not a simulation, an execution
+    witness, or an independent proof of a later node's state. The caller must
+    first admit the selected graph, plan, registry and opening state through
+    their respective owners, then compare these calls with the original trace.
+
+    Args:
+        store: Selected graph and parameter artifact reader.
+        program_ref: Exact selected ProgramGraph reference.
+        exec_plan_ref: Exact selected ExecPlan reference.
+        base_state: Owner-prepared opening GlobalState.
+        mechanism_registry: Owner-prepared selected mechanism registry.
+        steps: Exact finite requested horizon steps.
+
+    Returns:
+        Ordered tuples of plan index, node ID, step, and the actual bound method.
+
+    Raises:
+        ValueError: If the selected graph or bounded structural profile is unsupported.
+    """
+    if (
+        not isinstance(program_ref, ArtifactRef)
+        or program_ref.kind != ProgramGraph.ARTIFACT_KIND
+        or program_ref.media_type != ProgramGraph.ARTIFACT_MEDIA_TYPE
+        or program_ref.manifest_profile_sha256 is None
+        or not isinstance(exec_plan_ref, ArtifactRef)
+        or exec_plan_ref.kind != ExecPlan.ARTIFACT_KIND
+        or exec_plan_ref.media_type != ExecPlan.ARTIFACT_MEDIA_TYPE
+        or exec_plan_ref.manifest_profile_sha256 is None
+        or type(steps) is not tuple
+        or not steps
+        or len(steps) > 256
+        or any(type(step) is not int or step < 0 for step in steps)
+        or len(set(steps)) != len(steps)
+    ):
+        raise ValueError("program_graph_call_preparation_scope_unsupported")
+    graph = load_model(store, program_ref, ProgramGraph)
+    plan = load_model(store, exec_plan_ref, ExecPlan)
+    if plan.program_ref.artifact_id != program_ref.artifact_id or (
+        plan.program_ref.manifest_profile_sha256 is not None
+        and plan.program_ref.manifest_profile_sha256 != program_ref.manifest_profile_sha256
+    ):
+        raise ValueError("program_graph_call_preparation_source_mismatch")
+    nodes = {node.node_id: node for node in graph.nodes}
+    order = plan.order or [node.node_id for node in graph.nodes]
+    if (
+        len(nodes) != len(graph.nodes)
+        or len(order) > 256
+        or len(order) * len(steps) > 4096
+        or any(node_id not in nodes for node_id in order)
+    ):
+        raise ValueError("program_graph_call_preparation_census_unsupported")
+    n_agents = getattr(base_state.agents, "size", None)
+    if n_agents is None:
+        n_agents = int(base_state.agents.income.shape[0])
+    n_firms = getattr(base_state.firms, "size", None)
+    if n_firms is None:
+        n_firms = int(base_state.firms.capital.shape[0])
+    calls: list[tuple[int, str, int, Callable[..., object]]] = []
+    for step in steps:
+        tax_rate_value = _resolve_income_tax_rate(graph, store, step)
+        for plan_index, node_id in enumerate(order):
+            node = nodes[node_id]
+            op_kind = node.op.op_kind if node.op is not None else None
+            if node.node_kind == "op" and op_kind in {
+                "make_mask",
+                "merge_state",
+                "check_constraints",
+            }:
+                continue
+            if (
+                not (
+                    node.node_kind == "mechanism"
+                    or (node.node_kind == "op" and op_kind == "apply_mechanism")
+                )
+                or node.params_ref is None
+            ):
+                raise ValueError("program_graph_call_preparation_node_unsupported")
+            payload = _load_node_payload(store, node=node, parameter_overrides=None)
+            start, end = schedule_range(ScheduleSpec.model_validate(payload.get("schedule", {})))
+            if step < start or step > end:
+                continue
+            mechanism_type = node.mechanism_type or payload.get("mechanism_id")
+            if not isinstance(mechanism_type, str) or not mechanism_type.strip():
+                raise ValueError("program_graph_call_preparation_mechanism_missing")
+            mechanism = _construct_program_graph_mechanism(
+                mechanism_type=mechanism_type,
+                payload=payload,
+                n_agents=n_agents,
+                n_firms=n_firms,
+                mechanism_registry=mechanism_registry,
+                tax_rate_value=tax_rate_value,
+            )
+            calls.append((plan_index, node_id, step, mechanism.emit_patches))
+    return tuple(calls)
+
+
 def _execute_mechanism_like_node(
     store: CoreJSONArtifactStore,
     *,
@@ -3890,6 +4063,8 @@ def _execute_mechanism_like_node(
     merge_registry: MergeRuleRegistry,
     tax_rate_value: jnp.ndarray | None,
     welfare_bound_mode: str,
+    plan_index: int,
+    observer: ProgramGraphExecutionObserver | None,
 ) -> tuple[jax.Array, dict[str, Any] | None, dict[str, Any], Any | None]:
     if node.params_ref is None:
         raise ProgramNodeValidationError(
@@ -3916,8 +4091,6 @@ def _execute_mechanism_like_node(
             node_id=node.node_id,
             code="missing_mechanism_type",
         )
-    mechanism_spec = mechanism_registry.mechanisms.get(mechanism_type)
-
     mask_info: tuple[jnp.ndarray, SlotScope] | None = None
     if node.node_kind == "op" and node.op is not None and node.op.op_kind == "apply_mechanism":
         mask_id = node.op.params.get("mask_id")
@@ -3946,24 +4119,14 @@ def _execute_mechanism_like_node(
                 target, visible_state, selector_field_registry=selector_field_registry
             )
 
-    params = payload.get("params", {})
-    mechanism = create_mechanism_from_spec(
-        mechanism_type,
-        params,
+    mechanism = _construct_program_graph_mechanism(
+        mechanism_type=mechanism_type,
+        payload=payload,
         n_agents=n_agents,
         n_firms=n_firms,
-        mechanism_spec=mechanism_spec,
-        selected_fidelity=payload.get("selected_fidelity"),
+        mechanism_registry=mechanism_registry,
+        tax_rate_value=tax_rate_value,
     )
-    if (
-        tax_rate_value is not None
-        and isinstance(mechanism, AdaptiveAgentMechanism)
-        and (
-            "global.tax_rate" in mechanism.observation_space
-            or "policy.tax_rate" in mechanism.observation_space
-        )
-    ):
-        mechanism = mechanism.with_runtime_overrides(tax_rate_value=tax_rate_value)
 
     key, step_key = jax.random.split(key)
     target_mask = None
@@ -3971,7 +4134,29 @@ def _execute_mechanism_like_node(
         mask, mask_scope = mask_info
         if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
             target_mask = mask
-    patch_map, key = mechanism.emit_patches(visible_state, step_key, target_mask=target_mask)
+    selected_call = mechanism.emit_patches
+    if observer is not None:
+        observer.mechanism_started(
+            step=step,
+            plan_index=plan_index,
+            node_id=node.node_id,
+            selected_call=selected_call,
+            state=visible_state,
+            key=step_key,
+            target_mask=target_mask,
+        )
+    try:
+        patch_map, key = selected_call(visible_state, step_key, target_mask=target_mask)
+    except BaseException:
+        if observer is not None:
+            observer.mechanism_finished(
+                step=step, plan_index=plan_index, node_id=node.node_id, status="raised"
+            )
+        raise
+    if observer is not None:
+        observer.mechanism_finished(
+            step=step, plan_index=plan_index, node_id=node.node_id, status="returned"
+        )
     if patch_map is None:
         raise ContractViolationError(
             _node_target_fqn(node),

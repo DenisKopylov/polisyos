@@ -1291,6 +1291,7 @@ def test_v3_sibling_replacements_select_one_actual_relation(tmp_path: Path) -> N
         initial.key, 2, replacements[winner]
     )
     assert stores[0].read_acquisition_evaluation_frontier(initial.key) == commit.frontier
+
     assert (
         stores[0].get_acquisition_evaluation_frontier_by_ref(
             _oracle_frontier_ref(initial.key, 2, replacements[loser])
@@ -1303,6 +1304,845 @@ def test_v3_sibling_replacements_select_one_actual_relation(tmp_path: Path) -> N
         )
         is None
     )
+
+
+def _generic_ref(
+    tmp_path: Path, label: str, kind: str, *, media_type: str = "application/json"
+) -> Any:
+    cas = FileSystemCAS(tmp_path / "generic-frontier-artifacts")
+    options = ArtifactWriteOptions(
+        kind=kind,
+        media_type=media_type,
+        schema=SchemaInfo(name="polisyos.test.generic_frontier", version="1"),
+    )
+    if media_type == "application/json":
+        return cas.put_json({"label": label, "kind": kind}, options, return_selected_profile=True)
+    return cas.put_bytes(
+        json.dumps({"label": label, "kind": kind}, sort_keys=True).encode("utf-8"),
+        options,
+        return_selected_profile=True,
+    )
+
+
+def _generic_persist_record(tmp_path: Path, record: Any) -> Any:
+    return FileSystemCAS(tmp_path / "generic-frontier-artifacts").put_json(
+        record.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind=record.ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(name=record.ARTIFACT_SCHEMA_NAME, version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+
+
+def _generic_model_input_key(source_job_id: str = "source-nl") -> Any:
+    key_type = store_module.GenericModelInputEvaluationFrontierKey
+    return key_type(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        source_job_id=source_job_id,
+        design_problem_ref=_sha("design"),
+        candidate_id="candidate-a",
+    )
+
+
+def _rehash_generic_model_record(record_type: type[Any], fields: dict[str, Any]) -> Any:
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+
+    provisional = record_type.model_construct(**fields, content_hash=_sha("placeholder"))
+    payload = provisional.model_dump(mode="json", exclude={"content_hash"})
+    return record_type.model_validate({**payload, "content_hash": exact_n5_content_hash(payload)})
+
+
+def _generic_selected_evaluation(tmp_path: Path, *, action_job_id: str, suffix: str) -> Any:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputSelectedEvaluation,
+    )
+
+    return GenericModelInputSelectedEvaluation(
+        input_ref=_generic_ref(
+            tmp_path, f"{suffix}-input", "runtime.quality.generic_cycle_simulation_n5_input"
+        ),
+        execution_ref=_generic_ref(
+            tmp_path, f"{suffix}-execution", "runtime.quality.generic_cycle_simulation_n5_execution"
+        ),
+        result_ref=_generic_ref(
+            tmp_path, f"{suffix}-result", "polisyos.runtime.joint_simulation_result"
+        ),
+        semantic_successor_ref=_generic_ref(
+            tmp_path, f"{suffix}-successor", "runtime.quality.model_input_successor_selection"
+        ),
+        action_job_id=action_job_id,
+    )
+
+
+def _generic_basis(
+    tmp_path: Path,
+    *,
+    source_job_id: str,
+    action_job_id: str,
+    selected_evaluation: Any | None,
+    role: str,
+    prospective_basis_ref: Any | None = None,
+    comparison_decision_ref: Any | None = None,
+) -> tuple[Any, Any]:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CANDIDATE_N5_CLOSURE_RESIDUALS_V2,
+        GenericModelInputEvaluationBasisV1,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+
+    selected = selected_evaluation or _generic_selected_evaluation(
+        tmp_path, action_job_id=action_job_id, suffix=f"{action_job_id}-candidate"
+    )
+    fields: dict[str, Any] = {
+        "schema_version": "GenericModelInputEvaluationBasis@1.0",
+        "authority_purpose": "candidate_evaluation_retention_only",
+        "comparison_profile": "generic_program_graph_declared_numerical_v1",
+        "basis_role": role,
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "run_id": "run-a",
+        "source_job_id": source_job_id,
+        "action_job_id": action_job_id,
+        "route_id": _sha(f"{action_job_id}-route"),
+        "design_problem_ref": _sha("design"),
+        "design_problem_basis_ref": _sha(f"{action_job_id}-active-design-basis"),
+        "candidate_id": "candidate-a",
+        "input_ref": selected.input_ref,
+        "semantic_successor_ref": selected.semantic_successor_ref,
+        "bound_state_snapshot_ref": _generic_ref(
+            tmp_path, f"{action_job_id}-state", "foundry.state_snapshot"
+        ),
+        "evaluation": selected if role == "evaluated" else None,
+        "prospective_basis_ref": prospective_basis_ref,
+        "comparison_decision_ref": comparison_decision_ref,
+        "predicate_provenance": "recomputed",
+        "reason_codes": (),
+        "limitations": ("candidate_evaluation_retention_only",),
+        "closure_residuals": CANDIDATE_N5_CLOSURE_RESIDUALS_V2,
+        "observed_admission": False,
+        "publication_authority": False,
+        "numerical_intent_hex": "00",
+        "numerical_intent_sha256": _sha_bytes(bytes.fromhex("00")),
+    }
+    payload = GenericModelInputEvaluationBasisV1.model_construct(
+        **fields, content_hash=_sha("placeholder")
+    ).model_dump(mode="json", exclude={"content_hash"})
+    basis = GenericModelInputEvaluationBasisV1.model_validate(
+        {**payload, "content_hash": exact_n5_content_hash(payload)}
+    )
+    basis_ref = _generic_persist_record(tmp_path, basis)
+    return basis, basis_ref
+
+
+def _generic_decision(
+    tmp_path: Path,
+    *,
+    key: Any,
+    action_job_id: str,
+    current_basis: Any,
+    current_basis_ref: Any,
+    decision_kind: str,
+    comparison_result: str | None,
+    expected_revision: int,
+    expected_ref: str | None,
+    prior_basis_ref: Any | None = None,
+    prior_evaluation: Any | None = None,
+) -> tuple[Any, Any]:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationDecisionV1,
+    )
+
+    activation = _generic_ref(
+        tmp_path,
+        f"{action_job_id}-activation",
+        "epoch.activated_overlay_admission_receipt",
+        media_type="application/vnd.polisyos.epoch+json",
+    )
+    fields = {
+        "schema_version": "GenericModelInputEvaluationDecision@1.0",
+        "authority_purpose": "candidate_evaluation_retention_only",
+        "comparison_rule": "generic-program-graph-declared-numerical-basis.v1",
+        "decision_kind": decision_kind,
+        "tenant_id": key.tenant_id,
+        "cell_id": key.cell_id,
+        "run_id": "run-a",
+        "source_job_id": key.source_job_id,
+        "action_job_id": action_job_id,
+        "route_id": current_basis.route_id,
+        "design_problem_ref": key.design_problem_ref,
+        "design_problem_basis_ref": current_basis.design_problem_basis_ref,
+        "candidate_id": key.candidate_id,
+        "action_phase_ref": _generic_ref(
+            tmp_path, f"{action_job_id}-phase", "runtime.quality.model_input_use_action_phase"
+        ),
+        "semantic_successor_ref": current_basis.semantic_successor_ref,
+        "routing_use_decision_ref": _generic_ref(
+            tmp_path, f"{action_job_id}-routing", "runtime.quality.model_input_routing_use_decision"
+        ),
+        "authority_decision_ref": _generic_ref(
+            tmp_path,
+            f"{action_job_id}-authority",
+            "runtime_quality.agent_action_authority_decision",
+        ),
+        "activation_receipt_ref": activation,
+        "current_basis_ref": current_basis_ref,
+        "prior_basis_ref": prior_basis_ref,
+        "prior_evaluation": prior_evaluation,
+        "comparison_result": comparison_result,
+        "predicate_provenance": (
+            "not_established" if comparison_result == "not_established" else "recomputed"
+        ),
+        "reason_codes": (
+            ("generic_model_input_prior_not_established",)
+            if comparison_result == "not_established"
+            else ()
+        ),
+        "expected_frontier_revision": expected_revision,
+        "expected_frontier_ref": expected_ref,
+        "observed_admission": False,
+        "publication_authority": False,
+        "generated_at": "2026-11-13T00:00:00+00:00",
+    }
+    decision = _rehash_generic_model_record(GenericModelInputEvaluationDecisionV1, fields)
+    decision_ref = _generic_persist_record(tmp_path, decision)
+    return decision, decision_ref
+
+
+def _sha_bytes(value: bytes) -> str:
+    return "sha256:" + hashlib.sha256(value).hexdigest()
+
+
+def _generic_cas(
+    *,
+    key: Any,
+    action_job_id: str,
+    decision: Any,
+    decision_ref: Any,
+    current_basis: Any,
+    replacement_basis: Any | None,
+    replacement: Any,
+    expected_revision: int,
+    expected_ref: str | None,
+) -> Any:
+    cas_type = store_module.GenericModelInputEvaluationFrontierCAS
+    return cas_type(
+        key=key,
+        expected_revision=expected_revision,
+        expected_frontier_ref=expected_ref,
+        action_job_id=action_job_id,
+        decision_ref=decision_ref,
+        decision=decision,
+        current_basis=current_basis,
+        replacement_basis=replacement_basis,
+        replacement=replacement,
+    )
+
+
+def _prepare_generic_initial(
+    store: ControlPlaneStore,
+    tmp_path: Path,
+    *,
+    source_job_id: str = "source-nl",
+    action_job_id: str = "generic-initial",
+    create_source: bool = True,
+    action_job_bundle: tuple[ControlJobRecord, str, int] | None = None,
+) -> tuple[Any, ...]:
+    from polisyos.runtime.http.services.control_plane_store import (
+        GenericModelInputEvaluationFrontierValue,
+    )
+
+    if create_source:
+        source, _, _ = _bootstrap(store, tmp_path, source_job_id=source_job_id)
+    else:
+        source = store.get_job(source_job_id)
+        assert source is not None
+    key = _generic_model_input_key(source_job_id)
+    job, worker, attempt = action_job_bundle or _create_action_job(store, job_id=action_job_id)
+    evaluation = _generic_selected_evaluation(
+        tmp_path, action_job_id=job.job_id, suffix=f"{action_job_id}-source-v5"
+    )
+    basis, basis_ref = _generic_basis(
+        tmp_path,
+        source_job_id=source_job_id,
+        action_job_id=job.job_id,
+        selected_evaluation=evaluation,
+        role="evaluated",
+    )
+    decision, decision_ref = _generic_decision(
+        tmp_path,
+        key=key,
+        action_job_id=job.job_id,
+        current_basis=basis,
+        current_basis_ref=basis_ref,
+        decision_kind="initial",
+        comparison_result=None,
+        expected_revision=0,
+        expected_ref=None,
+    )
+    value = GenericModelInputEvaluationFrontierValue(
+        basis_ref=basis_ref,
+        basis_content_hash=basis.content_hash,
+        selected_evaluation=evaluation,
+        selection_decision_ref=decision_ref,
+    )
+    cas = _generic_cas(
+        key=key,
+        action_job_id=job.job_id,
+        decision=decision,
+        decision_ref=decision_ref,
+        current_basis=basis,
+        replacement_basis=basis,
+        replacement=value,
+        expected_revision=0,
+        expected_ref=None,
+    )
+    return (
+        source,
+        key,
+        job,
+        worker,
+        attempt,
+        basis,
+        decision,
+        decision_ref,
+        evaluation,
+        basis_ref,
+        value,
+        cas,
+    )
+
+
+def _commit_generic_initial(
+    store: ControlPlaneStore,
+    tmp_path: Path,
+    *,
+    source_job_id: str = "source-nl",
+    action_job_id: str = "generic-initial",
+    create_source: bool = True,
+) -> tuple[Any, Any, Any, Any, str, int, Any, Any, Any, Any, Any]:
+    bundle = _prepare_generic_initial(
+        store,
+        tmp_path,
+        source_job_id=source_job_id,
+        action_job_id=action_job_id,
+        create_source=create_source,
+    )
+    source, key, job, worker, attempt, basis, decision, decision_ref, evaluation, basis_ref = (
+        bundle[:10]
+    )
+    cas = bundle[11]
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    record = store.read_generic_model_input_frontier(key)
+    assert record is not None and record.revision == 1
+    return (
+        source,
+        key,
+        job,
+        worker,
+        attempt,
+        basis,
+        decision,
+        decision_ref,
+        evaluation,
+        basis_ref,
+        record,
+    )
+
+
+def _prepare_generic_comparison(
+    store: ControlPlaneStore,
+    tmp_path: Path,
+    *,
+    source_job_id: str,
+    prior: Any,
+    action_job_id: str,
+    result: str,
+    expected_revision: int | None = None,
+    expected_ref: str | None = None,
+    fresh_n5: bool = True,
+) -> tuple[Any, str, int, Any, Any, Any, Any, Any]:
+    from polisyos.runtime.http.services.control_plane_store import (
+        GenericModelInputEvaluationFrontierValue,
+    )
+
+    job, worker, attempt = _create_action_job(store, job_id=action_job_id)
+    evaluated = (
+        _generic_selected_evaluation(
+            tmp_path, action_job_id=job.job_id, suffix=f"{action_job_id}-new-v5"
+        )
+        if result == "different" or (result == "not_established" and fresh_n5)
+        else prior.selected_evaluation
+    )
+    current_basis, current_basis_ref = _generic_basis(
+        tmp_path,
+        source_job_id=source_job_id,
+        action_job_id=job.job_id,
+        selected_evaluation=evaluated,
+        role="prospective",
+    )
+    decision, decision_ref = _generic_decision(
+        tmp_path,
+        key=prior.key,
+        action_job_id=job.job_id,
+        current_basis=current_basis,
+        current_basis_ref=current_basis_ref,
+        decision_kind="comparison",
+        comparison_result=result,
+        expected_revision=prior.revision if expected_revision is None else expected_revision,
+        expected_ref=prior.frontier_ref if expected_ref is None else expected_ref,
+        prior_basis_ref=prior.basis_ref,
+        prior_evaluation=prior.selected_evaluation,
+    )
+    replacement_basis = None
+    replacement_basis_ref = None
+    replacement = None
+    if result == "different" or (result == "not_established" and fresh_n5):
+        replacement_basis, replacement_basis_ref = _generic_basis(
+            tmp_path,
+            source_job_id=source_job_id,
+            action_job_id=job.job_id,
+            selected_evaluation=evaluated,
+            role="evaluated",
+            prospective_basis_ref=current_basis_ref,
+            comparison_decision_ref=decision_ref,
+        )
+        replacement = GenericModelInputEvaluationFrontierValue(
+            basis_ref=replacement_basis_ref,
+            basis_content_hash=replacement_basis.content_hash,
+            selected_evaluation=evaluated,
+            selection_decision_ref=decision_ref,
+        )
+    cas = _generic_cas(
+        key=prior.key,
+        action_job_id=job.job_id,
+        decision=decision,
+        decision_ref=decision_ref,
+        current_basis=current_basis,
+        replacement_basis=replacement_basis,
+        replacement=replacement,
+        expected_revision=prior.revision if expected_revision is None else expected_revision,
+        expected_ref=prior.frontier_ref if expected_ref is None else expected_ref,
+    )
+    return job, worker, attempt, current_basis, decision, decision_ref, replacement_basis, cas
+
+
+def test_generic_frontier_initial_check_only_and_changed_subject_share_cas_key(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.services.control_plane_store import (
+        GenericModelInputEvaluationFrontierValue,
+    )
+
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "generic-use.sqlite3")
+    (
+        source,
+        key,
+        initial_job,
+        _,
+        _,
+        _,
+        _,
+        _,
+        initial_eval,
+        _,
+        initial,
+    ) = _commit_generic_initial(store, tmp_path)
+    legacy_initial = store.read_acquisition_evaluation_frontier(_key(source.job_id))
+    assert legacy_initial is not None
+    assert (
+        key.tenant_id,
+        key.cell_id,
+        key.source_job_id,
+        key.design_problem_ref,
+        key.candidate_id,
+    ) == (
+        legacy_initial.key.tenant_id,
+        legacy_initial.key.cell_id,
+        legacy_initial.key.source_job_id,
+        legacy_initial.key.design_problem_ref,
+        legacy_initial.key.candidate_id,
+    )
+    assert key.family == "generic_program_graph"
+    assert initial.selected_evaluation == initial_eval
+    initial_checkpoint = store.get_job(initial_job.job_id)
+    assert initial_checkpoint is not None
+    assert initial_checkpoint.progress["generic_model_input_current_use"]["frontier_ref"] == (
+        initial.frontier_ref
+    )
+    initial_terminal = store.get_job_terminal_source_event_record(initial_job.job_id)
+    assert initial_terminal.payload["generic_model_input_current_use"]["frontier_ref"] == (
+        initial.frontier_ref
+    )
+
+    repeated_job, repeated_worker, repeated_attempt = _create_action_job(
+        store, job_id="generic-equivalent"
+    )
+    repeated_basis, repeated_basis_ref = _generic_basis(
+        tmp_path,
+        source_job_id=source.job_id,
+        action_job_id=repeated_job.job_id,
+        selected_evaluation=initial_eval,
+        role="prospective",
+    )
+    equivalent_decision, equivalent_decision_ref = _generic_decision(
+        tmp_path,
+        key=key,
+        action_job_id=repeated_job.job_id,
+        current_basis=repeated_basis,
+        current_basis_ref=repeated_basis_ref,
+        decision_kind="comparison",
+        comparison_result="equivalent",
+        expected_revision=initial.revision,
+        expected_ref=initial.frontier_ref,
+        prior_basis_ref=initial.basis_ref,
+        prior_evaluation=initial.selected_evaluation,
+    )
+    with store.job_execution_fence(
+        job_id=repeated_job.job_id, worker_id=repeated_worker, attempt=repeated_attempt
+    ):
+        store.complete_job(
+            job_id=repeated_job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=_generic_cas(
+                key=key,
+                action_job_id=repeated_job.job_id,
+                decision=equivalent_decision,
+                decision_ref=equivalent_decision_ref,
+                current_basis=repeated_basis,
+                replacement_basis=None,
+                replacement=None,
+                expected_revision=initial.revision,
+                expected_ref=initial.frontier_ref,
+            ),
+        )
+    equivalent_use = store.get_generic_model_input_use(key=key, action_job_id=repeated_job.job_id)
+    assert equivalent_use is not None
+    assert equivalent_use.frontier_ref == initial.frontier_ref
+    assert equivalent_use.decision_ref == equivalent_decision_ref
+    assert store.read_generic_model_input_frontier(key) == initial
+
+    changed_job, changed_worker, changed_attempt = _create_action_job(
+        store, job_id="generic-changed"
+    )
+    changed_eval = _generic_selected_evaluation(
+        tmp_path, action_job_id=changed_job.job_id, suffix="generic-new-current-v5"
+    )
+    changed_basis, changed_basis_ref = _generic_basis(
+        tmp_path,
+        source_job_id=source.job_id,
+        action_job_id=changed_job.job_id,
+        selected_evaluation=changed_eval,
+        role="prospective",
+    )
+    changed_decision, changed_decision_ref = _generic_decision(
+        tmp_path,
+        key=key,
+        action_job_id=changed_job.job_id,
+        current_basis=changed_basis,
+        current_basis_ref=changed_basis_ref,
+        decision_kind="comparison",
+        comparison_result="different",
+        expected_revision=initial.revision,
+        expected_ref=initial.frontier_ref,
+        prior_basis_ref=initial.basis_ref,
+        prior_evaluation=initial.selected_evaluation,
+    )
+    replacement_basis, replacement_basis_ref = _generic_basis(
+        tmp_path,
+        source_job_id=source.job_id,
+        action_job_id=changed_job.job_id,
+        selected_evaluation=changed_eval,
+        role="evaluated",
+        prospective_basis_ref=changed_basis_ref,
+        comparison_decision_ref=changed_decision_ref,
+    )
+    changed_value = GenericModelInputEvaluationFrontierValue(
+        basis_ref=replacement_basis_ref,
+        basis_content_hash=replacement_basis.content_hash,
+        selected_evaluation=changed_eval,
+        selection_decision_ref=changed_decision_ref,
+    )
+    with store.job_execution_fence(
+        job_id=changed_job.job_id, worker_id=changed_worker, attempt=changed_attempt
+    ):
+        store.complete_job(
+            job_id=changed_job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=_generic_cas(
+                key=key,
+                action_job_id=changed_job.job_id,
+                decision=changed_decision,
+                decision_ref=changed_decision_ref,
+                current_basis=changed_basis,
+                replacement_basis=replacement_basis,
+                replacement=changed_value,
+                expected_revision=initial.revision,
+                expected_ref=initial.frontier_ref,
+            ),
+        )
+    current = store.read_generic_model_input_frontier(key)
+    assert current is not None and current.revision == 2
+    assert current.key == initial.key
+    assert current.selected_evaluation == changed_eval
+    assert current.frontier_ref != initial.frontier_ref
+    assert store.get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    assert store.read_acquisition_evaluation_frontier(_key(source.job_id)) == legacy_initial
+    changed_checkpoint = store.get_job(changed_job.job_id)
+    assert changed_checkpoint is not None
+    assert changed_checkpoint.progress["generic_model_input_current_use"]["frontier_ref"] == (
+        current.frontier_ref
+    )
+    changed_terminal = store.get_job_terminal_source_event_record(changed_job.job_id)
+    assert changed_terminal.payload["generic_model_input_current_use"]["frontier_ref"] == (
+        current.frontier_ref
+    )
+
+
+@pytest.mark.parametrize("stale_part", ["revision", "ref"])
+def test_generic_frontier_stale_revision_or_ref_rolls_back_completion(
+    tmp_path: Path,
+    stale_part: str,
+) -> None:
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "generic-stale.sqlite3")
+    source, _, _, _, _, _, _, _, _, _, initial = _commit_generic_initial(store, tmp_path)
+    wrong_revision = initial.revision + 1 if stale_part == "revision" else initial.revision
+    wrong_ref = _sha("stale-generic-frontier") if stale_part == "ref" else initial.frontier_ref
+    job, worker, attempt, _, _, _, _, cas = _prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id=f"generic-stale-{stale_part}",
+        result="equivalent",
+        expected_revision=wrong_revision,
+        expected_ref=wrong_ref,
+    )
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match="generic_model_input_frontier_conflict"),
+    ):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    assert store.get_job(job.job_id).state == "running"
+    assert store.read_generic_model_input_frontier(initial.key) == initial
+    assert store.get_generic_model_input_use(key=initial.key, action_job_id=job.job_id) is None
+
+
+def test_generic_frontier_wrong_action_and_wrong_source_fail_closed(tmp_path: Path) -> None:
+    store = ControlPlaneStore(
+        backend="sqlite", sqlite_path=tmp_path / "generic-wrong-owner.sqlite3"
+    )
+    _bootstrap(store, tmp_path)
+    _, key, job, _, _, _, _, _, _, _, _, cas = _prepare_generic_initial(
+        store,
+        tmp_path,
+        action_job_id="generic-wrong-action-binding",
+        create_source=False,
+    )
+    other_job, other_worker, other_attempt = _create_action_job(
+        store, job_id="generic-other-current-action"
+    )
+    with (
+        store.job_execution_fence(
+            job_id=other_job.job_id,
+            worker_id=other_worker,
+            attempt=other_attempt,
+        ),
+        pytest.raises(ValueError, match="generic_model_input_frontier_action_job_mismatch"),
+    ):
+        store.complete_job(
+            job_id=other_job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    assert store.get_job(job.job_id).state == "running"
+    assert store.get_job(other_job.job_id).state == "running"
+    assert store.read_generic_model_input_frontier(key) is None
+
+    source_action_bundle = _create_action_job(store, job_id="generic-wrong-source")
+    missing_source = _create_job(
+        store, job_id="generic-unverified-source", kind="natural_language_run", run_id="run-a"
+    )
+    _, source_key, source_action, source_worker, source_attempt, _, _, _, _, _, _, source_cas = (
+        _prepare_generic_initial(
+            store,
+            tmp_path,
+            source_job_id=missing_source.job_id,
+            action_job_id="generic-wrong-source",
+            create_source=False,
+            action_job_bundle=source_action_bundle,
+        )
+    )
+    with (
+        store.job_execution_fence(
+            job_id=source_action.job_id,
+            worker_id=source_worker,
+            attempt=source_attempt,
+        ),
+        pytest.raises(
+            store_module.ControlJobExecutionAdmissionError,
+            match="source_scope_not_established",
+        ),
+    ):
+        store.complete_job(
+            job_id=source_action.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=source_cas,
+        )
+    assert store.get_job(missing_source.job_id).state == "pending"
+    assert store.get_job(source_action.job_id).state == "running"
+    assert store.read_generic_model_input_frontier(source_key) is None
+
+
+def test_generic_frontier_lost_lease_cannot_commit_use_or_selection(tmp_path: Path) -> None:
+    path = tmp_path / "generic-lost-lease.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    source, _, _, _, _, _, _, _, _, _, initial = _commit_generic_initial(store, tmp_path)
+    job, worker, attempt, _, _, _, _, cas = _prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id="generic-expired-lease",
+        result="equivalent",
+    )
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+            ("2000-01-01T00:00:00+00:00", job.job_id),
+        )
+    with (
+        pytest.raises(ControlJobLeaseLostError),
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+    ):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    assert store.read_generic_model_input_frontier(initial.key) == initial
+    assert store.get_generic_model_input_use(key=initial.key, action_job_id=job.job_id) is None
+    assert store.get_job(job.job_id).state == "running"
+
+
+def test_generic_frontier_unknown_comparison_does_not_advance_without_fresh_n5(
+    tmp_path: Path,
+) -> None:
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "generic-unknown.sqlite3")
+    source, _, _, _, _, _, _, _, _, _, initial = _commit_generic_initial(store, tmp_path)
+    job, worker, attempt, _, decision, _, _, cas = _prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id="generic-unknown-prior",
+        result="not_established",
+        fresh_n5=False,
+    )
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    assert decision.comparison_result == "not_established"
+    assert store.read_generic_model_input_frontier(initial.key) == initial
+    use = store.get_generic_model_input_use(key=initial.key, action_job_id=job.job_id)
+    assert use is not None
+    assert use.comparison_result == "not_established"
+    assert use.frontier_ref == initial.frontier_ref
+
+
+def test_generic_frontier_not_established_comparison_advances_only_with_evaluated_basis(
+    tmp_path: Path,
+) -> None:
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "generic-ne-n5.sqlite3")
+    source, _, _, _, _, _, _, _, _, _, initial = _commit_generic_initial(store, tmp_path)
+    job, worker, attempt, _, decision, _, replacement_basis, cas = _prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id="generic-ne-with-new-n5",
+        result="not_established",
+        fresh_n5=True,
+    )
+    assert decision.comparison_result == "not_established"
+    assert replacement_basis is not None and replacement_basis.basis_role == "evaluated"
+    assert replacement_basis.predicate_provenance == "recomputed"
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    current = store.read_generic_model_input_frontier(initial.key)
+    assert current is not None and current.revision == initial.revision + 1
+    assert current.selected_evaluation.action_job_id == job.job_id
+    assert store.get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    use = store.get_generic_model_input_use(key=initial.key, action_job_id=job.job_id)
+    assert use is not None
+    assert use.comparison_result == "not_established"
+    assert use.frontier_ref == current.frontier_ref
+
+
+def test_generic_frontier_post_n5_replacement_and_use_rollback_together(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = tmp_path / "generic-crash.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    source, _, _, _, _, _, _, _, _, _, initial = _commit_generic_initial(store, tmp_path)
+    job, worker, attempt, _, _, _, _, cas = _prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id="generic-post-n5-crash",
+        result="different",
+    )
+    execute = store._execute
+
+    def fail_at_use_insert(sql: str, params: tuple[Any, ...]) -> int:
+        if "INSERT INTO runtime_generic_model_input_evaluation_uses" in sql:
+            raise RuntimeError("generic_use_insert_interrupted")
+        return execute(sql, params)
+
+    monkeypatch.setattr(store, "_execute", fail_at_use_insert)
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(RuntimeError, match="generic_use_insert_interrupted"),
+    ):
+        store.complete_job(
+            job_id=job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=cas,
+        )
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    assert reopened.read_generic_model_input_frontier(initial.key) == initial
+    assert reopened.get_generic_model_input_use(key=initial.key, action_job_id=job.job_id) is None
+    assert reopened.get_job(job.job_id).state == "running"
 
 
 def test_v3_legacy_schema_upgrade_preserves_null_unproven_relation(tmp_path: Path) -> None:

@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 from contextlib import closing
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -23,14 +24,18 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     CandidateAcquisitionEvaluationBasisV2,
     CandidateAcquisitionEvaluationDecision,
     CandidateAcquisitionEvaluationDecisionV2,
+    GenericModelInputEvaluationBasisV1,
+    GenericModelInputSelectedEvaluation,
     _candidate_evaluation_role_event_id,
     basis_exact_values_equal,
     issue_candidate_acquisition_evaluation_basis,
     issue_candidate_acquisition_evaluation_decision,
+    issue_generic_model_input_evaluation_decision,
     persist_acquisition_evaluation_artifact,
     read_acquisition_evaluation_artifact,
     read_candidate_acquisition_evaluation_basis_artifact,
     read_candidate_acquisition_evaluation_decision_artifact,
+    reconcile_generic_model_input_evaluation_completion,
 )
 from polisyos.runtime.quality.candidate_source_basis import prepare_candidate_source_basis_values
 from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
@@ -47,6 +52,247 @@ from tests.unit.runtime.quality.test_candidate_acquisition_world import (
     _candidate_world_case,
 )
 from tests.unit.runtime.quality.test_candidate_source_basis import _files, _inputs
+
+
+def test_generic_basis_component_roundtrips_selected_cas_and_event(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A synthetic, explicitly unavailable basis has an exact durable reader."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality import model_input_successor_selection
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedModelInputRoutingOrigin
+
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        store = FileSystemCAS(tmp_path / "generic-cas")
+
+        def component_ref(kind: str, label: str = "default") -> artifacts.ArtifactRef:
+            return store.put_json(
+                {"component_fixture": kind, "label": label, "source_authority": "not_established"},
+                artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
+                return_selected_profile=True,
+            )
+
+        input_ref = component_ref("runtime.quality.generic_cycle_simulation_n5_input")
+        selection_ref = component_ref("runtime.quality.model_input_successor_selection")
+        state_ref = component_ref("foundry.state_snapshot")
+        content = exact_n5_content_bytes({"component_only": True})
+        payload = {
+            "schema_version": "GenericModelInputEvaluationBasis@1.0",
+            "authority_purpose": "candidate_evaluation_retention_only",
+            "comparison_profile": "generic_program_graph_declared_numerical_v1",
+            "basis_role": "blocked",
+            "tenant_id": TENANT_ID,
+            "cell_id": CELL_ID,
+            "run_id": "generic-component-run",
+            "source_job_id": "generic-source-job",
+            "action_job_id": "generic-action-job",
+            "route_id": "sha256:" + "1" * 64,
+            "design_problem_ref": "sha256:" + "2" * 64,
+            "design_problem_basis_ref": "sha256:" + "3" * 64,
+            "candidate_id": "generic-component-candidate",
+            "input_ref": input_ref.model_dump(mode="json"),
+            "semantic_successor_ref": selection_ref.model_dump(mode="json"),
+            "bound_state_snapshot_ref": state_ref.model_dump(mode="json"),
+            "evaluation": None,
+            "prospective_basis_ref": None,
+            "comparison_decision_ref": None,
+            "predicate_provenance": "not_established",
+            "reason_codes": ["component_source_not_established"],
+            "limitations": ["synthetic_component_only"],
+            "closure_residuals": list(CANDIDATE_N5_CLOSURE_RESIDUALS_V2),
+            "observed_admission": False,
+            "publication_authority": False,
+            "numerical_intent_hex": content.hex(),
+            "numerical_intent_sha256": "sha256:" + hashlib.sha256(content).hexdigest(),
+        }
+        record = GenericModelInputEvaluationBasisV1.model_validate(
+            {**payload, "content_hash": exact_n5_content_hash(payload)}
+        )
+        with closing(
+            ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "generic-control.sqlite3")
+        ) as control:
+            events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
+            ref = persist_acquisition_evaluation_artifact(
+                store=store, event_log=events, record=record
+            )
+
+            def read(selected: artifacts.ArtifactRef) -> GenericModelInputEvaluationBasisV1:
+                result = read_acquisition_evaluation_artifact(
+                    store=store,
+                    event_log=events,
+                    ref=selected,
+                    record_type=GenericModelInputEvaluationBasisV1,
+                )
+                assert type(result) is GenericModelInputEvaluationBasisV1
+                return result
+
+            assert read(ref) == record
+            foreign = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64})
+            with pytest.raises((FileNotFoundError, OSError, ValueError)):
+                read(foreign)
+            with pytest.raises(ValueError, match="artifact_owner_mismatch"):
+                read_acquisition_evaluation_artifact(
+                    store=store,
+                    event_log=events,
+                    ref=ref,
+                    record_type=CandidateAcquisitionEvaluationBasis,
+                )
+            blob = store._member_path(ref.artifact_id, "blob", None)
+            held = blob.with_name(blob.name + ".temporarily-unavailable")
+            blob.rename(held)
+            try:
+                with pytest.raises((FileNotFoundError, OSError, ValueError)):
+                    read(ref)
+            finally:
+                held.rename(blob)
+            assert read(ref) == record
+
+            # The selection and origin below are explicitly component fixtures;
+            # the selected basis and event are real. These negatives never admit
+            # a fake V5 as an initial frontier.
+            blocked_ref = component_ref("runtime.quality.generic_cycle_simulation_n5_execution")
+            compiled_ref = component_ref("runtime.compiled_recursive_generation_cycle")
+            routing_ref = component_ref("runtime.quality.model_input_routing_report")
+            use_ref = component_ref("runtime.quality.model_input_routing_use_decision")
+            selection = SimpleNamespace(
+                tenant_id=TENANT_ID,
+                cell_id=CELL_ID,
+                run_id=payload["run_id"],
+                source_job_id=payload["source_job_id"],
+                action_job_id=payload["action_job_id"],
+                route_id=payload["route_id"],
+                blocked_execution_ref=blocked_ref,
+                routing_report_ref=routing_ref,
+                compiled_ref=compiled_ref,
+                routing_use_decision_ref=use_ref,
+            )
+            origin = VerifiedModelInputRoutingOrigin(
+                tenant_id=TENANT_ID,
+                cell_id=CELL_ID,
+                run_id=payload["run_id"],
+                source_job_id=payload["source_job_id"],
+                source_payload_ref="component-only",
+                capability_manifest_ref="component-only",
+                compiled_ref=compiled_ref,
+                terminal_event_id="component-only",
+                generation_run=object(),
+                source_cycle=SimpleNamespace(
+                    design_problem_ref=payload["design_problem_ref"],
+                    selected_candidate_ref=payload["candidate_id"],
+                ),
+                design_problem_basis=object(),
+                n5_execution_ref=blocked_ref,
+                n5_expectation=SimpleNamespace(
+                    design_problem_ref=payload["design_problem_basis_ref"], input_ref=input_ref
+                ),
+                selected_basis=object(),
+                routing_report_ref=routing_ref,
+                routing_report=object(),
+            )
+            monkeypatch.setattr(
+                model_input_successor_selection,
+                "read_model_input_successor_selection",
+                lambda *_args: selection,
+            )
+            initial = {
+                "store": store,
+                "event_log": events,
+                "origin": origin,
+                "prior_origin": None,
+                "controller": object(),
+                "semantic_successor_ref": selection_ref,
+                "current_basis_ref": ref,
+                "prior_basis_ref": None,
+                "prior_evaluation": None,
+                "decision_kind": "initial",
+                "comparison_result": None,
+                "reason_codes": (),
+                "expected_frontier_revision": 0,
+                "expected_frontier_ref": None,
+                "generated_at": TRANSACTION_TIME.isoformat(),
+            }
+            with pytest.raises(ValueError, match="initial_decision_invalid"):
+                issue_generic_model_input_evaluation_decision(**initial)
+            prospective_payload = {
+                **payload,
+                "basis_role": "prospective",
+                "predicate_provenance": "recomputed",
+                "reason_codes": [],
+            }
+            prospective = GenericModelInputEvaluationBasisV1.model_validate(
+                {**prospective_payload, "content_hash": exact_n5_content_hash(prospective_payload)}
+            )
+            prospective_ref = persist_acquisition_evaluation_artifact(
+                store=store, event_log=events, record=prospective
+            )
+            with pytest.raises(ValueError, match="initial_decision_invalid"):
+                issue_generic_model_input_evaluation_decision(
+                    **{**initial, "current_basis_ref": prospective_ref}
+                )
+            selection.action_job_id = "foreign-action"
+            with pytest.raises(ValueError, match="decision_current_basis_mismatch"):
+                issue_generic_model_input_evaluation_decision(**initial)
+            selection.action_job_id = payload["action_job_id"]
+
+            second_selection = component_ref(
+                "runtime.quality.model_input_successor_selection", "incomplete-v5"
+            )
+            incomplete_evaluation = GenericModelInputSelectedEvaluation(
+                input_ref=input_ref,
+                execution_ref=component_ref(
+                    "runtime.quality.generic_cycle_simulation_n5_execution", "incomplete-v5"
+                ),
+                result_ref=component_ref("polisyos.runtime.joint_simulation_result"),
+                semantic_successor_ref=second_selection,
+                action_job_id=payload["action_job_id"],
+            )
+            incomplete_payload = {
+                **payload,
+                "basis_role": "evaluated",
+                "semantic_successor_ref": second_selection.model_dump(mode="json"),
+                "evaluation": incomplete_evaluation.model_dump(mode="json"),
+                "predicate_provenance": "recomputed",
+                "reason_codes": [],
+            }
+            incomplete = GenericModelInputEvaluationBasisV1.model_validate(
+                {**incomplete_payload, "content_hash": exact_n5_content_hash(incomplete_payload)}
+            )
+            incomplete_ref = persist_acquisition_evaluation_artifact(
+                store=store, event_log=events, record=incomplete
+            )
+            comparison_ref = component_ref("runtime_quality.acquisition_evaluation_decision")
+            unpaired_payload = {
+                **incomplete_payload,
+                "prospective_basis_ref": prospective_ref.model_dump(mode="json"),
+            }
+            with pytest.raises(ValueError, match="basis_comparison_link_invalid"):
+                GenericModelInputEvaluationBasisV1.model_validate(
+                    {**unpaired_payload, "content_hash": exact_n5_content_hash(unpaired_payload)}
+                )
+            with pytest.raises(ValueError, match="completion_not_established"):
+                reconcile_generic_model_input_evaluation_completion(
+                    store=store,
+                    event_log=events,
+                    origin=origin,
+                    prior_origin=None,
+                    controller=object(),
+                    comparison_decision_ref=comparison_ref,
+                    evaluated_basis_ref=incomplete_ref,
+                )
+            ready_shape = {
+                **initial,
+                "semantic_successor_ref": second_selection,
+                "current_basis_ref": incomplete_ref,
+            }
+            for invalid in (
+                {"prior_basis_ref": ref},
+                {"expected_frontier_revision": 1, "expected_frontier_ref": "sha256:" + "4" * 64},
+            ):
+                with pytest.raises(ValueError, match="initial_decision_invalid"):
+                    issue_generic_model_input_evaluation_decision(**{**ready_shape, **invalid})
+            # Even a shape-valid synthetic V5 cannot pass the native source owner.
+            with pytest.raises((OSError, RuntimeError, TypeError, ValueError)):
+                issue_generic_model_input_evaluation_decision(**ready_shape)
 
 
 def test_candidate_issuers_preserve_actual_source_ne_through_selected_cas_and_event(

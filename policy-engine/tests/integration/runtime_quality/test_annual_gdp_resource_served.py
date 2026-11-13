@@ -206,12 +206,214 @@ def test_annual_gdp_connector_refuses_row_outside_declared_source_year(
     assert mismatch.value.code == "live_normalized_scope_drift"
 
 
+@pytest.mark.integration
+def test_annual_gdp_configured_candidate_preflight_uses_real_n4_and_budget(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+) -> None:
+    """Admit the selected catalog, stage-aware N4 proposal, and bounded scheduling."""
+    import asyncio
+    import contextvars
+    from contextlib import ExitStack
+    from decimal import Decimal
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+    )
+    from polisyos.runtime.quality.design_generation import (
+        N4CandidateScenarioProposalRun,
+        build_candidate_scenario_proposal_candidate,
+        generate_design_candidate_scenario_proposal_under_a,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        _scheduler_allows_candidate_n5,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateRegistryError,
+        build_substrate_registry_from_existing_catalogs,
+        catalog_serving_source_scope,
+        require_catalog_source_registry_binding,
+        resolve_catalog_serving_source,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from tests._helpers import acquisition_chain, generic_n4_served_replay
+    from tests._helpers import world_model_record as wmr_fixture
+    from tests._helpers.annual_gdp_candidate import (
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+        build_annual_gdp_candidate_profile,
+        build_annual_gdp_candidate_provider,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests.unit.runtime.quality.test_substrate_registry import (
+        _write_substrate_catalog_fixture,
+    )
+
+    base_payload = dict(wmr_fixture.FABRIC_PAYLOAD)
+    base_payload.update(gdp=0.0, tax_rate=0.5)
+    monkeypatch.setattr(wmr_fixture, "FABRIC_PAYLOAD", base_payload)
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    _write_substrate_catalog_fixture(code_root, include_graphs=False)
+    inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "selected-catalog",
+        outcome_variable="global.gdp",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "served_tax_global_scalar"
+        ),
+    )
+    problem = annual_gdp_candidate_problem()
+    store = FileSystemCAS(tmp_path / "store")
+    # The source owner's context must not implicitly become the consumer's
+    # cross-root selection; mirror the isolated entry used by the served test.
+    with ExitStack() as stack:
+        source_context = contextvars.copy_context()
+        manager = annual_gdp_catalog_source(inputs.root, monkeypatch)
+        prepared = source_context.run(manager.__enter__)
+        stack.callback(source_context.run, manager.__exit__, None, None, None)
+        selection, _same_root_source, same_root_registry = prepared
+        selected_source = resolve_catalog_serving_source(
+            code_root,
+            selection=selection,
+            requested_profile=selection.catalog_run_profile,
+        )
+        with catalog_serving_source_scope(selected_source):
+            selected_registry = build_substrate_registry_from_existing_catalogs(code_root)
+            require_catalog_source_registry_binding(code_root, selected_registry, selected_source)
+            # The overlay selection belongs to the consumer root, so the
+            # source-owner registry cannot stand in for this selected view.
+            assert selected_registry.content_hash != same_root_registry.content_hash
+            with pytest.raises(
+                AssertionError, match="served_profile_prepared_registry_source_missing"
+            ):
+                build_annual_gdp_candidate_profile(
+                    tmp_path=tmp_path / "wrong-consumer-root",
+                    store=store,
+                    problem=problem,
+                    source_owner_root=inputs.root,
+                    catalog_source_repo_root=inputs.root,
+                    prepared_substrate_registry=selected_registry,
+                )
+            with pytest.raises(
+                SubstrateRegistryError, match="catalog_source_registry_binding_mismatch"
+            ):
+                build_annual_gdp_candidate_profile(
+                    tmp_path=tmp_path / "wrong-selected-registry",
+                    store=store,
+                    problem=problem,
+                    source_owner_root=inputs.root,
+                    catalog_source_repo_root=code_root,
+                    prepared_substrate_registry=same_root_registry,
+                )
+            profile, declaration = build_annual_gdp_candidate_profile(
+                tmp_path=tmp_path / "candidate-profile",
+                store=store,
+                problem=problem,
+                source_owner_root=inputs.root,
+                catalog_source_repo_root=code_root,
+                prepared_substrate_registry=selected_registry,
+            )
+        with catalog_serving_source_scope(selected_source):
+            require_catalog_source_registry_binding(
+                code_root, profile.context_inputs.substrate_registry, selected_source
+            )
+            offer = ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=(profile,), model_declarations=(declaration,), store=store
+            ).admit_context(
+                problem=problem,
+                job_id="job-gdp-preflight",
+                run_id="run-gdp-preflight",
+                tenant_id="tenant-gdp-preflight",
+                cell_id="cell-gdp-preflight",
+            )
+            assert type(offer) is CandidateSimulationContextOffer
+            recording = acquisition_chain.load_served_wdi_generation_recording()
+            controlled, provider = build_annual_gdp_candidate_provider(
+                recording,
+                problem=problem,
+                profile=profile,
+                store=store,
+                evidence_root=tmp_path / "synthetic-exchanges",
+            )
+            served_recorded_candidate_gateway.set_fixture(
+                controlled, problem=problem, provider_profile=provider
+            )
+            served_recorded_candidate_gateway.admit_compiled_problem(problem)
+            generation = asyncio.run(
+                generate_design_candidate_scenario_proposal_under_a(
+                    problem,
+                    model_id=provider.model_id,
+                    repo_root=code_root,
+                    cycle_substrate_context=offer.context,
+                )
+            )
+            assert type(generation) is N4CandidateScenarioProposalRun, generation
+            assert generation.proposal.formalizer_path == "model_generated"
+            assert all(call.status == "success" for call in generation.proposal.llm_calls)
+            assert generation.k_ref_limitation_code == "full_credal_reference_not_consumed"
+            candidate = build_candidate_scenario_proposal_candidate(
+                generation.proposal,
+                problem=problem,
+                profile=offer.profile,
+                context=offer.context,
+                repo_root=code_root,
+            )
+            assert candidate is not None
+            assert candidate.status == candidate.atom.status == "candidate_unverified"
+            assert (
+                "grounding_not_established" in candidate.atom.causal_do_expr.context["assumptions"]
+            )
+
+    receipts = [
+        json.loads(path.read_text()) for path in provider.evidence_root.glob("*/receipt.json")
+    ]
+    assert len(receipts) == len(generation.proposal.llm_calls)
+    assert {receipt["producer_context"]["stage"] for receipt in receipts} == {
+        "draft",
+        "drafter_multipass",
+        "drafter_consolidation",
+        "formalizer",
+        "critic",
+    }
+    assert all(
+        receipt["profile"]["authority"] == "candidate_only_not_external_evidence"
+        and receipt["source_response"]["parent_response_hash"]
+        for receipt in receipts
+    )
+
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    def decision(cap: str):
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal(cap))})
+        return controller._schedule_candidate_for_execution(
+            candidate_id=candidate.candidate_id,
+            proxy_score=0.0,
+            voi_estimate=0.0,
+            budget_state=budget,
+        )
+
+    blocked = decision("0.10")
+    admitted = decision("2.00")
+    assert blocked.reason == "budget_exhausted_for_next_level"
+    assert not _scheduler_allows_candidate_n5(blocked, configured=True)
+    assert admitted.economics.estimated_cost_usd == 0.5
+    assert _scheduler_allows_candidate_n5(admitted, configured=True)
+
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     request: pytest.FixtureRequest,
+    served_recorded_candidate_gateway: Any,
 ) -> None:
     """Route captured annual GDP through observed admission, WMR refresh, and selected N5."""
     import asyncio
@@ -219,6 +421,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     import sys
     import traceback
     from dataclasses import replace
+    from decimal import Decimal
     from uuid import uuid4
 
     import numpy as np
@@ -247,7 +450,6 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         AcquisitionCandidateWorldRefresh,
     )
     from polisyos.runtime.quality.candidate_simulation import (
-        CandidateScenarioSetToRule,
         CandidateSimulationExecutionV5,
         CandidateSimulationN5InputV5,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -273,19 +475,23 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         acquisition_chain,
         acquisition_production,
         acquisition_served_history,
-        controlled_candidate_profile,
+        generic_n4_served_replay,
         runtime_http,
     )
     from tests._helpers import (
         world_model_record as wmr_fixture,
     )
+    from tests._helpers.annual_gdp_candidate import (
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+        build_annual_gdp_candidate_profile,
+        build_annual_gdp_candidate_provider,
+    )
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
         candidate_cycle_catalog_source_readback,
-        complete_candidate_cycle_catalog_source,
     )
     from tests._helpers.control_worker import dispatch_one_control_job
-    from tests._helpers.lane01_candidate_source import GDP_COMPILER_INPUT
     from tests._helpers.lane01_wdi_profiles import (
         GDP_PROFILE,
         build_fixture_wdi_authority,
@@ -350,16 +556,20 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     catalog_inputs = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "gdp-n7-catalog",
         outcome_variable="global.gdp",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "served_tax_global_scalar"
+        ),
     )
     catalog_owner_root = catalog_inputs.root.resolve(strict=True)
     catalog_monkeypatch = pytest.MonkeyPatch()
-    catalog_source_context = complete_candidate_cycle_catalog_source(
+    catalog_source_context = annual_gdp_catalog_source(
         catalog_owner_root,
         catalog_monkeypatch,
     )
     catalog_context = contextvars.copy_context()
     try:
-        catalog_selection, _same_root_source, _same_root_registry = await asyncio.to_thread(
+        catalog_selection, _same_root_source, same_root_registry = await asyncio.to_thread(
             catalog_context.run,
             catalog_source_context.__enter__,
         )
@@ -396,6 +606,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
             selected_catalog_registry,
             selected_catalog_source,
         )
+    assert same_root_registry.content_hash != selected_catalog_registry.content_hash
     selected_catalog_readback = candidate_cycle_catalog_source_readback(
         selected_catalog_source.database_path
     )
@@ -531,114 +742,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         },
     )
 
-    problem_seed = controlled_candidate_profile._problem("annual_gdp_usa_2024")
-    problem = acquisition_chain.controlled_served_wdi_problem(
-        problem_seed,
-        raw_request=acquisition_chain.SERVED_WDI_FISCAL_REQUEST,
-    )
-    assert problem.schema_version == "policyos.runtime.design_problem.v3"
-    problem_payload = problem.model_dump(mode="json")
-    gdp_scope_request = (
-        "For USA in calendar year 2024, assess annual nominal GDP in current US dollars "
-        "and a candidate tax_relief_rate set-to on global.tax_rate from a declared 0.5 "
-        "ratio baseline to 0.0. Any USD response is a declared synthetic SCM assumption."
-    )
-    candidate_only_request = acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE
-    problem_payload["domain"] = "economic"
-    problem_payload["problem_statement"] = (
-        "Assess a candidate-only USA 2024 annual nominal GDP scenario in current US dollars "
-        "with a registered tax-rate set-to from 0.5 to 0.0."
-    )
-    problem_payload["nl_provenance"]["raw_request"] = (
-        f"{gdp_scope_request} {candidate_only_request}"
-    )
-    problem_payload["jurisdiction_time"].update(
-        {
-            "region": "USA",
-            "valid_time": "2024",
-            "as_of": "2024-12-31",
-            "policy_time": "2024",
-            "data_time": "2024",
-            "time_semantics": {
-                "frequency": "Y",
-                "start_date": "2024-01-01",
-                "step_count": 1,
-            },
-        }
-    )
-    problem_payload["objectives"] = [
-        {
-            "objective_id": "annual_gdp",
-            "description": "Improve annual nominal GDP in current US dollars.",
-            "metric_id": "annual_gdp",
-            "direction": "maximize",
-        }
-    ]
-    problem_payload["candidate_lever_space"] = {
-        "allowed_operator_kinds": ["tax_relief_rate"],
-        "candidate_levers": [
-            {
-                "lever_id": "annual_gdp_tax_relief_rate",
-                "operator_kind": "tax_relief_rate",
-                "instrument": "Registered candidate tax relief rate",
-                "target_slot": "global.tax_rate",
-            }
-        ],
-    }
-    problem_payload["constraints"] = [
-        {
-            "constraint_id": "annual_gdp_request_scope",
-            "description": "Keep the candidate within the requested USA 2024 annual GDP scope.",
-            "hard": True,
-            "admissibility_basis": "request_text",
-            "source_text": gdp_scope_request,
-        },
-        {
-            "constraint_id": "no_authority_without_a",
-            "description": "Generated proposals remain candidate-only.",
-            "hard": True,
-            "admissibility_basis": "request_text",
-            "source_text": candidate_only_request,
-        },
-    ]
-    problem_payload["stakeholders"] = [
-        {
-            "stakeholder_id": "us_economic_analysts",
-            "name": "US economic analysts",
-            "role": "reviewer",
-        }
-    ]
-    problem_payload["outcome_of_interest"].update(
-        {
-            "target_variable": "global.gdp",
-            "metric_id": "annual_gdp",
-            "estimand": "Candidate-only annual nominal GDP in current US dollars.",
-            "direction": "maximize",
-        }
-    )
-    problem_payload["evidence_acquisition_needs"] = {
-        "needs": [
-            {
-                "need_id": "annual_gdp_observation",
-                "question": "Which annual public source supplies nominal GDP in current US dollars?",
-                "required_for": "Candidate-only GDP input availability.",
-            }
-        ]
-    }
-    problem_payload["runtime_hints"]["n7_scope_profile"] = {
-        "profile_id": GDP_COMPILER_INPUT.profile_id,
-        "jurisdiction": GDP_COMPILER_INPUT.jurisdiction,
-        "population": GDP_COMPILER_INPUT.population,
-        "entity_scope": GDP_COMPILER_INPUT.entity_scope,
-        "time_window": {
-            "start": GDP_COMPILER_INPUT.time_start,
-            "end": GDP_COMPILER_INPUT.time_end,
-        },
-        "time_role": GDP_COMPILER_INPUT.time_role,
-        "granularity": GDP_COMPILER_INPUT.granularity,
-        "required_constructs": list(GDP_COMPILER_INPUT.required_constructs),
-    }
-    problem = controlled_candidate_profile.DesignProblem.model_validate(problem_payload)
+    problem = annual_gdp_candidate_problem()
     assert problem.schema_version == "policyos.runtime.design_problem.v3"
     assert problem.candidate_lever_space.allowed_operator_kinds == ["tax_relief_rate"]
     assert problem.candidate_lever_space.candidate_levers[0].target_slot == "global.tax_rate"
@@ -675,22 +779,21 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     run_id = "run-annual-gdp-" + uuid4().hex
     source_job_id = "job-annual-gdp-" + uuid4().hex
     store = FileSystemCAS(tmp_path / "control" / ".polisyos")
-    profile, declaration = acquisition_served_history._served_wdi_candidate_profile(
-        tmp_path=tmp_path / "configured-gdp-profile",
-        store=store,
-        problem=problem,
-        country_code="USA",
-        data_year=2024,
-        population_scope="national_economy",
-        candidate_rule=CandidateScenarioSetToRule(
-            operator_kind="tax_relief_rate",
-            parameter_id="rate",
-            target_world_slot="global.tax_rate",
-            unit_id="ratio",
-            minimum=0,
-            maximum=0,
-        ),
-    )
+    with catalog_serving_source_scope(selected_catalog_source):
+        profile, declaration = build_annual_gdp_candidate_profile(
+            tmp_path=tmp_path / "configured-gdp-profile",
+            store=store,
+            problem=problem,
+            source_owner_root=catalog_owner_root,
+            catalog_source_repo_root=fixture_repo_root,
+            prepared_substrate_registry=selected_catalog_registry,
+        )
+    with catalog_serving_source_scope(selected_catalog_source):
+        require_catalog_source_registry_binding(
+            fixture_repo_root,
+            profile.context_inputs.substrate_registry,
+            selected_catalog_source,
+        )
     tax_rate_action_value = 0.0
     assert profile.rule.operator_kind == "tax_relief_rate"
     assert profile.rule.parameter_id == "rate"
@@ -707,15 +810,6 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert base_tax_binding is not None and base_tax_binding.unit == "ratio"
     base_tax_value = np.asarray(get_state_path(base_profile_state, base_tax_binding.state_path))
     assert base_tax_value.size == 1 and float(base_tax_value.item()) == 0.5
-    declaration_payload = declaration.model_dump(mode="json", exclude={"content_hash"})
-    declaration_payload.update(
-        {
-            "outcome_per_target_unit": -500_000_000_000.0,
-        }
-    )
-    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-        {**declaration_payload, "content_hash": gy_content_hash(declaration_payload)}
-    )
     base_views = world_model_artifact_views(profile.context_inputs.world_model_record)
     base_model = ModelSpec.model_validate(load_core_json_artifact(store, base_views.model_spec_ref))
     assert base_model.time_semantics is not None
@@ -761,302 +855,22 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
 
     recording = acquisition_chain.load_served_wdi_generation_recording()
 
-    # Keep the captured N4 recording as the immutable parent while binding each
-    # selected stage to the same test-only annual GDP/tax-rate candidate.
-    def annual_gdp_tax_response(
-        raw: str,
-        *,
-        outcome_variable: str,
-        labor_problem: Any | None = None,
-    ) -> str:
-        if outcome_variable != "global.gdp" or labor_problem is not None:
-            raise ValueError("annual_gdp_tax_fixture_transform_scope_mismatch")
-        payload = json.loads(raw)
-        policy_spec = payload["policy_spec"]
-        interventions = policy_spec["interventions"]
-        tax_actions = [item for item in interventions if item.get("kind") == "tax_relief_rate"]
-        assert len(tax_actions) == 1
-        tax_action = tax_actions[0]
-        original_intervention_id = tax_action["intervention_id"]
-        parameters = policy_spec["parameters"]
-        rate_parameters = [
-            item
-            for item in parameters
-            if item.get("intervention_id") == original_intervention_id
-            and item.get("param_path") == "rate"
-        ]
-        assert len(rate_parameters) == 1
-        test_intervention_id = "annual_gdp_tax_relief_rate"
-        tax_action.update(
-            {
-                "intervention_id": test_intervention_id,
-                "schedule": {"start_step": 0, "duration_steps": 1},
-                "params": {"rate": 0},
-                "notes": [
-                    "do.target=global.tax_rate sign=decrease outcome=global.gdp "
-                    "effect_path=global.tax_rate,global.gdp; test-owned candidate set-to "
-                    "from ratio baseline 0.5 to 0 under a declared synthetic SCM"
-                ],
-            }
-        )
-        rate_parameters[0].update(
-            {
-                "intervention_id": test_intervention_id,
-                "param_id": "rate",
-                "param_path": "rate",
-                "default_value": "0",
-                "min_value": "0",
-                "max_value": "0.5",
-            }
-        )
-        policy_spec.update(
-            {
-                "policy_id": "annual_gdp_tax_rate_candidate_policy",
-                "description": (
-                    "Candidate-only software fixture: set the registered global tax-rate "
-                    "ratio from 0.5 to 0.0; the declared GDP response is synthetic."
-                ),
-                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
-                "interventions": [tax_action],
-                "parameters": rate_parameters,
-            }
-        )
-        frame = payload["problem_frame"]
-        frame.update(
-            {
-                "problem_id": problem.design_problem_id,
-                "domain": "economic",
-                "narrative": problem.problem_statement,
-                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
-                "objectives": [
-                    {
-                        "objective_id": "annual_gdp",
-                        "metric_id": "annual_gdp",
-                        "direction": "maximize",
-                        "weight": "1.0",
-                    }
-                ],
-            }
-        )
-        model_spec = payload["model_spec"]
-        model_spec.update(
-            {
-                "model_id": "annual_gdp_tax_rate_candidate_model",
-                "data_snapshot_ref": str(base_views.data_snapshot_ref.artifact_id),
-                "registry_bundle_ref": str(base_views.registry_bundle_ref.artifact_id),
-                "time_semantics": base_model.time_semantics.model_dump(mode="json"),
-                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
-                "assumptions": [
-                    {
-                        "assumption_id": "tax_rate_to_annual_gdp_synthetic_coefficient",
-                        "assumption_type": "structural",
-                        "description": (
-                            "Declared test-only SCM coefficient: -500,000,000,000 current "
-                            "USD per unit tax-rate ratio. It is not an empirical or "
-                            "policy-effect estimate."
-                        ),
-                        "confidence": "0.0",
-                        "sensitivity_flag": True,
-                    }
-                ],
-            }
-        )
-        return json.dumps(payload, sort_keys=True, separators=(",", ":"))
-
-    original_controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording
-
-    def _set_recording_response(response: dict[str, Any], body: dict[str, Any]) -> None:
-        raw_response = json.dumps(body, sort_keys=True, separators=(",", ":"))
-        response["raw_response"] = raw_response
-        response["raw_response_hash"] = gy_content_hash(raw_response)
-
-    def annual_gdp_tax_recording(
-        source_recording: dict[str, Any],
-        *,
-        outcome_variable: str,
-        labor_problem: Any | None = None,
-    ) -> dict[str, Any]:
-        controlled = original_controlled_recording(
-            source_recording,
-            outcome_variable=outcome_variable,
-            labor_problem=labor_problem,
-        )
-        if outcome_variable != "global.gdp" or labor_problem is not None:
-            raise ValueError("annual_gdp_tax_fixture_recording_scope_mismatch")
-        responses = controlled["responses"]
-        formalizer_parent_hashes = {
-            acquisition_chain._SERVED_WDI_FIRST_FORMALIZER_HASH,
-            acquisition_chain._SERVED_WDI_STAGE_PARENTS["formalizer"][1],
-        }
-        selected_formalizer_indexes = [
-            index
-            for index, (source_response, _) in enumerate(
-                zip(source_recording["responses"], responses, strict=True)
-            )
-            if source_response.get("role") == "formalizer"
-            and source_response.get("raw_response_hash") in formalizer_parent_hashes
-        ]
-        if len(selected_formalizer_indexes) != 2:
-            raise ValueError("annual_gdp_tax_fixture_formalizer_denominator_mismatch")
-        formalizers = [responses[index] for index in selected_formalizer_indexes]
-        selected_stage_parent_hashes = {
-            stage: acquisition_chain._SERVED_WDI_STAGE_PARENTS[stage][1]
-            for stage in ("draft", "drafter_multipass", "critic")
-        }
-        for source_response, response in zip(source_recording["responses"], responses, strict=True):
-            role = response.get("role")
-            source_hash = source_response.get("raw_response_hash")
-            if role == "draft" and source_hash == selected_stage_parent_hashes["draft"]:
-                body = json.loads(response["raw_response"])
-                body.update(
-                    {
-                        "draft_id": "annual-gdp-usa-2024-tax-rate",
-                        "problem_frame_ref": problem.design_problem_id,
-                        "narrative": problem.problem_statement,
-                        "rationale": (
-                            "This candidate-only software fixture sets global.tax_rate from "
-                            "a physically bound 0.5 ratio baseline to 0.0. The declared "
-                            "synthetic coefficient maps the change to 250 billion current "
-                            "USD; it makes no empirical or causal claim."
-                        ),
-                        "confidence": 0.0,
-                        "alternatives_considered": [
-                            "No-change baseline retained for the N5 comparison."
-                        ],
-                        "interventions": [
-                            {
-                                "name": "Annual GDP tax-rate candidate set-to",
-                                "description": (
-                                    "Set the registered global.tax_rate ratio from 0.5 to 0.0."
-                                ),
-                                "mechanism_type": "tax_relief_rate",
-                                "parameters": {
-                                    "rate": 0,
-                                    "target_world_slot": "global.tax_rate",
-                                    "sign": "decrease",
-                                    "outcome_slots": ["global.gdp"],
-                                    "effect_path": ["global.tax_rate", "global.gdp"],
-                                },
-                                "rationale": (
-                                    "A declared test-only synthetic SCM provides the USD "
-                                    "response; this is not an empirical policy effect."
-                                ),
-                                "target_population": "USA national economy",
-                            }
-                        ],
-                    }
-                )
-                _set_recording_response(response, body)
-            elif (
-                role == "drafter_multipass"
-                and source_hash == selected_stage_parent_hashes["drafter_multipass"]
-            ):
-                body = json.loads(response["raw_response"])
-                finding = dict(body["findings"][0])
-                finding.update(
-                    {
-                        "anchor": "annual_gdp_tax_rate_synthetic_coefficient",
-                        "description": (
-                            "The 250 billion USD change is computed from an explicit synthetic "
-                            "coefficient and a 0.5 ratio delta, not independent evidence."
-                        ),
-                        "affected_intervention": "annual_gdp_tax_relief_rate",
-                        "suggested_fix": (
-                            "Keep the result candidate-only until a measurement contract and "
-                            "causal coupling are independently established."
-                        ),
-                    }
-                )
-                body["findings"] = [finding]
-                _set_recording_response(response, body)
-            elif role == "critic" and source_hash == selected_stage_parent_hashes["critic"]:
-                body = json.loads(response["raw_response"])
-                issue = dict(body["issues"][0])
-                issue.update(
-                    {
-                        "issue_id": "ANNUAL-GDP-SYNTHETIC-SCM-001",
-                        "category": "ALIGNMENT",
-                        "severity": "WARNING",
-                        "message": (
-                            "The tax-rate to GDP coefficient is a declared software-fixture "
-                            "assumption, not measured or causally grounded evidence."
-                        ),
-                        "location": "model_spec.assumptions",
-                        "suggestion": (
-                            "Preserve limited candidate-only status and do not publish this "
-                            "synthetic effect as a policy estimate."
-                        ),
-                    }
-                )
-                body.update(
-                    {
-                        "verdict": "NEEDS_REVISION",
-                        "alignment_score": 0.0,
-                        "completeness_score": 0.0,
-                        "overall_quality": 0.0,
-                        "problem_frame_ref": problem.design_problem_id,
-                        "report_id": "annual_gdp_tax_rate_candidate_critic",
-                        "reflexion_hint": (
-                            "The recorded ratio action is unit-consistent, but its USD effect "
-                            "is synthetic and remains inadmissible as a causal estimate."
-                        ),
-                    }
-                )
-                body["issues"] = [issue]
-                _set_recording_response(response, body)
-        final_ir_ref = gy_content_hash(json.loads(formalizers[-1]["raw_response"]))
-        selected_critics = [
-            response
-            for source_response, response in zip(
-                source_recording["responses"], responses, strict=True
-            )
-            if source_response.get("role") == "critic"
-            and source_response.get("raw_response_hash") == selected_stage_parent_hashes["critic"]
-        ]
-        if len(selected_critics) != 1:
-            raise ValueError("annual_gdp_tax_fixture_critic_denominator_mismatch")
-        critic = selected_critics[0]
-        critic_body = json.loads(critic["raw_response"])
-        critic_body["ir_ref"] = final_ir_ref
-        _set_recording_response(critic, critic_body)
-        from tools.quality.validation import (
-            check_layer3_gy_design_generation_contract as n4_contract,
-        )
-
-        identity_seed = gy_content_hash(
-            {
-                "parent_recording_id": controlled["derived_from_recording_id"],
-                "parent_content_hash": controlled["derived_from_content_hash"],
-                "problem_id": problem.design_problem_id,
-                "response_hashes": [item.get("raw_response_hash") for item in responses],
-                "target": "global.tax_rate",
-                "outcome": "global.gdp",
-            }
-        ).removeprefix("sha256:")[:20]
-        fixture_id = f"synthetic_annual_gdp_tax_n4_{identity_seed}"
-        controlled.update(
-            {
-                "design_problem_id": problem.design_problem_id,
-                "fixture_id": fixture_id,
-                "recording_id": fixture_id,
-                "recording_source": "synthetic_annual_gdp_tax_overlay_of_recorded_capture",
-            }
-        )
-        controlled["recording_content_hash"] = gy_content_hash(
-            {key: value for key, value in controlled.items() if key != "recording_content_hash"}
-        )
-        n4_contract._validate_recording_fixture(controlled)
-        return controlled
-
-    monkeypatch.setattr(
-        acquisition_chain,
-        "_controlled_wdi_trinity_response",
-        annual_gdp_tax_response,
+    # Select the existing stage-aware, explicitly synthetic provider. Its
+    # outputs retain their captured parents and never assert measured usage.
+    controlled_recording, provider_profile = build_annual_gdp_candidate_provider(
+        recording,
+        problem=problem,
+        profile=profile,
+        store=store,
+        evidence_root=tmp_path / "synthetic-provider-exchanges",
+    )
+    served_recorded_candidate_gateway.set_fixture(
+        controlled_recording, problem=problem, provider_profile=provider_profile
     )
     monkeypatch.setattr(
         acquisition_chain,
-        "controlled_served_wdi_generation_recording",
-        annual_gdp_tax_recording,
+        "intercepted_wdi_transport",
+        lambda patch: acquisition_production.intercepted_wdi_transport(patch, allow_loopback=True),
     )
     # Select the canonical typed L1 source-gap route before N7 compiles the
     # requirement; the legacy scenario-family route is not an executable WDI
@@ -1097,11 +911,16 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         closure=closure,
         candidate_world_refreshes=(refresh,),
         candidate_scenario_generation=True,
-        candidate_generation_recording=recording,
+        candidate_provider_gateway=served_recorded_candidate_gateway,
+        # The N6 scheduler declares $0.50 and $1.00 stage estimates; leave
+        # additional room for synthetic provider settlement. This test-only
+        # ceiling is not a measured bill or a guarantee of future cost.
+        reentry_budget_usd=Decimal("2.00"),
         **epoch_inputs,
     )
     assert json.loads(case.selected.epoch_scope_identity.identity_bytes) == gdp_epoch_scope
     assert case.selected.authority_purpose == "candidate_simulation"
+    assert case.selected.reentry_budget_usd == Decimal("2.00")
     fixture_baseline = case.authority.baseline_path.resolve(strict=True)
     assert case.authority.repo_root.resolve(strict=True) == fixture_repo_root
     assert case.bridge.repo_root.resolve(strict=True) == fixture_repo_root
@@ -1364,6 +1183,11 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert input_record.profile.rule.target_world_slot == "global.tax_rate"
     assert input_record.profile.rule.unit_id == "ratio"
     assert input_record.profile.rule.minimum == input_record.profile.rule.maximum == 0
+    assert input_record.materialization.derived_n5_atom.status == "candidate_unverified"
+    assert (
+        "grounding_not_established"
+        in input_record.materialization.derived_n5_atom.causal_do_expr.context["assumptions"]
+    )
     assert input_record.profile.n5.baseline_state["global.tax_rate"] == 0.5
     assert input_record.profile.n5.baseline_state["global.gdp"] == pytest.approx(
         row_2024.value_usd,

@@ -294,6 +294,7 @@ def build_annual_gdp_candidate_profile(
     store: ArtifactStore,
     problem: DesignProblem,
     source_owner_root: Path | None = None,
+    catalog_source_repo_root: Path | None = None,
     prepared_substrate_registry: SubstrateRegistry | None = None,
     invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None,
 ) -> tuple[CandidateSimulationScenarioProfile, CandidateSimulationSyntheticModelDeclarationV1]:
@@ -309,7 +310,8 @@ def build_annual_gdp_candidate_profile(
         store: The caller's existing artifact store.
         problem: The typed annual GDP candidate problem.
         source_owner_root: Optional selected catalog owner root.
-        prepared_substrate_registry: Optional registry already admitted from that root.
+        catalog_source_repo_root: Optional consumer root for a cross-root catalog selection.
+        prepared_substrate_registry: Optional registry admitted for the selected catalog source.
         invocation_quota_policy: Optional run-owned candidate invocation quota.
 
     Returns:
@@ -361,6 +363,7 @@ def build_annual_gdp_candidate_profile(
         store=store,
         problem=problem,
         source_owner_root=source_owner_root,
+        catalog_source_repo_root=catalog_source_repo_root,
         prepared_substrate_registry=prepared_substrate_registry,
         country_code="USA",
         data_year=2024,

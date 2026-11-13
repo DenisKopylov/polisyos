@@ -22,7 +22,10 @@ from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
 from polisyos.runtime.quality import candidate_acquisition_action as action_owner
 from polisyos.runtime.quality.acquisition_evaluation import (
     CandidateAcquisitionEvaluationBasis,
+    CandidateAcquisitionEvaluationBasisV2,
     CandidateAcquisitionEvaluationDecision,
+    CandidateAcquisitionEvaluationDecisionV2,
+    ResolvedAcquisitionEvaluation,
     _candidate_evaluation_event_id,
     issue_candidate_acquisition_evaluation_basis,
     issue_candidate_acquisition_evaluation_decision,
@@ -218,23 +221,33 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
         }
 
         def basis(**updates: object) -> CandidateAcquisitionEvaluationBasis:
+            basis_version = updates.pop("basis_version", "1.0")
+            values = updates.pop("values", {"component_record_scope": "not_a_numerical_evaluation"})
+            provenance = updates.pop("predicate_provenance", "not_established")
+            reasons = updates.pop("reason_codes", ("component_evaluation_not_established",))
+            configuration = updates.pop("prepared_n5_configuration", None)
             return issue_candidate_acquisition_evaluation_basis(
                 **{**common, **updates},
                 preparation_inputs=inputs,
-                prepared_n5_configuration=None,
+                prepared_n5_configuration=configuration,
                 basis_role="prospective",
-                values={"component_record_scope": "not_a_numerical_evaluation"},
-                predicate_provenance="not_established",
-                reason_codes=("component_evaluation_not_established",),
+                basis_version=basis_version,
+                values=values,
+                predicate_provenance=provenance,
+                reason_codes=reasons,
                 limitations=("component_only_no_protected_action_or_n5",),
             )
 
         def decision(
             current_basis_ref: artifacts.ArtifactRef,
+            *,
+            decision_version: str = "1.0",
+            compiled_ref_override: str | None = None,
         ) -> CandidateAcquisitionEvaluationDecision:
             return issue_candidate_acquisition_evaluation_decision(
                 **common,
-                compiled_ref=str(compiled_ref.artifact_id),
+                decision_version=decision_version,
+                compiled_ref=compiled_ref_override or str(compiled_ref.artifact_id),
                 current_basis_ref=current_basis_ref,
                 prior_basis_ref=None,
                 prior_evaluation=None,
@@ -292,6 +305,288 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
             )
         finally:
             control.close()
+
+
+def _component_prior(
+    case: SimpleNamespace, *, observation: object
+) -> ResolvedAcquisitionEvaluation:
+    """Supply a routing double; it is not an N5 witness or an authority claim."""
+    return ResolvedAcquisitionEvaluation(
+        selected=SimpleNamespace(
+            n5_input_ref=case.action_ref,
+            evaluation_run_id="component-run",
+            evaluation_job_id="component-job",
+        ),
+        source=None,
+        input_record=SimpleNamespace(tenant_id=TENANT_ID, cell_id=CELL_ID),
+        execution=None,
+        result=SimpleNamespace(
+            diagnostics={"candidate_n5_execution_content_observation": observation}
+        ),
+        handoff=None,
+    )
+
+
+def _prospective_version(
+    case: SimpleNamespace,
+    *,
+    prior: ResolvedAcquisitionEvaluation | None,
+    previous: CandidateAcquisitionEvaluationBasis | None = None,
+) -> str:
+    return dispatch._candidate_experiment_prospective_basis_version(
+        bridge=case.bridge,
+        origin=case.origin,
+        pending_phase_ref="sha256:" + "6" * 64,
+        candidate_action_ref=case.action_ref,
+        previous_basis=previous,
+        prior=prior,
+    )
+
+
+def test_content_observed_bootstrap_recomputes_current_but_not_comparison(
+    record_case: SimpleNamespace, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Version routing and real issuers keep current identity separate from a frontier.
+
+    Upstream preparation and the content reconciler are explicit component
+    doubles; the saved record/event/selected-view and comparison are real.
+    """
+    from decimal import Decimal
+
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+    from polisyos.runtime.quality import candidate_source_basis
+    from polisyos.runtime.quality import n5_candidate_content as content
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+
+    case = record_case
+    prior = _component_prior(case, observation={"component_only": True})
+    version = _prospective_version(case, prior=prior)
+    assert version == "2.0"
+    calls: list[str] = []
+    monkeypatch.setattr(
+        candidate_source_basis,
+        "prepare_candidate_source_numerical_basis_values_v2",
+        lambda **_kwargs: SimpleNamespace(
+            predicate_provenance="recomputed", reason_codes=(), effective_values={"state": 0.175}
+        ),
+    )
+    monkeypatch.setattr(
+        evaluation, "rebuild_selected_candidate_n5_request", lambda **_kwargs: object()
+    )
+
+    def reconcile(_result: object, **_kwargs: object) -> dict[str, object]:
+        calls.append("v2-content-owner")
+        return {
+            "content_image": {"component_only": True},
+            "execution_profile": {"component_only": True},
+            "callable_identity": "component_only",
+        }
+
+    monkeypatch.setattr(content, "reconcile_candidate_n5_declared_implementation", reconcile)
+    monkeypatch.setattr(
+        evaluation, "_candidate_v5_numerical_request_facets", lambda **_kwargs: {"seed": 17}
+    )
+    monkeypatch.setattr(
+        evaluation,
+        "reconcile_live_n5_implementation",
+        lambda *_args, **_kwargs: pytest.fail("new content reached the legacy witness"),
+    )
+    configuration = prepare_joint_simulation_configuration()
+    values, reasons = evaluation.recompute_candidate_acquisition_basis_values(
+        artifact_store=case.store,
+        problem=object(),
+        preparation_inputs=case.basis().preparation_inputs,
+        predecessors=(),
+        prior=prior,
+        prepared_n5_configuration=configuration,
+        fresh_limit_usd=Decimal(0),
+        global_limit_usd=Decimal(0),
+        basis_version=version,
+    )
+    assert calls == ["v2-content-owner"] and reasons == ()
+    basis = case.basis(
+        basis_version=version,
+        values=values,
+        predicate_provenance="recomputed",
+        reason_codes=(),
+        prepared_n5_configuration=configuration,
+    )
+    assert type(basis) is CandidateAcquisitionEvaluationBasisV2
+    basis_ref = case.select(basis)
+    decision = case.decision(basis_ref, decision_version=version)
+    decision_ref = case.select(decision)
+    assert type(decision) is CandidateAcquisitionEvaluationDecisionV2
+    assert decision.comparison_result == decision.predicate_provenance == "not_established"
+    assert decision.reason_codes == ("candidate_evaluation_prior_basis_not_established",)
+    assert decision.prior_basis_ref is decision.prior_evaluation is None
+    assert decision.expected_frontier_revision == 0 and decision.expected_frontier_ref is None
+    assert case.read_current(basis_ref, decision_ref) == (basis, decision)
+    assert not basis.observed_admission and not basis.publication_authority
+
+
+def test_content_marker_cannot_establish_a_missing_witness(
+    record_case: SimpleNamespace, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """V2 selection alone cannot promote a malformed observed result."""
+    from decimal import Decimal
+
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+    from polisyos.runtime.quality import candidate_source_basis
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+
+    case = record_case
+    prior = _component_prior(case, observation=None)
+    version = _prospective_version(case, prior=prior)
+    assert version == "2.0"
+    monkeypatch.setattr(
+        candidate_source_basis,
+        "prepare_candidate_source_numerical_basis_values_v2",
+        lambda **_kwargs: SimpleNamespace(
+            predicate_provenance="recomputed", reason_codes=(), effective_values={}
+        ),
+    )
+    monkeypatch.setattr(
+        evaluation, "rebuild_selected_candidate_n5_request", lambda **_kwargs: object()
+    )
+    values, reasons = evaluation.recompute_candidate_acquisition_basis_values(
+        artifact_store=case.store,
+        problem=object(),
+        preparation_inputs=case.basis().preparation_inputs,
+        predecessors=(),
+        prior=prior,
+        prepared_n5_configuration=prepare_joint_simulation_configuration(),
+        fresh_limit_usd=Decimal(0),
+        global_limit_usd=Decimal(0),
+        basis_version=version,
+    )
+    assert values == {} and reasons == ("candidate_n5_content_result_untyped",)
+    assert _prospective_version(case, prior=None) == "1.0"
+    prior.result.diagnostics.clear()
+    assert _prospective_version(case, prior=prior) == "1.0"
+
+
+@pytest.mark.parametrize("saved_version", ["1.0", "2.0"])
+def test_experiment_bootstrap_recovers_saved_basis_version(
+    record_case: SimpleNamespace, saved_version: str
+) -> None:
+    """A retry reopens its existing action-local selected record without upgrading it."""
+    case = record_case
+    saved = case.basis(basis_version=saved_version)
+    selected = case.select(saved)
+    prior = _component_prior(case, observation={"component_only": True})
+    assert _prospective_version(case, prior=prior) == saved_version
+    assert _prospective_version(case, prior=None) == saved_version
+    assert case.select(saved) == selected
+
+
+@pytest.mark.parametrize("previous_version", ["1.0", "2.0"])
+def test_experiment_existing_frontier_preserves_its_basis_version(
+    record_case: SimpleNamespace, previous_version: str
+) -> None:
+    case = record_case
+    previous = case.basis(basis_version=previous_version)
+    prior = _component_prior(case, observation={"component_only": True})
+    assert _prospective_version(case, prior=prior, previous=previous) == previous_version
+
+
+def test_experiment_saved_version_cannot_conflict_with_selected_frontier(
+    record_case: SimpleNamespace,
+) -> None:
+    case = record_case
+    case.select(case.basis(basis_version="1.0"))
+    previous = case.basis(basis_version="2.0")
+    with pytest.raises(ValueError, match="candidate_experiment_saved_basis_version_mismatch"):
+        _prospective_version(case, prior=_component_prior(case, observation={}), previous=previous)
+
+
+def test_experiment_saved_version_refuses_corrupt_selected_basis(
+    record_case: SimpleNamespace,
+) -> None:
+    """Event presence never substitutes for an owner-reopened selected basis."""
+    case = record_case
+    selected = case.select(case.basis(basis_version="2.0"))
+    path, _manifest = case.store._paths(selected.artifact_id)
+    original = path.read_bytes()
+    assert path.stat().st_nlink == 1 and not path.is_symlink()
+    path.write_bytes(b"corrupted-selected-basis")
+    try:
+        with pytest.raises((ValueError, RuntimeError), match=r"integrity|artifact|mismatch"):
+            _prospective_version(case, prior=_component_prior(case, observation={}))
+    finally:
+        path.write_bytes(original)
+    assert _prospective_version(case, prior=_component_prior(case, observation={})) == "2.0"
+
+
+def test_experiment_saved_version_refuses_nonexact_selected_pointer(
+    record_case: SimpleNamespace,
+) -> None:
+    """A different action's pointer cannot determine this action's wire version."""
+    import json
+
+    case = record_case
+    saved = case.basis(basis_version="2.0")
+    case.select(saved)
+    pointer = case.bridge._paths(case.context.selection, create=False)[0].parent / (
+        _candidate_evaluation_event_id(saved) + ".selected.json"
+    )
+    original = pointer.read_bytes()
+    assert pointer.stat().st_nlink == 1 and not pointer.is_symlink()
+    changed = json.loads(original)
+    changed["candidate_action_ref"] = case.parent(
+        "runtime_quality.acquisition_candidate_action_receipt", "foreign-action"
+    ).model_dump(mode="json")
+    pointer.write_text(json.dumps(changed))
+    try:
+        with pytest.raises(ValueError, match="candidate_world_selected_profile_mismatch"):
+            _prospective_version(case, prior=_component_prior(case, observation={}))
+    finally:
+        pointer.write_bytes(original)
+    assert _prospective_version(case, prior=_component_prior(case, observation={})) == "2.0"
+
+
+def test_experiment_orphan_pointer_refuses_new_selected_basis(
+    record_case: SimpleNamespace,
+) -> None:
+    """Absence of an event never allows an existing pointer to be overwritten."""
+    case = record_case
+    basis = case.basis(basis_version="2.0")
+    pointer = case.bridge._paths(case.context.selection, create=False)[0].parent / (
+        _candidate_evaluation_event_id(basis) + ".selected.json"
+    )
+    orphan = case.parent("runtime_quality.acquisition_evaluation_basis", "orphan")
+    case.bridge._write_candidate_world_pointer(
+        pointer, candidate_action_ref=case.action_ref, selected_ref=orphan
+    )
+    assert _prospective_version(case, prior=_component_prior(case, observation={})) == "2.0"
+    with pytest.raises(ValueError, match="candidate_experiment_evaluation_event_missing"):
+        case.select(basis)
+    assert not case.events.list_events(event_id=_candidate_evaluation_event_id(basis), limit=2)
+
+
+def test_v2_experiment_decision_refuses_rehashed_foreign_compiled_ref(
+    record_case: SimpleNamespace,
+) -> None:
+    """V2 must recheck the same compiled parent before event or pointer writes."""
+    case = record_case
+    basis_ref = case.select(case.basis(basis_version="2.0"))
+    foreign = case.decision(
+        basis_ref,
+        decision_version="2.0",
+        compiled_ref_override="sha256:" + "f" * 64,
+    )
+    assert type(foreign) is CandidateAcquisitionEvaluationDecisionV2
+    with pytest.raises(ValueError, match="candidate_experiment_evaluation_record_scope_mismatch"):
+        case.select(foreign)
+    assert not case.events.list_events(event_id=_candidate_evaluation_event_id(foreign), limit=2)
+    valid = case.decision(basis_ref, decision_version="2.0")
+    assert case.read_current(basis_ref, case.select(valid)) == (
+        case.basis(basis_version="2.0"),
+        valid,
+    )
 
 
 def test_experiment_decision_reopens_its_real_selected_prospective_basis(

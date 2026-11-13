@@ -3214,6 +3214,108 @@ class GenericCycleSimulationAdmissionOwner:
         )
         return ref
 
+    def recover_semantic_successor_execution(
+        self,
+        *,
+        expected: GenericN5ExecutionJoinExpectation,
+        semantic_successor_ref: ArtifactRef,
+        action_job_id: str,
+    ) -> tuple[ArtifactRef, GenericCycleSimulationN5ExecutionV5]:
+        """Reopen one durable successor output whose worker lost its pointer.
+
+        The existing CAS metadata inventory supplies the complete visible
+        manifest set. Only this action's manifests are opened, and the normal
+        selected execution/result owner must replay the unique output. Neither
+        absence nor an incomplete inventory permits another numerical call.
+        """
+        from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_json_artifact
+
+        if (
+            type(expected) is not GenericN5ExecutionJoinExpectation
+            or not _is_selected_json_ref(
+                semantic_successor_ref, MODEL_INPUT_SUCCESSOR_SELECTION_KIND
+            )
+            or type(action_job_id) is not str
+            or not action_job_id
+            or action_job_id == expected.job_id
+        ):
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_scope_invalid")
+        inventory = getattr(self._store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_inventory_unavailable")
+        snapshot = inventory(kind=_N5_EXECUTION_KIND)
+        if snapshot.verdict != "pass":
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_inventory_not_established")
+        candidates: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            closure = manifest.same_input_closure
+            if closure is None or closure.job_id != action_job_id:
+                continue
+            if (
+                closure
+                != ArtifactSameInputClosureInfo(
+                    closure_id=(
+                        f"generic-cycle-n5-execution:{expected.run_id}:"
+                        f"{action_job_id}:{expected.candidate_id}"
+                    ),
+                    status="candidate_only",
+                    run_id=expected.run_id,
+                    job_id=action_job_id,
+                    tenant_id=expected.tenant_id,
+                    cell_id=expected.cell_id,
+                )
+                or manifest.kind != _N5_EXECUTION_KIND
+                or manifest.media_type != "application/json"
+                or manifest.artifact_schema
+                != artifacts.SchemaInfo(name=_N5_EXECUTION_V5_SCHEMA, version="5.0")
+                or manifest.producer != artifacts.ProducerInfo(component=__name__, version="1.0")
+                or manifest.tenant_context
+                != ArtifactTenantContextInfo(tenant_id=expected.tenant_id, cell_id=expected.cell_id)
+            ):
+                raise CycleSubstrateContextOwnerError("generic_n5_recovery_manifest_mismatch")
+            ref = artifact_ref_for_manifest(manifest)
+            if ref.manifest_profile_sha256 != entry.manifest_profile_sha256:
+                raise CycleSubstrateContextOwnerError("generic_n5_recovery_manifest_mismatch")
+            candidates[artifact_ref_identity_key(ref)] = ref
+        if not candidates:
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_output_not_established")
+        if len(candidates) != 1:
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_output_ambiguous")
+        (ref,) = candidates.values()
+        record = parse_generic_cycle_simulation_n5_execution(
+            read_core_json_artifact(self._store, ref).value
+        )
+        if (
+            type(record) is not GenericCycleSimulationN5ExecutionV5
+            or record.action_job_id != action_job_id
+            or record.input_ref != expected.input_ref
+            or record.semantic_successor_ref != semantic_successor_ref
+            or record.result_ref is None
+            or record.result_ref.manifest_profile_sha256 is None
+        ):
+            raise CycleSubstrateContextOwnerError("generic_n5_recovery_execution_mismatch")
+        joined = GenericN5ExecutionJoinExpectation.model_validate(
+            {
+                **expected.model_dump(mode="python"),
+                "status": "joint_simulated",
+                "result_ref": record.result_ref,
+                "model_input_obligation_set_ref": None,
+                "semantic_successor_ref": semantic_successor_ref,
+            }
+        )
+        outcome, result = self.resolve_n5_execution_join_with_result(ref, expected=joined)
+        if (
+            outcome.status != "resolved"
+            or type(outcome.execution) is not GenericCycleSimulationN5ExecutionV5
+            or outcome.execution != record
+            or result is None
+        ):
+            raise CycleSubstrateContextOwnerError(
+                outcome.code or "generic_n5_recovery_result_not_established"
+            )
+        return ref, record
+
     def resolve_n5_execution(
         self,
         ref: ArtifactRef,

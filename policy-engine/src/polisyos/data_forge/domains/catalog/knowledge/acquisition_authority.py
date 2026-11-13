@@ -450,11 +450,33 @@ class AcquisitionSourceMeasureScope(_StrictModel):
     denominator: str | None = Field(default=None, min_length=1)
     temporal_granularity: str = Field(min_length=1)
     quantity_kind: Literal["unconstrained", "share_of_denominator"] = "unconstrained"
+    jurisdiction_ref: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
+    time_period_basis: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
+    source_geography_id: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
+    geography_ref: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _share_has_denominator(self) -> Self:
         if self.quantity_kind == "share_of_denominator" and self.denominator is None:
             raise ValueError("source share requires its declared denominator")
+        coordinates = (
+            self.jurisdiction_ref,
+            self.time_period_basis,
+            self.source_geography_id,
+            self.geography_ref,
+        )
+        if any(value is not None and value != value.strip() for value in coordinates):
+            raise ValueError("source scope coordinates must be trimmed")
+        if self.geography_ref is not None and self.source_geography_id is None:
+            raise ValueError("declared geography requires its source-native identity")
         return self
 
 
@@ -1173,6 +1195,57 @@ def read_selected_live_raw_source(
     ) != artifacts.artifact_manifest_profile_projection(expected):
         raise AcquisitionAuthorityError("live_raw_selected_profile_drift")
     return payload
+
+
+def verify_declared_source_geography(
+    entry: AcquisitionAuthorityEntry, *, connector_id: str, raw_body: bytes
+) -> None:
+    """Check an explicit source-native geography against captured source bytes.
+
+    This validates the recorded source coordinate only. The declared mapping
+    to a model geography and jurisdiction remains candidate evidence.
+    """
+    scope = entry.source_measure_scope
+    if scope is None or scope.source_geography_id is None:
+        return
+    try:
+        payload = json.loads(raw_body)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise AcquisitionAuthorityError("source_declared_geography_raw_invalid") from exc
+    if entry.source_lane == "live_fetch":
+        if connector_id != "worldbank.wdi":
+            raise AcquisitionAuthorityError("source_declared_geography_connector_unsupported")
+        if not isinstance(payload, list) or len(payload) < 2 or not isinstance(payload[1], list):
+            raise AcquisitionAuthorityError("source_declared_geography_raw_invalid")
+        rows = payload[1]
+        values = [
+            row.get("country", {}).get("id")
+            if isinstance(row, Mapping) and isinstance(row.get("country"), Mapping)
+            else None
+            for row in rows
+        ]
+    else:
+        rows = [payload] if isinstance(payload, Mapping) else payload
+        if not isinstance(rows, list):
+            raise AcquisitionAuthorityError("source_declared_geography_raw_invalid")
+        values = [row.get("country_code") if isinstance(row, Mapping) else None for row in rows]
+    if not values or any(value != scope.source_geography_id for value in values):
+        raise AcquisitionAuthorityError("source_declared_geography_mismatch")
+
+
+def _live_normalized_coordinates_match(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    indicator_id: str,
+    country_codes: Sequence[str],
+) -> bool:
+    """Compare source-native normalized coordinates with an owner-provided scope."""
+    if not indicator_id or not country_codes or any(not code for code in country_codes):
+        return False
+    return all(
+        row.get("indicator_id") == indicator_id and row.get("country_code") in country_codes
+        for row in rows
+    )
 
 
 def build_authority_entry(**values: object) -> AcquisitionAuthorityEntry:
@@ -2445,15 +2518,18 @@ class CanonicalAcquisitionAuthority:
             expected_frame.columns
         ) or not actual_frame.reset_index(drop=True).equals(expected_frame.reset_index(drop=True)):
             raise AcquisitionAuthorityError("live_normalized_raw_projection_drift")
-        if any(
-            row.get("indicator_id") != resolved.registration.request_dataset_id
-            or row.get("country_code") != country_code
-            or not _live_year_is_in_scope(
+        normalized_rows = expected_frame.to_dict(orient="records")
+        if not _live_normalized_coordinates_match(
+            normalized_rows,
+            indicator_id=resolved.registration.request_dataset_id,
+            country_codes=(country_code,),
+        ) or any(
+            not _live_year_is_in_scope(
                 row.get("year"),
                 date_start=date_start,
                 date_end=date_end,
             )
-            for row in expected_frame.to_dict(orient="records")
+            for row in normalized_rows
         ):
             raise AcquisitionAuthorityError("live_normalized_scope_drift")
 
@@ -3116,15 +3192,25 @@ def _preacquisition_source_scope_refusal(
         return "source_measure_scope_missing"
     if source_scope.population != model_scope.population_ref:
         return "source_population_scope_mismatch"
-    if (
-        model_scope.jurisdiction_ref not in entry.country_codes
-        or model_scope.geography_ref not in entry.country_codes
-    ):
+    if source_scope.jurisdiction_ref is not None:
+        jurisdiction_matches = source_scope.jurisdiction_ref == model_scope.jurisdiction_ref
+    else:
+        jurisdiction_matches = model_scope.jurisdiction_ref in entry.country_codes
+    if source_scope.geography_ref is not None:
+        geography_matches = source_scope.geography_ref == model_scope.geography_ref
+    else:
+        geography_matches = model_scope.geography_ref in entry.country_codes
+    if not jurisdiction_matches or not geography_matches:
         return "source_geography_scope_mismatch"
     if model_scope.time_role != "observation_time":
         return "source_time_role_unsupported"
     if model_scope.period_basis != "calendar_year":
         return "source_period_basis_unsupported"
+    if (
+        source_scope.time_period_basis is not None
+        and source_scope.time_period_basis != model_scope.period_basis
+    ):
+        return "source_period_basis_mismatch"
     if (
         source_representation.temporal_granularity is None
         or source_scope.temporal_granularity != source_representation.temporal_granularity
@@ -3482,5 +3568,6 @@ __all__ = [
     "read_selected_live_raw_source",
     "resolve_live_temporal_bounds",
     "resolve_source_observation_class",
+    "verify_declared_source_geography",
     "verify_local_source_rights",
 ]

@@ -11,7 +11,10 @@ import pytest
 from polisyos.core import artifacts
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.fabric.connectors import resolve_connection_config
-from polisyos.fabric.connectors.cache import verify_selected_cache_payload_ref
+from polisyos.fabric.connectors.cache import (
+    verify_selected_cache_payload_ref,
+    verify_selected_cache_payload_writer_profile,
+)
 from polisyos.fabric.connectors.cache._store_core import (
     _direct_cache_payload_write_options,
 )
@@ -56,9 +59,18 @@ def test_live_cache_profile_rejects_foreign_payload_and_source_intent(
             "request": request,
             "source_config": config,
         }
+        writer_profile = {
+            "connector_id": "worldbank.wdi",
+            "dataset_id": GDP_PROFILE.indicator_id,
+            "classification": "public",
+        }
         assert verify_selected_cache_payload_ref(case.store, ref, **kwargs)
         assert verify_selected_cache_payload_ref(
             case.store, ref, **kwargs, require_writer_profile=True, classification="public"
+        )
+        assert verify_selected_cache_payload_writer_profile(case.store, ref, **writer_profile)
+        assert not verify_selected_cache_payload_writer_profile(
+            case.store, ref, **{**writer_profile, "dataset_id": "unrelated.measure"}
         )
         manifest = case.store.get_manifest(ref)
         foreign_payload = case.store.put_bytes(
@@ -83,6 +95,9 @@ def test_live_cache_profile_rejects_foreign_payload_and_source_intent(
             **kwargs,
             require_writer_profile=True,
             classification="public",
+        )
+        assert not verify_selected_cache_payload_writer_profile(
+            case.store, foreign_payload, **writer_profile
         )
 
         (edge,) = manifest.inputs
@@ -123,6 +138,9 @@ def test_live_cache_profile_rejects_foreign_payload_and_source_intent(
             **kwargs,
             require_writer_profile=True,
             classification="public",
+        )
+        assert not verify_selected_cache_payload_writer_profile(
+            case.store, rebound_payload, **writer_profile
         )
     finally:
         case.overlay.close()

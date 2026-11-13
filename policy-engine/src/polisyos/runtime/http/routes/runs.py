@@ -74,6 +74,7 @@ from polisyos.core.contracts.runtime import (
     RunLineageResponse,
     RunModelInputUseBlockedSourceProjection,
     RunModelInputUseN5SuccessorProjection,
+    RunModelInputUseN5SuccessorProjectionV2,
     RunModelInputUseN5SuccessorResponse,
     RunNodesResponse,
     RunOperatorDiagnostic,
@@ -5861,8 +5862,8 @@ def _model_input_use_n5_successor_projection(
     store: Any,
     control_service: Any,
     action_service: AcquisitionActionService | None = None,
-) -> RunModelInputUseN5SuccessorProjection:
-    """Read one explicit completed model-input action and its selected N5 result.
+) -> RunModelInputUseN5SuccessorProjection | RunModelInputUseN5SuccessorProjectionV2:
+    """Read one completed model-input use and its original selected N5 result.
 
     The immutable completion outbox supplies the terminal progress snapshot. A
     mutable job progress row alone is never sufficient to expose result bytes.
@@ -5881,21 +5882,33 @@ def _model_input_use_n5_successor_projection(
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
     from polisyos.runtime.http.services.model_input_successor_action import (
+        GenericModelInputUseHistory,
         ModelInputSuccessorActionRequest,
         ModelInputUseActionCheckpoint,
         resolve_model_input_successor_history,
+        resolve_model_input_use_evaluation_history,
         verify_model_input_use_result,
     )
     from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
-    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5ExecutionV5,
+        GenericN5ResolvedResult,
+    )
+
+    is_current_use_v2 = False
 
     def limited(
         code: str,
         *,
         action_status: Literal["pending", "running", "completed", "failed", "not_established"],
         blocked_source: RunModelInputUseBlockedSourceProjection | None = None,
-    ) -> RunModelInputUseN5SuccessorProjection:
-        return RunModelInputUseN5SuccessorProjection(
+    ) -> RunModelInputUseN5SuccessorProjection | RunModelInputUseN5SuccessorProjectionV2:
+        projection_type = (
+            RunModelInputUseN5SuccessorProjectionV2
+            if is_current_use_v2
+            else RunModelInputUseN5SuccessorProjection
+        )
+        return projection_type(
             run_id=run_id,
             action_job_id=action_job_id,
             action_status=action_status,
@@ -6021,10 +6034,16 @@ def _model_input_use_n5_successor_projection(
             "model_input_use_action_terminal_checkpoint_not_established",
             action_status="completed",
         )
-    if (
-        checkpoint.execution_ref is None
-        or checkpoint.result_ref is None
-        or progress.get("terminal_receipt_ref") != str(checkpoint.execution_ref.artifact_id)
+    is_current_use_v2 = checkpoint.schema_version is not None
+    terminal_selector = (
+        checkpoint.execution_ref
+        if checkpoint.execution_ref is not None
+        else checkpoint.evaluation_decision_ref
+        if is_current_use_v2
+        else None
+    )
+    if terminal_selector is None or progress.get("terminal_receipt_ref") != str(
+        terminal_selector.artifact_id
     ):
         return limited(
             "model_input_use_n5_result_not_selected_by_terminal",
@@ -6078,25 +6097,80 @@ def _model_input_use_n5_successor_projection(
             decision_ref=payload["decision_ref"],
             execution_scope=execution_scope,
         )
-        resolved = verify_model_input_use_result(
-            store,
-            selection=selection,
-            checkpoint=checkpoint,
-            action_payload_ref=job.payload_ref,
-            authority_decision_ref=payload["decision_ref"],
-        )
+        use_history = None
+        if is_current_use_v2:
+            use_history = resolve_model_input_use_evaluation_history(
+                control_service,
+                selection=selection,
+                checkpoint=checkpoint,
+                action_payload_ref=job.payload_ref,
+                authority_decision_ref=payload["decision_ref"],
+            )
+            if (
+                type(use_history) is not GenericModelInputUseHistory
+                or use_history.selected_frontier is None
+                or type(use_history.selected_frontier_execution)
+                is not GenericCycleSimulationN5ExecutionV5
+                or type(use_history.selected_frontier_result) is not GenericN5ResolvedResult
+                or use_history.selected_basis is None
+            ):
+                return limited(
+                    "model_input_use_original_evaluation_not_established",
+                    action_status="completed",
+                    blocked_source=blocked_source,
+                )
+            original = use_history.selected_frontier.selected_evaluation
+            original_execution = use_history.selected_frontier_execution
+            if (
+                original_execution.action_job_id != original.action_job_id
+                or artifact_ref_identity_key(original_execution.input_ref)
+                != artifact_ref_identity_key(original.input_ref)
+                or artifact_ref_identity_key(original_execution.semantic_successor_ref)
+                != artifact_ref_identity_key(original.semantic_successor_ref)
+                or original_execution.result_ref is None
+                or artifact_ref_identity_key(original_execution.result_ref)
+                != artifact_ref_identity_key(original.result_ref)
+                or (
+                    checkpoint.execution_ref is not None
+                    and (
+                        original.action_job_id != action_job_id
+                        or artifact_ref_identity_key(checkpoint.execution_ref)
+                        != artifact_ref_identity_key(original.execution_ref)
+                        or checkpoint.result_ref is None
+                        or artifact_ref_identity_key(checkpoint.result_ref)
+                        != artifact_ref_identity_key(original.result_ref)
+                    )
+                )
+                or (
+                    checkpoint.execution_ref is None
+                    and (
+                        original.action_job_id == action_job_id
+                        or use_history.use.comparison_result != "equivalent"
+                    )
+                )
+            ):
+                raise ValueError("model_input_use_original_evaluation_binding_mismatch")
+            result_ref = original.result_ref
+            resolved = use_history.selected_frontier_result
+        else:
+            resolved = verify_model_input_use_result(
+                store,
+                selection=selection,
+                checkpoint=checkpoint,
+                action_payload_ref=job.payload_ref,
+                authority_decision_ref=payload["decision_ref"],
+            )
+            result_ref = checkpoint.result_ref
         if type(resolved) is not GenericN5ResolvedResult:
             raise ValueError("model_input_use_result_owner_returned_untyped_value")
         result_manifest = read_selected_n5_result_manifest(
             store,
-            checkpoint.result_ref,
+            result_ref,
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
         selected_result_ref = artifact_ref_for_manifest(result_manifest)
-        if artifact_ref_identity_key(selected_result_ref) != artifact_ref_identity_key(
-            checkpoint.result_ref
-        ):
+        if artifact_ref_identity_key(selected_result_ref) != artifact_ref_identity_key(result_ref):
             raise ValueError("model_input_use_result_selected_view_changed")
         semantic_input_limitation_codes = resolved.result.verified_semantic_input_limitation_codes
         if semantic_input_limitation_codes is None:
@@ -6121,6 +6195,45 @@ def _model_input_use_n5_successor_projection(
             code if isinstance(code, str) else "model_input_use_n5_result_not_established",
             action_status="completed",
             blocked_source=blocked_source,
+        )
+    if use_history is not None:
+        frontier = use_history.selected_frontier
+        if frontier is None or use_history.selected_basis is None:
+            return limited(
+                "model_input_use_original_evaluation_not_established",
+                action_status="completed",
+                blocked_source=blocked_source,
+            )
+        original = frontier.selected_evaluation
+        return RunModelInputUseN5SuccessorProjectionV2(
+            run_id=run_id,
+            action_job_id=action_job_id,
+            action_status="completed",
+            result_status="resolved",
+            blocked_source=blocked_source,
+            current_action_phase_ref=checkpoint.phase_ref,
+            current_semantic_successor_ref=checkpoint.semantic_successor_ref,
+            current_authority_decision_ref=use_history.decision.authority_decision_ref,
+            current_use_decision_ref=use_history.use.decision_ref,
+            current_basis_ref=use_history.use.current_basis_ref,
+            selected_basis_ref=frontier.basis_ref,
+            frontier_ref=frontier.frontier_ref,
+            frontier_revision=frontier.revision,
+            frontier_selection=use_history.frontier_relation,
+            basis_comparison_result=use_history.use.comparison_result,
+            predicate_provenance=use_history.decision.predicate_provenance,
+            evaluation_provenance=(
+                "new_execution" if checkpoint.execution_ref is not None else "retained_prior"
+            ),
+            original_action_job_id=original.action_job_id,
+            original_input_ref=original.input_ref,
+            original_semantic_successor_ref=original.semantic_successor_ref,
+            original_execution_ref=original.execution_ref,
+            original_result_ref=selected_result_ref,
+            result_body=body,
+            semantic_input_limitation_codes=semantic_input_limitation_codes,
+            current_basis_limitations=use_history.current_basis.limitations,
+            selected_basis_limitations=use_history.selected_basis.limitations,
         )
     return RunModelInputUseN5SuccessorProjection(
         run_id=run_id,

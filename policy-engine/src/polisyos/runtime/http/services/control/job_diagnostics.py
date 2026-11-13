@@ -5,11 +5,12 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from typing import Any, Literal, cast
+from types import MethodType
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from opentelemetry.context import attach, detach
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -46,6 +47,7 @@ from ..control_plane_store import (
     ControlJobExecutionScope,
     ControlJobLeaseLostError,
     ControlJobRecord,
+    GenericModelInputEvaluationFrontierCAS,
     _ControlJobExecutionLifecycleProof,
     _PreparedAcquisitionActionHeadPublication,
 )
@@ -54,11 +56,62 @@ from .job_attempt_publication import (
     _build_control_execution_intent_binding,
 )
 
+if TYPE_CHECKING:
+    from ..model_input_successor_action import (
+        ModelInputUseActionCheckpoint,
+        SelectedModelInputSuccessorAction,
+    )
+
 logger = common_logger.get_logger("polisyos.runtime.http.services.control.run_lifecycle")
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CONTROL_JOB_EXECUTION_BINDING_KEY = "control_job_execution_binding"
 _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY = "observational_method_execution"
+
+
+class _ModelInputUseJobCompletion(dict[str, Any]):
+    """Carry completion inputs for owner replay, without asserting verified authority.
+
+    Only progress is mapping data. The completer reopens the selected inputs
+    under its actual worker fence before passing an ephemeral CAS to the store.
+    """
+
+    __slots__ = (
+        "action_payload_ref",
+        "authority_decision_ref",
+        "checkpoint",
+        "currentness_resolver",
+        "selection",
+    )
+
+    def __init__(
+        self,
+        *,
+        progress: dict[str, Any],
+        selection: SelectedModelInputSuccessorAction,
+        checkpoint: ModelInputUseActionCheckpoint,
+        action_payload_ref: str,
+        authority_decision_ref: str,
+        currentness_resolver: Callable[[], bool],
+    ) -> None:
+        from ..model_input_successor_action import (
+            ModelInputUseActionCheckpoint,
+            SelectedModelInputSuccessorAction,
+        )
+
+        if (
+            type(selection) is not SelectedModelInputSuccessorAction
+            or type(checkpoint) is not ModelInputUseActionCheckpoint
+            or checkpoint.schema_version != "polisyos.runtime.ModelInputUseActionCheckpoint@2.0"
+            or not callable(currentness_resolver)
+        ):
+            raise TypeError("model_input_use_completion_inputs_untyped")
+        super().__init__(progress)
+        self.selection = selection
+        self.checkpoint = checkpoint
+        self.action_payload_ref = action_payload_ref
+        self.authority_decision_ref = authority_decision_ref
+        self.currentness_resolver = currentness_resolver
 
 
 class _DiagnosticExecutionScopeRecord(BaseModel):
@@ -1135,12 +1188,66 @@ class ControlJobDiagnosticsMixin:
         handler = self._acquisition_job_handler
         if handler is None:
             raise RuntimeError("acquisition_job_handler_missing")
-        progress = handler(job, payload, execution_scope)
+        result = handler(job, payload, execution_scope)
+        if not isinstance(result, dict):
+            raise TypeError("acquisition_job_completion_progress_untyped")
+        if isinstance(result, _ModelInputUseJobCompletion) and type(result) is not (
+            _ModelInputUseJobCompletion
+        ):
+            raise TypeError("model_input_use_completion_inputs_untyped")
+        progress = dict(result)
+        if {
+            "generic_model_input_current_use",
+            "generic_model_input_frontier_cas",
+        } & progress.keys():
+            raise ValueError("model_input_use_completion_projection_not_owner_produced")
+        completion_options: dict[str, Any] = {}
+        if type(result) is _ModelInputUseJobCompletion:
+            from ..acquisition_action_service import AcquisitionActionService
+            from ..model_input_successor_action import (
+                model_input_use_terminal_progress,
+                prepare_model_input_use_frontier_completion,
+            )
+
+            handler_owner = getattr(handler, "__self__", None)
+            if (
+                type(handler) is not MethodType
+                or handler.__func__ is not AcquisitionActionService.handle_job
+                or type(handler_owner) is not AcquisitionActionService
+                or handler_owner.control_service is not self
+            ):
+                raise ValueError("model_input_use_completion_owner_not_established")
+            expected_progress = model_input_use_terminal_progress(result.checkpoint)
+            if any(progress.get(key) != value for key, value in expected_progress.items()):
+                raise ValueError("model_input_use_completion_checkpoint_progress_mismatch")
+            frontier_cas = prepare_model_input_use_frontier_completion(
+                self,
+                selection=result.selection,
+                checkpoint=result.checkpoint,
+                action_payload_ref=result.action_payload_ref,
+                authority_decision_ref=result.authority_decision_ref,
+            )
+            if type(frontier_cas) is not GenericModelInputEvaluationFrontierCAS:
+                raise TypeError("model_input_use_completion_frontier_untyped")
+            if result.currentness_resolver() is not True:
+                raise ValueError("model_input_use_completion_authority_not_current")
+            completion_options = {
+                "generic_model_input_frontier_cas": frontier_cas,
+                "expected_lease_owner": job.lease_owner,
+                "expected_attempt": job.attempt,
+            }
+        else:
+            checkpoint = progress.get("model_input_use")
+            if isinstance(checkpoint, dict) and checkpoint.get("schema_version") == (
+                "polisyos.runtime.ModelInputUseActionCheckpoint@2.0"
+            ):
+                raise ValueError("model_input_use_completion_owner_not_established")
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=str(job.run_id or ""),
             capability_manifest_ref=capability_manifest_ref,
             progress=progress,
+            **completion_options,
         )
         artifact_refs = [capability_manifest_ref]
         terminal_receipt_ref = progress.get("terminal_receipt_ref")

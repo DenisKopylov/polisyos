@@ -119,6 +119,7 @@ class AcquisitionArtifactCodec(NamedTuple):
         "canonical_json",
         "raw_json",
         "producer_json",
+        "selected_core_json",
         "connector_cache_payload",
         "opaque_bytes",
         "native_coordinate",
@@ -388,6 +389,19 @@ def acquisition_artifact_codec(
         if media_type not in (None, epoch_media):
             return None
         return AcquisitionArtifactCodec(epoch_media, "canonical_json", epoch_canon_info())
+    if kind in {"catalog.variable_semantic_definition", "catalog.variable_representation"}:
+        if media_type not in (None, "application/json"):
+            return None
+        schema_name = (
+            "polisyos.catalog.VariableSemanticDefinition"
+            if kind == "catalog.variable_semantic_definition"
+            else "polisyos.catalog.VariableRepresentation"
+        )
+        # Their typed Core owners qualify the selected canonical profile and
+        # model dependencies; this registry must not impose a default profile.
+        return AcquisitionArtifactCodec(
+            "application/json", "selected_core_json", None, schema_name, "1.0"
+        )
     if kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS:
         return AcquisitionArtifactCodec(
             epoch_media, "epoch_frame", external_epoch_statement_canon_info()
@@ -516,7 +530,7 @@ def _acquisition_native_coordinate_role(
 
 
 def acquisition_artifact_canon_info(kind: str) -> CanonInfo | None:
-    """Return a registered canon, or ``None`` for raw, identity, or unresolved refs."""
+    """Return a fixed canon, or ``None`` when the source owner selects its profile."""
     codec = acquisition_artifact_codec(kind)
     return None if codec is None else codec.canon
 
@@ -1574,6 +1588,11 @@ def _known_epoch_statement_manifest_schema(
     registry source writers. Other registered source codecs with no schema
     declaration retain an explicitly bounded unowned expectation.
     """
+    if expected_kind == "catalog.variable_representation":
+        return (
+            SchemaInfo(name="polisyos.catalog.VariableRepresentation", version="1.0"),
+            SchemaInfo(name="polisyos.catalog.VariableRepresentation", version="2.0"),
+        )
     if expected_kind == "fabric.data_snapshot":
         return (
             SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),

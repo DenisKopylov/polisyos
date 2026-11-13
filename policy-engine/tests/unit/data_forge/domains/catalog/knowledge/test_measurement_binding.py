@@ -412,6 +412,7 @@ from polisyos.core.contracts.variable_binding import (
     evaluate_scoped_correspondence_basis, load_variable_representation,
     replay_scoped_measurement_occurrence, scoped_source_selection_from_passport_mapping,
 )
+from polisyos.data_forge.read_api import catalog as catalog_read_api
 store = FileSystemCAS(sys.argv[1])
 ref = ScopedCorrespondenceBasisRef.model_validate_json(sys.argv[2])
 basis = validate_core_model_json_artifact(ScopedCorrespondenceBasis, store, ref)
@@ -429,7 +430,9 @@ source = scoped_source_selection_from_passport_mapping(
     source_record_ref=occurrence.source_record_ref,
 )
 replayed = replay_scoped_measurement_occurrence(
-    store.get_bytes(source.source_record_ref), observation_id=occurrence.observation_id,
+    catalog_read_api.read_scoped_measurement_source_body(
+        store, passport_mapping=passport, source_selection=source,
+    ), observation_id=occurrence.observation_id,
     source_selection=source, unit_transform_evidence=occurrence.unit_transform_evidence,
 )
 interface = load_program_graph_input_interface(store, basis.model_interface_ref)
@@ -464,6 +467,128 @@ print(result.model_dump_json())
         timeout=60,
     )
     return json.loads(result.stdout)
+
+
+def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_raw(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The admitted source, selected scope and model binding meet in real CAS."""
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
+    from tests._helpers.semantic_epoch_native import make_native_live_measurement_history
+    from tests.integration.runtime_quality.test_program_graph_held_out_fund_binding import (
+        _fund_port,
+    )
+    from tests.unit.runtime.quality.test_model_input_requirements import _opening_stock_port
+
+    store = FileSystemCAS(tmp_path / "cas")
+    port = _fund_port(store, _opening_stock_port(store), fund="treasury")
+    graph_refs = {
+        kind: store.put_bytes(
+            f"selected {kind}".encode(),
+            PutOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+        for kind in ("foundry.program_graph", "foundry.exec_plan", "core.registry_bundle")
+    }
+    interface_ref = SelectedVariableBindingRef.model_validate(
+        persist_program_graph_input_interface(
+            store,
+            ProgramGraphInputInterface(
+                program_graph_ref=ProgramGraphRef.model_validate(
+                    graph_refs["foundry.program_graph"].model_dump()
+                ),
+                exec_plan_ref=ExecPlanRef.model_validate(
+                    graph_refs["foundry.exec_plan"].model_dump()
+                ),
+                registry_bundle_ref=graph_refs["core.registry_bundle"],
+                ports=(port,),
+            ),
+        ).model_dump()
+    )
+    profile = CandidateWDIProfile(
+        construct="test.treasury.opening-cash",
+        indicator_id="POLICYOS.FIXTURE.TREASURY.STOCK",
+        source_title="Test-owned annual treasury stock (current US$)",
+        source_description="Controlled test values; external empirical origin is not established.",
+        target_slot="test.treasury.opening-cash",
+        raw_unit="usd",
+        canonical_unit="usd",
+        transform="identity",
+        transform_ref="fabric://units/usd-identity/v1",
+        population="population:treasury",
+        fixture_value=640.0,
+        source_provenance_class="observed",
+        valid_min=0.0,
+        valid_max=10_000.0,
+        country_code="UKR",
+        country_id="UA",
+        year=2022,
+    )
+    history = make_native_live_measurement_history(
+        tmp_path / "source",
+        profile=profile,
+        semantic_definition_ref=port.semantic_definition_ref,
+        representation_ref=port.representation_ref,
+        attempt_ids=("scoped-source-a",),
+        artifact_store=store,
+        monkeypatch=monkeypatch,
+        source_measure_scope={
+            "population": "population:treasury",
+            "temporal_granularity": "annual",
+            "source_geography_id": "UA",
+            "geography_ref": "UA",
+            "jurisdiction_ref": "UA",
+            "time_period_basis": "calendar_year",
+        },
+    )
+    try:
+        active = history.admit(640.0)
+        projection = active.projections[history.entry.target_variable]
+        (row,) = projection.observations
+        assert row.observation.value == 640.0
+
+        def assess():
+            return assess_measurement_to_model_candidate(
+                store,
+                history.overlay,
+                receipt_ref=projection.receipt_ref,
+                passport=active.passport,
+                authority=history.authority,
+                observation_id=row.observation.observation_id,
+                source_definition_ref=port.semantic_definition_ref,
+                source_representation_ref=port.representation_ref,
+                model_interface_ref=interface_ref,
+                port_id=port.port_id,
+            )
+
+        result = assess()
+        assert result.status == "candidate", result.refusal_codes
+        assert result.correspondence_basis_ref is not None
+        assert result.independent_origin == result.source_currentness == "not_established"
+        fresh = _fresh_correspondence_result(store, result.correspondence_basis_ref)
+        assert fresh["status"] == "candidate", fresh
+        assert fresh["semantic_correspondence"] == "recomputed"
+
+        raw_ref = active.evidence.raw_artifact_ref
+        assert raw_ref is not None
+        actual_get = store.get_bytes
+
+        def missing_raw(ref):
+            if isinstance(ref, ArtifactRef) and artifact_ref_identity_key(
+                ref
+            ) == artifact_ref_identity_key(raw_ref):
+                raise FileNotFoundError("test removed the selected raw source")
+            return actual_get(ref)
+
+        with monkeypatch.context() as context:
+            context.setattr(store, "get_bytes", missing_raw)
+            refused = assess()
+            assert refused.status == "refused"
+            assert refused.refusal_codes == ("source_activation_live_source_execution_unresolved",)
+        assert assess().status == "candidate"
+    finally:
+        history.overlay.close()
 
 
 def test_native_catalog_optional_methodology_is_limited_while_required_denominator_still_refuses(

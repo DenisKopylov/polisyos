@@ -471,6 +471,140 @@ def test_live_acquisition_replay_joins_typed_source_snapshot_and_evidence(
     assert expected.variable_id == passport.variable_id
     assert expected.observations
 
+    # The live selected record is the framed normalized result; its bytes and
+    # the raw HTTP watermark are distinct. Reopen both through the Catalog owner.
+    from polisyos.core.contracts.variable_binding import (
+        SelectedVariableBindingRef,
+        scoped_source_selection_from_passport_mapping,
+    )
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.fabric import connectors
+    from polisyos.fabric.data_plane import content_sha256
+
+    assert live.raw_artifact_ref is not None
+    passport_mapping = passport.model_dump(mode="json")
+    selection = scoped_source_selection_from_passport_mapping(
+        passport_mapping,
+        source_receipt_ref=SelectedVariableBindingRef.model_validate(
+            activation.overlay_admission_receipt_ref.model_dump(mode="json")
+        ),
+        source_passport_ref=SelectedVariableBindingRef.model_validate(
+            activation.passport_ref.model_dump(mode="json")
+        ),
+        source_boundary_candidate_ref=SelectedVariableBindingRef.model_validate(
+            passport.semantic_boundary_candidate_ref.model_dump(mode="json")
+        ),
+        source_record_ref=SelectedVariableBindingRef.model_validate(
+            source_ref.model_dump(mode="json")
+        ),
+    )
+
+    def replay_rows(mapping: dict[str, object] | None = None) -> bytes:
+        return catalog_read_api.read_scoped_measurement_source_body(
+            case.store,
+            passport_mapping=passport_mapping if mapping is None else mapping,
+            source_selection=selection,
+        )
+
+    raw_http = case.store.get_bytes(live.raw_artifact_ref)
+    row_bytes = replay_rows()
+    assert "sha256:" + hashlib.sha256(raw_http).hexdigest() == passport.source_watermark
+    assert "sha256:" + hashlib.sha256(row_bytes).hexdigest() == (
+        passport.measured_profile.sample_content_sha256
+    )
+    assert raw_http != row_bytes != case.store.get_bytes(source_ref)
+    assert json.loads(row_bytes)
+
+    # Keep raw and normalized rows mutually consistent while substituting a
+    # foreign indicator or ISO3 country. Neither substitution may inherit the
+    # source's declared population/geography merely from matching shape.
+    from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority as source_owner
+
+    for field in ("indicator", "country"):
+        changed = json.loads(raw_http)
+        if field == "indicator":
+            changed[1][0]["indicator"]["id"] = "FOREIGN.INDICATOR"
+        else:
+            changed[1][0]["countryiso3code"] = "USA"
+        frame = connectors.normalize_worldbank_records(
+            changed[1], passport.registration.request_dataset_id
+        )
+        normalized = frame.to_dict(orient="records")
+        if field == "indicator":
+            assert normalized[0]["indicator_id"] == changed[1][0]["indicator"]["id"]
+        else:
+            assert changed[1][0]["country"]["id"] == json.loads(raw_http)[1][0]["country"]["id"]
+            assert normalized[0]["country_code"] == changed[1][0]["countryiso3code"]
+        assert not source_owner._live_normalized_coordinates_match(
+            normalized,
+            indicator_id=passport.registration.request_dataset_id,
+            country_codes=passport.registration.country_codes,
+        )
+
+    # Both actual consumers must use the shared owner check, not merely have a
+    # helper that refuses the above consistent foreign rows in isolation.
+    with monkeypatch.context() as context:
+        context.setattr(source_owner, "_live_normalized_coordinates_match", lambda *_a, **_k: False)
+        with pytest.raises(ValueError, match="scoped_source_live_coordinate_mismatch"):
+            replay_rows()
+        with pytest.raises(ValueError, match="scoped_source_live_coordinate_mismatch"):
+            replay()
+
+    # A matching normalized payload cannot bypass its Fabric writer-profile
+    # owner in either the shared reader or the Runtime historical consumer.
+    with monkeypatch.context() as context:
+        context.setattr(
+            connectors, "verify_selected_cache_payload_writer_profile", lambda *_a, **_k: False
+        )
+        with pytest.raises(
+            ValueError, match="scoped_source_live_normalized_writer_profile_mismatch"
+        ):
+            replay_rows()
+        with pytest.raises(
+            ValueError, match="scoped_source_live_normalized_writer_profile_mismatch"
+        ):
+            replay()
+
+    # A different actual normalizer result must not be accepted merely because
+    # the selected raw and normalized manifests and reported hashes remain valid.
+    normalizer = connectors.normalize_worldbank_records
+
+    def altered_normalization(rows, indicator):
+        frame = normalizer(rows, indicator)
+        frame.loc[0, "value"] = float(frame.loc[0, "value"]) + 1.0
+        return frame
+
+    with monkeypatch.context() as context:
+        context.setattr(connectors, "normalize_worldbank_records", altered_normalization)
+        with pytest.raises(ValueError, match="scoped_source_live_normalized_projection_mismatch"):
+            replay_rows()
+        with pytest.raises(ValueError, match="scoped_source_live_normalized_projection_mismatch"):
+            replay()
+
+    # Preserve the raw bytes while grafting a foreign selected manifest. Even
+    # if the local evidence object's content identity is recomputed, the actual
+    # raw writer profile must be re-established.
+    raw_manifest = case.store.get_manifest(live.raw_artifact_ref)
+    raw_options = {
+        field.name: getattr(
+            raw_manifest, "artifact_schema" if field.name == "schema" else field.name
+        )
+        for field in fields(artifacts.PutOptions)
+    }
+    raw_options["producer"] = artifacts.ProducerInfo(component="fixture.foreign-raw", version="1")
+    foreign_raw = case.store.put_bytes(
+        raw_http, artifacts.PutOptions(**raw_options), return_selected_profile=True
+    )
+    assert foreign_raw.artifact_id == live.raw_artifact_ref.artifact_id
+    assert foreign_raw.manifest_profile_sha256 != live.raw_artifact_ref.manifest_profile_sha256
+    foreign_proof = live.model_copy(update={"raw_artifact_ref": foreign_raw})
+    foreign_mapping = foreign_proof.model_dump(mode="json")
+    foreign_mapping["content_sha256"] = content_sha256(
+        {key: value for key, value in foreign_mapping.items() if key != "content_sha256"}
+    )
+    with pytest.raises(RuntimeError, match="live_raw_selected_profile_drift"):
+        replay_rows({**passport_mapping, "live_source_execution": foreign_mapping})
+
     # Perturb only the in-memory typed ID after the actual owner verification;
     # persisted receipts, selected source and snapshot remain unchanged.
     verify_owner = data_state_substrate_module._verify_historical_acquisition_activation

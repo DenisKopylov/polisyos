@@ -42,6 +42,7 @@ from polisyos.fabric.connectors.cache import (
     VolatileDataPolicy,
     make_schema_hash_provider,
     verify_selected_cache_payload_ref,
+    verify_selected_cache_payload_writer_profile,
 )
 
 # Capability utilities
@@ -322,6 +323,7 @@ __all__ = [
     "validate_fetch_result_against_schema",
     "validate_protocol_compliance",
     "verify_selected_cache_payload_ref",
+    "verify_selected_cache_payload_writer_profile",
     "with_circuit_breaker",
     "with_fallback",
     "with_rate_limit",

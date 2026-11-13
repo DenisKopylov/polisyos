@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from tests._helpers.candidate_reentry_timing import _TimingObserver
+from tests._helpers.candidate_reentry_timing import _PROFILES, _TimingObserver
 
 _SYNTHETIC_ERROR = RuntimeError("same exception object")
 
@@ -24,6 +24,13 @@ def _recursive_unwind(depth: int) -> None:
 
 def _never_called() -> None:
     return None
+
+
+def _nested_wrapper() -> int:
+    def nested_target() -> int:
+        return 1
+
+    return nested_target()
 
 
 def _require_free_tool_id() -> None:
@@ -83,6 +90,76 @@ def test_zero_calls_are_unobserved_not_pass(tmp_path) -> None:
     row = observer.snapshot()["targets"]["synthetic.never_called"]
     assert row["calls"] == 0
     assert row["observation"] == "unobserved"
+
+
+def test_generic_model_input_profile_is_finite_and_covers_replay_fanout() -> None:
+    targets = _PROFILES["generic_model_input_owner"]
+    labels = tuple(target.label for target in targets)
+
+    assert len(labels) == len(set(labels))
+    assert len(targets) == 23
+    assert {
+        "model_input.handle_job",
+        "model_input.handle_model_input_job",
+        "model_input.run_n5",
+        "candidate_action.reentry_context",
+        "candidate_action.current_context",
+        "candidate_route.resolve_reentry",
+        "candidate_route.experiment_action_outcomes",
+        "candidate_prior.owner",
+        "candidate_basis.prepare_live",
+        "candidate_handoff.compose",
+        "candidate_handoff.currentness_callback",
+        "candidate_reentry.prepare_owner",
+        "candidate_reentry.revalidate_owner",
+        "foundry.prepare_input_bindings",
+    }.issubset(labels)
+    assert all(target.module_name.startswith("polisyos.") for target in targets)
+
+
+def test_missing_profile_targets_are_a_diagnostic_not_an_observer_failure(tmp_path) -> None:
+    observer = _TimingObserver(
+        {},
+        tmp_path / "timing.json",
+        profile="generic_model_input_owner",
+        resolution_failures={"candidate_prior.owner": "LookupError: owner unavailable"},
+    )
+    assert not observer.enable()
+
+    snapshot = observer.snapshot()
+    assert snapshot["status"] == "instrumentation_unavailable"
+    assert snapshot["target_resolution"] == "unavailable"
+    assert snapshot["resolution_failures"] == {
+        "candidate_prior.owner": "LookupError: owner unavailable"
+    }
+
+
+def test_nested_target_durations_are_reported_as_inclusive_and_overlapping(tmp_path) -> None:
+    nested_code = next(
+        value
+        for value in _nested_wrapper.__code__.co_consts
+        if type(value) is type(_nested_wrapper.__code__) and value.co_name == "nested_target"
+    )
+    observer = _TimingObserver(
+        {
+            "synthetic.wrapper": _nested_wrapper.__code__,
+            "synthetic.nested": nested_code,
+        },
+        tmp_path / "timing.json",
+        profile="generic_model_input_owner",
+    )
+    wrapper_code = observer.codes["synthetic.wrapper"]
+    nested_code = observer.codes["synthetic.nested"]
+    observer._safe_start(wrapper_code)
+    observer._safe_start(nested_code)
+    observer._safe_return(nested_code)
+    observer._safe_return(wrapper_code)
+
+    snapshot = observer.snapshot()
+    assert "inclusive" in snapshot["timing_semantics"]
+    assert "must not be summed" in snapshot["timing_semantics"]
+    assert snapshot["targets"]["synthetic.wrapper"]["calls"] == 1
+    assert snapshot["targets"]["synthetic.nested"]["calls"] == 1
 
 
 def test_equal_but_distinct_code_unwind_is_filtered_by_identity(tmp_path) -> None:

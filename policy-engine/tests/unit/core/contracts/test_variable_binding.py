@@ -1370,3 +1370,125 @@ def test_source_selection_recomputes_owner_binding_and_requires_selected_raw_ref
             passport,
             **{**selected_refs, "source_record_ref": wrong_record},
         )
+
+
+def test_source_scope_is_bound_to_the_content_addressed_entry_and_not_the_request() -> None:
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_authority_entry,
+    )
+    from tests._helpers.acquisition_production import _entry
+
+    original = _entry()
+    values = original.model_dump(mode="python", exclude={"entry_id"})
+    values["source_measure_scope"] = {
+        "population": "population:treasury",
+        "temporal_granularity": "annual",
+        "jurisdiction_ref": "UA",
+        "source_geography_id": "UA",
+        "geography_ref": "UA",
+        "time_period_basis": "calendar_year",
+    }
+    entry = build_authority_entry(**values)
+    passport = {
+        "schema_version": "polisyos.runtime.acquisition_admission_passport.v3",
+        "authority_entry_id": entry.entry_id,
+        "source_authority_entry": entry.model_dump(mode="json"),
+        "source_lane": entry.source_lane,
+        "variable_id": entry.target_variable,
+        "registration": {
+            "catalog_dataset_id": entry.landing_dataset_id,
+            "distribution_id": entry.landing_distribution_id,
+        },
+    }
+    declared = ScopedSourceSelection.declared_condition_from_passport(passport)
+    assert dict(declared) == {
+        "population_ref": "population:treasury",
+        "jurisdiction_ref": "UA",
+        "geography_ref": "UA",
+        "time_period_basis": "calendar_year",
+    }
+    assert ScopedSourceSelection.apply_declared_condition({}, declared) == dict(declared)
+    with pytest.raises(ValueError, match="scoped_source_declaration_row_conflict"):
+        ScopedSourceSelection.apply_declared_condition({"jurisdiction_ref": "US"}, declared)
+
+    forged = json.loads(json.dumps(passport))
+    forged["source_authority_entry"]["source_measure_scope"]["population"] = "population:other"
+    with pytest.raises(ValueError, match="scoped_source_declaration_entry_identity_mismatch"):
+        ScopedSourceSelection.declared_condition_from_passport(forged)
+    missing = {
+        **passport,
+        "source_authority_entry": None,
+        "requested_population": "population:treasury",
+    }
+    with pytest.raises(ValueError, match="scoped_source_declaration_entry_missing"):
+        ScopedSourceSelection.declared_condition_from_passport(missing)
+    assert not ScopedSourceSelection.declared_condition_from_passport(
+        {"schema_version": "polisyos.runtime.acquisition_admission_passport.v2"}
+    )
+
+
+def test_live_row_replay_uses_the_measured_body_hash_not_the_raw_http_watermark() -> None:
+    raw_body, owner_row, selection, witness = _raw_percent_observation_case(
+        condition={
+            "population_ref": "population:workforce",
+            "jurisdiction_ref": "jurisdiction:usa",
+            "time_period_basis": "calendar_year",
+        }
+    )
+    assert "measured_source_body_sha256" not in selection.model_dump(mode="json")
+    selected_live = selection.model_copy(
+        update={
+            "source_watermark": "sha256:" + "f" * 64,
+            "measured_source_body_sha256": "sha256:" + hashlib.sha256(raw_body).hexdigest(),
+        }
+    )
+    assert (
+        replay_scoped_measurement_occurrence(
+            raw_body,
+            observation_id=owner_row.observation_id,
+            source_selection=selected_live,
+            unit_transform_evidence=witness,
+        ).canonical_value
+        == "0.2"
+    )
+    with pytest.raises(ValueError, match="scoped_occurrence_replay_watermark_mismatch"):
+        replay_scoped_measurement_occurrence(
+            raw_body + b" ",
+            observation_id=owner_row.observation_id,
+            source_selection=selected_live,
+            unit_transform_evidence=witness,
+        )
+
+
+def test_declared_source_rejects_same_bytes_under_a_foreign_definition_profile() -> None:
+    case = _correspondence_case()
+    case.selection = case.selection.model_copy(
+        update={
+            "declared_source_condition": (("population_ref", "population:test"),),
+            "declared_source_definition_ref": case.definition_ref,
+            "declared_source_representation_ref": case.representation_ref,
+        }
+    )
+    assert _evaluate(case).status == "candidate"
+
+    foreign = case.definition_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    case.selection = case.selection.model_copy(update={"declared_source_definition_ref": foreign})
+    result = _evaluate(case)
+    assert result.status == "refused"
+    assert "source_declared_definition_ref_mismatch" in result.refusal_codes
+
+    foreign_representation = case.representation_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+    )
+    case.selection = case.selection.model_copy(
+        update={
+            "declared_source_definition_ref": case.definition_ref,
+            "declared_source_representation_ref": foreign_representation,
+        }
+    )
+    assert "source_declared_representation_ref_mismatch" in _evaluate(case).refusal_codes
+
+    case.selection = case.selection.model_copy(update={"declared_source_definition_ref": None})
+    assert "source_declared_definition_not_established" in _evaluate(case).refusal_codes

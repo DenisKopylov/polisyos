@@ -12,25 +12,39 @@ import pytest
 from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
+from polisyos.core.contracts.fabric import (
+    AcquiredObservationSemanticInputDataSnapshotLineage,
+    AcquiredObservationSemanticInputDataSnapshotOwnerBound,
+    DataSnapshot,
+)
 from polisyos.core.contracts.foundry import ExecuteRequest
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputPortDeclaration,
     load_program_graph_input_interface,
     persist_model_input_port_declaration,
 )
+from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.core.contracts.variable_binding import (
+    ScopedCorrespondenceBasis,
+    ScopedMeasurementOccurrence,
     SelectedVariableBindingRef,
     VariableRepresentation,
     VariableRepresentationRef,
     VariableSemanticDefinition,
 )
-from polisyos.foundry.data_plane import load_input_bindings
-from polisyos.foundry.execute import admit_execution_source, load_state_snapshot
+from polisyos.core.registry import load_registry_bundle_content
+from polisyos.foundry.data_plane import load_input_bindings, prepare_input_bindings
+from polisyos.foundry.execute import (
+    admit_execution_source,
+    load_state_snapshot,
+    prepare_program_graph_mechanism_calls,
+)
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from polisyos.runtime.quality.data_state_substrate import (
@@ -42,11 +56,13 @@ from polisyos.runtime.quality.data_state_substrate import (
 )
 from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
 from polisyos.runtime.quality.model_input_routing import plan_selected_model_input_routing
+from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
 )
 from tests._helpers.semantic_epoch_native import (
     NativeEpochFixtureCustodian,
+    make_native_live_measurement_history,
     make_native_multivariable_active_projections,
 )
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
@@ -274,6 +290,273 @@ def _bind_activated_fund(
             model_port_id=route.port_id,
         ),
     )
+
+
+@pytest.mark.integration
+def test_live_scoped_stock_reaches_foundry_preparation_with_selected_lineage(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A controlled live source reaches a fresh Foundry consumer, without N5."""
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        model_input_port_declaration_builder=_treasury_stock_declaration,
+        snapshot_id="live-scoped-stock-predecessor",
+    )
+    try:
+        interface_ref = _interface(case)
+        (port,) = load_program_graph_input_interface(case.store, interface_ref).ports
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0,))
+        assert len(preflight.obligation_refs) == 1
+        invocation = preflight.invocation
+        selected = SelectedProgramGraphInputBasis(
+            context=invocation.context,
+            program_graph_ref=invocation.program_graph_ref,
+            exec_plan_ref=invocation.exec_plan_ref,
+            registry_bundle_ref=invocation.registry_bundle_ref,
+            input_bindings_ref=invocation.input_bindings_ref,
+            steps=(0,),
+        )
+        profile = CandidateWDIProfile(
+            construct="test.treasury.opening-cash",
+            indicator_id="POLICYOS.FIXTURE.TREASURY.STOCK",
+            source_title="Test-owned annual treasury stock (current US$)",
+            source_description="Controlled test values; no external empirical origin is asserted.",
+            target_slot="test.treasury.opening-cash",
+            raw_unit="usd",
+            canonical_unit="usd",
+            transform="identity",
+            transform_ref="fabric://units/usd-identity/v1",
+            population="population:treasury",
+            fixture_value=640.0,
+            source_provenance_class="observed",
+            valid_min=0.0,
+            valid_max=10_000.0,
+            country_code="UKR",
+            country_id="UA",
+            year=2022,
+        )
+        history = make_native_live_measurement_history(
+            tmp_path / "live-source",
+            profile=profile,
+            semantic_definition_ref=port.semantic_definition_ref,
+            representation_ref=port.representation_ref,
+            attempt_ids=("live-foundry-preflight",),
+            artifact_store=case.store,
+            monkeypatch=monkeypatch,
+            source_measure_scope={
+                "population": "population:treasury",
+                "temporal_granularity": "annual",
+                "source_geography_id": "UA",
+                "geography_ref": "UA",
+                "jurisdiction_ref": "UA",
+                "time_period_basis": "calendar_year",
+            },
+        )
+        try:
+            routing = plan_selected_model_input_routing(
+                case.store,
+                obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected,
+                catalog_authority=history.authority,
+            )
+            (route,) = routing.report.routes
+            assert route.disposition == "resolved"
+            assert route.source_descriptor is not None
+            assert (
+                route.source_descriptor.source_semantic_definition_ref
+                == port.semantic_definition_ref
+            )
+            active = history.admit(640.0)
+            assert history.transport_calls == 1
+            projection = active.projections[history.entry.target_variable]
+            (row,) = projection.observations
+            assert row.observation.value == 640.0
+            assert row.observation.country_code == "UKR"
+            assert active.passport.source_lane == "live_fetch"
+            assert active.passport.field_binding.canonical_unit == "usd"
+            source_entry = active.passport.source_authority_entry
+            assert source_entry is not None and source_entry.source_measure_scope is not None
+            assert source_entry.source_semantic_definition_ref == port.semantic_definition_ref
+            assert source_entry.source_representation_ref == port.representation_ref
+            assert source_entry.source_measure_scope.population == "population:treasury"
+            assert source_entry.source_measure_scope.source_geography_id == "UA"
+            assert source_entry.source_measure_scope.geography_ref == "UA"
+            assert source_entry.source_measure_scope.jurisdiction_ref == "UA"
+            assert source_entry.source_measure_scope.time_period_basis == "calendar_year"
+            slot_binding = ControlledAcquisitionSlotBinding(
+                profile_selection_ref=str(routing.report_ref.artifact_id),
+                canonical_variable_id=history.entry.target_variable,
+                target_slot_id=port.slot_id,
+            )
+            rule = acquired_observation_binding_rule(
+                observation=row.observation, slot_binding=slot_binding
+            )
+            semantic_request = AcquiredObservationSemanticInputRequest(
+                binding_id=rule.binding_id,
+                source_definition_ref=port.semantic_definition_ref,
+                source_representation_ref=port.representation_ref,
+                obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                    preflight.obligation_set_ref.model_dump()
+                ),
+                expected_invocation=invocation,
+                model_port_id=route.port_id,
+            )
+
+            def materialize(request: AcquiredObservationSemanticInputRequest, workspace: Path):
+                return materialize_acquired_observation_snapshot(
+                    case.store,
+                    base_data_snapshot_ref=case.data_snapshot_ref,
+                    overlay=history.overlay,
+                    receipt_ref=projection.receipt_ref,
+                    passport=active.passport,
+                    authority=history.authority,
+                    observation_id=row.observation.observation_id,
+                    slot_binding=slot_binding,
+                    workspace_dir=workspace,
+                    transaction_time=datetime(2026, 10, 2, 12, tzinfo=UTC),
+                    semantic_input_request=request,
+                )
+
+            acquired = materialize(semantic_request, tmp_path / "acquired")
+            selection = acquired.semantic_input_selection
+            assert selection is not None
+            basis = validate_core_model_json_artifact(
+                ScopedCorrespondenceBasis, case.store, selection.correspondence_basis_ref
+            )
+            occurrence = validate_core_model_json_artifact(
+                ScopedMeasurementOccurrence, case.store, selection.occurrence_ref
+            )
+            assert basis.occurrence_ref == selection.occurrence_ref
+            assert (
+                basis.source_definition_ref
+                == basis.target_definition_ref
+                == port.semantic_definition_ref
+            )
+            assert basis.source_representation_ref == port.representation_ref
+            assert basis.scope == occurrence.source_scope == port.scope
+            assert occurrence.canonical_unit == port.unit_id == "usd"
+            assert float(occurrence.canonical_value) == 640.0
+            assert artifact_ref_identity_key(occurrence.source_receipt_ref) == (
+                artifact_ref_identity_key(projection.receipt_ref)
+            )
+            assert artifact_ref_identity_key(occurrence.source_passport_ref) == (
+                artifact_ref_identity_key(projection.passport_ref)
+            )
+            assert artifact_ref_identity_key(occurrence.source_boundary_candidate_ref) == (
+                artifact_ref_identity_key(active.passport.semantic_boundary_candidate_ref)
+            )
+            live_snapshot = validate_core_model_json_artifact(
+                DataSnapshot, case.store, active.evidence.data_snapshot_ref
+            )
+            assert artifact_ref_identity_key(occurrence.source_record_ref) == (
+                artifact_ref_identity_key(live_snapshot.data_ref)
+            )
+            assert artifact_ref_identity_key(occurrence.source_record_ref) == (
+                artifact_ref_identity_key(
+                    active.finalized.case.scenario.candidate.statement.source_record_ref
+                )
+            )
+            assert (
+                occurrence.source_record_ref.artifact_id
+                == active.evidence.normalized_data_artifact_id
+            )
+            assert occurrence.source_record_ref.artifact_id != active.evidence.raw_artifact_id
+            assert occurrence.source_watermark == active.evidence.raw_body_sha256
+            snapshot = validate_core_model_json_artifact(
+                AcquiredObservationSemanticInputDataSnapshotOwnerBound,
+                case.store,
+                acquired.data_snapshot_ref,
+            )
+            lineage = snapshot.source_lineage
+            assert isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage)
+            assert lineage.selection == selection
+            assert lineage.passport_ref == projection.passport_ref
+
+            fresh = FileSystemCAS(case.store_root)
+            bindings_ref = acquired.semantic_foundry_input_bindings_ref
+            assert bindings_ref is not None
+            bindings = load_input_bindings(fresh, bindings_ref)
+            assert bindings.data_snapshot_ref == acquired.data_snapshot_ref
+            assert bindings.resolved_binding_manifest_ref is not None
+            manifest = load_resolved_input_binding_manifest(
+                fresh, bindings.resolved_binding_manifest_ref
+            )
+            (resolved,) = manifest.measurements
+            assert resolved.selected_occurrence_ref == selection.occurrence_ref
+            assert resolved.correspondence_ref == selection.correspondence_basis_ref
+            prepared = prepare_input_bindings(
+                fresh,
+                data_snapshot_ref=bindings.data_snapshot_ref,
+                registry_bundle_ref=bindings.registry_bundle_ref,
+                rules=bindings.rules,
+                resolved_binding_manifest_ref=bindings.resolved_binding_manifest_ref,
+            )
+            initial = load_state_snapshot(fresh, snapshot_ref=bindings.bound_state_snapshot_ref)
+            assert float(prepared.materialized_state.government_balance) == 640.0
+            assert float(initial.government_balance) == 640.0
+            registry = load_registry_bundle_content(fresh, case.registry_bundle_ref)
+            calls = prepare_program_graph_mechanism_calls(
+                fresh,
+                program_ref=case.program_graph_ref,
+                exec_plan_ref=case.exec_plan_ref,
+                base_state=initial,
+                mechanism_registry=registry.mechanism_registry,
+                steps=(0,),
+            )
+            assert calls and all(step == 0 and callable(call) for _, _, step, call in calls)
+
+            foreign = _fund_port(case.store, port, fund="foreign-treasury")
+            assert foreign.binding_profile_ref == port.binding_profile_ref
+            assert foreign.semantic_definition_ref != port.semantic_definition_ref
+            refused_workspace = tmp_path / "foreign-fund"
+            foreign_request = semantic_request.model_copy(
+                update={
+                    "source_definition_ref": foreign.semantic_definition_ref,
+                    "source_representation_ref": foreign.representation_ref,
+                }
+            )
+            with pytest.raises(
+                DataStateSubstrateError, match="source_declared_definition_ref_mismatch"
+            ):
+                materialize(foreign_request, refused_workspace)
+            assert not refused_workspace.exists()
+
+            raw_ref = active.evidence.raw_artifact_ref
+            assert raw_ref is not None
+            read_bytes = fresh.get_bytes
+
+            def missing_selected_raw(ref):
+                if getattr(ref, "artifact_id", None) == raw_ref.artifact_id:
+                    raise FileNotFoundError("selected live raw source removed")
+                return read_bytes(ref)
+
+            with monkeypatch.context() as context:
+                context.setattr(fresh, "get_bytes", missing_selected_raw)
+                with pytest.raises(FileNotFoundError, match="selected live raw source removed"):
+                    prepare_input_bindings(
+                        fresh,
+                        data_snapshot_ref=bindings.data_snapshot_ref,
+                        registry_bundle_ref=bindings.registry_bundle_ref,
+                        rules=bindings.rules,
+                        resolved_binding_manifest_ref=bindings.resolved_binding_manifest_ref,
+                    )
+            assert (
+                float(
+                    prepare_input_bindings(
+                        fresh,
+                        data_snapshot_ref=bindings.data_snapshot_ref,
+                        registry_bundle_ref=bindings.registry_bundle_ref,
+                        rules=bindings.rules,
+                        resolved_binding_manifest_ref=bindings.resolved_binding_manifest_ref,
+                    ).materialized_state.government_balance
+                )
+                == 640.0
+            )
+        finally:
+            history.overlay.close()
+    finally:
+        case.close()
 
 
 @pytest.mark.integration

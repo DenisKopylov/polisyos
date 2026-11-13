@@ -45,14 +45,33 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationBasisV1,
+        GenericModelInputEvaluationDecisionV1,
+        GenericModelInputSelectedEvaluation,
+    )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedModelInputRoutingOrigin
-    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5ExecutionV5,
+        GenericN5ResolvedResult,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
 
     from .control import ControlPlaneService
-    from .control_plane_store import ControlJobExecutionAdmission
+    from .control_plane_store import (
+        ControlJobExecutionAdmission,
+        GenericModelInputEvaluationFrontierCAS,
+        GenericModelInputEvaluationFrontierKey,
+        GenericModelInputEvaluationFrontierRecord,
+        GenericModelInputEvaluationUseRecord,
+    )
 
 
 MODEL_INPUT_USE_IMPLEMENTATION_REF = "polisyos.runtime.model_input_successor.owner_port.v1"
@@ -134,7 +153,7 @@ class ModelInputSuccessorExecutionRequest(BaseModel):
 
 
 class ModelInputUseActionCheckpoint(BaseModel):
-    """Lease-fenced pointer to a selected input and optional persisted N5 result."""
+    """Lease-fenced current input and its optional current or retained evaluation."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -142,6 +161,12 @@ class ModelInputUseActionCheckpoint(BaseModel):
     semantic_successor_ref: ArtifactRef
     execution_ref: ArtifactRef | None = None
     result_ref: ArtifactRef | None = None
+    schema_version: Literal["polisyos.runtime.ModelInputUseActionCheckpoint@2.0"] | None = None
+    evaluation_expected_frontier_revision: int | None = Field(default=None, ge=0)
+    evaluation_expected_frontier_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    evaluation_decision_ref: ArtifactRef | None = None
+    evaluation_current_basis_ref: ArtifactRef | None = None
+    evaluation_replacement_basis_ref: ArtifactRef | None = None
 
     @model_validator(mode="after")
     def _selected_artifact_profiles(self) -> ModelInputUseActionCheckpoint:
@@ -151,6 +176,14 @@ class ModelInputUseActionCheckpoint(BaseModel):
         )
         if self.execution_ref is not None:
             refs += ((self.execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),)
+        evaluation_refs = (
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.evaluation_current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.evaluation_replacement_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+        )
+        selected_evaluation_refs = tuple(
+            (ref, kind) for ref, kind in evaluation_refs if ref is not None
+        )
         if (
             (self.execution_ref is None) != (self.result_ref is None)
             or any(
@@ -160,6 +193,46 @@ class ModelInputUseActionCheckpoint(BaseModel):
                 for ref, kind in refs
             )
             or (self.result_ref is not None and self.result_ref.manifest_profile_sha256 is None)
+            or any(
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                for ref, kind in selected_evaluation_refs
+            )
+            or (
+                self.schema_version is None
+                and (
+                    selected_evaluation_refs
+                    or self.evaluation_expected_frontier_revision is not None
+                    or self.evaluation_expected_frontier_ref is not None
+                )
+            )
+            or (
+                self.schema_version is not None
+                and (
+                    (self.evaluation_decision_ref is None)
+                    != (self.evaluation_current_basis_ref is None)
+                    or (
+                        self.evaluation_decision_ref is None
+                        and (
+                            self.evaluation_expected_frontier_revision is None
+                            or self.evaluation_replacement_basis_ref is not None
+                        )
+                    )
+                    or (
+                        self.evaluation_decision_ref is not None
+                        and (
+                            self.evaluation_expected_frontier_revision is not None
+                            or self.evaluation_expected_frontier_ref is not None
+                        )
+                    )
+                    or (
+                        self.evaluation_expected_frontier_revision is not None
+                        and (self.evaluation_expected_frontier_revision == 0)
+                        != (self.evaluation_expected_frontier_ref is None)
+                    )
+                )
+            )
         ):
             raise ValueError("model_input_use_checkpoint_selected_refs_invalid")
         return self
@@ -199,6 +272,26 @@ class SelectedModelInputSuccessorAction(ModelInputSuccessorIdentity):
     catalog_source: CatalogServingSourcePaths
     catalog_authority: CanonicalAcquisitionAuthority
     passport: AdmissionPassport
+
+
+@dataclass(frozen=True, slots=True)
+class GenericModelInputUseHistory:
+    """Owner-replayed historical current use and its exact frontier version."""
+
+    key: GenericModelInputEvaluationFrontierKey
+    use: GenericModelInputEvaluationUseRecord
+    decision: GenericModelInputEvaluationDecisionV1
+    current_basis: GenericModelInputEvaluationBasisV1
+    prior_evaluation: GenericModelInputSelectedEvaluation | None
+    prior_frontier: GenericModelInputEvaluationFrontierRecord | None
+    selected_frontier: GenericModelInputEvaluationFrontierRecord | None
+    selected_basis: GenericModelInputEvaluationBasisV1 | None
+    frontier_relation: Literal["selected", "superseded", "not_established"]
+    selected_frontier_execution: GenericCycleSimulationN5ExecutionV5 | None
+    selected_frontier_result: GenericN5ResolvedResult | None
+    prior_execution: GenericCycleSimulationN5ExecutionV5 | None
+    prior_result: GenericN5ResolvedResult | None
+    current_action_result: GenericN5ResolvedResult | None
 
 
 def _resolve_model_input_successor_origin(
@@ -597,12 +690,15 @@ def verify_model_input_use_result(
 
 
 def model_input_use_terminal_progress(checkpoint: ModelInputUseActionCheckpoint) -> dict[str, Any]:
-    """Return a completion payload only for a checkpoint with an actual execution."""
-    if checkpoint.execution_ref is None or checkpoint.result_ref is None:
+    """Return completion progress with a locator owned by this action."""
+    terminal_ref = checkpoint.execution_ref or checkpoint.evaluation_decision_ref
+    if terminal_ref is None or (checkpoint.execution_ref is None) != (
+        checkpoint.result_ref is None
+    ):
         raise ModelInputSuccessorActionError("model_input_use_result_not_established")
     return {
         "receipt_phase": "terminal",
-        "terminal_receipt_ref": str(checkpoint.execution_ref.artifact_id),
+        "terminal_receipt_ref": str(terminal_ref.artifact_id),
         _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
     }
 
@@ -742,15 +838,14 @@ def _materialize_semantic_successor(
     )
 
 
-def _run_model_input_use_n5(
+def _build_model_input_use_n5_port(
     control: ControlPlaneService,
     store: CoreJSONArtifactStore,
     *,
-    selection: SelectedModelInputSuccessorAction,
-    checkpoint: ModelInputUseActionCheckpoint,
+    selection: ModelInputSuccessorIdentity,
     window: BudgetLedgerReentryBudgetWindow,
-    currentness_resolver: Callable[[], bool],
-) -> ModelInputUseActionCheckpoint:
+) -> object:
+    """Create the current N5 port shared by prospective replay and execution."""
     from polisyos.runtime.quality.generation_cycle import JointSimulationPort
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
@@ -770,6 +865,166 @@ def _run_model_input_use_n5(
         ),
         reentry_budget_scope=window.scope,
     )
+    source = getattr(selection, "catalog_source", control.catalog_serving_source)
+    from polisyos.runtime.quality.substrate_registry import (
+        require_catalog_serving_source_unchanged,
+    )
+
+    require_catalog_serving_source_unchanged(source)
+    return JointSimulationPort(
+        repo_root=source.repo_root,
+        artifact_store=store,
+        producer_budget_observer=observer,
+        generic_cycle_simulation_admission_owner=GenericCycleSimulationAdmissionOwner(
+            profiles=(), store=store
+        ),
+    )
+
+
+def _generic_model_input_frontier_key(
+    selection: ModelInputSuccessorIdentity,
+) -> GenericModelInputEvaluationFrontierKey:
+    from .control_plane_store import GenericModelInputEvaluationFrontierKey
+
+    origin = selection.origin
+    return GenericModelInputEvaluationFrontierKey(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        source_job_id=origin.source_job_id,
+        design_problem_ref=origin.source_cycle.design_problem_ref,
+        candidate_id=origin.source_cycle.selected_candidate_ref,
+    )
+
+
+def _read_generic_model_input_basis(
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    ref: ArtifactRef,
+) -> GenericModelInputEvaluationBasisV1:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationBasisV1,
+        read_acquisition_evaluation_artifact,
+    )
+
+    basis = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=ref,
+        record_type=GenericModelInputEvaluationBasisV1,
+    )
+    if type(basis) is not GenericModelInputEvaluationBasisV1:
+        raise ModelInputSuccessorActionError("model_input_use_basis_not_established")
+    return basis
+
+
+def _persist_generic_model_input_record(
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    record: GenericModelInputEvaluationBasisV1 | GenericModelInputEvaluationDecisionV1,
+) -> ArtifactRef:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        persist_acquisition_evaluation_artifact,
+    )
+
+    return persist_acquisition_evaluation_artifact(store=store, event_log=event_log, record=record)
+
+
+def _generic_selected_evaluation(
+    selection: SelectedModelInputSuccessorAction,
+    checkpoint: ModelInputUseActionCheckpoint,
+) -> GenericModelInputSelectedEvaluation:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputSelectedEvaluation,
+    )
+
+    if checkpoint.execution_ref is None or checkpoint.result_ref is None:
+        raise ModelInputSuccessorActionError("model_input_use_result_not_established")
+    return GenericModelInputSelectedEvaluation(
+        input_ref=selection.origin.n5_expectation.input_ref,
+        execution_ref=checkpoint.execution_ref,
+        result_ref=checkpoint.result_ref,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        action_job_id=selection.job_id,
+    )
+
+
+def _issue_model_input_basis(
+    control: ControlPlaneService,
+    selection: SelectedModelInputSuccessorAction,
+    checkpoint: ModelInputUseActionCheckpoint,
+    *,
+    port: JointSimulationPort,
+    role: Literal["prospective", "evaluated"],
+    evaluation: GenericModelInputSelectedEvaluation | None = None,
+    prospective_basis_ref: ArtifactRef | None = None,
+    comparison_decision_ref: ArtifactRef | None = None,
+) -> GenericModelInputEvaluationBasisV1:
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        issue_generic_model_input_evaluation_basis,
+    )
+
+    return issue_generic_model_input_evaluation_basis(
+        store=control._artifact_store,
+        origin=selection.origin,
+        input_ref=selection.origin.n5_expectation.input_ref,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        controller=port._controller,
+        basis_role=role,
+        evaluation=evaluation,
+        event_log=control._diagnostic_event_log,
+        prospective_basis_ref=prospective_basis_ref,
+        comparison_decision_ref=comparison_decision_ref,
+        prior_origin=selection.origin if prospective_basis_ref is not None else None,
+    )
+
+
+def _checkpoint_with_evaluation(
+    checkpoint: ModelInputUseActionCheckpoint,
+    *,
+    decision_ref: ArtifactRef,
+    current_basis_ref: ArtifactRef,
+    replacement_basis_ref: ArtifactRef | None,
+    execution_ref: ArtifactRef | None = None,
+    result_ref: ArtifactRef | None = None,
+) -> ModelInputUseActionCheckpoint:
+    return ModelInputUseActionCheckpoint(
+        phase_ref=checkpoint.phase_ref,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        execution_ref=execution_ref if execution_ref is not None else checkpoint.execution_ref,
+        result_ref=result_ref if result_ref is not None else checkpoint.result_ref,
+        schema_version="polisyos.runtime.ModelInputUseActionCheckpoint@2.0",
+        evaluation_decision_ref=decision_ref,
+        evaluation_current_basis_ref=current_basis_ref,
+        evaluation_replacement_basis_ref=replacement_basis_ref,
+        evaluation_expected_frontier_revision=None,
+        evaluation_expected_frontier_ref=None,
+    )
+
+
+def _run_model_input_use_n5(
+    control: ControlPlaneService,
+    store: CoreJSONArtifactStore,
+    *,
+    selection: SelectedModelInputSuccessorAction,
+    checkpoint: ModelInputUseActionCheckpoint,
+    window: BudgetLedgerReentryBudgetWindow,
+    currentness_resolver: Callable[[], bool],
+    port: object | None = None,
+) -> ModelInputUseActionCheckpoint:
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
+    settlement_store = control._llm_producer_settlement_store
+    if type(settlement_store) is not BudgetMiddleware:
+        raise ModelInputSuccessorActionError("model_input_use_budget_scope_not_established")
+    selected_port = port or _build_model_input_use_n5_port(
+        control, store, selection=selection, window=window
+    )
+    if type(selected_port) is not JointSimulationPort:
+        raise ModelInputSuccessorActionError("model_input_use_simulation_port_not_established")
+    observer = selected_port._controller._producer_budget_observer
+    if getattr(observer, "reentry_budget_window", None) != window:
+        raise ModelInputSuccessorActionError("model_input_use_budget_window_mismatch")
 
     def require_current_action() -> bool:
         if currentness_resolver() is not True:
@@ -783,14 +1038,7 @@ def _run_model_input_use_n5(
             return False
         return settlement_store.resolve_reentry_budget_window_safe(window.scope) == window
 
-    observation = JointSimulationPort(
-        repo_root=selection.catalog_source.repo_root,
-        artifact_store=store,
-        producer_budget_observer=observer,
-        generic_cycle_simulation_admission_owner=GenericCycleSimulationAdmissionOwner(
-            profiles=(), store=store
-        ),
-    ).run_semantic_successor(
+    observation = selected_port.run_semantic_successor(
         semantic_successor_ref=checkpoint.semantic_successor_ref,
         expected_blocked_execution_ref=selection.origin.n5_execution_ref,
         expected_input_ref=selection.origin.n5_expectation.input_ref,
@@ -807,7 +1055,118 @@ def _run_model_input_use_n5(
         semantic_successor_ref=checkpoint.semantic_successor_ref,
         execution_ref=observation.generic_n5_execution_ref,
         result_ref=observation.simulation_result_ref,
+        schema_version=checkpoint.schema_version,
+        evaluation_expected_frontier_revision=checkpoint.evaluation_expected_frontier_revision,
+        evaluation_expected_frontier_ref=checkpoint.evaluation_expected_frontier_ref,
+        evaluation_decision_ref=checkpoint.evaluation_decision_ref,
+        evaluation_current_basis_ref=checkpoint.evaluation_current_basis_ref,
+        evaluation_replacement_basis_ref=checkpoint.evaluation_replacement_basis_ref,
     )
+
+
+def _recover_model_input_use_n5(
+    control: ControlPlaneService,
+    store: CoreJSONArtifactStore,
+    *,
+    selection: SelectedModelInputSuccessorAction,
+    checkpoint: ModelInputUseActionCheckpoint,
+    window: BudgetLedgerReentryBudgetWindow,
+    action_payload_ref: str,
+    authority_decision_ref: str,
+    currentness_resolver: Callable[[], bool],
+) -> ModelInputUseActionCheckpoint:
+    """Select an already durable V5 without repeating possible physical work."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware, ProducerBudgetObservation
+
+    if currentness_resolver() is not True:
+        raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+    try:
+        execution_ref, execution = GenericCycleSimulationAdmissionOwner(
+            profiles=(), store=store
+        ).recover_semantic_successor_execution(
+            expected=selection.origin.n5_expectation,
+            semantic_successor_ref=checkpoint.semantic_successor_ref,
+            action_job_id=selection.job_id,
+        )
+        recovered = ModelInputUseActionCheckpoint.model_validate(
+            {
+                **checkpoint.model_dump(mode="python"),
+                "execution_ref": execution_ref,
+                "result_ref": execution.result_ref,
+            }
+        )
+        resolved = verify_model_input_use_result(
+            store,
+            selection=selection,
+            checkpoint=recovered,
+            action_payload_ref=action_payload_ref,
+            authority_decision_ref=authority_decision_ref,
+        )
+        settlement_store = control._llm_producer_settlement_store
+        if type(settlement_store) is not BudgetMiddleware:
+            raise ValueError("model_input_use_recovery_ledger_unavailable")
+        snapshot = settlement_store.snapshot_safe()
+        if snapshot.reentry_budget_windows.get(window.window_id) != window:
+            raise ValueError("model_input_use_recovery_budget_window_mismatch")
+        binding = window.scope.run_binding
+        profile = snapshot.invocation_profiles.get(binding.run_id)
+        if (profile is not None and profile.run_binding != binding) or (
+            profile is None and snapshot.invocation_unconfigured_runs.get(binding.run_id) != binding
+        ):
+            raise ValueError("model_input_use_recovery_invocation_profile_mismatch")
+        work = resolved.result.physical_work_observations
+        if not work:
+            raise ValueError("model_input_use_recovery_physical_work_not_established")
+        bases = {
+            key: ProducerBudgetObservation.model_validate(value)
+            for key, value in resolved.result.diagnostics["producer_budget_observations"].items()
+        }
+        for item in work:
+            basis = (
+                bases.get(item.budget_source_basis_digest)
+                if item.budget_source_basis_digest is not None
+                else None
+            )
+            if basis is None or basis.run_binding != binding:
+                raise ValueError("model_input_use_recovery_physical_owner_mismatch")
+            if profile is None:
+                if item.invocation_quota_operation_id is not None:
+                    raise ValueError("model_input_use_recovery_invocation_profile_mismatch")
+                continue
+            reservation = (
+                snapshot.invocation_reservations.get(item.invocation_quota_operation_id)
+                if item.invocation_quota_operation_id is not None
+                else None
+            )
+            if (
+                reservation is None
+                or reservation.run_id != binding.run_id
+                or reservation.profile_digest != profile.profile_digest
+                or reservation.profile_digest != item.invocation_quota_profile_digest
+                or reservation.request_digest != item.invocation_quota_request_digest
+                or reservation.purpose != item.invocation_quota_purpose
+                or reservation.status != item.invocation_quota_status
+                or reservation.status != item.status
+                or reservation.units != item.work_units
+            ):
+                raise ValueError("model_input_use_recovery_physical_ledger_mismatch")
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        raise ModelInputSuccessorActionError("model_input_use_recovery_required") from exc
+    if currentness_resolver() is not True:
+        raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+    job_store = control._control_store
+    job_store.update_progress_state(
+        job_id=selection.job_id,
+        state="running",
+        progress={
+            **job_store.current_execution_job_record().progress,
+            _CHECKPOINT_KEY: recovered.model_dump(mode="json", exclude_none=True),
+        },
+    )
+    return recovered
 
 
 def run_model_input_use_action(
@@ -820,8 +1179,9 @@ def run_model_input_use_action(
 ) -> ModelInputUseActionCheckpoint:
     """Execute the leased PA2 effect or reopen its already-selected V5 result.
 
-    A checkpoint without V5 records possible physical work. Only a recoverable
-    selected result can complete the action; a blind retry could repeat work.
+    A checkpoint without a V5 pointer records possible physical work. The owner
+    may recover its unique durable output, but absence never permits a blind
+    retry. Work lost before durable output remains recovery-required.
     """
     store = control._artifact_store
     job_store = control._control_store
@@ -853,24 +1213,231 @@ def run_model_input_use_action(
             or previous.reentry_budget_window_digest != window.record_digest
         ):
             raise ModelInputSuccessorActionError("model_input_use_checkpoint_budget_mismatch")
-        if checkpoint.execution_ref is None:
-            raise ModelInputSuccessorActionError("model_input_use_recovery_required")
-        verify_model_input_use_result(
-            store,
-            selection=selection,
-            checkpoint=checkpoint,
-            action_payload_ref=payload_ref,
-            authority_decision_ref=decision_ref,
-        )
-        if currentness_resolver() is not True:
-            raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
-        _verify_selected_routing_use_decision_current(store, selection, previous)
-        return checkpoint
+        if (
+            checkpoint.schema_version is not None
+            and checkpoint.execution_ref is None
+            and checkpoint.evaluation_decision_ref is None
+        ):
+            if (
+                checkpoint.evaluation_expected_frontier_revision != 0
+                or checkpoint.evaluation_expected_frontier_ref is not None
+            ):
+                raise ModelInputSuccessorActionError("model_input_use_recovery_required")
+            checkpoint = _recover_model_input_use_n5(
+                control,
+                store,
+                selection=selection,
+                checkpoint=checkpoint,
+                window=window,
+                action_payload_ref=payload_ref,
+                authority_decision_ref=decision_ref,
+                currentness_resolver=currentness_resolver,
+            )
+        if checkpoint.schema_version is not None and checkpoint.evaluation_decision_ref is not None:
+            _verify_selected_routing_use_decision_current(store, selection, previous)
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                GenericModelInputEvaluationDecisionV1,
+                read_acquisition_evaluation_artifact,
+            )
+
+            decision_record = read_acquisition_evaluation_artifact(
+                store=store,
+                event_log=control._diagnostic_event_log,
+                ref=checkpoint.evaluation_decision_ref,
+                record_type=GenericModelInputEvaluationDecisionV1,
+            )
+            if type(decision_record) is not GenericModelInputEvaluationDecisionV1:
+                raise ModelInputSuccessorActionError("model_input_use_decision_not_established")
+            if checkpoint.execution_ref is None and (
+                decision_record.decision_kind != "comparison"
+                or decision_record.comparison_result != "equivalent"
+            ):
+                checkpoint = _recover_model_input_use_n5(
+                    control,
+                    store,
+                    selection=selection,
+                    checkpoint=checkpoint,
+                    window=window,
+                    action_payload_ref=payload_ref,
+                    authority_decision_ref=decision_ref,
+                    currentness_resolver=currentness_resolver,
+                )
+            if checkpoint.execution_ref is not None and (
+                decision_record.decision_kind == "comparison"
+                and decision_record.comparison_result == "equivalent"
+            ):
+                raise ModelInputSuccessorActionError("model_input_use_unnecessary_execution")
+            if checkpoint.execution_ref is not None:
+                verify_model_input_use_result(
+                    store,
+                    selection=selection,
+                    checkpoint=checkpoint,
+                    action_payload_ref=payload_ref,
+                    authority_decision_ref=decision_ref,
+                )
+            elif checkpoint.evaluation_current_basis_ref is None:
+                raise ModelInputSuccessorActionError("model_input_use_recovery_required")
+            if checkpoint.execution_ref is not None and (
+                checkpoint.evaluation_replacement_basis_ref is None
+            ):
+                from polisyos.runtime.quality.acquisition_evaluation import (
+                    GenericModelInputEvaluationDecisionV1,
+                    issue_generic_model_input_evaluation_basis,
+                    read_acquisition_evaluation_artifact,
+                    reconcile_generic_model_input_evaluation_completion,
+                )
+
+                decision_record = read_acquisition_evaluation_artifact(
+                    store=store,
+                    event_log=control._diagnostic_event_log,
+                    ref=checkpoint.evaluation_decision_ref,
+                    record_type=GenericModelInputEvaluationDecisionV1,
+                )
+                if type(decision_record) is not GenericModelInputEvaluationDecisionV1:
+                    raise ModelInputSuccessorActionError("model_input_use_decision_not_established")
+                if decision_record.decision_kind == "initial":
+                    if checkpoint.evaluation_current_basis_ref is None:
+                        raise ModelInputSuccessorActionError(
+                            "model_input_use_initial_evaluation_missing"
+                        )
+                    checkpoint = _checkpoint_with_evaluation(
+                        checkpoint,
+                        decision_ref=checkpoint.evaluation_decision_ref,
+                        current_basis_ref=checkpoint.evaluation_current_basis_ref,
+                        replacement_basis_ref=checkpoint.evaluation_current_basis_ref,
+                    )
+                elif decision_record.comparison_result != "equivalent":
+                    port = _build_model_input_use_n5_port(
+                        control, store, selection=selection, window=window
+                    )
+                    evaluation = _generic_selected_evaluation(selection, checkpoint)
+                    evaluated = issue_generic_model_input_evaluation_basis(
+                        store=store,
+                        event_log=control._diagnostic_event_log,
+                        origin=selection.origin,
+                        prior_origin=selection.origin,
+                        input_ref=selection.origin.n5_expectation.input_ref,
+                        semantic_successor_ref=checkpoint.semantic_successor_ref,
+                        controller=port._controller,
+                        basis_role="evaluated",
+                        evaluation=evaluation,
+                        prospective_basis_ref=checkpoint.evaluation_current_basis_ref,
+                        comparison_decision_ref=checkpoint.evaluation_decision_ref,
+                    )
+                    evaluated_ref = _persist_generic_model_input_record(
+                        store, control._diagnostic_event_log, evaluated
+                    )
+                    reconcile_generic_model_input_evaluation_completion(
+                        store=store,
+                        event_log=control._diagnostic_event_log,
+                        origin=selection.origin,
+                        prior_origin=selection.origin,
+                        controller=port._controller,
+                        comparison_decision_ref=checkpoint.evaluation_decision_ref,
+                        evaluated_basis_ref=evaluated_ref,
+                    )
+                    checkpoint = _checkpoint_with_evaluation(
+                        checkpoint,
+                        decision_ref=checkpoint.evaluation_decision_ref,
+                        current_basis_ref=checkpoint.evaluation_current_basis_ref,
+                        replacement_basis_ref=evaluated_ref,
+                    )
+                job_store.update_progress_state(
+                    job_id=selection.job_id,
+                    state="running",
+                    progress={
+                        **job_store.current_execution_job_record().progress,
+                        _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
+                    },
+                )
+            if currentness_resolver() is not True:
+                raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+            return checkpoint
+        if checkpoint.schema_version is not None and checkpoint.execution_ref is not None:
+            # V2 pending means this action paid N5 before its initial basis and
+            # decision were persisted. Finish selection from that exact V5.
+            if (
+                checkpoint.evaluation_expected_frontier_revision != 0
+                or checkpoint.evaluation_expected_frontier_ref is not None
+            ):
+                raise ModelInputSuccessorActionError("model_input_use_recovery_required")
+            verify_model_input_use_result(
+                store,
+                selection=selection,
+                checkpoint=checkpoint,
+                action_payload_ref=payload_ref,
+                authority_decision_ref=decision_ref,
+            )
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                issue_generic_model_input_evaluation_decision,
+            )
+
+            port = _build_model_input_use_n5_port(
+                control, store, selection=selection, window=window
+            )
+            evaluation = _generic_selected_evaluation(selection, checkpoint)
+            basis = _issue_model_input_basis(
+                control, selection, checkpoint, port=port, role="evaluated", evaluation=evaluation
+            )
+            basis_ref = _persist_generic_model_input_record(
+                store, control._diagnostic_event_log, basis
+            )
+            decision_record = issue_generic_model_input_evaluation_decision(
+                store=store,
+                event_log=control._diagnostic_event_log,
+                origin=selection.origin,
+                prior_origin=None,
+                controller=port._controller,
+                semantic_successor_ref=checkpoint.semantic_successor_ref,
+                current_basis_ref=basis_ref,
+                prior_basis_ref=None,
+                prior_evaluation=None,
+                decision_kind="initial",
+                comparison_result=None,
+                reason_codes=(),
+                expected_frontier_revision=0,
+                expected_frontier_ref=None,
+                generated_at=datetime.now(UTC).isoformat(),
+            )
+            decision_artifact_ref = _persist_generic_model_input_record(
+                store, control._diagnostic_event_log, decision_record
+            )
+            checkpoint = _checkpoint_with_evaluation(
+                checkpoint,
+                decision_ref=decision_artifact_ref,
+                current_basis_ref=basis_ref,
+                replacement_basis_ref=basis_ref,
+            )
+            job_store.update_progress_state(
+                job_id=selection.job_id,
+                state="running",
+                progress={
+                    **job_store.current_execution_job_record().progress,
+                    _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
+                },
+            )
+            return checkpoint
+        if checkpoint.execution_ref is not None:
+            # A legacy paid result remains readable but is not upgraded into
+            # current-use retention without the versioned owner witnesses.
+            verify_model_input_use_result(
+                store,
+                selection=selection,
+                checkpoint=checkpoint,
+                action_payload_ref=payload_ref,
+                authority_decision_ref=decision_ref,
+            )
+            if currentness_resolver() is not True:
+                raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+            return checkpoint
+        raise ModelInputSuccessorActionError("model_input_use_recovery_required")
 
     phase_ref = persist_model_input_use_action_phase(store, phase)
     window = _resolve_action_budget_window(
         control, selection=selection, phase_ref=phase_ref, open_if_missing=True
     )
+    frontier_key = _generic_model_input_frontier_key(selection)
+    frontier = job_store.read_generic_model_input_frontier(frontier_key)
     checkpoint = ModelInputUseActionCheckpoint(
         phase_ref=phase_ref,
         semantic_successor_ref=_materialize_semantic_successor(
@@ -882,6 +1449,9 @@ def run_model_input_use_action(
             phase=phase,
             window=window,
         ),
+        schema_version="polisyos.runtime.ModelInputUseActionCheckpoint@2.0",
+        evaluation_expected_frontier_revision=frontier.revision if frontier is not None else 0,
+        evaluation_expected_frontier_ref=frontier.frontier_ref if frontier is not None else None,
     )
     job_store.update_progress_state(
         job_id=selection.job_id,
@@ -891,14 +1461,211 @@ def run_model_input_use_action(
             _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
         },
     )
-    completed = _run_model_input_use_n5(
-        control,
-        store,
-        selection=selection,
-        checkpoint=checkpoint,
-        window=window,
-        currentness_resolver=currentness_resolver,
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        compare_generic_model_input_evaluation_bases,
+        issue_generic_model_input_evaluation_basis,
+        issue_generic_model_input_evaluation_decision,
     )
+
+    port = _build_model_input_use_n5_port(control, store, selection=selection, window=window)
+    if currentness_resolver() is not True:
+        raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+    if _CHECKPOINT_KEY in current.job.progress:
+        # The V1 checkpoint predates evaluation selection. If it has no actual
+        # V5, physical execution may already have happened; never repeat it.
+        raise ModelInputSuccessorActionError("model_input_use_recovery_required")
+
+    prior_evaluation = frontier.selected_evaluation if frontier is not None else None
+    if frontier is None:
+        completed = _run_model_input_use_n5(
+            control,
+            store,
+            selection=selection,
+            checkpoint=checkpoint,
+            window=window,
+            currentness_resolver=currentness_resolver,
+            port=port,
+        )
+        # Persist the paid producer result before attempting any basis or
+        # decision replay, so a crash cannot cause a second N5 execution.
+        job_store.update_progress_state(
+            job_id=selection.job_id,
+            state="running",
+            progress={
+                **job_store.current_execution_job_record().progress,
+                _CHECKPOINT_KEY: completed.model_dump(mode="json", exclude_none=True),
+            },
+        )
+        evaluation = _generic_selected_evaluation(selection, completed)
+        basis = _issue_model_input_basis(
+            control, selection, completed, port=port, role="evaluated", evaluation=evaluation
+        )
+        basis_ref = _persist_generic_model_input_record(store, control._diagnostic_event_log, basis)
+        decision = issue_generic_model_input_evaluation_decision(
+            store=store,
+            event_log=control._diagnostic_event_log,
+            origin=selection.origin,
+            prior_origin=None,
+            controller=port._controller,
+            semantic_successor_ref=completed.semantic_successor_ref,
+            current_basis_ref=basis_ref,
+            prior_basis_ref=None,
+            prior_evaluation=None,
+            decision_kind="initial",
+            comparison_result=None,
+            reason_codes=(),
+            expected_frontier_revision=0,
+            expected_frontier_ref=None,
+            generated_at=datetime.now(UTC).isoformat(),
+        )
+        evaluation_decision_ref = _persist_generic_model_input_record(
+            store, control._diagnostic_event_log, decision
+        )
+        completed = _checkpoint_with_evaluation(
+            completed,
+            decision_ref=evaluation_decision_ref,
+            current_basis_ref=basis_ref,
+            replacement_basis_ref=basis_ref,
+        )
+    else:
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            reconcile_generic_model_input_evaluation_completion,
+        )
+
+        try:
+            prior_basis = _read_generic_model_input_basis(
+                store, control._diagnostic_event_log, frontier.basis_ref
+            )
+        except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError):
+            prior_basis = None
+        prospective = issue_generic_model_input_evaluation_basis(
+            store=store,
+            origin=selection.origin,
+            input_ref=selection.origin.n5_expectation.input_ref,
+            semantic_successor_ref=checkpoint.semantic_successor_ref,
+            controller=port._controller,
+            basis_role="prospective",
+        )
+        prospective_ref = _persist_generic_model_input_record(
+            store, control._diagnostic_event_log, prospective
+        )
+        if prior_basis is None:
+            comparison, reasons = (
+                "not_established",
+                ("generic_model_input_prior_basis_not_established",),
+            )
+        else:
+            comparison, reasons = compare_generic_model_input_evaluation_bases(
+                store=store,
+                prior=prior_basis,
+                current=prospective,
+                prior_origin=selection.origin,
+                current_origin=selection.origin,
+                controller=port._controller,
+            )
+        decision = issue_generic_model_input_evaluation_decision(
+            store=store,
+            event_log=control._diagnostic_event_log,
+            origin=selection.origin,
+            prior_origin=selection.origin,
+            controller=port._controller,
+            semantic_successor_ref=checkpoint.semantic_successor_ref,
+            current_basis_ref=prospective_ref,
+            prior_basis_ref=frontier.basis_ref,
+            prior_evaluation=prior_evaluation if prior_basis is not None else None,
+            decision_kind="comparison",
+            comparison_result=comparison,
+            reason_codes=reasons,
+            expected_frontier_revision=frontier.revision,
+            expected_frontier_ref=frontier.frontier_ref,
+            generated_at=datetime.now(UTC).isoformat(),
+        )
+        evaluation_decision_ref = _persist_generic_model_input_record(
+            store, control._diagnostic_event_log, decision
+        )
+        if comparison == "equivalent":
+            completed = _checkpoint_with_evaluation(
+                checkpoint,
+                decision_ref=evaluation_decision_ref,
+                current_basis_ref=prospective_ref,
+                replacement_basis_ref=None,
+            )
+        else:
+            # Record the decision before potentially paid work. A replacement
+            # worker can recover only a unique, fully reopened durable V5.
+            checkpoint = _checkpoint_with_evaluation(
+                checkpoint,
+                decision_ref=evaluation_decision_ref,
+                current_basis_ref=prospective_ref,
+                replacement_basis_ref=None,
+            )
+            job_store.update_progress_state(
+                job_id=selection.job_id,
+                state="running",
+                progress={
+                    **job_store.current_execution_job_record().progress,
+                    _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
+                },
+            )
+            completed = _run_model_input_use_n5(
+                control,
+                store,
+                selection=selection,
+                checkpoint=checkpoint,
+                window=window,
+                currentness_resolver=currentness_resolver,
+                port=port,
+            )
+            job_store.update_progress_state(
+                job_id=selection.job_id,
+                state="running",
+                progress={
+                    **job_store.current_execution_job_record().progress,
+                    _CHECKPOINT_KEY: completed.model_dump(mode="json", exclude_none=True),
+                },
+            )
+            evaluation = _generic_selected_evaluation(selection, completed)
+            try:
+                evaluated_basis = issue_generic_model_input_evaluation_basis(
+                    store=store,
+                    event_log=control._diagnostic_event_log,
+                    origin=selection.origin,
+                    prior_origin=selection.origin,
+                    input_ref=selection.origin.n5_expectation.input_ref,
+                    semantic_successor_ref=completed.semantic_successor_ref,
+                    controller=port._controller,
+                    basis_role="evaluated",
+                    evaluation=evaluation,
+                    prospective_basis_ref=prospective_ref,
+                    comparison_decision_ref=evaluation_decision_ref,
+                )
+                evaluated_ref = _persist_generic_model_input_record(
+                    store, control._diagnostic_event_log, evaluated_basis
+                )
+                evaluated_basis = reconcile_generic_model_input_evaluation_completion(
+                    store=store,
+                    event_log=control._diagnostic_event_log,
+                    origin=selection.origin,
+                    prior_origin=selection.origin,
+                    controller=port._controller,
+                    comparison_decision_ref=evaluation_decision_ref,
+                    evaluated_basis_ref=evaluated_ref,
+                )
+                completed = _checkpoint_with_evaluation(
+                    completed,
+                    decision_ref=evaluation_decision_ref,
+                    current_basis_ref=prospective_ref,
+                    replacement_basis_ref=evaluated_ref,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError):
+                # Keep the actual current N5 as an observation. An unverified
+                # replacement cannot advance retained selection.
+                completed = _checkpoint_with_evaluation(
+                    completed,
+                    decision_ref=evaluation_decision_ref,
+                    current_basis_ref=prospective_ref,
+                    replacement_basis_ref=None,
+                )
     # Select actual persisted output immediately under the current lease. A
     # replacement worker can verify this exact V5 if verification is cut short.
     job_store.update_progress_state(
@@ -909,17 +1676,450 @@ def run_model_input_use_action(
             _CHECKPOINT_KEY: completed.model_dump(mode="json", exclude_none=True),
         },
     )
-    verify_model_input_use_result(
-        store,
-        selection=selection,
-        checkpoint=completed,
-        action_payload_ref=payload_ref,
-        authority_decision_ref=decision_ref,
-    )
+    if completed.execution_ref is not None:
+        verify_model_input_use_result(
+            store,
+            selection=selection,
+            checkpoint=completed,
+            action_payload_ref=payload_ref,
+            authority_decision_ref=decision_ref,
+        )
     if currentness_resolver() is not True:
         raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
     persisted_selection = read_model_input_successor_selection(
         store, completed.semantic_successor_ref
     )
     _verify_selected_routing_use_decision_current(store, selection, persisted_selection)
+    if currentness_resolver() is not True:
+        raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
     return completed
+
+
+def prepare_model_input_use_frontier_completion(
+    control: ControlPlaneService,
+    *,
+    selection: SelectedModelInputSuccessorAction,
+    checkpoint: ModelInputUseActionCheckpoint,
+    action_payload_ref: str,
+    authority_decision_ref: str,
+    controller: JointSimulationHorizonController | None = None,
+) -> GenericModelInputEvaluationFrontierCAS:
+    """Replay a terminal checkpoint and prepare its fenced frontier CAS.
+
+    The store remains the sole writer. This function reopens the selected
+    action, decision and basis owners so the worker can pass a typed CAS into
+    the same terminal transaction without treating progress as proof.
+    The completion owner must revalidate the signed PA2/current action after
+    this replay and immediately before its fenced ``complete_job`` call.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationDecisionV1,
+        issue_generic_model_input_evaluation_decision,
+        read_acquisition_evaluation_artifact,
+        reconcile_generic_model_input_evaluation_completion,
+    )
+
+    from .control_plane_store import GenericModelInputEvaluationFrontierCAS
+
+    if (
+        checkpoint.schema_version != "polisyos.runtime.ModelInputUseActionCheckpoint@2.0"
+        or checkpoint.evaluation_decision_ref is None
+        or checkpoint.evaluation_current_basis_ref is None
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_evaluation_not_established")
+    current = control._control_store.current_execution_job_admission()
+    if (
+        current.job.job_id != selection.job_id
+        or current.job.run_id != selection.run_id
+        or current.job.payload_ref != action_payload_ref
+        or current.job.state != "running"
+        or not current.job.lease_owner
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_action_scope_not_current")
+    phase = _expected_phase(
+        control._artifact_store,
+        selection,
+        action_payload_ref=action_payload_ref,
+        authority_decision_ref=authority_decision_ref,
+    )
+    selected = _read_checkpoint_selection(
+        control._artifact_store,
+        selection=selection,
+        checkpoint=checkpoint,
+        phase=phase,
+    )
+    _verify_selected_routing_use_decision_current(control._artifact_store, selection, selected)
+    if controller is None:
+        window = _resolve_action_budget_window(
+            control,
+            selection=selection,
+            phase_ref=checkpoint.phase_ref,
+            open_if_missing=False,
+        )
+        controller = _build_model_input_use_n5_port(
+            control, control._artifact_store, selection=selection, window=window
+        )._controller
+    from .control_plane_store import GenericModelInputEvaluationFrontierValue
+
+    event_log = control._diagnostic_event_log
+    store = control._artifact_store
+    decision = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=checkpoint.evaluation_decision_ref,
+        record_type=GenericModelInputEvaluationDecisionV1,
+    )
+    current_basis = _read_generic_model_input_basis(
+        store, event_log, checkpoint.evaluation_current_basis_ref
+    )
+    if type(decision) is not GenericModelInputEvaluationDecisionV1 or (
+        decision.action_job_id != selection.job_id
+        or decision.action_phase_ref != checkpoint.phase_ref
+        or decision.semantic_successor_ref != checkpoint.semantic_successor_ref
+        or decision.authority_decision_ref
+        != _selected_json_ref(store, authority_decision_ref, kind=_DECISION_KIND)
+        or decision.current_basis_ref != checkpoint.evaluation_current_basis_ref
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_decision_binding_mismatch")
+    replayed_decision = issue_generic_model_input_evaluation_decision(
+        store=store,
+        event_log=event_log,
+        origin=selection.origin,
+        prior_origin=selection.origin if decision.expected_frontier_revision else None,
+        controller=controller,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        current_basis_ref=checkpoint.evaluation_current_basis_ref,
+        prior_basis_ref=decision.prior_basis_ref,
+        prior_evaluation=decision.prior_evaluation,
+        decision_kind=decision.decision_kind,
+        comparison_result=decision.comparison_result,
+        reason_codes=decision.reason_codes,
+        expected_frontier_revision=decision.expected_frontier_revision,
+        expected_frontier_ref=decision.expected_frontier_ref,
+        generated_at=decision.generated_at,
+    )
+    if replayed_decision != decision:
+        raise ModelInputSuccessorActionError("model_input_use_decision_replay_mismatch")
+
+    replacement_basis = None
+    replacement = None
+    if decision.decision_kind == "initial":
+        if (
+            checkpoint.execution_ref is None
+            or checkpoint.result_ref is None
+            or current_basis.basis_role != "evaluated"
+            or current_basis.evaluation is None
+            or checkpoint.evaluation_replacement_basis_ref
+            != checkpoint.evaluation_current_basis_ref
+        ):
+            raise ModelInputSuccessorActionError("model_input_use_initial_evaluation_missing")
+        replacement_basis = current_basis
+        replacement = GenericModelInputEvaluationFrontierValue(
+            basis_ref=checkpoint.evaluation_current_basis_ref,
+            basis_content_hash=current_basis.content_hash,
+            selected_evaluation=current_basis.evaluation,
+            selection_decision_ref=checkpoint.evaluation_decision_ref,
+        )
+    elif checkpoint.evaluation_replacement_basis_ref is not None:
+        if checkpoint.execution_ref is None or checkpoint.result_ref is None:
+            raise ModelInputSuccessorActionError("model_input_use_replacement_without_execution")
+        replacement_basis = reconcile_generic_model_input_evaluation_completion(
+            store=store,
+            event_log=event_log,
+            origin=selection.origin,
+            prior_origin=selection.origin if decision.expected_frontier_revision else None,
+            controller=controller,
+            comparison_decision_ref=checkpoint.evaluation_decision_ref,
+            evaluated_basis_ref=checkpoint.evaluation_replacement_basis_ref,
+        )
+        evaluation = replacement_basis.evaluation
+        if evaluation is None:
+            raise ModelInputSuccessorActionError("model_input_use_replacement_not_established")
+        replacement = GenericModelInputEvaluationFrontierValue(
+            basis_ref=checkpoint.evaluation_replacement_basis_ref,
+            basis_content_hash=replacement_basis.content_hash,
+            selected_evaluation=evaluation,
+            selection_decision_ref=checkpoint.evaluation_decision_ref,
+        )
+
+    expected_revision = decision.expected_frontier_revision
+    expected_ref = decision.expected_frontier_ref
+    comparison_result = (
+        "initial" if decision.decision_kind == "initial" else decision.comparison_result
+    )
+    if comparison_result is None:
+        raise ModelInputSuccessorActionError("model_input_use_comparison_not_established")
+    return GenericModelInputEvaluationFrontierCAS(
+        key=_generic_model_input_frontier_key(selection),
+        expected_revision=expected_revision,
+        expected_frontier_ref=expected_ref,
+        action_job_id=selection.job_id,
+        decision_ref=checkpoint.evaluation_decision_ref,
+        decision=decision,
+        current_basis=current_basis,
+        replacement_basis=replacement_basis,
+        replacement=replacement,
+    )
+
+
+def resolve_model_input_use_evaluation_history(
+    control_service: ControlPlaneService,
+    *,
+    selection: ModelInputSuccessorIdentity,
+    checkpoint: ModelInputUseActionCheckpoint,
+    action_payload_ref: str,
+    authority_decision_ref: str,
+) -> GenericModelInputUseHistory | None:
+    """Reopen V2 current-use history and its original selected Generic V5.
+
+    Legacy checkpoints remain available through their existing projection but
+    do not gain retention semantics by being read here.
+    """
+    if checkpoint.schema_version is None:
+        return None
+    if (
+        checkpoint.evaluation_decision_ref is None
+        or checkpoint.evaluation_current_basis_ref is None
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_evaluation_not_established")
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputEvaluationDecisionV1,
+        issue_generic_model_input_evaluation_basis,
+        issue_generic_model_input_evaluation_decision,
+        read_acquisition_evaluation_artifact,
+        reconcile_generic_model_input_evaluation_completion,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5ExecutionV5,
+        GenericN5ExecutionJoinExpectation,
+    )
+
+    store = control_service._artifact_store
+    event_log = control_service._diagnostic_event_log
+    phase = _expected_phase(
+        store,
+        selection,
+        action_payload_ref=action_payload_ref,
+        authority_decision_ref=authority_decision_ref,
+    )
+    _read_checkpoint_selection(store, selection=selection, checkpoint=checkpoint, phase=phase)
+    decision = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=checkpoint.evaluation_decision_ref,
+        record_type=GenericModelInputEvaluationDecisionV1,
+    )
+    basis = _read_generic_model_input_basis(
+        store, event_log, checkpoint.evaluation_current_basis_ref
+    )
+    if type(decision) is not GenericModelInputEvaluationDecisionV1:
+        raise ModelInputSuccessorActionError("model_input_use_decision_not_established")
+    window = _resolve_action_budget_window(
+        control_service,
+        selection=selection,
+        phase_ref=checkpoint.phase_ref,
+        open_if_missing=False,
+    )
+    port = _build_model_input_use_n5_port(
+        control_service, store, selection=selection, window=window
+    )
+    if basis.action_job_id != selection.job_id or (
+        decision.action_job_id,
+        decision.action_phase_ref,
+        decision.semantic_successor_ref,
+        decision.current_basis_ref,
+        decision.authority_decision_ref,
+    ) != (
+        selection.job_id,
+        checkpoint.phase_ref,
+        checkpoint.semantic_successor_ref,
+        checkpoint.evaluation_current_basis_ref,
+        _selected_json_ref(store, authority_decision_ref, kind=_DECISION_KIND),
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_decision_binding_mismatch")
+    replayed_basis = issue_generic_model_input_evaluation_basis(
+        store=store,
+        event_log=event_log,
+        origin=selection.origin,
+        prior_origin=selection.origin if basis.prospective_basis_ref is not None else None,
+        input_ref=selection.origin.n5_expectation.input_ref,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        controller=port._controller,
+        basis_role=basis.basis_role,
+        evaluation=basis.evaluation,
+        prospective_basis_ref=basis.prospective_basis_ref,
+        comparison_decision_ref=basis.comparison_decision_ref,
+    )
+    if replayed_basis != basis:
+        raise ModelInputSuccessorActionError("model_input_use_current_basis_replay_mismatch")
+    replayed_decision = issue_generic_model_input_evaluation_decision(
+        store=store,
+        event_log=event_log,
+        origin=selection.origin,
+        prior_origin=selection.origin if decision.expected_frontier_revision else None,
+        controller=port._controller,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        current_basis_ref=checkpoint.evaluation_current_basis_ref,
+        prior_basis_ref=decision.prior_basis_ref,
+        prior_evaluation=decision.prior_evaluation,
+        decision_kind=decision.decision_kind,
+        comparison_result=decision.comparison_result,
+        reason_codes=decision.reason_codes,
+        expected_frontier_revision=decision.expected_frontier_revision,
+        expected_frontier_ref=decision.expected_frontier_ref,
+        generated_at=decision.generated_at,
+    )
+    if replayed_decision != decision:
+        raise ModelInputSuccessorActionError("model_input_use_decision_replay_mismatch")
+    key = _generic_model_input_frontier_key(selection)
+    use = control_service._control_store.get_generic_model_input_use(
+        key=key, action_job_id=selection.job_id
+    )
+    if use is None or use.decision_ref != checkpoint.evaluation_decision_ref:
+        raise ModelInputSuccessorActionError("model_input_use_history_not_established")
+    selected_frontier = (
+        control_service._control_store.get_generic_model_input_frontier_by_ref(use.frontier_ref)
+        if use.frontier_ref is not None
+        else None
+    )
+    prior_frontier = (
+        control_service._control_store.get_generic_model_input_frontier_by_ref(
+            decision.expected_frontier_ref
+        )
+        if decision.expected_frontier_ref is not None
+        else None
+    )
+    selected_basis = (
+        _read_generic_model_input_basis(store, event_log, selected_frontier.basis_ref)
+        if selected_frontier is not None
+        else None
+    )
+    if selected_frontier is not None and selected_basis is not None:
+        if selected_basis.prospective_basis_ref is not None:
+            selected_basis = reconcile_generic_model_input_evaluation_completion(
+                store=store,
+                event_log=event_log,
+                origin=selection.origin,
+                prior_origin=selection.origin,
+                controller=port._controller,
+                comparison_decision_ref=selected_basis.comparison_decision_ref,
+                evaluated_basis_ref=selected_frontier.basis_ref,
+            )
+        else:
+            replayed_selected_basis = issue_generic_model_input_evaluation_basis(
+                store=store,
+                origin=selection.origin,
+                input_ref=selected_basis.input_ref,
+                semantic_successor_ref=selected_basis.semantic_successor_ref,
+                controller=port._controller,
+                basis_role=selected_basis.basis_role,
+                evaluation=selected_basis.evaluation,
+            )
+            if replayed_selected_basis != selected_basis:
+                raise ModelInputSuccessorActionError(
+                    "model_input_use_selected_basis_replay_mismatch"
+                )
+    if (
+        use.key != key
+        or use.action_job_id != selection.job_id
+        or use.current_basis_ref != checkpoint.evaluation_current_basis_ref
+        or use.decision_content_hash != decision.content_hash
+        or use.predicate_provenance != decision.predicate_provenance
+        or use.frontier_revision != (selected_frontier.revision if selected_frontier else 0)
+        or use.frontier_ref != (selected_frontier.frontier_ref if selected_frontier else None)
+        or use.comparison_result
+        != ("initial" if decision.decision_kind == "initial" else decision.comparison_result)
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_history_binding_mismatch")
+    should_replace = (
+        decision.decision_kind == "initial"
+        or checkpoint.evaluation_replacement_basis_ref is not None
+    )
+    if should_replace:
+        if (
+            selected_frontier is None
+            or selected_basis is None
+            or selected_basis.content_hash != selected_frontier.basis_content_hash
+            or selected_frontier.selection_decision_ref != checkpoint.evaluation_decision_ref
+            or selected_frontier.revision != decision.expected_frontier_revision + 1
+        ):
+            raise ModelInputSuccessorActionError("model_input_use_selected_frontier_mismatch")
+    elif selected_frontier is not prior_frontier and (
+        selected_frontier is None
+        or prior_frontier is None
+        or selected_frontier.frontier_ref != prior_frontier.frontier_ref
+    ):
+        raise ModelInputSuccessorActionError("model_input_use_prior_frontier_mismatch")
+    head = control_service._control_store.read_generic_model_input_frontier(key)
+    relation: Literal["selected", "superseded", "not_established"]
+    if selected_frontier is None:
+        relation = "not_established"
+    elif head is not None and head.frontier_ref == selected_frontier.frontier_ref:
+        relation = "selected"
+    else:
+        relation = "superseded"
+
+    def resolve_original(
+        evaluation: GenericModelInputSelectedEvaluation,
+    ) -> tuple[GenericCycleSimulationN5ExecutionV5, GenericN5ResolvedResult]:
+        expected = GenericN5ExecutionJoinExpectation.model_validate(
+            {
+                **selection.origin.n5_expectation.model_dump(mode="python"),
+                "input_ref": evaluation.input_ref,
+                "status": "joint_simulated",
+                "result_ref": evaluation.result_ref,
+                "model_input_obligation_set_ref": None,
+                "semantic_successor_ref": evaluation.semantic_successor_ref,
+            }
+        )
+        outcome, result = GenericCycleSimulationAdmissionOwner(
+            profiles=(), store=store
+        ).resolve_n5_execution_join_with_result(evaluation.execution_ref, expected=expected)
+        if (
+            outcome.status != "resolved"
+            or type(outcome.execution) is not GenericCycleSimulationN5ExecutionV5
+            or outcome.execution.action_job_id != evaluation.action_job_id
+            or result is None
+        ):
+            raise ModelInputSuccessorActionError(
+                outcome.code or "model_input_use_original_evaluation_not_established"
+            )
+        return outcome.execution, result
+
+    selected_execution, selected_result = (
+        resolve_original(selected_frontier.selected_evaluation)
+        if selected_frontier is not None
+        else (None, None)
+    )
+    prior_evaluation = decision.prior_evaluation
+    prior_execution, prior_result = (
+        resolve_original(prior_evaluation) if prior_evaluation is not None else (None, None)
+    )
+    current_result = (
+        verify_model_input_use_result(
+            store,
+            selection=selection,
+            checkpoint=checkpoint,
+            action_payload_ref=action_payload_ref,
+            authority_decision_ref=authority_decision_ref,
+        )
+        if checkpoint.execution_ref is not None
+        else None
+    )
+    return GenericModelInputUseHistory(
+        key=key,
+        use=use,
+        decision=decision,
+        current_basis=basis,
+        selected_basis=selected_basis,
+        prior_evaluation=prior_evaluation,
+        prior_frontier=prior_frontier,
+        selected_frontier=selected_frontier,
+        frontier_relation=relation,
+        selected_frontier_execution=selected_execution,
+        selected_frontier_result=selected_result,
+        prior_execution=prior_execution,
+        prior_result=prior_result,
+        current_action_result=current_result,
+    )

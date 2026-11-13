@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import contextvars
+import math
 import os
 import sqlite3
+import sys
 import threading
+import time
 from concurrent.futures import (
     CancelledError as FutureCancelledError,
 )
@@ -17,9 +20,9 @@ from concurrent.futures import (
 from concurrent.futures import (
     TimeoutError as FutureTimeoutError,
 )
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from functools import wraps
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 from weakref import WeakKeyDictionary
 
@@ -54,6 +57,106 @@ _MIN_BLOCKING_TIMEOUT_SECONDS = 0.1
 @dataclass
 class _BlockingAttempt:
     unavailable: bool = False
+    started_at: float | None = None
+    completion: _BlockingCompletion | None = None
+    lock: threading.Lock = field(default_factory=threading.Lock)
+
+
+@dataclass(frozen=True, slots=True)
+class _BlockingCompletion:
+    completed_at: float
+    value: Any = None
+    error: BaseException | None = None
+
+
+def _safe_symbol(value: object) -> str:
+    if (
+        type(value) is not str
+        or not value
+        or len(value) > 160
+        or not all(ch.isascii() and (ch.isalnum() or ch in "._<>") for ch in value)
+    ):
+        return "not_established"
+    return value
+
+
+def _safe_operation_identity(func: object) -> dict[str, str]:
+    target = func.__func__ if type(func) is MethodType else func
+    if type(target) is not FunctionType:
+        return {"module": "not_established", "qualname": "not_established"}
+    return {
+        "module": _safe_symbol(target.__module__),
+        "qualname": _safe_symbol(target.__qualname__),
+    }
+
+
+def _safe_guard_caller() -> dict[str, str]:
+    # Read code identity only; never retain frames, arguments or exception text.
+    try:
+        frame = sys._getframe(1)
+    except ValueError:
+        return {"module": "not_established", "qualname": "not_established"}
+    for _ in range(16):
+        module = frame.f_globals.get("__name__")
+        if module != __name__:
+            return {
+                "module": _safe_symbol(module),
+                "qualname": _safe_symbol(frame.f_code.co_qualname),
+            }
+        if frame.f_back is None:
+            break
+        frame = frame.f_back
+    return {"module": "not_established", "qualname": "not_established"}
+
+
+class _BlockingDependencyWaitTimeoutError(RuntimeDependencyTimeoutError):
+    """A dependency deadline expired; the underlying work may still be running."""
+
+    def __init__(self, dependency_name: str, *, diagnostic: dict[str, object]) -> None:
+        super().__init__(dependency_name)
+        self._diagnostic = diagnostic
+
+    def diagnostic(self) -> dict[str, object]:
+        """Return bounded, non-authoritative wait details without caller payloads."""
+        values = self._diagnostic if type(self._diagnostic) is dict else {}
+
+        def seconds(name: str) -> float | None:
+            value = values.get(name)
+            if (
+                type(value) not in (int, float)
+                or value < 0
+                or value > 604_800
+                or not math.isfinite(value)
+            ):
+                return None
+            return float(value)
+
+        def identity(name: str) -> dict[str, str]:
+            value = values.get(name)
+            if type(value) is not dict:
+                value = {}
+            return {
+                "module": _safe_symbol(value.get("module")),
+                "qualname": _safe_symbol(value.get("qualname")),
+            }
+
+        disposition = values.get("wait_disposition")
+        if type(disposition) is not str or disposition not in {
+            "cancelled_before_start",
+            "finished_after_deadline",
+            "running_at_observation",
+            "start_not_observed",
+        }:
+            disposition = "not_established"
+        return {
+            "timeout_seconds": seconds("timeout_seconds"),
+            "wait_elapsed_seconds": seconds("wait_elapsed_seconds"),
+            "queue_wait_seconds": seconds("queue_wait_seconds"),
+            "operation_elapsed_seconds": seconds("operation_elapsed_seconds"),
+            "wait_disposition": disposition,
+            "operation": identity("operation"),
+            "caller": identity("caller"),
+        }
 
 
 def _env_float(name: str, default: float) -> float:
@@ -193,12 +296,27 @@ class BlockingDependencyGuard:
             attempt = _BlockingAttempt()
 
             def _invoke() -> T:
+                with attempt.lock:
+                    attempt.started_at = time.monotonic()
                 snapshot.execution.attempt = attempt
                 try:
-                    return func(*args, **kwargs)
+                    value = func(*args, **kwargs)
+                except BaseException as error:
+                    with attempt.lock:
+                        attempt.completion = _BlockingCompletion(
+                            completed_at=time.monotonic(), error=error
+                        )
+                    raise
+                else:
+                    with attempt.lock:
+                        attempt.completion = _BlockingCompletion(
+                            completed_at=time.monotonic(), value=value
+                        )
+                    return value
                 finally:
                     snapshot.execution.attempt = None
 
+            submitted_at = time.monotonic()
             future = snapshot.executor.submit(context.run, _invoke)
         except RuntimeError as exc:
             release_cancelled(lease)
@@ -206,29 +324,91 @@ class BlockingDependencyGuard:
                 snapshot.dependency_name,
                 detail=f"{snapshot.dependency_name} executor is unavailable",
             ) from exc
+        wait_started_at = time.monotonic()
+        deadline = wait_started_at + snapshot.timeout_seconds
+        operation_error: BaseException | None = None
+        wait_timeout: FutureTimeoutError | None = None
         try:
             result = future.result(timeout=snapshot.timeout_seconds)
         except (FutureCancelledError, asyncio.CancelledError):
             release_cancelled(lease)
             raise
         except FutureTimeoutError as exc:
+            wait_timeout = exc
+        except Exception as exc:
+            operation_error = exc
+
+        # Future.result uses the same TimeoutError class as an operation, and
+        # the worker may finish before its Future publishes that outcome. Use
+        # the operation's own timestamp, including when a late worker finishes
+        # before the waiting thread gets scheduled again.
+        with attempt.lock:
+            completion = attempt.completion
+        expired = (
+            completion.completed_at > deadline
+            if completion is not None
+            else wait_timeout is not None
+        )
+        if expired:
             cancelled = future.cancel()
             if not cancelled and snapshot.on_timeout is not None:
                 snapshot.on_timeout(future)
+            observed_at = time.monotonic()
+            with attempt.lock:
+                started_at = attempt.started_at
+                observed_completion = attempt.completion
+            if cancelled:
+                disposition = "cancelled_before_start"
+            elif observed_completion is not None:
+                disposition = "finished_after_deadline"
+            elif started_at is not None:
+                disposition = "running_at_observation"
+            else:
+                disposition = "start_not_observed"
+            diagnostic: dict[str, object] = {
+                "timeout_seconds": snapshot.timeout_seconds,
+                "wait_elapsed_seconds": max(0.0, observed_at - wait_started_at),
+                "queue_wait_seconds": (
+                    max(0.0, started_at - submitted_at) if started_at is not None else None
+                ),
+                "operation_elapsed_seconds": (
+                    max(
+                        0.0,
+                        (observed_completion.completed_at if observed_completion else observed_at)
+                        - started_at,
+                    )
+                    if started_at is not None
+                    else None
+                ),
+                "wait_disposition": disposition,
+                "operation": _safe_operation_identity(func),
+                "caller": _safe_guard_caller(),
+            }
             snapshot.breaker.record_failure(lease)
-            raise RuntimeDependencyTimeoutError(snapshot.dependency_name) from exc
-        except Exception as exc:
+            raise _BlockingDependencyWaitTimeoutError(
+                snapshot.dependency_name, diagnostic=diagnostic
+            ) from wait_timeout
+        if wait_timeout is not None and completion is not None:
+            result = cast("T", completion.value)
+            operation_error = completion.error
+        if operation_error is not None:
+            if isinstance(operation_error, FutureCancelledError | asyncio.CancelledError):
+                release_cancelled(lease)
+                raise operation_error
+            if not isinstance(operation_error, Exception):
+                raise operation_error
             if attempt.unavailable:
                 snapshot.breaker.record_failure(lease)
-                raise
-            if unavailable(exc):
+                raise operation_error
+            if unavailable(operation_error):
                 snapshot.breaker.record_failure(lease)
                 raise RuntimeDependencyUnavailableError(
                     snapshot.dependency_name,
-                    detail=str(exc) or f"{snapshot.dependency_name} is temporarily unavailable",
-                ) from exc
+                    detail=str(operation_error)
+                    or f"{snapshot.dependency_name} is temporarily unavailable",
+                ) from operation_error
             snapshot.breaker.record_success(lease)
-            raise
+            raise operation_error
         if attempt.unavailable:
             snapshot.breaker.record_failure(lease)
         else:

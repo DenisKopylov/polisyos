@@ -21,15 +21,6 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.runtime import ScenarioManifest
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from tests.unit.runtime.http import test_control_plane_store_evaluation_frontier as frontier_helpers
-from tests.unit.runtime.http.test_runtime_api_authz import (
-    _AllowOPA,
-    _BarrierOPA,
-    _build_secure_client,
-    _CaptureOPA,
-    _claims,
-    _fixture_bearer,
-    _scenario_create_body,
-)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -111,6 +102,8 @@ def _authenticated_client(
     bearer: str,
     jti: str,
 ):
+    from tests.unit.runtime.http.test_runtime_api_authz import _build_secure_client, _claims
+
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=opa_client,
@@ -298,6 +291,12 @@ def test_postgres_scenario_cas_two_apps_allows_one_mutation_and_one_conflict(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Prove two runtime apps cannot both claim the same scenario revision."""
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _BarrierOPA,
+        _fixture_bearer,
+        _scenario_create_body,
+    )
+
     _configure_postgres_runtime(monkeypatch, dsn=postgres_dsn)
     barrier = threading.Barrier(2)
     first_opa = _BarrierOPA(barrier)
@@ -360,6 +359,12 @@ def test_postgres_corrupted_scenario_head_is_denied_before_opa(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Prove a PostgreSQL head that fails content binding cannot authorize mutation."""
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _CaptureOPA,
+        _fixture_bearer,
+        _scenario_create_body,
+    )
+
     _configure_postgres_runtime(monkeypatch, dsn=postgres_dsn)
     suffix = uuid.uuid4().hex
     scenario_id = f"scn_ds20b_pg_corrupt_{suffix}"
@@ -413,6 +418,11 @@ def test_postgres_fresh_app_ignores_unheaded_scenario_candidate_artifact(
 ) -> None:
     """Prove a fresh app selects only the PostgreSQL head, never a loose CAS artifact."""
     from polisyos.runtime.http.services.scenarios import _finalize_manifest_hash
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _fixture_bearer,
+        _scenario_create_body,
+    )
 
     _configure_postgres_runtime(monkeypatch, dsn=postgres_dsn)
     suffix = uuid.uuid4().hex
@@ -758,3 +768,332 @@ def test_postgres_acquisition_frontier_cas_race_is_linearizable(
             ),
         ).fetchall()
     assert final_rows == rows
+
+
+def test_postgres_generic_model_input_frontier_roundtrips_current_use_and_legacy_family(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """Retain initial Generic N5, check equivalent use, then advance same subject key."""
+    suffix = uuid.uuid4().hex
+    store = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / f"unused-generic-roundtrip-{suffix}.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    (
+        source,
+        key,
+        initial_job,
+        _,
+        _,
+        _,
+        _,
+        _,
+        initial_evaluation,
+        _,
+        initial,
+    ) = frontier_helpers._commit_generic_initial(
+        store,
+        tmp_path,
+        source_job_id=f"generic-source-{suffix}",
+        action_job_id=f"generic-initial-{suffix}",
+    )
+    legacy_initial = store.read_acquisition_evaluation_frontier(
+        frontier_helpers._key(source.job_id)
+    )
+    assert legacy_initial is not None
+    assert initial.selected_evaluation == initial_evaluation
+    assert store.get_job(initial_job.job_id).state == "completed"
+    assert (
+        key.tenant_id,
+        key.cell_id,
+        key.source_job_id,
+        key.design_problem_ref,
+        key.candidate_id,
+    ) == (
+        legacy_initial.key.tenant_id,
+        legacy_initial.key.cell_id,
+        legacy_initial.key.source_job_id,
+        legacy_initial.key.design_problem_ref,
+        legacy_initial.key.candidate_id,
+    )
+
+    (
+        equivalent_job,
+        equivalent_worker,
+        equivalent_attempt,
+        _,
+        equivalent_decision,
+        equivalent_decision_ref,
+        equivalent_replacement_basis,
+        equivalent_cas,
+    ) = frontier_helpers._prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id=f"generic-equivalent-{suffix}",
+        result="equivalent",
+    )
+    assert equivalent_replacement_basis is None
+    with store.job_execution_fence(
+        job_id=equivalent_job.job_id,
+        worker_id=equivalent_worker,
+        attempt=equivalent_attempt,
+    ):
+        store.complete_job(
+            job_id=equivalent_job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=equivalent_cas,
+        )
+    assert store.read_generic_model_input_frontier(key) == initial
+    equivalent_use = store.get_generic_model_input_use(key=key, action_job_id=equivalent_job.job_id)
+    assert equivalent_use is not None
+    assert equivalent_use.decision_ref == equivalent_decision_ref
+    assert equivalent_use.frontier_ref == initial.frontier_ref
+    assert equivalent_decision.comparison_result == "equivalent"
+    equivalent_event = store.get_job_terminal_source_event_record(equivalent_job.job_id)
+    equivalent_outbox = store.get_job_completed_outbox_event(equivalent_job.job_id)
+    assert (
+        equivalent_event.payload["generic_model_input_current_use"]["frontier_ref"]
+        == initial.frontier_ref
+    )
+    assert (
+        equivalent_outbox.payload["generic_model_input_current_use"]
+        == equivalent_outbox.payload["progress"]["generic_model_input_current_use"]
+    )
+
+    (
+        changed_job,
+        changed_worker,
+        changed_attempt,
+        _,
+        changed_decision,
+        changed_decision_ref,
+        changed_replacement_basis,
+        changed_cas,
+    ) = frontier_helpers._prepare_generic_comparison(
+        store,
+        tmp_path,
+        source_job_id=source.job_id,
+        prior=initial,
+        action_job_id=f"generic-changed-{suffix}",
+        result="different",
+    )
+    assert changed_replacement_basis is not None
+    with store.job_execution_fence(
+        job_id=changed_job.job_id,
+        worker_id=changed_worker,
+        attempt=changed_attempt,
+    ):
+        store.complete_job(
+            job_id=changed_job.job_id,
+            run_id="run-a",
+            progress={},
+            generic_model_input_frontier_cas=changed_cas,
+        )
+
+    changed = store.read_generic_model_input_frontier(key)
+    assert changed is not None and changed.revision == 2
+    assert changed.key == initial.key
+    assert changed.frontier_ref != initial.frontier_ref
+    assert changed.selected_evaluation.action_job_id == changed_job.job_id
+    assert store.get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    assert store.read_acquisition_evaluation_frontier(frontier_helpers._key(source.job_id)) == (
+        legacy_initial
+    )
+    changed_use = store.get_generic_model_input_use(key=key, action_job_id=changed_job.job_id)
+    assert changed_use is not None
+    assert changed_use.decision_ref == changed_decision_ref
+    assert changed_use.frontier_ref == changed.frontier_ref
+    assert changed_decision.comparison_result == "different"
+    changed_event = store.get_job_terminal_source_event_record(changed_job.job_id)
+    changed_outbox = store.get_job_completed_outbox_event(changed_job.job_id)
+    changed_projection = changed_event.payload["generic_model_input_current_use"]
+    assert changed_projection["frontier_ref"] == changed.frontier_ref
+    assert (
+        changed_outbox.payload["generic_model_input_current_use"]
+        == changed_outbox.payload["progress"]["generic_model_input_current_use"]
+        == changed_projection
+    )
+
+    reopened = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / f"unused-generic-roundtrip-reopen-{suffix}.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    assert reopened.read_generic_model_input_frontier(key) == changed
+    assert reopened.get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    assert reopened.get_generic_model_input_use(key=key, action_job_id=changed_job.job_id) == (
+        changed_use
+    )
+    assert reopened.get_job_completed_outbox_event(changed_job.job_id) == changed_outbox
+    assert reopened.read_acquisition_evaluation_frontier(frontier_helpers._key(source.job_id)) == (
+        legacy_initial
+    )
+
+
+def test_postgres_generic_model_input_frontier_cas_race_rolls_back_loser_completion(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """Race same-key Generic replacements and prove winner-only durable completion."""
+    suffix = uuid.uuid4().hex
+    stores = (
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / f"unused-generic-race-first-{suffix}.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / f"unused-generic-race-second-{suffix}.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+    )
+    (
+        source,
+        key,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        initial,
+    ) = frontier_helpers._commit_generic_initial(
+        stores[0],
+        tmp_path,
+        source_job_id=f"generic-race-source-{suffix}",
+        action_job_id=f"generic-race-initial-{suffix}",
+    )
+    legacy_initial = stores[0].read_acquisition_evaluation_frontier(
+        frontier_helpers._key(source.job_id)
+    )
+    assert legacy_initial is not None
+    assert stores[1].read_generic_model_input_frontier(key) == initial
+
+    prepared = tuple(
+        frontier_helpers._prepare_generic_comparison(
+            stores[0],
+            tmp_path,
+            source_job_id=source.job_id,
+            prior=initial,
+            action_job_id=f"generic-race-action-{suffix}-{index}",
+            result="different",
+        )
+        for index in range(2)
+    )
+    barrier = threading.Barrier(2)
+
+    def _compete(index: int) -> tuple[str, Any]:
+        job, worker, attempt, _, _, _, _, cas = prepared[index]
+        barrier.wait(timeout=10)
+        try:
+            with stores[index].job_execution_fence(
+                job_id=job.job_id,
+                worker_id=worker,
+                attempt=attempt,
+            ):
+                stores[index].complete_job(
+                    job_id=job.job_id,
+                    run_id="run-a",
+                    progress={},
+                    generic_model_input_frontier_cas=cas,
+                )
+        except ValueError as exc:
+            return "conflict", exc
+        return "committed", job
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = tuple(pool.map(_compete, range(2)))
+    winners = [
+        (index, result) for index, (kind, result) in enumerate(outcomes) if kind == "committed"
+    ]
+    conflicts = [
+        (index, result) for index, (kind, result) in enumerate(outcomes) if kind == "conflict"
+    ]
+    assert len(winners) == 1
+    assert len(conflicts) == 1
+    assert "generic_model_input_frontier_conflict" in str(conflicts[0][1])
+    winner_index, winner_job = winners[0]
+    loser_index, _ = conflicts[0]
+    assert loser_index == 1 - winner_index
+    loser_job = prepared[loser_index][0]
+
+    current = stores[0].read_generic_model_input_frontier(key)
+    assert current is not None and current.revision == 2
+    assert current.key == initial.key
+    assert current.selected_evaluation.action_job_id == winner_job.job_id
+    assert stores[1].read_generic_model_input_frontier(key) == current
+    assert stores[1].get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    assert (
+        stores[0].get_generic_model_input_use(key=key, action_job_id=winner_job.job_id) is not None
+    )
+    assert stores[0].get_generic_model_input_use(key=key, action_job_id=loser_job.job_id) is None
+    assert stores[0].get_job(winner_job.job_id).state == "completed"
+    assert stores[0].get_job(loser_job.job_id).state == "running"
+    with pytest.raises(frontier_helpers.store_module.ControlJobLeaseLostError):
+        stores[0].get_job_terminal_source_event_record(loser_job.job_id)
+
+    winner_event = stores[0].get_job_terminal_source_event_record(winner_job.job_id)
+    winner_outbox = stores[1].get_job_completed_outbox_event(winner_job.job_id)
+    winner_use = stores[1].get_generic_model_input_use(key=key, action_job_id=winner_job.job_id)
+    assert winner_use is not None
+    assert winner_event.payload["generic_model_input_current_use"]["frontier_ref"] == (
+        current.frontier_ref
+    )
+    assert (
+        winner_outbox.payload["generic_model_input_current_use"]
+        == winner_outbox.payload["progress"]["generic_model_input_current_use"]
+        == winner_event.payload["generic_model_input_current_use"]
+    )
+    assert winner_outbox.event_key == f"{winner_job.job_id}:job_completed"
+
+    psycopg = importlib.import_module("psycopg")
+    with psycopg.connect(postgres_dsn) as connection:
+        version_rows = connection.execute(
+            "SELECT revision, frontier_ref "
+            "FROM runtime_generic_model_input_evaluation_frontier_versions "
+            "WHERE tenant_id = %s AND cell_id = %s AND source_job_id = %s "
+            "AND design_problem_ref = %s AND candidate_id = %s "
+            "AND family = %s ORDER BY revision",
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+                key.family,
+            ),
+        ).fetchall()
+        outbox_counts = connection.execute(
+            "SELECT job_id, COUNT(*) FROM control_outbox_events "
+            "WHERE topic = %s AND job_id IN (%s, %s) GROUP BY job_id",
+            ("control.job.completed", winner_job.job_id, loser_job.job_id),
+        ).fetchall()
+    assert version_rows == [(1, initial.frontier_ref), (2, current.frontier_ref)]
+    assert outbox_counts == [(winner_job.job_id, 1)]
+    assert stores[0].read_acquisition_evaluation_frontier(frontier_helpers._key(source.job_id)) == (
+        legacy_initial
+    )
+
+    reopened = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / f"unused-generic-race-reopen-{suffix}.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    assert reopened.read_generic_model_input_frontier(key) == current
+    assert reopened.get_generic_model_input_frontier_by_ref(initial.frontier_ref) == initial
+    assert (
+        reopened.get_generic_model_input_use(key=key, action_job_id=winner_job.job_id) == winner_use
+    )
+    assert reopened.get_generic_model_input_use(key=key, action_job_id=loser_job.job_id) is None
+    assert reopened.get_job_completed_outbox_event(winner_job.job_id) == winner_outbox
+    assert reopened.read_acquisition_evaluation_frontier(frontier_helpers._key(source.job_id)) == (
+        legacy_initial
+    )

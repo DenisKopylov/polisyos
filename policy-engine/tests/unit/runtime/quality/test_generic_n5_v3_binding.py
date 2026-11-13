@@ -305,6 +305,142 @@ async def _prepare_generic_facade_owner_case(
     }
 
 
+def test_semantic_successor_port_seals_final_request_before_content_observation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real successor result remains bound after a fresh selected CAS read."""
+    import copy
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+        verify_simulation_receipt,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        CONTENT_OBSERVATION_KEY,
+        read_generic_program_graph_n5_content_observation,
+    )
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers.controlled_candidate_profile import ControlledCandidateGateway
+    from tests.integration.runtime_quality.test_program_graph_model_input_use_served import (
+        _run_activated_held_out_stock_scenario,
+    )
+
+    class _SelectedSealChecked(BaseException):
+        """Stop after the selected producer boundary and its negative controls."""
+
+    original = JointSimulationPort.run_semantic_successor
+    checked: list[tuple[ArtifactRef, ...]] = []
+
+    def check_selected_result(
+        port: JointSimulationPort, **kwargs: Any
+    ) -> SimulationPortObservation:
+        observation = original(port, **kwargs)
+        assert observation.status == "joint_simulated"
+        assert observation.simulation_result_ref is not None
+        assert observation.generic_n5_execution_ref is not None
+        assert observation.generic_n5_input_ref is not None
+        assert observation.generic_n5_input_ref == kwargs["expected_input_ref"]
+        binding = observation.generic_n5_request_binding
+        assert binding is not None
+        request = binding.request
+        fresh = FileSystemCAS(tmp_path / "cas").for_tenant(served.TENANT, served.CELL)
+        execution = parse_generic_cycle_simulation_n5_execution(
+            read_core_json_artifact(fresh, observation.generic_n5_execution_ref).value
+        )
+        assert type(execution) is GenericCycleSimulationN5ExecutionV5
+        assert execution.result_ref == observation.simulation_result_ref
+        assert execution.input_ref == observation.generic_n5_input_ref
+        assert execution.semantic_successor_ref == kwargs["semantic_successor_ref"]
+        assert execution.request_binding.request_content_hash == binding.request_content_hash
+        result = load_joint_simulation_result(
+            observation.simulation_result_ref, store=fresh, expected_request=request
+        )
+        assert result.diagnostics["generic_n5_request_content_hash"] == binding.request_content_hash
+        observed = read_generic_program_graph_n5_content_observation(
+            result,
+            input_ref=kwargs["expected_input_ref"],
+            semantic_successor_ref=kwargs["semantic_successor_ref"],
+            expected_request=request,
+            store=fresh,
+        )
+        assert observed.predicate_provenance == "recomputed"
+        assert observed.completion.status == "recomputed"
+        assert not observed.protected_use_allowed
+
+        # A new outer receipt cannot make a removed or altered request binding
+        # agree with the producer's retained observation.
+        assert port._artifact_store is not None
+        for replacement in (None, "sha256:" + "f" * 64):
+            payload = copy.deepcopy(result.content_bound_payload())
+            if replacement is None:
+                del payload["diagnostics"]["generic_n5_request_content_hash"]
+            else:
+                payload["diagnostics"]["generic_n5_request_content_hash"] = replacement
+            assert CONTENT_OBSERVATION_KEY in payload["diagnostics"]
+            receipt = build_content_bound_simulation_receipt(
+                engine_kind=result.receipt.engine_kind,
+                payload=payload,
+                diagnostics=payload["diagnostics"],
+            )
+            forged = JointSimulationResult.model_validate(
+                {**payload, "receipt": receipt.model_dump(mode="json")}
+            )
+            forged._content_payload = payload
+            forged_ref = persist_joint_simulation_result(
+                forged,
+                store=port._artifact_store,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=served.TENANT, cell_id=served.CELL
+                ),
+            )
+            wire = read_core_json_artifact(fresh, forged_ref).value
+            reopened = JointSimulationResult.model_validate(wire)
+            reopened._content_payload = {
+                key: value for key, value in wire.items() if key != "receipt"
+            }
+            verify_simulation_receipt(reopened.receipt, reopened.content_bound_payload())
+            with pytest.raises(ValueError, match="generic_program_graph_content_result_mismatch"):
+                read_generic_program_graph_n5_content_observation(
+                    reopened,
+                    input_ref=kwargs["expected_input_ref"],
+                    semantic_successor_ref=kwargs["semantic_successor_ref"],
+                    expected_request=request,
+                    store=fresh,
+                )
+        checked.append(
+            (
+                observation.generic_n5_input_ref,
+                execution.semantic_successor_ref,
+                observation.generic_n5_execution_ref,
+                observation.simulation_result_ref,
+            )
+        )
+        raise _SelectedSealChecked
+
+    monkeypatch.setattr(JointSimulationPort, "run_semantic_successor", check_selected_result)
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", "http://127.0.0.1:1/v1")
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-synthetic-local-gateway-key")
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_MAX_RETRIES", "0")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "0")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "0")
+    monkeypatch.setenv("POLISYOS_LLM_PROMPT_SANITIZER", "false")
+    with ControlledCandidateGateway() as gateway:
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", gateway.base_url)
+        with pytest.raises(_SelectedSealChecked):
+            _run_activated_held_out_stock_scenario(
+                tmp_path, monkeypatch, gateway, methodology_v2=False
+            )
+    assert len(checked) == 1
+    assert all(ref.manifest_profile_sha256 is not None for ref in checked[0])
+
+
 def _assert_generic_facade_execution(
     case: dict[str, Any], observation: SimulationPortObservation
 ) -> Any:
@@ -1060,10 +1196,10 @@ def test_v4_blocked_model_input_set_is_selected_and_manifest_bound(tmp_path: Pat
         GenericCycleSimulationN5ExecutionV2.model_validate(v2_payload)
 
 
-def test_v5_execution_requires_independent_successor_and_exact_manifest_edge(
+def _v5_execution_metadata_case(
     tmp_path: Path,
-) -> None:
-    """Reject the same execution bytes with a different selected input edge."""
+) -> tuple[FileSystemCAS, GenericCycleSimulationAdmissionOwner, Any, ArtifactRef, ArtifactRef]:
+    """Persist schema/manifest fixtures, without claiming source or result replay."""
     original = _request()
     profile = "sha256:" + "b" * 64
     successor_ref = _artifact_ref(MODEL_INPUT_SUCCESSOR_SELECTION_KIND, "a").model_copy(
@@ -1107,6 +1243,17 @@ def test_v5_execution_requires_independent_successor_and_exact_manifest_edge(
     assert record.job_id == previous.job_id
     body = record.model_dump(mode="python")
     ref = store.put_json(body, options, canon_spec=_N5_TYPED_CANON, return_selected_profile=True)
+    return store, owner, record, ref, successor_ref
+
+
+def test_v5_execution_requires_independent_successor_and_exact_manifest_edge(
+    tmp_path: Path,
+) -> None:
+    """Reject the same execution bytes with a different selected input edge."""
+    store, owner, record, ref, successor_ref = _v5_execution_metadata_case(tmp_path)
+    options = owner._n5_execution_write_options(record)
+    edge = input_ref_from_artifact_ref(successor_ref, role="semantic_successor")
+    body = record.model_dump(mode="python")
     reopened = parse_generic_cycle_simulation_n5_execution(
         canon.from_canonical_bytes(store.get_bytes(ref))
     )
@@ -1140,6 +1287,103 @@ def test_v5_execution_requires_independent_successor_and_exact_manifest_edge(
         owner.resolve_n5_execution(
             wrong_ref, expected=record, expected_semantic_successor_ref=successor_ref
         )
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [None, "missing", "foreign_profile", "ambiguous", "wrong_selection", "replay_removed"],
+)
+def test_durable_successor_lookup_requires_unique_profile_and_owner_replay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str | None
+) -> None:
+    """Real CAS metadata selects refs; this test isolates the deeper source replay.
+
+    The served crash/reentry scenario supplies genuine producer output. These
+    fixtures prove inventory completeness, exact profiles and the mandatory
+    replay call without treating their constructed execution as numerical work.
+    """
+    from types import SimpleNamespace
+
+    store, owner, record, ref, semantic_ref = _v5_execution_metadata_case(tmp_path)
+    expected = GenericN5ExecutionJoinExpectation(
+        input_ref=record.input_ref,
+        result_ref=None,
+        status="simulation_blocked",
+        model_input_obligation_set_ref=None,
+        n4_source_ref=record.n4_source_ref,
+        context_job_ref=record.context_job_ref,
+        profile_ref=record.profile_ref,
+        child_family_ref=record.n4_child_profile_family_ref,
+        child_set_ref=record.n4_child_profile_set_ref,
+        profile_selection_ref=record.profile_selection_ref,
+        design_problem_ref="sha256:" + "1" * 64,
+        outcome_variable=record.outcome_variable,
+        cycle_index=1,
+        candidate_id=record.candidate_id,
+        candidate_atom_hash=record.candidate_atom_hash,
+        world_model_record_content_hash=record.world_model_record_content_hash,
+        job_id=record.job_id,
+        run_id=record.run_id,
+        source_run_id=record.source_run_id,
+        tenant_id=record.tenant_id,
+        cell_id=record.cell_id,
+    )
+    calls = []
+
+    def replay(selected: ArtifactRef, *, expected: GenericN5ExecutionJoinExpectation) -> Any:
+        calls.append(selected)
+        assert selected == ref
+        assert expected.result_ref == record.result_ref
+        assert expected.semantic_successor_ref == semantic_ref
+        assert expected.input_ref == record.input_ref
+        assert expected.status == "joint_simulated"
+        if fault == "replay_removed":
+            return SimpleNamespace(status="unavailable", code="missing_result"), None
+        return SimpleNamespace(status="resolved", execution=record), object()
+
+    monkeypatch.setattr(owner, "resolve_n5_execution_join_with_result", replay)
+    expected_reason = None
+    if fault == "missing":
+        store = FileSystemCAS(tmp_path / "empty-cas")
+        owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+        expected_reason = "generic_n5_recovery_output_not_established"
+    elif fault in {"foreign_profile", "ambiguous"}:
+        options = owner._n5_execution_write_options(record)
+        selected_canon = _N5_TYPED_CANON
+        if fault == "foreign_profile":
+            options = replace(
+                options, producer=options.producer.model_copy(update={"version": "2"})
+            )
+            expected_reason = "generic_n5_recovery_manifest_mismatch"
+        else:
+            selected_canon = replace(_N5_TYPED_CANON, max_depth=_N5_TYPED_CANON.max_depth + 1)
+            options = replace(options, canon=CanonInfo.from_spec(selected_canon))
+            expected_reason = "generic_n5_recovery_output_ambiguous"
+        store.put_json(
+            record.model_dump(mode="python"),
+            options,
+            canon_spec=selected_canon,
+            return_selected_profile=True,
+        )
+    elif fault == "wrong_selection":
+        semantic_ref = semantic_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+        )
+        expected_reason = "generic_n5_recovery_execution_mismatch"
+    elif fault == "replay_removed":
+        expected_reason = "missing_result"
+    args = {
+        "expected": expected,
+        "semantic_successor_ref": semantic_ref,
+        "action_job_id": record.action_job_id,
+    }
+    if expected_reason is None:
+        assert owner.recover_semantic_successor_execution(**args) == (ref, record)
+        assert calls == [ref]
+    else:
+        with pytest.raises(CycleSubstrateContextOwnerError, match=expected_reason):
+            owner.recover_semantic_successor_execution(**args)
+        assert calls == ([ref] if fault == "replay_removed" else [])
 
 
 def test_v3_request_roundtrip_refuses_loss_across_the_complete_any_graph() -> None:

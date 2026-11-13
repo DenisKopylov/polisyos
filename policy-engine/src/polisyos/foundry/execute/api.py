@@ -121,6 +121,7 @@ from polisyos.foundry.execute.executor import (
     persist_method_execution_capture,
     put_state_snapshot,
 )
+from polisyos.foundry.execute.observation import ProgramGraphExecutionObserver
 from polisyos.foundry.feedback import (
     AlternativeSolution,
     MapEvaluation,
@@ -1640,6 +1641,7 @@ def execute_semantic_horizon_step(
     *,
     expected_invocation: ProgramGraphInputInvocation,
     step: SemanticHorizonStepContext,
+    observer: ProgramGraphExecutionObserver | None = None,
 ) -> ExecuteResult:
     """Execute one selected step from the opening binding or exact prior result."""
     if type(expected_invocation) is not ProgramGraphInputInvocation:
@@ -1658,6 +1660,7 @@ def execute_semantic_horizon_step(
         request,
         semantic_horizon_step=step,
         expected_invocation=expected_invocation,
+        program_graph_observer=observer,
     )
 
 
@@ -1669,6 +1672,7 @@ def _execute(
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
     expected_invocation: ProgramGraphInputInvocation | None = None,
     derived_tenant_context: ArtifactTenantContextInfo | None = None,
+    program_graph_observer: ProgramGraphExecutionObserver | None = None,
 ) -> ExecuteResult:
     if derived_tenant_context is not None:
         if type(derived_tenant_context) is not ArtifactTenantContextInfo:
@@ -1832,6 +1836,7 @@ def _execute(
             return_selected_profile=request.return_selected_profile,
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
+            observer=program_graph_observer,
         )
     except MethodExecutionAbortError as exc:
         return _method_execution_abort_result(

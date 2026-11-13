@@ -650,3 +650,161 @@ def test_unverified_model_input_successor_cannot_advertise_semantic_limitations(
             limitation_code="model_input_use_action_terminal_not_completed",
             semantic_input_limitation_codes=("optional_axis_unknown:methodology_ref",),
         )
+
+
+def _model_input_retained_projection_payload() -> dict[str, object]:
+    legacy = _model_input_successor_projection_payload()
+    return {
+        "run_id": legacy["run_id"],
+        "action_job_id": "current-use-action",
+        "action_status": "completed",
+        "result_status": "resolved",
+        "blocked_source": legacy["blocked_source"],
+        "current_action_phase_ref": _artifact_ref(
+            "runtime.quality.model_input_use_action_phase", "6"
+        ),
+        "current_semantic_successor_ref": _artifact_ref(
+            "runtime.quality.model_input_successor_selection", "7"
+        ),
+        "current_authority_decision_ref": _artifact_ref(
+            "runtime_quality.agent_action_authority_decision", "8"
+        ),
+        "current_use_decision_ref": _artifact_ref(
+            "runtime_quality.acquisition_evaluation_decision", "9"
+        ),
+        "current_basis_ref": _artifact_ref("runtime_quality.acquisition_evaluation_basis", "a"),
+        "selected_basis_ref": _artifact_ref("runtime_quality.acquisition_evaluation_basis", "b"),
+        "frontier_ref": _WORLD_HASH,
+        "frontier_revision": 1,
+        "frontier_selection": "superseded",
+        "basis_comparison_result": "equivalent",
+        "predicate_provenance": "recomputed",
+        "evaluation_provenance": "retained_prior",
+        "original_action_job_id": legacy["action_job_id"],
+        "original_input_ref": _artifact_ref(
+            "runtime.quality.generic_cycle_simulation_n5_input", "c"
+        ),
+        "original_semantic_successor_ref": legacy["semantic_successor_ref"],
+        "original_execution_ref": legacy["n5_execution_ref"],
+        "original_result_ref": legacy["simulation_result_ref"],
+        "result_body": legacy["result_body"],
+        "semantic_input_limitation_codes": ("optional_axis_unknown:methodology_ref",),
+        "current_basis_limitations": ("candidate_numerical_basis_only",),
+        "selected_basis_limitations": ("candidate_numerical_basis_only",),
+    }
+
+
+def test_retained_model_input_use_keeps_current_and_original_occurrences_separate() -> None:
+    from polisyos.core.contracts.runtime import (
+        RunModelInputUseN5SuccessorProjectionV2,
+        RunModelInputUseN5SuccessorResponse,
+    )
+
+    payload = _model_input_retained_projection_payload()
+    value = RunModelInputUseN5SuccessorProjectionV2.model_validate(payload)
+    assert value.action_job_id != value.original_action_job_id
+    assert value.current_semantic_successor_ref != value.original_semantic_successor_ref
+    assert value.frontier_selection == "superseded"
+    response = RunModelInputUseN5SuccessorResponse.model_validate(
+        {"meta": {"request_id": "retained-use"}, "result": value.model_dump(mode="json")}
+    )
+    restored = RunModelInputUseN5SuccessorResponse.model_validate_json(response.model_dump_json())
+    assert type(restored.result) is RunModelInputUseN5SuccessorProjectionV2
+    assert restored.result.original_result_ref == payload["original_result_ref"]
+    assert restored.result.result_body == value.result_body
+    assert restored.result.currentness_status == "not_established"
+    assert restored.result.observed_admission is False
+    assert restored.result.publication_authority is False
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"original_action_job_id": "current-use-action"},
+        {"basis_comparison_result": "different"},
+        {"predicate_provenance": "not_established"},
+        {"evaluation_provenance": "new_execution"},
+        {"current_use_decision_ref": None},
+        {"original_input_ref": _artifact_ref("foreign.input", "c")},
+        {
+            "original_execution_ref": _artifact_ref(
+                "runtime.quality.generic_cycle_simulation_n5_execution", "1"
+            )
+        },
+        {"original_result_ref": _artifact_ref("polisyos.runtime.joint_simulation_result", "e")},
+        {
+            "original_semantic_successor_ref": _artifact_ref(
+                "runtime.quality.model_input_successor_selection", "4", manifest_profile_sha256=None
+            )
+        },
+        {"publication_authority": True},
+    ],
+)
+def test_retained_model_input_use_rejects_rebinding_and_unproved_selection(
+    change: dict[str, object],
+) -> None:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjectionV2
+
+    with pytest.raises(ValidationError):
+        RunModelInputUseN5SuccessorProjectionV2.model_validate(
+            {**_model_input_retained_projection_payload(), **change}
+        )
+
+
+def test_fresh_v2_model_input_result_belongs_to_the_current_action() -> None:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjectionV2
+
+    payload = _model_input_retained_projection_payload()
+    payload.update(
+        original_action_job_id=payload["action_job_id"],
+        original_semantic_successor_ref=payload["current_semantic_successor_ref"],
+        basis_comparison_result="different",
+        evaluation_provenance="new_execution",
+    )
+    value = RunModelInputUseN5SuccessorProjectionV2.model_validate(payload)
+    assert value.original_action_job_id == value.action_job_id
+    with pytest.raises(ValidationError, match="run_model_input_use_v2_fresh_binding_invalid"):
+        RunModelInputUseN5SuccessorProjectionV2.model_validate(
+            {
+                **payload,
+                "original_semantic_successor_ref": _artifact_ref(
+                    "runtime.quality.model_input_successor_selection", "f"
+                ),
+            }
+        )
+
+
+def test_unestablished_v2_current_use_cannot_include_result_or_retention_facts() -> None:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjectionV2
+
+    limited = {
+        "run_id": "run-model-input",
+        "action_job_id": "current-use-action",
+        "action_status": "completed",
+        "result_status": "not_established",
+        "limitation_code": "model_input_use_original_evaluation_not_established",
+    }
+    assert RunModelInputUseN5SuccessorProjectionV2.model_validate(limited).result_body is None
+    for field, value in _model_input_retained_projection_payload().items():
+        if field in limited or field == "blocked_source":
+            continue
+        with pytest.raises(ValidationError):
+            RunModelInputUseN5SuccessorProjectionV2.model_validate({**limited, field: value})
+
+
+def test_successor_response_preserves_v1_missing_schema_default() -> None:
+    from polisyos.core.contracts.runtime import (
+        RunModelInputUseN5SuccessorProjection,
+        RunModelInputUseN5SuccessorResponse,
+    )
+
+    legacy = _model_input_successor_projection_payload()
+    assert "schema_version" not in legacy
+    value = RunModelInputUseN5SuccessorResponse.model_validate(
+        {"meta": {"request_id": "legacy-use"}, "result": legacy}
+    )
+    assert type(value.result) is RunModelInputUseN5SuccessorProjection
+    assert (
+        value.result.model_dump()
+        == RunModelInputUseN5SuccessorProjection.model_validate(legacy).model_dump()
+    )

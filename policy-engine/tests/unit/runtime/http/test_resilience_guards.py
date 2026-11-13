@@ -5,6 +5,7 @@ import sqlite3
 import threading
 from concurrent.futures import CancelledError as FutureCancelledError
 from concurrent.futures import Future, ThreadPoolExecutor
+from dataclasses import replace
 from typing import Any, NoReturn
 
 import pytest
@@ -303,6 +304,243 @@ class _ObservedThreadPool(ThreadPoolExecutor):
             self.captured_future = future
             self.submitted.set()
         return future
+
+
+def test_blocking_guard_preserves_on_time_backend_timeout_and_breaker_policy() -> None:
+    error = TimeoutError("backend timeout; test-only detail")
+    breaker = _RecordingCircuitBreaker()
+    guard = BlockingDependencyGuard(
+        dependency_name="test-backend",
+        timeout_seconds=1.0,
+        breaker=breaker,
+    )
+
+    def backend() -> None:
+        raise error
+
+    try:
+        with pytest.raises(TimeoutError) as caught:
+            guard.run(backend)
+        assert caught.value is error
+        assert not isinstance(caught.value, RuntimeDependencyTimeoutError)
+        assert breaker.is_closed()
+    finally:
+        guard.close()
+
+
+def test_blocking_guard_preserves_backend_timeout_unavailability_classification() -> None:
+    error = TimeoutError("backend raised its own timeout")
+    breaker = _RecordingCircuitBreaker()
+    guard = BlockingDependencyGuard(
+        dependency_name="test-backend",
+        timeout_seconds=1.0,
+        breaker=breaker,
+        unavailable_exception_types=(OSError,),
+    )
+
+    def backend() -> None:
+        raise error
+
+    try:
+        with pytest.raises(RuntimeDependencyUnavailableError) as caught:
+            guard.run(backend)
+        assert caught.value.__cause__ is error
+        assert breaker.is_open()
+    finally:
+        guard.close()
+
+
+@pytest.mark.parametrize("raises_timeout", [False, True])
+def test_blocking_guard_accepts_finished_outcome_before_delayed_future_delivery(
+    raises_timeout: bool,
+) -> None:
+    """A completed callable, not the delayed Future publication, owns timing."""
+    published = threading.Event()
+    release = threading.Event()
+    error = TimeoutError("completed before deadline")
+    returned = object()
+    callbacks: list[Future[Any]] = []
+
+    class DelayedFuturePublication(ThreadPoolExecutor):
+        def submit(self, fn: Any, /, *args: Any, **kwargs: Any) -> Future[Any]:
+            def invoke() -> Any:
+                try:
+                    return fn(*args, **kwargs)
+                finally:
+                    published.set()
+                    release.wait(timeout=5)
+
+            return super().submit(invoke)
+
+    executor = DelayedFuturePublication(max_workers=1)
+    breaker = _RecordingCircuitBreaker()
+    guard = BlockingDependencyGuard(
+        dependency_name="test-delayed-publication",
+        timeout_seconds=0.15,
+        breaker=breaker,
+        executor=executor,
+    )
+
+    def backend() -> object:
+        if raises_timeout:
+            raise error
+        return returned
+
+    try:
+        snapshot = replace(guard._snapshot(), on_timeout=callbacks.append)
+        if raises_timeout:
+            with pytest.raises(TimeoutError) as caught:
+                guard._run_snapshot(snapshot, backend)
+            assert caught.value is error
+        else:
+            assert guard._run_snapshot(snapshot, backend) is returned
+        assert published.is_set()
+        assert callbacks == []
+        assert breaker.is_closed()
+    finally:
+        release.set()
+        guard.close()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_blocking_guard_queued_deadline_cancels_without_late_callback() -> None:
+    executor = _ObservedThreadPool()
+    entered = threading.Event()
+    release = threading.Event()
+    callbacks: list[Future[Any]] = []
+    breaker = _RecordingCircuitBreaker()
+    guard = BlockingDependencyGuard(
+        dependency_name="test-queued",
+        timeout_seconds=0.15,
+        breaker=breaker,
+        executor=executor,
+    )
+
+    def occupy() -> None:
+        entered.set()
+        release.wait(timeout=5)
+
+    try:
+        executor.submit(occupy)
+        assert entered.wait(timeout=2)
+        executor.capture = True
+        snapshot = replace(guard._snapshot(), on_timeout=callbacks.append)
+        with pytest.raises(RuntimeDependencyTimeoutError) as caught:
+            guard._run_snapshot(snapshot, lambda: pytest.fail("queued call ran"))
+        diagnostic = caught.value.diagnostic()  # type: ignore[attr-defined]
+        assert diagnostic["wait_disposition"] == "cancelled_before_start"
+        assert diagnostic["queue_wait_seconds"] is None
+        assert executor.captured_future is not None and executor.captured_future.cancelled()
+        assert callbacks == []
+        assert breaker.is_open()
+    finally:
+        release.set()
+        guard.close()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_blocking_guard_running_deadline_retains_future_and_late_backend_exception() -> None:
+    entered = threading.Event()
+    release = threading.Event()
+    callbacks: list[Future[Any]] = []
+    backend_error = TimeoutError("late backend timeout")
+    breaker = _RecordingCircuitBreaker()
+    guard = BlockingDependencyGuard(
+        dependency_name="test-running",
+        timeout_seconds=0.15,
+        breaker=breaker,
+    )
+
+    def backend() -> None:
+        entered.set()
+        release.wait(timeout=5)
+        raise backend_error
+
+    try:
+        snapshot = replace(guard._snapshot(), on_timeout=callbacks.append)
+        with pytest.raises(RuntimeDependencyTimeoutError) as caught:
+            guard._run_snapshot(snapshot, backend)
+        assert entered.is_set()
+        assert len(callbacks) == 1 and callbacks[0].running()
+        diagnostic = caught.value.diagnostic()  # type: ignore[attr-defined]
+        assert diagnostic["timeout_seconds"] == 0.15
+        assert diagnostic["wait_disposition"] == "running_at_observation"
+        assert diagnostic["operation"]["qualname"].endswith(".backend")
+        assert "late backend timeout" not in str(diagnostic)
+        assert breaker.is_open()
+        release.set()
+        with pytest.raises(TimeoutError) as late:
+            callbacks[0].result(timeout=2)
+        assert late.value is backend_error
+        assert len(callbacks) == 1
+    finally:
+        release.set()
+        guard.close()
+
+
+def test_blocking_guard_rejects_late_backend_error_even_if_future_has_finished() -> None:
+    release = threading.Event()
+    error = TimeoutError("backend finished after wait deadline")
+    callbacks: list[Future[Any]] = []
+
+    class LateDeliveryExecutor(ThreadPoolExecutor):
+        def submit(self, fn: Any, /, *args: Any, **kwargs: Any) -> Future[Any]:
+            future = super().submit(fn, *args, **kwargs)
+            actual_result = future.result
+
+            def after_wait(timeout: float | None = None) -> Any:
+                try:
+                    return actual_result(timeout=timeout)
+                except TimeoutError:
+                    # The waiting thread is scheduled only after the deadline;
+                    # let the actual callable finish before returning control.
+                    release.set()
+                    return actual_result(timeout=3)
+
+            future.result = after_wait  # type: ignore[method-assign]
+            return future
+
+    executor = LateDeliveryExecutor(max_workers=1)
+    guard = BlockingDependencyGuard(
+        dependency_name="test-late-finished",
+        timeout_seconds=0.15,
+        breaker=_RecordingCircuitBreaker(),
+        executor=executor,
+    )
+
+    def backend() -> None:
+        release.wait(timeout=5)
+        raise error
+
+    try:
+        snapshot = replace(guard._snapshot(), on_timeout=callbacks.append)
+        with pytest.raises(RuntimeDependencyTimeoutError) as caught:
+            guard._run_snapshot(snapshot, backend)
+        diagnostic = caught.value.diagnostic()  # type: ignore[attr-defined]
+        assert diagnostic["wait_disposition"] == "finished_after_deadline"
+        assert len(callbacks) == 1 and callbacks[0].done()
+        with pytest.raises(TimeoutError) as late:
+            callbacks[0].result(timeout=1)
+        assert late.value is error
+    finally:
+        release.set()
+        guard.close()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_nested_guard_preserves_on_time_backend_timeout() -> None:
+    guard = build_runtime_control_store_guard()
+    error = TimeoutError("nested backend timeout")
+
+    def backend() -> None:
+        raise error
+
+    try:
+        with pytest.raises(RuntimeDependencyUnavailableError) as caught:
+            guard.run(lambda: guard.run(backend))
+        assert caught.value.__cause__ is error
+    finally:
+        guard.close()
 
 
 def test_blocking_guard_cancelled_future_releases_half_open_before_late_callback(

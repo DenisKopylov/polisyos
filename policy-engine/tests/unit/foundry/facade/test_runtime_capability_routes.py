@@ -13,6 +13,24 @@ import pytest
 # Duplicate occurrence rows remain distinct in the outcome ledger.
 _ROUTE_BINDINGS: tuple[tuple[str, str, str, int], ...] = (
     (
+        "polisyos/runtime/quality/acquisition_evaluation.py",
+        "polisyos.foundry.execute",
+        "load_model",
+        1,
+    ),
+    (
+        "polisyos/runtime/quality/acquisition_evaluation.py",
+        "polisyos.foundry.execute",
+        "load_payload",
+        1,
+    ),
+    (
+        "polisyos/runtime/quality/n5_candidate_content.py",
+        "polisyos.foundry.execute",
+        "load_model",
+        1,
+    ),
+    (
         "polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
         "polisyos.foundry.methods",
         "causal_worker_execution_context",
@@ -434,6 +452,18 @@ _OWNER_IDENTITIES: tuple[tuple[str, str, str, str], ...] = (
         "get_state_path",
         "polisyos.foundry.execute._internal.models",
         "get_state_path",
+    ),
+    (
+        "polisyos.foundry.execute",
+        "load_model",
+        "polisyos.foundry.execute._internal.models",
+        "load_model",
+    ),
+    (
+        "polisyos.foundry.execute",
+        "load_payload",
+        "polisyos.foundry.execute._internal.models",
+        "load_payload",
     ),
     (
         "polisyos.foundry.execute",

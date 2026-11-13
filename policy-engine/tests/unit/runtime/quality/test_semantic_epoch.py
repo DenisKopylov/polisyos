@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core import contracts
+from polisyos.core import artifacts, contracts
 from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.contracts import chronology as chronology_contract
@@ -1176,6 +1176,198 @@ def test_selected_epoch_reference_graph_resolves_manifest_profile_and_owner_view
     assert not epoch._owner_reference_graph_matches_selected(
         selected_profiles, {"candidate_ref": forged_profile}, store=store
     )
+
+
+def test_selected_graph_reopens_definition_document_only_in_its_typed_owner_role(
+    tmp_path: Path,
+) -> None:
+    """A declared selected document is a checked leaf, never a general codec."""
+    store = FileSystemCAS(tmp_path / "definition-graph")
+    evidence = store.put_bytes(
+        b"Source-owned definition of this measurement.",
+        PutOptions(kind="test.independent_definition_document", media_type="text/plain"),
+        return_selected_profile=True,
+    )
+    definition = contracts.VariableSemanticDefinition(
+        namespace="test.source",
+        stable_id="treasury",
+        revision="1",
+        meaning="Cash in the declared treasury at the start of the year.",
+        definition_evidence_refs=(
+            contracts.SelectedVariableBindingRef.model_validate(evidence.model_dump()),
+        ),
+    )
+    options = {
+        "kind": definition.ARTIFACT_KIND,
+        "media_type": definition.ARTIFACT_MEDIA_TYPE,
+        "schema": SchemaInfo(name=definition.ARTIFACT_SCHEMA_NAME, version="1.0"),
+    }
+    selected = store.put_json(
+        definition,
+        PutOptions(
+            **options,
+            inputs=[artifacts.input_ref_from_artifact_ref(evidence, role="definition_evidence")],
+        ),
+        return_selected_profile=True,
+    )
+    profiles = epoch._resolve_selected_reference_graph(store, {"definition": selected})
+    assert profiles is not None
+    assert profiles[epoch._selected_ref_identity(evidence)] == evidence.manifest_profile_sha256
+    assert epoch._resolve_selected_reference_graph(store, {"untyped": evidence}) is None
+
+    # The selected Core reader admits its declared supported codec; epoch must
+    # not invent a default-only restriction for otherwise identical bytes.
+    alternate_canon = store.put_json(
+        definition,
+        PutOptions(
+            **options,
+            inputs=[artifacts.input_ref_from_artifact_ref(evidence, role="definition_evidence")],
+        ),
+        canon_spec=epoch.canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert alternate_canon.artifact_id == selected.artifact_id
+    assert alternate_canon.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert (
+        artifacts.validate_core_model_json_artifact(
+            contracts.VariableSemanticDefinition, store, alternate_canon
+        )
+        == definition
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(store, {"definition": alternate_canon}) is not None
+    )
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        DecisionPacketEpochIssuanceOwner,
+    )
+
+    issuance = DecisionPacketEpochIssuanceOwner(store=store, root=tmp_path / "issuance")
+    assert issuance._read_exact(alternate_canon) == store.get_bytes(alternate_canon)
+    assert epoch_contract.acquisition_artifact_canon_info(alternate_canon.kind) is None
+    forged_canon = alternate_canon.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    assert epoch._resolve_selected_reference_graph(store, {"definition": forged_canon}) is None
+
+    alternate_store = FileSystemCAS(tmp_path / "alternate-core-graph")
+    alternate_evidence = alternate_store.put_bytes(
+        b"Source-owned definition of this measurement.",
+        PutOptions(kind="test.independent_definition_document", media_type="text/plain"),
+        return_selected_profile=True,
+    )
+    alternate_definition = definition.model_copy(
+        update={
+            "definition_evidence_refs": (
+                contracts.SelectedVariableBindingRef.model_validate(
+                    alternate_evidence.model_dump()
+                ),
+            )
+        }
+    )
+    alternate_default = alternate_store.put_json(
+        alternate_definition,
+        PutOptions(
+            **options,
+            inputs=[
+                artifacts.input_ref_from_artifact_ref(
+                    alternate_evidence, role="definition_evidence"
+                )
+            ],
+        ),
+        canon_spec=epoch.canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    selected_default, _ = epoch._load_owner_projection_mapping(
+        alternate_store,
+        ArtifactRef.model_validate(
+            alternate_default.model_dump() | {"manifest_profile_sha256": None}
+        ),
+    )
+    assert selected_default == alternate_default
+
+    methodology = store.put_bytes(
+        b"Source-owned measurement method.",
+        PutOptions(
+            kind="fabric.doc.raw",
+            media_type="text/plain",
+            schema=SchemaInfo(name="fabric.doc.raw", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    representation = contracts.VariableRepresentation(
+        schema_version="polisyos.catalog.variable_representation.v2",
+        representation_id="test.source.treasury",
+        revision="1",
+        semantic_definition_ref=contracts.VariableSemanticDefinitionRef.model_validate(
+            selected.model_dump()
+        ),
+        methodology_ref=contracts.SelectedVariableBindingRef.model_validate(
+            methodology.model_dump()
+        ),
+    )
+    selected_representation = store.put_json(
+        representation,
+        PutOptions(
+            kind=representation.ARTIFACT_KIND,
+            media_type=representation.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=representation.ARTIFACT_SCHEMA_NAME, version="2.0"),
+            inputs=list(contracts.variable_representation_manifest_inputs(representation)),
+        ),
+        return_selected_profile=True,
+    )
+    rep_profiles = epoch._resolve_selected_reference_graph(
+        store, {"representation": selected_representation}
+    )
+    assert rep_profiles is not None
+    assert (
+        rep_profiles[epoch._selected_ref_identity(methodology)]
+        == methodology.manifest_profile_sha256
+    )
+    alternate_representation = store.put_json(
+        representation,
+        PutOptions(
+            kind=representation.ARTIFACT_KIND,
+            media_type=representation.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=representation.ARTIFACT_SCHEMA_NAME, version="2.0"),
+            inputs=list(contracts.variable_representation_manifest_inputs(representation)),
+        ),
+        canon_spec=epoch.canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert alternate_representation.artifact_id == selected_representation.artifact_id
+    assert alternate_representation.manifest_profile_sha256 != (
+        selected_representation.manifest_profile_sha256
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(store, {"representation": alternate_representation})
+        is not None
+    )
+
+    # Same definition bytes cannot substitute a view that omits the source edge.
+    missing_edge = store.put_json(definition, PutOptions(**options), return_selected_profile=True)
+    assert missing_edge.artifact_id == selected.artifact_id
+    assert missing_edge.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert epoch._resolve_selected_reference_graph(store, {"definition": missing_edge}) is None
+
+    missing_document = definition.model_copy(
+        update={
+            "definition_evidence_refs": (
+                definition.definition_evidence_refs[0].model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+                ),
+            )
+        }
+    )
+    missing_ref = missing_document.definition_evidence_refs[0]
+    missing_selected = store.put_json(
+        missing_document,
+        PutOptions(
+            **options,
+            inputs=[artifacts.input_ref_from_artifact_ref(missing_ref, role="definition_evidence")],
+        ),
+        return_selected_profile=True,
+    )
+    assert epoch._resolve_selected_reference_graph(store, {"definition": missing_selected}) is None
 
 
 def test_selected_epoch_reference_graph_resolves_transitive_owner_projections_and_refuses_gaps(

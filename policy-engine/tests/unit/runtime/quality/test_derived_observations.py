@@ -1803,6 +1803,233 @@ literal_value = "identity"
     assert registry.families[0].expression.operator == "current_value"
 
 
+def _ratio_times_denominator_family_data() -> dict[str, object]:
+    """Declare a fixture-only ratio-times-total transform without product aliases."""
+
+    ratio_basis = _basis(
+        "relative_measure",
+        "ratio",
+        denominator_definition="fixture.denominator.v1",
+        period="2024",
+        ratio_definition="fixture.ratio.v1",
+        scope="jurisdiction",
+    )
+    denominator_basis = _basis(
+        "monetary_total",
+        "usd",
+        currency="USD",
+        definition="fixture.denominator.v1",
+        period="2024",
+        price_basis="current",
+        scope="economy_wide",
+    )
+    output_basis = _basis(
+        "monetary_flow",
+        "usd",
+        currency="USD",
+        period="annual",
+        price_basis="current",
+    )
+    return {
+        "family_id": "fixture_ratio_times_declared_total",
+        "method_id": "arithmetic.exact_year.ratio_times_declared_total",
+        "method_version": "1.0.0",
+        "input_specs": (
+            {"role": "denominator", "basis": denominator_basis},
+            {"role": "ratio", "basis": ratio_basis},
+        ),
+        "output_basis": output_basis,
+        "year_domain_role": "ratio",
+        "parameter_rules": (),
+        "output_parameter_bindings": (),
+        "expression": {
+            "operator": "multiply",
+            "operands": (
+                _leaf("current_value", role="ratio"),
+                _leaf("current_value", role="denominator"),
+            ),
+        },
+        "assumption_rules": (
+            {"name": "formula", "literal_value": "ratio * declared denominator"},
+            {"name": "year_join", "literal_value": "exact; no interpolation"},
+        ),
+    }
+
+
+def _ratio_times_denominator_bases() -> tuple[BasisSignature, BasisSignature, BasisSignature]:
+    """Return fixture bases with separate numerator/denominator role scopes."""
+
+    family = TransformFamily.model_validate(_ratio_times_denominator_family_data())
+    by_role = {item.role: item.basis for item in family.input_specs}
+    return by_role["ratio"], by_role["denominator"], family.output_basis
+
+
+def test_declared_ratio_times_denominator_materializes_and_replays_annual_flow(
+    tmp_path: Path,
+) -> None:
+    """A content-bound declared family computes a ratio against its exact role input."""
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    ratio_basis, denominator_basis, flow_basis = _ratio_times_denominator_bases()
+    refs = {
+        "ratio": _persist(
+            store,
+            role="fiscal-ratio",
+            basis=ratio_basis,
+            values=((2024, "-0.03"),),
+            score="0.8",
+        ),
+        "denominator": _persist(
+            store,
+            role="economy-wide-denominator",
+            basis=denominator_basis,
+            values=((2024, "200000000000"),),
+            score="0.8",
+        ),
+    }
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(_ratio_times_denominator_family_data()),
+        input_refs=refs,
+        output_variable_id="test.fixture.derived.flow",
+        output_basis=flow_basis,
+        family_id="fixture_ratio_times_declared_total",
+    )
+
+    produced = materialize_derivation(store, recipe)
+    consumed = consume_certified_derivation(
+        store,
+        certificate_ref=produced.certificate_artifact_ref,
+        consumer_method_id="test.fixture.derived.flow.consumer@1.0.0",
+    )
+
+    # Independent Decimal arithmetic: -3/100 × 200,000,000,000 = -6,000,000,000.
+    assert produced.series.points[0].value == Decimal("-6000000000.00")
+    assert produced.series.basis == flow_basis
+    assert produced.certificate.observation_class == "derived"
+    assert produced.series.source_artifact_ids == tuple(
+        sorted((refs["ratio"].artifact_id, refs["denominator"].artifact_id), key=str)
+    )
+    assert consumed.series == (Decimal("-6000000000.00"),)
+    assert consumed.certificate.observation_class == "derived"
+
+
+def test_ratio_derivation_requires_both_exact_roles_and_annual_flow_output(
+    tmp_path: Path,
+) -> None:
+    """Missing AND operands and a stock projection cannot resolve this family."""
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    ratio_basis, denominator_basis, flow_basis = _ratio_times_denominator_bases()
+    ratio_ref = _persist(
+        store,
+        role="ratio",
+        basis=ratio_basis,
+        values=((2024, "-0.03"),),
+        score="0.8",
+    )
+    denominator_ref = _persist(
+        store,
+        role="denominator",
+        basis=denominator_basis,
+        values=((2024, "200000000000"),),
+        score="0.8",
+    )
+    registry = _registry(_ratio_times_denominator_family_data())
+
+    with pytest.raises(DerivationRefusalError) as missing_operand:
+        build_derivation_recipe(
+            store,
+            registry=registry,
+            input_refs={"ratio": ratio_ref},
+            output_variable_id="test.fixture.partial.flow",
+            output_basis=flow_basis,
+            family_id="fixture_ratio_times_declared_total",
+        )
+    assert missing_operand.value.code is DerivationRefusalCode.BASIS_MISMATCH
+    assert missing_operand.value.reason is DerivationRefusalReason.NO_CERTIFIED_TRANSFORM
+
+    stock_basis = _basis(
+        "monetary_stock",
+        "usd",
+        currency="USD",
+        period="annual",
+        price_basis="current",
+    )
+    with pytest.raises(DerivationRefusalError) as stock_output:
+        build_derivation_recipe(
+            store,
+            registry=registry,
+            input_refs={"ratio": ratio_ref, "denominator": denominator_ref},
+            output_variable_id="test.fixture.invalid.stock",
+            output_basis=stock_basis,
+            family_id="fixture_ratio_times_declared_total",
+        )
+    assert stock_output.value.code is DerivationRefusalCode.BASIS_MISMATCH
+    assert stock_output.value.reason is DerivationRefusalReason.NO_CERTIFIED_TRANSFORM
+
+
+def test_ratio_derivation_requires_exact_denominator_basis_and_year(tmp_path: Path) -> None:
+    """A near-match denominator basis or absent required year refuses derivation."""
+
+    root = tmp_path / "cas"
+    store = artifacts.FileSystemCAS(root)
+    ratio_basis, denominator_basis, flow_basis = _ratio_times_denominator_bases()
+    ratio_ref = _persist(
+        store,
+        role="ratio",
+        basis=ratio_basis,
+        values=((2024, "-0.03"),),
+        score="0.8",
+    )
+    registry = _registry(_ratio_times_denominator_family_data())
+    wrong_denominator_basis = _basis(
+        "monetary_total",
+        "usd",
+        currency="USD",
+        definition="fixture.revenue.v1",
+        period="2024",
+        price_basis="current",
+        scope="economy_wide",
+    )
+    wrong_denominator = _persist(
+        store,
+        role="revenue-like-near-match",
+        basis=wrong_denominator_basis,
+        values=((2024, "200000000000"),),
+        score="0.8",
+    )
+    with pytest.raises(DerivationRefusalError) as wrong_definition:
+        build_derivation_recipe(
+            store,
+            registry=registry,
+            input_refs={"ratio": ratio_ref, "denominator": wrong_denominator},
+            output_variable_id="test.fixture.wrong.definition",
+            output_basis=flow_basis,
+            family_id="fixture_ratio_times_declared_total",
+        )
+    assert wrong_definition.value.reason is DerivationRefusalReason.NO_CERTIFIED_TRANSFORM
+
+    dated_denominator = _persist(
+        store,
+        role="denominator",
+        basis=denominator_basis,
+        values=((2023, "200000000000"),),
+        score="0.8",
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=registry,
+        input_refs={"ratio": ratio_ref, "denominator": dated_denominator},
+        output_variable_id="test.fixture.wrong.year",
+        output_basis=flow_basis,
+        family_id="fixture_ratio_times_declared_total",
+    )
+    with pytest.raises(DerivationRefusalError) as wrong_year:
+        materialize_derivation(store, recipe)
+    assert wrong_year.value.code is DerivationRefusalCode.EXACT_YEAR_MISSING
+
+
 def test_v1_direct_exports_remain_a_typed_fail_closed_boundary() -> None:
     legacy_exports = {
         "ECONOMIC_SERIES_KIND",

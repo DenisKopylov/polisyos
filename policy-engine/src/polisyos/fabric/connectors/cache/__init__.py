@@ -35,6 +35,7 @@ from .store import (
     ResultSerializer,
     capture_cache_source_intent,
     verify_selected_cache_payload_ref,
+    verify_selected_cache_payload_writer_profile,
 )
 
 __all__ = [
@@ -64,4 +65,5 @@ __all__ = [
     "capture_cache_source_intent",
     "make_schema_hash_provider",
     "verify_selected_cache_payload_ref",
+    "verify_selected_cache_payload_writer_profile",
 ]

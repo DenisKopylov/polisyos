@@ -5,7 +5,10 @@ from __future__ import annotations
 import importlib
 import sys
 import types
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.foundry.execute.executor import load_model, load_payload
 
 __all__ = [
     "BoundedNumericNPZError",
@@ -13,6 +16,7 @@ __all__ = [
     "ExecutionSourceAdmission",
     "ExecutionSourceAdmissionRefusal",
     "BoundedExecutionSourceReader",
+    "ProgramGraphExecutionObserver",
     "ExecutionSourceBoundedReadRefusal",
     "ResolvedExecutionPosture",
     "SnapshotStateInputReadRefusal",
@@ -29,9 +33,12 @@ __all__ = [
     "read_method_artifact_output_bounded",
     "execution_input_basis_sources",
     "get_state_path",
+    "load_model",
+    "load_payload",
     "load_state_snapshot",
     "new_method_execution_capture",
     "persist_method_execution_capture",
+    "prepare_program_graph_mechanism_calls",
     "put_state_snapshot",
     "program_graph_declares_model_input_ports",
     "recompute_program_graph_inputs",
@@ -46,6 +53,10 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ProgramGraphExecutionObserver": (
+        "polisyos.foundry.execute.observation",
+        "ProgramGraphExecutionObserver",
+    ),
     "StateSnapshotValueLeaf": (
         "polisyos.foundry.execute._internal.snapshots",
         "StateSnapshotValueLeaf",
@@ -136,6 +147,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "execution_input_basis_sources",
     ),
     "get_state_path": ("polisyos.foundry.execute._internal.models", "get_state_path"),
+    "load_model": ("polisyos.foundry.execute.executor", "load_model"),
+    "load_payload": ("polisyos.foundry.execute.executor", "load_payload"),
     "load_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",
         "load_state_snapshot",
@@ -147,6 +160,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "persist_method_execution_capture": (
         "polisyos.foundry.execute.executor",
         "persist_method_execution_capture",
+    ),
+    "prepare_program_graph_mechanism_calls": (
+        "polisyos.foundry.execute.executor",
+        "prepare_program_graph_mechanism_calls",
     ),
     "program_graph_declares_model_input_ports": (
         "polisyos.foundry.execute.model_input_requirements",

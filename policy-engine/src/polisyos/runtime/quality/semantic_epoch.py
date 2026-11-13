@@ -56,6 +56,9 @@ _FACET_REGISTRY_PREFIX = b"polisyos.epoch.facet-registry.v1\0"
 _FACET_DENOMINATOR_PREFIX = b"polisyos.epoch.facet-denominator.v1\0"
 _MANIFEST_PREFIX = b"polisyos.epoch.semantic-manifest.v1\0"
 _EPOCH_PREFIX = b"polisyos.epoch.semantic-version.v1\0"
+_VARIABLE_SOURCE_CORE_KINDS = frozenset(
+    {"catalog.variable_semantic_definition", "catalog.variable_representation"}
+)
 
 
 class _EpochModel(BaseModel):
@@ -370,6 +373,25 @@ def _load_selected_acquisition_mapping(
         raise ValueError("selected acquisition artifact selector is not established")
     if codec.payload_format in {"identity_token", "unresolved_reference"}:
         raise ValueError("selected reference has no evidence-byte resolver")
+    if expected_kind in _VARIABLE_SOURCE_CORE_KINDS:
+        # Reuse the actual Core owners, including their selected-profile and
+        # typed-schema checks; the evidence documents remain candidate inputs.
+        manifest = store.get_manifest(ref)
+        if expected_kind == "catalog.variable_semantic_definition":
+            definition = artifacts.validate_core_model_json_artifact(
+                contracts.VariableSemanticDefinition, store, ref
+            )
+            expected_inputs = tuple(
+                artifacts.input_ref_from_artifact_ref(item, role="definition_evidence")
+                for item in definition.definition_evidence_refs
+            )
+            if tuple(manifest.inputs) != expected_inputs:
+                raise ValueError("selected variable definition manifest inputs differ")
+            return definition.model_dump(mode="json")
+        representation = contracts.load_variable_representation(
+            store, contracts.VariableRepresentationRef.model_validate(ref.model_dump())
+        )
+        return representation.model_dump(mode="json")
     expected_schema = epoch_contract._known_epoch_statement_manifest_schema(expected_kind, codec)
     if codec.canon is not None:
         input_expectation = epoch_contract._known_epoch_statement_manifest_inputs(expected_kind)
@@ -548,6 +570,7 @@ def _load_owner_projection_mapping(
             "canonical_json",
             "raw_json",
             "producer_json",
+            "selected_core_json",
             "connector_cache_payload",
             "opaque_bytes",
             "native_coordinate",
@@ -566,7 +589,10 @@ def _load_owner_projection_mapping(
             getattr(manifest, "artifact_id", None) != ref.artifact_id
             or getattr(manifest, "kind", None) != ref.kind
             or getattr(manifest, "media_type", None) != codec.media_type
-            or getattr(manifest, "canon", None) != codec.canon
+            or (
+                ref.kind not in _VARIABLE_SOURCE_CORE_KINDS
+                and getattr(manifest, "canon", None) != codec.canon
+            )
         ):
             raise ValueError("owner default manifest differs from its registered codec")
         profile = artifacts.artifact_manifest_profile_sha256(manifest)
@@ -618,6 +644,42 @@ def _data_snapshot_manifest_inputs_match(
     except (OSError, TypeError, ValueError, RuntimeError):
         return False
     return True
+
+
+def _verified_variable_document_leaves(
+    store: ArtifactStore,
+    *,
+    kind: str,
+    mapping: MappingABC[str, object],
+) -> tuple[ArtifactRef, ...]:
+    """Verify selected documents named in an already qualified typed source.
+
+    Their bytes establish documentation identity, not semantic authority. This
+    role-specific rule is not a codec for arbitrary unknown graph roots.
+    """
+    documents: list[ArtifactRef] = []
+    if kind == "catalog.variable_semantic_definition":
+        values = mapping.get("definition_evidence_refs")
+        if not isinstance(values, (tuple, list)) or not values:
+            raise ValueError("selected variable definition documents missing")
+        documents.extend(
+            contracts.SelectedVariableBindingRef.model_validate(item) for item in values
+        )
+    elif kind == "catalog.variable_representation":
+        methodology = mapping.get("methodology_ref")
+        if methodology is not None:
+            documents.append(contracts.SelectedVariableBindingRef.model_validate(methodology))
+    for document in documents:
+        manifest = store.get_manifest(document)
+        if (
+            manifest.artifact_id != document.artifact_id
+            or manifest.kind != document.kind
+            or manifest.media_type != document.media_type
+            or artifact_manifest_profile_sha256(manifest) != document.manifest_profile_sha256
+            or not store.verify(document).ok
+        ):
+            raise ValueError("selected variable documentation differs")
+    return tuple(documents)
 
 
 def _walk_verified_reference_graph(
@@ -752,7 +814,23 @@ def _walk_verified_reference_graph(
             ):
                 deferred_native_projections[resolved_key] = (selected_ref, mapping)
                 continue
-            pending.extend((nested, True) for nested in _artifact_ref_graph(mapping))
+            document_keys: set[tuple[tuple[str, str, str], str]] = set()
+            for document in _verified_variable_document_leaves(
+                store, kind=ref.kind, mapping=mapping
+            ):
+                document_identity = _selected_ref_identity(document)
+                document_profile = document.manifest_profile_sha256
+                if document_profile is None:
+                    return None
+                if profiles.setdefault(document_identity, document_profile) != document_profile:
+                    return None
+                document_keys.add((document_identity, document_profile))
+            pending.extend(
+                (nested, True)
+                for nested in _artifact_ref_graph(mapping)
+                if (_selected_ref_identity(nested), nested.manifest_profile_sha256)
+                not in document_keys
+            )
         for ref, role, payload in coordinate_payloads:
             binding = coordinate_bindings.get(_selected_ref_identity(ref))
             if binding is None or binding[0] != role:
@@ -1047,7 +1125,10 @@ def _live_source_candidate_graph_matches(
     """Reconcile live payload lineage; caller-provided source labels stay descriptive."""
     schema_version = passport_mapping.get("schema_version")
     source_lane = passport_mapping.get("source_lane")
-    if schema_version != "polisyos.runtime.acquisition_admission_passport.v2":
+    if schema_version not in {
+        "polisyos.runtime.acquisition_admission_passport.v2",
+        "polisyos.runtime.acquisition_admission_passport.v3",
+    }:
         return source_lane != "live_fetch"
     try:
         from polisyos.data_forge.read_api import catalog as catalog_read_api
@@ -1055,10 +1136,11 @@ def _live_source_candidate_graph_matches(
         from polisyos.fabric.ingestion import verify_live_ingestion_evidence_profile
         from polisyos.runtime.quality.acquisition_executor import (
             PASSPORT_SCHEMA_VERSION,
+            SCOPED_PASSPORT_SCHEMA_VERSION,
             AdmissionPassport,
         )
 
-        if schema_version != PASSPORT_SCHEMA_VERSION:
+        if schema_version not in {PASSPORT_SCHEMA_VERSION, SCOPED_PASSPORT_SCHEMA_VERSION}:
             return False
         passport = AdmissionPassport.model_validate(passport_mapping)
         if passport.source_lane != "live_fetch":
@@ -2882,6 +2964,20 @@ _OWNER_SNAPSHOT_REFERENCE_ROLES: dict[str, dict[tuple[str, ...], str]] = {
             "rows",
             "*",
             "observed_passport_json",
+            "source_authority_entry",
+            "source_semantic_definition_ref",
+        ): "catalog.variable_semantic_definition",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "source_authority_entry",
+            "source_representation_ref",
+        ): "catalog.variable_representation",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
             "semantic_boundary_candidate_ref",
         ): "epoch.acquisition_semantic_boundary_candidate",
         ("rows", "*", "observed_passport_json", "prepared_semantic_epoch_ref"): "epoch.prepared",
@@ -3133,6 +3229,7 @@ def _catalog_passport_models(
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.runtime.quality.acquisition_executor import (
         PASSPORT_SCHEMA_VERSION,
+        SCOPED_PASSPORT_SCHEMA_VERSION,
         AdmissionPassport,
     )
 
@@ -3150,7 +3247,7 @@ def _catalog_passport_models(
         if not isinstance(value, dict):
             raise ValueError("acquisition owner passport is not a mapping")
         version = value.get("schema_version")
-        if version == PASSPORT_SCHEMA_VERSION:
+        if version in {PASSPORT_SCHEMA_VERSION, SCOPED_PASSPORT_SCHEMA_VERSION}:
             passport = AdmissionPassport.model_validate(value)
         elif version == catalog_read_api.LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION:
             passport = catalog_read_api.LegacyAdmissionPassport.model_validate(value)
@@ -3226,11 +3323,15 @@ def _validate_bound_v2_catalog_row_passport(
 
     from polisyos.runtime.quality.acquisition_executor import (
         PASSPORT_SCHEMA_VERSION,
+        SCOPED_PASSPORT_SCHEMA_VERSION,
         AdmissionPassport,
     )
 
-    if passport_mapping.get("schema_version") != PASSPORT_SCHEMA_VERSION:
-        raise ValueError("bound acquisition passport is not current v2")
+    if passport_mapping.get("schema_version") not in {
+        PASSPORT_SCHEMA_VERSION,
+        SCOPED_PASSPORT_SCHEMA_VERSION,
+    }:
+        raise ValueError("bound acquisition passport schema is unsupported")
     row = _BoundV2CatalogAcquisitionOwnerRow.model_validate(source_row)
     passport = AdmissionPassport.model_validate(passport_mapping)
     if not _catalog_bound_v2_producer_decision_matches(
@@ -3289,9 +3390,10 @@ def _validate_owner_snapshot_reference_graph(value: object, *, owner_kind: str) 
             if declared != set(embedded_roles):
                 if declared:
                     raise ValueError("Catalog passport schema reference roles are incomplete")
-                if embedded_roles and getattr(passport, "schema_version", None) == (
-                    "polisyos.runtime.acquisition_admission_passport.v2"
-                ):
+                if embedded_roles and getattr(passport, "schema_version", None) in {
+                    "polisyos.runtime.acquisition_admission_passport.v2",
+                    "polisyos.runtime.acquisition_admission_passport.v3",
+                }:
                     raise ValueError("Catalog v2 passport reference schema is incomplete")
             model_nodes.append((passport, prefix))
             top_stamp = row.semantic_epoch_stamp

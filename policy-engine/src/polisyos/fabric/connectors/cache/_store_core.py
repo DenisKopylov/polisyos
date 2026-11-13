@@ -84,6 +84,7 @@ datetime = _datetime
 __all__ = [
     "ConnectorCacheStore",
     "verify_selected_cache_payload_ref",
+    "verify_selected_cache_payload_writer_profile",
 ]
 
 logger = get_logger(__name__)
@@ -279,6 +280,93 @@ def _selected_cache_source_intent(
         return None
 
 
+def _selected_cache_writer_profile_matches(
+    cas_store: VerifiableArtifactReader,
+    payload_ref: ArtifactRef,
+    *,
+    intent: CacheSourceIntent,
+    execution_context: IngestionExecutionContext | None,
+    classification: DataClassification | str | None,
+    column_classification: Mapping[str, DataClassification | str] | None,
+) -> bool:
+    """Reconcile both exact manifest profiles against this owner's writer options."""
+    context = _copy_execution_context(execution_context)
+    execution_inputs = _execution_context_inputs(context)
+    manifest = cas_store.get_manifest(payload_ref)
+    intent_edges = [edge for edge in manifest.inputs if edge.role == _SOURCE_INTENT_ROLE]
+    if len(intent_edges) != 1 or intent_edges[0].manifest_profile_sha256 is None:
+        return False
+    edge = intent_edges[0]
+    intent_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=_SOURCE_INTENT_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    if CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref)) != intent:
+        return False
+    governance = resolve_artifact_governance(
+        scope=RetentionScope.CACHE,
+        classification=classification,
+        column_classification=column_classification,
+    )
+    return _matches_exact_write_profile(
+        cas_store,
+        intent_ref,
+        _source_intent_write_options(
+            context=context, execution_inputs=execution_inputs, governance=governance
+        ),
+    ) and _matches_exact_write_profile(
+        cas_store,
+        payload_ref,
+        _direct_cache_payload_write_options(
+            media_type=payload_ref.media_type,
+            source_intent_ref=intent_ref,
+            execution_inputs=execution_inputs,
+            governance=governance,
+        ),
+    )
+
+
+def verify_selected_cache_payload_writer_profile(
+    cas_store: VerifiableArtifactReader,
+    payload_ref: ArtifactRef,
+    *,
+    connector_id: str,
+    dataset_id: str,
+    execution_context: IngestionExecutionContext | None = None,
+    classification: DataClassification | str | None = None,
+    column_classification: Mapping[str, DataClassification | str] | None = None,
+) -> bool:
+    """Qualify selected cache writer views without claiming request authority.
+
+    This checks the selected bytes, source-intent edge and the existing writer
+    manifest options. It does not compare a request or connection configuration,
+    establish source currentness, or grant permission to use the result.
+    """
+    try:
+        intent = _selected_cache_source_intent(
+            cas_store, payload_ref, execution_context=execution_context
+        )
+        return (
+            intent is not None
+            and bool(connector_id)
+            and bool(dataset_id)
+            and intent.connector_id == connector_id
+            and intent.dataset_id == dataset_id
+            and _selected_cache_writer_profile_matches(
+                cas_store,
+                payload_ref,
+                intent=intent,
+                execution_context=execution_context,
+                classification=classification,
+                column_classification=column_classification,
+            )
+        )
+    except Exception:
+        return False
+
+
 def verify_selected_cache_payload_ref[ResultDataT](
     cas_store: VerifiableArtifactReader,
     payload_ref: ArtifactRef,
@@ -321,45 +409,14 @@ def verify_selected_cache_payload_ref[ResultDataT](
                 or cas_store.get_bytes(payload_ref) != result_bytes
             ):
                 return False
-        if require_writer_profile:
-            context = _copy_execution_context(execution_context)
-            execution_inputs = _execution_context_inputs(context)
-            manifest = cas_store.get_manifest(payload_ref)
-            intent_edges = [edge for edge in manifest.inputs if edge.role == _SOURCE_INTENT_ROLE]
-            if len(intent_edges) != 1 or intent_edges[0].manifest_profile_sha256 is None:
-                return False
-            edge = intent_edges[0]
-            intent_ref = ArtifactRef(
-                artifact_id=edge.artifact_id,
-                kind=_SOURCE_INTENT_KIND,
-                media_type="application/json",
-                manifest_profile_sha256=edge.manifest_profile_sha256,
-            )
-            if CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref)) != intent:
-                return False
-            governance = resolve_artifact_governance(
-                scope=RetentionScope.CACHE,
-                classification=classification,
-                column_classification=column_classification,
-            )
-            if not _matches_exact_write_profile(
-                cas_store,
-                intent_ref,
-                _source_intent_write_options(
-                    context=context, execution_inputs=execution_inputs, governance=governance
-                ),
-            ) or not _matches_exact_write_profile(
-                cas_store,
-                payload_ref,
-                _direct_cache_payload_write_options(
-                    media_type=payload_ref.media_type,
-                    source_intent_ref=intent_ref,
-                    execution_inputs=execution_inputs,
-                    governance=governance,
-                ),
-            ):
-                return False
-        return True
+        return not require_writer_profile or _selected_cache_writer_profile_matches(
+            cas_store,
+            payload_ref,
+            intent=intent,
+            execution_context=execution_context,
+            classification=classification,
+            column_classification=column_classification,
+        )
     except Exception:
         return False
 

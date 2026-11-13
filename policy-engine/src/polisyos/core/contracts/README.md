@@ -63,6 +63,10 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 ## Public API
 
+The stable lazy facade exports `ProgramEdge` and `ProgramOp` from the same
+Foundry graph-contract owner as `ProgramGraph` and `ProgramNode`. These are
+the original DTO classes; their persisted representation is unchanged.
+
 `MethodExecutionCandidateOutcome.from_json_payload()` is the typed intake for an
 already decoded, bounded JSON candidate summary. It reuses Core's strict JSON
 wire owner so persisted arrays can reconstruct tuple fields without accepting

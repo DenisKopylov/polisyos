@@ -12,6 +12,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, ClassVar
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -514,6 +515,7 @@ def _build_acquisition_epoch_fixture_service(
     store: FileSystemCAS,
     authority: catalog_read_api.CanonicalAcquisitionAuthority,
     root: Path,
+    overlay_path: Path | None = None,
 ) -> tuple[
     epoch.SemanticEpochService,
     CatalogAcquisitionOverlay,
@@ -523,7 +525,7 @@ def _build_acquisition_epoch_fixture_service(
     root.mkdir(parents=True, exist_ok=True)
     overlay = CatalogAcquisitionOverlay(
         authority.baseline_path,
-        root / "acquisition-overlay.duckdb",
+        overlay_path if overlay_path is not None else root / "acquisition-overlay.duckdb",
     )
     overlay.initialize()
     facet_ref = store.put_bytes(
@@ -1470,3 +1472,346 @@ def make_native_multivariable_active_projections(
         entries=entries,
         native_service=native_case.service,
     )
+
+
+@dataclass(slots=True)
+class NativeLiveMeasurementHistory:
+    """Admit controlled live observations through one real Catalog history.
+
+    The controlled transport and Catalog metadata are fixture-owned inputs.
+    They do not establish external empirical provenance or production authority.
+    Each named attempt performs its own physical Fabric acquisition and retains
+    its own raw, normalized, passport, signed policy and activation artifacts.
+    """
+
+    repo_root: Path
+    authority: Any
+    entry: Any
+    profile: Any
+    store: FileSystemCAS
+    overlay: CatalogAcquisitionOverlay
+    service: Any
+    history: FileSemanticEpochHistoryRepository
+    custodian: NativeEpochFixtureCustodian
+    attempt_ids: tuple[str, ...]
+    fixture_root: Path
+    used_attempts: list[str] = field(default_factory=list)
+    prior_admission_refs: list[artifacts.ArtifactRef] = field(default_factory=list)
+    response_body: bytes | None = None
+    transport_calls: int = 0
+
+    def admit(self, value: int | float) -> SimpleNamespace:
+        """Capture, admit and activate the next declared finite measurement."""
+        from math import isfinite
+
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+        from polisyos.core.contracts import DataSnapshot
+        from polisyos.runtime.quality.acquisition_executor import (
+            LiveCatalogExecutionConstraints,
+            execute_live_catalog_acquisition,
+        )
+        from tests._helpers.lane01_wdi_profiles import fixture_wdi_response
+
+        if isinstance(value, bool) or not isinstance(value, int | float):
+            raise ValueError("native_live_fixture_value_not_finite")
+        try:
+            if not isfinite(value):
+                raise ValueError("native_live_fixture_value_not_finite")
+        except OverflowError as exc:
+            raise ValueError("native_live_fixture_value_not_finite") from exc
+        if len(self.used_attempts) >= len(self.attempt_ids) or self.response_body is not None:
+            raise ValueError("native_live_fixture_attempt_not_available")
+        attempt_id = self.attempt_ids[len(self.used_attempts)]
+        self.used_attempts.append(attempt_id)
+        self.response_body = fixture_wdi_response(self.profile, value=float(value))
+        calls_before = self.transport_calls
+        try:
+            evidence = execute_live_catalog_acquisition(
+                authority=self.authority,
+                entry_id=self.entry.entry_id,
+                attempt_id=attempt_id,
+                constraints=LiveCatalogExecutionConstraints(
+                    country_code=self.profile.country_code,
+                    start_year=self.profile.year,
+                    end_year=self.profile.year,
+                    page_size=1000,
+                    max_response_bytes=65_536,
+                    max_decompressed_bytes=65_536,
+                    timeout_cap_seconds=15.0,
+                    heartbeat_cap_seconds=5.0,
+                ),
+                journal_path=self.fixture_root / "live-journal.jsonl",
+                cas_root=self.store.root,
+                artifact_store=self.store,
+                cache_namespace=f"native-live-fixture-{attempt_id}",
+            )
+        finally:
+            self.response_body = None
+        if self.transport_calls != calls_before + 1 or evidence.call_count != 1:
+            raise AssertionError("native_live_fixture_physical_fetch_not_established")
+        snapshot = validate_core_model_json_artifact(
+            DataSnapshot, self.store, evidence.data_snapshot_ref
+        )
+        source_ref = snapshot.data_ref
+        if source_ref.artifact_id != evidence.normalized_data_artifact_id:
+            raise AssertionError("native_live_fixture_normalized_source_mismatch")
+        ordinal = len(self.used_attempts)
+        candidate0, prepared0 = _semantic_handshake(
+            self.store,
+            source_ref=source_ref,
+            authority=self.authority,
+            service_root=self.fixture_root / "handshakes" / f"attempt-{ordinal:02d}",
+        )
+        native_query = self.service.acquisition_owner_query(query=prepared0.query)
+        statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
+            source_record_ref=candidate0.statement.source_record_ref,
+            source_record_content_hash=candidate0.statement.source_record_content_hash,
+            scope_identity_ref=native_query.scope_identity_ref,
+            authority_purpose=native_query.authority_purpose,
+            valid_effect_coordinate_ref=native_query.valid_effect_coordinate_ref,
+            visibility_knowledge_cutoff_ref=native_query.visibility_knowledge_cutoff_ref,
+            purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
+            requested_query_context_ref=native_query.requested_query_context_ref,
+        )
+        candidate = _persist_acquisition_semantic_candidate(
+            artifact_store=self.store, statement=statement
+        )
+        prepared = self.service.prepare_acquisition_candidate(
+            query=prepared0.query, candidate_ref=candidate.candidate_ref
+        )
+        passport = build_admission_passport(
+            epoch_id=ordinal,
+            raw_evidence_ref=evidence.raw_evidence_ref,
+            artifact_store=self.store,
+            raw_artifact_id=str(evidence.raw_artifact_id),
+            authority=self.authority,
+            boundary_candidate=candidate,
+            prepared_epoch=prepared,
+            live_source_execution=evidence,
+        )
+        pending = self.overlay.admit_epoch(
+            passport=passport,
+            prepared_epoch=prepared,
+            boundary_candidate=candidate,
+            artifact_store=self.store,
+            authority=self.authority,
+        )
+        scenario = SimpleNamespace(
+            store=self.store,
+            authority=self.authority,
+            entry=self.entry,
+            raw_ref=evidence.raw_evidence_ref,
+            overlay=self.overlay,
+            history=self.history,
+            service=self.service,
+            query=prepared0.query,
+            candidate=candidate,
+            prepared=prepared,
+            passport=passport,
+            pending=pending,
+        )
+        native_case = sign_native_epoch_scenario(
+            scenario,
+            self.fixture_root / f"policy-{ordinal:02d}",
+            custodian=self.custodian,
+            prior_admission_refs=tuple(self.prior_admission_refs),
+        )
+        self.prior_admission_refs.append(native_case.signed.evidence.evidence_record_ref)
+        finalized = finalize_native_epoch_case(native_case)
+        projection = self.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=finalized.activated.receipt_ref,
+            artifact_store=self.store,
+            passport=passport,
+            authority=self.authority,
+        )
+        return SimpleNamespace(
+            repo_root=self.repo_root,
+            baseline_path=self.authority.baseline_path,
+            overlay_path=self.overlay.overlay_path,
+            artifact_store=self.store,
+            authority=self.authority,
+            overlay=self.overlay,
+            entries=(self.entry,),
+            projections={self.entry.target_variable: projection},
+            passport=passport,
+            evidence=evidence,
+            finalized=finalized,
+        )
+
+
+def make_native_live_measurement_history(
+    tmp_path: Path,
+    *,
+    profile: Any,
+    semantic_definition_ref: artifacts.ArtifactRef,
+    representation_ref: artifacts.ArtifactRef,
+    attempt_ids: Sequence[str],
+    artifact_store: FileSystemCAS,
+    monkeypatch: Any,
+    fixture_custodian: NativeEpochFixtureCustodian | None = None,
+    source_measure_scope: Mapping[str, object] | None = None,
+) -> NativeLiveMeasurementHistory:
+    """Provision one test-owned live source with selected model-port semantics.
+
+    All expected attempts are provisioned before execution. The
+    controlled response intercepts the actual registered connector; no real
+    provider response, production license or currentness is asserted. Any
+    ``source_measure_scope`` is an explicit fixture source declaration, never
+    inferred from a model port.
+    """
+    from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile, build_fixture_wdi_authority
+
+    if type(profile) is not CandidateWDIProfile:
+        raise TypeError("native_live_fixture_profile_untyped")
+    attempts = tuple(attempt_ids)
+    if (
+        not attempts
+        or any(
+            type(item) is not str or not item.strip() or item != item.strip() for item in attempts
+        )
+        or len(set(attempts)) != len(attempts)
+    ):
+        raise ValueError("native_live_fixture_attempt_ids_invalid")
+    authority, original_entry = build_fixture_wdi_authority(
+        tmp_path / "repo",
+        profile,
+        attempt_id=attempts[0],
+        subsequent_attempt_ids=attempts[1:],
+    )
+    entry_values = {
+        name: getattr(original_entry, name)
+        for name in type(original_entry).model_fields
+        if name != "entry_id"
+    }
+    entry_values.update(
+        source_semantic_definition_ref=semantic_definition_ref,
+        source_representation_ref=representation_ref,
+        # The source profile explicitly supplies its ISO-3 and ISO-2 forms.
+        country_codes=tuple(sorted({profile.country_code, profile.country_id})),
+    )
+    if source_measure_scope is not None:
+        entry_values["source_measure_scope"] = (
+            catalog_read_api.AcquisitionSourceMeasureScope.model_validate(source_measure_scope)
+        )
+    entry = catalog_read_api.build_authority_entry(**entry_values)
+    registry = catalog_read_api.build_authority_registry(
+        baseline_content_sha256=_sha(authority.baseline_path),
+        l5_measurement_registry_sha256=_sha(authority.l5_path),
+        entries=(entry,),
+    )
+    authority.registry_path.write_text(
+        json.dumps(registry.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    provision_values = authority.provision.model_dump(
+        mode="python", exclude={"schema_version", "provision_id", "authority_purpose"}
+    )
+    provision_values["live_harness_receipts"] = tuple(
+        {**item.model_dump(mode="python"), "entry_id": entry.entry_id}
+        for item in authority.provision.live_harness_receipts
+    )
+    provision = catalog_read_api.build_acquisition_authority_provision(**provision_values)
+    provision_path = authority.repo_root / catalog_read_api.DEFAULT_ACQUISITION_AUTHORITY_PROVISION
+    provision_path.write_text(
+        json.dumps(provision.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    authority = catalog_read_api.CanonicalAcquisitionAuthority.from_provision(
+        repo_root=authority.repo_root, baseline_path=authority.baseline_path
+    )
+    authority.resolve(entry.entry_id)
+    overlay_path = catalog_read_api.default_acquisition_overlay_path(authority.repo_root)
+    service, overlay, history = _build_acquisition_epoch_fixture_service(
+        store=artifact_store,
+        authority=authority,
+        root=tmp_path / "epochs",
+        overlay_path=overlay_path,
+    )
+    custodian = fixture_custodian or NativeEpochFixtureCustodian.create(
+        artifact_store, tmp_path / "native-epoch-owner"
+    )
+    fixture = NativeLiveMeasurementHistory(
+        repo_root=authority.repo_root,
+        authority=authority,
+        entry=entry,
+        profile=profile,
+        store=artifact_store,
+        overlay=overlay,
+        service=service,
+        history=history,
+        custodian=custodian,
+        attempt_ids=attempts,
+        fixture_root=tmp_path,
+    )
+
+    _install_native_live_source_transport(monkeypatch, fixture)
+    return fixture
+
+
+def _install_native_live_source_transport(monkeypatch: Any, fixture: Any) -> None:
+    """Intercept only this fixture's World Bank connector sessions.
+
+    Other aiohttp users, including the deployment's OPA client, keep their
+    original transport. The supplied test response is candidate-only input.
+    """
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    profile = fixture.profile
+    expected_url = (
+        WorldBankConnector._BASE_URL.rstrip("/")
+        + f"/country/{profile.country_code}/indicator/{profile.indicator_id}"
+    )
+    expected_params = {
+        "date": f"{profile.year}:{profile.year}",
+        "format": "json",
+        "page": "1",
+        "per_page": "1000",
+    }
+    patched_sessions: set[int] = set()
+    original_get_session = WorldBankConnector._get_session
+
+    class ControlledResponse:
+        status = 200
+        headers: ClassVar[dict[str, str]] = {"content-type": "application/json"}
+
+        def __init__(self, body: bytes) -> None:
+            self.body = body
+
+        async def __aenter__(self) -> Any:
+            return self
+
+        async def __aexit__(self, *args: object) -> None:
+            del args
+
+        async def read(self) -> bytes:
+            return self.body
+
+        def release(self) -> None:
+            pass
+
+        async def wait_for_close(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    async def intercept(method: str, url: object, **kwargs: object) -> Any:
+        if (
+            fixture.response_body is None
+            or method != "GET"
+            or str(url) != expected_url
+            or kwargs.get("params") != expected_params
+            or fixture.transport_calls != len(fixture.used_attempts) - 1
+        ):
+            raise AssertionError("native_live_fixture_unexpected_transport")
+        fixture.transport_calls += 1
+        return ControlledResponse(fixture.response_body)
+
+    async def get_source_session(connector: Any, handle: Any) -> Any:
+        session = await original_get_session(connector, handle)
+        if id(session) not in patched_sessions:
+            monkeypatch.setattr(session, "_request", intercept)
+            patched_sessions.add(id(session))
+        return session
+
+    monkeypatch.setattr(WorldBankConnector, "_get_session", get_source_session)

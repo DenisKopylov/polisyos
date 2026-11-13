@@ -2243,6 +2243,159 @@ def test_selected_program_graph_input_preflight_stops_before_runner_and_charge(
         case.close()
 
 
+def test_generic_numerical_roles_separate_labels_and_refuse_unknown_fields(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The shared owner projection excludes labels but retains execution inputs."""
+    from pydantic.fields import FieldInfo
+
+    from polisyos.runtime.quality import acquisition_evaluation as owner
+
+    request = _request()
+    source = owner._generic_numerical_fields(
+        request, owner._GENERIC_REQUEST_FIELD_ROLES, scope="request"
+    )
+    relabelled = request.model_copy(
+        update={
+            "world_model_record_ref": request.world_model_record.content_hash,
+            "comparator_refs": ("evidence://another-occurrence",),
+            "budget_ref": "budget://another-admission",
+        }
+    )
+    assert (
+        owner._generic_numerical_fields(
+            relabelled, owner._GENERIC_REQUEST_FIELD_ROLES, scope="request"
+        )
+        == source
+    )
+    JointSimulationHorizonController()._validate_world_model_record(relabelled)
+    with pytest.raises(JointSimulationControllerError, match="world_model_record_ref_unresolved"):
+        JointSimulationHorizonController()._validate_world_model_record(
+            relabelled.model_copy(update={"world_model_record_ref": "world-model://unknown"})
+        )
+    for field, value in (
+        ("seed", request.seed + 1),
+        ("replications", request.replications + 1),
+        ("baseline_state", {"another-state": 41.0}),
+    ):
+        changed = request.model_copy(update={field: value})
+        assert (
+            owner._generic_numerical_fields(
+                changed, owner._GENERIC_REQUEST_FIELD_ROLES, scope="request"
+            )
+            != source
+        )
+
+    roles = owner._GENERIC_REQUEST_FIELD_ROLES
+    for invalid_roles, reason in (
+        (roles[:-1], "census_mismatch"),
+        ((*roles, ("budget_ref", "numerical")), "overlap"),
+        ((*roles[:-1], (roles[-1][0], "unknown")), "census_mismatch"),
+    ):
+        with pytest.raises(ValueError, match=f"generic_model_input_request_field_role_{reason}"):
+            owner._generic_numerical_fields(request, invalid_roles, scope="request")
+    changed_fields = dict(type(request).model_fields)
+    changed_fields["new_algorithm_input"] = FieldInfo(annotation=int)
+    with monkeypatch.context() as patch:
+        patch.setattr(type(request), "__pydantic_fields__", changed_fields)
+        with pytest.raises(ValueError, match="n5_native_model_field_denominator_not_established"):
+            owner._generic_numerical_fields(request, roles, scope="request")
+
+
+def test_generic_graph_roles_use_resolved_values_instead_of_source_selectors() -> None:
+    """Selected views remain evidence while numerical graph and parameters decide."""
+    from polisyos.core.contracts.foundry import ProgramEdge
+    from polisyos.runtime.quality import acquisition_evaluation as owner
+
+    ref = ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="fixture.input",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "2" * 64,
+    )
+    another_view = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "3" * 64})
+    node = ProgramNode(node_id="tax", mechanism_type="tax", params_ref=ref)
+    node_view = node.model_copy(update={"params_ref": another_view})
+    graph = ProgramGraph(ir_ref=ref, nodes=[node])
+    graph_view = graph.model_copy(
+        update={
+            "ir_ref": another_view,
+            "nodes": [node_view],
+            "notes": ["another source note"],
+            "entrypoints": ["tax"],
+        }
+    )
+    graph_ref = ProgramGraphRef.model_validate(
+        ref.model_dump(mode="python") | {"kind": "foundry.program_graph"}
+    )
+    graph_ref_view = graph_ref.model_copy(
+        update={"manifest_profile_sha256": another_view.manifest_profile_sha256}
+    )
+    plan = ExecPlan(program_ref=graph_ref, order=["tax"])
+    plan_view = plan.model_copy(
+        update={"program_ref": graph_ref_view, "notes": ["another output note"]}
+    )
+    lowered = LoweredIR(ir_ref=ref)
+    values = owner._generic_program_graph_numerical_values(
+        graph, plan, lowered, {"tax": {"rate": 0.1}}
+    )
+    assert values == owner._generic_program_graph_numerical_values(
+        graph_view,
+        plan_view,
+        lowered.model_copy(update={"ir_ref": another_view}),
+        {"tax": {"rate": 0.1}},
+    )
+    assert values != owner._generic_program_graph_numerical_values(
+        graph, plan, lowered, {"tax": {"rate": 0.2}}
+    )
+    assert values != owner._generic_program_graph_numerical_values(
+        graph, plan.model_copy(update={"random_seed": 7}), lowered, {"tax": {"rate": 0.1}}
+    )
+    from polisyos.foundry.compile.randomization import TREASURY_SALTS_PROFILE
+
+    assert values != owner._generic_program_graph_numerical_values(
+        graph,
+        plan.model_copy(update={"notes": [TREASURY_SALTS_PROFILE]}),
+        lowered,
+        {"tax": {"rate": 0.1}},
+    )
+    assert values != owner._generic_program_graph_numerical_values(
+        graph,
+        plan,
+        lowered.model_copy(update={"constraint_mode": "another-mode"}),
+        {"tax": {"rate": 0.1}},
+    )
+    with pytest.raises(ValueError, match="generic_model_input_parameter_census_not_established"):
+        owner._generic_program_graph_numerical_values(graph, plan, lowered, {})
+    op = ProgramOp(op_kind="check_constraints", params={"constraint_ids": ["a"]}, notes=["old"])
+    op_node = ProgramNode(node_id="check", node_kind="op", op=op)
+    graph_with_op = graph.model_copy(
+        update={"nodes": [node, op_node], "edges": [ProgramEdge(src="tax", dst="check")]}
+    )
+    op_values = owner._generic_program_graph_numerical_values(
+        graph_with_op, plan, lowered, {"tax": {"rate": 0.1}}
+    )
+    changed_op_note = op_node.model_copy(update={"op": op.model_copy(update={"notes": ["new"]})})
+    changed_edge_label = ProgramEdge(src="tax", dst="check", relation="another-description")
+    assert op_values == owner._generic_program_graph_numerical_values(
+        graph_with_op.model_copy(
+            update={"nodes": [node, changed_op_note], "edges": [changed_edge_label]}
+        ),
+        plan,
+        lowered,
+        {"tax": {"rate": 0.1}},
+    )
+    changed_op_value = op_node.model_copy(
+        update={"op": op.model_copy(update={"params": {"constraint_ids": ["b"]}})}
+    )
+    assert op_values != owner._generic_program_graph_numerical_values(
+        graph_with_op.model_copy(update={"nodes": [node, changed_op_value]}),
+        plan,
+        lowered,
+        {"tax": {"rate": 0.1}},
+    )
+
+
 def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -2360,8 +2513,337 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
             assert selected.obligation_set_ref == obligation_ref
             return selected
 
+        from polisyos.runtime.quality import n5_candidate_content as content_owner
+
+        component_input = store.put_json(
+            {"component": "generic-input", "authority": "not-established"},
+            PutOptions(
+                kind="runtime.quality.generic_cycle_simulation_n5_input",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        component_successor = store.put_json(
+            {"component": "semantic-successor", "authority": "not-established"},
+            PutOptions(
+                kind="runtime.quality.model_input_successor_selection",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
         controller = JointSimulationHorizonController()
-        result = controller.run(request, _program_graph_input_preflight=preflight)
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _prepare_generic_model_input_numerical_quantity,
+        )
+
+        native_preflight = preflight(request, plan, controller._select_engine(request).decision)
+        quantity = _prepare_generic_model_input_numerical_quantity(
+            store=store, request=request, preflight=native_preflight, controller=controller
+        )
+        relabelled = request.model_copy(
+            update={
+                "world_model_record_ref": request.world_model_record.content_hash,
+                "comparator_refs": ("evidence://new-comparator-occurrence",),
+                "budget_ref": "budget://different-admission",
+            }
+        )
+        assert relabelled.world_model_record_ref != request.world_model_record_ref
+        controller._validate_world_model_record(relabelled)
+        relabelled_quantity = _prepare_generic_model_input_numerical_quantity(
+            store=store, request=relabelled, preflight=native_preflight, controller=controller
+        )
+        assert quantity.numerical_intent == relabelled_quantity.numerical_intent
+        more_replications = request.model_copy(update={"replications": request.replications + 1})
+        more_quantity = _prepare_generic_model_input_numerical_quantity(
+            store=store,
+            request=more_replications,
+            preflight=native_preflight,
+            controller=controller,
+        )
+        assert quantity.numerical_intent != more_quantity.numerical_intent
+        changed_baseline = request.model_copy(update={"baseline_state": {"opening_stock": 999.0}})
+        changed_baseline_quantity = _prepare_generic_model_input_numerical_quantity(
+            store=store, request=changed_baseline, preflight=native_preflight, controller=controller
+        )
+        assert quantity.numerical_intent != changed_baseline_quantity.numerical_intent
+        changed_request = request.model_copy(update={"seed": request.seed + 1})
+        changed_quantity = _prepare_generic_model_input_numerical_quantity(
+            store=store,
+            request=changed_request,
+            preflight=native_preflight,
+            controller=controller,
+        )
+        assert quantity.numerical_intent != changed_quantity.numerical_intent
+        # Component control for an intermediate state after another graph node:
+        # retain its real full bytes without pretending to replay prior patches.
+        import jax
+
+        from polisyos.foundry.execute import (
+            prepare_program_graph_mechanism_calls,
+            state_snapshot_value_projection,
+        )
+
+        base = load_state_snapshot(store, snapshot_ref=quantity.bound_state_snapshot_ref)
+        intermediate = base.replace(
+            agents=base.agents.replace(income=base.agents.income.at[0].add(1))
+        )
+        assert float(intermediate.government_balance) == float(base.government_balance)
+        assert state_snapshot_value_projection(intermediate) != state_snapshot_value_projection(
+            base
+        )
+        prepared_call = next(
+            row
+            for row in prepare_program_graph_mechanism_calls(
+                store,
+                program_ref=case.program_graph_ref,
+                exec_plan_ref=case.exec_plan_ref,
+                base_state=base,
+                mechanism_registry=registry.mechanism_registry,
+                steps=horizon.steps(),
+            )
+            if row[2] == 3
+        )
+        for invalid_graph in (
+            case.program_graph_ref.model_copy(update={"manifest_profile_sha256": None}),
+            case.program_graph_ref.model_copy(
+                update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+            ),
+        ):
+            with pytest.raises((FileNotFoundError, OSError, ValueError)):
+                prepare_program_graph_mechanism_calls(
+                    store,
+                    program_ref=invalid_graph,
+                    exec_plan_ref=case.exec_plan_ref,
+                    base_state=base,
+                    mechanism_registry=registry.mechanism_registry,
+                    steps=horizon.steps(),
+                )
+        probe = content_owner.GenericProgramGraphN5ContentRun(
+            controller=controller,
+            request=request,
+            input_ref=component_input,
+            semantic_successor_ref=component_successor,
+            store=store,
+        ).observer_for_unit("f" * 64, 0)
+        index, node_id, step, bound_call = prepared_call
+        probe.graph_started(
+            step=step, seed=step, base_state_ref=quantity.bound_state_snapshot_ref, nodes=()
+        )
+        probe.mechanism_started(
+            step=step,
+            plan_index=index,
+            node_id=node_id,
+            selected_call=bound_call,
+            state=intermediate,
+            key=jax.random.PRNGKey(3),
+            target_mask=None,
+        )
+        assert probe.current is not None
+        recorded_call = probe.current.calls[0]
+        state_ref = recorded_call["state_ref"]
+        assert recorded_call["state_matches_base"] is False
+        assert isinstance(state_ref, ArtifactRef) and state_ref.manifest_profile_sha256 is not None
+        assert state_snapshot_value_projection(
+            load_state_snapshot(store, snapshot_ref=state_ref)
+        ) == state_snapshot_value_projection(intermediate)
+        blob_path = store._member_path(state_ref.artifact_id, "blob", None)
+        held_path = blob_path.with_name(blob_path.name + ".temporarily-unavailable")
+        blob_path.rename(held_path)
+        try:
+            with pytest.raises((FileNotFoundError, OSError, ValueError)):
+                load_state_snapshot(store, snapshot_ref=state_ref)
+        finally:
+            held_path.rename(blob_path)
+        assert state_snapshot_value_projection(
+            load_state_snapshot(store, snapshot_ref=state_ref)
+        ) == state_snapshot_value_projection(intermediate)
+        content_scope = content_owner.GenericProgramGraphN5ContentRun(
+            controller=controller,
+            request=request,
+            input_ref=component_input,
+            semantic_successor_ref=component_successor,
+            store=store,
+        )
+        token = content_owner._ACTIVE.set(content_scope)
+        try:
+            result = controller.run(request, _program_graph_input_preflight=preflight)
+        finally:
+            content_owner._ACTIVE.reset(token)
+        result = content_owner.bind_generic_program_graph_n5_content_observation(
+            result, scope=content_scope
+        )
+        diagnostic = content_owner.GenericProgramGraphContentObservationV2.model_validate_json(
+            json.dumps(result.diagnostics[content_owner.CONTENT_OBSERVATION_KEY], allow_nan=False)
+        )
+        assert diagnostic.numerical_intent_sha256 == (
+            "sha256:" + hashlib.sha256(quantity.numerical_intent).hexdigest()
+        )
+        assert diagnostic.predicate_provenance == "recomputed", (
+            diagnostic.reason_codes,
+            tuple(
+                (step.reason_codes, tuple(call.reason_codes for call in step.calls))
+                for step in diagnostic.steps
+            ),
+            diagnostic.profile_stability,
+            diagnostic.source_image_stability,
+        )
+        observed = content_owner.read_generic_program_graph_n5_content_observation(
+            result,
+            input_ref=component_input,
+            semantic_successor_ref=component_successor,
+            expected_request=request,
+            store=store,
+        )
+        assert observed.predicate_provenance == "recomputed"
+        assert observed.completion.status == "recomputed"
+        assert len(observed.steps) == 10
+        assert sum(len(step.calls) for step in observed.steps) == 4
+        assert not observed.protected_use_allowed
+        from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+
+        for historical_profile in ("foundry-bound-call-content/1", "foundry-bound-call-content/2"):
+            historical_payload = copy.deepcopy(result.content_bound_payload())
+            historical_observation = historical_payload["diagnostics"][
+                content_owner.CONTENT_OBSERVATION_KEY
+            ]
+            historical_observation["call_normalization_profile"] = historical_profile
+            historical_observation["content_hash"] = exact_n5_content_hash(
+                {
+                    key: value
+                    for key, value in historical_observation.items()
+                    if key != "content_hash"
+                }
+            )
+            historical_receipt = horizon_owner.build_content_bound_simulation_receipt(
+                engine_kind=result.receipt.engine_kind,
+                payload=historical_payload,
+                diagnostics=historical_payload["diagnostics"],
+            )
+            historical_result = JointSimulationResult.model_validate(
+                {**historical_payload, "receipt": historical_receipt.model_dump(mode="json")}
+            )
+            historical_result._content_payload = historical_payload
+            assert horizon_owner.semantic_program_graph_result_inputs(
+                historical_result
+            ) == horizon_owner.semantic_program_graph_result_inputs(result)
+            with pytest.raises(ValueError, match="generic_program_graph_content_not_established"):
+                content_owner.read_generic_program_graph_n5_content_observation(
+                    historical_result,
+                    input_ref=component_input,
+                    semantic_successor_ref=component_successor,
+                    expected_request=request,
+                    store=store,
+                )
+
+        # Earlier observations remain readable and retain their input closure,
+        # but did not observe the v2 numerical projection.
+        legacy_payload = copy.deepcopy(result.content_bound_payload())
+        legacy_observation = legacy_payload["diagnostics"][content_owner.CONTENT_OBSERVATION_KEY]
+        legacy_observation["schema_version"] = "GenericProgramGraphContentObservation@1.0"
+        del legacy_observation["numerical_intent_profile"]
+        del legacy_observation["numerical_intent_sha256"]
+        legacy_observation["content_hash"] = exact_n5_content_hash(
+            {key: value for key, value in legacy_observation.items() if key != "content_hash"}
+        )
+        legacy_receipt = horizon_owner.build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=legacy_payload,
+            diagnostics=legacy_payload["diagnostics"],
+        )
+        legacy_result = JointSimulationResult.model_validate(
+            {**legacy_payload, "receipt": legacy_receipt.model_dump(mode="json")}
+        )
+        legacy_result._content_payload = legacy_payload
+        assert type(
+            content_owner._read_generic_program_graph_observation_wire(legacy_observation)
+        ) is (content_owner.GenericProgramGraphContentObservationV1)
+        assert horizon_owner.semantic_program_graph_result_inputs(
+            legacy_result
+        ) == horizon_owner.semantic_program_graph_result_inputs(result)
+        with pytest.raises(ValueError, match="generic_program_graph_content_not_established"):
+            content_owner.read_generic_program_graph_n5_content_observation(
+                legacy_result,
+                input_ref=component_input,
+                semantic_successor_ref=component_successor,
+                expected_request=request,
+                store=store,
+            )
+
+        # A rehashed receipt cannot default a missing wire profile to the
+        # current normalizer. The original observation hash is deliberately
+        # retained: default insertion previously made it appear valid.
+        missing_profile_payload = copy.deepcopy(result.content_bound_payload())
+        del missing_profile_payload["diagnostics"][content_owner.CONTENT_OBSERVATION_KEY][
+            "call_normalization_profile"
+        ]
+        missing_profile_receipt = horizon_owner.build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=missing_profile_payload,
+            diagnostics=missing_profile_payload["diagnostics"],
+        )
+        missing_profile_result = JointSimulationResult.model_validate(
+            {**missing_profile_payload, "receipt": missing_profile_receipt.model_dump(mode="json")}
+        )
+        missing_profile_result._content_payload = missing_profile_payload
+        with pytest.raises(ValueError, match="call_normalization_profile"):
+            content_owner.read_generic_program_graph_n5_content_observation(
+                missing_profile_result,
+                input_ref=component_input,
+                semantic_successor_ref=component_successor,
+                expected_request=request,
+                store=store,
+            )
+
+        # Rehashing the outer result cannot turn an incomplete physical trace
+        # into the original producer's complete call census.
+        incomplete_payload = copy.deepcopy(result.content_bound_payload())
+        incomplete_observation = incomplete_payload["diagnostics"][
+            content_owner.CONTENT_OBSERVATION_KEY
+        ]
+        incomplete_observation["steps"] = incomplete_observation["steps"][:-1]
+        incomplete_observation["content_hash"] = exact_n5_content_hash(
+            {key: value for key, value in incomplete_observation.items() if key != "content_hash"}
+        )
+        incomplete_receipt = horizon_owner.build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=incomplete_payload,
+            diagnostics=incomplete_payload["diagnostics"],
+        )
+        incomplete_result = JointSimulationResult.model_validate(
+            {**incomplete_payload, "receipt": incomplete_receipt.model_dump(mode="json")}
+        )
+        incomplete_result._content_payload = incomplete_payload
+        with pytest.raises(ValueError, match="generic_program_graph_content_step_census_mismatch"):
+            content_owner.read_generic_program_graph_n5_content_observation(
+                incomplete_result,
+                input_ref=component_input,
+                semantic_successor_ref=component_successor,
+                expected_request=request,
+                store=store,
+            )
+        prepared_calls = {
+            (index, node_id, step): content.hex()
+            for index, node_id, step, content in quantity.prepared_calls
+        }
+        for observed_step in observed.steps:
+            actual_calls = {
+                (call.plan_index, call.node_id, observed_step.step): call.callable_receiver_hex
+                for call in observed_step.calls
+            }
+            assert actual_calls == {
+                key: value for key, value in prepared_calls.items() if key[2] == observed_step.step
+            }
+        foreign_input = component_input.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        with pytest.raises((FileNotFoundError, ValueError)):
+            content_owner.read_generic_program_graph_n5_content_observation(
+                result,
+                input_ref=foreign_input,
+                semantic_successor_ref=component_successor,
+                expected_request=request,
+                store=store,
+            )
         assert len(result.physical_work_observations) == 2
         assert {work.status for work in result.physical_work_observations} == {"completed"}
         assert {trajectory.run_level for trajectory in result.trajectories} == {
@@ -2377,7 +2859,7 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
                 920.3125,
             ]
         edges = horizon_owner.semantic_program_graph_result_inputs(result)
-        assert len(edges) == 10
+        assert len(edges) == 14  # Ten step chains and four observed call-state snapshots.
         assert all(edge.manifest_profile_sha256 is not None for edge in edges)
         persisted = persist_joint_simulation_result(result, store=store)
         fresh = FileSystemCAS(case.store_root)

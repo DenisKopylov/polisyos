@@ -44,6 +44,21 @@ def _owner(tmp_path, *, cap="1"):
     return middleware, binding, state
 
 
+def _populated_file_ledger(tmp_path):
+    ledger = FileBudgetLedger(tmp_path / "snapshot-ledger.json")
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    middleware = BudgetMiddleware(state, ledger=ledger)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="snapshot-run",
+        tenant_id="snapshot-tenant",
+        cell_id="snapshot-cell",
+        profile_id="snapshot-profile",
+        control_job_id="snapshot-job",
+    )
+    _settle(middleware, binding, "snapshot-event", "0.2")
+    return ledger, middleware
+
+
 def _settle(middleware, binding, name, amount, origin="reported"):
     with middleware.producer_run_binding_scope(binding, control_job_attempt=1):
         return middleware.settle_producer_event_safe(
@@ -447,3 +462,70 @@ def test_fenced_raw_snapshot_uses_owner_validation_and_rejects_corruption(tmp_pa
     path.write_bytes(b"{}")
     with pytest.raises(ValueError):
         ledger.snapshot_with_raw_bytes()
+
+
+def test_file_ledger_snapshot_safe_returns_fresh_graph_without_mutable_aliases(tmp_path):
+    ledger, middleware = _populated_file_ledger(tmp_path)
+
+    snapshot = middleware.snapshot_safe()
+    assert snapshot.state.limits["run"].max_usd == Decimal("1")
+    assert set(snapshot.producer_settlements) == {"snapshot-event"}
+
+    snapshot.state.limits["run"].max_usd = Decimal("99")
+    snapshot.producer_settlements.clear()
+
+    assert middleware._budget.limits["run"].max_usd == Decimal("1")
+    persisted = ledger.snapshot()
+    assert persisted.state.limits["run"].max_usd == Decimal("1")
+    assert set(persisted.producer_settlements) == {"snapshot-event"}
+
+    fresh = middleware.snapshot_safe()
+    assert fresh.state.limits["run"].max_usd == Decimal("1")
+    assert set(fresh.producer_settlements) == {"snapshot-event"}
+    assert fresh is not snapshot
+    assert fresh.state is not snapshot.state
+    assert fresh.producer_settlements is not snapshot.producer_settlements
+
+
+def test_snapshot_safe_keeps_defensive_copy_for_cached_ledger_implementations(tmp_path):
+    ledger, _middleware = _populated_file_ledger(tmp_path)
+    cached_snapshot = ledger.snapshot()
+
+    class CachedSnapshotLedger:
+        def __init__(self, snapshot):
+            self.cached_snapshot = snapshot
+
+        def load_or_bootstrap(self, initial_state):
+            return initial_state
+
+        def snapshot(self):
+            return self.cached_snapshot
+
+    cached_ledger = CachedSnapshotLedger(cached_snapshot)
+    middleware = BudgetMiddleware(BudgetState(), ledger=cached_ledger)
+    view = middleware.snapshot_safe()
+
+    assert view is not cached_snapshot
+    assert view.state is not cached_snapshot.state
+    assert view.producer_settlements is not cached_snapshot.producer_settlements
+    view.state.limits["run"].max_usd = Decimal("99")
+    view.producer_settlements.clear()
+
+    assert cached_snapshot.state.limits["run"].max_usd == Decimal("1")
+    assert set(cached_snapshot.producer_settlements) == {"snapshot-event"}
+    assert middleware._budget.limits["run"].max_usd == Decimal("1")
+
+
+def test_file_ledger_instance_snapshot_override_keeps_defensive_copy(tmp_path):
+    ledger, _middleware = _populated_file_ledger(tmp_path)
+    cached_snapshot = ledger.snapshot()
+    ledger.snapshot = lambda: cached_snapshot
+    middleware = BudgetMiddleware(BudgetState(), ledger=ledger)
+
+    view = middleware.snapshot_safe()
+    assert view is not cached_snapshot
+    view.state.limits["run"].max_usd = Decimal("99")
+    view.producer_settlements.clear()
+
+    assert cached_snapshot.state.limits["run"].max_usd == Decimal("1")
+    assert set(cached_snapshot.producer_settlements) == {"snapshot-event"}

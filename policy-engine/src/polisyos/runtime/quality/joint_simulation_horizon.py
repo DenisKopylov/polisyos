@@ -4486,10 +4486,24 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         from polisyos.core.artifacts import validate_core_model_json_artifact
         from polisyos.foundry.execute import execute_semantic_horizon_step
+        from polisyos.runtime.quality.n5_candidate_content import (
+            GenericProgramGraphN5ContentRun,
+            active_candidate_n5_content_run,
+        )
 
         method_fqn = decision.method_fqn
         if method_fqn is None:
             raise JointSimulationControllerError("semantic_program_graph_method_missing")
+        content_scope = active_candidate_n5_content_run(self)
+        if type(content_scope) is GenericProgramGraphN5ContentRun:
+            try:
+                content_scope.prepare_program_graph(plan, decision, semantic_input)
+            except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
+                # Unsupported observation never becomes a reuse witness. The
+                # actual candidate numerical execution remains available.
+                content_scope = None
+        else:
+            content_scope = None
 
         def run_once(
             run_level: RunLevel,
@@ -4498,6 +4512,14 @@ class JointSimulationHorizonController:
         ) -> SimulationTrajectory:
             refs: list[SimulationResultRef] = []
             points: list[TrajectoryPoint] = []
+            observer = (
+                content_scope.observer_for_unit(
+                    _physical_spec_digest(_physical_run_ref(request, plan, decision, subset)),
+                    replication_seed,
+                )
+                if content_scope is not None
+                else None
+            )
             for index, step in enumerate(semantic_input.invocation.steps):
                 context = SemanticHorizonStepContext(
                     obligation_set_ref=semantic_input.obligation_set_ref,
@@ -4511,6 +4533,7 @@ class JointSimulationHorizonController:
                     semantic_input.request,
                     expected_invocation=semantic_input.invocation,
                     step=context,
+                    observer=observer,
                 )
                 ref = executed.simulation_result_ref
                 if not executed.ok or ref is None:
@@ -6690,8 +6713,8 @@ def _semantic_program_graph_replications(
 
 
 def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[InputRef]:
-    """Select exact persisted Foundry steps once per physical run and seed."""
-    return [
+    """Select steps and any producer-observed call states by exact profile."""
+    selected = [
         input_ref_from_artifact_ref(
             ref,
             role=f"{SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX}{physical_ref}.{seed_index}.{index}",
@@ -6700,6 +6723,26 @@ def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[
         for seed_index, replication in enumerate(replications)
         for index, ref in enumerate(replication.step_result_refs)
     ]
+    raw = result.diagnostics.get("candidate_n5_execution_content_observation")
+    if isinstance(raw, dict) and raw.get("schema_version") in {
+        "GenericProgramGraphContentObservation@1.0",
+        "GenericProgramGraphContentObservation@2.0",
+    }:
+        from polisyos.runtime.quality.n5_candidate_content import (
+            _read_generic_program_graph_observation_wire,
+        )
+
+        observation = _read_generic_program_graph_observation_wire(raw)
+        selected.extend(
+            input_ref_from_artifact_ref(
+                call.state_ref,
+                role=f"{SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX}observed_call.{step}.{index}",
+            )
+            for step, item in enumerate(observation.steps)
+            for index, call in enumerate(item.calls)
+            if call.state_ref is not None
+        )
+    return selected
 
 
 def verify_semantic_program_graph_result_sources(

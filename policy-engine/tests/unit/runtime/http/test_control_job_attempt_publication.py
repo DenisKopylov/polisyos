@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import logging
+import threading
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+)
+from polisyos.runtime.http.errors import RuntimeDependencyTimeoutError
+from polisyos.runtime.http.resilience import BlockingDependencyGuard
 from polisyos.runtime.http.services.control import job_attempt_publication as publication
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     _WorkflowExecutionNonAuthorityError,
@@ -432,4 +439,98 @@ def test_failed_job_records_original_message_and_issued_progress_without_outputs
         assert host.events[0]["event_payload"]["error"] == str(error)
         assert host.events[0]["state_after"] == "failed"
     finally:
+        store.close()
+
+
+@pytest.mark.parametrize("poison_identity", [False, True])
+def test_failed_job_persists_sanitized_real_dependency_wait_diagnostic(
+    tmp_path: Path, execution_scope: ControlJobExecutionScope, poison_identity: bool
+) -> None:
+    """A real guard timeout reaches the existing job progress without source payloads."""
+
+    class FailureHost(publication.ControlJobAttemptPublicationMixin):
+        def __init__(self, store: ControlPlaneStore) -> None:
+            self._control_store = store
+
+        def _emit_runtime_diagnostic_event(self, **_kwargs: Any) -> None:
+            pass
+
+        def _finish_generation_run_context(self, **_kwargs: Any) -> Any:
+            pytest.fail("failure without a Core context must not synthesize outputs")
+
+    release = threading.Event()
+    entered = threading.Event()
+    guard = BlockingDependencyGuard(
+        dependency_name="content_addressed_storage",
+        timeout_seconds=0.15,
+        breaker=CircuitBreaker(
+            circuit_id="test-progress-cas",
+            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+
+    def backend_operation() -> None:
+        entered.set()
+        release.wait(timeout=5)
+
+    if poison_identity:
+        backend_operation.__module__ = "payload=secret"
+        backend_operation.__qualname__ = "payload=secret"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    try:
+        with pytest.raises(RuntimeDependencyTimeoutError) as caught:
+            guard.run(backend_operation)
+        assert entered.is_set()
+        error = caught.value
+        job = _create_execution_scoped_job(
+            store,
+            job_id="job-cas-wait-diagnostic",
+            run_id="run-cas-wait-diagnostic",
+            tenant_id=str(execution_scope.tenant_id),
+            cell_id=str(execution_scope.cell_id),
+            actor_subject=str(execution_scope.actor_subject),
+            kind="natural_language_run",
+        )
+        host = FailureHost(store)
+        with (
+            _authenticated_tenant_scope(
+                tenant_id=str(execution_scope.tenant_id), cell_id=str(execution_scope.cell_id)
+            ),
+            store.job_execution_fence(
+                job_id=job.job_id, worker_id=job.lease_owner, attempt=job.attempt
+            ),
+        ):
+            host._fail_control_job_attempt(
+                job=job,
+                execution_scope=execution_scope,
+                payload={},
+                capability_manifest_ref=None,
+                core_run_id=None,
+                core_run_context=None,
+                exc=error,
+                logger=logging.getLogger(__name__),
+            )
+        failed = store.get_job(job.job_id)
+        assert failed is not None and failed.state == "failed"
+        assert failed.error_message == "content_addressed_storage timed out"
+        failure = failed.progress["failure"]
+        assert failure["code"] == "content_addressed_storage_timeout"
+        assert failure["retryable"] is True
+        wait = failure["blocking_wait"]
+        assert wait["timeout_seconds"] == 0.15
+        assert wait["wait_disposition"] == "running_at_observation"
+        assert wait["caller"]["qualname"].endswith(
+            "test_failed_job_persists_sanitized_real_dependency_wait_diagnostic"
+        )
+        if poison_identity:
+            assert wait["operation"] == {
+                "module": "not_established",
+                "qualname": "not_established",
+            }
+        else:
+            assert wait["operation"]["qualname"].endswith(".backend_operation")
+        assert "payload=secret" not in str(wait)
+    finally:
+        release.set()
+        guard.close()
         store.close()

@@ -860,11 +860,42 @@ def _key_config(tmp_path, trust):
         "custody",
     )
     pairs = {name: artifacts.KeyPair.generate() for name in families}
-    signers = {name: artifacts.Ed25519Signer(pair.private_key) for name, pair in pairs.items()}
-    identities = {name: f"institution://acquisition-fixture/{name}" for name in families}
     for name, pair in pairs.items():
         (tmp_path / f"{name}.pem").write_bytes(pair.private_pem())
         (tmp_path / f"{name}.pub").write_bytes(pair.public_pem())
+    return _configure_key_trust(tmp_path, trust, pairs)
+
+
+def _existing_key_config(tmp_path: Path, trust):
+    """Load retained fixture institutions without issuing or rewriting keys.
+
+    The caller supplies a new explicit deployment context. This restores only
+    the institutional signing/verifier slots; mandate selections and their
+    validity periods must be supplied from the original signed artifacts.
+    """
+    families = (
+        "owner",
+        "current",
+        "admission",
+        "source",
+        "principal",
+        "separation",
+        "presentation",
+        "custody",
+    )
+    pairs = {}
+    for name in families:
+        pair = artifacts.KeyPair.from_private_pem((tmp_path / f"{name}.pem").read_bytes())
+        if pair.public_pem() != (tmp_path / f"{name}.pub").read_bytes():
+            raise ValueError("retained_fixture_institution_key_pair_mismatch")
+        pairs[name] = pair
+    return _configure_key_trust(tmp_path, trust, pairs)
+
+
+def _configure_key_trust(tmp_path, trust, pairs):
+    """Configure fixture trust from already selected institutional key pairs."""
+    signers = {name: artifacts.Ed25519Signer(pair.private_key) for name, pair in pairs.items()}
+    identities = {name: f"institution://acquisition-fixture/{name}" for name in pairs}
     from polisyos.runtime.http.services import human_decision_contracts as hdc
 
     rows = [

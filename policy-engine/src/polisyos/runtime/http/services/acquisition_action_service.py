@@ -105,6 +105,7 @@ if TYPE_CHECKING:
         ControlJobExecutionAdmission,
         ControlJobExecutionScope,
         ControlJobRecord,
+        ControlOutboxRecord,
     )
 
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
@@ -2132,21 +2133,15 @@ class AcquisitionActionService:
             request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
         ):
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
-        heads = store.list_acquisition_action_heads_for_source(
+        heads = self._candidate_experiment_source_heads(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
-            source_job_id=origin.source_job_id,
+            origin=origin,
+            request=request,
         )
-        if any(head.route_id != origin.route_id for head in heads) or tuple(
-            head.action_generation for head in heads
-        ) != tuple(range(1, len(heads) + 1)):
-            raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
         generation = len(origin.candidate_terminal_history_chain) + 1
         job_id = self._candidate_experiment_job_id(origin, request)
-        same_job = tuple(head for head in heads if head.job_id == job_id)
-        if len(same_job) > 1 or (same_job and same_job[0].action_generation != generation):
-            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
         if require_current:
             latest = heads[-1] if heads else None
             previous = (
@@ -2166,6 +2161,37 @@ class AcquisitionActionService:
             if pending_retry:
                 origin = replace(origin, current_action_head=latest)
         return origin
+
+    def _candidate_experiment_source_heads(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+    ) -> tuple[AcquisitionActionHeadRecord, ...]:
+        """Read the complete current source-head set and reject conflicting actions.
+
+        Historical origin reuse carries no current head-set permission. Every
+        consumer queries all routes and generations for this source afresh.
+        """
+        heads = self.control_service._control_store.list_acquisition_action_heads_for_source(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=origin.source_job_id,
+        )
+        if any(head.route_id != origin.route_id for head in heads) or tuple(
+            head.action_generation for head in heads
+        ) != tuple(range(1, len(heads) + 1)):
+            raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+        generation = len(origin.candidate_terminal_history_chain) + 1
+        job_id = self._candidate_experiment_job_id(origin, request)
+        same_job = tuple(head for head in heads if head.job_id == job_id)
+        if len(same_job) > 1 or (same_job and same_job[0].action_generation != generation):
+            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+        return heads
 
     def _candidate_experiment_loop(
         self, *, tenant_id: str, cell_id: str, run_id: str
@@ -2258,21 +2284,164 @@ class AcquisitionActionService:
         request: CandidateExperimentRouteMutationRequest,
         job_id: str,
         decision_ref: str,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        verified_source_inputs: tuple[ControlJobRecord, dict[str, Any], ControlOutboxRecord]
+        | None = None,
     ) -> AuthenticatedAgentActionDecisionHistory:
         """Load immutable candidate PA2 history after rebuilding the exact tuple.
 
         The returned record proves what PA2 recorded at the original write context;
-        it deliberately does not authorize current execution.
+        it deliberately does not authorize current execution. A caller may carry
+        the origin it just replayed together with the actual pre-read source job
+        and creation rows. This call freshly reopens those selectors and selected
+        parent bytes; current budget/permission/lease gates stay with the caller.
         """
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
-        origin = self._candidate_experiment_origin_for_request(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
-            request=request,
-            require_current=False,
-        )
+        if verified_origin is None:
+            if verified_source_inputs is not None:
+                raise AcquisitionActionServiceError("candidate_experiment_history_origin_unbound")
+            origin = self._candidate_experiment_origin_for_request(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                request=request,
+                require_current=False,
+            )
+        else:
+            from polisyos.runtime.http.services.control_plane_store import (
+                ControlJobRecord,
+                ControlOutboxRecord,
+            )
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                _candidate_model_values_same,
+                _candidate_ref_same,
+            )
+            from polisyos.runtime.quality.acquisition_route_loop import (
+                _resolve_source_cycle_problem_basis,
+            )
+            from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+                _require_selected_candidate_experiment_policy_historical,
+                read_candidate_unpriced_policy,
+            )
+
+            if (
+                type(verified_origin) is not VerifiedCandidateExperimentOrigin
+                or verified_origin.schema_version
+                != "polisyos.runtime.candidate_experiment_origin.v1"
+                or (verified_origin.tenant_id, verified_origin.cell_id, verified_origin.run_id)
+                != (tenant_id, cell_id, run_id)
+                or type(verified_source_inputs) is not tuple
+                or len(verified_source_inputs) != 3
+                or type(verified_source_inputs[0]) is not ControlJobRecord
+                or type(verified_source_inputs[1]) is not dict
+                or type(verified_source_inputs[2]) is not ControlOutboxRecord
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_history_origin_unbound")
+            source_job, created_event, created_outbox = verified_source_inputs
+            origin = verified_origin
+            store = self.control_service._control_store
+            current_job = store.get_job(origin.source_job_id)
+            current_event = store.get_job_created_event_payload(origin.source_job_id)
+            current_outbox = store.get_job_created_outbox_event(origin.source_job_id)
+            if (
+                current_job != source_job
+                or source_job.job_id != origin.source_job_id
+                or source_job.run_id != run_id
+                or source_job.payload_ref != origin.source_payload_ref
+                or source_job.capability_manifest_ref != origin.capability_manifest_ref
+                or agent_action_content_hash(current_event)
+                != agent_action_content_hash(created_event)
+                or current_outbox != created_outbox
+                or current_outbox is None
+                or agent_action_content_hash(current_outbox.payload)
+                != agent_action_content_hash(created_outbox.payload)
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_history_source_changed")
+            self._candidate_experiment_source_heads(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                origin=origin,
+                request=request,
+            )
+            store.historical_completed_job_execution_scope(
+                job_id=source_job.job_id, expected_run_id=run_id
+            )
+            loop = self._candidate_experiment_loop(
+                tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+            )
+            completed = loop._resolve_completed_nl_origin(run_id=run_id)
+            if (
+                completed.job != source_job
+                or not _candidate_ref_same(
+                    completed.selected_compiled_ref, origin.policy_scope.compiled_ref
+                )
+                or not any(
+                    leaf.cycle_run is not None
+                    and _candidate_model_values_same(leaf.cycle_run, origin.generation_run)
+                    and any(
+                        _candidate_model_values_same(cycle, origin.source_cycle)
+                        for cycle in leaf.cycle_run.cycles
+                    )
+                    for leaf in completed.compiled.recursive_run.leaf_nodes
+                )
+                or not _candidate_model_values_same(
+                    _resolve_source_cycle_problem_basis(
+                        generation_run=origin.generation_run,
+                        source_cycle=origin.source_cycle,
+                        design_problem=completed.compiled.design_problem,
+                        design_problem_ref=completed.compiled.design_problem_ref,
+                    ),
+                    origin.design_problem_basis,
+                )
+                or not _candidate_model_values_same(
+                    origin.source_cycle.acquisition_routing_report, origin.planner_report
+                )
+                or not any(
+                    _candidate_model_values_same(record, origin.planner_record)
+                    for record in origin.planner_report.acquisition_records
+                )
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_history_source_changed")
+            # Reopen every selected immutable parent. Only the already-replayed
+            # graph calculation is carried; profile/content corruption stays visible.
+            for selected_ref in (
+                origin.policy_scope.planner_report_ref,
+                origin.policy_scope.compiler_report_ref,
+                origin.policy_scope.configured_port_source_ref,
+                origin.policy_ref,
+            ):
+                read_core_json_artifact(self.control_service._artifact_store, selected_ref)
+            policy = read_candidate_unpriced_policy(
+                store=self.control_service._artifact_store,
+                event_log=self.control_service._diagnostic_event_log,
+                ref=origin.policy_ref,
+            )
+            _require_selected_candidate_experiment_policy_historical(
+                selected=origin.policy_ref,
+                policy_ref=origin.policy_ref,
+                policy=policy,
+                closure=origin,
+                scope=origin.policy_scope,
+            )
+            for history in origin.candidate_terminal_history_chain:
+                current_head = store.get_acquisition_action_head(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    source_job_id=origin.source_job_id,
+                    route_id=origin.route_id,
+                    action_generation=history.head.action_generation,
+                )
+                if current_head != history.head or not _candidate_model_values_same(
+                    loop._selected_candidate_experiment_receipt(history.head), history.terminal
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_history_source_changed"
+                    )
+            if store.get_job(origin.source_job_id) != source_job:
+                raise AcquisitionActionServiceError("candidate_experiment_history_source_changed")
         if origin.route_id != route_id:
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same

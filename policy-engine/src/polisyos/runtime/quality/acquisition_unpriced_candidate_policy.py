@@ -1052,6 +1052,63 @@ def resolve_current_candidate_unpriced_policy(
     return ref, policy
 
 
+def _require_selected_candidate_experiment_policy_historical(
+    *,
+    selected: ArtifactRef,
+    policy_ref: ArtifactRef,
+    policy: CandidateUnpricedAcquisitionPolicy,
+    closure: object,
+    scope: CandidateUnpricedPolicyScope,
+) -> None:
+    """Check the existing selected historical-policy and source-intent join."""
+    from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+    if (
+        not _selected_ref(policy_ref, POLICY_KIND)
+        or artifacts.artifact_ref_identity_key(selected)
+        != artifacts.artifact_ref_identity_key(policy_ref)
+        or not _candidate_model_values_same(policy.scope, scope)
+        or policy.schema_version not in {_POLICY_V2, _POLICY_V3}
+        or any(
+            getattr(closure, name, None) != getattr(scope, name)
+            for name in ("tenant_id", "cell_id", "run_id", "source_job_id")
+        )
+    ):
+        raise ValueError("candidate_experiment_policy_intent_not_established")
+
+
+def _require_candidate_experiment_policy_intent_historical(
+    *,
+    evidence: OriginalRunBudgetScopeEvidence,
+    policy: CandidateUnpricedAcquisitionPolicy,
+    scope: CandidateUnpricedPolicyScope,
+) -> None:
+    """Check original request intent without granting current policy selection."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        OriginalRunBudgetScopeEvidence,
+    )
+
+    if (
+        type(evidence) is not OriginalRunBudgetScopeEvidence
+        or (
+            evidence.tenant_id,
+            evidence.cell_id,
+            evidence.run_id,
+            evidence.source_job_id,
+        )
+        != (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id)
+        or not evidence.scope_explicit
+        or evidence.run_budget_scope != "metered_paid_producers_and_bounded_candidate"
+        or not evidence.candidate_acquisition_intent_present
+        or evidence.candidate_acquisition_intent != policy.experiment_intent
+        or evidence.request_snapshot_schema != "polisyos.runtime.control_nl_request_snapshot.v5"
+        or evidence.source_payload_ref != policy.source_payload_ref
+        or evidence.request_content_hash != policy.request_content_hash
+        or evidence.run_budget_usd != policy.original_metered_budget_usd
+    ):
+        raise ValueError("candidate_experiment_policy_intent_not_established")
+
+
 def verify_candidate_unpriced_experiment_policy_intent(
     *,
     control_service: ControlPlaneService,
@@ -1068,9 +1125,7 @@ def verify_candidate_unpriced_experiment_policy_intent(
     """
     from polisyos.runtime.http.services.control.run_lifecycle import (
         ControlPlaneService,
-        OriginalRunBudgetScopeEvidence,
     )
-    from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
     if type(control_service) is not ControlPlaneService or type(scope) is not (
         CandidateUnpricedPolicyScope
@@ -1091,40 +1146,19 @@ def verify_candidate_unpriced_experiment_policy_intent(
             event_log=control_service._diagnostic_event_log,
             ref=selected,
         )
-    if (
-        not _selected_ref(policy_ref, POLICY_KIND)
-        or artifacts.artifact_ref_identity_key(selected)
-        != artifacts.artifact_ref_identity_key(policy_ref)
-        or not _candidate_model_values_same(policy.scope, scope)
-        or policy.schema_version not in {_POLICY_V2, _POLICY_V3}
-        or any(
-            getattr(closure, name, None) != getattr(scope, name)
-            for name in ("tenant_id", "cell_id", "run_id", "source_job_id")
-        )
-    ):
-        raise ValueError("candidate_experiment_policy_intent_not_established")
+    _require_selected_candidate_experiment_policy_historical(
+        selected=selected,
+        policy_ref=policy_ref,
+        policy=policy,
+        closure=closure,
+        scope=scope,
+    )
     evidence = ControlPlaneService.verify_candidate_experiment_intent(
         control_service, closure=closure
     )
-    if (
-        type(evidence) is not OriginalRunBudgetScopeEvidence
-        or (
-            evidence.tenant_id,
-            evidence.cell_id,
-            evidence.run_id,
-            evidence.source_job_id,
-        )
-        != (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id)
-        or not evidence.scope_explicit
-        or evidence.run_budget_scope != "metered_paid_producers_and_bounded_candidate"
-        or not evidence.candidate_acquisition_intent_present
-        or evidence.candidate_acquisition_intent != policy.experiment_intent
-        or evidence.request_snapshot_schema != "polisyos.runtime.control_nl_request_snapshot.v5"
-        or evidence.source_payload_ref != policy.source_payload_ref
-        or evidence.request_content_hash != policy.request_content_hash
-        or evidence.run_budget_usd != policy.original_metered_budget_usd
-    ):
-        raise ValueError("candidate_experiment_policy_intent_not_established")
+    _require_candidate_experiment_policy_intent_historical(
+        evidence=evidence, policy=policy, scope=scope
+    )
     if require_current:
         selected_again, _ = resolve_current_candidate_unpriced_policy(
             control_service=control_service, scope=scope

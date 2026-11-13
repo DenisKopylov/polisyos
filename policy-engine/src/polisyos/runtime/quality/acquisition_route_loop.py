@@ -71,12 +71,16 @@ if TYPE_CHECKING:
         CompiledRecursiveGenerationCycleRun,
     )
     from polisyos.runtime.http.services.control.run_lifecycle import (
+        OriginalRunBudgetScopeEvidence,
         VerifiedAcquisitionActionOutcome,
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         ControlJobRecord,
         ControlPlaneStore,
+    )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedPolicyBinding,
     )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generic_simulation_admission import (
@@ -1426,6 +1430,196 @@ class _CandidateExperimentSourceIdentity:
     capability_manifest_ref: str
 
 
+def _select_candidate_experiment_source_policy_historical(
+    *,
+    artifact_store: _ArtifactStore,
+    origin: _VerifiedAcquisitionOrigin,
+    configured_bindings: tuple[CandidateUnpricedPolicyBinding, ...],
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+) -> tuple[CandidateUnpricedPolicyBinding, str, _CandidateExperimentSourceIdentity]:
+    """Calculate the exact selected policy/source join without current permission."""
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedPolicyBinding,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        validate_candidate_compiler_relation,
+    )
+
+    report = origin.report
+    binding = report.requirement_basis_binding
+    lineage = report.candidate_lineage
+    planner_ref = origin.source_cycle.acquisition_routing_report_ref
+    source = origin.configured_port_source
+    if (
+        binding is None
+        or lineage is None
+        or planner_ref is None
+        or source is None
+        or origin.planner_record.compiled_requirement_ref is None
+    ):
+        raise AcquisitionRouteClosureError("candidate_experiment_origin_not_established")
+    candidates = []
+    for configured in configured_bindings:
+        if type(configured) is not CandidateUnpricedPolicyBinding:
+            raise AcquisitionRouteClosureError("candidate_experiment_policy_untyped")
+        scope = configured.scope
+        if (
+            (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id)
+            != (tenant_id, cell_id, run_id, origin.job.job_id)
+            or scope.design_problem_ref != origin.compiled.design_problem_ref
+            or scope.design_problem_basis_ref != source.design_problem_basis_ref
+            or scope.source_cycle_index != origin.source_cycle.cycle_index
+            or scope.candidate_id != origin.source_cycle.selected_candidate_ref
+            or scope.candidate_content_hash != origin.source_cycle.selected_candidate_content_hash
+            or scope.compiled_requirement_ref != origin.planner_record.compiled_requirement_ref
+            or scope.planner_report_hash != agent_action_content_hash(report)
+            or artifact_ref_identity_key(scope.compiled_ref)
+            != artifact_ref_identity_key(origin.selected_compiled_ref)
+            or artifact_ref_identity_key(scope.planner_report_ref)
+            != artifact_ref_identity_key(planner_ref)
+            or artifact_ref_identity_key(scope.compiler_report_ref)
+            != artifact_ref_identity_key(binding.compiler_report_ref)
+            or artifact_ref_identity_key(scope.configured_port_source_ref)
+            != artifact_ref_identity_key(lineage.port_source_ref)
+        ):
+            continue
+        try:
+            validate_candidate_compiler_relation(
+                artifact_store,
+                requirement_basis_binding=binding,
+                compiled_requirement_ref=scope.compiled_requirement_ref,
+                requirement_id=scope.requirement_id,
+                candidate_digest=scope.candidate_digest,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            continue
+        candidates.append(configured)
+    if len(candidates) != 1:
+        raise AcquisitionRouteClosureError("candidate_experiment_policy_not_unique")
+    selected = candidates[0]
+    route_id = agent_action_content_hash(
+        {
+            "schema_version": "polisyos.runtime.candidate_experiment_route.v1",
+            "purpose": "bounded_candidate_experiment_voi_unknown",
+            "scope": selected.scope.model_dump(mode="json"),
+            "policy_ref": selected.policy_ref.model_dump(mode="json"),
+            "source_payload_ref": origin.payload_ref,
+            "source_cycle_voi_decision": origin.source_cycle.voi_decision.model_dump(mode="json"),
+        }
+    )
+    source_identity = _CandidateExperimentSourceIdentity(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        source_job_id=origin.job.job_id,
+        source_payload_ref=origin.payload_ref,
+        capability_manifest_ref=origin.manifest_ref,
+    )
+    return selected, route_id, source_identity
+
+
+def _calculate_candidate_experiment_origin_historical(
+    *,
+    origin: _VerifiedAcquisitionOrigin,
+    selected: CandidateUnpricedPolicyBinding,
+    route_id: str,
+    evidence: OriginalRunBudgetScopeEvidence,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+) -> VerifiedCandidateExperimentOrigin:
+    """Build the candidate-only historical projection from verified read inputs."""
+    report = origin.report
+    if evidence.request_content_hash is None:
+        raise AcquisitionRouteClosureError("candidate_experiment_intent_not_established")
+    return VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        source_job_id=origin.job.job_id,
+        source_payload_ref=origin.payload_ref,
+        capability_manifest_ref=origin.manifest_ref,
+        request_content_hash=evidence.request_content_hash,
+        route_id=route_id,
+        policy_ref=selected.policy_ref,
+        policy_scope=selected.scope,
+        generation_run=origin.generation_run,
+        source_cycle=origin.source_cycle,
+        design_problem_basis=origin.design_problem_basis,
+        planner_report=report,
+        planner_record=origin.planner_record,
+    )
+
+
+def _read_selected_candidate_experiment_receipt_historical(
+    *,
+    artifact_store: _ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    head: AcquisitionActionHeadRecord,
+) -> (
+    AcquisitionCandidateExperimentPhaseReceipt
+    | AcquisitionCandidateExperimentTerminalReceipt
+    | AcquisitionCandidateExperimentTerminalReceiptV2
+):
+    """Reopen selected SQL/CAS/event bytes without composing a current service owner."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _read_verified_acquisition_action_phase,
+    )
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
+
+    if (
+        type(head) is not AcquisitionActionHeadRecord
+        or head.receipt_ref != head.receipt_sha256
+        or head.receipt_manifest_profile_sha256 is None
+    ):
+        raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
+    ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(head.receipt_ref),
+        kind=(
+            "runtime_quality.acquisition_route_loop_receipt"
+            if head.receipt_phase == "terminal"
+            else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+        ),
+        media_type="application/json",
+        manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+    )
+    verified = _read_verified_acquisition_action_phase(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        receipt_ref=head.receipt_ref,
+        selected_ref=ref,
+    )
+    receipt = verified.receipt
+    if (
+        type(receipt)
+        not in {
+            AcquisitionCandidateExperimentPhaseReceipt,
+            AcquisitionCandidateExperimentTerminalReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        }
+        or verified.durable_event_id != head.durable_event_id
+        or any(
+            getattr(receipt, field) != getattr(head, field)
+            for field in (
+                "tenant_id",
+                "cell_id",
+                "run_id",
+                "source_job_id",
+                "route_id",
+                "action_generation",
+                "job_id",
+                "receipt_phase",
+                "predecessor_receipt_ref",
+            )
+        )
+    ):
+        raise AcquisitionRouteClosureError("candidate_experiment_historical_head_mismatch")
+    return receipt
+
+
 class AcquisitionRouteLoop:
     """Resolve verified closures and own acquisition phase orchestration."""
 
@@ -1962,9 +2156,6 @@ class AcquisitionRouteLoop:
             read_candidate_unpriced_policy,
             verify_candidate_unpriced_experiment_policy_intent,
         )
-        from polisyos.runtime.quality.candidate_acquisition_source import (
-            validate_candidate_compiler_relation,
-        )
 
         origin = self._resolve_verified_origin(run_id=run_id, experiment=True)
         if (
@@ -1989,7 +2180,6 @@ class AcquisitionRouteLoop:
             or origin.planner_record.compiled_requirement_ref is None
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_origin_not_established")
-        candidates = []
         try:
             if historical_policy_ref is None:
                 configured_bindings = list_current_candidate_unpriced_policy_bindings(
@@ -2015,64 +2205,13 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError(
                 "candidate_experiment_policy_binding_unavailable"
             ) from exc
-        for configured in configured_bindings:
-            if type(configured) is not CandidateUnpricedPolicyBinding:
-                raise AcquisitionRouteClosureError("candidate_experiment_policy_untyped")
-            scope = configured.scope
-            if (
-                (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id)
-                != (self._tenant_id, self._cell_id, run_id, origin.job.job_id)
-                or scope.design_problem_ref != origin.compiled.design_problem_ref
-                or scope.design_problem_basis_ref != source.design_problem_basis_ref
-                or scope.source_cycle_index != origin.source_cycle.cycle_index
-                or scope.candidate_id != origin.source_cycle.selected_candidate_ref
-                or scope.candidate_content_hash
-                != origin.source_cycle.selected_candidate_content_hash
-                or scope.compiled_requirement_ref != origin.planner_record.compiled_requirement_ref
-                or scope.planner_report_hash != agent_action_content_hash(report)
-                or artifact_ref_identity_key(scope.compiled_ref)
-                != artifact_ref_identity_key(origin.selected_compiled_ref)
-                or artifact_ref_identity_key(scope.planner_report_ref)
-                != artifact_ref_identity_key(planner_ref)
-                or artifact_ref_identity_key(scope.compiler_report_ref)
-                != artifact_ref_identity_key(binding.compiler_report_ref)
-                or artifact_ref_identity_key(scope.configured_port_source_ref)
-                != artifact_ref_identity_key(lineage.port_source_ref)
-            ):
-                continue
-            try:
-                validate_candidate_compiler_relation(
-                    self._artifact_store,
-                    requirement_basis_binding=binding,
-                    compiled_requirement_ref=scope.compiled_requirement_ref,
-                    requirement_id=scope.requirement_id,
-                    candidate_digest=scope.candidate_digest,
-                )
-            except (OSError, RuntimeError, TypeError, ValueError):
-                continue
-            candidates.append(configured)
-        if len(candidates) != 1:
-            raise AcquisitionRouteClosureError("candidate_experiment_policy_not_unique")
-        selected = candidates[0]
-        route_id = agent_action_content_hash(
-            {
-                "schema_version": "polisyos.runtime.candidate_experiment_route.v1",
-                "purpose": "bounded_candidate_experiment_voi_unknown",
-                "scope": selected.scope.model_dump(mode="json"),
-                "policy_ref": selected.policy_ref.model_dump(mode="json"),
-                "source_payload_ref": origin.payload_ref,
-                "source_cycle_voi_decision": origin.source_cycle.voi_decision.model_dump(
-                    mode="json"
-                ),
-            }
-        )
-        source_identity = _CandidateExperimentSourceIdentity(
+        selected, route_id, source_identity = _select_candidate_experiment_source_policy_historical(
+            artifact_store=self._artifact_store,
+            origin=origin,
+            configured_bindings=configured_bindings,
             tenant_id=self._tenant_id,
             cell_id=self._cell_id,
             run_id=run_id,
-            source_job_id=origin.job.job_id,
-            source_payload_ref=origin.payload_ref,
-            capability_manifest_ref=origin.manifest_ref,
         )
         try:
             evidence = verify_candidate_unpriced_experiment_policy_intent(
@@ -2086,25 +2225,14 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError(
                 "candidate_experiment_intent_not_established"
             ) from exc
-        if evidence.request_content_hash is None:
-            raise AcquisitionRouteClosureError("candidate_experiment_intent_not_established")
-        result = VerifiedCandidateExperimentOrigin(
-            schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        result = _calculate_candidate_experiment_origin_historical(
+            origin=origin,
+            selected=selected,
+            route_id=route_id,
+            evidence=evidence,
             tenant_id=self._tenant_id,
             cell_id=self._cell_id,
             run_id=run_id,
-            source_job_id=origin.job.job_id,
-            source_payload_ref=origin.payload_ref,
-            capability_manifest_ref=origin.manifest_ref,
-            request_content_hash=evidence.request_content_hash,
-            route_id=route_id,
-            policy_ref=selected.policy_ref,
-            policy_scope=selected.scope,
-            generation_run=origin.generation_run,
-            source_cycle=origin.source_cycle,
-            design_problem_basis=origin.design_problem_basis,
-            planner_report=report,
-            planner_record=origin.planner_record,
         )
         if self._control_store.get_job(origin.job.job_id) != origin.job:
             raise AcquisitionRouteClosureError("candidate_experiment_source_changed")
@@ -2138,43 +2266,9 @@ class AcquisitionRouteLoop:
             or head.receipt_manifest_profile_sha256 is None
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
-        ref = ArtifactRef(
-            artifact_id=ArtifactID.model_validate(head.receipt_ref),
-            kind=(
-                "runtime_quality.acquisition_route_loop_receipt"
-                if head.receipt_phase == "terminal"
-                else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
-            ),
-            media_type="application/json",
-            manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+        return _read_selected_candidate_experiment_receipt_historical(
+            artifact_store=self._artifact_store, event_log=self._event_log, head=head
         )
-        verified = sink._read_verified_action_phase(head.receipt_ref, selected_ref=ref)
-        receipt = verified.receipt
-        if (
-            type(receipt)
-            not in {
-                AcquisitionCandidateExperimentPhaseReceipt,
-                AcquisitionCandidateExperimentTerminalReceipt,
-                AcquisitionCandidateExperimentTerminalReceiptV2,
-            }
-            or verified.durable_event_id != head.durable_event_id
-            or any(
-                getattr(receipt, field) != getattr(head, field)
-                for field in (
-                    "tenant_id",
-                    "cell_id",
-                    "run_id",
-                    "source_job_id",
-                    "route_id",
-                    "action_generation",
-                    "job_id",
-                    "receipt_phase",
-                    "predecessor_receipt_ref",
-                )
-            )
-        ):
-            raise AcquisitionRouteClosureError("candidate_experiment_historical_head_mismatch")
-        return receipt
 
     def resolve_candidate_experiment_predecessor_origin(
         self,

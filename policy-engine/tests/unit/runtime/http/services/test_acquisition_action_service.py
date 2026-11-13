@@ -1620,3 +1620,275 @@ def test_candidate_route_operation_scopes_real_cas_reads_and_resets_on_refusal(
     missing_on_second_read = False
     assert service.get_candidate_experiment_route(**scope)[0] is selected
     assert len(builds) == 4
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        "untyped_origin",
+        "missing_source_rows",
+        "foreign_scope",
+        "foreign_source",
+        "changed_job",
+        "changed_creation_event",
+        "changed_creation_outbox",
+    ],
+)
+def test_carried_candidate_history_requires_exact_actual_source_rows(
+    tmp_path: Path, corruption: str
+) -> None:
+    """Corrupt component inputs stop before any source proof or PA2 consumer.
+
+    SQL rows come from the actual store; the candidate shape below is only an
+    adversarial input. Full positive source/CAS/signature replay is separately
+    exercised by the retained-history measurement, never claimed by this fixture.
+    """
+    from contextlib import closing
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
+
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "history.sqlite3")
+    ) as store:
+        job = _create_job(
+            store, job_id="source-history", kind="natural_language_run", run_id="run-history"
+        )
+        event = store.get_job_created_event_payload(job.job_id)
+        outbox = store.get_job_created_outbox_event(job.job_id)
+        assert outbox is not None
+        inputs = job, event, outbox
+        base, request = _candidate_experiment_action_fixture(run_id=job.run_id)
+        origin = VerifiedCandidateExperimentOrigin(
+            schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+            tenant_id=base.tenant_id,
+            cell_id=base.cell_id,
+            run_id=base.run_id,
+            source_job_id=job.job_id,
+            source_payload_ref=job.payload_ref,
+            capability_manifest_ref=job.capability_manifest_ref,
+            request_content_hash=base.request_content_hash,
+            route_id=base.route_id,
+            policy_ref=base.policy_ref,
+            policy_scope=base.policy_scope,
+            generation_run=None,
+            source_cycle=base.source_cycle,
+            design_problem_basis=None,
+            planner_report=None,
+            planner_record=None,
+        )
+        expected = "candidate_experiment_history_source_changed"
+        if corruption == "untyped_origin":
+            origin = base
+            expected = "candidate_experiment_history_origin_unbound"
+        elif corruption == "missing_source_rows":
+            inputs = None
+            expected = "candidate_experiment_history_origin_unbound"
+        elif corruption == "foreign_scope":
+            origin = replace(origin, tenant_id="foreign-tenant")
+            expected = "candidate_experiment_history_origin_unbound"
+        elif corruption == "foreign_source":
+            origin = replace(origin, source_payload_ref="sha256:" + "e" * 64)
+        elif corruption == "changed_job":
+            inputs = replace(job, capability_manifest_ref="sha256:" + "e" * 64), event, outbox
+        elif corruption == "changed_creation_event":
+            inputs = job, {**event, "submitted_by": "foreign-actor"}, outbox
+        elif corruption == "changed_creation_outbox":
+            inputs = job, event, replace(outbox, event_key="foreign-event")
+
+        class ActualHistoryRowsOnly:
+            """Truthful actual read port, without a ControlPlaneService identity."""
+
+            _control_store = store
+
+        class ForbiddenHistoryConsumer:
+            control_service = ActualHistoryRowsOnly()
+
+            def _candidate_experiment_loop(self, **_kwargs):
+                pytest.fail("corrupt source rows reached source proof reuse")
+
+            def _require_candidate_experiment_authority_provider(self):
+                pytest.fail("corrupt source rows reached PA2")
+
+        with pytest.raises(AcquisitionActionServiceError, match=expected):
+            AcquisitionActionService.load_candidate_experiment_decision_history(
+                ForbiddenHistoryConsumer(),
+                tenant_id=base.tenant_id,
+                cell_id=base.cell_id,
+                run_id=base.run_id,
+                route_id=base.route_id,
+                request=request,
+                job_id="unissued-action",
+                decision_ref="sha256:" + "0" * 64,
+                verified_origin=origin,
+                verified_source_inputs=inputs,
+            )
+        assert store.get_job(job.job_id) == job
+        assert store.get_job_created_event_payload(job.job_id) == event
+        assert store.get_job_created_outbox_event(job.job_id) == outbox
+
+
+@pytest.mark.parametrize("conflict", ["route", "generation_gap", "same_job_twice"])
+def test_carried_and_default_history_reject_new_complete_source_head_conflict(
+    tmp_path: Path, conflict: str
+) -> None:
+    """New real SQL heads invalidate reuse while the source/prefix snapshot stays equal.
+
+    The supplied candidate is a component proof carrier, not signed source
+    authority. Both actual service algorithms must reject the complete current
+    head set before consuming that carrier or requesting a PA2 result.
+    """
+    from contextlib import closing
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
+
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "heads.sqlite3")
+    ) as store:
+        job = _create_job(
+            store, job_id="job-source-test", kind="natural_language_run", run_id="run-heads"
+        )
+        source_inputs = (
+            job,
+            store.get_job_created_event_payload(job.job_id),
+            store.get_job_created_outbox_event(job.job_id),
+        )
+        assert source_inputs[2] is not None
+        base, request = _candidate_experiment_action_fixture(
+            tenant_id="tenant-a", cell_id="cell-a", run_id=job.run_id
+        )
+        request = request.model_copy(
+            update={
+                "replay_pins": request.replay_pins.model_copy(
+                    update={"source_payload_ref": job.payload_ref}
+                )
+            }
+        )
+        origin = VerifiedCandidateExperimentOrigin(
+            schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+            tenant_id=base.tenant_id,
+            cell_id=base.cell_id,
+            run_id=base.run_id,
+            source_job_id=job.job_id,
+            source_payload_ref=job.payload_ref,
+            capability_manifest_ref=job.capability_manifest_ref,
+            request_content_hash=base.request_content_hash,
+            route_id=base.route_id,
+            policy_ref=base.policy_ref,
+            policy_scope=base.policy_scope,
+            generation_run=None,
+            source_cycle=base.source_cycle,
+            design_problem_basis=None,
+            planner_report=None,
+            planner_record=None,
+        )
+        action_job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+
+        def insert_head(route_id, generation, head_job_id):
+            # Fixture-only SQL corruption input; no artifact, action or grant is issued.
+            store._execute(
+                "INSERT INTO runtime_acquisition_action_heads "
+                "(tenant_id,cell_id,run_id,source_job_id,route_id,action_generation,"
+                "head_generation,receipt_ref,receipt_sha256,durable_event_id,coarse_phase,"
+                "receipt_phase,recovery_state,job_id,created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    origin.tenant_id,
+                    origin.cell_id,
+                    origin.run_id,
+                    origin.source_job_id,
+                    route_id,
+                    generation,
+                    1,
+                    "sha256:" + "1" * 64,
+                    "sha256:" + "1" * 64,
+                    "component-event",
+                    "requested",
+                    "requested",
+                    "none",
+                    head_job_id,
+                    "2026-11-13T00:00:00+00:00",
+                ),
+            )
+
+        insert_head(origin.route_id, 1, action_job_id)
+
+        class ActualHeadRowsFrontend:
+            _control_store = store
+
+        class CandidateHistoryReader:
+            control_service = ActualHeadRowsFrontend()
+            _candidate_experiment_source_heads = (
+                AcquisitionActionService._candidate_experiment_source_heads
+            )
+            _candidate_experiment_projection = staticmethod(
+                AcquisitionActionService._candidate_experiment_projection
+            )
+            _candidate_experiment_job_id = staticmethod(
+                AcquisitionActionService._candidate_experiment_job_id
+            )
+
+            def _candidate_experiment_loop(self, **_kwargs):
+                return SimpleNamespace(
+                    resolve_candidate_experiment_predecessor_origin=lambda **_: origin
+                )
+
+            def _require_candidate_experiment_authority_provider(self):
+                pytest.fail("new conflicting head reached PA2 history")
+
+        reader = CandidateHistoryReader()
+        scope = {"tenant_id": origin.tenant_id, "cell_id": origin.cell_id, "run_id": origin.run_id}
+        prefix = store.list_acquisition_action_heads_for_source(
+            **scope, source_job_id=origin.source_job_id
+        )
+        assert (
+            reader._candidate_experiment_source_heads(**scope, origin=origin, request=request)
+            == prefix
+        )
+        assert (
+            AcquisitionActionService._candidate_experiment_origin_for_request(
+                reader, **scope, request=request, require_current=False
+            )
+            is origin
+        )
+
+        insert_head(
+            "sha256:" + "0" * 64 if conflict == "route" else origin.route_id,
+            3 if conflict == "generation_gap" else 2,
+            action_job_id if conflict == "same_job_twice" else "another-action",
+        )
+        expected = (
+            "candidate_experiment_job_identity_mismatch"
+            if conflict == "same_job_twice"
+            else "candidate_experiment_action_history_conflict"
+        )
+        with pytest.raises(AcquisitionActionServiceError, match=expected):
+            AcquisitionActionService._candidate_experiment_origin_for_request(
+                reader, **scope, request=request, require_current=False
+            )
+        with pytest.raises(AcquisitionActionServiceError, match=expected):
+            AcquisitionActionService.load_candidate_experiment_decision_history(
+                reader,
+                **scope,
+                route_id=origin.route_id,
+                request=request,
+                job_id=action_job_id,
+                decision_ref="sha256:" + "0" * 64,
+                verified_origin=origin,
+                verified_source_inputs=source_inputs,
+            )
+        assert store.get_job(job.job_id) == source_inputs[0]
+        assert store.get_job_created_event_payload(job.job_id) == source_inputs[1]
+        assert store.get_job_created_outbox_event(job.job_id) == source_inputs[2]
+        assert (
+            store.get_acquisition_action_head(
+                **scope,
+                source_job_id=origin.source_job_id,
+                route_id=origin.route_id,
+                action_generation=1,
+            )
+            == prefix[0]
+        )

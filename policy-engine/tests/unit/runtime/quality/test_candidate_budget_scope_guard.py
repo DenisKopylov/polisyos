@@ -21,6 +21,9 @@ from polisyos.runtime.http.services import acquisition_surface_execution
 from polisyos.runtime.http.services.control.run_lifecycle import (
     ControlPlaneService,
     OriginalRunBudgetScopeEvidence,
+    _read_original_run_budget_scope_historical,
+    _require_candidate_experiment_intent_historical,
+    _require_candidate_unpriced_budget_scope_historical,
 )
 from polisyos.runtime.quality import acquisition_executor, candidate_acquisition_action
 from polisyos.runtime.quality.cycle_substrate import (
@@ -207,4 +210,69 @@ async def test_explicit_limited_legacy_prefetch_refuses_without_live_owner_conte
         ):
             port.execute(closure, action_phase_ref="sha256:" + "b" * 64)
         assert not (tmp_path / "unpriced-port").exists()
+        assert _state(case) == before
+
+
+@pytest.mark.asyncio
+async def test_historical_original_scope_reopens_legacy_job_and_requires_creation_event(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Actual legacy SQL/CAS history remains distinct from declared experiment intent."""
+    async with _real_reentry_refusal_case(tmp_path, monkeypatch) as case:
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            ControlPlaneStore,
+        )
+
+        store = case.service._control_store
+        before = _state(case)
+
+        class ReadOnlyCreationRows:
+            """Actual typed fixture rows, without a store identity or write facility."""
+
+            def get_job(self, job_id):
+                return store.get_job(job_id)
+
+            def get_job_created_event_payload(self, job_id):
+                return store.get_job_created_event_payload(job_id)
+
+            def get_job_created_outbox_event(self, job_id):
+                return store.get_job_created_outbox_event(job_id)
+
+            def _reconcile_control_job_creation_envelope(self, job):
+                return ControlPlaneStore._reconcile_control_job_creation_envelope(self, job)
+
+            def historical_scope(self, **kwargs):
+                return ControlPlaneStore.historical_completed_job_execution_scope(self, **kwargs)
+
+        rows = ReadOnlyCreationRows()
+
+        def read():
+            return _read_original_run_budget_scope_historical(
+                artifact_store=case.service._artifact_store,
+                get_job=store.get_job,
+                historical_execution_scope=rows.historical_scope,
+                get_created_event=store.get_job_created_event_payload,
+                closure=case.closure,
+            )
+
+        evidence = read()
+        assert evidence.source_job_id == case.closure.source_job_id
+        assert evidence.scope_explicit is False
+        assert evidence.request_content_hash is None
+        with pytest.raises(ValueError, match="candidate_unpriced_budget_scope_not_established"):
+            _require_candidate_unpriced_budget_scope_historical(evidence)
+        with pytest.raises(ValueError, match="candidate_experiment_intent_not_established"):
+            _require_candidate_experiment_intent_historical(evidence)
+
+        def missing_event(_job_id):
+            raise RuntimeError("control_job_created_event_count_not_one")
+
+        with monkeypatch.context() as patch:
+            patch.setattr(rows, "get_job_created_event_payload", missing_event)
+            with pytest.raises(
+                ControlJobExecutionAdmissionError, match="control_job_created_event_unavailable"
+            ):
+                read()
+        assert read() == evidence
         assert _state(case) == before

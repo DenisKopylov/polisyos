@@ -30,6 +30,364 @@ from tests._helpers.candidate_holdout_resource import (
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
+def _assert_fresh_annual_gdp_n5_consumer(
+    store: Any,
+    *,
+    input_ref: Any,
+    execution_ref: Any,
+    run_id: str,
+    job_id: str,
+    tenant_id: str,
+    cell_id: str,
+    observed_value_usd: int,
+    action_value: float,
+) -> Any:
+    """Reopen the selected candidate and independently check its physical result."""
+    import numpy as np
+
+    from polisyos.core import canon
+    from polisyos.core.artifacts import (
+        CanonInfo,
+        SchemaInfo,
+        artifact_ref_for_manifest,
+        input_ref_from_artifact_ref,
+        load_core_json_artifact,
+    )
+    from polisyos.core.contracts import StateSnapshot
+    from polisyos.core.contracts import epoch as epoch_contract
+    from polisyos.core.contracts.fabric import AcquiredObservationDataSnapshotLineage, DataSnapshot
+    from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+        world_model_artifact_views,
+    )
+    from tests._helpers.lane01_wdi_profiles import GDP_PROFILE
+
+    # Reopen both selected V5 views through a new repository reader, then reopen
+    # the persisted numerical result through the same consumer boundary.
+    fresh_reader = GenerationSourceRepository(store)
+    input_record = fresh_reader.resolve_candidate_simulation_v5(
+        ref=input_ref,
+        expected_run_id=run_id,
+        expected_job_id=job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    execution = fresh_reader.resolve_candidate_simulation_v5(
+        ref=execution_ref,
+        expected_run_id=run_id,
+        expected_job_id=job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    assert type(input_record) is CandidateSimulationN5InputV5
+    assert type(execution) is CandidateSimulationExecutionV5
+    assert execution.n5_input_ref == input_ref
+    assert execution.authority_purpose == "candidate_scenario_n5_only"
+    assert input_record.n5.seed == 17
+    assert input_record.n5.replications == 2
+    assert (
+        input_record.n5.horizon.start,
+        input_record.n5.horizon.end,
+        input_record.n5.horizon.step,
+    ) == (0, 0, 1)
+    assert input_record.outcome_variable == "global.gdp"
+    assert input_record.authority_purpose == "candidate_scenario_n5_only"
+    assert execution.authority_purpose == "candidate_scenario_n5_only"
+    assert input_record.profile.rule.operator_kind == "tax_relief_rate"
+    assert input_record.profile.rule.parameter_id == "rate"
+    assert input_record.profile.rule.target_world_slot == "global.tax_rate"
+    assert input_record.profile.rule.unit_id == "ratio"
+    assert input_record.profile.rule.minimum == input_record.profile.rule.maximum == 0
+    assert input_record.materialization.derived_n5_atom.status == "candidate_unverified"
+    assert (
+        "grounding_not_established"
+        in input_record.materialization.derived_n5_atom.causal_do_expr.context["assumptions"]
+    )
+    assert input_record.profile.n5.baseline_state["global.tax_rate"] == 0.5
+    assert input_record.profile.n5.baseline_state["global.gdp"] == pytest.approx(
+        observed_value_usd,
+        rel=2e-7,
+    )
+    assert input_record.profile.n5.baseline_state["global.gdp"] != 0.0
+    assert input_record.profile.context_inputs.world_model_record.valid_time_scope == (
+        "not_established"
+    )
+    assert input_record.profile.context_inputs.world_model_record.authority_status == "limited"
+    assert {
+        "source_time_not_established",
+        "source_to_target_measurement_contract_not_established",
+        "causal_coupling_not_established",
+    }.issubset(
+        input_record.profile.context_inputs.world_model_record.limitations.admissibility_blockers
+    )
+    views = world_model_artifact_views(input_record.profile.context_inputs.world_model_record)
+    snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, views.data_snapshot_ref))
+    payload = load_core_json_artifact(store, snapshot.data_ref)
+    selected = payload["acquisition"]["selected"]
+    assert selected["canonical_variable_id"] == "global.gdp"
+    assert selected["value"] == observed_value_usd
+    assert isinstance(snapshot.source_lineage, AcquiredObservationDataSnapshotLineage)
+    lineage = validate_data_snapshot_owner_lineage(
+        store, views.data_snapshot_ref, snapshot, candidate_only=True
+    )
+    assert lineage.acquisition_source_row_status == "not_established"
+    assert set(lineage.required_admissibility_blockers).issubset(
+        input_record.profile.context_inputs.world_model_record.limitations.admissibility_blockers
+    )
+    passport = AdmissionPassport.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=snapshot.source_lineage.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    binding = passport.field_binding
+    assert binding == passport.registration.field_binding
+    assert binding.dataset_id == passport.registration.catalog_dataset_id == selected["dataset_id"]
+    assert binding.canonical_variable == passport.variable_id == selected["canonical_variable_id"]
+    assert (binding.raw_unit, binding.canonical_unit) == (
+        GDP_PROFILE.raw_unit,
+        GDP_PROFILE.canonical_unit,
+    )
+    assert (binding.unit_transform, binding.unit_transform_ref) == (
+        GDP_PROFILE.transform,
+        GDP_PROFILE.transform_ref,
+    )
+    assert selected["source_time_status"] == "not_established"
+    assert selected["reported_time_coordinate"]["year"] == 2024
+    assert snapshot.stats["source_time_status"] == "not_established"
+    assert snapshot.source_lineage.owner == "acquired_observation_overlay"
+    assert observed_annual_change_usd() == 1_486_496_000_000
+
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        load_core_json_artifact(store, execution.model_declaration_ref)
+    )
+    assert declaration.target_unit_id == "ratio"
+    assert declaration.outcome_unit_id == binding.canonical_unit == "usd"
+    assert declaration.outcome_variable == binding.canonical_variable == "global.gdp"
+    assert declaration.assumption == "declared_candidate_scm_not_empirically_grounded"
+    assert declaration.outcome_per_target_unit == -500_000_000_000.0
+    assert declaration.target_world_slot == "global.tax_rate"
+    assert declaration.outcome_variable == "global.gdp"
+    assert (
+        declaration.target_baseline
+        == input_record.profile.n5.baseline_state[declaration.target_world_slot]
+    )
+    assert (
+        declaration.outcome_baseline
+        == input_record.profile.n5.baseline_state[declaration.outcome_variable]
+    )
+    assert declaration.target_unit_id == "ratio"
+    assert declaration.outcome_unit_id == "usd"
+
+    numerical = fresh_reader._read_candidate_simulation_v5_numerical_output(
+        ref=execution_ref,
+        expected_run_id=run_id,
+        expected_job_id=job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    assert numerical.execution == execution
+    assert numerical.input_record == input_record
+    assert numerical.result.receipt.payload_hash == execution.n5_result_content_hash
+    assert execution.world_model_record_hash == input_record.materialization.world_model_record_hash
+    assert numerical.result.world_model_record_content_hash == (
+        input_record.materialization.world_model_record_hash
+    )
+    acquired_world = input_record.profile.context_inputs.world_model_record
+    views = world_model_artifact_views(acquired_world)
+    derived_world = derive_candidate_scenario_world_model_record(
+        acquired_world,
+        ncm_artifact_ref=input_record.ncm_ref,
+        declaration_content_hash=declaration.content_hash,
+        substrate_registry_view_ref=views.substrate_registry_ref,
+    )
+    historical_context = CycleSubstrateContextArtifactOwner(
+        store=store
+    ).resolve_historical_job_artifact(
+        execution.context_job_ref,
+        problem=numerical.source.problem,
+        expected_run_id=run_id,
+        expected_job_id=job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    assert historical_context.context.world_model_record == derived_world
+    assert numerical.result.world_model_record_content_hash == derived_world.content_hash
+    assert numerical.result.selected_outcomes == (declaration.outcome_variable,)
+
+    # Re-read the state snapshot physically bound by the refreshed WMR. Every
+    # N5 baseline slot must resolve through its WMR binding and agree with the
+    # persisted input and model declaration; receipt/input echoes are not used
+    # as the independent baseline oracle.
+    bound_state_ref = views.bound_state_snapshot_ref
+    assert bound_state_ref is not None
+    state_verification = store.verify(bound_state_ref)
+    assert state_verification.ok, state_verification.error
+    bound_state_snapshot = StateSnapshot.model_validate(
+        load_core_json_artifact(store, bound_state_ref)
+    )
+    state_manifest = store.get_manifest(bound_state_ref)
+    assert state_manifest.artifact_id == bound_state_ref.artifact_id
+    assert state_manifest.kind == bound_state_ref.kind == "foundry.state_snapshot"
+    assert state_manifest.media_type == bound_state_ref.media_type == "application/json"
+    assert state_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+            bound_state_snapshot.schema_version
+        ],
+    )
+    assert state_manifest.canon == CanonInfo.from_spec(canon.CanonSpec())
+    assert state_manifest.inputs == bound_state_snapshot.lineage_inputs
+    assert (
+        input_ref_from_artifact_ref(views.data_snapshot_ref, role="input.data_snapshot_ref")
+        in bound_state_snapshot.lineage_inputs
+    )
+    bound_state = load_state_snapshot(store, snapshot_ref=bound_state_ref)
+    # The WMR may name the default view without a profile selector. Reopen the
+    # actual default manifest's selected view, then refuse a foreign selector
+    # on the same artifact rather than treating its bytes as sufficient.
+    actual_state_view = artifact_ref_for_manifest(state_manifest)
+    assert store.verify(actual_state_view).ok
+    assert store.get_bytes(actual_state_view) == store.get_bytes(bound_state_ref)
+    foreign_profile = views.data_snapshot_ref.manifest_profile_sha256
+    assert foreign_profile is not None
+    assert foreign_profile != actual_state_view.manifest_profile_sha256
+    foreign_state_view = bound_state_ref.model_copy(
+        update={"manifest_profile_sha256": foreign_profile}
+    )
+    with pytest.raises((FileNotFoundError, ValueError)):
+        load_state_snapshot(store, snapshot_ref=foreign_state_view)
+    physical_baseline: dict[str, float] = {}
+    for slot_id in sorted(input_record.n5.baseline_state):
+        binding = acquired_world.slot_binding(slot_id)
+        assert binding is not None and binding.state_path
+        state_value = np.asarray(get_state_path(bound_state, binding.state_path))
+        assert state_value.size == 1
+        physical_baseline[slot_id] = float(state_value.item())
+    assert physical_baseline == input_record.n5.baseline_state
+    assert declaration.target_baseline == physical_baseline[declaration.target_world_slot]
+    assert declaration.outcome_baseline == physical_baseline[declaration.outcome_variable]
+    assert physical_baseline[declaration.outcome_variable] == pytest.approx(
+        observed_value_usd,
+        rel=2e-7,
+    )
+    assert physical_baseline[declaration.target_world_slot] == 0.5
+    target_binding = acquired_world.slot_binding(declaration.target_world_slot)
+    outcome_binding = acquired_world.slot_binding(declaration.outcome_variable)
+    assert target_binding is not None and target_binding.unit == declaration.target_unit_id
+    assert outcome_binding is not None and outcome_binding.unit == declaration.outcome_unit_id
+
+    # Independently recompute the declared synthetic SCM from physical bX/bY
+    # and the persisted selected tax-rate action. The 250 billion USD change is
+    # far above float32 spacing at this GDP scale, so a rounded-away effect cannot pass.
+    target_value = float(input_record.materialization.value)
+    assert target_value == action_value == 0.0
+    physical_target_baseline = physical_baseline[declaration.target_world_slot]
+    physical_outcome_baseline = physical_baseline[declaration.outcome_variable]
+    expected_effect = declaration.outcome_per_target_unit * (
+        target_value - physical_target_baseline
+    )
+    expected_outcome = physical_outcome_baseline + expected_effect
+    assert expected_effect == 250_000_000_000.0
+    assert expected_outcome - physical_outcome_baseline == expected_effect
+    # The qualified CPU profile disables JAX x64. Use two float32 spacings
+    # as the established tolerance, without asserting the result's storage dtype.
+    expected_float32_outcome = np.float32(expected_outcome)
+    float32_spacing = float(np.spacing(expected_float32_outcome))
+    result_abs_tolerance_usd = 2.0 * float32_spacing
+    assert expected_effect > 100.0 * result_abs_tolerance_usd
+    assert np.float32(expected_outcome) != np.float32(physical_outcome_baseline)
+    selected_decisions = tuple(
+        item for item in numerical.result.engine_decisions if item.decision == "selected"
+    )
+    assert len(selected_decisions) == 1
+    atom_ids = (input_record.materialization.derived_n5_atom.intervention_id,)
+    assert atom_ids[0] in numerical.result.marginal_effects
+    expected_seeds = (17, 18)
+    trajectories = tuple(
+        item
+        for item in numerical.result.trajectories
+        if item.atom_ids == atom_ids and item.run_level in {"individual", "joint"}
+    )
+    assert trajectories
+    assert any(trajectory.run_level == "joint" for trajectory in trajectories)
+    for trajectory in trajectories:
+        assert trajectory.engine_kind == selected_decisions[0].engine_kind
+        assert trajectory.diagnostics["actual_replications"] == 2
+        assert trajectory.diagnostics["replication_seeds"] == list(expected_seeds)
+        assert len(trajectory.points) == 1
+        for point in trajectory.points:
+            assert point.step == input_record.n5.horizon.start
+            if trajectory.run_level == "individual":
+                assert numerical.result.marginal_effects[atom_ids[0]][point.step][
+                    declaration.outcome_variable
+                ] == pytest.approx(
+                    expected_effect,
+                    rel=0.0,
+                    abs=result_abs_tolerance_usd,
+                )
+            assert point.outcomes[declaration.outcome_variable] == pytest.approx(
+                float(expected_float32_outcome),
+                rel=0.0,
+                abs=result_abs_tolerance_usd,
+            )
+            assert point.effect[declaration.outcome_variable] == pytest.approx(
+                expected_effect,
+                rel=0.0,
+                abs=result_abs_tolerance_usd,
+            )
+            assert point.replication_sampling is not None
+            sampling = point.replication_sampling
+            assert sampling.replicate_count == 2
+            assert sampling.seeds == expected_seeds
+            assert len(sampling.samples) == 2
+            sample_outcomes = [
+                sample.outcomes[declaration.outcome_variable] for sample in sampling.samples
+            ]
+            sample_effects = [
+                sample.effects[declaration.outcome_variable] for sample in sampling.samples
+            ]
+            expected_outcome_se = statistics.stdev(sample_outcomes) / math.sqrt(
+                len(sample_outcomes)
+            )
+            expected_effect_se = statistics.stdev(sample_effects) / math.sqrt(len(sample_effects))
+            assert sampling.status == "estimated"
+            assert tuple(sample.seed for sample in sampling.samples) == expected_seeds
+            for sample in sampling.samples:
+                assert sample.outcomes[declaration.outcome_variable] == pytest.approx(
+                    float(expected_float32_outcome),
+                    rel=0.0,
+                    abs=result_abs_tolerance_usd,
+                )
+                assert sample.effects[declaration.outcome_variable] == pytest.approx(
+                    expected_effect,
+                    rel=0.0,
+                    abs=result_abs_tolerance_usd,
+                )
+            # The persisted standard error is recomputed from the stored draws
+            # in binary64; the float32 output ULP tolerance above does not apply.
+            assert sampling.outcomes_standard_error[declaration.outcome_variable] == pytest.approx(
+                expected_outcome_se, rel=1e-12, abs=1e-12
+            )
+            assert sampling.effects_standard_error[declaration.outcome_variable] == pytest.approx(
+                expected_effect_se, rel=1e-12, abs=1e-12
+            )
+    assert SOFTWARE_FIXTURE_BOUNDARY["source_rights"] == "not_established"
+    assert SOFTWARE_FIXTURE_BOUNDARY["source_currentness"] == "not_established"
+    return execution
+
+
 @pytest.mark.integration
 def test_annual_gdp_source_persists_public_rows_and_refuses_provenance_relabel(
     tmp_path: Path,
@@ -429,11 +787,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.core.artifacts import (
         ArtifactRef,
         FileSystemCAS,
-        input_ref_from_artifact_ref,
         load_core_json_artifact,
     )
-    from polisyos.core.contracts import StateSnapshot
-    from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
     from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
@@ -448,11 +803,6 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateWorldRefresh,
-    )
-    from polisyos.runtime.quality.candidate_simulation import (
-        CandidateSimulationExecutionV5,
-        CandidateSimulationN5InputV5,
-        CandidateSimulationSyntheticModelDeclarationV1,
     )
     from polisyos.runtime.quality.data_state_substrate import (
         L1VariableAvailability,
@@ -1146,255 +1496,18 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert isinstance(execution_ref_payload, dict)
     execution_ref = ArtifactRef.model_validate(execution_ref_payload)
 
-    # Reopen both selected V5 views through a new repository reader, then reopen
-    # the persisted numerical result through the same consumer boundary.
-    fresh_reader = GenerationSourceRepository(store)
-    input_record = fresh_reader.resolve_candidate_simulation_v5(
-        ref=simulation.candidate_simulation_n5_input_ref,
-        expected_run_id=run_id,
-        expected_job_id=action_job_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
+    execution = _assert_fresh_annual_gdp_n5_consumer(
+        store,
+        input_ref=simulation.candidate_simulation_n5_input_ref,
+        execution_ref=execution_ref,
+        run_id=run_id,
+        job_id=action_job_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        observed_value_usd=row_2024.value_usd,
+        action_value=tax_rate_action_value,
     )
-    execution = fresh_reader.resolve_candidate_simulation_v5(
-        ref=execution_ref,
-        expected_run_id=run_id,
-        expected_job_id=action_job_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
-    )
-    assert type(input_record) is CandidateSimulationN5InputV5
-    assert type(execution) is CandidateSimulationExecutionV5
     assert execution.model_declaration_ref in model_reconciliations
-    assert execution.n5_input_ref == simulation.candidate_simulation_n5_input_ref
-    assert execution.authority_purpose == "candidate_scenario_n5_only"
-    assert input_record.n5.seed == 17
-    assert input_record.n5.replications == 2
-    assert (
-        input_record.n5.horizon.start,
-        input_record.n5.horizon.end,
-        input_record.n5.horizon.step,
-    ) == (0, 0, 1)
-    assert input_record.outcome_variable == "global.gdp"
-    assert input_record.authority_purpose == "candidate_scenario_n5_only"
-    assert execution.authority_purpose == "candidate_scenario_n5_only"
-    assert input_record.profile.rule.operator_kind == "tax_relief_rate"
-    assert input_record.profile.rule.parameter_id == "rate"
-    assert input_record.profile.rule.target_world_slot == "global.tax_rate"
-    assert input_record.profile.rule.unit_id == "ratio"
-    assert input_record.profile.rule.minimum == input_record.profile.rule.maximum == 0
-    assert input_record.materialization.derived_n5_atom.status == "candidate_unverified"
-    assert (
-        "grounding_not_established"
-        in input_record.materialization.derived_n5_atom.causal_do_expr.context["assumptions"]
-    )
-    assert input_record.profile.n5.baseline_state["global.tax_rate"] == 0.5
-    assert input_record.profile.n5.baseline_state["global.gdp"] == pytest.approx(
-        row_2024.value_usd,
-        rel=2e-7,
-    )
-    assert input_record.profile.n5.baseline_state["global.gdp"] != 0.0
-    assert input_record.profile.context_inputs.world_model_record.valid_time_scope == (
-        "not_established"
-    )
-    assert input_record.profile.context_inputs.world_model_record.authority_status == "limited"
-    assert {
-        "source_time_not_established",
-        "source_to_target_measurement_contract_not_established",
-        "causal_coupling_not_established",
-    }.issubset(
-        input_record.profile.context_inputs.world_model_record.limitations.admissibility_blockers
-    )
-    views = world_model_artifact_views(input_record.profile.context_inputs.world_model_record)
-    snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, views.data_snapshot_ref))
-    payload = load_core_json_artifact(store, snapshot.data_ref)
-    selected = payload["acquisition"]["selected"]
-    assert selected["canonical_variable_id"] == "global.gdp"
-    assert selected["value"] == row_2024.value_usd
-    assert selected["canonical_unit"] == "usd"
-    assert selected["source_time_status"] == "not_established"
-    assert selected["reported_time_coordinate"]["year"] == 2024
-    assert snapshot.stats["source_time_status"] == "not_established"
-    assert snapshot.source_lineage.owner == "acquired_observation_overlay"
-    assert observed_annual_change_usd() == 1_486_496_000_000
-
-    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-        load_core_json_artifact(store, execution.model_declaration_ref)
-    )
-    assert declaration.target_unit_id == "ratio"
-    assert declaration.outcome_unit_id == "usd"
-    assert declaration.outcome_variable == "global.gdp"
-    assert declaration.assumption == "declared_candidate_scm_not_empirically_grounded"
-    assert declaration.outcome_per_target_unit == -500_000_000_000.0
-    assert declaration.target_world_slot == "global.tax_rate"
-    assert declaration.outcome_variable == "global.gdp"
-    assert (
-        declaration.target_baseline
-        == input_record.profile.n5.baseline_state[declaration.target_world_slot]
-    )
-    assert (
-        declaration.outcome_baseline
-        == input_record.profile.n5.baseline_state[declaration.outcome_variable]
-    )
-    assert declaration.target_unit_id == "ratio"
-    assert declaration.outcome_unit_id == "usd"
-
-    numerical = fresh_reader._read_candidate_simulation_v5_numerical_output(
-        ref=execution_ref,
-        expected_run_id=run_id,
-        expected_job_id=action_job_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
-    )
-    assert numerical.execution == execution
-    assert numerical.input_record == input_record
-    assert numerical.result.receipt.payload_hash == execution.n5_result_content_hash
-    assert execution.world_model_record_hash == input_record.materialization.world_model_record_hash
-    assert numerical.result.world_model_record_content_hash == (
-        input_record.materialization.world_model_record_hash
-    )
-    assert numerical.result.world_model_record_content_hash == (
-        input_record.profile.context_inputs.world_model_record.content_hash
-    )
-    assert numerical.result.selected_outcomes == (declaration.outcome_variable,)
-
-    # Re-read the state snapshot physically bound by the refreshed WMR. Every
-    # N5 baseline slot must resolve through its WMR binding and agree with the
-    # persisted input and model declaration; receipt/input echoes are not used
-    # as the independent baseline oracle.
-    acquired_world = input_record.profile.context_inputs.world_model_record
-    views = world_model_artifact_views(acquired_world)
-    bound_state_ref = views.bound_state_snapshot_ref
-    assert bound_state_ref is not None
-    assert bound_state_ref.manifest_profile_sha256 is not None
-    state_verification = store.verify(bound_state_ref)
-    assert state_verification.ok, state_verification.error
-    bound_state_snapshot = StateSnapshot.model_validate(
-        load_core_json_artifact(store, bound_state_ref)
-    )
-    assert store.get_manifest(bound_state_ref).inputs == bound_state_snapshot.lineage_inputs
-    assert (
-        input_ref_from_artifact_ref(views.data_snapshot_ref, role="input.data_snapshot_ref")
-        in bound_state_snapshot.lineage_inputs
-    )
-    bound_state = load_state_snapshot(store, snapshot_ref=bound_state_ref)
-    physical_baseline: dict[str, float] = {}
-    for slot_id in sorted(input_record.n5.baseline_state):
-        binding = acquired_world.slot_binding(slot_id)
-        assert binding is not None and binding.state_path
-        state_value = np.asarray(get_state_path(bound_state, binding.state_path))
-        assert state_value.size == 1
-        physical_baseline[slot_id] = float(state_value.item())
-    assert physical_baseline == input_record.n5.baseline_state
-    assert declaration.target_baseline == physical_baseline[declaration.target_world_slot]
-    assert declaration.outcome_baseline == physical_baseline[declaration.outcome_variable]
-    assert physical_baseline[declaration.outcome_variable] == pytest.approx(
-        row_2024.value_usd,
-        rel=2e-7,
-    )
-    assert physical_baseline[declaration.target_world_slot] == 0.5
-    target_binding = acquired_world.slot_binding(declaration.target_world_slot)
-    outcome_binding = acquired_world.slot_binding(declaration.outcome_variable)
-    assert target_binding is not None and target_binding.unit == declaration.target_unit_id
-    assert outcome_binding is not None and outcome_binding.unit == declaration.outcome_unit_id
-
-    # Independently recompute the declared synthetic SCM from physical bX/bY
-    # and the persisted selected tax-rate action. The 250 billion USD change is
-    # far above float32 spacing at this GDP scale, so a rounded-away effect cannot pass.
-    target_value = float(input_record.materialization.value)
-    assert target_value == tax_rate_action_value == 0.0
-    physical_target_baseline = physical_baseline[declaration.target_world_slot]
-    physical_outcome_baseline = physical_baseline[declaration.outcome_variable]
-    expected_effect = declaration.outcome_per_target_unit * (
-        target_value - physical_target_baseline
-    )
-    expected_outcome = physical_outcome_baseline + expected_effect
-    assert expected_effect == 250_000_000_000.0
-    assert expected_outcome - physical_outcome_baseline == expected_effect
-    # The resolved CPU profile disables x64, so compare outputs on its float32
-    # lattice with a two-ULP envelope at the GDP result magnitude.
-    expected_float32_outcome = np.float32(expected_outcome)
-    float32_spacing = float(np.spacing(expected_float32_outcome))
-    result_abs_tolerance_usd = 2.0 * float32_spacing
-    assert expected_effect > 100.0 * result_abs_tolerance_usd
-    assert np.float32(expected_outcome) != np.float32(physical_outcome_baseline)
-    selected_decisions = tuple(
-        item for item in numerical.result.engine_decisions if item.decision == "selected"
-    )
-    assert len(selected_decisions) == 1
-    atom_ids = (input_record.materialization.derived_n5_atom.intervention_id,)
-    assert atom_ids[0] in numerical.result.marginal_effects
-    expected_seeds = (17, 18)
-    trajectories = tuple(
-        item
-        for item in numerical.result.trajectories
-        if item.atom_ids == atom_ids and item.run_level in {"individual", "joint"}
-    )
-    assert trajectories
-    assert any(trajectory.run_level == "joint" for trajectory in trajectories)
-    for trajectory in trajectories:
-        assert trajectory.engine_kind == selected_decisions[0].engine_kind
-        assert trajectory.diagnostics["actual_replications"] == 2
-        assert trajectory.diagnostics["replication_seeds"] == list(expected_seeds)
-        assert len(trajectory.points) == 1
-        for point in trajectory.points:
-            assert point.step == input_record.n5.horizon.start
-            if trajectory.run_level == "individual":
-                assert numerical.result.marginal_effects[atom_ids[0]][point.step][
-                    declaration.outcome_variable
-                ] == pytest.approx(
-                    expected_effect,
-                    rel=0.0,
-                    abs=result_abs_tolerance_usd,
-                )
-            assert point.outcomes[declaration.outcome_variable] == pytest.approx(
-                float(expected_float32_outcome),
-                rel=0.0,
-                abs=result_abs_tolerance_usd,
-            )
-            assert point.effect[declaration.outcome_variable] == pytest.approx(
-                expected_effect,
-                rel=0.0,
-                abs=result_abs_tolerance_usd,
-            )
-            assert point.replication_sampling is not None
-            sampling = point.replication_sampling
-            assert sampling.replicate_count == 2
-            assert sampling.seeds == expected_seeds
-            assert len(sampling.samples) == 2
-            sample_outcomes = [
-                sample.outcomes[declaration.outcome_variable] for sample in sampling.samples
-            ]
-            sample_effects = [
-                sample.effects[declaration.outcome_variable] for sample in sampling.samples
-            ]
-            expected_outcome_se = statistics.stdev(sample_outcomes) / math.sqrt(
-                len(sample_outcomes)
-            )
-            expected_effect_se = statistics.stdev(sample_effects) / math.sqrt(len(sample_effects))
-            assert sampling.status == "estimated"
-            assert tuple(sample.seed for sample in sampling.samples) == expected_seeds
-            for sample in sampling.samples:
-                assert sample.outcomes[declaration.outcome_variable] == pytest.approx(
-                    float(expected_float32_outcome),
-                    rel=0.0,
-                    abs=result_abs_tolerance_usd,
-                )
-                assert sample.effects[declaration.outcome_variable] == pytest.approx(
-                    expected_effect,
-                    rel=0.0,
-                    abs=result_abs_tolerance_usd,
-                )
-            # The persisted standard error is recomputed from the stored draws
-            # in binary64; the float32 output ULP tolerance above does not apply.
-            assert sampling.outcomes_standard_error[declaration.outcome_variable] == pytest.approx(
-                expected_outcome_se, rel=1e-12, abs=1e-12
-            )
-            assert sampling.effects_standard_error[declaration.outcome_variable] == pytest.approx(
-                expected_effect_se, rel=1e-12, abs=1e-12
-            )
-    assert SOFTWARE_FIXTURE_BOUNDARY["source_rights"] == "not_established"
-    assert SOFTWARE_FIXTURE_BOUNDARY["source_currentness"] == "not_established"
 
 
 @pytest.mark.integration

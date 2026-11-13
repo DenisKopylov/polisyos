@@ -10365,12 +10365,12 @@
           },
           "l5_component": "IMPLEMENTED_COMPONENT_QUALIFIED: independent GO; stable affected wave79PASS/1SKIP/1FAIL (old constructor census location only), exact census companion corrected and separately1PASS including sibling injection; qualified union80PASS1SKIP, not a single green cohort. Core contract/producer/selectedartifact/bridge/graphreplay/protectedsiblings/publicfacade/readmes/releasefragment present. GDP fullroute/N5 still UNRUN.",
           "continuation_delivery": "MAINfc0e11f outcome fix + bb5f1544f history reuse; originalevidencecommits0176194d0/6a076d55c preserved by e87f667 merge (tree01941c7e unchanged). IndependentGO;69source testsPASS17controls reject, source traversals4→2, exact63618wirebytes equal. Fresh11.835543→7.681174s; warm5.961023s separate. ActualPRIMARYcomposed106PASS0fail/error/skip; JUnit184.741s,command236.385s/2023604224B; originalRESOURCE_ABORTharnessroot-exitraceafteractualexit0preserved, PGIDabsenttwice. Toolguard22testsPASS, no productrerun.",
-          "next": "Complete/review the stage-aware/cross-root GDP fixture and no-N5 budget/role controls before another numerical attempt. Independently load existing R7 keys and actual typed inputs for ordinary worker recovery with larger measured RSS cap, without recomputing A or extending old approval. Preserve source identities and original failures. Gate A then P06/P07/P08/Gate B; no next lane or G closure.",
+          "next": "Review/commit GDP shared-reader result without repeating its N5. Repair/qualify actual verification amplification: operation-local immutable read carrier with live checks and Core exact-primitive compiled-schema reuse with full config/provider fallback. Existing approvals expired; no old job restart. Then one fresh composed source/input/backend wave plus legitimate matched-stock sequence before GateA/P06/P07/P08/GateB. No next lane/G closure.",
           "published_source": {
-            "commit": "b7e7854beeea1cfee6e4cb5bd4762d2818db2188",
-            "tree": "09f3b5368b723e02cbf50e706f59d481e74d9373",
+            "commit": "7a9d0869bed242ffaa19cec15297b400a23face0",
+            "tree": "8c5dc94fb4c65218023375a69ac1fbae54d88faa",
             "ref": "refs/heads/main",
-            "readback": "Exact Git ls-remote and GitHub git/commits equality; normal hooks passed."
+            "readback": "Exact Git ls-remote/GitHub git-commit equality, normal hooks. Pending source slices remain WIP until independent review."
           },
           "gdp_third_r1": "FAIL89.705s/2079916032B,2997inputsstable/zero wrong origins,0N5. PassedL5andactivationproducer; activatedreaderdeterministicallymisdispatched NativeChronologyProjectionStatement asboundaryevidence. Forwardfixusescanonicalselectedchronologyreader+exactthreeDTOdispatch+fullnative replay;12distinctnativechecksqualified across3commands, includinggenuineprofilepositive/corruptview/removalrestore; implicitpublicationwrapperfixturecorrectedexplicitcandidate, separatepubrefusalunchanged. GDP rerunpendingnextsourcecheckpoint.",
           "canary": "UNRUN semantic: matrix43387166210 childpreflight lacksPOLISYOS_RUNTIME_CANARY_BEARER_TOKEN; ci_safe=false laneselectedbydeterministicpolicy. Artifact5747bytes explains RuntimeError beforeappcomposition, no inventeddeploymenttrust orgreen-lanesubstitution. CorePhase1failurelogpending.",
@@ -10409,7 +10409,17 @@
               "before_and_after_pin_sha256": "dd76e2094aad7781fa24011c2fb2a0262bf6db0401258faa375295825ce82ab7",
               "inputs_backend_observer_unchanged": true
             },
-            "next_profile": "Separately admitted4GiB recovery profile after actual3.229GB peak; old guard unchanged. Normal memory-pressure sample67% free, stable258.5MiB swap,7.7GiB disk. No automatic whole-fixture restart."
+            "next_profile": "Separately admitted4GiB recovery profile after actual3.229GB peak; old guard unchanged. Normal memory-pressure sample67% free, stable258.5MiB swap,7.7GiB disk. No automatic whole-fixture restart.",
+            "recovery": {
+              "commit": "cdc02122680075f301d7e4039c89c8b9986106d5",
+              "tree": "2ed393f9c10d7ac8ce5d6d0d87946d6da2d0be44",
+              "main_merge": "7a9d0869bed242ffaa19cec15297b400a23face0",
+              "controls": "11focusedPASS;185continuationstatementsAST-identical; keysreopenwithoutwrites, missingSQL/issuerinputsrefuse. ActualNoN5retainedread-admissionPASS oldledger2/keybytes/creationScope/PA2/DS9/currentmandate preserved, newexplicitdemoIdP/config notoldhash.",
+              "attempt2": "DRIVER_HARNESS_ERROR wronghandler signaturebeforeN5, ordinary leaseleftuntouchedup_toexpiry. Preservedoutputs/instrumentbytes.",
+              "attempt3": "NormalControl._process_control_job onordinaryexpired-leaseattempt3; sourceA preserved2units; distinctBinput3014297c3967349ccc4e9710b49d0c7aea43c3df3b09744ecd7c98f52eb187b1/execution39c15456f2eebfd2a27e890527599acc222ef2cbf4f231cb2e3533958305dfb4/result9ae90a455e8f3ee69f3471fdc130bc8be6251df848114fdcdde27d57658f45a1; ledger4standard/0protected. N5checkpointcaf1bac7b65d3ab66412694e1b615c5fb1c67c7668e9d3989392d82f2e5b720c at11:39:38UTC. Nooutcomebasis/terminal/B2/B3/C. RESOURCE_ABORT1887.423s/4424663040B vs4294967296cap, exit-2/quiescent/pinsequal. Approval11:49:40UTCnowexpired,norestart/renewal/handrepair.",
+              "actual_cost": "Prospective112.068s,decision223.661s,revalidation199.694s; ≥466.376s afterBcheckpointstillnoterminal. Native/contextstackevidencelocalizedwholefold+Coreadapter/host-importamplification;notwholelatencypercentor95count.",
+              "outputs": "SECONDARY policy-engine/_cache/e02/lane01-r7-recovery/attempt3/"
+            }
           },
           "mutation_harness": "Exact plural-owner stub failure reproduced. One property-test file now uses actual CAS/run manifests and RunIndexService; generated allow/unowned/deny plus multi-owner/foreign-denial companion PASS2, 56.63s/1813348352B. Source ACL/workflow/threshold unchanged. Independent root review GO; mutation score still UNRUN. Captured uv run --offline emitted no synchronization/install messages; no environment edits or reinstall performed.",
           "gdp_observed_owner_bridge": "IMPLEMENTED_COMPONENT_QUALIFIED: same actual persisted/reopened CycleSubstrateContextArtifactOwner is carried and scoped around observed reentry; exact store/control/handoff/resolver/current acquisition scope, heartbeat-compatible same_execution_identity, finally cleanup. Shared N7 selected CAS/model/scope/currentness checks remain. Source-reentry/NL verified-scope paths unchanged; existing post-async native/source checks preserved, no separately added final resolver. Four real SQLite/CAS/fresh-loop/deciding-thread/foreign-owner/removal controls PASS, 80.445s/1744224256B, 11 input pins/head stable; independent static review GO. Actual GDP R6 still UNRUN. Output policy-engine/_cache/e02/lane01-gdp-observed-context-binding-r1-20261113/.",
@@ -10422,7 +10432,16 @@
             "input_limitation": "tests/unit/runtime/conftest.py loaded but unpinned inpreflight; exactdocstring/future-only currentbytesmatchHEAD sha85147d4db3518969cdfa50bd10f84c0f5bab79f72dd8e00123cd49722af37ab3. No retrospective before-pin or completecensusclaim. Nextlonglauncherexplicitlypinsitandactualconftestancestors.",
             "outputs": "policy-engine/_cache/e02/lane01-gdp-candidate-preflight-r3-20261113/",
             "earlier_failures": "PreflightR1wrongambientroot/R2incorrectregistryhashequalityassumptionretainedasharnessfailures,not productcausaldiagnoses."
-          }
+          },
+          "gdp_third_r7": "Actualproducerat765a8d117/tree057cf266: joint_simulated; selectedinputdbd4f19ec8bb43ad6a2576b54e3a1c57f64b6ce6a1ef898d4e65014fc160213b, executiona8ecf3126316e60df54a29093f805fbd707b2984721cbcf50b29ba7174208fbc, result7dc18b2473b65235e7e53c15ae7fcd5b31095df88b033c5d7bba6174e8062e55. WholepytestFAILpostproducerKeyErrorcanonical_unit;107.557s/2156150784B/3007pinsstable,correct2105origins,quiescent. ActualNCMNumPy2.3.5 seeds17/18; two trajectories sharephysicalrun; effect250B/outcome29548012454912. No empirical/custody/CGF authority claim.",
+          "gdp_retained_reader_r2": {
+            "status": "PASS_SEPARATE_FROM_ORIGINAL_FAILED_INVOCATION",
+            "semantics": "Shared reader uses verified passport MetricFieldBinding unit/transform joined to selected row/WMR/declaration; full pure derived-WMR replay with selected NCM/registry; actual state owner default manifest with strict kind/media/schema/canon/full selected data lineage. Historical R7 ref was profileless, not invented selector; future selected owner refs remain supported. Physical baseline29298012454912USD/taxrate0.5, action0, coefficient-500B, result29548012454912USD/effect250B, two seeds17/18 and both SE0 independently recomputed. NumPy kernel binary64; JAX x64-disabled baseline does not make every output float32.",
+            "controls": "ActualNoN5controller/kernel profiler; foreignexistingprofilegraftrefused; maskedN4source/N5input/result/passport/state unavailableallrefuse; original refs verify.510CASfiles+immutableSQLunchanged.",
+            "qualification": "81.570s/1721597952B,3009namedinputsstable,1809correctpinnedorigins,quiescent; independentstaticGO,ruff/format/diffPASS. Scope isdeclaredcandidateGDP, notmodel-producedGateA1/fiscalratio/P06/fullordinaryAPI orwhole-sourceacceptance.",
+            "outputs": "policy-engine/_cache/e02/lane01-gdp-r7-retained-consumer-r2-20261113/"
+          },
+          "gate_a_crosswalk": "A1realModelInputObligation→compiler→manifest→Foundry→freshGET: selectedProgramGraphopening-stockroute. A2stock/flow/denominatorrefusals; A3metadata-onlytransportreserve640→640→602.5PASS. A4stillopen; generic7/1mechanicalonly. Oldnamedsequentialfiscalfixture mapsWDIcashbalance%GDP toUSDopeningstockwithidentity, NOTamatchingpositive; preserveasnegative/adaptoracle tocurrenttypedstockprofilewithoutimplicitconversion. Optionalmethodology-v2transporthasnoPASS (JointSimulationResult.notes); do notsubstituteplainmetadata-onlyPASS. 11packets66REQ64contractsunchanged."
         }
       },
       "sequence": 8,

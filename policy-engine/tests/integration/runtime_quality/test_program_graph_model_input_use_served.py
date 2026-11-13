@@ -180,6 +180,10 @@ class _InjectedN5PreflightStop(BaseException):
     """Stop a real selected action immediately before its first physical N5."""
 
 
+class _UnexpectedEqualBasisN5(BaseException):
+    """Fail if an equivalent current-use action enters the physical N5 method."""
+
+
 def _n5_projection_refs(
     result: Any,
 ) -> tuple[ArtifactRef | None, ArtifactRef | None, ArtifactRef | None]:
@@ -1224,7 +1228,7 @@ def _run_activated_held_out_stock_scenario(
             live_profile = CandidateWDIProfile(
                 construct="test.treasury.opening-cash",
                 indicator_id="TEST.OPENING.CASH.USD",
-                source_title="Test-owned opening cash stock",
+                source_title="Test-owned annual treasury stock (current US$)",
                 source_description=(
                     "Controlled USD opening-stock observations for a candidate-only test."
                 ),
@@ -2171,8 +2175,31 @@ def _run_activated_held_out_stock_scenario(
                 )
                 return request, current, current_checkpoint, current_result
 
+            def execute_current_without_n5(
+                value: float,
+                *,
+                sequence_key: str,
+                current_occurrence: Any | None = None,
+            ) -> tuple[ModelInputSuccessorActionRequest, Any, ModelInputUseActionCheckpoint, Any]:
+                unexpected_n5_entries = 0
+
+                def reject_n5(_port: Any, **_run_kwargs: Any) -> Any:
+                    nonlocal unexpected_n5_entries
+                    unexpected_n5_entries += 1
+                    raise _UnexpectedEqualBasisN5("equivalent model-input use entered physical N5")
+
+                with monkeypatch.context() as no_n5:
+                    no_n5.setattr(JointSimulationPort, "run_semantic_successor", reject_n5)
+                    result = execute_current_measurement(
+                        value,
+                        sequence_key=sequence_key,
+                        current_occurrence=current_occurrence,
+                    )
+                assert unexpected_n5_entries == 0
+                return result
+
             equal_request, equal_current, equal_checkpoint, equal_result = (
-                execute_current_measurement(_OPENING_CASH, sequence_key="same-value-b1")
+                execute_current_without_n5(_OPENING_CASH, sequence_key="same-value-b1")
             )
             assert equal_current.evidence.raw_artifact_id == first_raw_artifact_id
             assert (
@@ -2206,7 +2233,7 @@ def _run_activated_held_out_stock_scenario(
             seen_semantic_successors = {equal_result.current_semantic_successor_ref}
             for sequence_key in ("same-value-b2", "same-value-b3"):
                 reused_request, reused_current, reused_checkpoint, reused_result = (
-                    execute_current_measurement(
+                    execute_current_without_n5(
                         _OPENING_CASH,
                         sequence_key=sequence_key,
                         current_occurrence=equal_current,

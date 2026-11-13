@@ -2,25 +2,140 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
+import aiohttp
 import pytest
+from aiohttp import web
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.security.authz import AuthzInput
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     AcquisitionAuthorityError,
     AcquisitionAuthorityRegistry,
     build_authority_registry,
 )
 from polisyos.data_forge.domains.catalog.knowledge.overlay import OverlayAdmissionError
-from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
-from tests._helpers.semantic_epoch_native import make_native_live_measurement_history
+from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+from polisyos.runtime.http.deployment_security import DeploymentOPAClient, OPADeploymentConfig
+from tests._helpers.lane01_wdi_profiles import GDP_PROFILE, CandidateWDIProfile
+from tests._helpers.semantic_epoch_native import (
+    _install_native_live_source_transport,
+    make_native_live_measurement_history,
+)
 from tests.integration.runtime_quality.test_program_graph_held_out_fund_binding import _fund_port
 from tests.unit.runtime.quality.test_model_input_requirements import _opening_stock_port
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def test_live_source_transport_is_isolated_from_real_opa_http(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fixture transport fences the source while the real OPA client can POST."""
+
+    async def scenario() -> None:
+        original_request = aiohttp.ClientSession._request
+        original_get_session = WorldBankConnector._get_session
+        fixture = SimpleNamespace(
+            profile=GDP_PROFILE,
+            response_body=None,
+            transport_calls=0,
+            used_attempts=[],
+        )
+        received: list[dict[str, object]] = []
+
+        async def opa(request: web.Request) -> web.Response:
+            received.append(await request.json())
+            return web.json_response({"result": {"allow": False, "reason": "test-denial"}})
+
+        app = web.Application()
+        app.router.add_post("/v1/data/polisyos/authz/decision", opa)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "127.0.0.1", 0)
+        await site.start()
+        assert site._server is not None
+        port = site._server.sockets[0].getsockname()[1]
+        connector = WorldBankConnector()
+        handle = await connector.connect(ConnectionConfig(url=WorldBankConnector._BASE_URL))
+        url = (
+            f"{WorldBankConnector._BASE_URL}/country/{GDP_PROFILE.country_code}"
+            f"/indicator/{GDP_PROFILE.indicator_id}"
+        )
+        params = {
+            "date": f"{GDP_PROFILE.year}:{GDP_PROFILE.year}",
+            "format": "json",
+            "page": "1",
+            "per_page": "1000",
+        }
+        try:
+            with monkeypatch.context() as source_patch:
+                _install_native_live_source_transport(source_patch, fixture)
+                assert aiohttp.ClientSession._request is original_request
+                session = await connector._get_session(handle)
+                with pytest.raises(
+                    AssertionError, match="native_live_fixture_unexpected_transport"
+                ):
+                    async with session.get(url, params=params):
+                        pass
+
+                fixture.response_body = b'{"controlled":true}'
+                fixture.used_attempts.append("test-attempt")
+                for method, invalid_url, invalid_params in (
+                    ("POST", url, params),
+                    ("GET", url.replace("api.worldbank.org", "invalid.example"), params),
+                    ("GET", url + "/unexpected", params),
+                    ("GET", url, {**params, "page": "2"}),
+                ):
+                    with pytest.raises(
+                        AssertionError, match="native_live_fixture_unexpected_transport"
+                    ):
+                        async with session.request(method, invalid_url, params=invalid_params):
+                            pass
+
+                opa_client = DeploymentOPAClient(
+                    OPADeploymentConfig(url=f"http://127.0.0.1:{port}")
+                )
+                authz = AuthzInput(
+                    request_method="POST",
+                    request_path="/test/action",
+                    request_headers={},
+                    identity_tenant_id="test-tenant",
+                    identity_cell_id="test-cell",
+                    identity_principal_type="service",
+                    identity_roles=frozenset(),
+                    identity_mfa_verified=False,
+                )
+                result = await opa_client._query_opa(authz)
+                assert result == {"allow": False, "reason": "test-denial"}
+                assert received == [{"input": authz.to_opa_input()}]
+
+                async with session.get(url, params=params) as response:
+                    assert await response.read() == fixture.response_body
+                assert fixture.transport_calls == 1
+                with pytest.raises(
+                    AssertionError, match="native_live_fixture_unexpected_transport"
+                ):
+                    async with session.get(url, params=params):
+                        pass
+                fixture.response_body = None
+                with pytest.raises(
+                    AssertionError, match="native_live_fixture_unexpected_transport"
+                ):
+                    async with session.get(url, params=params):
+                        pass
+            assert WorldBankConnector._get_session is original_get_session
+        finally:
+            await connector.disconnect(handle)
+            await runner.cleanup()
+
+    asyncio.run(scenario())
 
 
 def test_live_fixture_admits_distinct_fetches_under_one_native_catalog(

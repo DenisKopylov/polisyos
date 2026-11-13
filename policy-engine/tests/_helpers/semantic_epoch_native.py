@@ -1659,8 +1659,6 @@ def make_native_live_measurement_history(
     ``source_measure_scope`` is an explicit fixture source declaration, never
     inferred from a model port.
     """
-    import aiohttp
-
     from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile, build_fixture_wdi_authority
 
     if type(profile) is not CandidateWDIProfile:
@@ -1746,6 +1744,32 @@ def make_native_live_measurement_history(
         fixture_root=tmp_path,
     )
 
+    _install_native_live_source_transport(monkeypatch, fixture)
+    return fixture
+
+
+def _install_native_live_source_transport(monkeypatch: Any, fixture: Any) -> None:
+    """Intercept only this fixture's World Bank connector sessions.
+
+    Other aiohttp users, including the deployment's OPA client, keep their
+    original transport. The supplied test response is candidate-only input.
+    """
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    profile = fixture.profile
+    expected_url = (
+        WorldBankConnector._BASE_URL.rstrip("/")
+        + f"/country/{profile.country_code}/indicator/{profile.indicator_id}"
+    )
+    expected_params = {
+        "date": f"{profile.year}:{profile.year}",
+        "format": "json",
+        "page": "1",
+        "per_page": "1000",
+    }
+    patched_sessions: set[int] = set()
+    original_get_session = WorldBankConnector._get_session
+
     class ControlledResponse:
         status = 200
         headers: ClassVar[dict[str, str]] = {"content-type": "application/json"}
@@ -1771,18 +1795,23 @@ def make_native_live_measurement_history(
         def close(self) -> None:
             pass
 
-    async def intercept(_session: object, method: str, url: object, **kwargs: object) -> Any:
+    async def intercept(method: str, url: object, **kwargs: object) -> Any:
         if (
             fixture.response_body is None
             or method != "GET"
-            or not str(url).endswith(
-                f"/country/{profile.country_code}/indicator/{profile.indicator_id}"
-            )
-            or not isinstance(kwargs.get("params"), Mapping)
+            or str(url) != expected_url
+            or kwargs.get("params") != expected_params
+            or fixture.transport_calls != len(fixture.used_attempts) - 1
         ):
             raise AssertionError("native_live_fixture_unexpected_transport")
         fixture.transport_calls += 1
         return ControlledResponse(fixture.response_body)
 
-    monkeypatch.setattr(aiohttp.ClientSession, "_request", intercept)
-    return fixture
+    async def get_source_session(connector: Any, handle: Any) -> Any:
+        session = await original_get_session(connector, handle)
+        if id(session) not in patched_sessions:
+            monkeypatch.setattr(session, "_request", intercept)
+            patched_sessions.add(id(session))
+        return session
+
+    monkeypatch.setattr(WorldBankConnector, "_get_session", get_source_session)

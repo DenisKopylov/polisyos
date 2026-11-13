@@ -10642,6 +10642,20 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "generic_composition_checkpoint_20261113": {
+          "commit": "073870b797f0183e805cd0e450dd697e0565b230",
+          "tree": "88a1d25d54f8d98670f00bdaeeec1b6cfa07f8a0",
+          "remote": "origin/main",
+          "delivered_paths": 61,
+          "readback": "All 61 committed files byte-match local worktree; Git ls-remote and GitHub git/commit identity exact. Ordinary commit/push hooks pass.",
+          "prerequisite_attempts": {
+            "r1": "FAIL before numerical work: synthetic source label not recognized by current bounded Catalog unit reader.",
+            "r2": "FAIL before numerical work: broad test HTTP interception blocked actual OPA. Both full outputs/pins preserved."
+          },
+          "repair_status": "Independent GO for exact accepted test source-unit metadata and WorldBank-only session interception; actual loopback OPA deny plus source controls PASS; next composed preflight required.",
+          "cyc03_boundary": "No new CYC-03 closure; selected NCM/request/acquisition-basis/dispatcher bindings distinct from Generic current-use. Quota 7/1 is not an original requirement invariant.",
+          "G_acceptance": false
+        },
         "generic_retained_use_composed_20261113": {
           "status": "INTERNAL_COMPONENT_QUALIFIED_SERVED_SEQUENCE_PENDING",
           "source_base": "71fedf730b76e5d098a5c49375c5115778859683",

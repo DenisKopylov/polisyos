@@ -10441,7 +10441,56 @@
             "qualification": "81.570s/1721597952B,3009namedinputsstable,1809correctpinnedorigins,quiescent; independentstaticGO,ruff/format/diffPASS. Scope isdeclaredcandidateGDP, notmodel-producedGateA1/fiscalratio/P06/fullordinaryAPI orwhole-sourceacceptance.",
             "outputs": "policy-engine/_cache/e02/lane01-gdp-r7-retained-consumer-r2-20261113/"
           },
-          "gate_a_crosswalk": "A1realModelInputObligation→compiler→manifest→Foundry→freshGET: selectedProgramGraphopening-stockroute. A2stock/flow/denominatorrefusals; A3metadata-onlytransportreserve640→640→602.5PASS. A4stillopen; generic7/1mechanicalonly. Oldnamedsequentialfiscalfixture mapsWDIcashbalance%GDP toUSDopeningstockwithidentity, NOTamatchingpositive; preserveasnegative/adaptoracle tocurrenttypedstockprofilewithoutimplicitconversion. Optionalmethodology-v2transporthasnoPASS (JointSimulationResult.notes); do notsubstituteplainmetadata-onlyPASS. 11packets66REQ64contractsunchanged."
+          "gate_a_crosswalk": "A1realModelInputObligation→compiler→manifest→Foundry→freshGET selectedProgramGraphopening-stockroute. A2stock/flow/denominatorrefusals; A3metadata-onlytransportreserve640→640→602.5PASS are horizonstepsONEsimulation, notA/B/Cadmissions. A4bridge_missing: ModelInputSuccessorAction currentone-shotN5, retainedbasis/historyowner separate; investigatecanonicalreusebridge, preparesame640/changed602.5typedstocksource throughnativeepochs. OldWDIcashbalance%GDP→USDopeningstockidentity is NOTmatchingpositive; noimplicitconversion. Generic7/1 remainsindependentmechanicalroute. Optionalmethodology-v2transporthasnoPASS(JointSimulationResult.notes). 11packets66REQ64contractsunchanged.",
+          "proof_amplification_repairs": {
+            "status": "IMPLEMENTED_REVIEWED_PUBLISHED_COMPOSED_UNIT_PASS_NATIVE_CORE_COST_MEASURED",
+            "main_commit": "86c2cf7b6ccb6195efd784c89081cd43d51a5924",
+            "main_tree": "d0500447b91323cee44914ca3eb2d30be22c3c0e",
+            "core_commit": "ae9cf27dc79ac05520071fbb384be5f49ca111ec",
+            "core": "Bounded64 compiled exact primitive/config templates; fresh normal adapter/config/schema per call; unknown/provider/plugin fallback. Falsey-plugin red reproduced, correction and6controls PASS; independent Sol GO. No result/manifest/authority cache.",
+            "operation": "Existing verified carrier scoped to one operation; full owner replay entry/close and fresh selected parents/source/head/admission/policy. Post-final-fold live guard and17controls PASS; independent Sol GO. No N5/head span; public standalone reader unchanged.",
+            "composition": {
+              "pass": 283,
+              "fail": 0,
+              "error": 0,
+              "skip": 0,
+              "elapsed_seconds": 70.281,
+              "peak_sampled_rss_bytes": 2101133312,
+              "declared_pins": 3134,
+              "changed_pins": 0,
+              "product_origins": 1992,
+              "wrong_origins": 0,
+              "identity_stable": true,
+              "quiescent": true,
+              "output": "policy-engine/_cache/e02/lane01-core-history-composed-r1-20261113/"
+            },
+            "paired_core_read": {
+              "baseline_commit": "cdc02122680075f301d7e4039c89c8b9986106d5",
+              "after_commit": "85cd59eb603a91489e582e6951c2ad0fe680c932",
+              "after_tree": "72e865bf891887b4406a19c233e561221203bc36",
+              "changed_paths": 2,
+              "artifact_bytes": 110617,
+              "median_wall_seconds": [
+                0.7446761250030249,
+                0.4665358748752624
+              ],
+              "adapter_constructors": [
+                1383,
+                570
+              ],
+              "observed_imports": [
+                3842,
+                2216
+              ],
+              "scope": "Three warm complete selected Core reads under real isolated capture; separate instrumented call counts. Exact artifact/profile/content/host/recorder/lock/backend match. Excludes host startup, current-authority folds and full workflow; no N5/CAS write.",
+              "baseline_output": "policy-engine/_cache/e02/lane01-core-adapter-host-baseline-20261113/budget/",
+              "after_output": "policy-engine/_cache/e02/lane01-core-adapter-host-after-20261113/budget/"
+            },
+            "next": "Fresh normal GDP candidate action/API witness on frozen MAIN, existing5/1 fixture; one measured heavy5GiB/3600s job after component and Core-host jobs quiesce. No expired R7 restart. Generic7/1 and matched-stock CYC03 remain separate open routes.",
+            "resources": "6.9GiB free; swap258.5MiB stable; memory-pressure63%free. Diskfloor3GiB, CPU numerical libraries1, JAXCPU/x64unset.",
+            "g_acceptance": false,
+            "closure_ids": []
+          }
         }
       },
       "sequence": 8,

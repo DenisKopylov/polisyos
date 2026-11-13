@@ -237,6 +237,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
     from polisyos.runtime.quality import acquisition_planner, generation_cycle, semantic_epoch
     from polisyos.runtime.quality.acquisition_executor import (
         SemanticEpochAdmissionResolutionError,
@@ -282,6 +284,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         candidate_cycle_catalog_source_readback,
         complete_candidate_cycle_catalog_source,
     )
+    from tests._helpers.control_worker import dispatch_one_control_job
     from tests._helpers.lane01_candidate_source import GDP_COMPILER_INPUT
     from tests._helpers.lane01_wdi_profiles import (
         GDP_PROFILE,
@@ -1059,7 +1062,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     # requirement; the legacy scenario-family route is not an executable WDI
     # variable route.
     monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
-    closure, _request = await await_under_catalog_source(
+    closure, action_request = await await_under_catalog_source(
         acquisition_production.persist_wdi_route,
         control,
         generation_cycle_repo_root=fixture_repo_root,
@@ -1188,7 +1191,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         )
     case.appoint_native_policy()
     under_catalog_source(case.port.prepare_route_execution, closure)
-    action_job_id = "annual-gdp-action-" + uuid4().hex
+    action_job_id = AcquisitionActionService._job_id(closure, action_request)
+    operation, invocation, intent = AcquisitionActionService._action_tuple(closure, action_request)
     action = acquisition_chain.begin_current_wdi_action(
         control,
         closure,
@@ -1203,6 +1207,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert result.admitted_observation_delta == 1
     selected_head = acquisition_chain.select_current_wdi_action_outcome(control, action, result)
     assert selected_head.receipt_phase == "outcome_selected"
+    assert selected_head.job_id == action_job_id
     assert len(case.transport_calls) == 1
     method, url, query = case.transport_calls[0]
     assert method == "GET"
@@ -1214,69 +1219,97 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         "per_page": str(GENERIC_WDI_PAGE_SIZE),
     }
 
-    # resume() requires a current job owner for the selected run. Use the same
-    # action job ID so its fresh source selector reopens the action head exactly.
+    # This is a direct-owner witness: its decision ref is the fixture route,
+    # not an institutional authorization. Use the normal acquisition job
+    # producer and a fresh worker lease for the exact selected action head.
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        capability_ref = control._put_json_artifact(
-            {"capability": "annual_gdp_candidate_test"},
-            kind="runtime.capability_manifest",
-            schema_name="CapabilityManifest",
-        )
-        payload_ref = control._put_json_artifact(
-            {
+        queued = control.enqueue_acquisition_job(
+            job_id=action_job_id,
+            run_id=run_id,
+            payload={
                 "tenant_id": tenant_id,
                 "cell_id": cell_id,
                 "run_id": run_id,
-                "llm_models": [str(recording["model_id"])],
+                "route_id": closure.route_id,
+                "decision_ref": closure.route_id,
+                "request": action_request.model_dump(mode="json"),
+                "operation": operation.model_dump(mode="json"),
+                "invocation": invocation.model_dump(mode="json"),
+                "intent": intent.model_dump(mode="json"),
             },
-            kind="runtime.control_job_payload.natural_language_run",
-            schema_name="polisyos.runtime.ControlJobPayload",
+            principal=RuntimePrincipal(
+                subject="annual-gdp-candidate-test",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                authenticated=True,
+                roles=frozenset({"analyst"}),
+            ),
         )
-        actor = "annual-gdp-candidate-test"
-        execution_scope = {
-            "schema_version": "polisyos.runtime.control_execution_scope.v1",
-            "status": "established",
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "actor_subject": actor,
-            "actor_authenticated": True,
-            "actor_roles": ["analyst"],
-        }
-        control._control_store.create_job(
-            job_id=action_job_id,
-            kind="natural_language_run",
+    assert queued.kind == "acquisition"
+    assert queued.payload_ref is not None
+    assert queued.capability_manifest_ref is not None
+    reentry_refs: list[ArtifactRef] = []
+    model_reconciliations: list[ArtifactRef] = []
+    reconcile_model = case.bridge._reconcile_acquired_candidate_model_values
+
+    def exercise_model_scope(*, prospective_model: Any, offer: Any) -> None:
+        admission = control._control_store.current_execution_job_admission()
+        assert admission.job.job_id == action_job_id
+        actual_ref = offer.model_declaration_ref
+        assert actual_ref is not None
+        foreign_ref = GenerationSourceRepository(store).persist_candidate_model_declaration(
+            declaration=offer.model_declaration,
+            job_id=source_job_id,
             run_id=run_id,
-            pipeline_id=None,
-            requested_execution_profile="dev",
-            effective_execution_profile="dev",
-            policy_flags={},
-            capability_manifest_ref=capability_ref,
-            payload_ref=payload_ref,
-            submitted_by=actor,
-            creation_event_payload={
-                "job_id": action_job_id,
-                "run_id": run_id,
-                "job_kind": "natural_language_run",
-                "pipeline_id": None,
-                "payload_ref": payload_ref,
-                "submitted_by": actor,
-                "requested_execution_profile": "dev",
-                "effective_execution_profile": "dev",
-                "policy_flags": {},
-                "capability_manifest_ref": capability_ref,
-                "execution_scope": execution_scope,
-            },
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
-        leased = control._control_store.lease_next_job(worker_id="annual-gdp-reentry-test")
-        assert leased is not None and leased.job_id == action_job_id
-        with control._control_store.job_execution_fence(
-            job_id=action_job_id,
-            worker_id=str(leased.lease_owner),
-            attempt=leased.attempt,
+        assert foreign_ref.artifact_id == actual_ref.artifact_id
+        assert foreign_ref.manifest_profile_sha256 != actual_ref.manifest_profile_sha256
+        with pytest.raises(
+            ValueError, match="acquisition_prospective_selected_model_not_established"
         ):
-            admission = control._control_store.current_execution_job_admission()
-            with control._install_execution_scope(admission.scope):
-                reentry_ref = under_catalog_source(case.port.reenter, closure, result)
+            reconcile_model(
+                prospective_model=prospective_model,
+                offer=offer.model_copy(update={"model_declaration_ref": foreign_ref}),
+            )
+        reconcile_model(prospective_model=prospective_model, offer=offer)
+        model_reconciliations.append(actual_ref)
+
+    monkeypatch.setattr(
+        case.bridge, "_reconcile_acquired_candidate_model_values", exercise_model_scope
+    )
+
+    def reenter_acquisition(job: Any) -> None:
+        admission = control._control_store.current_execution_job_admission()
+        assert admission.job.job_id == job.job_id == action_job_id
+        assert admission.job.kind == "acquisition"
+        assert admission.job.run_id == run_id
+        assert admission.job.payload_ref == queued.payload_ref
+        assert admission.scope.status == "established"
+        assert (admission.scope.tenant_id, admission.scope.cell_id) == (tenant_id, cell_id)
+        with control._install_execution_scope(admission.scope):
+            persisted_payload = load_core_json_artifact(store, queued.payload_ref)
+            assert store.get_manifest(queued.payload_ref).kind == (
+                "runtime.control_job_payload.acquisition"
+            )
+            admitted_payload = control._payload_for_execution_scope(
+                persisted_payload, job=admission.job, execution_scope=admission.scope
+            )
+            assert admitted_payload["request"] == action_request.model_dump(mode="json")
+            assert admitted_payload["decision_ref"] == closure.route_id
+            reentry_refs.append(under_catalog_source(case.port.reenter, closure, result))
+
+    assert (
+        dispatch_one_control_job(
+            store=control._control_store,
+            handler=reenter_acquisition,
+            expected_job_id=action_job_id,
+        )
+        == action_job_id
+    )
+    assert len(reentry_refs) == 1
+    reentry_ref = reentry_refs[0]
 
     from polisyos.core import canon
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
@@ -1313,6 +1346,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
     assert type(input_record) is CandidateSimulationN5InputV5
     assert type(execution) is CandidateSimulationExecutionV5
+    assert execution.model_declaration_ref in model_reconciliations
     assert execution.n5_input_ref == simulation.candidate_simulation_n5_input_ref
     assert execution.authority_purpose == "candidate_scenario_n5_only"
     assert input_record.n5.seed == 17

@@ -9078,6 +9078,83 @@
     },
     {
       "lane_id": "LANE-01",
+      "day_stop_20261113": {
+        "status": "PAUSED_BY_USER",
+        "numerical_jobs_quiescent": true,
+        "agents_finished": true,
+        "published_main_source": "608a9ed857ed4eaabe83f9f8d83c01b66de050b6",
+        "published_main_tree": "8ed5bdb480aa48f324c408b1b56666f73c94306a",
+        "pending_author_branch": "codex/e02-lane01-verify-20261108",
+        "pending_author_commit": "c0e786bb0bbacb5a7ed4d4084cad4d5f8566d291",
+        "pending_author_tree": "ae014cfd867f43ca958450aa210a4c19594777de",
+        "pending_new_paths": 9,
+        "new_unit_execution": "UNRUN",
+        "resilience_timing_independent_review": "UNRUN",
+        "ncm_bootstrap_and_arithmetic_source_review": "GO",
+        "generic_r3": {
+          "classification": "PYTEST_FAIL_AND_OUTER_RESOURCE_ABORT",
+          "output": "MAIN:policy-engine/_cache/e02/generic-served-sequence-r3-20261113/",
+          "A_B1_B2_B3_completed": true,
+          "C_physical_standard_unit_completed": true,
+          "C_complete_joint_result_or_V5_available": false,
+          "completed_standard_units": 2,
+          "pytest_wall_seconds": 1197.115,
+          "guard_wall_seconds": 1200.234,
+          "peak_rss_bytes": 1868251136,
+          "next": "Diagnose CAS inventory/wait/backend failure; do not treat fragments as V5 or blindly repeat N5."
+        },
+        "ncm_r1": {
+          "classification": "COMMAND_FAIL",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-fresh-sequence-r1-20261113/",
+          "guard_wall_seconds": 2754.983,
+          "peak_rss_bytes": 4321837056,
+          "source_input_pins": 7641,
+          "loaded_source_files": 2129,
+          "origins": 2130,
+          "inputs_unchanged": true,
+          "wrong_origins": 0,
+          "completed_standard_units": 4,
+          "initial_A_content_witness_emitted": true,
+          "B1_terminal_completed": false,
+          "failure": "CAS timeout via list_current_candidate_unpriced_policy_bindings -> inventory(artifact_id=...)",
+          "separate_correctness_issue": "First action selects legacy V1 prospective despite content-observed A; author fix saved, not qualified."
+        },
+        "additional_checks": {
+          "inspector_and_typed_ingress": {
+            "PASS": 11,
+            "FAIL": 0,
+            "output": "MAIN:policy-engine/_cache/e02/cyc05-inspector-cyc04-ingress-r1-20261113/"
+          },
+          "native_census": {
+            "PASS": 9,
+            "FAIL": 3,
+            "consumer_target_UNRUN": 3,
+            "output": "MAIN:policy-engine/_cache/e02/cyc05-native-census-r1-20261113/",
+            "reason": "Fixture loaded identity not established before signed-census target; no product-failure/inherited attribution."
+          }
+        },
+        "trash": {
+          "directories": 25,
+          "measured_bytes": 6391566336,
+          "source_maps": [
+            "MAIN:policy-engine/_cache/e02/trash-20261113/moved-generated-caches.json",
+            "MAIN:policy-engine/_cache/e02/trash-20261113/moved-old-scratch.json"
+          ],
+          "trash_emptied_by_executor": false,
+          "deleted_by_executor": false,
+          "later_observation": "Transfer destinations subsequently absent; external cleanup is not attributed to executor."
+        },
+        "free_disk_GiB_at_closeout": 8.54,
+        "remaining": "LANE-01 11 packets / 66 requirements / 64 contracts; Gate A open; P06/P07/P08/Gate B remain; DA-06/07/08 unchanged.",
+        "next_actions": [
+          "Review and qualify nine-path saved author delta before main promotion.",
+          "Identify real CAS timeout and measure repeated immutable proof folds, retaining fresh authority/owner/head/lease/budget fences.",
+          "Compose/freeze once and finish Generic C durable result/read plus matched NCM continuation.",
+          "After Gate A only: P06 derived-input bridge and bounded DAG, P07 indexed/exhaustive/free-growth controls and benchmark, P08 compatibility/Gate B."
+        ],
+        "G_acceptance": false,
+        "formal_closure": false
+      },
       "independent_audit_20261111": {
         "reference_archive": "policy-engine/docs/archive/PolicyOS_E02_Audit_Integration_Main_2026-11-11.zip",
         "archive_sha256": "af7a3fdc9b237c7dcf783c130a0cfc70041c2e99137fea457bc43d6b0c944bd2",
@@ -16614,7 +16691,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 16.87,
+        "free_disk_GiB_at_check": 8.54,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -36766,6 +36843,7 @@
     },
     {
       "id": "DA-06",
+      "local_status_20261113": "Nine independent local census cases pass. Three signed-census consumer cases remain UNRUN before target because the legacy import-time loaded identity is not established (FetchRequest initializer effect). Do not extend the static Python recognizer or fabricate a positive build. Qualify a supported bound build-input fixture/consumer path when available; this is not permission to defer all REQ-CYC-05-06 controls.",
       "owners": [
         "CYC-05",
         "DFK-01",

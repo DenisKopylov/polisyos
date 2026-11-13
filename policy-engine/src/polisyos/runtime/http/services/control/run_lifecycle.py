@@ -3284,6 +3284,15 @@ class AcquisitionRouteLoopAuthoritySink:
                 "polisyos.runtime.AcquisitionWorldGrowthNoGrowthReceipt",
             ),
         }
+        candidate_kind = "runtime_quality.acquisition_candidate_action_receipt"
+        if candidate_receipt_ref is not None and (
+            not isinstance(candidate_receipt_ref, artifacts.ArtifactRef)
+            or candidate_receipt_ref.kind != candidate_kind
+            or candidate_receipt_ref.media_type != "application/json"
+            or candidate_receipt_ref.manifest_profile_sha256 is None
+            or str(candidate_receipt_ref.artifact_id) not in owner_receipt_refs
+        ):
+            raise ValueError("acquisition_candidate_owner_profile_invalid")
         matches: list[str] = []
         for ref in owner_receipt_refs:
             if (
@@ -3299,8 +3308,15 @@ class AcquisitionRouteLoopAuthoritySink:
                 and str(candidate_receipt_ref.artifact_id) == ref
                 else artifact_id
             )
+            inspected = read_core_manifest_profile(
+                self._artifact_store, selector, allow_profile_absent=True
+            )[0]
+            if inspected.kind not in kinds and inspected.kind != candidate_kind:
+                continue
             manifest = read_core_manifest_profile(self._artifact_store, selector)[0]
-            if manifest.kind == "runtime_quality.acquisition_candidate_action_receipt":
+            if manifest != inspected:
+                raise ValueError("acquisition_action_owner_manifest_changed")
+            if manifest.kind == candidate_kind:
                 from polisyos.runtime.quality.candidate_acquisition_action import (
                     read_candidate_acquisition_action_historical,
                 )
@@ -3316,9 +3332,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 )
                 matches.append(ref)
                 continue
-            expected = kinds.get(manifest.kind)
-            if expected is None:
-                continue
+            expected = kinds[manifest.kind]
             receipt_type, schema_name = expected
             payload = self._artifact_store.get_bytes(artifact_id)
             if "sha256:" + hashlib.sha256(payload).hexdigest() != ref:

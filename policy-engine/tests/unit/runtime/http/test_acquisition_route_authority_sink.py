@@ -196,6 +196,256 @@ def _generation_identity():
     }
 
 
+def test_current_outcome_selection_ignores_non_outcome_raw_and_parquet_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real owner evidence is classified before the selected outcome is verified."""
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    import duckdb
+
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+        AcquisitionWorldGrowthReceipt,
+        AcquisitionWorldGrowthRoute,
+    )
+    from tests._helpers.semantic_epoch_native import (
+        finalize_native_epoch_case,
+        make_native_epoch_case,
+    )
+
+    native = make_native_epoch_case(tmp_path / "native")
+    finalized = finalize_native_epoch_case(native)
+    cas = native.store
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    events = RuntimeDiagnosticEventLog(store=control, artifact_store=cas)
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=cas, event_log=events, control_store=control
+    )
+    requested = sink.persist_phase(
+        _receipt(
+            receipt_phase="requested",
+            coarse_phase="requested",
+            recovery_state="none",
+            predecessor_receipt_ref=None,
+        )
+    )
+    executing = _receipt(
+        receipt_phase="executing",
+        coarse_phase="executing",
+        recovery_state="none",
+        predecessor_receipt_ref=requested.receipt_ref,
+    )
+    executing_head = sink.persist_phase(executing)
+    raw_ref = native.scenario.passport.raw_artifact_id
+    assert cas.get_manifest(raw_ref).kind == "fabric.acquisition.raw_evidence"
+    assert cas.get_manifest(raw_ref).canon is None
+    parquet_path = tmp_path / "observed.parquet"
+    with duckdb.connect() as connection:
+        connection.execute("COPY (SELECT 1 AS observed) TO ? (FORMAT PARQUET)", [str(parquet_path)])
+    parquet_bytes = parquet_path.read_bytes()
+    assert parquet_bytes.startswith(b"PAR1") and parquet_bytes.endswith(b"PAR1")
+    parquet_ref = cas.put_bytes(
+        parquet_bytes,
+        artifacts.PutOptions(kind="fixture.observed_parquet", media_type="application/parquet"),
+    )
+    assert cas.get_manifest(parquet_ref).canon is None
+
+    query = native.scenario.query
+    selection = AcquisitionWorldGrowthRoute(
+        tenant_id=executing.tenant_id,
+        cell_id=executing.cell_id,
+        run_id=executing.run_id,
+        route_id=executing.route_id,
+        design_problem_ref="sha256:" + "1" * 64,
+        epoch_id=native.scenario.passport.epoch_id,
+        epoch_scope_identity=query.scope_identity,
+        authority_purpose=query.authority_purpose,
+        valid_effect_coordinate_evidence_ref=query.valid_effect_coordinate_evidence_ref,
+        visibility_knowledge_cutoff_evidence_ref=query.visibility_knowledge_cutoff_evidence_ref,
+        purpose_admission_cutoff_evidence_ref=query.purpose_admission_cutoff_evidence_ref,
+        facet_source_refs={},
+        reentry_budget_usd=Decimal("0.10"),
+    )
+    growth = AcquisitionWorldGrowthReceipt(
+        selection=selection,
+        binding_id="fixture-binding",
+        activation=finalized.receipt,
+        passport_id=native.scenario.passport.passport_id,
+        admitted_observation_delta=finalized.activated.admitted_observation_count,
+        previously_active_observations=0,
+        live_evidence_refs=(raw_ref, str(parquet_ref.artifact_id)),
+        action_phase_ref=executing_head.receipt_ref,
+    )
+    bridge = AcquisitionWorldGrowthBridge(
+        config=AcquisitionWorldGrowthConfig(),
+        repo_root=tmp_path,
+        runtime_root=tmp_path,
+        authority=native.scenario.authority,
+        artifact_store=cas,
+        event_log=events,
+        epoch_deployment=native.deployment,
+    )
+    closure = SimpleNamespace(
+        **_generation_identity(),
+        compiled_ref=executing.compiled_ref,
+        cost_basis_hash=executing.cost_basis_hash,
+    )
+
+    def persist(record: AcquisitionWorldGrowthReceipt) -> str:
+        result = bridge._persist(
+            closure,
+            record.model_dump(mode="json"),
+            "runtime_quality.acquisition_world_growth_receipt",
+            AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME,
+            "world_committed",
+        )
+        assert isinstance(result, str)
+        return result
+
+    growth_ref = persist(growth)
+    refs = (raw_ref, str(parquet_ref.artifact_id), growth_ref, executing_head.receipt_ref)
+    assert sink._verified_current_action_outcome_ref(
+        executing, executing_head.receipt_ref, refs
+    ) == (growth_ref)
+
+    # A stable wrong-schema view is not rescued by matching bytes or an event.
+    growth_id = ArtifactID.model_validate(growth_ref)
+    _, default_manifest_path = cas._paths(growth_id)
+    original_manifest_bytes = default_manifest_path.read_bytes()
+    original_manifest = cas.get_manifest(growth_id)
+    wrong_schema = artifacts.SchemaInfo(name="fixture.WrongGrowth", version="1.1")
+    wrong_manifest = original_manifest.model_copy(update={"artifact_schema": wrong_schema})
+    wrong_profile = artifacts.artifact_manifest_profile_sha256(wrong_manifest)
+    wrong_view_path = cas._layout.view_manifest_path(growth_id, wrong_profile)
+    assert not wrong_view_path.exists()
+    wrong_manifest_bytes = wrong_manifest.model_dump_json(by_alias=True, exclude_none=True).encode()
+    try:
+        wrong_view_path.write_bytes(wrong_manifest_bytes)
+        default_manifest_path.write_bytes(wrong_manifest_bytes)
+        with pytest.raises(ValueError, match="acquisition_action_owner_receipt_binding_mismatch"):
+            sink._verified_current_action_outcome_ref(executing, executing_head.receipt_ref, refs)
+    finally:
+        default_manifest_path.write_bytes(original_manifest_bytes)
+        wrong_view_path.unlink(missing_ok=True)
+
+    # A default view changing between the classification and strict reads also refuses.
+    import polisyos.runtime.http.services.control.run_lifecycle as lifecycle
+
+    original_read = lifecycle.read_core_manifest_profile
+
+    def changed_between_reads(store, selector, **kwargs):
+        manifest, declaration = original_read(store, selector, **kwargs)
+        if str(selector) == growth_ref and not kwargs.get("allow_profile_absent"):
+            manifest = manifest.model_copy(update={"artifact_schema": wrong_schema})
+        return manifest, declaration
+
+    with monkeypatch.context() as context:
+        context.setattr(lifecycle, "read_core_manifest_profile", changed_between_reads)
+        with pytest.raises(ValueError, match="acquisition_action_owner_manifest_changed"):
+            sink._verified_current_action_outcome_ref(executing, executing_head.receipt_ref, refs)
+    assert sink._verified_current_action_outcome_ref(
+        executing, executing_head.receipt_ref, refs
+    ) == (growth_ref)
+
+    # A recognized outcome still requires a declared, usable canonical profile.
+    outcome_body = cas.get_bytes(growth_ref)
+    base_options = {
+        "kind": "runtime_quality.acquisition_world_growth_receipt",
+        "media_type": "application/json",
+        "schema": artifacts.SchemaInfo(
+            name=AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME, version="1.1"
+        ),
+    }
+    absent = cas.put_bytes(outcome_body + b" ", artifacts.PutOptions(**base_options))
+    unknown_canon = artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)).model_copy(
+        update={"version": "99.0"}
+    )
+    wrong_canon = cas.put_bytes(
+        outcome_body + b"  ", artifacts.PutOptions(**base_options, canon=unknown_canon)
+    )
+    for bad_ref in (absent, wrong_canon):
+        with pytest.raises(CanonicalProfileRefusalError):
+            sink._verified_current_action_outcome_ref(
+                executing,
+                executing_head.receipt_ref,
+                (raw_ref, str(bad_ref.artifact_id), growth_ref),
+            )
+
+    missing_ref = "sha256:" + "f" * 64
+    with pytest.raises((FileNotFoundError, ValueError)):
+        sink._verified_current_action_outcome_ref(
+            executing, executing_head.receipt_ref, (missing_ref, growth_ref)
+        )
+    wrong_kind = cas.put_bytes(
+        b'{"test":"wrong-kind"}',
+        artifacts.PutOptions(kind="fixture.not_candidate", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="acquisition_candidate_owner_profile_invalid"):
+        sink._verified_current_action_outcome_ref(
+            executing,
+            executing_head.receipt_ref,
+            (str(wrong_kind.artifact_id), growth_ref),
+            candidate_receipt_ref=wrong_kind,
+        )
+    retagged_view = wrong_kind.model_copy(
+        update={"kind": "runtime_quality.acquisition_candidate_action_receipt"}
+    )
+    with pytest.raises(ValueError):
+        sink._verified_current_action_outcome_ref(
+            executing,
+            executing_head.receipt_ref,
+            (str(retagged_view.artifact_id), growth_ref),
+            candidate_receipt_ref=retagged_view,
+        )
+    unselected_candidate = cas.put_bytes(
+        b'{"candidate":true}',
+        artifacts.PutOptions(
+            kind="runtime_quality.acquisition_candidate_action_receipt",
+            media_type="application/json",
+            canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="acquisition_candidate_owner_profile_missing"):
+        sink._verified_current_action_outcome_ref(
+            executing,
+            executing_head.receipt_ref,
+            (str(unselected_candidate.artifact_id), growth_ref),
+        )
+    missing_view = ArtifactRef(
+        artifact_id=wrong_kind.artifact_id,
+        kind="runtime_quality.acquisition_candidate_action_receipt",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "f" * 64,
+    )
+    with pytest.raises((FileNotFoundError, ValueError)):
+        sink._verified_current_action_outcome_ref(
+            executing,
+            executing_head.receipt_ref,
+            (str(missing_view.artifact_id), growth_ref),
+            candidate_receipt_ref=missing_view,
+        )
+    with pytest.raises(ValueError, match="acquisition_candidate_owner_profile_invalid"):
+        sink._verified_current_action_outcome_ref(
+            executing,
+            executing_head.receipt_ref,
+            (growth_ref,),
+            candidate_receipt_ref=missing_view,
+        )
+    second = persist(growth.model_copy(update={"binding_id": "second-valid-outcome"}))
+    with pytest.raises(ValueError, match="acquisition_action_owner_outcome_missing_or_ambiguous"):
+        sink._verified_current_action_outcome_ref(
+            executing, executing_head.receipt_ref, (raw_ref, growth_ref, second)
+        )
+
+
 def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
     """Exercise the real receipt owner; supplied owner refs are fixture evidence."""
     common = {"action_generation": generation, "job_id": job_id}

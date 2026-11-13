@@ -3,13 +3,14 @@ title = "Bind synthetic L5 scope assumptions to selected owner evidence"
 type = "added"
 component = "core"
 owner = "team-polisyos"
-summary = "The L5 owner persists a strict selected synthetic scope assumption and replays its exact regime row, scope, knowledge time, admission time, native query, and projection through the semantic epoch boundary. The premise remains consumer asserted and usable only for candidate simulation. Activated acquisition readback reuses the native chronology selected-view reader and fully requalifies the owner evidence without rewriting historical wire data."
+summary = "The L5 owner persists a strict selected synthetic scope assumption and replays its exact regime row, scope, knowledge time, admission time, native query, and projection through the semantic epoch boundary. The premise remains consumer asserted and usable only for candidate simulation. Activated acquisition readback reuses the native chronology selected-view reader and fully requalifies the owner evidence without rewriting historical wire data. Acquisition outcome selection inspects heterogeneous raw/cache manifests without granting authority, then requires the exact strict selected profile and producer-event binding for an actual outcome."
 evidence = [
   "src/polisyos/core/contracts/epoch.py",
   "src/polisyos/core/contracts/__init__.py",
   "src/polisyos/runtime/quality/substrate_registry.py",
   "src/polisyos/runtime/quality/semantic_epoch.py",
   "src/polisyos/runtime/quality/acquisition_executor.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
   "src/polisyos/runtime/quality/data_state_substrate.py",
   "tests/unit/runtime/quality/test_substrate_registry.py",
   "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",

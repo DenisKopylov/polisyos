@@ -2184,7 +2184,7 @@ async def test_deferred_admission_refuses_unknown_outcome_and_missing_negative(
 async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_intact(
     tmp_path, monkeypatch, request
 ):
-    """A wrong schema cannot pass while the live action/CAS/event markers stay intact."""
+    """A schema change between manifest reads cannot pass with live markers intact."""
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthReceipt,
     )
@@ -2222,9 +2222,11 @@ async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_in
     read_manifest = run_lifecycle_module.read_core_manifest_profile
     forged_manifests = []
 
-    def wrong_schema_only(store, ref):
-        manifest, *remaining = read_manifest(store, ref)
-        if ref != growth_ref:
+    def wrong_schema_only(store, ref, **kwargs):
+        manifest, *remaining = read_manifest(store, ref, **kwargs)
+        if str(getattr(ref, "artifact_id", ref)) != growth_ref or kwargs.get(
+            "allow_profile_absent"
+        ):
             return (manifest, *remaining)
         assert manifest.artifact_schema is not None
         wrong_schema = manifest.artifact_schema.model_copy(
@@ -2238,7 +2240,7 @@ async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_in
         forged_readback.setattr(
             run_lifecycle_module, "read_core_manifest_profile", wrong_schema_only
         )
-        with pytest.raises(ValueError, match="acquisition_action_owner_receipt_binding_mismatch"):
+        with pytest.raises(ValueError, match="acquisition_action_owner_manifest_changed"):
             sink.verify_action_head(snapshot.head)
 
     assert len(forged_manifests) == 1

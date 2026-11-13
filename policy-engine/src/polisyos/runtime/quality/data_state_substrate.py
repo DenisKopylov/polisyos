@@ -2033,7 +2033,7 @@ def _replay_acquired_observation_projection(
         )
         if (
             live_snapshot.data_ref != source_ref
-            or str(source_ref.artifact_id) != live.normalized_data_artifact_id
+            or source_ref.artifact_id != live.normalized_data_artifact_id
             or live_snapshot.evidence_ref != live.evidence_bundle_ref
         ):
             raise DataStateSubstrateError("acquisition_semantic_source_snapshot_mismatch")

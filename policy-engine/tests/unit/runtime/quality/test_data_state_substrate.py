@@ -416,3 +416,118 @@ def test_snapshot_binding_uses_read_api_publishers_and_preserves_surface(
     assert binding["bindings"][0]["role"] == "domain"
     assert binding["bindings"][0]["read_api_surface"] == "ukraine"
     assert binding["bindings"][0]["read_api_identity"] == "ukraine@fixture-snapshot"
+
+
+def test_live_acquisition_replay_joins_typed_source_snapshot_and_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Replay a real live fixture and refuse changed ID, selected view or parent."""
+    from dataclasses import fields
+
+    from polisyos.core import artifacts
+    from polisyos.core.contracts import epoch
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.quality import acquisition_executor
+    from tests._helpers.acquisition_epoch_production import build_production_admission_case
+
+    case = build_production_admission_case(
+        tmp_path,
+        monkeypatch,
+        scope_payload={"domain": "public-finance", "jurisdiction": "UA"},
+        authority_purpose="candidate_simulation",
+    )
+    activation = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
+        **case.call_args, epoch_deployment=case.deployment
+    )
+    assert isinstance(activation, acquisition_executor.ActivatedSemanticEpochAdmissionReceipt)
+    passport = acquisition_executor.AdmissionPassport.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=case.store,
+            ref=activation.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    live = passport.live_source_execution
+    assert live is not None
+    snapshot_ref = live.data_snapshot_ref
+    snapshot = DataSnapshot.model_validate(
+        artifacts.load_core_json_artifact(case.store, snapshot_ref)
+    )
+    source_ref = snapshot.data_ref
+    assert source_ref.artifact_id == live.normalized_data_artifact_id
+    assert snapshot.evidence_ref == live.evidence_bundle_ref
+    assert source_ref.manifest_profile_sha256 is not None
+
+    def replay():
+        return data_state_substrate_module._replay_acquired_observation_projection(
+            case.store,
+            receipt_ref=activation.overlay_admission_receipt_ref,
+            passport_ref=activation.passport_ref,
+            expected_source_ref=source_ref,
+            activation=activation,
+        )
+
+    expected = replay()
+    assert expected.variable_id == passport.variable_id
+    assert expected.observations
+
+    # Perturb only the in-memory typed ID after the actual owner verification;
+    # persisted receipts, selected source and snapshot remain unchanged.
+    verify_owner = data_state_substrate_module._verify_historical_acquisition_activation
+
+    def change_normalized_id(*args: Any, **kwargs: Any) -> None:
+        verify_owner(*args, **kwargs)
+        verified_passport = kwargs["passport"]
+        assert verified_passport.live_source_execution is not None
+        object.__setattr__(
+            verified_passport.live_source_execution,
+            "normalized_data_artifact_id",
+            artifacts.ArtifactID.model_validate("sha256:" + "f" * 64),
+        )
+
+    with monkeypatch.context() as context:
+        context.setattr(
+            data_state_substrate_module,
+            "_verify_historical_acquisition_activation",
+            change_normalized_id,
+        )
+        with pytest.raises(DataStateSubstrateError, match="semantic_source_snapshot_mismatch"):
+            replay()
+
+    # Preserve source bytes and kind while changing the selected manifest view.
+    manifest = case.store.get_manifest(source_ref)
+    options = {
+        field.name: getattr(manifest, "artifact_schema" if field.name == "schema" else field.name)
+        for field in fields(artifacts.PutOptions)
+    }
+    options["producer"] = artifacts.ProducerInfo(component="fixture.foreign-view", version="1")
+    foreign_ref = case.store.put_bytes(
+        case.store.get_bytes(source_ref),
+        artifacts.PutOptions(**options),
+        return_selected_profile=True,
+    )
+    assert foreign_ref.artifact_id == source_ref.artifact_id
+    assert foreign_ref.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+    read_json = artifacts.load_core_json_artifact
+
+    def foreign_snapshot(store: object, ref: object, *args: Any, **kwargs: Any) -> Any:
+        value = read_json(store, ref, *args, **kwargs)
+        if ref == snapshot_ref:
+            return DataSnapshot.model_validate(value).model_copy(update={"data_ref": foreign_ref})
+        return value
+
+    with monkeypatch.context() as context:
+        context.setattr(artifacts, "load_core_json_artifact", foreign_snapshot)
+        with pytest.raises(DataStateSubstrateError, match="semantic_source_snapshot_mismatch"):
+            replay()
+
+    # Removing the actual snapshot parent must fail closed; restore before replay.
+    blob, _ = case.store._paths(snapshot_ref.artifact_id)
+    removed = blob.with_suffix(".test-removed")
+    blob.rename(removed)
+    try:
+        with pytest.raises((FileNotFoundError, ValueError)):
+            replay()
+    finally:
+        removed.rename(blob)
+    assert replay() == expected

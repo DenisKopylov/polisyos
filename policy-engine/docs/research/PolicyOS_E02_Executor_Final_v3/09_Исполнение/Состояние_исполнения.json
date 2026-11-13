@@ -10365,16 +10365,17 @@
           },
           "l5_component": "IMPLEMENTED_COMPONENT_QUALIFIED: independent GO; stable affected wave79PASS/1SKIP/1FAIL (old constructor census location only), exact census companion corrected and separately1PASS including sibling injection; qualified union80PASS1SKIP, not a single green cohort. Core contract/producer/selectedartifact/bridge/graphreplay/protectedsiblings/publicfacade/readmes/releasefragment present. GDP fullroute/N5 still UNRUN.",
           "continuation_delivery": "MAINfc0e11f outcome fix + bb5f1544f history reuse; originalevidencecommits0176194d0/6a076d55c preserved by e87f667 merge (tree01941c7e unchanged). IndependentGO;69source testsPASS17controls reject, source traversals4→2, exact63618wirebytes equal. Fresh11.835543→7.681174s; warm5.961023s separate. ActualPRIMARYcomposed106PASS0fail/error/skip; JUnit184.741s,command236.385s/2023604224B; originalRESOURCE_ABORTharnessroot-exitraceafteractualexit0preserved, PGIDabsenttwice. Toolguard22testsPASS, no productrerun.",
-          "next": "Publishreleasedfinalcomposition; GDPthirdR3singlefrozenrun; preparefuture7/1routepost-basiswall+threadCPUobservations withoutrevivingR6. GateAthenP06/P07/P08/GateB; no nextlane/Gclosure.",
+          "next": "Publish typed-ID fix; run GDPthirdR4 on frozen source. Preparefresh7/1 post-basis wall/handler-CPU observations withoutrevivingR6. GateAthenP06/P07/P08/GateB; no nextlane/Gclosure.",
           "published_source": {
-            "commit": "3ea979a451111fdb0335a4c8c6853c1fac30db35",
-            "tree": "71bf5bfe559347b85074592259fb3adaa8409197",
+            "commit": "8d8fb6796c153b5f6cf0ed482b0765b3ae2b3886",
+            "tree": "dc9c73a037f232cf23b62e484dbfc6c7f113b7bf",
             "ref": "refs/heads/main",
-            "readback": "git ls-remote plus GitHub git/commits API equality; ordinary pre-push typecheck PASS"
+            "readback": "Git ls-remote + GitHub git/commits exact equality; ordinary hooks/typecheck passed"
           },
           "gdp_third_r1": "FAIL89.705s/2079916032B,2997inputsstable/zero wrong origins,0N5. PassedL5andactivationproducer; activatedreaderdeterministicallymisdispatched NativeChronologyProjectionStatement asboundaryevidence. Forwardfixusescanonicalselectedchronologyreader+exactthreeDTOdispatch+fullnative replay;12distinctnativechecksqualified across3commands, includinggenuineprofilepositive/corruptview/removalrestore; implicitpublicationwrapperfixturecorrectedexplicitcandidate, separatepubrefusalunchanged. GDP rerunpendingnextsourcecheckpoint.",
           "canary": "UNRUN semantic: matrix43387166210 childpreflight lacksPOLISYOS_RUNTIME_CANARY_BEARER_TOKEN; ci_safe=false laneselectedbydeterministicpolicy. Artifact5747bytes explains RuntimeError beforeappcomposition, no inventeddeploymenttrust orgreen-lanesubstitution. CorePhase1failurelogpending.",
-          "gdp_third_r2": "FAIL87.413s/2088058880B,2998inputs/head/tree stable,zero wrong origins,N5notreached. Chronologyfixpassedandworld_committed/admitteddelta1observed. MixedrawJSON/ParquetreceiptscanonNone wronglyhitstrictoutcomeprofile beforekindfilter; fixedselectedmetadata→strictsameviewfiniteoutcomes, candidate-refmembership/profileguard,event/hash/schema/phasechecks retained.27casecohort plus amendedsamecasecontrolPASS; wrongschema/profile/canon/removal/ambiguity controls pass. R3pendingfinalcheckpoint."
+          "gdp_third_r2": "FAIL87.413s/2088058880B,2998inputs/head/tree stable,zero wrong origins,N5notreached. Chronologyfixpassedandworld_committed/admitteddelta1observed. MixedrawJSON/ParquetreceiptscanonNone wronglyhitstrictoutcomeprofile beforekindfilter; fixedselectedmetadata→strictsameviewfiniteoutcomes, candidate-refmembership/profileguard,event/hash/schema/phasechecks retained.27casecohort plus amendedsamecasecontrolPASS; wrongschema/profile/canon/removal/ambiguity controls pass. R3pendingfinalcheckpoint.",
+          "gdp_third_r3": "FAIL93.199s/2082701312B,3006inputs/head/tree/censusstable,zero wrong origins, N5notreached. Passedworldcommit+outcomeselection; acquiredobservationreplaycompared str(ArtifactID) with typedArtifactID and falselyrefused. ActualR3refs andbothtypedIDs equal. One-linesame-ArtifactID joinforwardfix plusfullunit/historicaljoin19PASS,74.288s/1882161152B,2995inputsstable; wrongtypedID, foreignselectedview, missingparent/restorationcovered. Otherfullref/time/measurement/causalchecksunchanged. R4pendingnextsourcecheckpoint."
         }
       },
       "sequence": 8,

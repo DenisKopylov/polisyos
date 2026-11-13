@@ -587,6 +587,7 @@ def _semantic_handshake(
     *,
     source_ref: object,
     authority: catalog_read_api.CanonicalAcquisitionAuthority,
+    service_root: Path | None = None,
 ) -> tuple[
     epoch_contract.AcquisitionSemanticBoundaryCandidate,
     epoch.PreparedSemanticEpoch,
@@ -644,11 +645,12 @@ def _semantic_handshake(
         purpose_admission_cutoff_ref=coordinate_refs["purpose_admission_cutoff"][1],
         requested_query_context_ref=context_ref,
     )
-    service_root = (
-        store.root.parent
-        / "semantic-epoch-handshake"
-        / hashlib.sha256(str(source_ref.artifact_id).encode("utf-8")).hexdigest()[:12]
-    )
+    if service_root is None:
+        service_root = (
+            store.root.parent
+            / "semantic-epoch-handshake"
+            / hashlib.sha256(str(source_ref.artifact_id).encode("utf-8")).hexdigest()[:12]
+        )
     service, overlay, _history = _build_acquisition_epoch_fixture_service(
         store=store,
         authority=authority,
@@ -1268,6 +1270,7 @@ def make_native_multivariable_active_projections(
     condition_units_by_raw_field: Mapping[str, str] | None = None,
     artifact_store: FileSystemCAS | None = None,
     return_selected_raw_profile: bool = False,
+    fixture_custodian: NativeEpochFixtureCustodian | None = None,
     before_activation: Callable[[catalog_read_api.CanonicalAcquisitionAuthority], None]
     | None = None,
 ) -> SimpleNamespace:
@@ -1338,10 +1341,11 @@ def make_native_multivariable_active_projections(
             history=history, artifacts=store
         ),
     )
-    fixture_custodian = NativeEpochFixtureCustodian.create(
-        store,
-        tmp_path / "native-epoch-owner",
-    )
+    if fixture_custodian is None:
+        fixture_custodian = NativeEpochFixtureCustodian.create(
+            store,
+            tmp_path / "native-epoch-owner",
+        )
     projections: dict[str, object] = {}
     prior_admission_refs: list[artifacts.ArtifactRef] = []
     for epoch_id, entry in enumerate(entries, start=1):
@@ -1385,6 +1389,12 @@ def make_native_multivariable_active_projections(
             store,
             source_ref=source_ref,
             authority=authority,
+            service_root=(
+                tmp_path
+                / "semantic-epoch-handshake"
+                / f"owner-{epoch_id:02d}"
+                / hashlib.sha256(str(source_ref.artifact_id).encode("utf-8")).hexdigest()[:12]
+            ),
         )
         native_query = service.acquisition_owner_query(query=prepared0.query)
         statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(

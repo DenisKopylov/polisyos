@@ -4,18 +4,22 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import types
-from collections.abc import Mapping, Sequence
-from copy import deepcopy
+from collections.abc import Callable, Mapping, Sequence
+from copy import copy, deepcopy
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from decimal import Decimal
 from enum import Enum
+from functools import lru_cache
+from importlib import import_module
 from typing import Annotated, Any, Literal, TypeVar, Union, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, RootModel, TypeAdapter, ValidationError
 from pydantic.errors import PydanticUserError
+from pydantic_core import SchemaSerializer, SchemaValidator
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileDeclaration,
@@ -2025,8 +2029,205 @@ def _without_annotated(annotation: Any) -> Any:
         return annotation
 
 
+def _optional_adapter_provider_module(name: str) -> types.ModuleType | None:
+    try:
+        return import_module(name)
+    except ImportError:
+        return None
+
+
+_pydantic_type_adapter = _optional_adapter_provider_module("pydantic.type_adapter")
+_pydantic_generate_schema = _optional_adapter_provider_module("pydantic._internal._generate_schema")
+_pydantic_plugin_loader = _optional_adapter_provider_module("pydantic.plugin._loader")
+_pydantic_schema_validator = _optional_adapter_provider_module("pydantic.plugin._schema_validator")
+_PRIMITIVE_ADAPTER_TYPES = (str, int, float, bool, bytes, type(None))
+_PRIMITIVE_ADAPTER_SCHEMA_TYPES = {
+    str: "str",
+    int: "int",
+    float: "float",
+    bool: "bool",
+    bytes: "bytes",
+    type(None): "none",
+}
+_TYPE_ADAPTER_OWNER = TypeAdapter
+_SCHEMA_GENERATOR_OWNER = getattr(_pydantic_generate_schema, "GenerateSchema", None)
+
+
+def _primitive_provider_function(owner: object, name: str) -> tuple[object, str, object, object]:
+    value = getattr(owner, name, None)
+    return owner, name, value, getattr(value, "__code__", None)
+
+
+_PRIMITIVE_ADAPTER_PROVIDER_FUNCTIONS = (
+    *(
+        _primitive_provider_function(TypeAdapter, name)
+        for name in ("__init__", "_init_core_attrs", "validate_python", "validate_json")
+    ),
+    *(
+        _primitive_provider_function(_SCHEMA_GENERATOR_OWNER, name)
+        for name in ("generate_schema", "_generate_schema_inner")
+    ),
+    _primitive_provider_function(_pydantic_schema_validator, "create_schema_validator"),
+    _primitive_provider_function(_pydantic_plugin_loader, "get_plugins"),
+)
+_PRIMITIVE_ADAPTER_FIELDS = frozenset(
+    {
+        "_type",
+        "_config",
+        "_parent_depth",
+        "_module_name",
+        "pydantic_complete",
+        "core_schema",
+        "validator",
+        "serializer",
+    }
+)
+
+
+def _primitive_adapter_provider_stable() -> bool:
+    """Allow reuse only for the unchanged installed provider and no active plugins."""
+    if (
+        TypeAdapter is not _TYPE_ADAPTER_OWNER
+        or getattr(_pydantic_type_adapter, "TypeAdapter", None) is not _TYPE_ADAPTER_OWNER
+        or getattr(_pydantic_generate_schema, "GenerateSchema", None) is not _SCHEMA_GENERATOR_OWNER
+        or getattr(_pydantic_type_adapter, "create_schema_validator", None)
+        is not getattr(_pydantic_schema_validator, "create_schema_validator", None)
+        or getattr(TypeAdapter, "__copy__", None) is not None
+        or TypeAdapter.__new__ is not object.__new__
+        or TypeAdapter.__reduce__ is not object.__reduce__
+        or TypeAdapter.__reduce_ex__ is not object.__reduce_ex__
+    ):
+        return False
+    for owner, name, expected, code in _PRIMITIVE_ADAPTER_PROVIDER_FUNCTIONS:
+        current = getattr(owner, name, None)
+        if (
+            code is None
+            or current is not expected
+            or getattr(current, "__code__", None) is not code
+        ):
+            return False
+    if getattr(_pydantic_plugin_loader, "_loading_plugins", True):
+        return False
+    disabled = os.environ.get("PYDANTIC_DISABLE_PLUGINS") in ("__all__", "1", "true")
+    if getattr(_pydantic_plugin_loader, "_plugins", None) is None and not disabled:
+        # Leave first-time plugin discovery to the ordinary constructor.
+        return False
+    get_plugins = getattr(_pydantic_plugin_loader, "get_plugins", None)
+    if not callable(get_plugins):
+        return False
+    try:
+        next(iter(get_plugins()))
+    except StopIteration:
+        return True
+    except (RuntimeError, TypeError):
+        return False
+    return False
+
+
+def _primitive_config_key(model_config: ConfigDict) -> tuple[tuple[str, type, object], ...] | None:
+    """Snapshot a bounded whole config only when every value is a plain immutable."""
+    if type(model_config) is not dict or len(model_config) > 32:
+        return None
+    try:
+        items = tuple(model_config.items())
+    except RuntimeError:
+        return None
+    key: list[tuple[str, type, object]] = []
+    for name, value in items:
+        if type(name) is not str or len(name) > 128:
+            return None
+        value_type = type(value)
+        if value_type not in (str, int, bool, type(None)):
+            return None
+        if (value_type is str and len(value) > 256) or (
+            value_type is int and value.bit_length() > 128
+        ):
+            return None
+        key.append((name, value_type, value))
+    return tuple(sorted(key, key=lambda item: item[0]))
+
+
+def _primitive_adapter_has_supported_shape(
+    adapter: TypeAdapter[Any],
+    annotation: type,
+    config_key: tuple[tuple[str, type, object], ...],
+) -> bool:
+    return (
+        type(adapter) is TypeAdapter
+        and set(vars(adapter)) == _PRIMITIVE_ADAPTER_FIELDS
+        and adapter._type is annotation
+        and _primitive_config_key(adapter._config) == config_key
+        and adapter._parent_depth == 2
+        and type(adapter._module_name) is str
+        and adapter.pydantic_complete is True
+        and type(adapter.core_schema) is dict
+        and adapter.core_schema == {"type": _PRIMITIVE_ADAPTER_SCHEMA_TYPES[annotation]}
+        and type(adapter.validator) is SchemaValidator
+        and type(adapter.serializer) is SchemaSerializer
+    )
+
+
+def _make_primitive_adapter_cache() -> Callable[
+    [type, tuple[tuple[str, type, object], ...]], TypeAdapter[Any] | None
+]:
+    """Keep templates inside the closure and return fresh normal adapters only."""
+
+    @lru_cache(maxsize=64)
+    def template(
+        annotation: type,
+        config_key: tuple[tuple[str, type, object], ...],
+    ) -> TypeAdapter[Any] | None:
+        config = {name: value for name, _value_type, value in config_key}
+        try:
+            adapter = TypeAdapter(annotation, config=ConfigDict(**config))
+        except PydanticUserError:
+            return None
+        if not _primitive_adapter_has_supported_shape(adapter, annotation, config_key):
+            return None
+        return adapter
+
+    def fresh_adapter(
+        annotation: type,
+        config_key: tuple[tuple[str, type, object], ...],
+    ) -> TypeAdapter[Any] | None:
+        original = template(annotation, config_key)
+        if original is None:
+            return None
+        adapter = copy(original)
+        if (
+            type(adapter) is not TypeAdapter
+            or adapter is original
+            or set(vars(adapter)) != _PRIMITIVE_ADAPTER_FIELDS
+            or adapter._type is not original._type
+            or adapter._parent_depth != original._parent_depth
+            or adapter._module_name != original._module_name
+            or adapter.pydantic_complete is not True
+            or adapter.validator is not original.validator
+            or adapter.serializer is not original.serializer
+        ):
+            return None
+        adapter._config = ConfigDict(**{name: value for name, _, value in config_key})
+        adapter.core_schema = dict(original.core_schema)
+        return adapter
+
+    return fresh_adapter
+
+
+_fresh_primitive_adapter = _make_primitive_adapter_cache()
+
+
 def _core_type_adapter(annotation: Any, model_config: ConfigDict) -> TypeAdapter[Any]:
     """Build the public Pydantic adapter with the owning model's JSON settings."""
+    if any(annotation is item for item in _PRIMITIVE_ADAPTER_TYPES):
+        config_key = _primitive_config_key(model_config)
+        if config_key is not None and _primitive_adapter_provider_stable():
+            adapter = _fresh_primitive_adapter(annotation, config_key)
+            if (
+                adapter is not None
+                and _primitive_config_key(model_config) == config_key
+                and _primitive_adapter_provider_stable()
+            ):
+                return adapter
     annotation = _without_annotated(annotation)
     try:
         return TypeAdapter(annotation, config=model_config)

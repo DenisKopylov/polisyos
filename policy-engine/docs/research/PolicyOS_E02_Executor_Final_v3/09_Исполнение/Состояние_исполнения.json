@@ -10365,10 +10365,10 @@
           },
           "l5_component": "IMPLEMENTED_COMPONENT_QUALIFIED: independent GO; stable affected wave79PASS/1SKIP/1FAIL (old constructor census location only), exact census companion corrected and separately1PASS including sibling injection; qualified union80PASS1SKIP, not a single green cohort. Core contract/producer/selectedartifact/bridge/graphreplay/protectedsiblings/publicfacade/readmes/releasefragment present. GDP fullroute/N5 still UNRUN.",
           "continuation_delivery": "MAINfc0e11f outcome fix + bb5f1544f history reuse; originalevidencecommits0176194d0/6a076d55c preserved by e87f667 merge (tree01941c7e unchanged). IndependentGO;69source testsPASS17controls reject, source traversals4→2, exact63618wirebytes equal. Fresh11.835543→7.681174s; warm5.961023s separate. ActualPRIMARYcomposed106PASS0fail/error/skip; JUnit184.741s,command236.385s/2023604224B; originalRESOURCE_ABORTharnessroot-exitraceafteractualexit0preserved, PGIDabsenttwice. Toolguard22testsPASS, no productrerun.",
-          "next": "Finish/review observed-world owner binding; run selected GDP witness on frozen PRIMARY. Fresh 7/1 already running independently on exact frozen SECONDARY71e88. Reconcile affected composition afterward. Gate A then P06/P07/P08/Gate B. No next lane or G closure.",
+          "next": "Publish observed-world owner bridge and run selected GDP R6 on frozen PRIMARY. Fresh 7/1 R7 runs independently on frozen SECONDARY71e88, with initial live A PASS and B1 actual acquisition worker active. Reconcile affected composition explicitly. Gate A then P06/P07/P08/Gate B; no next lane or G closure.",
           "published_source": {
-            "commit": "f3d0294da4efca2f33f37c6de3b4bc65595423ec",
-            "tree": "a827106b429bf896c3ccfb910d99f6462ba2b7cc",
+            "commit": "38ba7c1194c153a5f30ba06eaf174cac1ad3da98",
+            "tree": "4130a5e211aa70aff230c69b1786639c8048f007",
             "ref": "refs/heads/main",
             "readback": "Exact Git ls-remote and GitHub git/commits equality; ordinary hooks passed."
           },
@@ -10397,9 +10397,11 @@
             "limits": "3 GiB sampled RSS, 5100 s wall, disk floor 3 GiB, CPU1 numerical libraries/JAX CPU/x64 unset false; no old lease renewal.",
             "expected_not_observed": "A2 + B1 two + B2/B3 zero + C two = six standard units; one protected remains.",
             "observation": "Existing monitoring observer extended in ignored scratch: actual post-basis boundaries, handler CPU, bounded stacks every30s. Callback smoke preserves return/exception and releases monitoring slot. Authority expiry logging only, no added admission policy. Actual source/HEAD/backend/observer frozen; PRIMARY changes do not become this run PASS.",
-            "outputs": "SECONDARY policy-engine/_cache/e02/lane01-fresh-7of1-r7/"
+            "outputs": "SECONDARY policy-engine/_cache/e02/lane01-fresh-7of1-r7/",
+            "actual_milestone": "Initial source A completes with initial_a_live_n5:PASS and persisted input/result/witness. Generation1 B1 requested/executing heads and running acquisition worker observed. New mandate had about5375.6s remaining at installation; observer active without errors and all1925 initial module origins SECONDARY. These milestones do not establish B terminal, retention or changed C."
           },
-          "mutation_harness": "Exact plural-owner stub failure reproduced. One property-test file now uses actual CAS/run manifests and RunIndexService; generated allow/unowned/deny plus multi-owner/foreign-denial companion PASS2, 56.63s/1813348352B. Source ACL/workflow/threshold unchanged. Independent root review GO; mutation score still UNRUN. Captured uv run --offline emitted no synchronization/install messages; no environment edits or reinstall performed."
+          "mutation_harness": "Exact plural-owner stub failure reproduced. One property-test file now uses actual CAS/run manifests and RunIndexService; generated allow/unowned/deny plus multi-owner/foreign-denial companion PASS2, 56.63s/1813348352B. Source ACL/workflow/threshold unchanged. Independent root review GO; mutation score still UNRUN. Captured uv run --offline emitted no synchronization/install messages; no environment edits or reinstall performed.",
+          "gdp_observed_owner_bridge": "IMPLEMENTED_COMPONENT_QUALIFIED: same actual persisted/reopened CycleSubstrateContextArtifactOwner is carried and scoped around observed reentry; exact store/control/handoff/resolver/current acquisition scope, heartbeat-compatible same_execution_identity, finally cleanup. Shared N7 selected CAS/model/scope/currentness checks remain. Source-reentry/NL verified-scope paths unchanged; existing post-async native/source checks preserved, no separately added final resolver. Four real SQLite/CAS/fresh-loop/deciding-thread/foreign-owner/removal controls PASS, 80.445s/1744224256B, 11 input pins/head stable; independent static review GO. Actual GDP R6 still UNRUN. Output policy-engine/_cache/e02/lane01-gdp-observed-context-binding-r1-20261113/."
         }
       },
       "sequence": 8,

@@ -13,6 +13,7 @@ import os
 import re
 import tempfile
 from collections.abc import Sequence  # noqa: TC003
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from datetime import UTC, datetime
@@ -57,7 +58,7 @@ from polisyos.scientist import BudgetState
 from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetScope
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
     from polisyos.foundry.data_plane import InputBindingValuesPreparation
     from polisyos.runtime.http.services.acquisition_surface_execution import (
@@ -575,6 +576,49 @@ class AcquisitionCandidatePreparation:
     substrate_registry_ref: artifacts.ArtifactRef | None
     n5_execution_configuration: PreparedJointSimulationConfiguration | None
     n5_configuration_reason_codes: tuple[str, ...] = ()
+
+
+@contextmanager
+def _acquired_world_context_binding(
+    *,
+    controller: GenerationCycleController,
+    context_owner: CycleSubstrateContextArtifactOwner,
+    handoff: CandidateSimulationContextHandoff,
+    currentness_resolver: Callable[[], bool],
+    control_store: ControlPlaneStore,
+) -> Iterator[None]:
+    """Bind the bridge's verified acquired context only during its N6 re-entry."""
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+
+    if (
+        type(controller) is not GenerationCycleController
+        or type(context_owner) is not CycleSubstrateContextArtifactOwner
+        or type(handoff) is not CandidateSimulationContextHandoff
+        or context_owner._store is not controller._artifact_store
+        or context_owner._control_store is not control_store
+        or controller._candidate_simulation_handoff != handoff
+        or controller._cycle_substrate_context != handoff.context
+        or controller._candidate_simulation_currentness_resolver is not currentness_resolver
+    ):
+        raise ValueError("acquisition_candidate_context_owner_binding_mismatch")
+    admission = control_store.current_execution_job_admission()
+    if (
+        admission.job.kind != "acquisition"
+        or admission.job.state != "running"
+        or admission.job.job_id != handoff.job_id
+        or admission.job.run_id != handoff.run_id
+        or admission.scope.status != "established"
+        or admission.scope.tenant_id != handoff.tenant_id
+        or admission.scope.cell_id != handoff.cell_id
+    ):
+        raise ValueError("acquisition_candidate_context_owner_binding_mismatch")
+    previous = controller._candidate_source_reentry_context_binding
+    controller._candidate_source_reentry_context_binding = (context_owner, handoff)
+    try:
+        yield
+    finally:
+        controller._candidate_source_reentry_context_binding = previous
 
 
 class CandidateAcquisitionWorldIntent(_Strict):
@@ -4773,13 +4817,15 @@ class AcquisitionWorldGrowthBridge:
             )
             controller_kwargs: dict[str, object] = {}
             if refresh is not None:
-                context, handoff, currentness_resolver = self._candidate_world_context_handoff(
-                    closure=closure,
-                    growth=growth,
-                    overlay=overlay,
-                    observation_projection=observation_projection,
-                    refresh=refresh,
-                    n5_execution_configuration=prepared_n5_configuration,
+                context, handoff, context_owner, currentness_resolver = (
+                    self._candidate_world_context_handoff(
+                        closure=closure,
+                        growth=growth,
+                        overlay=overlay,
+                        observation_projection=observation_projection,
+                        refresh=refresh,
+                        n5_execution_configuration=prepared_n5_configuration,
+                    )
                 )
                 controller_kwargs = {
                     "cycle_substrate_context": context,
@@ -4808,32 +4854,49 @@ class AcquisitionWorldGrowthBridge:
                 promotion_runtime=self.promotion_runtime,
                 **controller_kwargs,
             )
-            with fence.open("x") as stream:
-                stream.write(growth_refs[0])
-                stream.flush()
-                os.fsync(stream.fileno())
-            receipt = async_tools.run_coro_sync(
-                controller.reenter_after_active_acquisition_overlay(
-                    original_run=closure.generation_run,
-                    source_cycle=closure.source_cycle,
-                    problem=closure.design_problem_basis,
-                    overlay_receipt=admitted,
-                    observation_projection=observation_projection,
-                    baseline_path=self.authority.baseline_path,
-                    overlay_path=overlay_path,
-                    source_control_service=self._source_control_service,
-                    budget_state=BudgetState.model_validate(
-                        {
-                            "limits": {
-                                "run": {
-                                    "key": "run",
-                                    "max_usd": growth.selection.reentry_budget_usd,
+            if refresh is not None:
+                if (
+                    self._source_control_service is None
+                    or self._source_control_service._control_store is not self.control_store
+                    or self._source_control_service._artifact_store is not self.artifact_store
+                ):
+                    raise ValueError("acquisition_candidate_context_control_owner_unavailable")
+                context_binding = _acquired_world_context_binding(
+                    controller=controller,
+                    context_owner=context_owner,
+                    handoff=handoff,
+                    currentness_resolver=currentness_resolver,
+                    control_store=self.control_store,
+                )
+            else:
+                context_binding = nullcontext()
+            with context_binding:
+                with fence.open("x") as stream:
+                    stream.write(growth_refs[0])
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                receipt = async_tools.run_coro_sync(
+                    controller.reenter_after_active_acquisition_overlay(
+                        original_run=closure.generation_run,
+                        source_cycle=closure.source_cycle,
+                        problem=closure.design_problem_basis,
+                        overlay_receipt=admitted,
+                        observation_projection=observation_projection,
+                        baseline_path=self.authority.baseline_path,
+                        overlay_path=overlay_path,
+                        source_control_service=self._source_control_service,
+                        budget_state=BudgetState.model_validate(
+                            {
+                                "limits": {
+                                    "run": {
+                                        "key": "run",
+                                        "max_usd": growth.selection.reentry_budget_usd,
+                                    }
                                 }
                             }
-                        }
-                    ),
+                        ),
+                    )
                 )
-            )
             # No copied-context borrowing is permitted. Re-read complete owner
             # selections on the deciding thread after async/numerical work, then
             # bind this re-entry artifact while every native writer is excluded.
@@ -5058,7 +5121,12 @@ class AcquisitionWorldGrowthBridge:
         ),
         refresh: AcquisitionCandidateWorldRefresh,
         n5_execution_configuration: PreparedJointSimulationConfiguration | None = None,
-    ) -> tuple[object, object, object]:
+    ) -> tuple[
+        CycleSubstrateContext,
+        CandidateSimulationContextHandoff,
+        CycleSubstrateContextArtifactOwner,
+        Callable[[], bool],
+    ]:
         """Materialize one owner-read-back row and persist a fresh leased context."""
 
         from polisyos.runtime.quality.candidate_simulation import (
@@ -5181,15 +5249,27 @@ class AcquisitionWorldGrowthBridge:
             ncm_ref=offer.ncm_ref,
         )
 
+        admission = control_store.current_execution_job_admission()
+        if (
+            not admission.matches_job_record(current_job)
+            or admission.job.kind != "acquisition"
+            or admission.scope.status != "established"
+            or admission.scope.tenant_id != closure.tenant_id
+            or admission.scope.cell_id != closure.cell_id
+        ):
+            raise ValueError("acquisition_candidate_context_owner_binding_mismatch")
+
         def currentness_resolver() -> bool:
             """Recheck Data Forge readback and the context under the live job lease."""
 
             try:
-                current_job_record = control_store.current_execution_job_record()
+                current_admission = control_store.current_execution_job_admission()
+                current_job_record = current_admission.job
                 if (
                     current_job_record.job_id != handoff.job_id
                     or current_job_record.run_id != handoff.run_id
                     or current_job_record.run_id != closure.run_id
+                    or not current_admission.same_execution_identity(admission)
                 ):
                     return False
                 replayed_job = context_owner.resolve_for_current_job(
@@ -5226,7 +5306,7 @@ class AcquisitionWorldGrowthBridge:
                 artifacts.raise_artifact_read_access_error(exc)
                 return False
 
-        return offer.context, handoff, currentness_resolver
+        return offer.context, handoff, context_owner, currentness_resolver
 
     def candidate_source_context_handoff(
         self,

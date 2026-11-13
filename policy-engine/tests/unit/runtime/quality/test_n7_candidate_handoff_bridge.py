@@ -124,11 +124,15 @@ def test_acquisition_worker_handoff_uses_live_control_admission_without_n5(
 ) -> None:
     """Resolve an acquired-world context only under its real SQLite worker lease."""
 
+    import asyncio
+    import threading
     from pathlib import Path
 
+    from polisyos.common import async_tools
     from polisyos.core.artifacts import FileSystemCAS
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.acquisition_world_growth import _acquired_world_context_binding
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -329,6 +333,120 @@ def test_acquisition_worker_handoff_uses_live_control_admission_without_n5(
                     candidate_simulation_handoff=handoff,
                     candidate_simulation_currentness_resolver=currentness,
                 )
+
+                # The observed-acquisition bridge installs only the same
+                # CAS/control owner and live acquisition identity, and restores
+                # the prior binding even if re-entry raises.
+                with _acquired_world_context_binding(
+                    controller=controller,
+                    context_owner=owner,
+                    handoff=handoff,
+                    currentness_resolver=currentness,
+                    control_store=store,
+                ):
+                    assert controller._resolve_candidate_simulation_context_handoff(problem) is True
+
+                    async def run_from_existing_loop() -> int:
+                        deciding_thread = threading.get_ident()
+
+                        async def reenter_on_fresh_loop() -> int:
+                            assert threading.get_ident() != deciding_thread
+                            assert (
+                                controller._resolve_candidate_simulation_context_handoff(problem)
+                                is True
+                            )
+                            return threading.get_ident()
+
+                        return async_tools.run_coro_sync(
+                            reenter_on_fresh_loop(), timeout_seconds=30
+                        )
+
+                    assert asyncio.run(run_from_existing_loop()) != threading.get_ident()
+                    # Re-open on the deciding thread, using its own live lease
+                    # rather than treating the async read as write authority.
+                    assert currentness() is True
+                    assert owner.resolve_for_current_job(context_ref, problem=problem).context == (
+                        context
+                    )
+                    blob, _ = cas._paths(context_ref.artifact_id)
+                    removed = blob.with_suffix(".test-removed")
+                    blob.rename(removed)
+                    try:
+                        with pytest.raises(
+                            GenerationCycleError,
+                            match="n7_candidate_simulation_handoff_owner_refused",
+                        ):
+                            controller._resolve_candidate_simulation_context_handoff(problem)
+                    finally:
+                        removed.rename(blob)
+                    assert controller._resolve_candidate_simulation_context_handoff(problem) is True
+                assert controller._candidate_source_reentry_context_binding is None
+
+                async def fail_from_existing_loop() -> None:
+                    async def fail_on_fresh_loop() -> None:
+                        raise RuntimeError("controlled reentry failure")
+
+                    async_tools.run_coro_sync(fail_on_fresh_loop(), timeout_seconds=30)
+
+                with (
+                    pytest.raises(RuntimeError, match="controlled reentry failure"),
+                    _acquired_world_context_binding(
+                        controller=controller,
+                        context_owner=owner,
+                        handoff=handoff,
+                        currentness_resolver=currentness,
+                        control_store=store,
+                    ),
+                ):
+                    asyncio.run(fail_from_existing_loop())
+                assert controller._candidate_source_reentry_context_binding is None
+
+                foreign_store_owner = CycleSubstrateContextArtifactOwner(
+                    store=FileSystemCAS.open_existing_read_only(tmp_path / "candidate-action-cas"),
+                    control_store=store,
+                )
+                for wrong_owner, wrong_control, wrong_currentness in (
+                    (foreign_store_owner, store, currentness),
+                    (owner, object(), currentness),
+                    (owner, store, lambda: True),
+                ):
+                    with (
+                        pytest.raises(
+                            ValueError, match="acquisition_candidate_context_owner_binding_mismatch"
+                        ),
+                        _acquired_world_context_binding(
+                            controller=controller,
+                            context_owner=wrong_owner,
+                            handoff=handoff,
+                            currentness_resolver=wrong_currentness,
+                            control_store=wrong_control,
+                        ),
+                    ):
+                        pytest.fail("foreign owner was bound")
+
+                foreign_handoff = handoff.model_copy(update={"job_id": "foreign-job"})
+                foreign_controller = GenerationCycleController(
+                    repo_root=project_root,
+                    model_id="n7-acquisition-owner-fixture",
+                    authority_scope="contract_testing",
+                    artifact_store=cas,
+                    cycle_substrate_context=context,
+                    candidate_simulation_handoff=foreign_handoff,
+                    candidate_simulation_currentness_resolver=currentness,
+                )
+                with (
+                    pytest.raises(
+                        ValueError, match="acquisition_candidate_context_owner_binding_mismatch"
+                    ),
+                    _acquired_world_context_binding(
+                        controller=foreign_controller,
+                        context_owner=owner,
+                        handoff=foreign_handoff,
+                        currentness_resolver=currentness,
+                        control_store=store,
+                    ),
+                ):
+                    pytest.fail("foreign job was bound")
                 controller._candidate_source_reentry_context_binding = (owner, handoff)
 
                 n5_inputs_before = cas.manifest_inventory_snapshot(

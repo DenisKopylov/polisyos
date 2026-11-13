@@ -378,8 +378,8 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "d0467a16ab4bad801c46289bfc1e043d54793e549e82cf02398361b6fa6dd5a3";
 const ACTIVE_LOCALE_KEY_SET_SHA256 =
-  "eb596bcd5ca8111fec6861818e9e63404b334dd203dda156f823165804963355";
-const ACTIVE_LOCALE_LEAF_COUNT = 3322;
+  "5f28bc84efd6087aff9cd42d5290945466508216d99c299225440d16dcdb9423";
+const ACTIVE_LOCALE_LEAF_COUNT = 3323;
 const NON_COUNT_MESSAGE_COUNT = 339;
 const NON_COUNT_VARIABLE_USE_COUNT = 530;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
@@ -1065,6 +1065,7 @@ const RU_E02_EXTENSION_ROOTS = [
   "pages.runs.candidateSimulation.acquisitionModelDecision",
   "pages.runs.candidateSimulation.acquisitionOutcomeRevision",
   "pages.runs.candidateSimulation.acquisitionHistoryLimited",
+  "pages.runs.candidateSimulation.acquisitionHistoryPartial",
   "pages.runs.workflowTimelineFallback",
   "pages.runs.workflowLimitationStatusNotReported",
   "pages.runs.profileLineage",
@@ -1099,11 +1100,11 @@ const RU_E02_EXTENSION_ROOTS = [
   "conditionalTransport",
   "runHte",
 ] as const;
-const RU_E02_EXTENSION_KEY_COUNT = 352;
+const RU_E02_EXTENSION_KEY_COUNT = 353;
 const RU_E02_EXTENSION_KEY_SET_SHA256 =
-  "a7862a678fd6f753f8b5b8a6033fa19c557db11d5be7abc01cd7cd3b5f236453";
+  "13f3832b055c8bec5c51e738fef81ba132d5c3e512be484a0ff6369dbc94a907";
 const RU_E02_EXTENSION_VALUE_SHA256 =
-  "5dc3d465d1f12bbdc21ebcc0a47cad990a793ec80ad442fbf3ba51f373bbe05a";
+  "41c75846fe36b26397dd0ce559b9140fbe7c76d923365a24106b94cb0cffeaed";
 
 function isRuE02ExtensionPath(path: string): boolean {
   return RU_E02_EXTENSION_ROOTS.some(

@@ -19,7 +19,13 @@ import pytest
 
 @contextmanager
 def retained_candidate_runtime(
-    *, fixture_root: Path, job_id: str, output_root: Path, monkeypatch: pytest.MonkeyPatch
+    *,
+    fixture_root: Path,
+    job_id: str,
+    output_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source_owner_root: Path | None = None,
+    issuer_fixture_root: Path | None = None,
 ) -> Iterator[dict[str, object]]:
     """Open the actual Runtime using retained selected inputs and new demo identity.
 
@@ -28,6 +34,8 @@ def retained_candidate_runtime(
         job_id: Exact retained acquisition job to inspect or ordinarily recover.
         output_root: Fresh directory for this deployment's public reconstruction inputs.
         monkeypatch: Fixture environment owner, restored when the context exits.
+        source_owner_root: Explicit retained Catalog owner; defaults to the original fixture layout.
+        issuer_fixture_root: Explicit retained issuer; defaults to the original fixture layout.
     """
     from fastapi.testclient import TestClient
 
@@ -89,7 +97,10 @@ def retained_candidate_runtime(
         creation_scope = json.loads(created[0]["payload_json"])["execution_scope"]
     # The shared fresh-fixture owner has a create-on-miss path. Recovery must
     # refuse before entering it when any retained issuer input is absent.
-    issuer_root = fixture / "candidate-issuer/repo"
+    issuer_fixture = (
+        issuer_fixture_root if issuer_fixture_root is not None else fixture / "candidate-issuer"
+    ).resolve()
+    issuer_root = issuer_fixture / "repo"
     if not all(
         (issuer_root / path).is_file()
         for path in (
@@ -100,6 +111,13 @@ def retained_candidate_runtime(
         )
     ):
         raise ValueError("retained_candidate_issuer_inputs_missing")
+    source_root = (
+        source_owner_root
+        if source_owner_root is not None
+        else fixture / "labor-source/policy-engine"
+    ).resolve()
+    if source_owner_root is not None and not source_root.is_dir():
+        raise ValueError("retained_candidate_source_root_missing")
     read_store = artifacts.FileSystemCAS.open_existing_read_only(fixture / "cas")
 
     def read(selector: object) -> object:
@@ -169,13 +187,14 @@ def retained_candidate_runtime(
                     "payload_ref": payload_ref,
                     "decision_ref": decision_ref,
                     "original_authority_valid_until": current.effective_until.isoformat(),
+                    "source_owner_root": str(source_root),
+                    "issuer_fixture_root": str(issuer_fixture),
                     "deployment_config": trust.raw,
                 },
                 indent=2,
             )
             + "\n"
         )
-        source_root = fixture / "labor-source/policy-engine"
         selection = substrate_registry.CatalogServingSourceSelection(
             snapshot_root=source_root / "complete-cov-published-catalog/snapshot",
             source_owner_root=source_root,
@@ -217,7 +236,7 @@ def retained_candidate_runtime(
                 stop_embedded_control_worker(control)
                 owner = _candidate_experiment_policy_owner(
                     control=control,
-                    fixture_root=fixture / "candidate-issuer",
+                    fixture_root=issuer_fixture,
                     run_id=run_id,
                     subsequent_attempt_ids=tuple(policy.configured_template.subsequent_attempt_ids),
                 )

@@ -19862,6 +19862,7 @@ export interface components {
             | "acquisition_action_history_not_observed"
             | "acquisition_action_history_incomplete"
             | "acquisition_action_history_integrity_not_established"
+            | "acquisition_action_history_terminal_projection_unavailable"
             | "acquisition_reentry_source_not_established"
           )
         | null;

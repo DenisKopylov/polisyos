@@ -64,9 +64,17 @@ def test_retained_runtime_refuses_incomplete_sql_selection_without_repair(
     assert not (tmp_path / "new/public-reconstruction.json").exists()
 
 
-@pytest.mark.parametrize("missing", ["registry", "provision", "l5", "baseline"])
-def test_retained_runtime_refuses_absent_issuer_without_creating_replacement(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, missing: str
+@pytest.mark.parametrize(
+    ("missing", "explicit"),
+    [
+        (missing, explicit)
+        for missing in ("registry", "provision", "l5", "baseline")
+        for explicit in (False, True)
+    ]
+    + [("source_root", True), ("source_file", True)],
+)
+def test_retained_runtime_refuses_absent_selected_roots_without_creating_replacement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, missing: str, explicit: bool
 ) -> None:
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
@@ -89,7 +97,7 @@ def test_retained_runtime_refuses_absent_issuer_without_creating_replacement(
             "INSERT INTO control_job_events VALUES ('old', 'job_created', ?)",
             (json.dumps({"execution_scope": {"tenant_id": "tenant", "cell_id": "cell"}}),),
         )
-    issuer = fixture / "candidate-issuer/repo"
+    issuer = fixture / ("selected-issuer/repo" if explicit else "candidate-issuer/repo")
     selected = {
         "registry": DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
         "provision": DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
@@ -101,15 +109,31 @@ def test_retained_runtime_refuses_absent_issuer_without_creating_replacement(
             path = issuer / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"retained input is never opened after a missing sibling")
+        if explicit:
+            unused_default = fixture / "candidate-issuer/repo" / relative
+            unused_default.parent.mkdir(parents=True, exist_ok=True)
+            unused_default.write_bytes(b"an explicit selection cannot fall back to this input")
+    source_override = fixture / "selected-source" if missing.startswith("source_") else None
+    if missing == "source_file":
+        source_override.write_bytes(b"a file is not the selected Catalog owner directory")
     before = {str(p): p.read_bytes() for p in fixture.rglob("*") if p.is_file()}
 
     with (
-        pytest.raises(ValueError, match="retained_candidate_issuer_inputs_missing"),
+        pytest.raises(
+            ValueError,
+            match=(
+                "retained_candidate_source_root_missing"
+                if source_override is not None
+                else "retained_candidate_issuer_inputs_missing"
+            ),
+        ),
         retained_candidate_runtime(
             fixture_root=fixture,
             job_id="old",
             output_root=tmp_path / "new",
             monkeypatch=monkeypatch,
+            source_owner_root=source_override,
+            issuer_fixture_root=issuer.parent if explicit else None,
         ),
     ):
         raise AssertionError("missing issuer entered Runtime")

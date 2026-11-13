@@ -10486,10 +10486,50 @@
               "baseline_output": "policy-engine/_cache/e02/lane01-core-adapter-host-baseline-20261113/budget/",
               "after_output": "policy-engine/_cache/e02/lane01-core-adapter-host-after-20261113/budget/"
             },
-            "next": "Fresh normal GDP candidate action/API witness on frozen MAIN, existing5/1 fixture; one measured heavy5GiB/3600s job after component and Core-host jobs quiesce. No expired R7 restart. Generic7/1 and matched-stock CYC03 remain separate open routes.",
+            "next": "GDP ordinary producer and terminal completed; repair and fresh-read retained API without N5. Generic7/1 and typed-stock equal/changed continuation remain separate open routes; no expired R7 restart.",
             "resources": "6.9GiB free; swap258.5MiB stable; memory-pressure63%free. Diskfloor3GiB, CPU numerical libraries1, JAXCPU/x64unset.",
             "g_acceptance": false,
             "closure_ids": []
+          },
+          "gdp_fourth_served": {
+            "source_commit": "f9ec76d5b54745575eb5f037d0ae3c81917d45a9",
+            "source_tree": "23a1012cf6109b36a4a76fa5493a983f72062112",
+            "whole_command": "FAIL fresh API history assertion after genuine A/B N5, evaluated basis and completed terminal; never relabel original invocation PASS",
+            "elapsed_seconds": 3170.827,
+            "peak_sampled_rss_bytes": 2217689088,
+            "declared_inputs": 3009,
+            "inputs_stable": true,
+            "quiescent": true,
+            "source_job": "68385279edda4559be053a9a592a7fa7",
+            "run_id": "R_58f76c7cc1bc7d72",
+            "action_job": "380783381fbe6e81b4b07d51c6b88eb98f5e3fcd21907d608780da49980ea7b4",
+            "b_result": "a3a912a12831bbed1f09abc6b1acb8e5e3a0611fe3734afbb491596cb4693c2c",
+            "n5_checkpoint": "e8bab16cecb0278a1cddb97864645ed70dff808c1a1b43557c8566561d47798c",
+            "evaluated_basis": "564361af7e986a9be1ebcdfa420651ff5775f3d72704c5adab83397a96eb1655",
+            "completed_standard_units": 4,
+            "protected_units_used": 0,
+            "diagnosis": "Selected candidate-experiment terminal schema shares the loop kind. API demanded the legacy schema before schema dispatch; fix exact kind/schema/version dispatch and reuse canonical history verifier.",
+            "api_repair": "Independent material GO; final backend74PASS; UI3PASS296SKIP; full affected describe3PASS65SKIP; locale49PASS; full dashboard TS and generator commands PASS. Core/Zod mixed-outcome semantics and localized explicit projection-gap surface agree. Retained real API read still UNRUN; no N5 replay authorized by this repair.",
+            "output": "policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/"
+          },
+          "generic_continuation_implementation": {
+            "secondary_commit": "b5e781af948f2130971f4202f876b21f951913e2",
+            "secondary_tree": "566e2175dcf9ab3870fa8d42c5f9f2c9de9c159b",
+            "phase_hoists": "Published five paths; independent GO.48unaffectedPASS original command plus30corrected current-outcomePASS; not one whole78PASS wave or route timing.",
+            "stock_fixture": "Native source/routing/materialization1PASS77.384s/1925824512B; stable5pins plus identity,1821correctorigins.640/640/602.5 horizon steps are not A/B/C admissions.",
+            "producer": "17path WIP actual Generic tinyN5 and snapshot controls3PASS135.398s/1894875136B,7093stablepins,1858correctorigins/quiescent. Independent NO_GO exact-value JAX subclass/Enum state intake; author repairing with distinguishing controls. Loaded-code file association remains explicit candidate closure residual, not established protected provenance.",
+            "store": "2path WIP final focusedSQLite8PASS50.834s/1785659392B/quiescent/RuffPASS. Initial33PASS8FAIL and intervening failures retained; PG executionUNRUN; independent review in progress.",
+            "action": "Normal owner implementation started in existing service, current action/PA2 separate from retained original numerical refs; no current end-to-end PASS. Stable5subject, initial evaluated seed, equivalent check-only samefrontier, changed/NE actual new evaluated replacement after reconciliation.",
+            "state": "bridge_missing",
+            "g_acceptance": false,
+            "closure_ids": []
+          },
+          "installed_current_consumer": {
+            "source_commit": "f9ec76d5b54745575eb5f037d0ae3c81917d45a9",
+            "census": "7208 maintained tracked Python paths (7203py+5pyi),7131blobs,0parseerrors;34.436s/504168448B;7priorinputs stable.",
+            "installed": "2selectorsPASS27.737s/2323939328B;30pins and source identity stable;fresh noneditable wheel actual sitepackages origins. -S plus explicit new sitepackages isolates editable source. cwd named outside-checkout physically remains under repo _cache; no literal outside-repo-cwd claim.",
+            "wheel_sha256": "119b2db53606505ab21aae501e99e7763c837d386c2882982318b5fff2164c28",
+            "output": "policy-engine/_cache/e02/lane01-req01-current-installed-r1/"
           }
         }
       },

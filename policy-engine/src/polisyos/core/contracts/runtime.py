@@ -4329,6 +4329,7 @@ class RunCandidateSimulationProjection(BaseModel):
             "acquisition_action_history_not_observed",
             "acquisition_action_history_incomplete",
             "acquisition_action_history_integrity_not_established",
+            "acquisition_action_history_terminal_projection_unavailable",
             "acquisition_reentry_source_not_established",
         ]
         | None
@@ -4400,7 +4401,12 @@ class RunCandidateSimulationProjection(BaseModel):
                 raise ValueError("candidate_projection_unverified_n5_observation_present")
             if self.limitation_code == "n5_observation_not_emitted" and self.n5_observations:
                 raise ValueError("candidate_projection_empty_n5_observation_mismatch")
-            if self.acquisition_history and self.acquisition_history_limitation_code is not None:
+            # A verified terminal outside the history DTO's outcomes limits
+            # coverage while preserving independently verified earlier rows.
+            if self.acquisition_history and self.acquisition_history_limitation_code not in {
+                None,
+                "acquisition_action_history_terminal_projection_unavailable",
+            }:
                 raise ValueError("candidate_projection_acquisition_history_mixed_refusal")
             return self
         if (

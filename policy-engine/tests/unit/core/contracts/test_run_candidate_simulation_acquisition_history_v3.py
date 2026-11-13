@@ -428,3 +428,59 @@ def test_v5_retention_requires_equivalence_and_original_occurrence() -> None:
     ):
         with pytest.raises(ValidationError):
             RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate({**row, **change})
+
+
+@pytest.mark.parametrize("include_history", [False, True])
+def test_run_details_preserves_explicit_terminal_projection_gap(include_history: bool) -> None:
+    """A verified blocked terminal limits coverage without erasing earlier verified rows."""
+    from polisyos.core.contracts.runtime import RunDetails
+
+    code = "acquisition_action_history_terminal_projection_unavailable"
+    projection = RunCandidateSimulationProjection.model_validate(
+        {
+            "run_id": "source-core-run",
+            "artifact_status": "resolved",
+            "source_ref": _ref("runtime.compiled_recursive_generation_cycle", "a"),
+            "source_content_hash": f"sha256:{'a' * 64}",
+            "acquisition_history": [_wire_row()] if include_history else [],
+            "acquisition_history_limitation_code": code,
+        }
+    )
+    run = RunDetails(
+        run_id="source-core-run",
+        source_kind="core_run",
+        status="completed",
+        candidate_simulation=projection,
+    )
+    restored = RunDetails.model_validate_json(run.model_dump_json()).candidate_simulation
+    assert restored.acquisition_history_limitation_code == code
+    assert bool(restored.acquisition_history) is include_history
+    assert restored.publication_authority is False
+    assert all(row.publication_authority is False for row in restored.acquisition_history)
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "acquisition_n4_source_not_established",
+        "acquisition_action_history_not_observed",
+        "acquisition_action_history_incomplete",
+        "acquisition_action_history_integrity_not_established",
+        "acquisition_reentry_source_not_established",
+    ],
+)
+def test_other_history_refusals_still_prohibit_projected_rows(code: str) -> None:
+    """The partial-surface exception never admits rows alongside integrity/source refusals."""
+    with pytest.raises(
+        ValidationError, match="candidate_projection_acquisition_history_mixed_refusal"
+    ):
+        RunCandidateSimulationProjection.model_validate(
+            {
+                "run_id": "source-core-run",
+                "artifact_status": "resolved",
+                "source_ref": _ref("runtime.compiled_recursive_generation_cycle", "a"),
+                "source_content_hash": f"sha256:{'a' * 64}",
+                "acquisition_history": [_wire_row()],
+                "acquisition_history_limitation_code": code,
+            }
+        )

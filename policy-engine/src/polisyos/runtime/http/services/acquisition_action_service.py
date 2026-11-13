@@ -64,6 +64,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _receipt_verification_worker_scoped,
 )
 
+from .control.job_diagnostics import _ModelInputUseJobCompletion
 from .control.run_lifecycle import ControlPlaneService
 from .human_decisions import HumanDecisionService
 from .model_input_successor_action import (
@@ -3265,10 +3266,23 @@ class AcquisitionActionService:
         )
         if type(completed) is not ModelInputUseActionCheckpoint:
             raise AcquisitionActionServiceError("model_input_use_result_not_established")
-        return {
+        progress = {
             **self.control_service._control_store.current_execution_job_record().progress,
             **model_input_use_terminal_progress(completed),
         }
+        if completed.schema_version is None:
+            return progress
+        payload_ref = worker.admission.job.payload_ref
+        if not isinstance(payload_ref, str) or not payload_ref:
+            raise AcquisitionActionServiceError("model_input_use_job_payload_missing")
+        return _ModelInputUseJobCompletion(
+            progress=progress,
+            selection=worker.selection,
+            checkpoint=completed,
+            action_payload_ref=payload_ref,
+            authority_decision_ref=str(worker.decision.write_result.cas_ref.artifact_id),
+            currentness_resolver=require_current_action,
+        )
 
     @_receipt_verification_worker_scoped
     def _handle_candidate_experiment_reuse_job(

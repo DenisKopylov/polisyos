@@ -41,3 +41,17 @@ evidence = [
   "tests/unit/foundry/methods/test_cache.py",
   "tests/unit/runtime/http/services/test_run_index_generation.py",
 ]
+
+
+[[compatibility_change]]
+id = "lane01-generic-retained-use-v2"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "public_experimental Core/Runtime V2 model-input-use projection and source-scope passport v3; internal Generic numerical intent v2 and frontier recovery"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing ProgramOp/ProgramEdge and load_model/load_payload owners through lazy canonical facades. Separate current authorized input use from original numerical execution, retain equivalent declared numerical basis, and recover uniquely persisted complete V5 work without a second numerical call. Shared source readers bind raw and normalized writer profiles and explicit source-declared scope."
+migration = "Unextended V1 API projections and v2 passports retain their bytes/defaults. New retained-use projections and explicit source scope select their new versions. Historical Generic v1 observations stay readable but cannot establish v2 retention; no historical rewrite or cross-call physical-run cache."
+generated_client_compatibility = "OpenAPI, SDK and dashboard generated types include the additive V2 response union; V1 response defaults remain supported."
+limitations = "Candidate equality covers the declared numerical basis and typed residuals. It grants no empirical source currentness, production verifier appointment, protected use, publication or G acceptance. Complete served A/B/B/B/C and genuine crash recovery require separate qualification."

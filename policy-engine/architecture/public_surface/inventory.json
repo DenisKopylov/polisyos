@@ -2206,8 +2206,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 861,
-          "known_export_count": 861,
+          "export_count": 864,
+          "known_export_count": 864,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2225,7 +2225,9 @@
             "ProgramGraphInputDependency",
             "ProgramGraphInputInterface",
             "ProgramGraphInputInvocation",
+            "ProgramEdge",
             "ProgramNode",
+            "ProgramOp",
             "RESOLVED_INPUT_BINDING_MANIFEST_ROLE",
             "ResolvedInputBindingManifest",
             "ResolvedInputBindingManifestRef",
@@ -2912,6 +2914,7 @@
             "RunLineageResponse",
             "RunModelInputUseBlockedSourceProjection",
             "RunModelInputUseN5SuccessorProjection",
+            "RunModelInputUseN5SuccessorProjectionV2",
             "RunModelInputUseN5SuccessorResponse",
             "RunNodeRecord",
             "RunNodesResponse",
@@ -3095,8 +3098,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 90125,
-                "sha256": "09736cf5c3eaa2bacd0ddabf8ba99b119743a4f7ed836869f14e598071ca9289"
+                "bytes": 90392,
+                "sha256": "65c5558b9c61672d6632f09df4b46d8e616e04a67c47444585f7bb13aa72e444"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -9952,8 +9955,8 @@
         {
           "module": "polisyos.fabric.connectors",
           "facade_mode_observed": "eager_exports",
-          "export_count": 135,
-          "known_export_count": 135,
+          "export_count": 136,
+          "known_export_count": 136,
           "exports": [
             "API_PROTOCOL_CONNECTOR_CONTRACT",
             "CAPABILITY_METHOD_REQUIREMENTS",
@@ -10086,6 +10089,7 @@
             "validate_fetch_result_against_schema",
             "validate_protocol_compliance",
             "verify_selected_cache_payload_ref",
+            "verify_selected_cache_payload_writer_profile",
             "with_circuit_breaker",
             "with_fallback",
             "with_rate_limit",
@@ -10115,8 +10119,8 @@
                 "path": "src/polisyos/fabric/connectors/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 9178,
-                "sha256": "f64d1699272345920d71c26a9ba19093ce45d8481f95389c09f2a4d82eae8dd0"
+                "bytes": 9280,
+                "sha256": "33c8e68f5ad9b864e88cc415bfebb89de445e04829506aa544a233dbd0cdd690"
               },
               {
                 "path": "src/polisyos/fabric/connectors",
@@ -12281,8 +12285,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 37,
-          "known_export_count": 37,
+          "export_count": 39,
+          "known_export_count": 39,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -12306,6 +12310,8 @@
             "read_method_artifact_output_bounded",
             "execution_input_basis_sources",
             "get_state_path",
+            "load_model",
+            "load_payload",
             "load_state_snapshot",
             "new_method_execution_capture",
             "persist_method_execution_capture",
@@ -12346,8 +12352,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7420,
-                "sha256": "baf27a855d677d7f7ca76467fe2ef2be4928dfcff9f0048bfb08fafb282284b2"
+                "bytes": 7713,
+                "sha256": "b300fbb55b2b20f94e054f4a72e665bdbc19b05428dd82f2bccc6b922d5a64cf"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -21537,8 +21543,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 163,
-          "known_export_count": 163,
+          "export_count": 165,
+          "known_export_count": 165,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -21690,6 +21696,7 @@
             "plan_catalog_source_stage_contracts",
             "profile_input_coverage_currentness",
             "project_catalog_acquisition_state",
+            "read_scoped_measurement_source_body",
             "read_selected_live_raw_source",
             "read_wvs_indicator_registry",
             "resolve_catalog_selection_policy",
@@ -21702,6 +21709,7 @@
             "validate_catalog_run_profile",
             "validate_overlay_admission_receipt",
             "validate_proxy",
+            "verify_declared_source_geography",
             "verify_local_source_rights"
           ],
           "has___getattr__": true,
@@ -21728,8 +21736,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 65454,
-                "sha256": "531b8a0e274fc7aa94fbe03f999330a9f06c7a4b01363d57a981f4f20f8d84ad"
+                "bytes": 66053,
+                "sha256": "91056f3f61c2adcecccf279d69ac150547e8e6fbea25b36c6ec0439623c701f3"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

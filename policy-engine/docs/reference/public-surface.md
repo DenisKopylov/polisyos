@@ -378,7 +378,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 861 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 864 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
@@ -813,7 +813,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (861)</summary>
+<details><summary>Entrypoint exports (864)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -832,7 +832,9 @@ ParameterOverrideBundleRef
 ProgramGraphInputDependency
 ProgramGraphInputInterface
 ProgramGraphInputInvocation
+ProgramEdge
 ProgramNode
+ProgramOp
 RESOLVED_INPUT_BINDING_MANIFEST_ROLE
 ResolvedInputBindingManifest
 ResolvedInputBindingManifestRef
@@ -1519,6 +1521,7 @@ RunLaunchResponse
 RunLineageResponse
 RunModelInputUseBlockedSourceProjection
 RunModelInputUseN5SuccessorProjection
+RunModelInputUseN5SuccessorProjectionV2
 RunModelInputUseN5SuccessorResponse
 RunNodeRecord
 RunNodesResponse
@@ -4718,7 +4721,7 @@ write_participation_requirement_bundle
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 55 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 55 |
-| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 135 |
+| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 136 |
 | `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 58 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | conditional (41/59) |
 | `polisyos.fabric.docs` | `src/polisyos/fabric/docs/__init__.py` | `eager_exports` | 17 |
@@ -4868,7 +4871,7 @@ world
 - Facade: `eager_exports`
 - Summary: Data Fabric Connectors - Protocol Foundation & Registry Architecture.
 
-<details><summary>Entrypoint exports (135)</summary>
+<details><summary>Entrypoint exports (136)</summary>
 
 ```text
 API_PROTOCOL_CONNECTOR_CONTRACT
@@ -5002,6 +5005,7 @@ validate_connector_governance_metadata
 validate_fetch_result_against_schema
 validate_protocol_compliance
 verify_selected_cache_payload_ref
+verify_selected_cache_payload_writer_profile
 with_circuit_breaker
 with_fallback
 with_rate_limit
@@ -5445,7 +5449,7 @@ world
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 25 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 37 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 39 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 233 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
@@ -5771,7 +5775,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (37)</summary>
+<details><summary>Entrypoint exports (39)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5796,6 +5800,8 @@ execute_semantic_horizon_step
 read_method_artifact_output_bounded
 execution_input_basis_sources
 get_state_path
+load_model
+load_payload
 load_state_snapshot
 new_method_execution_capture
 persist_method_execution_capture
@@ -9853,7 +9859,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 163 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 165 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -10091,7 +10097,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (163)</summary>
+<details><summary>Entrypoint exports (165)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10244,6 +10250,7 @@ plan_catalog_source_modules
 plan_catalog_source_stage_contracts
 profile_input_coverage_currentness
 project_catalog_acquisition_state
+read_scoped_measurement_source_body
 read_selected_live_raw_source
 read_wvs_indicator_registry
 resolve_catalog_selection_policy
@@ -10256,6 +10263,7 @@ select_catalog_source_modules
 validate_catalog_run_profile
 validate_overlay_admission_receipt
 validate_proxy
+verify_declared_source_geography
 verify_local_source_rights
 ```
 

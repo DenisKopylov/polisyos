@@ -44900,15 +44900,362 @@
         "title": "RunModelInputUseN5SuccessorProjection",
         "type": "object"
       },
+      "RunModelInputUseN5SuccessorProjectionV2": {
+        "additionalProperties": false,
+        "description": "Separate a completed current use from its original numerical producer.\n\nThe selected execution may belong to an earlier action. Current input,\nrecorded admission and basis references describe this use, never a rewrite\nof the original execution or a grant of current publication authority.",
+        "properties": {
+          "action_job_id": {
+            "minLength": 1,
+            "title": "Action Job Id",
+            "type": "string"
+          },
+          "action_status": {
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed",
+              "not_established"
+            ],
+            "title": "Action Status",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "cycle_input_candidate_only",
+            "default": "cycle_input_candidate_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_comparison_result": {
+            "anyOf": [
+              {
+                "enum": [
+                  "initial",
+                  "equivalent",
+                  "different",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Comparison Result"
+          },
+          "blocked_source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunModelInputUseBlockedSourceProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_action_phase_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_authority_decision_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_basis_limitations": {
+            "default": [],
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Current Basis Limitations",
+            "type": "array"
+          },
+          "current_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_semantic_successor_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_use_decision_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "evaluation_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "new_execution",
+                  "retained_prior"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Provenance"
+          },
+          "frontier_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frontier Ref"
+          },
+          "frontier_revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frontier Revision"
+          },
+          "frontier_selection": {
+            "anyOf": [
+              {
+                "enum": [
+                  "selected",
+                  "superseded",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frontier Selection"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "observed_admission": {
+            "const": false,
+            "default": false,
+            "title": "Observed Admission",
+            "type": "boolean"
+          },
+          "original_action_job_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Action Job Id"
+          },
+          "original_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "original_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "original_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "original_semantic_successor_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "predicate_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "recomputed",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predicate Provenance"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "result_body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunGenericCycleSimulationN5ResultBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Result Status",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_model_input_use_n5_successor_projection.v2",
+            "default": "policyos.runtime.run_model_input_use_n5_successor_projection.v2",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_basis_limitations": {
+            "default": [],
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Selected Basis Limitations",
+            "type": "array"
+          },
+          "selected_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "semantic_input_limitation_codes": {
+            "default": [],
+            "items": {
+              "minLength": 1,
+              "pattern": "^\\S+$",
+              "type": "string"
+            },
+            "title": "Semantic Input Limitation Codes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "action_job_id",
+          "action_status",
+          "result_status"
+        ],
+        "title": "RunModelInputUseN5SuccessorProjectionV2",
+        "type": "object"
+      },
       "RunModelInputUseN5SuccessorResponse": {
         "additionalProperties": false,
-        "description": "Response for a fresh, explicitly action-selected model-input result read.",
+        "description": "Response for an action-selected fresh or retained candidate N5 result.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
           },
           "result": {
-            "$ref": "#/components/schemas/RunModelInputUseN5SuccessorProjection"
+            "discriminator": {
+              "mapping": {
+                "policyos.runtime.run_model_input_use_n5_successor_projection.v1": "#/components/schemas/RunModelInputUseN5SuccessorProjection",
+                "policyos.runtime.run_model_input_use_n5_successor_projection.v2": "#/components/schemas/RunModelInputUseN5SuccessorProjectionV2"
+              },
+              "propertyName": "schema_version"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RunModelInputUseN5SuccessorProjection"
+              },
+              {
+                "$ref": "#/components/schemas/RunModelInputUseN5SuccessorProjectionV2"
+              }
+            ],
+            "title": "Result"
           }
         },
         "required": [

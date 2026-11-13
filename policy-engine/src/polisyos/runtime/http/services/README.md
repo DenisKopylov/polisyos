@@ -299,7 +299,11 @@ for supported carriers, compatibility, and verification requirements.
   run-bound costed-route projection and deferred PA2/worker composition. It
   consumes the control-plane phase-head sink and strict owner port without
   becoming a passport, overlay, epoch, or world writer.
-- [`model_input_successor_action.py`](model_input_successor_action.py) binds candidate use of an active observation to the original blocked N5 and a separate protected job.
+- [`model_input_successor_action.py`](model_input_successor_action.py) binds candidate use of an
+  active observation to the original blocked N5 and a separately authorized job. Its V2 history
+  separates each current PA2/basis/use from the selected original numerical result. Canonical worker
+  completion atomically publishes the use and optional frontier replacement; recovery reopens unique
+  complete durable V5 work before restoring a missing progress pointer, without repeating N5.
 - [`acquisition_n5_projection.py`](acquisition_n5_projection.py) formats the
   owner-resolved candidate N5 result, its selected manifest profile and declared
   units for the run and candidate experiment readers.

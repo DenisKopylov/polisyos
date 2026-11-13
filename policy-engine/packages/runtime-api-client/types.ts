@@ -19805,9 +19805,8 @@ export interface components {
             /** Run Id */
             run_id: string;
             /**
-             * Schema Version
-             * @default policyos.runtime.run_model_input_use_n5_successor_projection.v1
-             * @constant
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
             schema_version: "policyos.runtime.run_model_input_use_n5_successor_projection.v1";
             /**
@@ -19819,12 +19818,109 @@ export interface components {
             simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
         };
         /**
+         * RunModelInputUseN5SuccessorProjectionV2
+         * @description Separate a completed current use from its original numerical producer.
+         *
+         *     The selected execution may belong to an earlier action. Current input,
+         *     recorded admission and basis references describe this use, never a rewrite
+         *     of the original execution or a grant of current publication authority.
+         */
+        RunModelInputUseN5SuccessorProjectionV2: {
+            /** Action Job Id */
+            action_job_id: string;
+            /**
+             * Action Status
+             * @enum {string}
+             */
+            action_status: "pending" | "running" | "completed" | "failed" | "not_established";
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            /** Basis Comparison Result */
+            basis_comparison_result?: ("initial" | "equivalent" | "different" | "not_established") | null;
+            blocked_source?: components["schemas"]["RunModelInputUseBlockedSourceProjection"] | null;
+            current_action_phase_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            current_authority_decision_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Current Basis Limitations
+             * @default []
+             */
+            current_basis_limitations: string[];
+            current_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            current_semantic_successor_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            current_use_decision_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Evaluation Provenance */
+            evaluation_provenance?: ("new_execution" | "retained_prior") | null;
+            /** Frontier Ref */
+            frontier_ref?: string | null;
+            /** Frontier Revision */
+            frontier_revision?: number | null;
+            /** Frontier Selection */
+            frontier_selection?: ("selected" | "superseded" | "not_established") | null;
+            /** Limitation Code */
+            limitation_code?: string | null;
+            /**
+             * Observed Admission
+             * @default false
+             * @constant
+             */
+            observed_admission: false;
+            /** Original Action Job Id */
+            original_action_job_id?: string | null;
+            original_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            original_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            original_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            original_semantic_successor_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Predicate Provenance */
+            predicate_provenance?: ("recomputed" | "not_established") | null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            result_body?: components["schemas"]["RunGenericCycleSimulationN5ResultBody"] | null;
+            /**
+             * Result Status
+             * @enum {string}
+             */
+            result_status: "resolved" | "not_established";
+            /** Run Id */
+            run_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            schema_version: "policyos.runtime.run_model_input_use_n5_successor_projection.v2";
+            /**
+             * Selected Basis Limitations
+             * @default []
+             */
+            selected_basis_limitations: string[];
+            selected_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Semantic Input Limitation Codes
+             * @default []
+             */
+            semantic_input_limitation_codes: string[];
+        };
+        /**
          * RunModelInputUseN5SuccessorResponse
-         * @description Response for a fresh, explicitly action-selected model-input result read.
+         * @description Response for an action-selected fresh or retained candidate N5 result.
          */
         RunModelInputUseN5SuccessorResponse: {
             meta: components["schemas"]["ApiMeta"];
-            result: components["schemas"]["RunModelInputUseN5SuccessorProjection"];
+            /** Result */
+            result: components["schemas"]["RunModelInputUseN5SuccessorProjection"] | components["schemas"]["RunModelInputUseN5SuccessorProjectionV2"];
         };
         /**
          * RunN5InteractionEvidence

@@ -175,6 +175,21 @@ class ScopedSourceSelection(BaseModel):
     dataset_id: str = Field(min_length=1, strict=True)
     dataset_version: str = Field(min_length=1, strict=True)
     source_watermark: str = Field(pattern=_SELECTED_PROFILE_SHA256, strict=True)
+    measured_source_body_sha256: str | None = Field(
+        default=None,
+        pattern=_SELECTED_PROFILE_SHA256,
+        strict=True,
+        exclude_if=lambda value: value is None,
+    )
+    declared_source_condition: tuple[tuple[str, str], ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    declared_source_definition_ref: VariableSemanticDefinitionRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    declared_source_representation_ref: VariableRepresentationRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     observation_class: Literal["observed", "proxy", "derived", "model_output"]
     raw_field: str = Field(min_length=1, strict=True)
     canonical_variable: str = Field(min_length=1, strict=True)
@@ -185,6 +200,20 @@ class ScopedSourceSelection(BaseModel):
     binding_id: str = Field(pattern=r"^field-binding:sha256:[0-9a-f]{64}$", strict=True)
     aggregation_method: Literal["identity", "mean", "sum", "last"]
     is_proxy: bool
+
+    @staticmethod
+    def declared_condition_from_passport(
+        passport_mapping: Mapping[str, object],
+    ) -> tuple[tuple[str, str], ...]:
+        """Return only scope coordinates bound to the source entry's identity."""
+        return _declared_source_condition_from_passport(passport_mapping)
+
+    @staticmethod
+    def apply_declared_condition(
+        condition: Mapping[str, object], declared: tuple[tuple[str, str], ...]
+    ) -> dict[str, object]:
+        """Merge source declarations, rejecting contradictory row coordinates."""
+        return _apply_declared_source_condition(condition, declared)
 
     @model_validator(mode="after")
     def _selected_source_refs(self) -> ScopedSourceSelection:
@@ -211,6 +240,16 @@ class ScopedSourceSelection(BaseModel):
             != "epoch.acquisition_semantic_boundary_candidate"
         ):
             raise ValueError("scoped_source_selection_ref_kind_mismatch")
+        keys = tuple(key for key, _value in self.declared_source_condition)
+        if (
+            keys != tuple(sorted(set(keys)))
+            or any(key not in _SCOPED_CONDITION_KEYS - {"unit"} for key in keys)
+            or any(
+                not value or value != value.strip()
+                for _key, value in self.declared_source_condition
+            )
+        ):
+            raise ValueError("scoped_source_selection_declared_condition_invalid")
         return self
 
 
@@ -720,6 +759,65 @@ def scoped_correspondence_basis_manifest_inputs(
     )
 
 
+def _declared_source_condition_from_passport(
+    passport: Mapping[str, object],
+) -> tuple[tuple[str, str], ...]:
+    entry = passport.get("source_authority_entry")
+    if entry is None:
+        if passport.get("schema_version") == "polisyos.runtime.acquisition_admission_passport.v3":
+            raise ValueError("scoped_source_declaration_entry_missing")
+        return ()
+    if passport.get(
+        "schema_version"
+    ) != "polisyos.runtime.acquisition_admission_passport.v3" or not isinstance(entry, Mapping):
+        raise ValueError("scoped_source_declaration_carrier_invalid")
+    identity = {str(key): value for key, value in entry.items() if key != "entry_id"}
+    if entry.get("entry_id") != "acquisition-authority:" + _catalog_content_sha256(
+        identity
+    ) or entry.get("entry_id") != passport.get("authority_entry_id"):
+        raise ValueError("scoped_source_declaration_entry_identity_mismatch")
+    registration = passport.get("registration")
+    scope = entry.get("source_measure_scope")
+    if (
+        not isinstance(registration, Mapping)
+        or not isinstance(scope, Mapping)
+        or entry.get("source_lane") != passport.get("source_lane")
+        or entry.get("target_variable") != passport.get("variable_id")
+        or entry.get("landing_dataset_id") != registration.get("catalog_dataset_id")
+        or entry.get("landing_distribution_id") != registration.get("distribution_id")
+    ):
+        raise ValueError("scoped_source_declaration_registration_mismatch")
+    coordinates = {
+        "population_ref": scope.get("population"),
+        "jurisdiction_ref": scope.get("jurisdiction_ref"),
+        "geography_ref": scope.get("geography_ref"),
+        "time_period_basis": scope.get("time_period_basis"),
+    }
+    if not isinstance(coordinates["population_ref"], str) or not coordinates["population_ref"]:
+        raise ValueError("scoped_source_declaration_population_missing")
+    if any(
+        value is not None and (not isinstance(value, str) or not value or value != value.strip())
+        for value in coordinates.values()
+    ):
+        raise ValueError("scoped_source_declaration_coordinate_invalid")
+    if coordinates["geography_ref"] is not None and not scope.get("source_geography_id"):
+        raise ValueError("scoped_source_declaration_geography_identity_missing")
+    return tuple(
+        sorted((key, value) for key, value in coordinates.items() if isinstance(value, str))
+    )
+
+
+def _apply_declared_source_condition(
+    condition: Mapping[str, object], declared: tuple[tuple[str, str], ...]
+) -> dict[str, object]:
+    result = dict(condition)
+    for key, value in declared:
+        if key in result and result[key] != value:
+            raise ValueError("scoped_source_declaration_row_conflict")
+        result[key] = value
+    return result
+
+
 def scoped_source_selection_from_passport_mapping(
     passport_mapping: Mapping[str, object],
     *,
@@ -740,6 +838,7 @@ def scoped_source_selection_from_passport_mapping(
     if schema_version not in {
         "polisyos.runtime.acquisition_admission_passport.v1",
         "polisyos.runtime.acquisition_admission_passport.v2",
+        "polisyos.runtime.acquisition_admission_passport.v3",
     }:
         raise ValueError("scoped_source_passport_schema_unrecognized")
     registration = passport_mapping.get("registration")
@@ -784,6 +883,37 @@ def scoped_source_selection_from_passport_mapping(
     if str(source_record_ref.artifact_id) != str(expected_record_id):
         raise ValueError("scoped_source_passport_raw_record_ref_mismatch")
 
+    measured_body_sha256 = None
+    if isinstance(live_source, Mapping):
+        measured_profile = passport_mapping.get("measured_profile")
+        raw_ref = live_source.get("raw_artifact_ref")
+        if not isinstance(measured_profile, Mapping) or not isinstance(raw_ref, Mapping):
+            raise ValueError("scoped_source_live_selected_carriers_missing")
+        raw_selected = ArtifactRef.model_validate(raw_ref)
+        measured_body_sha256 = measured_profile.get("sample_content_sha256")
+        if (
+            raw_selected.manifest_profile_sha256 is None
+            or raw_selected.kind != "fabric.acquisition.raw_evidence"
+            or raw_selected.media_type != "application/json"
+            or str(raw_selected.artifact_id) != str(raw_artifact_id)
+            or str(raw_artifact_id) != passport_mapping.get("source_watermark")
+            or live_source.get("raw_body_sha256") != passport_mapping.get("source_watermark")
+            or not isinstance(measured_body_sha256, str)
+        ):
+            raise ValueError("scoped_source_live_selected_carriers_mismatch")
+
+    declared_condition = _declared_source_condition_from_passport(passport_mapping)
+    source_entry = passport_mapping.get("source_authority_entry")
+    declared_definition = None
+    declared_representation = None
+    if isinstance(source_entry, Mapping):
+        definition_ref = source_entry.get("source_semantic_definition_ref")
+        representation_ref = source_entry.get("source_representation_ref")
+        if definition_ref is not None:
+            declared_definition = VariableSemanticDefinitionRef.model_validate(definition_ref)
+        if representation_ref is not None:
+            declared_representation = VariableRepresentationRef.model_validate(representation_ref)
+
     return ScopedSourceSelection(
         source_receipt_ref=source_receipt_ref,
         source_passport_ref=source_passport_ref,
@@ -794,6 +924,10 @@ def scoped_source_selection_from_passport_mapping(
         dataset_id=dataset_id,
         dataset_version=passport_mapping["dataset_version"],
         source_watermark=passport_mapping["source_watermark"],
+        measured_source_body_sha256=measured_body_sha256,
+        declared_source_condition=declared_condition,
+        declared_source_definition_ref=declared_definition,
+        declared_source_representation_ref=declared_representation,
         observation_class=passport_mapping["observation_class"],
         raw_field=binding["raw_field"],
         canonical_variable=canonical_variable,
@@ -814,7 +948,7 @@ def replay_scoped_measurement_occurrence(
     source_selection: ScopedSourceSelection,
     unit_transform_evidence: FixedUnitTransformWitness | None,
 ) -> ScopedMeasurementOccurrence:
-    """Reconstruct one Catalog occurrence from the exact selected raw source bytes.
+    """Reconstruct one Catalog occurrence from the verified measurement rows.
 
     The caller must load and qualify the raw bytes and ``ScopedSourceSelection``
     from the exact source record and admission passport. This function independently
@@ -822,7 +956,7 @@ def replay_scoped_measurement_occurrence(
     values or coordinates asserted only by the occurrence artifact.
 
     Args:
-        raw_source_body: Exact source-record bytes selected by the Catalog passport.
+        raw_source_body: Raw local rows or owner-replayed normalized live rows.
         observation_id: Row identity selected from the active Catalog projection.
         source_selection: Typed field mapping from that exact admission passport.
         unit_transform_evidence: Exact unit-witness recomputed by the admitted operator.
@@ -834,7 +968,10 @@ def replay_scoped_measurement_occurrence(
     if not raw_source_body or not observation_id.strip():
         raise ValueError("scoped_occurrence_replay_input_missing")
     raw_sha256 = "sha256:" + hashlib.sha256(raw_source_body).hexdigest()
-    if raw_sha256 != source_selection.source_watermark:
+    expected_measurement_hash = (
+        source_selection.measured_source_body_sha256 or source_selection.source_watermark
+    )
+    if raw_sha256 != expected_measurement_hash:
         raise ValueError("scoped_occurrence_replay_watermark_mismatch")
     if source_selection.unit_transform == "fixed_multiplicative":
         if unit_transform_evidence is None:
@@ -900,7 +1037,9 @@ def replay_scoped_measurement_occurrence(
                 raise ValueError(f"scoped_occurrence_replay_condition_invalid:{index}") from exc
         if not isinstance(condition, Mapping):
             raise ValueError(f"scoped_occurrence_replay_condition_invalid:{index}")
-        condition_payload = dict(condition)
+        condition_payload = _apply_declared_source_condition(
+            condition, source_selection.declared_source_condition
+        )
         if "unit" in condition_payload:
             expected_declared_unit = (
                 source_selection.raw_unit
@@ -1046,6 +1185,20 @@ def evaluate_scoped_correspondence_basis(
     """
 
     refusals: list[str] = []
+    if source_selection.declared_source_condition:
+        declared_definition = source_selection.declared_source_definition_ref
+        declared_representation = source_selection.declared_source_representation_ref
+        if declared_definition is None or declared_representation is None:
+            refusals.append("source_declared_definition_not_established")
+        else:
+            if artifact_ref_identity_key(declared_definition) != artifact_ref_identity_key(
+                source_definition_ref
+            ):
+                refusals.append("source_declared_definition_ref_mismatch")
+            if artifact_ref_identity_key(declared_representation) != artifact_ref_identity_key(
+                source_representation_ref
+            ):
+                refusals.append("source_declared_representation_ref_mismatch")
     if occurrence != replayed_occurrence:
         refusals.append("source_occurrence_raw_replay_mismatch")
     if artifact_ref_identity_key(occurrence_ref) != artifact_ref_identity_key(basis.occurrence_ref):

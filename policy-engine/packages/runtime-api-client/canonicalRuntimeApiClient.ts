@@ -1715,6 +1715,9 @@ export type RunModelInputUseBlockedSourceProjection =
 export type RunModelInputUseN5SuccessorProjection =
   RuntimeApiComponents["schemas"]["RunModelInputUseN5SuccessorProjection"];
 
+export type RunModelInputUseN5SuccessorProjectionV2 =
+  RuntimeApiComponents["schemas"]["RunModelInputUseN5SuccessorProjectionV2"];
+
 export type RunModelInputUseN5SuccessorResponse =
   RuntimeApiComponents["schemas"]["RunModelInputUseN5SuccessorResponse"];
 

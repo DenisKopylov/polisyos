@@ -5239,13 +5239,161 @@ class RunModelInputUseN5SuccessorProjection(BaseModel):
         return self
 
 
+class RunModelInputUseN5SuccessorProjectionV2(BaseModel):
+    """Separate a completed current use from its original numerical producer.
+
+    The selected execution may belong to an earlier action. Current input,
+    recorded admission and basis references describe this use, never a rewrite
+    of the original execution or a grant of current publication authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.run_model_input_use_n5_successor_projection.v2"] = (
+        "policyos.runtime.run_model_input_use_n5_successor_projection.v2"
+    )
+    run_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    action_status: Literal["pending", "running", "completed", "failed", "not_established"]
+    result_status: Literal["resolved", "not_established"]
+    blocked_source: RunModelInputUseBlockedSourceProjection | None = None
+    current_action_phase_ref: ArtifactRef | None = None
+    current_semantic_successor_ref: ArtifactRef | None = None
+    current_authority_decision_ref: ArtifactRef | None = None
+    current_use_decision_ref: ArtifactRef | None = None
+    current_basis_ref: ArtifactRef | None = None
+    selected_basis_ref: ArtifactRef | None = None
+    frontier_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    frontier_revision: int | None = Field(default=None, ge=1, strict=True)
+    frontier_selection: Literal["selected", "superseded", "not_established"] | None = None
+    basis_comparison_result: (
+        Literal["initial", "equivalent", "different", "not_established"] | None
+    ) = None
+    predicate_provenance: Literal["recomputed", "not_established"] | None = None
+    evaluation_provenance: Literal["new_execution", "retained_prior"] | None = None
+    original_action_job_id: str | None = Field(default=None, min_length=1)
+    original_input_ref: ArtifactRef | None = None
+    original_semantic_successor_ref: ArtifactRef | None = None
+    original_execution_ref: ArtifactRef | None = None
+    original_result_ref: ArtifactRef | None = None
+    result_body: RunGenericCycleSimulationN5ResultBody | None = None
+    limitation_code: str | None = Field(default=None, min_length=1)
+    semantic_input_limitation_codes: tuple[
+        Annotated[str, Field(min_length=1, strict=True, pattern=r"^\S+$")], ...
+    ] = Field(default=(), exclude_if=lambda value: not value)
+    current_basis_limitations: tuple[Annotated[str, Field(min_length=1)], ...] = ()
+    selected_basis_limitations: tuple[Annotated[str, Field(min_length=1)], ...] = ()
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    currentness_status: Literal["not_established"] = "not_established"
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_current_use_and_original_result(self) -> RunModelInputUseN5SuccessorProjectionV2:
+        refs = (
+            (self.current_action_phase_ref, "runtime.quality.model_input_use_action_phase"),
+            (
+                self.current_semantic_successor_ref,
+                "runtime.quality.model_input_successor_selection",
+            ),
+            (
+                self.current_authority_decision_ref,
+                "runtime_quality.agent_action_authority_decision",
+            ),
+            (self.current_use_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.original_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+            (
+                self.original_semantic_successor_ref,
+                "runtime.quality.model_input_successor_selection",
+            ),
+            (self.original_execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.original_result_ref, "polisyos.runtime.joint_simulation_result"),
+        )
+        if len(set(self.semantic_input_limitation_codes)) != len(
+            self.semantic_input_limitation_codes
+        ):
+            raise ValueError("run_model_input_use_semantic_input_limitations_duplicate")
+        if self.blocked_source is not None and self.blocked_source.run_id != self.run_id:
+            raise ValueError("run_model_input_use_blocked_source_run_mismatch")
+        selected_values = (
+            self.frontier_ref,
+            self.frontier_revision,
+            self.frontier_selection,
+            self.basis_comparison_result,
+            self.predicate_provenance,
+            self.evaluation_provenance,
+            self.original_action_job_id,
+        )
+        if self.result_status == "not_established":
+            if (
+                self.limitation_code is None
+                or self.result_body is not None
+                or any(ref is not None for ref, _kind in refs)
+                or any(value is not None for value in selected_values)
+                or self.semantic_input_limitation_codes
+                or self.current_basis_limitations
+                or self.selected_basis_limitations
+            ):
+                raise ValueError("run_model_input_use_v2_unverified_result_present")
+            return self
+        if (
+            self.action_status != "completed"
+            or self.blocked_source is None
+            or self.limitation_code is not None
+            or self.result_body is None
+            or any(value is None for value in selected_values)
+            or any(
+                ref is None
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                for ref, kind in refs
+            )
+            or self.original_execution_ref == self.blocked_source.blocked_execution_ref
+            or self.result_body.artifact_ref != self.original_result_ref
+            or self.result_body.authority_purpose != "cycle_input_candidate_only"
+            or (self.basis_comparison_result == "not_established")
+            != (self.predicate_provenance == "not_established")
+        ):
+            raise ValueError("run_model_input_use_v2_result_binding_invalid")
+        if self.evaluation_provenance == "retained_prior":
+            if (
+                self.original_action_job_id == self.action_job_id
+                or self.basis_comparison_result != "equivalent"
+                or self.predicate_provenance != "recomputed"
+            ):
+                raise ValueError("run_model_input_use_v2_retention_binding_invalid")
+        elif (
+            self.original_action_job_id != self.action_job_id
+            or self.original_semantic_successor_ref != self.current_semantic_successor_ref
+            or self.basis_comparison_result == "equivalent"
+        ):
+            raise ValueError("run_model_input_use_v2_fresh_binding_invalid")
+        return self
+
+
 class RunModelInputUseN5SuccessorResponse(BaseModel):
-    """Response for a fresh, explicitly action-selected model-input result read."""
+    """Response for an action-selected fresh or retained candidate N5 result."""
 
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
-    result: RunModelInputUseN5SuccessorProjection
+    result: Annotated[
+        RunModelInputUseN5SuccessorProjection | RunModelInputUseN5SuccessorProjectionV2,
+        Field(discriminator="schema_version"),
+    ]
+
+    @field_validator("result", mode="before")
+    @classmethod
+    def _preserve_legacy_result_default(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "schema_version" not in value:
+            return {
+                **value,
+                "schema_version": "policyos.runtime.run_model_input_use_n5_successor_projection.v1",
+            }
+        return value
 
 
 N6_TERMINAL_STOP_PROJECTIONS: Mapping[
@@ -10487,6 +10635,7 @@ __all__ = [
     "RunLineageResponse",
     "RunModelInputUseBlockedSourceProjection",
     "RunModelInputUseN5SuccessorProjection",
+    "RunModelInputUseN5SuccessorProjectionV2",
     "RunModelInputUseN5SuccessorResponse",
     "RunNodeRecord",
     "RunNodesResponse",

@@ -8,6 +8,8 @@ It never grants execution, scientific equivalence, or source authority.
 from __future__ import annotations
 
 import hashlib
+import json
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import (
@@ -48,12 +50,11 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     ActivatedAcquisitionObservationProjection,
     CanonicalAcquisitionObservation,
     CatalogAcquisitionOverlay,
+    OverlayAdmissionError,
     _resolve_fixed_unit_transform,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         _CanonicalAuthority,
         _Passport,
@@ -242,7 +243,10 @@ def assess_measurement_to_model_candidate(
             refusal_codes=(),
             semantic_correspondence="recomputed",
         )
-    except _AssessmentRefusal as exc:
+    except (_AssessmentRefusal, OverlayAdmissionError) as exc:
+        refusal_code = (
+            f"source_activation_{exc.code}" if isinstance(exc, OverlayAdmissionError) else exc.code
+        )
         return _result(
             source_observation_id=source_observation_id,
             source_definition_ref=source_definition_ref,
@@ -253,7 +257,7 @@ def assess_measurement_to_model_candidate(
             target_definition_ref=target_definition_ref,
             target_representation_ref=target_representation_ref,
             binding_profile_ref=profile_ref,
-            refusal_codes=(exc.code,),
+            refusal_codes=(refusal_code,),
         )
     except (OSError, TypeError, ValueError):
         return _result(
@@ -379,6 +383,208 @@ def _selected_exact_ref(store: CoreJSONArtifactStore, ref: ArtifactRef) -> Artif
     return manifest_ref
 
 
+def read_scoped_measurement_source_body(
+    store: CoreJSONArtifactStore,
+    *,
+    passport_mapping: Mapping[str, object],
+    source_selection: ScopedSourceSelection,
+) -> bytes:
+    """Reopen the source carriers and replay the exact measurement-row bytes.
+
+    Local sources use their selected raw JSON directly. A live source binds a
+    selected raw HTTP carrier and a separate selected Fabric cached result.
+    The latter is decoded only for the admitted JSON/Parquet formats, and the
+    existing connector normalizer is replayed against the captured raw rows.
+    This establishes source-content identity, not currentness or publication
+    authority.
+    """
+    source_ref = source_selection.source_record_ref
+    selected_body = _read_exact_selected_bytes(store, source_ref)
+    live_mapping = passport_mapping.get("live_source_execution")
+    if live_mapping is None:
+        if (
+            source_selection.measured_source_body_sha256 is not None
+            or "sha256:" + hashlib.sha256(selected_body).hexdigest()
+            != source_selection.source_watermark
+        ):
+            raise ValueError("scoped_source_local_carrier_mismatch")
+        source_entry = passport_mapping.get("source_authority_entry")
+        if source_entry is not None:
+            if not isinstance(source_entry, Mapping):
+                raise ValueError("scoped_source_declaration_carrier_invalid")
+            from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+                AcquisitionAuthorityEntry,
+                verify_declared_source_geography,
+            )
+
+            registration = passport_mapping.get("registration")
+            if not isinstance(registration, Mapping) or not isinstance(
+                registration.get("connector_id"), str
+            ):
+                raise ValueError("scoped_source_registration_missing")
+            verify_declared_source_geography(
+                AcquisitionAuthorityEntry.model_validate(dict(source_entry)),
+                connector_id=registration["connector_id"],
+                raw_body=selected_body,
+            )
+        return selected_body
+    if not isinstance(live_mapping, Mapping):
+        raise ValueError("scoped_source_live_carrier_untyped")
+
+    import pandas as pd
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts import DataSnapshot, EvidenceBundle
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionAuthorityEntry,
+        LiveSourceExecutionEvidence,
+        _live_normalized_coordinates_match,
+        normalized_acquisition_source_body,
+        read_selected_live_raw_source,
+        verify_declared_source_geography,
+    )
+    from polisyos.fabric.connectors import (
+        ResultSerializer,
+        get_registry,
+        normalize_worldbank_records,
+        verify_selected_cache_payload_writer_profile,
+    )
+    from polisyos.fabric.data_plane import verify_live_ingestion_snapshot_profile
+    from polisyos.fabric.ingestion import verify_live_ingestion_evidence_profile
+
+    proof = LiveSourceExecutionEvidence.model_validate(dict(live_mapping))
+    raw_ref = proof.raw_artifact_ref
+    registration = passport_mapping.get("registration")
+    if (
+        raw_ref is None
+        or not isinstance(registration, Mapping)
+        or registration.get("connector_id") != proof.authorization.connector_id
+        or proof.authorization.connector_id != "worldbank.wdi"
+        or proof.authorization.request_variables != (registration.get("request_dataset_id"),)
+        or str(proof.raw_artifact_id) != source_selection.source_watermark
+        or proof.raw_body_sha256 != source_selection.source_watermark
+        or str(proof.normalized_data_artifact_id) != str(source_ref.artifact_id)
+        or source_ref.kind != "connector_cache.payload"
+        or source_ref.media_type
+        not in {
+            "application/vnd.polisyos.cached-result+application/json",
+            "application/vnd.polisyos.cached-result+application/parquet",
+        }
+    ):
+        raise ValueError("scoped_source_live_carrier_mismatch")
+    raw_body = read_selected_live_raw_source(store, raw_ref)
+    if "sha256:" + hashlib.sha256(raw_body).hexdigest() != source_selection.source_watermark:
+        raise ValueError("scoped_source_live_raw_content_mismatch")
+
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(_read_exact_selected_bytes(store, proof.data_snapshot_ref))
+    )
+    bundle = EvidenceBundle.model_validate(
+        from_canonical_bytes(_read_exact_selected_bytes(store, proof.evidence_bundle_ref))
+    )
+    if (
+        artifact_ref_identity_key(snapshot.data_ref) != artifact_ref_identity_key(source_ref)
+        or snapshot.evidence_ref is None
+        or artifact_ref_identity_key(snapshot.evidence_ref)
+        != artifact_ref_identity_key(proof.evidence_bundle_ref)
+        or len(bundle.sources) != 1
+        or artifact_ref_identity_key(bundle.sources[0]) != artifact_ref_identity_key(source_ref)
+    ):
+        raise ValueError("scoped_source_live_snapshot_mismatch")
+    verify_live_ingestion_snapshot_profile(store, proof.data_snapshot_ref, snapshot)
+    verify_live_ingestion_evidence_profile(store, proof.evidence_bundle_ref, bundle)
+    try:
+        metadata = get_registry().get_metadata(proof.authorization.connector_id)
+        cache_profile_matches = verify_selected_cache_payload_writer_profile(
+            store,
+            source_ref,
+            connector_id=proof.authorization.connector_id,
+            dataset_id=str(registration["request_dataset_id"]),
+            classification=metadata.data_classification,
+            column_classification=metadata.column_classification,
+        )
+    except Exception as exc:
+        raise ValueError("scoped_source_live_normalized_writer_profile_unavailable") from exc
+    if not cache_profile_matches:
+        raise ValueError("scoped_source_live_normalized_writer_profile_mismatch")
+
+    # Reject unsupported envelopes before the shared decoder can reach its
+    # separate pickle fallback, regardless of the outer manifest's media type.
+    if len(selected_body) < 4:
+        raise ValueError("scoped_source_live_envelope_invalid")
+    envelope_length = int.from_bytes(selected_body[:4], "big")
+    if envelope_length <= 0 or envelope_length > len(selected_body) - 4:
+        raise ValueError("scoped_source_live_envelope_invalid")
+    envelope = from_canonical_bytes(selected_body[4 : 4 + envelope_length])
+    if (
+        not isinstance(envelope, Mapping)
+        or envelope.get("data_media_type") not in {"application/json", "application/parquet"}
+        or source_ref.media_type
+        != "application/vnd.polisyos.cached-result+" + str(envelope.get("data_media_type"))
+    ):
+        raise ValueError("scoped_source_live_envelope_unsupported")
+    result = ResultSerializer.deserialize(selected_body)
+    replay_bytes, replay_media = ResultSerializer.serialize(result)
+    if (
+        replay_bytes != selected_body
+        or replay_media != source_ref.media_type
+        or result.version.content_hash != source_selection.source_watermark
+    ):
+        raise ValueError("scoped_source_live_result_identity_mismatch")
+
+    raw_payload = json.loads(raw_body)
+    if (
+        not isinstance(raw_payload, list)
+        or len(raw_payload) < 2
+        or not isinstance(raw_payload[1], list)
+        or any(not isinstance(row, Mapping) for row in raw_payload[1])
+    ):
+        raise ValueError("scoped_source_live_raw_rows_invalid")
+    source_entry = passport_mapping.get("source_authority_entry")
+    if source_entry is not None:
+        if not isinstance(source_entry, Mapping):
+            raise ValueError("scoped_source_declaration_carrier_invalid")
+        verify_declared_source_geography(
+            AcquisitionAuthorityEntry.model_validate(dict(source_entry)),
+            connector_id=proof.authorization.connector_id,
+            raw_body=raw_body,
+        )
+    expected = normalize_worldbank_records(raw_payload[1], str(registration["request_dataset_id"]))
+    registered_countries = registration.get("country_codes")
+    if (
+        not isinstance(registered_countries, Sequence)
+        or isinstance(registered_countries, (str, bytes, bytearray))
+        or any(not isinstance(value, str) for value in registered_countries)
+        or not _live_normalized_coordinates_match(
+            expected.to_dict(orient="records"),
+            indicator_id=str(registration["request_dataset_id"]),
+            country_codes=registered_countries,
+        )
+    ):
+        raise ValueError("scoped_source_live_coordinate_mismatch")
+    actual = result.data
+    if isinstance(actual, pd.DataFrame):
+        actual_frame = actual
+    elif isinstance(actual, Sequence) and not isinstance(actual, (str, bytes, bytearray)):
+        actual_frame = pd.DataFrame(actual)
+    else:
+        raise ValueError("scoped_source_live_result_unsupported")
+    if (
+        list(actual_frame.columns) != list(expected.columns)
+        or not actual_frame.reset_index(drop=True).equals(expected.reset_index(drop=True))
+        or result.row_count != len(expected)
+    ):
+        raise ValueError("scoped_source_live_normalized_projection_mismatch")
+    rows_body = normalized_acquisition_source_body(result)
+    if (
+        source_selection.measured_source_body_sha256 is None
+        or "sha256:" + hashlib.sha256(rows_body).hexdigest()
+        != source_selection.measured_source_body_sha256
+    ):
+        raise ValueError("scoped_source_live_measured_content_mismatch")
+    return rows_body
+
+
 def _manifest_selected_ref(manifest: ArtifactManifest) -> ArtifactRef:
     """Reconstruct a manifest's exact selected ref using the canonical profile digest."""
 
@@ -414,12 +620,12 @@ def _materialize_occurrence(
         boundary_mapping
     )
     source_record_ref = _selected_exact_ref(store, boundary_statement.source_record_ref)
-    if boundary_statement.source_record_content_hash != passport.source_watermark:
+    if boundary_statement.source_record_content_hash != str(source_record_ref.artifact_id):
         raise _AssessmentRefusal("source_boundary_record_watermark_mismatch")
-    raw_body = _read_exact_selected_bytes(store, source_record_ref)
     try:
+        passport_mapping = passport.model_dump(mode="json")
         source_selection = scoped_source_selection_from_passport_mapping(
-            passport.model_dump(mode="json"),
+            passport_mapping,
             source_receipt_ref=SelectedVariableBindingRef.model_validate(
                 selected_receipt.model_dump(mode="json")
             ),
@@ -441,7 +647,9 @@ def _materialize_occurrence(
             )
         )
         replayed = replay_scoped_measurement_occurrence(
-            raw_body,
+            read_scoped_measurement_source_body(
+                store, passport_mapping=passport_mapping, source_selection=source_selection
+            ),
             observation_id=observation.observation_id,
             source_selection=source_selection,
             unit_transform_evidence=witness,
@@ -556,4 +764,4 @@ def _result(
     )
 
 
-__all__ = ["assess_measurement_to_model_candidate"]
+__all__ = ["assess_measurement_to_model_candidate", "read_scoped_measurement_source_body"]

@@ -79,6 +79,7 @@ resolve_connection_config = fabric_connectors.resolve_connection_config
 normalize_worldbank_records = fabric_connectors.normalize_worldbank_records
 
 PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v2"
+SCOPED_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v3"
 _LEGACY_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
 ALIGNMENT_ADMISSION_FLOOR = 0.55
 ALIGNMENT_DECISIVE_FLOOR = 0.8
@@ -268,13 +269,18 @@ class SchemaValidationEvidence(_StrictModel):
 class AdmissionPassport(_StrictModel):
     """Complete fail-closed passport required before any row enters L1."""
 
-    schema_version: Literal[PASSPORT_SCHEMA_VERSION] = PASSPORT_SCHEMA_VERSION
+    schema_version: Literal[PASSPORT_SCHEMA_VERSION, SCOPED_PASSPORT_SCHEMA_VERSION] = (
+        PASSPORT_SCHEMA_VERSION
+    )
     passport_id: str = Field(pattern=r"^passport:sha256:[0-9a-f]{64}$")
     epoch_id: int = Field(gt=0)
     variable_id: str = Field(min_length=1)
     source_lane: Literal["local_lift", "live_fetch"]
     observation_class: ObservationProvenanceClass
     authority_entry_id: str = Field(min_length=1)
+    source_authority_entry: AcquisitionAuthorityEntry | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     authority_provision_id: str = Field(
         pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
     )
@@ -308,6 +314,18 @@ class AdmissionPassport(_StrictModel):
 
     @model_validator(mode="after")
     def _passport_is_recomputed(self) -> Self:
+        source_entry = self.source_authority_entry
+        if (self.schema_version == SCOPED_PASSPORT_SCHEMA_VERSION) != (source_entry is not None):
+            raise ValueError("passport source declaration requires the v3 carrier")
+        if source_entry is not None and (
+            source_entry.entry_id != self.authority_entry_id
+            or source_entry.source_lane != self.source_lane
+            or source_entry.target_variable != self.variable_id
+            or source_entry.landing_dataset_id != self.registration.catalog_dataset_id
+            or source_entry.landing_distribution_id != self.registration.distribution_id
+            or source_entry.source_measure_scope is None
+        ):
+            raise ValueError("passport source declaration differs from its authority entry")
         if self.source_lane == "live_fetch":
             if self.live_source_execution is None:
                 raise ValueError("live source execution evidence is required")
@@ -1728,6 +1746,9 @@ def build_admission_passport(
     except Exception as exc:
         raise ValueError("acquisition_authority_unresolved") from exc
     entry = resolved.entry
+    data_forge_read_api.catalog.verify_declared_source_geography(
+        entry, connector_id=resolved.registration.connector_id, raw_body=body
+    )
     if entry.source_lane == "live_fetch":
         if live_source_execution is None:
             raise ValueError("live_source_execution_evidence_required")
@@ -1851,6 +1872,20 @@ def build_admission_passport(
         "semantic_epoch_stamp": prepared_epoch.stamp,
         "prepared_semantic_epoch_ref": prepared_epoch.prepared_epoch_ref,
     }
+    declared_scope = entry.source_measure_scope
+    if declared_scope is not None and any(
+        value is not None
+        for value in (
+            declared_scope.jurisdiction_ref,
+            declared_scope.time_period_basis,
+            declared_scope.source_geography_id,
+            declared_scope.geography_ref,
+        )
+    ):
+        # The whole typed entry lets later readers recompute its content-bound
+        # identity; a scope copied from the model request cannot substitute for it.
+        values["schema_version"] = SCOPED_PASSPORT_SCHEMA_VERSION
+        values["source_authority_entry"] = entry
     rejection_codes = _derive_rejection_codes(
         variable_id=entry.target_variable,
         observation_class=observation_class,
@@ -2549,8 +2584,15 @@ def revalidate_admission_passport(
         or resolved.registration != passport.registration
         or resolved.field_binding != passport.field_binding
         or resolved.entry.source_lane != passport.source_lane
+        or (
+            passport.source_authority_entry is not None
+            and resolved.entry != passport.source_authority_entry
+        )
     ):
         raise ValueError("acquisition_authority_drift")
+    data_forge_read_api.catalog.verify_declared_source_geography(
+        resolved.entry, connector_id=resolved.registration.connector_id, raw_body=body
+    )
     if (
         data_forge_read_api.catalog.resolve_source_observation_class(resolved)
         is not passport.observation_class
@@ -2876,6 +2918,7 @@ __all__ = [
     "ALIGNMENT_ADMISSION_FLOOR",
     "ALIGNMENT_DECISIVE_FLOOR",
     "PASSPORT_SCHEMA_VERSION",
+    "SCOPED_PASSPORT_SCHEMA_VERSION",
     "ActivatedSemanticEpochAdmissionReceipt",
     "AdmissionPassport",
     "AdmissionStatus",

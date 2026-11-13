@@ -1892,3 +1892,187 @@ def test_carried_and_default_history_reject_new_complete_source_head_conflict(
             )
             == prefix[0]
         )
+
+
+def _model_input_completion_case(tmp_path: Path) -> SimpleNamespace:
+    """Build real worker/store owners with explicitly unreplayed transport inputs.
+
+    These fixtures qualify the producer/completion seam and SQL transaction,
+    not source admission, signed PA2, or physical N5. The served integration
+    owns the complete producer/reconciler demonstration.
+    """
+    from polisyos.runtime.http.deployment_security import DeploymentHumanDecisionCustody
+    from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionResolverPolicy
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.runtime.http.services.model_input_successor_action import (
+        ModelInputUseActionCheckpoint,
+        SelectedModelInputSuccessorAction,
+    )
+    from tests._helpers.runtime_http import _build_control_service
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import (
+        _prepare_generic_initial,
+    )
+
+    control = _build_control_service(tmp_path / "service")
+    database = control._control_store
+    bundle = _prepare_generic_initial(database, tmp_path)
+    source, key, job, worker, attempt = bundle[:5]
+    cas = bundle[11]
+    human = HumanDecisionService(
+        authority_sink=control.human_decision_sink,
+        custody=DeploymentHumanDecisionCustody(
+            available=False, unavailability_code="DS9-DECISION-PRODUCER-MISSING"
+        ),
+        resolver_policy=HumanDecisionResolverPolicy(
+            expected_consumer="polisyos.runtime.quality.agent_action_authority",
+            expected_audience="polisyos-runtime",
+            principal_audience="polisyos-runtime",
+            expected_agent_operation=None,
+            required_permission="runs.human_decisions.create",
+        ),
+        access_audit_path=tmp_path / "audit.jsonl",
+    )
+    service = AcquisitionActionService(control_service=control, human_decision_service=human)
+    # This envelope deliberately contains no verified source/authority object.
+    # Only a canonical replay may turn its selected inputs into a completion CAS.
+    selection = SelectedModelInputSuccessorAction(
+        origin=None,
+        request=None,
+        passport_ref=cas.decision.activation_receipt_ref,
+        observation_content_sha256="sha256:" + "a" * 64,
+        route_id=cas.decision.route_id,
+        job_id=job.job_id,
+        catalog_source=None,
+        catalog_authority=None,
+        passport=None,
+    )
+    evaluation = cas.current_basis.evaluation
+    checkpoint = ModelInputUseActionCheckpoint(
+        schema_version="polisyos.runtime.ModelInputUseActionCheckpoint@2.0",
+        phase_ref=cas.decision.action_phase_ref,
+        semantic_successor_ref=cas.decision.semantic_successor_ref,
+        execution_ref=evaluation.execution_ref,
+        result_ref=evaluation.result_ref,
+        evaluation_decision_ref=cas.decision_ref,
+        evaluation_current_basis_ref=cas.decision.current_basis_ref,
+    )
+    return SimpleNamespace(
+        control=control,
+        database=database,
+        service=service,
+        source=source,
+        key=key,
+        job=job,
+        worker=worker,
+        attempt=attempt,
+        cas=cas,
+        selection=selection,
+        checkpoint=checkpoint,
+    )
+
+
+def _install_model_input_completion_producer(
+    case: SimpleNamespace, monkeypatch: pytest.MonkeyPatch, *, legacy: bool = False
+) -> list[str]:
+    """Isolate producer and PA2 replay seams while retaining the actual handler/fence."""
+    from polisyos.runtime.http.services import model_input_successor_action
+
+    calls: list[str] = []
+    checkpoint = case.checkpoint
+    if legacy:
+        checkpoint = model_input_successor_action.ModelInputUseActionCheckpoint(
+            phase_ref=checkpoint.phase_ref,
+            semantic_successor_ref=checkpoint.semantic_successor_ref,
+            execution_ref=checkpoint.execution_ref,
+            result_ref=checkpoint.result_ref,
+        )
+    effect = None
+
+    class Gateway:
+        def execute_bound_effect(self, **kwargs: Any) -> Any:
+            calls.append("effect")
+            return effect(kwargs["invocation"])
+
+    decision = SimpleNamespace(
+        durable_event_id="fixture-decision",
+        decision=object(),
+        write_result=SimpleNamespace(cas_ref=case.cas.decision.authority_decision_ref),
+    )
+
+    def require_worker(self: AcquisitionActionService, *_args: Any, **kwargs: Any) -> Any:
+        nonlocal effect
+        assert self is case.service
+        effect = kwargs["effect_handler"]
+        calls.append("worker")
+        return SimpleNamespace(
+            selection=case.selection,
+            admission=case.database.current_execution_job_admission(),
+            decision=decision,
+            gateway=Gateway(),
+        )
+
+    def produce(control: Any, **kwargs: Any) -> Any:
+        assert control is case.control
+        assert kwargs["selection"] is case.selection
+        assert kwargs["currentness_resolver"]() is True
+        calls.append("producer")
+        return checkpoint
+
+    monkeypatch.setattr(AcquisitionActionService, "_require_model_input_use_worker", require_worker)
+    monkeypatch.setattr(
+        action_service_module, "model_input_successor_action_tuple", lambda _s: (None, None, None)
+    )
+    monkeypatch.setattr(action_service_module, "run_model_input_use_action", produce)
+    return calls
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_model_input_handler_keeps_completion_inputs_outside_progress(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, legacy: bool
+) -> None:
+    """The returned checkpoint wins over preterminal progress; old dict returns remain old."""
+    import json
+
+    from polisyos.runtime.http.services.control.job_diagnostics import _ModelInputUseJobCompletion
+    from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
+
+    case = _model_input_completion_case(tmp_path)
+    calls = _install_model_input_completion_producer(case, monkeypatch, legacy=legacy)
+    with case.database.job_execution_fence(
+        job_id=case.job.job_id, worker_id=case.worker, attempt=case.attempt
+    ):
+        case.database.update_progress_state(
+            job_id=case.job.job_id,
+            state="running",
+            progress={
+                "model_input_use": {
+                    "phase_ref": case.checkpoint.phase_ref.model_dump(mode="json"),
+                    "semantic_successor_ref": case.checkpoint.semantic_successor_ref.model_dump(
+                        mode="json"
+                    ),
+                },
+                "before_completion": "preserved",
+            },
+        )
+        admission = case.database.current_execution_job_admission()
+        result = case.service.handle_job(
+            admission.job, {"action_kind": MODEL_INPUT_USE_ACTION_KIND}, admission.scope
+        )
+        if legacy:
+            assert type(result) is dict
+        else:
+            assert type(result) is _ModelInputUseJobCompletion
+            assert result.checkpoint is case.checkpoint and result.selection is case.selection
+            assert result.action_payload_ref == admission.job.payload_ref
+            assert result.currentness_resolver() is True
+        assert result["model_input_use"][
+            "execution_ref"
+        ] == case.checkpoint.execution_ref.model_dump(mode="json")
+        assert result["before_completion"] == "preserved"
+        assert json.loads(json.dumps(result)) == dict(result)
+        assert (
+            not {"selection", "currentness_resolver", "generic_model_input_frontier_cas"}
+            & result.keys()
+        )
+        assert case.database.current_execution_job_record().state == "running"
+    assert "effect" in calls and calls.count("producer") == 1

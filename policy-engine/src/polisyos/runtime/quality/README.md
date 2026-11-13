@@ -55,12 +55,19 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   An initial decision has no comparison result and can refer only to an actual
   completed, owner-replayed evaluation from that current action. An unknown
   prior comparison can advance only after a fresh, complete current evaluation;
-  it remains an unknown comparison and does not claim retention.
+  it remains an unknown comparison and does not claim retention. The v2
+  numerical profile compares resolved graph, plan, parameter, registry and
+  state values; budget controls, selected source views and occurrence labels
+  remain separate admission or evidence facts. The prior v1 profile remains
+  readable, but does not establish retention under v2.
 - `n5_candidate_content.py` records the actual selected graph's bounded physical
   units, nodes, calls and producer-observed before-call state snapshots. The
   original intermediate state is not independently reconstructed from patches,
   and a later request does not predict that trace. Unknown fields or unavailable
   selected bytes refuse candidate retention; no publication authority follows.
+  The v2 observation records the producer's pre-call intent digest and requires
+  the same owner projection after the call. Consumers reconstruct its deciding
+  bytes from the original selected inputs before comparing another use.
   The `/3` call-value profile admits bounded Enum and dataclass storage, the
   concrete JAX provider array with a known single-device layout, and owning,
   aligned, read-only NumPy arrays with a supported layout. Other values and

@@ -229,16 +229,35 @@ _CANDIDATE_N5_REQUEST_FIELD_ROLES_V2: tuple[tuple[str, CandidateN5RequestFieldRo
 )
 
 
+def _require_n5_field_role_census(
+    source_field_names: set[str] | frozenset[str],
+    field_roles: tuple[tuple[str, str], ...],
+    *,
+    allowed_roles: frozenset[str],
+    error_prefix: str,
+) -> dict[str, str]:
+    """Require one recognized role for every field in the actual owner type."""
+    names = tuple(name for name, _role in field_roles)
+    if len(names) != len(set(names)):
+        raise ValueError(f"{error_prefix}_overlap")
+    if set(names) != source_field_names or any(
+        role not in allowed_roles for _, role in field_roles
+    ):
+        raise ValueError(f"{error_prefix}_census_mismatch")
+    return dict(field_roles)
+
+
 def _candidate_n5_request_field_roles_v2(
     source_field_names: set[str],
 ) -> tuple[CandidateN5RequestFieldRoleV2, ...]:
     """Return a complete disjoint role census for the actual N5 config fields."""
 
-    field_names = tuple(field_name for field_name, _role in _CANDIDATE_N5_REQUEST_FIELD_ROLES_V2)
-    if len(field_names) != len(set(field_names)):
-        raise ValueError("candidate_n5_request_field_role_overlap")
-    if set(field_names) != source_field_names:
-        raise ValueError("candidate_n5_request_field_role_census_mismatch")
+    _require_n5_field_role_census(
+        source_field_names,
+        _CANDIDATE_N5_REQUEST_FIELD_ROLES_V2,
+        allowed_roles=frozenset({"numerical", "operational", "output_label"}),
+        error_prefix="candidate_n5_request_field_role",
+    )
     return tuple(
         CandidateN5RequestFieldRoleV2(field_name=field_name, role=role)
         for field_name, role in sorted(_CANDIDATE_N5_REQUEST_FIELD_ROLES_V2)

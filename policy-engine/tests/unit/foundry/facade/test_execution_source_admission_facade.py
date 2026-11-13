@@ -24,6 +24,7 @@ def test_execution_source_admission_resolves_to_owner_and_preserves_execute_iden
     script = """
 import importlib
 import sys
+from pathlib import Path
 
 order = sys.argv[1]
 if order == "submodule_first":
@@ -31,9 +32,17 @@ if order == "submodule_first":
     facade = importlib.import_module("polisyos.foundry.execute")
 else:
     facade = importlib.import_module("polisyos.foundry.execute")
+    assert "polisyos.foundry.execute.executor" not in sys.modules
+    assert callable(facade.load_model) and callable(facade.load_payload)
     assert facade.admit_execution_source.__module__ == "polisyos.foundry.execute.api"
     owner = importlib.import_module("polisyos.foundry.execute.api")
 
+loader_owner = importlib.import_module("polisyos.foundry.execute.executor")
+expected = Path.cwd().resolve() / "src" / "polisyos"
+assert all(Path(module.__file__).resolve().is_relative_to(expected) for module in (facade, owner, loader_owner))
+assert facade.load_model is loader_owner.load_model
+assert facade.load_payload is loader_owner.load_payload
+assert {"load_model", "load_payload"} <= set(facade.__all__)
 assert facade.admit_execution_source is owner.admit_execution_source
 assert facade.ExecutionSourceAdmission is owner.ExecutionSourceAdmission
 assert facade.ExecutionSourceAdmissionRefusal is owner.ExecutionSourceAdmissionRefusal

@@ -50,6 +50,7 @@ resolve_linked_request_event = fabric_data_plane.resolve_linked_request_event
 OVERLAY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_overlay.v2"
 _LEGACY_OVERLAY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_overlay.v1"
 _PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v2"
+_SCOPED_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v3"
 LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
 DEFAULT_ACQUISITION_OVERLAY_PATH = Path(
     "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
@@ -217,6 +218,7 @@ class CatalogAcquisitionPassportProjection(_StrictModel):
     schema_version: Literal[
         "polisyos.runtime.acquisition_admission_passport.v1",
         "polisyos.runtime.acquisition_admission_passport.v2",
+        "polisyos.runtime.acquisition_admission_passport.v3",
     ]
     passport_id: str = Field(pattern=r"^passport:sha256:[0-9a-f]{64}$")
     epoch_id: int = Field(gt=0)
@@ -2951,7 +2953,11 @@ class CatalogAcquisitionOverlay:
                                     "legacy_acquisition_candidate_identity_not_established"
                                 )
                     elif (
-                        passport_version != _PASSPORT_SCHEMA_VERSION
+                        passport_version
+                        not in {
+                            _PASSPORT_SCHEMA_VERSION,
+                            _SCOPED_PASSPORT_SCHEMA_VERSION,
+                        }
                         or not has_every_semantic_field
                         or raw_ref is None
                         or raw_hash is None
@@ -4251,6 +4257,14 @@ def derive_canonical_observations(
             binding.unit_transform,
         )
 
+    declared_condition: tuple[tuple[str, str], ...] = ()
+    if getattr(passport, "source_authority_entry", None) is not None:
+        if not isinstance(passport, BaseModel):
+            raise OverlayAdmissionError("source_scope_passport_untyped")
+        declared_condition = contracts.ScopedSourceSelection.declared_condition_from_passport(
+            passport.model_dump(mode="json")
+        )
+
     measured: list[tuple[tuple[str, int | None, int | None, int | None, str], float]] = []
     for index, raw_row in enumerate(raw_rows):
         if binding.raw_field not in raw_row:
@@ -4287,7 +4301,12 @@ def derive_canonical_observations(
                 raise OverlayAdmissionError("raw_condition_invalid", str(index)) from exc
         if not isinstance(condition, Mapping):
             raise OverlayAdmissionError("raw_condition_invalid", str(index))
-        condition_payload = dict(condition)
+        try:
+            condition_payload = contracts.ScopedSourceSelection.apply_declared_condition(
+                condition, declared_condition
+            )
+        except ValueError as exc:
+            raise OverlayAdmissionError("source_scope_row_conflict", str(index)) from exc
         if fixed_unit_evidence is not None:
             declared_raw_unit = condition_payload.get("unit")
             if declared_raw_unit not in (None, "", binding.raw_unit):

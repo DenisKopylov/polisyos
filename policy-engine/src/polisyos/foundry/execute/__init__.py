@@ -5,7 +5,10 @@ from __future__ import annotations
 import importlib
 import sys
 import types
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.foundry.execute.executor import load_model, load_payload
 
 __all__ = [
     "BoundedNumericNPZError",
@@ -30,6 +33,8 @@ __all__ = [
     "read_method_artifact_output_bounded",
     "execution_input_basis_sources",
     "get_state_path",
+    "load_model",
+    "load_payload",
     "load_state_snapshot",
     "new_method_execution_capture",
     "persist_method_execution_capture",
@@ -142,6 +147,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "execution_input_basis_sources",
     ),
     "get_state_path": ("polisyos.foundry.execute._internal.models", "get_state_path"),
+    "load_model": ("polisyos.foundry.execute.executor", "load_model"),
+    "load_payload": ("polisyos.foundry.execute.executor", "load_payload"),
     "load_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",
         "load_state_snapshot",

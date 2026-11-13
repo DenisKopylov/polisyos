@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from contextlib import closing
+import json
+from contextlib import ExitStack, closing, contextmanager
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
@@ -38,7 +39,10 @@ from polisyos.core.contracts.model_input_requirements import (
     load_model_input_port_declaration,
     persist_model_input_port_declaration,
 )
-from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorResponse
+from polisyos.core.contracts.runtime import (
+    RunModelInputUseN5SuccessorProjectionV2,
+    RunModelInputUseN5SuccessorResponse,
+)
 from polisyos.core.contracts.variable_binding import (
     MeasurementAxis,
     MeasurementBindingProfile,
@@ -65,6 +69,7 @@ from polisyos.runtime.http.deployment_security import (
     DeploymentSecurityConfig,
     build_deployment_security,
 )
+from polisyos.runtime.http.services import control_plane_store as control_plane_store_owner
 from polisyos.runtime.http.services import model_input_successor_action as successor_action_owner
 from polisyos.runtime.http.services.control import generation_cycle as generation_owner
 from polisyos.runtime.http.services.control.generation_cycle import (
@@ -78,7 +83,10 @@ from polisyos.runtime.http.services.model_input_successor_action import (
 )
 from polisyos.runtime.quality import agent_action_authority as authority
 from polisyos.runtime.quality.design_problem import DesignProblem
-from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+from polisyos.runtime.quality.generation_cycle import (
+    JointSimulationPort,
+    load_joint_simulation_result,
+)
 from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationN5ExecutionV4,
@@ -105,10 +113,12 @@ from tests._helpers.acquisition_human_decision import (
 from tests._helpers.acquisition_production import _entry, bind_fixture_l1_catalog_source
 from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 from tests._helpers.lane01_candidate_action_served import _approve_candidate_action
+from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
 )
 from tests._helpers.runtime_http import _DeterministicSpanSupportClient, _valid_intake_for_mode
+from tests._helpers.semantic_epoch_native import make_native_live_measurement_history
 from tests.integration.runtime_quality.test_generic_n4_child_profile_set_served import (
     controlled_candidate_gateway as _gateway_fixture,
 )
@@ -117,6 +127,7 @@ from tests.integration.runtime_quality.test_program_graph_held_out_fund_binding 
     _bind_activated_fund,
     _fund_port,
     _held_out_declaration,
+    _treasury_stock_declaration,
 )
 from tests.integration.runtime_quality.test_program_graph_model_input_served import (
     _INCOME,
@@ -159,6 +170,27 @@ _ROUTE_TEMPLATE = "/api/v1/runs/{run_id}/model-input-use"
 _OPENING_CASH = 640.0
 # The scheduled 1/8 subsidy debits the sum of the two eligible incomes.
 _EXPECTED_BALANCES = (_OPENING_CASH, _OPENING_CASH, _OPENING_CASH - (100 + 200) / 8)
+
+
+class _InjectedN5PersistCrash(BaseException):
+    """Stop one worker after canonical V5 readback but before its checkpoint write."""
+
+
+class _InjectedN5PreflightStop(BaseException):
+    """Stop a real selected action immediately before its first physical N5."""
+
+
+def _n5_projection_refs(
+    result: Any,
+) -> tuple[ArtifactRef | None, ArtifactRef | None, ArtifactRef | None]:
+    """Project the selected numerical refs from either supported response version."""
+    if isinstance(result, RunModelInputUseN5SuccessorProjectionV2):
+        return (
+            result.current_semantic_successor_ref,
+            result.original_execution_ref,
+            result.original_result_ref,
+        )
+    return result.semantic_successor_ref, result.n5_execution_ref, result.simulation_result_ref
 
 
 def _held_out_methodology_declaration(
@@ -434,6 +466,7 @@ def _assert_foundry_successor(
     action_job_id: str,
     checkpoint: ModelInputUseActionCheckpoint,
     expected_methodology_ref: ArtifactRef | None = None,
+    expected_balances: tuple[float, ...] = _EXPECTED_BALANCES,
 ) -> None:
     """Recompute every step through Foundry and check independent cash arithmetic."""
     execution_ref = checkpoint.execution_ref
@@ -580,8 +613,8 @@ def _assert_foundry_successor(
         assert trajectory.engine_kind == "program_graph"
         (replication,) = trajectory.semantic_program_graph_replications
         steps = admit_semantic_horizon_step_chain(store, replication.step_result_refs)
-        assert len(steps) == len(_EXPECTED_BALANCES)
-        for step, expected in zip(steps, _EXPECTED_BALANCES, strict=True):
+        assert len(steps) == len(expected_balances)
+        for step, expected in zip(steps, expected_balances, strict=True):
             assert step.basis is not None
             assert step.basis.input_bindings_ref == selected_bindings
             assert step.simulation_result.state_snapshot_ref is not None
@@ -589,7 +622,7 @@ def _assert_foundry_successor(
                 store, snapshot_ref=step.simulation_result.state_snapshot_ref
             )
             assert float(state.government_balance) == expected
-        assert trajectory.points[-1].outcomes[_OUTCOME] == _EXPECTED_BALANCES[-1]
+        assert trajectory.points[-1].outcomes[_OUTCOME] == expected_balances[-1]
 
 
 def _assert_routing_use_selection(
@@ -855,6 +888,8 @@ def _run_activated_held_out_stock_scenario(
     *,
     methodology_v2: bool,
     fund: str = "public-benefit-fund",
+    retained_sequence: bool = False,
+    preflight_first_n5: bool = False,
 ) -> None:
     """Exercise one selected held-out stock profile through the served successor route."""
     pytest.importorskip("fastapi")
@@ -867,9 +902,11 @@ def _run_activated_held_out_stock_scenario(
     cas_root = tmp_path / "cas"
     runs_root = cas_root / "runs"
     problem_data = _fiscal_problem().model_dump(mode="json")
-    fund_label = (
-        "public-benefit fund" if fund == "public-benefit-fund" else "regional transport reserve"
-    )
+    fund_label = {
+        "public-benefit-fund": "public-benefit fund",
+        "transport-maintenance-reserve": "regional transport reserve",
+        "treasury": "treasury",
+    }[fund]
     problem_data["nl_provenance"]["raw_request"] = (
         f"Evaluate one bounded tax subsidy using the {fund_label}'s opening cash in USD. "
         "Do not promote generated candidates."
@@ -881,6 +918,8 @@ def _run_activated_held_out_stock_scenario(
 
     def build_port_declaration(store: FileSystemCAS) -> ArtifactRef:
         if not methodology_v2:
+            if retained_sequence:
+                return _treasury_stock_declaration(store)
             return (
                 _held_out_declaration(store)
                 if fund == "public-benefit-fund"
@@ -906,7 +945,10 @@ def _run_activated_held_out_stock_scenario(
     )
 
     store = FileSystemCAS(cas_root).for_tenant(served.TENANT, served.CELL)
-    with closing(served._ExternalTrust(tmp_path)) as trust:
+    with (
+        closing(served._ExternalTrust(tmp_path)) as trust,
+        ExitStack() as resources,
+    ):
         signers, identities = served._key_config(tmp_path, trust)
         with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
             case = prepare_program_graph_tax_subsidy_input_case(
@@ -957,6 +999,150 @@ def _run_activated_held_out_stock_scenario(
                     if profile is None
                     else profile.profile_id,
                 )
+
+        def crash_after_durable_n5_persist(
+            control: Any,
+            *,
+            action_job_id: str,
+            evaluation_decision_present: bool,
+        ) -> dict[str, Any]:
+            from tests._helpers.candidate_experiment_served_execution import (
+                _dispatch_crash_probe_once,
+            )
+
+            persist_n5_execution = GenericCycleSimulationAdmissionOwner.persist_n5_execution
+            persisted: list[tuple[ArtifactRef, ArtifactRef, ArtifactRef]] = []
+
+            def persist_then_crash(owner: Any, *args: Any, **kwargs: Any) -> ArtifactRef:
+                execution_ref = persist_n5_execution(owner, *args, **kwargs)
+                semantic_ref = kwargs.get("semantic_successor_ref")
+                result_ref = kwargs.get("result_ref")
+                if semantic_ref is not None:
+                    assert kwargs.get("status") == "joint_simulated"
+                    assert isinstance(result_ref, ArtifactRef)
+                    persisted.append((execution_ref, result_ref, semantic_ref))
+                    raise _InjectedN5PersistCrash("after durable Generic V5 readback")
+                return execution_ref
+
+            monkeypatch.setattr(
+                GenericCycleSimulationAdmissionOwner,
+                "persist_n5_execution",
+                persist_then_crash,
+            )
+            try:
+                with pytest.raises(_InjectedN5PersistCrash):
+                    _dispatch_crash_probe_once(
+                        control=control,
+                        expected_job_id=action_job_id,
+                        lease_seconds=10,
+                    )
+            finally:
+                monkeypatch.setattr(
+                    GenericCycleSimulationAdmissionOwner,
+                    "persist_n5_execution",
+                    persist_n5_execution,
+                )
+            assert len(persisted) == 1
+            execution_ref, result_ref, semantic_ref = persisted[0]
+            execution = parse_generic_cycle_simulation_n5_execution(
+                read_core_json_artifact(store, execution_ref).value
+            )
+            assert type(execution) is GenericCycleSimulationN5ExecutionV5
+            assert execution.action_job_id == action_job_id
+            assert execution.semantic_successor_ref == semantic_ref
+            assert execution.result_ref == result_ref
+            interrupted_job = control._control_store.get_job(action_job_id)
+            assert interrupted_job is not None and interrupted_job.state == "running"
+            assert interrupted_job.attempt == 1
+            assert interrupted_job.lease_expires_at is not None
+            pending = ModelInputUseActionCheckpoint.model_validate(
+                interrupted_job.progress["model_input_use"]
+            )
+            assert pending.semantic_successor_ref == semantic_ref
+            assert pending.execution_ref is None and pending.result_ref is None
+            assert (pending.evaluation_decision_ref is not None) is evaluation_decision_present
+            if not evaluation_decision_present:
+                assert pending.evaluation_expected_frontier_revision == 0
+                assert pending.evaluation_expected_frontier_ref is None
+            ledger_snapshot = control.llm_producer_settlement_store.snapshot_safe().model_dump(
+                mode="json"
+            )
+            return {
+                "action_job_id": action_job_id,
+                "execution_ref": execution_ref,
+                "result_ref": result_ref,
+                "semantic_successor_ref": semantic_ref,
+                "lease_expires_at": interrupted_job.lease_expires_at,
+                "pending_checkpoint": pending,
+                "ledger_snapshot": ledger_snapshot,
+                "invocation_reservations": (
+                    control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                ),
+            }
+
+        def recover_durable_n5_crash(
+            crash: dict[str, Any],
+        ) -> tuple[Any, ModelInputUseActionCheckpoint]:
+            with TestClient(app(root, profile)) as retry_client:
+                retry_control = retry_client.app.state.runtime_container.control_service
+                stop_embedded_control_worker(retry_control)
+                before_retry = retry_control._control_store.get_job(crash["action_job_id"])
+                assert before_retry is not None and before_retry.state == "running"
+                assert before_retry.attempt == 1
+                assert before_retry.lease_expires_at == crash["lease_expires_at"]
+                ledger_before_retry = (
+                    retry_control.llm_producer_settlement_store.snapshot_safe().model_dump(
+                        mode="json"
+                    )
+                )
+                assert ledger_before_retry == crash["ledger_snapshot"]
+                recovery_now = before_retry.lease_expires_at + timedelta(seconds=1)
+
+                def forbid_duplicate_n5(*args: Any, **kwargs: Any) -> Any:
+                    del args, kwargs
+                    raise AssertionError("durable recovery attempted a second semantic N5")
+
+                with monkeypatch.context() as recovery_patch:
+                    recovery_patch.setattr(
+                        control_plane_store_owner,
+                        "_utc_now",
+                        lambda: recovery_now,
+                    )
+                    recovery_patch.setattr(
+                        JointSimulationPort,
+                        "run_semantic_successor",
+                        forbid_duplicate_n5,
+                    )
+                    assert (
+                        dispatch_one_control_job(
+                            store=retry_control._control_store,
+                            handler=retry_control._process_control_job,
+                            expected_job_id=crash["action_job_id"],
+                        )
+                        == crash["action_job_id"]
+                    )
+                recovered_job = retry_control._control_store.get_job(crash["action_job_id"])
+                assert recovered_job is not None and recovered_job.state == "completed", (
+                    None if recovered_job is None else recovered_job.error_message
+                )
+                assert recovered_job.attempt == 2
+                recovered = ModelInputUseActionCheckpoint.model_validate(
+                    recovered_job.progress["model_input_use"]
+                )
+                assert recovered.semantic_successor_ref == crash["semantic_successor_ref"]
+                assert recovered.execution_ref == crash["execution_ref"]
+                assert recovered.result_ref == crash["result_ref"]
+                ledger_after_retry = (
+                    retry_control.llm_producer_settlement_store.snapshot_safe().model_dump(
+                        mode="json"
+                    )
+                )
+                assert ledger_after_retry == ledger_before_retry
+                assert (
+                    retry_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                    == crash["invocation_reservations"]
+                )
+                return recovered_job, recovered
 
         seeds = []
         unrelated_entry = _entry()
@@ -1020,16 +1206,75 @@ def _run_activated_held_out_stock_scenario(
                 assert not control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
                 seeds.append((job, profile))
 
-        with (
-            tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL),
-            _activated_fund(
-                tmp_path / "held-out-activation",
-                store=store,
-                port=source_port,
-                fund=fund,
-                before_activation=launch_before_activation,
-            ) as active,
-        ):
+        @contextmanager
+        def activate_selected_stock() -> Any:
+            if not retained_sequence:
+                with _activated_fund(
+                    tmp_path / "held-out-activation",
+                    store=store,
+                    port=source_port,
+                    fund=fund,
+                    before_activation=launch_before_activation,
+                ) as active:
+                    yield active
+                return
+
+            if methodology_v2 or fund != "treasury":
+                raise AssertionError("retained_stock_sequence_requires_the_typed_treasury_port")
+            live_profile = CandidateWDIProfile(
+                construct="test.treasury.opening-cash",
+                indicator_id="TEST.OPENING.CASH.USD",
+                source_title="Test-owned opening cash stock",
+                source_description=(
+                    "Controlled USD opening-stock observations for a candidate-only test."
+                ),
+                target_slot="test.treasury.opening-cash",
+                raw_unit="usd",
+                canonical_unit="usd",
+                transform="identity",
+                transform_ref="fabric://units/usd-identity/v1",
+                population="population:treasury",
+                fixture_value=_OPENING_CASH,
+                source_provenance_class="observed",
+                valid_min=0.0,
+                valid_max=10_000.0,
+                country_code="UKR",
+                country_id="UA",
+                year=2022,
+                catalog_metric_id="test.treasury.opening-cash",
+            )
+            live_history = make_native_live_measurement_history(
+                tmp_path / "live-stock-history",
+                profile=live_profile,
+                semantic_definition_ref=source_port.semantic_definition_ref,
+                representation_ref=source_port.representation_ref,
+                source_measure_scope={
+                    "population": "population:treasury",
+                    "temporal_granularity": "annual",
+                    "source_geography_id": "UA",
+                    "geography_ref": "UA",
+                    "jurisdiction_ref": "UA",
+                    "time_period_basis": "calendar_year",
+                },
+                attempt_ids=(
+                    "held-out-stock-a-initial",
+                    "held-out-stock-b-equal",
+                    "held-out-stock-c-changed",
+                ),
+                artifact_store=store,
+                monkeypatch=monkeypatch,
+            )
+            try:
+                launch_before_activation(live_history.authority)
+                active = live_history.admit(_OPENING_CASH)
+                active.live_history = live_history
+                yield active
+            finally:
+                live_history.overlay.close()
+
+        resources.enter_context(tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL))
+        active = resources.enter_context(activate_selected_stock())
+        try:
             root = active.repo_root
             (entry,) = active.entries
             projection = active.projections[entry.target_variable]
@@ -1073,6 +1318,11 @@ def _run_activated_held_out_stock_scenario(
                         source_port=source_port,
                         methodology_ref=expected_methodology_ref,
                     )
+        except BaseException:
+            resources.close()
+            raise
+        if not retained_sequence:
+            resources.close()
         registry_path = active.authority.registry_path
         registry_bytes = registry_path.read_bytes()
         registry = active.authority._load_registry()
@@ -1355,29 +1605,175 @@ def _run_activated_held_out_stock_scenario(
                     )
                     final_fence_controls["exercised"] = True
 
+                def preflight_before_first_n5(
+                    selected_control: Any, *, selected_action_job_id: str
+                ) -> None:
+                    from tests._helpers.candidate_experiment_served_execution import (
+                        _dispatch_crash_probe_once,
+                    )
+
+                    preflight_owner_calls: list[tuple[Any, Any, Any, Any]] = []
+
+                    def stop_at_real_n5_entry(port: Any, **run_kwargs: Any) -> Any:
+                        assert type(port) is JointSimulationPort
+                        assert set(run_kwargs) == {
+                            "semantic_successor_ref",
+                            "expected_blocked_execution_ref",
+                            "expected_input_ref",
+                            "currentness_resolver",
+                        }
+                        assert callable(run_kwargs["currentness_resolver"])
+                        semantic_ref = run_kwargs["semantic_successor_ref"]
+                        assert isinstance(semantic_ref, ArtifactRef)
+                        selection = read_model_input_successor_selection(store, semantic_ref)
+                        assert selection.authority_purpose == "candidate_simulation_input_only"
+                        assert selection.action_job_id == selected_action_job_id
+                        assert selection.source_job_id == job.job_id
+                        assert selection.compiled_ref == compiled_ref
+                        assert selection.blocked_execution_ref == execution_ref
+                        assert selection.routing_report_ref == report_ref
+                        assert selection.activation_receipt_ref == mutation.activation_receipt_ref
+                        assert selection.observation_id == mutation.observation_id
+                        leased_action = selected_control._control_store.get_job(
+                            selected_action_job_id
+                        )
+                        assert leased_action is not None and leased_action.state == "running"
+                        assert leased_action.lease_owner is not None
+                        assert selection.action_attempt == leased_action.attempt == 1
+                        assert selection.action_worker_id == leased_action.lease_owner
+
+                        owner = port._generic_cycle_simulation_admission_owner
+                        assert type(owner) is GenericCycleSimulationAdmissionOwner
+                        prepared = owner.prepare_semantic_successor_request(
+                            semantic_successor_ref=semantic_ref,
+                            expected_blocked_execution_ref=run_kwargs[
+                                "expected_blocked_execution_ref"
+                            ],
+                            expected_input_ref=run_kwargs["expected_input_ref"],
+                        )
+                        assert prepared.selection == selection
+                        assert run_kwargs["expected_blocked_execution_ref"] == execution_ref
+                        assert run_kwargs["expected_input_ref"] == original.input_ref
+                        assert prepared.input_record.profile == profile
+                        quota = prepared.input_record.n5.invocation_quota_policy
+                        assert quota.total_units == 3 and quota.protected_units == 1
+                        assert quota.work_unit == "n5_physical_invocation"
+                        (plan,) = prepared.request.engine_plan
+                        selected_bindings_ref = plan.program_semantic_input_bindings_ref
+                        assert (
+                            selected_bindings_ref == selection.semantic_foundry_input_bindings_ref
+                        )
+                        bindings = load_input_bindings(store, selected_bindings_ref)
+                        manifest_ref = bindings.resolved_binding_manifest_ref
+                        assert manifest_ref is not None
+                        manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+                        assert len(manifest.measurements) == 1
+                        (measurement,) = manifest.measurements
+                        occurrence = validate_core_model_json_artifact(
+                            ScopedMeasurementOccurrence,
+                            store,
+                            measurement.selected_occurrence_ref,
+                        )
+                        assert occurrence.observation_id == selection.observation_id
+                        assert occurrence.source_receipt_ref == selection.activation_receipt_ref
+                        assert float(occurrence.canonical_value) == _OPENING_CASH
+                        assert occurrence.canonical_unit == "usd"
+                        assert occurrence.country_code == "UKR" and occurrence.year == 2022
+                        assert occurrence.source_scope.population_ref == "population:treasury"
+                        assert occurrence.source_scope.geography_ref == "UA"
+                        assert occurrence.source_scope.jurisdiction_ref == "UA"
+                        assert occurrence.source_scope.period_basis == "calendar_year"
+                        condition = json.loads(occurrence.condition_json)
+                        assert condition["population_ref"] == "population:treasury"
+                        assert condition["geography_ref"] == "UA"
+                        assert condition["jurisdiction_ref"] == "UA"
+                        assert condition["time_period_basis"] == "calendar_year"
+                        reservations = selected_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                        assert not reservations
+                        preflight_owner_calls.append((semantic_ref, selection, prepared, quota))
+                        raise _InjectedN5PreflightStop("real selected request reached N5 entry")
+
+                    run_semantic_successor = JointSimulationPort.run_semantic_successor
+                    monkeypatch.setattr(
+                        JointSimulationPort,
+                        "run_semantic_successor",
+                        stop_at_real_n5_entry,
+                    )
+                    try:
+                        with pytest.raises(_InjectedN5PreflightStop):
+                            _dispatch_crash_probe_once(
+                                control=selected_control,
+                                expected_job_id=selected_action_job_id,
+                                lease_seconds=10,
+                            )
+                    finally:
+                        monkeypatch.setattr(
+                            JointSimulationPort,
+                            "run_semantic_successor",
+                            run_semantic_successor,
+                        )
+                    assert len(preflight_owner_calls) == 1
+                    semantic_ref, _selection, _prepared, _quota = preflight_owner_calls[0]
+                    pending_job = selected_control._control_store.get_job(selected_action_job_id)
+                    assert pending_job is not None and pending_job.state == "running"
+                    assert pending_job.attempt == 1
+                    assert pending_job.lease_expires_at is not None
+                    pending = ModelInputUseActionCheckpoint.model_validate(
+                        pending_job.progress["model_input_use"]
+                    )
+                    assert pending.semantic_successor_ref == semantic_ref
+                    assert pending.execution_ref is None and pending.result_ref is None
+                    assert pending.evaluation_decision_ref is None
+                    assert pending.evaluation_expected_frontier_revision == 0
+                    assert pending.evaluation_expected_frontier_ref is None
+                    assert not (
+                        selected_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                    )
+
                 monkeypatch.setattr(
                     successor_action_owner,
                     "_verify_selected_routing_use_decision_current",
                     verify_with_pre_n5_controls,
                 )
+                initial_crash: dict[str, Any] | None = None
                 try:
-                    assert (
-                        dispatch_one_control_job(
-                            store=control._control_store,
-                            handler=control._process_control_job,
-                            expected_job_id=action_job_id,
+                    if preflight_first_n5:
+                        preflight_before_first_n5(
+                            control,
+                            selected_action_job_id=action_job_id,
                         )
-                        == action_job_id
-                    )
+                    elif retained_sequence:
+                        initial_crash = crash_after_durable_n5_persist(
+                            control,
+                            action_job_id=action_job_id,
+                            evaluation_decision_present=False,
+                        )
+                    else:
+                        assert (
+                            dispatch_one_control_job(
+                                store=control._control_store,
+                                handler=control._process_control_job,
+                                expected_job_id=action_job_id,
+                            )
+                            == action_job_id
+                        )
                 finally:
                     registry_path.write_bytes(registry_bytes)
                 assert final_fence_controls["exercised"]
-                action = control._control_store.get_job(action_job_id)
+                if preflight_first_n5:
+                    return
+                if initial_crash is not None:
+                    action, checkpoint = recover_durable_n5_crash(initial_crash)
+                else:
+                    action = control._control_store.get_job(action_job_id)
+                    assert action is not None and action.state == "completed", (
+                        None if action is None else action.error_message
+                    )
+                    checkpoint = ModelInputUseActionCheckpoint.model_validate(
+                        action.progress["model_input_use"]
+                    )
                 assert action is not None and action.state == "completed", (
                     None if action is None else action.error_message
-                )
-                checkpoint = ModelInputUseActionCheckpoint.model_validate(
-                    action.progress["model_input_use"]
                 )
                 _assert_routing_use_selection(
                     store,
@@ -1419,9 +1815,15 @@ def _run_activated_held_out_stock_scenario(
             assert selected.action_status == "completed", selected.limitation_code
             assert selected.result_status == "resolved", selected.limitation_code
             assert selected.action_job_id == action_job_id
-            assert selected.semantic_successor_ref == checkpoint.semantic_successor_ref
-            assert selected.n5_execution_ref == checkpoint.execution_ref
-            assert selected.simulation_result_ref == checkpoint.result_ref
+            selected_semantic_ref, selected_execution_ref, selected_result_ref = (
+                _n5_projection_refs(selected)
+            )
+            assert selected_semantic_ref == checkpoint.semantic_successor_ref
+            assert selected_execution_ref == checkpoint.execution_ref
+            assert selected_result_ref == checkpoint.result_ref
+            assert selected_result_ref is not None
+            if isinstance(selected, RunModelInputUseN5SuccessorProjectionV2):
+                assert selected.original_action_job_id == action_job_id
             assert selected.authority_purpose == "cycle_input_candidate_only"
             expected_limitation_codes = (
                 (
@@ -1458,8 +1860,8 @@ def _run_activated_held_out_stock_scenario(
                 assert checkpoint.result_ref is not None
                 result_content = reader.get(
                     "/api/v1/artifacts/"
-                    f"{checkpoint.result_ref.artifact_id}/content"
-                    f"?manifest_profile_sha256={checkpoint.result_ref.manifest_profile_sha256}",
+                    f"{selected_result_ref.artifact_id}/content"
+                    f"?manifest_profile_sha256={selected_result_ref.manifest_profile_sha256}",
                     headers={**headers, "Accept": "application/octet-stream"},
                 )
                 assert result_content.status_code == 403, result_content.text
@@ -1500,9 +1902,463 @@ def _run_activated_held_out_stock_scenario(
                 assert limited.action_status == "completed"
                 assert limited.result_status == "not_established"
                 assert limited.blocked_source == blocked
-                assert limited.simulation_result_ref is None and limited.result_body is None
+                _, limited_execution_ref, limited_result_ref = _n5_projection_refs(limited)
+                assert limited_execution_ref is None and limited_result_ref is None
+                assert limited.result_body is None
             finally:
                 withheld.rename(blob)
+
+        if retained_sequence:
+            target_representation = load_variable_representation(
+                store, source_port.representation_ref
+            )
+            assert target_representation.quantity_kind == "stock"
+            assert target_representation.measure_form == "absolute"
+            assert target_representation.unit_id == "usd"
+            assert target_representation.time_support == "state_start"
+            assert target_representation.temporal_granularity == "annual"
+            assert target_representation.population_ref == "population:treasury"
+            assert port.scope.population_ref == "population:treasury"
+            assert port.scope.geography_ref == "UA"
+            assert port.scope.jurisdiction_ref == "UA"
+            assert port.scope.period_basis == "calendar_year"
+            live_history = active.live_history
+            assert live_history.transport_calls == 1
+            assert active.evidence.call_count == 1
+            first_raw_artifact_id = active.evidence.raw_artifact_id
+            first_normalized_content_sha256 = active.evidence.normalized_result_content_sha256
+            first_execution_ref = checkpoint.execution_ref
+            first_result_ref = checkpoint.result_ref
+            assert first_execution_ref is not None and first_result_ref is not None
+
+            def execute_current_measurement(
+                value: float,
+                *,
+                sequence_key: str,
+                current_occurrence: Any | None = None,
+                crash_after_persist: bool = False,
+            ) -> tuple[ModelInputSuccessorActionRequest, Any, ModelInputUseActionCheckpoint, Any]:
+                current = (
+                    live_history.admit(value) if current_occurrence is None else current_occurrence
+                )
+                assert live_history.transport_calls == len(live_history.used_attempts)
+                assert current.evidence.call_count == 1
+                assert current.passport.source_lane == "live_fetch"
+                assert current.passport.authority_entry_id == entry.entry_id
+                source_entry = current.passport.source_authority_entry
+                assert source_entry is not None and source_entry.source_measure_scope is not None
+                assert source_entry.source_semantic_definition_ref == (
+                    source_port.semantic_definition_ref
+                )
+                assert source_entry.source_representation_ref == source_port.representation_ref
+                source_scope = source_entry.source_measure_scope
+                assert source_scope.population == "population:treasury"
+                assert source_scope.source_geography_id == "UA"
+                assert source_scope.geography_ref == "UA"
+                assert source_scope.jurisdiction_ref == "UA"
+                assert source_scope.time_period_basis == "calendar_year"
+                assert current.passport.field_binding.canonical_unit == "usd"
+                (current_entry,) = current.entries
+                assert current_entry.entry_id == entry.entry_id
+                current_projection = current.projections[current_entry.target_variable]
+                (current_observation,) = current_projection.observations
+                assert current_observation.observation.value == value
+                assert current_observation.observation.country_code == "UKR"
+                assert current_observation.observation.year == 2022
+                condition = json.loads(current_observation.observation.condition_json)
+                assert condition["population_ref"] == "population:treasury"
+                assert condition["geography_ref"] == "UA"
+                assert condition["jurisdiction_ref"] == "UA"
+                assert condition["time_period_basis"] == "calendar_year"
+                raw_ref = current.evidence.raw_artifact_ref
+                assert raw_ref is not None
+                raw_payload = json.loads(store.get_bytes(raw_ref))
+                assert isinstance(raw_payload, list) and len(raw_payload) == 2
+                raw_rows = raw_payload[1]
+                assert isinstance(raw_rows, list) and len(raw_rows) == 1
+                (raw_row,) = raw_rows
+                assert raw_row["countryiso3code"] == "UKR"
+                assert raw_row["country"]["id"] == "UA"
+                assert raw_row["indicator"]["id"] == "TEST.OPENING.CASH.USD"
+                assert raw_row["value"] == value
+                assert current_projection.receipt_ref != projection.receipt_ref
+                assert current_projection.passport_ref != projection.passport_ref
+                assert (
+                    current_observation.observation.observation_id
+                    != selected_observation.observation.observation_id
+                )
+                request = ModelInputSuccessorActionRequest(
+                    compiled_ref=compiled_ref,
+                    blocked_execution_ref=execution_ref,
+                    routing_report_ref=report_ref,
+                    activation_receipt_ref=current_projection.receipt_ref,
+                    observation_id=current_observation.observation.observation_id,
+                    idempotency_key=f"held-out-treasury-{sequence_key}-opening-cash-use",
+                )
+                action_path = f"/api/v1/runs/{run_id}/model-input-use"
+                closure = SimpleNamespace(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                )
+                reservations_before_current: tuple[Any, ...] | None = None
+                with trust.authorization_exchange(
+                    "acquisition-operator"
+                ) as sequence_operator_authorization:
+                    with TestClient(app(root, profile)) as decision_client:
+                        sequence_control = (
+                            decision_client.app.state.runtime_container.control_service
+                        )
+                        stop_embedded_control_worker(sequence_control)
+                        reservations_before_current = sequence_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                        initial_response, sequence_digest = trust.post(
+                            decision_client,
+                            action_path + "/decision-request",
+                            request.model_dump(mode="json"),
+                            route=_ROUTE_TEMPLATE + "/decision-request",
+                        )
+                        assert initial_response.status_code == 200, initial_response.text
+                        assert initial_response.json()["outcome"] == "decision_required"
+                        sequence_job_id = initial_response.json()["job_id"]
+                        sequence_route_id = initial_response.json()["route_id"]
+                        slot = _sign_model_input_mandate(
+                            sequence_control,
+                            trust=trust,
+                            key_root=tmp_path,
+                            signers=signers,
+                            identities=identities,
+                            run_id=run_id,
+                            job_id=sequence_job_id,
+                            route_id=sequence_route_id,
+                            digest=sequence_digest,
+                        )
+
+                    with TestClient(app(root, profile)) as approval_client:
+                        sequence_control = (
+                            approval_client.app.state.runtime_container.control_service
+                        )
+                        stop_embedded_control_worker(sequence_control)
+                        _approve_candidate_action(
+                            client=approval_client,
+                            control=sequence_control,
+                            closure=closure,
+                            path=action_path,
+                            template=_ROUTE_TEMPLATE,
+                            mutation=request,
+                            job_id=sequence_job_id,
+                            slot=slot,
+                            cas_root=cas_root,
+                            trust=trust,
+                            signers=signers,
+                            identities=identities,
+                        )
+
+                    with TestClient(app(root, profile)) as execute_client:
+                        sequence_control = (
+                            execute_client.app.state.runtime_container.control_service
+                        )
+                        stop_embedded_control_worker(sequence_control)
+                        approved, approved_digest = trust.post(
+                            execute_client,
+                            action_path + "/decision-request",
+                            request.model_dump(mode="json"),
+                            route=_ROUTE_TEMPLATE + "/decision-request",
+                        )
+                        assert approved.status_code == 200, approved.text
+                        assert approved_digest == sequence_digest
+                        assert approved.json()["outcome"] == "decision_available"
+                        execute_body = {
+                            "request": request.model_dump(mode="json"),
+                            "decision_ref": approved.json()["authority_decision_ref"],
+                        }
+                        missing_step_up = execute_client.post(
+                            action_path + "/execute",
+                            json=execute_body,
+                            headers={
+                                "Authorization": sequence_operator_authorization,
+                                "X-Tenant-ID": served.TENANT,
+                            },
+                        )
+                        assert missing_step_up.status_code == 403, missing_step_up.text
+                        assert missing_step_up.json()["code"] == "step_up_required"
+                        assert sequence_control._control_store.get_job(sequence_job_id) is None
+                        execute_response, _ = trust.post(
+                            execute_client,
+                            action_path + "/execute",
+                            execute_body,
+                            route=_ROUTE_TEMPLATE + "/execute",
+                        )
+                        assert execute_response.status_code == 200, execute_response.text
+                        assert execute_response.json()["job_id"] == sequence_job_id
+                        crash: dict[str, Any] | None = None
+                        if crash_after_persist:
+                            crash = crash_after_durable_n5_persist(
+                                sequence_control,
+                                action_job_id=sequence_job_id,
+                                evaluation_decision_present=True,
+                            )
+                        else:
+                            assert (
+                                dispatch_one_control_job(
+                                    store=sequence_control._control_store,
+                                    handler=sequence_control._process_control_job,
+                                    expected_job_id=sequence_job_id,
+                                )
+                                == sequence_job_id
+                            )
+                        if crash is not None:
+                            current_job, current_checkpoint = recover_durable_n5_crash(crash)
+                        else:
+                            current_job = sequence_control._control_store.get_job(sequence_job_id)
+                            current_checkpoint = (
+                                None
+                                if current_job is None
+                                else ModelInputUseActionCheckpoint.model_validate(
+                                    current_job.progress["model_input_use"]
+                                )
+                            )
+                        assert current_job is not None and current_job.state == "completed", (
+                            None if current_job is None else current_job.error_message
+                        )
+                        assert current_checkpoint is not None
+                        if crash is None:
+                            assert reservations_before_current is not None
+                            assert (
+                                sequence_control.llm_producer_settlement_store._ledger.snapshot().invocation_reservations
+                                == reservations_before_current
+                            )
+                        _assert_routing_use_selection(
+                            store,
+                            mutation=request,
+                            checkpoint=current_checkpoint,
+                            run_id=run_id,
+                            source_job_id=job.job_id,
+                            action_job_id=sequence_job_id,
+                            expected_registry_sha256=registry.content_sha256,
+                        )
+
+                with TestClient(app(root)) as sequence_reader:
+                    stop_embedded_control_worker(
+                        sequence_reader.app.state.runtime_container.control_service
+                    )
+                    current_response = sequence_reader.get(
+                        action_path + f"/{sequence_job_id}/n5-result",
+                        headers={
+                            "Authorization": trust.authorization_header("acquisition-operator"),
+                            "X-Tenant-ID": served.TENANT,
+                        },
+                    )
+                    assert current_response.status_code == 200, current_response.text
+                    current_result = RunModelInputUseN5SuccessorResponse.model_validate(
+                        current_response.json()
+                    ).result
+                assert isinstance(current_result, RunModelInputUseN5SuccessorProjectionV2)
+                assert current_result.action_status == "completed"
+                assert current_result.result_status == "resolved"
+                assert current_result.current_semantic_successor_ref == (
+                    current_checkpoint.semantic_successor_ref
+                )
+                assert current_result.current_use_decision_ref is not None
+                assert current_result.current_basis_ref is not None
+                assert current_result.selected_basis_ref is not None
+                assert current_result.result_body is not None
+                assert current_result.authority_purpose == "cycle_input_candidate_only"
+                assert current_result.currentness_status == "not_established"
+                assert not current_result.publication_authority
+                assert not current_result.observed_admission
+                assert "external_empirical_origin_not_established" in (
+                    current_result.semantic_input_limitation_codes
+                )
+                return request, current, current_checkpoint, current_result
+
+            equal_request, equal_current, equal_checkpoint, equal_result = (
+                execute_current_measurement(_OPENING_CASH, sequence_key="same-value-b1")
+            )
+            assert equal_current.evidence.raw_artifact_id == first_raw_artifact_id
+            assert (
+                equal_current.evidence.normalized_result_content_sha256
+                == first_normalized_content_sha256
+            )
+            assert equal_checkpoint.execution_ref is None
+            assert equal_checkpoint.result_ref is None
+            assert equal_checkpoint.evaluation_decision_ref is not None
+            assert equal_result.basis_comparison_result == "equivalent"
+            assert equal_result.predicate_provenance == "recomputed"
+            assert equal_result.evaluation_provenance == "retained_prior"
+            assert equal_result.original_action_job_id == action_job_id
+            assert equal_result.original_semantic_successor_ref == selected_semantic_ref
+            assert equal_result.original_execution_ref == first_execution_ref
+            assert equal_result.original_result_ref == first_result_ref
+            assert equal_result.current_semantic_successor_ref != selected_semantic_ref
+            assert equal_result.frontier_selection == "selected"
+            assert equal_result.result_body is not None
+            for trajectory in equal_result.result_body.trajectories:
+                assert tuple(point.outcomes[_OUTCOME] for point in trajectory.points) == (
+                    _EXPECTED_BALANCES
+                )
+            assert live_history.transport_calls == 2
+
+            prior_frontier_ref = equal_result.frontier_ref
+            prior_frontier_revision = equal_result.frontier_revision
+            seen_action_jobs = {action_job_id, equal_result.action_job_id}
+            seen_authority_decisions = {equal_result.current_authority_decision_ref}
+            seen_use_decisions = {equal_result.current_use_decision_ref}
+            seen_semantic_successors = {equal_result.current_semantic_successor_ref}
+            for sequence_key in ("same-value-b2", "same-value-b3"):
+                reused_request, reused_current, reused_checkpoint, reused_result = (
+                    execute_current_measurement(
+                        _OPENING_CASH,
+                        sequence_key=sequence_key,
+                        current_occurrence=equal_current,
+                    )
+                )
+                assert reused_current is equal_current
+                assert reused_request.activation_receipt_ref == equal_request.activation_receipt_ref
+                assert reused_request.observation_id == equal_request.observation_id
+                assert reused_checkpoint.execution_ref is None
+                assert reused_checkpoint.result_ref is None
+                assert reused_checkpoint.evaluation_decision_ref is not None
+                assert reused_checkpoint.evaluation_current_basis_ref is not None
+                assert reused_result.basis_comparison_result == "equivalent"
+                assert reused_result.predicate_provenance == "recomputed"
+                assert reused_result.evaluation_provenance == "retained_prior"
+                assert reused_result.original_action_job_id == action_job_id
+                assert reused_result.original_semantic_successor_ref == selected_semantic_ref
+                assert reused_result.original_execution_ref == first_execution_ref
+                assert reused_result.original_result_ref == first_result_ref
+                assert reused_result.frontier_ref == prior_frontier_ref
+                assert reused_result.frontier_revision == prior_frontier_revision
+                assert reused_result.frontier_selection == "selected"
+                assert reused_result.action_job_id not in seen_action_jobs
+                assert reused_result.current_authority_decision_ref not in seen_authority_decisions
+                assert reused_result.current_use_decision_ref not in seen_use_decisions
+                assert reused_result.current_semantic_successor_ref not in seen_semantic_successors
+                seen_action_jobs.add(reused_result.action_job_id)
+                seen_authority_decisions.add(reused_result.current_authority_decision_ref)
+                seen_use_decisions.add(reused_result.current_use_decision_ref)
+                seen_semantic_successors.add(reused_result.current_semantic_successor_ref)
+                assert reused_result.result_body is not None
+                for trajectory in reused_result.result_body.trajectories:
+                    assert tuple(point.outcomes[_OUTCOME] for point in trajectory.points) == (
+                        _EXPECTED_BALANCES
+                    )
+                assert live_history.transport_calls == 2
+
+            changed_value = 602.5
+            changed_balances = (changed_value, changed_value, changed_value - (100 + 200) / 8)
+            changed_request, changed_current, changed_checkpoint, changed_result = (
+                execute_current_measurement(
+                    changed_value,
+                    sequence_key="changed-c",
+                    crash_after_persist=True,
+                )
+            )
+            assert changed_current.evidence.raw_artifact_id != first_raw_artifact_id
+            assert (
+                changed_current.evidence.normalized_result_content_sha256
+                != first_normalized_content_sha256
+            )
+            equal_projection = equal_current.projections[entry.target_variable]
+            changed_projection = changed_current.projections[entry.target_variable]
+            (equal_observation,) = equal_projection.observations
+            (changed_observation,) = changed_projection.observations
+            assert changed_projection.receipt_ref != equal_projection.receipt_ref
+            assert changed_projection.passport_ref != equal_projection.passport_ref
+            assert changed_observation.observation.observation_id != (
+                equal_observation.observation.observation_id
+            )
+            assert changed_checkpoint.execution_ref is not None
+            assert changed_checkpoint.execution_ref != first_execution_ref
+            assert changed_checkpoint.result_ref is not None
+            assert changed_checkpoint.result_ref != first_result_ref
+            assert changed_result.basis_comparison_result == "different"
+            assert changed_result.predicate_provenance == "recomputed"
+            assert changed_result.evaluation_provenance == "new_execution"
+            assert changed_result.original_action_job_id == changed_result.action_job_id
+            assert changed_result.original_semantic_successor_ref == (
+                changed_result.current_semantic_successor_ref
+            )
+            assert changed_result.original_execution_ref == changed_checkpoint.execution_ref
+            assert changed_result.original_result_ref == changed_checkpoint.result_ref
+            assert changed_result.frontier_selection == "selected"
+            assert changed_result.result_body is not None
+            for trajectory in changed_result.result_body.trajectories:
+                assert tuple(point.outcomes[_OUTCOME] for point in trajectory.points) == (
+                    changed_balances
+                )
+            _assert_foundry_successor(
+                store,
+                original=original,
+                mutation=changed_request,
+                action_job_id=changed_result.action_job_id,
+                checkpoint=changed_checkpoint,
+                expected_balances=changed_balances,
+            )
+            with TestClient(app(root)) as post_change_reader:
+                post_change_control = post_change_reader.app.state.runtime_container.control_service
+                stop_embedded_control_worker(post_change_control)
+                quota_snapshot = post_change_control.llm_producer_settlement_store.snapshot_safe()
+                quota_profile = quota_snapshot.invocation_profiles[run_id]
+                assert quota_profile.total_units == 3
+                assert quota_profile.protected_units == 1
+                reservations = tuple(
+                    row
+                    for row in quota_snapshot.invocation_reservations.values()
+                    if row.run_id == run_id and row.profile_digest == quota_profile.profile_digest
+                )
+                assert len(reservations) == 2
+                assert all(
+                    row.purpose == "standard" and row.status == "completed" and row.units == 1
+                    for row in reservations
+                )
+                reservations_before_historical_read = (
+                    post_change_control.llm_producer_settlement_store._ledger.snapshot()
+                )
+                historical_response = post_change_reader.get(
+                    path + f"/{equal_result.action_job_id}/n5-result",
+                    headers={
+                        "Authorization": trust.authorization_header("acquisition-operator"),
+                        "X-Tenant-ID": served.TENANT,
+                    },
+                )
+                assert historical_response.status_code == 200, historical_response.text
+                historical_b = RunModelInputUseN5SuccessorResponse.model_validate(
+                    historical_response.json()
+                ).result
+                assert isinstance(historical_b, RunModelInputUseN5SuccessorProjectionV2)
+                assert historical_b.action_status == "completed"
+                assert historical_b.result_status == "resolved"
+                assert historical_b.action_job_id == equal_result.action_job_id
+                assert historical_b.current_semantic_successor_ref == (
+                    equal_result.current_semantic_successor_ref
+                )
+                assert historical_b.frontier_selection == "superseded"
+                assert historical_b.basis_comparison_result == "equivalent"
+                assert historical_b.evaluation_provenance == "retained_prior"
+                assert historical_b.original_action_job_id == action_job_id
+                assert historical_b.original_semantic_successor_ref == selected_semantic_ref
+                assert historical_b.original_execution_ref == first_execution_ref
+                assert historical_b.original_result_ref == first_result_ref
+                assert historical_b.result_body == equal_result.result_body
+                assert historical_b.result_body is not None
+                for trajectory in historical_b.result_body.trajectories:
+                    assert tuple(point.outcomes[_OUTCOME] for point in trajectory.points) == (
+                        _EXPECTED_BALANCES
+                    )
+                assert historical_b.currentness_status == "not_established"
+                assert not historical_b.publication_authority
+                assert not historical_b.observed_admission
+                assert (
+                    post_change_control.llm_producer_settlement_store._ledger.snapshot()
+                    == reservations_before_historical_read
+                )
+            assert live_history.transport_calls == 3
+            assert live_history.used_attempts == [
+                "held-out-stock-a-initial",
+                "held-out-stock-b-equal",
+                "held-out-stock-c-changed",
+            ]
+            return
 
         try:
             registry_path.write_text(updated.model_dump_json(), encoding="utf-8")
@@ -1768,6 +2624,41 @@ def test_activated_held_out_stock_executes_through_ordinary_signed_model_input_a
         monkeypatch,
         controlled_candidate_gateway,
         methodology_v2=False,
+    )
+
+
+@pytest.mark.integration
+def test_equal_current_stock_retains_prior_result_then_changed_stock_executes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """Fresh equal stock use retains A; changed stock gets a physical N5 run."""
+    _run_activated_held_out_stock_scenario(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        methodology_v2=False,
+        fund="treasury",
+        retained_sequence=True,
+    )
+
+
+@pytest.mark.integration
+def test_activated_treasury_stock_preflight_reaches_real_n5_without_reservation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """Check selected stock binding and finite profile before the physical N5 call."""
+    _run_activated_held_out_stock_scenario(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        methodology_v2=False,
+        fund="treasury",
+        retained_sequence=True,
+        preflight_first_n5=True,
     )
 
 

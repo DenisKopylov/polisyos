@@ -1098,7 +1098,7 @@ def _verify_acquired_semantic_input_selection(
         boundary.source_record_ref.model_dump(mode="json")
     )
     if (
-        boundary.source_record_content_hash != passport.source_watermark
+        boundary.source_record_content_hash != str(boundary.source_record_ref.artifact_id)
         or boundary.source_record_ref.manifest_profile_sha256 is None
         or not store.verify(boundary.source_record_ref).ok
     ):
@@ -1119,7 +1119,9 @@ def _verify_acquired_semantic_input_selection(
             )
         )
         replayed_occurrence = replay_scoped_measurement_occurrence(
-            store.get_bytes(boundary.source_record_ref),
+            data_forge_read_api.catalog.read_scoped_measurement_source_body(
+                store, passport_mapping=passport_mapping, source_selection=source_selection
+            ),
             observation_id=observation.observation_id,
             source_selection=source_selection,
             unit_transform_evidence=witness,
@@ -2040,11 +2042,40 @@ def _replay_acquired_observation_projection(
         validate_data_snapshot_owner_lineage(
             store, live.data_snapshot_ref, live_snapshot, candidate_only=True
         )
-        result = connectors.ResultSerializer.deserialize(source_body)
-        replay_bytes, replay_media = connectors.ResultSerializer.serialize(result)
-        if replay_bytes != source_body or replay_media != source_ref.media_type:
-            raise DataStateSubstrateError("acquisition_semantic_source_codec_mismatch")
-        source_body = data_forge_read_api.catalog.normalized_acquisition_source_body(result)
+        if live.raw_artifact_ref is None:
+            # Older evidence did not carry a selected raw manifest; retain its
+            # existing historical reader without upgrading its proof strength.
+            result = connectors.ResultSerializer.deserialize(source_body)
+            replay_bytes, replay_media = connectors.ResultSerializer.serialize(result)
+            if replay_bytes != source_body or replay_media != source_ref.media_type:
+                raise DataStateSubstrateError("acquisition_semantic_source_codec_mismatch")
+            source_body = data_forge_read_api.catalog.normalized_acquisition_source_body(result)
+    live = passport.live_source_execution
+    if passport.source_authority_entry is not None or (
+        live is not None and live.raw_artifact_ref is not None
+    ):
+        # Current selected carriers must replay the raw source and normalized
+        # row projection through the same Catalog owner as scoped bindings.
+        source_selection = scoped_source_selection_from_passport_mapping(
+            passport.model_dump(mode="json"),
+            source_receipt_ref=SelectedVariableBindingRef.model_validate(
+                receipt_ref.model_dump(mode="json")
+            ),
+            source_passport_ref=SelectedVariableBindingRef.model_validate(
+                passport_ref.model_dump(mode="json")
+            ),
+            source_boundary_candidate_ref=SelectedVariableBindingRef.model_validate(
+                passport.semantic_boundary_candidate_ref.model_dump(mode="json")
+            ),
+            source_record_ref=SelectedVariableBindingRef.model_validate(
+                source_ref.model_dump(mode="json")
+            ),
+        )
+        source_body = data_forge_read_api.catalog.read_scoped_measurement_source_body(
+            store,
+            passport_mapping=passport.model_dump(mode="json"),
+            source_selection=source_selection,
+        )
     derived = data_forge_read_api.catalog.derive_canonical_observations(
         source_body, passport=passport, registration=passport.registration
     )

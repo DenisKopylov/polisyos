@@ -10642,6 +10642,35 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "generic_retained_use_composed_20261113": {
+          "status": "INTERNAL_COMPONENT_QUALIFIED_SERVED_SEQUENCE_PENDING",
+          "source_base": "71fedf730b76e5d098a5c49375c5115778859683",
+          "outputs": [
+            "policy-engine/_cache/e02/model-input-composed-r1-20261113/",
+            "policy-engine/_cache/e02/model-input-composed-r2-20261113/"
+          ],
+          "observed_first": {
+            "PASS": 165,
+            "FAIL": 3
+          },
+          "observed_affected_repeat": {
+            "PASS": 3,
+            "FAIL": 0
+          },
+          "distinct_cases": 168,
+          "note": "Three first-command failures were the coordinator's inapplicable no-N5 entry guard on real no-run controller controls. Only these three were repeated. Both source/input sets stable and correct origins; not one whole green wave or served/crash acceptance.",
+          "independent_reviews": "GO for numerical roles, source qualification, API projection and canonical worker/durable recovery.",
+          "next": "Zero-N5 served preflight; genuine A/B1/B2/B3/C with one-shot durable-V5-before-pointer cuts at A and C, no duplicate physical units."
+        },
+        "live_v3_foundry_preflight_20261113": {
+          "status": "PASS",
+          "output": "secondary:policy-engine/_cache/e02/live-v3-foundry-preflight-r3/",
+          "tests": 1,
+          "loaded_origins": 1869,
+          "test_sha256": "000e96f508d1fcf111d969dc915253da9b016e6a1d1ea11741a87340f2ef2f0c",
+          "property": "Real controlled acquisition/native activation and persisted selected occurrence/basis reach fresh Foundry bindings/state at 640 USD; same-value foreign fund and raw removal refuse; restoration passes.",
+          "limitations": "No N5, empirical provenance/currentness, protected authority or G acceptance."
+        },
         "cyc02_fresh_native_composed_r1": {
           "source_commit": "9fd207054d4ceacdc046f0801f9b1526455dd4cf",
           "output": "MAIN:policy-engine/_cache/e02/lane01-cyc02-fresh-remediation-composed-r1",

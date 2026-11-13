@@ -31,6 +31,7 @@ from polisyos.runtime.quality.authority_reconciliation import reconcile_authorit
 from polisyos.runtime.quality.candidate_simulation import (
     CandidateSimulationScenarioProfile,
     CandidateSimulationSyntheticModelDeclarationV1,
+    _require_n5_field_role_census,
 )
 from polisyos.runtime.quality.candidate_source_basis import CandidateSourceBasisInputs
 from polisyos.runtime.quality.data_state_substrate import ControlledAcquisitionSlotBinding
@@ -99,7 +100,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
     from polisyos.runtime.quality.n5_candidate_content import (
-        GenericProgramGraphContentObservationV1,
+        GenericProgramGraphContentObservationV2,
     )
     from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
     from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
@@ -519,9 +520,10 @@ class GenericModelInputEvaluationBasisV1(_Record):
     authority_purpose: Literal["candidate_evaluation_retention_only"] = (
         "candidate_evaluation_retention_only"
     )
-    comparison_profile: Literal["generic_program_graph_declared_numerical_v1"] = (
-        "generic_program_graph_declared_numerical_v1"
-    )
+    comparison_profile: Literal[
+        "generic_program_graph_declared_numerical_v1",
+        "generic_program_graph_declared_numerical_v2",
+    ] = "generic_program_graph_declared_numerical_v1"
     basis_role: Literal["prospective", "evaluated", "blocked"]
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
@@ -615,9 +617,10 @@ class GenericModelInputEvaluationDecisionV1(_Record):
     authority_purpose: Literal["candidate_evaluation_retention_only"] = (
         "candidate_evaluation_retention_only"
     )
-    comparison_rule: Literal["generic-program-graph-declared-numerical-basis.v1"] = (
-        "generic-program-graph-declared-numerical-basis.v1"
-    )
+    comparison_rule: Literal[
+        "generic-program-graph-declared-numerical-basis.v1",
+        "generic-program-graph-declared-numerical-basis.v2",
+    ] = "generic-program-graph-declared-numerical-basis.v1"
     decision_kind: Literal["initial", "comparison"]
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
@@ -723,78 +726,201 @@ class _GenericModelInputNumericalQuantity:
     source_image: N5ProductionImage
 
 
-_GENERIC_REQUEST_FIELDS = frozenset(
-    [
-        "world_model_record_ref",
-        "world_model_record",
-        "intervention_atoms",
-        "selected_outcomes",
-        "horizon",
-        "engine_plan",
-        "baseline_state",
-        "evidence_state",
-        "comparator_refs",
-        "comparator_profile",
-        "coupling_graph",
-        "budget_ref",
-        "seed",
-        "replications",
-        "world_credal_state_before",
-        "candidate_intent",
-        "member_basis",
-        "source_candidate_relationship",
-        "composition_status",
-        "composition_limitation_code",
-        "child_to_parent_refinement_status",
-        "child_to_parent_refinement_limitation_code",
-    ]
+GENERIC_NUMERICAL_INTENT_PROFILE = "generic_program_graph_declared_numerical_v2"
+_GENERIC_FIELD_ROLES = frozenset(
+    {"numerical", "operational", "output_label", "resolved", "not_consumed"}
 )
-_GENERIC_PLAN_FIELDS = frozenset(
-    [
-        "engine_kind",
-        "objective_ref",
-        "declared_equilibrium_semantics",
-        "eligibility_conditions",
-        "ncm_spec",
-        "variable_map",
-        "outcome_aggregations",
-        "coupled_state",
-        "coupled_params",
-        "system_dynamics_state",
-        "system_dynamics_params",
-        "system_dynamics_state_overrides_by_atom",
-        "program_compilation_ref",
-        "program_semantic_input_bindings_ref",
-        "program_graph_ref",
-        "exec_plan_ref",
-        "program_store",
-        "program_base_state",
-        "program_base_ref",
-        "mechanism_registry",
-        "slot_registry",
-        "merge_registry",
-        "selector_field_registry",
-        "constraint_registry",
-        "program_graph_acyclic",
-        "program_parameter_overrides_by_atom",
-        "method_fqn",
-    ]
+_GENERIC_REQUEST_FIELD_ROLES = (
+    ("world_model_record_ref", "output_label"),
+    ("world_model_record", "numerical"),
+    ("intervention_atoms", "numerical"),
+    ("selected_outcomes", "numerical"),
+    ("horizon", "numerical"),
+    ("engine_plan", "resolved"),
+    ("baseline_state", "numerical"),
+    ("evidence_state", "numerical"),
+    ("comparator_refs", "output_label"),
+    ("comparator_profile", "numerical"),
+    ("coupling_graph", "numerical"),
+    ("budget_ref", "operational"),
+    ("seed", "numerical"),
+    ("replications", "numerical"),
+    ("world_credal_state_before", "numerical"),
+    ("candidate_intent", "numerical"),
+    ("member_basis", "numerical"),
+    ("source_candidate_relationship", "numerical"),
+    ("composition_status", "numerical"),
+    ("composition_limitation_code", "numerical"),
+    ("child_to_parent_refinement_status", "numerical"),
+    ("child_to_parent_refinement_limitation_code", "numerical"),
 )
-_GENERIC_PLAN_OWNER_FIELDS = frozenset(
-    [
-        "program_semantic_input_bindings_ref",
-        "program_graph_ref",
-        "exec_plan_ref",
-        "program_store",
-        "program_base_state",
-        "program_base_ref",
-        "mechanism_registry",
-        "slot_registry",
-        "merge_registry",
-        "selector_field_registry",
-        "constraint_registry",
-    ]
+_GENERIC_PLAN_FIELD_ROLES = (
+    ("engine_kind", "numerical"),
+    ("objective_ref", "numerical"),
+    ("declared_equilibrium_semantics", "numerical"),
+    ("eligibility_conditions", "numerical"),
+    ("ncm_spec", "numerical"),
+    ("variable_map", "numerical"),
+    ("outcome_aggregations", "numerical"),
+    ("coupled_state", "numerical"),
+    ("coupled_params", "numerical"),
+    ("system_dynamics_state", "numerical"),
+    ("system_dynamics_params", "numerical"),
+    ("system_dynamics_state_overrides_by_atom", "numerical"),
+    ("program_compilation_ref", "resolved"),
+    ("program_semantic_input_bindings_ref", "resolved"),
+    ("program_graph_ref", "resolved"),
+    ("exec_plan_ref", "resolved"),
+    ("program_store", "resolved"),
+    ("program_base_state", "resolved"),
+    ("program_base_ref", "resolved"),
+    ("mechanism_registry", "resolved"),
+    ("slot_registry", "resolved"),
+    ("merge_registry", "resolved"),
+    ("selector_field_registry", "resolved"),
+    ("constraint_registry", "resolved"),
+    ("program_graph_acyclic", "numerical"),
+    ("program_parameter_overrides_by_atom", "numerical"),
+    ("method_fqn", "numerical"),
 )
+_GENERIC_GRAPH_FIELD_ROLES = (
+    ("schema_version", "numerical"),
+    ("ir_ref", "resolved"),
+    ("lowered_ir_ref", "resolved"),
+    ("nodes", "resolved"),
+    ("edges", "resolved"),
+    ("entrypoints", "not_consumed"),
+    ("notes", "output_label"),
+)
+_GENERIC_NODE_FIELD_ROLES = (
+    ("node_id", "numerical"),
+    ("node_kind", "numerical"),
+    ("mechanism_type", "numerical"),
+    ("method_fqn", "numerical"),
+    ("method_version", "numerical"),
+    ("method_params", "numerical"),
+    ("params_ref", "resolved"),
+    ("op", "resolved"),
+    ("inputs", "numerical"),
+    ("outputs", "numerical"),
+)
+_GENERIC_OP_FIELD_ROLES = (
+    ("op_kind", "numerical"),
+    ("params", "numerical"),
+    ("notes", "output_label"),
+)
+_GENERIC_EDGE_FIELD_ROLES = (
+    ("src", "numerical"),
+    ("dst", "numerical"),
+    ("relation", "output_label"),
+)
+_GENERIC_EXEC_PLAN_FIELD_ROLES = (
+    ("program_ref", "resolved"),
+    ("order", "numerical"),
+    ("environment_ref", "resolved"),
+    ("environment_fingerprint", "resolved"),
+    ("determinism_tier", "numerical"),
+    ("random_seed", "numerical"),
+    ("nan_guard_enabled", "numerical"),
+    ("policy_fidelity_level", "numerical"),
+    ("constraint_mode", "numerical"),
+    ("mode", "numerical"),
+    ("jit", "numerical"),
+    ("max_steps", "numerical"),
+    ("notes", "resolved"),
+)
+_GENERIC_LOWERED_IR_FIELD_ROLES = (
+    ("schema_version", "numerical"),
+    ("ir_ref", "resolved"),
+    ("mechanisms", "not_consumed"),
+    ("constraints", "numerical"),
+    ("composite_constraints", "not_consumed"),
+    ("parameter_specs", "not_consumed"),
+    ("time_semantics", "not_consumed"),
+    ("environment_config", "not_consumed"),
+    ("policy_fidelity_level", "not_consumed"),
+    ("constraint_mode", "numerical"),
+    ("notes", "not_consumed"),
+)
+
+
+def _generic_numerical_fields(
+    value: BaseModel, roles: tuple[tuple[str, str], ...], *, scope: str
+) -> dict[str, object]:
+    """Project an exact owner type after its entire field-role census succeeds."""
+    census = _require_n5_field_role_census(
+        exact_n5_model_field_names(value),
+        roles,
+        allowed_roles=_GENERIC_FIELD_ROLES,
+        error_prefix=f"generic_model_input_{scope}_field_role",
+    )
+    return {name: getattr(value, name) for name in sorted(census) if census[name] == "numerical"}
+
+
+def _generic_program_graph_numerical_values(
+    graph: object,
+    exec_plan: object,
+    lowered_ir: object,
+    parameter_payloads: dict[str, object],
+) -> dict[str, object]:
+    """Join complete owner-resolved plan content without source-view labels."""
+    from polisyos.core.contracts import (
+        ExecPlan,
+        LoweredIR,
+        ProgramEdge,
+        ProgramGraph,
+        ProgramNode,
+        ProgramOp,
+    )
+
+    if type(graph) is not ProgramGraph or type(exec_plan) is not ExecPlan:
+        raise ValueError("generic_model_input_program_types_not_established")
+    if type(lowered_ir) is not LoweredIR or type(parameter_payloads) is not dict:
+        raise ValueError("generic_model_input_lowered_ir_not_established")
+    if type(graph.nodes) is not list or any(type(node) is not ProgramNode for node in graph.nodes):
+        raise ValueError("generic_model_input_node_type_not_established")
+    if type(graph.edges) is not list or any(type(edge) is not ProgramEdge for edge in graph.edges):
+        raise ValueError("generic_model_input_edge_type_not_established")
+    if type(exec_plan.notes) is not list or any(type(note) is not str for note in exec_plan.notes):
+        raise ValueError("generic_model_input_plan_notes_not_established")
+    if len({node.node_id for node in graph.nodes}) != len(graph.nodes):
+        raise ValueError("generic_model_input_node_census_not_established")
+    expected_parameters = {node.node_id for node in graph.nodes if node.params_ref is not None}
+    if set(parameter_payloads) != expected_parameters or any(
+        type(payload) is not dict for payload in parameter_payloads.values()
+    ):
+        raise ValueError("generic_model_input_parameter_census_not_established")
+    graph_values = _generic_numerical_fields(graph, _GENERIC_GRAPH_FIELD_ROLES, scope="graph")
+    graph_values["edges"] = [
+        _generic_numerical_fields(edge, _GENERIC_EDGE_FIELD_ROLES, scope="edge")
+        for edge in graph.edges
+    ]
+    nodes = []
+    for node in graph.nodes:
+        node_values = _generic_numerical_fields(node, _GENERIC_NODE_FIELD_ROLES, scope="node")
+        if node.op is not None and type(node.op) is not ProgramOp:
+            raise ValueError("generic_model_input_op_type_not_established")
+        node_values["op"] = (
+            None
+            if node.op is None
+            else _generic_numerical_fields(node.op, _GENERIC_OP_FIELD_ROLES, scope="op")
+        )
+        node_values["resolved_parameters"] = parameter_payloads.get(node.node_id)
+        nodes.append(node_values)
+    graph_values["nodes"] = nodes
+    exec_values = _generic_numerical_fields(
+        exec_plan, _GENERIC_EXEC_PLAN_FIELD_ROLES, scope="exec_plan"
+    )
+    exec_values["randomization_notes"] = tuple(
+        note for note in exec_plan.notes if note.startswith("randomization:")
+    )
+    return {
+        "graph": graph_values,
+        "exec_plan": exec_values,
+        "lowered_ir": _generic_numerical_fields(
+            lowered_ir, _GENERIC_LOWERED_IR_FIELD_ROLES, scope="lowered_ir"
+        ),
+    }
 
 
 def prepare_generic_model_input_numerical_basis(
@@ -863,16 +989,17 @@ def _prepare_generic_model_input_numerical_quantity(
 ) -> _GenericModelInputNumericalQuantity:
     """Project an already owner-replayed request through the real intake."""
     from polisyos.core.artifacts import validate_core_model_json_artifact
-    from polisyos.core.contracts import ExecPlan, ProgramGraph
+    from polisyos.core.contracts import ExecPlan, LoweredIR, ProgramGraph
     from polisyos.core.registry import load_registry_bundle_content
     from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.foundry.execute import (
         execute_semantic_horizon_step,
+        load_model,
+        load_payload,
         load_state_snapshot,
         prepare_program_graph_mechanism_calls,
         state_snapshot_value_projection,
     )
-    from polisyos.foundry.execute.executor import load_payload
     from polisyos.foundry.methods import MethodRegistry
     from polisyos.runtime.quality.joint_simulation_horizon import (
         EnginePlan,
@@ -901,15 +1028,16 @@ def _prepare_generic_model_input_numerical_quantity(
     require_prepared_joint_simulation_configuration(
         controller, prepare_joint_simulation_configuration()
     )
-    if (
-        type(request) is not JointSimulationRequest
-        or exact_n5_model_field_names(request) != _GENERIC_REQUEST_FIELDS
-        or len(request.engine_plan) != 1
-    ):
+    if type(request) is not JointSimulationRequest or len(request.engine_plan) != 1:
         raise ValueError("generic_model_input_request_census_not_established")
+    controller._validate_world_model_record(request)
     (plan,) = request.engine_plan
-    if type(plan) is not EnginePlan or exact_n5_model_field_names(plan) != _GENERIC_PLAN_FIELDS:
+    if type(plan) is not EnginePlan:
         raise ValueError("generic_model_input_plan_census_not_established")
+    request_values = _generic_numerical_fields(
+        request, _GENERIC_REQUEST_FIELD_ROLES, scope="request"
+    )
+    plan_values = _generic_numerical_fields(plan, _GENERIC_PLAN_FIELD_ROLES, scope="plan")
     selected = controller._select_engine(request)
     if (
         selected.plan is not plan
@@ -954,17 +1082,20 @@ def _prepare_generic_model_input_numerical_quantity(
     exec_plan = validate_core_model_json_artifact(ExecPlan, store, plan.exec_plan_ref)
     if not _candidate_ref_same(exec_plan.program_ref, plan.program_graph_ref):
         raise ValueError("generic_model_input_program_source_mismatch")
-    parameter_payloads = []
+    if graph.lowered_ir_ref is None:
+        raise ValueError("generic_model_input_lowered_ir_not_established")
+    lowered_ir = load_model(store, graph.lowered_ir_ref, LoweredIR)
+    parameter_payloads = {}
     for node in graph.nodes:
-        if node.params_ref is None:
-            continue
-        manifest = store.get_manifest(node.params_ref)
-        selected_ref = artifact_ref_for_manifest(manifest)
-        if not store.verify(selected_ref).ok:
-            raise ValueError("generic_model_input_parameter_source_not_established")
-        parameter_payloads.append(
-            (node.node_id, selected_ref, load_payload(store, node.params_ref))
-        )
+        if node.params_ref is not None:
+            manifest = store.get_manifest(node.params_ref)
+            selected_ref = artifact_ref_for_manifest(manifest)
+            if not store.verify(selected_ref).ok:
+                raise ValueError("generic_model_input_parameter_source_not_established")
+            parameter_payloads[node.node_id] = load_payload(store, node.params_ref)
+    graph_values = _generic_program_graph_numerical_values(
+        graph, exec_plan, lowered_ir, parameter_payloads
+    )
     prepared_calls = tuple(
         (index, node_id, step, snapshot_foundry_mechanism_call(call))
         for index, node_id, step, call in prepare_program_graph_mechanism_calls(
@@ -976,25 +1107,13 @@ def _prepare_generic_model_input_numerical_quantity(
             steps=request.horizon.steps(),
         )
     )
-    request_values = {
-        name: getattr(request, name) for name in sorted(_GENERIC_REQUEST_FIELDS - {"engine_plan"})
-    }
-    plan_values = {
-        name: getattr(plan, name)
-        for name in sorted(_GENERIC_PLAN_FIELDS - _GENERIC_PLAN_OWNER_FIELDS)
-    }
     intent = exact_n5_content_bytes(
         {
-            "profile": "generic_program_graph_declared_numerical_v1",
+            "profile": GENERIC_NUMERICAL_INTENT_PROFILE,
             "request": request_values,
             "plan": plan_values,
             "decision": selected.decision,
-            "graph_ref": plan.program_graph_ref,
-            "graph": graph,
-            "exec_plan_ref": plan.exec_plan_ref,
-            "exec_plan": exec_plan,
-            "base_ref": plan.program_base_ref,
-            "registry_ref": registry_ref,
+            **graph_values,
             "registry": {
                 name: getattr(registry, name)
                 for name in (
@@ -1005,7 +1124,6 @@ def _prepare_generic_model_input_numerical_quantity(
                     "constraint_registry",
                 )
             },
-            "parameter_payloads": tuple(parameter_payloads),
             "prepared_calls": prepared_calls,
             "configuration": configuration,
         }
@@ -1063,7 +1181,7 @@ def _verify_generic_model_input_original_evaluation(
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
     prepared: PreparedGenericModelInputNumericalBasis,
-) -> GenericProgramGraphContentObservationV1:
+) -> GenericProgramGraphContentObservationV2:
     """Reopen the original V5, observed calls, step chains and provider bytes."""
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
@@ -1129,6 +1247,10 @@ def _verify_generic_model_input_original_evaluation(
         expected_request=resolved.request,
         store=store,
     )
+    if observation.numerical_intent_sha256 != (
+        "sha256:" + hashlib.sha256(prepared.numerical_intent).hexdigest()
+    ):
+        raise ValueError("generic_model_input_original_intent_mismatch")
     for step in observation.steps:
         expected_calls = tuple(
             (index, node_id, content.hex())
@@ -1213,7 +1335,7 @@ def issue_generic_model_input_evaluation_basis(
     payload = {
         "schema_version": "GenericModelInputEvaluationBasis@1.0",
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_profile": "generic_program_graph_declared_numerical_v1",
+        "comparison_profile": GENERIC_NUMERICAL_INTENT_PROFILE,
         "basis_role": basis_role,
         "tenant_id": source.tenant_id,
         "cell_id": source.cell_id,
@@ -1285,6 +1407,8 @@ def compare_generic_model_input_evaluation_bases(
         if (
             prior.basis_role != "evaluated"
             or current.basis_role != "prospective"
+            or prior.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+            or current.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
             or prior.evaluation is None
             or prior.predicate_provenance != "recomputed"
             or current.predicate_provenance != "recomputed"
@@ -1416,7 +1540,8 @@ def issue_generic_model_input_evaluation_decision(
         record_type=GenericModelInputEvaluationBasisV1,
     )
     if type(current_basis) is not GenericModelInputEvaluationBasisV1 or (
-        current_basis.action_job_id != selection.action_job_id
+        current_basis.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+        or current_basis.action_job_id != selection.action_job_id
         or current_basis.route_id != selection.route_id
         or current_basis.design_problem_ref != origin.source_cycle.design_problem_ref
         or current_basis.design_problem_basis_ref != origin.n5_expectation.design_problem_ref
@@ -1513,7 +1638,7 @@ def issue_generic_model_input_evaluation_decision(
     payload = {
         "schema_version": "GenericModelInputEvaluationDecision@1.0",
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_rule": "generic-program-graph-declared-numerical-basis.v1",
+        "comparison_rule": "generic-program-graph-declared-numerical-basis.v2",
         "decision_kind": decision_kind,
         "tenant_id": origin.tenant_id,
         "cell_id": origin.cell_id,
@@ -1579,6 +1704,8 @@ def _verify_generic_model_input_replacement(
     if (
         type(decision) is not GenericModelInputEvaluationDecisionV1
         or type(prospective) is not GenericModelInputEvaluationBasisV1
+        or decision.comparison_rule != "generic-program-graph-declared-numerical-basis.v2"
+        or prospective.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
         or decision.decision_kind != "comparison"
         or decision.comparison_result not in ("different", "not_established")
         or not _candidate_ref_same(decision.current_basis_ref, prospective_basis_ref)

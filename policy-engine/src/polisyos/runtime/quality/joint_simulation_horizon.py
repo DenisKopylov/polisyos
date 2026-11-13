@@ -4497,7 +4497,7 @@ class JointSimulationHorizonController:
         content_scope = active_candidate_n5_content_run(self)
         if type(content_scope) is GenericProgramGraphN5ContentRun:
             try:
-                content_scope.prepare_program_graph(plan, decision)
+                content_scope.prepare_program_graph(plan, decision, semantic_input)
             except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
                 # Unsupported observation never becomes a reuse witness. The
                 # actual candidate numerical execution remains available.
@@ -6724,16 +6724,15 @@ def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[
         for index, ref in enumerate(replication.step_result_refs)
     ]
     raw = result.diagnostics.get("candidate_n5_execution_content_observation")
-    if isinstance(raw, dict) and raw.get("schema_version") == (
-        "GenericProgramGraphContentObservation@1.0"
-    ):
+    if isinstance(raw, dict) and raw.get("schema_version") in {
+        "GenericProgramGraphContentObservation@1.0",
+        "GenericProgramGraphContentObservation@2.0",
+    }:
         from polisyos.runtime.quality.n5_candidate_content import (
-            GenericProgramGraphContentObservationV1,
+            _read_generic_program_graph_observation_wire,
         )
 
-        observation = GenericProgramGraphContentObservationV1.model_validate_json(
-            json.dumps(raw, allow_nan=False)
-        )
+        observation = _read_generic_program_graph_observation_wire(raw)
         selected.extend(
             input_ref_from_artifact_ref(
                 call.state_ref,

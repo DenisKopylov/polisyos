@@ -2761,13 +2761,15 @@ def _verify_scoped_measurement(
         != epoch_contract.acquisition_semantic_candidate_content_hash(candidate)
         or artifact_ref_identity_key(candidate.source_record_ref)
         != artifact_ref_identity_key(source.source_record_ref)
-        or candidate.source_record_content_hash != source.source_watermark
+        or candidate.source_record_content_hash != str(source.source_record_ref.artifact_id)
     ):
         raise ValueError("foundry_input_bindings_semantic_source_owner_mismatch")
     if source.unit_transform != "identity":
         raise ValueError("foundry_input_bindings_fixed_unit_verifier_not_established")
     replayed = replay_scoped_measurement_occurrence(
-        store.get_bytes(source.source_record_ref),
+        read_api.catalog.read_scoped_measurement_source_body(
+            store, passport_mapping=passport, source_selection=source
+        ),
         observation_id=occurrence.observation_id,
         source_selection=source,
         unit_transform_evidence=None,

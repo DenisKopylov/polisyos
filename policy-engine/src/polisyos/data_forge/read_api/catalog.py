@@ -271,6 +271,9 @@ if TYPE_CHECKING:
         resolve_source_observation_class as resolve_source_observation_class,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        verify_declared_source_geography as verify_declared_source_geography,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         verify_local_source_rights as verify_local_source_rights,
     )
     from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
@@ -320,6 +323,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         assess_measurement_to_model_candidate as assess_measurement_to_model_candidate,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        read_scoped_measurement_source_body as read_scoped_measurement_source_body,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
@@ -593,6 +599,9 @@ _EXPORTS = {
     "normalized_acquisition_source_body": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "verify_declared_source_geography": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "acquisition_overlay_admission_fence": "polisyos.data_forge.domains.catalog.knowledge.overlay",
@@ -636,6 +645,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "assess_measurement_to_model_candidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
+    "read_scoped_measurement_source_body": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "LiveSourceExecutionEvidence": (

@@ -8,6 +8,7 @@ and actual selected callable; unresolved closure remains an explicit limitation.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -57,6 +58,7 @@ if TYPE_CHECKING:
         JointSimulationResult,
         PreparedJointSimulationConfiguration,
     )
+    from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
     from polisyos.runtime.quality.n5_replay_appointment import N5BlindReplayLaunchSpecV2
     from polisyos.runtime.quality.n5_replay_execution import (
         N5OriginalPreflight,
@@ -282,6 +284,16 @@ class GenericProgramGraphContentObservationV1(BaseModel):
         ):
             raise ValueError("generic_program_graph_content_incomplete")
         return self
+
+
+class GenericProgramGraphContentObservationV2(GenericProgramGraphContentObservationV1):
+    """A generic trace bound to the producer's versioned numerical intent."""
+
+    schema_version: Literal["GenericProgramGraphContentObservation@2.0"] = (
+        "GenericProgramGraphContentObservation@2.0"
+    )
+    numerical_intent_profile: Literal["generic_program_graph_declared_numerical_v2"]
+    numerical_intent_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 def _product_root() -> Path:
@@ -579,24 +591,55 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
         self.remaining_trace_bytes = 131072
         self.remaining_state_bytes = 8 * 1024 * 1024
         self.remaining_calls = 256
+        self.numerical_intent: bytes | None = None
+        self.preflight: ProgramGraphInputPreflight | None = None
 
-    def prepare_program_graph(self, plan: EnginePlan, decision: EngineDecision) -> None:
+    def prepare_program_graph(
+        self, plan: EnginePlan, decision: EngineDecision, semantic_input: object
+    ) -> None:
         """Observe the selected controller and its profile before physical work."""
+        from polisyos.core.contracts import load_model_input_obligation_set
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _prepare_generic_model_input_numerical_quantity,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            _SelectedSemanticProgramGraphInput,
+        )
+        from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
+
+        if (
+            self.configuration is not None
+            or decision.engine_kind != "program_graph"
+            or type(semantic_input) is not _SelectedSemanticProgramGraphInput
+            or len(self.request.engine_plan) != 1
+            or self.request.engine_plan[0] is not plan
+            or self.controller._select_engine(self.request).decision != decision
+        ):
+            raise ValueError("generic_program_graph_content_selection_invalid")
+        selected, _ = load_model_input_obligation_set(self.store, semantic_input.obligation_set_ref)
+        if selected.invocation != semantic_input.invocation:
+            raise ValueError("generic_program_graph_content_preflight_mismatch")
+        preflight = ProgramGraphInputPreflight(
+            obligation_refs=selected.obligation_refs,
+            supplied_initial_slots=selected.supplied_initial_slots,
+            parameter_override_bundle_ref=semantic_input.invocation.parameter_override_bundle_ref,
+            obligation_set_ref=semantic_input.obligation_set_ref,
+            invocation=semantic_input.invocation,
+        )
+        quantity = _prepare_generic_model_input_numerical_quantity(
+            store=self.store, request=self.request, preflight=preflight, controller=self.controller
+        )
         from polisyos.foundry.execute import execute_semantic_horizon_step
         from polisyos.runtime.quality.joint_simulation_horizon import (
             read_joint_simulation_configuration,
         )
 
-        if self.configuration is not None or decision.engine_kind != "program_graph":
-            raise ValueError("generic_program_graph_content_selection_invalid")
         self.configuration = read_joint_simulation_configuration(self.controller)
         self.selected_callable = execute_semantic_horizon_step
-        self.profile = _native_profile(
-            self.configuration, numerical_callable=self.selected_callable
-        )
-        self.source_image = capture_n5_production_image(
-            root=_product_root(), admitted_profile=_prepared_image_descriptor(self.configuration)
-        )
+        self.profile = quantity.execution_profile
+        self.source_image = quantity.source_image
+        self.numerical_intent = quantity.numerical_intent
+        self.preflight = preflight
         self.method_fqn = decision.method_fqn
         self.planned_units = _planned_units(self.request, plan, decision)
 
@@ -864,6 +907,8 @@ def bind_generic_program_graph_n5_content_observation(
         or scope.configuration is None
         or scope.profile is None
         or scope.source_image is None
+        or scope.numerical_intent is None
+        or scope.preflight is None
     ):
         return result
     payload = deepcopy(_candidate_result_payload(result))
@@ -902,10 +947,28 @@ def bind_generic_program_graph_n5_content_observation(
         reasons.append("generic_program_graph_execution_profile_not_established")
     if not image_stable or scope.source_image.provenance != "recomputed":
         reasons.append("generic_program_graph_source_image_not_established")
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GENERIC_NUMERICAL_INTENT_PROFILE,
+        _prepare_generic_model_input_numerical_quantity,
+    )
+
+    try:
+        final_quantity = _prepare_generic_model_input_numerical_quantity(
+            store=scope.store,
+            request=scope.request,
+            preflight=scope.preflight,
+            controller=scope.controller,
+        )
+        if final_quantity.numerical_intent != scope.numerical_intent:
+            reasons.append("generic_program_graph_numerical_intent_changed")
+    except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
+        reasons.append("generic_program_graph_numerical_intent_not_established")
     values = {
-        "schema_version": "GenericProgramGraphContentObservation@1.0",
+        "schema_version": "GenericProgramGraphContentObservation@2.0",
         "authority_purpose": "candidate_declared_numerical_basis_only",
         "call_normalization_profile": GENERIC_FOUNDRY_CALL_NORMALIZATION,
+        "numerical_intent_profile": GENERIC_NUMERICAL_INTENT_PROFILE,
+        "numerical_intent_sha256": "sha256:" + hashlib.sha256(scope.numerical_intent).hexdigest(),
         "input_ref_identity": artifact_ref_identity_key(scope.input_ref),
         "semantic_successor_ref": scope.semantic_successor_ref.model_dump(mode="json"),
         "source_image": scope.source_image.model_dump(mode="json"),
@@ -923,7 +986,7 @@ def bind_generic_program_graph_n5_content_observation(
         "protected_use_allowed": False,
     }
     values = json.loads(json.dumps(values, allow_nan=False))
-    observation = GenericProgramGraphContentObservationV1.model_validate_json(
+    observation = GenericProgramGraphContentObservationV2.model_validate_json(
         json.dumps({**values, "content_hash": exact_n5_content_hash(values)}, allow_nan=False)
     )
     payload["diagnostics"][CONTENT_OBSERVATION_KEY] = observation.model_dump(mode="json")
@@ -1240,7 +1303,7 @@ def read_generic_program_graph_n5_content_observation(
     semantic_successor_ref: ArtifactRef,
     expected_request: JointSimulationRequest,
     store: CoreJSONArtifactStore,
-) -> GenericProgramGraphContentObservationV1:
+) -> GenericProgramGraphContentObservationV2:
     """Reopen original graph calls and their actual selected Foundry step chains.
 
     This historical producer observation is not a current permission, a
@@ -1250,10 +1313,10 @@ def read_generic_program_graph_n5_content_observation(
     from polisyos.core.contracts import ExecPlan, ProgramGraph
     from polisyos.foundry.execute import (
         admit_semantic_horizon_step_chain,
+        load_model,
         load_state_snapshot,
         state_snapshot_value_projection,
     )
-    from polisyos.foundry.execute.executor import load_model
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
         PreparedJointSimulationConfiguration,
@@ -1267,10 +1330,11 @@ def read_generic_program_graph_n5_content_observation(
     raw = result.diagnostics.get(CONTENT_OBSERVATION_KEY)
     if type(raw) is not dict:
         raise ValueError("generic_program_graph_content_observation_missing")
-    _require_n5_json_wire_domain(raw)
-    observation = GenericProgramGraphContentObservationV1.model_validate_json(json.dumps(raw))
+    observation = _read_generic_program_graph_observation_wire(raw)
     if (
-        input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
+        type(observation) is not GenericProgramGraphContentObservationV2
+        or observation.numerical_intent_profile != "generic_program_graph_declared_numerical_v2"
+        or input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
         or input_ref.media_type != "application/json"
         or input_ref.manifest_profile_sha256 is None
         or semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
@@ -1381,6 +1445,21 @@ def read_generic_program_graph_n5_content_observation(
     if checked != set(planned):
         raise ValueError("generic_program_graph_content_physical_units_mismatch")
     return observation
+
+
+def _read_generic_program_graph_observation_wire(
+    raw: object,
+) -> GenericProgramGraphContentObservationV1 | GenericProgramGraphContentObservationV2:
+    """Decode either recorded version without upgrading a historical trace."""
+    if type(raw) is not dict:
+        raise ValueError("generic_program_graph_content_observation_missing")
+    _require_n5_json_wire_domain(raw)
+    version = raw.get("schema_version")
+    if version == "GenericProgramGraphContentObservation@1.0":
+        return GenericProgramGraphContentObservationV1.model_validate_json(json.dumps(raw))
+    if version == "GenericProgramGraphContentObservation@2.0":
+        return GenericProgramGraphContentObservationV2.model_validate_json(json.dumps(raw))
+    raise ValueError("generic_program_graph_content_schema_unsupported")
 
 
 def _read_candidate_n5_observation_wire(raw: object) -> CandidateN5ContentObservation:

@@ -79,7 +79,7 @@ def test_generic_basis_component_roundtrips_selected_cas_and_event(
         payload = {
             "schema_version": "GenericModelInputEvaluationBasis@1.0",
             "authority_purpose": "candidate_evaluation_retention_only",
-            "comparison_profile": "generic_program_graph_declared_numerical_v1",
+            "comparison_profile": "generic_program_graph_declared_numerical_v2",
             "basis_role": "blocked",
             "tenant_id": TENANT_ID,
             "cell_id": CELL_ID,
@@ -211,6 +211,29 @@ def test_generic_basis_component_roundtrips_selected_cas_and_event(
                 "expected_frontier_ref": None,
                 "generated_at": TRANSACTION_TIME.isoformat(),
             }
+            historical_selection = component_ref(
+                "runtime.quality.model_input_successor_selection", "historical"
+            )
+            historical_payload = {
+                **payload,
+                "comparison_profile": "generic_program_graph_declared_numerical_v1",
+                "semantic_successor_ref": historical_selection.model_dump(mode="json"),
+            }
+            historical = GenericModelInputEvaluationBasisV1.model_validate(
+                {**historical_payload, "content_hash": exact_n5_content_hash(historical_payload)}
+            )
+            historical_ref = persist_acquisition_evaluation_artifact(
+                store=store, event_log=events, record=historical
+            )
+            assert read(historical_ref) == historical
+            with pytest.raises(ValueError, match="decision_current_basis_mismatch"):
+                issue_generic_model_input_evaluation_decision(
+                    **{
+                        **initial,
+                        "semantic_successor_ref": historical_selection,
+                        "current_basis_ref": historical_ref,
+                    }
+                )
             with pytest.raises(ValueError, match="initial_decision_invalid"):
                 issue_generic_model_input_evaluation_decision(**initial)
             prospective_payload = {

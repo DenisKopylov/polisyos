@@ -167,6 +167,11 @@ Cross-owner runtime imports use the exact Foundry owner facades: `data_plane`,
 canonical owner objects and preserve existing runtime semantics. The routes add
 no evidence, authority, or institutional claims.
 
+The `execute` facade lazily exposes the existing `load_model` and `load_payload`
+owner functions. They retain the same selected-profile, typed-model and error
+behavior as the executor exports; callers must still establish the relevant
+artifact and use authority.
+
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
 deep-importing ad hoc internals.

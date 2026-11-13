@@ -1053,3 +1053,69 @@ def test_legacy_authority_entries_omit_absent_semantic_refs_and_pair_them(
     values["source_semantic_definition_ref"] = definition_ref
     with pytest.raises(ValidationError, match="source semantic definition and representation refs"):
         build_authority_entry(**values)
+
+
+def test_declared_source_geography_preserves_native_and_model_coordinates(tmp_path: Path) -> None:
+    import json
+
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        _preacquisition_source_scope_refusal,
+        verify_declared_source_geography,
+    )
+    from tests._helpers.acquisition_production import _normalized_rows, _raw_body
+
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, source_representation_ref, _, interface_ref = _model_inputs(store)
+    original = _authority_entry(definition_ref, source_representation_ref)
+    values = original.model_dump(mode="python", exclude={"entry_id"})
+    values["source_measure_scope"] = AcquisitionSourceMeasureScope(
+        population="population:whole-country",
+        temporal_granularity="annual",
+        source_geography_id="UA",
+        geography_ref="UA",
+        jurisdiction_ref="UA",
+        time_period_basis="calendar_year",
+    )
+    entry = build_authority_entry(**values)
+    assert entry.country_codes == ("UKR",)
+    interface = load_program_graph_input_interface(store, interface_ref)
+    (port,) = interface.ports
+    port = port.model_copy(
+        update={
+            "scope": port.scope.model_copy(update={"geography_ref": "UA", "jurisdiction_ref": "UA"})
+        }
+    )
+    scoped_interface = interface.model_copy(update={"ports": (port,)})
+    scoped_interface_ref = persist_program_graph_input_interface(store, scoped_interface)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    candidate = authority.discover_model_input_source_descriptor(
+        store, model_input_interface_ref=scoped_interface_ref, port_id=port.port_id
+    )
+    assert candidate.authority_entry_id == entry.entry_id
+
+    source_representation = load_variable_representation(store, source_representation_ref)
+    assert _preacquisition_source_scope_refusal(entry, port.scope, source_representation) is None
+    mismatched_scope = port.scope.model_copy(update={"jurisdiction_ref": "US"})
+    assert (
+        _preacquisition_source_scope_refusal(entry, mismatched_scope, source_representation)
+        == "source_geography_scope_mismatch"
+    )
+    assert entry.source_measure_scope is not None
+    changed_values = entry.model_dump(mode="python", exclude={"entry_id"})
+    changed_values["source_measure_scope"] = entry.source_measure_scope.model_copy(
+        update={"time_period_basis": "fiscal_year"}
+    )
+    changed_period = build_authority_entry(**changed_values)
+    assert (
+        _preacquisition_source_scope_refusal(changed_period, port.scope, source_representation)
+        == "source_period_basis_mismatch"
+    )
+
+    raw = _raw_body(_normalized_rows())
+    verify_declared_source_geography(entry, connector_id="worldbank.wdi", raw_body=raw)
+    altered = json.loads(raw)
+    altered[1][0]["country"]["id"] = "US"
+    with pytest.raises(AcquisitionAuthorityError, match="source_declared_geography_mismatch"):
+        verify_declared_source_geography(
+            entry, connector_id="worldbank.wdi", raw_body=json.dumps(altered).encode()
+        )

@@ -2415,6 +2415,235 @@ def _acquisition_route_receipt_inputs(
     return tuple(sorted(refs))
 
 
+def _read_verified_acquisition_action_phase(
+    *,
+    artifact_store: artifacts.VerifiableArtifactReader,
+    event_log: RuntimeDiagnosticEventLog,
+    receipt_ref: str,
+    selected_ref: ArtifactRef | None = None,
+) -> VerifiedAcquisitionActionPhase:
+    """Read exact receipt bytes and verify their complete producer-event binding.
+
+    This is the sink's historical read proof, separated from its writer and
+    control-job capabilities. It grants no current head, lease or permission.
+    """
+    if (
+        not receipt_ref.startswith("sha256:")
+        or len(receipt_ref) != 71
+        or any(character not in "0123456789abcdef" for character in receipt_ref[7:])
+    ):
+        raise ValueError("acquisition_action_head_receipt_ref_invalid")
+    artifact_id = artifacts.ArtifactID.model_validate(receipt_ref)
+    if selected_ref is not None and (
+        selected_ref.artifact_id != artifact_id
+        or selected_ref.kind
+        not in {
+            "runtime_quality.acquisition_route_loop_receipt",
+            "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+        }
+        or selected_ref.media_type != "application/json"
+        or selected_ref.manifest_profile_sha256 is None
+        or set(type(selected_ref).model_fields) - set(ArtifactRef.model_fields)
+    ):
+        raise ValueError("acquisition_action_receipt_profile_invalid")
+    selector = selected_ref if selected_ref is not None else artifact_id
+    payload = artifact_store.get_bytes(selector)
+    if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
+        raise ValueError("acquisition_action_head_receipt_hash_mismatch")
+    manifest = read_core_manifest_profile(artifact_store, selector)[0]
+    if selected_ref is not None and artifacts.artifact_ref_identity_key(
+        artifact_ref_for_manifest(manifest)
+    ) != artifacts.artifact_ref_identity_key(selected_ref):
+        raise ValueError("acquisition_candidate_terminal_profile_mismatch")
+    if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
+        version = manifest.artifact_schema.version if manifest.artifact_schema else None
+        schema = manifest.artifact_schema
+        if (
+            schema is not None
+            and schema.name == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+        ):
+            if version == "1.0":
+                receipt_type = AcquisitionCandidateExperimentTerminalReceipt
+            elif version == "2.0":
+                receipt_type = AcquisitionCandidateExperimentTerminalReceiptV2
+            else:
+                raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
+            schema_name = "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+        else:
+            receipt_type = {
+                "2.0": AcquisitionRouteLoopReceiptV2,
+                "3.0": AcquisitionCandidateRouteLoopReceipt,
+            }.get(version, AcquisitionRouteLoopReceipt)
+            schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+    elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
+        receipt_type = AcquisitionRoutePhaseReceipt
+        schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+    elif manifest.kind == "runtime_quality.acquisition_candidate_experiment_phase_receipt":
+        receipt_type = AcquisitionCandidateExperimentPhaseReceipt
+        schema_name = "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
+    else:
+        raise ValueError("acquisition_action_head_receipt_kind_invalid")
+    receipt = receipt_type.model_validate(
+        read_core_json_artifact(
+            artifact_store,
+            artifact_ref_for_manifest(manifest),
+            raw_payload_bytes=payload,
+        ).value
+    )
+    schema = manifest.artifact_schema
+    tenant = manifest.tenant_context
+    closure = manifest.same_input_closure
+    producer = manifest.producer
+    if (
+        schema is None
+        or schema.name != schema_name
+        or schema.version != receipt.schema_version.rsplit("@", 1)[-1]
+        or manifest.media_type != "application/json"
+        or producer is None
+        or producer.component != "polisyos.runtime.acquisition_route_loop"
+        or producer.version != "2026.08.28+ds15-c02"
+        or tenant is None
+        or tenant.tenant_id != receipt.tenant_id
+        or tenant.cell_id != receipt.cell_id
+        or closure is None
+        or closure.closure_id != f"acquisition-route:{receipt.receipt_id}"
+        or closure.status != "closed"
+        or closure.run_id != receipt.run_id
+        or closure.job_id != receipt.job_id
+        or closure.tenant_id != receipt.tenant_id
+        or closure.cell_id != receipt.cell_id
+        or closure.closure_sha256 != receipt.route_id
+    ):
+        raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
+    if type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
+        if selected_ref is None:
+            raise ValueError("candidate_experiment_reuse_terminal_profile_required")
+        occurrence_role = "candidate_experiment_reuse_occurrence"
+        expected_occurrence = artifacts.input_ref_from_artifact_ref(
+            receipt.reuse_occurrence_ref, role=occurrence_role
+        )
+        if [item for item in manifest.inputs if item.role == occurrence_role] != [
+            expected_occurrence
+        ]:
+            raise ValueError("candidate_experiment_reuse_terminal_occurrence_manifest_mismatch")
+    report = reconcile_authority_ref(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        cas_ref=selected_ref if selected_ref is not None else receipt_ref,
+        expected_tenant_id=receipt.tenant_id,
+        expected_cell_id=receipt.cell_id,
+        expected_run_id=receipt.run_id,
+        expected_job_id=receipt.job_id,
+    )
+    if report.durable_event_id is None or manifest.authority is None:
+        raise ValueError("acquisition_action_head_receipt_event_missing")
+    event_ref = resolve_authority_diagnostic_event_ref(artifact_store, manifest.authority)
+    event_manifest = read_core_manifest_profile(artifact_store, event_ref)[0]
+    selected_event_ref = artifact_ref_for_manifest(event_manifest)
+    event_schema = event_manifest.artifact_schema
+    if (
+        event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+        or event_schema is None
+        or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+        or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+    ):
+        raise ValueError("acquisition_action_phase_event_schema_invalid")
+    event_payload = artifact_store.get_bytes(selected_event_ref)
+    event_ref_text = str(event_ref.artifact_id)
+    if "sha256:" + hashlib.sha256(event_payload).hexdigest() != event_ref_text:
+        raise ValueError("acquisition_action_phase_event_hash_mismatch")
+    event = DiagnosticEvent.model_validate(
+        read_core_json_artifact(
+            artifact_store,
+            selected_event_ref,
+            raw_payload_bytes=event_payload,
+        ).value
+    )
+    expected_inputs = _acquisition_route_receipt_inputs(receipt)
+    expected_event_type = (
+        "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+        if type(receipt)
+        in {
+            AcquisitionCandidateExperimentTerminalReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        }
+        else (
+            "polisyos.runtime.acquisition.route_loop.v3"
+            if isinstance(receipt, AcquisitionCandidateRouteLoopReceipt)
+            else (
+                "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
+                if isinstance(receipt, AcquisitionCandidateExperimentPhaseReceipt)
+                else (
+                    "polisyos.runtime.acquisition.route_loop.v2"
+                    if isinstance(receipt, AcquisitionRouteLoopReceiptV2)
+                    else (
+                        "polisyos.runtime.acquisition.route_loop.v1"
+                        if isinstance(receipt, AcquisitionRouteLoopReceipt)
+                        else "polisyos.runtime.acquisition.route_phase.v1"
+                    )
+                )
+            )
+        )
+    )
+    expected_blocking = (
+        "blocking"
+        if receipt.recovery_state == "reentry_recovery_required"
+        or (
+            type(receipt)
+            in {
+                AcquisitionCandidateExperimentTerminalReceipt,
+                AcquisitionCandidateExperimentTerminalReceiptV2,
+            }
+            and receipt.terminal_outcome == "candidate_blocked"
+        )
+        else "non_blocking"
+    )
+    records = event_log.list_events(
+        event_id=event.event_id,
+        run_id=receipt.run_id,
+        job_id=receipt.job_id,
+        limit=100,
+    )
+    if (
+        report.durable_event_id != event.event_id
+        or len(records) != 1
+        or records[0].event != event
+        or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+        or event.event_type != expected_event_type
+        or event.event_subject
+        != f"run/{receipt.run_id}/job/{receipt.job_id}/acquisition/{receipt.receipt_phase}"
+        or event.event_time != receipt.generated_at
+        or event.trace_id != f"trace-{receipt.job_id}"
+        or event.span_id != f"span-{receipt.receipt_phase}"
+        or event.parent_span_id is not None
+        or event.run_id != receipt.run_id
+        or event.job_id != receipt.job_id
+        or event.tenant_id != receipt.tenant_id
+        or event.cell_id != receipt.cell_id
+        or event.producer_component != "polisyos.runtime.acquisition_route_loop"
+        or event.producer_version != "2026.08.28+ds15-c02"
+        or event.execution_profile != "governed"
+        or event.phase != "acquisition_route_loop"
+        or event.state_after != receipt.receipt_phase
+        or (
+            type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2
+            and event.state_before != "executing"
+        )
+        or event.payload_ref != receipt_ref
+        or event.artifact_refs != (receipt_ref,)
+        or event.input_refs != expected_inputs
+        or closure.evidence_input_refs != expected_inputs
+        or event.blocking_status != expected_blocking
+    ):
+        raise ValueError("acquisition_action_phase_event_binding_mismatch")
+    return VerifiedAcquisitionActionPhase(
+        receipt_ref=receipt_ref,
+        receipt=receipt,
+        durable_event_id=event.event_id,
+        event=event,
+    )
+
+
 class AcquisitionRouteLoopAuthoritySink:
     """Persist and advance verified acquisition route phase heads."""
 
@@ -3007,220 +3236,11 @@ class AcquisitionRouteLoopAuthoritySink:
         self, receipt_ref: str, *, selected_ref: ArtifactRef | None = None
     ) -> VerifiedAcquisitionActionPhase:
         """Resolve exact receipt bytes and verify its complete producer-event binding."""
-        if (
-            not receipt_ref.startswith("sha256:")
-            or len(receipt_ref) != 71
-            or any(character not in "0123456789abcdef" for character in receipt_ref[7:])
-        ):
-            raise ValueError("acquisition_action_head_receipt_ref_invalid")
-        artifact_id = artifacts.ArtifactID.model_validate(receipt_ref)
-        if selected_ref is not None and (
-            selected_ref.artifact_id != artifact_id
-            or selected_ref.kind
-            not in {
-                "runtime_quality.acquisition_route_loop_receipt",
-                "runtime_quality.acquisition_candidate_experiment_phase_receipt",
-            }
-            or selected_ref.media_type != "application/json"
-            or selected_ref.manifest_profile_sha256 is None
-            or set(type(selected_ref).model_fields) - set(ArtifactRef.model_fields)
-        ):
-            raise ValueError("acquisition_action_receipt_profile_invalid")
-        selector = selected_ref if selected_ref is not None else artifact_id
-        payload = self._artifact_store.get_bytes(selector)
-        if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
-            raise ValueError("acquisition_action_head_receipt_hash_mismatch")
-        manifest = read_core_manifest_profile(self._artifact_store, selector)[0]
-        if selected_ref is not None and artifacts.artifact_ref_identity_key(
-            artifact_ref_for_manifest(manifest)
-        ) != artifacts.artifact_ref_identity_key(selected_ref):
-            raise ValueError("acquisition_candidate_terminal_profile_mismatch")
-        if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
-            version = manifest.artifact_schema.version if manifest.artifact_schema else None
-            schema = manifest.artifact_schema
-            if (
-                schema is not None
-                and schema.name == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
-            ):
-                if version == "1.0":
-                    receipt_type = AcquisitionCandidateExperimentTerminalReceipt
-                elif version == "2.0":
-                    receipt_type = AcquisitionCandidateExperimentTerminalReceiptV2
-                else:
-                    raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
-                schema_name = "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
-            else:
-                receipt_type = {
-                    "2.0": AcquisitionRouteLoopReceiptV2,
-                    "3.0": AcquisitionCandidateRouteLoopReceipt,
-                }.get(version, AcquisitionRouteLoopReceipt)
-                schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
-        elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
-            receipt_type = AcquisitionRoutePhaseReceipt
-            schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
-        elif manifest.kind == "runtime_quality.acquisition_candidate_experiment_phase_receipt":
-            receipt_type = AcquisitionCandidateExperimentPhaseReceipt
-            schema_name = "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
-        else:
-            raise ValueError("acquisition_action_head_receipt_kind_invalid")
-        receipt = receipt_type.model_validate(
-            read_core_json_artifact(
-                self._artifact_store,
-                artifact_ref_for_manifest(manifest),
-                raw_payload_bytes=payload,
-            ).value
-        )
-        schema = manifest.artifact_schema
-        tenant = manifest.tenant_context
-        closure = manifest.same_input_closure
-        producer = manifest.producer
-        if (
-            schema is None
-            or schema.name != schema_name
-            or schema.version != receipt.schema_version.rsplit("@", 1)[-1]
-            or manifest.media_type != "application/json"
-            or producer is None
-            or producer.component != "polisyos.runtime.acquisition_route_loop"
-            or producer.version != "2026.08.28+ds15-c02"
-            or tenant is None
-            or tenant.tenant_id != receipt.tenant_id
-            or tenant.cell_id != receipt.cell_id
-            or closure is None
-            or closure.closure_id != f"acquisition-route:{receipt.receipt_id}"
-            or closure.status != "closed"
-            or closure.run_id != receipt.run_id
-            or closure.job_id != receipt.job_id
-            or closure.tenant_id != receipt.tenant_id
-            or closure.cell_id != receipt.cell_id
-            or closure.closure_sha256 != receipt.route_id
-        ):
-            raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
-        if type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
-            if selected_ref is None:
-                raise ValueError("candidate_experiment_reuse_terminal_profile_required")
-            occurrence_role = "candidate_experiment_reuse_occurrence"
-            expected_occurrence = artifacts.input_ref_from_artifact_ref(
-                receipt.reuse_occurrence_ref, role=occurrence_role
-            )
-            if [item for item in manifest.inputs if item.role == occurrence_role] != [
-                expected_occurrence
-            ]:
-                raise ValueError("candidate_experiment_reuse_terminal_occurrence_manifest_mismatch")
-        report = reconcile_authority_ref(
+        return _read_verified_acquisition_action_phase(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
-            cas_ref=selected_ref if selected_ref is not None else receipt_ref,
-            expected_tenant_id=receipt.tenant_id,
-            expected_cell_id=receipt.cell_id,
-            expected_run_id=receipt.run_id,
-            expected_job_id=receipt.job_id,
-        )
-        if report.durable_event_id is None or manifest.authority is None:
-            raise ValueError("acquisition_action_head_receipt_event_missing")
-        event_ref = resolve_authority_diagnostic_event_ref(self._artifact_store, manifest.authority)
-        event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
-        selected_event_ref = artifact_ref_for_manifest(event_manifest)
-        event_schema = event_manifest.artifact_schema
-        if (
-            event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
-            or event_schema is None
-            or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
-            or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
-        ):
-            raise ValueError("acquisition_action_phase_event_schema_invalid")
-        event_payload = self._artifact_store.get_bytes(selected_event_ref)
-        event_ref_text = str(event_ref.artifact_id)
-        if "sha256:" + hashlib.sha256(event_payload).hexdigest() != event_ref_text:
-            raise ValueError("acquisition_action_phase_event_hash_mismatch")
-        event = DiagnosticEvent.model_validate(
-            read_core_json_artifact(
-                self._artifact_store,
-                selected_event_ref,
-                raw_payload_bytes=event_payload,
-            ).value
-        )
-        expected_inputs = _acquisition_route_receipt_inputs(receipt)
-        expected_event_type = (
-            "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
-            if type(receipt)
-            in {
-                AcquisitionCandidateExperimentTerminalReceipt,
-                AcquisitionCandidateExperimentTerminalReceiptV2,
-            }
-            else (
-                "polisyos.runtime.acquisition.route_loop.v3"
-                if isinstance(receipt, AcquisitionCandidateRouteLoopReceipt)
-                else (
-                    "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
-                    if isinstance(receipt, AcquisitionCandidateExperimentPhaseReceipt)
-                    else (
-                        "polisyos.runtime.acquisition.route_loop.v2"
-                        if isinstance(receipt, AcquisitionRouteLoopReceiptV2)
-                        else (
-                            "polisyos.runtime.acquisition.route_loop.v1"
-                            if isinstance(receipt, AcquisitionRouteLoopReceipt)
-                            else "polisyos.runtime.acquisition.route_phase.v1"
-                        )
-                    )
-                )
-            )
-        )
-        expected_blocking = (
-            "blocking"
-            if receipt.recovery_state == "reentry_recovery_required"
-            or (
-                type(receipt)
-                in {
-                    AcquisitionCandidateExperimentTerminalReceipt,
-                    AcquisitionCandidateExperimentTerminalReceiptV2,
-                }
-                and receipt.terminal_outcome == "candidate_blocked"
-            )
-            else "non_blocking"
-        )
-        records = self._event_log.list_events(
-            event_id=event.event_id,
-            run_id=receipt.run_id,
-            job_id=receipt.job_id,
-            limit=100,
-        )
-        if (
-            report.durable_event_id != event.event_id
-            or len(records) != 1
-            or records[0].event != event
-            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
-            or event.event_type != expected_event_type
-            or event.event_subject
-            != f"run/{receipt.run_id}/job/{receipt.job_id}/acquisition/{receipt.receipt_phase}"
-            or event.event_time != receipt.generated_at
-            or event.trace_id != f"trace-{receipt.job_id}"
-            or event.span_id != f"span-{receipt.receipt_phase}"
-            or event.parent_span_id is not None
-            or event.run_id != receipt.run_id
-            or event.job_id != receipt.job_id
-            or event.tenant_id != receipt.tenant_id
-            or event.cell_id != receipt.cell_id
-            or event.producer_component != "polisyos.runtime.acquisition_route_loop"
-            or event.producer_version != "2026.08.28+ds15-c02"
-            or event.execution_profile != "governed"
-            or event.phase != "acquisition_route_loop"
-            or event.state_after != receipt.receipt_phase
-            or (
-                type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2
-                and event.state_before != "executing"
-            )
-            or event.payload_ref != receipt_ref
-            or event.artifact_refs != (receipt_ref,)
-            or event.input_refs != expected_inputs
-            or closure.evidence_input_refs != expected_inputs
-            or event.blocking_status != expected_blocking
-        ):
-            raise ValueError("acquisition_action_phase_event_binding_mismatch")
-        return VerifiedAcquisitionActionPhase(
             receipt_ref=receipt_ref,
-            receipt=receipt,
-            durable_event_id=event.event_id,
-            event=event,
+            selected_ref=selected_ref,
         )
 
     def _verified_receipt_ref(

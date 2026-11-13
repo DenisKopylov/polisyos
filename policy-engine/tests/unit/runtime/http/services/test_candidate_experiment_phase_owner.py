@@ -28,6 +28,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.runtime.http.services.control.artifacts import write_runtime_authority_artifact
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
+    _read_verified_acquisition_action_phase,
 )
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
@@ -527,9 +528,22 @@ def test_reuse_terminal_reader_requires_exact_occurrence_edge_and_event_lineage(
         )
         with pytest.raises(ValueError, match=error):
             sink._read_verified_action_phase(str(selected.artifact_id), selected_ref=selected)
+        with pytest.raises(ValueError, match=error):
+            _read_verified_acquisition_action_phase(
+                artifact_store=store,
+                event_log=event_log,
+                receipt_ref=str(selected.artifact_id),
+                selected_ref=selected,
+            )
         return
 
     verified = sink._read_verified_action_phase(str(selected.artifact_id), selected_ref=selected)
+    assert verified == _read_verified_acquisition_action_phase(
+        artifact_store=store,
+        event_log=event_log,
+        receipt_ref=str(selected.artifact_id),
+        selected_ref=selected,
+    )
     assert verified.receipt == terminal
     assert verified.event.state_before == "executing"
     with pytest.raises(ValueError, match="candidate_experiment_reuse_terminal_profile_required"):

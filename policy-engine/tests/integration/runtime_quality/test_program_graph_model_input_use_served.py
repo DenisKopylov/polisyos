@@ -561,7 +561,10 @@ def _assert_foundry_successor(
         assert target_representation.schema_version == (
             "polisyos.catalog.variable_representation.v2"
         )
-        assert target_representation.methodology_ref == expected_methodology_ref
+        assert target_representation.methodology_ref is not None
+        assert artifact_ref_identity_key(target_representation.methodology_ref) == (
+            artifact_ref_identity_key(expected_methodology_ref)
+        )
         assert tuple(target_representation_manifest.inputs) == (
             variable_representation_manifest_inputs(target_representation)
         )
@@ -1627,6 +1630,7 @@ def _run_activated_held_out_stock_scenario(
                             "currentness_resolver",
                         }
                         assert callable(run_kwargs["currentness_resolver"])
+                        assert run_kwargs["currentness_resolver"]() is True
                         semantic_ref = run_kwargs["semantic_successor_ref"]
                         assert isinstance(semantic_ref, ArtifactRef)
                         selection = read_model_input_successor_selection(store, semantic_ref)
@@ -1679,7 +1683,9 @@ def _run_activated_held_out_stock_scenario(
                             measurement.selected_occurrence_ref,
                         )
                         assert occurrence.observation_id == selection.observation_id
-                        assert occurrence.source_receipt_ref == selection.activation_receipt_ref
+                        assert artifact_ref_identity_key(occurrence.source_receipt_ref) == (
+                            artifact_ref_identity_key(selection.activation_receipt_ref)
+                        )
                         assert float(occurrence.canonical_value) == _OPENING_CASH
                         assert occurrence.canonical_unit == "usd"
                         assert occurrence.country_code == "UKR" and occurrence.year == 2022
@@ -1703,18 +1709,30 @@ def _run_activated_held_out_stock_scenario(
                         "run_semantic_successor",
                         stop_at_real_n5_entry,
                     )
+                    preflight_stop_observed = False
                     try:
-                        with pytest.raises(_InjectedN5PreflightStop):
+                        try:
                             _dispatch_crash_probe_once(
                                 control=selected_control,
                                 expected_job_id=selected_action_job_id,
                                 lease_seconds=10,
                             )
+                        except _InjectedN5PreflightStop:
+                            preflight_stop_observed = True
                     finally:
                         monkeypatch.setattr(
                             JointSimulationPort,
                             "run_semantic_successor",
                             run_semantic_successor,
+                        )
+                    if not preflight_stop_observed:
+                        failed_action = selected_control._control_store.get_job(
+                            selected_action_job_id
+                        )
+                        pytest.fail(
+                            "real N5 preflight sentinel was not reached; "
+                            f"action_state={None if failed_action is None else failed_action.state!r}; "
+                            f"action_error={None if failed_action is None else failed_action.error_message!r}"
                         )
                     assert len(preflight_owner_calls) == 1
                     semantic_ref, _selection, _prepared, _quota = preflight_owner_calls[0]

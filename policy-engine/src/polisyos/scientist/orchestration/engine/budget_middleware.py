@@ -34,6 +34,8 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
 
 __all__ = ["BudgetMiddleware"]
 
+_CANONICAL_FILE_LEDGER_SNAPSHOT = FileBudgetLedger.snapshot
+
 
 @dataclass(frozen=True)
 class _ProducerAttemptScope:
@@ -598,10 +600,18 @@ class BudgetMiddleware:
         with self._lock:
             if self._ledger is None:
                 raise RuntimeError("durable budget settlement requires a configured ledger")
-            snapshot = self._ledger.snapshot()
+            ledger = self._ledger
+            returns_fresh_file_snapshot = (
+                type(ledger) is FileBudgetLedger
+                and "snapshot" not in vars(ledger)
+                and type(ledger).snapshot is _CANONICAL_FILE_LEDGER_SNAPSHOT
+            )
+            snapshot = ledger.snapshot()
             if type(snapshot) is not BudgetLedgerSnapshot:
                 raise TypeError("budget_ledger_snapshot_must_be_typed")
             self._budget = snapshot.state.model_copy(deep=True)
+            if returns_fresh_file_snapshot:
+                return snapshot
             return snapshot.model_copy(deep=True)
 
     def configure_invocation_profile_safe(

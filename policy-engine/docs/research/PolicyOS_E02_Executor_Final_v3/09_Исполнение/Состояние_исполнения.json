@@ -9122,12 +9122,12 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "save/publish the checked main precision composition with ordinary hooks and remote readback",
-          "complete canonical current-use1.3 reseal and actual initial Generic observation/frontier; then one frozen real N5 route",
-          "wire genuine pre-numerical N7 blocked-input source to native per-leaf acquisition/partial-goal recovery and full target completion",
-          "compose new-data/mixed materialization and A->B->B->B->C, preserving current meaning/rights and no-extra-N5 controls",
-          "integrate shared precision into pathless state2.4; then temporal physical1.5, dataflow, vectors and selected-feedback consumers",
-          "P07/P08/GateB and original66/64 coverage; preserve expired NCM R2, B198 and DA06/07/08"
+          "paired V4 actuation/comparator repair with a real delta oracle; do not repeat readiness-only loops",
+          "initial Generic observation/frontier completion with canonical ledger proof; then actual numerical producer and fresh reader",
+          "configured pre-numerical N7 and genuine two-leaf acquisition/partial-goal recovery through existing Generic reentry",
+          "temporal1.5 actual prep/facts, method-output producer/consumer, then vector and feedback consumers under explicit owners",
+          "compose affected public/generated/docs consumers, repair concrete CI; one final source/input/backend verification wave",
+          "P07/P08/GateB and exact66/64 coverage; preserve expired NCM R2, B198 and DA06/07/08"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9138,7 +9138,7 @@
           "disk_floor_GiB": 3,
           "planned_wave_disk_growth_GiB": 2
         },
-        "free_disk_GiB_at_update": 5.8,
+        "free_disk_GiB_at_update": 10.991,
         "G_acceptance": false,
         "formal_closure": false,
         "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
@@ -9316,11 +9316,11 @@
           }
         },
         "latest_author_checkpoint": {
-          "commit": "5f2d8868613b3a3bd14c383fe958f87c833623a3",
-          "tree": "1a7402f3de2596a4d4d748a107776a3f4ddaa99a",
-          "remote_readback_at_update": "a5d3078ce5b446df2e6f6a4a7dc4ab2e9b73fa18",
+          "commit": "9d7116eff4c046786a0fd121dde90e0e107f781d",
+          "tree": "e1b54ea8400c029528186aaa4a0f5dd4fa5ed3f0",
+          "remote_readback_at_update": "9d7116eff4c046786a0fd121dde90e0e107f781d",
           "branch": "codex/e02-lane01-verify-20261108",
-          "scope": "source integrated into ordinary local main; later secondary growth remains visible WIP"
+          "scope": "40-path released checkpoint plus ordinary main precision merge; later Runtime and growth changes remain visible author WIP"
         },
         "latest_growth_checks": {
           "core_v3_and_legacy": {
@@ -9425,6 +9425,46 @@
             "helper_PASS": 4,
             "API_producer_consumer": "uncomposed; existing semantic feedback refusal retained",
             "budget_gap": "absent final gap -> independently checked tolerance not_established"
+          },
+          "persistent_precision_composition": {
+            "semantic_PASS": 11,
+            "wall_seconds": 96.357,
+            "peak_sampled_tree_RSS_bytes": 1591345152,
+            "critical_pins_stable": 40,
+            "full_loaded_freeze": false,
+            "limitation": "one additive DataForge facade changed; do not claim an all-loaded-source freeze PASS",
+            "output": "SECONDARY:_cache/e02/persistent-model-state-precision-r1-20261114/"
+          },
+          "dataflow_core": {
+            "PASS": 14,
+            "scope": "schema1.3 opt-in partial producer capture and joined consumption contract; graph producer/consumer runtime UNRUN",
+            "legacy_wires": "1.1/1.2 literal goldens unchanged"
+          },
+          "pure_profile_helpers": {
+            "PASS": 4,
+            "wall_seconds": 10.356,
+            "peak_sampled_tree_RSS_bytes": 820461568,
+            "scope": "pure profile before source activation, old defaults and explicit unit/year inputs; no N5"
+          },
+          "N7_registered_and_real_catalog_roles": {
+            "distinct_PASS": 8,
+            "commands": "R3 unchanged first positive; R4 seven negative/tail/real role cases",
+            "R4_wall_seconds": 35.716,
+            "R4_critical_pins_stable": 35,
+            "R4_observed_secondary_origins": 1771,
+            "scope": "component only, no N5/fetch/Control/N4; actual configured served/paid reentry unrun",
+            "output": "SECONDARY:_cache/e02/n7-registered-role-components-r4-20261114/run/"
+          },
+          "pure_method_dataflow_runtime": {
+            "scope": "bounded PURE NumPy scalar to PURE consumer, same invocation/step, candidate-only",
+            "R2": "actual -6B/-12B/-36B, hashes, cold reader and missing-row control succeeded; whole command failed at wrong missing-blob exception expectation",
+            "R3": "2PASS retained removal/restored admission plus actual failed-consumer partial history; no old positive producer repeated",
+            "R3_wall_seconds": 24.168,
+            "R3_peak_sampled_tree_RSS_bytes": 997801984,
+            "source_pins_stable": 48,
+            "N5": "unsupported; no new N5",
+            "remaining": "cheap affected compiler/helper/preflight checks, internal-output patch consumer and metric overlap",
+            "output": "SECONDARY:_cache/e02/method-output-input-retained-tail-r3-20261114/"
           }
         },
         "main_composition": {
@@ -9451,6 +9491,44 @@
           "revalidation_scope": "one-step non-axis/non-temporal registered method1.4, exact same prestate/profile/role-occurrence selectors",
           "new_data": "fresh source/meaning/rights producer remains separate; equality guard must not prohibit real new data by default",
           "initial_subject": "real initial Generic observation/frontier, no synthetic action/route/successor refs"
+        },
+        "ordinary_method_preflight": {
+          "R1": "FAIL before N4: fixture request/source-span mismatch; concurrent planner source drift",
+          "R2": "FAIL after genuine N4/currentSet1.3/freshbindings; generic typed request binding invalid, no N5",
+          "diagnosis": "known typed producer subclasses require exact four-field base-ref projection; strict selectors unchanged",
+          "retained_normalized_read_only_replay": "PASS at fresh binding/selection/BindingV2 boundaries, zero N5",
+          "typed_same_store_replay": "UNAVAILABLE after pytest shared-root retention; fresh cohort-owned no-N5 preflight required",
+          "next": "complete initial producer/store/public reader and component checks; freeze once for actual numerical producer, no more bookkeeping-only preflight repeats",
+          "R3": "canonical factory/currentSet/freshbindings/base-ref checks reached with45stablepins; harness Pydantic subtype-equality assertion failed afterwards",
+          "R3_retained_tail": "all strict replay/BindingV2/intake stages PASS withzero producer/N5; bindings changed so source-changing development, not qualifiedgreen"
+        },
+        "main_CI_repair": {
+          "base_commit": "133ffb723efabe7b18443841e1081d1d6ab60485",
+          "dashboard_server": "PASS real health/catalog route/shutdown; separate 3 lifecycle/loader PASS",
+          "locale_parity": "49 PASS; process-tree RSS unmeasured",
+          "named_trust_inspector": "2 PASS",
+          "linux_owned_cancel": "local SKIP; actual CAS payload fixture repaired; Linux CI needed",
+          "supervisor": "2newretention/overridePASS +23existingPASS in separate boundedcommands; full25distinctcoverage",
+          "canary": "ERROR/UNRUN before Runtime: missing CI bearer token injection, not a numerical product failure",
+          "phase1": "33 explicit deep-copy findings remain unresolved; no inherited attribution",
+          "generated_and_docs": "tools/trust posture regenerated; full docs gate including strict site build PASS56.355s/1338884096-byte sampled peak; final staged-source trust-posture check PASS19.978s/444956672-byte sampled peak"
+        },
+        "resource_housekeeping": {
+          "trash_only_moved_directories": 268,
+          "measured_allocated_bytes_sum": 6705643520,
+          "trash_emptied_by_coordinator": false,
+          "protected": "code, documentation, unique production data, retained numerical stores and current deciding output",
+          "pytest_retention_repair": "per-output default PYTEST_DEBUG_TEMPROOT; explicit override preserved; clean launcher still needs --basetemp"
+        },
+        "paired_policy_simulation_repair": {
+          "state": "APPROVED_IMPLEMENTATION_DIRECTION",
+          "actual_gap": "fixed semantic graph ignores intervention subset; no empty paired baseline currently executed",
+          "not_the_gap": "do not claim two baseline/treatment calls already exist; old empty-call diagnosis corrected",
+          "repair": "canonical persisted actuation axis + complete compiled binding census + actual same-seed paired baseline via existing physical-unit/comparator owner",
+          "profile": "new paired V4; V2/V3 unpaired history unchanged",
+          "numeric_identity": "operator/target/dose/schedule/direct effects remain algorithmic; provenance refs resolved after full field census",
+          "prototype": "raw4B test unrun/superseded, not an effect or N5 acceptance proof",
+          "owners": "Foundry/Core canonical executor + Runtime horizon/intent owner; no new engine/queue"
         }
       },
       "day_stop_20261113": {

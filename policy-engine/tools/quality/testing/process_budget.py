@@ -517,7 +517,9 @@ def run_command(
         "A child that changes process group or session can escape this cleanup boundary.",
         "Two empty scans indicate observed group quiescence, not proof that every descendant stopped.",
         "Live-group absence is established by a psutil process-table scan; access-denied scans remain unresolved.",
-        "The runner passes through the current environment and does not record its values.",
+        "The runner preserves the environment except that empty or unset PYTEST_DEBUG_TEMPROOT "
+        "defaults below this run's output directory; a non-empty configured value is preserved.",
+        "The runner does not record environment values.",
     ]
 
     try:
@@ -532,12 +534,18 @@ def run_command(
             primary_reason = "waitid_wnowait_unavailable"
         if primary_reason is None:
             with command_log.open("xb") as combined_output:
+                child_env = os.environ.copy()
+                if not child_env.get("PYTEST_DEBUG_TEMPROOT"):
+                    pytest_temproot = resolved_output / "pytest-debug-temproot"
+                    pytest_temproot.mkdir(mode=0o700)
+                    child_env["PYTEST_DEBUG_TEMPROOT"] = str(pytest_temproot)
                 process = subprocess.Popen(  # noqa: S603 -- explicit coordinator-supplied local argv; no shell.
                     list(command),
                     cwd=resolved_cwd,
                     stdin=subprocess.DEVNULL,
                     stdout=combined_output,
                     stderr=subprocess.STDOUT,
+                    env=child_env,
                     start_new_session=True,
                 )
                 try:

@@ -299,6 +299,7 @@ Generated from `tools.registry` command metadata.
 | `testing` | `local-integration-stack` | `active` | `polisyos-tools testing local-integration-stack` | Run the local runtime-dashboard integration stack and smoke profile. | - | - | - |
 | `testing` | `local-prod-debug-probe` | `active` | `polisyos-tools testing local-prod-debug-probe` | Run lightweight local production-debug validation probes. | - | - | - |
 | `testing` | `mutation` | `active` | `polisyos-tools testing mutation` | Run canonical mutmut suites with complete, scoped mutation evidence. | - | - | - |
+| `testing` | `process-budget` | `active` | `polisyos-tools testing process-budget` | Run one local command under measured process-tree and disk limits. | - | - | - |
 | `testing` | `repeat-pytest` | `active` | `polisyos-tools testing repeat-pytest` | Repeat one pytest invocation multiple times and fail on the first red run. | - | - | - |
 | `testing` | `report-test-economics` | `active` | `polisyos-tools testing report-test-economics` | Summarize slow suites and unstable tests from JUnit XML plus quarantine metadata. | - | - | - |
 | `testing` | `report-test-ratchets` | `active` | `polisyos-tools testing report-test-ratchets` | Report package-level mirror and property-test ratchets. | - | - | - |

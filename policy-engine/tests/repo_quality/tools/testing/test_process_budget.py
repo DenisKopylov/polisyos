@@ -54,6 +54,149 @@ def test_process_budget_captures_combined_output_and_success(tmp_path: Path) -> 
     assert receipt["command"] == result["command"]
 
 
+def test_process_budget_isolates_pytest_temporary_roots_between_sessions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    test_file = tmp_path / "test_retained_fixture.py"
+    test_file.write_text(
+        "import os\n"
+        "from pathlib import Path\n"
+        "\n"
+        "def test_retained_fixture(tmp_path):\n"
+        "    retained = tmp_path / 'fixture.txt'\n"
+        "    retained.write_text('still available', encoding='utf-8')\n"
+        "    Path(os.environ['PROCESS_BUDGET_FIXTURE_POINTER']).write_text(\n"
+        "        str(retained), encoding='utf-8'\n"
+        "    )\n",
+        encoding="utf-8",
+    )
+    config_file = tmp_path / "pytest.ini"
+    config_file.write_text("[pytest]\n", encoding="utf-8")
+    monkeypatch.delenv("PYTEST_DEBUG_TEMPROOT", raising=False)
+    monkeypatch.setenv("PYTEST_DISABLE_PLUGIN_AUTOLOAD", "1")
+    monkeypatch.setenv("PYTEST_ADDOPTS", "--disable-warnings")
+
+    retained_paths: list[Path] = []
+    output_dirs: list[Path] = []
+    for index in range(5):
+        pointer = tmp_path / f"fixture-pointer-{index}.txt"
+        monkeypatch.setenv("PROCESS_BUDGET_FIXTURE_POINTER", str(pointer))
+        output_dir = tmp_path / f"supervised-pytest-{index}"
+        result = run_command(
+            [
+                sys.executable,
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-c",
+                str(config_file),
+                "--noconftest",
+                str(test_file),
+            ],
+            cwd=tmp_path,
+            output_dir=output_dir,
+            max_rss_bytes=1024 * 1024 * 1024,
+            wall_seconds=30,
+            disk_floor_bytes=1,
+            sample_interval_seconds=0.05,
+        )
+
+        assert result["status"] == "PASS", result
+        retained = Path(pointer.read_text(encoding="utf-8"))
+        assert retained.is_file()
+        assert retained.is_relative_to(output_dir / "pytest-debug-temproot")
+        assert retained.read_text(encoding="utf-8") == "still available"
+        retained_paths.append(retained)
+        output_dirs.append(output_dir)
+
+    assert len(set(retained_paths)) == len(retained_paths)
+    assert retained_paths[0].is_file()
+    assert retained_paths[0].is_relative_to(output_dirs[0])
+    assert len({path.parent.parent.parent for path in retained_paths}) == 5
+
+
+def test_process_budget_preserves_explicit_pytest_temp_configuration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    test_file = tmp_path / "test_explicit_fixture.py"
+    test_file.write_text(
+        "import os\n"
+        "from pathlib import Path\n"
+        "\n"
+        "def test_explicit_fixture(tmp_path):\n"
+        "    Path(os.environ['PROCESS_BUDGET_FIXTURE_POINTER']).write_text(\n"
+        "        str(tmp_path), encoding='utf-8'\n"
+        "    )\n",
+        encoding="utf-8",
+    )
+    config_file = tmp_path / "pytest.ini"
+    config_file.write_text("[pytest]\n", encoding="utf-8")
+    monkeypatch.setenv("PYTEST_DISABLE_PLUGIN_AUTOLOAD", "1")
+    monkeypatch.setenv("PYTEST_ADDOPTS", "--disable-warnings")
+
+    explicit_root = tmp_path / "caller-selected-pytest-root"
+    explicit_root.mkdir()
+    monkeypatch.setenv("PYTEST_DEBUG_TEMPROOT", str(explicit_root))
+    first_pointer = tmp_path / "explicit-root-pointer.txt"
+    monkeypatch.setenv("PROCESS_BUDGET_FIXTURE_POINTER", str(first_pointer))
+    first_output = tmp_path / "explicit-root-output"
+    first = run_command(
+        [
+            sys.executable,
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-c",
+            str(config_file),
+            "--noconftest",
+            str(test_file),
+        ],
+        cwd=tmp_path,
+        output_dir=first_output,
+        max_rss_bytes=1024 * 1024 * 1024,
+        wall_seconds=30,
+        disk_floor_bytes=1,
+        sample_interval_seconds=0.05,
+    )
+    assert first["status"] == "PASS", first
+    explicit_fixture = Path(first_pointer.read_text(encoding="utf-8"))
+    assert explicit_fixture.is_relative_to(explicit_root)
+    assert not explicit_fixture.is_relative_to(first_output)
+
+    explicit_basetemp = tmp_path / "caller-selected-basetemp"
+    second_pointer = tmp_path / "explicit-basetemp-pointer.txt"
+    monkeypatch.setenv("PYTEST_DEBUG_TEMPROOT", str(explicit_root))
+    monkeypatch.setenv("PROCESS_BUDGET_FIXTURE_POINTER", str(second_pointer))
+    second_output = tmp_path / "explicit-basetemp-output"
+    second = run_command(
+        [
+            sys.executable,
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-c",
+            str(config_file),
+            "--noconftest",
+            "--basetemp",
+            str(explicit_basetemp),
+            str(test_file),
+        ],
+        cwd=tmp_path,
+        output_dir=second_output,
+        max_rss_bytes=1024 * 1024 * 1024,
+        wall_seconds=30,
+        disk_floor_bytes=1,
+        sample_interval_seconds=0.05,
+    )
+    assert second["status"] == "PASS", second
+    basetemp_fixture = Path(second_pointer.read_text(encoding="utf-8"))
+    assert basetemp_fixture.is_relative_to(explicit_basetemp)
+    assert not basetemp_fixture.is_relative_to(explicit_root)
+
+
 def test_process_budget_catches_child_after_stale_empty_census_and_cleans_group(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

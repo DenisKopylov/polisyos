@@ -3088,8 +3088,18 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             ),
         )
         manifest_id = str(manifest.artifact_id)
+        payload = cas.put_json(
+            {"fixture": "c57-process-ownership-payload"},
+            ArtifactWriteOptions(
+                kind="runtime.control_job_payload",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.test.C57JobPayload", version="1.0"),
+            ),
+        )
+        payload_ref = str(payload.artifact_id)
         creation = _job_creation_event(execution_scope=scope)
         creation["capability_manifest_ref"] = manifest_id
+        creation["payload_ref"] = payload_ref
         job = store.create_job(
             job_id="job_execution_admission",
             kind="workflow_run",
@@ -3099,7 +3109,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             effective_execution_profile="dev",
             policy_flags={"candidate": True},
             capability_manifest_ref=manifest_id,
-            payload_ref="sha256:payload-b",
+            payload_ref=payload_ref,
             submitted_by="denis",
             creation_event_payload=creation,
         )
@@ -3409,7 +3419,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                 effective_execution_profile="dev",
                 policy_flags={"candidate": True},
                 capability_manifest_ref=manifest_id,
-                payload_ref="sha256:payload-b",
+                payload_ref=payload_ref,
                 submitted_by="denis",
                 creation_event_payload=fresh_creation,
             )

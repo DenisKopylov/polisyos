@@ -1,0 +1,10 @@
+id = "2026-11-14-e02-fixture-and-retention"
+title = "Repair fixture Catalog startup and preserve supervised pytest inputs"
+type = "fixed"
+component = "workspace"
+owner = "team-policyos-runtime"
+summary = "The dashboard fixture server uses the existing isolated Catalog builder and closes its resources through ASGI lifespan. Supervised commands default unconfigured pytest temporary roots to their own output directories, preventing later independent runs from retiring retained inputs. Existing locale and named-dialog test companions track the delivered model-input history surface."
+compatibility = "Production authentication and Catalog validation stay enforced. Explicit pytest temp configuration and --basetemp remain supported; clean env -i launchers still require an explicit retained basetemp. No historical numerical result or schema is rewritten."
+surface_classification = "internal"
+evidence = ["tests/unit/runtime/http/test_fixture_runtime_api_loader.py", "tests/repo_quality/tools/testing/test_process_budget.py", "apps/runtime-dashboard/src/shared/i18n/parity.test.ts", "apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx"]
+limitations = "The repaired owned-child cancellation fixture is Linux-only and skips locally on macOS; Linux CI decides that behavior. Canary still requires authorized short-lived CI bearer injection. Locale semantics passed without measured process-tree RSS. No full-LANE or G acceptance claim."

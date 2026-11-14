@@ -1898,7 +1898,7 @@ def test_declared_ratio_times_denominator_materializes_and_replays_annual_flow(
 
     produced = materialize_derivation(store, recipe)
     consumed = consume_certified_derivation(
-        store,
+        artifacts.FileSystemCAS(tmp_path / "cas"),
         certificate_ref=produced.certificate_artifact_ref,
         consumer_method_id="test.fixture.derived.flow.consumer@1.0.0",
     )
@@ -1911,7 +1911,10 @@ def test_declared_ratio_times_denominator_materializes_and_replays_annual_flow(
         sorted((refs["ratio"].artifact_id, refs["denominator"].artifact_id), key=str)
     )
     assert consumed.series == (Decimal("-6000000000.00"),)
-    assert consumed.certificate.observation_class == "derived"
+    assert consumed.observation_class == "derived"
+    assert consumed.certificate_artifact_id == produced.certificate_artifact_ref.artifact_id
+    assert consumed.derived_artifact_id == produced.derived_artifact_ref.artifact_id
+    assert consumed.cache_verified
 
 
 def test_ratio_derivation_requires_both_exact_roles_and_annual_flow_output(

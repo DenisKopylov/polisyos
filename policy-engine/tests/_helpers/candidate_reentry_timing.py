@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 _TOOL_ID = 4
+_TOOL_NAME = "e02-candidate-reentry-timing"
 
 
 @dataclass(frozen=True, slots=True)
@@ -337,6 +338,8 @@ class _TimingObserver:
         }
         self.status = "not_started"
         self.reason: str | None = None
+        self.cleanup_status = "not_started"
+        self.cleanup_errors: list[str] = []
         self.observer_errors = 0
         self.unmatched_ends = 0
         self.selected_global_unwind_events_seen = 0
@@ -360,7 +363,7 @@ class _TimingObserver:
         if any(monitoring.get_local_events(_TOOL_ID, code) for code in self.codes.values()):
             return self._unavailable("tool ID 4 has pre-existing local events")
         try:
-            monitoring.use_tool_id(_TOOL_ID, "e02-candidate-reentry-timing")
+            monitoring.use_tool_id(_TOOL_ID, _TOOL_NAME)
             self._owned = True
             self._callbacks = {
                 events.PY_START: lambda code, *args: self._safe_start(code, *args),
@@ -473,6 +476,8 @@ class _TimingObserver:
                 "profile": self.profile,
                 "status": self.status,
                 "reason": self.reason,
+                "cleanup_status": self.cleanup_status,
+                "cleanup_errors": list(self.cleanup_errors),
                 "target_resolution": (
                     "unavailable"
                     if not self.codes
@@ -542,23 +547,85 @@ class _TimingObserver:
         if self._snapshot_thread is not None and self._snapshot_thread.is_alive():
             self._snapshot_thread.join(timeout=1)
         monitoring = getattr(sys, "monitoring", None)
-        if monitoring is not None and self._owned:
+        if monitoring is None:
+            if self._owned:
+                self.cleanup_status = "partial"
+                self.cleanup_errors.append("sys.monitoring unavailable during cleanup")
+                self.status = "instrumentation_cleanup_failed"
+                if self.reason is None:
+                    self.reason = self.cleanup_errors[-1]
+                self.observer_errors += 1
+            elif self.cleanup_status == "not_started":
+                self.cleanup_status = "not_owned"
+                if self.reason is None:
+                    self.status = "finished"
+            return
+        if not self._owned:
+            if self.cleanup_status == "not_started":
+                self.cleanup_status = "not_owned"
+            if self.reason is None:
+                self.status = "finished"
+            return
+
+        ownership_changed = False
+
+        def run_if_owned(operation: str, action: Any) -> None:
+            """Run one cleanup action only while tool 4 still belongs to us."""
+            nonlocal ownership_changed
             try:
-                for code in self._enabled_local:
-                    monitoring.set_local_events(_TOOL_ID, code, 0)
-                monitoring.set_events(_TOOL_ID, 0)
-                for event in (
-                    monitoring.events.PY_START,
-                    monitoring.events.PY_RETURN,
-                    monitoring.events.PY_UNWIND,
-                ):
-                    monitoring.register_callback(_TOOL_ID, event, None)
-                monitoring.free_tool_id(_TOOL_ID)
-            except Exception:
-                with self.lock:
-                    self.observer_errors += 1
-            self._owned = False
-        self.status = "finished" if self.reason is None else self.status
+                owner = monitoring.get_tool(_TOOL_ID)
+            except Exception as exc:
+                self.cleanup_errors.append(
+                    f"check ownership before {operation}: {type(exc).__name__}: {exc}"
+                )
+                return
+            if owner != _TOOL_NAME:
+                ownership_changed = True
+                return
+            try:
+                action()
+            except Exception as exc:
+                self.cleanup_errors.append(f"{operation}: {type(exc).__name__}: {exc}")
+
+        for code in self._enabled_local:
+            run_if_owned(
+                f"clear local events for {code.co_qualname}",
+                lambda code=code: monitoring.set_local_events(_TOOL_ID, code, 0),
+            )
+        run_if_owned("clear global events", lambda: monitoring.set_events(_TOOL_ID, 0))
+        for event in self._callbacks:
+            run_if_owned(
+                f"clear callback for event {event}",
+                lambda event=event: monitoring.register_callback(_TOOL_ID, event, None),
+            )
+        run_if_owned("free tool ID", lambda: monitoring.free_tool_id(_TOOL_ID))
+
+        try:
+            final_owner = monitoring.get_tool(_TOOL_ID)
+        except Exception as exc:
+            final_owner = _TOOL_NAME
+            self.cleanup_errors.append(f"check final ownership: {type(exc).__name__}: {exc}")
+        self._owned = final_owner == _TOOL_NAME
+        if self._owned:
+            self.cleanup_status = "partial"
+            self.cleanup_errors.append("tool ID 4 still owned after cleanup")
+        elif ownership_changed or final_owner not in (None, _TOOL_NAME):
+            self.cleanup_status = "ownership_changed"
+        elif self.cleanup_errors:
+            self.cleanup_status = "completed_with_errors"
+        else:
+            self.cleanup_status = "complete"
+
+        if self.cleanup_errors or ownership_changed:
+            self.status = "instrumentation_cleanup_failed"
+            if self.reason is None:
+                details = "; ".join(self.cleanup_errors)
+                if ownership_changed:
+                    details = "; ".join(filter(None, (details, "tool ID 4 ownership changed")))
+                self.reason = details or "tool ID 4 ownership changed during cleanup"
+            self.observer_errors += len(self.cleanup_errors) or 1
+        elif self.reason is None:
+            self.status = "finished"
 
 
 _observer: _TimingObserver | None = None

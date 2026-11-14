@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -189,19 +190,133 @@ def test_duplicate_code_identity_for_two_labels_is_rejected(tmp_path) -> None:
 
 def test_enable_installs_only_selected_local_events_and_cleans_up(tmp_path) -> None:
     _require_free_tool_id()
+    codes = {
+        "synthetic.return": _recursive_descend.__code__,
+        "synthetic.unwind": _recursive_unwind.__code__,
+    }
     observer = _TimingObserver(
-        {"synthetic.never_called": _never_called.__code__}, tmp_path / "timing.json"
+        codes,
+        tmp_path / "timing.json",
     )
     assert observer.enable()
     events = sys.monitoring.events
-    assert sys.monitoring.get_local_events(4, _never_called.__code__) == (
-        events.PY_START | events.PY_RETURN
-    )
+    for code in codes.values():
+        assert sys.monitoring.get_local_events(4, code) == (events.PY_START | events.PY_RETURN)
     assert sys.monitoring.get_events(4) == events.PY_UNWIND
-    observer.cleanup()
+
+    try:
+        assert _recursive_descend(2) == 2
+        with pytest.raises(RuntimeError) as caught:
+            _recursive_unwind(2)
+        assert caught.value is _SYNTHETIC_ERROR
+        snapshot = observer.snapshot()
+    finally:
+        observer.cleanup()
+
+    returned = snapshot["targets"]["synthetic.return"]
+    unwound = snapshot["targets"]["synthetic.unwind"]
+    assert (returned["calls"], returned["returns"], returned["active_calls"]) == (3, 3, 0)
+    assert (unwound["calls"], unwound["unwinds"], unwound["active_calls"]) == (3, 3, 0)
+    assert snapshot["selected_global_unwind_events_seen"] == 3
+
     assert sys.monitoring.get_tool(4) is None
     assert sys.monitoring.get_events(4) == 0
-    assert sys.monitoring.get_local_events(4, _never_called.__code__) == 0
+    for code in codes.values():
+        assert sys.monitoring.get_local_events(4, code) == 0
+    assert observer.cleanup_status == "complete"
+
+
+def test_cleanup_continues_after_owned_cleanup_error_and_reports_partial_result(
+    tmp_path, monkeypatch
+) -> None:
+    calls: list[tuple[object, ...]] = []
+
+    class MonitoringStub:
+        events = SimpleNamespace(PY_START=1, PY_RETURN=2, PY_UNWIND=4)
+
+        def __init__(self) -> None:
+            self.owner: str | None = "e02-candidate-reentry-timing"
+
+        def get_tool(self, tool_id: int) -> str | None:
+            assert tool_id == 4
+            return self.owner
+
+        def set_local_events(self, tool_id: int, code, event_mask: int) -> None:
+            calls.append(("local", tool_id, code, event_mask))
+            raise RuntimeError("local clear failed")
+
+        def set_events(self, tool_id: int, event_mask: int) -> None:
+            calls.append(("global", tool_id, event_mask))
+
+        def register_callback(self, tool_id: int, event: int, callback) -> None:
+            calls.append(("callback", tool_id, event, callback))
+
+        def free_tool_id(self, tool_id: int) -> None:
+            calls.append(("free", tool_id))
+            self.owner = None
+
+    monitoring = MonitoringStub()
+    monkeypatch.setattr(sys, "monitoring", monitoring, raising=False)
+    code = _never_called.__code__
+    observer = _TimingObserver({"synthetic.selected": code}, tmp_path / "timing.json")
+    observer._owned = True
+    observer._enabled_local.append(code)
+    observer._callbacks = {1: lambda: None, 2: lambda: None, 4: lambda: None}
+
+    observer.cleanup()
+
+    assert [call[0] for call in calls] == [
+        "local",
+        "global",
+        "callback",
+        "callback",
+        "callback",
+        "free",
+    ]
+    assert observer.cleanup_status == "completed_with_errors"
+    assert observer.status == "instrumentation_cleanup_failed"
+    assert observer.observer_errors == 1
+    assert observer.cleanup_errors == [
+        "clear local events for _never_called: RuntimeError: local clear failed"
+    ]
+    assert not observer._owned
+
+
+def test_cleanup_does_not_touch_tool_id_after_ownership_changes(tmp_path, monkeypatch) -> None:
+    calls: list[tuple[object, ...]] = []
+
+    class MonitoringStub:
+        events = SimpleNamespace(PY_START=1, PY_RETURN=2, PY_UNWIND=4)
+
+        def get_tool(self, tool_id: int) -> str:
+            assert tool_id == 4
+            return "another-owner"
+
+        def set_local_events(self, *args) -> None:
+            calls.append(("local", *args))
+
+        def set_events(self, *args) -> None:
+            calls.append(("global", *args))
+
+        def register_callback(self, *args) -> None:
+            calls.append(("callback", *args))
+
+        def free_tool_id(self, *args) -> None:
+            calls.append(("free", *args))
+
+    monkeypatch.setattr(sys, "monitoring", MonitoringStub(), raising=False)
+    code = _never_called.__code__
+    observer = _TimingObserver({"synthetic.selected": code}, tmp_path / "timing.json")
+    observer._owned = True
+    observer._enabled_local.append(code)
+
+    observer.cleanup()
+
+    assert calls == []
+    assert observer.cleanup_status == "ownership_changed"
+    assert observer.status == "instrumentation_cleanup_failed"
+    assert "ownership changed" in observer.reason
+    assert not observer._owned
 
 
 def test_occupied_tool_id_is_left_untouched(tmp_path) -> None:

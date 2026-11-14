@@ -9122,11 +9122,12 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "finish actual derived WMR -> Generic/JointSimulationPort -> strict preflight and fresh-reader controls",
-          "save current imported source, verify canonical early-host native provider without N5, then composed numeric route",
-          "implement exact per-leaf native route/cost/permission plus durable partial action and history/API companions",
-          "compose mapped dataflow, temporal1.5, persistent graph/API, vectors and feedback after respective reviewed identity contracts",
-          "P07/P08/GateB and original REQ/SIM/SEL reconciliation; preserve expired NCM R2 and DA06/07/08"
+          "save/publish the checked main precision composition with ordinary hooks and remote readback",
+          "complete canonical current-use1.3 reseal and actual initial Generic observation/frontier; then one frozen real N5 route",
+          "wire genuine pre-numerical N7 blocked-input source to native per-leaf acquisition/partial-goal recovery and full target completion",
+          "compose new-data/mixed materialization and A->B->B->B->C, preserving current meaning/rights and no-extra-N5 controls",
+          "integrate shared precision into pathless state2.4; then temporal physical1.5, dataflow, vectors and selected-feedback consumers",
+          "P07/P08/GateB and original66/64 coverage; preserve expired NCM R2, B198 and DA06/07/08"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9137,7 +9138,7 @@
           "disk_floor_GiB": 3,
           "planned_wave_disk_growth_GiB": 2
         },
-        "free_disk_GiB_at_update": 6.3,
+        "free_disk_GiB_at_update": 5.8,
         "G_acceptance": false,
         "formal_closure": false,
         "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
@@ -9224,7 +9225,7 @@
           "delivery": "existing secondary worktree WIP; generated companions and final composition pending"
         },
         "P06_consumer_question": {
-          "state": "consumer_missing for actual aggregate fiscal-flow port",
+          "state": "scalar ABI producer-to-public-consumer implemented and runtime verified; current acquisition/reseal/frontier bridges remain incomplete",
           "independent_work": "generic AND/OR bundle, typed source-role proof, legitimate income-flow Foundry bridge, historical readers/API/UI",
           "required_design": "reuse or extend typed method-input/materialization first; generic state carrier only if necessary; exact method/dependency ABI and patch/snapshot/old-wire compatibility, no fiscal field/slot alias",
           "pointer": "E02-WORK-PLAN.md current execution P06 architectural question"
@@ -9315,11 +9316,11 @@
           }
         },
         "latest_author_checkpoint": {
-          "commit": "cbf5d8e380de4bebd39e1250a611a86dc411aade",
-          "tree": "bfebc3f72229ccec4b79c85d15a29c7c56045078",
+          "commit": "5f2d8868613b3a3bd14c383fe958f87c833623a3",
+          "tree": "1a7402f3de2596a4d4d748a107776a3f4ddaa99a",
+          "remote_readback_at_update": "a5d3078ce5b446df2e6f6a4a7dc4ab2e9b73fa18",
           "branch": "codex/e02-lane01-verify-20261108",
-          "remote_readback": "3d6344271ef80a5d4d3cc1afd83faa874ddcac9a",
-          "scope": "author source plus ordinary main docs merge; newer bridge/growth source remains WIP, not main qualification/G acceptance"
+          "scope": "source integrated into ordinary local main; later secondary growth remains visible WIP"
         },
         "latest_growth_checks": {
           "core_v3_and_legacy": {
@@ -9344,7 +9345,14 @@
             "independent_source_review": "GO after bounded repair",
             "graph_API_transport": "pending"
           },
-          "runtime_method_provider": "native callable content not established in ordinary unrecorded pytest; canonical early-host provider reference owner active",
+          "runtime_method_provider": {
+            "PASS": 1,
+            "scope": "actual early-host Runtime held method/provider content + public Foundry execution + fresh reader; no N5/controller/protected claim",
+            "source": "MAIN cb50a736",
+            "wall_seconds": 138.632,
+            "peak_sampled_tree_RSS_bytes": 1662550016,
+            "output": "MAIN:_cache/e02/runtime-method-provider-host-r1-20261114/"
+          },
           "persistent_patch_VM": {
             "pass": 10,
             "independent_source_review": "GO",
@@ -9378,9 +9386,71 @@
           "feedback_ledger": {
             "API_ledger_pass": 12,
             "scientist_consumer_pass": 1,
-            "catchable_interruption": "repair in progress",
+            "catchable_interruption": "shared preserving-failure helper implemented; ledger8PASS; real API compatibility covered in persistent9 wave",
             "selected_input_basis": "uncomposed; gate preserved"
+          },
+          "persistent_graph_API": {
+            "PASS": 9,
+            "wall_seconds": 74.992,
+            "peak_sampled_tree_RSS_bytes": 1478475776,
+            "source": "SECONDARY recorded WIP with 37 stable named inputs and actual secondary import origins",
+            "output": "SECONDARY:_cache/e02/persistent-model-state-execution-r2-20261114/",
+            "limitations": [
+              "new precision-helper composition pending",
+              "N5 layout/mask intent not established",
+              "bounded source admission2.4 unsupported",
+              "fixedpoint2.4 unsupported"
+            ]
+          },
+          "temporal_core": {
+            "r1": "87PASS/4setupFAIL; 91collected",
+            "r2": "4 corrected nodes PASS only",
+            "old_wires_preserved": true,
+            "source_pins": 21,
+            "positive_temporal_runtime": "producer_missing until routing/physical1.5/full-horizon consumer",
+            "output": "SECONDARY:_cache/e02/temporal-core-contracts-r{1,2}-20261114/"
+          },
+          "precision_contract": {
+            "original": "semantic FAIL: real selected f64 -1 at f32 stock10B persisted add0 and cold10B",
+            "repair": "typed method_patch_arithmetic_precision_not_representable; no false SimulationResult",
+            "unit_PASS": 12,
+            "public_PASS": 2,
+            "representable_controls": "-6B and0 public/cold readers PASS",
+            "source_review": "GO after mixed-record repair",
+            "output": "MAIN:_cache/e02/method-patch-precision-public-r1-20261114/",
+            "pathless2_4": "composition pending"
+          },
+          "feedback_contract_consumer": {
+            "contract_PASS": 11,
+            "helper_PASS": 4,
+            "API_producer_consumer": "uncomposed; existing semantic feedback refusal retained",
+            "budget_gap": "absent final gap -> independently checked tolerance not_established"
           }
+        },
+        "main_composition": {
+          "baseline_commit": "cb50a736b8d874bbb77ddb089233ce60c711995c",
+          "baseline_tree": "1a7402f3de2596a4d4d748a107776a3f4ddaa99a",
+          "precision_repair": "contained in enclosing main checkpoint; qualified by actual source hashes in deciding outputs",
+          "G_acceptance": false,
+          "formal_closure": false
+        },
+        "main_affected_checks": {
+          "SIM02": 105,
+          "backend_old_snapshots_actual_DS02_and_pure_mechanism": 43,
+          "runtime_API_OpenAPI_client": "PASS",
+          "foundry_stubs_freshness": "PASS",
+          "all_new_N5_calls": 0,
+          "scope": "bounded main composition checks, not full backend/whole-lane/G acceptance"
+        },
+        "current_use_revalidation_decision": {
+          "set_schema": "1.3",
+          "purpose": "current_use_method_input_revalidation",
+          "authority_purpose": "candidate_execution_input_revalidation_only",
+          "old_set_1_0_to_1_2": "unchanged",
+          "law": "old selected1.4 replay against OWN invocation; emit every current method-port obligation for genuine new context; canonical Foundry verifier proves completeness",
+          "revalidation_scope": "one-step non-axis/non-temporal registered method1.4, exact same prestate/profile/role-occurrence selectors",
+          "new_data": "fresh source/meaning/rights producer remains separate; equality guard must not prohibit real new data by default",
+          "initial_subject": "real initial Generic observation/frontier, no synthetic action/route/successor refs"
         }
       },
       "day_stop_20261113": {

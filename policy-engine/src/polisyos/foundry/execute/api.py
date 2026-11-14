@@ -117,6 +117,10 @@ from polisyos.foundry.execute._internal.posture import (
     ResolvedExecutionPosture,
     resolve_execution_posture,
 )
+from polisyos.foundry.execute._internal.precision import (
+    METHOD_PATCH_PRECISION_REFUSAL,
+    MethodPatchArithmeticPrecisionError,
+)
 from polisyos.foundry.execute.executor import (
     ApplyArtifacts,
     ExecuteArtifacts,
@@ -345,6 +349,12 @@ def _method_execution_abort_result(
             *(notes or []),
             *error.semantic_input_notes,
             "method_execution_aborted",
+            *(
+                [METHOD_PATCH_PRECISION_REFUSAL]
+                if getattr(error.card, "error_type", None)
+                == MethodPatchArithmeticPrecisionError.__name__
+                else []
+            ),
             f"method_execution_failure_type:{type(error).__module__}.{type(error).__qualname__}",
         ],
     )

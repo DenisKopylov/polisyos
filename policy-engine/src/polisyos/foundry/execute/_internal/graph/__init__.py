@@ -111,14 +111,20 @@ from polisyos.foundry.execute._internal.models import (
     get_state_path,
     load_model,
     load_payload,
+    load_tensor,
     put_tensor,
 )
 from polisyos.foundry.execute._internal.ops import (
+    apply_ops_for_slot,
     apply_ops_to_state,
     coerce_number,
     evaluate_selector,
 )
 from polisyos.foundry.execute._internal.patching import apply_patch_map
+from polisyos.foundry.execute._internal.precision import (
+    MethodPatchArithmeticPrecisionError,
+    MethodPatchPrecisionTracker,
+)
 from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
 from polisyos.foundry.execute.observation import (
     PreparedProgramGraphMethodCall,
@@ -3485,6 +3491,14 @@ def execute_program_graph(
     )
     visible_state = base_state
     patch_records: dict[str, list[dict[str, Any]]] = {}
+    precision_tracker = MethodPatchPrecisionTracker(
+        {
+            slot_id
+            for candidate in program_graph.nodes
+            if candidate.node_kind == "method"
+            for slot_id in candidate.outputs
+        }
+    )
     ops: list[PatchOp] = []
     applied_nodes = 0
     skipped_nodes = 0
@@ -3519,6 +3533,7 @@ def execute_program_graph(
             for slot_spec in [slot_registry.slots.get(slot_id)]
             if slot_spec is not None and slot_spec.state_path
         }
+        exact_targets = precision_tracker.before_flush(patch_records, base_values)
         merged_ops = merge_patch_records(
             store,
             patch_records,
@@ -3533,6 +3548,15 @@ def execute_program_graph(
             ops=merged_ops,
             slot_registry=slot_registry,
             merge_registry=merge_registry,
+        )
+        precision_tracker.after_flush(
+            exact_targets,
+            {
+                slot_id: get_state_path(visible_state, slot_spec.state_path)
+                for slot_id in exact_targets
+                for slot_spec in [slot_registry.slots.get(slot_id)]
+                if slot_spec is not None and slot_spec.state_path
+            },
         )
         patch_records = {}
 
@@ -4041,6 +4065,7 @@ def execute_program_graph(
                     method_class=method_class,
                     patch_target_operations=patch_target_operations,
                 )
+                precision_tracker.activate(patch_target_operations, method_fqn=method_fqn)
                 applied_nodes += 1
                 executed_mutating_nodes.add(node_id)
                 continue
@@ -4063,7 +4088,9 @@ def execute_program_graph(
                 card.failure_kind.value,
                 card.error_message,
             )
-            if _should_abort(card, strictness):
+            if isinstance(exc, MethodPatchArithmeticPrecisionError) or _should_abort(
+                card, strictness
+            ):
                 occurrence_status = "failed"
                 abort_error = MethodExecutionAbortError(
                     card,
@@ -4115,18 +4142,43 @@ def execute_program_graph(
                 )
             raise abort_error from abort_cause
 
-    if patch_records:
-        _flush_pending_records()
+    try:
+        if patch_records:
+            _flush_pending_records()
 
-    ops = _build_state_delta_ops(
-        store,
-        base_state=base_state,
-        final_state=visible_state,
-        touched_slots=touched_slots,
-        slot_registry=slot_registry,
-        merge_registry=merge_registry,
-        return_selected_profile=selected_profile,
-    )
+        ops = _build_state_delta_ops(
+            store,
+            base_state=base_state,
+            final_state=visible_state,
+            touched_slots=touched_slots,
+            slot_registry=slot_registry,
+            merge_registry=merge_registry,
+            return_selected_profile=selected_profile,
+        )
+        for op in ops:
+            if not precision_tracker.is_active(op.slot_id):
+                continue
+            slot = slot_registry.slots[op.slot_id]
+            if op.op != "add" or op.value_ref is None or op.mask_ref is not None:
+                precision_tracker.refuse_active(op.slot_id)
+            initial = get_state_path(base_state, slot.state_path)
+            final = get_state_path(visible_state, slot.state_path)
+            delta = load_tensor(store, op.value_ref)
+            replayed = apply_ops_for_slot(store, initial, (op,))
+            precision_tracker.verify_serialized_delta(
+                op.slot_id, base=initial, final=final, delta=delta, replayed=replayed
+            )
+    except MethodPatchArithmeticPrecisionError as exc:
+        card = _build_failure_card(exc, slot_context=(exc.slot_id,))
+        abort_error = MethodExecutionAbortError(
+            card,
+            semantic_input_notes=(() if closed_world_inputs is None else closed_world_inputs.notes),
+        )
+        if capture is not None:
+            abort_error.method_execution_bundle_ref = persist_method_execution_capture(
+                store, capture
+            )
+        raise abort_error from exc
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
 

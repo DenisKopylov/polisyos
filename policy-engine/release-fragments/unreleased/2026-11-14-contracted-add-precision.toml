@@ -1,0 +1,10 @@
+id = "2026-11-14-contracted-add-precision"
+title = "Refuse unrepresentable contracted stock updates"
+type = "fixed"
+owner = "team-polisyos"
+summary = "Contracted additive method updates verify exact represented arithmetic through merge, persisted delta and replay; precision loss returns a typed refusal instead of a false successful result."
+evidence = ["tests/unit/foundry/runtime/test_selected_stock_precision.py", "tests/unit/foundry/execute/test_method_patch_precision.py"]
+compatibility = "Existing ABI and artifact wires, x64 policy and uncontracted legacy operations are unchanged. Exactly representable updates remain executable."
+limitations = "The qualified profile covers fixed state paths on CPU with x64 disabled; pathless model-state composition and explicit nonzero tolerance need their own consumer qualification."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = true

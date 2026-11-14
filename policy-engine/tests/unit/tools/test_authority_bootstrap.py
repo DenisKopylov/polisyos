@@ -7,7 +7,55 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _PRODUCT = Path(__file__).resolve().parents[3]
+
+
+@pytest.mark.parametrize("options", [[], ["--native-profile", "selected-modules"]])
+def test_native_capture_profile_defaults_to_existing_selection(monkeypatch, options):
+    from tools import authority_bootstrap as host
+
+    calls = []
+    monkeypatch.setattr(
+        host, "_launch", lambda mode, args, **kw: calls.append((mode, args, kw)) or 0
+    )
+    assert host.main([*options, "test", "-q"]) == 0
+    assert calls == [
+        ("test", ["-q"], {"wheel_directory": None, "native_profile": "selected_modules"})
+    ]
+
+
+def test_native_capture_profile_opt_in_is_passed_explicitly(monkeypatch, tmp_path):
+    from tools import authority_bootstrap as host
+
+    calls = []
+    monkeypatch.setattr(
+        host, "_launch", lambda mode, args, **kw: calls.append((mode, args, kw)) or 0
+    )
+    assert (
+        host.main(
+            ["--native-profile", "locked-wheel-providers", "--wheel-dir", str(tmp_path), "diagnose"]
+        )
+        == 0
+    )
+    assert calls == [
+        ("diagnose", [], {"wheel_directory": tmp_path, "native_profile": "locked_wheel_providers"})
+    ]
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        ["--native-profile", "all"],
+        ["--native-profile", "locked-wheel-providers", "--native-profile", "selected-modules"],
+    ],
+)
+def test_native_capture_profile_refuses_unknown_or_repeated_scope(options):
+    from tools import authority_bootstrap as host
+
+    with pytest.raises(SystemExit):
+        host.main([*options, "diagnose"])
 
 
 def test_source_candidates_follow_relative_imports_and_module_aliases() -> None:

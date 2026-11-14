@@ -1113,7 +1113,7 @@ operation = factory()
     try:
         module = importlib.import_module(module_name)
         monkeypatch.setattr(
-            ledger, "_retained_n5_host_capture", lambda: (SimpleNamespace(capture=recorder), None)
+            ledger, "_candidate_n5_host_capture", lambda: (recorder, None)
         )
         wire = basis._N5ContentGraph().wire(module.operation)
         rows = json.loads(wire)["nodes"]

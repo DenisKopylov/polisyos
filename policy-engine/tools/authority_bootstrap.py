@@ -951,7 +951,18 @@ raise SystemExit(module._child_main(channel, request))
 """
 
 
-def _launch(mode: str, argv: Sequence[str], *, wheel_directory: Path | None = None) -> int:
+def _launch(
+    mode: str,
+    argv: Sequence[str],
+    *,
+    wheel_directory: Path | None = None,
+    native_profile: str = "selected_modules",
+) -> int:
+    if type(native_profile) is not str or native_profile not in {
+        "selected_modules",
+        "locked_wheel_providers",
+    }:
+        raise ValueError("native_capture_profile_invalid")
     if (
         not (_PRODUCT / "src/polisyos").is_dir()
         or not (_PRODUCT / "uv.lock").is_file()
@@ -978,6 +989,7 @@ def _launch(mode: str, argv: Sequence[str], *, wheel_directory: Path | None = No
         "mode": mode,
         "argv": list(argv),
         "wheel_directory": None if wheel_directory is None else str(wheel_directory),
+        "native_capture_profile": native_profile,
         "root": str(_PRODUCT),
         "source_frame": source_frame,
         "sources": sources,
@@ -1295,6 +1307,12 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     global _HOST_SESSION
     if not (sys.flags.isolated and sys.flags.no_site and sys.flags.dont_write_bytecode):
         raise RuntimeError("child_startup_flags_invalid")
+    native_profile = request.get("native_capture_profile", "selected_modules")
+    if type(native_profile) is not str or native_profile not in {
+        "selected_modules",
+        "locked_wheel_providers",
+    }:
+        raise RuntimeError("native_capture_profile_invalid")
     if os.getppid() != request["parent_pid"] or Path(str(request["root"])).resolve() != _PRODUCT:
         raise RuntimeError("child_host_binding_invalid")
     if _HOST_SLOT in sys.__dict__ or _HOST_SESSION is not None:
@@ -1398,6 +1416,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             external_native_selector=None if selector is None else select_locked_native,
             external_native_modules=frozenset() if selector is None else _LOCKED_NATIVE_MODULES,
             external_source_root=None if selector is None else site,
+            external_native_profile="selected_modules" if selector is None else native_profile,
         )
         capture.install()
     except (recorder.CaptureError, OSError, ValueError) as exc:
@@ -1467,7 +1486,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         """Reopen one completed native selection without reselecting the wheel."""
         if (
             type(module_name) is not str
-            or module_name not in _LOCKED_NATIVE_MODULES
+            or (native_profile == "selected_modules" and module_name not in _LOCKED_NATIVE_MODULES)
             or selector is None
             or select_wheel_native is None
             or selected_lock_sha256 is None
@@ -1475,6 +1494,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             or not member_endpoint_is_current("locked_native_member", locked_native_member)
             or select_wheel_native.__func__.__code__ is not native_selector_code
             or vars(capture).get("_external_native_selector") is not select_locked_native
+            or vars(capture).get("_external_native_profile") != native_profile
         ):
             return None
         member = held_native_members.get(module_name)
@@ -1498,6 +1518,8 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     # Strong live references stay in this child; a serialized request or parent
     # process cannot provide an installed capture to a different process.
     profile = _measure_profile()
+    if native_profile == "locked_wheel_providers":
+        profile["native_capture_scope"] = "actually-loaded-locked-wheel-providers/1"
     profile["parent_startup_isolated"] = request["parent_startup_isolated"]
     profile["parent_startup_classification"] = "host_reported_not_independent_appointment"
     session = {
@@ -1938,21 +1960,35 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Select an existing CLI, HTTP server, or serial pytest entry."""
     args = list(sys.argv[1:] if argv is None else argv)
     wheel_directory = None
-    if args[:1] == ["--wheel-dir"] and len(args) >= 3 and args[1]:
-        try:
-            wheel_directory = Path(args[1]).resolve(strict=True)
-            if not wheel_directory.is_dir():
-                raise ValueError("provider_wheel_directory_unavailable")
-        except (OSError, RuntimeError, ValueError) as exc:
-            raise SystemExit("provider_wheel_directory_unavailable") from exc
+    native_profile = "selected_modules"
+    seen = set()
+    while args and args[0] in {"--wheel-dir", "--native-profile"}:
+        option = args[0]
+        if len(args) < 3 or not args[1] or option in seen:
+            raise SystemExit("authority_host_option_invalid")
+        seen.add(option)
+        if option == "--wheel-dir":
+            try:
+                wheel_directory = Path(args[1]).resolve(strict=True)
+                if not wheel_directory.is_dir():
+                    raise ValueError("provider_wheel_directory_unavailable")
+            except (OSError, RuntimeError, ValueError) as exc:
+                raise SystemExit("provider_wheel_directory_unavailable") from exc
+        elif args[1] in {"selected-modules", "locked-wheel-providers"}:
+            native_profile = args[1].replace("-", "_")
+        else:
+            raise SystemExit("native_capture_profile_invalid")
         args = args[2:]
     if not args or args[0] not in {*_ENTRY_TARGETS, "test", "diagnose"}:
         raise SystemExit(
             "usage: authority_bootstrap.py [--wheel-dir DIRECTORY] "
+            "[--native-profile selected-modules|locked-wheel-providers] "
             "{tools|runtime|foundry|server|polisy|causal-capabilities|"
             "ukraine-data|test|diagnose} [arguments...]"
         )
-    return _launch(args[0], args[1:], wheel_directory=wheel_directory)
+    return _launch(
+        args[0], args[1:], wheel_directory=wheel_directory, native_profile=native_profile
+    )
 
 
 if __name__ == "__main__":

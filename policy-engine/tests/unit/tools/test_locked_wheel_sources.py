@@ -19,6 +19,74 @@ import pytest
 from tools import authority_bootstrap as host
 
 
+def test_numpy_native_export_inside_host(request: pytest.FixtureRequest) -> None:
+    """Observe a real native export without numerical execution or a broad seal."""
+    node = f"{__file__}::test_numpy_native_export_inside_host"
+    if node not in request.config.invocation_params.args:
+        pytest.skip("requires the explicit fresh-host test invocation")
+
+    session = sys.__dict__["_polisyos_loaded_host_v1"]
+    assert session["profile"]["native_capture_scope"] == (
+        "actually-loaded-locked-wheel-providers/1"
+    )
+    import numpy as np
+
+    from polisyos.runtime.quality import confidence_ledger as ledger
+    from polisyos.runtime.quality import n5_execution_basis as basis
+
+    # The candidate reference binds actual recorder inputs, not optional-import
+    # closure or the broader protected observation seal.
+    assert ledger._LOADED_EXECUTION_OBSERVATION_SEAL is None
+    assert ledger._candidate_n5_host_capture() is not None
+    before = basis.snapshot_n5_callable_content_v3(np.random.default_rng)
+    assert before is not None
+    projection = json.loads(before)["nodes"][0]
+    assert projection["kind"] == "recorded_native_export"
+    binding = projection["binding"]
+    assert binding["provider_module"] == "numpy.random._generator"
+    assert binding["native_state_completeness"] == "not_established"
+    assert binding["mapped_image_identity"] == "not_established"
+    capture = session["capture"]
+    native = capture.completed_native(binding["provider_module"])
+    assert (
+        binding["provider_file_sha256"]
+        == hashlib.sha256(Path(native.spec.origin).read_bytes()).hexdigest()
+    )
+    assert session["profile"]["authority"] is False
+
+    original_reader = session["locked_native_member"]
+    calls = []
+
+    def foreign_reader(module_name):
+        calls.append(module_name)
+        return original_reader(module_name)
+
+    session["locked_native_member"] = foreign_reader
+    try:
+        assert basis.snapshot_n5_callable_content_v3(np.random.default_rng) is None
+        assert calls == []
+    finally:
+        session["locked_native_member"] = original_reader
+    assert basis.snapshot_n5_callable_content_v3(np.random.default_rng) == before
+
+    # Remove the actual recorded native import, with image and callable held
+    # fixed. A current namespace/name alone must no longer establish identity.
+    events = capture._import_events[:]
+    capture._import_events[:] = [
+        event
+        for event in events
+        if not (
+            event.provider_name == binding["provider_module"]
+            and any(value is np.random.default_rng for value in event.retained_exports.values())
+        )
+    ]
+    try:
+        assert basis.snapshot_n5_callable_content_v3(np.random.default_rng) is None
+    finally:
+        capture._import_events[:] = events
+    assert basis.snapshot_n5_callable_content_v3(np.random.default_rng) == before
+
+
 def test_native_ledger_provider_inside_host(request: pytest.FixtureRequest) -> None:
     """The completed owner retains the validator's actual native provider."""
     node = f"{__file__}::test_native_ledger_provider_inside_host"
@@ -124,6 +192,12 @@ def test_authority_launcher_retains_locked_native_ledger_provider() -> None:
         "file_callback",
         "changed_precreate",
         "precreate_loader_callback",
+        "all_locked",
+        "reference",
+        "reference_missing_event",
+        "reference_foreign_value",
+        "reference_removed_image",
+        "reference_unrelated_failed_importer",
     ],
 )
 def test_selected_native_member_tracks_actual_extension_load(tmp_path: Path, mode: str) -> None:
@@ -167,7 +241,17 @@ def test_selected_native_member_tracks_actual_extension_load(tmp_path: Path, mod
         .encode()
     )
     (tmp_path / "lock.toml").write_bytes(lock)
-    (tmp_path / "consumer.py").write_text("import _ctypes_test\n", encoding="utf-8")
+    (tmp_path / "consumer.py").write_text(
+        "import _ctypes_test\n"
+        + (
+            "from _ctypes_test import func as native_func\n" if mode.startswith("reference") else ""
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "unrelated.py").write_text(
+        "from _ctypes_test import func as native_func\nraise RuntimeError('fixture_failed')\n",
+        encoding="utf-8",
+    )
     product = Path(__file__).resolve().parents[3]
     script = r"""
 import hashlib, importlib, importlib.machinery, pathlib, sys, types
@@ -184,14 +268,27 @@ def fetch(url, size):
 host._LockedWheelSourceSelector._archive_bytes = staticmethod(fetch)
 selector = host._LockedWheelSourceSelector(root, site, (root / 'lock.toml').read_bytes())
 consumer = root / 'consumer.py'
+sources = {'consumer': ExpectedSource('consumer.py', hashlib.sha256(consumer.read_bytes()).hexdigest())}
+if mode == 'reference_unrelated_failed_importer':
+    unrelated = root / 'unrelated.py'
+    sources['unrelated'] = ExpectedSource('unrelated.py', hashlib.sha256(unrelated.read_bytes()).hexdigest())
 capture = SourceExecutionCapture(
-    root, {'consumer': ExpectedSource('consumer.py', hashlib.sha256(consumer.read_bytes()).hexdigest())},
+    root, sources,
+    exports={'consumer': {'_ctypes_test', 'native_func'}},
     external_native_selector=selector.select_native,
-    external_native_modules=frozenset({'_ctypes_test'} if mode != 'unselected' else {'_dbm'}),
+    external_native_modules=frozenset({'_dbm'} if mode in ('unselected', 'all_locked') else {'_ctypes_test'}),
     external_source_root=site,
+    external_native_profile='locked_wheel_providers' if mode == 'all_locked' else 'selected_modules',
 )
 capture.install()
 sys.path[:0] = [str(root), str(site)]
+if mode == 'reference_unrelated_failed_importer':
+    try:
+        import unrelated
+    except RuntimeError as exc:
+        assert str(exc) == 'fixture_failed'
+    else:
+        raise AssertionError('fixture initializer unexpectedly succeeded')
 if mode in ('changed_precreate', 'precreate_loader_callback'):
     spec = importlib.util.find_spec('_ctypes_test')
     assert spec is not None
@@ -239,6 +336,44 @@ else:
     assert pathlib.Path(record.spec.loader.get_filename('_ctypes_test')).resolve() == pathlib.Path(record.spec.origin).resolve()
     assert record.file_sha256 == hashlib.sha256(pathlib.Path(record.spec.origin).read_bytes()).hexdigest()
     capture.assert_retained(frozenset({'consumer'}))
+    if mode.startswith('reference'):
+        reference = capture.completed_native_export_reference(consumer.native_func)
+        assert reference.importer is capture.completed('consumer')
+        assert reference.importer_export == 'native_func'
+        assert reference.provider is record and reference.provider_export == 'func'
+        if mode == 'reference_missing_event':
+            original_events = capture._import_events[:]
+            capture._import_events.clear()
+            try:
+                capture.completed_native_export_reference(consumer.native_func)
+            except CaptureError as exc:
+                assert str(exc) == 'native_export_binding_not_recorded'
+            else:
+                raise AssertionError('native reference survived event removal')
+            capture._import_events.extend(original_events)
+            assert capture.completed_native_export_reference(consumer.native_func).provider is record
+        elif mode == 'reference_foreign_value':
+            def replacement(): pass
+            replacement.__name__ = 'func'
+            replacement.__module__ = '_ctypes_test'
+            try:
+                capture.completed_native_export_reference(replacement)
+            except CaptureError as exc:
+                assert str(exc) == 'native_export_binding_not_recorded'
+            else:
+                raise AssertionError('same-name foreign native export accepted')
+        elif mode == 'reference_removed_image':
+            path = pathlib.Path(record.spec.origin)
+            backup = path.with_name(path.name + '.held')
+            path.rename(backup)
+            try:
+                capture.completed_native_export_reference(consumer.native_func)
+            except CaptureError as exc:
+                assert str(exc) == 'native_module_changed'
+            else:
+                raise AssertionError('native reference survived native-image removal')
+            finally:
+                backup.rename(path)
     if mode == 'normal':
         assert selector.select_native('_ctypes_test', record.spec.origin, _retained_only=True) == (
             record.relative_path, record.file_sha256

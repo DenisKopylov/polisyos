@@ -6,7 +6,7 @@ import json
 import os
 import sys
 import tempfile
-from contextlib import ExitStack
+from contextlib import ExitStack, asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -15,7 +15,9 @@ import uvicorn
 from pydantic_core import to_jsonable_python
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, ContextManager
+    from collections.abc import AsyncIterator, Callable, ContextManager
+
+    from fastapi import FastAPI
 
     from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
     from polisyos.pdc import Layer2S2DesignSearchInput
@@ -171,19 +173,62 @@ def _build_dashboard_fixture_env(
     include_bound_run_paper_fixture: bool,
     include_test_client: bool,
 ) -> dict[str, object]:
-    """Build dashboard fixtures with producer-bound paper runs when requested."""
-    build_runtime_api_env = _load_fixture_builder()
-    env = build_runtime_api_env(
-        tmp_root,
-        include_run_paper_fixtures=include_run_paper_fixtures,
-        run_paper_binding_factory=(
-            _persist_run_paper_fixture_binding if include_run_paper_fixtures else None
-        ),
-        include_test_client=include_test_client,
-    )
-    if include_bound_run_paper_fixture:
-        env["run_paper_bound_run_id"] = _install_bound_run_paper_fixture(env)
-    return env
+    """Build dashboard fixtures over an isolated published Catalog owner."""
+    _ensure_policy_engine_import_roots()
+    import pytest
+
+    runtime_http = importlib.import_module("_helpers.runtime_http")
+    monkeypatch = pytest.MonkeyPatch()
+    env: dict[str, object] | None = None
+    try:
+        env = runtime_http.build_runtime_api_env_with_fixture_catalog(
+            tmp_root,
+            app_kwargs={"repo_root": Path(__file__).resolve().parents[3]},
+            monkeypatch=monkeypatch,
+            include_test_client=include_test_client,
+            include_run_paper_fixtures=include_run_paper_fixtures,
+            run_paper_binding_factory=(
+                _persist_run_paper_fixture_binding if include_run_paper_fixtures else None
+            ),
+        )
+        env["_dashboard_fixture_monkeypatch"] = monkeypatch
+        if include_bound_run_paper_fixture:
+            env["run_paper_bound_run_id"] = _install_bound_run_paper_fixture(env)
+        return env
+    except BaseException:
+        if env is not None:
+            _close_dashboard_fixture_env(env)
+        else:
+            monkeypatch.undo()
+        raise
+
+
+def _close_dashboard_fixture_env(env: dict[str, object]) -> None:
+    """Close fixture services and restore process-local fixture patches."""
+    _ensure_policy_engine_import_roots()
+    runtime_http = importlib.import_module("_helpers.runtime_http")
+    monkeypatch = env.pop("_dashboard_fixture_monkeypatch", None)
+    try:
+        runtime_http.close_runtime_api_env(env)
+    finally:
+        undo = getattr(monkeypatch, "undo", None)
+        if callable(undo):
+            undo()
+
+
+def _install_dashboard_fixture_lifespan_cleanup(app: FastAPI, env: dict[str, object]) -> None:
+    """Close fixture-owned resources before Uvicorn re-raises shutdown signals."""
+    original_lifespan = app.router.lifespan_context
+
+    @asynccontextmanager
+    async def fixture_lifespan(application: FastAPI) -> AsyncIterator[None]:
+        try:
+            async with original_lifespan(application):
+                yield
+        finally:
+            _close_dashboard_fixture_env(env)
+
+    app.router.lifespan_context = fixture_lifespan
 
 
 def _build_source_bound_catalog_profile_fixture(
@@ -243,6 +288,8 @@ def main() -> None:
                 include_bound_run_paper_fixture=args.include_bound_run_paper_fixture,
                 include_test_client=False,
             )
+            _install_dashboard_fixture_lifespan_cleanup(env["app"], env)
+            fixture_stack.callback(_close_dashboard_fixture_env, env)
         if source_bound_catalog_fixture:
             _install_source_bound_legal_search_fixture(env, tmp_root)
         app = env["app"]
@@ -251,7 +298,16 @@ def main() -> None:
             metadata_path = Path(args.metadata_file)
             metadata_path.parent.mkdir(parents=True, exist_ok=True)
             metadata = {
-                key: value for key, value in env.items() if key not in {"app", "client", "cas_root"}
+                key: value
+                for key, value in env.items()
+                if key
+                not in {
+                    "app",
+                    "client",
+                    "cas_root",
+                    "_runtime_http_catalog_fixture",
+                    "_dashboard_fixture_monkeypatch",
+                }
             }
             _assert_dashboard_fixture_clean(metadata)
             metadata_path.write_text(_serialize_fixture_metadata(metadata), encoding="utf-8")

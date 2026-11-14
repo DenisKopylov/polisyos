@@ -24,6 +24,35 @@ contract](../how-to/author-measurement-instruments.md), and [failure/repair
 register](policy-design-case-failure-patterns.md) (P35-P38) for the governing
 standards.
 
+## LANE-01 selected-input execution impact (2026-11-14)
+
+This entry documents the current execution changes without changing the pinned
+historical census below. Source and verification status remain in the existing
+[E02 work plan](https://github.com/DenisKopylov/polisyos/blob/main/E02-WORK-PLAN.md).
+
+- **Foundry:** the [execution guide](https://github.com/DenisKopylov/polisyos/blob/main/policy-engine/src/polisyos/foundry/execute/README.md)
+  maps the public executor, selected scalar binding replay, explicit ABI-to-slot
+  maps, actual argument capture and strict patch/precision refusals. Prepared
+  calls and component contracts do not establish completed temporal, vector,
+  persistent-state or feedback orchestration.
+- **Runtime and frontend:** the OpenAPI/client/dashboard chain carries the
+  selected current-use action and its original numerical occurrence separately.
+  Candidate history, current limitations and capacity-partial results retain
+  their distinct statuses. The dashboard must display those returned facts;
+  a retained number is not a renewed source-currentness or publication decision.
+  Generated API files are owned by the existing generator chain and are checked
+  separately from rendered UI behavior.
+- **Security and recovery:** exact selected manifest profiles, native-provider
+  observations and recorded method arguments support bounded execution facts.
+  They do not appoint a verifier, issue deployment trust or renew an expired
+  grant. The [retained-artifact recovery procedure](../runbooks/retained-artifact-recovery.md#selected-execution-evidence)
+  now distinguishes missing bytes, historical replay and current-use admission.
+
+This documentation delta reports no new production readiness, runbook rehearsal,
+G acceptance or whole-lane PASS. Existing source-qualified checks retain their
+own source/input/backend scope; generated/public, docs and composed consumer
+checks must be reported from their actual invocations.
+
 ## Pinned baseline census (2026-10-14)
 
 The counts in this section describe the source baseline, not the later

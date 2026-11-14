@@ -306,6 +306,19 @@ why`
 );
 
 NON_NUMERIC_VARIABLE_REASONS.set(
+  "actionJobId",
+  "RunModelInputUse action_job_id is a validated opaque job identifier, not a quantity.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "jobState",
+  "RunModelInputUse job_state is one of the typed lifecycle labels, not a quantity.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "sourceJobId",
+  "RunModelInputUse source_job_id is a validated opaque job identifier, not a quantity.",
+);
+
+NON_NUMERIC_VARIABLE_REASONS.set(
   "candidate",
   "OverviewTab renders old_candidate_id and new_candidate_id only after both pass string checks; these are opaque candidate IDs, not counts.",
 );
@@ -378,12 +391,39 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "d0467a16ab4bad801c46289bfc1e043d54793e549e82cf02398361b6fa6dd5a3";
 const ACTIVE_LOCALE_KEY_SET_SHA256 =
-  "5f28bc84efd6087aff9cd42d5290945466508216d99c299225440d16dcdb9423";
-const ACTIVE_LOCALE_LEAF_COUNT = 3323;
-const NON_COUNT_MESSAGE_COUNT = 339;
-const NON_COUNT_VARIABLE_USE_COUNT = 530;
-const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
+  "79f593ff5e8b09f3d43b454b99563a27cba9e932d802fea9fe5170efe294fd51";
+const ACTIVE_LOCALE_LEAF_COUNT = 3343;
+const NON_COUNT_MESSAGE_COUNT = 348;
+const ACTIVE_VARIABLE_USE_COUNT = 543;
+// Keep the pre-model-input-use census pinned separately; the admitted addition is
+// enumerated below so this historical digest remains stable and reviewable.
+const BASE_VARIABLE_USE_COUNT = 530;
+const BASE_VARIABLE_USE_KEY_SET_SHA256 =
   "3c162a89965c0ae1b120cd6c07d59910aab850a3f4edae92a790aa1f58d93518";
+
+const MODEL_INPUT_USE_VARIABLE_NAMES = new Set([
+  "actionJobId",
+  "jobState",
+  "sourceJobId",
+]);
+const MODEL_INPUT_USE_VARIABLE_IDENTITIES = [
+  "pages.runs.modelInputUse.action#{actionJobId}",
+  "pages.runs.modelInputUse.actionStatus#{status}",
+  "pages.runs.modelInputUse.basisComparison#{provenance}",
+  "pages.runs.modelInputUse.basisComparison#{result}",
+  "pages.runs.modelInputUse.currentness#{status}",
+  "pages.runs.modelInputUse.frontier#{revision}",
+  "pages.runs.modelInputUse.frontier#{status}",
+  "pages.runs.modelInputUse.provenance#{provenance}",
+  "pages.runs.modelInputUse.resultStatus#{status}",
+  "pages.runs.modelInputUse.resultUnavailable#{actionJobId}",
+  "pages.runs.modelInputUse.resultUnavailable#{jobState}",
+  "pages.runs.modelInputUse.runSource#{runId}",
+  "pages.runs.modelInputUse.runSource#{sourceJobId}",
+];
+const MODEL_INPUT_USE_NUMERIC_INVARIANT_IDENTITIES = [
+  "pages.runs.modelInputUse.frontier#{revision}",
+];
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -663,6 +703,15 @@ for (const [identity, reason] of [
     reason,
   });
 }
+
+NUMERIC_INVARIANT_USE_DECLARATIONS.set(
+  "pages.runs.modelInputUse.frontier#{revision}",
+  {
+    classification: "invariant",
+    reason:
+      "RunModelInputUse renders the validated integer frontier_revision beside the fixed revision label.",
+  },
+);
 
 const NUMERIC_INVARIANT_USE_KEY_SET_SHA256 =
   "097a86845f71728c5a1c5169949e3ffbd71825d2c13faaa641e3de14214ec9a4";
@@ -1066,6 +1115,7 @@ const RU_E02_EXTENSION_ROOTS = [
   "pages.runs.candidateSimulation.acquisitionOutcomeRevision",
   "pages.runs.candidateSimulation.acquisitionHistoryLimited",
   "pages.runs.candidateSimulation.acquisitionHistoryPartial",
+  "pages.runs.modelInputUse",
   "pages.runs.workflowTimelineFallback",
   "pages.runs.workflowLimitationStatusNotReported",
   "pages.runs.profileLineage",
@@ -1100,11 +1150,11 @@ const RU_E02_EXTENSION_ROOTS = [
   "conditionalTransport",
   "runHte",
 ] as const;
-const RU_E02_EXTENSION_KEY_COUNT = 353;
+const RU_E02_EXTENSION_KEY_COUNT = 373;
 const RU_E02_EXTENSION_KEY_SET_SHA256 =
-  "13f3832b055c8bec5c51e738fef81ba132d5c3e512be484a0ff6369dbc94a907";
+  "bd9cdb4e7aa09ed5079b4b858d7627b2d737b9b08a5f0b57873775aa48788de9";
 const RU_E02_EXTENSION_VALUE_SHA256 =
-  "41c75846fe36b26397dd0ce559b9140fbe7c76d923365a24106b94cb0cffeaed";
+  "2d0e7eb8aa714950698ea734b3d9c41e9883ae9f487b3f53907da47eefed9a06";
 
 function isRuE02ExtensionPath(path: string): boolean {
   return RU_E02_EXTENSION_ROOTS.some(
@@ -2499,12 +2549,36 @@ describe("locale catalogs", () => {
     const activeUseKeySets = activeScans.map((scan) =>
       scan.uses.map(([path, variable]) => `${path}#{${variable}}`),
     );
+    const baseUseKeySets = activeUseKeySets.map((keys) =>
+      keys.filter(
+        (identity) => !identity.startsWith("pages.runs.modelInputUse."),
+      ),
+    );
+    const modelInputUseIdentitySets = activeUseKeySets.map((keys) =>
+      keys.filter((identity) =>
+        identity.startsWith("pages.runs.modelInputUse."),
+      ),
+    );
+    const baseDeclaredVariableNames = declaredVariableNames.filter(
+      (variable) => !MODEL_INPUT_USE_VARIABLE_NAMES.has(variable),
+    );
+    const baseNonNumericVariableNames = [...NON_NUMERIC_VARIABLE_REASONS.keys()]
+      .filter((variable) => !MODEL_INPUT_USE_VARIABLE_NAMES.has(variable))
+      .sort(comparePaths);
+    const baseNumericInvariantUseKeys = [
+      ...NUMERIC_INVARIANT_USE_DECLARATIONS.keys(),
+    ]
+      .filter((identity) => !identity.startsWith("pages.runs.modelInputUse."))
+      .sort(comparePaths);
     const activeMessagePathSets = activeScans.map(
       (scan) => new Set(scan.uses.map(([path]) => path)),
     );
     const adjudicatedNumericUseKeys = [
       ...QUANTITATIVE_USE_DECLARATIONS.keys(),
     ].sort(comparePaths);
+    const baseAdjudicatedNumericUseKeys = adjudicatedNumericUseKeys.filter(
+      (identity) => !identity.startsWith("pages.runs.modelInputUse."),
+    );
     const paths = new Set(
       [...NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()].map((identity) =>
         identity.slice(0, identity.lastIndexOf("#{")),
@@ -2537,9 +2611,15 @@ describe("locale catalogs", () => {
     expect(paths.size).toBe(26);
     expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(43);
     expect(NUMERIC_VARIABLE_REASONS.size).toBe(91);
-    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(128);
-    expect(declaredVariableNames).toHaveLength(219);
-    expect(new Set(declaredVariableNames).size).toBe(219);
+    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(131);
+    expect(
+      [...MODEL_INPUT_USE_VARIABLE_NAMES].every((variable) =>
+        NON_NUMERIC_VARIABLE_REASONS.has(variable),
+      ),
+    ).toBe(true);
+    expect(declaredVariableNames).toHaveLength(222);
+    expect(new Set(declaredVariableNames).size).toBe(222);
+    expect(baseDeclaredVariableNames).toHaveLength(219);
     expect(activeLocaleKeys).toHaveLength(ACTIVE_LOCALE_LEAF_COUNT);
     expect(
       crypto
@@ -2556,18 +2636,31 @@ describe("locale catalogs", () => {
       NON_COUNT_MESSAGE_COUNT,
     ]);
     expect(activeUseKeySets.map((keys) => keys.length)).toEqual([
-      NON_COUNT_VARIABLE_USE_COUNT,
-      NON_COUNT_VARIABLE_USE_COUNT,
+      ACTIVE_VARIABLE_USE_COUNT,
+      ACTIVE_VARIABLE_USE_COUNT,
+    ]);
+    expect(baseUseKeySets.map((keys) => keys.length)).toEqual([
+      BASE_VARIABLE_USE_COUNT,
+      BASE_VARIABLE_USE_COUNT,
+    ]);
+    expect(modelInputUseIdentitySets).toEqual([
+      MODEL_INPUT_USE_VARIABLE_IDENTITIES,
+      MODEL_INPUT_USE_VARIABLE_IDENTITIES,
     ]);
     expect(activeUseKeySets[0]).toEqual(activeUseKeySets[1]);
     expect(
       crypto
         .createHash("sha256")
-        .update(activeUseKeySets[0].join("\n"))
+        .update(baseUseKeySets[0].join("\n"))
         .digest("hex"),
-    ).toBe(NON_COUNT_VARIABLE_USE_KEY_SET_SHA256);
-    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(171);
-    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(214);
+    ).toBe(BASE_VARIABLE_USE_KEY_SET_SHA256);
+    expect(
+      [...NUMERIC_INVARIANT_USE_DECLARATIONS.keys()].filter((identity) =>
+        identity.startsWith("pages.runs.modelInputUse."),
+      ),
+    ).toEqual(MODEL_INPUT_USE_NUMERIC_INVARIANT_IDENTITIES);
+    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(172);
+    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(215);
     expect(activeScans.flatMap((scan) => scan.parseFailurePaths)).toEqual([]);
     expect(declaredVariableNames).toEqual(activeVariableNames);
     expect(adjudicatedNumericUseKeys).toEqual(activeNumericUseKeys);
@@ -2591,17 +2684,13 @@ describe("locale catalogs", () => {
     expect(
       crypto
         .createHash("sha256")
-        .update(
-          [...NON_NUMERIC_VARIABLE_REASONS.keys()]
-            .sort(comparePaths)
-            .join("\n"),
-        )
+        .update(baseNonNumericVariableNames.join("\n"))
         .digest("hex"),
     ).toBe(NON_NUMERIC_VARIABLE_KEY_SET_SHA256);
     expect(
       crypto
         .createHash("sha256")
-        .update(declaredVariableNames.join("\n"))
+        .update(baseDeclaredVariableNames.join("\n"))
         .digest("hex"),
     ).toBe(INTERPOLATION_VARIABLE_KEY_SET_SHA256);
     expect(
@@ -2618,21 +2707,17 @@ describe("locale catalogs", () => {
     expect(
       crypto
         .createHash("sha256")
-        .update(
-          [...NUMERIC_INVARIANT_USE_DECLARATIONS.keys()]
-            .sort(comparePaths)
-            .join("\n"),
-        )
+        .update(baseNumericInvariantUseKeys.join("\n"))
         .digest("hex"),
     ).toBe(NUMERIC_INVARIANT_USE_KEY_SET_SHA256);
     expect(
       crypto
         .createHash("sha256")
-        .update(adjudicatedNumericUseKeys.join("\n"))
+        .update(baseAdjudicatedNumericUseKeys.join("\n"))
         .digest("hex"),
     ).toBe(QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256);
     expect(cohortClassifications).toEqual({ pluralized: 10, invariant: 33 });
-    expect(allClassifications).toEqual({ pluralized: 10, invariant: 204 });
+    expect(allClassifications).toEqual({ pluralized: 10, invariant: 205 });
     expect(labelGuidedPaths.size).toBe(20);
     for (const identity of NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()) {
       const parsedIdentity = parseNumericUseIdentity(identity);

@@ -81,6 +81,39 @@ Record these details immediately:
 | Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                       | `tests/unit/fabric/test_quality_indicators.py`                                                             |
 | Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                  | `tests/unit/fabric/test_lineage.py` and OpenLineage export validation                                      |
 
+### Selected execution evidence
+
+For a retained Foundry or candidate N5 result, first identify the exact selected
+artifact reference: artifact ID, kind, media type and manifest-profile digest.
+Keep the original source/input/backend binding and accounting record with it.
+A payload hash alone cannot recover missing bytes or choose among manifest
+profiles.
+
+1. Reopen the result through its canonical reader and an existing read-only CAS
+   view. For selected Foundry results, `admit_execution_source()` or its bounded
+   counterpart reconciles the saved source basis; it does not issue a new use
+   decision. Record the reader's actual mode, including `legacy_profileless`
+   or `feedback_uncomposed`, instead of upgrading an old result.
+2. For method-input bindings 1.4, retain the selected semantic manifest,
+   source/derivation artifacts, NPY value and actual method-execution records.
+   The fresh reader must join the value and its argument hash to the original
+   occurrence. Missing or mismatched source, profile or tensor evidence is a
+   specific unavailable fact; restore that dependency or identify the exact
+   producer check that needs repeating.
+3. Preserve current grant/expiry/quota failures separately from historical
+   readability. Restoring an old artifact never renews its authorization, and
+   reading a completed result should not silently dispatch N5 or debit capacity.
+   Use the existing Runtime lifecycle owner for any genuinely new execution.
+4. Native-provider/early-host observations remain bounded candidate evidence.
+   Reopen the selected source and locked-provider bytes under the recorded
+   profile; do not replace an unavailable observation with a function name,
+   object type or producer assertion. Production protected use still needs its
+   current independently issued appointment and deployment trust checks.
+
+The [Foundry execution guide](https://github.com/DenisKopylov/polisyos/blob/main/policy-engine/src/polisyos/foundry/execute/README.md)
+identifies the maintained reader and source owners. This procedure adds no new
+archive format, signing role or automatic recovery permission.
+
 ### Useful commands
 
 Verify docs/site rebuild class:

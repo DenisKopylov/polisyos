@@ -2221,6 +2221,8 @@ def build_runtime_api_env_with_fixture_catalog(
     app_kwargs: dict[str, object] | None = None,
     monkeypatch: pytest.MonkeyPatch | None = None,
     include_test_client: bool = True,
+    include_run_paper_fixtures: bool = False,
+    run_paper_binding_factory: _RunPaperBindingFactory | None = None,
     raise_server_exceptions: bool = True,
 ) -> dict[str, object]:
     """Build a runtime HTTP fixture with a complete isolated catalog owner by default.
@@ -2272,6 +2274,8 @@ def build_runtime_api_env_with_fixture_catalog(
         env = build_runtime_api_env(
             tmp_path,
             include_test_client=include_test_client,
+            include_run_paper_fixtures=include_run_paper_fixtures,
+            run_paper_binding_factory=run_paper_binding_factory,
             app_kwargs=selected_app_kwargs,
             raise_server_exceptions=raise_server_exceptions,
         )

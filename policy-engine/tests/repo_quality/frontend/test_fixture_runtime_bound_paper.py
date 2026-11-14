@@ -36,7 +36,6 @@ def test_fixture_metadata_json_serializes_real_artifact_refs_and_selected_profil
     from polisyos.core.artifacts import ArtifactRef
 
     server = _load_fixture_server()
-    runtime_helper = importlib.import_module("_helpers.runtime_http")
     env = server._build_dashboard_fixture_env(
         tmp_path,
         include_run_paper_fixtures=False,
@@ -45,7 +44,16 @@ def test_fixture_metadata_json_serializes_real_artifact_refs_and_selected_profil
     )
     try:
         metadata = {
-            key: value for key, value in env.items() if key not in {"app", "client", "cas_root"}
+            key: value
+            for key, value in env.items()
+            if key
+            not in {
+                "app",
+                "client",
+                "cas_root",
+                "_runtime_http_catalog_fixture",
+                "_dashboard_fixture_monkeypatch",
+            }
         }
         registry_ref = metadata["registry_bundle_ref"]
         assert isinstance(registry_ref, ArtifactRef)
@@ -60,7 +68,7 @@ def test_fixture_metadata_json_serializes_real_artifact_refs_and_selected_profil
         assert decoded["registry_bundle_ref"] == registry_ref.model_dump(mode="json")
         assert decoded["selected_profile_ref"] == selected_profile_ref.model_dump(mode="json")
     finally:
-        runtime_helper.close_runtime_api_env(env)
+        server._close_dashboard_fixture_env(env)
 
 
 def test_fixture_metadata_json_rejects_unknown_objects() -> None:
@@ -82,8 +90,7 @@ def test_dashboard_fixture_publishes_one_content_bound_s2_run_paper(
         run_id = server._install_bound_run_paper_fixture(env)
         response = env["client"].get(f"/api/v1/runs/{run_id}/paper")
     finally:
-        runtime_helper = importlib.import_module("_helpers.runtime_http")
-        runtime_helper.close_runtime_api_env(env)
+        server._close_dashboard_fixture_env(env)
 
     assert response.status_code == 200, response.text
     packet = response.json()
@@ -105,13 +112,17 @@ def test_bound_run_paper_fixture_is_opt_in_and_preserves_default_run_population(
 ) -> None:
     """Keep the S2 report witness out of unrelated Playwright and visual suites."""
     server = _load_fixture_server()
-    runtime_helper = importlib.import_module("_helpers.runtime_http")
     default_env = server._build_dashboard_fixture_env(
         tmp_path / "default",
         include_run_paper_fixtures=False,
         include_bound_run_paper_fixture=False,
         include_test_client=True,
     )
+    try:
+        default_runs = default_env["client"].get("/api/v1/runs?limit=100").json()["runs"]
+    finally:
+        server._close_dashboard_fixture_env(default_env)
+
     bound_env = server._build_dashboard_fixture_env(
         tmp_path / "bound",
         include_run_paper_fixtures=False,
@@ -119,11 +130,9 @@ def test_bound_run_paper_fixture_is_opt_in_and_preserves_default_run_population(
         include_test_client=True,
     )
     try:
-        default_runs = default_env["client"].get("/api/v1/runs?limit=100").json()["runs"]
         bound_runs = bound_env["client"].get("/api/v1/runs?limit=100").json()["runs"]
     finally:
-        runtime_helper.close_runtime_api_env(default_env)
-        runtime_helper.close_runtime_api_env(bound_env)
+        server._close_dashboard_fixture_env(bound_env)
 
     bound_run_id = "R_run_paper_bound_001"
     assert "run_paper_bound_run_id" not in default_env
@@ -138,7 +147,6 @@ def test_visual_run_paper_fixtures_bind_three_distinct_s2_records(
 ) -> None:
     """Make each governed visual case reach the authority-abstaining arm."""
     server = _load_fixture_server()
-    runtime_helper = importlib.import_module("_helpers.runtime_http")
     env = server._build_dashboard_fixture_env(
         tmp_path,
         include_run_paper_fixtures=True,
@@ -153,7 +161,7 @@ def test_visual_run_paper_fixtures_bind_three_distinct_s2_records(
         ]
         responses = [env["client"].get(f"/api/v1/runs/{run_id}/paper") for run_id in run_ids]
     finally:
-        runtime_helper.close_runtime_api_env(env)
+        server._close_dashboard_fixture_env(env)
 
     assert all(response.status_code == 200 for response in responses), [
         response.text for response in responses

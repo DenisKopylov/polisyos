@@ -22,6 +22,14 @@ measurement failure remains a resource abort. Inaccessible membership scans rema
 The tool does not install dependencies, select workloads, record environment values, or establish
 product evidence.
 
+For supervised pytest commands, an unset or empty `PYTEST_DEBUG_TEMPROOT` is set in the child
+environment to a private directory below that command's unique output directory. This prevents
+later pytest sessions from rotating away an earlier command's retained `tmp_path` fixtures. A
+non-empty caller-selected `PYTEST_DEBUG_TEMPROOT` is preserved, and an explicit pytest
+`--basetemp` continues to select the session's exact base directory. All other environment values,
+pytest arguments, assertion settings and `PYTEST_ADDOPTS` pass through unchanged. A host launcher
+that clears environment values may still require the caller to pass an explicit `--basetemp`.
+
 Use direct pytest for ordinary in-process unit tests. Tests whose results depend on admitted
 source/provenance checks or an early host-admission profile must retain `./tools/authority`.
 

@@ -1,0 +1,394 @@
+"""Prototype on the REAL Foundry executor (pinned commit 31629330), run from outside the repo.
+
+Question probed: can a selected value that has NO GlobalState field be bound to a
+method ABI input, consumed by the real graph executor, patched into an existing
+stock slot through the real merge owner, and reconciled from persisted evidence?
+
+The only non-product code is (a) one candidate method class and (b) a replacement
+for graph._materialize_exact_method_input_state that implements the proposed
+closed-world rule. Nothing in the repository is modified.
+"""
+from __future__ import annotations
+
+import hashlib
+import inspect
+import json
+import sys
+import tempfile
+from collections.abc import Mapping
+from decimal import Decimal
+from types import SimpleNamespace
+from typing import ClassVar
+
+import numpy as np
+
+from polisyos.core.artifacts import validate_core_model_json_artifact
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.foundry import (
+    ExecPlan, ExecPlanRef, FoundryInputBindingRule, LoweredIR, LoweredIRRef, MethodExecutionBundle,
+    MethodMetricBinding, MethodMetricBindingSet, MethodMetricBindingSetRef, MethodOutputPayload,
+    ProgramGraph, ProgramGraphRef, ProgramNode, StateDelta,
+)
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.data_plane import bindings as bindings_module
+from polisyos.foundry.execute._internal import graph as graph_module
+from polisyos.foundry.execute._internal.graph import execute_program_graph, new_method_execution_capture
+from polisyos.foundry.execute._internal.models import ExecutionStrictness, get_state_path
+from polisyos.foundry.execute.patch_vm import _load_tensor
+from polisyos.foundry.methods.base import (
+    ComplexityClass, ComputeBackend, FidelityLevel, MethodMetadata, MethodSignature, ParameterSpec,
+    SlotSpec, SlotType, Unit,
+)
+from polisyos.foundry.methods.exceptions import MethodExecutionAbortError, ProgramNodeValidationError
+from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.kernel import (
+    DEFAULT_MECHANISM_REGISTRY, DEFAULT_MERGE_RULE_REGISTRY, DEFAULT_SLOT_REGISTRY,
+)
+from polisyos.ir.kernel.method_metrics import (
+    METHOD_METRIC_DIRECT_OUTPUT_LAW_ID, METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION,
+    METHOD_METRIC_UNIT_ADAPTER_ID, METHOD_METRIC_UNIT_ADAPTER_VERSION, MethodMetricSemanticContract,
+    MethodMetricSourceUnit, registered_method_metric_law_metadata,
+    registered_method_metric_unit_adapter_metadata,
+)
+from polisyos.ir.kernel.slots import SlotKind, SlotScope, SlotValueType
+from polisyos.ir.kernel.units import GenericUnit
+
+
+# --------------------------------------------------------------------------- candidate consumer
+def _signature(name: str) -> MethodSignature:
+    return MethodSignature(
+        name=name, namespace="proto.accounting", version="1.0.0",
+        input_slots=frozenset({SlotSpec(name="period_flow", slot_type=SlotType.SCALAR,
+                                        unit=Unit(dimension="currency", symbol="usd"))}),
+        output_slots=frozenset({SlotSpec(name="result", slot_type=SlotType.SCALAR,
+                                         unit=Unit(dimension="currency", symbol="usd"))}),
+        parameters=(ParameterSpec(name="coefficient", default=1.0),),
+        fidelity=FidelityLevel.LOW, complexity=ComplexityClass.O_1, backend=ComputeBackend.NUMPY,
+        supports_jit=False, supports_vmap=False, supports_grad=False,
+    )
+
+
+class PeriodFlowToStock:
+    """Declared law: stock_delta = coefficient * period_flow (one period per step)."""
+
+    signature: ClassVar[MethodSignature] = _signature("period_flow_to_stock")
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Add one period-total flow to a SUM-merged stock slot.",
+        equations={"stock_delta": "coefficient * period_flow"},
+        assumptions={"empirical_status": "not_established"},
+    )
+
+    @staticmethod
+    def pure_step(state, params):
+        delta = float(params["coefficient"]) * float(np.asarray(state["period_flow"]))
+        return {"result": delta,
+                "patch_records": {"government.balance": [{"delta": np.float32(delta)}]}}
+
+
+class AmbientReader:
+    """Same ABI, but silently falls back to an ambient field when its input is absent."""
+
+    signature: ClassVar[MethodSignature] = _signature("ambient_reader")
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="Undeclared fallback read.")
+
+    @staticmethod
+    def pure_step(state, params):
+        if isinstance(state, Mapping):
+            flow = state["period_flow"] if "period_flow" in state else state["gdp"]
+        else:                                        # the whole ambient GlobalState arrived
+            flow = state.gdp
+        delta = float(params["coefficient"]) * float(np.asarray(flow))
+        return {"result": delta,
+                "patch_records": {"government.balance": [{"delta": np.float32(delta)}]}}
+
+
+# --------------------------------------------------------------------------- proposed seam
+def closed_world_materializer(selected_inputs: Mapping[str, np.ndarray]):
+    """Exact ABI join; every slot has exactly one source; no ambient fallback."""
+
+    def materialize(state, *, node, method_class, slot_registry):
+        declared = {slot.name for slot in method_class.signature.input_slots}
+        graph_ids = tuple(node.inputs)
+        if set(graph_ids) != declared or len(set(graph_ids)) != len(graph_ids):
+            raise ProgramNodeValidationError("method input ABI join is not exact",
+                                             node_id=node.node_id, code="method_input_abi_join_not_exact")
+        out = {}
+        for slot_id in graph_ids:
+            spec = slot_registry.slots.get(slot_id)
+            if spec is None:
+                raise ProgramNodeValidationError(f"slot '{slot_id}' is not registered",
+                                                 node_id=node.node_id, slot_id=slot_id,
+                                                 code="method_input_slot_unregistered")
+            if spec.state_path is None:              # model-owned exogenous input slot
+                if slot_id not in selected_inputs:
+                    raise ProgramNodeValidationError(f"selected input '{slot_id}' is not bound",
+                                                     node_id=node.node_id, slot_id=slot_id,
+                                                     code="method_input_unbound")
+                out[slot_id] = selected_inputs[slot_id]
+            else:                                    # state-backed slot keeps the existing source
+                if slot_id in selected_inputs:
+                    raise ProgramNodeValidationError("selected input shadows a state slot",
+                                                     node_id=node.node_id, slot_id=slot_id,
+                                                     code="method_input_shadows_state_slot")
+                out[slot_id] = get_state_path(state, spec.state_path)
+        return out
+
+    return materialize
+
+
+# --------------------------------------------------------------------------- fixtures
+def put(store, payload, *, kind, inputs=None):
+    t = type(payload)
+    name, version = getattr(t, "ARTIFACT_SCHEMA_NAME", None), getattr(t, "ARTIFACT_SCHEMA_VERSION", None)
+    schema = None if name is None or version is None else SchemaInfo(name=name, version=version)
+    return store.put_json(payload, PutOptions(kind=kind, media_type="application/json", schema=schema,
+                                              inputs=inputs),
+                          canon_spec=CanonSpec(forbid_floats=False), return_selected_profile=True)
+
+
+def graph_and_plan(store, method_class, outputs=("government.balance",)):
+    policy = put(store, {"candidate": "p06-proto"}, kind="ir.trinity_bundle")
+    registry = put(store, {"candidate": "registry"}, kind="core.registry_bundle")
+    metrics = put(store, {"candidate": "metrics"}, kind="ir.metric_registry")
+    units = put(store, {"candidate": "units"}, kind="ir.units_registry")
+    lowered = put(store, LoweredIR(ir_ref=policy, mechanisms=[], constraints=[]), kind="foundry.lowered_ir")
+    sig = method_class.signature
+    graph = ProgramGraph(
+        ir_ref=policy, lowered_ir_ref=LoweredIRRef.model_validate(lowered.model_dump(mode="python")),
+        nodes=[ProgramNode(node_id="fiscal_flow_node", node_kind="method", method_fqn=sig.fqn,
+                           method_version=sig.version, method_params={"coefficient": 1.0},
+                           inputs=["period_flow"], outputs=list(outputs))],
+        edges=[], entrypoints=["fiscal_flow_node"])
+    graph_ref = ProgramGraphRef.model_validate(
+        put(store, graph, kind="foundry.program_graph",
+            inputs=[input_ref_from_artifact_ref(lowered, role="lowered_ir")]).model_dump(mode="python"))
+    source_unit = MethodMetricSourceUnit(dimension="currency", symbol="usd", scale=1.0)
+    _, _, law_digest = registered_method_metric_law_metadata()
+    _, _, adapter_digest = registered_method_metric_unit_adapter_metadata()
+    binding = MethodMetricBinding(
+        binding_id="metric.binding.stock_delta", objective_id="objective.stock_delta",
+        metric_id="metric.stock_delta", node_id="fiscal_flow_node", method_fqn=sig.fqn,
+        method_version=sig.version, method_abi_digest=sig.abi_digest(), method_abi_digest_algorithm="blake2b",
+        method_build_digest="sha256:" + hashlib.sha256(inspect.getsource(method_class).encode()).hexdigest(),
+        method_build_digest_scope="class_source_only", output_slot_id="result", output_shape="scalar",
+        semantics=MethodMetricSemanticContract(
+            quantity_kind="flow", quantity_role="stock_delta", population_id="government.sector",
+            axes=("time.simulation_step",), time_role="period.total",
+            producer_contract_id="proto.period_flow_to_stock.v1"),
+        source_unit=source_unit, target_unit=GenericUnit(label="usd"),
+        law_id=METHOD_METRIC_DIRECT_OUTPUT_LAW_ID, law_version=METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION,
+        law_code_digest=law_digest, adapter_id=METHOD_METRIC_UNIT_ADAPTER_ID,
+        adapter_version=METHOD_METRIC_UNIT_ADAPTER_VERSION, adapter_code_digest=adapter_digest,
+        conversion_operation="unsupported", availability="unavailable",
+        limitation="proto_metric_law_not_registered")
+    binding_set = MethodMetricBindingSet(program_graph_ref=graph_ref, policy_ref=policy,
+                                         registry_bundle_ref=registry, metric_registry_ref=metrics,
+                                         units_registry_ref=units, bindings=[binding])
+    bs_ref = MethodMetricBindingSetRef.model_validate(put(
+        store, binding_set, kind=MethodMetricBindingSet.ARTIFACT_KIND,
+        inputs=[input_ref_from_artifact_ref(graph_ref, role="program_graph"),
+                input_ref_from_artifact_ref(policy, role="policy"),
+                input_ref_from_artifact_ref(registry, role="registry_bundle"),
+                input_ref_from_artifact_ref(metrics, role="metric_registry"),
+                input_ref_from_artifact_ref(units, role="units_registry")]).model_dump(mode="python"))
+    plan = put(store, ExecPlan(program_ref=graph_ref, order=["fiscal_flow_node"]), kind=ExecPlan.ARTIFACT_KIND,
+               inputs=[input_ref_from_artifact_ref(graph_ref, role="program_graph"),
+                       input_ref_from_artifact_ref(bs_ref, role="method_metric_bindings")])
+    return graph_ref, ExecPlanRef.model_validate(plan.model_dump(mode="python"))
+
+
+EXOGENOUS = SimpleNamespace(slot_id="period_flow", state_path=None, scope=SlotScope.GLOBAL,
+                            value_type=SlotValueType.DECIMAL, kind=SlotKind.FLOW)
+SLOTS = SimpleNamespace(slots={**DEFAULT_SLOT_REGISTRY.slots, "period_flow": EXOGENOUS})
+OPENING = 10_000_000_000.0
+
+
+def base_state():
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    return state.replace(government_balance=np.asarray(OPENING, dtype=np.float32),
+                         gdp=np.asarray(200_000_000_000.0, dtype=np.float32))
+
+
+def encode_with_owner(value, dtype: str, max_abs_error: Decimal = Decimal(0)) -> np.ndarray:
+    """Exact Decimal -> physical array through the product's own selected-tensor owner."""
+    rule = FoundryInputBindingRule(binding_id="b", source_path="x", target_slot_id="period_flow")
+    policy = bindings_module._SelectedBindingTensorPolicy((), dtype, max_abs_error)
+    encoded = bindings_module._materialize_selected_binding_tensor(
+        value, rule=rule, slot=EXOGENOUS, target_tensor=np.zeros((), dtype=dtype), policy=policy)
+    return np.asarray(encoded, dtype=dtype)
+
+
+def encode(value: Decimal, dtype: str, max_abs_error: Decimal = Decimal(0)) -> np.ndarray:
+    """NumPy-only mirror of the owner's exact-shape / bounded-error rule (no JAX downcast)."""
+    array = np.asarray(float(value), dtype=dtype)
+    if not np.isfinite(array) or abs(Decimal(float(array)) - value) > max_abs_error:
+        raise ValueError("semantic_binding_precision_loss")
+    return array
+
+
+def identity_sha256(array: np.ndarray) -> str:
+    """Independent recomputation of the dispatch input identity (dtype + shape + C-order bytes)."""
+    digest = hashlib.sha256()
+    digest.update(array.dtype.str.encode("ascii"))
+    digest.update(json.dumps(array.shape, separators=(",", ":")).encode("ascii"))
+    digest.update(np.ascontiguousarray(array).tobytes())
+    return digest.hexdigest()
+
+
+class Refusal(Exception):
+    """Prototype stand-in for the product's typed preflight refusal."""
+
+
+def preflight(node_inputs, selected):
+    """Product owner: recompute_program_graph_inputs. Selected set == graph's exogenous reads."""
+    required = {slot for slot in node_inputs
+                if slot in SLOTS.slots and SLOTS.slots[slot].state_path is None}
+    missing, unconsumed = sorted(required - set(selected)), sorted(set(selected) - required)
+    if missing or unconsumed:
+        raise Refusal(f"selected_method_inputs_mismatch missing={missing} unconsumed={unconsumed}")
+
+
+def run(method_class, selected, *, seam=True, outputs=("government.balance",), check=True):
+    MethodRegistry.get_instance().register(method_class, override=True)
+    original = graph_module._materialize_exact_method_input_state
+    if seam:
+        if check:
+            preflight(("period_flow",), selected)
+        graph_module._materialize_exact_method_input_state = closed_world_materializer(selected)
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = FileSystemCAS(tmp)
+            graph_ref, plan_ref = graph_and_plan(store, method_class, outputs)
+            capture = new_method_execution_capture(store, program_ref=graph_ref, exec_plan_ref=plan_ref)
+            graph_module.capture_environment = lambda **_k: ENV
+            result = execute_program_graph(
+                store, program_ref=graph_ref, exec_plan_ref=plan_ref, base_state=base_state(), base_ref=None,
+                mechanism_registry=DEFAULT_MECHANISM_REGISTRY, slot_registry=SLOTS,
+                merge_registry=DEFAULT_MERGE_RULE_REGISTRY, strictness=ExecutionStrictness.FAIL_CLOSED,
+                method_execution_capture=capture)
+            delta = validate_core_model_json_artifact(StateDelta, store, result.state_delta_ref)
+            ops = {op.slot_id: (op.op, float(_load_tensor(store, op.value_ref))) for op in delta.ops}
+            bundle = validate_core_model_json_artifact(MethodExecutionBundle, store,
+                                                       result.method_execution_bundle_ref)
+            occ = bundle.occurrences[0]
+            out = validate_core_model_json_artifact(MethodOutputPayload, store, occ.output_slots[0].output_ref)
+            return {"ops": ops, "dispatch": occ.dispatch, "output": out.value, "status": occ.status}
+    finally:
+        graph_module._materialize_exact_method_input_state = original
+
+
+def refusal(method_class, selected, **kwargs):
+    try:
+        got = run(method_class, selected, **kwargs)
+    except Refusal as exc:
+        return "REFUSED before execution: " + str(exc)
+    except MethodExecutionAbortError as exc:
+        return "REFUSED at dispatch: " + str(exc).split("]: ", 1)[-1][:90]
+    except Exception as exc:  # noqa: BLE001 - probe reports whatever the real executor raises
+        return f"RAISED {type(exc).__name__}: {str(exc)[:110]}"
+    return got
+
+
+from polisyos.core.artifacts.environment import CPUInfo, EnvironmentManifest, GPUInfo, JAXInfo, OSInfo, PythonInfo  # noqa: E402
+
+ENV = EnvironmentManifest(
+    cpu=CPUInfo(architecture="probe", model_name="probe", core_count=1, thread_count=1), gpu=GPUInfo(),
+    os=OSInfo(system="probe", release="1", version="probe"),
+    python=PythonInfo(version="3.14", implementation="CPython", compiler="probe"),
+    jax=JAXInfo(jax_version="0.8.2"))
+
+if __name__ == "__main__":
+    print("GlobalState has a field for the fiscal flow:", hasattr(GlobalState, "period_flow"))
+
+    flow = encode(Decimal("-6000000000"), "float64")
+    a = run(PeriodFlowToStock, {"period_flow": flow})
+    slot = next(s for s in a["dispatch"].input_slot_values if s.slot_id == "period_flow")
+    print("\n[1] selected flow -6e9 consumed through the real executor")
+    print("    state delta ops          :", a["ops"])
+    print("    captured method output   :", a["output"], "| occurrence:", a["status"])
+    print("    dispatch input identity  :", slot.status, slot.runtime_dtype, slot.runtime_shape)
+    print("    identity recomputed from the selected Decimal equals the persisted one:",
+          slot.value_sha256 == identity_sha256(flow))
+    print("    persisted input snapshot :", a["dispatch"].input_state_status, "-",
+          a["dispatch"].input_state_limitation)
+
+    b = run(PeriodFlowToStock, {"period_flow": encode(Decimal("0"), "float64")})
+    print("\n[2] same model/profile, flow changed -6e9 -> 0")
+    print("    state delta ops          :", b["ops"])
+    print("    law check: delta(result) == -(delta flow):",
+          b["ops"]["government.balance"][1] - a["ops"]["government.balance"][1] == 6_000_000_000.0)
+    zero = next(s for s in b["dispatch"].input_slot_values if s.slot_id == "period_flow")
+    print("    input identity differs   :", zero.value_sha256 != slot.value_sha256)
+
+    print("\n[3] selected input removed            ->", refusal(PeriodFlowToStock, {}))
+    print("[4] foreign slot, same number         ->", refusal(PeriodFlowToStock, {"other_flow": flow}))
+    print("[5] extra unconsumed selected input   ->",
+          refusal(PeriodFlowToStock, {"period_flow": flow, "spare_flow": flow}))
+    print("[3'] removed, preflight skipped       ->", refusal(PeriodFlowToStock, {}, check=False))
+    shadow_slots = SimpleNamespace(slots={"period_flow": SimpleNamespace(state_path="gdp")})
+    try:
+        closed_world_materializer({"period_flow": flow})(
+            base_state(), node=SimpleNamespace(node_id="n", inputs=["period_flow"]),
+            method_class=PeriodFlowToStock, slot_registry=shadow_slots)
+        print("[5'] selected input shadows state slot -> ACCEPTED")
+    except ProgramNodeValidationError as exc:
+        print("[5'] selected input shadows state slot -> REFUSED:", exc.code)
+
+    print("\n[6] undeclared ambient read, CURRENT executor (no seam), binding absent")
+    c = refusal(AmbientReader, {}, seam=False)
+    if isinstance(c, dict):
+        amb = next(s for s in c["dispatch"].input_slot_values if s.slot_id == "period_flow")
+        print("    executed with status     :", c["status"], "| ops:", c["ops"])
+        print("    input slot identity      :", amb.status, "-", amb.limitation)
+    else:
+        print("   ", c)
+    print("[7] same method, closed-world seam    ->", refusal(AmbientReader, {}, check=False))
+
+    print("\n[8] encoding guards of the existing selected-tensor owner")
+    rule = FoundryInputBindingRule(binding_id="b", source_path="x", target_slot_id="period_flow")
+    def owner(shape, dtype, value=Decimal("-6000000000")):
+        return bindings_module._materialize_selected_binding_tensor(
+            value, rule=rule, slot=EXOGENOUS, target_tensor=np.zeros(shape, dtype=dtype),
+            policy=bindings_module._SelectedBindingTensorPolicy(shape, dtype, Decimal(0)))
+    for label, call in (
+        ("scalar -> (3,) agents", lambda: owner((3,), "float32")),
+        ("scalar -> singleton (1,)", lambda: owner((1,), "float32")),
+        ("200000000001 as float32, max error 0", lambda: owner((), "float32", Decimal("200000000001"))),
+        ("-6000000000 as float32, max error 0", lambda: owner((), "float32")),
+        ("-6000000000 as float64 via owner", lambda: owner((), "float64")),
+        ("null source", lambda: owner((), "float32", None)),
+    ):
+        try:
+            print(f"    {label:38s} -> accepted {np.asarray(call())!r}")
+        except ValueError as exc:
+            print(f"    {label:38s} -> refused: {exc}")
+
+    print("\n[9] undeclared write: node declares NO outputs, method still returns patch_records")
+    d = refusal(PeriodFlowToStock, {"period_flow": flow}, outputs=())
+    print("    CURRENT executor result  :", d["ops"] if isinstance(d, dict) else d)
+    e = refusal(PeriodFlowToStock, {"period_flow": flow}, outputs=("agents.income",))
+    print("    wrong declared output    :", e if not isinstance(e, dict) else e["ops"])
+
+    print("\n[10] real compiler adapter for method nodes (foundry/compile/_graph.py)")
+    from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+    from polisyos.foundry.compile._graph import _method_plan_graph_nodes
+    sig = PeriodFlowToStock.signature
+    def compile_node(**overrides):
+        fields = dict(node_id="fiscal_flow_node", method_fqn=sig.fqn, method_version=sig.version,
+                      backend="numpy", params={"coefficient": 1.0}, reads_slots=["period_flow"],
+                      writes_slots=["result"])
+        fields.update(overrides)
+        plan = ExecutionPlan(plan_id="p", method_dag=[MethodDagNode(**fields)])
+        try:
+            nodes, _ = _method_plan_graph_nodes(plan, set(), existing_nodes=[])
+            return f"compiled: inputs={nodes[0].inputs} outputs={nodes[0].outputs}"
+        except ValueError as exc:
+            return f"refused: {exc}"
+    print("    exact ABI declaration          ->", compile_node())
+    print("    planner adds an undeclared read ->", compile_node(reads_slots=["period_flow", "global.gdp"]))
+    print("    planner omits a declared read   ->", compile_node(reads_slots=[]))
+    print("    unknown parameter               ->", compile_node(params={"coefficient": 1.0, "x": 1}))
+    print("    stale method version            ->", compile_node(method_version="0.9.0"))
+    print("    unknown method                  ->", compile_node(method_fqn="proto.accounting.missing@1.0.0"))

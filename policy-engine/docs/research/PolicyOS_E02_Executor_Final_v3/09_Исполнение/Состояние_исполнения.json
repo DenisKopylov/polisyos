@@ -9078,6 +9078,309 @@
     },
     {
       "lane_id": "LANE-01",
+      "current_execution_20261114": {
+        "status": "ACTIVE",
+        "source_author_commit": "3e689d75975effccd11d3e799ebd9ebce2d5614e",
+        "source_author_tree": "df8b05ce27617623a5c4e1a0fbdc00262bb3ce36",
+        "composition_merge": "df7be7f44",
+        "cohort_cases": {
+          "ncm_records": 21,
+          "guard_and_publication": 43,
+          "affected_SQL_HTTP_consumers": 16,
+          "timing_real_events": 12,
+          "arithmetic": 3,
+          "fixture_signer": 3
+        },
+        "arithmetic_initial_cohort": "14 PASS / 1 fixture FAIL; repaired positive PASS in separate R2; do not relabel original run",
+        "all_component_N5_entries": 0,
+        "component_source_origins_qualified": true,
+        "outputs_root": "SECONDARY:policy-engine/_cache/e02/",
+        "checks": [
+          "canonical trust-posture --check PASS",
+          "architecture guardrails --skip-generated-checks PASS; not all generated families",
+          "scoped Ruff and format PASS"
+        ],
+        "inventory_diagnostic": {
+          "member_files": 578,
+          "visible_policy_profiles": 2,
+          "direct_seconds": [
+            0.041,
+            0.0323
+          ],
+          "guarded_seconds": [
+            0.03291,
+            0.03212
+          ],
+          "shared_workers": 8,
+          "effective_timeout_seconds": 1.5,
+          "historical_timeout_reproduced": false,
+          "queue_control": "cancelled_before_start at 1.5 s; on-time backend TimeoutError distinct",
+          "scope": "retained synthetic diagnostic only; no Runtime acceptance"
+        },
+        "new_fixture_profile": {
+          "POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER": "1",
+          "authority_or_recovery_claim": false
+        },
+        "next": [
+          "finish canonical method-input preflight/binding/executor/catalog route and required public/schema companions",
+          "run repaired N7/history checks and independent semantic method controls on a stable affected source set",
+          "compose reviewed author changes and publish ordinary main progress with remote readback",
+          "wire actual N7 acquisition/accounting -> derived materializer, then P07/P08 and Gate B",
+          "address repeated proof amplification before a valid future matched NCM sequence; preserve expired retained R2 history"
+        ],
+        "resource_limits": {
+          "aggregate_process_tree_RSS_GiB": 8,
+          "Generic_RSS_GiB": 3,
+          "Generic_wall_seconds": 2400,
+          "NCM_RSS_GiB": 5,
+          "NCM_wall_seconds": 4800,
+          "disk_floor_GiB": 3,
+          "planned_wave_disk_growth_GiB": 2
+        },
+        "free_disk_GiB_at_update": 7.77,
+        "G_acceptance": false,
+        "formal_closure": false,
+        "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
+        "composed_source_tree": "58f1353b962e401dea14190e49cb2884139f074e",
+        "generic_r4": {
+          "classification": "PASS",
+          "cases": 1,
+          "wall_seconds": 1638.691,
+          "peak_process_tree_RSS_bytes": 2264924160,
+          "source_bindings_stable": true,
+          "physical_standard_units_completed": 2,
+          "B_physical_N5_calls": 0,
+          "history_scope": "B1 new equal-value source occurrence; B2/B3 reuse occurrence with distinct current-use/history decisions; C new numerical result; old B superseded",
+          "recovery_scope": "A/C interrupted worker after durable V5, no repeated N5; not OS-process restart",
+          "output": "MAIN:policy-engine/_cache/e02/generic-served-sequence-r4-20261114/"
+        },
+        "heldout_r1": {
+          "classification": "2 PASS / 1 fixture FAIL",
+          "wall_seconds": 410.991,
+          "peak_process_tree_RSS_bytes": 2094137344,
+          "source_bindings_stable": true,
+          "failure": "obsolete V1 simulation_result_ref access on V2 at final signature-removal assertion",
+          "next_control": "retained baseline/removal/restored GET, all numerical refs/body absent under removal, unchanged complete ledger, zero N5; original invocation not relabeled",
+          "output": "MAIN:policy-engine/_cache/e02/gate-a-heldout-r1-20261114/"
+        },
+        "capacity_partial_UI": {
+          "author_commit": "aee917841f93a230a1015350b2f8330ebea3e172",
+          "author_tree": "e8475171d0f0aa81cf47aec6c3b8a62a3b5f8a44",
+          "paths": 3,
+          "focused_Vitest_PASS": 2,
+          "typecheck": "PASS app/node/tools; ordinary pre-push PASS",
+          "source_delivery_readback": true,
+          "scope": "CYC-05-03 actual retained capacity partial; not CYC-03-05 current/result/history UI"
+        },
+        "matched_NCM_r2": {
+          "classification": "RESOURCE_ABORT",
+          "reason": "rss_cap_observed",
+          "wall_seconds": 2594.997,
+          "peak_process_tree_RSS_bytes": 5409652736,
+          "RSS_cap_bytes": 5368709120,
+          "SIGINT_count": 1,
+          "process_group_quiescence_observed": true,
+          "initial_A_observed": true,
+          "B1_job_state": "running at interruption",
+          "full_chain_semantic_verdict": "UNRUN",
+          "final_loaded_source_qualification": "unavailable after interrupted host; no final JUnit",
+          "next": "inspect retained durable B/receipt/accounting and supported no-N5 recovery; do not repeat full chain blindly",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-current-sequence-r2-20261114/",
+          "durable_B1": {
+            "baseline": 0.175,
+            "outcome": 0.177,
+            "physical_units": 2,
+            "replications": 2,
+            "seeds": [
+              17,
+              18
+            ],
+            "checkpoint_ref": "sha256:91b9eb08cb5d59429058676a416cecfc12df5b11790cebceaad9166bf2018945",
+            "result_ref": "sha256:8928164910bfacf516776756f91f7f0a3e8dcbe2607c42089947687c7d817c10"
+          },
+          "recovery": {
+            "dispatch_count": 0,
+            "head_job_ledger_changed": false,
+            "cause": "private diagnostic origin preflight outside tenant scope; CAS payload exists; original authority expired before correction",
+            "authority_expiry_UTC": "2026-11-14T08:41:27.303539Z",
+            "completed_standard_units": 4,
+            "outstanding_units": 0,
+            "terminal_receipt": false
+          }
+        },
+        "Gate_A": {
+          "property_admission": "GO after independent review",
+          "scope": "four required properties in bounded supported stock profile; not P06/fiscal/G closure",
+          "heldout_original": "2 PASS / 1 fixture FAIL remains",
+          "retained_matching_profile_control": "PASS: actual resolved/removal/restored GET, no N5, complete ledger unchanged, exact signature restored",
+          "profile": "actual CPU JAX0.8.2/x64false, original environment and sys.path;6571 provider identities matched; same source image",
+          "output": "MAIN:policy-engine/_cache/e02/heldout-fresh-get-r1-20261114/"
+        },
+        "author_components": {
+          "core_consolidation": "68 PASS;103.558s;2821931008-byte sampled peak",
+          "selected_registry_delta": "6 pytest PASS; source guard flags concurrent loaded N7 planner change; composed qualification pending; previous3GiB run RESOURCE_ABORT4PASS",
+          "action_selector_API": "32 PASS;59.821s;1793146880-byte sampled peak",
+          "dashboard": "scoped Vitest PASS; lazy single-action queries after independent fan-out finding; actual C/B capture delivered, render test being added",
+          "delivery": "existing secondary worktree WIP; generated companions and final composition pending"
+        },
+        "P06_consumer_question": {
+          "state": "consumer_missing for actual aggregate fiscal-flow port",
+          "independent_work": "generic AND/OR bundle, typed source-role proof, legitimate income-flow Foundry bridge, historical readers/API/UI",
+          "required_design": "reuse or extend typed method-input/materialization first; generic state carrier only if necessary; exact method/dependency ABI and patch/snapshot/old-wire compatibility, no fiscal field/slot alias",
+          "pointer": "E02-WORK-PLAN.md current execution P06 architectural question"
+        },
+        "Generic_C_B_reader": {
+          "status": "PASS",
+          "wall_seconds": 211.452,
+          "peak_process_tree_RSS_bytes": 2069725184,
+          "N5_entries": 0,
+          "C": "resolved/different/new_execution/selected",
+          "B1": "resolved/equivalent/retained_prior/superseded",
+          "all_candidate_boundaries_preserved": true,
+          "ledger_unchanged": true,
+          "source_pins_unchanged": true,
+          "DB_difference": "only fresh app worker lease row; no action/frontier/job/decision changes",
+          "output": "MAIN:policy-engine/_cache/e02/generic-r4-ui-reader-r1-20261114/",
+          "body_fixtures_delivered": "SECONDARY:apps/runtime-dashboard/src/api/__fixtures__/model-input-use-{current-c,retained-b}.json"
+        },
+        "consultant_method_input_direction": {
+          "status": "IMPLEMENTING_BASE_AND_REVIEWED_AUTHORIZED_GROWTH",
+          "accepted_path": "selected model port -> exact registered method ABI input -> canonical verified tensor -> actual argument hash -> checked patch/merge -> persisted result -> fresh reader",
+          "base_scope": [
+            "single scalar GLOBAL period_total per port and one active matching model step",
+            "identity input join; no ambient state fallback",
+            "generic declared patch-target unit/kind/merge/operation validation",
+            "versioned 1.1 ports/obligations/plans and 1.4 semantic method bindings; legacy readers preserved"
+          ],
+          "source_location": "existing secondary checkout; uncommitted author delta, not main code",
+          "core_contract_check": {
+            "PASS": 4,
+            "wall_seconds": 1.622,
+            "peak_sampled_RSS_bytes": 156385280,
+            "output": "SECONDARY:policy-engine/_cache/e02/p06-method-contracts-r1-20261114/"
+          },
+          "prior_baselines": {
+            "N7": "15 PASS / 4 fixture FAIL; fixture-only fixes written, rerun pending",
+            "history": "41 PASS / 1 fixture FAIL; exact typed missing-event assertion fixed, rerun pending",
+            "dashboard_actual_C_B": "310 PASS"
+          },
+          "G_acceptance": false,
+          "formal_closure": false,
+          "growth_options_review_then_implement": [
+            "model-value state carrier",
+            "explicit input_ports",
+            "method-result dataflow",
+            "multi-step flow inputs",
+            "deeper derivation DAG",
+            "entity vectors",
+            "feedback"
+          ],
+          "authorization": "Latest user explicitly authorizes reviewed useful additions; original denominator unchanged; no new general approval round.",
+          "current_results": {
+            "history_development": "42 PASS",
+            "history_fold_development": "49 PASS, independent source review GO; real no-N5 three-generation acceptance UNRUN",
+            "N7_bundle_development": "19 PASS after fixture/import repairs; earlier reds preserved",
+            "selected_tensor_development": "57 PASS",
+            "patch_contracts_development": "28 PASS after fixture repair; initial82 cohort71 PASS/11 fixture FAIL retained",
+            "dashboard_typecheck": "PASS after 1.5GiB cap abort; successful3GiB cap profile sampled2.2GB",
+            "base_pair_r1": "FAIL before method execution: selected execution-plan loader only allowed1.0; companion repair pending",
+            "entity_axis_primary_r1": "5 PASS; independent review repairs pending; no model-port bridge yet",
+            "base_pair_r2": {
+              "PASS": 1,
+              "wall_seconds": 74.214,
+              "peak_sampled_tree_RSS_bytes": 2557673472,
+              "scope": "public -6B/0 method execution + cold persisted source/NPY/actual argument hash/stock reader; development profile",
+              "output": "SECONDARY:policy-engine/_cache/e02/selected-method-first-pair-r2-20261114/"
+            },
+            "base_controls_r1": "3 PASS / 4 FAIL; old-ABI history and corruption/removal matrix pass; fixture typo + source-unit/patch-target proxy repair pending",
+            "entity_axis_primary_r2": {
+              "PASS": 8,
+              "wall_seconds": 6.222,
+              "peak_sampled_tree_RSS_bytes": 646479872,
+              "independent_source_review": "GO after material repair",
+              "scope": "candidate source-view axis producer/reconciler/alignment; actual method consumer bridge pending",
+              "output": "PRIMARY:policy-engine/_cache/e02/entity-axis-r2-20261114/"
+            }
+          }
+        }
+      },
+      "day_stop_20261113": {
+        "status": "PAUSED_BY_USER",
+        "numerical_jobs_quiescent": true,
+        "agents_finished": true,
+        "published_main_source": "608a9ed857ed4eaabe83f9f8d83c01b66de050b6",
+        "published_main_tree": "8ed5bdb480aa48f324c408b1b56666f73c94306a",
+        "pending_author_branch": "codex/e02-lane01-verify-20261108",
+        "pending_author_commit": "c0e786bb0bbacb5a7ed4d4084cad4d5f8566d291",
+        "pending_author_tree": "ae014cfd867f43ca958450aa210a4c19594777de",
+        "pending_new_paths": 9,
+        "new_unit_execution": "UNRUN",
+        "resilience_timing_independent_review": "UNRUN",
+        "ncm_bootstrap_and_arithmetic_source_review": "GO",
+        "generic_r3": {
+          "classification": "PYTEST_FAIL_AND_OUTER_RESOURCE_ABORT",
+          "output": "MAIN:policy-engine/_cache/e02/generic-served-sequence-r3-20261113/",
+          "A_B1_B2_B3_completed": true,
+          "C_physical_standard_unit_completed": true,
+          "C_complete_joint_result_or_V5_available": false,
+          "completed_standard_units": 2,
+          "pytest_wall_seconds": 1197.115,
+          "guard_wall_seconds": 1200.234,
+          "peak_rss_bytes": 1868251136,
+          "next": "Diagnose CAS inventory/wait/backend failure; do not treat fragments as V5 or blindly repeat N5."
+        },
+        "ncm_r1": {
+          "classification": "COMMAND_FAIL",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-fresh-sequence-r1-20261113/",
+          "guard_wall_seconds": 2754.983,
+          "peak_rss_bytes": 4321837056,
+          "source_input_pins": 7641,
+          "loaded_source_files": 2129,
+          "origins": 2130,
+          "inputs_unchanged": true,
+          "wrong_origins": 0,
+          "completed_standard_units": 4,
+          "initial_A_content_witness_emitted": true,
+          "B1_terminal_completed": false,
+          "failure": "CAS timeout via list_current_candidate_unpriced_policy_bindings -> inventory(artifact_id=...)",
+          "separate_correctness_issue": "First action selects legacy V1 prospective despite content-observed A; author fix saved, not qualified."
+        },
+        "additional_checks": {
+          "inspector_and_typed_ingress": {
+            "PASS": 11,
+            "FAIL": 0,
+            "output": "MAIN:policy-engine/_cache/e02/cyc05-inspector-cyc04-ingress-r1-20261113/"
+          },
+          "native_census": {
+            "PASS": 9,
+            "FAIL": 3,
+            "consumer_target_UNRUN": 3,
+            "output": "MAIN:policy-engine/_cache/e02/cyc05-native-census-r1-20261113/",
+            "reason": "Fixture loaded identity not established before signed-census target; no product-failure/inherited attribution."
+          }
+        },
+        "trash": {
+          "directories": 25,
+          "measured_bytes": 6391566336,
+          "source_maps": [
+            "MAIN:policy-engine/_cache/e02/trash-20261113/moved-generated-caches.json",
+            "MAIN:policy-engine/_cache/e02/trash-20261113/moved-old-scratch.json"
+          ],
+          "trash_emptied_by_executor": false,
+          "deleted_by_executor": false,
+          "later_observation": "Transfer destinations subsequently absent; external cleanup is not attributed to executor."
+        },
+        "free_disk_GiB_at_closeout": 8.54,
+        "remaining": "LANE-01 11 packets / 66 requirements / 64 contracts; Gate A open; P06/P07/P08/Gate B remain; DA-06/07/08 unchanged.",
+        "next_actions": [
+          "Review and qualify nine-path saved author delta before main promotion.",
+          "Identify real CAS timeout and measure repeated immutable proof folds, retaining fresh authority/owner/head/lease/budget fences.",
+          "Compose/freeze once and finish Generic C durable result/read plus matched NCM continuation.",
+          "After Gate A only: P06 derived-input bridge and bounded DAG, P07 indexed/exhaustive/free-growth controls and benchmark, P08 compatibility/Gate B."
+        ],
+        "G_acceptance": false,
+        "formal_closure": false
+      },
       "independent_audit_20261111": {
         "reference_archive": "policy-engine/docs/archive/PolicyOS_E02_Audit_Integration_Main_2026-11-11.zip",
         "archive_sha256": "af7a3fdc9b237c7dcf783c130a0cfc70041c2e99137fea457bc43d6b0c944bd2",
@@ -16614,7 +16917,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 16.87,
+        "free_disk_GiB_at_check": 8.54,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -36766,6 +37069,7 @@
     },
     {
       "id": "DA-06",
+      "local_status_20261113": "Nine independent local census cases pass. Three signed-census consumer cases remain UNRUN before target because the legacy import-time loaded identity is not established (FetchRequest initializer effect). Do not extend the static Python recognizer or fabricate a positive build. Qualify a supported bound build-input fixture/consumer path when available; this is not permission to defer all REQ-CYC-05-06 controls.",
       "owners": [
         "CYC-05",
         "DFK-01",

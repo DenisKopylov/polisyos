@@ -9122,10 +9122,11 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "finish retained heldout removal control and independent Gate A property qualification without repeating N5",
-          "inspect retained NCM state/resource amplification; separate no-N5 recovery from new computation",
-          "implement CYC-03-05 typed API action selector and actual current/original dashboard consumer",
-          "after Gate A consolidate canonical derivation engine into Core; P06 AND/OR semantic bundles and Foundry bridge; then P07/P08/Gate B"
+          "complete P06 source-role and bundle checks with actual consumers; preserve fiscal-consumer limitation",
+          "verify dashboard with actual Generic C/B response bytes",
+          "separate immutable historical result replay from strict current reuse admission",
+          "compose reviewed source plus mandatory generated/public/schema companions and run one affected frozen wave",
+          "resolve generic fiscal-flow consumer design; qualify valid future NCM recovery/sequence without relabeling expired R2"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9184,7 +9185,63 @@
           "full_chain_semantic_verdict": "UNRUN",
           "final_loaded_source_qualification": "unavailable after interrupted host; no final JUnit",
           "next": "inspect retained durable B/receipt/accounting and supported no-N5 recovery; do not repeat full chain blindly",
-          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-current-sequence-r2-20261114/"
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-current-sequence-r2-20261114/",
+          "durable_B1": {
+            "baseline": 0.175,
+            "outcome": 0.177,
+            "physical_units": 2,
+            "replications": 2,
+            "seeds": [
+              17,
+              18
+            ],
+            "checkpoint_ref": "sha256:91b9eb08cb5d59429058676a416cecfc12df5b11790cebceaad9166bf2018945",
+            "result_ref": "sha256:8928164910bfacf516776756f91f7f0a3e8dcbe2607c42089947687c7d817c10"
+          },
+          "recovery": {
+            "dispatch_count": 0,
+            "head_job_ledger_changed": false,
+            "cause": "private diagnostic origin preflight outside tenant scope; CAS payload exists; original authority expired before correction",
+            "authority_expiry_UTC": "2026-11-14T08:41:27.303539Z",
+            "completed_standard_units": 4,
+            "outstanding_units": 0,
+            "terminal_receipt": false
+          }
+        },
+        "Gate_A": {
+          "property_admission": "GO after independent review",
+          "scope": "four required properties in bounded supported stock profile; not P06/fiscal/G closure",
+          "heldout_original": "2 PASS / 1 fixture FAIL remains",
+          "retained_matching_profile_control": "PASS: actual resolved/removal/restored GET, no N5, complete ledger unchanged, exact signature restored",
+          "profile": "actual CPU JAX0.8.2/x64false, original environment and sys.path;6571 provider identities matched; same source image",
+          "output": "MAIN:policy-engine/_cache/e02/heldout-fresh-get-r1-20261114/"
+        },
+        "author_components": {
+          "core_consolidation": "68 PASS;103.558s;2821931008-byte sampled peak",
+          "selected_registry_delta": "6 pytest PASS; source guard flags concurrent loaded N7 planner change; composed qualification pending; previous3GiB run RESOURCE_ABORT4PASS",
+          "action_selector_API": "32 PASS;59.821s;1793146880-byte sampled peak",
+          "dashboard": "scoped Vitest PASS; lazy single-action queries after independent fan-out finding; actual C/B capture delivered, render test being added",
+          "delivery": "existing secondary worktree WIP; generated companions and final composition pending"
+        },
+        "P06_consumer_question": {
+          "state": "consumer_missing for actual aggregate fiscal-flow port",
+          "independent_work": "generic AND/OR bundle, typed source-role proof, legitimate income-flow Foundry bridge, historical readers/API/UI",
+          "required_design": "reuse or extend typed method-input/materialization first; generic state carrier only if necessary; exact method/dependency ABI and patch/snapshot/old-wire compatibility, no fiscal field/slot alias",
+          "pointer": "E02-WORK-PLAN.md current execution P06 architectural question"
+        },
+        "Generic_C_B_reader": {
+          "status": "PASS",
+          "wall_seconds": 211.452,
+          "peak_process_tree_RSS_bytes": 2069725184,
+          "N5_entries": 0,
+          "C": "resolved/different/new_execution/selected",
+          "B1": "resolved/equivalent/retained_prior/superseded",
+          "all_candidate_boundaries_preserved": true,
+          "ledger_unchanged": true,
+          "source_pins_unchanged": true,
+          "DB_difference": "only fresh app worker lease row; no action/frontier/job/decision changes",
+          "output": "MAIN:policy-engine/_cache/e02/generic-r4-ui-reader-r1-20261114/",
+          "body_fixtures_delivered": "SECONDARY:apps/runtime-dashboard/src/api/__fixtures__/model-input-use-{current-c,retained-b}.json"
         }
       },
       "day_stop_20261113": {

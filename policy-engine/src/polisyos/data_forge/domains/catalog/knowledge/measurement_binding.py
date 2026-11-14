@@ -48,16 +48,17 @@ from polisyos.core.contracts import (
 )
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     ActivatedAcquisitionObservationProjection,
+    ActivatedAcquisitionPassport,
     CanonicalAcquisitionObservation,
     CatalogAcquisitionOverlay,
+    MetricFieldBinding,
     OverlayAdmissionError,
     _resolve_fixed_unit_transform,
 )
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
-        _CanonicalAuthority,
-        _Passport,
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        CanonicalAcquisitionAuthority,
     )
 
 
@@ -72,13 +73,209 @@ class _AssessmentRefusalError(ValueError):
 _AssessmentRefusal = _AssessmentRefusalError
 
 
+def materialize_activated_measurement_occurrence(
+    store: CoreJSONArtifactStore,
+    overlay: CatalogAcquisitionOverlay,
+    *,
+    receipt_ref: ArtifactRef,
+    passport: ActivatedAcquisitionPassport,
+    authority: CanonicalAcquisitionAuthority,
+    observation_id: str,
+) -> ScopedMeasurementOccurrenceRef:
+    """Persist one exact row from the activation owner's current admitted view.
+
+    The producer reopens the selected activation through the Catalog overlay,
+    then replays and persists only the row occurrence and its source lineage.
+    It does not select a model port or assert semantic correspondence,
+    independence, source currentness, or publication authority.
+
+    Args:
+        store: Core JSON artifact store shared by the Catalog owner.
+        overlay: Canonical reader for active Catalog acquisition epochs.
+        receipt_ref: Exact selected activation receipt to reopen.
+        passport: Structural view supplied by the Catalog's active passport owner.
+        authority: Canonical source-admission authority used by that owner.
+        observation_id: Exact row ID from the active projection.
+
+    Returns:
+        ScopedMeasurementOccurrenceRef: Persisted occurrence and exact source refs.
+
+    Raises:
+        ValueError: If the selected row, activation, or source replay is invalid.
+        OverlayAdmissionError: If the activation owner cannot revalidate admission.
+    """
+    if not observation_id.strip():
+        raise _AssessmentRefusal("selected_observation_missing")
+    projection = overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=receipt_ref,
+        artifact_store=store,
+        passport=passport,
+        authority=authority,
+    )
+    projection = ActivatedAcquisitionObservationProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
+    row_matches = tuple(
+        row
+        for row in projection.observations
+        if row.observation.observation_id == observation_id
+    )
+    if len(row_matches) != 1:
+        raise _AssessmentRefusal("selected_observation_not_unique")
+    observation_row = row_matches[0]
+    observation = observation_row.observation
+    _reopen_activation_evidence(store, projection, receipt_ref=receipt_ref, passport=passport)
+
+    binding = passport.registration.field_binding
+    expected_transform = (
+        None if binding.unit_transform == "identity" else _resolve_fixed_unit_transform(binding)
+    )
+    if observation.unit_transform_evidence != expected_transform:
+        raise _AssessmentRefusal("observation_unit_transform_evidence_mismatch")
+    _source_selection, replayed_occurrence = _materialize_occurrence(
+        store,
+        projection=projection,
+        observation=observation,
+        observation_content_sha256=observation_row.row_content_sha256,
+        receipt_ref=receipt_ref,
+        passport=passport,
+        expected_transform=expected_transform,
+    )
+    return _persist_occurrence(store, replayed_occurrence)
+
+
+def replay_selected_scoped_measurement_facts(
+    store: CoreJSONArtifactStore,
+    occurrence_ref: ScopedMeasurementOccurrenceRef,
+) -> tuple[ScopedMeasurementOccurrence, ScopedMeasurementOccurrence, ScopedSourceSelection]:
+    """Reopen and replay selected CAS facts without claiming activation currentness.
+
+    This read path verifies the stored occurrence, its exact manifest inputs,
+    selected receipt/passport/boundary/source-record lineage, and the registered
+    fixed-unit transform before replaying the source row. It reads only the
+    selected CAS artifacts; it does not consult the mutable Catalog overlay or
+    assert that the activation remains current.
+
+    Args:
+        store: Core JSON artifact store containing the selected artifacts.
+        occurrence_ref: Exact selected occurrence to reconstruct from its sources.
+
+    Returns:
+        tuple: Stored occurrence, independently replayed occurrence, and
+            passport-derived source selection.
+
+    Raises:
+        ValueError: If any selected occurrence or source fact cannot be reopened.
+    """
+    try:
+        selected_occurrence_ref = _selected_exact_ref(store, occurrence_ref)
+        occurrence = validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, selected_occurrence_ref
+        )
+        if tuple(store.get_manifest(selected_occurrence_ref).inputs) != (
+            scoped_measurement_occurrence_manifest_inputs(occurrence)
+        ):
+            raise _AssessmentRefusal("occurrence_lineage_mismatch")
+
+        receipt_mapping = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=occurrence.source_receipt_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+        receipt = epoch.ActivatedOverlayAdmissionStatement.model_validate(receipt_mapping)
+        if receipt.admitted_boundary_evidence_ref.manifest_profile_sha256 is None:
+            raise _AssessmentRefusal("source_profile_required")
+        boundary_mapping = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=receipt.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+        boundary = epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(boundary_mapping)
+        passport_mapping = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=occurrence.source_passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        candidate_mapping = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=occurrence.source_boundary_candidate_ref,
+            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+        )
+        candidate = epoch.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+            candidate_mapping
+        )
+        source_selection = scoped_source_selection_from_passport_mapping(
+            passport_mapping,
+            source_receipt_ref=occurrence.source_receipt_ref,
+            source_passport_ref=occurrence.source_passport_ref,
+            source_boundary_candidate_ref=occurrence.source_boundary_candidate_ref,
+            source_record_ref=occurrence.source_record_ref,
+        )
+        if (
+            receipt.epoch_id != source_selection.epoch_id
+            or receipt.passport_id != source_selection.passport_id
+            or receipt.observation_class != source_selection.observation_class
+            or boundary.epoch_id != receipt.epoch_id
+            or boundary.semantic_epoch_stamp != receipt.semantic_epoch_stamp
+            or artifact_ref_identity_key(boundary.passport_ref)
+            != artifact_ref_identity_key(source_selection.source_passport_ref)
+            or boundary.passport_content_hash != _sha256_mapping(passport_mapping)
+            or artifact_ref_identity_key(boundary.semantic_candidate_ref)
+            != artifact_ref_identity_key(source_selection.source_boundary_candidate_ref)
+            or boundary.semantic_candidate_content_hash
+            != epoch.acquisition_semantic_candidate_content_hash(candidate)
+            or artifact_ref_identity_key(candidate.source_record_ref)
+            != artifact_ref_identity_key(source_selection.source_record_ref)
+            or candidate.source_record_content_hash
+            != str(source_selection.source_record_ref.artifact_id)
+        ):
+            raise _AssessmentRefusal("source_owner_mismatch")
+
+        registration = passport_mapping.get("registration")
+        if not isinstance(registration, Mapping):
+            raise _AssessmentRefusal("source_registration_missing")
+        binding_mapping = registration.get("field_binding")
+        if not isinstance(binding_mapping, Mapping):
+            raise _AssessmentRefusal("source_field_binding_missing")
+        binding = MetricFieldBinding.model_validate(binding_mapping)
+        expected_transform = (
+            None
+            if binding.unit_transform == "identity"
+            else _resolve_fixed_unit_transform(binding)
+        )
+        witness = (
+            None
+            if expected_transform is None
+            else FixedUnitTransformWitness.model_validate(
+                expected_transform.model_dump(mode="json")
+            )
+        )
+        if occurrence.unit_transform_evidence != witness:
+            raise _AssessmentRefusal("occurrence_transform_mismatch")
+        replayed = replay_scoped_measurement_occurrence(
+            read_scoped_measurement_source_body(
+                store,
+                passport_mapping=passport_mapping,
+                source_selection=source_selection,
+            ),
+            observation_id=occurrence.observation_id,
+            source_selection=source_selection,
+            unit_transform_evidence=witness,
+        )
+        return occurrence, replayed, source_selection
+    except (_AssessmentRefusal, OverlayAdmissionError):
+        raise
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise _AssessmentRefusal("selected_occurrence_source_replay_failed") from exc
+
+
 def assess_measurement_to_model_candidate(
     store: CoreJSONArtifactStore,
     overlay: CatalogAcquisitionOverlay,
     *,
     receipt_ref: ArtifactRef,
-    passport: _Passport,
-    authority: _CanonicalAuthority,
+    passport: ActivatedAcquisitionPassport,
+    authority: CanonicalAcquisitionAuthority,
     observation_id: str,
     source_definition_ref: VariableSemanticDefinitionRef,
     source_representation_ref: VariableRepresentationRef,
@@ -279,7 +476,7 @@ def _reopen_activation_evidence(
     projection: ActivatedAcquisitionObservationProjection,
     *,
     receipt_ref: ArtifactRef,
-    passport: _Passport,
+    passport: ActivatedAcquisitionPassport,
 ) -> None:
     """Reopen selected receipt/passport bytes and reconcile their exact owner identities."""
 
@@ -603,7 +800,7 @@ def _materialize_occurrence(
     observation: CanonicalAcquisitionObservation,
     observation_content_sha256: str,
     receipt_ref: ArtifactRef,
-    passport: _Passport,
+    passport: ActivatedAcquisitionPassport,
     expected_transform: object,
 ) -> tuple[ScopedSourceSelection, ScopedMeasurementOccurrence]:
     """Build the occurrence only after replaying its exact admitted source bytes."""
@@ -764,4 +961,9 @@ def _result(
     )
 
 
-__all__ = ["assess_measurement_to_model_candidate", "read_scoped_measurement_source_body"]
+__all__ = [
+    "assess_measurement_to_model_candidate",
+    "materialize_activated_measurement_occurrence",
+    "read_scoped_measurement_source_body",
+    "replay_selected_scoped_measurement_facts",
+]

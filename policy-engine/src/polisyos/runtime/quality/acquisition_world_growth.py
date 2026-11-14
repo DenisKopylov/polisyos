@@ -27,6 +27,10 @@ from polisyos.common import async_tools
 from polisyos.core import artifacts, canon, contracts
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.runtime.quality import acquisition_executor
+from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionRequirementGap,
+    N7DerivationBasis,
+)
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
@@ -170,6 +174,421 @@ def _require_promotion_runtime_store_binding(
 
 class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+@dataclass(frozen=True)
+class NativeDerivationSourceInput:
+    """One externally admitted source selected for a candidate derivation leaf.
+
+    The overlay and passport come from the existing native acquisition owner.
+    This context grants no permission to fetch, activate an epoch or run N5.
+    Supplier selection is routing provenance, not empirical correspondence.
+    """
+
+    source_node_id: str
+    supplier_ref: artifacts.ArtifactRef
+    overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay
+    receipt_ref: artifacts.ArtifactRef
+    passport: AdmissionPassport
+    observation_id: str
+
+
+class NativeDerivationCollectedInput(_Strict):
+    """An exact owner-replayed occurrence attached to its selected source leaf."""
+
+    source_node_id: str = Field(min_length=1)
+    source_basis: N7DerivationBasis
+    supplier_ref: artifacts.ArtifactRef
+    occurrence_ref: artifacts.ArtifactRef
+    source_receipt_ref: artifacts.ArtifactRef
+    source_passport_ref: artifacts.ArtifactRef
+    supplier_correspondence: Literal["consumer_asserted"] = "consumer_asserted"
+    empirical_authority: Literal["not_established"] = "not_established"
+
+
+class NativeDerivationPendingAction(_Strict):
+    """A specific remaining owner action, never a manufactured permission."""
+
+    source_node_id: str = Field(min_length=1)
+    source_basis: N7DerivationBasis
+    action: Literal["request_native_acquisition", "revalidate_native_input"]
+    requirement_gap: AcquisitionRequirementGap | None
+    permission_status: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _acquisition_has_original_gap(self) -> Self:
+        if self.action == "request_native_acquisition" and self.requirement_gap is None:
+            raise ValueError("native_derivation_acquisition_gap_missing")
+        return self
+
+
+class NativeDerivationInputCollection(_Strict):
+    """Candidate source availability; this does not satisfy the target port.
+
+    A complete collection permits the semantic materializer to inspect its
+    inputs. It establishes neither semantic adequacy nor execution authority.
+    Partial collections retain the original gaps for the authorized action
+    service instead of silently fabricating an input or retrying acquisition.
+    """
+
+    schema_version: Literal["NativeDerivationInputCollection@1.0"] = (
+        "NativeDerivationInputCollection@1.0"
+    )
+    derivation_bundle_ref: artifacts.ArtifactRef
+    source_node_ids: tuple[str, ...]
+    source_inputs: tuple[NativeDerivationCollectedInput, ...]
+    pending_actions: tuple[NativeDerivationPendingAction, ...]
+    input_closure_status: Literal["partial", "inputs_complete"]
+    target_satisfaction_status: Literal["unsatisfied"] = "unsatisfied"
+    semantic_admissibility: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_acquisition_routing_only"] = (
+        "candidate_acquisition_routing_only"
+    )
+
+    @model_validator(mode="after")
+    def _complete_denominator(self) -> Self:
+        selected = tuple(row.source_node_id for row in self.source_inputs)
+        pending = tuple(row.source_node_id for row in self.pending_actions)
+        if (
+            not self.source_node_ids
+            or self.source_node_ids != tuple(sorted(set(self.source_node_ids)))
+            or selected != tuple(sorted(set(selected)))
+            or pending != tuple(sorted(set(pending)))
+            or set(selected).intersection(pending)
+            or tuple(sorted((*selected, *pending))) != self.source_node_ids
+        ):
+            raise ValueError("native_derivation_source_denominator_mismatch")
+        if self.input_closure_status != ("partial" if self.pending_actions else "inputs_complete"):
+            raise ValueError("native_derivation_input_closure_status_mismatch")
+        return self
+
+
+@dataclass(frozen=True)
+class NativeDerivationInputReplay:
+    """Historical facts scoped to the rows actually replayed in this operation."""
+
+    collection: NativeDerivationInputCollection
+    source_value_replay: Literal["recomputed", "not_established"]
+    replayed_source_node_ids: tuple[str, ...]
+    native_currentness: Literal["not_established"] = "not_established"
+
+
+_NATIVE_DERIVATION_INPUT_KIND = "runtime_quality.native_derivation_input_checkpoint"
+_NATIVE_DERIVATION_INPUT_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.NativeDerivationInputCollection", version="1.0"
+)
+
+
+def _native_derivation_collection_inputs(
+    value: NativeDerivationInputCollection,
+) -> list[artifacts.InputRef]:
+    edges = [("selected_derivation_bundle", value.derivation_bundle_ref)]
+    for row in value.source_inputs:
+        edges.extend(
+            (f"source.{row.source_node_id}.{role}", ref)
+            for role, ref in (
+                ("selected_supplier", row.supplier_ref),
+                ("native_occurrence", row.occurrence_ref),
+                ("native_receipt", row.source_receipt_ref),
+                ("native_passport", row.source_passport_ref),
+            )
+        )
+    return [artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in edges]
+
+
+def _native_derivation_ref_key(
+    ref: artifacts.ArtifactRef,
+) -> tuple[str, str, str, str | None]:
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("native_derivation_source_ref_unselected")
+    return artifacts.artifact_ref_identity_key(ref)
+
+
+def _native_derivation_collection_write_profile(
+    collection: NativeDerivationInputCollection,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False)
+    return (
+        artifacts.PutOptions(
+            kind=_NATIVE_DERIVATION_INPUT_KIND,
+            media_type="application/json",
+            schema=_NATIVE_DERIVATION_INPUT_SCHEMA,
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.acquisition_world_growth", version="1.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=_native_derivation_collection_inputs(collection),
+        ),
+        spec,
+    )
+
+
+def _require_native_derivation_source_basis(
+    passport: AdmissionPassport, basis: N7DerivationBasis
+) -> None:
+    if type(passport) is not acquisition_executor.AdmissionPassport:
+        raise TypeError("native_derivation_passport_untyped")
+    declaration = passport.source_authority_entry
+    if (
+        declaration is None
+        or declaration.source_semantic_definition_ref is None
+        or declaration.source_representation_ref is None
+    ):
+        raise ValueError("native_derivation_source_declaration_not_established")
+    if _native_derivation_ref_key(
+        declaration.source_semantic_definition_ref
+    ) != _native_derivation_ref_key(basis.semantic_definition_ref) or _native_derivation_ref_key(
+        declaration.source_representation_ref
+    ) != _native_derivation_ref_key(basis.representation_ref):
+        raise ValueError("native_derivation_source_semantic_selection_mismatch")
+
+
+def persist_native_derivation_input_collection(
+    store: artifacts.ArtifactStore,
+    collection: NativeDerivationInputCollection,
+) -> artifacts.ArtifactRef:
+    """Retain one compact reentry checkpoint with exact selected source edges.
+
+    The checkpoint is candidate availability, not an action permission or an
+    admission receipt. Its currentness must be independently rechecked by the
+    native world-growth owner before use.
+    """
+    collection = NativeDerivationInputCollection.model_validate(
+        collection.model_dump(mode="python")
+    )
+    _replay_native_derivation_input_facts(store, collection)
+    options, spec = _native_derivation_collection_write_profile(collection)
+    return store.put_json(
+        collection,
+        options,
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+
+def replay_native_derivation_input_collection(
+    store: artifacts.ArtifactReader,
+    collection_ref: artifacts.ArtifactRef,
+) -> NativeDerivationInputReplay:
+    """Open a checkpoint in a fresh reader and replay every source's bytes.
+
+    This is deliberately historical. Reading CAS facts cannot establish that
+    an overlay is still active or grant a new protected use. New work calls
+    ``collect_native_derivation_inputs`` with the current native owners again.
+    """
+    if (
+        collection_ref.kind != _NATIVE_DERIVATION_INPUT_KIND
+        or collection_ref.media_type != "application/json"
+        or collection_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_derivation_checkpoint_ref_unselected")
+    manifest = store.get_manifest(collection_ref)
+    raw = store.get_bytes(collection_ref)
+    if (
+        artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+        != artifacts.artifact_ref_identity_key(collection_ref)
+        or manifest.artifact_schema != _NATIVE_DERIVATION_INPUT_SCHEMA
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.acquisition_world_growth", version="1.0"
+        )
+        or hashlib.sha256(raw).hexdigest() != collection_ref.artifact_id.hex
+    ):
+        raise ValueError("native_derivation_checkpoint_profile_mismatch")
+    collection = NativeDerivationInputCollection.model_validate(
+        artifacts.load_core_json_artifact(store, collection_ref, raw_payload_bytes=raw)
+    )
+    options, spec = _native_derivation_collection_write_profile(collection)
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=collection_ref.artifact_id,
+        data=canon.to_canonical_bytes(collection, spec),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if raw != canon.to_canonical_bytes(
+        collection, spec
+    ) or artifacts.artifact_manifest_profile_projection(
+        manifest
+    ) != artifacts.artifact_manifest_profile_projection(expected):
+        raise ValueError("native_derivation_checkpoint_lineage_mismatch")
+    _replay_native_derivation_input_facts(store, collection)
+    replayed_ids = tuple(row.source_node_id for row in collection.source_inputs)
+    return NativeDerivationInputReplay(
+        collection=collection,
+        source_value_replay="recomputed" if replayed_ids else "not_established",
+        replayed_source_node_ids=replayed_ids,
+    )
+
+
+def _replay_native_derivation_input_facts(
+    store: artifacts.ArtifactReader, value: NativeDerivationInputCollection
+) -> None:
+    """Reconcile the original plan denominator and exact retained source facts."""
+    from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+
+    bundle = load_n7_derivation_bundle(store, value.derivation_bundle_ref)
+    by_node = {node.node_id: node for node in bundle.source_nodes}
+    if value.source_node_ids != tuple(sorted(by_node)):
+        raise ValueError("native_derivation_checkpoint_source_denominator_mismatch")
+    for row in value.source_inputs:
+        node = by_node[row.source_node_id]
+        alternatives = {
+            _native_derivation_ref_key(item.supplier_ref) for item in node.supplier_alternatives
+        }
+        if (
+            row.source_basis != node.source_basis
+            or (_native_derivation_ref_key(row.supplier_ref) not in alternatives)
+            or (
+                node.selected_supplier_ref is not None
+                and _native_derivation_ref_key(row.supplier_ref)
+                != _native_derivation_ref_key(node.selected_supplier_ref)
+            )
+        ):
+            raise ValueError("native_derivation_checkpoint_source_selection_mismatch")
+        stored, replayed, _selection = (
+            data_forge_read_api.catalog.replay_selected_scoped_measurement_facts(
+                store, row.occurrence_ref
+            )
+        )
+        if (
+            stored != replayed
+            or _native_derivation_ref_key(stored.source_receipt_ref)
+            != _native_derivation_ref_key(row.source_receipt_ref)
+            or _native_derivation_ref_key(stored.source_passport_ref)
+            != _native_derivation_ref_key(row.source_passport_ref)
+        ):
+            raise ValueError("native_derivation_checkpoint_source_fact_mismatch")
+        passport = acquisition_executor.AdmissionPassport.model_validate(
+            contracts.epoch.load_verified_epoch_statement(
+                store=store,
+                ref=row.source_passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        )
+        _require_native_derivation_source_basis(passport, node.source_basis)
+        if node.inputs_complete and (
+            node.occurrence_ref is None
+            or _native_derivation_ref_key(node.occurrence_ref)
+            != _native_derivation_ref_key(row.occurrence_ref)
+            or node.source_receipt_ref is None
+            or _native_derivation_ref_key(node.source_receipt_ref)
+            != _native_derivation_ref_key(row.source_receipt_ref)
+        ):
+            raise ValueError("native_derivation_completed_source_changed")
+    for pending in value.pending_actions:
+        node = by_node[pending.source_node_id]
+        if (
+            pending.source_basis != node.source_basis
+            or pending.requirement_gap != node.requirement_gap
+            or pending.action
+            != ("revalidate_native_input" if node.inputs_complete else "request_native_acquisition")
+        ):
+            raise ValueError("native_derivation_checkpoint_pending_action_mismatch")
+
+
+def collect_native_derivation_inputs(
+    store: artifacts.ArtifactStore,
+    *,
+    derivation_bundle_ref: artifacts.ArtifactRef,
+    source_inputs: tuple[NativeDerivationSourceInput, ...],
+    authority: data_forge_read_api.catalog.CanonicalAcquisitionAuthority,
+) -> NativeDerivationInputCollection:
+    """Replay selected native leaves without fetching or executing a producer.
+
+    Every supplied leaf is reopened through the canonical Catalog owner. The
+    source declaration in that native passport must name the bundle's exact
+    semantic definition and representation. Supplier labels alone cannot
+    establish that relation. Missing AND leaves produce typed pending actions;
+    this function never materializes a partial value, calls N5 or issues PA2/
+    DS9 authority. A caller must revalidate the collection at its actual use
+    fence rather than treating this return value as a lasting permission.
+    """
+    from polisyos.core.contracts.variable_binding import (
+        ScopedMeasurementOccurrence,
+        scoped_measurement_occurrence_manifest_inputs,
+    )
+    from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+
+    bundle = load_n7_derivation_bundle(store, derivation_bundle_ref)
+    by_node = {node.node_id: node for node in bundle.source_nodes}
+    if any(type(source) is not NativeDerivationSourceInput for source in source_inputs):
+        raise TypeError("native_derivation_source_context_untyped")
+    selected_ids = tuple(row.source_node_id for row in source_inputs)
+    if len(selected_ids) != len(set(selected_ids)):
+        raise ValueError("native_derivation_source_selection_duplicate")
+    if not set(selected_ids).issubset(by_node):
+        raise ValueError("native_derivation_source_selection_foreign")
+
+    collected: list[NativeDerivationCollectedInput] = []
+    for source in sorted(source_inputs, key=lambda item: item.source_node_id):
+        node = by_node[source.source_node_id]
+        supplier_key = _native_derivation_ref_key(source.supplier_ref)
+        _native_derivation_ref_key(source.receipt_ref)
+        alternatives = {
+            _native_derivation_ref_key(item.supplier_ref) for item in node.supplier_alternatives
+        }
+        if supplier_key not in alternatives or (
+            node.selected_supplier_ref is not None
+            and _native_derivation_ref_key(node.selected_supplier_ref) != supplier_key
+        ):
+            raise ValueError("native_derivation_supplier_not_selected")
+        passport = source.passport
+        _require_native_derivation_source_basis(passport, node.source_basis)
+        occurrence_ref = data_forge_read_api.catalog.materialize_activated_measurement_occurrence(
+            store,
+            source.overlay,
+            receipt_ref=source.receipt_ref,
+            passport=passport,
+            authority=authority,
+            observation_id=source.observation_id,
+        )
+        occurrence = artifacts.validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, occurrence_ref
+        )
+        if store.get_manifest(occurrence_ref).inputs != list(
+            scoped_measurement_occurrence_manifest_inputs(occurrence)
+        ) or _native_derivation_ref_key(occurrence.source_receipt_ref) != (
+            _native_derivation_ref_key(source.receipt_ref)
+        ):
+            raise ValueError("native_derivation_occurrence_lineage_mismatch")
+        if node.inputs_complete and (
+            node.occurrence_ref is None
+            or _native_derivation_ref_key(node.occurrence_ref)
+            != _native_derivation_ref_key(occurrence_ref)
+            or node.source_receipt_ref is None
+            or _native_derivation_ref_key(node.source_receipt_ref)
+            != _native_derivation_ref_key(source.receipt_ref)
+        ):
+            raise ValueError("native_derivation_completed_source_changed")
+        collected.append(
+            NativeDerivationCollectedInput(
+                source_node_id=node.node_id,
+                source_basis=node.source_basis,
+                supplier_ref=source.supplier_ref,
+                occurrence_ref=occurrence_ref,
+                source_receipt_ref=occurrence.source_receipt_ref,
+                source_passport_ref=occurrence.source_passport_ref,
+            )
+        )
+    pending = tuple(
+        NativeDerivationPendingAction(
+            source_node_id=node.node_id,
+            source_basis=node.source_basis,
+            action=(
+                "revalidate_native_input" if node.inputs_complete else "request_native_acquisition"
+            ),
+            requirement_gap=node.requirement_gap,
+        )
+        for node in sorted(bundle.source_nodes, key=lambda item: item.node_id)
+        if node.node_id not in selected_ids
+    )
+    return NativeDerivationInputCollection(
+        derivation_bundle_ref=derivation_bundle_ref,
+        source_node_ids=tuple(sorted(by_node)),
+        source_inputs=tuple(collected),
+        pending_actions=pending,
+        input_closure_status="partial" if pending else "inputs_complete",
+    )
 
 
 class AcquisitionCandidateWorldRefresh(_Strict):

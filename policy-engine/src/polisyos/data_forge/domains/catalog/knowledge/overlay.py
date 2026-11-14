@@ -947,7 +947,14 @@ class _CanonicalAuthority(Protocol):
     ) -> bytes: ...
 
 
-class _Passport(Protocol):
+class ActivatedAcquisitionPassport(Protocol):
+    """Typed structural view of the passport consumed by the active Catalog owner.
+
+    This protocol names the existing passport contract for public Data Forge
+    consumers. Implementing it does not authenticate the passport; callers
+    still reopen its selected CAS statement through the activation owner.
+    """
+
     epoch_id: int
     passport_id: str
     status: object
@@ -986,6 +993,10 @@ class _Passport(Protocol):
     def model_dump(self, *, mode: str) -> dict[str, Any]: ...
 
     def statement_projection(self) -> dict[str, Any]: ...
+
+
+# Keep existing internal annotations bound to the same structural contract.
+_Passport = ActivatedAcquisitionPassport
 
 
 class _PreparedSemanticEpoch(Protocol):
@@ -5740,6 +5751,7 @@ __all__ = [
     "DEFAULT_ACQUISITION_OVERLAY_PATH",
     "OVERLAY_SCHEMA_VERSION",
     "AcquisitionDatasetRegistration",
+    "ActivatedAcquisitionPassport",
     "BaselineIdentity",
     "BaselineMutationError",
     "CanonicalAcquisitionObservation",

@@ -9122,11 +9122,11 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "complete P06 source-role and bundle checks with actual consumers; preserve fiscal-consumer limitation",
-          "verify dashboard with actual Generic C/B response bytes",
-          "separate immutable historical result replay from strict current reuse admission",
-          "compose reviewed source plus mandatory generated/public/schema companions and run one affected frozen wave",
-          "resolve generic fiscal-flow consumer design; qualify valid future NCM recovery/sequence without relabeling expired R2"
+          "finish canonical method-input preflight/binding/executor/catalog route and required public/schema companions",
+          "run repaired N7/history checks and independent semantic method controls on a stable affected source set",
+          "compose reviewed author changes and publish ordinary main progress with remote readback",
+          "wire actual N7 acquisition/accounting -> derived materializer, then P07/P08 and Gate B",
+          "address repeated proof amplification before a valid future matched NCM sequence; preserve expired retained R2 history"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9242,6 +9242,39 @@
           "DB_difference": "only fresh app worker lease row; no action/frontier/job/decision changes",
           "output": "MAIN:policy-engine/_cache/e02/generic-r4-ui-reader-r1-20261114/",
           "body_fixtures_delivered": "SECONDARY:apps/runtime-dashboard/src/api/__fixtures__/model-input-use-{current-c,retained-b}.json"
+        },
+        "consultant_method_input_direction": {
+          "status": "IMPLEMENTING_BASE__ASSESSING_OPTIONAL_GROWTH",
+          "accepted_path": "selected model port -> exact registered method ABI input -> canonical verified tensor -> actual argument hash -> checked patch/merge -> persisted result -> fresh reader",
+          "base_scope": [
+            "single scalar GLOBAL period_total per port and one active matching model step",
+            "identity input join; no ambient state fallback",
+            "generic declared patch-target unit/kind/merge/operation validation",
+            "versioned 1.1 ports/obligations/plans and 1.4 semantic method bindings; legacy readers preserved"
+          ],
+          "growth_options_assessment_only": [
+            "model-value state carrier",
+            "explicit input_ports",
+            "method-result dataflow",
+            "multi-step flow inputs",
+            "deeper derivation DAG",
+            "entity vectors",
+            "feedback"
+          ],
+          "source_location": "existing secondary checkout; uncommitted author delta, not main code",
+          "core_contract_check": {
+            "PASS": 4,
+            "wall_seconds": 1.622,
+            "peak_sampled_RSS_bytes": 156385280,
+            "output": "SECONDARY:policy-engine/_cache/e02/p06-method-contracts-r1-20261114/"
+          },
+          "prior_baselines": {
+            "N7": "15 PASS / 4 fixture FAIL; fixture-only fixes written, rerun pending",
+            "history": "41 PASS / 1 fixture FAIL; exact typed missing-event assertion fixed, rerun pending",
+            "dashboard_actual_C_B": "310 PASS"
+          },
+          "G_acceptance": false,
+          "formal_closure": false
         }
       },
       "day_stop_20261113": {

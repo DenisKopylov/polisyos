@@ -1,0 +1,35 @@
+"""Closed world, input bound: a method that still tries to read an undeclared key."""
+from __future__ import annotations
+
+import sys
+from decimal import Decimal
+from pathlib import Path
+from typing import ClassVar
+
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).parent))
+import proto_selected_method_input as proto  # noqa: E402
+from polisyos.foundry.methods.base import MethodMetadata, MethodSignature  # noqa: E402
+
+
+class GreedyReader:
+    """Declares only period_flow, but also reads GDP from whatever state it is handed."""
+
+    signature: ClassVar[MethodSignature] = proto._signature("greedy_reader")
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="Undeclared extra read.")
+
+    @staticmethod
+    def pure_step(state, params):
+        delta = float(np.asarray(state["period_flow"])) + float(np.asarray(state["gdp"]))
+        return {"result": delta,
+                "patch_records": {"government.balance": [{"delta": np.float32(delta)}]}}
+
+
+flow = proto.encode(Decimal("-6000000000"), "float64")
+try:
+    got = proto.run(GreedyReader, {"period_flow": flow})
+    print("[11] undeclared extra read, input bound, closed world -> EXECUTED", got["ops"])
+except BaseException as exc:  # noqa: BLE001 - the probe reports the raw exception class
+    print("[11] undeclared extra read, input bound, closed world ->",
+          type(exc).__name__, "|", str(exc)[:160])

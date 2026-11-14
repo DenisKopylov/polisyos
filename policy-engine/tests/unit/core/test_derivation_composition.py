@@ -551,3 +551,252 @@ def test_selected_unit_member_must_equal_exact_bundle_manifest_edge(tmp_path: Pa
             store=store,
             registry_bundle_ref=forged_bundle,
         )
+
+
+def _composition_recipe_case(
+    tmp_path: Path,
+) -> tuple[
+    artifacts.FileSystemCAS,
+    d.CompositionRecipe,
+    d.CompositionMaterialization,
+    artifacts.ArtifactRef,
+]:
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    context = d.DerivationContext(
+        context_ref=_ref(store, "context"), scope_ref=_ref(store, "scope"), years=(2020,)
+    )
+    source = d.CandidateSourceSeries(
+        variable_id="ratio",
+        basis=d.BasisSignature(quantity_kind="ratio", unit="ratio"),
+        points=(d.SeriesPoint(year=2020, value=Decimal("0.2")),),
+        source_occurrence_ref=_ref(store, "occurrence"),
+        source_ref=_ref(store, "source"),
+        context_ref=context.context_ref,
+        scope_ref=context.scope_ref,
+        lineage_refs=(_ref(store, "lineage"),),
+    )
+    source_ref = d.persist_candidate_source_series(store, source)
+    registry = d.TransformFamilyRegistry(
+        families=(_family(kinds=("candidate_source", "certified_derived")),)
+    )
+    registry_ref = d.persist_transform_family_registry(store, registry)
+    first = d.build_composition_recipe(
+        store,
+        registry=registry,
+        registry_ref=registry_ref,
+        input_refs={"value": d.CandidateDerivationInput(artifact_ref=source_ref)},
+        context=context,
+        output_variable_id="first",
+        family_id="identity",
+    )
+    prior = d.materialize_composition(store, first)
+    recipe = d.build_composition_recipe(
+        store,
+        registry=registry,
+        registry_ref=registry_ref,
+        input_refs={
+            "value": d.CertifiedDerivedInput(
+                artifact_ref=prior.derived_artifact_ref,
+                certificate_ref=prior.certificate_artifact_ref,
+            )
+        },
+        context=context,
+        output_variable_id="second",
+        family_id="identity",
+    )
+    return store, recipe, prior, source_ref
+
+
+def test_composition_recipe_artifact_reopens_selected_chain_independently(tmp_path: Path) -> None:
+    store, recipe, _prior, _source = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    assert recipe_ref.manifest_profile_sha256 is not None
+    assert d.persist_composition_recipe_artifact(store, recipe) == recipe_ref
+    output = d.materialize_composition(store, recipe)
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    reopened = d.load_composition_recipe_artifact(reader, recipe_ref)
+    resolved = d.resolve_certified_composition(
+        reader,
+        certificate_ref=output.certificate_artifact_ref,
+        consumer_method_id="recipe.consumer",
+    )
+    assert reopened == resolved.certificate.recipe == recipe
+    assert resolved.series.evidence_status == "not_established"
+    assert resolved.series.effective_score is None
+
+
+@pytest.mark.parametrize("missing", ["recipe", "prior_output", "prior_certificate", "source"])
+def test_composition_recipe_artifact_actual_removal_refuses_and_restores(
+    tmp_path: Path, missing: str
+) -> None:
+    store, recipe, prior, source_ref = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    output = d.materialize_composition(store, recipe)
+    missing_ref = {
+        "recipe": recipe_ref,
+        "prior_output": prior.derived_artifact_ref,
+        "prior_certificate": prior.certificate_artifact_ref,
+        "source": source_ref,
+    }[missing]
+    blob, _manifest = store._paths(missing_ref.artifact_id)
+    withheld = blob.with_suffix(".withheld")
+    blob.rename(withheld)
+    try:
+        reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+        with pytest.raises(d.DerivationRefusalError):
+            d.load_composition_recipe_artifact(reader, recipe_ref)
+        if missing == "recipe":
+            # Embedded replay alone cannot prove independent recipe custody.
+            assert (
+                d.resolve_certified_composition(
+                    reader,
+                    certificate_ref=output.certificate_artifact_ref,
+                    consumer_method_id="embedded.only",
+                ).certificate.recipe
+                == recipe
+            )
+    finally:
+        withheld.rename(blob)
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    assert d.load_composition_recipe_artifact(reader, recipe_ref) == recipe
+
+
+@pytest.mark.parametrize(
+    "coordinate", ["artifact_id", "kind", "media_type", "manifest_profile_sha256"]
+)
+def test_composition_recipe_artifact_selected_identity_graft_refuses(
+    tmp_path: Path, coordinate: str
+) -> None:
+    store, recipe, _prior, source_ref = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    substitutions = {
+        "artifact_id": source_ref.artifact_id,
+        "kind": "foreign.recipe",
+        "media_type": "text/plain",
+        "manifest_profile_sha256": "sha256:" + "f" * 64,
+    }
+    foreign_ref = artifacts.ArtifactRef.model_validate(
+        {**recipe_ref.model_dump(mode="python"), coordinate: substitutions[coordinate]}
+    )
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    with pytest.raises(d.DerivationRefusalError):
+        d.load_composition_recipe_artifact(reader, foreign_ref)
+
+
+@pytest.mark.parametrize("contract", ["schema", "producer", "input_edges"])
+def test_composition_recipe_artifact_valid_bytes_foreign_manifest_refuses(
+    tmp_path: Path, contract: str
+) -> None:
+    store, recipe, _prior, _source = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    manifest = store.get_manifest(recipe_ref)
+    foreign_ref = store.put_bytes(
+        store.get_bytes(recipe_ref),
+        artifacts.PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=artifacts.SchemaInfo(name="foreign.recipe", version="3.0.0")
+            if contract == "schema"
+            else manifest.artifact_schema,
+            producer=artifacts.ProducerInfo(component="foreign.recipe", version="3.0.0")
+            if contract == "producer"
+            else manifest.producer,
+            inputs=manifest.inputs[1:] if contract == "input_edges" else manifest.inputs,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_ref.artifact_id == recipe_ref.artifact_id
+    assert foreign_ref.manifest_profile_sha256 != recipe_ref.manifest_profile_sha256
+    with pytest.raises(d.DerivationRefusalError):
+        d.load_composition_recipe_artifact(
+            artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"), foreign_ref
+        )
+
+
+@pytest.mark.parametrize("budget", ["max_nodes", "max_depth", "max_edges", "max_points"])
+def test_composition_recipe_artifact_bounded_writer_and_reader(tmp_path: Path, budget: str) -> None:
+    store, recipe, _prior, _source = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    limits = d.DerivationEvaluationLimits.model_validate({budget: 1})
+    with pytest.raises(d.DerivationRefusalError, match="budget"):
+        d.persist_composition_recipe_artifact(store, recipe, limits=limits)
+    with pytest.raises(d.DerivationRefusalError, match="budget"):
+        d.load_composition_recipe_artifact(
+            artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            recipe_ref,
+            limits=limits,
+        )
+
+
+def test_composition_recipe_artifact_source_union_budget_precedes_any_arithmetic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, recipe, prior, source_ref = _composition_recipe_case(tmp_path)
+    source = d.CandidateSourceSeries.model_validate(
+        artifacts.load_core_json_artifact(store, source_ref)
+    )
+    other = d.CandidateSourceSeries.model_validate(
+        {**source.model_dump(mode="python"), "variable_id": "different_source"}
+    )
+    other_ref = d.persist_candidate_source_series(store, other)
+    family = d.TransformFamily(
+        family_id="mixed",
+        method_id="test.mixed",
+        method_version="1.0.0",
+        input_specs=(
+            d.TransformInputSpec(
+                role="direct", basis=source.basis, allowed_input_kinds=("candidate_source",)
+            ),
+            d.TransformInputSpec(
+                role="prior", basis=source.basis, allowed_input_kinds=("certified_derived",)
+            ),
+        ),
+        output_basis=source.basis,
+        year_domain_role="direct",
+        expression=d.ArithmeticExpression(
+            operator="add",
+            operands=(
+                d.ArithmeticExpression(operator="current_value", role="direct"),
+                d.ArithmeticExpression(operator="current_value", role="prior"),
+            ),
+        ),
+        assumption_rules=(d.AssumptionRule(name="year_join", literal_value="exact"),),
+    )
+    registry = d.TransformFamilyRegistry(families=(recipe.family, family))
+    registry_ref = d.persist_transform_family_registry(store, registry)
+    mixed = d.build_composition_recipe(
+        store,
+        registry=registry,
+        registry_ref=registry_ref,
+        input_refs={
+            "direct": d.CandidateDerivationInput(artifact_ref=other_ref),
+            "prior": d.CertifiedDerivedInput(
+                artifact_ref=prior.derived_artifact_ref,
+                certificate_ref=prior.certificate_artifact_ref,
+            ),
+        },
+        context=recipe.context,
+        output_variable_id="mixed",
+        family_id="mixed",
+    )
+    recipe_ref = d.persist_composition_recipe_artifact(store, mixed)
+    original = d._evaluate_points
+    calls = 0
+
+    def observed(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(d, "_evaluate_points", observed)
+    limits = d.DerivationEvaluationLimits(max_selected_sources=1)
+    with pytest.raises(d.DerivationRefusalError, match=r"source.*budget"):
+        d.persist_composition_recipe_artifact(store, mixed, limits=limits)
+    assert calls == 0
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    with pytest.raises(d.DerivationRefusalError, match=r"source.*budget"):
+        d.load_composition_recipe_artifact(reader, recipe_ref, limits=limits)
+    assert calls == 0
+    assert d.load_composition_recipe_artifact(reader, recipe_ref) == mixed
+    assert calls > 0

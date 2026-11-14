@@ -3163,7 +3163,12 @@ def _composition_recipe(
     )
     normalized = {
         role: _normalize_input(
-            store, role=role, selection=selection, context=context, replay=replay
+            store,
+            role=role,
+            selection=selection,
+            context=context,
+            replay=replay,
+            metadata_only=True,
         )
         for role, selection in sorted(inputs.items())
     }
@@ -3219,6 +3224,11 @@ def _composition_recipe(
     }
     payload["recipe_id"] = _identity("derivation-recipe", payload)
     recipe = CompositionRecipe.model_validate(payload)
+    selected_sources = {_ref_key(ref) for item in normalized.values() for ref in item.source_refs}
+    if len(selected_sources) > replay.limits.max_selected_sources:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "recipe selected-source budget exceeded"
+        )
     for selection in inputs.values():
         if isinstance(selection, CertifiedDerivedInput):
             replay.resolve(selection.certificate_ref)
@@ -3330,6 +3340,99 @@ def _reopen_composition_recipe(
             "recipe differs from reopened full input profiles",
         )
     return rebuilt, normalized
+
+
+def _bounded_recipe_replay(
+    store: _CertifiedDerivationReader,
+    recipe: CompositionRecipe,
+    limits: DerivationEvaluationLimits | None,
+) -> tuple[CompositionRecipe, dict[str, _NormalizedInput]]:
+    replay = _CompositionReplay(
+        store,
+        limits or DerivationEvaluationLimits(),
+        reserved_nodes=1,
+        reserved_edges=len(recipe.inputs),
+        reserved_points=len(recipe.context.years),
+    )
+    depth = max(
+        (
+            replay.preflight(_projection_ref(item.certificate))
+            for item in recipe.inputs
+            if item.certificate is not None
+        ),
+        default=0,
+    )
+    if depth + 1 > replay.limits.max_depth:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "combined recipe depth budget exceeded"
+        )
+    return _reopen_composition_recipe(store, recipe, replay)
+
+
+def persist_composition_recipe_artifact(
+    store: artifacts.FileSystemCAS,
+    recipe: CompositionRecipe,
+    *,
+    limits: DerivationEvaluationLimits | None = None,
+) -> artifacts.ArtifactRef:
+    """Persist an independently selected v3 recipe after bounded full replay.
+
+    Consumers must bind and load this selected reference separately when their
+    contract requires recipe-artifact custody; an embedded certificate recipe
+    does not establish that a separately selected recipe artifact exists.
+    """
+    recipe, _ = _bounded_recipe_replay(store, recipe, limits)
+    ref, _ = _put_or_verify(
+        store,
+        payload=recipe,
+        kind=DERIVATION_RECIPE_KIND,
+        schema=_COMPOSITION_SCHEMA,
+        producer=_COMPOSITION_PRODUCER,
+        inputs=_composition_edges(recipe),
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+        force_selected=True,
+    )
+    return ref
+
+
+def load_composition_recipe_artifact(
+    store: _CertifiedDerivationReader,
+    recipe_ref: artifacts.ArtifactRef,
+    *,
+    limits: DerivationEvaluationLimits | None = None,
+) -> CompositionRecipe:
+    """Verify a selected v3 recipe artifact and replay its full input chain."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        recipe_ref.kind != DERIVATION_RECIPE_KIND
+        or recipe_ref.media_type != "application/json"
+        or recipe_ref.manifest_profile_sha256 is None
+    ):
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "selected composition recipe profile required",
+        )
+    try:
+        recipe = CompositionRecipe.model_validate(load_core_json_artifact(store, recipe_ref))
+        _verify_cached_artifact(
+            store,
+            artifact_ref=recipe_ref,
+            expected_bytes=_canonical_bytes(recipe),
+            kind=DERIVATION_RECIPE_KIND,
+            schema=_COMPOSITION_SCHEMA,
+            producer=_COMPOSITION_PRODUCER,
+            inputs=_composition_edges(recipe),
+            refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+        )
+        return _bounded_recipe_replay(store, recipe, limits)[0]
+    except DerivationRefusalError:
+        raise
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "composition recipe artifact readback failed",
+        ) from exc
 
 
 def materialize_composition(
@@ -4014,6 +4117,7 @@ __all__ = [
     "build_composition_recipe",
     "build_derivation_recipe",
     "consume_certified_derivation",
+    "load_composition_recipe_artifact",
     "load_derivation_recipe_artifact",
     "load_selected_transform_family_registry",
     "load_transform_family_registry",
@@ -4021,6 +4125,7 @@ __all__ = [
     "materialize_derivation",
     "materialize_derivation_dag",
     "persist_candidate_source_series",
+    "persist_composition_recipe_artifact",
     "persist_derivation_recipe_artifact",
     "persist_source_series",
     "persist_transform_family_registry",

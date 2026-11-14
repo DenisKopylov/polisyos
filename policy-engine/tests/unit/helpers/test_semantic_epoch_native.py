@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
+import stat
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import aiohttp
 import pytest
 from aiohttp import web
+from cryptography.hazmat.primitives import serialization
 
+from polisyos.core import artifacts
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.security.authz import AuthzInput
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -22,6 +26,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import OverlayAdmissi
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.runtime.http.deployment_security import DeploymentOPAClient, OPADeploymentConfig
+from tests._helpers import semantic_epoch_native
 from tests._helpers.lane01_wdi_profiles import GDP_PROFILE, CandidateWDIProfile
 from tests._helpers.semantic_epoch_native import (
     _install_native_live_source_transport,
@@ -32,6 +37,75 @@ from tests.unit.runtime.quality.test_model_input_requirements import _opening_st
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def test_native_epoch_custodian_does_not_retain_private_key_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER", raising=False)
+    root = tmp_path / "issuer"
+
+    custodian = semantic_epoch_native.NativeEpochFixtureCustodian.create(
+        FileSystemCAS(tmp_path / "cas"), root
+    )
+
+    assert custodian.public_key_path.is_file()
+    assert not tuple(root.glob("native-epoch-owner-*.pem"))
+
+
+def test_native_epoch_custodian_can_retain_matching_test_private_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER", "1")
+    root = tmp_path / "issuer"
+
+    custodian = semantic_epoch_native.NativeEpochFixtureCustodian.create(
+        FileSystemCAS(tmp_path / "cas"), root
+    )
+
+    key_path_id = hashlib.sha256(custodian.signer.key_id.encode("utf-8")).hexdigest()
+    private_key_path = root / f"native-epoch-owner-{key_path_id}.pem"
+    restored_signer = artifacts.Ed25519Signer.from_pem(private_key_path.read_bytes())
+    assert private_key_path.is_file()
+    assert stat.S_IMODE(private_key_path.stat().st_mode) == 0o600
+    assert restored_signer.key_id == custodian.signer.key_id
+    assert custodian.public_key_path == root / f"native-epoch-owner-{key_path_id}.pub"
+    assert custodian.public_key_path.read_bytes() == (
+        serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
+        .public_key()
+        .public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
+
+
+def test_native_epoch_custodian_refuses_existing_retained_key_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    fixed_key = Ed25519PrivateKey.from_private_bytes(b"\x01" * 32)
+    monkeypatch.setattr(
+        semantic_epoch_native,
+        "Ed25519PrivateKey",
+        SimpleNamespace(generate=lambda: fixed_key),
+    )
+    monkeypatch.setenv("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER", "1")
+    root = tmp_path / "issuer"
+    root.mkdir()
+    signer = artifacts.Ed25519Signer(fixed_key)
+    key_path_id = hashlib.sha256(signer.key_id.encode("utf-8")).hexdigest()
+    private_key_path = root / f"native-epoch-owner-{key_path_id}.pem"
+    original_bytes = b"existing fixture bytes must not be replaced"
+    private_key_path.write_bytes(original_bytes)
+
+    with pytest.raises(FileExistsError):
+        semantic_epoch_native.NativeEpochFixtureCustodian.create(
+            FileSystemCAS(tmp_path / "cas"), root
+        )
+
+    assert private_key_path.read_bytes() == original_bytes
 
 
 def test_live_source_transport_is_isolated_from_real_opa_http(

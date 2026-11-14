@@ -8,11 +8,10 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.types.checker import validate_registered_method_input
-from polisyos.ir.kernel.merge_rules import MergeRuleKind
-from polisyos.ir.kernel.slots import SlotKind, SlotScope, SlotValueType
+from polisyos.ir.kernel import MergeRuleKind, SlotKind, SlotScope, SlotValueType
 
 if TYPE_CHECKING:
-    from polisyos.core.registry.loader import RegistryBundleContent
+    from polisyos.core.registry import RegistryBundleContent
 
 
 def validate_method_patch_targets(

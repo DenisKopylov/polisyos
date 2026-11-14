@@ -8,24 +8,23 @@ arrays enter the JAX pytree.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
 import json
+from dataclasses import dataclass
 from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
 
-from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
-from polisyos.core.contracts.model_state_layout import (
+from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore, artifact_ref_identity_key
+from polisyos.core.contracts import (
     ModelScalarStateLayout,
     ModelScalarStateLayoutRef,
     ModelScalarStateSlot,
+    StateSnapshotRef,
     model_scalar_state_layout_digest,
 )
-from polisyos.core.contracts.foundry import StateSnapshotRef
-from polisyos.core.registry.loader import load_registry_bundle_content
+from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState, ModelScalarState
 from polisyos.ir.kernel import SlotKind, SlotScope, SlotValueType
 

@@ -6944,6 +6944,7 @@ class JointSimulationPort:
             CoreJSONArtifactStore,
             artifact_ref_identity_key,
             matches_artifact_store_protocol,
+            validate_core_model_json_artifact,
         )
         from polisyos.core.contracts import (
             ExecPlan,
@@ -7010,7 +7011,7 @@ class JointSimulationPort:
             or graph_manifest.media_type != "application/json"
             or graph_manifest.artifact_schema is None
             or graph_manifest.artifact_schema.name != "polisyos.core.ProgramGraph"
-            or graph_manifest.artifact_schema.version != "0.2.0"
+            or graph_manifest.artifact_schema.version not in {"0.2.0", "0.3.0"}
             or plan_manifest.kind != "foundry.exec_plan"
             or plan_manifest.media_type != "application/json"
             or plan_manifest.artifact_schema is None
@@ -7018,8 +7019,15 @@ class JointSimulationPort:
             or plan_manifest.artifact_schema.version != "0.2.0"
         ):
             raise WorldModelRecordError("n5_program_artifact_profile_invalid")
-        loaded_graph = ProgramGraph.model_validate(load_core_json_artifact(store, graph_ref))
-        if loaded_graph.schema_version != "0.2":
+        loaded_graph = (
+            validate_core_model_json_artifact(ProgramGraph, store, graph_ref)
+            if graph_manifest.artifact_schema.version == "0.3.0"
+            else ProgramGraph.model_validate(load_core_json_artifact(store, graph_ref))
+        )
+        if loaded_graph.schema_version not in {"0.2", "0.3"} or (
+            loaded_graph.schema_version == "0.3"
+            and graph_manifest.artifact_schema.version != "0.3.0"
+        ):
             raise WorldModelRecordError("n5_program_graph_payload_version_invalid")
         loaded_plan = ExecPlan.model_validate(load_core_json_artifact(store, exec_plan_ref))
         if loaded_plan.program_ref != graph_ref:
@@ -7037,12 +7045,62 @@ class JointSimulationPort:
             or bindings_manifest.media_type != "application/json"
             or bindings_manifest.artifact_schema is None
             or bindings_manifest.artifact_schema.name != "polisyos.core.FoundryInputBindings"
-            or bindings_manifest.artifact_schema.version != "1.0"
+            or bindings_manifest.artifact_schema.version not in {"1.0", "1.4", "1.5"}
         ):
             raise WorldModelRecordError("n5_input_bindings_artifact_profile_invalid")
         persisted_bindings = load_input_bindings(store, bindings_ref)
-        if persisted_bindings.schema_version != "1.0":
+        if persisted_bindings.schema_version == "1.5":
+            raise WorldModelRecordError("n5_method_input_temporal_profile_not_established")
+        if persisted_bindings.schema_version not in {"1.0", "1.4"}:
             raise WorldModelRecordError("n5_input_bindings_payload_version_invalid")
+        if loaded_graph.schema_version == "0.3" and persisted_bindings.schema_version != "1.4":
+            raise WorldModelRecordError("n5_method_input_profile_not_established")
+        lineage_snapshot_ref = selected_world_views.data_snapshot_ref
+        if persisted_bindings.schema_version == "1.4":
+            from polisyos.core.contracts import (
+                load_model_input_obligation_set,
+                load_resolved_input_binding_manifest,
+            )
+            from polisyos.foundry.data_plane import replay_selected_method_input_facts
+
+            semantic_ref = persisted_bindings.resolved_binding_manifest_ref
+            selected_bindings_ref = plan.program_semantic_input_bindings_ref
+            if (
+                semantic_ref is None
+                or selected_bindings_ref is None
+                or artifact_ref_identity_key(selected_bindings_ref)
+                != artifact_ref_identity_key(bindings_ref)
+                or bindings_ref.manifest_profile_sha256 is None
+            ):
+                raise WorldModelRecordError("n5_method_input_selection_not_established")
+            semantic_manifest = load_resolved_input_binding_manifest(store, semantic_ref)
+            selected_set, _ = load_model_input_obligation_set(
+                store, semantic_manifest.model_input_obligation_set_ref
+            )
+            invocation = selected_set.invocation
+            if invocation.steps != request.horizon.steps() or any(
+                artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+                for actual, expected in (
+                    (invocation.program_graph_ref, graph_ref),
+                    (invocation.exec_plan_ref, exec_plan_ref),
+                    (invocation.registry_bundle_ref, selected_world_views.registry_bundle_ref),
+                    (semantic_manifest.data_snapshot_ref, selected_world_views.data_snapshot_ref),
+                )
+            ):
+                raise WorldModelRecordError("n5_method_input_invocation_mismatch")
+            facts = replay_selected_method_input_facts(
+                store, input_bindings_ref=bindings_ref, expected_invocation=invocation
+            )
+            predecessor = load_input_bindings(store, invocation.input_bindings_ref)
+            if facts.bindings != persisted_bindings or artifact_ref_identity_key(
+                predecessor.bound_state_snapshot_ref
+            ) != artifact_ref_identity_key(selected_world_views.bound_state_snapshot_ref):
+                raise WorldModelRecordError("n5_method_input_prestate_mismatch")
+            # Method values have their own selected carrier. The original
+            # physical prestate remains owned by its original snapshot; facts
+            # replay verifies both complete closures without relabeling either.
+            # Strict current ABI/preflight and actual dispatch run separately.
+            lineage_snapshot_ref = predecessor.data_snapshot_ref
         # Reconcile each nested binding ref against the versioned WMR view set
         # before opening any state. V1 reconstructs default refs; V2 retains CAS
         # selectors and requires exact view identity.
@@ -7125,9 +7183,9 @@ class JointSimulationPort:
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         expected_lineage = (
             (
-                str(selected_world_views.data_snapshot_ref.artifact_id),
+                str(lineage_snapshot_ref.artifact_id),
                 "input.data_snapshot_ref",
-                selected_world_views.data_snapshot_ref.manifest_profile_sha256,
+                lineage_snapshot_ref.manifest_profile_sha256,
             ),
             (
                 str(selected_world_views.registry_bundle_ref.artifact_id),
@@ -14861,8 +14919,8 @@ class GenerationCycleController:
 
             from polisyos.core.contracts import DataSnapshot
 
-            snapshot = DataSnapshot.model_validate(
-                load_core_json_artifact(store, data_snapshot_ref)
+            snapshot = artifacts.validate_core_model_json_artifact(
+                DataSnapshot, store, data_snapshot_ref
             )
             if snapshot.data_ref != payload.payload_ref or snapshot.stats.get("snapshot_id") != str(
                 payload.payload_ref.artifact_id

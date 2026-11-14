@@ -523,3 +523,7 @@ __all__ = [
     "optimal_recourse_intervention",
     "program_cost",
 ]
+
+from .transport_engine import solve_transportability
+
+__all__.append("solve_transportability")

@@ -178,6 +178,15 @@ if TYPE_CHECKING:
         validate_core_model_bounded_read,
         validate_core_model_json_artifact,
     )
+    from .environment import (
+        EnvironmentManifest as EnvironmentManifest,
+    )
+    from .environment import (
+        EnvironmentManifestRef as EnvironmentManifestRef,
+    )
+    from .environment import (
+        capture_environment as capture_environment,
+    )
     from .ir_adapter import (
         CoreToIRArtifactStoreAdapter,
         matches_artifact_store_protocol,
@@ -196,6 +205,9 @@ if TYPE_CHECKING:
 
 def __getattr__(name: str) -> Any:
     """Resolve optional adapters and profile readers without package cycles."""
+    if name in {"EnvironmentManifest", "EnvironmentManifestRef", "capture_environment"}:
+        environment = import_module(".environment", __name__)
+        return getattr(environment, name)
     if name in {
         "CoreToIRArtifactStoreAdapter",
         "ensure_ir_artifact_store",
@@ -467,3 +479,6 @@ __all__ = [
     "write_bytes_atomic",
     "write_bytes_once",
 ]
+
+
+__all__.extend(["EnvironmentManifest", "EnvironmentManifestRef", "capture_environment"])

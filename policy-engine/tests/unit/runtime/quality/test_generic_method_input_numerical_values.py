@@ -11,13 +11,21 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import FoundryInputBindings, FoundrySelectedMethodInput
 from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
-from polisyos.foundry.data_plane.bindings import reconcile_selected_method_input_bindings
+from polisyos.core.registry import load_registry_bundle_content
+from polisyos.foundry.data_plane.bindings import (
+    reconcile_selected_method_input_bindings,
+    replay_selected_method_input_facts,
+)
+from polisyos.foundry.execute import load_state_snapshot
+from polisyos.foundry.execute._internal.graph import prepare_program_graph_method_calls
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.runtime.quality.acquisition_evaluation import (
+    _generic_method_call_content,
     _selected_method_input_numerical_values,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -32,8 +40,12 @@ from tests._helpers.selected_method_input import prepare_selected_method_input_c
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 
-def test_real_selected_method_values_distinguish_unchanged_prestate_and_ignore_ref_labels(tmp_path):
-    """Changing the actual method value changes the key while ref-only changes do not."""
+def test_real_selected_method_facts_and_preflight_preserve_numeric_and_ref_roles(tmp_path):
+    """Prove facts/preflight only; unavailable provider content is a separate control.
+
+    Development r1/r2 failed later at preflight/provider respectively. Their
+    outputs remain deciding failure evidence, not full witness acceptance.
+    """
     case, metadata = prepare_selected_method_input_case(tmp_path, method_class=PeriodFlowToStock)
     try:
         selected = materialize_selected_method_input_case(case, metadata)
@@ -79,13 +91,31 @@ def test_real_selected_method_values_distinguish_unchanged_prestate_and_ignore_r
         selected_set, _ = load_model_input_obligation_set(
             fresh, manifest.model_input_obligation_set_ref
         )
+        obligation_set_ref = ArtifactRef.model_validate(
+            manifest.model_input_obligation_set_ref.model_dump(mode="python")
+        )
+        assert artifact_ref_identity_key(obligation_set_ref) == artifact_ref_identity_key(
+            manifest.model_input_obligation_set_ref
+        )
         preflight = ProgramGraphInputPreflight(
             obligation_refs=selected_set.obligation_refs,
             supplied_initial_slots=selected_set.supplied_initial_slots,
             parameter_override_bundle_ref=selected_set.invocation.parameter_override_bundle_ref,
-            obligation_set_ref=manifest.model_input_obligation_set_ref,
+            obligation_set_ref=obligation_set_ref,
             invocation=selected_set.invocation,
         )
+        facts = replay_selected_method_input_facts(
+            fresh,
+            input_bindings_ref=selected.input_bindings_ref,
+            expected_invocation=selected_set.invocation,
+        )
+        assert _selected_method_input_numerical_values(facts) == original_values
+        assert "semantic_input_limitation:method_nominal_abi_not_checked" in facts.notes
+        assert (
+            "semantic_input_limitation:method_provider_completeness_not_established" in facts.notes
+        )
+        base_state = load_state_snapshot(fresh, snapshot_ref=case.bound_state_snapshot_ref)
+        registry = load_registry_bundle_content(fresh, case.registry_bundle_ref)
         plan = EnginePlan(
             engine_kind="program_graph",
             objective_ref="objective://selected-method-intake",
@@ -95,6 +125,13 @@ def test_real_selected_method_values_distinguish_unchanged_prestate_and_ignore_r
             program_graph_ref=case.program_graph_ref,
             exec_plan_ref=case.exec_plan_ref,
             program_store=fresh,
+            program_base_state=base_state,
+            program_base_ref=case.bound_state_snapshot_ref,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            constraint_registry=registry.constraint_registry,
         )
         base = _request()
         request = base.model_copy(
@@ -150,5 +187,43 @@ def test_real_selected_method_values_distinguish_unchanged_prestate_and_ignore_r
             fresh, input_bindings_ref=relabelled_ref, effective_step=0
         )
         assert _selected_method_input_numerical_values(restored) == original_values
+    finally:
+        case.close()
+
+
+def test_ordinary_method_provider_without_retained_provenance_is_not_established(tmp_path):
+    """A real prepared native call is insufficient for a current content witness."""
+    from polisyos.runtime.quality.confidence_ledger import _retained_n5_host_capture
+
+    assert _retained_n5_host_capture() is None
+    case, metadata = prepare_selected_method_input_case(tmp_path, method_class=PeriodFlowToStock)
+    try:
+        selected = materialize_selected_method_input_case(case, metadata)
+        fresh = FileSystemCAS(case.store_root)
+        manifest = load_resolved_input_binding_manifest(
+            fresh, selected.resolved_binding_manifest_ref
+        )
+        selected_set, _ = load_model_input_obligation_set(
+            fresh, manifest.model_input_obligation_set_ref
+        )
+        base_state = load_state_snapshot(fresh, snapshot_ref=case.bound_state_snapshot_ref)
+        calls = prepare_program_graph_method_calls(
+            fresh,
+            program_ref=case.program_graph_ref,
+            exec_plan_ref=case.exec_plan_ref,
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=selected.input_bindings_ref,
+            base_state=base_state,
+            steps=(0,),
+            expected_invocation=selected_set.invocation,
+            seed=0,
+        )
+        assert len(calls) == 1
+        assert calls[0].input_slot_sources == {"period_flow": "period_flow"}
+        assert float(calls[0].input_values["period_flow"]) == -6_000_000_000.0
+        with pytest.raises(
+            ValueError, match=r"^generic_method_call_provider_not_established:default_rng$"
+        ):
+            _generic_method_call_content(calls[0])
     finally:
         case.close()

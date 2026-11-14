@@ -13,6 +13,8 @@ from ._internal.graph import (
     new_method_execution_capture,
     persist_method_execution_capture,
     prepare_program_graph_mechanism_calls,
+    prepare_program_graph_method_calls,
+    read_program_graph_method_input_sources,
 )
 
 # Models & low-level helpers
@@ -77,6 +79,8 @@ __all__ = [
     "new_method_execution_capture",
     "persist_method_execution_capture",
     "prepare_program_graph_mechanism_calls",
+    "prepare_program_graph_method_calls",
+    "read_program_graph_method_input_sources",
     # patching / delta
     "apply_state_delta",
     "apply_patch_records",

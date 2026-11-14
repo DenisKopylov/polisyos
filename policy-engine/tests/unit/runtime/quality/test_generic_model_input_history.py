@@ -42,13 +42,19 @@ def _step(step: int, content: bytes) -> Any:
 def test_recorded_call_content_reconciles_every_physical_unit_without_live_code() -> None:
     first = exact_n5_content_bytes({"recorded_callable": "old-provider-a", "parameter": 3})
     second = exact_n5_content_bytes({"recorded_callable": "old-provider-a", "parameter": 4})
-    observed = SimpleNamespace(steps=(_step(1, second), _step(0, first), _step(0, first)))
+    observed = SimpleNamespace(
+        numerical_intent_profile=owner.GENERIC_NUMERICAL_INTENT_PROFILE,
+        steps=(_step(1, second), _step(0, first), _step(0, first)),
+    )
 
     assert owner._recorded_generic_model_input_calls(observed) == (
         (2, "scheduled-node", 0, first),
         (2, "scheduled-node", 1, second),
     )
-    graft = SimpleNamespace(steps=(_step(0, first), _step(0, second)))
+    graft = SimpleNamespace(
+        numerical_intent_profile=owner.GENERIC_NUMERICAL_INTENT_PROFILE,
+        steps=(_step(0, first), _step(0, second)),
+    )
     with pytest.raises(ValueError, match="history_call_census_mismatch"):
         owner._recorded_generic_model_input_calls(graft)
 
@@ -56,7 +62,12 @@ def test_recorded_call_content_reconciles_every_physical_unit_without_live_code(
 @pytest.mark.parametrize("content", [b"not JSON", b' {"mapping":[]}', b"{}\n"])
 def test_recorded_call_requires_the_original_canonical_wire(content: bytes) -> None:
     with pytest.raises(ValueError, match="n5_content_wire_invalid"):
-        owner._recorded_generic_model_input_calls(SimpleNamespace(steps=(_step(0, content),)))
+        owner._recorded_generic_model_input_calls(
+            SimpleNamespace(
+                numerical_intent_profile=owner.GENERIC_NUMERICAL_INTENT_PROFILE,
+                steps=(_step(0, content),),
+            )
+        )
 
 
 def _component_basis(store: Any) -> owner.GenericModelInputEvaluationBasisV1:

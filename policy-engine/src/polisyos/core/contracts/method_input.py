@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 
-from polisyos.ir.kernel.base import SLOT_ID_PATTERN
+from polisyos.ir.kernel import SLOT_ID_PATTERN
 
 
 def _validate_trimmed_name(value: str) -> str:

@@ -7,6 +7,7 @@ from graphlib import TopologicalSorter
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts import RegistrySlotInputPortSource
 from polisyos.core.contracts.execution_plan import ExecutionPlan
 from polisyos.core.contracts.foundry import (
     LoweredIRRef,
@@ -16,8 +17,7 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
-from polisyos.core.contracts.method_input import RegistrySlotInputPortSource
-from polisyos.core.registry.loader import RegistryBundleContent, load_registry_bundle_content
+from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.methods.base import MethodKind, SideEffectProfile
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import validate_registered_method_input
@@ -247,13 +247,9 @@ def _method_plan_graph_nodes(
                         registry=registry_content,
                     )
                 except ValueError as exc:
-                    raise ValueError(
-                        f"execution_plan_method_input_source_invalid:{exc}"
-                    ) from exc
+                    raise ValueError(f"execution_plan_method_input_source_invalid:{exc}") from exc
                 method_input_ports[input_slot_id] = input_source
-            program_inputs = sorted(
-                {item.slot_id for item in method_input_ports.values()}
-            )
+            program_inputs = sorted({item.slot_id for item in method_input_ports.values()})
         if source.state_writes and (
             entry is None
             or entry.metadata.side_effect_profile is not SideEffectProfile.PATCH_EMISSION
@@ -286,11 +282,7 @@ def _method_plan_graph_nodes(
                 # metric binding. Only the separately declared state_writes enter the graph
                 # patch namespace; an absent declaration preserves the legacy empty output set.
                 outputs=list(source.state_writes or []),
-                **(
-                    {"input_ports": method_input_ports}
-                    if method_input_ports is not None
-                    else {}
-                ),
+                **({"input_ports": method_input_ports} if method_input_ports is not None else {}),
             )
         )
     explicit_edges: set[tuple[str, str]] = set()

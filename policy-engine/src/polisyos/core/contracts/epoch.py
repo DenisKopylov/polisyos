@@ -9,6 +9,7 @@ consumers respectively.
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Annotated, Any, Literal, NamedTuple, Protocol, Self
 
@@ -1743,7 +1744,9 @@ def _verify_decoded_data_snapshot_manifest_inputs(
         or schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
     ):
         raise ValueError("DataSnapshot selected manifest schema differs")
-    snapshot = DataSnapshot.model_validate(decoded)
+    snapshot = DataSnapshot.model_validate_json(
+        json.dumps(decoded, ensure_ascii=False, separators=(",", ":")), strict=True
+    )
     if not data_snapshot_manifest_inputs_match(
         snapshot,
         manifest.inputs,

@@ -13,8 +13,8 @@ from polisyos.foundry.model_state_slots import (
     build_model_scalar_state_layout,
 )
 from polisyos.ir.kernel import ConstraintRegistry, MechanismTypeRegistry, MergeRuleRegistry
-from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
 from polisyos.ir.kernel.merge_rules import MergeRuleRef
+from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
 from polisyos.ir.kernel.units import UnitRef
 
 

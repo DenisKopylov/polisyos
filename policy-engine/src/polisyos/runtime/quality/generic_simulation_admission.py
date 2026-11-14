@@ -73,7 +73,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.contracts import LoweredIR, ProgramGraph
     from polisyos.core.registry import RegistryBundleContent
-    from polisyos.ir import RegistryBundle, TrinityBundle
+    from polisyos.ir import ModelSpec, RegistryBundle, TrinityBundle
     from polisyos.runtime.quality.generation_cycle import (
         JointSimulationPort,
         JointSimulationResult,
@@ -4221,12 +4221,20 @@ class GenericCycleSimulationAdmissionOwner:
             != artifacts.SchemaInfo(
                 name="polisyos.ir.model_layer.ModelSpec", version=model.schema_version
             )
-            or not _same_typed_public_value(model, trinity.model_spec)
             or gy_content_hash(model.model_dump(mode="json"))
             != world.simulation_model_ref.model_spec_hash
             or model.registry_bundle_ref != str(registry_ref.artifact_id)
         ):
             raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_wmr_model_mismatch")
+        if not _same_typed_public_value(model, trinity.model_spec):
+            self._require_selected_derived_program_graph_model(
+                world=world,
+                model=model,
+                source_model=trinity.model_spec,
+                program_ref=graph_ref,
+                exec_plan_ref=plan_ref,
+                registry_ref=registry_ref,
+            )
         return _SelectedProgramGraph(
             compile_report_ref=report_ref,
             registry_bundle_ref=registry_ref,
@@ -4238,6 +4246,95 @@ class GenericCycleSimulationAdmissionOwner:
             lowered_ir=lowered_ir,
             trinity=trinity,
         )
+
+    def _require_selected_derived_program_graph_model(
+        self,
+        *,
+        world: WorldModelRecord,
+        model: ModelSpec,
+        source_model: ModelSpec,
+        program_ref: ArtifactRef,
+        exec_plan_ref: ArtifactRef,
+        registry_ref: ArtifactRef,
+    ) -> None:
+        """Replay the finite derived-data transition against its complete owner.
+
+        This is immutable subject/transport admission, not current method ABI,
+        source rights, calibration transfer, or an authorization to execute.
+        Current preparation and every effect fence remain independent.
+        """
+        from polisyos.core.contracts import (
+            load_model_input_obligation_set,
+            load_resolved_input_binding_manifest,
+        )
+        from polisyos.foundry.data_plane import (
+            load_input_bindings,
+            replay_selected_method_input_facts,
+        )
+        from polisyos.runtime.quality.data_state_substrate import (
+            DERIVED_MODEL_INPUT_CANDIDATE_PROFILE,
+            DERIVED_MODEL_INPUT_LIMITATION_CODES,
+            DataStateSubstrateError,
+            materialize_derived_candidate_model_spec,
+        )
+
+        views = world_model_artifact_views(world)
+        try:
+            expected_model = materialize_derived_candidate_model_spec(
+                source_model, views.data_snapshot_ref
+            )
+        except DataStateSubstrateError as exc:
+            raise CycleSubstrateContextOwnerError(exc.code) from exc
+        bindings = load_input_bindings(self._store, views.input_bindings_ref)
+        manifest_ref = bindings.resolved_binding_manifest_ref
+        if bindings.schema_version != "1.4" or manifest_ref is None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_derived_method_profile_not_established"
+            )
+        manifest = load_resolved_input_binding_manifest(self._store, manifest_ref)
+        selected_set, _ = load_model_input_obligation_set(
+            self._store, manifest.model_input_obligation_set_ref
+        )
+        invocation = selected_set.invocation
+        predecessor = load_input_bindings(self._store, invocation.input_bindings_ref)
+        expected_joins = (
+            (invocation.program_graph_ref, program_ref),
+            (invocation.exec_plan_ref, exec_plan_ref),
+            (invocation.registry_bundle_ref, registry_ref),
+            (predecessor.registry_bundle_ref, registry_ref),
+            (bindings.registry_bundle_ref, registry_ref),
+            (bindings.data_snapshot_ref, views.data_snapshot_ref),
+            (manifest.data_snapshot_ref, views.data_snapshot_ref),
+            (bindings.bound_state_snapshot_ref, predecessor.bound_state_snapshot_ref),
+            (bindings.bound_state_snapshot_ref, views.bound_state_snapshot_ref),
+        )
+        if (
+            manifest.schema_version != "2.0"
+            or not manifest.derivations
+            or DERIVED_MODEL_INPUT_CANDIDATE_PROFILE not in world.limitations.transport_limits
+            or not set(DERIVED_MODEL_INPUT_LIMITATION_CODES).issubset(
+                world.limitations.admissibility_blockers
+            )
+            or source_model.data_snapshot_ref != str(predecessor.data_snapshot_ref.artifact_id)
+            or any(
+                artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+                for actual, expected in expected_joins
+            )
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_derived_model_subject_mismatch"
+            )
+        facts = replay_selected_method_input_facts(
+            self._store,
+            input_bindings_ref=views.input_bindings_ref,
+            expected_invocation=invocation,
+        )
+        if not _same_typed_public_value(facts.bindings, bindings) or not _same_typed_public_value(
+            expected_model, model
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_derived_model_transition_mismatch"
+            )
 
     def _require_selected_program_graph_atom(
         self,
@@ -4330,15 +4427,20 @@ class GenericCycleSimulationAdmissionOwner:
             if node.op is not None and node.op.op_kind == "apply_mechanism"
         )
         if len(nodes) != 1 or any(
-            node.node_kind != "op"
-            or node.op is None
-            or node.op.op_kind
-            not in {
-                "make_mask",
-                "apply_mechanism",
-                "merge_state",
-                "check_constraints",
-            }
+            not (
+                node.node_kind == "method"
+                or (
+                    node.node_kind == "op"
+                    and node.op is not None
+                    and node.op.op_kind
+                    in {
+                        "make_mask",
+                        "apply_mechanism",
+                        "merge_state",
+                        "check_constraints",
+                    }
+                )
+            )
             for node in selection.graph.nodes
         ):
             raise CycleSubstrateContextOwnerError(
@@ -4593,6 +4695,42 @@ class GenericCycleSimulationAdmissionOwner:
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_program_graph_wmr_state_path_missing"
                 )
+            from polisyos.core.contracts import FoundryInputBindingsRef
+            from polisyos.foundry.data_plane import load_input_bindings
+
+            views = world_model_artifact_views(world_record)
+            bindings = load_input_bindings(self._store, views.input_bindings_ref)
+            semantic_bindings_ref: FoundryInputBindingsRef | None = None
+            if bindings.schema_version == "1.5" or (
+                any(node.node_kind == "method" for node in selected.graph.nodes)
+                and bindings.schema_version != "1.4"
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_program_graph_method_profile_not_established"
+                )
+            if bindings.schema_version == "1.4":
+                if (
+                    views.input_bindings_ref.manifest_profile_sha256 is None
+                    or bindings.resolved_binding_manifest_ref is None
+                    or any(
+                        artifact_ref_identity_key(getattr(bindings, name))
+                        != artifact_ref_identity_key(getattr(views, name))
+                        for name in (
+                            "data_snapshot_ref",
+                            "registry_bundle_ref",
+                            "bound_state_snapshot_ref",
+                        )
+                    )
+                ):
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_program_graph_selected_method_binding_mismatch"
+                    )
+                # This transports the WMR's exact selection only. The current
+                # invocation preflight still independently admits its meaning,
+                # subject, ABI and actual method values before any N5 call.
+                semantic_bindings_ref = FoundryInputBindingsRef.model_validate(
+                    views.input_bindings_ref.model_dump(mode="python")
+                )
             return (
                 EnginePlan(
                     engine_kind="program_graph",
@@ -4601,6 +4739,11 @@ class GenericCycleSimulationAdmissionOwner:
                     program_compilation_ref=profile.n5.compile_report_ref,
                     program_graph_ref=selected.graph_ref,
                     exec_plan_ref=selected.exec_plan_ref,
+                    **(
+                        {"program_semantic_input_bindings_ref": semantic_bindings_ref}
+                        if semantic_bindings_ref is not None
+                        else {}
+                    ),
                 ),
             )
 

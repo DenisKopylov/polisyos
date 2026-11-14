@@ -45,9 +45,12 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     DataSnapshot,
+    DataSnapshotOwnerBound,
     ProgramGraphInputInvocation,
+    UncertaintyEnvelopeRef,
     data_snapshot_manifest_inputs_match,
     data_snapshot_owner_input_requirements,
+    load_model_input_obligation,
 )
 from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
 from polisyos.core.contracts.foundry import (
@@ -64,6 +67,7 @@ from polisyos.core.contracts.foundry import (
     FeedbackIterationRecord,
     FeedbackJacobianDiagnostics,
     FeedbackJacobianDiagnosticsRef,
+    FeedbackMapEvaluationRecord,
     FeedbackResultRef,
     FeedbackSolveResult,
     FeedbackStateSnapshot,
@@ -76,6 +80,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingsRef,
     FoundrySelectedMethodInput,
     MethodExecutionBundle,
+    MethodExecutionBundleRef,
     MethodExecutionOccurrence,
     Metrics,
     MetricsRef,
@@ -90,8 +95,6 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
-from polisyos.core.contracts.model_input_requirements import load_model_input_obligation
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.core.registry import (
     RegistryBundleContent,
     load_registry_bundle_content,
@@ -115,6 +118,7 @@ from polisyos.foundry.execute._internal.posture import (
     resolve_execution_posture,
 )
 from polisyos.foundry.execute.executor import (
+    ApplyArtifacts,
     ExecuteArtifacts,
     MethodExecutionCapture,
     apply_state_delta,
@@ -128,6 +132,7 @@ from polisyos.foundry.execute.executor import (
 from polisyos.foundry.execute.observation import ProgramGraphExecutionObserver
 from polisyos.foundry.feedback import (
     AlternativeSolution,
+    FeedbackMapEvaluationRecorder,
     MapEvaluation,
     PreparedFeedbackConfig,
     SolveOutcome,
@@ -162,6 +167,19 @@ class _FeedbackExecutionEvaluation:
 
     map_evaluation: MapEvaluation
     final_state: GlobalState
+
+
+@dataclass(frozen=True)
+class _FeedbackFinalMaterialization:
+    """Final graph execution plus the downstream reads that establish its map."""
+
+    exec_artifacts: ExecuteArtifacts
+    derived_refs: list[DerivedArtifact]
+    welfare_bound_failure_notes: list[str]
+    final_state: GlobalState
+    applied: ApplyArtifacts
+    final_feedback_observed: FeedbackStateSnapshot
+    final_feedback_diagnostics: dict[str, float]
 
 
 ExecutionSourceMode = Literal[
@@ -582,8 +600,14 @@ def _verify_execution_data_snapshot_edges(
         _require_selected_manifest_identity(manifest, ref)
     schema = manifest.artifact_schema
     semantic_owner_lineage = _require_semantic_snapshot_lineage_version(snapshot, schema)
-    if semantic_owner_lineage:
-        assert schema is not None  # The semantic owner lineage requires the matching .4 schema.
+    owner_bound_schema = (
+        schema is not None
+        and schema.name == DataSnapshotOwnerBound.ARTIFACT_SCHEMA_NAME
+        and schema.version in DataSnapshotOwnerBound.ARTIFACT_SCHEMA_VERSIONS
+    )
+    if owner_bound_schema or snapshot.source_lineage is not None:
+        if schema is None:
+            raise ValueError("execution_source_data_snapshot_owner_lineage_disagrees")
         if not data_snapshot_manifest_inputs_match(
             snapshot, manifest.inputs, schema_version=schema.version
         ):
@@ -611,7 +635,9 @@ def _verify_execution_data_snapshot_edges(
                 expected_kind=owner_ref.kind,
                 read_session=read_session,
             )
-        return True
+        # Owner transport and acquired semantic-input ownership are separate
+        # axes. In particular, a derived .3 snapshot is never an acquired .4.
+        return semantic_owner_lineage
 
     for role, raw_ref in (
         ("data_ref", snapshot.data_ref),
@@ -975,7 +1001,9 @@ def _admit_execution_source(
                 semantic_horizon_step=semantic_step,
             )
         historical_projection_notes = {
-            "semantic_input_limitation:method_historical_abi_completeness_not_established"
+            "semantic_input_limitation:method_historical_abi_completeness_not_established",
+            "semantic_input_limitation:method_historical_provider_completeness_not_established",
+            "semantic_input_limitation:method_provider_completeness_not_established",
         }
         if not all(
             note in simulation_result.notes
@@ -1271,6 +1299,8 @@ def _reconcile_selected_method_dispatch_inputs(
     records: tuple[FoundrySelectedMethodInput, ...],
 ) -> tuple[MethodExecutionOccurrence, ...]:
     """Join stored method arguments to selected inputs without live method lookup."""
+    from polisyos.foundry.execute._internal.graph import _registry_method_input_sources
+
     bundle_ref = _selected_ref_from_edge(
         store,
         simulation_result_ref,
@@ -1330,23 +1360,32 @@ def _reconcile_selected_method_dispatch_inputs(
             dispatch = matches[0].dispatch
             if dispatch is None:
                 raise ValueError("execution_source_method_input_dispatch_not_established")
+            input_sources = _registry_method_input_sources(node)
             if (
                 dispatch.graph_input_ids != tuple(node.inputs)
                 or dispatch.graph_input_inventory_observed_count != len(node.inputs)
-                or set(dispatch.signature_input_slot_ids) != set(node.inputs)
-                or dispatch.signature_input_inventory_observed_count != len(node.inputs)
+                or set(dispatch.signature_input_slot_ids) != set(input_sources)
+                or dispatch.signature_input_inventory_observed_count != len(input_sources)
             ):
                 raise ValueError("execution_source_method_input_abi_join_not_exact")
-            captured = [
-                item for item in dispatch.input_slot_values if item.slot_id == record.slot_id
-            ]
-            if len(captured) != 1 or (
-                captured[0].status != "captured"
-                or captured[0].value_sha256 != record.value_sha256
-                or captured[0].runtime_shape != record.shape
-                or captured[0].runtime_dtype != np.dtype(record.dtype).str
-            ):
-                raise ValueError("execution_source_method_input_argument_identity_mismatch")
+            local_aliases = {
+                local
+                for local, source_slot in input_sources.items()
+                if source_slot == record.slot_id
+            }
+            if not local_aliases:
+                raise ValueError("execution_source_method_input_dependency_mismatch")
+            for local_name in local_aliases:
+                captured = [
+                    item for item in dispatch.input_slot_values if item.slot_id == local_name
+                ]
+                if len(captured) != 1 or (
+                    captured[0].status != "captured"
+                    or captured[0].value_sha256 != record.value_sha256
+                    or captured[0].runtime_shape != record.shape
+                    or captured[0].runtime_dtype != np.dtype(record.dtype).str
+                ):
+                    raise ValueError("execution_source_method_input_argument_identity_mismatch")
     return tuple(bundle.occurrences)
 
 
@@ -1756,6 +1795,7 @@ def execute(
     *,
     artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
     derived_tenant_context: ArtifactTenantContextInfo | None = None,
+    observer: ProgramGraphExecutionObserver | None = None,
 ) -> ExecuteResult:
     """Execute a compiled Foundry plan from a bound state snapshot.
 
@@ -1784,6 +1824,8 @@ def execute(
             local primitive MethodArtifactOutputPayload cohort; unsupported
             stores/projections are recorded as unavailable sidecars. It does
             not activate other writers or establish installed/G acceptance.
+        observer: Optional diagnostic observer of actual graph calls. It cannot
+            replace numerical calls or confer execution/publication authority.
 
     Returns:
         `ExecuteResult` with `simulation_result_ref` and derived artifact refs
@@ -1817,6 +1859,7 @@ def execute(
         request,
         artifact_output_codec=artifact_output_codec,
         derived_tenant_context=derived_tenant_context,
+        program_graph_observer=observer,
     )
 
 
@@ -2263,8 +2306,20 @@ def _execute_with_feedback(
         feedback_config,
         initial_state=initial_feedback_state,
     )
+    map_evaluation_recorder = FeedbackMapEvaluationRecorder(
+        base_state_ref=resolved_state.state_snapshot_ref
+    )
+    active_graph_invocation_id: str | None = None
+
+    def current_graph_invocation_id() -> str | None:
+        return active_graph_invocation_id
 
     def evaluate_feedback_map(values: np.ndarray) -> MapEvaluation:
+        nonlocal active_graph_invocation_id
+        active_graph_invocation_id = None
+        occurrence_start = (
+            len(method_execution_capture.occurrences) if method_execution_capture is not None else 0
+        )
         snapshot = snapshot_from_vector(prepared, np.asarray(values, dtype=float))
         injected_state, feedback_overrides = inject_feedback_state(
             base_state,
@@ -2272,41 +2327,102 @@ def _execute_with_feedback(
             snapshot=snapshot,
         )
         merged_overrides = _merge_parameter_overrides(parameter_overrides, feedback_overrides)
-        evaluation = _run_feedback_iteration(
-            store,
-            exec_plan=exec_plan,
-            request=request,
-            registry_content=registry_content,
-            posture=posture,
-            current_step=current_step,
-            base_state=injected_state,
-            parameter_overrides=merged_overrides,
-            feedback_config=feedback_config,
-            method_execution_capture=method_execution_capture,
-            method_input_state_source_ref=resolved_state.state_snapshot_ref,
+        try:
+            evaluation = _run_feedback_iteration(
+                store,
+                exec_plan=exec_plan,
+                request=request,
+                registry_content=registry_content,
+                posture=posture,
+                current_step=current_step,
+                base_state=injected_state,
+                parameter_overrides=merged_overrides,
+                feedback_config=feedback_config,
+                method_execution_capture=method_execution_capture,
+                method_input_state_source_ref=resolved_state.state_snapshot_ref,
+            )
+        finally:
+            active_graph_invocation_id = _captured_feedback_graph_invocation_id(
+                method_execution_capture,
+                occurrence_start,
+            )
+        result = evaluation.map_evaluation
+        return MapEvaluation(
+            map_value=result.map_value,
+            diagnostics=result.diagnostics,
+            budget_gap=result.budget_gap,
+            noise_sd=result.noise_sd,
+            graph_invocation_id=active_graph_invocation_id,
         )
-        return evaluation.map_evaluation
+
+    recorded_solver_map = map_evaluation_recorder.wrap(
+        evaluate_feedback_map,
+        phase="solver_map",
+        execution_link_provider=current_graph_invocation_id,
+    )
+
+    def persist_interrupted_solver_trace(reason: str) -> FeedbackTraceRef:
+        interrupted = SolveOutcome(
+            converged=False,
+            status="failed",
+            failure_reason=reason,
+            solution=np.asarray(prepared.initial_values, dtype=float).copy(),
+            initial=np.asarray(prepared.initial_values, dtype=float).copy(),
+            trace=(),
+            final_residual_norm=None,
+            final_step_norm=None,
+            final_budget_gap=None,
+            final_diagnostics={"solver_interrupted": 1.0},
+            jacobian=None,
+            alternative_solutions=(),
+        )
+        return _persist_feedback_trace(
+            store,
+            outcome=interrupted,
+            request=request,
+            map_evaluations=map_evaluation_recorder.records,
+            evaluation_scope="complete",
+            base_state_ref=resolved_state.state_snapshot_ref,
+            method_execution_bundle_ref=_persist_feedback_capture_bundle(
+                store,
+                method_execution_capture,
+            ),
+        )
 
     try:
         outcome = solve_fixed_point(
             prepared=prepared,
-            evaluate_map=evaluate_feedback_map,
+            evaluate_map=recorded_solver_map,
         )
     except MethodExecutionAbortError as exc:
-        return _method_execution_abort_result(
+        trace_ref = persist_interrupted_solver_trace(
+            f"{type(exc).__module__}.{type(exc).__qualname__}"
+        )
+        aborted = _method_execution_abort_result(
             store,
             capture=method_execution_capture,
             error=exc,
             notes=["feedback_mode:fixed_point"],
         )
+        return aborted.model_copy(
+            update={
+                "derived_refs": [
+                    *aborted.derived_refs,
+                    DerivedArtifact(role="feedback_trace", ref=trace_ref),
+                ]
+            }
+        )
     except MissingRuntimeMechanismSupportError as exc:
+        trace_ref = persist_interrupted_solver_trace(
+            f"{type(exc).__module__}.{type(exc).__qualname__}"
+        )
         return ExecuteResult(
             ok=False,
             simulation_result_ref=None,
-            derived_refs=_persisted_method_metric_capture_refs(
-                store,
-                method_execution_capture,
-            ),
+            derived_refs=[
+                *_persisted_method_metric_capture_refs(store, method_execution_capture),
+                DerivedArtifact(role="feedback_trace", ref=trace_ref),
+            ],
             notes=[
                 *execution_notes,
                 "feedback_mode:fixed_point",
@@ -2315,13 +2431,16 @@ def _execute_with_feedback(
             ],
         )
     except RuntimeError as exc:
+        trace_ref = persist_interrupted_solver_trace(
+            f"{type(exc).__module__}.{type(exc).__qualname__}"
+        )
         return ExecuteResult(
             ok=False,
             simulation_result_ref=None,
-            derived_refs=_persisted_method_metric_capture_refs(
-                store,
-                method_execution_capture,
-            ),
+            derived_refs=[
+                *_persisted_method_metric_capture_refs(store, method_execution_capture),
+                DerivedArtifact(role="feedback_trace", ref=trace_ref),
+            ],
             notes=[
                 *execution_notes,
                 "feedback_mode:fixed_point",
@@ -2336,27 +2455,30 @@ def _execute_with_feedback(
             outcome.status,
         ],
     )
-    feedback_trace_ref = _persist_feedback_trace(
+    solver_prefix_trace_ref = _persist_feedback_trace(
         store,
         outcome=outcome,
         request=request,
+        map_evaluations=map_evaluation_recorder.records,
+        evaluation_scope="solver_prefix",
+        base_state_ref=resolved_state.state_snapshot_ref,
     )
     feedback_jacobian_ref = _persist_feedback_jacobian(
         store,
         outcome=outcome,
         request=request,
-        trace_ref=feedback_trace_ref,
+        trace_ref=solver_prefix_trace_ref,
     )
     feedback_certificate_ref = _persist_feedback_convergence_certificate(
         store,
         outcome=outcome,
         request=request,
         prepared=prepared,
-        trace_ref=feedback_trace_ref,
+        trace_ref=solver_prefix_trace_ref,
         jacobian_ref=feedback_jacobian_ref,
     )
     feedback_artifacts = [
-        DerivedArtifact(role="feedback_trace", ref=feedback_trace_ref),
+        DerivedArtifact(role="feedback_trace_solver_prefix", ref=solver_prefix_trace_ref),
         DerivedArtifact(role="feedback_convergence_certificate", ref=feedback_certificate_ref),
     ]
     if feedback_jacobian_ref is not None:
@@ -2372,10 +2494,14 @@ def _execute_with_feedback(
         try:
             report = discover_equilibria(
                 prepared=prepared,
-                evaluate_map=evaluate_feedback_map,
+                evaluate_map=map_evaluation_recorder.wrap(
+                    evaluate_feedback_map,
+                    phase="equilibrium_discovery",
+                    execution_link_provider=current_graph_invocation_id,
+                ),
                 base_outcome=outcome,
                 runtime_refs=[
-                    str(feedback_trace_ref.artifact_id),
+                    str(solver_prefix_trace_ref.artifact_id),
                     str(feedback_certificate_ref.artifact_id),
                     *(
                         [str(feedback_jacobian_ref.artifact_id)]
@@ -2388,7 +2514,7 @@ def _execute_with_feedback(
                 store,
                 request=request,
                 report=report,
-                trace_ref=feedback_trace_ref,
+                trace_ref=solver_prefix_trace_ref,
                 jacobian_ref=feedback_jacobian_ref,
                 convergence_certificate_ref=feedback_certificate_ref,
             )
@@ -2403,6 +2529,20 @@ def _execute_with_feedback(
             multiplicity_notes.append(f"feedback_multiplicity_report_failed:{exc}")
 
     if not outcome.converged:
+        completed_trace_ref = _persist_feedback_trace(
+            store,
+            outcome=outcome,
+            request=request,
+            map_evaluations=map_evaluation_recorder.records,
+            evaluation_scope="complete",
+            base_state_ref=resolved_state.state_snapshot_ref,
+            solver_prefix_trace_ref=solver_prefix_trace_ref,
+            method_execution_bundle_ref=_persist_feedback_capture_bundle(
+                store,
+                method_execution_capture,
+            ),
+        )
+        feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
         feedback_result_ref = _persist_feedback_result(
             store,
             request=request,
@@ -2412,7 +2552,7 @@ def _execute_with_feedback(
             final_feedback_state=solved_feedback_state,
             final_feedback_diagnostics=outcome.final_diagnostics,
             final_override_bundle_ref=None,
-            trace_ref=feedback_trace_ref,
+            trace_ref=completed_trace_ref,
             jacobian_ref=feedback_jacobian_ref,
             convergence_certificate_ref=feedback_certificate_ref,
             multiplicity_report_ref=multiplicity_report_ref,
@@ -2492,7 +2632,13 @@ def _execute_with_feedback(
         else StateSnapshotRef(artifact_id=feedback_base_state_ref.artifact_id)
     )
 
-    try:
+    final_occurrence_start = (
+        len(method_execution_capture.occurrences) if method_execution_capture is not None else 0
+    )
+
+    def execute_and_read_final_materialization() -> tuple[
+        _FeedbackFinalMaterialization, np.ndarray
+    ]:
         exec_artifacts = execute_program_graph(
             store,
             program_ref=exec_plan.program_ref,
@@ -2519,14 +2665,103 @@ def _execute_with_feedback(
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
         )
+        derived_refs = _build_standard_derived_refs(exec_artifacts)
+        welfare_bound_failure_notes = _evaluate_welfare_bound_requirement(
+            store,
+            request=request,
+            derived_refs=derived_refs,
+        )
+        final_state, applied = apply_state_delta_and_snapshot(
+            store,
+            base_state=final_injected_state,
+            state_delta_ref=exec_artifacts.state_delta_ref,
+            slot_registry=registry_content.slot_registry,
+            merge_registry=registry_content.merge_registry,
+            step=current_step,
+            base_ref=feedback_base_state_snapshot_ref,
+            return_selected_profile=request.return_selected_profile,
+        )
+        final_metrics = _load_model(store, exec_artifacts.metrics_ref, Metrics)
+        final_feedback_observed = extract_feedback_state(
+            final_state,
+            config=feedback_config,
+            metrics=final_metrics.values,
+        )
+        final_feedback_diagnostics = extract_feedback_diagnostics(
+            final_state,
+            config=feedback_config,
+            metrics=final_metrics.values,
+        )
+        if exec_artifacts.constraint_hard_fail:
+            final_feedback_diagnostics["constraint_hard_fail"] = 1.0
+        return (
+            _FeedbackFinalMaterialization(
+                exec_artifacts=exec_artifacts,
+                derived_refs=derived_refs,
+                welfare_bound_failure_notes=welfare_bound_failure_notes,
+                final_state=final_state,
+                applied=applied,
+                final_feedback_observed=final_feedback_observed,
+                final_feedback_diagnostics=final_feedback_diagnostics,
+            ),
+            np.asarray(final_feedback_observed.values, dtype=float),
+        )
+
+    try:
+        final_materialization = map_evaluation_recorder.run_final_materialization(
+            candidate_values=np.asarray(outcome.solution, dtype=float),
+            materialize=execute_and_read_final_materialization,
+            execution_link_provider=lambda: _captured_feedback_graph_invocation_id(
+                method_execution_capture,
+                final_occurrence_start,
+            ),
+        )
     except MethodExecutionAbortError as exc:
-        return _method_execution_abort_result(
+        completed_trace_ref = _persist_feedback_trace(
+            store,
+            outcome=outcome,
+            request=request,
+            map_evaluations=map_evaluation_recorder.records,
+            evaluation_scope="complete",
+            base_state_ref=resolved_state.state_snapshot_ref,
+            solver_prefix_trace_ref=solver_prefix_trace_ref,
+            method_execution_bundle_ref=_persist_feedback_capture_bundle(
+                store,
+                method_execution_capture,
+            ),
+        )
+        aborted = _method_execution_abort_result(
             store,
             capture=method_execution_capture,
             error=exc,
             notes=["feedback_mode:fixed_point"],
         )
+        return aborted.model_copy(
+            update={
+                "derived_refs": [
+                    *aborted.derived_refs,
+                    DerivedArtifact(
+                        role="feedback_trace_solver_prefix", ref=solver_prefix_trace_ref
+                    ),
+                    DerivedArtifact(role="feedback_trace", ref=completed_trace_ref),
+                ]
+            }
+        )
     except MissingRuntimeMechanismSupportError as exc:
+        completed_trace_ref = _persist_feedback_trace(
+            store,
+            outcome=outcome,
+            request=request,
+            map_evaluations=map_evaluation_recorder.records,
+            evaluation_scope="complete",
+            base_state_ref=resolved_state.state_snapshot_ref,
+            solver_prefix_trace_ref=solver_prefix_trace_ref,
+            method_execution_bundle_ref=_persist_feedback_capture_bundle(
+                store,
+                method_execution_capture,
+            ),
+        )
+        feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
         feedback_result_ref = _persist_feedback_result(
             store,
             request=request,
@@ -2539,7 +2774,7 @@ def _execute_with_feedback(
                 "final_execution_failed": 1,
             },
             final_override_bundle_ref=final_override_bundle_ref,
-            trace_ref=feedback_trace_ref,
+            trace_ref=completed_trace_ref,
             jacobian_ref=feedback_jacobian_ref,
             convergence_certificate_ref=feedback_certificate_ref,
             multiplicity_report_ref=multiplicity_report_ref,
@@ -2571,36 +2806,48 @@ def _execute_with_feedback(
                 str(exc),
             ],
         )
+    except BaseException as exc:
+        try:
+            _persist_feedback_trace(
+                store,
+                outcome=outcome,
+                request=request,
+                map_evaluations=map_evaluation_recorder.records,
+                evaluation_scope="complete",
+                base_state_ref=resolved_state.state_snapshot_ref,
+                solver_prefix_trace_ref=solver_prefix_trace_ref,
+                method_execution_bundle_ref=_persist_feedback_capture_bundle(
+                    store,
+                    method_execution_capture,
+                ),
+            )
+        except BaseException as persist_error:
+            exc.add_note(
+                "feedback_trace_persist_failed:"
+                f"{type(persist_error).__module__}.{type(persist_error).__qualname__}"
+            )
+        raise
 
-    derived_refs = _build_standard_derived_refs(exec_artifacts)
-    welfare_bound_failure_notes = _evaluate_welfare_bound_requirement(
+    exec_artifacts = final_materialization.exec_artifacts
+    derived_refs = final_materialization.derived_refs
+    welfare_bound_failure_notes = final_materialization.welfare_bound_failure_notes
+    final_state = final_materialization.final_state
+    applied = final_materialization.applied
+    final_feedback_observed = final_materialization.final_feedback_observed
+    final_feedback_diagnostics = final_materialization.final_feedback_diagnostics
+    final_graph_invocation_id = map_evaluation_recorder.records[-1].graph_invocation_id
+    final_feedback_diagnostics["final_graph_invocation_id"] = final_graph_invocation_id
+    completed_trace_ref = _persist_feedback_trace(
         store,
+        outcome=outcome,
         request=request,
-        derived_refs=derived_refs,
+        map_evaluations=map_evaluation_recorder.records,
+        evaluation_scope="complete",
+        base_state_ref=resolved_state.state_snapshot_ref,
+        solver_prefix_trace_ref=solver_prefix_trace_ref,
+        method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
     )
-    final_state, applied = apply_state_delta_and_snapshot(
-        store,
-        base_state=final_injected_state,
-        state_delta_ref=exec_artifacts.state_delta_ref,
-        slot_registry=registry_content.slot_registry,
-        merge_registry=registry_content.merge_registry,
-        step=current_step,
-        base_ref=feedback_base_state_snapshot_ref,
-        return_selected_profile=request.return_selected_profile,
-    )
-    final_metrics = _load_model(store, exec_artifacts.metrics_ref, Metrics)
-    final_feedback_observed = extract_feedback_state(
-        final_state,
-        config=feedback_config,
-        metrics=final_metrics.values,
-    )
-    final_feedback_diagnostics = extract_feedback_diagnostics(
-        final_state,
-        config=feedback_config,
-        metrics=final_metrics.values,
-    )
-    if exec_artifacts.constraint_hard_fail:
-        final_feedback_diagnostics["constraint_hard_fail"] = 1.0
+    feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
 
     feedback_result_ref = _persist_feedback_result(
         store,
@@ -2611,7 +2858,7 @@ def _execute_with_feedback(
         final_feedback_state=final_feedback_observed,
         final_feedback_diagnostics=final_feedback_diagnostics,
         final_override_bundle_ref=final_override_bundle_ref,
-        trace_ref=feedback_trace_ref,
+        trace_ref=completed_trace_ref,
         jacobian_ref=feedback_jacobian_ref,
         convergence_certificate_ref=feedback_certificate_ref,
         multiplicity_report_ref=multiplicity_report_ref,
@@ -2773,6 +3020,31 @@ def _persisted_method_metric_capture_refs(
         ),
         DerivedArtifact(role="method_execution_bundle", ref=bundle_ref),
     ]
+
+
+def _captured_feedback_graph_invocation_id(
+    capture: MethodExecutionCapture | None,
+    occurrence_start: int,
+) -> str | None:
+    """Return the sole actual graph invocation appended by one feedback evaluation."""
+    if capture is None:
+        return None
+    invocation_ids = {
+        occurrence.invocation_id for occurrence in capture.occurrences[occurrence_start:]
+    }
+    if len(invocation_ids) > 1:
+        raise RuntimeError("feedback_map_evaluation_multiple_graph_invocations")
+    return next(iter(invocation_ids), None)
+
+
+def _persist_feedback_capture_bundle(
+    store: ArtifactStore,
+    capture: MethodExecutionCapture | None,
+) -> MethodExecutionBundleRef | None:
+    """Persist the actual graph-call inventory when feedback stops before final replay."""
+    if capture is None or capture.invocation_count == 0:
+        return None
+    return persist_method_execution_capture(store, capture)
 
 
 def _run_feedback_iteration(
@@ -3039,9 +3311,36 @@ def _persist_feedback_trace(
     *,
     outcome: SolveOutcome,
     request: ExecuteRequest,
+    map_evaluations: tuple[FeedbackMapEvaluationRecord, ...],
+    evaluation_scope: Literal["solver_prefix", "complete"],
+    base_state_ref: StateSnapshotRef,
+    solver_prefix_trace_ref: FeedbackTraceRef | None = None,
+    method_execution_bundle_ref: MethodExecutionBundleRef | None = None,
 ) -> FeedbackTraceRef:
+    if evaluation_scope == "complete":
+        linked_invocation_ids = {
+            record.graph_invocation_id
+            for record in map_evaluations
+            if record.graph_invocation_id is not None
+        }
+        if linked_invocation_ids and method_execution_bundle_ref is None:
+            raise RuntimeError("feedback_trace_method_execution_bundle_required")
+        if method_execution_bundle_ref is not None:
+            method_execution_bundle = _load_model(
+                store,
+                method_execution_bundle_ref,
+                MethodExecutionBundle,
+            )
+            captured_invocation_ids = {
+                occurrence.invocation_id for occurrence in method_execution_bundle.occurrences
+            }
+            if captured_invocation_ids != linked_invocation_ids:
+                raise RuntimeError(
+                    "feedback_trace_method_execution_invocation_reconciliation_failed"
+                )
+    trace_schema_version = "1.1" if map_evaluations else "1.0"
     trace = FeedbackTrace(
-        schema_version="1.0",
+        schema_version=trace_schema_version,
         records=[
             FeedbackIterationRecord(
                 stage_alpha=float(record.stage_alpha),
@@ -3058,17 +3357,53 @@ def _persist_feedback_trace(
             )
             for record in outcome.trace
         ],
-        notes=["feedback_mode:fixed_point"],
+        **(
+            {
+                "map_evaluations": map_evaluations,
+                "evaluation_scope": evaluation_scope,
+                "solver_prefix_trace_ref": solver_prefix_trace_ref,
+            }
+            if map_evaluations
+            else {}
+        ),
+        notes=[
+            "feedback_mode:fixed_point",
+            f"feedback_trace_scope:{evaluation_scope}",
+        ],
     )
     ref = store.put_json(
         trace,
         PutOptions(
             kind="foundry.feedback_trace",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.FeedbackTrace", version="1.0"),
+            schema=SchemaInfo(
+                name="polisyos.core.FeedbackTrace",
+                version=trace_schema_version,
+            ),
             inputs=[
                 input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+                input_ref_from_artifact_ref(base_state_ref, role="input.feedback_base_state"),
             ]
+            + (
+                [
+                    input_ref_from_artifact_ref(
+                        solver_prefix_trace_ref,
+                        role="artifact.solver_prefix_trace_ref",
+                    )
+                ]
+                if solver_prefix_trace_ref is not None
+                else []
+            )
+            + (
+                [
+                    input_ref_from_artifact_ref(
+                        method_execution_bundle_ref,
+                        role="artifact.method_execution_bundle_ref",
+                    )
+                ]
+                if method_execution_bundle_ref is not None
+                else []
+            )
             + (
                 [
                     input_ref_from_artifact_ref(

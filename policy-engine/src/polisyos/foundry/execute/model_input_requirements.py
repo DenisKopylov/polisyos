@@ -25,6 +25,7 @@ from polisyos.core.contracts import (
     ModelInputObligationSet,
     ModelInputPort,
     ModelInputPortDeclaration,
+    ModelInputStepScope,
     ParameterOverrideBundle,
     ParameterOverrideBundleRef,
     ProgramGraph,
@@ -33,6 +34,7 @@ from polisyos.core.contracts import (
     ProgramGraphRef,
     ProgramNode,
     StateSnapshotRef,
+    derive_model_input_step_scopes,
     load_model_input_obligation_set,
     load_model_input_port_declaration,
     load_program_graph_input_interface,
@@ -41,8 +43,7 @@ from polisyos.core.contracts import (
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.contracts.specs import get_mechanism_spec, validate_mechanism_params
 from polisyos.ir.governance import ScheduleSpec, SelectorPredicate, schedule_range
-from polisyos.ir.kernel import MergeRuleKind, SlotKind, SlotScope, SlotValueType
-from polisyos.ir.kernel.units import MoneyUnit
+from polisyos.ir.kernel import MergeRuleKind, MoneyUnit, SlotKind, SlotScope, SlotValueType
 from polisyos.ir.registry import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
 
@@ -54,6 +55,7 @@ class RecomputedProgramGraphInputs:
     prestate_ref: StateSnapshotRef
     supplied_initial_slots: tuple[str, ...]
     missing_obligations: tuple[ModelInputObligation, ...]
+    required_step_scopes: tuple[ModelInputStepScope, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -306,6 +308,7 @@ def recompute_program_graph_inputs(
         registry=registry,
         steps=invocation.steps,
         overrides=overrides,
+        program_graph_schema_version=graph.schema_version,
     )
 
     execution_ports = {
@@ -440,13 +443,22 @@ def recompute_program_graph_inputs(
     method_input_ports = tuple(
         port for port in execution_ports.values() if port.carrier == "method_input"
     )
+    required_step_scopes: tuple[ModelInputStepScope, ...] = ()
     if method_input_ports:
-        _require_selected_method_input_period(
+        required_step_scopes = _require_selected_method_input_period(
             store,
             graph=graph,
             ports=method_input_ports,
             steps=invocation.steps,
         )
+
+    required_steps_by_slot = {
+        port.slot_id: tuple(
+            scope.step for scope in required_step_scopes if scope.port_id == port.port_id
+        )
+        for port in method_input_ports
+        if port.period_step_profile is not None
+    }
 
     legacy_paths = {
         slot_id: paths[slot_id]
@@ -474,9 +486,19 @@ def recompute_program_graph_inputs(
             prestate_ref=bindings.bound_state_snapshot_ref,
             parameter_override_bundle_ref=parameter_override_bundle_ref,
             port=port,
-            dependencies=tuple(dependencies[slot_id]),
+            dependencies=tuple(
+                _require_method_steps(
+                    dependency,
+                    required_steps_by_slot[slot_id],
+                )
+                if slot_id in required_steps_by_slot
+                else dependency
+                for dependency in dependencies[slot_id]
+            ),
             schema_version=(
-                "1.1"
+                "1.2"
+                if port.period_step_profile is not None or port.entity_axis_ref is not None
+                else "1.1"
                 if port.carrier == "method_input"
                 or any(item.kind == "method_read" for item in dependencies[slot_id])
                 else "1.0"
@@ -486,7 +508,27 @@ def recompute_program_graph_inputs(
         if slot_id in dependencies
         and not (port.carrier == "method_input" and slot_id in supplied_method_slots)
     )
-    return RecomputedProgramGraphInputs(bindings.bound_state_snapshot_ref, supplied, obligations)
+    return RecomputedProgramGraphInputs(
+        bindings.bound_state_snapshot_ref,
+        supplied,
+        obligations,
+        required_step_scopes,
+    )
+
+
+def _require_method_steps(
+    dependency: ProgramGraphInputDependency, required_steps: tuple[int, ...]
+) -> ProgramGraphInputDependency:
+    """Bind temporal method-read gaps to the exact missing selected steps."""
+    if dependency.kind != "method_read" or not required_steps:
+        raise ValueError("model_input_obligation_step_scope_mismatch")
+    return ProgramGraphInputDependency.model_validate(
+        dependency.model_dump(mode="python")
+        | {
+            "first_required_step": required_steps[0],
+            "required_steps": required_steps,
+        }
+    )
 
 
 def _load_selected_overrides(
@@ -518,7 +560,11 @@ def _graph_input_dependencies(
     registry: RegistryBundleContent,
     steps: tuple[int, ...],
     overrides: dict[str, dict[str, object]],
+    program_graph_schema_version: str = "0.2",
 ) -> tuple[dict[str, list[ProgramGraphInputDependency]], set[str]]:
+    if program_graph_schema_version not in {"0.2", "0.3"}:
+        raise ValueError("unsupported_program_graph_payload_schema_version")
+    mapped_method_inputs = program_graph_schema_version == "0.3"
     dependencies: dict[str, list[ProgramGraphInputDependency]] = {}
     graph_slots: set[str] = set()
     mechanism_nodes: set[str] = set()
@@ -531,7 +577,7 @@ def _graph_input_dependencies(
         if node.node_kind == "method":
             if op is not None or node.mechanism_type is not None or not node.method_fqn:
                 raise ValueError("model_input_graph_method_unresolved")
-            if node.method_fqn in method_fqns:
+            if node.method_fqn in method_fqns and not mapped_method_inputs:
                 raise ValueError("model_input_graph_method_instance_duplicate")
             method_fqns.add(node.method_fqn)
             if node.method_version is None:
@@ -551,8 +597,25 @@ def _graph_input_dependencies(
                 raise ValueError("model_input_method_registry_mismatch")
             method_abi_digest = signature.abi_digest()
             signature_inputs = {slot.name: slot for slot in signature.input_slots}
-            if set(node.inputs) != set(signature_inputs):
-                raise ValueError("model_input_method_abi_join_not_exact")
+            if mapped_method_inputs:
+                declared_sources = node.input_ports
+                if declared_sources is None:
+                    raise ValueError("model_input_method_input_map_missing")
+                input_slot_sources: dict[str, str] = {}
+                for input_slot_id, source in declared_sources.items():
+                    if source.source_kind != "registry_slot":
+                        raise ValueError("model_input_method_output_input_not_supported")
+                    input_slot_sources[input_slot_id] = source.slot_id
+                if set(input_slot_sources) != set(signature_inputs):
+                    raise ValueError("model_input_method_abi_join_not_exact")
+                if len(node.inputs) != len(set(node.inputs)) or node.inputs != sorted(
+                    set(input_slot_sources.values())
+                ):
+                    raise ValueError("model_input_method_registry_projection_not_exact")
+            else:
+                if node.input_ports is not None or set(node.inputs) != set(signature_inputs):
+                    raise ValueError("model_input_method_abi_join_not_exact")
+                input_slot_sources = {slot_id: slot_id for slot_id in node.inputs}
             if signature.patch_targets:
                 from polisyos.foundry.methods.patch_contracts import (
                     validate_method_patch_targets,
@@ -564,6 +627,7 @@ def _graph_input_dependencies(
                         params=node.method_params,
                         declared_outputs=node.outputs,
                         registry=registry,
+                        input_slot_sources=(input_slot_sources if mapped_method_inputs else None),
                     )
                 except (KeyError, TypeError, ValueError) as exc:
                     raise ValueError("model_input_method_patch_target_mismatch") from exc
@@ -573,10 +637,10 @@ def _graph_input_dependencies(
                 set(node.outputs)
             ):
                 raise ValueError("model_input_method_abi_join_not_exact")
-            method_reads[node_id] = set(node.inputs)
+            method_reads[node_id] = set(input_slot_sources.values())
             method_writes[node_id] = set(node.outputs)
             method_step = steps[0]
-            for slot_id in node.inputs:
+            for input_slot_id, slot_id in input_slot_sources.items():
                 slot = registry.slot_registry.slots.get(slot_id)
                 if slot is None:
                     raise ValueError("model_input_method_slot_unregistered")
@@ -584,12 +648,13 @@ def _graph_input_dependencies(
                     try:
                         validate_registered_method_input(
                             signature,
-                            input_slot_id=slot_id,
+                            input_slot_id=input_slot_id,
                             registered_slot_id=slot_id,
                             registry=registry,
                         )
                     except (KeyError, TypeError, ValueError) as exc:
                         raise ValueError("model_input_method_slot_profile_unsupported") from exc
+            for slot_id in sorted(set(input_slot_sources.values())):
                 dependencies.setdefault(slot_id, []).append(
                     ProgramGraphInputDependency(
                         node_id=node_id,
@@ -693,25 +758,41 @@ def _require_selected_method_input_period(
     graph: ProgramGraph,
     ports: tuple[ModelInputPort, ...],
     steps: tuple[int, ...],
-) -> None:
-    """Bind scalar method input values to one explicit annual model transition."""
-    if len(steps) != 1:
-        raise ValueError("model_input_method_multi_step_reuse_unsupported")
+) -> tuple[ModelInputStepScope, ...]:
+    """Join every selected method-input period to the model's explicit clock."""
     bundle = _selected_model_input_bundle(store, graph)
     semantics = None if bundle is None else bundle.model_spec.time_semantics
-    if semantics is None or semantics.frequency.value != "Y":
+    if semantics is None:
+        if any(port.period_step_profile is not None for port in ports):
+            raise ValueError("model_input_temporal_profile_time_semantics_missing")
         raise ValueError("model_input_method_time_semantics_not_established")
-    step = steps[0]
-    if semantics.step_count is not None and step >= semantics.step_count:
-        raise ValueError("model_input_method_step_outside_model_horizon")
-    try:
-        period_start = semantics.date_for_step(step)
-        period_end = semantics.date_for_step(step + 1) - timedelta(days=1)
-    except (OverflowError, ValueError) as exc:
-        raise ValueError("model_input_method_time_semantics_not_established") from exc
-    if semantics.end_date is not None and period_end > date.fromisoformat(semantics.end_date):
-        raise ValueError("model_input_method_step_outside_model_horizon")
+    scopes: list[ModelInputStepScope] = []
     for port in ports:
+        if port.period_step_profile is not None:
+            scopes.extend(
+                derive_model_input_step_scopes(
+                    port.period_step_profile,
+                    port_id=port.port_id,
+                    scope_envelope=port.scope,
+                    time_semantics=semantics,
+                    steps=steps,
+                )
+            )
+            continue
+        if len(steps) != 1:
+            raise ValueError("model_input_method_multi_step_reuse_unsupported")
+        if semantics.frequency.value != "Y":
+            raise ValueError("model_input_method_time_semantics_not_established")
+        step = steps[0]
+        if semantics.step_count is not None and step >= semantics.step_count:
+            raise ValueError("model_input_method_step_outside_model_horizon")
+        try:
+            period_start = semantics.date_for_step(step)
+            period_end = semantics.date_for_step(step + 1) - timedelta(days=1)
+        except (OverflowError, ValueError) as exc:
+            raise ValueError("model_input_method_time_semantics_not_established") from exc
+        if semantics.end_date is not None and period_end > date.fromisoformat(semantics.end_date):
+            raise ValueError("model_input_method_step_outside_model_horizon")
         scope = port.scope
         if scope.period_basis not in {"calendar_year", "fiscal_year"}:
             raise ValueError("model_input_method_period_basis_not_established")
@@ -724,6 +805,8 @@ def _require_selected_method_input_period(
             raise ValueError("model_input_method_calendar_year_mismatch")
         if scope.period_start != period_start or scope.period_end != period_end:
             raise ValueError("model_input_method_transition_period_mismatch")
+        scopes.append(ModelInputStepScope(port_id=port.port_id, step=step, scope=scope))
+    return tuple(sorted(scopes, key=lambda item: (item.port_id, item.step)))
 
 
 def _load_mechanism_payload(store: CoreJSONArtifactStore, node: ProgramNode) -> dict[str, object]:

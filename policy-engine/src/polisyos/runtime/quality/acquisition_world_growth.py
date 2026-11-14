@@ -64,6 +64,9 @@ from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetSco
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
+    from polisyos.core.contracts import (
+        RegisteredDerivedModelInputRequest,
+    )
     from polisyos.foundry.data_plane import InputBindingValuesPreparation
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIRouteExecutionBinding,
@@ -503,7 +506,7 @@ def collect_native_derivation_inputs(
     DS9 authority. A caller must revalidate the collection at its actual use
     fence rather than treating this return value as a lasting permission.
     """
-    from polisyos.core.contracts.variable_binding import (
+    from polisyos.core.contracts import (
         ScopedMeasurementOccurrence,
         scoped_measurement_occurrence_manifest_inputs,
     )
@@ -588,6 +591,103 @@ def collect_native_derivation_inputs(
         source_inputs=tuple(collected),
         pending_actions=pending,
         input_closure_status="partial" if pending else "inputs_complete",
+    )
+
+
+def prepare_native_derivation_materialization_request(
+    store: artifacts.ArtifactStore,
+    *,
+    collection_ref: artifacts.ArtifactRef,
+    profile_ref: artifacts.ArtifactRef,
+    binding_id: str,
+) -> RegisteredDerivedModelInputRequest:
+    """Join actual leaf occurrences to the selected semantic operator's roles.
+
+    The first semantic profile consumes a single registered operation whose
+    inputs are native leaves. An intermediate operation needs its own semantic
+    correspondence; it cannot be treated as if it were a source occurrence.
+    This prepares a candidate materialization request, not an execution permit.
+    The canonical materializer must still verify role scopes, binding profiles
+    and physical/semantic correspondence before producing a resolved manifest.
+    """
+    from polisyos.core.contracts import (
+        RegisteredDerivedInputProfileRef,
+        RegisteredDerivedModelInputRequest,
+        RegisteredMeasurementRole,
+        ScopedMeasurementOccurrenceRef,
+        SelectedVariableBindingRef,
+        load_registered_derived_input_profile,
+        verify_registered_derived_family,
+    )
+    from polisyos.core.derivations import load_selected_transform_family_registry
+    from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+
+    collection = replay_native_derivation_input_collection(store, collection_ref).collection
+    if collection.input_closure_status != "inputs_complete":
+        raise ValueError("native_derivation_inputs_incomplete")
+    bundle = load_n7_derivation_bundle(store, collection.derivation_bundle_ref)
+    roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
+    if len(bundle.operation_nodes) != 1 or len(roots) != 1:
+        raise ValueError("native_derivation_semantic_dag_profile_unsupported")
+    (root,) = roots
+    by_node = {row.source_node_id: row for row in collection.source_inputs}
+    if any(row.input_node_id not in by_node for row in root.role_inputs):
+        raise ValueError("native_derivation_semantic_non_source_role_unsupported")
+    selected_profile_ref = RegisteredDerivedInputProfileRef.model_validate(
+        profile_ref.model_dump(mode="python")
+    )
+    profile = load_registered_derived_input_profile(store, selected_profile_ref)
+
+    def basis_keys(basis: object) -> tuple[tuple[str, str, str, str | None], ...]:
+        return tuple(
+            _native_derivation_ref_key(getattr(basis, field))
+            for field in (
+                "semantic_definition_ref",
+                "representation_ref",
+                "binding_profile_ref",
+            )
+        )
+
+    roles = {row.role: row.basis for row in profile.inputs}
+    if (
+        _native_derivation_ref_key(root.operator_ref)
+        != _native_derivation_ref_key(profile.registry_ref)
+        or root.family_id != profile.family_id
+        or root.method_version != profile.method_version
+        or basis_keys(root.output_basis) != basis_keys(profile.output)
+        or set(roles) != {row.role for row in root.role_inputs}
+        or any(
+            basis_keys(row.source_basis) != basis_keys(roles[row.role]) for row in root.role_inputs
+        )
+    ):
+        raise ValueError("native_derivation_registered_operator_binding_mismatch")
+    registry = load_selected_transform_family_registry(store, root.operator_ref)
+    families = tuple(
+        family
+        for family in registry.families
+        if family.family_id == root.family_id and family.method_version == root.method_version
+    )
+    if len(families) != 1:
+        raise ValueError("native_derivation_registered_family_not_unique")
+    verify_registered_derived_family(profile, families[0])
+    return RegisteredDerivedModelInputRequest(
+        model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
+            bundle.model_input_obligation_ref.model_dump(mode="python")
+        ),
+        profile_ref=selected_profile_ref,
+        role_occurrences=tuple(
+            RegisteredMeasurementRole(
+                role=row.role,
+                occurrence_ref=ScopedMeasurementOccurrenceRef.model_validate(
+                    by_node[row.input_node_id].occurrence_ref.model_dump(mode="python")
+                ),
+            )
+            for row in root.role_inputs
+        ),
+        binding_id=binding_id,
+        derivation_bundle_ref=SelectedVariableBindingRef.model_validate(
+            collection.derivation_bundle_ref.model_dump(mode="python")
+        ),
     )
 
 
@@ -6009,8 +6109,8 @@ class AcquisitionWorldGrowthBridge:
             checkpoint_ref, checkpoint = checkpoint_result
             record = load_world_model_record(self.artifact_store, checkpoint.world_model_ref)
             actual_views = world_model_artifact_views(record)
-            snapshot = DataSnapshot.model_validate(
-                load_core_json_artifact(self.artifact_store, checkpoint.data_snapshot_ref)
+            snapshot = artifacts.validate_core_model_json_artifact(
+                DataSnapshot, self.artifact_store, checkpoint.data_snapshot_ref
             )
             validate_data_snapshot_owner_lineage(
                 self.artifact_store,

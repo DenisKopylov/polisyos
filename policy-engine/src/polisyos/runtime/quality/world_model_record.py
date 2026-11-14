@@ -76,8 +76,12 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts import DataSnapshot, FoundryInputBindingRule, StateSnapshotRef
-    from polisyos.core.contracts.semantic_input_binding import ResolvedInputBindingManifestRef
+    from polisyos.core.contracts import (
+        DataSnapshot,
+        FoundryInputBindingRule,
+        ResolvedInputBindingManifestRef,
+        StateSnapshotRef,
+    )
     from polisyos.ir import ModelSpec
     from polisyos.ir.kernel import SlotRegistry
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
@@ -818,7 +822,11 @@ def build_world_model_record(
         store,
         data_snapshot_ref=data_snapshot_ref,
         registry_bundle_ref=registry_bundle_ref,
-        rules=list(foundry_binding_rules or []),
+        rules=(
+            None
+            if resolved_binding_manifest_ref is not None and foundry_binding_rules is None
+            else list(foundry_binding_rules or [])
+        ),
         notes=[f"world_model_record_snapshot_id:{data_snapshot_id}"],
         return_selected_profile=select_input_views,
         **(
@@ -1290,11 +1298,10 @@ def _iter_world_model_view_refs(record: WorldModelRecord) -> tuple[ArtifactRef, 
 
 
 def _load_data_snapshot(store: CoreJSONArtifactStore, ref: ArtifactRef) -> DataSnapshot:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.contracts import DataSnapshot
 
-    payload = load_core_json_artifact(store, ref)
-    return DataSnapshot.model_validate(payload)
+    return validate_core_model_json_artifact(DataSnapshot, store, ref)
 
 
 def _data_snapshot_version_id(snapshot: DataSnapshot) -> str:

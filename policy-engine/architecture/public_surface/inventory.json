@@ -965,6 +965,7 @@
         "polisyos.core.components",
         "polisyos.core.contracts",
         "polisyos.core.contracts.forecast_profile_member",
+        "polisyos.core.derivations",
         "polisyos.core.governance",
         "polisyos.core.llm",
         "polisyos.core.llm.cache_settlement",
@@ -975,8 +976,8 @@
         "polisyos.core.run.worker_lifecycle"
       ],
       "major_subsystem": true,
-      "export_count": 134,
-      "known_export_count": 134,
+      "export_count": 135,
+      "known_export_count": 135,
       "exports": [
         "FULL_PREFIX_EVALUATION_TABLE",
         "FULL_PREFIX_FAILURE_DESCRIPTORS",
@@ -1101,6 +1102,7 @@
         "canon",
         "components",
         "contracts",
+        "derivations",
         "discovery",
         "errors",
         "evaluation",
@@ -1122,8 +1124,8 @@
         {
           "module": "polisyos.core",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 134,
-          "known_export_count": 134,
+          "export_count": 135,
+          "known_export_count": 135,
           "exports": [
             "FULL_PREFIX_EVALUATION_TABLE",
             "FULL_PREFIX_FAILURE_DESCRIPTORS",
@@ -1248,6 +1250,7 @@
             "canon",
             "components",
             "contracts",
+            "derivations",
             "discovery",
             "errors",
             "evaluation",
@@ -1284,8 +1287,8 @@
                 "path": "src/polisyos/core/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 11696,
-                "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+                "bytes": 11734,
+                "sha256": "a3835d58d1ca27525e906d0577adae4fdf2baada56b220f80413210be6b911d3"
               },
               {
                 "path": "src/polisyos/core",
@@ -1350,6 +1353,12 @@
               {
                 "path": "src/polisyos/core/contracts",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/derivations.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               },
@@ -1437,8 +1446,8 @@
         {
           "module": "polisyos.core.artifacts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 140,
-          "known_export_count": 140,
+          "export_count": 143,
+          "known_export_count": 143,
           "exports": [
             "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
             "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -1579,7 +1588,10 @@
             "validate_return_selected_profile",
             "with_ambient_ownership_enforcement_if_supported",
             "write_bytes_atomic",
-            "write_bytes_once"
+            "write_bytes_once",
+            "EnvironmentManifest",
+            "EnvironmentManifestRef",
+            "capture_environment"
           ],
           "has___getattr__": true,
           "has___dir__": false,
@@ -1605,8 +1617,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14849,
-                "sha256": "6b1d54fdfb39bb15a157626b1c695ad4e0abb3b94025b82752c9c9581dc5cf8f"
+                "bytes": 15406,
+                "sha256": "15db377e34c5235bdf9cba83a29db8e4fe4b8ca0ef876b06dbc12d3497f277d4"
               },
               {
                 "path": "src/polisyos/core/artifacts",
@@ -2206,8 +2218,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 864,
-          "known_export_count": 864,
+          "export_count": 928,
+          "known_export_count": 928,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2678,6 +2690,7 @@
             "FoundryInputBindingTransform",
             "FoundryInputBindings",
             "FoundryInputBindingsRef",
+            "FoundrySelectedMethodInput",
             "FoundryValidationFlags",
             "FreshnessMetadata",
             "FreshnessStatus",
@@ -2913,6 +2926,8 @@
             "RunLaunchResponse",
             "RunLineageResponse",
             "RunModelInputUseBlockedSourceProjection",
+            "RunModelInputUseActionSelector",
+            "RunModelInputUseActionsProjection",
             "RunModelInputUseN5SuccessorProjection",
             "RunModelInputUseN5SuccessorProjectionV2",
             "RunModelInputUseN5SuccessorResponse",
@@ -3065,14 +3080,75 @@
             "DataNeed",
             "DecisionMonitoringContractRef",
             "DecisionValidityEventRequest",
+            "EntityAxisMemberId",
+            "EntityAxisValueIdentity",
             "FeedbackConfig",
+            "FeedbackMapEvaluationRecord",
             "FeedbackSolveResult",
+            "FoundrySelectedMethodInputAtStep",
+            "FoundrySelectedMethodVectorInput",
+            "ModelInputPeriodStepProfile",
+            "ModelInputStepScope",
+            "ModelScalarStateLayout",
+            "ModelScalarStateLayoutRef",
+            "ModelScalarStateSlot",
             "ParameterOverrideBundle",
             "PolicyFlags",
+            "SelectedEntityAxis",
+            "SelectedEntityVectorSourceDescriptor",
             "SourceVerificationReportRef",
             "VerifiedPolicyReportRef",
             "c4_framed_semantic_projection_digest",
-            "validate_producer_call_observation"
+            "derive_model_input_step_scopes",
+            "validate_producer_call_observation",
+            "DERIVED_MODEL_INPUT_PAYLOAD_KIND",
+            "METHOD_METRIC_BINDING_LIMIT",
+            "CandidateDerivedMeasurementRole",
+            "ConstraintReport",
+            "ConstraintReportRef",
+            "DerivedInputCorrespondenceBasis",
+            "DerivedInputCorrespondenceRef",
+            "DerivedInputProfileRef",
+            "DerivedMeasurementRole",
+            "LoweredMechanism",
+            "MethodMetricInputCaptureSlot",
+            "MethodOutputInputPortSource",
+            "PatchOp",
+            "RatioDenominatorSourceContextRef",
+            "RegisteredDerivedInputContext",
+            "RegisteredDerivedInputCorrespondence",
+            "RegisteredDerivedInputProfileRef",
+            "RegisteredDerivedModelInputRequest",
+            "RegisteredMeasurementRole",
+            "RegisteredRoleScope",
+            "RegistrySlotInputPortSource",
+            "ResolvedDerivedInput",
+            "RestrictedMethodCallWitness",
+            "entity_axis_digest",
+            "entity_axis_member_sort_key",
+            "entity_axis_membership_digest",
+            "load_derived_input_profile",
+            "load_model_input_obligation",
+            "load_registered_derived_input_profile",
+            "model_scalar_state_layout_digest",
+            "persist_derived_input_correspondence",
+            "persist_native_derivation_source_projection",
+            "persist_registered_derived_input_context",
+            "persist_registered_derived_input_correspondence",
+            "recompute_native_derivation_source_projection",
+            "verify_registered_derived_family",
+            "AcquiredObservationSemanticInputDataSnapshotLineage",
+            "DerivedModelInputDataSnapshotLineage",
+            "RegisteredSemanticBasis",
+            "ReplayedCandidateDerivationRole",
+            "ReplayedDerivedMeasurementRole",
+            "evaluate_derived_input_correspondence",
+            "evaluate_registered_derived_input_correspondence",
+            "load_derived_input_correspondence",
+            "load_native_derivation_source_projection",
+            "load_ratio_denominator_source_context",
+            "load_registered_derived_input_context",
+            "load_registered_derived_input_correspondence"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -3098,8 +3174,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 90392,
-                "sha256": "65c5558b9c61672d6632f09df4b46d8e616e04a67c47444585f7bb13aa72e444"
+                "bytes": 99210,
+                "sha256": "2003a9b79f16eac9caf744c2c4eabba3112733a68e0d8edc3880323d60cde8e0"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -3210,6 +3286,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/core/contracts/entity_axis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/core/contracts/epoch.py",
                 "operation": "is_file",
                 "status": "present",
@@ -3264,7 +3346,31 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/core/contracts/method_input.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/model_input_period_steps.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/core/contracts/model_input_requirements.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/model_input_step_coverage.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/model_state_layout.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -3348,7 +3454,25 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/core/contracts/semantic_composition_binding.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/semantic_derived_binding.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/core/contracts/semantic_input_binding.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/semantic_step_binding.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -3442,6 +3566,127 @@
               },
               {
                 "path": "src/polisyos/core/contracts/forecast_profile_member",
+                "operation": "is_dir",
+                "status": "absent",
+                "result": false
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
+          "module": "polisyos.core.derivations",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 72,
+          "known_export_count": 72,
+          "exports": [
+            "CANDIDATE_SOURCE_SERIES_KIND",
+            "COMPOSITION_DERIVATION_SCHEMA_VERSION",
+            "DERIVATION_CERTIFICATE_KIND",
+            "DERIVATION_RECIPE_KIND",
+            "DERIVATION_SCHEMA_VERSION",
+            "DERIVED_SERIES_KIND",
+            "ECONOMIC_SERIES_KIND",
+            "LEGACY_DERIVATION_SCHEMA_VERSION",
+            "PRICE_INDEX_SERIES_KIND",
+            "SOURCE_SERIES_KIND",
+            "TRANSFORM_FAMILY_REGISTRY_KIND",
+            "ArithmeticExpression",
+            "ArtifactContractProjection",
+            "ArtifactInputEdge",
+            "AssumptionRule",
+            "AuthorityProjection",
+            "BasisAttribute",
+            "BasisParameterBinding",
+            "BasisSignature",
+            "CandidateDerivationInput",
+            "CandidateSourceSeries",
+            "CertificateInputAuthority",
+            "CertifiedDerivationConsumption",
+            "CertifiedDerivationResolution",
+            "CertifiedDerivedInput",
+            "CompositionCertificate",
+            "CompositionDerivedSeries",
+            "CompositionMaterialization",
+            "CompositionRecipe",
+            "CompositionRecipeInput",
+            "CompositionResolution",
+            "DerivationCertificate",
+            "DerivationContext",
+            "DerivationDagInput",
+            "DerivationDagMaterialization",
+            "DerivationDagNode",
+            "DerivationEvaluationLimits",
+            "DerivationInput",
+            "DerivationMaterialization",
+            "DerivationRecipe",
+            "DerivationRefusalCode",
+            "DerivationRefusalError",
+            "DerivationRefusalReason",
+            "DerivedParameter",
+            "DerivedSeries",
+            "InputContribution",
+            "ParameterRule",
+            "RecipeInput",
+            "ResolvedAssumption",
+            "SeriesPoint",
+            "SourceDerivationInput",
+            "SourceSeries",
+            "TransformFamily",
+            "TransformFamilyRegistry",
+            "TransformInputSpec",
+            "build_composition_recipe",
+            "build_derivation_recipe",
+            "consume_certified_derivation",
+            "load_composition_recipe_artifact",
+            "load_derivation_recipe_artifact",
+            "load_selected_transform_family_registry",
+            "load_transform_family_registry",
+            "materialize_composition",
+            "materialize_derivation",
+            "materialize_derivation_dag",
+            "persist_candidate_source_series",
+            "persist_composition_recipe_artifact",
+            "persist_derivation_recipe_artifact",
+            "persist_source_series",
+            "persist_transform_family_registry",
+            "resolve_certified_composition",
+            "resolve_certified_derivation"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/derivations.py",
+          "summary": "Canonical certified derivation contracts, arithmetic, and replay.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/derivations.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/derivations/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/derivations.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 158791,
+                "sha256": "dcefc84a5b80ff17c7d82d5de12be35b4a070fd39e230c41000c6ebbe80e4a98"
+              },
+              {
+                "path": "src/polisyos/core/derivations",
                 "operation": "is_dir",
                 "status": "absent",
                 "result": false
@@ -11527,6 +11772,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/foundry/model_state_slots.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/foundry/plugins",
                 "operation": "is_dir",
                 "status": "present",
@@ -11690,6 +11941,12 @@
               },
               {
                 "path": "src/polisyos/foundry/compile/manifest_inputs.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/compile/method_dataflow.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -12193,8 +12450,8 @@
         {
           "module": "polisyos.foundry.data_plane",
           "facade_mode_observed": "eager_exports",
-          "export_count": 25,
-          "known_export_count": 25,
+          "export_count": 30,
+          "known_export_count": 30,
           "exports": [
             "HTE_PHYSICAL_SOURCE_BINDING_KIND",
             "HTE_PHYSICAL_SOURCE_BINDING_SCHEMA",
@@ -12206,6 +12463,8 @@
             "InputBindingsBuildResult",
             "InputBindingsPreparation",
             "PreparedHTEObservationalInput",
+            "SelectedMethodInputFacts",
+            "SelectedMethodInputResolution",
             "UkraineFoundryIntakeResult",
             "build_input_bindings",
             "extract_feedback_diagnostics",
@@ -12220,7 +12479,10 @@
             "prepare_input_bindings",
             "prepare_json_input_binding_values",
             "reconcile_semantic_input_bindings",
-            "resolve_bound_state_snapshot_ref"
+            "reconcile_selected_method_input_bindings",
+            "replay_selected_method_input_facts",
+            "resolve_bound_state_snapshot_ref",
+            "selected_tensor_value_sha256"
           ],
           "has___getattr__": false,
           "has___dir__": false,
@@ -12246,8 +12508,8 @@
                 "path": "src/polisyos/foundry/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1941,
-                "sha256": "d3ae571ced3ae8eaae0a6a6d5699be1b2817b6bbdf6cd796800601f873f48e4a"
+                "bytes": 2347,
+                "sha256": "034efbe8b3eab68315235ab8c8dfa960ecd4ed3ecf838c65ad2898260e8f4210"
               },
               {
                 "path": "src/polisyos/foundry/data_plane",
@@ -12268,7 +12530,25 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/foundry/data_plane/entity_axis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/data_plane/selected_method_entity_vector.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/foundry/data_plane/selected_row_candidate_scope.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/data_plane/selected_tensors.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -12285,15 +12565,19 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 39,
-          "known_export_count": 39,
+          "export_count": 46,
+          "known_export_count": 46,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
             "ExecutionSourceAdmission",
             "ExecutionSourceAdmissionRefusal",
             "BoundedExecutionSourceReader",
+            "BoundedModelStateSnapshotReadLimits",
+            "load_bound_model_state_snapshot",
+            "read_program_graph_method_input_sources",
             "ProgramGraphExecutionObserver",
+            "PreparedProgramGraphMethodCall",
             "ExecutionSourceBoundedReadRefusal",
             "ResolvedExecutionPosture",
             "SnapshotStateInputReadRefusal",
@@ -12316,6 +12600,7 @@
             "new_method_execution_capture",
             "persist_method_execution_capture",
             "prepare_program_graph_mechanism_calls",
+            "prepare_program_graph_method_calls",
             "put_state_snapshot",
             "program_graph_declares_model_input_ports",
             "recompute_program_graph_inputs",
@@ -12326,7 +12611,9 @@
             "state_snapshot_value_projection",
             "read_numeric_npz_bounded",
             "read_state_snapshot_inputs_bounded",
-            "resolve_execution_posture"
+            "resolve_execution_posture",
+            "load_stored_selected_method_input_occurrences",
+            "ProgramGraphMethodExecutionObserver"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -12352,8 +12639,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7713,
-                "sha256": "b300fbb55b2b20f94e054f4a72e665bdbc19b05428dd82f2bccc6b922d5a64cf"
+                "bytes": 9073,
+                "sha256": "8925efa96fe42e4bbc7ced978e894c8b81075ff5b9039f7a316722dca49a05ee"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -12427,8 +12714,8 @@
         {
           "module": "polisyos.foundry.methods",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 233,
-          "known_export_count": 233,
+          "export_count": 235,
+          "known_export_count": 235,
           "exports": [
             "ADVISOR_EXECUTION_CONTEXT_PARAM",
             "ActiveSetSummary",
@@ -12525,6 +12812,7 @@
             "MethodMetadata",
             "MethodNode",
             "MethodNotFoundError",
+            "MethodPatchTargetContract",
             "MethodRegistry",
             "MethodResult",
             "MethodRetiredException",
@@ -12657,6 +12945,7 @@
             "suggest_alternative_methods",
             "suggest_plan_node_alternatives",
             "tag_deprecated_in_registry",
+            "validate_method_patch_targets",
             "validate_source_bound_causal_estimator_interval",
             "validate_source_bound_causal_worker_response",
             "validate_source_bound_gcm_spec",
@@ -12707,8 +12996,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26863,
-                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
+                "bytes": 27122,
+                "sha256": "e5215af49d9dccbe1135cdbdc9a3f113fa4dff285575a4626c8864f415143429"
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -12738,8 +13027,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26863,
-                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
+                "bytes": 27122,
+                "sha256": "e5215af49d9dccbe1135cdbdc9a3f113fa4dff285575a4626c8864f415143429"
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -12769,8 +13058,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26863,
-                "sha256": "39e2c555edff6328dbc8e4ab6d4bddee100aa3763239064dc68270a7a949a494"
+                "bytes": 27122,
+                "sha256": "e5215af49d9dccbe1135cdbdc9a3f113fa4dff285575a4626c8864f415143429"
               },
               {
                 "path": "src/polisyos/foundry/methods",
@@ -13020,6 +13309,12 @@
               },
               {
                 "path": "src/polisyos/foundry/methods/output_monitor.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/patch_contracts.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -17084,8 +17379,8 @@
     {
       "module": "polisyos.runtime.quality",
       "classification": "public_experimental",
-      "facade_mode_expected": "eager_exports",
-      "facade_mode_observed": "eager_exports",
+      "facade_mode_expected": "lazy_facade",
+      "facade_mode_observed": "lazy_facade",
       "owner": "team-polisyos",
       "readme": "src/polisyos/runtime/quality/README.md",
       "reference_doc": "docs/reference/public-surface.md",
@@ -18073,15 +18368,15 @@
         "world_model_record_content_hash",
         "write_authority_envelope_json_schema"
       ],
-      "has___getattr__": false,
-      "has___dir__": false,
+      "has___getattr__": true,
+      "has___dir__": true,
       "source_file": "src/polisyos/runtime/quality/__init__.py",
-      "summary": "Runtime quality evaluation helpers.",
+      "summary": "Expose runtime-quality contracts without importing unrelated owners eagerly.",
       "notes": "Experimental runtime-quality contract facade; compatibility changes require an explicit release fragment and inventory review.",
       "entrypoints": [
         {
           "module": "polisyos.runtime.quality",
-          "facade_mode_observed": "eager_exports",
+          "facade_mode_observed": "lazy_facade",
           "export_count": 976,
           "known_export_count": 976,
           "exports": [
@@ -19062,10 +19357,10 @@
             "world_model_record_content_hash",
             "write_authority_envelope_json_schema"
           ],
-          "has___getattr__": false,
-          "has___dir__": false,
+          "has___getattr__": true,
+          "has___dir__": true,
           "source_file": "src/polisyos/runtime/quality/__init__.py",
-          "summary": "Runtime quality evaluation helpers.",
+          "summary": "Expose runtime-quality contracts without importing unrelated owners eagerly.",
           "export_resolution": {
             "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
@@ -19086,8 +19381,8 @@
                 "path": "src/polisyos/runtime/quality/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 74155,
-                "sha256": "fb6359ac515cb7b0db4d4525a72469d6a286ac59669ae27cab77d9b8f1020318"
+                "bytes": 225266,
+                "sha256": "a42c906dd1aa7de4d1f3d6f70b31f9b37a2af29c22f9df8631b994e49db71956"
               },
               {
                 "path": "src/polisyos/runtime/quality",
@@ -21543,8 +21838,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 165,
-          "known_export_count": 165,
+          "export_count": 168,
+          "known_export_count": 168,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -21553,6 +21848,7 @@
             "AcquisitionDatasetRegistration",
             "AcquisitionSourceMeasureScope",
             "ActivatedAcquisitionObservationProjection",
+            "ActivatedAcquisitionPassport",
             "AuthoritySchemaColumn",
             "BaselineIdentity",
             "BaselineMutationError",
@@ -21687,6 +21983,7 @@
             "load_catalog_source_registry",
             "load_derivation_catalog_selection",
             "load_seed_alignments",
+            "materialize_activated_measurement_occurrence",
             "normalize_acquisition_unit",
             "normalize_country_code",
             "normalized_acquisition_source_body",
@@ -21699,6 +21996,7 @@
             "read_scoped_measurement_source_body",
             "read_selected_live_raw_source",
             "read_wvs_indicator_registry",
+            "replay_selected_scoped_measurement_facts",
             "resolve_catalog_selection_policy",
             "resolve_embedding_generation",
             "resolve_live_temporal_bounds",
@@ -21736,8 +22034,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 66053,
-                "sha256": "91056f3f61c2adcecccf279d69ac150547e8e6fbea25b36c6ec0439623c701f3"
+                "bytes": 66970,
+                "sha256": "b1cb2f7ecb9ccbd49422d75833258709b0870193b0d3e70c531b84224760f786"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

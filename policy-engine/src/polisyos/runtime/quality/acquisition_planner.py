@@ -6002,7 +6002,7 @@ def _n7_validate_derivation_bundle_dependencies(
     store: ArtifactStore, bundle: N7DerivationBundle
 ) -> None:
     """Reopen selected target, profile, and every source/operator input."""
-    from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
+    from polisyos.core.contracts import load_model_input_obligation_set
     from polisyos.core.derivations import (
         TransformFamilyRegistry,
         load_selected_transform_family_registry,

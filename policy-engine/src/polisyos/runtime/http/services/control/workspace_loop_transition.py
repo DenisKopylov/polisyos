@@ -1559,6 +1559,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         state_payload: dict[str, Any],
     ) -> dict[str, Any]:
         """Resolve typed workflow inputs from their exact, content-verified CAS views."""
+        from polisyos.core.artifacts import validate_core_model_json_artifact
         from polisyos.core.contracts import DataSnapshot
 
         payloads: dict[str, Any] = {}
@@ -1570,7 +1571,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             )
             if slot == "data_snapshot_ref":
                 try:
-                    snapshot = DataSnapshot.model_validate(payload)
+                    snapshot = validate_core_model_json_artifact(
+                        DataSnapshot, self._artifact_store, artifact_ref
+                    )
                 except (TypeError, ValueError) as exc:
                     raise ValueError("workspace_loop_data_snapshot_invalid") from exc
                 from polisyos.runtime.quality.data_snapshot_lineage import (

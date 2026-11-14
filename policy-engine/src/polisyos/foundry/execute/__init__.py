@@ -16,7 +16,11 @@ __all__ = [
     "ExecutionSourceAdmission",
     "ExecutionSourceAdmissionRefusal",
     "BoundedExecutionSourceReader",
+    "BoundedModelStateSnapshotReadLimits",
+    "load_bound_model_state_snapshot",
+    "read_program_graph_method_input_sources",
     "ProgramGraphExecutionObserver",
+    "PreparedProgramGraphMethodCall",
     "ExecutionSourceBoundedReadRefusal",
     "ResolvedExecutionPosture",
     "SnapshotStateInputReadRefusal",
@@ -39,6 +43,7 @@ __all__ = [
     "new_method_execution_capture",
     "persist_method_execution_capture",
     "prepare_program_graph_mechanism_calls",
+    "prepare_program_graph_method_calls",
     "put_state_snapshot",
     "program_graph_declares_model_input_ports",
     "recompute_program_graph_inputs",
@@ -53,6 +58,30 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "load_stored_selected_method_input_occurrences": (
+        "polisyos.foundry.execute.api",
+        "load_stored_selected_method_input_occurrences",
+    ),
+    "ProgramGraphMethodExecutionObserver": (
+        "polisyos.foundry.execute.observation",
+        "ProgramGraphMethodExecutionObserver",
+    ),
+    "BoundedModelStateSnapshotReadLimits": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "BoundedModelStateSnapshotReadLimits",
+    ),
+    "load_bound_model_state_snapshot": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "load_bound_model_state_snapshot",
+    ),
+    "read_program_graph_method_input_sources": (
+        "polisyos.foundry.execute.executor",
+        "read_program_graph_method_input_sources",
+    ),
+    "PreparedProgramGraphMethodCall": (
+        "polisyos.foundry.execute.observation",
+        "PreparedProgramGraphMethodCall",
+    ),
     "ProgramGraphExecutionObserver": (
         "polisyos.foundry.execute.observation",
         "ProgramGraphExecutionObserver",
@@ -165,6 +194,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute.executor",
         "prepare_program_graph_mechanism_calls",
     ),
+    "prepare_program_graph_method_calls": (
+        "polisyos.foundry.execute.executor",
+        "prepare_program_graph_method_calls",
+    ),
     "program_graph_declares_model_input_ports": (
         "polisyos.foundry.execute.model_input_requirements",
         "program_graph_declares_model_input_ports",
@@ -232,3 +265,7 @@ class _CallableExecuteModule(types.ModuleType):
 
 
 sys.modules[__name__].__class__ = _CallableExecuteModule
+
+__all__.extend(
+    ["load_stored_selected_method_input_occurrences", "ProgramGraphMethodExecutionObserver"]
+)

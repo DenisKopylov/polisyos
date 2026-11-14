@@ -5029,17 +5029,18 @@ class NaturalLanguageRunMixin:
                         "fabric.data_snapshot",
                     )
                     try:
-                        from polisyos.core.artifacts import read_core_manifest_profile
+                        from polisyos.core.artifacts import (
+                            read_core_manifest_profile,
+                            validate_core_model_json_artifact,
+                        )
 
                         snapshot_manifest, _declaration = read_core_manifest_profile(
                             store,
                             selected_snapshot_ref,
                         )
-                        snapshot_payload = read_core_json_artifact(
-                            store,
-                            selected_snapshot_ref,
-                        ).value
-                        snapshot = DataSnapshot.model_validate(snapshot_payload)
+                        snapshot = validate_core_model_json_artifact(
+                            DataSnapshot, store, selected_snapshot_ref
+                        )
                     except (OSError, RuntimeError, TypeError, ValueError) as exc:
                         raise RuntimeError(
                             "auto_materialization_selected_ref_not_established"

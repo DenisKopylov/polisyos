@@ -13,6 +13,8 @@ from .bindings import (
     InputBindingsPreparation,
     InputBindingValuesPreparation,
     PreparedHTEObservationalInput,
+    SelectedMethodInputFacts,
+    SelectedMethodInputResolution,
     UkraineFoundryIntakeResult,
     build_input_bindings,
     extract_feedback_diagnostics,
@@ -26,7 +28,9 @@ from .bindings import (
     prepare_hte_observational_input,
     prepare_input_bindings,
     prepare_json_input_binding_values,
+    reconcile_selected_method_input_bindings,
     reconcile_semantic_input_bindings,
+    replay_selected_method_input_facts,
     resolve_bound_state_snapshot_ref,
 )
 
@@ -41,6 +45,8 @@ __all__ = [
     "InputBindingsBuildResult",
     "InputBindingsPreparation",
     "PreparedHTEObservationalInput",
+    "SelectedMethodInputFacts",
+    "SelectedMethodInputResolution",
     "UkraineFoundryIntakeResult",
     "build_input_bindings",
     "extract_feedback_diagnostics",
@@ -55,5 +61,10 @@ __all__ = [
     "prepare_input_bindings",
     "prepare_json_input_binding_values",
     "reconcile_semantic_input_bindings",
+    "reconcile_selected_method_input_bindings",
+    "replay_selected_method_input_facts",
     "resolve_bound_state_snapshot_ref",
+    "selected_tensor_value_sha256",
 ]
+
+from .selected_tensors import selected_tensor_value_sha256

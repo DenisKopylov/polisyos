@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -13,8 +14,8 @@ from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.model_state_slots import (
     BoundModelState,
     ModelScalarStateAccessError,
-    build_model_scalar_state_layout,
     bind_model_state,
+    build_model_scalar_state_layout,
     read_model_scalar_state_slot,
     reattach_model_state_after_execution,
     write_model_scalar_state_slot,
@@ -116,7 +117,9 @@ def test_two_unrelated_stock_slots_use_one_generic_accessor_without_name_branche
 
 def test_absent_zero_and_present_zero_are_distinct(tmp_path) -> None:
     store, bundle = _bundle(tmp_path, "model", "finance.cash_stock")
-    selected_state = _bind(GlobalState.empty(n_agents=1, n_firms=1), store, bundle, "finance.cash_stock")
+    selected_state = _bind(
+        GlobalState.empty(n_agents=1, n_firms=1), store, bundle, "finance.cash_stock"
+    )
 
     with pytest.raises(ModelScalarStateAccessError, match="slot_absent"):
         _read(selected_state, slot_id="finance.cash_stock")
@@ -124,6 +127,33 @@ def test_absent_zero_and_present_zero_are_distinct(tmp_path) -> None:
     selected_state = _write(selected_state, slot_id="finance.cash_stock", value=np.float32(0.0))
     assert float(_read(selected_state, slot_id="finance.cash_stock")) == 0.0
     assert bool(selected_state.state.model_scalar_state.present[0])
+
+
+def test_unrelated_layouts_reuse_one_fixed_shape_jit_trace(tmp_path) -> None:
+    store_a, bundle_a = _bundle(tmp_path, "model-a", "finance.cash_stock")
+    store_b, bundle_b = _bundle(tmp_path, "model-b", "health.staff_stock")
+    first = _write(
+        _bind(GlobalState.empty(n_agents=1, n_firms=1), store_a, bundle_a, "finance.cash_stock"),
+        slot_id="finance.cash_stock",
+        value=np.float32(5.0),
+    )
+    second = _write(
+        _bind(GlobalState.empty(n_agents=1, n_firms=1), store_b, bundle_b, "health.staff_stock"),
+        slot_id="health.staff_stock",
+        value=np.float32(7.0),
+    )
+    traces: list[None] = []
+
+    @jax.jit
+    def sum_present(state: GlobalState) -> jnp.ndarray:
+        traces.append(None)
+        carrier = state.model_scalar_state
+        assert carrier is not None
+        return jnp.sum(jnp.where(carrier.present, carrier.values, jnp.float32(0.0)))
+
+    assert float(sum_present(first.state)) == 5.0
+    assert float(sum_present(second.state)) == 7.0
+    assert traces == [None]
 
 
 def test_layout_and_registry_profile_are_bound_across_same_shape_state(tmp_path) -> None:
@@ -155,7 +185,9 @@ def test_layout_and_registry_profile_are_bound_across_same_shape_state(tmp_path)
 
 def test_unknown_slot_dtype_nonfinite_and_nonempty_rebinding_fail_closed(tmp_path) -> None:
     store, bundle = _bundle(tmp_path, "model", "finance.cash_stock")
-    selected_state = _bind(GlobalState.empty(n_agents=1, n_firms=1), store, bundle, "finance.cash_stock")
+    selected_state = _bind(
+        GlobalState.empty(n_agents=1, n_firms=1), store, bundle, "finance.cash_stock"
+    )
 
     with pytest.raises(ModelScalarStateAccessError, match="slot_not_in_selected_layout"):
         _read(selected_state, slot_id="health.staff_stock")

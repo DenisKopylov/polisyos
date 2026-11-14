@@ -8,8 +8,8 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.contracts.variable_binding import ModelInputScope
-from polisyos.ir.kernel.time_semantics import TimeSemantics
-from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.kernel import TimeSemantics
+from polisyos.ir.model_layer import TimeFrequency
 
 
 class ModelInputPeriodStepProfile(BaseModel):
@@ -82,10 +82,7 @@ def derive_model_input_step_scopes(
             time_semantics.end_date
         ):
             raise ValueError("model_input_step_scope_step_outside_horizon")
-        if (
-            start < scope_envelope.period_start
-            or end > scope_envelope.period_end
-        ):
+        if start < scope_envelope.period_start or end > scope_envelope.period_end:
             raise ValueError("model_input_step_scope_outside_envelope")
         exact_scope = ModelInputScope.model_validate(
             {

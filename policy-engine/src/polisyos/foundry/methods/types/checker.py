@@ -13,12 +13,11 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.base import DimVar, MethodSignature, SlotSpec, SlotType, Unit
-from polisyos.ir.kernel.slots import SlotScope, SlotValueType
-from polisyos.ir.kernel.slots import SlotSpec as RegistrySlotSpec
-from polisyos.ir.kernel.units import MoneyUnit
+from polisyos.ir.kernel import MoneyUnit, SlotScope, SlotValueType
+from polisyos.ir.kernel import SlotSpec as RegistrySlotSpec
 
 if TYPE_CHECKING:
-    from polisyos.core.registry.loader import RegistryBundleContent
+    from polisyos.core.registry import RegistryBundleContent
 
 
 def validate_registered_method_input(

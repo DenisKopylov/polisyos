@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 135 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 542 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -98,7 +98,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 46 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `lazy_facade` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 61 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
@@ -361,7 +361,7 @@ timestamps
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.compiler`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.contracts.forecast_profile_member`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.llm.cache_settlement`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`, `polisyos.core.run.worker_lifecycle`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.compiler`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.contracts.forecast_profile_member`, `polisyos.core.derivations`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.llm.cache_settlement`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`, `polisyos.core.run.worker_lifecycle`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -373,13 +373,14 @@ timestamps
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 140 |
+| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 135 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 143 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 864 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 928 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
+| `polisyos.core.derivations` | `src/polisyos/core/derivations.py` | `eager_exports` | 72 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -395,7 +396,7 @@ timestamps
 - Facade: `lazy_facade`
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Entrypoint exports (134)</summary>
+<details><summary>Entrypoint exports (135)</summary>
 
 ```text
 FULL_PREFIX_EVALUATION_TABLE
@@ -521,6 +522,7 @@ cache
 canon
 components
 contracts
+derivations
 discovery
 errors
 evaluation
@@ -542,7 +544,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (140)</summary>
+<details><summary>Entrypoint exports (143)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -685,6 +687,9 @@ validate_return_selected_profile
 with_ambient_ownership_enforcement_if_supported
 write_bytes_atomic
 write_bytes_once
+EnvironmentManifest
+EnvironmentManifestRef
+capture_environment
 ```
 
 </details>
@@ -813,7 +818,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (864)</summary>
+<details><summary>Entrypoint exports (928)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -1285,6 +1290,7 @@ FoundryInputBindingRule
 FoundryInputBindingTransform
 FoundryInputBindings
 FoundryInputBindingsRef
+FoundrySelectedMethodInput
 FoundryValidationFlags
 FreshnessMetadata
 FreshnessStatus
@@ -1520,6 +1526,8 @@ RunErrorsResponse
 RunLaunchResponse
 RunLineageResponse
 RunModelInputUseBlockedSourceProjection
+RunModelInputUseActionSelector
+RunModelInputUseActionsProjection
 RunModelInputUseN5SuccessorProjection
 RunModelInputUseN5SuccessorProjectionV2
 RunModelInputUseN5SuccessorResponse
@@ -1672,14 +1680,75 @@ PRODUCER_CALL_STATE_VALUES
 DataNeed
 DecisionMonitoringContractRef
 DecisionValidityEventRequest
+EntityAxisMemberId
+EntityAxisValueIdentity
 FeedbackConfig
+FeedbackMapEvaluationRecord
 FeedbackSolveResult
+FoundrySelectedMethodInputAtStep
+FoundrySelectedMethodVectorInput
+ModelInputPeriodStepProfile
+ModelInputStepScope
+ModelScalarStateLayout
+ModelScalarStateLayoutRef
+ModelScalarStateSlot
 ParameterOverrideBundle
 PolicyFlags
+SelectedEntityAxis
+SelectedEntityVectorSourceDescriptor
 SourceVerificationReportRef
 VerifiedPolicyReportRef
 c4_framed_semantic_projection_digest
+derive_model_input_step_scopes
 validate_producer_call_observation
+DERIVED_MODEL_INPUT_PAYLOAD_KIND
+METHOD_METRIC_BINDING_LIMIT
+CandidateDerivedMeasurementRole
+ConstraintReport
+ConstraintReportRef
+DerivedInputCorrespondenceBasis
+DerivedInputCorrespondenceRef
+DerivedInputProfileRef
+DerivedMeasurementRole
+LoweredMechanism
+MethodMetricInputCaptureSlot
+MethodOutputInputPortSource
+PatchOp
+RatioDenominatorSourceContextRef
+RegisteredDerivedInputContext
+RegisteredDerivedInputCorrespondence
+RegisteredDerivedInputProfileRef
+RegisteredDerivedModelInputRequest
+RegisteredMeasurementRole
+RegisteredRoleScope
+RegistrySlotInputPortSource
+ResolvedDerivedInput
+RestrictedMethodCallWitness
+entity_axis_digest
+entity_axis_member_sort_key
+entity_axis_membership_digest
+load_derived_input_profile
+load_model_input_obligation
+load_registered_derived_input_profile
+model_scalar_state_layout_digest
+persist_derived_input_correspondence
+persist_native_derivation_source_projection
+persist_registered_derived_input_context
+persist_registered_derived_input_correspondence
+recompute_native_derivation_source_projection
+verify_registered_derived_family
+AcquiredObservationSemanticInputDataSnapshotLineage
+DerivedModelInputDataSnapshotLineage
+RegisteredSemanticBasis
+ReplayedCandidateDerivationRole
+ReplayedDerivedMeasurementRole
+evaluate_derived_input_correspondence
+evaluate_registered_derived_input_correspondence
+load_derived_input_correspondence
+load_native_derivation_source_projection
+load_ratio_denominator_source_context
+load_registered_derived_input_context
+load_registered_derived_input_correspondence
 ```
 
 </details>
@@ -1701,6 +1770,91 @@ VALUE_DATA_PROFILE_KIND
 VALUE_OWNER_PROJECTION_KIND
 ForecastProfileMemberV1
 forecast_profile_observed_series_sha256
+```
+
+</details>
+
+#### `polisyos.core.derivations`
+
+- Source: `src/polisyos/core/derivations.py`
+- Facade: `eager_exports`
+- Summary: Canonical certified derivation contracts, arithmetic, and replay.
+
+<details><summary>Entrypoint exports (72)</summary>
+
+```text
+CANDIDATE_SOURCE_SERIES_KIND
+COMPOSITION_DERIVATION_SCHEMA_VERSION
+DERIVATION_CERTIFICATE_KIND
+DERIVATION_RECIPE_KIND
+DERIVATION_SCHEMA_VERSION
+DERIVED_SERIES_KIND
+ECONOMIC_SERIES_KIND
+LEGACY_DERIVATION_SCHEMA_VERSION
+PRICE_INDEX_SERIES_KIND
+SOURCE_SERIES_KIND
+TRANSFORM_FAMILY_REGISTRY_KIND
+ArithmeticExpression
+ArtifactContractProjection
+ArtifactInputEdge
+AssumptionRule
+AuthorityProjection
+BasisAttribute
+BasisParameterBinding
+BasisSignature
+CandidateDerivationInput
+CandidateSourceSeries
+CertificateInputAuthority
+CertifiedDerivationConsumption
+CertifiedDerivationResolution
+CertifiedDerivedInput
+CompositionCertificate
+CompositionDerivedSeries
+CompositionMaterialization
+CompositionRecipe
+CompositionRecipeInput
+CompositionResolution
+DerivationCertificate
+DerivationContext
+DerivationDagInput
+DerivationDagMaterialization
+DerivationDagNode
+DerivationEvaluationLimits
+DerivationInput
+DerivationMaterialization
+DerivationRecipe
+DerivationRefusalCode
+DerivationRefusalError
+DerivationRefusalReason
+DerivedParameter
+DerivedSeries
+InputContribution
+ParameterRule
+RecipeInput
+ResolvedAssumption
+SeriesPoint
+SourceDerivationInput
+SourceSeries
+TransformFamily
+TransformFamilyRegistry
+TransformInputSpec
+build_composition_recipe
+build_derivation_recipe
+consume_certified_derivation
+load_composition_recipe_artifact
+load_derivation_recipe_artifact
+load_selected_transform_family_registry
+load_transform_family_registry
+materialize_composition
+materialize_derivation
+materialize_derivation_dag
+persist_candidate_source_series
+persist_composition_recipe_artifact
+persist_derivation_recipe_artifact
+persist_source_series
+persist_transform_family_registry
+resolve_certified_composition
+resolve_certified_derivation
 ```
 
 </details>
@@ -2008,7 +2162,7 @@ WorkerRunView
 
 </details>
 
-<details><summary>Supported exports (134)</summary>
+<details><summary>Supported exports (135)</summary>
 
 ```text
 FULL_PREFIX_EVALUATION_TABLE
@@ -2134,6 +2288,7 @@ cache
 canon
 components
 contracts
+derivations
 discovery
 errors
 evaluation
@@ -5448,9 +5603,9 @@ world
 | `polisyos.foundry.coupling` | `src/polisyos/foundry/coupling/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
-| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 25 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 39 |
-| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 233 |
+| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 30 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 46 |
+| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 235 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 230 |
@@ -5737,7 +5892,7 @@ StaticBundle
 - Facade: `eager_exports`
 - Summary: Expose input-binding helpers that bridge external data into Foundry state snapshots.
 
-<details><summary>Entrypoint exports (25)</summary>
+<details><summary>Entrypoint exports (30)</summary>
 
 ```text
 HTE_PHYSICAL_SOURCE_BINDING_KIND
@@ -5750,6 +5905,8 @@ InputBindingValuesPreparation
 InputBindingsBuildResult
 InputBindingsPreparation
 PreparedHTEObservationalInput
+SelectedMethodInputFacts
+SelectedMethodInputResolution
 UkraineFoundryIntakeResult
 build_input_bindings
 extract_feedback_diagnostics
@@ -5764,7 +5921,10 @@ prepare_hte_observational_input
 prepare_input_bindings
 prepare_json_input_binding_values
 reconcile_semantic_input_bindings
+reconcile_selected_method_input_bindings
+replay_selected_method_input_facts
 resolve_bound_state_snapshot_ref
+selected_tensor_value_sha256
 ```
 
 </details>
@@ -5775,7 +5935,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (39)</summary>
+<details><summary>Entrypoint exports (46)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5783,7 +5943,11 @@ BoundedStateSnapshotInputs
 ExecutionSourceAdmission
 ExecutionSourceAdmissionRefusal
 BoundedExecutionSourceReader
+BoundedModelStateSnapshotReadLimits
+load_bound_model_state_snapshot
+read_program_graph_method_input_sources
 ProgramGraphExecutionObserver
+PreparedProgramGraphMethodCall
 ExecutionSourceBoundedReadRefusal
 ResolvedExecutionPosture
 SnapshotStateInputReadRefusal
@@ -5806,6 +5970,7 @@ load_state_snapshot
 new_method_execution_capture
 persist_method_execution_capture
 prepare_program_graph_mechanism_calls
+prepare_program_graph_method_calls
 put_state_snapshot
 program_graph_declares_model_input_ports
 recompute_program_graph_inputs
@@ -5817,6 +5982,8 @@ state_snapshot_value_projection
 read_numeric_npz_bounded
 read_state_snapshot_inputs_bounded
 resolve_execution_posture
+load_stored_selected_method_input_occurrences
+ProgramGraphMethodExecutionObserver
 ```
 
 </details>
@@ -5827,7 +5994,7 @@ resolve_execution_posture
 - Facade: `lazy_facade`
 - Summary: Stable lazy facade for Foundry Methods.
 
-<details><summary>Entrypoint exports (233)</summary>
+<details><summary>Entrypoint exports (235)</summary>
 
 ```text
 ADVISOR_EXECUTION_CONTEXT_PARAM
@@ -5925,6 +6092,7 @@ MethodLossProfile
 MethodMetadata
 MethodNode
 MethodNotFoundError
+MethodPatchTargetContract
 MethodRegistry
 MethodResult
 MethodRetiredException
@@ -6057,6 +6225,7 @@ suggest_adapter_methods
 suggest_alternative_methods
 suggest_plan_node_alternatives
 tag_deprecated_in_registry
+validate_method_patch_targets
 validate_source_bound_causal_estimator_interval
 validate_source_bound_causal_worker_response
 validate_source_bound_gcm_spec
@@ -7571,24 +7740,24 @@ verify_replay
 
 - Classification: `public_experimental`
 - Supported entrypoints: `polisyos.runtime.quality`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/runtime/quality/README.md`
 - Reference doc: `docs/reference/public-surface.md`
 - Notes: Experimental runtime-quality contract facade; compatibility changes require an explicit release fragment and inventory review.
-- Summary: Runtime quality evaluation helpers.
+- Summary: Expose runtime-quality contracts without importing unrelated owners eagerly.
 
 ### Resolved supported entrypoints
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 976 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `lazy_facade` | 976 |
 
 #### `polisyos.runtime.quality`
 
 - Source: `src/polisyos/runtime/quality/__init__.py`
-- Facade: `eager_exports`
-- Summary: Runtime quality evaluation helpers.
+- Facade: `lazy_facade`
+- Summary: Expose runtime-quality contracts without importing unrelated owners eagerly.
 
 <details><summary>Entrypoint exports (976)</summary>
 
@@ -9859,7 +10028,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 165 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 168 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -10097,7 +10266,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (165)</summary>
+<details><summary>Entrypoint exports (168)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10107,6 +10276,7 @@ AcquisitionAuthorityRegistry
 AcquisitionDatasetRegistration
 AcquisitionSourceMeasureScope
 ActivatedAcquisitionObservationProjection
+ActivatedAcquisitionPassport
 AuthoritySchemaColumn
 BaselineIdentity
 BaselineMutationError
@@ -10241,6 +10411,7 @@ load_catalog_shadow_bundle
 load_catalog_source_registry
 load_derivation_catalog_selection
 load_seed_alignments
+materialize_activated_measurement_occurrence
 normalize_acquisition_unit
 normalize_country_code
 normalized_acquisition_source_body
@@ -10253,6 +10424,7 @@ project_catalog_acquisition_state
 read_scoped_measurement_source_body
 read_selected_live_raw_source
 read_wvs_indicator_registry
+replay_selected_scoped_measurement_facts
 resolve_catalog_selection_policy
 resolve_embedding_generation
 resolve_live_temporal_bounds

@@ -220,6 +220,21 @@ def _selected_json(store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef, k
     return artifacts.load_core_json_artifact(store, ref)
 
 
+def _selected_data_snapshot(
+    store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef
+) -> DataSnapshot:
+    """Validate the exact selected snapshot through its Core JSON owner."""
+    if (
+        ref.kind != "fabric.data_snapshot"
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        or artifacts.profile_bound_ref(store, ref) != ref
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("candidate_source_basis_selected_view_unverified")
+    return artifacts.validate_core_model_json_artifact(DataSnapshot, store, ref)
+
+
 def _same_view(
     store: artifacts.ArtifactStore, left: artifacts.ArtifactRef, right: artifacts.ArtifactRef
 ) -> bool:
@@ -336,9 +351,7 @@ def _source_ingestion_values(
         verify_live_ingestion_evidence_profile,
     )
 
-    snapshot = DataSnapshot.model_validate(
-        _selected_json(store, source.source_snapshot_ref, "fabric.data_snapshot")
-    )
+    snapshot = _selected_data_snapshot(store, source.source_snapshot_ref)
     bundle, _manifest = load_source_evidence_bundle(
         store, source.source_evidence_ref, require_selected_profile=True
     )
@@ -588,9 +601,7 @@ def _verify_actual_world(
     _selected_json(store, world_model_ref, "runtime.quality.world_model_record")
     world = load_world_model_record(store, world_model_ref)
     views = world_model_artifact_views(world)
-    snapshot = DataSnapshot.model_validate(
-        _selected_json(store, data_snapshot_ref, "fabric.data_snapshot")
-    )
+    snapshot = _selected_data_snapshot(store, data_snapshot_ref)
     owner = read_world_model_record_owner_values(
         store,
         world_model_record=world,
@@ -774,9 +785,7 @@ def _prepare_candidate_source_basis_step(
         _require_candidate_acquisition_world_scope(
             problem=problem, base=base, binding=inputs.slot_binding, source=source
         )
-        base_snapshot = DataSnapshot.model_validate(
-            _selected_json(store, inputs.base_data_snapshot_ref, "fabric.data_snapshot")
-        )
+        base_snapshot = _selected_data_snapshot(store, inputs.base_data_snapshot_ref)
         base_lineage = validate_data_snapshot_owner_lineage(
             store, inputs.base_data_snapshot_ref, base_snapshot, candidate_only=True
         )
@@ -837,11 +846,7 @@ def _prepare_candidate_source_basis_step(
         if canonical_base_ref is None:  # pragma: no cover - checked above
             raise ValueError("candidate_source_basis_predecessor_base_missing")
         canonical_base = (
-            DataSnapshot.model_validate(
-                _selected_json(store, canonical_base_ref, "fabric.data_snapshot")
-            )
-            if same_previous
-            else base_snapshot
+            _selected_data_snapshot(store, canonical_base_ref) if same_previous else base_snapshot
         )
         data_values = _data_values(
             payload=payload,

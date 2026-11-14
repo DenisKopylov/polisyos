@@ -11,7 +11,7 @@ from __future__ import annotations
 import threading
 import time as _time
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, fields, replace
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Literal, ParamSpec, Protocol, runtime_checkable
 
@@ -64,6 +64,7 @@ from polisyos.ir.analytics import extract_truthfulness_receipt
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
+    from polisyos.foundry.methods.backends.numpy_runner import PreparedNumpyMethodCall
 
 _log = get_foundry_logger("foundry.backends.dispatch")
 _DISPATCH_ARGS = ParamSpec("_DISPATCH_ARGS")
@@ -81,6 +82,32 @@ _USD_PER_MS = {
     ComputeBackend.SOLVER: 1.2e-6,
     ComputeBackend.BAYESIAN: 1.5e-6,
 }
+_PREPARED_METHOD_SIGNATURE_FIELDS = frozenset(
+    {
+        "name",
+        "namespace",
+        "version",
+        "input_slots",
+        "output_slots",
+        "parameters",
+        "fidelity",
+        "complexity",
+        "backend",
+        "kind",
+        "family",
+        "variant",
+        "data_modalities",
+        "fidelity_tier",
+        "commutes_with",
+        "conflicts_with",
+        "requires",
+        "supports_jit",
+        "supports_vmap",
+        "supports_grad",
+        "representation_profiles",
+        "patch_targets",
+    }
+)
 
 
 def _observe_foundry_method_dispatch(
@@ -492,6 +519,17 @@ class SignatureAwareFallback:
         return True
 
 
+@dataclass(frozen=True, slots=True)
+class PreparedMethodDispatchCall:
+    """Retain one bounded declared-NumPy route without executing its kernel."""
+
+    dispatcher: MethodDispatcher
+    runner: MethodRunner
+    runner_execute: Callable[..., MethodResult]
+    numerical_call: PreparedNumpyMethodCall
+    decision: DispatchDecision
+
+
 class MethodDispatcher:
     """Thread-safe singleton dispatcher that resolves and invokes backend runners."""
 
@@ -548,6 +586,86 @@ class MethodDispatcher:
         with self._runner_lock:
             return self._dispatcher.available_backends()
 
+    def prepare_call(
+        self,
+        *,
+        method_class: type,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        seed: int,
+    ) -> PreparedMethodDispatchCall:
+        """Prepare the supported ordinary NumPy route without numerical work.
+
+        Preparation refuses alternate runners, fallback, owner contexts,
+        representation adapters and validated/restricted execution profiles.
+        Their future calls cannot honestly be predicted by this bounded path.
+        Ordinary unobserved dispatch keeps its established behavior.
+
+        Args:
+            method_class: Actual selected registered method class.
+            signature: Its selected immutable ABI declaration.
+            state: Actual materialized ABI inputs.
+            params: Explicit dispatch parameters.
+            seed: Exact numerical seed.
+
+        Returns:
+            A held route consumable by this dispatcher's ``dispatch`` method.
+
+        Raises:
+            ValueError: If this bounded preparation profile is not established.
+        """
+        from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+        from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+            profile_for_method_fqn,
+        )
+
+        method_params, _advisor = split_advisor_execution_params(params)
+        method_params, validated = split_validated_execution_params(method_params)
+        if {field.name for field in fields(signature)} != _PREPARED_METHOD_SIGNATURE_FIELDS:
+            raise ValueError("prepared_method_signature_field_roles_not_established")
+        decision = self._select_backend(
+            method_class=method_class,
+            signature=signature,
+            state=state,
+            n_obs=_infer_n_obs(state),
+        )
+        if (
+            signature.backend is not ComputeBackend.NUMPY
+            or decision.selected_backend is not ComputeBackend.NUMPY
+            or self._candidate_backends(
+                method_class=method_class,
+                signature=signature,
+                preferred_backend=decision.selected_backend,
+            )
+            != (ComputeBackend.NUMPY,)
+            or validated.mode is not ValidatedMode.OFF
+            or signature.representation_profiles
+            or profile_for_method_fqn(signature.fqn) is not None
+        ):
+            raise ValueError("prepared_method_dispatch_profile_not_established")
+        runner = self._resolve_runner(ComputeBackend.NUMPY)
+        if type(runner) is not NumpyRunner:
+            raise ValueError("prepared_method_dispatch_runner_not_established")
+        runner_execute = runner.execute
+        numerical_call = runner.prepare_call(
+            method_class=method_class,
+            signature=signature,
+            state=state,
+            params=method_params,
+            seed=seed,
+            _detach_observation=True,
+        )
+        if numerical_call.postprocessor is not None and not callable(numerical_call.postprocessor):
+            raise ValueError("prepared_method_postprocessor_not_established")
+        return PreparedMethodDispatchCall(
+            dispatcher=self,
+            runner=runner,
+            runner_execute=runner_execute,
+            numerical_call=numerical_call,
+            decision=decision,
+        )
+
     @_observe_foundry_method_dispatch
     def dispatch(
         self,
@@ -558,6 +676,7 @@ class MethodDispatcher:
         params: Mapping[str, Any],
         seed: int,
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
+        _prepared_call: PreparedMethodDispatchCall | None = None,
     ) -> MethodResult:
         """Dispatch one method invocation to the declared backend with fallback.
 
@@ -585,7 +704,19 @@ class MethodDispatcher:
         method_params, advisor_context = split_advisor_execution_params(params)
         method_params, validated_policy = split_validated_execution_params(method_params)
         n_obs = _infer_n_obs(state)
-        if runtime_context is None:
+        if _prepared_call is not None:
+            held = _prepared_call.numerical_call
+            if (
+                _prepared_call.dispatcher is not self
+                or runtime_context is not None
+                or held.method_class is not method_class
+                or held.signature is not signature
+                or held.state is not state
+                or held.seed != seed
+            ):
+                raise ValueError("prepared_method_dispatch_identity_mismatch")
+            decision = _prepared_call.decision
+        elif runtime_context is None:
             decision = self._select_backend(
                 method_class=method_class,
                 signature=signature,
@@ -650,6 +781,7 @@ class MethodDispatcher:
                     preferred_backend=decision.selected_backend,
                     attempts=attempts,
                     runtime_context=runtime_context,
+                    prepared_call=_prepared_call,
                 )
                 if attempts:
                     backend_used = attempts[-1][0]
@@ -906,14 +1038,20 @@ class MethodDispatcher:
         preferred_backend: ComputeBackend,
         attempts: list[tuple[ComputeBackend, str]],
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
+        prepared_call: PreparedMethodDispatchCall | None = None,
     ) -> MethodResult:
         last_exc: Exception | None = None
-        for backend in self._candidate_backends(
-            method_class=method_class,
-            signature=signature,
-            preferred_backend=preferred_backend,
-            runtime_context=runtime_context,
-        ):
+        candidates = (
+            (ComputeBackend.NUMPY,)
+            if prepared_call is not None
+            else self._candidate_backends(
+                method_class=method_class,
+                signature=signature,
+                preferred_backend=preferred_backend,
+                runtime_context=runtime_context,
+            )
+        )
+        for backend in candidates:
             try:
                 result = self._execute_on_backend(
                     backend=backend,
@@ -923,6 +1061,7 @@ class MethodDispatcher:
                     params=params,
                     seed=seed,
                     runtime_context=runtime_context,
+                    prepared_call=prepared_call,
                 )
                 attempts.append((backend, "success"))
                 return result
@@ -980,11 +1119,16 @@ class MethodDispatcher:
         params: Mapping[str, Any],
         seed: int,
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
+        prepared_call: PreparedMethodDispatchCall | None = None,
     ) -> MethodResult:
-        runner = self._resolve_runner(backend)
+        runner = (
+            prepared_call.runner if prepared_call is not None else self._resolve_runner(backend)
+        )
         # Capture the dispatcher-selected bound callable exactly once. The same
         # local is passed through the breaker and to the restricted NumPy witness.
-        runner_execute: Any = runner.execute
+        runner_execute: Any = (
+            prepared_call.runner_execute if prepared_call is not None else runner.execute
+        )
         from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
 
         breaker = get_circuit_breaker_registry().get(backend.value)
@@ -1013,6 +1157,8 @@ class MethodDispatcher:
                 }
             if type(runner) is NumpyRunner:
                 kwargs["_captured_dispatch_execute"] = runner_execute
+                if prepared_call is not None:
+                    kwargs["_prepared_call"] = prepared_call.numerical_call
             return runner_execute(**kwargs)
 
         result = breaker.call(_execute)

@@ -1,22 +1,33 @@
 from __future__ import annotations
 
+from hashlib import sha256
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.fabric import (
     AcquiredObservationDataSnapshotLineage,
     DataSnapshot,
     DataSnapshotOwnerBound,
     DataViewRequestRef,
+    DerivedModelInputDataSnapshotLineage,
     EvidenceBundleRef,
     FabricBridgeDataSnapshotLineage,
     MeasurementRootDataSnapshotLineage,
     UncertaintyBoundsRef,
     WarningsRef,
+    data_snapshot_manifest_inputs_match,
     data_snapshot_owner_input_requirements,
 )
+from polisyos.core.contracts.semantic_derived_binding import (
+    DerivedInputCorrespondenceRef,
+    DerivedInputProfileRef,
+)
+from polisyos.core.contracts.semantic_input_binding import ResolvedDerivedInput
+from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
 
 
 def _ref(index: int, kind: str = "fixture.artifact") -> ArtifactRef:
@@ -24,6 +35,37 @@ def _ref(index: int, kind: str = "fixture.artifact") -> ArtifactRef:
         artifact_id=ArtifactID.from_sha256_hex(f"{index:064x}"),
         kind=kind,
         media_type="application/json",
+    )
+
+
+def _selected_ref(index: int, kind: str) -> SelectedVariableBindingRef:
+    return SelectedVariableBindingRef.model_validate(
+        _ref(index, kind).model_dump(mode="python")
+        | {"manifest_profile_sha256": "sha256:" + f"{index + 100:064x}"}
+    )
+
+
+def _resolved_derived_input(index: int, *, binding_id: str, year: int) -> ResolvedDerivedInput:
+    return ResolvedDerivedInput(
+        binding_id=binding_id,
+        model_input_obligation_ref=_selected_ref(index, "runtime.quality.model_input_obligation"),
+        model_interface_ref=_selected_ref(
+            index + 1, "runtime.quality.program_graph_input_interface"
+        ),
+        model_port_id="method.input.value",
+        recipe_ref=_selected_ref(index + 2, "polisyos.runtime.derivation_recipe"),
+        certificate_ref=_selected_ref(index + 3, "polisyos.runtime.derivation_certificate"),
+        output_ref=_selected_ref(index + 4, "polisyos.runtime.derived_economic_series"),
+        year=year,
+        correspondence_ref=DerivedInputCorrespondenceRef.model_validate(
+            _selected_ref(index + 5, "catalog.derived_input_correspondence").model_dump(
+                mode="python"
+            )
+        ),
+        profile_ref=DerivedInputProfileRef.model_validate(
+            _selected_ref(index + 6, "catalog.derived_input_profile").model_dump(mode="python")
+        ),
+        source_path=f"outputs.{year}",
     )
 
 
@@ -136,6 +178,134 @@ def test_owner_input_requirements_preserve_none_semantics_for_all_families(
         "evidence.overlay_admission_receipt",
         "evidence.acquisition_passport",
     ]
+
+
+def test_legacy_data_snapshot_payload_bytes_remain_unchanged() -> None:
+    legacy = DataSnapshot(data_ref=_ref(70, "fabric.tabular_payload"))
+    owner_bound = _bridge_snapshot(DataSnapshotOwnerBound)
+
+    legacy_bytes = to_canonical_bytes(legacy.model_dump(mode="json"), CanonSpec())
+    owner_bound_bytes = to_canonical_bytes(owner_bound.model_dump(mode="json"), CanonSpec())
+
+    assert sha256(legacy_bytes).hexdigest() == (
+        "9cbe3d9ee453ca0a9fb851cc43cf635b27d3c512863e752ac068938bb9172d16"
+    )
+    assert sha256(owner_bound_bytes).hexdigest() == (
+        "406589fd72e20855da2c7bd484284ec5cee4bc2f48f34c3a784cc7c676a4886d"
+    )
+
+
+def test_derived_model_input_snapshot_uses_complete_selected_lineage_edges() -> None:
+    selections = (
+        _resolved_derived_input(20, binding_id="annual-2024", year=2024),
+        _resolved_derived_input(30, binding_id="annual-2025", year=2025),
+    )
+    lineage = DerivedModelInputDataSnapshotLineage(
+        base_data_snapshot_ref=_ref(18, "fabric.data_snapshot").model_copy(
+            update={"manifest_profile_sha256": "sha256:" + f"{118:064x}"}
+        ),
+        model_input_obligation_set_ref=_ref(
+            19, "runtime.quality.model_input_obligation_set"
+        ).model_copy(update={"manifest_profile_sha256": "sha256:" + f"{119:064x}"}),
+        selections=selections,
+    )
+    snapshot = DataSnapshotOwnerBound(
+        data_ref=_ref(17, "runtime.quality.derived_semantic_input_payload"),
+        source_lineage=lineage,
+    )
+
+    requirements = data_snapshot_owner_input_requirements(snapshot)
+    expected_selection_roles = [
+        edge.role for selection in selections for edge in selection.lineage_inputs()
+    ]
+    assert [role for _ref, role in requirements] == [
+        "payload.derived_model_input",
+        "input.base_data_snapshot",
+        "selected_obligation_set",
+        *expected_selection_roles,
+    ]
+    assert lineage.authority_purpose == "candidate_simulation_input_only"
+    assert lineage.lineage_status == "not_established"
+
+    actual_inputs = [
+        InputRef(
+            artifact_id=ref.artifact_id,
+            role=role,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
+        )
+        for ref, role in requirements
+    ]
+    assert data_snapshot_manifest_inputs_match(snapshot, actual_inputs, schema_version="0.3.0")
+    assert not data_snapshot_manifest_inputs_match(
+        snapshot, actual_inputs[:-1], schema_version="0.3.0"
+    )
+    assert not data_snapshot_manifest_inputs_match(
+        snapshot,
+        [*actual_inputs, actual_inputs[-1]],
+        schema_version="0.3.0",
+    )
+
+
+def test_derived_model_input_snapshot_rejects_duplicate_selection_denominator_rows() -> None:
+    selected = _resolved_derived_input(40, binding_id="annual-2024", year=2024)
+    base_fields = {
+        "base_data_snapshot_ref": _ref(38, "fabric.data_snapshot").model_copy(
+            update={"manifest_profile_sha256": "sha256:" + f"{138:064x}"}
+        ),
+        "model_input_obligation_set_ref": _ref(
+            39, "runtime.quality.model_input_obligation_set"
+        ).model_copy(update={"manifest_profile_sha256": "sha256:" + f"{139:064x}"}),
+    }
+    with pytest.raises(ValueError, match="derived_model_input_snapshot_selections_not_unique"):
+        DerivedModelInputDataSnapshotLineage(
+            **base_fields,
+            selections=(selected, selected.model_copy(update={"binding_id": "duplicate"})),
+        )
+
+    with pytest.raises(ValueError, match="derived_model_input_snapshot_selections_not_unique"):
+        DerivedModelInputDataSnapshotLineage(
+            **base_fields,
+            selections=(
+                selected,
+                selected.model_copy(update={"year": 2025, "source_path": "outputs.2025"}),
+            ),
+        )
+
+
+def test_derived_model_input_snapshot_requires_selected_base_and_obligation_set() -> None:
+    selected = _resolved_derived_input(60, binding_id="annual-2024", year=2024)
+    valid = {
+        "base_data_snapshot_ref": _ref(58, "fabric.data_snapshot").model_copy(
+            update={"manifest_profile_sha256": "sha256:" + f"{158:064x}"}
+        ),
+        "model_input_obligation_set_ref": _ref(
+            59, "runtime.quality.model_input_obligation_set"
+        ).model_copy(update={"manifest_profile_sha256": "sha256:" + f"{159:064x}"}),
+        "selections": (selected,),
+    }
+    with pytest.raises(ValueError, match="derived_model_input_snapshot_lineage_ref_mismatch"):
+        DerivedModelInputDataSnapshotLineage(
+            **(valid | {"base_data_snapshot_ref": _ref(58, "fabric.data_snapshot")})
+        )
+    with pytest.raises(ValueError, match="derived_model_input_snapshot_lineage_ref_mismatch"):
+        DerivedModelInputDataSnapshotLineage(
+            **(
+                valid
+                | {
+                    "model_input_obligation_set_ref": _ref(
+                        59, "runtime.quality.model_input_obligation_set"
+                    ).model_copy(update={"manifest_profile_sha256": None})
+                }
+            )
+        )
+    with pytest.raises(ValidationError):
+        DerivedModelInputDataSnapshotLineage(**(valid | {"unexpected_authority": True}))
+    with pytest.raises(ValidationError):
+        DerivedModelInputDataSnapshotLineage(**(valid | {"lineage_status": "verified"}))
+    with pytest.raises(ValidationError):
+        DerivedModelInputDataSnapshotLineage(**(valid | {"authority_purpose": "publication"}))
+    with pytest.raises(ValidationError):
+        DerivedModelInputDataSnapshotLineage(**(valid | {"selections": ()}))
 
 
 @pytest.mark.parametrize("snapshot_type", [DataSnapshot, DataSnapshotOwnerBound])

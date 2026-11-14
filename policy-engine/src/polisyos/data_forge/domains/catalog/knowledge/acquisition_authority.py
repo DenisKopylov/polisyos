@@ -2183,14 +2183,16 @@ class CanonicalAcquisitionAuthority:
                     )
                 )
             )
-            snapshot = DataSnapshot.model_validate(
-                from_canonical_bytes(
-                    self._reopen_artifact_ref(
-                        artifact_store,
-                        proof.data_snapshot_ref,
-                        expected_kind="fabric.data_snapshot",
-                    )
-                )
+            snapshot_bytes = self._reopen_artifact_ref(
+                artifact_store,
+                proof.data_snapshot_ref,
+                expected_kind="fabric.data_snapshot",
+            )
+            snapshot = artifacts.validate_core_model_json_artifact(
+                DataSnapshot,
+                artifact_store,
+                proof.data_snapshot_ref,
+                raw_payload_bytes=snapshot_bytes,
             )
             if snapshot.evidence_ref != proof.evidence_bundle_ref:
                 raise AcquisitionAuthorityError("live_snapshot_evidence_ref_drift")

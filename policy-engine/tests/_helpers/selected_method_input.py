@@ -14,6 +14,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanRef, MethodDagNode
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import CompileRequest, FoundryInputBindingRule
+from polisyos.core.contracts.model_input_period_steps import ModelInputPeriodStepProfile
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputPhysicalEncoding,
     ModelInputPort,
@@ -59,6 +60,34 @@ from tests.unit.core.contracts.test_semantic_derived_binding import (
 )
 
 
+def selected_method_tax_subsidy_policy() -> PolicySpec:
+    """Return a real synthetic intervention for mixed mechanism/method tests."""
+    from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBinding
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.model_layer.types import SelectorOperator
+
+    return PolicySpec(
+        policy_id="selected_method_input",
+        interventions=[
+            InterventionSpec(
+                intervention_id="fixture_subsidy",
+                kind="tax_subsidy",
+                target=SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="all"),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={"rate": Decimal("0.125")},
+            )
+        ],
+        mechanism_bindings=[
+            MechanismBinding(
+                binding_id="fixture_subsidy_binding",
+                mechanism_id="tax_subsidy",
+                intervention_ids=["fixture_subsidy"],
+            )
+        ],
+    )
+
+
 def prepare_selected_method_input_case(
     tmp_path: Path,
     *,
@@ -68,27 +97,70 @@ def prepare_selected_method_input_case(
     shape: tuple[int, ...] = (),
     time_semantics: TimeSemantics | Literal["default"] | None = "default",
     scope: ModelInputScope | None = None,
+    method_input_slot: str = "period_flow",
+    method_input_slots: tuple[str, ...] | None = None,
+    method_instances: int = 1,
+    mapped: bool = False,
+    period_step_profile: bool = False,
+    snapshot_id: str | None = None,
+    policy_spec: PolicySpec | None = None,
+    income_values: tuple[int, ...] = (0,),
 ) -> tuple[ProgramGraphTaxSubsidyInputCase, dict[str, Any]]:
-    """Compile one real method and a model-owned scalar period-flow port.
+    """Compile real method instances and explicit scalar period-flow ports.
 
     Values and definitions are synthetic, candidate-only test inputs. The
     target stock means accumulated period flows since this model's origin;
     the fixture makes no cash-on-hand or empirical fiscal assertion.
+    ``method_input_slots`` opts into distinct mapped sources and returns each
+    explicit semantic port under ``metadata['method_inputs_by_slot']``.
     """
     store = FileSystemCAS(tmp_path / "cas")
     MethodRegistry.get_instance().register(method_class, override=True)
     signature = method_class.signature
+    if type(method_instances) is not int or not 1 <= method_instances <= 2:
+        raise ValueError("selected_method_fixture_profile_unsupported")
+    if method_input_slots is not None:
+        if (
+            type(method_input_slots) is not tuple
+            or not 1 <= len(method_input_slots) <= 2
+            or any(
+                type(slot) is not str or not slot or slot != slot.strip()
+                for slot in method_input_slots
+            )
+            or len(set(method_input_slots)) != len(method_input_slots)
+            or method_input_slot != "period_flow"
+            or (method_instances != 1 and method_instances != len(method_input_slots))
+        ):
+            raise ValueError("selected_method_fixture_distinct_slots_unsupported")
+        method_instances = len(method_input_slots)
+        mapped = True
+        instance_slots = method_input_slots
+    else:
+        instance_slots = (method_input_slot,) * method_instances
+    unique_input_slots = tuple(dict.fromkeys(instance_slots))
+    if (
+        type(method_instances) is not int
+        or method_instances < 1
+        or method_instances > 2
+        or ((method_input_slot != "period_flow" or method_instances > 1) and not mapped)
+        or (mapped and {slot.name for slot in signature.input_slots} != {"period_flow"})
+        or type(income_values) is not tuple
+        or not income_values
+        or any(type(value) is not int for value in income_values)
+    ):
+        raise ValueError("selected_method_fixture_profile_unsupported")
     slots = dict(DEFAULT_SLOT_REGISTRY.slots)
-    slots["period_flow"] = slots["government.balance"].model_copy(
-        update={
-            "slot_id": "period_flow",
-            "state_path": None,
-            "kind": SlotKind.FLOW,
-            "dtype": "float64",
-            "shape": [],
-            "description": "One selected scalar total flow over the declared period.",
-        }
-    )
+    for slot_id in unique_input_slots:
+        slots[slot_id] = slots["government.balance"].model_copy(
+            update={
+                "slot_id": slot_id,
+                "state_path": None,
+                "kind": SlotKind.FLOW,
+                "dtype": "float64",
+                "shape": [],
+                "description": "One selected scalar total flow over the declared period.",
+            }
+        )
     registry = build_registry_bundle(
         store,
         slot_registry=SlotRegistry(slots=slots),
@@ -101,11 +173,14 @@ def prepare_selected_method_input_case(
         return_selected_profile=True,
     )
     source_ref = store.put_json(
-        {"agents": {"income": [0]}, "government_balance": 10_000_000_000},
+        {"agents": {"income": list(income_values)}, "government_balance": 10_000_000_000},
         PutOptions(kind="tests.selected_method_prestate", media_type="application/json"),
         return_selected_profile=True,
     )
-    snapshot = DataSnapshot(data_ref=source_ref)
+    snapshot = DataSnapshot(
+        data_ref=source_ref,
+        **({"stats": {"snapshot_id": snapshot_id}} if snapshot_id is not None else {}),
+    )
     snapshot_ref = store.put_json(
         snapshot,
         PutOptions(
@@ -132,13 +207,14 @@ def prepare_selected_method_input_case(
                 target_slot_id="agents.income",
             ),
         ],
+        **(
+            {"notes": [f"world_model_record_snapshot_id:{snapshot_id}"]}
+            if snapshot_id is not None
+            else {}
+        ),
         return_selected_profile=True,
     )
-    target_ref, _ = _definition(store, "aggregate-period-flow")
     money = MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
-    representation_ref, representation = _representation(
-        store, target_ref, population="population:government", money=money
-    )
     profile = MeasurementBindingProfile(
         schema_version="polisyos.catalog.measurement_binding_profile.v3",
         profile_id="fixture.selected_method_flow",
@@ -155,35 +231,66 @@ def prepare_selected_method_input_case(
             MeasurementAxis.MONEY_UNIT,
         ),
     )
-    profile_ref = MeasurementBindingProfileRef.model_validate(
-        _put_contract(store, profile, version="3.0").model_dump()
-    )
-    port = ModelInputPort(
-        port_id="period-flow",
-        slot_id="period_flow",
-        carrier="method_input",
-        unit_id="usd",
-        purpose="simulation_input",
-        semantic_definition_ref=target_ref,
-        representation_ref=representation_ref,
-        binding_profile_ref=profile_ref,
-        scope=scope
-        or ModelInputScope(
-            population_ref="population:government",
-            geography_ref="UA",
-            jurisdiction_ref="jurisdiction:fixture",
-            period_start=date(2024, 1, 1),
-            period_end=date(2024, 12, 31),
-            time_role="observation_time",
-            period_basis="calendar_year",
-        ),
-        physical_encoding=ModelInputPhysicalEncoding(
-            shape=shape, dtype="float64", max_absolute_error=Decimal("0")
-        ),
-    )
+    profile_ref = None
+    ports = []
+    metadata_by_slot: dict[str, dict[str, Any]] = {}
+    for index, slot_id in enumerate(unique_input_slots):
+        target_ref, _ = _definition(
+            store,
+            "aggregate-period-flow"
+            if len(unique_input_slots) == 1
+            else f"aggregate-period-flow-{index}",
+        )
+        representation_ref, representation = _representation(
+            store, target_ref, population="population:government", money=money
+        )
+        if profile_ref is None:
+            profile_ref = MeasurementBindingProfileRef.model_validate(
+                _put_contract(store, profile, version="3.0").model_dump()
+            )
+        port = ModelInputPort(
+            port_id="period-flow" if len(unique_input_slots) == 1 else f"period-flow-{index}",
+            slot_id=slot_id,
+            carrier="method_input",
+            unit_id="usd",
+            purpose="simulation_input",
+            semantic_definition_ref=target_ref,
+            representation_ref=representation_ref,
+            binding_profile_ref=profile_ref,
+            scope=scope
+            or ModelInputScope(
+                population_ref="population:government",
+                geography_ref="UA",
+                jurisdiction_ref="jurisdiction:fixture",
+                period_start=date(2024, 1, 1),
+                period_end=date(2024, 12, 31),
+                time_role="observation_time",
+                period_basis="calendar_year",
+            ),
+            physical_encoding=ModelInputPhysicalEncoding(
+                shape=shape, dtype="float64", max_absolute_error=Decimal("0")
+            ),
+            **(
+                {"period_step_profile": ModelInputPeriodStepProfile()}
+                if period_step_profile
+                else {}
+            ),
+        )
+        ports.append(port)
+        metadata_by_slot[slot_id] = {
+            "port": port,
+            "target_ref": target_ref,
+            "representation_ref": representation_ref,
+            "representation": representation,
+            "profile_ref": profile_ref,
+            "money": money,
+        }
     declaration_ref = (
         persist_model_input_port_declaration(
-            store, ModelInputPortDeclaration(schema_version="1.1", ports=(port,))
+            store,
+            ModelInputPortDeclaration(
+                schema_version="1.2" if period_step_profile else "1.1", ports=tuple(ports)
+            ),
         )
         if declared
         else None
@@ -214,7 +321,11 @@ def prepare_selected_method_input_case(
         )
     trinity = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="selected_method_input", domain=ProblemDomain.FISCAL),
-        policy_spec=PolicySpec(policy_id="selected_method_input", interventions=[]),
+        policy_spec=(
+            PolicySpec(policy_id="selected_method_input", interventions=[])
+            if policy_spec is None
+            else policy_spec
+        ),
         model_spec=model,
     )
     candidate_ref = persist_policy_candidate_schema(
@@ -244,11 +355,13 @@ def prepare_selected_method_input_case(
         ).model_dump(mode="python")
     )
     selected_plan = ExecutionPlan(
-        schema_version="1.1",
+        schema_version="1.2" if mapped else "1.1",
         plan_id="selected-method-input",
         method_dag=[
             MethodDagNode(
-                node_id="period_flow_node",
+                node_id=(
+                    "period_flow_node" if method_instances == 1 else f"period_flow_node_{index}"
+                ),
                 method_fqn=signature.fqn,
                 method_version=signature.version,
                 backend=signature.execution_backend.value,
@@ -256,7 +369,20 @@ def prepare_selected_method_input_case(
                 reads_slots=sorted(slot.name for slot in signature.input_slots),
                 writes_slots=sorted(slot.name for slot in signature.output_slots),
                 state_writes=list(state_writes),
+                **(
+                    {
+                        "input_ports": {
+                            "period_flow": {
+                                "source_kind": "registry_slot",
+                                "slot_id": instance_slots[index],
+                            }
+                        }
+                    }
+                    if mapped
+                    else {}
+                ),
             )
+            for index in range(method_instances)
         ],
     )
     plan_ref = store.put_json(
@@ -264,7 +390,9 @@ def prepare_selected_method_input_case(
         PutOptions(
             kind="scientist.execution_plan",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecutionPlan", version="1.1"),
+            schema=SchemaInfo(
+                name="polisyos.core.ExecutionPlan", version=selected_plan.schema_version
+            ),
             inputs=[input_ref_from_artifact_ref(trinity_ref, role="policy_candidate")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -300,12 +428,9 @@ def prepare_selected_method_input_case(
             program_graph_ref=program_ref,
             model_input_port_declaration_ref=declaration_ref,
         ),
-        {
-            "port": port,
-            "target_ref": target_ref,
-            "representation_ref": representation_ref,
-            "representation": representation,
-            "profile_ref": profile_ref,
-            "money": money,
-        },
+        (
+            metadata_by_slot[unique_input_slots[0]]
+            if len(unique_input_slots) == 1
+            else {"method_inputs_by_slot": metadata_by_slot}
+        ),
     )

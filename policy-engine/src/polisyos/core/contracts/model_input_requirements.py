@@ -12,12 +12,16 @@ from polisyos.core.artifacts import (
     ArtifactStore,
     InputRef,
     artifact_ref_identity_key,
+    ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.ir.registry import ArtifactRefModel
+from polisyos.ir.trinity import load_trinity_bundle_artifact
 
+from .entity_axis import SelectedEntityAxis
 from .foundry import (
     ExecPlanRef,
     FoundryInputBindings,
@@ -26,6 +30,11 @@ from .foundry import (
     ProgramGraph,
     ProgramGraphRef,
     StateSnapshotRef,
+)
+from .model_input_period_steps import (
+    ModelInputPeriodStepProfile,
+    ModelInputStepScope,
+    derive_model_input_step_scopes,
 )
 from .variable_binding import (
     MeasurementBindingProfile,
@@ -96,6 +105,12 @@ class ModelInputPort(_ModelInputContract):
     representation_ref: VariableRepresentationRef
     binding_profile_ref: MeasurementBindingProfileRef
     scope: ModelInputScope
+    entity_axis_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    period_step_profile: ModelInputPeriodStepProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     physical_encoding: ModelInputPhysicalEncoding | None = None
 
     @model_validator(mode="after")
@@ -104,6 +119,21 @@ class ModelInputPort(_ModelInputContract):
             raise ValueError("model_input_port_carrier_mismatch")
         if self.carrier == "method_input" and self.purpose != "simulation_input":
             raise ValueError("model_input_port_method_purpose_invalid")
+        if self.entity_axis_ref is not None and (
+            self.carrier != "method_input"
+            or self.entity_axis_ref.kind != SelectedEntityAxis.ARTIFACT_KIND
+            or self.entity_axis_ref.media_type != "application/json"
+            or self.entity_axis_ref.manifest_profile_sha256 is None
+            or self.physical_encoding is None
+            or len(self.physical_encoding.shape) != 1
+        ):
+            raise ValueError("model_input_port_entity_axis_invalid")
+        if self.period_step_profile is not None and (
+            self.carrier != "method_input"
+            or self.purpose != "simulation_input"
+            or self.scope.period_basis != "calendar_year"
+        ):
+            raise ValueError("model_input_port_period_step_profile_invalid")
         if self.purpose in {"initial_state", "simulation_input"} and self.physical_encoding is None:
             raise ValueError("model_input_port_physical_encoding_missing")
         return self
@@ -128,10 +158,10 @@ class ModelInputPortDeclaration(_ModelInputContract):
     ARTIFACT_KIND: ClassVar[str] = "ir.model_input_port_declaration"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.ModelInputPortDeclaration"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
     ports: tuple[ModelInputPort, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -139,6 +169,18 @@ class ModelInputPortDeclaration(_ModelInputContract):
         _verify_unique_ports(self.ports)
         if self.schema_version == "1.0" and any(p.carrier == "method_input" for p in self.ports):
             raise ValueError("model_input_declaration_version_mismatch")
+        if self.schema_version != "1.2" and any(
+            p.period_step_profile is not None or p.entity_axis_ref is not None for p in self.ports
+        ):
+            raise ValueError("model_input_declaration_version_mismatch")
+        if self.schema_version == "1.2" and any(
+            p.carrier == "method_input"
+            and p.physical_encoding is not None
+            and p.physical_encoding.shape != ()
+            and p.entity_axis_ref is None
+            for p in self.ports
+        ):
+            raise ValueError("model_input_declaration_method_vector_axis_missing")
         return self
 
 
@@ -148,10 +190,10 @@ class ProgramGraphInputInterface(_ModelInputContract):
     ARTIFACT_KIND: ClassVar[str] = "runtime.quality.program_graph_input_interface"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ProgramGraphInputInterface"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
     program_graph_ref: ProgramGraphRef
     exec_plan_ref: ExecPlanRef
     registry_bundle_ref: ArtifactRef
@@ -169,6 +211,18 @@ class ProgramGraphInputInterface(_ModelInputContract):
         _verify_unique_ports(self.ports)
         if self.schema_version == "1.0" and any(p.carrier == "method_input" for p in self.ports):
             raise ValueError("model_input_interface_version_mismatch")
+        if self.schema_version != "1.2" and any(
+            p.period_step_profile is not None or p.entity_axis_ref is not None for p in self.ports
+        ):
+            raise ValueError("model_input_interface_version_mismatch")
+        if self.schema_version == "1.2" and any(
+            p.carrier == "method_input"
+            and p.physical_encoding is not None
+            and p.physical_encoding.shape != ()
+            and p.entity_axis_ref is None
+            for p in self.ports
+        ):
+            raise ValueError("model_input_interface_method_vector_axis_missing")
         if (self.declaration_ref is None) != (self.trinity_bundle_ref is None) or (
             self.declaration_ref is not None
             and (
@@ -202,11 +256,21 @@ class ProgramGraphInputDependency(_ModelInputContract):
     method_abi_digest: str | None = Field(
         default=None, pattern=r"^[0-9a-f]{64}$", strict=True, exclude_if=lambda v: v is None
     )
+    required_steps: tuple[Annotated[int, Field(ge=0, strict=True)], ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _method_digest(self) -> ProgramGraphInputDependency:
         if (self.kind == "method_read") != (self.method_abi_digest is not None):
             raise ValueError("model_input_dependency_method_digest_mismatch")
+        if self.required_steps is not None and (
+            self.kind != "method_read"
+            or not self.required_steps
+            or tuple(sorted(set(self.required_steps))) != self.required_steps
+            or self.first_required_step != self.required_steps[0]
+        ):
+            raise ValueError("model_input_dependency_required_steps_invalid")
         return self
 
 
@@ -216,10 +280,10 @@ class ModelInputObligation(_ModelInputContract):
     ARTIFACT_KIND: ClassVar[str] = "runtime.quality.model_input_obligation"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ModelInputObligation"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -242,6 +306,26 @@ class ModelInputObligation(_ModelInputContract):
             or any(d.kind == "method_read" for d in self.dependencies)
         ):
             raise ValueError("model_input_obligation_version_mismatch")
+        has_new_port_semantics = (
+            self.port.period_step_profile is not None or self.port.entity_axis_ref is not None
+        )
+        if self.schema_version != "1.2" and (
+            has_new_port_semantics
+            or any(dependency.required_steps is not None for dependency in self.dependencies)
+        ):
+            raise ValueError("model_input_obligation_version_mismatch")
+        if self.port.period_step_profile is not None and (
+            self.schema_version != "1.2"
+            or any(
+                dependency.kind != "method_read" or dependency.required_steps is None
+                for dependency in self.dependencies
+            )
+        ):
+            raise ValueError("model_input_obligation_step_profile_mismatch")
+        if self.port.period_step_profile is None and any(
+            dependency.required_steps is not None for dependency in self.dependencies
+        ):
+            raise ValueError("model_input_obligation_step_profile_mismatch")
         if self.port.carrier == "method_input" and any(
             d.kind != "method_read" for d in self.dependencies
         ):
@@ -311,15 +395,15 @@ class ProgramGraphInputInvocation(_ModelInputContract):
 
 
 class ModelInputObligationSet(_ModelInputContract):
-    """One producer invocation's complete selected missing-input denominator."""
+    """One producer invocation's complete read-scope denominator and missing gaps."""
 
     ARTIFACT_KIND: ClassVar[str] = "runtime.quality.model_input_obligation_set"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ModelInputObligationSet"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -327,6 +411,9 @@ class ModelInputObligationSet(_ModelInputContract):
     prestate_ref: StateSnapshotRef
     supplied_initial_slots: tuple[str, ...]
     obligation_refs: tuple[ArtifactRef, ...]
+    required_step_scopes: tuple[ModelInputStepScope, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _selected_obligation_refs(self) -> ModelInputObligationSet:
@@ -341,6 +428,16 @@ class ModelInputObligationSet(_ModelInputContract):
             {artifact_ref_identity_key(ref) for ref in self.obligation_refs}
         ) != len(self.obligation_refs):
             raise ValueError("model_input_obligation_set_duplicate")
+        if self.schema_version == "1.2":
+            if self.required_step_scopes is None:
+                raise ValueError("model_input_obligation_set_step_scopes_missing")
+            identities = tuple((item.port_id, item.step) for item in self.required_step_scopes)
+            if identities != tuple(sorted(set(identities))):
+                raise ValueError("model_input_obligation_set_step_scopes_invalid")
+        elif self.required_step_scopes is not None or (
+            "required_step_scopes" in self.model_fields_set
+        ):
+            raise ValueError("model_input_obligation_set_version_mismatch")
         return self
 
 
@@ -353,13 +450,18 @@ type _ModelInputArtifact = (
 
 
 def _port_inputs(port: ModelInputPort) -> list[InputRef]:
-    return [
+    inputs = [
         input_ref_from_artifact_ref(
             port.semantic_definition_ref, role=f"{port.port_id}.definition"
         ),
         input_ref_from_artifact_ref(port.representation_ref, role=f"{port.port_id}.representation"),
         input_ref_from_artifact_ref(port.binding_profile_ref, role=f"{port.port_id}.profile"),
     ]
+    if port.entity_axis_ref is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(port.entity_axis_ref, role=f"{port.port_id}.axis")
+        )
+    return inputs
 
 
 def _graph_inputs(
@@ -469,7 +571,12 @@ def load_program_graph_input_interface(
     store: ArtifactStore, ref: ArtifactRef
 ) -> ProgramGraphInputInterface:
     """Reopen the selected model owner's interface and check its lineage."""
-    return _load(store, ref, ProgramGraphInputInterface)
+    interface = _load(store, ref, ProgramGraphInputInterface)
+    if interface.schema_version == "1.2" and interface.declaration_ref is not None:
+        declaration = load_model_input_port_declaration(store, interface.declaration_ref)
+        if declaration.schema_version != "1.2" or interface.ports != declaration.ports:
+            raise ValueError("model_input_interface_declaration_mismatch")
+    return interface
 
 
 def persist_model_input_obligation(
@@ -549,7 +656,152 @@ def load_model_input_obligation_set(
         for member_ref in obligation_set.obligation_refs
     )
     verify_model_input_obligation_set_members(obligation_set, members)
+    _verify_required_step_scope_denominator(store, obligation_set, members)
     return obligation_set, members
+
+
+def _verify_required_step_scope_denominator(
+    store: ArtifactStore,
+    obligation_set: ModelInputObligationSet,
+    members: tuple[ModelInputObligation, ...],
+) -> None:
+    """Recompute every selected method port×step read and missing-step gap."""
+    interface = load_program_graph_input_interface(store, obligation_set.invocation.interface_ref)
+    graph = validate_core_model_json_artifact(
+        ProgramGraph, store, obligation_set.invocation.program_graph_ref
+    )
+    method_ports = tuple(
+        port
+        for port in interface.ports
+        if port.carrier == "method_input"
+        and any(node.node_kind == "method" and port.slot_id in node.inputs for node in graph.nodes)
+    )
+    temporal_ports = tuple(port for port in method_ports if port.period_step_profile is not None)
+    advanced_port_semantics = any(
+        port.period_step_profile is not None or port.entity_axis_ref is not None
+        for port in method_ports
+    )
+    bindings = validate_core_model_json_artifact(
+        FoundryInputBindings, store, obligation_set.invocation.input_bindings_ref
+    )
+    versioned_step_bindings = bindings.schema_version == "1.5"
+
+    if (
+        method_ports
+        and len(obligation_set.invocation.steps) != 1
+        and len(temporal_ports) != len(method_ports)
+    ):
+        raise ValueError("model_input_method_temporal_profile_missing")
+    if temporal_ports and (
+        interface.schema_version != "1.2"
+        or obligation_set.schema_version != "1.2"
+        or interface.trinity_bundle_ref is None
+        or interface.declaration_ref is None
+    ):
+        raise ValueError("model_input_temporal_profile_version_mismatch")
+    if advanced_port_semantics and (
+        interface.schema_version != "1.2" or obligation_set.schema_version != "1.2"
+    ):
+        raise ValueError("model_input_port_12_semantics_version_mismatch")
+    if not (advanced_port_semantics or versioned_step_bindings):
+        if obligation_set.schema_version == "1.2" and obligation_set.required_step_scopes:
+            raise ValueError("model_input_obligation_set_step_scope_denominator_mismatch")
+        return
+    if obligation_set.schema_version != "1.2":
+        raise ValueError("model_input_obligation_set_step_scopes_missing")
+
+    time_semantics = None
+    if temporal_ports:
+        trinity_ref = ArtifactRefModel.model_validate(
+            interface.trinity_bundle_ref.model_dump(mode="python")
+        )
+        bundle = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), trinity_ref)
+        time_semantics = bundle.model_spec.time_semantics
+        selected_declaration_ref = bundle.model_spec.model_input_port_declaration_ref
+        if time_semantics is None:
+            raise ValueError("model_input_temporal_profile_time_semantics_missing")
+        if (
+            artifact_ref_identity_key(graph.ir_ref) != artifact_ref_identity_key(trinity_ref)
+            or selected_declaration_ref is None
+            or artifact_ref_identity_key(selected_declaration_ref)
+            != artifact_ref_identity_key(interface.declaration_ref)
+        ):
+            raise ValueError("model_input_temporal_profile_selected_model_mismatch")
+
+    expected: list[ModelInputStepScope] = []
+    expected_by_identity: dict[tuple[str, int], ModelInputStepScope] = {}
+    for port in method_ports:
+        if port.period_step_profile is not None:
+            if time_semantics is None:
+                raise ValueError("model_input_temporal_profile_time_semantics_missing")
+            scopes = derive_model_input_step_scopes(
+                port.period_step_profile,
+                port_id=port.port_id,
+                scope_envelope=port.scope,
+                time_semantics=time_semantics,
+                steps=obligation_set.invocation.steps,
+            )
+        else:
+            if len(obligation_set.invocation.steps) != 1:
+                raise ValueError("model_input_method_temporal_profile_missing")
+            scopes = (
+                ModelInputStepScope(
+                    port_id=port.port_id,
+                    step=obligation_set.invocation.steps[0],
+                    scope=port.scope,
+                ),
+            )
+        expected.extend(scopes)
+        expected_by_identity.update({(scope.port_id, scope.step): scope for scope in scopes})
+    expected_rows = tuple(sorted(expected, key=lambda item: (item.port_id, item.step)))
+    if obligation_set.required_step_scopes != expected_rows:
+        raise ValueError("model_input_obligation_set_step_scope_denominator_mismatch")
+
+    required_port_ids = {port.port_id for port in method_ports}
+    supplied_by_port: dict[str, set[int]] = {port_id: set() for port_id in required_port_ids}
+    selected_step_inputs = bindings.selected_method_input_steps or ()
+    temporal_port_ids = {port.port_id for port in temporal_ports}
+    axis_port_ids = {port.port_id for port in method_ports if port.entity_axis_ref is not None}
+    if bindings.schema_version == "1.4" and any(
+        item.port_id in temporal_port_ids or item.port_id in axis_port_ids
+        for item in (bindings.selected_method_inputs or ())
+    ):
+        raise ValueError("model_input_method_input_step_scope_missing")
+    for selected in selected_step_inputs:
+        identity = (selected.input.port_id, selected.step_scope.step)
+        expected_scope = expected_by_identity.get(identity)
+        if expected_scope is None:
+            raise ValueError("model_input_method_input_step_scope_unexpected")
+        if selected.step_scope != expected_scope:
+            raise ValueError("model_input_method_input_step_scope_mismatch")
+        supplied_by_port[selected.input.port_id].add(selected.step_scope.step)
+
+    for member in members:
+        required_scopes = tuple(
+            scope for scope in expected_rows if scope.port_id == member.port.port_id
+        )
+        if member.port.period_step_profile is None:
+            if any(dependency.required_steps is not None for dependency in member.dependencies):
+                raise ValueError("model_input_obligation_step_scope_mismatch")
+            continue
+        if member.schema_version != "1.2" or not required_scopes:
+            raise ValueError("model_input_obligation_step_scope_mismatch")
+        missing_steps = tuple(
+            scope.step
+            for scope in required_scopes
+            if scope.step not in supplied_by_port[member.port.port_id]
+        )
+        if not missing_steps or any(
+            dependency.required_steps != missing_steps for dependency in member.dependencies
+        ):
+            raise ValueError("model_input_obligation_step_scope_mismatch")
+
+    member_port_ids = {member.port.port_id for member in members}
+    for port_id, supplied_steps in supplied_by_port.items():
+        required_steps = {scope.step for scope in expected_rows if scope.port_id == port_id}
+        missing_steps = required_steps - supplied_steps
+        if bool(missing_steps) != (port_id in member_port_ids):
+            raise ValueError("model_input_obligation_step_scope_mismatch")
 
 
 def verify_model_input_obligation_set_members(
@@ -597,6 +849,14 @@ def verify_model_input_port_semantics(
     profile = validate_core_model_json_artifact(
         MeasurementBindingProfile, store, port.binding_profile_ref
     )
+    if port.entity_axis_ref is not None:
+        axis = validate_core_model_json_artifact(SelectedEntityAxis, store, port.entity_axis_ref)
+        if (
+            port.physical_encoding is None
+            or len(port.physical_encoding.shape) != 1
+            or axis.cardinality != port.physical_encoding.shape[0]
+        ):
+            raise ValueError("model_input_port_entity_axis_cardinality_mismatch")
     if (
         artifact_ref_identity_key(representation.semantic_definition_ref)
         != artifact_ref_identity_key(port.semantic_definition_ref)

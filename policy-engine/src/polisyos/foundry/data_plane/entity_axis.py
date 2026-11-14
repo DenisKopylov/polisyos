@@ -8,34 +8,39 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core.artifacts import (
-    CoreJSONArtifactBoundedMemberReader,
-    CoreJSONArtifactStore,
-    CoreJsonReadBoundsRefusalError,
-    CoreJsonReadLimits,
-    read_core_json_artifact_bounded,
-)
-from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
     CanonInfo,
+    CoreJSONArtifactBoundedMemberReader,
+    CoreJSONArtifactStore,
+    CoreJsonReadBoundsRefusalError,
+    CoreJsonReadLimits,
     InputRef,
     ProducerInfo,
+    PutOptions,
     input_ref_from_artifact_ref,
+    read_core_json_artifact_bounded,
 )
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.contracts.entity_axis import (
+from polisyos.core.contracts import (
     EntityAxisMemberId,
+    EntityAxisValueIdentity,
     SelectedEntityAxis,
-    _axis_digest,
-    _member_sort_key,
-    _membership_digest,
+)
+from polisyos.core.contracts import (
+    entity_axis_digest as _axis_digest,
+)
+from polisyos.core.contracts import (
+    entity_axis_member_sort_key as _member_sort_key,
+)
+from polisyos.core.contracts import (
+    entity_axis_membership_digest as _membership_digest,
 )
 
 ENTITY_AXIS_PRODUCER = "polisyos.foundry.data_plane.entity_axis"
@@ -58,21 +63,6 @@ class EntityAxisArtifactResult(BaseModel):
 
     ref: ArtifactRef
     axis: SelectedEntityAxis
-
-
-class EntityAxisValueIdentity(BaseModel):
-    """Content identity of one vector aligned to a selected entity axis."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    axis_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    unit_id: str = Field(min_length=1, strict=True)
-    dtype: str = Field(pattern=r"^float(32|64)$")
-    shape: tuple[int, ...] = Field(min_length=1)
-    input_order_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    value_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    aligned_value_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    alignment_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True, slots=True)

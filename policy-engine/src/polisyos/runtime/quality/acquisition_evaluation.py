@@ -10,6 +10,7 @@ linearization point, not publication of these immutable candidate records.
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.core.registry import RegistryBundleContent
+    from polisyos.foundry.data_plane import SelectedMethodInputFacts
     from polisyos.runtime.http.services.control.run_lifecycle import VerifiedAcquisitionActionPhase
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
@@ -102,6 +104,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
     from polisyos.runtime.quality.n5_candidate_content import (
         GenericProgramGraphContentObservationV2,
+        GenericProgramGraphContentObservationV3,
     )
     from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
     from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
@@ -524,6 +527,7 @@ class GenericModelInputEvaluationBasisV1(_Record):
     comparison_profile: Literal[
         "generic_program_graph_declared_numerical_v1",
         "generic_program_graph_declared_numerical_v2",
+        "generic_program_graph_mapped_numpy_methods_v3",
     ] = "generic_program_graph_declared_numerical_v1"
     basis_role: Literal["prospective", "evaluated", "blocked"]
     tenant_id: str = Field(min_length=1)
@@ -716,6 +720,8 @@ class PreparedGenericModelInputNumericalBasis:
     prepared_calls: tuple[tuple[int, str, int, bytes], ...]
     execution_profile: N5NativeExecutionProfile
     source_image: N5ProductionImage
+    prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = ()
+    numerical_intent_profile: str = "generic_program_graph_declared_numerical_v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -725,6 +731,8 @@ class _GenericModelInputNumericalQuantity:
     prepared_calls: tuple[tuple[int, str, int, bytes], ...]
     execution_profile: N5NativeExecutionProfile
     source_image: N5ProductionImage
+    prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = ()
+    numerical_intent_profile: str = "generic_program_graph_declared_numerical_v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -737,9 +745,14 @@ class _GenericModelInputNumericalIntake:
     state: object
     registry: RegistryBundleContent
     numerical_values: dict[str, object]
+    method_input_bindings_ref: ArtifactRef | None = None
 
 
 GENERIC_NUMERICAL_INTENT_PROFILE = "generic_program_graph_declared_numerical_v2"
+GENERIC_METHOD_NUMERICAL_INTENT_PROFILE = "generic_program_graph_mapped_numpy_methods_v3"
+_GENERIC_NUMERICAL_INTENT_PROFILES = frozenset(
+    {GENERIC_NUMERICAL_INTENT_PROFILE, GENERIC_METHOD_NUMERICAL_INTENT_PROFILE}
+)
 _GENERIC_FIELD_ROLES = frozenset(
     {"numerical", "operational", "output_label", "resolved", "not_consumed"}
 )
@@ -997,6 +1010,8 @@ def prepare_generic_model_input_numerical_basis(
         prepared_calls=quantity.prepared_calls,
         execution_profile=quantity.execution_profile,
         source_image=quantity.source_image,
+        prepared_method_calls=quantity.prepared_method_calls,
+        numerical_intent_profile=quantity.numerical_intent_profile,
     )
 
 
@@ -1011,6 +1026,7 @@ _SELECTED_METHOD_BINDINGS_FIELD_ROLES = (
     ("registered_sql_admission_ref", "resolved"),
     ("resolved_binding_manifest_ref", "resolved"),
     ("selected_method_inputs", "resolved"),
+    ("selected_method_input_steps", "resolved"),
 )
 _SELECTED_METHOD_INPUT_FIELD_ROLES = (
     ("model_input_obligation_ref", "resolved"),
@@ -1035,13 +1051,20 @@ def _selected_method_input_numerical_values(resolution: object) -> tuple[object,
     """
     import numpy as np
 
-    from polisyos.core.contracts.foundry import FoundrySelectedMethodInput
-    from polisyos.foundry.data_plane.bindings import SelectedMethodInputResolution
-    from polisyos.foundry.data_plane.selected_tensors import selected_tensor_value_sha256
+    from polisyos.core.contracts import FoundrySelectedMethodInput
+    from polisyos.foundry.data_plane import (
+        SelectedMethodInputFacts,
+        SelectedMethodInputResolution,
+        selected_tensor_value_sha256,
+    )
 
-    if type(resolution) is not SelectedMethodInputResolution:
+    if type(resolution) not in {SelectedMethodInputFacts, SelectedMethodInputResolution}:
         raise TypeError("generic_method_input_resolution_not_established")
-    if resolution.bindings.schema_version != "1.4":
+    if (
+        resolution.bindings.schema_version != "1.4"
+        or resolution.bindings.registered_sql_admission_ref is not None
+        or resolution.bindings.selected_method_input_steps is not None
+    ):
         raise ValueError("generic_method_input_profile_not_established")
     _require_n5_field_role_census(
         exact_n5_model_field_names(resolution.bindings),
@@ -1085,18 +1108,185 @@ def _selected_method_input_numerical_values(resolution: object) -> tuple[object,
     return tuple(values)
 
 
+def _generic_method_call_content(row: object) -> bytes:
+    """Encode one canonical executor-prepared call without rebinding its inputs."""
+    from dataclasses import fields
+
+    import numpy as np
+
+    from polisyos.foundry.data_plane import selected_tensor_value_sha256
+    from polisyos.foundry.execute import PreparedProgramGraphMethodCall
+    from polisyos.runtime.quality.n5_execution_basis import (
+        _v2_native_wire,
+        snapshot_n5_callable_content_v3,
+    )
+
+    expected = {
+        "plan_index",
+        "node_id",
+        "step",
+        "method_fqn",
+        "method_version",
+        "method_abi_digest",
+        "input_slot_sources",
+        "input_values",
+        "resolved_parameters",
+        "root_seed",
+        "seed",
+        "key_words",
+        "rng_state",
+        "selected_call",
+        "provider_callables",
+    }
+    if (
+        type(row) is not PreparedProgramGraphMethodCall
+        or {item.name for item in fields(row)} != expected
+    ):
+        raise ValueError("generic_method_call_field_census_not_established")
+    if set(row.input_slot_sources) != set(row.input_values):
+        raise ValueError("generic_method_call_argument_census_not_established")
+    arguments = []
+    for name, value in sorted(row.input_values.items()):
+        if (
+            type(name) is not str
+            or not name
+            or name != name.strip()
+            or type(row.input_slot_sources[name]) is not str
+            or not row.input_slot_sources[name]
+            or type(value) is not np.ndarray
+            or value.dtype.kind != "f"
+            or value.dtype.metadata is not None
+            or value.flags.writeable
+            or not np.isfinite(value).all()
+            or value.nbytes > 1024 * 1024
+        ):
+            raise ValueError("generic_method_call_argument_not_established")
+        raw = value.tobytes(order="C")
+        arguments.append(
+            {
+                "name": name,
+                "source_slot": row.input_slot_sources[name],
+                "dtype": value.dtype.str,
+                "shape": list(value.shape),
+                "value_hex": raw.hex(),
+                "value_sha256": selected_tensor_value_sha256(value.dtype, tuple(value.shape), raw),
+            }
+        )
+    providers = row.provider_callables
+    allowed = {
+        "runner_execute",
+        "pure_step",
+        "postprocessor",
+        "default_rng",
+        "representation_call",
+        "restricted_selector",
+        "output_dematerializer",
+        "custom_output_projection",
+    }
+    if (
+        not {"runner_execute", "pure_step", "default_rng", "output_dematerializer"}.issubset(
+            providers
+        )
+        or set(providers) - allowed
+        or providers["pure_step"] is not row.selected_call
+    ):
+        raise ValueError("generic_method_call_provider_census_not_established")
+    callable_values = []
+    for name, selected in sorted(providers.items()):
+        content = None if selected is None else snapshot_n5_callable_content_v3(selected)
+        if selected is not None and content is None:
+            raise ValueError("generic_method_call_provider_not_established:" + name)
+        callable_values.append((name, content))
+    # Plain canonical inert JSON permits a historical reader to join recorded
+    # argument/ABI facts without consulting today's MethodRegistry. Native
+    # parameter and RNG payloads retain their established exact typed codec.
+    result = json.dumps(
+        {
+            "profile": "foundry-mapped-numpy-method-call/1",
+            "plan_index": row.plan_index,
+            "node_id": row.node_id,
+            "step": row.step,
+            "method_fqn": row.method_fqn,
+            "method_version": row.method_version,
+            "method_abi_digest": row.method_abi_digest,
+            "arguments": arguments,
+            "resolved_parameters": _v2_native_wire(dict(row.resolved_parameters)),
+            "root_seed": row.root_seed,
+            "seed": row.seed,
+            "key_words": list(row.key_words),
+            "rng_state": _v2_native_wire(dict(row.rng_state)),
+            "providers": dict(callable_values),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode()
+    if len(result) > 131072:
+        raise ValueError("generic_method_call_content_limit_exceeded")
+    return result
+
+
+def _prepare_generic_method_calls(
+    *,
+    store: CoreJSONArtifactStore,
+    intake: _GenericModelInputNumericalIntake,
+    request: JointSimulationRequest,
+    preflight: ProgramGraphInputPreflight,
+) -> tuple[tuple[int, int, str, int, bytes], ...]:
+    """Use the actual Foundry adapter for every supported independent NumPy call."""
+    from polisyos.core.contracts import SemanticHorizonStepContext
+    from polisyos.foundry.execute import prepare_program_graph_method_calls
+    from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
+
+    if intake.method_input_bindings_ref is None or len(request.horizon.steps()) != 1:
+        raise ValueError("generic_method_call_profile_not_established")
+    (step,) = request.horizon.steps()
+    calls = []
+    for seed in _replication_seeds(request):
+        prepared = prepare_program_graph_method_calls(
+            store,
+            program_ref=intake.program_graph_ref,
+            exec_plan_ref=intake.exec_plan_ref,
+            registry_bundle_ref=preflight.invocation.registry_bundle_ref,
+            input_bindings_ref=intake.method_input_bindings_ref,
+            base_state=intake.state,
+            steps=(step,),
+            expected_invocation=preflight.invocation,
+            seed=seed + step,
+            semantic_horizon_step=SemanticHorizonStepContext(
+                obligation_set_ref=preflight.obligation_set_ref,
+                steps=preflight.invocation.steps,
+                step_index=0,
+                replication_seed=seed,
+            ),
+        )
+        if not prepared:
+            raise ValueError("generic_method_call_census_not_established")
+        calls.extend(
+            (seed, row.plan_index, row.node_id, row.step, _generic_method_call_content(row))
+            for row in prepared
+        )
+    return tuple(calls)
+
+
 def _prepare_generic_model_input_numerical_intake(
     *,
     store: CoreJSONArtifactStore,
     request: JointSimulationRequest,
     preflight: ProgramGraphInputPreflight,
     controller: JointSimulationHorizonController,
+    historical_method_facts: SelectedMethodInputFacts | None = None,
 ) -> _GenericModelInputNumericalIntake:
     """Reopen the complete immutable request, graph, state and registry inputs."""
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.contracts import ExecPlan, LoweredIR, ProgramGraph
     from polisyos.core.registry import load_registry_bundle_content
-    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.foundry.data_plane import (
+        SelectedMethodInputFacts,
+        load_input_bindings,
+        reconcile_selected_method_input_bindings,
+    )
     from polisyos.foundry.execute import (
         load_model,
         load_payload,
@@ -1109,6 +1299,7 @@ def _prepare_generic_model_input_numerical_intake(
         JointSimulationHorizonController,
         JointSimulationRequest,
         _require_program_graph_input_preflight,
+        _select_program_graph_input_preflight,
     )
 
     if type(controller) is not JointSimulationHorizonController:
@@ -1133,12 +1324,46 @@ def _prepare_generic_model_input_numerical_intake(
         or plan.program_store is not store
     ):
         raise ValueError("generic_model_input_engine_not_established")
-    semantic = _require_program_graph_input_preflight(
-        request, plan, selected.decision, lambda *_args: preflight
-    )
+    if historical_method_facts is None:
+        semantic = _require_program_graph_input_preflight(
+            request, plan, selected.decision, lambda *_args: preflight
+        )
+    else:
+        if type(historical_method_facts) is not SelectedMethodInputFacts:
+            raise ValueError("generic_method_history_fact_owner_not_established")
+        semantic = _select_program_graph_input_preflight(
+            request, plan, selected.decision, lambda *_args: preflight
+        )
     if semantic is None or plan.program_semantic_input_bindings_ref is None:
         raise ValueError("generic_model_input_semantic_intake_not_established")
     bindings = load_input_bindings(store, plan.program_semantic_input_bindings_ref)
+    method_values = None
+    if bindings.schema_version == "1.4":
+        from polisyos.core.contracts import SemanticHorizonStepContext
+        from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
+
+        if len(request.horizon.steps()) != 1:
+            raise ValueError("generic_method_call_horizon_not_established")
+        if historical_method_facts is None:
+            resolution = reconcile_selected_method_input_bindings(
+                store,
+                input_bindings_ref=plan.program_semantic_input_bindings_ref,
+                execute_request=semantic.request,
+                expected_invocation=preflight.invocation,
+                semantic_horizon_step=SemanticHorizonStepContext(
+                    obligation_set_ref=preflight.obligation_set_ref,
+                    steps=preflight.invocation.steps,
+                    step_index=0,
+                    replication_seed=_replication_seeds(request)[0],
+                ),
+            )
+        else:
+            if not _candidate_model_values_same(historical_method_facts.bindings, bindings):
+                raise ValueError("generic_method_history_selected_binding_mismatch")
+            resolution = historical_method_facts
+        method_values = _selected_method_input_numerical_values(resolution)
+    elif historical_method_facts is not None:
+        raise ValueError("generic_method_history_profile_mismatch")
     state_ref = bindings.bound_state_snapshot_ref
     if not _candidate_selected_ref(state_ref, "foundry.state_snapshot"):
         raise ValueError("generic_model_input_state_not_selected")
@@ -1180,6 +1405,8 @@ def _prepare_generic_model_input_numerical_intake(
             if not store.verify(selected_ref).ok:
                 raise ValueError("generic_model_input_parameter_source_not_established")
             parameter_payloads[node.node_id] = load_payload(store, node.params_ref)
+    if method_values is None and any(node.node_kind == "method" for node in graph.nodes):
+        raise ValueError("generic_method_input_profile_not_established")
     graph_values = _generic_program_graph_numerical_values(
         graph, exec_plan, lowered_ir, parameter_payloads
     )
@@ -1189,8 +1416,14 @@ def _prepare_generic_model_input_numerical_intake(
         exec_plan_ref=plan.exec_plan_ref,
         state=state,
         registry=registry,
+        method_input_bindings_ref=(
+            plan.program_semantic_input_bindings_ref if method_values is not None else None
+        ),
         numerical_values={
-            "profile": GENERIC_NUMERICAL_INTENT_PROFILE,
+            "profile": GENERIC_NUMERICAL_INTENT_PROFILE
+            if method_values is None
+            else GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
+            **({"selected_method_inputs": method_values} if method_values is not None else {}),
             "request": request_values,
             "plan": plan_values,
             "decision": selected.decision,
@@ -1214,6 +1447,7 @@ def _generic_model_input_numerical_intent(
     *,
     prepared_calls: tuple[tuple[int, str, int, bytes], ...],
     configuration: PreparedJointSimulationConfiguration,
+    prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = (),
 ) -> bytes:
     """Encode the same immutable numerical facets for live and recorded replay."""
     intent = exact_n5_content_bytes(
@@ -1221,6 +1455,11 @@ def _generic_model_input_numerical_intent(
             **intake.numerical_values,
             "prepared_calls": prepared_calls,
             "configuration": configuration,
+            **(
+                {"prepared_method_calls": prepared_method_calls}
+                if intake.method_input_bindings_ref is not None
+                else {}
+            ),
         }
     )
     if len(intent) > 1024 * 1024:
@@ -1268,6 +1507,11 @@ def _prepare_generic_model_input_numerical_quantity(
     intake = _prepare_generic_model_input_numerical_intake(
         store=store, request=request, preflight=preflight, controller=controller
     )
+    prepared_method_calls = ()
+    if intake.method_input_bindings_ref is not None:
+        prepared_method_calls = _prepare_generic_method_calls(
+            store=store, intake=intake, request=request, preflight=preflight
+        )
     prepared_calls = tuple(
         (index, node_id, step, snapshot_foundry_mechanism_call(call))
         for index, node_id, step, call in prepare_program_graph_mechanism_calls(
@@ -1280,7 +1524,10 @@ def _prepare_generic_model_input_numerical_quantity(
         )
     )
     intent = _generic_model_input_numerical_intent(
-        intake, prepared_calls=prepared_calls, configuration=configuration
+        intake,
+        prepared_calls=prepared_calls,
+        configuration=configuration,
+        prepared_method_calls=prepared_method_calls,
     )
     profile = _native_profile(configuration, numerical_callable=execute_semantic_horizon_step)
     image = capture_n5_production_image(
@@ -1294,6 +1541,8 @@ def _prepare_generic_model_input_numerical_quantity(
         prepared_calls=prepared_calls,
         execution_profile=profile,
         source_image=image,
+        prepared_method_calls=prepared_method_calls,
+        numerical_intent_profile=intake.numerical_values["profile"],
     )
 
 
@@ -1333,7 +1582,7 @@ def _read_generic_model_input_original_evaluation(
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
     successor: GenericN5SemanticSuccessorRequest,
-) -> GenericProgramGraphContentObservationV2:
+) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
     """Verify the immutable V5, original observation and selected Foundry chains."""
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
@@ -1405,7 +1654,7 @@ def _verify_generic_model_input_original_evaluation(
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
     prepared: PreparedGenericModelInputNumericalBasis,
-) -> GenericProgramGraphContentObservationV2:
+) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
     """Require original integrity and exact current call/provider bytes for reuse."""
     from polisyos.runtime.quality.n5_execution_profile import (
         reconcile_recorded_n5_profile_current_bytes,
@@ -1422,14 +1671,29 @@ def _verify_generic_model_input_original_evaluation(
         "sha256:" + hashlib.sha256(prepared.numerical_intent).hexdigest()
     ):
         raise ValueError("generic_model_input_original_intent_mismatch")
+    if observation.numerical_intent_profile != prepared.numerical_intent_profile:
+        raise ValueError("generic_model_input_original_profile_mismatch")
+    if prepared.prepared_method_calls:
+        for step in observation.steps:
+            expected_calls = tuple(
+                (index, node_id, content.hex())
+                for seed, index, node_id, at_step, content in prepared.prepared_method_calls
+                if (seed, at_step) == (step.replication_seed, step.step)
+            )
+            actual_calls = tuple(
+                (call.plan_index, call.node_id, call.call_content_hex) for call in step.calls
+            )
+            if actual_calls != expected_calls:
+                raise ValueError("generic_model_input_original_method_call_binding_mismatch")
     for step in observation.steps:
         expected_calls = tuple(
             (index, node_id, content.hex())
             for index, node_id, prepared_step, content in prepared.prepared_calls
             if prepared_step == step.step
         )
+        mechanism_calls = step.mechanism_calls if prepared.prepared_method_calls else step.calls
         actual_calls = tuple(
-            (call.plan_index, call.node_id, call.callable_receiver_hex) for call in step.calls
+            (call.plan_index, call.node_id, call.callable_receiver_hex) for call in mechanism_calls
         )
         if actual_calls != expected_calls:
             raise ValueError("generic_model_input_original_call_binding_mismatch")
@@ -1508,7 +1772,7 @@ def issue_generic_model_input_evaluation_basis(
     payload = {
         "schema_version": "GenericModelInputEvaluationBasis@1.0",
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_profile": GENERIC_NUMERICAL_INTENT_PROFILE,
+        "comparison_profile": prepared.numerical_intent_profile,
         "basis_role": basis_role,
         "tenant_id": source.tenant_id,
         "cell_id": source.cell_id,
@@ -1580,8 +1844,8 @@ def compare_generic_model_input_evaluation_bases(
         if (
             prior.basis_role != "evaluated"
             or current.basis_role != "prospective"
-            or prior.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
-            or current.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+            or prior.comparison_profile not in _GENERIC_NUMERICAL_INTENT_PROFILES
+            or current.comparison_profile not in _GENERIC_NUMERICAL_INTENT_PROFILES
             or prior.evaluation is None
             or prior.predicate_provenance != "recomputed"
             or current.predicate_provenance != "recomputed"
@@ -1617,7 +1881,8 @@ def compare_generic_model_input_evaluation_bases(
             )
             selection = item.successor.selection
             if (
-                basis.action_job_id != selection.action_job_id
+                basis.comparison_profile != item.numerical_intent_profile
+                or basis.action_job_id != selection.action_job_id
                 or basis.route_id != selection.route_id
                 or basis.design_problem_ref != origin.source_cycle.design_problem_ref
                 or basis.design_problem_basis_ref != item.successor.input_record.design_problem_ref
@@ -1713,7 +1978,7 @@ def issue_generic_model_input_evaluation_decision(
         record_type=GenericModelInputEvaluationBasisV1,
     )
     if type(current_basis) is not GenericModelInputEvaluationBasisV1 or (
-        current_basis.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+        current_basis.comparison_profile not in _GENERIC_NUMERICAL_INTENT_PROFILES
         or current_basis.action_job_id != selection.action_job_id
         or current_basis.route_id != selection.route_id
         or current_basis.design_problem_ref != origin.source_cycle.design_problem_ref
@@ -1878,7 +2143,7 @@ def _verify_generic_model_input_replacement(
         type(decision) is not GenericModelInputEvaluationDecisionV1
         or type(prospective) is not GenericModelInputEvaluationBasisV1
         or decision.comparison_rule != "generic-program-graph-declared-numerical-basis.v2"
-        or prospective.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+        or prospective.comparison_profile != prepared.numerical_intent_profile
         or decision.decision_kind != "comparison"
         or decision.comparison_result not in ("different", "not_established")
         or not _candidate_ref_same(decision.current_basis_ref, prospective_basis_ref)
@@ -1975,15 +2240,16 @@ def reconcile_generic_model_input_evaluation_completion(
 
 
 def _recorded_generic_model_input_calls(
-    observation: GenericProgramGraphContentObservationV2,
+    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
 ) -> tuple[tuple[int, str, int, bytes], ...]:
     """Read the original complete call census, without loading old or present code."""
     from polisyos.runtime.quality.n5_execution_basis import _require_v2_wire
 
+    method_profile = observation.numerical_intent_profile == GENERIC_METHOD_NUMERICAL_INTENT_PROFILE
     by_step: dict[int, tuple[tuple[int, str, bytes], ...]] = {}
     for step in observation.steps:
         calls = []
-        for call in step.calls:
+        for call in step.mechanism_calls if method_profile else step.calls:
             encoded = call.callable_receiver_hex
             if encoded is None:
                 raise ValueError("generic_model_input_history_call_not_established")
@@ -2001,6 +2267,28 @@ def _recorded_generic_model_input_calls(
         for step, calls in sorted(by_step.items())
         for index, node_id, content in calls
     )
+
+
+def _recorded_generic_model_input_method_calls(
+    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
+) -> tuple[tuple[int, int, str, int, bytes], ...]:
+    """Reuse actual recorded method-call facts without consulting today's ABI."""
+    from polisyos.runtime.quality.n5_candidate_content import _read_recorded_generic_method_call
+
+    if observation.numerical_intent_profile != GENERIC_METHOD_NUMERICAL_INTENT_PROFILE:
+        return ()
+    selected: dict[tuple[int, int, str, int], bytes] = {}
+    for step in observation.steps:
+        for call in step.calls:
+            _read_recorded_generic_method_call(call)
+            content = bytes.fromhex(call.call_content_hex)
+            key = (step.replication_seed, call.plan_index, call.node_id, step.step)
+            if key in selected and selected[key] != content:
+                raise ValueError("generic_method_history_physical_unit_disagreement")
+            selected[key] = content
+    if not selected:
+        raise ValueError("generic_method_history_call_census_not_established")
+    return tuple((*key, content) for key, content in sorted(selected.items()))
 
 
 def _replay_generic_model_input_basis_values_for_history(
@@ -2035,7 +2323,7 @@ def _replay_generic_model_input_basis_values_for_history(
     )
     if (
         type(basis) is not GenericModelInputEvaluationBasisV1
-        or basis.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+        or basis.comparison_profile not in _GENERIC_NUMERICAL_INTENT_PROFILES
         or basis.basis_role not in ("prospective", "evaluated")
         or basis.predicate_provenance != "recomputed"
         or basis.reason_codes
@@ -2095,20 +2383,35 @@ def _replay_generic_model_input_basis_values_for_history(
         _prepared_image_descriptor(configuration)
     ):
         raise ValueError("generic_model_input_history_recorded_profile_binding_mismatch")
+    historical_method_facts = None
+    if basis.comparison_profile == GENERIC_METHOD_NUMERICAL_INTENT_PROFILE:
+        from polisyos.foundry.data_plane import replay_selected_method_input_facts
+
+        (selected_plan,) = successor.request.engine_plan
+        if selected_plan.program_semantic_input_bindings_ref is None:
+            raise ValueError("generic_method_history_binding_missing")
+        historical_method_facts = replay_selected_method_input_facts(
+            store,
+            input_bindings_ref=selected_plan.program_semantic_input_bindings_ref,
+            expected_invocation=successor.preflight.invocation,
+        )
     controller = JointSimulationHorizonController(_prepared_configuration=configuration)
     intake = _prepare_generic_model_input_numerical_intake(
         store=store,
         request=successor.request,
         preflight=successor.preflight,
         controller=controller,
+        historical_method_facts=historical_method_facts,
     )
     intent = _generic_model_input_numerical_intent(
         intake,
         prepared_calls=_recorded_generic_model_input_calls(observation),
+        prepared_method_calls=_recorded_generic_model_input_method_calls(observation),
         configuration=configuration,
     )
     if (
-        not _candidate_ref_same(basis.bound_state_snapshot_ref, intake.bound_state_snapshot_ref)
+        basis.comparison_profile != intake.numerical_values["profile"]
+        or not _candidate_ref_same(basis.bound_state_snapshot_ref, intake.bound_state_snapshot_ref)
         or bytes.fromhex(basis.numerical_intent_hex) != intent
         or (
             basis.action_job_id == evaluation_context.action_job_id

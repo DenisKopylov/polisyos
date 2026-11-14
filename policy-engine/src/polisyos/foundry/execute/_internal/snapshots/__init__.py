@@ -37,28 +37,32 @@ from polisyos.core.artifacts import (
     validate_return_selected_profile as _validate_return_selected_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.protocol import (
     CoreJSONArtifactBoundedMemberReader,
 )
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
+from polisyos.core.contracts import ModelScalarStateLayout, ModelScalarStateLayoutRef
 from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
-from polisyos.core.contracts.model_state_layout import (
-    ModelScalarStateLayout,
-    ModelScalarStateLayoutRef,
-)
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 from polisyos.foundry.model_state_slots import (
     BoundModelState,
     ModelScalarStateAccessError,
     build_model_scalar_state_layout,
 )
-from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 
 __all__ = [
     "BoundedNumericNPZError",
     "BoundedStateSnapshotInputs",
+    "BoundedModelStateSnapshotReadLimits",
     "StateSnapshotInputReadUsage",
     "StateSnapshotInputReadRefusal",
     "export_seed_state_npz",
@@ -79,6 +83,12 @@ _MAX_BOUNDED_INPUT_SNAPSHOT_BYTES = 256 * 1024
 _MAX_BOUNDED_INPUT_STATE_BLOB_BYTES = 5 * 1024 * 1024
 _MAX_BOUNDED_INPUT_ENTRIES = 32
 _MAX_BOUNDED_INPUT_ELEMENTS = 1_000_000
+_MAX_MODEL_STATE_LAYOUT_BYTES = 64 * 1024
+_MAX_MODEL_STATE_SNAPSHOT_BYTES = 256 * 1024
+_MAX_MODEL_STATE_BLOB_BYTES = 64 * 1024 * 1024
+_MAX_MODEL_STATE_EXPANDED_BYTES = 256 * 1024 * 1024
+_MAX_MODEL_STATE_NPZ_ENTRIES = 4096
+_MAX_MODEL_STATE_ELEMENTS = 32_000_000
 
 
 def _is_snapshot_slot_id(value: object) -> bool:
@@ -97,6 +107,47 @@ class _BoundedStateSnapshotStore(
     Protocol,
 ):
     """Store surface required for bounded selected snapshot reads."""
+
+
+@dataclass(frozen=True, slots=True)
+class BoundedModelStateSnapshotReadLimits:
+    """Caller-visible hard ceilings for one model-state snapshot reopen.
+
+    The selected NPZ bytes are capped at 64 MiB before reading and its full
+    stored-member inventory at 256 MiB before NumPy materialization. These
+    defaults leave room for ordinary Foundry states while refusing oversized
+    or adversarial archives before allocating their declared arrays.
+    """
+
+    max_manifest_bytes: int = _MAX_BOUNDED_INPUT_MANIFEST_BYTES
+    max_snapshot_payload_bytes: int = _MAX_MODEL_STATE_SNAPSHOT_BYTES
+    max_layout_payload_bytes: int = _MAX_MODEL_STATE_LAYOUT_BYTES
+    max_blob_bytes: int = _MAX_MODEL_STATE_BLOB_BYTES
+    max_expanded_bytes: int = _MAX_MODEL_STATE_EXPANDED_BYTES
+    max_archive_entries: int = _MAX_MODEL_STATE_NPZ_ENTRIES
+    max_array_elements: int = _MAX_MODEL_STATE_ELEMENTS
+
+    def __post_init__(self) -> None:
+        limits = (
+            ("max_manifest_bytes", self.max_manifest_bytes, _MAX_BOUNDED_INPUT_MANIFEST_BYTES),
+            (
+                "max_snapshot_payload_bytes",
+                self.max_snapshot_payload_bytes,
+                _MAX_MODEL_STATE_SNAPSHOT_BYTES,
+            ),
+            (
+                "max_layout_payload_bytes",
+                self.max_layout_payload_bytes,
+                _MAX_MODEL_STATE_LAYOUT_BYTES,
+            ),
+            ("max_blob_bytes", self.max_blob_bytes, _MAX_MODEL_STATE_BLOB_BYTES),
+            ("max_expanded_bytes", self.max_expanded_bytes, _MAX_MODEL_STATE_EXPANDED_BYTES),
+            ("max_archive_entries", self.max_archive_entries, _MAX_MODEL_STATE_NPZ_ENTRIES),
+            ("max_array_elements", self.max_array_elements, _MAX_MODEL_STATE_ELEMENTS),
+        )
+        for name, value, ceiling in limits:
+            if type(value) is not int or value < 1 or value > ceiling:
+                raise ValueError(f"{name}_outside_supported_bounds")
 
 
 @dataclass(frozen=True, slots=True)
@@ -789,36 +840,116 @@ def load_state_snapshot(
 
 
 def load_bound_model_state_snapshot(
-    store: CoreJSONArtifactStore,
+    store: _BoundedStateSnapshotStore,
     *,
     snapshot_ref: ArtifactRef | ArtifactID | str,
+    limits: BoundedModelStateSnapshotReadLimits | None = None,
 ) -> BoundModelState:
-    """Load a model-owned scalar state with its verified selected layout context."""
+    """Load model state only through bounded selected snapshot/layout/blob readers."""
 
-    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    if (
+        not isinstance(snapshot_ref, ArtifactRef)
+        or snapshot_ref.kind != "foundry.state_snapshot"
+        or snapshot_ref.media_type != "application/json"
+        or snapshot_ref.manifest_profile_sha256 is None
+    ):
+        raise _SnapshotStateLayoutError("model_scalar_state_snapshot_requires_selected_ref")
+    selected_snapshot_ref = StateSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
+    if limits is None:
+        limits = BoundedModelStateSnapshotReadLimits()
+    if type(limits) is not BoundedModelStateSnapshotReadLimits:
+        raise _SnapshotStateLayoutError("model_scalar_state_snapshot_read_limits_invalid")
+    bounded_snapshot_ref = ArtifactRef.model_validate(snapshot_ref.model_dump(mode="python"))
+    try:
+        bounded_snapshot = read_core_json_artifact_bounded(
+            store,
+            bounded_snapshot_ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=limits.max_snapshot_payload_bytes,
+                max_depth=32,
+                max_elements=16_384,
+                max_manifest_bytes=limits.max_manifest_bytes,
+            ),
+        )
+        snapshot_manifest = bounded_snapshot.manifest
+        if (
+            bounded_snapshot.effective_ref.artifact_id != snapshot_ref.artifact_id
+            or bounded_snapshot.effective_ref.kind != snapshot_ref.kind
+            or bounded_snapshot.effective_ref.media_type != snapshot_ref.media_type
+            or bounded_snapshot.effective_ref.manifest_profile_sha256
+            != snapshot_ref.manifest_profile_sha256
+            or not bounded_snapshot.payload_integrity_verified
+            or snapshot_manifest.artifact_id != snapshot_ref.artifact_id
+            or snapshot_manifest.kind != "foundry.state_snapshot"
+            or snapshot_manifest.media_type != "application/json"
+            or snapshot_manifest.artifact_schema
+            != SchemaInfo(
+                name="polisyos.core.StateSnapshot",
+                version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+                    StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+                ],
+            )
+            or artifact_manifest_profile_sha256(snapshot_manifest)
+            != snapshot_ref.manifest_profile_sha256
+        ):
+            raise _SnapshotStateLayoutError("model_scalar_state_snapshot_selected_view_mismatch")
+        snapshot = StateSnapshot.model_validate_json(bounded_snapshot.raw_payload_bytes)
+    except _SnapshotStateLayoutError:
+        raise
+    except Exception as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_snapshot_bounded_read_refused") from exc
     if (
         snapshot.schema_version != StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
         or snapshot.layout != StateSnapshot.MODEL_SCALAR_STATE_LAYOUT
         or snapshot.model_scalar_state_layout_ref is None
     ):
         raise _SnapshotStateLayoutError("state_snapshot_model_scalar_state_layout_required")
-    _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+    _validate_snapshot_lineage(
+        store,
+        snapshot_ref=snapshot_ref,
+        snapshot=snapshot,
+        selected_manifest=snapshot_manifest,
+    )
 
     layout_ref = snapshot.model_scalar_state_layout_ref
-    layout_manifest = store.get_manifest(layout_ref)
     layout_schema = SchemaInfo(
         name="polisyos.core.ModelScalarStateLayout",
         version="1.0",
     )
-    if (
-        layout_manifest.kind != "foundry.model_scalar_state_layout"
-        or layout_manifest.media_type != "application/json"
-        or layout_manifest.artifact_schema != layout_schema
-        or layout_manifest.manifest_profile_sha256 != layout_ref.manifest_profile_sha256
-    ):
-        raise _SnapshotStateLayoutError("model_scalar_state_layout_manifest_identity_mismatch")
     try:
-        layout = load_model(store, layout_ref, ModelScalarStateLayout)
+        bounded_layout_ref = ArtifactRef.model_validate(layout_ref.model_dump(mode="python"))
+        bounded_layout = read_core_json_artifact_bounded(
+            store,
+            bounded_layout_ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=limits.max_layout_payload_bytes,
+                max_depth=16,
+                max_elements=4096,
+                max_manifest_bytes=limits.max_manifest_bytes,
+            ),
+        )
+        if (
+            bounded_layout.effective_ref.artifact_id != layout_ref.artifact_id
+            or bounded_layout.effective_ref.kind != layout_ref.kind
+            or bounded_layout.effective_ref.media_type != layout_ref.media_type
+            or bounded_layout.effective_ref.manifest_profile_sha256
+            != layout_ref.manifest_profile_sha256
+            or not bounded_layout.payload_integrity_verified
+        ):
+            raise _SnapshotStateLayoutError("model_scalar_state_layout_selected_view_mismatch")
+        layout_manifest = bounded_layout.manifest
+        if (
+            layout_manifest.artifact_id != layout_ref.artifact_id
+            or layout_manifest.kind != "foundry.model_scalar_state_layout"
+            or layout_manifest.media_type != "application/json"
+            or layout_manifest.artifact_schema != layout_schema
+            or artifact_manifest_profile_sha256(layout_manifest)
+            != layout_ref.manifest_profile_sha256
+        ):
+            raise _SnapshotStateLayoutError("model_scalar_state_layout_manifest_identity_mismatch")
+        layout = ModelScalarStateLayout.model_validate_json(bounded_layout.raw_payload_bytes)
+    except _SnapshotStateLayoutError:
+        raise
     except Exception as exc:
         raise _SnapshotStateLayoutError("model_scalar_state_layout_payload_invalid") from exc
     expected_layout_inputs = [
@@ -833,11 +964,18 @@ def load_bound_model_state_snapshot(
             slot_ids=tuple(slot.slot_id for slot in layout.slots),
         )
     except ModelScalarStateAccessError as exc:
-        raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_recompute_failed") from exc
+        raise _SnapshotStateLayoutError(
+            "model_scalar_state_layout_registry_recompute_failed"
+        ) from exc
     if recomputed_layout != layout:
         raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_content_mismatch")
 
-    state = _load_global_state_payload(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+    state = _load_global_state_payload(
+        store,
+        snapshot_ref=snapshot_ref,
+        snapshot=snapshot,
+        bounded_limits=limits,
+    )
     if state.model_scalar_state is None:
         raise _SnapshotStateLayoutError("model_scalar_state_carrier_missing_from_snapshot")
     try:
@@ -845,11 +983,7 @@ def load_bound_model_state_snapshot(
             state=state,
             layout=layout,
             layout_ref=layout_ref,
-            source_snapshot_ref=StateSnapshotRef.model_validate(
-                snapshot_ref.model_dump(mode="python")
-                if isinstance(snapshot_ref, ArtifactRef)
-                else {"artifact_id": snapshot_ref}
-            ),
+            source_snapshot_ref=selected_snapshot_ref,
         )
     except Exception as exc:
         raise _SnapshotStateLayoutError("model_scalar_state_snapshot_binding_invalid") from exc
@@ -860,6 +994,7 @@ def _load_global_state_payload(
     *,
     snapshot_ref: ArtifactRef | ArtifactID | str,
     snapshot: StateSnapshot,
+    bounded_limits: BoundedModelStateSnapshotReadLimits | None = None,
 ) -> GlobalState:
     """Decode a complete state blob after the caller validates versioned lineage."""
 
@@ -870,11 +1005,50 @@ def _load_global_state_payload(
     state_blob_ref: ArtifactRef | ArtifactID = snapshot.state_ref
     if snapshot.schema_version in {"2.0", "2.1"}:
         state_blob_ref = snapshot.state_ref.artifact_id
-    try:
-        data = store.get_bytes(state_blob_ref)
-    except ArtifactIntegrityError as exc:
-        raise ValueError(f"Snapshot checksum mismatch: {exc}") from exc
+    if snapshot.schema_version == StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION:
+        if bounded_limits is None:
+            raise _SnapshotStateLayoutError("model_scalar_state_snapshot_bounded_reader_required")
+        if snapshot.state_ref.manifest_profile_sha256 is None:
+            raise _SnapshotStateLayoutError("model_scalar_state_blob_manifest_identity_mismatch")
+        try:
+            blob_manifest_read = read_core_manifest_profile_bounded(
+                store,
+                snapshot.state_ref,
+                max_manifest_bytes=bounded_limits.max_manifest_bytes,
+                allow_profile_absent=True,
+            )
+        except Exception as exc:
+            raise _SnapshotStateLayoutError(
+                "model_scalar_state_blob_manifest_identity_mismatch"
+            ) from exc
+        blob_manifest = blob_manifest_read.manifest
+        if (
+            blob_manifest.artifact_id != snapshot.state_ref.artifact_id
+            or snapshot.state_ref.kind != "foundry.state_blob"
+            or snapshot.state_ref.media_type != "application/x-npz"
+            or blob_manifest.kind != "foundry.state_blob"
+            or blob_manifest.media_type != "application/x-npz"
+            or artifact_manifest_profile_sha256(blob_manifest)
+            != snapshot.state_ref.manifest_profile_sha256
+        ):
+            raise _SnapshotStateLayoutError("model_scalar_state_blob_manifest_identity_mismatch")
+        expected_manifest_sha256 = hashlib.sha256(blob_manifest_read.raw_manifest_bytes).hexdigest()
+        data = _read_selected_state_blob_bounded(
+            store,
+            snapshot.state_ref,
+            expected_manifest_sha256=expected_manifest_sha256,
+            limits=bounded_limits,
+        )
+    else:
+        try:
+            data = store.get_bytes(state_blob_ref)
+        except ArtifactIntegrityError as exc:
+            raise ValueError(f"Snapshot checksum mismatch: {exc}") from exc
     _validate_snapshot_blob(snapshot, data)
+    if snapshot.schema_version == StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION:
+        entry_count = _validate_model_state_npz_bounds(data, limits=bounded_limits)
+        if snapshot.entry_count != entry_count:
+            raise _SnapshotStateLayoutError("model_scalar_state_snapshot_entry_count_mismatch")
     with np.load(BytesIO(data), allow_pickle=False) as blob:
         nested = _nest_state_from_keys(blob.files)
         try:
@@ -898,13 +1072,129 @@ def _load_global_state_payload(
             ) from exc
 
 
+def _read_selected_state_blob_bounded(
+    store: _BoundedStateSnapshotStore,
+    selected_ref: ArtifactRef,
+    *,
+    expected_manifest_sha256: str,
+    limits: BoundedModelStateSnapshotReadLimits,
+) -> bytes:
+    """Read one selected NPZ under its owner-enforced byte ceiling and receipt."""
+    payload = bytearray()
+    try:
+        with store.open_member_bounded(
+            selected_ref,
+            "blob",
+            max_manifest_bytes=limits.max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_sha256,
+            max_member_bytes=limits.max_blob_bytes,
+        ) as member:
+            if member.member_size_bytes > limits.max_blob_bytes:
+                raise _SnapshotStateLayoutError("model_scalar_state_blob_size_limit_exceeded")
+            while chunk := member.read(min(1024 * 1024, limits.max_blob_bytes - len(payload))):
+                payload.extend(chunk)
+            receipt = member.receipt
+            if (
+                not member.payload_integrity_verified
+                or receipt.byte_size != len(payload)
+                or receipt.sha256 != selected_ref.artifact_id.hex
+            ):
+                raise _SnapshotStateLayoutError("model_scalar_state_blob_receipt_mismatch")
+    except _SnapshotStateLayoutError:
+        raise
+    except ArtifactMemberReadBoundsError as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_blob_size_limit_exceeded") from exc
+    except ArtifactMemberReadIntegrityError as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_blob_integrity_refused") from exc
+    except Exception as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_blob_bounded_read_refused") from exc
+    return bytes(payload)
+
+
+def _is_model_state_archive_path(value: str) -> bool:
+    """Accept only canonical dotted dataclass field names inside state NPZ files."""
+    segments = value.split(".")
+    return bool(segments) and all(_is_snapshot_slot_id(segment) for segment in segments)
+
+
+def _validate_model_state_npz_bounds(
+    blob: bytes,
+    *,
+    limits: BoundedModelStateSnapshotReadLimits,
+) -> int:
+    """Validate full-state NPZ entries and declared arrays before NumPy allocation."""
+    if type(blob) is not bytes or len(blob) > limits.max_blob_bytes:
+        raise _SnapshotStateLayoutError("model_scalar_state_blob_size_limit_exceeded")
+    try:
+        entry_count = _read_npz_entry_count(blob, max_entries=limits.max_archive_entries)
+        total_expanded_bytes = 0
+        total_elements = 0
+        with ZipFile(BytesIO(blob)) as archive:
+            infos = archive.infolist()
+            filenames = tuple(info.filename for info in infos)
+            names = tuple(name[:-4] for name in filenames if name.endswith(".npy"))
+            if (
+                len(infos) != entry_count
+                or len(names) != len(infos)
+                or len(set(filenames)) != len(filenames)
+                or any(not _is_model_state_archive_path(name) for name in names)
+            ):
+                raise _SnapshotStateLayoutError("model_scalar_state_npz_slot_inventory_invalid")
+            for info in infos:
+                if info.compress_type != ZIP_STORED or info.compress_size != info.file_size:
+                    raise _SnapshotStateLayoutError("model_scalar_state_npz_codec_unsupported")
+                if info.file_size > limits.max_expanded_bytes - total_expanded_bytes:
+                    raise _SnapshotStateLayoutError(
+                        "model_scalar_state_npz_expanded_limit_exceeded"
+                    )
+                with archive.open(info) as entry:
+                    version = np.lib.format.read_magic(entry)
+                    if version == (1, 0):
+                        shape, _fortran_order, dtype = np.lib.format.read_array_header_1_0(
+                            entry, max_header_size=10_000
+                        )
+                    elif version == (2, 0):
+                        shape, _fortran_order, dtype = np.lib.format.read_array_header_2_0(
+                            entry, max_header_size=10_000
+                        )
+                    else:
+                        raise _SnapshotStateLayoutError(
+                            "model_scalar_state_npz_npy_version_invalid"
+                        )
+                    shape = tuple(int(size) for size in shape)
+                    dtype = np.dtype(dtype)
+                    elements = math.prod(shape) if shape else 1
+                    array_bytes = elements * dtype.itemsize
+                    if (
+                        any(size < 0 for size in shape)
+                        or dtype.hasobject
+                        or dtype.kind not in {"b", "i", "u", "f", "S", "U"}
+                        or elements > limits.max_array_elements - total_elements
+                        or array_bytes > info.file_size
+                        or entry.tell() + array_bytes != info.file_size
+                    ):
+                        raise _SnapshotStateLayoutError(
+                            "model_scalar_state_npz_array_bounds_invalid"
+                        )
+                    total_elements += elements
+                    total_expanded_bytes += info.file_size
+    except _SnapshotStateLayoutError:
+        raise
+    except BoundedNumericNPZError as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_npz_archive_bounds_invalid") from exc
+    except (BadZipFile, OSError, EOFError, ValueError, TypeError) as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_npz_decode_refused") from exc
+    return entry_count
+
+
 def _validate_snapshot_lineage(
     store: ArtifactStore,
     *,
     snapshot_ref: ArtifactRef | ArtifactID | str,
     snapshot: StateSnapshot,
+    selected_manifest: ArtifactManifest | None = None,
 ) -> None:
-    """Validate historical bare lineage or the current exact-view lineage."""
+    """Validate historical lineage and exact selected-view lineage for current layouts."""
     if snapshot.schema_version == "2.0":
         return
     if snapshot.schema_version not in StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION:
@@ -929,11 +1219,38 @@ def _validate_snapshot_lineage(
         snapshot.schema_version
     ]
 
-    if not snapshot.lineage_inputs or snapshot.lineage_inputs[-1] != expected_state_blob:
+    if snapshot.schema_version == StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION:
+        layout_ref = snapshot.model_scalar_state_layout_ref
+        if (
+            not isinstance(snapshot_ref, ArtifactRef)
+            or snapshot_ref.kind != "foundry.state_snapshot"
+            or snapshot_ref.media_type != "application/json"
+            or snapshot_ref.manifest_profile_sha256 is None
+            or layout_ref is None
+            or layout_ref.kind != "foundry.model_scalar_state_layout"
+            or layout_ref.media_type != "application/json"
+            or layout_ref.manifest_profile_sha256 is None
+            or snapshot.state_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("StateSnapshot 2.4 requires exact selected snapshot and layout refs")
+        expected_layout = artifact_input_ref(layout_ref, role="model_scalar_state_layout")
+        if (
+            len(snapshot.lineage_inputs) < 2
+            or snapshot.lineage_inputs[-2] != expected_layout
+            or snapshot.lineage_inputs[-1] != expected_state_blob
+            or any(
+                edge.role in {"model_scalar_state_layout", "state_blob"}
+                for edge in snapshot.lineage_inputs[:-2]
+            )
+        ):
+            raise ValueError("StateSnapshot 2.4 lineage must bind layout then state_blob")
+    elif not snapshot.lineage_inputs or snapshot.lineage_inputs[-1] != expected_state_blob:
         raise ValueError(
             f"StateSnapshot {snapshot.schema_version} lineage must end with state_blob"
         )
-    manifest = store.get_manifest(manifest_ref)
+    manifest = (
+        selected_manifest if selected_manifest is not None else store.get_manifest(manifest_ref)
+    )
     expected_schema = SchemaInfo(name="polisyos.core.StateSnapshot", version=schema_version)
     if manifest.artifact_schema != expected_schema:
         raise ValueError(
@@ -943,6 +1260,13 @@ def _validate_snapshot_lineage(
         raise ValueError(
             f"StateSnapshot {snapshot.schema_version} lineage does not match manifest inputs"
         )
+    if snapshot.schema_version == StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION and (
+        manifest.kind != "foundry.state_snapshot"
+        or manifest.media_type != "application/json"
+        or not isinstance(snapshot_ref, ArtifactRef)
+        or artifact_manifest_profile_sha256(manifest) != snapshot_ref.manifest_profile_sha256
+    ):
+        raise ValueError("StateSnapshot 2.4 selected manifest identity mismatch")
 
 
 @dataclass(frozen=True, slots=True)
@@ -1011,14 +1335,42 @@ def put_state_snapshot(
     """Persist dataclass state or a flat numeric slot map as an NPZ snapshot.
 
     Flat slot maps are sparse method-input captures. Their consumer is
-    ``read_state_snapshot_inputs_bounded``; ``load_state_snapshot`` remains the
-    GlobalState reconstruction path.
+    ``read_state_snapshot_inputs_bounded``. Persistent model scalar state must
+    be supplied as ``BoundModelState`` so its registry and layout identity are
+    persisted; unbound numeric carriers are refused.
     """
-    _validate_return_selected_profile(return_selected_profile)
-    if return_selected_profile:
+    bound_state = state if isinstance(state, BoundModelState) else None
+    payload_state = bound_state.state if bound_state is not None else state
+    if bound_state is None and isinstance(payload_state, GlobalState):
+        if payload_state.model_scalar_state is not None:
+            raise _SnapshotStateLayoutError("model_scalar_state_snapshot_requires_bound_context")
+
+    write_selected_profile = return_selected_profile or bound_state is not None
+    _validate_return_selected_profile(write_selected_profile)
+    if write_selected_profile:
         _require_return_selected_profile_writer(store, "put_bytes")
         _require_return_selected_profile_writer(store, "put_json")
-    flat = dict(_flatten_state(state))
+
+    layout_ref: ModelScalarStateLayoutRef | None = None
+    if bound_state is not None:
+        try:
+            recomputed_layout = build_model_scalar_state_layout(
+                store=store,
+                registry_bundle_ref=bound_state.layout.registry_bundle_ref,
+                slot_ids=tuple(slot.slot_id for slot in bound_state.layout.slots),
+            )
+        except ModelScalarStateAccessError as exc:
+            raise _SnapshotStateLayoutError(
+                "model_scalar_state_layout_registry_recompute_failed"
+            ) from exc
+        if recomputed_layout != bound_state.layout:
+            raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_content_mismatch")
+        layout_ref = _put_model_scalar_state_layout(
+            store,
+            layout=bound_state.layout,
+            return_selected_profile=write_selected_profile,
+        )
+    flat = dict(_flatten_state(payload_state))
     buf = BytesIO()
     np.savez(buf, **flat)
     blob_bytes = buf.getvalue()
@@ -1030,7 +1382,7 @@ def put_state_snapshot(
         # lineage.  The typed wrapper below carries the exact ordered input
         # lineage while identical bytes remain reusable across contexts.
         PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
-        return_selected_profile=return_selected_profile,
+        return_selected_profile=write_selected_profile,
     )
     if str(blob_ref.artifact_id.hex) != checksum:
         raise ValueError(
@@ -1038,11 +1390,18 @@ def put_state_snapshot(
             f"{blob_ref.artifact_id.hex} != {checksum}"
         )
     snapshot_inputs = list(inputs or [])
+    if layout_ref is not None:
+        snapshot_inputs.append(artifact_input_ref(layout_ref, role="model_scalar_state_layout"))
     snapshot_inputs.append(artifact_input_ref(blob_ref, role="state_blob"))
-    is_method_input_snapshot = isinstance(state, Mapping) and not dataclasses.is_dataclass(state)
-    payload_schema_version = (
-        StateSnapshot.METHOD_INPUT_SCHEMA_VERSION if is_method_input_snapshot else "2.2"
+    is_method_input_snapshot = isinstance(payload_state, Mapping) and not dataclasses.is_dataclass(
+        payload_state
     )
+    if bound_state is not None:
+        payload_schema_version = StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+    elif is_method_input_snapshot:
+        payload_schema_version = StateSnapshot.METHOD_INPUT_SCHEMA_VERSION
+    else:
+        payload_schema_version = "2.2"
     snapshot_values: dict[str, Any] = {
         "schema_version": payload_schema_version,
         "state_ref": blob_ref,
@@ -1056,6 +1415,9 @@ def put_state_snapshot(
     }
     if is_method_input_snapshot:
         snapshot_values["layout"] = StateSnapshot.METHOD_INPUT_LAYOUT
+    if layout_ref is not None:
+        snapshot_values["layout"] = StateSnapshot.MODEL_SCALAR_STATE_LAYOUT
+        snapshot_values["model_scalar_state_layout_ref"] = layout_ref
     snapshot = StateSnapshot(**snapshot_values)
     snapshot_ref = store.put_json(
         snapshot,
@@ -1070,9 +1432,37 @@ def put_state_snapshot(
             ),
             inputs=snapshot_inputs,
         ),
-        return_selected_profile=return_selected_profile,
+        return_selected_profile=write_selected_profile,
     )
     return StateSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
+
+
+def _put_model_scalar_state_layout(
+    store: ArtifactStore,
+    *,
+    layout: ModelScalarStateLayout,
+    return_selected_profile: bool,
+) -> ModelScalarStateLayoutRef:
+    """Persist the exact layout with its selected registry as ordered lineage."""
+
+    registry_edge = artifact_input_ref(layout.registry_bundle_ref, role="registry_bundle")
+    layout_ref = store.put_json(
+        layout,
+        PutOptions(
+            kind="foundry.model_scalar_state_layout",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.ModelScalarStateLayout",
+                version=layout.schema_version,
+            ),
+            inputs=[registry_edge],
+        ),
+        return_selected_profile=return_selected_profile,
+    )
+    try:
+        return ModelScalarStateLayoutRef.model_validate(layout_ref.model_dump(mode="python"))
+    except Exception as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_ref_unselected") from exc
 
 
 def export_seed_state_npz(state: GlobalState, path: str | Path) -> Path:

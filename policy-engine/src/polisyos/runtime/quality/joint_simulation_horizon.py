@@ -6659,8 +6659,11 @@ def _require_program_graph_input_preflight(
     | None,
 ) -> _SelectedSemanticProgramGraphInput | None:
     """Reconcile selected semantic inputs against the current execution owners."""
-    from polisyos.foundry.data_plane import load_input_bindings, reconcile_semantic_input_bindings
-    from polisyos.foundry.data_plane.bindings import reconcile_selected_method_input_bindings
+    from polisyos.foundry.data_plane import (
+        load_input_bindings,
+        reconcile_selected_method_input_bindings,
+        reconcile_semantic_input_bindings,
+    )
 
     selected = _select_program_graph_input_preflight(request, plan, decision, preflight_callback)
     if selected is None:
@@ -6764,6 +6767,7 @@ def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[
     if isinstance(raw, dict) and raw.get("schema_version") in {
         "GenericProgramGraphContentObservation@1.0",
         "GenericProgramGraphContentObservation@2.0",
+        "GenericProgramGraphContentObservation@3.0",
     }:
         from polisyos.runtime.quality.n5_candidate_content import (
             _read_generic_program_graph_observation_wire,
@@ -6776,8 +6780,8 @@ def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[
                 role=f"{SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX}observed_call.{step}.{index}",
             )
             for step, item in enumerate(observation.steps)
-            for index, call in enumerate(item.calls)
-            if call.state_ref is not None
+            for index, call in enumerate((*item.calls, *getattr(item, "mechanism_calls", ())))
+            if getattr(call, "state_ref", None) is not None
         )
     return selected
 

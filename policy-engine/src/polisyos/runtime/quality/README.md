@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-11-03
+- Last updated: 2026-11-14
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,13 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+The package facade loads an export's defining owner when that name is requested.
+Existing exported objects, wildcard names and direct owner-module routes remain
+available. Importing the package alone does not initialize unrelated quality
+owners; an error in a requested owner propagates and is not cached. Callers that
+need a subsystem's initialization should import that owner explicitly. This
+changes import timing, not authority, evidence admission or numerical semantics.
 
 ## Conditional design-cycle owners
 

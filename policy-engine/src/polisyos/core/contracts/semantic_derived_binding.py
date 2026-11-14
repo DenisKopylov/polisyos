@@ -26,7 +26,7 @@ from polisyos.core.artifacts import (
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
-from polisyos.ir.kernel.units import MoneyUnit, UnitsRegistry
+from polisyos.ir.kernel import MoneyUnit, UnitsRegistry
 
 from .variable_binding import (
     MeasurementAxis,

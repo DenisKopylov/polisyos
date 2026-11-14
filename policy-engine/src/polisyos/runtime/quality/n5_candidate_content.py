@@ -296,6 +296,100 @@ class GenericProgramGraphContentObservationV2(GenericProgramGraphContentObservat
     numerical_intent_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class GenericProgramGraphMethodCallObservation(BaseModel):
+    """Actual mapped NumPy call content, separate from legacy mechanism calls."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    plan_index: int = Field(ge=0, strict=True)
+    node_id: str = Field(min_length=1)
+    call_content_hex: str | None = Field(default=None, max_length=262144)
+    stable: bool = False
+    status: Literal["returned", "raised", "not_established"]
+    reason_codes: tuple[str, ...] = ()
+
+
+class GenericProgramGraphMethodStepObservation(GenericProgramGraphStepObservation):
+    """One supported independent mapped-method step with its complete denominator."""
+
+    calls: tuple[GenericProgramGraphMethodCallObservation, ...]
+    mechanism_calls: tuple[GenericProgramGraphCallObservation, ...]
+
+    @model_validator(mode="after")
+    def _complete_step(self) -> Self:
+        if (self.predicate_provenance == "recomputed") == bool(self.reason_codes):
+            raise ValueError("generic_program_graph_step_predicate_mismatch")
+        if self.predicate_provenance == "recomputed":
+            expected = tuple(
+                (index, name)
+                for index, (name, kind, _) in enumerate(self.planned_nodes)
+                if kind == "method"
+            )
+            expected_mechanisms = tuple(
+                (index, name)
+                for index, (name, kind, op) in enumerate(self.planned_nodes)
+                if kind == "op" and op == "apply_mechanism"
+            )
+            if (
+                not self.graph_finished
+                or self.base_state_ref is None
+                or self.base_state_ref.kind != "foundry.state_snapshot"
+                or self.base_state_ref.media_type != "application/json"
+                or self.base_state_ref.manifest_profile_sha256 is None
+                or any(
+                    not (
+                        kind == "method"
+                        or (
+                            kind == "op"
+                            and op
+                            in {"make_mask", "apply_mechanism", "merge_state", "check_constraints"}
+                        )
+                    )
+                    for _, kind, op in self.planned_nodes
+                )
+                or tuple((i, name) for i, (name, _, _) in enumerate(self.planned_nodes))
+                != tuple((i, name) for i, name, _ in self.completed_nodes)
+                or any(status != "succeeded" for _, _, status in self.completed_nodes)
+                or not expected
+                or len(expected_mechanisms) != 1
+                or tuple((call.plan_index, call.node_id) for call in self.mechanism_calls)
+                != expected_mechanisms
+                or any(
+                    call.status != "returned"
+                    or call.callable_receiver_hex is None
+                    or call.key_hex is None
+                    or call.target_mask_hex is None
+                    or not call.receiver_stable
+                    or call.state_ref is None
+                    or call.state_ref.kind != "foundry.state_snapshot"
+                    or call.state_ref.media_type != "application/json"
+                    or call.state_ref.manifest_profile_sha256 is None
+                    or call.reason_codes
+                    for call in self.mechanism_calls
+                )
+                or tuple((call.plan_index, call.node_id) for call in self.calls) != expected
+                or any(
+                    call.status != "returned"
+                    or not call.stable
+                    or call.call_content_hex is None
+                    or call.reason_codes
+                    for call in self.calls
+                )
+            ):
+                raise ValueError("generic_program_graph_method_step_not_complete")
+        return self
+
+
+class GenericProgramGraphContentObservationV3(GenericProgramGraphContentObservationV1):
+    """Versioned physical method-call observation; no old V2 meaning is changed."""
+
+    schema_version: Literal["GenericProgramGraphContentObservation@3.0"] = (
+        "GenericProgramGraphContentObservation@3.0"
+    )
+    numerical_intent_profile: Literal["generic_program_graph_mapped_numpy_methods_v3"]
+    numerical_intent_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    steps: tuple[GenericProgramGraphMethodStepObservation, ...]
+
+
 def _product_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
@@ -566,7 +660,11 @@ class _GenericGraphStep:
     planned_nodes: tuple[tuple[str, str, str | None], ...]
     completed_nodes: list[tuple[int, str, str]] = field(default_factory=list)
     calls: list[dict[str, object]] = field(default_factory=list)
+    method_calls: list[dict[str, object]] = field(default_factory=list)
     pending: dict[int, tuple[object, bytes | None]] = field(default_factory=dict, repr=False)
+    pending_methods: dict[int, tuple[object, bytes | None]] = field(
+        default_factory=dict, repr=False
+    )
     graph_finished: bool = False
     reason_codes: list[str] = field(default_factory=list)
 
@@ -593,6 +691,9 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
         self.remaining_calls = 256
         self.numerical_intent: bytes | None = None
         self.preflight: ProgramGraphInputPreflight | None = None
+        self.numerical_intent_profile = "generic_program_graph_declared_numerical_v2"
+        self.prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = ()
+        self.prepared_calls: tuple[tuple[int, str, int, bytes], ...] = ()
 
     def prepare_program_graph(
         self, plan: EnginePlan, decision: EngineDecision, semantic_input: object
@@ -639,6 +740,9 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
         self.profile = quantity.execution_profile
         self.source_image = quantity.source_image
         self.numerical_intent = quantity.numerical_intent
+        self.numerical_intent_profile = quantity.numerical_intent_profile
+        self.prepared_method_calls = quantity.prepared_method_calls
+        self.prepared_calls = quantity.prepared_calls
         self.preflight = preflight
         self.method_fqn = decision.method_fqn
         self.planned_units = _planned_units(self.request, plan, decision)
@@ -656,6 +760,11 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
     def step_observations(self) -> tuple[GenericProgramGraphStepObservation, ...]:
         """Seal only the observed per-step node and call facts."""
         observations = []
+        record_type = (
+            GenericProgramGraphMethodStepObservation
+            if self.numerical_intent_profile == "generic_program_graph_mapped_numpy_methods_v3"
+            else GenericProgramGraphStepObservation
+        )
         for step in self.steps:
             reasons = list(step.reason_codes)
             payload = {
@@ -669,18 +778,17 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
                 "calls": tuple(step.calls),
                 "graph_finished": step.graph_finished,
             }
+            if record_type is GenericProgramGraphMethodStepObservation:
+                payload["calls"] = tuple(step.method_calls)
+                payload["mechanism_calls"] = tuple(step.calls)
             if not reasons:
                 try:
-                    observations.append(
-                        GenericProgramGraphStepObservation(
-                            **payload, predicate_provenance="recomputed"
-                        )
-                    )
+                    observations.append(record_type(**payload, predicate_provenance="recomputed"))
                     continue
                 except (TypeError, ValueError):
                     reasons.append("generic_program_graph_step_not_complete")
             observations.append(
-                GenericProgramGraphStepObservation(
+                record_type(
                     **payload,
                     predicate_provenance="not_established",
                     reason_codes=tuple(dict.fromkeys(reasons)),
@@ -757,6 +865,17 @@ class _GenericGraphUnitObserver:
             if self.scope.remaining_calls < 0:
                 raise ValueError("generic_program_graph_call_limit_exceeded")
             receiver = snapshot_foundry_mechanism_call(selected_call)
+            if (
+                self.scope.numerical_intent_profile
+                == "generic_program_graph_mapped_numpy_methods_v3"
+            ):
+                expected = tuple(
+                    content
+                    for index, name, at_step, content in self.scope.prepared_calls
+                    if (index, name, at_step) == (plan_index, node_id, step)
+                )
+                if expected != (receiver,):
+                    raise ValueError("generic_mechanism_actual_call_differs_from_preparation")
             call["callable_receiver_hex"] = self.scope._bounded_hex(receiver)
             call["key_hex"] = self.scope._bounded_hex(snapshot_foundry_call_value(key))
             call["target_mask_hex"] = self.scope._bounded_hex(
@@ -832,6 +951,73 @@ class _GenericGraphUnitObserver:
         if call["receiver_stable"] is not True:
             call["reason_codes"] = ("generic_program_graph_receiver_not_stable",)
 
+    def method_started(
+        self, *, step: int, plan_index: int, node_id: str, prepared_call: object
+    ) -> None:
+        from polisyos.runtime.quality.acquisition_evaluation import _generic_method_call_content
+
+        current = self.current
+        if current is None:
+            return
+        call = {
+            "plan_index": plan_index,
+            "node_id": node_id,
+            "call_content_hex": None,
+            "stable": False,
+            "status": "not_established",
+            "reason_codes": (),
+        }
+        content = None
+        try:
+            if current.step != step or plan_index in current.pending_methods:
+                raise ValueError("generic_method_call_scope_mismatch")
+            self.scope.remaining_calls -= 1
+            if self.scope.remaining_calls < 0:
+                raise ValueError("generic_program_graph_call_limit_exceeded")
+            content = _generic_method_call_content(prepared_call)
+            call["call_content_hex"] = self.scope._bounded_hex(content)
+            expected = tuple(
+                value
+                for seed, index, name, at_step, value in self.scope.prepared_method_calls
+                if (seed, index, name, at_step) == (self.seed, plan_index, node_id, step)
+            )
+            if expected != (content,):
+                raise ValueError("generic_method_actual_call_differs_from_preparation")
+        except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+            call["reason_codes"] = (str(getattr(exc, "code", None) or exc),)
+        current.method_calls.append(call)
+        current.pending_methods[plan_index] = (prepared_call, content)
+
+    def method_finished(
+        self,
+        *,
+        step: int,
+        plan_index: int,
+        node_id: str,
+        status: Literal["returned", "raised"],
+    ) -> None:
+        from polisyos.runtime.quality.acquisition_evaluation import _generic_method_call_content
+
+        current = self.current
+        if current is None:
+            return
+        pending = current.pending_methods.pop(plan_index, None)
+        if current.step != step or pending is None or not current.method_calls:
+            current.reason_codes.append("generic_method_call_scope_mismatch")
+            return
+        call = current.method_calls[-1]
+        if (call["plan_index"], call["node_id"]) != (plan_index, node_id):
+            current.reason_codes.append("generic_method_call_scope_mismatch")
+            return
+        row, before = pending
+        call["status"] = status
+        try:
+            call["stable"] = before is not None and _generic_method_call_content(row) == before
+        except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
+            call["stable"] = False
+        if not call["stable"]:
+            call["reason_codes"] = (*call["reason_codes"], "generic_method_call_not_stable")
+
     def node_finished(
         self,
         *,
@@ -851,7 +1037,12 @@ class _GenericGraphUnitObserver:
         current = self.current
         if current is None:
             return
-        if current.step != step or current.effective_seed != seed or current.pending:
+        if (
+            current.step != step
+            or current.effective_seed != seed
+            or current.pending
+            or current.pending_methods
+        ):
             current.reason_codes.append("generic_program_graph_graph_scope_mismatch")
         current.graph_finished = True
 
@@ -948,7 +1139,6 @@ def bind_generic_program_graph_n5_content_observation(
     if not image_stable or scope.source_image.provenance != "recomputed":
         reasons.append("generic_program_graph_source_image_not_established")
     from polisyos.runtime.quality.acquisition_evaluation import (
-        GENERIC_NUMERICAL_INTENT_PROFILE,
         _prepare_generic_model_input_numerical_quantity,
     )
 
@@ -964,10 +1154,14 @@ def bind_generic_program_graph_n5_content_observation(
     except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
         reasons.append("generic_program_graph_numerical_intent_not_established")
     values = {
-        "schema_version": "GenericProgramGraphContentObservation@2.0",
+        "schema_version": (
+            "GenericProgramGraphContentObservation@3.0"
+            if scope.numerical_intent_profile == "generic_program_graph_mapped_numpy_methods_v3"
+            else "GenericProgramGraphContentObservation@2.0"
+        ),
         "authority_purpose": "candidate_declared_numerical_basis_only",
         "call_normalization_profile": GENERIC_FOUNDRY_CALL_NORMALIZATION,
-        "numerical_intent_profile": GENERIC_NUMERICAL_INTENT_PROFILE,
+        "numerical_intent_profile": scope.numerical_intent_profile,
         "numerical_intent_sha256": "sha256:" + hashlib.sha256(scope.numerical_intent).hexdigest(),
         "input_ref_identity": artifact_ref_identity_key(scope.input_ref),
         "semantic_successor_ref": scope.semantic_successor_ref.model_dump(mode="json"),
@@ -986,7 +1180,12 @@ def bind_generic_program_graph_n5_content_observation(
         "protected_use_allowed": False,
     }
     values = json.loads(json.dumps(values, allow_nan=False))
-    observation = GenericProgramGraphContentObservationV2.model_validate_json(
+    observation_type = (
+        GenericProgramGraphContentObservationV3
+        if scope.numerical_intent_profile == "generic_program_graph_mapped_numpy_methods_v3"
+        else GenericProgramGraphContentObservationV2
+    )
+    observation = observation_type.model_validate_json(
         json.dumps({**values, "content_hash": exact_n5_content_hash(values)}, allow_nan=False)
     )
     payload["diagnostics"][CONTENT_OBSERVATION_KEY] = observation.model_dump(mode="json")
@@ -1296,6 +1495,197 @@ def read_candidate_n5_content_observation(
     return observation
 
 
+def _read_recorded_generic_method_call(
+    call: GenericProgramGraphMethodCallObservation,
+) -> dict[str, object]:
+    """Read bounded canonical call facts without loading a current method ABI."""
+    import numpy as np
+
+    from polisyos.foundry.data_plane import selected_tensor_value_sha256
+    from polisyos.runtime.quality.n5_execution_basis import _require_v2_wire
+
+    encoded = call.call_content_hex
+    if encoded is None:
+        raise ValueError("generic_method_recorded_call_not_established")
+    try:
+        raw = bytes.fromhex(encoded)
+        payload = json.loads(raw)
+        _require_n5_json_wire_domain(payload)
+        canonical = json.dumps(
+            payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        ).encode()
+    except (TypeError, ValueError, UnicodeError) as exc:
+        raise ValueError("generic_method_recorded_call_not_established") from exc
+    names = {
+        "profile",
+        "plan_index",
+        "node_id",
+        "step",
+        "method_fqn",
+        "method_version",
+        "method_abi_digest",
+        "arguments",
+        "resolved_parameters",
+        "root_seed",
+        "seed",
+        "key_words",
+        "rng_state",
+        "providers",
+    }
+    if (
+        type(payload) is not dict
+        or set(payload) != names
+        or raw.hex() != encoded
+        or canonical != raw
+        or payload["profile"] != "foundry-mapped-numpy-method-call/1"
+        or (payload["plan_index"], payload["node_id"]) != (call.plan_index, call.node_id)
+        or type(payload["arguments"]) is not list
+        or not payload["arguments"]
+        or type(payload["providers"]) is not dict
+    ):
+        raise ValueError("generic_method_recorded_call_scope_mismatch")
+    allowed_providers = {
+        "runner_execute",
+        "pure_step",
+        "postprocessor",
+        "default_rng",
+        "representation_call",
+        "restricted_selector",
+        "output_dematerializer",
+        "custom_output_projection",
+    }
+    if (
+        not {"runner_execute", "pure_step", "default_rng", "output_dematerializer"}.issubset(
+            payload["providers"]
+        )
+        or set(payload["providers"]) - allowed_providers
+        or any(
+            payload["providers"][name] is None
+            for name in ("runner_execute", "pure_step", "default_rng", "output_dematerializer")
+        )
+        or any(
+            type(payload[name]) is not int for name in ("plan_index", "step", "root_seed", "seed")
+        )
+        or type(payload["key_words"]) is not list
+        or any(type(word) is not int for word in payload["key_words"])
+    ):
+        raise ValueError("generic_method_recorded_provider_census_mismatch")
+    _require_v2_wire(payload["resolved_parameters"])
+    _require_v2_wire(payload["rng_state"])
+    for content in payload["providers"].values():
+        _require_v2_wire(content)
+    names_seen = set()
+    for argument in payload["arguments"]:
+        if type(argument) is not dict or set(argument) != {
+            "name",
+            "source_slot",
+            "dtype",
+            "shape",
+            "value_hex",
+            "value_sha256",
+        }:
+            raise ValueError("generic_method_recorded_argument_not_established")
+        name = argument["name"]
+        if (
+            type(argument["source_slot"]) is not str
+            or not argument["source_slot"]
+            or type(argument["dtype"]) is not str
+            or type(argument["shape"]) is not list
+            or type(argument["value_hex"]) is not str
+        ):
+            raise ValueError("generic_method_recorded_argument_not_established")
+        if type(name) is not str or not name or name in names_seen:
+            raise ValueError("generic_method_recorded_argument_census_mismatch")
+        names_seen.add(name)
+        dtype = np.dtype(argument["dtype"])
+        shape = tuple(argument["shape"])
+        value = bytes.fromhex(argument["value_hex"])
+        if (
+            dtype.kind != "f"
+            or dtype.metadata is not None
+            or any(type(size) is not int or size <= 0 for size in shape)
+            or len(value) > 1024 * 1024
+            or value.hex() != argument["value_hex"]
+            or (len(value) // dtype.itemsize) != int(np.prod(shape, dtype=np.int64))
+            or len(value) % dtype.itemsize
+            or not np.isfinite(np.frombuffer(value, dtype=dtype)).all()
+            or selected_tensor_value_sha256(dtype, shape, value) != argument["value_sha256"]
+        ):
+            raise ValueError("generic_method_recorded_argument_not_established")
+    return payload
+
+
+def _reconcile_recorded_generic_method_step(
+    store: CoreJSONArtifactStore,
+    *,
+    step_ref: ArtifactRef,
+    bindings_ref: ArtifactRef,
+    program_ref: ArtifactRef,
+    observed: GenericProgramGraphMethodStepObservation,
+) -> None:
+    """Join producer-observed call content to the exact stored Foundry dispatch."""
+    import numpy as np
+
+    from polisyos.foundry.execute import (
+        load_stored_selected_method_input_occurrences,
+        read_program_graph_method_input_sources,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import _v2_native_wire
+
+    occurrences = load_stored_selected_method_input_occurrences(
+        store, historical_execution_ref=step_ref, input_bindings_ref=bindings_ref
+    )
+    selected = {
+        (item.plan_index, item.node_id): item for item in occurrences if item.node_kind == "method"
+    }
+    if set(selected) != {(call.plan_index, call.node_id) for call in observed.calls}:
+        raise ValueError("generic_method_recorded_dispatch_census_mismatch")
+    for call in observed.calls:
+        payload = _read_recorded_generic_method_call(call)
+        occurrence = selected[(call.plan_index, call.node_id)]
+        dispatch = occurrence.dispatch
+        if (
+            dispatch is None
+            or dispatch.outcome != "succeeded"
+            or dispatch.parameter_resolution_status != "captured"
+            or dispatch.backend_identity_status != "reconciled"
+            or dispatch.actual_backend != "numpy"
+            or dispatch.fallback_status != "not_fell_back"
+            or payload["method_fqn"] != occurrence.method_fqn
+            or payload["method_version"] != occurrence.method_version
+            or payload["method_abi_digest"] != occurrence.method_abi_digest
+            or payload["step"] != observed.step
+            or dispatch.step != observed.step
+            or payload["root_seed"] != dispatch.root_seed
+            or payload["seed"] != dispatch.method_seed
+            or tuple(payload["key_words"]) != dispatch.method_key_words
+            or payload["resolved_parameters"]
+            != _v2_native_wire({item.name: item.value for item in dispatch.parameter_values})
+        ):
+            raise ValueError("generic_method_recorded_dispatch_binding_mismatch")
+        arguments = {item["name"]: item for item in payload["arguments"]}
+        sources = read_program_graph_method_input_sources(
+            store,
+            program_ref=program_ref,
+            node_id=occurrence.node_id,
+            signature_input_slot_ids=dispatch.signature_input_slot_ids,
+        )
+        if {name: item["source_slot"] for name, item in arguments.items()} != dict(sources):
+            raise ValueError("generic_method_recorded_argument_source_mismatch")
+        if set(arguments) != {item.slot_id for item in dispatch.input_slot_values}:
+            raise ValueError("generic_method_recorded_argument_census_mismatch")
+        for actual in dispatch.input_slot_values:
+            expected = arguments[actual.slot_id]
+            if (
+                actual.status != "captured"
+                or actual.value_sha256 != expected["value_sha256"]
+                or actual.runtime_shape != tuple(expected["shape"])
+                or actual.runtime_dtype is None
+                or np.dtype(actual.runtime_dtype).str != expected["dtype"]
+            ):
+                raise ValueError("generic_method_recorded_argument_binding_mismatch")
+
+
 def read_generic_program_graph_n5_content_observation(
     result: JointSimulationResult,
     *,
@@ -1303,7 +1693,7 @@ def read_generic_program_graph_n5_content_observation(
     semantic_successor_ref: ArtifactRef,
     expected_request: JointSimulationRequest,
     store: CoreJSONArtifactStore,
-) -> GenericProgramGraphContentObservationV2:
+) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
     """Reopen original graph calls and their actual selected Foundry step chains.
 
     This historical producer observation is not a current permission, a
@@ -1332,8 +1722,14 @@ def read_generic_program_graph_n5_content_observation(
         raise ValueError("generic_program_graph_content_observation_missing")
     observation = _read_generic_program_graph_observation_wire(raw)
     if (
-        type(observation) is not GenericProgramGraphContentObservationV2
-        or observation.numerical_intent_profile != "generic_program_graph_declared_numerical_v2"
+        type(observation)
+        not in {GenericProgramGraphContentObservationV2, GenericProgramGraphContentObservationV3}
+        or observation.numerical_intent_profile
+        != (
+            "generic_program_graph_mapped_numpy_methods_v3"
+            if type(observation) is GenericProgramGraphContentObservationV3
+            else "generic_program_graph_declared_numerical_v2"
+        )
         or input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
         or input_ref.media_type != "application/json"
         or input_ref.manifest_profile_sha256 is None
@@ -1417,11 +1813,26 @@ def read_generic_program_graph_n5_content_observation(
                     or observed.base_state_ref is None
                     or artifact_ref_identity_key(observed.base_state_ref)
                     != artifact_ref_identity_key(basis.base_state_snapshot_ref)
+                    or artifact_ref_identity_key(basis.program_graph_ref)
+                    != artifact_ref_identity_key(selected.plan.program_graph_ref)
                     or basis.effective_step != step
                     or basis.effective_seed != observed.effective_seed
                 ):
                     raise ValueError("generic_program_graph_content_step_source_mismatch")
-                for call in observed.calls:
+                if type(observation) is GenericProgramGraphContentObservationV3:
+                    _reconcile_recorded_generic_method_step(
+                        store,
+                        step_ref=replication.step_result_refs[index],
+                        bindings_ref=basis.input_bindings_ref,
+                        program_ref=basis.program_graph_ref,
+                        observed=observed,
+                    )
+                mechanism_calls = (
+                    observed.mechanism_calls
+                    if type(observation) is GenericProgramGraphContentObservationV3
+                    else observed.calls
+                )
+                for call in mechanism_calls:
                     if call.state_ref is None or not store.verify(call.state_ref).ok:
                         raise ValueError("generic_program_graph_call_state_unavailable")
                     if call.state_matches_base:
@@ -1449,8 +1860,12 @@ def read_generic_program_graph_n5_content_observation(
 
 def _read_generic_program_graph_observation_wire(
     raw: object,
-) -> GenericProgramGraphContentObservationV1 | GenericProgramGraphContentObservationV2:
-    """Decode either recorded version without upgrading a historical trace."""
+) -> (
+    GenericProgramGraphContentObservationV1
+    | GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+):
+    """Decode each recorded version without upgrading a historical trace."""
     if type(raw) is not dict:
         raise ValueError("generic_program_graph_content_observation_missing")
     _require_n5_json_wire_domain(raw)
@@ -1459,6 +1874,8 @@ def _read_generic_program_graph_observation_wire(
         return GenericProgramGraphContentObservationV1.model_validate_json(json.dumps(raw))
     if version == "GenericProgramGraphContentObservation@2.0":
         return GenericProgramGraphContentObservationV2.model_validate_json(json.dumps(raw))
+    if version == "GenericProgramGraphContentObservation@3.0":
+        return GenericProgramGraphContentObservationV3.model_validate_json(json.dumps(raw))
     raise ValueError("generic_program_graph_content_schema_unsupported")
 
 

@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import Mapping
-from dataclasses import replace
+from collections.abc import Callable, Mapping
+from copy import deepcopy
+from dataclasses import dataclass, replace
+from decimal import Decimal
+from enum import Enum
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -44,6 +48,78 @@ def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> di
     return result
 
 
+def _detached_observed_parameter(
+    value: Any, *, depth: int = 0, remaining: list[int] | None = None
+) -> Any:
+    """Copy a bounded exact value for observation without copying arbitrary objects."""
+    remaining = [4096] if remaining is None else remaining
+    remaining[0] -= 1
+    if depth > 16 or remaining[0] < 0:
+        raise ValueError("prepared_method_parameter_projection_not_established")
+    if value is None or type(value) in {bool, int, float, str, bytes, Decimal}:
+        return value
+    if isinstance(value, Enum):
+        if value.value is not None and type(value.value) not in {
+            bool,
+            int,
+            float,
+            str,
+            bytes,
+            Decimal,
+        }:
+            raise ValueError("prepared_method_parameter_projection_not_established")
+        return value
+    if type(value) is np.ndarray:
+        if value.dtype.hasobject or value.nbytes > 262144:
+            raise ValueError("prepared_method_parameter_projection_not_established")
+        return np.frombuffer(value.tobytes(order="C"), dtype=value.dtype).reshape(value.shape)
+    if isinstance(value, np.generic) and not value.dtype.hasobject:
+        return value.copy()
+    if type(value) in {list, tuple, dict, set, frozenset}:
+        if len(value) > 256:
+            raise ValueError("prepared_method_parameter_projection_not_established")
+        if type(value) is dict:
+            if any(type(key) is not str for key in value):
+                raise ValueError("prepared_method_parameter_projection_not_established")
+            return {
+                key: _detached_observed_parameter(item, depth=depth + 1, remaining=remaining)
+                for key, item in value.items()
+            }
+        children = [
+            _detached_observed_parameter(item, depth=depth + 1, remaining=remaining)
+            for item in value
+        ]
+        return type(value)(children)
+    raise ValueError("prepared_method_parameter_projection_not_established")
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedNumpyMethodCall:
+    """Hold the actual callable, defaults and RNG selected before a NumPy call.
+
+    This is an in-process preparation record, not execution evidence. The
+    runner consumes these same objects; it does not re-read the class slots or
+    parameter defaults after the call is observed.
+    """
+
+    method_class: type
+    signature: MethodSignature
+    state: Any
+    original_params: Mapping[str, Any]
+    resolved_params: Mapping[str, Any]
+    declared_params: Mapping[str, Any]
+    seed: int
+    pure_step: Callable[..., Any]
+    postprocessor: Any
+    default_rng: Callable[..., Any]
+    representation_call: Callable[..., Any]
+    restricted_selector: Callable[..., Any] | None
+    output_dematerializer: Callable[..., Any]
+    output_projection: Any
+    strict_output_contract: bool
+    rng_state: Mapping[str, Any]
+
+
 class NumpyRunner(MethodRunner):
     """Numpy runner public type."""
 
@@ -53,6 +129,80 @@ class NumpyRunner(MethodRunner):
 
     def is_available(self) -> bool:
         return True
+
+    def prepare_call(
+        self,
+        *,
+        method_class: type,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        seed: int,
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
+        _detach_observation: bool = False,
+    ) -> PreparedNumpyMethodCall:
+        """Resolve exactly the ordinary NumPy call without executing its kernel.
+
+        Args:
+            method_class: Selected registered method class.
+            signature: Selected method ABI.
+            state: Already materialized ABI input object.
+            params: Explicit method parameters after execution-only splitting.
+            seed: Exact seed to supply to the numerical method.
+            runtime_context: Existing owner-bound execution context, if any.
+            _detach_observation: Isolate the bounded observer projection from
+                mutable actual parameter values; unsupported objects refuse.
+
+        Returns:
+            Held preparation consumed by :meth:`execute`.
+
+        Raises:
+            ValueError: If the selected class has no callable numerical entry.
+        """
+        pure_step = getattr(method_class, "pure_step", None)
+        if not callable(pure_step):
+            raise ValueError("prepared_numpy_method_callable_unavailable")
+        postprocess = getattr(method_class, "postprocess_output", None)
+        resolved = _resolve_params(signature, params)
+        projection_budget = [4096]
+        declared = MappingProxyType(
+            {
+                key: _detached_observed_parameter(value, remaining=projection_budget)
+                for key, value in resolved.items()
+            }
+            if _detach_observation
+            else dict(resolved)
+        )
+        default_rng = np.random.default_rng
+        rng = default_rng(seed)
+        resolved["__rng__"] = rng
+        resolved["__seed__"] = seed
+        restricted_selector = None
+        if runtime_context is None:
+            from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+                run_restricted_exante_if_selected,
+            )
+
+            restricted_selector = run_restricted_exante_if_selected
+
+        return PreparedNumpyMethodCall(
+            method_class=method_class,
+            signature=signature,
+            state=state,
+            original_params=dict(params),
+            resolved_params=resolved,
+            declared_params=declared,
+            seed=seed,
+            pure_step=pure_step,
+            postprocessor=postprocess,
+            default_rng=default_rng,
+            representation_call=invoke_representation_call,
+            restricted_selector=restricted_selector,
+            output_dematerializer=dematerialize_method_output,
+            output_projection=getattr(method_class, "dematerialize_output", None),
+            strict_output_contract=bool(getattr(method_class, "strict_output_contract", False)),
+            rng_state=MappingProxyType(deepcopy(rng.bit_generator.state)),
+        )
 
     def execute(
         self,
@@ -64,23 +214,34 @@ class NumpyRunner(MethodRunner):
         seed: int,
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
         _captured_dispatch_execute: Any | None = None,
+        _prepared_call: PreparedNumpyMethodCall | None = None,
     ) -> MethodResult:
-        pure_step = getattr(method_class, "pure_step", None)
-        postprocess = getattr(method_class, "postprocess_output", None)
-        resolved = _resolve_params(signature, params)
-        rng = np.random.default_rng(seed)
-        resolved["__rng__"] = rng
-        resolved["__seed__"] = seed
+        prepared = _prepared_call or self.prepare_call(
+            method_class=method_class,
+            signature=signature,
+            state=state,
+            params=params,
+            seed=seed,
+            runtime_context=runtime_context,
+        )
+        if (
+            prepared.method_class is not method_class
+            or prepared.signature is not signature
+            or prepared.state is not state
+            or prepared.seed != seed
+        ):
+            raise ValueError("prepared_numpy_method_call_identity_mismatch")
+        pure_step = prepared.pure_step
+        postprocess = prepared.postprocessor
+        resolved = prepared.resolved_params
 
         representation_compatibility = ()
         started = time.perf_counter()
         restricted_invocation = None
         if runtime_context is None:
-            from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
-                run_restricted_exante_if_selected,
-            )
-
-            profile_selected, output, restricted_invocation = run_restricted_exante_if_selected(
+            if prepared.restricted_selector is None:
+                raise ValueError("prepared_numpy_method_context_mismatch")
+            profile_selected, output, restricted_invocation = prepared.restricted_selector(
                 runner=self,
                 captured_runner_execute=_captured_dispatch_execute,
                 method_class=method_class,
@@ -89,10 +250,10 @@ class NumpyRunner(MethodRunner):
                 postprocessor=postprocess,
                 state=state,
                 resolved_params=resolved,
-                original_params=params,
+                original_params=prepared.original_params,
             )
             if not profile_selected:
-                output, representation_compatibility = invoke_representation_call(
+                output, representation_compatibility = prepared.representation_call(
                     method_class=method_class,
                     signature=signature,
                     operation=pure_step,
@@ -175,10 +336,11 @@ class NumpyRunner(MethodRunner):
             "runtime_stack": runtime_stack,
         }
         fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
-        slot_outputs = dematerialize_method_output(
+        slot_outputs = prepared.output_dematerializer(
             method_class=method_class,
             signature=signature,
             output=output,
+            _captured_projection=(prepared.output_projection, prepared.strict_output_contract),
         )
 
         return MethodResult(

@@ -116,9 +116,7 @@ def materialize_activated_measurement_occurrence(
         projection.model_dump(mode="json")
     )
     row_matches = tuple(
-        row
-        for row in projection.observations
-        if row.observation.observation_id == observation_id
+        row for row in projection.observations if row.observation.observation_id == observation_id
     )
     if len(row_matches) != 1:
         raise _AssessmentRefusal("selected_observation_not_unique")
@@ -239,9 +237,7 @@ def replay_selected_scoped_measurement_facts(
             raise _AssessmentRefusal("source_field_binding_missing")
         binding = MetricFieldBinding.model_validate(binding_mapping)
         expected_transform = (
-            None
-            if binding.unit_transform == "identity"
-            else _resolve_fixed_unit_transform(binding)
+            None if binding.unit_transform == "identity" else _resolve_fixed_unit_transform(binding)
         )
         witness = (
             None
@@ -673,8 +669,12 @@ def read_scoped_measurement_source_body(
     if "sha256:" + hashlib.sha256(raw_body).hexdigest() != source_selection.source_watermark:
         raise ValueError("scoped_source_live_raw_content_mismatch")
 
-    snapshot = DataSnapshot.model_validate(
-        from_canonical_bytes(_read_exact_selected_bytes(store, proof.data_snapshot_ref))
+    snapshot_bytes = _read_exact_selected_bytes(store, proof.data_snapshot_ref)
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshot,
+        store,
+        proof.data_snapshot_ref,
+        raw_payload_bytes=snapshot_bytes,
     )
     bundle = EvidenceBundle.model_validate(
         from_canonical_bytes(_read_exact_selected_bytes(store, proof.evidence_bundle_ref))

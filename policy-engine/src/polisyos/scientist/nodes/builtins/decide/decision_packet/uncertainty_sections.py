@@ -37,7 +37,10 @@ def _build_uncertainty_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import (
+        load_core_json_artifact,
+        validate_core_model_json_artifact,
+    )
 
     envelope_refs: set[str] = set()
     legacy_bounds_refs: set[str] = set()
@@ -47,8 +50,7 @@ def _build_uncertainty_section(
     data_snapshot_ref = state_inputs.get(INPUT_DATA_SNAPSHOT_REF)
     if data_snapshot_ref is not None:
         try:
-            payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(payload)
+            snapshot = validate_core_model_json_artifact(DataSnapshot, ctx.store, data_snapshot_ref)
             if snapshot.uncertainty_envelope_ref is not None:
                 envelope_refs.add(str(snapshot.uncertainty_envelope_ref.artifact_id))
             if snapshot.uncertainty_ref is not None:

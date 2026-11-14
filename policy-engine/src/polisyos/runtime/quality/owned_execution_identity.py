@@ -455,7 +455,11 @@ class _RestrictedExecutionIdentityOwner:
                 {"1.1"},
             ),
             "foundry.exec_plan": (ExecPlan, "polisyos.core.ExecPlan", {"0.2.0"}),
-            "foundry.program_graph": (ProgramGraph, "polisyos.core.ProgramGraph", {"0.2.0"}),
+            "foundry.program_graph": (
+                ProgramGraph,
+                "polisyos.core.ProgramGraph",
+                set(ProgramGraph.ARTIFACT_SCHEMA_VERSIONS),
+            ),
             "ir.trinity_bundle": (TrinityBundle, "polisyos.ir.TrinityBundle", {"1.0"}),
             "scientist.policy_design.candidate": (
                 PolicyCandidateSchema,
@@ -561,7 +565,11 @@ class _RestrictedExecutionIdentityOwner:
                             "fabric.registered_sql_capture",
                         }
                         payload_version = {
-                            "foundry.program_graph": "0.2",
+                            "foundry.program_graph": (
+                                ProgramGraph.ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST.get(
+                                    schema.version
+                                )
+                            ),
                             "foundry.lowered_ir": "0.2",
                             "foundry.state_snapshot": "2.2",
                         }.get(selected_ref.kind, schema.version)

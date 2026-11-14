@@ -25,7 +25,7 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.ir.kernel.units import MoneyUnit
+from polisyos.ir.kernel import MoneyUnit
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore

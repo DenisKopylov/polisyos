@@ -2112,7 +2112,19 @@ def resolve_model_input_use_evaluation_history(
         prior_execution=prior_execution,
         prior_result=prior_result,
         current_action_result=current_result,
-        history_limitation_codes=("past_provider_profile_not_independently_reconstructed",)
-        if checkpoint.execution_ref is None
-        else (),
+        history_limitation_codes=(
+            *(
+                ("past_provider_profile_not_independently_reconstructed",)
+                if checkpoint.execution_ref is None
+                else ()
+            ),
+            *(
+                (
+                    "past_method_abi_completeness_not_established",
+                    "past_method_provider_completeness_not_established",
+                )
+                if basis.comparison_profile == "generic_program_graph_mapped_numpy_methods_v3"
+                else ()
+            ),
+        ),
     )

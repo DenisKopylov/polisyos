@@ -544,7 +544,7 @@ def _load_selected_acquisition_mapping(
             manifest=manifest,
             decoded=result,
         )
-        snapshot = contracts.DataSnapshot.model_validate(result)
+        snapshot = artifacts.validate_core_model_json_artifact(contracts.DataSnapshot, store, ref)
         from polisyos.runtime.quality.data_snapshot_lineage import (
             validate_data_snapshot_owner_lineage,
         )
@@ -1165,10 +1165,12 @@ def _live_source_candidate_graph_matches(
         if request_dataset_ids != (passport.registration.request_dataset_id,):
             return False
         expected_dataset_count = len(request_dataset_ids)
-        selected_snapshot_ref, snapshot_mapping = _load_owner_projection_mapping(
+        selected_snapshot_ref, _snapshot_mapping = _load_owner_projection_mapping(
             store, live.data_snapshot_ref
         )
-        snapshot = contracts.DataSnapshot.model_validate(snapshot_mapping)
+        snapshot = artifacts.validate_core_model_json_artifact(
+            contracts.DataSnapshot, store, selected_snapshot_ref
+        )
         if snapshot.evidence_ref is None or snapshot.quality_report_ref is None:
             return False
         verify_live_ingestion_snapshot_profile(store, selected_snapshot_ref, snapshot)

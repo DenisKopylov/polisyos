@@ -23,6 +23,7 @@ from polisyos.scientist import SchedulingDecision
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from polisyos.core.contracts import DataSnapshot
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         ControlPlaneStore,
@@ -704,6 +705,24 @@ def _selected_payload(
     return artifacts.load_core_json_artifact(store, ref)
 
 
+def _selected_data_snapshot(
+    store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef
+) -> DataSnapshot:
+    """Validate a selected DataSnapshot through the Core JSON owner."""
+    from polisyos.core.contracts import DataSnapshot
+
+    if (
+        type(ref) is not artifacts.ArtifactRef
+        or ref.kind != DataSnapshot.ARTIFACT_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        or not store.verify(ref).ok
+        or artifacts.profile_bound_ref(store, ref) != ref
+    ):
+        raise ValueError("candidate_reentry_history_selected_profile_invalid")
+    return artifacts.validate_core_model_json_artifact(DataSnapshot, store, ref)
+
+
 def _owner_record[RecordT: BaseModel](
     *,
     store: artifacts.ArtifactStore,
@@ -846,10 +865,7 @@ def _world_and_profile(
 ) -> tuple[
     WorldModelRecord, CandidateSimulationScenarioProfile, AcquiredCandidateContextPreparation
 ]:
-    from polisyos.core.contracts import (
-        CandidateAcquisitionSourceDataSnapshotLineage,
-        DataSnapshot,
-    )
+    from polisyos.core.contracts import CandidateAcquisitionSourceDataSnapshotLineage
     from polisyos.foundry.data_plane import (
         load_input_bindings,
         prepare_input_bindings,
@@ -900,9 +916,7 @@ def _world_and_profile(
     world = load_world_model_record(store, receipt.world_model_ref)
     _require_world_creation_time(world)
     views = world_model_artifact_views(world)
-    snapshot = DataSnapshot.model_validate(
-        _selected_payload(store, receipt.data_snapshot_ref, kind="fabric.data_snapshot")
-    )
+    snapshot = _selected_data_snapshot(store, receipt.data_snapshot_ref)
     actual = read_world_model_record_owner_values(
         store,
         world_model_record=world,

@@ -332,6 +332,8 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "UncertaintyBoundsRef",
         "WarningsBundle",
         "WarningsRef",
+        "AcquiredObservationSemanticInputDataSnapshotLineage",
+        "DerivedModelInputDataSnapshotLineage",
     ),
     ".forecast_profile_member": (
         "FORECAST_PROFILE_MEMBER_CONTRACT_VERSION",
@@ -402,6 +404,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "FeedbackDiagnosticSpec",
         "FeedbackFixedPointCandidate",
         "FeedbackIterationRecord",
+        "FeedbackMapEvaluationRecord",
         "FeedbackJacobianDiagnosticsRef",
         "FeedbackJacobianDiagnostics",
         "FeedbackObservationSpec",
@@ -421,6 +424,8 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "FoundryInputBindings",
         "FoundryInputBindingsRef",
         "FoundrySelectedMethodInput",
+        "FoundrySelectedMethodInputAtStep",
+        "FoundrySelectedMethodVectorInput",
         "FoundryInputBindingTransform",
         "FoundryValidationFlags",
         "IdentifiabilityDiagnosticRef",
@@ -471,6 +476,14 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "UnresolvedEquilibriumStart",
         "WelfareBoundReport",
         "WelfareBoundReportRef",
+        "LoweredMechanism",
+        "METHOD_METRIC_BINDING_LIMIT",
+        "ConstraintReport",
+        "ConstraintReportRef",
+        "MethodMetricInputCaptureSlot",
+        "PatchOp",
+        "RestrictedMethodCallWitness",
+        "ParameterOverrideBundle",
     ),
     ".ic_verification": (
         "ICBackendHint",
@@ -510,6 +523,26 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "RuleBackend",
         "RuleType",
     ),
+    ".entity_axis": (
+        "EntityAxisMemberId",
+        "EntityAxisValueIdentity",
+        "SelectedEntityAxis",
+        "SelectedEntityVectorSourceDescriptor",
+        "entity_axis_digest",
+        "entity_axis_member_sort_key",
+        "entity_axis_membership_digest",
+    ),
+    ".model_input_period_steps": (
+        "ModelInputPeriodStepProfile",
+        "ModelInputStepScope",
+        "derive_model_input_step_scopes",
+    ),
+    ".model_state_layout": (
+        "ModelScalarStateLayout",
+        "ModelScalarStateLayoutRef",
+        "ModelScalarStateSlot",
+        "model_scalar_state_layout_digest",
+    ),
     ".model_input_requirements": (
         "ModelInputContext",
         "ModelInputObligation",
@@ -526,6 +559,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "persist_model_input_obligation_set",
         "persist_program_graph_input_interface",
         "verify_model_input_port_semantics",
+        "load_model_input_obligation",
     ),
     ".normative_arbitration": ("NormativeArbitrationResultRef",),
     ".owned_attempt_anchor": (
@@ -862,11 +896,51 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "ResolvedMeasurementInput",
         "load_resolved_input_binding_manifest",
         "persist_resolved_input_binding_manifest",
+        "DERIVED_MODEL_INPUT_PAYLOAD_KIND",
+        "ResolvedDerivedInput",
     ),
     ".uncertainty": (
         "ForecastingUncertaintyBundleRef",
         "RegimeShiftForecastBundleRef",
         "UncertaintyEnvelopeRef",
+    ),
+    ".method_input": (
+        "RegistrySlotInputPortSource",
+        "MethodOutputInputPortSource",
+    ),
+    ".semantic_composition_binding": (
+        "RegisteredDerivedInputProfileRef",
+        "RegisteredDerivedModelInputRequest",
+        "RegisteredMeasurementRole",
+        "CandidateDerivedMeasurementRole",
+        "RegisteredDerivedInputContext",
+        "RegisteredDerivedInputCorrespondence",
+        "RegisteredRoleScope",
+        "load_registered_derived_input_profile",
+        "persist_native_derivation_source_projection",
+        "persist_registered_derived_input_context",
+        "persist_registered_derived_input_correspondence",
+        "recompute_native_derivation_source_projection",
+        "verify_registered_derived_family",
+        "RegisteredSemanticBasis",
+        "ReplayedCandidateDerivationRole",
+        "evaluate_registered_derived_input_correspondence",
+        "load_native_derivation_source_projection",
+        "load_registered_derived_input_context",
+        "load_registered_derived_input_correspondence",
+    ),
+    ".semantic_derived_binding": (
+        "DerivedInputCorrespondenceBasis",
+        "DerivedInputCorrespondenceRef",
+        "DerivedInputProfileRef",
+        "DerivedMeasurementRole",
+        "RatioDenominatorSourceContextRef",
+        "load_derived_input_profile",
+        "persist_derived_input_correspondence",
+        "ReplayedDerivedMeasurementRole",
+        "evaluate_derived_input_correspondence",
+        "load_derived_input_correspondence",
+        "load_ratio_denominator_source_context",
     ),
 }
 
@@ -1369,6 +1443,8 @@ if TYPE_CHECKING:
         FoundryInputBindingsRef,
         FoundryInputBindingTransform,
         FoundrySelectedMethodInput,
+        FoundrySelectedMethodInputAtStep,
+        FoundrySelectedMethodVectorInput,
         FoundryValidationFlags,
         IdentifiabilityDiagnosticRef,
         LoweredIR,
@@ -2557,13 +2633,26 @@ __all__.extend(
         "DataNeed",
         "DecisionMonitoringContractRef",
         "DecisionValidityEventRequest",
+        "EntityAxisMemberId",
+        "EntityAxisValueIdentity",
         "FeedbackConfig",
+        "FeedbackMapEvaluationRecord",
         "FeedbackSolveResult",
+        "FoundrySelectedMethodInputAtStep",
+        "FoundrySelectedMethodVectorInput",
+        "ModelInputPeriodStepProfile",
+        "ModelInputStepScope",
+        "ModelScalarStateLayout",
+        "ModelScalarStateLayoutRef",
+        "ModelScalarStateSlot",
         "ParameterOverrideBundle",
         "PolicyFlags",
+        "SelectedEntityAxis",
+        "SelectedEntityVectorSourceDescriptor",
         "SourceVerificationReportRef",
         "VerifiedPolicyReportRef",
         "c4_framed_semantic_projection_digest",
+        "derive_model_input_step_scopes",
         "validate_producer_call_observation",
     ]
 )
@@ -2582,6 +2671,12 @@ if TYPE_CHECKING:
         NO_CALL_REASON_VALUES,
         PRODUCER_CALL_STATE_VALUES,
         validate_producer_call_observation,
+    )
+    from .entity_axis import (
+        EntityAxisMemberId,
+        EntityAxisValueIdentity,
+        SelectedEntityAxis,
+        SelectedEntityVectorSourceDescriptor,
     )
     from .forecast_profile_member import (
         FORECAST_PROFILE_MEMBER_CONTRACT_VERSION,
@@ -2603,6 +2698,11 @@ if TYPE_CHECKING:
         ProgramOp,
         SemanticHorizonStepContext,
     )
+    from .model_input_period_steps import (
+        ModelInputPeriodStepProfile,
+        ModelInputStepScope,
+        derive_model_input_step_scopes,
+    )
     from .model_input_requirements import (
         ModelInputContext,
         ModelInputObligation,
@@ -2619,6 +2719,11 @@ if TYPE_CHECKING:
         persist_model_input_obligation_set,
         persist_program_graph_input_interface,
         verify_model_input_port_semantics,
+    )
+    from .model_state_layout import (
+        ModelScalarStateLayout,
+        ModelScalarStateLayoutRef,
+        ModelScalarStateSlot,
     )
     from .runtime import (
         RunCandidateSimulationN5ResultBody,
@@ -2660,4 +2765,138 @@ if TYPE_CHECKING:
         scoped_measurement_occurrence_manifest_inputs,
         scoped_source_selection_from_passport_mapping,
         variable_representation_manifest_inputs,
+    )
+
+
+__all__.extend(
+    [
+        "DERIVED_MODEL_INPUT_PAYLOAD_KIND",
+        "METHOD_METRIC_BINDING_LIMIT",
+        "CandidateDerivedMeasurementRole",
+        "ConstraintReport",
+        "ConstraintReportRef",
+        "DerivedInputCorrespondenceBasis",
+        "DerivedInputCorrespondenceRef",
+        "DerivedInputProfileRef",
+        "DerivedMeasurementRole",
+        "LoweredMechanism",
+        "MethodMetricInputCaptureSlot",
+        "MethodOutputInputPortSource",
+        "PatchOp",
+        "RatioDenominatorSourceContextRef",
+        "RegisteredDerivedInputContext",
+        "RegisteredDerivedInputCorrespondence",
+        "RegisteredDerivedInputProfileRef",
+        "RegisteredDerivedModelInputRequest",
+        "RegisteredMeasurementRole",
+        "RegisteredRoleScope",
+        "RegistrySlotInputPortSource",
+        "ResolvedDerivedInput",
+        "RestrictedMethodCallWitness",
+        "entity_axis_digest",
+        "entity_axis_member_sort_key",
+        "entity_axis_membership_digest",
+        "load_derived_input_profile",
+        "load_model_input_obligation",
+        "load_registered_derived_input_profile",
+        "model_scalar_state_layout_digest",
+        "persist_derived_input_correspondence",
+        "persist_native_derivation_source_projection",
+        "persist_registered_derived_input_context",
+        "persist_registered_derived_input_correspondence",
+        "recompute_native_derivation_source_projection",
+        "verify_registered_derived_family",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .entity_axis import (
+        entity_axis_digest,
+        entity_axis_member_sort_key,
+        entity_axis_membership_digest,
+    )
+    from .foundry import (
+        METHOD_METRIC_BINDING_LIMIT,
+        ConstraintReport,
+        ConstraintReportRef,
+        LoweredMechanism,
+        MethodMetricInputCaptureSlot,
+        ParameterOverrideBundle,
+        PatchOp,
+        RestrictedMethodCallWitness,
+    )
+    from .method_input import (
+        MethodOutputInputPortSource,
+        RegistrySlotInputPortSource,
+    )
+    from .model_input_requirements import (
+        load_model_input_obligation,
+    )
+    from .model_state_layout import (
+        model_scalar_state_layout_digest,
+    )
+    from .semantic_composition_binding import (
+        CandidateDerivedMeasurementRole,
+        RegisteredDerivedInputContext,
+        RegisteredDerivedInputCorrespondence,
+        RegisteredDerivedInputProfileRef,
+        RegisteredDerivedModelInputRequest,
+        RegisteredMeasurementRole,
+        RegisteredRoleScope,
+        load_registered_derived_input_profile,
+        persist_native_derivation_source_projection,
+        persist_registered_derived_input_context,
+        persist_registered_derived_input_correspondence,
+        recompute_native_derivation_source_projection,
+        verify_registered_derived_family,
+    )
+    from .semantic_derived_binding import (
+        DerivedInputCorrespondenceBasis,
+        DerivedInputCorrespondenceRef,
+        DerivedInputProfileRef,
+        DerivedMeasurementRole,
+        RatioDenominatorSourceContextRef,
+        load_derived_input_profile,
+        persist_derived_input_correspondence,
+    )
+    from .semantic_input_binding import (
+        DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+        ResolvedDerivedInput,
+    )
+
+__all__.extend(
+    [
+        "AcquiredObservationSemanticInputDataSnapshotLineage",
+        "DerivedModelInputDataSnapshotLineage",
+        "RegisteredSemanticBasis",
+        "ReplayedCandidateDerivationRole",
+        "ReplayedDerivedMeasurementRole",
+        "evaluate_derived_input_correspondence",
+        "evaluate_registered_derived_input_correspondence",
+        "load_derived_input_correspondence",
+        "load_native_derivation_source_projection",
+        "load_ratio_denominator_source_context",
+        "load_registered_derived_input_context",
+        "load_registered_derived_input_correspondence",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .fabric import (
+        AcquiredObservationSemanticInputDataSnapshotLineage,
+        DerivedModelInputDataSnapshotLineage,
+    )
+    from .semantic_composition_binding import (
+        RegisteredSemanticBasis,
+        ReplayedCandidateDerivationRole,
+        evaluate_registered_derived_input_correspondence,
+        load_native_derivation_source_projection,
+        load_registered_derived_input_context,
+        load_registered_derived_input_correspondence,
+    )
+    from .semantic_derived_binding import (
+        ReplayedDerivedMeasurementRole,
+        evaluate_derived_input_correspondence,
+        load_derived_input_correspondence,
+        load_ratio_denominator_source_context,
     )

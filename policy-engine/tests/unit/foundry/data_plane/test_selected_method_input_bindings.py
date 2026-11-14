@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from contextlib import contextmanager
+from dataclasses import replace
 from decimal import Decimal
 from io import BytesIO
 
@@ -14,19 +15,24 @@ import pytest
 from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import FoundryInputBindings
+from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.core.contracts.variable_binding import (
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
 from polisyos.foundry.data_plane.bindings import (
+    SelectedMethodInputFacts,
+    SelectedMethodInputResolution,
     _prepare_selected_method_input,
     load_input_bindings,
     reconcile_selected_method_input_bindings,
+    replay_selected_method_input_facts,
     resolve_bound_state_snapshot_ref,
 )
 from polisyos.foundry.execute._internal.models import put_tensor
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+from polisyos.foundry.methods.registry import MethodRegistry
 from tests._helpers.derived_selected_method_input import materialize_selected_method_input_case
 from tests._helpers.selected_method_input import prepare_selected_method_input_case
 from tests.unit.core.contracts.test_semantic_derived_binding import _put_contract
@@ -139,6 +145,10 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
         assert "semantic_input_limitation:external_empirical_context_not_established" in (
             resolution.notes
         )
+        assert "semantic_input_limitation:method_provider_completeness_not_established" in (
+            resolution.notes
+        )
+        assert "semantic_input_limitation:method_nominal_abi_not_checked" not in resolution.notes
         # This immutable physical-port check also runs in historical replay,
         # where a current MethodRegistry preflight must not be consulted.
         representation = load_variable_representation(fresh, metadata["representation_ref"])
@@ -169,6 +179,61 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
                 physical_value=Decimal("-6000000000"),
             )
 
+        manifest = load_resolved_input_binding_manifest(
+            fresh, materialized.resolved_binding_manifest_ref
+        )
+        selected_set, _ = load_model_input_obligation_set(
+            fresh, manifest.model_input_obligation_set_ref
+        )
+        invocation = selected_set.invocation
+        # B is a distinct selected binding artifact, not an execution. Its
+        # immutable facts can be replayed under a changed live method ABI.
+        retained_binding = resolution.bindings.model_copy(
+            update={"notes": [*resolution.bindings.notes, "fixture:retained-selection-B"]}
+        )
+        retained_ref = _persist_rebuilt_record(
+            fresh, materialized.input_bindings_ref, retained_binding, record
+        )
+        assert retained_ref.artifact_id != materialized.input_bindings_ref.artifact_id
+        source = next(iter(PeriodFlowToStock.signature.input_slots))
+
+        class ChangedABI(PeriodFlowToStock):
+            signature = replace(
+                PeriodFlowToStock.signature,
+                input_slots=frozenset(
+                    (*PeriodFlowToStock.signature.input_slots, replace(source, name="new_input"))
+                ),
+            )
+
+        registry = MethodRegistry.get_instance()
+        registry.register(ChangedABI, override=True)
+        try:
+            with pytest.raises(ValueError):
+                reconcile_selected_method_input_bindings(fresh, input_bindings_ref=retained_ref)
+            retained_facts = replay_selected_method_input_facts(
+                fresh, input_bindings_ref=retained_ref, expected_invocation=invocation
+            )
+            assert type(retained_facts) is SelectedMethodInputFacts
+            assert not isinstance(retained_facts, SelectedMethodInputResolution)
+            assert float(retained_facts.values["period_flow"]) == -6_000_000_000.0
+            assert retained_facts.records[0].value_sha256 == record.value_sha256
+            assert "semantic_input_limitation:method_nominal_abi_not_checked" in (
+                retained_facts.notes
+            )
+            assert "semantic_input_limitation:method_provider_completeness_not_established" in (
+                retained_facts.notes
+            )
+        finally:
+            registry.register(PeriodFlowToStock, override=True)
+        with pytest.raises(
+            ValueError, match=r"^foundry_input_bindings_semantic_invocation_mismatch$"
+        ):
+            replay_selected_method_input_facts(
+                fresh,
+                input_bindings_ref=retained_ref,
+                expected_invocation=invocation.model_copy(update={"steps": (1,)}),
+            )
+
         # No embedded certificate, canonical_value label, or physical-state
         # fallback can replace the separately selected source and NPY bytes.
         for removed in (
@@ -177,10 +242,15 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             metadata["roles"][0].source_series_ref,
             metadata["roles"][0].occurrence_ref,
         ):
-            with _removed_blob(fresh, removed), pytest.raises((FileNotFoundError, ValueError)):
-                reconcile_selected_method_input_bindings(
-                    fresh, input_bindings_ref=materialized.input_bindings_ref
-                )
+            with _removed_blob(fresh, removed):
+                with pytest.raises((FileNotFoundError, ValueError)):
+                    reconcile_selected_method_input_bindings(
+                        fresh, input_bindings_ref=materialized.input_bindings_ref
+                    )
+                with pytest.raises((FileNotFoundError, ValueError)):
+                    replay_selected_method_input_facts(
+                        fresh, input_bindings_ref=retained_ref, expected_invocation=invocation
+                    )
         replacement = BytesIO()
         np.save(replacement, np.asarray(0, dtype=np.float64))
         with (

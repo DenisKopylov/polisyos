@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import jax.numpy as jnp
 
@@ -29,6 +29,9 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.model_layer.types import SelectorOperator
+
+if TYPE_CHECKING:
+    from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
 
 __all__ = [
     "apply_op",
@@ -377,21 +380,48 @@ def apply_ops_to_state(
     ops: Iterable[PatchOp],
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> Any:
     """Group patch operations by slot and apply them to a base state."""
+    from polisyos.foundry.execute.patch_vm import _validate_model_state_patch_context
+
+    _validate_model_state_patch_context(
+        model_state_context,
+        slot_registry=slot_registry,
+        merge_registry=merge_registry,
+        base_state=base_state,
+        store=store,
+    )
     ops_by_slot: dict[str, list[PatchOp]] = {}
     for op in ops:
         ops_by_slot.setdefault(op.slot_id, []).append(op)
     state = base_state
     for slot_id, slot_ops in sorted(ops_by_slot.items()):
         slot_spec = slot_registry.slots.get(slot_id)
-        if slot_spec is None or not slot_spec.state_path:
+        if (
+            slot_spec is None
+            or slot_spec.state_path == ""
+            or (slot_spec.state_path is None and model_state_context is None)
+        ):
             raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
         rule = merge_registry.rules.get(slot_spec.merge_rule.rule_id)
         if rule is None:
             raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
         validate_ops_compatibility(slot_id, rule.kind, slot_ops)
-        base_value = get_state_path(state, slot_spec.state_path)
+        current_context = (
+            model_state_context._with_state_after_validation(state)
+            if model_state_context is not None and slot_spec.state_path is None
+            else None
+        )
+        base_value = (
+            current_context.read_slot(slot_id)
+            if current_context is not None
+            else get_state_path(state, slot_spec.state_path)
+        )
         merged = apply_ops_for_slot(store, base_value, slot_ops)
-        state = set_state_path(state, slot_spec.state_path, merged)
+        state = (
+            current_context.write_slot(slot_id, merged)
+            if current_context is not None
+            else set_state_path(state, slot_spec.state_path, merged)
+        )
     return state

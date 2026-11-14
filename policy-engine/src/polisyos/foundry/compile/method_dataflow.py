@@ -9,8 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from graphlib import CycleError, TopologicalSorter
 
-from polisyos.core.contracts.execution_plan import ExecutionPlan
-from polisyos.core.contracts.method_input import MethodOutputInputPortSource
+from polisyos.core.contracts import ExecutionPlan, MethodOutputInputPortSource
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import check_slot_compatibility

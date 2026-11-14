@@ -15,6 +15,7 @@ self-described lineage cannot substitute for those observations.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 from collections.abc import Mapping, Sequence
 from datetime import datetime
@@ -1405,7 +1406,11 @@ def _reconcile_backtest_rows(
             expected_schema_version="1.0",
         )
         ir_store = _ensure_ir_artifact_store(store)
-        snapshot = DataSnapshot.model_validate(get_json_artifact(ir_store, source))
+        snapshot_payload = get_json_artifact(ir_store, source)
+        snapshot = DataSnapshot.model_validate_json(
+            json.dumps(snapshot_payload, ensure_ascii=False, separators=(",", ":")),
+            strict=True,
+        )
         if ArtifactRefModel.model_validate(snapshot.data_ref.model_dump(mode="json")) != observed:
             raise ValueError("snapshot data reference differs")
         training_payload = _as_mapping(get_json_artifact(ir_store, training))

@@ -8,12 +8,19 @@ from .config import (
     project_bounds,
     snapshot_from_vector,
 )
-from .fixed_point import AlternativeSolution, MapEvaluation, SolveOutcome, solve_fixed_point
+from .fixed_point import (
+    AlternativeSolution,
+    FeedbackMapEvaluationRecorder,
+    MapEvaluation,
+    SolveOutcome,
+    solve_fixed_point,
+)
 from .jacobian import JacobianSummary
 from .multiplicity import MultiplicityExplorer, discover_equilibria
 
 __all__ = [
     "AlternativeSolution",
+    "FeedbackMapEvaluationRecorder",
     "JacobianSummary",
     "MapEvaluation",
     "MultiplicityExplorer",

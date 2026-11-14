@@ -1744,15 +1744,13 @@ def _load_verified_observed_data_snapshot(
     store: ArtifactStore, observed_source_ref: ArtifactRef
 ) -> DataSnapshot:
     """Admit observed-source lineage without granting candidate-row authority."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.runtime.quality.data_snapshot_lineage import (
         DataSnapshotSourceRowNotEstablishedError,
         validate_data_snapshot_owner_lineage,
     )
 
-    snapshot_payload = get_json_artifact(
-        ensure_ir_artifact_store(store), _as_ir_artifact_ref(observed_source_ref)
-    )
-    snapshot = DataSnapshot.model_validate(snapshot_payload)
+    snapshot = validate_core_model_json_artifact(DataSnapshot, store, observed_source_ref)
     try:
         lineage_result = validate_data_snapshot_owner_lineage(store, observed_source_ref, snapshot)
         if lineage_result.required_admissibility_blockers:

@@ -9078,6 +9078,68 @@
     },
     {
       "lane_id": "LANE-01",
+      "current_execution_20261114": {
+        "status": "ACTIVE",
+        "source_author_commit": "3e689d75975effccd11d3e799ebd9ebce2d5614e",
+        "source_author_tree": "df8b05ce27617623a5c4e1a0fbdc00262bb3ce36",
+        "composition_merge": "df7be7f44",
+        "cohort_cases": {
+          "ncm_records": 21,
+          "guard_and_publication": 43,
+          "affected_SQL_HTTP_consumers": 16,
+          "timing_real_events": 12,
+          "arithmetic": 3,
+          "fixture_signer": 3
+        },
+        "arithmetic_initial_cohort": "14 PASS / 1 fixture FAIL; repaired positive PASS in separate R2; do not relabel original run",
+        "all_component_N5_entries": 0,
+        "component_source_origins_qualified": true,
+        "outputs_root": "SECONDARY:policy-engine/_cache/e02/",
+        "checks": [
+          "canonical trust-posture --check PASS",
+          "architecture guardrails --skip-generated-checks PASS; not all generated families",
+          "scoped Ruff and format PASS"
+        ],
+        "inventory_diagnostic": {
+          "member_files": 578,
+          "visible_policy_profiles": 2,
+          "direct_seconds": [
+            0.041,
+            0.0323
+          ],
+          "guarded_seconds": [
+            0.03291,
+            0.03212
+          ],
+          "shared_workers": 8,
+          "effective_timeout_seconds": 1.5,
+          "historical_timeout_reproduced": false,
+          "queue_control": "cancelled_before_start at 1.5 s; on-time backend TimeoutError distinct",
+          "scope": "retained synthetic diagnostic only; no Runtime acceptance"
+        },
+        "new_fixture_profile": {
+          "POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER": "1",
+          "authority_or_recovery_claim": false
+        },
+        "next": [
+          "zero-N5 current Generic preflight with timing profile",
+          "true Generic and matched NCM sequence on frozen composition",
+          "retained partial GET-to-UI bridge without N5",
+          "after Gate A only P06/P07/P08/Gate B"
+        ],
+        "resource_limits": {
+          "aggregate_process_tree_RSS_GiB": 8,
+          "Generic_RSS_GiB": 3,
+          "Generic_wall_seconds": 2400,
+          "NCM_RSS_GiB": 5,
+          "NCM_wall_seconds": 4800,
+          "disk_floor_GiB": 3,
+          "planned_wave_disk_growth_GiB": 2
+        },
+        "free_disk_GiB_at_update": 8.51,
+        "G_acceptance": false,
+        "formal_closure": false
+      },
       "day_stop_20261113": {
         "status": "PAUSED_BY_USER",
         "numerical_jobs_quiescent": true,

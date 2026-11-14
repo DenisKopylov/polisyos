@@ -8,6 +8,7 @@ receipt or installs a test chronology verifier.
 import base64
 import hashlib
 import json
+import os
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -85,7 +86,11 @@ class _NativeEpochFixtureCustodyEntry:
 
 @dataclass(frozen=True, slots=True)
 class NativeEpochFixtureCustodian:
-    """Hold one fixture issuer key and reuse only its fully reconciled envelopes."""
+    """Hold one test-only issuer key and reuse only fully reconciled envelopes.
+
+    Optional private-key retention supports later bounded reconstruction of a
+    native epoch fixture. It does not add production trust or issuer authority.
+    """
 
     store: FileSystemCAS
     owner_ref: artifacts.ArtifactRef
@@ -97,7 +102,12 @@ class NativeEpochFixtureCustodian:
 
     @classmethod
     def create(cls, store: FileSystemCAS, root: Path) -> NativeEpochFixtureCustodian:
-        """Create a per-test fixture issuer bound to this exact CAS and profile."""
+        """Create a per-test issuer and optionally retain its test-only key bytes.
+
+        Set ``POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER=1`` to keep a private
+        key for later bounded fixture reconstruction. This does not change
+        production trust or issuer authority.
+        """
         owner_ref = store.put_bytes(
             b"fixture independent institution for the exact native epoch scope",
             artifacts.ArtifactWriteOptions(
@@ -116,6 +126,24 @@ class NativeEpochFixtureCustodian:
         )
         with public_key_path.open("xb") as public_key_file:
             public_key_file.write(public_key_bytes)
+        if os.environ.get("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER") == "1":
+            private_key_path = root / f"native-epoch-owner-{key_path_id}.pem"
+            private_key_bytes = private_key.private_bytes(
+                Encoding.PEM,
+                serialization.PrivateFormat.PKCS8,
+                serialization.NoEncryption(),
+            )
+            flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+            flags |= getattr(os, "O_NOFOLLOW", 0)
+            private_key_fd = os.open(private_key_path, flags, 0o600)
+            try:
+                os.fchmod(private_key_fd, 0o600)
+                with os.fdopen(private_key_fd, "wb") as private_key_file:
+                    private_key_fd = -1
+                    private_key_file.write(private_key_bytes)
+            finally:
+                if private_key_fd >= 0:
+                    os.close(private_key_fd)
         return cls(
             store=store,
             owner_ref=owner_ref,

@@ -9137,7 +9137,7 @@
           "disk_floor_GiB": 3,
           "planned_wave_disk_growth_GiB": 2
         },
-        "free_disk_GiB_at_update": 7.77,
+        "free_disk_GiB_at_update": 7.3,
         "G_acceptance": false,
         "formal_closure": false,
         "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
@@ -9302,6 +9302,36 @@
               "output": "PRIMARY:policy-engine/_cache/e02/entity-axis-r2-20261114/"
             }
           }
+        },
+        "latest_author_checkpoint": {
+          "commit": "1288a7c5d32262556164d11d66550e8550d1bed6",
+          "tree": "3cb13ef9a7a208a55d385e03addaac0ee49c25fc",
+          "branch": "codex/e02-lane01-verify-20261108",
+          "prior_remote_readback": "5873290a9e8d12cbfe618ce6d74c7fc3d4154b81",
+          "scope": "author implementation, not completed main composition or G acceptance"
+        },
+        "latest_growth_checks": {
+          "core_v3_and_legacy": {
+            "pass": 101,
+            "output": "core-derivation-v3-compat-r1-20261114"
+          },
+          "recipe_companion": {
+            "pass": 47,
+            "output": "core-composition-recipes-r2-20261114"
+          },
+          "mapped_compiler_and_patch": {
+            "pass": 64,
+            "output": "SECONDARY:policy-engine/_build/.tmp/e02/mapped-compiler-r2-20261114"
+          },
+          "selected_facts_matrix": {
+            "pass": 1,
+            "output": "selected-method-facts-r3-20261114"
+          },
+          "snapshot_2_4": {
+            "pass": 17,
+            "limitation": "independent review found unbounded snapshot/blob reader; repair pending"
+          },
+          "runtime_method_provider": "native callable content not established in ordinary unrecorded pytest; canonical early-host provider reference owner active"
         }
       },
       "day_stop_20261113": {

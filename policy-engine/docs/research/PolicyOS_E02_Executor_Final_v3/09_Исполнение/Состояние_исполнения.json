@@ -9244,22 +9244,13 @@
           "body_fixtures_delivered": "SECONDARY:apps/runtime-dashboard/src/api/__fixtures__/model-input-use-{current-c,retained-b}.json"
         },
         "consultant_method_input_direction": {
-          "status": "IMPLEMENTING_BASE__ASSESSING_OPTIONAL_GROWTH",
+          "status": "IMPLEMENTING_BASE_AND_REVIEWED_AUTHORIZED_GROWTH",
           "accepted_path": "selected model port -> exact registered method ABI input -> canonical verified tensor -> actual argument hash -> checked patch/merge -> persisted result -> fresh reader",
           "base_scope": [
             "single scalar GLOBAL period_total per port and one active matching model step",
             "identity input join; no ambient state fallback",
             "generic declared patch-target unit/kind/merge/operation validation",
             "versioned 1.1 ports/obligations/plans and 1.4 semantic method bindings; legacy readers preserved"
-          ],
-          "growth_options_assessment_only": [
-            "model-value state carrier",
-            "explicit input_ports",
-            "method-result dataflow",
-            "multi-step flow inputs",
-            "deeper derivation DAG",
-            "entity vectors",
-            "feedback"
           ],
           "source_location": "existing secondary checkout; uncommitted author delta, not main code",
           "core_contract_check": {
@@ -9274,7 +9265,43 @@
             "dashboard_actual_C_B": "310 PASS"
           },
           "G_acceptance": false,
-          "formal_closure": false
+          "formal_closure": false,
+          "growth_options_review_then_implement": [
+            "model-value state carrier",
+            "explicit input_ports",
+            "method-result dataflow",
+            "multi-step flow inputs",
+            "deeper derivation DAG",
+            "entity vectors",
+            "feedback"
+          ],
+          "authorization": "Latest user explicitly authorizes reviewed useful additions; original denominator unchanged; no new general approval round.",
+          "current_results": {
+            "history_development": "42 PASS",
+            "history_fold_development": "49 PASS, independent source review GO; real no-N5 three-generation acceptance UNRUN",
+            "N7_bundle_development": "19 PASS after fixture/import repairs; earlier reds preserved",
+            "selected_tensor_development": "57 PASS",
+            "patch_contracts_development": "28 PASS after fixture repair; initial82 cohort71 PASS/11 fixture FAIL retained",
+            "dashboard_typecheck": "PASS after 1.5GiB cap abort; successful3GiB cap profile sampled2.2GB",
+            "base_pair_r1": "FAIL before method execution: selected execution-plan loader only allowed1.0; companion repair pending",
+            "entity_axis_primary_r1": "5 PASS; independent review repairs pending; no model-port bridge yet",
+            "base_pair_r2": {
+              "PASS": 1,
+              "wall_seconds": 74.214,
+              "peak_sampled_tree_RSS_bytes": 2557673472,
+              "scope": "public -6B/0 method execution + cold persisted source/NPY/actual argument hash/stock reader; development profile",
+              "output": "SECONDARY:policy-engine/_cache/e02/selected-method-first-pair-r2-20261114/"
+            },
+            "base_controls_r1": "3 PASS / 4 FAIL; old-ABI history and corruption/removal matrix pass; fixture typo + source-unit/patch-target proxy repair pending",
+            "entity_axis_primary_r2": {
+              "PASS": 8,
+              "wall_seconds": 6.222,
+              "peak_sampled_tree_RSS_bytes": 646479872,
+              "independent_source_review": "GO after material repair",
+              "scope": "candidate source-view axis producer/reconciler/alignment; actual method consumer bridge pending",
+              "output": "PRIMARY:policy-engine/_cache/e02/entity-axis-r2-20261114/"
+            }
+          }
         }
       },
       "day_stop_20261113": {

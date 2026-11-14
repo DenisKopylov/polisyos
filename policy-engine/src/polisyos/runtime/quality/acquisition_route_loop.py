@@ -35,6 +35,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionPlannerReport,
     AcquisitionRequirementGap,
     _n7_candidate_n5_l1_planner_records_match,
+    _n7_load_derivation_bundle,
     _n7_require_current_report_input_provenance,
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
@@ -78,6 +79,9 @@ if TYPE_CHECKING:
         AcquisitionActionHeadRecord,
         ControlJobRecord,
         ControlPlaneStore,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        _CandidateExperimentHistoryPrefix,
     )
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedPolicyBinding,
@@ -1906,12 +1910,25 @@ class AcquisitionRouteLoop:
                 ) from exc
             if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
                 grounding_gap = source_cycle.grounding.acquisition_requirement
+                derivation_bundle = None
+                if configured_port_source is not None:
+                    bundle_ref = configured_port_source.derivation_bundle_ref
+                    if bundle_ref is not None:
+                        try:
+                            derivation_bundle = _n7_load_derivation_bundle(
+                                self._artifact_store, bundle_ref
+                            )
+                        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                            raise AcquisitionRouteClosureError(
+                                "source_requirement_derivation_bundle_unverified"
+                            ) from exc
                 matching = _n7_candidate_n5_l1_planner_records_match(
                     source_gap=source_gap,
                     accompanying_requirement_gaps=(grounding_gap,) if grounding_gap else (),
                     specs=compiler_report.specs,
                     capability_resolutions=compiler_report.capability_requirement_resolutions,
                     report=report,
+                    derivation_bundle=derivation_bundle,
                 )
             else:
                 matching = _n7_joined_planner_records_match(
@@ -2279,6 +2296,25 @@ class AcquisitionRouteLoop:
         historical_policy_ref: ArtifactRef | None = None,
         historical_action_job_id: str | None = None,
     ) -> VerifiedCandidateExperimentOrigin:
+        """Fully replay the historical prefix selected by an immutable request."""
+        return self._resolve_candidate_experiment_predecessor_origin(
+            run_id=run_id,
+            predecessor_terminal_ref=predecessor_terminal_ref,
+            expected_action_generation=expected_action_generation,
+            historical_policy_ref=historical_policy_ref,
+            historical_action_job_id=historical_action_job_id,
+        )
+
+    def _resolve_candidate_experiment_predecessor_origin(
+        self,
+        *,
+        run_id: str,
+        predecessor_terminal_ref: ArtifactRef | None,
+        expected_action_generation: int | None = None,
+        historical_policy_ref: ArtifactRef | None = None,
+        historical_action_job_id: str | None = None,
+        history_prefix: _CandidateExperimentHistoryPrefix | None = None,
+    ) -> VerifiedCandidateExperimentOrigin:
         """Reopen exactly the historical prefix selected by one request.
 
         This is historical evidence, not permission to act against the current
@@ -2288,14 +2324,43 @@ class AcquisitionRouteLoop:
 
         from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
         from polisyos.runtime.quality.acquisition_evaluation_history import (
+            _candidate_experiment_history_prefix_origin,
             verify_candidate_experiment_terminal_history,
         )
+
+        service = getattr(self._core_source_resolver, "__self__", None)
+        prefix_origin = (
+            None
+            if history_prefix is None
+            else _candidate_experiment_history_prefix_origin(
+                history_prefix, control_service=service
+            )
+        )
+        if prefix_origin is not None and (
+            (prefix_origin.tenant_id, prefix_origin.cell_id, prefix_origin.run_id)
+            != (self._tenant_id, self._cell_id, run_id)
+            or self._action_outcome_reader is not history_prefix.sink
+            or self._artifact_store is not history_prefix.artifact_store
+            or self._control_store is not history_prefix.control_store
+            or self._event_log is not history_prefix.event_log
+            or (
+                expected_action_generation is not None
+                and len(prefix_origin.candidate_terminal_history_chain) + 1
+                != expected_action_generation
+            )
+        ):
+            raise AcquisitionRouteClosureError("candidate_experiment_history_prefix_owner_mismatch")
 
         if predecessor_terminal_ref is None:
             if expected_action_generation not in {None, 1}:
                 raise AcquisitionRouteClosureError("candidate_experiment_predecessor_not_selected")
             if historical_policy_ref is None and historical_action_job_id is None:
-                return self._resolve_candidate_experiment_source(run_id=run_id)
+                origin = self._resolve_candidate_experiment_source(run_id=run_id)
+                if prefix_origin is not None and not _candidate_model_values_same(
+                    prefix_origin, origin
+                ):
+                    raise AcquisitionRouteClosureError("candidate_experiment_predecessor_changed")
+                return origin
             if (
                 historical_policy_ref is None
                 or type(historical_action_job_id) is not str
@@ -2334,6 +2399,10 @@ class AcquisitionRouteLoop:
                 != selected[0]
             ):
                 raise AcquisitionRouteClosureError("candidate_experiment_historical_policy_changed")
+            if prefix_origin is not None and not _candidate_model_values_same(
+                prefix_origin, origin
+            ):
+                raise AcquisitionRouteClosureError("candidate_experiment_predecessor_changed")
             return origin
         ref = predecessor_terminal_ref
         if (
@@ -2346,7 +2415,6 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("candidate_experiment_predecessor_profile_invalid")
         if historical_action_job_id is not None:
             raise AcquisitionRouteClosureError("candidate_experiment_historical_anchor_invalid")
-        service = getattr(self._core_source_resolver, "__self__", None)
         if type(service) is not ControlPlaneService:
             raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
         # The selected terminal supplies a policy locator. The exact SQL head,
@@ -2408,9 +2476,14 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError(
                 "candidate_experiment_predecessor_generation_invalid"
             )
-        history = verify_candidate_experiment_terminal_history(
-            control_service=service, head=head, terminal_ref=ref
-        )
+        if prefix_origin is None:
+            history = verify_candidate_experiment_terminal_history(
+                control_service=service, head=head, terminal_ref=ref
+            )
+        else:
+            history = prefix_origin.current_terminal_history
+            if history is None or not _candidate_ref_same(history.terminal_ref, ref):
+                raise AcquisitionRouteClosureError("candidate_experiment_predecessor_not_selected")
         prefix = (*history.origin.candidate_terminal_history_chain, history)
         if (
             len(prefix) != head.action_generation
@@ -2436,11 +2509,14 @@ class AcquisitionRouteLoop:
             )
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_predecessor_changed")
-        return replace(
+        result = replace(
             origin,
             candidate_terminal_history_chain=prefix,
             current_terminal_history=history,
         )
+        if prefix_origin is not None and not _candidate_model_values_same(prefix_origin, result):
+            raise AcquisitionRouteClosureError("candidate_experiment_predecessor_changed")
+        return result
 
     def resolve_current_candidate_experiment(
         self,

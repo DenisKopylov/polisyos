@@ -613,6 +613,8 @@ def _verify_actual_world(
     ):
         raise ValueError("candidate_source_basis_actual_snapshot_mismatch")
     bindings = load_input_bindings(store, views.input_bindings_ref)
+    if bindings.schema_version == "1.4":
+        raise ValueError("candidate_source_basis_unconsumed_method_inputs")
     if (
         any(
             not _same_view(store, getattr(bindings, name), getattr(views, name))
@@ -627,6 +629,7 @@ def _verify_actual_world(
         registry_bundle_ref=views.registry_bundle_ref,
         rules=list(bindings.rules),
         registered_sql_admission_ref=bindings.registered_sql_admission_ref,
+        resolved_binding_manifest_ref=bindings.resolved_binding_manifest_ref,
     )
     actual_state = load_state_snapshot(store, snapshot_ref=views.bound_state_snapshot_ref)
     for current in (replay, prospective):
@@ -705,7 +708,7 @@ def _prepare_candidate_source_basis_step(
     previous: CandidateSourceBasisValues | None = None,
 ) -> CandidateSourceBasisValues:
     """Replay one candidate producer step, optionally after a verified step."""
-    from polisyos.foundry.data_plane import prepare_json_input_binding_values
+    from polisyos.foundry.data_plane import load_input_bindings, prepare_json_input_binding_values
     from polisyos.foundry.execute import state_snapshot_value_projection
     from polisyos.ir import prepare_ncm_spec_selected_values
     from polisyos.runtime.quality.candidate_acquisition_source import (
@@ -764,6 +767,8 @@ def _prepare_candidate_source_basis_step(
         ):
             raise ValueError("candidate_source_basis_predecessor_selection_mismatch")
         views = world_model_artifact_views(base)
+        if load_input_bindings(store, views.input_bindings_ref).schema_version == "1.4":
+            raise ValueError("candidate_source_basis_unconsumed_method_inputs")
         if inputs.base_data_snapshot_ref != views.data_snapshot_ref:
             raise ValueError("candidate_source_basis_base_selection_mismatch")
         _require_candidate_acquisition_world_scope(

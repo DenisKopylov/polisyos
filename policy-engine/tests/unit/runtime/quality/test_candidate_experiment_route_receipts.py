@@ -591,6 +591,10 @@ def test_current_fold_uses_exact_v2_history_for_the_selected_head(
     sink._artifact_store = cas
     sink._event_log = object()
     sink._core_source_resolver = service.resolve_completed_control_job_core_run_source
+    service._control_store = store
+    service._artifact_store = cas
+    service._diagnostic_event_log = sink._event_log
+    service._acquisition_route_sink = sink
     loop = AcquisitionRouteLoop(
         control_store=store,
         artifact_store=cas,
@@ -613,10 +617,25 @@ def test_current_fold_uses_exact_v2_history_for_the_selected_head(
         "_verified_candidate_experiment_phase_chain",
         lambda _sink, head, **_: by_ref[head.receipt_ref].phase_chain,
     )
+    generation_reads: list[int] = []
+    receipt_memos: list[object] = []
+
+    def replay_generation(*, head, history_prefix, **_):
+        from polisyos.runtime.quality.joint_simulation_horizon import _RECEIPT_MEMO
+
+        # This component adapter stands in for the real immutable-history
+        # owner. It proves ordered prefix plumbing and replay count only.
+        assert history_prefix.origin.candidate_terminal_history_chain == tuple(
+            histories[index] for index in range(1, head.action_generation)
+        )
+        generation_reads.append(head.action_generation)
+        receipt_memos.append(_RECEIPT_MEMO.get())
+        return histories[head.action_generation]
+
     monkeypatch.setattr(
         acquisition_evaluation_history,
-        "verify_candidate_experiment_terminal_history",
-        lambda *, head, **_: histories[head.action_generation],
+        "_verify_candidate_experiment_terminal_history_generation",
+        replay_generation,
     )
 
     job_id = heads[-1].job_id if current == "pending" else None
@@ -628,11 +647,26 @@ def test_current_fold_uses_exact_v2_history_for_the_selected_head(
             loop.resolve_current_candidate_experiment(run_id=origin.run_id)
         return
     selected = loop.resolve_current_candidate_experiment(run_id=origin.run_id, action_job_id=job_id)
+    assert generation_reads == [1, 2, 1, 2]
+    assert receipt_memos[0] is receipt_memos[1]
+    assert receipt_memos[2] is receipt_memos[3]
+    assert receipt_memos[0] is not receipt_memos[2]
     assert selected.current_action_head == heads[-1]
     assert selected.current_terminal_history is reuse
     assert selected.candidate_terminal_history_chain == (first, reuse)
     assert selected.source_attempt_prefix == (first.action.attempt_id,)
     assert selected.action_authority == "not_established"
+    generation_reads.clear()
+    unpinned = sink.experiment_action_outcomes(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+    )
+    assert generation_reads == [1, 2, 1, 2]
+    assert tuple(item.head for item in unpinned) == heads
+    assert unpinned[1].candidate_experiment_terminal_history is reuse
     if blocked:
         assert reuse.evaluation is None
         assert reuse.frontier_after == first.frontier_after

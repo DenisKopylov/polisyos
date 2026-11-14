@@ -24,7 +24,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 from types import MappingProxyType
-from typing import Any, ClassVar, Protocol, TypeVar, runtime_checkable
+from typing import Any, ClassVar, Literal, Protocol, TypeVar, runtime_checkable
 
 import numpy as np
 
@@ -632,6 +632,48 @@ class MethodRepresentationProfile:
 
 
 @dataclass(frozen=True, slots=True)
+class MethodPatchTargetContract:
+    """Declare a scalar flow's additive write into a selected model stock.
+
+    This finite profile requires a registered GLOBAL DECIMAL flow and stock
+    with the same resolved monetary unit and a SUM merge rule. The executor
+    validates the selected registry before invocation and accepts delta-only
+    patch records. It does not infer an empirical stock-accumulation law.
+
+    Attributes:
+        target_parameter: Static parameter naming the registered target slot.
+        source_input: Input ABI slot providing the flow's unit witness.
+        operation: Required patch operation for this profile.
+        target_kind: Required state-slot kind.
+        target_scope: Required scalar state scope.
+        merge_rule_kind: Required resolved merge-rule kind.
+    """
+
+    target_parameter: str
+    source_input: str
+    operation: Literal["add"] = "add"
+    target_kind: Literal["stock"] = "stock"
+    target_scope: Literal["global"] = "global"
+    merge_rule_kind: Literal["sum"] = "sum"
+
+    def __post_init__(self) -> None:
+        for name in ("target_parameter", "source_input"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or value.strip() != value:
+                raise ValueError(f"method_patch_{name}_invalid")
+        if (
+            self.operation != "add"
+            or self.target_kind != "stock"
+            or self.target_scope != "global"
+            or self.merge_rule_kind != "sum"
+        ):
+            raise ValueError("method_patch_target_profile_unsupported")
+
+    def _stable_dict(self) -> dict[str, str]:
+        return {item.name: getattr(self, item.name) for item in dataclasses.fields(self)}
+
+
+@dataclass(frozen=True, slots=True)
 class MethodSignature:
     """
     The immutable ABI contract of a Foundry method.
@@ -668,6 +710,7 @@ class MethodSignature:
     supports_vmap: bool = True
     supports_grad: bool = True
     representation_profiles: tuple[MethodRepresentationProfile, ...] = ()
+    patch_targets: tuple[MethodPatchTargetContract, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name:
@@ -721,6 +764,21 @@ class MethodSignature:
         )
         if any(p.output_slot not in self.output_slot_names for p in self.representation_profiles):
             raise ValueError("representation_profile_output_slot_missing")
+        if not isinstance(self.patch_targets, tuple) or any(
+            not isinstance(contract, MethodPatchTargetContract) for contract in self.patch_targets
+        ):
+            raise TypeError("method_patch_targets_must_be_typed_tuple")
+        _ensure_unique_names(
+            "patch_targets", [contract.target_parameter for contract in self.patch_targets]
+        )
+        parameters_by_name = {parameter.name: parameter for parameter in self.parameters}
+        for contract in self.patch_targets:
+            parameter = parameters_by_name.get(contract.target_parameter)
+            if parameter is None or not parameter.is_static:
+                raise ValueError("method_patch_target_static_parameter_missing")
+            source_slot = self.get_input_slot(contract.source_input)
+            if source_slot is None or source_slot.slot_type is not SlotType.SCALAR:
+                raise ValueError("method_patch_source_scalar_input_missing")
         _ensure_unique_names("input_slots", [slot.name for slot in self.input_slots])
         _ensure_unique_names("output_slots", [slot.name for slot in self.output_slots])
         _ensure_unique_names("parameters", [param.name for param in self.parameters])
@@ -822,6 +880,11 @@ class MethodSignature:
         # Keep digest stable for legacy methods.
         if self.backend is not ComputeBackend.JAX:
             payload["backend"] = self.backend.value
+        if self.patch_targets:
+            payload["patch_targets"] = [
+                contract._stable_dict()
+                for contract in sorted(self.patch_targets, key=lambda item: item.target_parameter)
+            ]
         return payload
 
     def __hash__(self) -> int:

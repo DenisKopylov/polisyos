@@ -2120,6 +2120,9 @@ if TYPE_CHECKING:
         CandidateEvaluationTerminalHistory,
         CandidateExperimentTerminalHistory,
     )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        _CandidateExperimentHistoryPrefix,
+    )
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateSourceRoute,
@@ -4428,6 +4431,7 @@ class AcquisitionRouteLoopAuthoritySink:
         phase: AcquisitionCandidateExperimentPhaseReceipt,
         *,
         verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        history_prefix: _CandidateExperimentHistoryPrefix | None = None,
         job_context: tuple[ControlJobRecord, ArtifactRef, dict[str, Any], AcquisitionActionService]
         | None = None,
     ) -> tuple[
@@ -4443,6 +4447,8 @@ class AcquisitionRouteLoopAuthoritySink:
         request, decision_ref = _read_candidate_experiment_request_historical(
             phase=phase, payload=payload
         )
+        if history_prefix is not None and verified_origin is not None:
+            raise ValueError("candidate_experiment_history_prefix_origin_conflict")
         if verified_origin is None:
             # The immutable job and the selected phase identify this historic
             # request. Reopen its exact earlier prefix before checking the
@@ -4452,6 +4458,16 @@ class AcquisitionRouteLoopAuthoritySink:
                 cell_id=phase.cell_id,
                 run_id=phase.run_id,
                 request=request,
+                require_current=False,
+                **({} if history_prefix is None else {"history_prefix": history_prefix}),
+            )
+        else:
+            verified_origin = action_service._reconcile_candidate_experiment_request_origin(
+                tenant_id=phase.tenant_id,
+                cell_id=phase.cell_id,
+                run_id=phase.run_id,
+                request=request,
+                origin=verified_origin,
                 require_current=False,
             )
         origin = self._candidate_experiment_phase_origin(phase, verified_origin=verified_origin)
@@ -4767,6 +4783,7 @@ class AcquisitionRouteLoopAuthoritySink:
         head: AcquisitionActionHeadRecord,
         *,
         verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        history_prefix: _CandidateExperimentHistoryPrefix | None = None,
     ) -> VerifiedAcquisitionActionOutcome:
         """Verify one head, optionally reusing the caller's source inside a fenced fold."""
         if verified_origin is not None and (
@@ -4788,6 +4805,20 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         ):
             raise ValueError("candidate_experiment_action_source_scope_mismatch")
+        if history_prefix is not None:
+            from polisyos.runtime.quality.acquisition_evaluation_history import (
+                _candidate_experiment_history_prefix_origin,
+            )
+
+            if (
+                _candidate_experiment_history_prefix_origin(
+                    history_prefix,
+                    control_service=getattr(self._core_source_resolver, "__self__", None),
+                    head=head,
+                )
+                is not verified_origin
+            ):
+                raise ValueError("candidate_experiment_history_prefix_origin_mismatch")
         current = self._control_store.get_acquisition_action_head(
             tenant_id=head.tenant_id,
             cell_id=head.cell_id,
@@ -4824,12 +4855,23 @@ class AcquisitionRouteLoopAuthoritySink:
                 AcquisitionCandidateExperimentTerminalReceiptV2,
             }:
                 from polisyos.runtime.quality.acquisition_evaluation_history import (
+                    _verify_candidate_experiment_terminal_history_generation,
                     verify_candidate_experiment_terminal_history,
                 )
 
-                candidate_experiment_history = verify_candidate_experiment_terminal_history(
-                    control_service=owner, head=head, terminal_ref=selected_ref
-                )
+                if history_prefix is None:
+                    candidate_experiment_history = verify_candidate_experiment_terminal_history(
+                        control_service=owner, head=head, terminal_ref=selected_ref
+                    )
+                else:
+                    candidate_experiment_history = (
+                        _verify_candidate_experiment_terminal_history_generation(
+                            control_service=owner,
+                            head=head,
+                            terminal_ref=selected_ref,
+                            history_prefix=history_prefix,
+                        )
+                    )
                 phase_chain = candidate_experiment_history.phase_chain
             else:
                 from polisyos.runtime.quality.acquisition_evaluation_history import (
@@ -4912,12 +4954,56 @@ class AcquisitionRouteLoopAuthoritySink:
         route_id: str,
         verified_origin: VerifiedCandidateExperimentOrigin | None = None,
     ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        """Reconcile a complete ordered history at two independently observed cuts.
+
+        Each sweep owns its earlier verified prefix and reopens every generation.
+        The second sweep has a fresh receipt memo and repeats actual source, SQL,
+        event and artifact reads. These are two observations, not an atomic read
+        or a guarantee against an unobserved intervening A-to-B-to-A change.
+        """
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            _receipt_verification_operation,
+        )
+
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": source_job_id,
+            "route_id": route_id,
+            "verified_origin": verified_origin,
+        }
+        with _receipt_verification_operation(fresh=True):
+            first = self._experiment_action_outcomes_once(**scope)
+        with _receipt_verification_operation(fresh=True):
+            second = self._experiment_action_outcomes_once(**scope)
+        if len(first) != len(second) or any(
+            not _candidate_model_values_same(before, after)
+            for before, after in zip(first, second, strict=True)
+        ):
+            raise ValueError("candidate_experiment_action_history_changed")
+        return second
+
+    def _experiment_action_outcomes_once(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+    ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
         """Resolve only owner-replayed in-flight experiment phases for one source."""
         from dataclasses import replace
 
         from polisyos.runtime.quality.acquisition_evaluation import (
             CandidateExperimentTerminalHistory,
             _candidate_model_values_same,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            _CandidateExperimentHistoryPrefix,
         )
 
         if verified_origin is not None and (
@@ -4933,19 +5019,6 @@ class AcquisitionRouteLoopAuthoritySink:
             != (tenant_id, cell_id, run_id, source_job_id, route_id)
         ):
             raise ValueError("candidate_experiment_action_source_scope_mismatch")
-
-        source_origin = (
-            None
-            if verified_origin is None
-            else replace(
-                verified_origin,
-                current_action_head=None,
-                current_terminal_history=None,
-                candidate_terminal_history_chain=(),
-            )
-        )
-        phase_origin = source_origin
-        matched_supplied_prefix = verified_origin is None
 
         scope = {
             "tenant_id": tenant_id,
@@ -4964,6 +5037,24 @@ class AcquisitionRouteLoopAuthoritySink:
             if verified_origin is not None and verified_origin.candidate_terminal_history_chain:
                 raise ValueError("candidate_experiment_action_prefix_mismatch")
             return ()
+        # Reopen the source independently. A caller's origin may constrain this
+        # sweep, but none of its histories supplies the proof prefix.
+        source_origin = self._resolve_candidate_experiment_source(
+            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+        )
+        if verified_origin is not None and not _candidate_model_values_same(
+            source_origin,
+            replace(
+                verified_origin,
+                current_action_head=None,
+                current_terminal_history=None,
+                candidate_terminal_history_chain=(),
+            ),
+        ):
+            raise ValueError("candidate_experiment_source_changed")
+        phase_origin = source_origin
+        matched_supplied_prefix = verified_origin is None
+
         if tuple(head.action_generation for head in heads) != tuple(range(1, len(heads) + 1)):
             raise ValueError("candidate_experiment_action_generations_not_contiguous")
         outcomes: list[VerifiedAcquisitionActionOutcome] = []
@@ -4983,10 +5074,19 @@ class AcquisitionRouteLoopAuthoritySink:
                 if not _candidate_model_values_same(phase_origin, expected_origin):
                     raise ValueError("candidate_experiment_action_prefix_mismatch")
                 matched_supplied_prefix = True
-            if phase_origin is None:
-                outcome = self.verify_action_head(head)
-            else:
-                outcome = self._verify_action_head_with_origin(head, verified_origin=phase_origin)
+            owner = getattr(self._core_source_resolver, "__self__", None)
+            prefix = _CandidateExperimentHistoryPrefix(
+                control_service=owner,
+                sink=self,
+                artifact_store=self._artifact_store,
+                control_store=self._control_store,
+                event_log=self._event_log,
+                heads=heads,
+                origin=phase_origin,
+            )
+            outcome = self._verify_action_head_with_origin(
+                head, verified_origin=phase_origin, history_prefix=prefix
+            )
             latest = outcome.latest_receipt
             if type(latest) in {
                 AcquisitionCandidateExperimentTerminalReceipt,
@@ -4995,18 +5095,17 @@ class AcquisitionRouteLoopAuthoritySink:
                 history = outcome.candidate_experiment_terminal_history
                 if type(history) is not CandidateExperimentTerminalHistory:
                     raise ValueError("candidate_experiment_terminal_history_not_established")
-                if verified_origin is not None:
-                    if not _candidate_model_values_same(history.origin, phase_origin):
-                        raise ValueError("candidate_experiment_action_prefix_mismatch")
-                    phase_origin = replace(
-                        history.origin,
-                        current_action_head=None,
-                        current_terminal_history=history,
-                        candidate_terminal_history_chain=(
-                            *history.origin.candidate_terminal_history_chain,
-                            history,
-                        ),
-                    )
+                if not _candidate_model_values_same(history.origin, phase_origin):
+                    raise ValueError("candidate_experiment_action_prefix_mismatch")
+                phase_origin = replace(
+                    history.origin,
+                    current_action_head=None,
+                    current_terminal_history=history,
+                    candidate_terminal_history_chain=(
+                        *history.origin.candidate_terminal_history_chain,
+                        history,
+                    ),
+                )
             elif type(latest) is not AcquisitionCandidateExperimentPhaseReceipt:
                 raise ValueError("candidate_experiment_action_receipt_untyped")
             if index < len(heads) - 1 and type(latest) not in {

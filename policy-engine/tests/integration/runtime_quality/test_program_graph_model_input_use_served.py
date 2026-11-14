@@ -906,6 +906,8 @@ def _run_activated_held_out_stock_scenario(
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
     monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(tmp_path / "control.sqlite3"))
     monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "runtime-cache"))
+    if retained_sequence:
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
     cas_root = tmp_path / "cas"
     runs_root = cas_root / "runs"
     problem_data = _fiscal_problem().model_dump(mode="json")
@@ -1822,6 +1824,15 @@ def _run_activated_held_out_stock_scenario(
             }
             original_get = reader.get(f"/api/v1/runs/{core_run_id}", headers=headers)
             assert original_get.status_code == 200, original_get.text
+            action_discovery = original_get.json()["run"]["model_input_use_actions"]
+            assert action_discovery["run_id"] == run_id != core_run_id
+            assert action_discovery["source_job_id"] == job.job_id
+            assert action_discovery["scope"] == "discovery_only"
+            assert action_discovery["inventory_status"] == "complete"
+            assert not action_discovery["inventory_truncated"]
+            assert action_discovery["actions"] == [
+                {"action_job_id": action_job_id, "job_state": "completed"}
+            ]
             (row,) = original_get.json()["run"]["generic_cycle_simulation"]["n5_observations"]
             assert (
                 row["status"] == "simulation_blocked" and row.get("simulation_result_ref") is None
@@ -2359,6 +2370,13 @@ def _run_activated_held_out_stock_scenario(
                 expected_balances=changed_balances,
             )
             with TestClient(app(root)) as post_change_reader:
+                from polisyos.runtime.quality.acquisition_evaluation import (
+                    GenericModelInputEvaluationBasisV1,
+                    compare_generic_model_input_evaluation_bases,
+                    read_acquisition_evaluation_artifact,
+                    replay_generic_model_input_basis_for_history,
+                )
+
                 post_change_control = post_change_reader.app.state.runtime_container.control_service
                 stop_embedded_control_worker(post_change_control)
                 quota_snapshot = post_change_control.llm_producer_settlement_store.snapshot_safe()
@@ -2378,6 +2396,78 @@ def _run_activated_held_out_stock_scenario(
                 reservations_before_historical_read = (
                     post_change_control.llm_producer_settlement_store._ledger.snapshot()
                 )
+                assert equal_result.selected_basis_ref is not None
+                assert equal_result.current_basis_ref is not None
+                prior_basis = read_acquisition_evaluation_artifact(
+                    store=store,
+                    event_log=post_change_control._diagnostic_event_log,
+                    ref=equal_result.selected_basis_ref,
+                    record_type=GenericModelInputEvaluationBasisV1,
+                )
+                current_basis = read_acquisition_evaluation_artifact(
+                    store=store,
+                    event_log=post_change_control._diagnostic_event_log,
+                    ref=equal_result.current_basis_ref,
+                    record_type=GenericModelInputEvaluationBasisV1,
+                )
+                assert (
+                    type(prior_basis) is type(current_basis) is GenericModelInputEvaluationBasisV1
+                )
+                assert prior_basis.evaluation is not None
+                original_basis_bytes = store.get_bytes(equal_result.selected_basis_ref)
+                current_basis_bytes = store.get_bytes(equal_result.current_basis_ref)
+                assert equal_result.current_use_decision_ref is not None
+                decision_bytes = store.get_bytes(equal_result.current_use_decision_ref)
+                history_identity = successor_action_owner.resolve_model_input_successor_history(
+                    post_change_control,
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                    request=equal_request,
+                    checkpoint=equal_checkpoint,
+                )
+                history_window = successor_action_owner._resolve_action_budget_window(
+                    post_change_control,
+                    selection=history_identity,
+                    phase_ref=equal_checkpoint.phase_ref,
+                    open_if_missing=False,
+                )
+                history_port = successor_action_owner._build_model_input_use_n5_port(
+                    post_change_control,
+                    store,
+                    selection=history_identity,
+                    window=history_window,
+                )
+
+                def current_comparison() -> tuple[str, tuple[str, ...]]:
+                    return compare_generic_model_input_evaluation_bases(
+                        store=store,
+                        prior=prior_basis,
+                        current=current_basis,
+                        prior_origin=history_identity.origin,
+                        current_origin=history_identity.origin,
+                        controller=history_port._controller,
+                    )
+
+                unexpected_history_n5 = 0
+
+                def forbid_history_n5(*_args: Any, **_kwargs: Any) -> Any:
+                    nonlocal unexpected_history_n5
+                    unexpected_history_n5 += 1
+                    raise AssertionError("historical read or basis comparison entered N5")
+
+                monkeypatch.setattr(
+                    JointSimulationPort, "run_semantic_successor", forbid_history_n5
+                )
+                assert current_comparison() == ("equivalent", ())
+                # The real native wrapper binds OMP in its backend policy. A
+                # later environment must prevent a new retained use, while an
+                # intact original observation remains readable as history.
+                monkeypatch.setenv("OMP_NUM_THREADS", "2")
+                assert current_comparison() == (
+                    "not_established",
+                    ("generic_model_input_original_provider_not_established",),
+                )
                 historical_response = post_change_reader.get(
                     path + f"/{equal_result.action_job_id}/n5-result",
                     headers={
@@ -2386,6 +2476,21 @@ def _run_activated_held_out_stock_scenario(
                     },
                 )
                 assert historical_response.status_code == 200, historical_response.text
+                history_details = post_change_reader.get(
+                    f"/api/v1/runs/{core_run_id}",
+                    headers={
+                        "Authorization": trust.authorization_header("acquisition-operator"),
+                        "X-Tenant-ID": served.TENANT,
+                    },
+                )
+                assert history_details.status_code == 200, history_details.text
+                history_discovery = history_details.json()["run"]["model_input_use_actions"]
+                assert history_discovery["run_id"] == run_id
+                assert history_discovery["scope"] == "discovery_only"
+                assert history_discovery["inventory_status"] == "complete"
+                assert {
+                    row["action_job_id"] for row in history_discovery["actions"]
+                } == seen_action_jobs | {changed_result.action_job_id}
                 historical_b = RunModelInputUseN5SuccessorResponse.model_validate(
                     historical_response.json()
                 ).result
@@ -2398,6 +2503,7 @@ def _run_activated_held_out_stock_scenario(
                 )
                 assert historical_b.frontier_selection == "superseded"
                 assert historical_b.basis_comparison_result == "equivalent"
+                assert historical_b.predicate_provenance == equal_result.predicate_provenance
                 assert historical_b.evaluation_provenance == "retained_prior"
                 assert historical_b.original_action_job_id == action_job_id
                 assert historical_b.original_semantic_successor_ref == selected_semantic_ref
@@ -2412,6 +2518,92 @@ def _run_activated_held_out_stock_scenario(
                 assert historical_b.currentness_status == "not_established"
                 assert not historical_b.publication_authority
                 assert not historical_b.observed_admission
+                assert "past_provider_profile_not_independently_reconstructed" in (
+                    historical_b.current_basis_limitations
+                )
+                assert store.get_bytes(equal_result.selected_basis_ref) == original_basis_bytes
+                assert store.get_bytes(equal_result.current_basis_ref) == current_basis_bytes
+                assert store.get_bytes(equal_result.current_use_decision_ref) == decision_bytes
+                from polisyos.core.artifacts import ProducerInfo
+                from polisyos.runtime.quality.generic_simulation_admission import (
+                    GenericCycleSimulationAdmissionOwner,
+                )
+                from tests.unit.runtime.quality.test_candidate_experiment_reuse_occurrence import (
+                    _write_profile_variant,
+                )
+
+                grafted_result = _write_profile_variant(
+                    store,
+                    first_result_ref,
+                    producer=ProducerInfo(component="foreign.numerical.producer", version="1"),
+                )
+                assert grafted_result.artifact_id == first_result_ref.artifact_id
+                assert grafted_result.manifest_profile_sha256 != (
+                    first_result_ref.manifest_profile_sha256
+                )
+                with pytest.raises(ValueError, match="history_basis_subject_mismatch"):
+                    replay_generic_model_input_basis_for_history(
+                        store=store,
+                        event_log=post_change_control._diagnostic_event_log,
+                        origin=history_identity.origin,
+                        basis_ref=equal_result.selected_basis_ref,
+                        evaluation_context=prior_basis.evaluation.model_copy(
+                            update={"result_ref": grafted_result}
+                        ),
+                    )
+                original_request = GenericCycleSimulationAdmissionOwner(
+                    profiles=(), store=store
+                ).prepare_semantic_successor_request(
+                    semantic_successor_ref=selected_semantic_ref,
+                    expected_blocked_execution_ref=execution_ref,
+                    expected_input_ref=original.input_ref,
+                )
+                original_result = load_joint_simulation_result(
+                    first_result_ref, store=store, expected_request=original_request.request
+                )
+                first_step_ref = next(
+                    replication.step_result_refs[0]
+                    for trajectory in original_result.trajectories
+                    for replication in trajectory.semantic_program_graph_replications
+                )
+                for label, parent_ref, corrupt in (
+                    ("current-basis", equal_result.current_basis_ref, False),
+                    ("corrupt-basis", equal_result.current_basis_ref, True),
+                    ("use-decision", equal_result.current_use_decision_ref, False),
+                    ("original-result", first_result_ref, False),
+                    ("foundry-step", first_step_ref, False),
+                ):
+                    parent_blob, _ = store._paths(parent_ref.artifact_id)
+                    withheld_parent = tmp_path / f"withheld-history-{label}"
+                    parent_blob.rename(withheld_parent)
+                    try:
+                        if corrupt:
+                            parent_blob.write_bytes(b'{"corrupt":"original-basis"}')
+                        refused_parent = post_change_reader.get(
+                            path + f"/{equal_result.action_job_id}/n5-result",
+                            headers=headers,
+                        )
+                        assert refused_parent.status_code == 200, refused_parent.text
+                        refused_projection = RunModelInputUseN5SuccessorResponse.model_validate(
+                            refused_parent.json()
+                        ).result
+                        assert refused_projection.result_status == "not_established"
+                        assert refused_projection.result_body is None
+                    finally:
+                        if corrupt and parent_blob.exists():
+                            parent_blob.unlink()
+                        withheld_parent.rename(parent_blob)
+                restored_history = post_change_reader.get(
+                    path + f"/{equal_result.action_job_id}/n5-result", headers=headers
+                )
+                assert restored_history.status_code == 200, restored_history.text
+                assert (
+                    RunModelInputUseN5SuccessorResponse.model_validate(
+                        restored_history.json()
+                    ).result
+                    == historical_b
+                )
+                assert unexpected_history_n5 == 0
                 assert (
                     post_change_control.llm_producer_settlement_store._ledger.snapshot()
                     == reservations_before_historical_read
@@ -2568,7 +2760,7 @@ def _run_activated_held_out_stock_scenario(
                     assert unverified.limitation_code == (
                         "model_input_use_history_approval_not_established"
                     )
-                    assert unverified.simulation_result_ref is None
+                    assert _n5_projection_refs(unverified) == (None, None, None)
                     assert unverified.result_body is None
                 finally:
                     withheld_signature.rename(signature)

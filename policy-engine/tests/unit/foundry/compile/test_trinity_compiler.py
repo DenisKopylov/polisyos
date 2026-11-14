@@ -15,7 +15,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     FoundryCompileConfig,
@@ -190,6 +190,162 @@ def _make_compile_request(
         ),
         return_selected_profile=return_selected_profile,
     )
+
+
+def _put_selected_plan_loader_fixture(
+    store: FileSystemCAS,
+    *,
+    payload_version: str,
+    manifest_version: str,
+    policy_ref: ArtifactRef,
+    edge_policy_ref: ArtifactRef | None = None,
+) -> ArtifactRef:
+    """Persist a selected-plan loader case with an explicit schema relationship."""
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    plan = ExecutionPlan(
+        plan_id=f"loader-{payload_version}-{manifest_version}",
+        schema_version=payload_version,
+    )
+    return store.put_json(
+        plan,
+        PutOptions(
+            kind="scientist.execution_plan",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.ExecutionPlan",
+                version=manifest_version,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    edge_policy_ref or policy_ref,
+                    role="policy_candidate",
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+
+def _put_selected_plan_loader_policy(store: FileSystemCAS, marker: str) -> ArtifactRef:
+    return store.put_json(
+        {"candidate": marker},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+
+
+def test_selected_method_plan_loader_accepts_matching_supported_versions(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanRef
+    from polisyos.foundry.compile.trinity_compiler import (
+        _load_selected_method_execution_plan,
+    )
+
+    for version in ExecutionPlan.SUPPORTED_SCHEMA_VERSIONS:
+        store = FileSystemCAS(tmp_path / version)
+        policy_ref = _put_selected_plan_loader_policy(store, "matching")
+        plan_ref = _put_selected_plan_loader_fixture(
+            store,
+            payload_version=version,
+            manifest_version=version,
+            policy_ref=policy_ref,
+        )
+
+        plan, selected_ref = _load_selected_method_execution_plan(
+            store,
+            policy_ref=policy_ref,
+            method_plan_ref=ExecutionPlanRef.model_validate(plan_ref.model_dump(mode="python")),
+        )
+
+        assert plan.schema_version == version
+        assert selected_ref == ExecutionPlanRef.model_validate(plan_ref.model_dump(mode="python"))
+
+
+def test_selected_method_plan_loader_rejects_unsupported_schema_version(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlanRef
+    from polisyos.foundry.compile.trinity_compiler import (
+        _load_selected_method_execution_plan,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy_ref = _put_selected_plan_loader_policy(store, "unsupported")
+    plan_ref = _put_selected_plan_loader_fixture(
+        store,
+        payload_version="1.3",
+        manifest_version="1.3",
+        policy_ref=policy_ref,
+    )
+
+    with pytest.raises(ValueError, match="method_execution_plan_schema_unsupported"):
+        _load_selected_method_execution_plan(
+            store,
+            policy_ref=policy_ref,
+            method_plan_ref=ExecutionPlanRef.model_validate(plan_ref.model_dump(mode="python")),
+        )
+
+
+def test_selected_method_plan_loader_requires_manifest_payload_version_match(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlanRef
+    from polisyos.foundry.compile.trinity_compiler import (
+        _load_selected_method_execution_plan,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy_ref = _put_selected_plan_loader_policy(store, "mismatch")
+    plan_ref = _put_selected_plan_loader_fixture(
+        store,
+        payload_version="1.1",
+        manifest_version="1.0",
+        policy_ref=policy_ref,
+    )
+
+    with pytest.raises(ValueError, match="method_execution_plan_manifest_schema_mismatch"):
+        _load_selected_method_execution_plan(
+            store,
+            policy_ref=policy_ref,
+            method_plan_ref=ExecutionPlanRef.model_validate(plan_ref.model_dump(mode="python")),
+        )
+
+
+def test_selected_method_plan_loader_requires_exact_candidate_edge_profile(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlanRef
+    from polisyos.foundry.compile.trinity_compiler import (
+        _load_selected_method_execution_plan,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy_ref = _put_selected_plan_loader_policy(store, "selected")
+    other_policy_ref = _put_selected_plan_loader_policy(store, "other")
+    plan_ref = _put_selected_plan_loader_fixture(
+        store,
+        payload_version="1.1",
+        manifest_version="1.1",
+        policy_ref=policy_ref,
+        edge_policy_ref=other_policy_ref,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="method_execution_plan_policy_candidate_edge_mismatch",
+    ):
+        _load_selected_method_execution_plan(
+            store,
+            policy_ref=policy_ref,
+            method_plan_ref=ExecutionPlanRef.model_validate(plan_ref.model_dump(mode="python")),
+        )
 
 
 class TestCompileTrinityMissing:

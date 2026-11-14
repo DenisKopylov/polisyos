@@ -93,6 +93,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.model_input_successor_action import (
         ModelInputSuccessorIdentity,
     )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        _CandidateExperimentHistoryPrefix,
+    )
     from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthConfig,
@@ -2084,10 +2087,13 @@ class AcquisitionActionService:
         run_id: str,
         request: CandidateExperimentRouteMutationRequest,
         require_current: bool,
+        history_prefix: _CandidateExperimentHistoryPrefix | None = None,
     ) -> VerifiedCandidateExperimentOrigin:
         """Bind immutable request pins to their verified prefix and optional live head."""
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
+        if history_prefix is not None and require_current:
+            raise AcquisitionActionServiceError("candidate_experiment_historical_prefix_not_permit")
         loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
         pins = request.replay_pins
         store = self.control_service._control_store
@@ -2108,14 +2114,20 @@ class AcquisitionActionService:
                 and (pins.predecessor_terminal_ref is not None or historical_head is not None)
                 else None
             )
-            origin = loop.resolve_candidate_experiment_predecessor_origin(
-                run_id=run_id,
-                predecessor_terminal_ref=pins.predecessor_terminal_ref,
-                historical_policy_ref=historical_policy_ref,
-                historical_action_job_id=(
+            predecessor_args = {
+                "run_id": run_id,
+                "predecessor_terminal_ref": pins.predecessor_terminal_ref,
+                "historical_policy_ref": historical_policy_ref,
+                "historical_action_job_id": (
                     None if historical_head is None else historical_head.job_id
                 ),
-            )
+            }
+            if history_prefix is None:
+                origin = loop.resolve_candidate_experiment_predecessor_origin(**predecessor_args)
+            else:
+                origin = loop._resolve_candidate_experiment_predecessor_origin(
+                    **predecessor_args, history_prefix=history_prefix
+                )
             if require_current and pins.predecessor_terminal_ref is not None:
                 live_root = loop._resolve_candidate_experiment_source(run_id=run_id)
                 historical_root = replace(
@@ -2130,6 +2142,32 @@ class AcquisitionActionService:
                     )
         except AcquisitionRouteClosureError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
+        return self._reconcile_candidate_experiment_request_origin(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+            origin=origin,
+            require_current=require_current,
+        )
+
+    def _reconcile_candidate_experiment_request_origin(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        origin: VerifiedCandidateExperimentOrigin,
+        require_current: bool,
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Reconcile route pins and the complete source-head set for every consumer.
+
+        An ordered historical fold may supply its own earlier owner results;
+        it still performs these same request and SQL joins, never a live grant.
+        """
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
         if request.route_id != origin.route_id or not _candidate_model_values_same(
             request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
         ):

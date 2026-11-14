@@ -77,6 +77,7 @@ from polisyos.runtime.quality.substrate_registry import (
 
 if TYPE_CHECKING:
     from polisyos.core.contracts import DataSnapshot, FoundryInputBindingRule, StateSnapshotRef
+    from polisyos.core.contracts.semantic_input_binding import ResolvedInputBindingManifestRef
     from polisyos.ir import ModelSpec
     from polisyos.ir.kernel import SlotRegistry
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
@@ -615,6 +616,7 @@ def build_world_model_record(
     _loaded_substrate_registry: SubstrateRegistry | None = None,
     _selected_substrate_registry_ref: SubstrateRegistryRef | None = None,
     foundry_binding_rules: Sequence[FoundryInputBindingRule] | None = None,
+    resolved_binding_manifest_ref: ResolvedInputBindingManifestRef | None = None,
     mechanism_refs: Sequence[str] = (),
     gcm_refs: Sequence[str] = (),
     ncm_refs: Sequence[str] = (),
@@ -662,6 +664,8 @@ def build_world_model_record(
         _selected_substrate_registry_ref: Internal exact projection to preserve
             from an existing WMR while continuing its world lineage.
         foundry_binding_rules: Optional explicit Foundry input binding rules.
+        resolved_binding_manifest_ref: Optional exact candidate semantic selection
+            for the existing snapshot; replayed by the Foundry binding owner.
         mechanism_refs: Existing mechanism refs to name; mechanisms remain
             owned by Foundry/IR registries.
         gcm_refs: Existing GCM refs to name.
@@ -706,6 +710,8 @@ def build_world_model_record(
             "world_model_store_core_json_reader_unsupported",
             "WMR construction requires the selected raw-manifest reader capability",
         )
+    if resolved_binding_manifest_ref is not None and not candidate_only:
+        raise WorldModelRecordError("world_model_semantic_input_requires_candidate_scope")
     effective_limitations = limitations or WorldModelLimitations()
     if candidate_only and not effective_limitations.admissibility_blockers:
         raise WorldModelRecordError("candidate_only_wmr_requires_admissibility_blocker")
@@ -804,7 +810,9 @@ def build_world_model_record(
     # replays the exact bindings and state views. Ordinary worlds retain their
     # historical writer profile.
     select_input_views = (
-        model_spec.model_input_port_declaration_ref is not None or select_foundry_input_profiles
+        model_spec.model_input_port_declaration_ref is not None
+        or select_foundry_input_profiles
+        or resolved_binding_manifest_ref is not None
     )
     input_bindings = build_input_bindings(
         store,
@@ -813,6 +821,11 @@ def build_world_model_record(
         rules=list(foundry_binding_rules or []),
         notes=[f"world_model_record_snapshot_id:{data_snapshot_id}"],
         return_selected_profile=select_input_views,
+        **(
+            {"resolved_binding_manifest_ref": resolved_binding_manifest_ref}
+            if resolved_binding_manifest_ref is not None
+            else {}
+        ),
     )
     if select_input_views and any(
         ref.manifest_profile_sha256 is None

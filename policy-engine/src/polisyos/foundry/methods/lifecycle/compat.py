@@ -71,6 +71,7 @@ BreakingChangeKind = Literal[
     "removed_parameter",
     "parameter_bounds_narrowed",
     "backend_changed",
+    "patch_target_contract_changed",
 ]
 
 
@@ -170,6 +171,18 @@ class SignatureDiff:
         )
 
         changes.extend(self._diff_backend(old, new))
+        old_patch_targets = tuple(getattr(old, "patch_targets", ()))
+        new_patch_targets = tuple(getattr(new, "patch_targets", ()))
+        if old_patch_targets != new_patch_targets:
+            changes.append(
+                BreakingChange(
+                    kind="patch_target_contract_changed",
+                    slot_or_param="patch_targets",
+                    old_value=old_patch_targets,
+                    new_value=new_patch_targets,
+                    description="Declared method state-write contract changed",
+                )
+            )
 
         return sorted(changes, key=lambda c: (c.kind, c.slot_or_param))
 

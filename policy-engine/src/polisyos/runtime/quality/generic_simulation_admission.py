@@ -2993,7 +2993,10 @@ class GenericCycleSimulationAdmissionOwner:
         )
         bindings_ref = selected.semantic_foundry_input_bindings_ref
         bindings = load_input_bindings(store, bindings_ref)
-        if bindings.schema_version != "1.2" or bindings.resolved_binding_manifest_ref is None:
+        if (
+            bindings.schema_version not in {"1.2", "1.4"}
+            or bindings.resolved_binding_manifest_ref is None
+        ):
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_semantic_successor_bindings_required"
             )

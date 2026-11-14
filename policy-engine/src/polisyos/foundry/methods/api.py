@@ -24,6 +24,14 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.selection.receipt",
         "MethodSelectionDisposition",
     ),
+    "MethodPatchTargetContract": (
+        "polisyos.foundry.methods.base",
+        "MethodPatchTargetContract",
+    ),
+    "validate_method_patch_targets": (
+        "polisyos.foundry.methods.patch_contracts",
+        "validate_method_patch_targets",
+    ),
     "FoundryExtensionRegistryReport": (
         "polisyos.foundry.extensions.registry",
         "FoundryExtensionRegistryReport",

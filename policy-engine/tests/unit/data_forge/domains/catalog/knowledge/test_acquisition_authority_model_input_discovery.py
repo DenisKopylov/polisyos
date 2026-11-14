@@ -38,6 +38,7 @@ from polisyos.core.contracts.variable_binding import (
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
+from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority as authority_module
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     AcquisitionAuthorityEntry,
@@ -45,6 +46,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
     AcquisitionAuthorityRegistry,
     AcquisitionSourceMeasureScope,
     CanonicalAcquisitionAuthority,
+    _AuthoritySemanticDefinitionIndex,
     build_authority_entry,
     build_authority_registry,
 )
@@ -357,6 +359,92 @@ def test_catalog_discovers_one_exact_model_input_source_descriptor(
         "claim_evidence",
         "source_currentness",
     }
+
+
+def test_exact_semantic_definition_index_is_snapshot_bound_and_reused(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, _ = _model_inputs(store)
+    entry = _authority_entry(definition_ref, representation_ref)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    target_key = artifact_ref_identity_key(definition_ref)
+
+    first_registry = authority._load_registry()
+    first_entries = authority._source_entries_for_semantic_definition(
+        first_registry,
+        target_key,
+    )
+    first_index = authority._semantic_definition_index_cache
+    second_registry = authority._load_registry()
+    second_entries = authority._source_entries_for_semantic_definition(
+        second_registry,
+        target_key,
+    )
+
+    assert second_registry is first_registry
+    assert first_entries == second_entries == (entry,)
+    assert authority._semantic_definition_index_cache is first_index
+    assert first_index is not None
+    assert first_index.registry_content_sha256 == first_registry.content_sha256
+    assert first_index.is_complete
+
+
+def test_incomplete_semantic_definition_index_falls_back_to_exact_scan(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, _ = _model_inputs(store)
+    entry = _authority_entry(definition_ref, representation_ref)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    registry = authority._load_registry()
+    incomplete = _AuthoritySemanticDefinitionIndex(
+        registry_content_sha256=registry.content_sha256,
+        entries_by_definition={},
+        indexed_entry_count=0,
+        eligible_entry_count=1,
+    )
+    monkeypatch.setattr(
+        authority_module,
+        "_build_authority_semantic_definition_index",
+        lambda _: incomplete,
+    )
+
+    candidates = authority._source_entries_for_semantic_definition(
+        registry,
+        artifact_ref_identity_key(definition_ref),
+    )
+
+    assert not incomplete.is_complete
+    assert candidates == (entry,)
+
+
+def test_stale_semantic_definition_index_is_rebuilt_for_current_snapshot(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, _ = _model_inputs(store)
+    entry = _authority_entry(definition_ref, representation_ref)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    registry = authority._load_registry()
+    authority._semantic_definition_index_cache = _AuthoritySemanticDefinitionIndex(
+        registry_content_sha256="0" * 64,
+        entries_by_definition={},
+        indexed_entry_count=0,
+        eligible_entry_count=0,
+    )
+
+    candidates = authority._source_entries_for_semantic_definition(
+        registry,
+        artifact_ref_identity_key(definition_ref),
+    )
+
+    assert candidates == (entry,)
+    assert authority._semantic_definition_index_cache is not None
+    assert authority._semantic_definition_index_cache.registry_content_sha256 == (
+        registry.content_sha256
+    )
 
 
 def _methodology_document(store: FileSystemCAS, body: bytes) -> SelectedVariableBindingRef:

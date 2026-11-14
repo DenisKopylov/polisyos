@@ -19,6 +19,7 @@ from polisyos.foundry.methods.types.checker import (
     check_multiple_compatibility,
     check_slot_compatibility,
     find_compatible_slots,
+    validate_registered_method_input,
 )
 from polisyos.foundry.methods.types.units import Units, get_scale_factor, units_compatible
 
@@ -38,4 +39,5 @@ __all__ = [
     "find_compatible_slots",
     "get_scale_factor",
     "units_compatible",
+    "validate_registered_method_input",
 ]

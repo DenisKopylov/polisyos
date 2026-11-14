@@ -132,6 +132,7 @@ class ExecuteArtifacts:
     degradation_cards: tuple[FailureCard, ...] = ()
     is_degraded: bool = False
     provenance: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    semantic_input_notes: tuple[str, ...] = ()
 
 
 @dataclass
@@ -242,7 +243,12 @@ def load_payload(
 
 
 def put_tensor(
-    store: ArtifactStore, value: Any, *, return_selected_profile: bool = False
+    store: ArtifactStore,
+    value: Any,
+    *,
+    return_selected_profile: bool = False,
+    kind: str = "foundry.patch_value",
+    inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a tensor, optionally retaining the exact profile from its write."""
     validate_return_selected_profile(return_selected_profile)
@@ -252,7 +258,11 @@ def put_tensor(
     buf = BytesIO()
     np.save(buf, array, allow_pickle=False)
     data = buf.getvalue()
-    options = PutOptions(kind="foundry.patch_value", media_type="application/x-npy")
+    options = (
+        PutOptions(kind=kind, media_type="application/x-npy")
+        if inputs is None
+        else PutOptions(kind=kind, media_type="application/x-npy", inputs=inputs)
+    )
     if not return_selected_profile:
         return store.put_bytes(data, options)
     ref = store.put_bytes(data, options, return_selected_profile=True)
@@ -263,11 +273,42 @@ def put_tensor(
     return ref
 
 
-def load_tensor(store: ArtifactStore, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
+def load_tensor(
+    store: ArtifactStore,
+    ref: ArtifactRef | ArtifactID | str,
+    *,
+    expected_shape: tuple[int, ...] | None = None,
+    expected_dtype: np.dtype[Any] | str | None = None,
+    max_payload_bytes: int | None = None,
+) -> np.ndarray:
     """Load tensor."""
+    if max_payload_bytes is not None:
+        if type(max_payload_bytes) is not int or max_payload_bytes <= 0:
+            raise ValueError("Tensor payload bound must be a positive integer")
+        if store.get_manifest(ref).byte_size > max_payload_bytes:
+            raise ValueError("Tensor payload exceeds the selected byte bound")
     data = store.get_bytes(ref)
+    if max_payload_bytes is not None and len(data) > max_payload_bytes:
+        raise ValueError("Tensor payload exceeds the selected byte bound")
+    if (expected_shape is None) != (expected_dtype is None):
+        raise ValueError("Selected tensor shape and dtype must be checked together")
+    if expected_shape is not None:
+        header = BytesIO(data)
+        version = np.lib.format.read_magic(header)
+        if version == (1, 0):
+            shape, _fortran_order, dtype = np.lib.format.read_array_header_1_0(header)
+        elif version == (2, 0):
+            shape, _fortran_order, dtype = np.lib.format.read_array_header_2_0(header)
+        else:
+            raise ValueError("Tensor NPY version is not supported by the selected profile")
+        if shape != expected_shape or dtype != np.dtype(expected_dtype):
+            raise ValueError("Tensor shape or dtype differs from the selected encoding")
     loaded = np.load(BytesIO(data), allow_pickle=False)
     if isinstance(loaded, np.ndarray):
+        if expected_shape is not None and (
+            loaded.shape != expected_shape or loaded.dtype != np.dtype(expected_dtype)
+        ):
+            raise ValueError("Tensor shape or dtype differs from the selected encoding")
         return loaded
     if isinstance(loaded, np.lib.npyio.NpzFile):
         loaded.close()

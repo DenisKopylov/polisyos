@@ -76,6 +76,14 @@ export const queryKeys = {
       "timeline",
       { temporal: temporalScopeKey(temporalScope) },
     ] as const,
+  runModelInputUseN5Result: (runId: string, actionJobId: string) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "model-input-use-n5-result",
+      actionJobId,
+    ] as const,
   runNodes: (runId: string) => ["runtime", "run", runId, "nodes"] as const,
   runLineage: (runId: string, temporalScope?: TemporalScope | null) =>
     [

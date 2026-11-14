@@ -27,6 +27,7 @@ from decimal import (
 )
 from io import BytesIO
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Literal, NoReturn, Protocol
 
 import jax.numpy as jnp
@@ -43,6 +44,7 @@ from polisyos.core.artifacts import (
     CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
     artifact_manifest_profile_sha256,
+    load_core_json_artifact,
     read_core_json_artifact_bounded,
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
@@ -104,15 +106,42 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingRule,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    FoundrySelectedMethodInput,
     SemanticHorizonStepContext,
     StateSnapshot,
     StateSnapshotRef,
+)
+from polisyos.core.contracts.semantic_derived_binding import (
+    ReplayedDerivedMeasurementRole,
+    evaluate_derived_input_correspondence,
+    load_derived_input_correspondence,
+    load_derived_input_profile,
+    load_ratio_denominator_source_context,
+)
+from polisyos.core.contracts.semantic_input_binding import (
+    DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+    ResolvedDerivedInput,
+)
+from polisyos.core.contracts.variable_binding import (
+    ScopedMeasurementOccurrenceRef,
+    ScopedSourceSelection,
+)
+from polisyos.core.derivations import (
+    DerivationRefusalError,
+    SourceSeries,
+    load_derivation_recipe_artifact,
+    resolve_certified_derivation,
 )
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.data_forge import read_api
 from polisyos.fabric.data_plane import content_sha256
 from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
 from polisyos.foundry.contracts.state import FeedbackState, GlobalState
+from polisyos.foundry.data_plane.selected_tensors import (
+    encode_selected_tensor,
+    selected_tensor_value_sha256,
+)
+from polisyos.foundry.execute._internal.models import load_tensor, put_tensor
 from polisyos.foundry.execute.executor import (
     get_state_path,
     load_state_snapshot,
@@ -133,7 +162,8 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
-from polisyos.ir.kernel import SlotRegistry, SlotScope, SlotSpec, SlotValueType
+from polisyos.ir.kernel import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
+from polisyos.ir.kernel.units import MoneyUnit
 from polisyos.ir.observation.bundles import (
     HTE_OBSERVATIONAL_DATA_CONTRACT_FQN,
     HTE_OBSERVATIONAL_DATA_CONTRACT_ID,
@@ -1345,6 +1375,19 @@ class InputBindingValuesPreparation:
 
 
 @dataclass(frozen=True)
+class _PreparedSelectedMethodInput:
+    """One source-recomputed candidate method value before NPY persistence."""
+
+    model_input_obligation_ref: ArtifactRef
+    binding_id: str
+    port_id: str
+    slot_id: str
+    canonical_value: Decimal
+    value: np.ndarray
+    lineage_inputs: tuple[InputRef, ...]
+
+
+@dataclass(frozen=True)
 class InputBindingsPreparation:
     """Computed candidate state before any input-binding artifacts are written.
 
@@ -1359,6 +1402,18 @@ class InputBindingsPreparation:
     materialized_state: GlobalState
     applied_binding_ids: tuple[str, ...]
     warnings: tuple[str, ...]
+    selected_method_inputs: tuple[_PreparedSelectedMethodInput, ...] = ()
+    reused_bound_state_snapshot_ref: StateSnapshotRef | None = None
+
+
+@dataclass(frozen=True)
+class SelectedMethodInputResolution:
+    """Reconciled persisted method values, without a new authority claim."""
+
+    bindings: FoundryInputBindings
+    values: Mapping[str, np.ndarray]
+    records: tuple[FoundrySelectedMethodInput, ...]
+    notes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -2048,7 +2103,7 @@ def prepare_input_bindings(
             rules=rules,
         )
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
-    if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
+    if _snapshot_requires_resolved_input_manifest(snapshot):
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     if registered_sql_admission_ref is not None:
         if (
@@ -2176,16 +2231,45 @@ def build_input_bindings(
         input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
         input_ref_from_artifact_ref(registry_bundle_ref, role="input.registry_bundle_ref"),
     ]
-    bound_snapshot_ref = put_state_snapshot(
-        store,
-        state=materialized_state,
-        step=int(np.asarray(materialized_state.step).item()),
-        inputs=snapshot_inputs,
-        return_selected_profile=return_selected_profile,
-    )
-    bound_state_snapshot_ref = StateSnapshotRef.model_validate(
-        bound_snapshot_ref.model_dump(mode="python")
-    )
+    selected_method_inputs: list[FoundrySelectedMethodInput] = []
+    for selected in preparation.selected_method_inputs:
+        value_ref = put_tensor(
+            store,
+            selected.value,
+            return_selected_profile=True,
+            kind="foundry.selected_method_input_value",
+            inputs=list(selected.lineage_inputs),
+        )
+        selected_method_inputs.append(
+            FoundrySelectedMethodInput(
+                model_input_obligation_ref=selected.model_input_obligation_ref,
+                binding_id=selected.binding_id,
+                port_id=selected.port_id,
+                slot_id=selected.slot_id,
+                canonical_value=selected.canonical_value,
+                dtype=selected.value.dtype.name,
+                shape=selected.value.shape,
+                npy_value_ref=value_ref,
+                value_sha256=_selected_method_tensor_digest(selected.value),
+            )
+        )
+    if preparation.reused_bound_state_snapshot_ref is not None:
+        if not selected_method_inputs:
+            raise ValueError("foundry_selected_method_input_prestate_without_values")
+        bound_state_snapshot_ref = preparation.reused_bound_state_snapshot_ref
+    else:
+        if selected_method_inputs:
+            raise ValueError("foundry_selected_method_input_prestate_missing")
+        bound_snapshot_ref = put_state_snapshot(
+            store,
+            state=materialized_state,
+            step=int(np.asarray(materialized_state.step).item()),
+            inputs=snapshot_inputs,
+            return_selected_profile=return_selected_profile,
+        )
+        bound_state_snapshot_ref = StateSnapshotRef.model_validate(
+            bound_snapshot_ref.model_dump(mode="python")
+        )
     if registered_sql_admission_ref is not None:
         registry = load_registry_bundle_content(store, registry_bundle_ref)
         binding_payload = _load_binding_payload(store, snapshot)
@@ -2209,7 +2293,9 @@ def build_input_bindings(
 
     bindings = FoundryInputBindings(
         schema_version=(
-            "1.2"
+            "1.4"
+            if selected_method_inputs
+            else "1.2"
             if resolved_binding_manifest_ref is not None
             else "1.1"
             if registered_sql_admission_ref is not None
@@ -2225,6 +2311,11 @@ def build_input_bindings(
         **(
             {"resolved_binding_manifest_ref": resolved_binding_manifest_ref}
             if resolved_binding_manifest_ref is not None
+            else {}
+        ),
+        **(
+            {"selected_method_inputs": tuple(selected_method_inputs)}
+            if selected_method_inputs
             else {}
         ),
     )
@@ -2247,6 +2338,7 @@ def build_input_bindings(
                     bound_state_snapshot_ref,
                     role="artifact.bound_state_snapshot_ref",
                 ),
+                *_selected_method_binding_inputs(tuple(selected_method_inputs)),
                 *(
                     [
                         input_ref_from_artifact_ref(
@@ -2393,6 +2485,131 @@ def require_resolved_input_binding_manifest_edge(
             },
             reason="foundry_input_bindings_semantic_lineage_mismatch",
         )
+        if [edge for edge in manifest.inputs if edge.role.startswith("method_input.")] != (
+            _selected_method_binding_inputs(bindings.selected_method_inputs or ())
+        ):
+            raise ValueError("foundry_selected_method_input_binding_lineage_mismatch")
+
+
+def _selected_method_binding_inputs(
+    records: tuple[FoundrySelectedMethodInput, ...],
+) -> list[InputRef]:
+    inputs: list[InputRef] = []
+    for record in records:
+        inputs.extend(
+            (
+                input_ref_from_artifact_ref(
+                    record.model_input_obligation_ref,
+                    role=f"method_input.{record.binding_id}.obligation",
+                ),
+                input_ref_from_artifact_ref(
+                    record.npy_value_ref, role=f"method_input.{record.binding_id}.value"
+                ),
+            )
+        )
+    return inputs
+
+
+def _selected_method_value_inputs(
+    manifest_ref: ResolvedInputBindingManifestRef,
+    selection: ResolvedMeasurementInput | ResolvedDerivedInput,
+) -> tuple[InputRef, ...]:
+    source_ref = (
+        selection.selected_occurrence_ref
+        if isinstance(selection, ResolvedMeasurementInput)
+        else selection.output_ref
+    )
+    return (
+        input_ref_from_artifact_ref(
+            selection.model_input_obligation_ref, role="target.model_input_obligation"
+        ),
+        input_ref_from_artifact_ref(manifest_ref, role="input.resolved_binding_manifest"),
+        input_ref_from_artifact_ref(source_ref, role="source.selected_value"),
+        input_ref_from_artifact_ref(selection.correspondence_ref, role="source.correspondence"),
+    )
+
+
+def _prepare_selected_method_input(
+    store: CoreJSONArtifactStore,
+    *,
+    selection: ResolvedMeasurementInput | ResolvedDerivedInput,
+    manifest_ref: ResolvedInputBindingManifestRef,
+    obligation: ModelInputObligation,
+    canonical_value: Decimal,
+    physical_value: object,
+) -> _PreparedSelectedMethodInput:
+    port = obligation.port
+    registry = load_registry_bundle_content(store, obligation.registry_bundle_ref)
+    slots = registry.slot_registry
+    slot = slots.slots.get(port.slot_id)
+    encoding = port.physical_encoding
+    if (
+        port.carrier != "method_input"
+        or port.state_path is not None
+        or slot is None
+        or slot.state_path
+        or slot.scope != SlotScope.GLOBAL
+        or slot.kind != SlotKind.FLOW
+        or slot.shape
+        or slot.value_type != SlotValueType.DECIMAL
+        or slot.unit is None
+        or slot.unit.unit_id != port.unit_id
+        or encoding is None
+        or encoding.shape
+        or (slot.dtype is not None and slot.dtype != encoding.dtype)
+        or (slot.shape and tuple(slot.shape) != encoding.shape)
+    ):
+        raise ValueError("foundry_selected_method_input_port_encoding_mismatch")
+    representation = load_variable_representation(store, port.representation_ref)
+    money = representation.money_unit
+    canonical_money = (
+        None if registry.units_registry is None else registry.units_registry.units.get(port.unit_id)
+    )
+    if (
+        not isinstance(canonical_money, MoneyUnit)
+        or money is None
+        or money.currency != canonical_money.currency
+        or (
+            canonical_money.nominal_year is not None
+            and money.nominal_year != canonical_money.nominal_year
+        )
+        or (
+            canonical_money.price_base is not None
+            and money.price_base != canonical_money.price_base
+        )
+    ):
+        raise ValueError("foundry_selected_method_input_canonical_money_unit_mismatch")
+    value = encode_selected_tensor(
+        physical_value,
+        shape=encoding.shape,
+        dtype=encoding.dtype,
+        max_absolute_error=encoding.max_absolute_error,
+    )
+    _selected_method_tensor_digest(value)
+    return _PreparedSelectedMethodInput(
+        model_input_obligation_ref=selection.model_input_obligation_ref,
+        binding_id=selection.binding_id,
+        port_id=port.port_id,
+        slot_id=port.slot_id,
+        canonical_value=canonical_value,
+        value=value,
+        lineage_inputs=_selected_method_value_inputs(manifest_ref, selection),
+    )
+
+
+def _selected_method_tensor_digest(value: np.ndarray) -> str:
+    from polisyos.foundry.execute._internal.graph import _bounded_array_metadata
+
+    if (
+        not isinstance(value, np.ndarray)
+        or _bounded_array_metadata(value) is None
+        or not np.isfinite(value).all()
+    ):
+        raise ValueError("foundry_selected_method_input_value_not_bounded")
+    contiguous = value if value.flags.c_contiguous else np.array(value, copy=True, order="C")
+    return selected_tensor_value_sha256(
+        value.dtype, tuple(value.shape), memoryview(contiguous).cast("B")
+    )
 
 
 def persist_activated_observation_input_manifest(
@@ -2505,6 +2722,8 @@ def _prepare_semantic_input_bindings(
     effective_step: int | None = None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
     expected_invocation: ProgramGraphInputInvocation | None = None,
+    historical_execution_ref: ArtifactRef | None = None,
+    historical_input_bindings_ref: ArtifactRef | None = None,
 ) -> InputBindingsPreparation:
     from polisyos.foundry.execute.model_input_requirements import (
         verify_program_graph_input_preflight,
@@ -2551,17 +2770,31 @@ def _prepare_semantic_input_bindings(
                 None if actual is None else artifact_ref_identity_key(actual)
             ):
                 raise ValueError("foundry_input_bindings_semantic_execution_mismatch")
-    verify_program_graph_input_preflight(
-        store,
-        obligation_set_ref=manifest.model_input_obligation_set_ref,
-        expected_invocation=invocation,
-    )
+    if historical_execution_ref is None:
+        verify_program_graph_input_preflight(
+            store,
+            obligation_set_ref=manifest.model_input_obligation_set_ref,
+            expected_invocation=invocation,
+        )
+    else:
+        if historical_input_bindings_ref is None:
+            raise ValueError("foundry_selected_method_input_historical_binding_ref_required")
+        _verify_historical_selected_method_invocation(
+            store,
+            historical_execution_ref=historical_execution_ref,
+            input_bindings_ref=historical_input_bindings_ref,
+            invocation=invocation,
+            execute_request=execute_request,
+            effective_step=effective_step,
+            semantic_horizon_step=semantic_horizon_step,
+        )
     obligations = {
         artifact_ref_identity_key(ref): member
         for ref, member in zip(selected_set.obligation_refs, members, strict=True)
     }
     selected_refs = tuple(
-        artifact_ref_identity_key(item.model_input_obligation_ref) for item in manifest.measurements
+        artifact_ref_identity_key(item.model_input_obligation_ref)
+        for item in (*manifest.measurements, *manifest.derivations)
     )
     if len(selected_refs) != len(obligations) or set(selected_refs) != obligations.keys():
         raise ValueError("foundry_input_bindings_semantic_obligation_set_mismatch")
@@ -2571,6 +2804,8 @@ def _prepare_semantic_input_bindings(
         raise ValueError("foundry_input_bindings_semantic_profile_required")
     predecessor = load_input_bindings(store, invocation.input_bindings_ref)
     if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
+        if manifest.derivations:
+            raise ValueError("foundry_input_bindings_derived_output_is_not_acquired_observation")
         if len(manifest.measurements) != 1:
             raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
         selected = manifest.measurements[0]
@@ -2595,6 +2830,36 @@ def _prepare_semantic_input_bindings(
             raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
     payload = _load_binding_payload(store, snapshot)
     payload_manifest = store.get_manifest(snapshot.data_ref)
+    if snapshot.data_ref.kind == DERIVED_MODEL_INPUT_PAYLOAD_KIND:
+        if manifest.schema_version != "2.0" or not manifest.derivations:
+            raise ValueError("foundry_input_bindings_derived_manifest_required")
+        if payload_manifest.artifact_schema != SchemaInfo(
+            name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0"
+        ):
+            raise ValueError("foundry_input_bindings_derived_payload_profile_mismatch")
+        base_snapshot = _load_data_snapshot(store, predecessor.data_snapshot_ref)
+        for owner_manifest, role, expected in (
+            (
+                store.get_manifest(data_snapshot_ref),
+                "context.base_data_snapshot",
+                predecessor.data_snapshot_ref,
+            ),
+            (payload_manifest, "context.base_payload", base_snapshot.data_ref),
+        ):
+            if [edge for edge in owner_manifest.inputs if edge.role == role] != [
+                input_ref_from_artifact_ref(expected, role=role)
+            ]:
+                raise ValueError("foundry_input_bindings_derived_base_context_mismatch")
+        for owner_manifest in (store.get_manifest(data_snapshot_ref), payload_manifest):
+            if [
+                edge for edge in owner_manifest.inputs if edge.role == "derived.correspondence"
+            ] != [
+                input_ref_from_artifact_ref(item.correspondence_ref, role="derived.correspondence")
+                for item in manifest.derivations
+            ]:
+                raise ValueError("foundry_input_bindings_derived_owner_correspondence_mismatch")
+    elif manifest.derivations:
+        raise ValueError("foundry_input_bindings_derived_payload_profile_required")
     slots = load_registry_bundle_content(store, registry_bundle_ref).slot_registry
     retained = _replay_explicit_initial_bindings(
         store,
@@ -2620,6 +2885,8 @@ def _prepare_semantic_input_bindings(
         policies[item.rule.binding_id] = item.policy
 
     limitations: list[str] = []
+    method_inputs: list[_PreparedSelectedMethodInput] = []
+    state_selection_count = 0
     for selection in manifest.measurements:
         obligation = obligations[artifact_ref_identity_key(selection.model_input_obligation_ref)]
         occurrence, measurement_limits = _verify_scoped_measurement(
@@ -2641,6 +2908,20 @@ def _prepare_semantic_input_bindings(
         encoding = port.physical_encoding
         if encoding is None:
             raise ValueError("foundry_input_bindings_semantic_encoding_missing")
+        if port.carrier == "method_input":
+            method_inputs.append(
+                _prepare_selected_method_input(
+                    store,
+                    selection=selection,
+                    manifest_ref=resolved_binding_manifest_ref,
+                    obligation=obligation,
+                    canonical_value=Decimal(occurrence.canonical_value),
+                    physical_value=raw,
+                )
+            )
+            limitations.extend(measurement_limits)
+            continue
+        state_selection_count += 1
         compiled_rules.append(
             FoundryInputBindingRule(
                 binding_id=selection.binding_id,
@@ -2652,7 +2933,65 @@ def _prepare_semantic_input_bindings(
             encoding.shape, encoding.dtype, encoding.max_absolute_error
         )
         limitations.extend(measurement_limits)
+    for selection in manifest.derivations:
+        obligation = obligations[artifact_ref_identity_key(selection.model_input_obligation_ref)]
+        value, projection, derived_limits = _verify_selected_derived_input(
+            store,
+            selection,
+            obligation,
+            obligation_set_ref=manifest.model_input_obligation_set_ref,
+        )
+        role = selection.payload_output_role()
+        if [edge for edge in payload_manifest.inputs if edge.role == role] != [
+            input_ref_from_artifact_ref(selection.output_ref, role=role)
+        ]:
+            raise ValueError("foundry_input_bindings_derived_payload_output_mismatch")
+        raw = _resolve_source_path(payload, selection.source_path, missing=_MISSING)
+        physical_value = raw
+        if projection == "singleton_vector":
+            if not isinstance(raw, list) or len(raw) != 1:
+                raise ValueError("foundry_input_bindings_derived_singleton_pack_mismatch")
+            raw = raw[0]
+        if (
+            not isinstance(raw, int | float | Decimal)
+            or isinstance(raw, bool)
+            or _to_decimal(raw) != value
+        ):
+            raise ValueError("foundry_input_bindings_derived_payload_value_mismatch")
+        port = obligation.port
+        encoding = port.physical_encoding
+        if encoding is None:
+            raise ValueError("foundry_input_bindings_semantic_encoding_missing")
+        if port.carrier == "method_input":
+            method_inputs.append(
+                _prepare_selected_method_input(
+                    store,
+                    selection=selection,
+                    manifest_ref=resolved_binding_manifest_ref,
+                    obligation=obligation,
+                    canonical_value=value,
+                    physical_value=physical_value,
+                )
+            )
+            limitations.extend(derived_limits)
+            continue
+        state_selection_count += 1
+        compiled_rules.append(
+            FoundryInputBindingRule(
+                binding_id=selection.binding_id,
+                source_path=selection.source_path,
+                target_slot_id=port.slot_id,
+            )
+        )
+        policies[selection.binding_id] = _SelectedBindingTensorPolicy(
+            encoding.shape, encoding.dtype, encoding.max_absolute_error
+        )
+        limitations.extend(derived_limits)
     compiled_rules.sort(key=lambda rule: rule.binding_id)
+    if method_inputs and state_selection_count:
+        raise ValueError("foundry_selected_method_input_mixed_carrier_not_established")
+    if method_inputs and predecessor.selected_method_inputs is not None:
+        raise ValueError("foundry_selected_method_input_chained_prestate_not_established")
     if rules is not None and rules != compiled_rules:
         raise ValueError("foundry_input_bindings_semantic_rules_mismatch")
     prepared = _prepare_input_binding_values(
@@ -2663,6 +3002,15 @@ def _prepare_semantic_input_bindings(
         rules=compiled_rules,
         selected_tensor_policies=policies,
     )
+    if method_inputs:
+        prepared = replace(
+            prepared,
+            materialized_state=load_state_snapshot(
+                store, snapshot_ref=predecessor.bound_state_snapshot_ref
+            ),
+            selected_method_inputs=tuple(sorted(method_inputs, key=lambda item: item.binding_id)),
+            reused_bound_state_snapshot_ref=predecessor.bound_state_snapshot_ref,
+        )
     step = int(np.asarray(prepared.materialized_state.step).item())
     execution_step = step if semantic_horizon_step is None else semantic_horizon_step.effective_step
     if (
@@ -2704,10 +3052,57 @@ def _verify_scoped_measurement(
     proof: ScopedCorrespondenceBasis,
     obligation: ModelInputObligation,
 ) -> tuple[ScopedMeasurementOccurrence, tuple[str, ...]]:
-    occurrence = validate_core_model_json_artifact(
-        ScopedMeasurementOccurrence, store, selection.selected_occurrence_ref
+    occurrence, replayed, source = _replay_selected_scoped_measurement(
+        store, selection.selected_occurrence_ref
     )
-    if tuple(store.get_manifest(selection.selected_occurrence_ref).inputs) != (
+    for evidence_ref in proof.source_definition_evidence_refs:
+        if not store.verify(evidence_ref).ok:
+            raise ValueError("foundry_input_bindings_semantic_definition_evidence_unverified")
+    port = obligation.port
+    result = evaluate_scoped_correspondence_basis(
+        basis=proof,
+        occurrence_ref=selection.selected_occurrence_ref,
+        occurrence=occurrence,
+        replayed_occurrence=replayed,
+        source_selection=source,
+        source_definition_ref=proof.source_definition_ref,
+        source_definition=validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, proof.source_definition_ref
+        ),
+        source_representation_ref=proof.source_representation_ref,
+        source_representation=load_variable_representation(store, proof.source_representation_ref),
+        target_definition_ref=port.semantic_definition_ref,
+        target_definition=validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, port.semantic_definition_ref
+        ),
+        target_representation_ref=port.representation_ref,
+        target_representation=load_variable_representation(store, port.representation_ref),
+        binding_profile_ref=port.binding_profile_ref,
+        profile=validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, port.binding_profile_ref
+        ),
+        model_interface_ref=SelectedVariableBindingRef.model_validate(
+            obligation.interface_ref.model_dump()
+        ),
+        model_port=port,
+    )
+    if result.status != "candidate":
+        raise ValueError(
+            "foundry_input_bindings_semantic_correspondence_refused:"
+            + ",".join(result.refusal_codes)
+        )
+    return replayed, result.limitation_codes
+
+
+def _replay_selected_scoped_measurement(
+    store: CoreJSONArtifactStore,
+    occurrence_ref: ScopedMeasurementOccurrenceRef,
+) -> tuple[ScopedMeasurementOccurrence, ScopedMeasurementOccurrence, ScopedSourceSelection]:
+    """Reopen and replay the exact admitted source, independent of output meaning."""
+    occurrence = validate_core_model_json_artifact(
+        ScopedMeasurementOccurrence, store, occurrence_ref
+    )
+    if tuple(store.get_manifest(occurrence_ref).inputs) != (
         scoped_measurement_occurrence_manifest_inputs(occurrence)
     ):
         raise ValueError("foundry_input_bindings_semantic_occurrence_lineage_mismatch")
@@ -2774,43 +3169,354 @@ def _verify_scoped_measurement(
         source_selection=source,
         unit_transform_evidence=None,
     )
-    for evidence_ref in proof.source_definition_evidence_refs:
+    return occurrence, replayed, source
+
+
+def _verify_selected_derived_input(
+    store: CoreJSONArtifactStore,
+    selection: ResolvedDerivedInput,
+    obligation: ModelInputObligation,
+    *,
+    obligation_set_ref: ArtifactRef,
+) -> tuple[Decimal, Literal["scalar", "singleton_vector"], tuple[str, ...]]:
+    """Use the one Core arithmetic replay and the separate Core semantic rule."""
+    try:
+        proof = load_derived_input_correspondence(store, selection.correspondence_ref)
+    except FileNotFoundError as exc:
+        raise ValueError("foundry_input_bindings_derived_correspondence_missing") from exc
+    for left, right in (
+        (selection.model_input_obligation_ref, proof.model_input_obligation_ref),
+        (selection.model_interface_ref, proof.model_interface_ref),
+        (selection.recipe_ref, proof.recipe_ref),
+        (selection.certificate_ref, proof.certificate_ref),
+        (selection.output_ref, proof.output_ref),
+        (selection.profile_ref, proof.profile_ref),
+    ):
+        if artifact_ref_identity_key(left) != artifact_ref_identity_key(right):
+            raise ValueError("foundry_input_bindings_derived_selection_mismatch")
+    if (selection.year, selection.model_port_id) != (proof.year, proof.model_port_id):
+        raise ValueError("foundry_input_bindings_derived_selection_mismatch")
+    profile = load_derived_input_profile(store, proof.profile_ref)
+    context = load_ratio_denominator_source_context(store, proof.source_context_ref)
+    try:
+        recipe = load_derivation_recipe_artifact(store, selection.recipe_ref)
+    except (OSError, DerivationRefusalError) as exc:
+        raise ValueError("foundry_input_bindings_derived_recipe_unavailable") from exc
+    resolution = resolve_certified_derivation(
+        store,
+        certificate_ref=selection.certificate_ref,
+        consumer_method_id="polisyos.foundry.semantic-derived-input.v1",
+    )
+    if recipe != resolution.certificate.recipe:
+        raise ValueError("foundry_input_bindings_derived_recipe_certificate_mismatch")
+    certified_output = resolution.certificate.derived_artifact_ref
+    if certified_output is None or artifact_ref_identity_key(certified_output) != (
+        artifact_ref_identity_key(selection.output_ref)
+    ):
+        raise ValueError("foundry_input_bindings_derived_certified_output_mismatch")
+    roles: list[ReplayedDerivedMeasurementRole] = []
+    for role in proof.roles:
+        occurrence, replayed, source = _replay_selected_scoped_measurement(
+            store, role.occurrence_ref
+        )
+        definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, role.definition_ref
+        )
+        for evidence_ref in definition.definition_evidence_refs:
+            if not store.verify(evidence_ref).ok:
+                raise ValueError("foundry_input_bindings_semantic_definition_evidence_unverified")
+        roles.append(
+            ReplayedDerivedMeasurementRole(
+                selection=role,
+                occurrence=occurrence,
+                replayed_occurrence=replayed,
+                source_selection=source,
+                definition=definition,
+                representation=load_variable_representation(store, role.representation_ref),
+                series=SourceSeries.model_validate(
+                    load_core_json_artifact(store, role.source_series_ref)
+                ),
+            )
+        )
+    target_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, obligation.port.semantic_definition_ref
+    )
+    for evidence_ref in target_definition.definition_evidence_refs:
         if not store.verify(evidence_ref).ok:
             raise ValueError("foundry_input_bindings_semantic_definition_evidence_unverified")
-    port = obligation.port
-    result = evaluate_scoped_correspondence_basis(
+    result = evaluate_derived_input_correspondence(
         basis=proof,
-        occurrence_ref=selection.selected_occurrence_ref,
-        occurrence=occurrence,
-        replayed_occurrence=replayed,
-        source_selection=source,
-        source_definition_ref=proof.source_definition_ref,
-        source_definition=validate_core_model_json_artifact(
-            VariableSemanticDefinition, store, proof.source_definition_ref
+        profile=profile,
+        source_context=context,
+        obligation_ref=selection.model_input_obligation_ref,
+        obligation=obligation,
+        target_definition=target_definition,
+        target_representation=load_variable_representation(
+            store, obligation.port.representation_ref
         ),
-        source_representation_ref=proof.source_representation_ref,
-        source_representation=load_variable_representation(store, proof.source_representation_ref),
-        target_definition_ref=port.semantic_definition_ref,
-        target_definition=validate_core_model_json_artifact(
-            VariableSemanticDefinition, store, port.semantic_definition_ref
+        binding_profile=validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, obligation.port.binding_profile_ref
         ),
-        target_representation_ref=port.representation_ref,
-        target_representation=load_variable_representation(store, port.representation_ref),
-        binding_profile_ref=port.binding_profile_ref,
-        profile=validate_core_model_json_artifact(
-            MeasurementBindingProfile, store, port.binding_profile_ref
-        ),
-        model_interface_ref=SelectedVariableBindingRef.model_validate(
-            obligation.interface_ref.model_dump()
-        ),
-        model_port=port,
+        units_registry=load_registry_bundle_content(
+            store, obligation.registry_bundle_ref
+        ).units_registry,
+        recipe=recipe,
+        series=resolution.series,
+        roles=tuple(roles),
     )
-    if result.status != "candidate":
+    if result.status != "candidate" or result.value is None:
         raise ValueError(
-            "foundry_input_bindings_semantic_correspondence_refused:"
+            "foundry_input_bindings_derived_correspondence_refused:"
             + ",".join(result.refusal_codes)
         )
-    return replayed, result.limitation_codes
+    bundle_limitation = "n7_derivation_bundle_not_established"
+    if selection.derivation_bundle_ref is not None:
+        ref = selection.derivation_bundle_ref
+        manifest = store.get_manifest(ref)
+        bundle = load_core_json_artifact(store, ref)
+        if (
+            manifest.artifact_schema
+            != SchemaInfo(name="polisyos.runtime.quality.N7DerivationBundle", version="1.0")
+            or not isinstance(bundle, dict)
+            or bundle.get("schema_version") != "policyos.runtime.n7_derivation_bundle.v1"
+        ):
+            raise ValueError("foundry_input_bindings_derived_bundle_profile_mismatch")
+        for field, expected in (
+            ("model_input_obligation_ref", selection.model_input_obligation_ref),
+            ("obligation_set_ref", obligation_set_ref),
+        ):
+            actual = ArtifactRef.model_validate(bundle.get(field))
+            if artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected):
+                raise ValueError("foundry_input_bindings_derived_bundle_target_mismatch")
+        bundle_limitation = "n7_derivation_bundle_provenance_only"
+    return result.value, profile.output_projection, (*result.limitation_codes, bundle_limitation)
+
+
+def _verify_historical_selected_method_invocation(
+    store: CoreJSONArtifactStore,
+    *,
+    historical_execution_ref: ArtifactRef,
+    input_bindings_ref: ArtifactRef,
+    invocation: ProgramGraphInputInvocation,
+    execute_request: ExecuteRequest | None,
+    effective_step: int | None,
+    semantic_horizon_step: SemanticHorizonStepContext | None,
+) -> None:
+    """Join immutable invocation and stored calls without a live ABI lookup."""
+    from polisyos.core.contracts.foundry import (
+        FoundryExecutionInputBasis,
+        ProgramGraph,
+        SimulationResult,
+    )
+    from polisyos.core.contracts.model_input_requirements import (
+        load_program_graph_input_interface,
+    )
+    from polisyos.foundry.execute.api import load_stored_selected_method_input_occurrences
+    from polisyos.foundry.execute.model_input_requirements import (
+        _require_selected_method_input_period,
+        resolve_program_graph_input_declaration,
+    )
+
+    # The actual execution owner reopens the selected result, basis, graph and
+    # capture bundle, and joins every selected argument to its stored ABI/hash.
+    # It performs no admission recursion or current MethodRegistry lookup.
+    load_stored_selected_method_input_occurrences(
+        store,
+        historical_execution_ref=historical_execution_ref,
+        input_bindings_ref=input_bindings_ref,
+    )
+    result = validate_core_model_json_artifact(SimulationResult, store, historical_execution_ref)
+    basis_ref = result.execution_input_basis_ref
+    if basis_ref is None:
+        raise ValueError("foundry_selected_method_input_historical_basis_required")
+    basis = validate_core_model_json_artifact(FoundryExecutionInputBasis, store, basis_ref)
+    bindings = load_input_bindings(store, input_bindings_ref)
+    if (
+        invocation.steps != (basis.effective_step,)
+        or basis.semantic_horizon_step is not None
+        or semantic_horizon_step is not None
+        or (effective_step is not None and effective_step != basis.effective_step)
+        or (execute_request is not None and execute_request != basis.request)
+    ):
+        raise ValueError("foundry_selected_method_input_historical_execution_mismatch")
+    for expected, actual in (
+        (invocation.program_graph_ref, basis.program_graph_ref),
+        (invocation.exec_plan_ref, basis.exec_plan_ref),
+        (invocation.registry_bundle_ref, basis.runtime_registry_ref),
+        (invocation.registry_bundle_ref, basis.binding_registry_ref),
+        (bindings.data_snapshot_ref, basis.data_snapshot_ref),
+        (bindings.bound_state_snapshot_ref, basis.bound_state_snapshot_ref),
+        (bindings.bound_state_snapshot_ref, basis.base_state_snapshot_ref),
+        (invocation.parameter_override_bundle_ref, basis.parameter_override_bundle_ref),
+        (invocation.context.candidate_source_ref, basis.candidate_ref),
+    ):
+        if (None if expected is None else artifact_ref_identity_key(expected)) != (
+            None if actual is None else artifact_ref_identity_key(actual)
+        ):
+            raise ValueError("foundry_selected_method_input_historical_invocation_mismatch")
+    _require_selected_binding_edges(
+        store.get_manifest(basis_ref),
+        {
+            "basis.source.actual_data_snapshot": bindings.data_snapshot_ref,
+            "basis.source.bound_state_snapshot": bindings.bound_state_snapshot_ref,
+            "basis.source.base_state_snapshot": bindings.bound_state_snapshot_ref,
+            "basis.source.binding_registry_bundle": invocation.registry_bundle_ref,
+            "basis.source.runtime_registry_bundle": invocation.registry_bundle_ref,
+        },
+        reason="foundry_selected_method_input_historical_lineage_mismatch",
+    )
+    interface = load_program_graph_input_interface(store, invocation.interface_ref)
+    selected = resolve_program_graph_input_declaration(
+        store,
+        program_graph_ref=invocation.program_graph_ref,
+        exec_plan_ref=invocation.exec_plan_ref,
+        registry_bundle_ref=invocation.registry_bundle_ref,
+    )
+    if (
+        selected is None
+        or interface.declaration_ref is None
+        or interface.trinity_bundle_ref is None
+        or artifact_ref_identity_key(interface.declaration_ref)
+        != artifact_ref_identity_key(selected.declaration_ref)
+        or artifact_ref_identity_key(interface.trinity_bundle_ref)
+        != artifact_ref_identity_key(selected.trinity_bundle_ref)
+        or interface.ports != selected.declaration.ports
+    ):
+        raise ValueError("foundry_selected_method_input_historical_interface_mismatch")
+    graph = validate_core_model_json_artifact(ProgramGraph, store, invocation.program_graph_ref)
+    _require_selected_method_input_period(
+        store,
+        graph=graph,
+        ports=tuple(port for port in interface.ports if port.carrier == "method_input"),
+        steps=invocation.steps,
+    )
+
+
+def reconcile_selected_method_input_bindings(
+    store: ArtifactStore,
+    *,
+    input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
+    execute_request: ExecuteRequest | None = None,
+    expected_invocation: ProgramGraphInputInvocation | None = None,
+    effective_step: int | None = None,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    historical_execution_ref: ArtifactRef | None = None,
+) -> SelectedMethodInputResolution:
+    """Replay selected sources and return exact, read-only method arguments.
+
+    Live use rechecks the selected preflight against the current method ABI.
+    An explicit historical execution instead joins immutable stored call facts;
+    the unavailable full past ABI remains a declared candidate limitation.
+
+    Args:
+        store: Existing store containing the complete selected source graph.
+        input_bindings_ref: Exact selected version-1.4 binding artifact.
+        execute_request: Optional actual execution request to join to the basis.
+        expected_invocation: Independently selected candidate and graph context.
+        effective_step: Actual consumer step, if executing or reading a result.
+        semantic_horizon_step: Existing horizon context; this profile is one step.
+        historical_execution_ref: Actual persisted result for historical replay.
+
+    Returns:
+        Strict bindings, immutable global-slot map, records, and candidate notes.
+
+    Raises:
+        ValueError: If refs, source arithmetic, encoding, or actual values disagree.
+    """
+    core_store = resolve_core_json_profile_store(store)
+    if core_store is None:
+        raise ValueError("foundry_selected_method_input_reader_not_established")
+    if input_bindings_ref.manifest_profile_sha256 is None:
+        raise ValueError("foundry_selected_method_input_profile_required")
+    bindings = load_input_bindings(core_store, input_bindings_ref)
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    records = bindings.selected_method_inputs
+    if bindings.schema_version != "1.4" or not records or manifest_ref is None:
+        raise ValueError("foundry_selected_method_input_profile_required")
+    if execute_request is not None and artifact_ref_identity_key(
+        execute_request.input_bindings_ref
+    ) != artifact_ref_identity_key(input_bindings_ref):
+        raise ValueError("foundry_selected_method_input_execution_binding_mismatch")
+    prepared = _prepare_semantic_input_bindings(
+        core_store,
+        data_snapshot_ref=bindings.data_snapshot_ref,
+        registry_bundle_ref=bindings.registry_bundle_ref,
+        resolved_binding_manifest_ref=manifest_ref,
+        rules=bindings.rules,
+        execute_request=execute_request,
+        effective_step=effective_step,
+        semantic_horizon_step=semantic_horizon_step,
+        expected_invocation=expected_invocation,
+        historical_execution_ref=historical_execution_ref,
+        historical_input_bindings_ref=input_bindings_ref,
+    )
+    if (
+        prepared.reused_bound_state_snapshot_ref is None
+        or artifact_ref_identity_key(prepared.reused_bound_state_snapshot_ref)
+        != artifact_ref_identity_key(bindings.bound_state_snapshot_ref)
+        or len(records) != len(prepared.selected_method_inputs)
+    ):
+        raise ValueError("foundry_selected_method_input_prestate_mismatch")
+    # The prestate remains the predecessor's exact selected artifact. Opening
+    # its bytes catches removal/corruption without manufacturing new lineage.
+    load_state_snapshot(core_store, snapshot_ref=bindings.bound_state_snapshot_ref)
+    values: dict[str, np.ndarray] = {}
+    for record, expected in zip(records, prepared.selected_method_inputs, strict=True):
+        value = expected.value
+        expected_digest = _selected_method_tensor_digest(value)
+        if (
+            artifact_ref_identity_key(record.model_input_obligation_ref)
+            != artifact_ref_identity_key(expected.model_input_obligation_ref)
+            or record.binding_id != expected.binding_id
+            or record.port_id != expected.port_id
+            or record.slot_id != expected.slot_id
+            or record.canonical_value != expected.canonical_value
+            or record.dtype != value.dtype.name
+            or record.shape != value.shape
+            or record.value_sha256 != expected_digest
+        ):
+            raise ValueError("foundry_selected_method_input_record_source_mismatch")
+        ref = record.npy_value_ref
+        if (
+            ref.kind != "foundry.selected_method_input_value"
+            or ref.media_type != "application/x-npy"
+            or ref.manifest_profile_sha256 is None
+            or core_store.get_manifest(ref).inputs != list(expected.lineage_inputs)
+        ):
+            raise ValueError("foundry_selected_method_input_value_lineage_mismatch")
+        actual = load_tensor(
+            core_store,
+            ref,
+            expected_shape=record.shape,
+            expected_dtype=record.dtype,
+            max_payload_bytes=value.nbytes + 16_384,
+        )
+        if _selected_method_tensor_digest(actual) != expected_digest:
+            raise ValueError("foundry_selected_method_input_value_identity_mismatch")
+        if record.slot_id in values:
+            raise ValueError("foundry_selected_method_input_slot_duplicate")
+        argument = np.frombuffer(actual.tobytes(order="C"), dtype=actual.dtype).reshape(
+            actual.shape
+        )
+        values[record.slot_id] = argument
+    limits = (
+        *prepared.warnings,
+        "method_external_reads_not_observed",
+        *(
+            ("method_historical_abi_completeness_not_established",)
+            if historical_execution_ref is not None
+            else ()
+        ),
+    )
+    return SelectedMethodInputResolution(
+        bindings=bindings,
+        values=MappingProxyType(values),
+        records=records,
+        notes=(
+            "semantic_input_use:candidate_simulation_input_only",
+            *(f"semantic_input_limitation:{code}" for code in dict.fromkeys(limits)),
+        ),
+    )
 
 
 def reconcile_semantic_input_bindings(
@@ -2823,6 +3529,8 @@ def reconcile_semantic_input_bindings(
     expected_invocation: ProgramGraphInputInvocation | None = None,
 ) -> tuple[str, ...]:
     """Replay exact semantics and verify the persisted physical state bytes."""
+    if bindings.schema_version == "1.4":
+        raise ValueError("foundry_selected_method_input_binding_ref_required")
     ref = bindings.resolved_binding_manifest_ref
     if ref is None:
         snapshot_manifest = store.get_manifest(bindings.data_snapshot_ref)
@@ -2841,11 +3549,22 @@ def reconcile_semantic_input_bindings(
             snapshot = validate_core_model_json_artifact(
                 DataSnapshot, core_store, bindings.data_snapshot_ref
             )
-            semantic_lineage = _require_semantic_snapshot_lineage_version(snapshot, snapshot_schema)
-            if semantic_schema or semantic_lineage:
+            _require_semantic_snapshot_lineage_version(snapshot, snapshot_schema)
+            if semantic_schema or _snapshot_requires_resolved_input_manifest(snapshot):
                 raise ValueError("foundry_input_bindings_semantic_manifest_required")
         elif semantic_schema:
             raise ValueError("foundry_input_bindings_semantic_manifest_required")
+        else:
+            # Legacy unselected snapshots still need the same derived-payload
+            # discriminator check as preparation. Plain legacy payloads retain
+            # their existing behavior; no semantic authority is inferred.
+            core_store = resolve_core_json_profile_store(store)
+            if core_store is not None:
+                snapshot = validate_core_model_json_artifact(
+                    DataSnapshot, core_store, bindings.data_snapshot_ref
+                )
+                if _snapshot_requires_resolved_input_manifest(snapshot):
+                    raise ValueError("foundry_input_bindings_semantic_manifest_required")
         if semantic_horizon_step is not None:
             raise ValueError("foundry_input_bindings_semantic_manifest_required")
         return ()
@@ -3047,7 +3766,11 @@ def resolve_bound_state_snapshot_ref(
     """
 
     bindings = load_input_bindings(store, ref)
-    reconcile_semantic_input_bindings(store, bindings)
+    # Version 1.4 leaves the exact predecessor state unchanged. The actual
+    # graph resolves its side-input values once, with the current invocation;
+    # historical readers use the distinct selected-method resolver explicitly.
+    if bindings.schema_version != "1.4":
+        reconcile_semantic_input_bindings(store, bindings)
     _ensure_artifact_readable(store, bindings.data_snapshot_ref)
     _ensure_artifact_readable(store, bindings.bound_state_snapshot_ref)
     return bindings.bound_state_snapshot_ref
@@ -3265,6 +3988,14 @@ def _require_semantic_snapshot_lineage_version(
     if semantic_schema != semantic_lineage:
         raise ValueError("DataSnapshot owner lineage version differs from its manifest schema")
     return semantic_lineage
+
+
+def _snapshot_requires_resolved_input_manifest(snapshot: DataSnapshot) -> bool:
+    """Identify semantic input use without conflating its distinct source owners."""
+    return (
+        isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage)
+        or snapshot.data_ref.kind == DERIVED_MODEL_INPUT_PAYLOAD_KIND
+    )
 
 
 def _verify_selected_data_snapshot_schema(
@@ -3832,7 +4563,7 @@ def _materialize_selected_binding_tensor(
     slot: SlotSpec,
     target_tensor: object,
     policy: _SelectedBindingTensorPolicy,
-) -> jnp.ndarray:
+) -> np.ndarray:
     """Write one verified decimal input without legacy fallback or implicit reshaping."""
     source = np.asarray(value, dtype=object)
     target = np.asarray(target_tensor)
@@ -3886,26 +4617,12 @@ def _materialize_selected_binding_tensor(
                 _apply_transform_chain(decimals, rule.transforms), dtype=object
             )
 
-    with np.errstate(over="ignore"):
-        encoded = jnp.asarray(np.asarray(transformed, dtype=target.dtype))
-    actual = np.asarray(encoded)
-    if actual.dtype != target.dtype or not np.isfinite(actual).all():
-        raise ValueError("semantic_binding_target_encoding_mismatch")
-    # Compare against an exactly representable threshold, rounding the error
-    # outwards so ambient Decimal precision cannot hide a lossy conversion.
-    error_context = Context(
-        prec=len(policy.max_absolute_error.as_tuple().digits),
-        rounding=ROUND_UP,
-        Emin=MIN_EMIN,
-        Emax=MAX_EMAX,
+    return encode_selected_tensor(
+        transformed,
+        shape=policy.shape,
+        dtype=policy.dtype,
+        max_absolute_error=policy.max_absolute_error,
     )
-    if any(
-        error_context.subtract(Decimal.from_float(float(stored)), exact).copy_abs()
-        > policy.max_absolute_error
-        for stored, exact in zip(actual.flat, transformed.flat, strict=True)
-    ):
-        raise ValueError("semantic_binding_precision_loss")
-    return encoded
 
 
 def _apply_transform_chain(value: Any, transforms: list[Any]) -> Any:

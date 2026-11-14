@@ -84,7 +84,12 @@ class ModelInputPort(_ModelInputContract):
 
     port_id: str = Field(min_length=1, strict=True)
     slot_id: str = Field(min_length=1, strict=True)
-    state_path: str = Field(min_length=1, strict=True)
+    carrier: Literal["state_path", "method_input"] = Field(
+        default="state_path", exclude_if=lambda value: value == "state_path"
+    )
+    state_path: str | None = Field(
+        default=None, min_length=1, strict=True, exclude_if=lambda v: v is None
+    )
     unit_id: str = Field(min_length=1, strict=True)
     purpose: Literal["initial_state", "simulation_input", "calibration", "outcome_validation"]
     semantic_definition_ref: VariableSemanticDefinitionRef
@@ -95,6 +100,10 @@ class ModelInputPort(_ModelInputContract):
 
     @model_validator(mode="after")
     def _executable_encoding(self) -> ModelInputPort:
+        if (self.carrier == "state_path") != (self.state_path is not None):
+            raise ValueError("model_input_port_carrier_mismatch")
+        if self.carrier == "method_input" and self.purpose != "simulation_input":
+            raise ValueError("model_input_port_method_purpose_invalid")
         if self.purpose in {"initial_state", "simulation_input"} and self.physical_encoding is None:
             raise ValueError("model_input_port_physical_encoding_missing")
         return self
@@ -107,7 +116,8 @@ def _verify_unique_ports(ports: tuple[ModelInputPort, ...]) -> None:
     if (
         len({port.port_id for port in ports}) != len(ports)
         or len({port.slot_id for port in execution_ports}) != len(execution_ports)
-        or len({port.state_path for port in execution_ports}) != len(execution_ports)
+        or len({port.state_path for port in execution_ports if port.state_path is not None})
+        != sum(port.state_path is not None for port in execution_ports)
     ):
         raise ValueError("model_input_interface_duplicate_port")
 
@@ -119,13 +129,16 @@ class ModelInputPortDeclaration(_ModelInputContract):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.ModelInputPortDeclaration"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     ports: tuple[ModelInputPort, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
     def _unique_ports(self) -> ModelInputPortDeclaration:
         _verify_unique_ports(self.ports)
+        if self.schema_version == "1.0" and any(p.carrier == "method_input" for p in self.ports):
+            raise ValueError("model_input_declaration_version_mismatch")
         return self
 
 
@@ -136,8 +149,9 @@ class ProgramGraphInputInterface(_ModelInputContract):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ProgramGraphInputInterface"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     program_graph_ref: ProgramGraphRef
     exec_plan_ref: ExecPlanRef
     registry_bundle_ref: ArtifactRef
@@ -153,6 +167,8 @@ class ProgramGraphInputInterface(_ModelInputContract):
     @model_validator(mode="after")
     def _unique_ports_and_refs(self) -> ProgramGraphInputInterface:
         _verify_unique_ports(self.ports)
+        if self.schema_version == "1.0" and any(p.carrier == "method_input" for p in self.ports):
+            raise ValueError("model_input_interface_version_mismatch")
         if (self.declaration_ref is None) != (self.trinity_bundle_ref is None) or (
             self.declaration_ref is not None
             and (
@@ -181,8 +197,17 @@ class ProgramGraphInputDependency(_ModelInputContract):
     """An actual node read or additive merge of the selected prestate."""
 
     node_id: str = Field(min_length=1, strict=True)
-    kind: Literal["mechanism_read", "additive_prestate"]
+    kind: Literal["mechanism_read", "additive_prestate", "method_read"]
     first_required_step: int = Field(ge=0, strict=True)
+    method_abi_digest: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$", strict=True, exclude_if=lambda v: v is None
+    )
+
+    @model_validator(mode="after")
+    def _method_digest(self) -> ProgramGraphInputDependency:
+        if (self.kind == "method_read") != (self.method_abi_digest is not None):
+            raise ValueError("model_input_dependency_method_digest_mismatch")
+        return self
 
 
 class ModelInputObligation(_ModelInputContract):
@@ -192,8 +217,9 @@ class ModelInputObligation(_ModelInputContract):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ModelInputObligation"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -211,6 +237,15 @@ class ModelInputObligation(_ModelInputContract):
 
     @model_validator(mode="after")
     def _selected_origin_refs(self) -> ModelInputObligation:
+        if self.schema_version == "1.0" and (
+            self.port.carrier == "method_input"
+            or any(d.kind == "method_read" for d in self.dependencies)
+        ):
+            raise ValueError("model_input_obligation_version_mismatch")
+        if self.port.carrier == "method_input" and any(
+            d.kind != "method_read" for d in self.dependencies
+        ):
+            raise ValueError("model_input_obligation_method_dependency_mismatch")
         if (
             self.interface_ref.kind != ProgramGraphInputInterface.ARTIFACT_KIND
             or self.registry_bundle_ref.kind != "core.registry_bundle"
@@ -282,8 +317,9 @@ class ModelInputObligationSet(_ModelInputContract):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ModelInputObligationSet"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -381,9 +417,7 @@ def _persist(store: ArtifactStore, value: _ModelInputArtifact) -> ArtifactRef:
         PutOptions(
             kind=value.ARTIFACT_KIND,
             media_type=value.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=value.ARTIFACT_SCHEMA_NAME, version=value.ARTIFACT_SCHEMA_VERSION
-            ),
+            schema=SchemaInfo(name=value.ARTIFACT_SCHEMA_NAME, version=value.schema_version),
             inputs=_artifact_inputs(value),
         ),
         return_selected_profile=True,
@@ -475,9 +509,16 @@ def load_model_input_obligation(store: ArtifactStore, ref: ArtifactRef) -> Model
     nodes = {node.node_id: node for node in graph.nodes}
     for dependency in obligation.dependencies:
         node = nodes.get(dependency.node_id)
-        if node is None or node.op is None or node.op.op_kind != "apply_mechanism":
+        if node is None:
             raise ValueError("model_input_obligation_dependency_mismatch")
-        referenced_slots = node.inputs if dependency.kind == "mechanism_read" else node.outputs
+        if dependency.kind == "method_read":
+            if node.node_kind != "method":
+                raise ValueError("model_input_obligation_dependency_mismatch")
+            referenced_slots = node.inputs
+        else:
+            if node.op is None or node.op.op_kind != "apply_mechanism":
+                raise ValueError("model_input_obligation_dependency_mismatch")
+            referenced_slots = node.inputs if dependency.kind == "mechanism_read" else node.outputs
         if obligation.port.slot_id not in referenced_slots:
             raise ValueError("model_input_obligation_dependency_mismatch")
     return obligation
@@ -524,6 +565,8 @@ def verify_model_input_obligation_set_members(
     ):
         raise ValueError("model_input_obligation_set_membership_mismatch")
     for member in members:
+        if obligation_set.schema_version == "1.0" and member.schema_version != "1.0":
+            raise ValueError("model_input_obligation_set_version_mismatch")
         if (
             member.context != invocation.context
             or member.parameter_override_bundle_ref != invocation.parameter_override_bundle_ref

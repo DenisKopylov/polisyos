@@ -526,9 +526,10 @@ def _load_selected_method_execution_plan(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != "polisyos.core.ExecutionPlan"
-        or manifest.artifact_schema.version != "1.0"
     ):
         raise ValueError("method_execution_plan_manifest_schema_mismatch")
+    if manifest.artifact_schema.version not in ExecutionPlan.SUPPORTED_SCHEMA_VERSIONS:
+        raise ValueError("method_execution_plan_schema_unsupported")
     candidate_edges = [item for item in manifest.inputs if item.role == "policy_candidate"]
     if len(candidate_edges) != 1:
         raise ValueError("method_execution_plan_requires_one_policy_candidate_edge")
@@ -539,6 +540,8 @@ def _load_selected_method_execution_plan(
     ):
         raise ValueError("method_execution_plan_policy_candidate_edge_mismatch")
     plan = validate_core_model_json_artifact(ExecutionPlan, store, exact_plan_ref)
+    if plan.schema_version != manifest.artifact_schema.version:
+        raise ValueError("method_execution_plan_manifest_schema_mismatch")
     return plan, ExecutionPlanRef.model_validate(exact_plan_ref.model_dump(mode="python"))
 
 

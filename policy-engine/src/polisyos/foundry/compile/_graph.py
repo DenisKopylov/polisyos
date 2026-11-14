@@ -16,9 +16,11 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
-from polisyos.core.registry.loader import load_registry_bundle_content
-from polisyos.foundry.methods.base import MethodKind
+from polisyos.core.contracts.method_input import RegistrySlotInputPortSource
+from polisyos.core.registry.loader import RegistryBundleContent, load_registry_bundle_content
+from polisyos.foundry.methods.base import MethodKind, SideEffectProfile
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.types.checker import validate_registered_method_input
 from polisyos.ir.kernel.slots import SlotRegistry
 
 
@@ -87,9 +89,19 @@ def build_program_graph(
 
     method_node_ids: set[str] = set()
     planned_method_edges: set[tuple[str, str]] = set()
+    uses_mapped_method_inputs = method_plan is not None and any(
+        source.input_ports is not None for source in method_plan.method_dag
+    )
+    registry_content: RegistryBundleContent | None = None
+    if uses_mapped_method_inputs:
+        registry_content = _selected_registry_bundle_content(store, lowered_ir_ref)
     if method_plan is not None:
         method_nodes, method_edges = _method_plan_graph_nodes(
-            method_plan, existing, existing_nodes=nodes
+            method_plan,
+            existing,
+            existing_nodes=nodes,
+            registry_content=registry_content,
+            use_mapped_method_inputs=uses_mapped_method_inputs,
         )
         method_node_ids = {node.node_id for node in method_nodes}
         planned_method_edges = {(edge.src, edge.dst) for edge in method_edges}
@@ -102,9 +114,9 @@ def build_program_graph(
     has_intervention_method_slot_transfer = any(
         mechanism.outputs and any(method_read_slots) for mechanism in mechanism_items
     )
-    slot_registry = None
-    if has_intervention_method_slot_transfer:
-        slot_registry = _selected_slot_registry(store, lowered_ir_ref)
+    if has_intervention_method_slot_transfer and registry_content is None:
+        registry_content = _selected_registry_bundle_content(store, lowered_ir_ref)
+    slot_registry = None if registry_content is None else registry_content.slot_registry
     slot_edges = _slot_dependency_edges(nodes, slot_registry=slot_registry)
     if method_plan is not None:
         mechanism_node_ids = {
@@ -139,6 +151,7 @@ def build_program_graph(
 
     entrypoints = _entrypoints(nodes, edges)
     graph = ProgramGraph(
+        schema_version="0.3" if uses_mapped_method_inputs else "0.2",
         ir_ref=ir_ref,
         lowered_ir_ref=lowered_ir_ref,
         nodes=nodes,
@@ -154,8 +167,16 @@ def _method_plan_graph_nodes(
     existing_node_ids: set[str],
     *,
     existing_nodes: list[ProgramNode],
+    registry_content: RegistryBundleContent | None = None,
+    use_mapped_method_inputs: bool = False,
 ) -> tuple[list[ProgramNode], list[ProgramEdge]]:
     """Adapt the whole supported method DAG to the existing graph ABI or refuse it."""
+    if use_mapped_method_inputs and registry_content is None:
+        raise ValueError("execution_plan_method_selected_registry_unavailable")
+    if any(source.input_ports is not None for source in plan.method_dag) and not (
+        use_mapped_method_inputs
+    ):
+        raise ValueError("execution_plan_method_input_ports_not_supported")
     method_ids = [node.node_id for node in plan.method_dag]
     if len(method_ids) != len(set(method_ids)):
         raise ValueError("execution_plan_method_node_ids_not_unique")
@@ -170,7 +191,8 @@ def _method_plan_graph_nodes(
     for source in plan.method_dag:
         if source.incompatibilities or source.deprecations:
             raise ValueError("execution_plan_method_status_fields_unsupported")
-        signature = registry.get_signature(source.method_fqn)
+        entry = registry.get_entry(source.method_fqn)
+        signature = entry.signature if entry is not None else None
         if signature is None or signature.fqn != source.method_fqn:
             raise ValueError("execution_plan_method_exact_signature_unavailable")
         if signature.kind is not MethodKind.PURE:
@@ -193,6 +215,60 @@ def _method_plan_graph_nodes(
             raise ValueError("execution_plan_method_parameter_names_invalid")
         if set(source.params) - parameter_names:
             raise ValueError("execution_plan_method_unknown_parameter")
+        method_input_ports: dict[str, RegistrySlotInputPortSource] | None = None
+        program_inputs = list(source.reads_slots)
+        if use_mapped_method_inputs:
+            if registry_content is None:
+                raise ValueError("execution_plan_method_selected_registry_unavailable")
+            declared_ports = source.input_ports
+            if declared_ports is not None and set(declared_ports) != set(input_slots):
+                raise ValueError("execution_plan_method_input_ports_abi_mismatch")
+            method_input_ports = {}
+            for input_slot_id in sorted(input_slots):
+                input_source = (
+                    declared_ports.get(input_slot_id)
+                    if declared_ports is not None
+                    else RegistrySlotInputPortSource(
+                        source_kind="registry_slot",
+                        slot_id=input_slot_id,
+                    )
+                )
+                if input_source is None:
+                    raise ValueError("execution_plan_method_input_ports_abi_mismatch")
+                if input_source.source_kind != "registry_slot":
+                    raise ValueError("execution_plan_method_output_input_not_supported")
+                if input_source.slot_id not in registry_content.slot_registry.slots:
+                    raise ValueError("execution_plan_method_input_slot_unregistered")
+                try:
+                    validate_registered_method_input(
+                        signature,
+                        input_slot_id=input_slot_id,
+                        registered_slot_id=input_source.slot_id,
+                        registry=registry_content,
+                    )
+                except ValueError as exc:
+                    raise ValueError(
+                        f"execution_plan_method_input_source_invalid:{exc}"
+                    ) from exc
+                method_input_ports[input_slot_id] = input_source
+            program_inputs = sorted(
+                {item.slot_id for item in method_input_ports.values()}
+            )
+        if source.state_writes and (
+            entry is None
+            or entry.metadata.side_effect_profile is not SideEffectProfile.PATCH_EMISSION
+        ):
+            raise ValueError("execution_plan_method_state_writes_require_patch_emission")
+        patch_target_ids: list[str] = []
+        for contract in signature.patch_targets:
+            target_id = source.params.get(contract.target_parameter)
+            if type(target_id) is not str or not target_id or target_id != target_id.strip():
+                raise ValueError("execution_plan_method_patch_target_parameter_unbound")
+            patch_target_ids.append(target_id)
+        if len(patch_target_ids) != len(set(patch_target_ids)):
+            raise ValueError("execution_plan_method_patch_targets_not_unique")
+        if set(source.state_writes or ()) != set(patch_target_ids):
+            raise ValueError("execution_plan_method_patch_targets_mismatch")
         if len(source.depends_on) != len(set(source.depends_on)):
             raise ValueError("execution_plan_method_dependencies_not_unique")
         dependencies.update((dependency, source.node_id) for dependency in source.depends_on)
@@ -205,10 +281,16 @@ def _method_plan_graph_nodes(
                 method_fqn=source.method_fqn,
                 method_version=source.method_version,
                 method_params=dict(source.params),
-                inputs=list(source.reads_slots),
-                # Method returns are captured by the selected metric binding. ProgramNode.outputs
-                # is the graph state-patch namespace, so pure returns stay out of that plane.
-                outputs=[],
+                inputs=program_inputs,
+                # Method return names stay in writes_slots and are captured by the selected
+                # metric binding. Only the separately declared state_writes enter the graph
+                # patch namespace; an absent declaration preserves the legacy empty output set.
+                outputs=list(source.state_writes or []),
+                **(
+                    {"input_ports": method_input_ports}
+                    if method_input_ports is not None
+                    else {}
+                ),
             )
         )
     explicit_edges: set[tuple[str, str]] = set()
@@ -319,6 +401,14 @@ def _unique_node_id(base_id: str, existing: set[str]) -> str:
 
 def _selected_slot_registry(store: Any, lowered_ir_ref: LoweredIRRef) -> SlotRegistry:
     """Load the slot registry through the exact LoweredIR lineage view."""
+    return _selected_registry_bundle_content(store, lowered_ir_ref).slot_registry
+
+
+def _selected_registry_bundle_content(
+    store: Any,
+    lowered_ir_ref: LoweredIRRef,
+) -> RegistryBundleContent:
+    """Load the registry content through the exact selected LoweredIR view."""
     if lowered_ir_ref.manifest_profile_sha256 is None:
         raise ValueError(
             "execution_plan_method_lowered_ir_selected_profile_required_for_intervention_method_transfer"
@@ -340,8 +430,7 @@ def _selected_slot_registry(store: Any, lowered_ir_ref: LoweredIRRef) -> SlotReg
         media_type="application/json",
         manifest_profile_sha256=registry_input.manifest_profile_sha256,
     )
-    registry_content = load_registry_bundle_content(store, registry_ref)
-    return registry_content.slot_registry
+    return load_registry_bundle_content(store, registry_ref)
 
 
 def _slot_dependency_edges(

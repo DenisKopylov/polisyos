@@ -524,7 +524,8 @@ def test_current_context_reuses_fresh_origin_and_preserves_final_fences(
             context = invoke()
             assert context.outcome == outcome and context.selection is selection
             assert forwarded == [fresh]
-            assert admission_reads == head_list_reads == 2
+            assert admission_reads == 2
+            assert head_list_reads == 4  # Entry and closing SQL reads at both observed cuts.
         else:
             message = (
                 "live_owner_changed"

@@ -583,14 +583,16 @@ class MethodExecutionAbortError(FoundryMethodError):
         card: The FailureCard that triggered the abort.
         method_execution_bundle_ref: Selected diagnostic capture, when available.
         method_metric_horizon_capture: Full-profile horizon capture context, when available.
+        semantic_input_notes: Qualified candidate limitations from the actual input replay.
     """
 
     default_category = ErrorCategory.FATAL
 
-    def __init__(self, card: object) -> None:
+    def __init__(self, card: object, *, semantic_input_notes: tuple[str, ...] = ()) -> None:
         self.card = card
         self.method_execution_bundle_ref: ArtifactRef | None = None
         self.method_metric_horizon_capture: dict[str, Any] | None = None
+        self.semantic_input_notes = semantic_input_notes
         severity = getattr(card, "severity", "?")
         severity_str = getattr(severity, "value", str(severity))
         super().__init__(

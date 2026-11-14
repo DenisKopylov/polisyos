@@ -8,8 +8,15 @@ from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from types import CodeType, SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
@@ -284,6 +291,186 @@ def _assert_changed_candidate_n5_numeric_outcomes(
     for before in old:
         for after in new:
             assert after - before == pytest.approx(0.035, rel=0, abs=tolerance)
+
+
+def _assert_genuine_ordered_history_replay(
+    *,
+    control: ControlPlaneService,
+    origin: VerifiedCandidateExperimentOrigin,
+    histories: tuple[CandidateExperimentTerminalHistory, ...],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Replay actual retained history twice, then remove deep inputs between cuts.
+
+    The existing served producer supplies all artifacts, SQL versions and signed
+    authority events. Only observation counters and the between-cut perturbation
+    wrap the real readers. This helper itself must never enter N5.
+    """
+    from collections import Counter
+
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality import acquisition_evaluation_history as history_owner
+    from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+    from polisyos.runtime.quality.joint_simulation_horizon import _receipt_verification_operation
+
+    assert len(histories) >= 3
+    assert tuple(item.head.action_generation for item in histories) == tuple(
+        range(1, len(histories) + 1)
+    )
+    sink = control.acquisition_route_sink
+    database = control._control_store
+    store = control._artifact_store
+    scope = {
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "source_job_id": origin.source_job_id,
+        "route_id": origin.route_id,
+        "verified_origin": origin,
+    }
+    ledger = control._llm_producer_settlement_store
+    ledger_before = ledger.snapshot_safe()
+    generation_reads: list[int] = []
+    replay_generation = history_owner._verify_candidate_experiment_terminal_history_generation
+
+    def counted_generation(**kwargs):
+        generation_reads.append(kwargs["head"].action_generation)
+        return replay_generation(**kwargs)
+
+    with _forbid_retained_generation_n5() as n5_entries, monkeypatch.context() as observed:
+        observed.setattr(
+            history_owner,
+            "_verify_candidate_experiment_terminal_history_generation",
+            counted_generation,
+        )
+        baseline = sink.experiment_action_outcomes(**scope)
+        assert generation_reads == list(range(1, len(histories) + 1)) * 2
+        assert tuple(item.head for item in baseline) == tuple(item.head for item in histories)
+        assert all(
+            _candidate_model_values_same(item.candidate_experiment_terminal_history, history)
+            for item, history in zip(baseline, histories, strict=True)
+        )
+
+        # A fresh standalone read must reconstruct the earlier generations;
+        # its public interface has no prefix carrier and inherits no prior memo.
+        generation_reads.clear()
+        latest = histories[-1]
+        with _receipt_verification_operation(fresh=True):
+            standalone = history_owner.verify_candidate_experiment_terminal_history(
+                control_service=control, head=latest.head, terminal_ref=latest.terminal_ref
+            )
+        assert _candidate_model_values_same(standalone, latest)
+        assert set(Counter(generation_reads)) == set(range(1, len(histories) + 1))
+
+        def remove_blob(ref, *, corrupt=False):
+            digest = str(ref.artifact_id).removeprefix("sha256:")
+            path = (
+                Path(store.root)
+                / "artifacts"
+                / "sha256"
+                / digest[:2]
+                / digest[2:4]
+                / f"{digest}.blob"
+            )
+            original = path.read_bytes()
+            if corrupt:
+                path.write_bytes(original + b" ")
+            else:
+                path.unlink()
+            return lambda: path.write_bytes(original)
+
+        def remove_sql_row(table, column, value):
+            # This closed fixture inventory supplies all identifiers; values
+            # stay bound and restoration uses only the original table columns.
+            assert (table, column) in {
+                ("runtime_acquisition_action_heads", "receipt_ref"),
+                ("control_diagnostic_events", "event_id"),
+                ("runtime_acquisition_evaluation_frontier_versions", "frontier_ref"),
+            }
+            select_sql = f"SELECT * FROM {table} WHERE {column} = ?"  # noqa: S608
+            row = database._fetchone(select_sql, (value,))
+            assert row is not None
+            columns = tuple(row.keys())
+            saved = tuple(row[column] for column in columns)
+            delete_sql = f"DELETE FROM {table} WHERE {column} = ?"  # noqa: S608
+            assert database._execute(delete_sql, (value,)) == 1
+
+            def restore():
+                database._execute(
+                    f"INSERT INTO {table} ({', '.join(columns)}) VALUES "  # noqa: S608
+                    f"({', '.join('?' for _ in columns)})",
+                    saved,
+                )
+
+            return restore
+
+        first = histories[0]
+        first_phase = first.phase_chain[0]
+        assert first.frontier_after is not None
+        assert first.terminal.selected_evaluation is not None
+        perturbations = (
+            (
+                "deep_n5_parent",
+                lambda: remove_blob(first.terminal.selected_evaluation.n5_input_ref),
+            ),
+            ("source_bytes", lambda: remove_blob(first.source.raw_source_ref, corrupt=True)),
+            (
+                "phase_sql",
+                lambda: remove_sql_row(
+                    "runtime_acquisition_action_heads", "receipt_ref", first_phase.receipt_ref
+                ),
+            ),
+            (
+                "phase_event",
+                lambda: remove_sql_row(
+                    "control_diagnostic_events", "event_id", first_phase.durable_event_id
+                ),
+            ),
+            (
+                "old_frontier",
+                lambda: remove_sql_row(
+                    "runtime_acquisition_evaluation_frontier_versions",
+                    "frontier_ref",
+                    first.frontier_after.frontier_ref,
+                ),
+            ),
+        )
+        one_sweep = AcquisitionRouteLoopAuthoritySink._experiment_action_outcomes_once
+        for name, perturb in perturbations:
+            restorations = []
+            completed_cuts = []
+
+            def perturb_after_first_cut(
+                owner, *, _cuts=completed_cuts, _restores=restorations, _perturb=perturb, **kwargs
+            ):
+                result = one_sweep(owner, **kwargs)
+                _cuts.append(result)
+                if len(_cuts) == 1:
+                    _restores.append(_perturb())
+                return result
+
+            try:
+                with monkeypatch.context() as between:
+                    between.setattr(
+                        AcquisitionRouteLoopAuthoritySink,
+                        "_experiment_action_outcomes_once",
+                        perturb_after_first_cut,
+                    )
+                    with pytest.raises((OSError, ValueError)):
+                        sink.experiment_action_outcomes(**scope)
+                assert len(completed_cuts) == len(restorations) == 1, name
+            finally:
+                for restore in reversed(restorations):
+                    restore()
+            restored = sink.experiment_action_outcomes(**scope)
+            assert all(
+                _candidate_model_values_same(before, after)
+                for before, after in zip(baseline, restored, strict=True)
+            ), name
+        assert n5_entries == []
+    assert ledger.snapshot_safe() == ledger_before
 
 
 def _continue_genuine_candidate_experiment_generations(
@@ -1049,6 +1236,12 @@ def _continue_genuine_candidate_experiment_generations(
     b2 = run_reuse(generation=2, predecessor=b1)
     assert_independently(lambda: assert_wrong_reuse_refused(predecessor=b2))
     b3 = run_reuse(generation=3, predecessor=b2)
+    _assert_genuine_ordered_history_replay(
+        control=control,
+        origin=origin,
+        histories=tuple(item.terminal_history for item in (b1, b2, b3)),
+        monkeypatch=monkeypatch,
+    )
     changed = run_changed_source()
     executions = (b1, b2, b3, changed)
     changed_history = changed.terminal_history

@@ -183,6 +183,44 @@ class FeedbackState:
         )
 
 
+@chex.dataclass(frozen=True)
+class ModelScalarState:
+    """Fixed-shape values for selected model-owned scalar GLOBAL slots.
+
+    Slot meaning and identity live in the selected external model-state layout;
+    this JAX pytree carries only numeric values and explicit presence bits.
+    Missing entries use a canonical zero storage value but remain absent until
+    ``present`` is true. Readers must check presence before returning a value.
+    """
+
+    values: Float[Array, n_model_scalar_slots]
+    present: Bool[Array, n_model_scalar_slots]
+
+    def __post_init__(self) -> None:
+        """Check only static pytree metadata, safe during JAX tracing."""
+
+        if self.values.ndim != 1 or self.values.dtype != jnp.float32:
+            raise ValueError("model_scalar_state_values_require_float32_vector")
+        if self.present.ndim != 1 or self.present.dtype != jnp.bool_:
+            raise ValueError("model_scalar_state_presence_requires_bool_vector")
+        if self.values.shape != self.present.shape or self.values.shape[0] < 1:
+            raise ValueError("model_scalar_state_shape_mismatch")
+
+    @classmethod
+    def empty(cls, n_slots: int) -> ModelScalarState:
+        """Create an absent fixed-size state for a verified nonempty layout."""
+
+        if type(n_slots) is not int:
+            raise TypeError("model_scalar_state_slot_count_must_be_integer")
+        count = int(n_slots)
+        if count < 1:
+            raise ValueError("model_scalar_state_layout_must_be_nonempty")
+        return cls(
+            values=jnp.zeros((count,), dtype=jnp.float32),
+            present=jnp.zeros((count,), dtype=jnp.bool_),
+        )
+
+
 # --- 1. ЛЮДИ (Households) ---
 @chex.dataclass(frozen=True)
 class AgentState:
@@ -374,6 +412,7 @@ class GlobalState:
     agent_sim_runtime: AgentSimRuntimeState | None = None
     queue_runtime: QueueRuntimeState | None = None
     feedback_state: FeedbackState | None = None
+    model_scalar_state: ModelScalarState | None = None
 
     @classmethod
     def empty(

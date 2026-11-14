@@ -3464,6 +3464,207 @@ const runGenericCycleSimulationN5ResultBodySchema =
     })
     .superRefine(validateN5NumericalResultBody);
 
+const runModelInputUseActionSelectorSchema = z
+  .object({
+    action_job_id: z.string().min(1),
+    job_state: z.enum([
+      "pending",
+      "running",
+      "completed",
+      "failed",
+      "cancelled",
+    ]),
+  })
+  .strict();
+
+export const runModelInputUseActionsSchema = z
+  .object({
+    run_id: z.string().min(1),
+    source_job_id: z.string().min(1),
+    scope: z.literal("discovery_only"),
+    actions: z.array(runModelInputUseActionSelectorSchema).max(128),
+    inventory_status: z.enum(["complete", "limited"]),
+    inventory_truncated: z.boolean(),
+    limitation_codes: z.array(
+      z.enum(["action_inventory_truncated", "action_binding_not_established"]),
+    ),
+  })
+  .strict()
+  .superRefine((inventory, context) => {
+    const ids = inventory.actions.map((action) => action.action_job_id);
+    if (new Set(ids).size !== ids.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["actions"],
+        message: "run_model_input_use_action_ids_not_unique",
+      });
+    }
+    if (ids.some((id, index) => index > 0 && ids[index - 1]! >= id)) {
+      context.addIssue({
+        code: "custom",
+        path: ["actions"],
+        message: "run_model_input_use_actions_not_deterministically_ordered",
+      });
+    }
+    if (
+      (inventory.inventory_truncated &&
+        (!inventory.limitation_codes.includes("action_inventory_truncated") ||
+          inventory.inventory_status !== "limited")) ||
+      (inventory.limitation_codes.includes("action_inventory_truncated") &&
+        !inventory.inventory_truncated) ||
+      (inventory.inventory_status === "limited" &&
+        inventory.limitation_codes.length === 0) ||
+      (inventory.inventory_status === "complete" &&
+        (inventory.actions.length === 0 ||
+          inventory.inventory_truncated ||
+          inventory.limitation_codes.length > 0))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["inventory_status"],
+        message: "run_model_input_use_action_inventory_status_mismatch",
+      });
+    }
+  });
+
+export type RunModelInputUseActionsProjection = z.output<
+  typeof runModelInputUseActionsSchema
+>;
+
+const runModelInputUseBlockedSourceProjectionSchema = z
+  .object({
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    blocked_execution_ref: artifactRefSchema,
+    candidate_content_hash: z.string(),
+    candidate_id: z.string(),
+    currentness_status: z.literal("not_established"),
+    cycle_index: z.number().int().nonnegative(),
+    design_problem_ref: z.string(),
+    model_input_obligation_set_ref: artifactRefSchema,
+    publication_authority: z.literal(false),
+    routing_report_ref: artifactRefSchema,
+    run_id: z.string(),
+    source_job_id: z.string(),
+    status: z.literal("simulation_blocked"),
+  })
+  .strict();
+
+const runModelInputUseN5SuccessorProjectionV1Schema = z
+  .object({
+    action_job_id: z.string().min(1),
+    action_status: z.enum([
+      "pending",
+      "running",
+      "completed",
+      "failed",
+      "not_established",
+    ]),
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    blocked_source: runModelInputUseBlockedSourceProjectionSchema
+      .nullable()
+      .optional(),
+    currentness_status: z.literal("not_established"),
+    limitation_code: z.string().nullable().optional(),
+    n5_execution_ref: artifactRefSchema.nullable().optional(),
+    publication_authority: z.literal(false),
+    result_body: runGenericCycleSimulationN5ResultBodySchema
+      .nullable()
+      .optional(),
+    result_status: z.enum(["resolved", "not_established"]),
+    run_id: z.string().min(1),
+    schema_version: z.literal(
+      "policyos.runtime.run_model_input_use_n5_successor_projection.v1",
+    ),
+    semantic_input_limitation_codes: z.array(z.string()),
+    semantic_successor_ref: artifactRefSchema.nullable().optional(),
+    simulation_result_ref: artifactRefSchema.nullable().optional(),
+  })
+  .strict();
+
+const runModelInputUseN5SuccessorProjectionV2Schema = z
+  .object({
+    action_job_id: z.string().min(1),
+    action_status: z.enum([
+      "pending",
+      "running",
+      "completed",
+      "failed",
+      "not_established",
+    ]),
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    basis_comparison_result: z
+      .enum(["initial", "equivalent", "different", "not_established"])
+      .nullable()
+      .optional(),
+    blocked_source: runModelInputUseBlockedSourceProjectionSchema
+      .nullable()
+      .optional(),
+    current_action_phase_ref: artifactRefSchema.nullable().optional(),
+    current_authority_decision_ref: artifactRefSchema.nullable().optional(),
+    current_basis_limitations: z.array(z.string()),
+    current_basis_ref: artifactRefSchema.nullable().optional(),
+    current_semantic_successor_ref: artifactRefSchema.nullable().optional(),
+    current_use_decision_ref: artifactRefSchema.nullable().optional(),
+    currentness_status: z.literal("not_established"),
+    evaluation_provenance: z
+      .enum(["new_execution", "retained_prior"])
+      .nullable()
+      .optional(),
+    frontier_ref: z.string().nullable().optional(),
+    frontier_revision: z.number().int().nonnegative().nullable().optional(),
+    frontier_selection: z
+      .enum(["selected", "superseded", "not_established"])
+      .nullable()
+      .optional(),
+    limitation_code: z.string().nullable().optional(),
+    observed_admission: z.literal(false),
+    original_action_job_id: z.string().nullable().optional(),
+    original_execution_ref: artifactRefSchema.nullable().optional(),
+    original_input_ref: artifactRefSchema.nullable().optional(),
+    original_result_ref: artifactRefSchema.nullable().optional(),
+    original_semantic_successor_ref: artifactRefSchema.nullable().optional(),
+    predicate_provenance: z
+      .enum(["recomputed", "not_established"])
+      .nullable()
+      .optional(),
+    publication_authority: z.literal(false),
+    result_body: runGenericCycleSimulationN5ResultBodySchema
+      .nullable()
+      .optional(),
+    result_status: z.enum(["resolved", "not_established"]),
+    run_id: z.string().min(1),
+    schema_version: z.literal(
+      "policyos.runtime.run_model_input_use_n5_successor_projection.v2",
+    ),
+    selected_basis_limitations: z.array(z.string()),
+    selected_basis_ref: artifactRefSchema.nullable().optional(),
+    semantic_input_limitation_codes: z.array(z.string()),
+  })
+  .strict();
+
+export const runModelInputUseN5SuccessorProjectionSchema = z.discriminatedUnion(
+  "schema_version",
+  [
+    runModelInputUseN5SuccessorProjectionV1Schema,
+    runModelInputUseN5SuccessorProjectionV2Schema,
+  ],
+);
+
+export type RunModelInputUseN5SuccessorProjection = z.output<
+  typeof runModelInputUseN5SuccessorProjectionSchema
+>;
+
+export const runModelInputUseN5SuccessorResponseSchema = z
+  .object({
+    meta: apiMetaSchema,
+    result: runModelInputUseN5SuccessorProjectionSchema,
+  })
+  .strict();
+
+export type RunModelInputUseN5SuccessorResponse = z.output<
+  typeof runModelInputUseN5SuccessorResponseSchema
+>;
+
 const runCandidateSimulationN5ResultBodySchema =
   runN5NumericalResultBodyBaseSchema
     .extend({
@@ -5183,6 +5384,9 @@ const runDetailsSchemaInner = z
     method_execution_selection: directMethodRunProjectionSchema
       .nullable()
       .optional(),
+    // Exact model-input action job IDs are discovery selectors only; each
+    // result is fetched and independently authorized by the run/job endpoint.
+    model_input_use_actions: runModelInputUseActionsSchema.optional(),
     // This conditional family diagnostic remains candidate-only and cannot
     // establish transport authority, source currentness, or legal eligibility.
     conditional_transport_candidate:

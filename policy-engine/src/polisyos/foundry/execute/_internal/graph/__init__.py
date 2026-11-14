@@ -9,8 +9,10 @@ import logging
 import math
 import time
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
+from types import MappingProxyType
 from typing import Any, Literal, Protocol, TypedDict, TypeVar
 
 import jax
@@ -54,6 +56,8 @@ from polisyos.core.contracts.foundry import (
     ConstraintReportRef,
     ExecPlan,
     ExecPlanRef,
+    ExecuteRequest,
+    FoundryInputBindingsRef,
     LoweredIR,
     MethodArtifactOutputPayload,
     MethodArtifactOutputRef,
@@ -77,14 +81,18 @@ from polisyos.core.contracts.foundry import (
     MethodOutputPayload,
     MethodOutputRef,
     Metrics,
+    ParameterOverrideBundleRef,
     PatchOp,
     ProgramGraph,
     ProgramGraphRef,
     ProgramNode,
     RestrictedMethodCallWitness,
+    SemanticHorizonStepContext,
     StateDelta,
     StateSnapshotRef,
 )
+from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
+from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.compile.randomization import (
     TREASURY_SALTS_PROFILE,
@@ -116,13 +124,16 @@ from polisyos.foundry.execute.observation import ProgramGraphExecutionObserver
 from polisyos.foundry.execute.patch_vm import merge_patch_records
 from polisyos.foundry.methods.backends.circuit_breaker import BackendCircuitOpenError
 from polisyos.foundry.methods.backends.dispatch import BackendNotAvailableError
+from polisyos.foundry.methods.base import SideEffectProfile, SlotType
 from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     create_mechanism_from_spec,
 )
+from polisyos.foundry.methods.components.io import validate_value_for_slot
 from polisyos.foundry.methods.exceptions import (
     BackendAdaptationError,
     ContractViolationError,
     FoundryExecutionError,
+    MethodContractError,
     MethodExecutionAbortError,
     ObservationBindingError,
     ProgramNodeValidationError,
@@ -849,12 +860,221 @@ _METHOD_PRESTATE_IDENTITY_DOMAIN = b"policyos.method_dispatch_input_map.sha256.v
 _RefT = TypeVar("_RefT", bound=ArtifactRef)
 
 
+@dataclass(frozen=True)
+class _ClosedWorldMethodInputs:
+    """Owner-replayed selected values for one declared graph execution."""
+
+    registry: RegistryBundleContent
+    values: Mapping[str, np.ndarray]
+    records: Mapping[str, Any]
+    notes: tuple[str, ...] = ()
+
+
+def _resolve_closed_world_method_inputs(
+    store: CoreJSONArtifactStore,
+    *,
+    program_ref: ArtifactRef | ArtifactID | str,
+    exec_plan_ref: ArtifactRef | ArtifactID | str,
+    program_graph: ProgramGraph,
+    exec_plan: ExecPlan,
+    registry_bundle_ref: ArtifactRef | None,
+    input_bindings_ref: ArtifactRef | None,
+    parameter_override_bundle_ref: ArtifactRef | None,
+    step: int,
+    expected_invocation: ProgramGraphInputInvocation | None,
+    semantic_horizon_step: SemanticHorizonStepContext | None,
+) -> _ClosedWorldMethodInputs | None:
+    """Resolve opt-in from the actual model, never from a caller's flag/map.
+
+    Raw legacy graphs keep their established behavior. A model declaring ports
+    must carry the selected compiler lineage and the persisted input owner;
+    runtime registry objects supplied alongside it do not establish that basis.
+    """
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.foundry.execute.model_input_requirements import (
+        program_graph_declares_model_input_ports,
+        resolve_program_graph_input_declaration,
+    )
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods.types.checker import validate_registered_method_input
+
+    if not program_graph_declares_model_input_ports(store, program_ref):
+        if input_bindings_ref is not None and (
+            load_input_bindings(store, input_bindings_ref).schema_version == "1.4"
+        ):
+            raise ValueError("method_input_declared_model_required")
+        return None
+    if registry_bundle_ref is None:
+        raise ValueError("model_input_registry_bundle_required")
+    if input_bindings_ref is None:
+        raise ValueError("model_input_bindings_required")
+    graph_ref = _selected_typed_ref(store, program_ref, ProgramGraphRef)
+    plan_ref = _selected_typed_ref(store, exec_plan_ref, ExecPlanRef)
+    selected = resolve_program_graph_input_declaration(
+        store,
+        program_graph_ref=graph_ref,
+        exec_plan_ref=plan_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        loaded_plan=exec_plan,
+    )
+    if selected is None:
+        raise ValueError("model_input_declaration_disappeared")
+    registry_content = load_registry_bundle_content(store, registry_bundle_ref)
+    bindings = load_input_bindings(store, input_bindings_ref)
+    if bindings.resolved_binding_manifest_ref is None:
+        raise ValueError("foundry_input_bindings_semantic_manifest_required")
+    if (
+        bindings.registry_bundle_ref.artifact_id != registry_bundle_ref.artifact_id
+        or bindings.registry_bundle_ref.manifest_profile_sha256
+        != registry_bundle_ref.manifest_profile_sha256
+    ):
+        raise ValueError("foundry_input_bindings_semantic_registry_mismatch")
+
+    records = tuple(getattr(bindings, "selected_method_inputs", None) or ())
+    values: Mapping[str, np.ndarray] = MappingProxyType({})
+    notes: tuple[str, ...] = ()
+    if bindings.schema_version == "1.4":
+        from polisyos.foundry.data_plane.bindings import (
+            reconcile_selected_method_input_bindings,
+        )
+
+        resolved = reconcile_selected_method_input_bindings(
+            store,
+            input_bindings_ref=input_bindings_ref,
+            execute_request=ExecuteRequest(
+                exec_plan_ref=plan_ref,
+                input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                    input_bindings_ref.model_dump(mode="python")
+                ),
+                registry_bundle_ref=registry_bundle_ref,
+                parameter_override_bundle_ref=(
+                    None
+                    if parameter_override_bundle_ref is None
+                    else ParameterOverrideBundleRef.model_validate(
+                        parameter_override_bundle_ref.model_dump(mode="python")
+                    )
+                ),
+                return_selected_profile=True,
+            ),
+            effective_step=step,
+            expected_invocation=expected_invocation,
+            semantic_horizon_step=semantic_horizon_step,
+        )
+        records = resolved.records
+        values = resolved.values
+        notes = resolved.notes
+    records_by_slot = {record.slot_id: record for record in records}
+    if len(records_by_slot) != len(records) or set(values) != set(records_by_slot):
+        raise ValueError("method_input_selected_inventory_mismatch")
+    declared_ports = {
+        port.slot_id: port
+        for port in selected.declaration.ports
+        if getattr(port, "carrier", "state_path") == "method_input"
+    }
+    if len(declared_ports) != sum(
+        getattr(port, "carrier", "state_path") == "method_input"
+        for port in selected.declaration.ports
+    ):
+        raise ValueError("method_input_port_slot_ambiguous")
+    consumed: set[str] = set()
+    method_fqns: set[str] = set()
+    method_registry = MethodRegistry.get_instance()
+    for node in program_graph.nodes:
+        if node.node_kind != "method":
+            continue
+        if not node.method_fqn or node.method_fqn in method_fqns:
+            raise ValueError("method_input_method_instance_profile_unsupported")
+        method_fqns.add(node.method_fqn)
+        method_class = method_registry.get(node.method_fqn, version=node.method_version)
+        signature_ids = {slot.name for slot in method_class.signature.input_slots}
+        if len(node.inputs) != len(set(node.inputs)) or set(node.inputs) != signature_ids:
+            raise ValueError("method_input_abi_join_not_exact")
+        _validate_closed_world_method_outputs(node, method_class)
+        for slot_id in node.inputs:
+            slot = registry_content.slot_registry.slots.get(slot_id)
+            if slot is None:
+                raise ValueError("method_input_slot_unregistered")
+            if slot.state_path is not None:
+                if slot_id in records_by_slot:
+                    raise ValueError("method_input_shadows_state_slot")
+                continue
+            validate_registered_method_input(
+                method_class.signature,
+                input_slot_id=slot_id,
+                registered_slot_id=slot_id,
+                registry=registry_content,
+            )
+            port = declared_ports.get(slot_id)
+            record = records_by_slot.get(slot_id)
+            if port is None or record is None:
+                raise ValueError("method_input_unbound")
+            if record.port_id != port.port_id:
+                raise ValueError("method_input_port_binding_mismatch")
+            consumed.add(slot_id)
+    if consumed != set(records_by_slot):
+        raise ValueError("method_input_selected_inventory_mismatch")
+    return _ClosedWorldMethodInputs(
+        registry=registry_content,
+        values=values,
+        records=MappingProxyType(records_by_slot),
+        notes=notes,
+    )
+
+
+def _validate_closed_world_method_outputs(node: ProgramNode, method_class: type[Any]) -> None:
+    """Require explicit patch authority before a declared method is invoked."""
+    if node.outputs and (
+        getattr(method_class.metadata, "side_effect_profile", None)
+        is not SideEffectProfile.PATCH_EMISSION
+    ):
+        raise ProgramNodeValidationError(
+            "Declared state outputs require a patch-emitting method",
+            node_id=node.node_id,
+            method_fqn=node.method_fqn,
+            code="method_state_outputs_require_patch_emission",
+        )
+
+
+def _immutable_method_array(value: np.ndarray) -> np.ndarray:
+    """Copy numeric data onto immutable bytes, preserving its exact dimensions."""
+    if value.dtype.hasobject:
+        raise ValueError("method_input_object_array_unsupported")
+    return np.frombuffer(value.tobytes(order="C"), dtype=value.dtype).reshape(value.shape)
+
+
+def _validate_closed_world_method_input_value(
+    value: Any, *, node: ProgramNode, method_class: type[Any], slot: Any
+) -> None:
+    """Apply the existing ABI validator and refuse scalar/vector shape coercion."""
+    shape, status = _runtime_slot_shape(value)
+    rank = {SlotType.SCALAR: 0, SlotType.VECTOR: 1, SlotType.MATRIX: 2}.get(slot.slot_type)
+    if rank is not None and (status != "captured" or shape is None or len(shape) != rank):
+        raise ProgramNodeValidationError(
+            "Declared method input shape differs from its ABI",
+            node_id=node.node_id,
+            method_fqn=node.method_fqn,
+            slot_id=slot.name,
+            code="method_input_abi_shape_mismatch",
+        )
+    try:
+        validate_value_for_slot(slot, value, method_fqn=method_class.signature.fqn, label="input")
+    except MethodContractError as error:
+        raise ProgramNodeValidationError(
+            "Declared method input violates its ABI",
+            node_id=node.node_id,
+            method_fqn=node.method_fqn,
+            slot_id=slot.name,
+            code="method_input_abi_value_mismatch",
+        ) from error
+
+
 def _materialize_exact_method_input_state(
     state: Any,
     *,
     node: ProgramNode,
     method_class: type[Any],
     slot_registry: SlotRegistry,
+    closed_world: _ClosedWorldMethodInputs | None = None,
 ) -> Any:
     """Materialize declared method inputs only when graph IDs match ABI slot IDs.
 
@@ -865,6 +1085,60 @@ def _materialize_exact_method_input_state(
     unestablished by the dispatch capture.
     """
     signature_input_slots = method_class.signature.input_slots
+    if closed_world is not None:
+        signature_ids = {slot.name for slot in signature_input_slots}
+        if len(node.inputs) != len(set(node.inputs)) or set(node.inputs) != signature_ids:
+            raise ProgramNodeValidationError(
+                "Method inputs do not exactly match the selected ABI",
+                node_id=node.node_id,
+                method_fqn=node.method_fqn,
+                code="method_input_abi_join_not_exact",
+            )
+        materialized: dict[str, Any] = {}
+        signature_slots = {slot.name: slot for slot in signature_input_slots}
+        for slot_id in node.inputs:
+            slot = slot_registry.slots.get(slot_id)
+            if slot is None:
+                raise ProgramNodeValidationError(
+                    "Method input slot is not registered",
+                    node_id=node.node_id,
+                    slot_id=slot_id,
+                    code="method_input_slot_unregistered",
+                )
+            if slot.state_path is not None:
+                if slot_id in closed_world.values:
+                    raise ProgramNodeValidationError(
+                        "Selected method input shadows a state-backed slot",
+                        node_id=node.node_id,
+                        slot_id=slot_id,
+                        code="method_input_shadows_state_slot",
+                    )
+                value = get_state_path(state, slot.state_path)
+                if isinstance(value, np.ndarray):
+                    value = _immutable_method_array(value)
+            else:
+                if slot_id not in closed_world.values:
+                    raise ProgramNodeValidationError(
+                        "Selected method input is not bound",
+                        node_id=node.node_id,
+                        slot_id=slot_id,
+                        code="method_input_unbound",
+                    )
+                value = _immutable_method_array(closed_world.values[slot_id])
+                record = closed_world.records[slot_id]
+                identity = _bounded_value_identity(value)
+                if identity != (record.value_sha256, record.shape, np.dtype(record.dtype).str):
+                    raise ProgramNodeValidationError(
+                        "Selected method argument differs from its persisted input",
+                        node_id=node.node_id,
+                        slot_id=slot_id,
+                        code="method_input_argument_identity_mismatch",
+                    )
+            _validate_closed_world_method_input_value(
+                value, node=node, method_class=method_class, slot=signature_slots[slot_id]
+            )
+            materialized[slot_id] = value
+        return MappingProxyType(materialized)
     if len(signature_input_slots) > 32:
         return state
     signature_input_ids = {slot.name for slot in signature_input_slots}
@@ -895,6 +1169,28 @@ def _materialize_exact_method_input_state(
     except (AttributeError, KeyError, IndexError, TypeError, ValueError):
         return state
     return materialized
+
+
+def _verify_selected_method_argument_identities(
+    state: Mapping[str, Any],
+    *,
+    node: ProgramNode,
+    selected: _ClosedWorldMethodInputs,
+) -> None:
+    """Refuse a selected argument changed during a declared method invocation."""
+    for slot_id in node.inputs:
+        record = selected.records.get(slot_id)
+        if record is None:
+            continue
+        expected = (record.value_sha256, record.shape, np.dtype(record.dtype).str)
+        if _bounded_value_identity(state[slot_id]) != expected:
+            raise ProgramNodeValidationError(
+                "Selected method argument changed during invocation",
+                node_id=node.node_id,
+                slot_id=slot_id,
+                method_fqn=node.method_fqn,
+                code="method_input_argument_mutated",
+            )
 
 
 def _bounded_array_metadata(value: Any) -> tuple[tuple[int, ...], np.dtype[Any], int, int] | None:
@@ -1046,11 +1342,11 @@ def _bounded_value_identity(value: Any) -> tuple[str, tuple[int, ...], str] | No
     raw = _array_identity_bytes(array)
     if raw is None:
         return None
-    digest = hashlib.sha256()
-    digest.update(array.dtype.str.encode("ascii"))
-    digest.update(json.dumps(array.shape, separators=(",", ":")).encode("ascii"))
-    digest.update(raw)
-    return digest.hexdigest(), tuple(int(size) for size in array.shape), array.dtype.str
+    from polisyos.foundry.data_plane.selected_tensors import selected_tensor_value_sha256
+
+    shape = tuple(int(size) for size in array.shape)
+    digest = selected_tensor_value_sha256(array.dtype, shape, raw)
+    return digest, shape, array.dtype.str
 
 
 def _method_input_slot_values(
@@ -2729,6 +3025,10 @@ def execute_program_graph(
     welfare_bound_mode: str = "ex_ante",
     persist_welfare_bound_reports: bool = True,
     execution_input_basis_ref: ArtifactRef | None = None,
+    registry_bundle_ref: ArtifactRef | None = None,
+    input_bindings_ref: ArtifactRef | None = None,
+    model_input_invocation: ProgramGraphInputInvocation | None = None,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
     return_selected_profile: bool = False,
     method_execution_capture: MethodExecutionCapture | None = None,
     method_input_state_source_ref: ArtifactRef | None = None,
@@ -2739,7 +3039,36 @@ def execute_program_graph(
     """Execute program graph."""
     start_time = time.perf_counter()
     program_graph = load_model(store, program_ref, ProgramGraph)
+    if program_graph.schema_version == "0.3" or any(
+        getattr(node, "input_ports", None) is not None for node in program_graph.nodes
+    ):
+        # The richer wire may be read structurally before its executor lands.
+        # Never let that contract silently enter the legacy ambient-state path.
+        raise ProgramNodeValidationError(
+            "Mapped method input execution is not established",
+            code="unsupported_program_graph_input_profile",
+        )
     exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+    closed_world_inputs = _resolve_closed_world_method_inputs(
+        store,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
+        program_graph=program_graph,
+        exec_plan=exec_plan,
+        registry_bundle_ref=registry_bundle_ref,
+        input_bindings_ref=input_bindings_ref,
+        parameter_override_bundle_ref=parameter_override_bundle_ref,
+        step=step,
+        expected_invocation=model_input_invocation,
+        semantic_horizon_step=semantic_horizon_step,
+    )
+    if closed_world_inputs is not None:
+        selected_registry = closed_world_inputs.registry
+        mechanism_registry = selected_registry.mechanism_registry
+        slot_registry = selected_registry.slot_registry
+        merge_registry = selected_registry.merge_registry
+        selector_field_registry = selected_registry.selector_field_registry
+        constraint_registry = selected_registry.constraint_registry
     treasury = _execution_treasury(store, program_ref, exec_plan_ref, program_graph, exec_plan)
     order = exec_plan.order or [node.node_id for node in program_graph.nodes]
     node_map = {node.node_id: node for node in program_graph.nodes}
@@ -3049,7 +3378,12 @@ def execute_program_graph(
             if capture is not None and occurrence_id is not None:
                 _replace_capture_occurrence(capture, occurrence_id, status="failed")
             if _should_abort(card, strictness):
-                abort_error = MethodExecutionAbortError(card)
+                abort_error = MethodExecutionAbortError(
+                    card,
+                    semantic_input_notes=(
+                        () if closed_world_inputs is None else closed_world_inputs.notes
+                    ),
+                )
                 _mark_unfinished_capture_occurrences_skipped(
                     capture,
                     invocation_id=current_invocation_id or "",
@@ -3229,6 +3563,43 @@ def execute_program_graph(
                     version=node.method_version,
                 )
                 signature = method_class.signature
+                patch_target_operations: Mapping[str, str] = MappingProxyType({})
+                if getattr(signature, "patch_targets", ()):
+                    from polisyos.foundry.methods.patch_contracts import (
+                        validate_method_patch_targets,
+                    )
+
+                    _validate_closed_world_method_outputs(node, method_class)
+                    if registry_bundle_ref is None:
+                        raise ProgramNodeValidationError(
+                            "Method patch contract requires a selected registry bundle",
+                            node_id=node.node_id,
+                            method_fqn=method_fqn,
+                            code="method_patch_registry_bundle_required",
+                        )
+                    method_patch_registry = (
+                        closed_world_inputs.registry
+                        if closed_world_inputs is not None
+                        else load_registry_bundle_content(store, registry_bundle_ref)
+                    )
+                    if (
+                        slot_registry != method_patch_registry.slot_registry
+                        or merge_registry != method_patch_registry.merge_registry
+                    ):
+                        raise ProgramNodeValidationError(
+                            "Method patch execution registries differ from the selected bundle",
+                            node_id=node.node_id,
+                            method_fqn=method_fqn,
+                            code="method_patch_execution_registry_mismatch",
+                        )
+                    slot_registry = method_patch_registry.slot_registry
+                    merge_registry = method_patch_registry.merge_registry
+                    patch_target_operations = validate_method_patch_targets(
+                        signature,
+                        params=node.method_params,
+                        declared_outputs=node.outputs,
+                        registry=method_patch_registry,
+                    )
                 dispatcher = MethodDispatcher.get_instance()
                 key, step_key = jax.random.split(node_key)
                 method_dispatch_state = _materialize_exact_method_input_state(
@@ -3236,6 +3607,7 @@ def execute_program_graph(
                     node=node,
                     method_class=method_class,
                     slot_registry=slot_registry,
+                    closed_world=closed_world_inputs,
                 )
                 planned_occurrence = (
                     next(
@@ -3333,13 +3705,29 @@ def execute_program_graph(
                     metric_input_capture_limitation = None
                     dispatch_prestate_ref = None
                 try:
-                    method_result = dispatcher.dispatch(
-                        method_class=method_class,
-                        signature=signature,
-                        state=method_dispatch_state,
-                        params=node.method_params,
-                        seed=method_seed,
-                    )
+                    try:
+                        method_result = dispatcher.dispatch(
+                            method_class=method_class,
+                            signature=signature,
+                            state=method_dispatch_state,
+                            params=node.method_params,
+                            seed=method_seed,
+                        )
+                    except KeyError as lookup_error:
+                        if closed_world_inputs is None:
+                            raise
+                        raise ProgramNodeValidationError(
+                            "Declared method invocation attempted an unavailable lookup",
+                            node_id=node.node_id,
+                            method_fqn=method_fqn,
+                            code="method_input_lookup_failed",
+                        ) from lookup_error
+                    if closed_world_inputs is not None:
+                        _verify_selected_method_argument_identities(
+                            method_dispatch_state,
+                            node=node,
+                            selected=closed_world_inputs,
+                        )
                 except Exception as dispatch_error:
                     if planned_dispatch is not None:
                         occurrence_dispatch = _failed_method_dispatch_record(
@@ -3430,6 +3818,11 @@ def execute_program_graph(
                     provenance,
                     node=node,
                     output_payload=method_result.output,
+                    strict_outputs=(
+                        closed_world_inputs is not None or bool(patch_target_operations)
+                    ),
+                    method_class=method_class,
+                    patch_target_operations=patch_target_operations,
                 )
                 applied_nodes += 1
                 executed_mutating_nodes.add(node_id)
@@ -3455,7 +3848,12 @@ def execute_program_graph(
             )
             if _should_abort(card, strictness):
                 occurrence_status = "failed"
-                abort_error = MethodExecutionAbortError(card)
+                abort_error = MethodExecutionAbortError(
+                    card,
+                    semantic_input_notes=(
+                        () if closed_world_inputs is None else closed_world_inputs.notes
+                    ),
+                )
                 abort_cause = exc
             else:
                 occurrence_status = "failed"
@@ -3621,6 +4019,7 @@ def execute_program_graph(
         degradation_cards=degradation_cards,
         is_degraded=len(failure_cards) > 0,
         provenance=frozen_provenance,
+        semantic_input_notes=(() if closed_world_inputs is None else closed_world_inputs.notes),
     )
 
 
@@ -3791,12 +4190,29 @@ def _append_patch_map_records(
             patch_records.setdefault(str(slot_id), []).append(record)
 
 
+def _finite_scalar_method_patch_delta(value: Any) -> bool:
+    """Check the finite scalar profile promised by an additive patch ABI."""
+    if type(value) in {int, float}:
+        try:
+            return math.isfinite(value)
+        except OverflowError:
+            return False
+    metadata = _bounded_array_metadata(value)
+    if metadata is None or metadata[0] != () or metadata[1].kind not in {"i", "u", "f"}:
+        return False
+    array = _bounded_array_value(value, max_bytes=metadata[3])
+    return array is not None and bool(np.isfinite(array).all())
+
+
 def _append_method_patch_records(
     patch_records: dict[str, list[dict[str, Any]]],
     provenance: dict[str, list[str]],
     *,
     node: Any,
     output_payload: Any,
+    strict_outputs: bool = False,
+    method_class: type[Any] | None = None,
+    patch_target_operations: Mapping[str, str] | None = None,
 ) -> None:
     method_fqn = str(node.method_fqn)
     if not isinstance(output_payload, dict):
@@ -3818,7 +4234,9 @@ def _append_method_patch_records(
         )
     expected_slots = {str(slot_id) for slot_id in getattr(node, "outputs", [])}
     unexpected_slots = (
-        set(map(str, patch_payload.keys())) - expected_slots if expected_slots else set()
+        set(map(str, patch_payload.keys())) - expected_slots
+        if strict_outputs or expected_slots
+        else set()
     )
     if unexpected_slots:
         raise ContractViolationError(
@@ -3826,6 +4244,20 @@ def _append_method_patch_records(
             "postcondition",
             f"unexpected patch outputs: {sorted(unexpected_slots)}",
         )
+    if (
+        strict_outputs
+        and patch_payload
+        and (
+            method_class is None
+            or method_class.metadata.side_effect_profile is not SideEffectProfile.PATCH_EMISSION
+        )
+    ):
+        raise ContractViolationError(
+            method_fqn,
+            "postcondition",
+            "patch_records require a patch-emitting method",
+        )
+    materialized_records: dict[str, list[dict[str, Any]]] = {}
     for slot_id, patches in patch_payload.items():
         if not isinstance(patches, list):
             raise ContractViolationError(
@@ -3840,10 +4272,29 @@ def _append_method_patch_records(
                     "postcondition",
                     f"patch for slot '{slot_id}' must be a dict",
                 )
+            operation = (patch_target_operations or {}).get(str(slot_id))
+            if operation == "add" and (
+                patch.get("delta") is None
+                or any(key in patch for key in ("value", "new_value", "base_value"))
+                or patch.get("op", "add") != "add"
+            ):
+                raise ContractViolationError(
+                    method_fqn,
+                    "postcondition",
+                    f"patch for slot '{slot_id}' does not match declared add operation",
+                )
+            if operation == "add" and not _finite_scalar_method_patch_delta(patch["delta"]):
+                raise ContractViolationError(
+                    method_fqn,
+                    "postcondition",
+                    f"patch for slot '{slot_id}' requires a finite scalar delta",
+                )
             materialized_patch = dict(patch)
             materialized_patch.setdefault("node_id", node.node_id)
-            patch_records.setdefault(str(slot_id), []).append(materialized_patch)
-            provenance.setdefault(str(slot_id), []).append(method_fqn)
+            materialized_records.setdefault(str(slot_id), []).append(materialized_patch)
+    for slot_id, records in materialized_records.items():
+        patch_records.setdefault(slot_id, []).extend(records)
+        provenance.setdefault(slot_id, []).extend(method_fqn for _ in records)
 
 
 def _hash_traceback(exc: Exception) -> str:

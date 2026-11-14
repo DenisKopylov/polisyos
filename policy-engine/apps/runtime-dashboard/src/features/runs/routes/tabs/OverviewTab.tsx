@@ -62,6 +62,7 @@ import {
   issueOpaqueAuthorityStatusPresentation,
 } from "@/shared/ui/AuthorityStatusPresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
+import { ModelInputUseN5ResultHistory } from "@/features/runs/components/ModelInputUseN5ResultHistory";
 import { RunOverviewProfileLineage } from "./RunOverviewProfileLineage";
 
 function DecisionPanelContent({
@@ -3095,6 +3096,9 @@ export default function OverviewTab() {
       <PredictiveCalibrationPanel runId={coreRunId} run={summary.run} />
       <CandidateSimulationPanel run={summary.run} />
       <GenericCycleSimulationPanel presentation={genericCycleSimulation} />
+      <ModelInputUseN5ResultHistory
+        inventory={summary.run.model_input_use_actions}
+      />
       <div className="grid gap-5 xl:grid-cols-2">
         <Card className="space-y-4">
           <div className="panel-header">

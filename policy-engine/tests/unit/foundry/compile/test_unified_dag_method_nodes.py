@@ -102,10 +102,15 @@ def test_build_program_graph_adapts_the_selected_execution_plan_method_dag():
     assert method.outputs == []
 
 
-def _plan_for(nodes, edges=()):
+def _plan_for(nodes, edges=(), *, schema_version="1.0"):
     from polisyos.core.contracts.execution_plan import ExecutionPlan
 
-    return ExecutionPlan(plan_id="ad01-test-plan", method_dag=list(nodes), method_edges=list(edges))
+    return ExecutionPlan(
+        plan_id="ad01-test-plan",
+        schema_version=schema_version,
+        method_dag=list(nodes),
+        method_edges=list(edges),
+    )
 
 
 def _build_selected_plan(plan, mechanisms=()):
@@ -135,7 +140,17 @@ def _registered_method_signature():
     return ExAnteSimulationEstimator.signature
 
 
-def _method_dag_node(signature, *, node_id, reads=None, writes=None, depends_on=None):
+def _method_dag_node(
+    signature,
+    *,
+    node_id,
+    reads=None,
+    writes=None,
+    params=None,
+    state_writes=None,
+    input_ports=None,
+    depends_on=None,
+):
     from polisyos.core.contracts.execution_plan import MethodDagNode
 
     return MethodDagNode(
@@ -143,15 +158,25 @@ def _method_dag_node(signature, *, node_id, reads=None, writes=None, depends_on=
         method_fqn=signature.fqn,
         method_version=signature.version,
         backend=signature.execution_backend.value,
-        params={"poverty_line": None},
+        params=params if params is not None else {"poverty_line": None},
         reads_slots=list(
             reads if reads is not None else sorted(s.name for s in signature.input_slots)
         ),
         writes_slots=list(
             writes if writes is not None else sorted(s.name for s in signature.output_slots)
         ),
+        state_writes=state_writes,
+        **({"input_ports": input_ports} if input_ports is not None else {}),
         depends_on=list(depends_on or []),
     )
+
+
+def _register_patch_emitting_method_signature():
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    MethodRegistry.get_instance().register(PeriodFlowToStock, override=True)
+    return PeriodFlowToStock.signature
 
 
 def _register_consumer_signature(*, alias):
@@ -199,6 +224,121 @@ def test_selected_pure_method_return_is_not_a_program_state_patch() -> None:
     method = next(node for node in graph.nodes if node.node_id == "producer")
     assert method.outputs == []
     assert sorted(method.inputs) == ["baseline", "scenario"]
+
+
+def test_selected_method_state_writes_are_separate_from_method_return_slots() -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_patch_emitting_method_signature()
+    plan = ExecutionPlan(
+        plan_id="ad01-explicit-state-writes",
+        schema_version="1.1",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="writer",
+                params={"target_slot": "government.balance"},
+                state_writes=["government.balance"],
+            )
+        ],
+    )
+
+    graph = _build_selected_plan(plan)
+    method = next(node for node in graph.nodes if node.node_id == "writer")
+
+    assert method.inputs == ["period_flow"]
+    assert method.outputs == ["government.balance"]
+    assert {slot.name for slot in signature.output_slots} == {"result"}
+    assert plan.method_dag[0].writes_slots == ["result"]
+
+
+@pytest.mark.parametrize("state_writes", [None, [], ["government.other"]])
+def test_selected_method_state_writes_match_signature_patch_targets(state_writes) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_patch_emitting_method_signature()
+    plan = ExecutionPlan(
+        plan_id="ad01-patch-target-mismatch",
+        schema_version="1.1",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="writer",
+                params={"target_slot": "government.balance"},
+                state_writes=state_writes,
+            )
+        ],
+    )
+
+    with pytest.raises(ValueError, match="execution_plan_method_patch_targets_mismatch"):
+        _build_selected_plan(plan)
+
+
+def test_selected_method_state_writes_require_patch_emission_profile() -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _registered_method_signature()
+    plan = ExecutionPlan(
+        plan_id="ad01-undeclared-state-writes",
+        schema_version="1.1",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="writer",
+                state_writes=["government.balance"],
+            )
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_state_writes_require_patch_emission",
+    ):
+        _build_selected_plan(plan)
+
+
+def test_selected_method_preserves_explicit_empty_state_writes() -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _registered_method_signature()
+    plan = ExecutionPlan(
+        plan_id="ad01-explicit-empty-state-writes",
+        schema_version="1.1",
+        method_dag=[_method_dag_node(signature, node_id="reader", state_writes=[])],
+    )
+
+    graph = _build_selected_plan(plan)
+    method = next(node for node in graph.nodes if node.node_id == "reader")
+
+    assert method.outputs == []
+    assert plan.method_dag[0].model_dump(mode="json")["state_writes"] == []
+
+
+def test_selected_method_plan_refuses_unmapped_input_ports() -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _registered_method_signature()
+    input_names = sorted(slot.name for slot in signature.input_slots)
+    plan = ExecutionPlan(
+        plan_id="ad01-unmapped-input-ports",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="reader",
+                input_ports={
+                    name: {"source_kind": "registry_slot", "slot_id": f"slot.{name}"}
+                    for name in input_names
+                },
+            )
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_input_ports_not_supported",
+    ):
+        _build_selected_plan(plan)
 
 
 def test_selected_method_plan_rejects_registered_return_slot_mismatch() -> None:

@@ -42,6 +42,11 @@ depends on `polisyos.ir`, but not the other way around.
   not an HTTP endpoint or an authority claim.
 
 - Supported package entrypoint: `polisyos.core`
+- Shared certified arithmetic: `polisyos.core.derivations` owns the existing closed
+  Decimal evaluator, selected recipe/certificate replay and derived-series consumer.
+  Runtime retains its compatibility exports and epoch recomputation. Derived-series
+  verification does not establish source-observation authority or model-port
+  correspondence. Existing v2/v2.1 artifact and producer identities remain unchanged.
 - Narrow worker-lifecycle API leaf: `polisyos.core.run.worker_lifecycle`.
   This does not make `polisyos.core.run` or `RunContext` a supported package API.
 - Lazy facade exports from `src/polisyos/core/__init__.py`: `artifacts`,

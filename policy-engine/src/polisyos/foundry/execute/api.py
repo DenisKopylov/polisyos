@@ -74,6 +74,9 @@ from polisyos.core.contracts.foundry import (
     FoundryExecutionInputBasisRef,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    FoundrySelectedMethodInput,
+    MethodExecutionBundle,
+    MethodExecutionOccurrence,
     Metrics,
     MetricsRef,
     ParameterOverrideBundle,
@@ -87,6 +90,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
+from polisyos.core.contracts.model_input_requirements import load_model_input_obligation
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.core.registry import (
     RegistryBundleContent,
@@ -321,6 +325,7 @@ def _method_execution_abort_result(
         derived_refs=derived_refs,
         notes=[
             *(notes or []),
+            *error.semantic_input_notes,
             "method_execution_aborted",
             f"method_execution_failure_type:{type(error).__module__}.{type(error).__qualname__}",
         ],
@@ -940,14 +945,43 @@ def _admit_execution_source(
         )
     semantic_input_limitation_codes: tuple[str, ...] | None = None
     if read_session is None:
-        semantic_notes = reconcile_semantic_input_bindings(
-            store,
-            bindings,
-            execute_request=basis.request,
-            effective_step=basis.effective_step,
-            semantic_horizon_step=semantic_step,
-        )
-        if not all(note in simulation_result.notes for note in semantic_notes):
+        if bindings.schema_version == "1.4":
+            from polisyos.foundry.data_plane.bindings import (
+                reconcile_selected_method_input_bindings,
+            )
+
+            selected_inputs = reconcile_selected_method_input_bindings(
+                store,
+                input_bindings_ref=basis.input_bindings_ref,
+                execute_request=basis.request,
+                effective_step=basis.effective_step,
+                semantic_horizon_step=semantic_step,
+                historical_execution_ref=simulation_result_ref,
+            )
+            semantic_notes = selected_inputs.notes
+            _reconcile_selected_method_dispatch_inputs(
+                store,
+                simulation_result_ref=simulation_result_ref,
+                basis=basis,
+                graph=graph,
+                records=selected_inputs.records,
+            )
+        else:
+            semantic_notes = reconcile_semantic_input_bindings(
+                store,
+                bindings,
+                execute_request=basis.request,
+                effective_step=basis.effective_step,
+                semantic_horizon_step=semantic_step,
+            )
+        historical_projection_notes = {
+            "semantic_input_limitation:method_historical_abi_completeness_not_established"
+        }
+        if not all(
+            note in simulation_result.notes
+            for note in semantic_notes
+            if note not in historical_projection_notes
+        ):
             raise ValueError("execution_source_semantic_input_limitations_missing")
         prefix = "semantic_input_limitation:"
         semantic_input_limitation_codes = tuple(
@@ -1225,6 +1259,157 @@ def _admit_execution_source(
         basis_inventory=tuple(expected_inventory),
         semantic_input_limitation_codes=semantic_input_limitation_codes,
         source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
+    )
+
+
+def _reconcile_selected_method_dispatch_inputs(
+    store: ArtifactStore,
+    *,
+    simulation_result_ref: SimulationResultRef,
+    basis: FoundryExecutionInputBasis,
+    graph: ProgramGraph,
+    records: tuple[FoundrySelectedMethodInput, ...],
+) -> tuple[MethodExecutionOccurrence, ...]:
+    """Join stored method arguments to selected inputs without live method lookup."""
+    bundle_ref = _selected_ref_from_edge(
+        store,
+        simulation_result_ref,
+        "method_execution",
+        expected_kind=MethodExecutionBundle.ARTIFACT_KIND,
+    )
+    bundle = _read_typed_model(MethodExecutionBundle, store, bundle_ref, read_session=None)
+    for role, expected in (
+        ("program_graph", basis.program_graph_ref),
+        ("exec_plan", basis.exec_plan_ref),
+    ):
+        actual = getattr(bundle, role + "_ref")
+        if _execution_ref_key(actual) != _execution_ref_key(expected):
+            raise ValueError("execution_source_method_input_capture_origin_mismatch")
+        _require_execution_edge_ref(
+            store,
+            bundle_ref,
+            role,
+            expected,
+            expected_kind=expected.kind,
+        )
+    nodes = {node.node_id: node for node in graph.nodes}
+    for record in records:
+        obligation = load_model_input_obligation(store, record.model_input_obligation_ref)
+        if any(
+            _execution_ref_key(actual) != _execution_ref_key(expected)
+            for actual, expected in (
+                (obligation.program_graph_ref, basis.program_graph_ref),
+                (obligation.exec_plan_ref, basis.exec_plan_ref),
+                (obligation.registry_bundle_ref, basis.runtime_registry_ref),
+            )
+        ):
+            raise ValueError("execution_source_method_input_dependency_origin_mismatch")
+        dependencies = [item for item in obligation.dependencies if item.kind == "method_read"]
+        if not dependencies or obligation.port.slot_id != record.slot_id:
+            raise ValueError("execution_source_method_input_dependency_mismatch")
+        for dependency in dependencies:
+            if dependency.first_required_step != basis.effective_step:
+                raise ValueError("execution_source_method_input_dependency_step_mismatch")
+            node = nodes.get(dependency.node_id)
+            if node is None or node.node_kind != "method" or record.slot_id not in node.inputs:
+                raise ValueError("execution_source_method_input_dependency_mismatch")
+            matches = [
+                item
+                for item in bundle.occurrences
+                if item.node_id == node.node_id
+                and item.node_kind == "method"
+                and item.status == "succeeded"
+                and item.method_fqn == node.method_fqn
+                and item.method_version == node.method_version
+                and item.method_abi_digest == dependency.method_abi_digest
+                and item.dispatch is not None
+                and item.dispatch.step == dependency.first_required_step
+            ]
+            if len(matches) != 1:
+                raise ValueError("execution_source_method_input_dispatch_not_established")
+            dispatch = matches[0].dispatch
+            if dispatch is None:
+                raise ValueError("execution_source_method_input_dispatch_not_established")
+            if (
+                dispatch.graph_input_ids != tuple(node.inputs)
+                or dispatch.graph_input_inventory_observed_count != len(node.inputs)
+                or set(dispatch.signature_input_slot_ids) != set(node.inputs)
+                or dispatch.signature_input_inventory_observed_count != len(node.inputs)
+            ):
+                raise ValueError("execution_source_method_input_abi_join_not_exact")
+            captured = [
+                item for item in dispatch.input_slot_values if item.slot_id == record.slot_id
+            ]
+            if len(captured) != 1 or (
+                captured[0].status != "captured"
+                or captured[0].value_sha256 != record.value_sha256
+                or captured[0].runtime_shape != record.shape
+                or captured[0].runtime_dtype != np.dtype(record.dtype).str
+            ):
+                raise ValueError("execution_source_method_input_argument_identity_mismatch")
+    return tuple(bundle.occurrences)
+
+
+def load_stored_selected_method_input_occurrences(
+    store: ArtifactStore,
+    *,
+    historical_execution_ref: ArtifactRef,
+    input_bindings_ref: ArtifactRef,
+) -> tuple[MethodExecutionOccurrence, ...]:
+    """Open a selected execution's stored call facts without live ABI lookup.
+
+    This is the immutable input for historical semantic replay, not a new
+    execution admission or a reconstruction of the old full method signature.
+    Source semantics and physical selected values remain the binding owner's
+    separate replay; no call to ``admit_execution_source`` is made here.
+    """
+    result_ref = SimulationResultRef.model_validate(
+        historical_execution_ref.model_dump(mode="python")
+    )
+    result = _read_typed_model(SimulationResult, store, result_ref, read_session=None)
+    basis_ref = result.execution_input_basis_ref
+    if basis_ref is None:
+        raise ValueError("execution_source_method_input_basis_not_established")
+    _require_execution_edge_ref(
+        store,
+        result_ref,
+        "execution_input_basis",
+        basis_ref,
+        expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+    )
+    basis = _read_typed_model(FoundryExecutionInputBasis, store, basis_ref, read_session=None)
+    if (
+        _execution_ref_key(basis.input_bindings_ref) != _execution_ref_key(input_bindings_ref)
+        or _execution_ref_key(basis.request.input_bindings_ref)
+        != _execution_ref_key(input_bindings_ref)
+        or _execution_ref_key(result.exec_plan_ref) != _execution_ref_key(basis.exec_plan_ref)
+    ):
+        raise ValueError("execution_source_method_input_basis_origin_mismatch")
+    for parent, role, expected in (
+        (result_ref, "input.input_bindings_ref", input_bindings_ref),
+        (result_ref, "exec_plan", basis.exec_plan_ref),
+        (basis_ref, "basis.source.input_bindings", input_bindings_ref),
+        (basis_ref, "basis.source.program_graph", basis.program_graph_ref),
+        (basis_ref, "basis.source.exec_plan", basis.exec_plan_ref),
+        (basis.exec_plan_ref, "program_graph", basis.program_graph_ref),
+    ):
+        _require_execution_edge_ref(store, parent, role, expected, expected_kind=expected.kind)
+    plan = _read_typed_model(ExecPlan, store, basis.exec_plan_ref, read_session=None)
+    if _execution_ref_key(plan.program_ref) != _execution_ref_key(basis.program_graph_ref):
+        raise ValueError("execution_source_method_input_capture_origin_mismatch")
+    graph = _read_typed_model(ProgramGraph, store, basis.program_graph_ref, read_session=None)
+    core_store = resolve_core_json_profile_store(store)
+    if core_store is None:
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    bindings = load_input_bindings(core_store, input_bindings_ref)
+    if bindings.schema_version != "1.4" or bindings.selected_method_inputs is None:
+        raise ValueError("execution_source_method_input_profile_required")
+    return _reconcile_selected_method_dispatch_inputs(
+        store,
+        simulation_result_ref=result_ref,
+        basis=basis,
+        graph=graph,
+        records=bindings.selected_method_inputs,
     )
 
 
@@ -1724,6 +1909,8 @@ def _execute(
     )
     if declaration is not None and resolved_state.bindings.resolved_binding_manifest_ref is None:
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
+    if declaration is None and resolved_state.bindings.schema_version == "1.4":
+        raise ValueError("method_input_declared_model_required")
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
@@ -1833,6 +2020,10 @@ def _execute(
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
             execution_input_basis_ref=execution_input_basis_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            input_bindings_ref=request.input_bindings_ref,
+            model_input_invocation=expected_invocation,
+            semantic_horizon_step=semantic_horizon_step,
             return_selected_profile=request.return_selected_profile,
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
@@ -1843,6 +2034,7 @@ def _execute(
             store,
             capture=method_execution_capture,
             error=exc,
+            notes=execution_notes,
         )
     except MissingRuntimeMechanismSupportError as exc:
         failed_refs: list[DerivedArtifact] = []
@@ -1868,6 +2060,9 @@ def _execute(
             ],
         )
 
+    execution_notes.extend(
+        note for note in exec_artifacts.semantic_input_notes if note not in execution_notes
+    )
     derived_refs = _build_standard_derived_refs(exec_artifacts)
     welfare_bound_failure_notes = _evaluate_welfare_bound_requirement(
         store,
@@ -1996,12 +2191,18 @@ def _resolve_state_snapshot(
         and request.feedback_config_ref is not None
     ):
         raise ValueError("foundry_input_bindings_semantic_feedback_not_established")
-    semantic_notes = reconcile_semantic_input_bindings(
-        store,
-        bindings,
-        execute_request=request,
-        semantic_horizon_step=semantic_horizon_step,
-        expected_invocation=expected_invocation,
+    # The new method-input profile is replayed once at the actual graph seam.
+    # Earlier profiles retain their established state/horizon reconciliation.
+    semantic_notes = (
+        ()
+        if bindings.schema_version == "1.4"
+        else reconcile_semantic_input_bindings(
+            store,
+            bindings,
+            execute_request=request,
+            semantic_horizon_step=semantic_horizon_step,
+            expected_invocation=expected_invocation,
+        )
     )
     _ensure_readable(store, bindings.data_snapshot_ref)
     _ensure_readable(store, bindings.bound_state_snapshot_ref)
@@ -2313,6 +2514,8 @@ def _execute_with_feedback(
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
             return_selected_profile=request.return_selected_profile,
+            registry_bundle_ref=request.registry_bundle_ref,
+            input_bindings_ref=request.input_bindings_ref,
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
         )
@@ -2605,6 +2808,8 @@ def _run_feedback_iteration(
         observed_range_bundle_ref=request.observed_range_bundle_ref,
         welfare_bound_mode="off",
         return_selected_profile=method_execution_capture is not None,
+        registry_bundle_ref=request.registry_bundle_ref,
+        input_bindings_ref=request.input_bindings_ref,
         method_execution_capture=method_execution_capture,
         method_input_state_source_ref=method_input_state_source_ref,
         finalize_method_execution_capture=False,

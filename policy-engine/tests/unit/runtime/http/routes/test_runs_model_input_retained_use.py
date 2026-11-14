@@ -207,6 +207,9 @@ def _case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, retained: bool = T
         prior_execution=execution if retained else None,
         prior_result=resolved if retained else None,
         current_action_result=None if retained else resolved,
+        history_limitation_codes=("past_provider_profile_not_independently_reconstructed",)
+        if retained
+        else (),
     )
     owner_reads = []
 
@@ -294,6 +297,10 @@ def test_completed_current_use_projects_its_original_selected_result(
     )
     assert restored.result == value
     assert value.currentness_status == "not_established" and value.publication_authority is False
+    assert (
+        "past_provider_profile_not_independently_reconstructed" in value.current_basis_limitations
+    ) is retained
+    assert case.history.current_basis.limitations == ("current_binding_candidate_only",)
     assert len(case.owner_reads) == len(case.authority_reads) == 1
 
 

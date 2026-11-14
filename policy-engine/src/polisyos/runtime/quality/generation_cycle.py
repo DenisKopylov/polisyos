@@ -179,6 +179,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionReceipt,
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
+    N7DerivationBundle,
     N7SourceRouteDiagnostic,
     RealAcquisitionOwnerGateway,
     RequirementGapFamily,
@@ -186,6 +187,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     _n7_candidate_n5_l1_obligation_gaps,
     _n7_candidate_n5_l1_planner_records_match,
     _n7_candidate_source_selection,
+    _n7_derivation_bundle_from_request,
     _n7_exact_wire,
     _n7_planner_join_records_match,
     _n7_put_candidate_source,
@@ -213,6 +215,9 @@ from polisyos.runtime.quality.acquisition_planner import (
     run_acquisition_closed_loop,
     validate_persisted_data_requirement_compilation_report,
     value_input_world_knowledge_requirement_gap,
+)
+from polisyos.runtime.quality.acquisition_planner import (
+    n7_pending_unique_derivation_source_gaps as n7_pending_unique_derivation_source_gaps,
 )
 from polisyos.runtime.quality.confidence_ledger import (
     N6DeploymentCurrentnessObservation,
@@ -3264,6 +3269,8 @@ def _n7_joined_planner_records_match(
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
     report: AcquisitionPlannerReport,
     require_descriptor_join: bool = False,
+    derivation_bundle: N7DerivationBundle | None = None,
+    derivation_bundle_ref: CASArtifactRef | None = None,
 ) -> bool:
     """Combine the problem/request owner check with the shared pure join law."""
     families, family_error = _n7_compiler_families_for_source_gap(
@@ -3281,6 +3288,49 @@ def _n7_joined_planner_records_match(
             )
         except (TypeError, ValueError):
             return False
+        has_bundle_input = {
+            "n7_derivation_bundle_ref",
+            "n7_derivation_bundle",
+        }.intersection(acquisition_request)
+        if has_bundle_input:
+            try:
+                selected_bundle_ref = (
+                    CASArtifactRef.model_validate(acquisition_request["n7_derivation_bundle_ref"])
+                    if "n7_derivation_bundle_ref" in acquisition_request
+                    else derivation_bundle_ref
+                )
+                selected_set_ref = CASArtifactRef.model_validate(
+                    acquisition_request["model_input_obligation_set_ref"]
+                )
+                selected_obligation_ref = CASArtifactRef.model_validate(
+                    acquisition_request["model_input_obligation_ref"]
+                )
+                inline_bundle = (
+                    N7DerivationBundle.model_validate(acquisition_request["n7_derivation_bundle"])
+                    if "n7_derivation_bundle" in acquisition_request
+                    else None
+                )
+            except (KeyError, TypeError, ValueError):
+                return False
+            if (
+                derivation_bundle is None
+                or derivation_bundle_ref is None
+                or selected_bundle_ref is None
+                or artifact_ref_identity_key(selected_bundle_ref)
+                != artifact_ref_identity_key(derivation_bundle_ref)
+                or artifact_ref_identity_key(selected_set_ref)
+                != artifact_ref_identity_key(derivation_bundle.obligation_set_ref)
+                or artifact_ref_identity_key(selected_obligation_ref)
+                != artifact_ref_identity_key(derivation_bundle.model_input_obligation_ref)
+                or (
+                    inline_bundle is not None
+                    and _n7_exact_wire(inline_bundle.model_dump(mode="json"))
+                    != _n7_exact_wire(derivation_bundle.model_dump(mode="json"))
+                )
+            ):
+                return False
+        elif derivation_bundle is not None or derivation_bundle_ref is not None:
+            return False
         return (
             family_error is None
             and len(families) == 1
@@ -3290,6 +3340,7 @@ def _n7_joined_planner_records_match(
                 specs=specs,
                 capability_resolutions=capability_resolutions,
                 report=report,
+                derivation_bundle=derivation_bundle,
             )
         )
     return (
@@ -13689,6 +13740,10 @@ class GenerationCycleController:
             acquisition_request = {}
         source_rule = acquisition_request.get("n7_source_join_rule")
         candidate_l1_join = source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
+        if {"n7_derivation_bundle_ref", "n7_derivation_bundle"}.intersection(
+            acquisition_request
+        ) and not candidate_l1_join:
+            raise GenerationCycleError("n7_derivation_bundle_source_rule_mismatch")
         descriptor_join = source_rule in {
             _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
             _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
@@ -13771,11 +13826,24 @@ class GenerationCycleController:
                         if cycle.grounding.acquisition_requirement is not None
                         else ()
                     )
+                    try:
+                        derivation_bundle_ref, derivation_bundle = (
+                            _n7_derivation_bundle_from_request(artifact_store, normalized_request)
+                        )
+                    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                        raise GenerationCycleError(
+                            "n7_derivation_bundle_binding_refused", str(exc)
+                        ) from exc
+                    if {"n7_derivation_bundle_ref", "n7_derivation_bundle"}.intersection(
+                        normalized_request
+                    ) and derivation_bundle_ref is None:
+                        raise GenerationCycleError("n7_derivation_bundle_binding_refused")
                     gaps = _n7_candidate_n5_l1_obligation_gaps(
                         source_gap=basis.routed_source_gap,
                         accompanying_requirement_gaps=accompanying,
                         specs=basis.specs,
                         capability_resolutions=basis.capability_resolutions,
+                        derivation_bundle=derivation_bundle,
                     )
                 else:
                     gaps = _n7_source_semantic_planning_gaps(
@@ -16502,6 +16570,19 @@ class GenerationCycleController:
                 )
                 for record in acquisition_receipt.planner_report.acquisition_records
             )
+            derivation_bundle_ref = None
+            derivation_bundle = None
+            if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+                if artifact_store is None:
+                    raise GenerationCycleError("n7_derivation_bundle_store_missing")
+                try:
+                    derivation_bundle_ref, derivation_bundle = _n7_derivation_bundle_from_request(
+                        artifact_store, request
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise GenerationCycleError(
+                        "n7_derivation_bundle_request_unverified", str(exc)
+                    ) from exc
             if (
                 source_rule
                 in {
@@ -16521,6 +16602,8 @@ class GenerationCycleController:
                     report=acquisition_receipt.planner_report,
                     require_descriptor_join=source_rule
                     in {_N7_SOURCE_DESCRIPTOR_JOIN_RULE, _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE},
+                    derivation_bundle=derivation_bundle,
+                    derivation_bundle_ref=derivation_bundle_ref,
                 )
             ):
                 raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
@@ -18477,7 +18560,16 @@ class GenerationCycleController:
             if grounding.acquisition_requirement is not None
             else ()
         )
+        try:
+            derivation_bundle_ref, _ = _n7_derivation_bundle_from_request(repository.store, request)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("n7_configured_candidate_port_derivation_bundle_invalid") from exc
         source = _N7ConfiguredCandidatePortSource(
+            schema_version=(
+                "policyos.runtime.n7_configured_candidate_port_source.v2"
+                if derivation_bundle_ref is not None
+                else "policyos.runtime.n7_configured_candidate_port_source.v1"
+            ),
             tenant_id=handoff.tenant_id,
             cell_id=handoff.cell_id,
             run_id=handoff.run_id,
@@ -18497,6 +18589,7 @@ class GenerationCycleController:
             grounding_digest_payload=digest_payload,
             source_gap=gap,
             accompanying_requirement_gaps=companions,
+            derivation_bundle_ref=derivation_bundle_ref,
         )
         if retained_owner is not None:
             retained_owner.revalidate()

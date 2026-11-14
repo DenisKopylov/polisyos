@@ -1143,6 +1143,7 @@ class _N7CandidateReportInputBinding(BaseModel):
     source_kind: Literal[
         "grounding_digest",
         "l1_coverage_locator",
+        "n7_derivation_source_request",
         "compiler_declared_locator",
         "planner_generated_locator",
         "selected_artifact",
@@ -5322,6 +5323,7 @@ def _n7_candidate_n5_l1_obligation_gaps(
     accompanying_requirement_gaps: Sequence[AcquisitionRequirementGap],
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+    derivation_bundle: N7DerivationBundle | None = None,
 ) -> tuple[AcquisitionGap, ...]:
     """Project the exact L1 descriptor join and preserve a separate COV demand.
 
@@ -5373,7 +5375,31 @@ def _n7_candidate_n5_l1_obligation_gaps(
         compiler_gaps=compiler_gaps,
         specs=specs,
     )
-    return (*planning, *(gap.to_acquisition_gap() for gap in companions))
+    bundle_gaps = (
+        n7_pending_unique_derivation_source_gaps(derivation_bundle)
+        if derivation_bundle is not None
+        else ()
+    )
+    source_binding = source.metadata.get("candidate_binding")
+    if bundle_gaps and not isinstance(source_binding, Mapping):
+        raise ValueError("n7_derivation_source_candidate_binding_missing")
+    for gap in bundle_gaps:
+        if (
+            gap.metadata.get("candidate_binding") != source_binding
+            or gap.authority_level != source.authority_level
+        ):
+            raise ValueError("n7_derivation_source_candidate_binding_mismatch")
+    existing_ids = {
+        gap.requirement_gap_ref
+        for gap in (*planning, *(item.to_acquisition_gap() for item in companions))
+    }
+    if any(gap.requirement_gap_id in existing_ids for gap in bundle_gaps):
+        raise ValueError("n7_derivation_source_request_duplicate")
+    return (
+        *planning,
+        *(gap.to_acquisition_gap() for gap in companions),
+        *(gap.to_acquisition_gap() for gap in bundle_gaps),
+    )
 
 
 def _n7_candidate_n5_l1_planner_records_match(
@@ -5383,6 +5409,7 @@ def _n7_candidate_n5_l1_planner_records_match(
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
     report: AcquisitionPlannerReport,
+    derivation_bundle: N7DerivationBundle | None = None,
 ) -> bool:
     """Replay every mixed-obligation planner row from its typed inputs."""
     try:
@@ -5391,6 +5418,7 @@ def _n7_candidate_n5_l1_planner_records_match(
             accompanying_requirement_gaps=accompanying_requirement_gaps,
             specs=specs,
             capability_resolutions=capability_resolutions,
+            derivation_bundle=derivation_bundle,
         )
         expected = plan_evidence_acquisition(
             run_id=report.run_id,
@@ -5424,6 +5452,741 @@ _N7_SOURCE_JOIN_RULES = (
     _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
     _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
 )
+
+_N7_DERIVATION_BUDGET_KIND = "runtime.quality.n7_derivation_dag_budget_profile"
+_N7_DERIVATION_BUDGET_SCHEMA = "polisyos.runtime.quality.N7DerivationDagBudgetProfile"
+_N7_DERIVATION_BUNDLE_KIND = "runtime.quality.n7_derivation_bundle"
+_N7_DERIVATION_BUNDLE_SCHEMA = "polisyos.runtime.quality.N7DerivationBundle"
+_N7_DERIVATION_OPERATOR_REGISTRY_KIND = "polisyos.runtime.transform_family_registry"
+_N7_DERIVATION_SOURCE_SERIES_KIND = "polisyos.runtime.derivation_source_series"
+_N7_DERIVATION_OCCURRENCE_KIND = "catalog.scoped_measurement_occurrence"
+_N7_DERIVATION_DEFINITION_KIND = "catalog.variable_semantic_definition"
+_N7_DERIVATION_REPRESENTATION_KIND = "catalog.variable_representation"
+_N7_DERIVATION_BINDING_PROFILE_KIND = "catalog.measurement_binding_profile"
+_N7_DERIVATION_SOURCE_RECEIPT_KIND = "epoch.activated_overlay_admission_receipt"
+
+
+def _n7_derivation_selected_ref(value: artifacts.ArtifactRef, field: str) -> None:
+    if (
+        not isinstance(value, artifacts.ArtifactRef)
+        or value.media_type != "application/json"
+        or value.manifest_profile_sha256 is None
+    ):
+        raise ValueError(f"n7_derivation_{field}_ref_unselected")
+
+
+def _n7_derivation_basis_key(basis: N7DerivationBasis) -> tuple[object, ...]:
+    return tuple(
+        artifacts.artifact_ref_identity_key(getattr(basis, field))
+        for field in (
+            "semantic_definition_ref",
+            "representation_ref",
+            "binding_profile_ref",
+        )
+    )
+
+
+class N7DerivationDagBudgetProfile(BaseModel):
+    """Caller-selected limits for a candidate derivation graph."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.n7_derivation_dag_budget.v1"] = (
+        "policyos.runtime.n7_derivation_dag_budget.v1"
+    )
+    profile_id: str = Field(min_length=1, strict=True)
+    max_nodes: int = Field(ge=1, le=128, strict=True)
+    max_edges: int = Field(ge=1, le=512, strict=True)
+    max_depth: int = Field(ge=1, le=64, strict=True)
+    max_unique_sources: int = Field(ge=1, le=128, strict=True)
+
+
+class N7DerivationBasis(BaseModel):
+    """Selected semantic basis expected at one derivation edge."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    semantic_definition_ref: artifacts.ArtifactRef
+    representation_ref: artifacts.ArtifactRef
+    binding_profile_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_refs(self) -> N7DerivationBasis:
+        expected_kinds = {
+            "semantic_definition_ref": _N7_DERIVATION_DEFINITION_KIND,
+            "representation_ref": _N7_DERIVATION_REPRESENTATION_KIND,
+            "binding_profile_ref": _N7_DERIVATION_BINDING_PROFILE_KIND,
+        }
+        for name, expected_kind in expected_kinds.items():
+            _n7_derivation_selected_ref(getattr(self, name), name)
+            if getattr(self, name).kind != expected_kind:
+                raise ValueError(f"n7_derivation_{name}_kind_mismatch")
+        return self
+
+
+class N7DerivationSupplierAlternative(BaseModel):
+    """One OR alternative for supplying a single semantic source leaf."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    supplier_ref: artifacts.ArtifactRef
+    source_basis: N7DerivationBasis
+
+    @model_validator(mode="after")
+    def _selected_supplier(self) -> N7DerivationSupplierAlternative:
+        _n7_derivation_selected_ref(self.supplier_ref, "supplier")
+        return self
+
+
+class N7DerivationSourceNode(BaseModel):
+    """One required source leaf with OR suppliers and optional admitted inputs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_id: str = Field(min_length=1, strict=True)
+    source_basis: N7DerivationBasis
+    supplier_alternatives: tuple[N7DerivationSupplierAlternative, ...] = ()
+    selected_supplier_ref: artifacts.ArtifactRef | None = None
+    source_series_ref: artifacts.ArtifactRef | None = None
+    occurrence_ref: artifacts.ArtifactRef | None = None
+    definition_ref: artifacts.ArtifactRef | None = None
+    representation_ref: artifacts.ArtifactRef | None = None
+    source_receipt_ref: artifacts.ArtifactRef | None = None
+    requirement_gap: AcquisitionRequirementGap | None = None
+
+    @model_validator(mode="after")
+    def _bind_source_leaf(self) -> N7DerivationSourceNode:
+        alternatives = tuple(
+            sorted(
+                self.supplier_alternatives,
+                key=lambda item: artifacts.artifact_ref_identity_key(item.supplier_ref),
+            )
+        )
+        object.__setattr__(self, "supplier_alternatives", alternatives)
+        alternatives = self.supplier_alternatives
+        alternative_keys = tuple(
+            artifacts.artifact_ref_identity_key(item.supplier_ref) for item in alternatives
+        )
+        if len(alternative_keys) != len(set(alternative_keys)):
+            raise ValueError("n7_derivation_supplier_alternative_duplicate")
+        if any(
+            _n7_derivation_basis_key(item.source_basis)
+            != _n7_derivation_basis_key(self.source_basis)
+            for item in alternatives
+        ):
+            raise ValueError("n7_derivation_supplier_basis_mismatch")
+        if self.selected_supplier_ref is not None:
+            _n7_derivation_selected_ref(self.selected_supplier_ref, "selected_supplier")
+            if artifacts.artifact_ref_identity_key(self.selected_supplier_ref) not in set(
+                alternative_keys
+            ):
+                raise ValueError("n7_derivation_selected_supplier_not_alternative")
+        refs = (
+            self.source_series_ref,
+            self.occurrence_ref,
+            self.definition_ref,
+            self.representation_ref,
+            self.source_receipt_ref,
+        )
+        present = tuple(item is not None for item in refs)
+        if any(present) and not all(present):
+            raise ValueError("n7_derivation_source_input_set_incomplete")
+        if all(present):
+            expected_kinds = (
+                _N7_DERIVATION_SOURCE_SERIES_KIND,
+                _N7_DERIVATION_OCCURRENCE_KIND,
+                _N7_DERIVATION_DEFINITION_KIND,
+                _N7_DERIVATION_REPRESENTATION_KIND,
+                _N7_DERIVATION_SOURCE_RECEIPT_KIND,
+            )
+            for name, ref, expected_kind in zip(
+                (
+                    "source_series",
+                    "occurrence",
+                    "definition",
+                    "representation",
+                    "source_receipt",
+                ),
+                refs,
+                expected_kinds,
+                strict=True,
+            ):
+                if ref is None:
+                    raise ValueError("n7_derivation_source_input_set_incomplete")
+                _n7_derivation_selected_ref(ref, name)
+                if ref.kind != expected_kind:
+                    raise ValueError(f"n7_derivation_{name}_kind_mismatch")
+            if self.selected_supplier_ref is None:
+                raise ValueError("n7_derivation_source_supplier_not_selected")
+            if artifacts.artifact_ref_identity_key(
+                self.definition_ref
+            ) != artifacts.artifact_ref_identity_key(
+                self.source_basis.semantic_definition_ref
+            ) or artifacts.artifact_ref_identity_key(
+                self.representation_ref
+            ) != artifacts.artifact_ref_identity_key(self.source_basis.representation_ref):
+                raise ValueError("n7_derivation_source_basis_mismatch")
+        elif self.requirement_gap is None:
+            raise ValueError("n7_derivation_pending_source_gap_missing")
+        return self
+
+    @property
+    def inputs_complete(self) -> bool:
+        return self.source_series_ref is not None
+
+
+class N7DerivationRoleInput(BaseModel):
+    """One required role edge from an operation to a source or operation node."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    role: str = Field(min_length=1, strict=True, pattern=r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
+    input_node_id: str = Field(min_length=1, strict=True)
+    source_basis: N7DerivationBasis
+
+
+class N7DerivationOperationNode(BaseModel):
+    """Closed operator identity and its required AND-input role edges."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_id: str = Field(min_length=1, strict=True)
+    operator_ref: artifacts.ArtifactRef
+    family_id: str = Field(min_length=1, strict=True)
+    method_version: str = Field(
+        min_length=1, max_length=128, strict=True, pattern=r"^[A-Za-z0-9][A-Za-z0-9._+-]*$"
+    )
+    output_basis: N7DerivationBasis
+    role_inputs: tuple[N7DerivationRoleInput, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _selected_operator(self) -> N7DerivationOperationNode:
+        _n7_derivation_selected_ref(self.operator_ref, "operator")
+        if self.operator_ref.kind != _N7_DERIVATION_OPERATOR_REGISTRY_KIND:
+            raise ValueError("n7_derivation_operator_registry_kind_mismatch")
+        object.__setattr__(
+            self,
+            "role_inputs",
+            tuple(sorted(self.role_inputs, key=lambda item: (item.role, item.input_node_id))),
+        )
+        roles = tuple(item.role for item in self.role_inputs)
+        if len(roles) != len(set(roles)):
+            raise ValueError("n7_derivation_operation_role_duplicate")
+        return self
+
+
+class N7DerivationBundle(BaseModel):
+    """Persisted candidate-only AND/OR input closure for one model obligation.
+
+    This artifact records whether required source leaves are available. It does
+    not certify an output or satisfy the selected model-input obligation.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.n7_derivation_bundle.v1"] = (
+        "policyos.runtime.n7_derivation_bundle.v1"
+    )
+    authority_purpose: Literal["candidate_acquisition_routing_only"] = (
+        "candidate_acquisition_routing_only"
+    )
+    obligation_set_ref: artifacts.ArtifactRef
+    model_input_obligation_ref: artifacts.ArtifactRef
+    target_basis: N7DerivationBasis
+    dag_budget_profile_ref: artifacts.ArtifactRef
+    dag_budget_profile: N7DerivationDagBudgetProfile
+    source_nodes: tuple[N7DerivationSourceNode, ...] = Field(min_length=1)
+    operation_nodes: tuple[N7DerivationOperationNode, ...] = Field(min_length=1)
+    root_node_id: str = Field(min_length=1, strict=True)
+    input_closure_status: Literal["partial", "inputs_complete"]
+    target_satisfaction_status: Literal["unsatisfied"] = "unsatisfied"
+
+    @model_validator(mode="after")
+    def _replay_graph_and_limits(self) -> N7DerivationBundle:
+        object.__setattr__(
+            self,
+            "source_nodes",
+            tuple(sorted(self.source_nodes, key=lambda item: item.node_id)),
+        )
+        object.__setattr__(
+            self,
+            "operation_nodes",
+            tuple(sorted(self.operation_nodes, key=lambda item: item.node_id)),
+        )
+        _n7_derivation_selected_ref(self.obligation_set_ref, "obligation_set")
+        _n7_derivation_selected_ref(self.model_input_obligation_ref, "model_input_obligation")
+        _n7_derivation_selected_ref(self.dag_budget_profile_ref, "budget_profile")
+        if self.obligation_set_ref.kind != "runtime.quality.model_input_obligation_set":
+            raise ValueError("n7_derivation_obligation_set_kind_mismatch")
+        if self.model_input_obligation_ref.kind != "runtime.quality.model_input_obligation":
+            raise ValueError("n7_derivation_obligation_kind_mismatch")
+        if self.dag_budget_profile_ref.kind != _N7_DERIVATION_BUDGET_KIND:
+            raise ValueError("n7_derivation_budget_profile_kind_mismatch")
+        sources = {item.node_id: item for item in self.source_nodes}
+        operations = {item.node_id: item for item in self.operation_nodes}
+        if len(sources) != len(self.source_nodes) or len(operations) != len(self.operation_nodes):
+            raise ValueError("n7_derivation_node_id_duplicate")
+        if set(sources).intersection(operations):
+            raise ValueError("n7_derivation_node_id_duplicate")
+        nodes = set(sources).union(operations)
+        if self.root_node_id not in operations:
+            raise ValueError("n7_derivation_root_operation_missing")
+        edges = sum(len(item.role_inputs) for item in self.operation_nodes) + sum(
+            len(item.supplier_alternatives) for item in self.source_nodes
+        )
+        budget = self.dag_budget_profile
+        if (
+            len(nodes) > budget.max_nodes
+            or edges > budget.max_edges
+            or len(sources) > budget.max_unique_sources
+        ):
+            raise ValueError("n7_derivation_dag_budget_exceeded")
+        source_gap_ids = tuple(
+            item.requirement_gap.requirement_gap_id
+            for item in self.source_nodes
+            if not item.inputs_complete and item.requirement_gap is not None
+        )
+        if len(source_gap_ids) != len(set(source_gap_ids)):
+            raise ValueError("n7_derivation_source_request_duplicate")
+        dependency_edges: dict[str, tuple[str, ...]] = {}
+        parents: dict[str, list[str]] = {}
+        for node_id in nodes:
+            parents[node_id] = []
+        indegree = dict.fromkeys(nodes, 0)
+        for operation in self.operation_nodes:
+            dependencies = tuple(item.input_node_id for item in operation.role_inputs)
+            if any(item not in nodes for item in dependencies):
+                raise ValueError("n7_derivation_input_node_missing")
+            dependency_edges[operation.node_id] = dependencies
+            indegree[operation.node_id] = len(dependencies)
+            for item in operation.role_inputs:
+                upstream = sources.get(item.input_node_id)
+                upstream_basis = (
+                    upstream.source_basis
+                    if upstream is not None
+                    else operations[item.input_node_id].output_basis
+                )
+                if _n7_derivation_basis_key(item.source_basis) != _n7_derivation_basis_key(
+                    upstream_basis
+                ):
+                    raise ValueError("n7_derivation_role_source_basis_mismatch")
+                parents[item.input_node_id].append(operation.node_id)
+        ready = [node_id for node_id, count in indegree.items() if count == 0]
+        topo: list[str] = []
+        while ready:
+            node_id = ready.pop()
+            topo.append(node_id)
+            for parent in parents[node_id]:
+                indegree[parent] -= 1
+                if indegree[parent] == 0:
+                    ready.append(parent)
+        if len(topo) != len(nodes):
+            raise ValueError("n7_derivation_cycle_detected")
+        reachable: set[str] = set()
+        pending = [self.root_node_id]
+        while pending:
+            node_id = pending.pop()
+            if node_id in reachable:
+                continue
+            reachable.add(node_id)
+            pending.extend(dependency_edges.get(node_id, ()))
+        if reachable != nodes:
+            raise ValueError("n7_derivation_unreachable_node")
+        depth: dict[str, int] = {}
+        for node_id in topo:
+            depth[node_id] = max(
+                (depth[item] + 1 for item in dependency_edges.get(node_id, ())), default=0
+            )
+        if depth[self.root_node_id] > budget.max_depth:
+            raise ValueError("n7_derivation_dag_budget_exceeded")
+        if _n7_derivation_basis_key(operations[self.root_node_id].output_basis) != (
+            _n7_derivation_basis_key(self.target_basis)
+        ):
+            raise ValueError("n7_derivation_target_basis_mismatch")
+        expected_status = (
+            "inputs_complete"
+            if all(item.inputs_complete for item in self.source_nodes)
+            else "partial"
+        )
+        if self.input_closure_status != expected_status:
+            raise ValueError("n7_derivation_input_closure_status_mismatch")
+        return self
+
+
+def n7_pending_unique_derivation_source_gaps(
+    bundle: N7DerivationBundle,
+) -> tuple[AcquisitionRequirementGap, ...]:
+    """Return each pending source-request leaf once for N7 candidate planning."""
+    if type(bundle) is not N7DerivationBundle:
+        raise TypeError("n7_derivation_bundle_untyped")
+    bundle = N7DerivationBundle.model_validate(bundle.model_dump(mode="json"))
+    pending: dict[str, AcquisitionRequirementGap] = {}
+    for node in bundle.source_nodes:
+        if node.inputs_complete:
+            continue
+        gap = node.requirement_gap
+        if gap is None:
+            raise ValueError("n7_derivation_pending_source_gap_missing")
+        if gap.requirement_gap_id in pending:
+            raise ValueError("n7_derivation_source_request_duplicate")
+        pending[gap.requirement_gap_id] = gap
+    return tuple(pending[key] for key in sorted(pending))
+
+
+def _n7_derivation_budget_write_profile(
+    profile: N7DerivationDagBudgetProfile,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    return (
+        artifacts.PutOptions(
+            kind=_N7_DERIVATION_BUDGET_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=_N7_DERIVATION_BUDGET_SCHEMA, version="1.0"),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=[],
+        ),
+        spec,
+    )
+
+
+def persist_n7_derivation_dag_budget_profile(
+    store: ArtifactStore, profile: N7DerivationDagBudgetProfile
+) -> artifacts.ArtifactRef:
+    """Persist caller-selected graph limits as a versioned, selected profile."""
+    if type(profile) is not N7DerivationDagBudgetProfile:
+        raise TypeError("n7_derivation_budget_profile_untyped")
+    options, spec = _n7_derivation_budget_write_profile(profile)
+    selected = store.put_json(profile, options, canon_spec=spec, return_selected_profile=True)
+    if _n7_load_derivation_dag_budget_profile(store, selected) != profile:
+        raise ValueError("n7_derivation_budget_profile_write_readback_mismatch")
+    return selected
+
+
+def _n7_load_derivation_dag_budget_profile(
+    store: ArtifactStore, ref: artifacts.ArtifactRef
+) -> N7DerivationDagBudgetProfile:
+    """Reopen a caller-selected graph budget and verify its exact writer profile."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        type(ref) is not artifacts.ArtifactRef
+        or ref.kind != _N7_DERIVATION_BUDGET_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("n7_derivation_budget_profile_ref_invalid")
+    manifest = store.get_manifest(ref)
+    if (
+        artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+        != artifacts.artifact_ref_identity_key(ref)
+        or manifest.kind != _N7_DERIVATION_BUDGET_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=_N7_DERIVATION_BUDGET_SCHEMA, version="1.0")
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+        )
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("n7_derivation_budget_profile_unverified")
+    profile = N7DerivationDagBudgetProfile.model_validate(load_core_json_artifact(store, ref))
+    options, spec = _n7_derivation_budget_write_profile(profile)
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=canon.to_canonical_bytes(profile, spec),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if artifacts.artifact_manifest_profile_projection(
+        manifest
+    ) != artifacts.artifact_manifest_profile_projection(
+        expected
+    ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(expected):
+        raise ValueError("n7_derivation_budget_profile_lineage_mismatch")
+    return profile
+
+
+def _n7_derivation_bundle_input_edges(
+    bundle: N7DerivationBundle,
+) -> list[tuple[artifacts.ArtifactRef, str]]:
+    refs: list[tuple[artifacts.ArtifactRef, str]] = []
+
+    def include(ref: artifacts.ArtifactRef, role: str) -> None:
+        _n7_derivation_selected_ref(ref, "input")
+        refs.append((ref, role))
+
+    include(bundle.obligation_set_ref, "selected_obligation_set")
+    include(bundle.model_input_obligation_ref, "selected_model_input_obligation")
+    include(bundle.target_basis.semantic_definition_ref, "target_semantic_definition")
+    include(bundle.target_basis.representation_ref, "target_representation")
+    include(bundle.target_basis.binding_profile_ref, "target_binding_profile")
+    include(bundle.dag_budget_profile_ref, "caller_selected_dag_budget")
+    for source in bundle.source_nodes:
+        include(source.source_basis.semantic_definition_ref, f"source.{source.node_id}.definition")
+        include(source.source_basis.representation_ref, f"source.{source.node_id}.representation")
+        include(source.source_basis.binding_profile_ref, f"source.{source.node_id}.profile")
+        for index, alternative in enumerate(source.supplier_alternatives):
+            include(alternative.supplier_ref, f"source.{source.node_id}.supplier.{index}")
+        if source.selected_supplier_ref is not None:
+            include(source.selected_supplier_ref, f"source.{source.node_id}.selected_supplier")
+        for role, ref in (
+            ("series", source.source_series_ref),
+            ("occurrence", source.occurrence_ref),
+            ("definition", source.definition_ref),
+            ("representation", source.representation_ref),
+            ("receipt", source.source_receipt_ref),
+        ):
+            if ref is not None:
+                include(ref, f"source.{source.node_id}.{role}")
+    for operation in bundle.operation_nodes:
+        include(operation.operator_ref, f"operation.{operation.node_id}.operator")
+        include(
+            operation.output_basis.semantic_definition_ref,
+            f"operation.{operation.node_id}.output_definition",
+        )
+        include(
+            operation.output_basis.representation_ref,
+            f"operation.{operation.node_id}.output_representation",
+        )
+        include(
+            operation.output_basis.binding_profile_ref,
+            f"operation.{operation.node_id}.output_profile",
+        )
+        for index, edge in enumerate(operation.role_inputs):
+            include(
+                edge.source_basis.semantic_definition_ref,
+                f"operation.{operation.node_id}.input.{index}.definition",
+            )
+            include(
+                edge.source_basis.representation_ref,
+                f"operation.{operation.node_id}.input.{index}.representation",
+            )
+            include(
+                edge.source_basis.binding_profile_ref,
+                f"operation.{operation.node_id}.input.{index}.profile",
+            )
+    return refs
+
+
+def _n7_derivation_bundle_inputs(bundle: N7DerivationBundle) -> list[artifacts.InputRef]:
+    return [
+        artifacts.input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in _n7_derivation_bundle_input_edges(bundle)
+    ]
+
+
+def _n7_derivation_bundle_write_profile(
+    bundle: N7DerivationBundle,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    return (
+        artifacts.PutOptions(
+            kind=_N7_DERIVATION_BUNDLE_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0"),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=_n7_derivation_bundle_inputs(bundle),
+        ),
+        spec,
+    )
+
+
+def _n7_validate_derivation_bundle_dependencies(
+    store: ArtifactStore, bundle: N7DerivationBundle
+) -> None:
+    """Reopen selected target, profile, and every source/operator input."""
+    from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
+    from polisyos.core.derivations import (
+        TransformFamilyRegistry,
+        load_selected_transform_family_registry,
+    )
+
+    profile = _n7_load_derivation_dag_budget_profile(store, bundle.dag_budget_profile_ref)
+    if profile != bundle.dag_budget_profile:
+        raise ValueError("n7_derivation_budget_profile_content_mismatch")
+    selected_set, members = load_model_input_obligation_set(store, bundle.obligation_set_ref)
+    selected_key = artifacts.artifact_ref_identity_key(bundle.model_input_obligation_ref)
+    member_keys = tuple(
+        artifacts.artifact_ref_identity_key(ref) for ref in selected_set.obligation_refs
+    )
+    if selected_key not in member_keys or len(members) != len(member_keys):
+        raise ValueError("n7_derivation_target_not_in_selected_obligation_set")
+    index = member_keys.index(selected_key)
+    obligation = members[index]
+    target_candidate_binding = {
+        "candidate_id": obligation.context.candidate_id,
+        "candidate_content_hash": obligation.context.candidate_content_hash,
+        "design_problem_ref": obligation.context.design_problem_ref,
+    }
+    if any(
+        source.requirement_gap is not None
+        and source.requirement_gap.metadata.get("candidate_binding") != target_candidate_binding
+        for source in bundle.source_nodes
+    ):
+        raise ValueError("n7_derivation_source_target_binding_mismatch")
+    target_basis = N7DerivationBasis(
+        semantic_definition_ref=obligation.port.semantic_definition_ref,
+        representation_ref=obligation.port.representation_ref,
+        binding_profile_ref=obligation.port.binding_profile_ref,
+    )
+    if _n7_derivation_basis_key(bundle.target_basis) != _n7_derivation_basis_key(target_basis):
+        raise ValueError("n7_derivation_target_basis_mismatch")
+    registries: dict[tuple[str, str, str, str | None], TransformFamilyRegistry] = {}
+    for operation in bundle.operation_nodes:
+        operator_key = artifacts.artifact_ref_identity_key(operation.operator_ref)
+        registry = registries.get(operator_key)
+        if registry is None:
+            registry = load_selected_transform_family_registry(store, operation.operator_ref)
+            registries[operator_key] = registry
+        families = tuple(
+            family
+            for family in registry.families
+            if family.family_id == operation.family_id
+            and family.method_version == operation.method_version
+        )
+        if len(families) != 1 or tuple(
+            sorted(item.role for item in families[0].input_specs)
+        ) != tuple(item.role for item in operation.role_inputs):
+            raise ValueError("n7_derivation_operator_required_roles_mismatch")
+    for input_ref, _role in _n7_derivation_bundle_input_edges(bundle):
+        manifest = store.get_manifest(input_ref)
+        selected_ref = artifacts.artifact_ref_for_manifest(manifest)
+        if (
+            artifacts.artifact_ref_identity_key(selected_ref)
+            != artifacts.artifact_ref_identity_key(input_ref)
+            or not store.verify(selected_ref).ok
+        ):
+            raise ValueError("n7_derivation_input_profile_unverified")
+
+
+def persist_n7_derivation_bundle(
+    store: ArtifactStore, bundle: N7DerivationBundle
+) -> artifacts.ArtifactRef:
+    """Persist and reopen one exact candidate-only N7 derivation bundle."""
+    if type(bundle) is not N7DerivationBundle:
+        raise TypeError("n7_derivation_bundle_untyped")
+    bundle = N7DerivationBundle.model_validate(bundle.model_dump(mode="json"))
+    _n7_validate_derivation_bundle_dependencies(store, bundle)
+    options, spec = _n7_derivation_bundle_write_profile(bundle)
+    selected = store.put_json(bundle, options, canon_spec=spec, return_selected_profile=True)
+    if _n7_load_derivation_bundle(store, selected) != bundle:
+        raise ValueError("n7_derivation_bundle_write_readback_mismatch")
+    return selected
+
+
+def _n7_load_derivation_bundle(
+    store: ArtifactStore, ref: artifacts.ArtifactRef
+) -> N7DerivationBundle:
+    """Reopen and validate the selected bundle's full AND/OR closure."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        type(ref) is not artifacts.ArtifactRef
+        or ref.kind != _N7_DERIVATION_BUNDLE_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("n7_derivation_bundle_ref_invalid")
+    manifest = store.get_manifest(ref)
+    if (
+        artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+        != artifacts.artifact_ref_identity_key(ref)
+        or manifest.kind != _N7_DERIVATION_BUNDLE_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0")
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+        )
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("n7_derivation_bundle_unverified")
+    bundle = N7DerivationBundle.model_validate(load_core_json_artifact(store, ref))
+    _n7_validate_derivation_bundle_dependencies(store, bundle)
+    options, spec = _n7_derivation_bundle_write_profile(bundle)
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=canon.to_canonical_bytes(bundle, spec),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if artifacts.artifact_manifest_profile_projection(
+        manifest
+    ) != artifacts.artifact_manifest_profile_projection(
+        expected
+    ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(expected):
+        raise ValueError("n7_derivation_bundle_input_lineage_mismatch")
+    return bundle
+
+
+def load_n7_derivation_bundle(
+    store: ArtifactStore, ref: artifacts.ArtifactRef
+) -> N7DerivationBundle:
+    """Reopen one selected N7 bundle and replay its complete AND/OR closure."""
+    return _n7_load_derivation_bundle(store, ref)
+
+
+def _n7_derivation_bundle_from_request(
+    store: ArtifactStore, request: Mapping[str, Any]
+) -> tuple[artifacts.ArtifactRef | None, N7DerivationBundle | None]:
+    """Persist or reopen a bundle only when the N7 request binds its exact target."""
+    raw_bundle_ref = request.get("n7_derivation_bundle_ref")
+    raw_bundle = request.get("n7_derivation_bundle")
+    if raw_bundle_ref is None and raw_bundle is None:
+        return None, None
+    try:
+        set_ref = artifacts.ArtifactRef.model_validate(request["model_input_obligation_set_ref"])
+        obligation_ref = artifacts.ArtifactRef.model_validate(request["model_input_obligation_ref"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("n7_derivation_request_target_not_established") from exc
+    selected_target = (
+        artifacts.artifact_ref_identity_key(set_ref),
+        artifacts.artifact_ref_identity_key(obligation_ref),
+    )
+    if raw_bundle is not None:
+        try:
+            candidate_bundle = N7DerivationBundle.model_validate(raw_bundle)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("n7_derivation_request_bundle_invalid") from exc
+        if selected_target != (
+            artifacts.artifact_ref_identity_key(candidate_bundle.obligation_set_ref),
+            artifacts.artifact_ref_identity_key(candidate_bundle.model_input_obligation_ref),
+        ):
+            raise ValueError("n7_derivation_request_target_mismatch")
+        try:
+            bundle_ref = persist_n7_derivation_bundle(store, candidate_bundle)
+            bundle = _n7_load_derivation_bundle(store, bundle_ref)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("n7_derivation_request_bundle_unverified") from exc
+        if raw_bundle_ref is not None:
+            try:
+                selected_bundle_ref = artifacts.ArtifactRef.model_validate(raw_bundle_ref)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("n7_derivation_request_bundle_ref_invalid") from exc
+            if artifacts.artifact_ref_identity_key(selected_bundle_ref) != (
+                artifacts.artifact_ref_identity_key(bundle_ref)
+            ):
+                raise ValueError("n7_derivation_request_bundle_ref_mismatch")
+    else:
+        try:
+            bundle_ref = artifacts.ArtifactRef.model_validate(raw_bundle_ref)
+            bundle = _n7_load_derivation_bundle(store, bundle_ref)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("n7_derivation_request_bundle_unverified") from exc
+    if selected_target != (
+        artifacts.artifact_ref_identity_key(bundle.obligation_set_ref),
+        artifacts.artifact_ref_identity_key(bundle.model_input_obligation_ref),
+    ):
+        raise ValueError("n7_derivation_request_target_mismatch")
+    return bundle_ref, bundle
 
 
 def _n7_legacy_planner_records_match(
@@ -5484,9 +6247,10 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
-    schema_version: Literal["policyos.runtime.n7_configured_candidate_port_source.v1"] = (
-        "policyos.runtime.n7_configured_candidate_port_source.v1"
-    )
+    schema_version: Literal[
+        "policyos.runtime.n7_configured_candidate_port_source.v1",
+        "policyos.runtime.n7_configured_candidate_port_source.v2",
+    ] = "policyos.runtime.n7_configured_candidate_port_source.v1"
     authority_purpose: Literal["recorded_candidate_routing_only"] = (
         "recorded_candidate_routing_only"
     )
@@ -5510,6 +6274,9 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
     grounding_digest_payload: dict[str, Any] | None
     source_gap: AcquisitionRequirementGap
     accompanying_requirement_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+    derivation_bundle_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     observed_admission: Literal[False] = False
     publication_authority: Literal[False] = False
 
@@ -5536,6 +6303,17 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
             for ref, kind in refs
         ):
             raise ValueError("n7_configured_port_source_selected_ref_invalid")
+        if self.derivation_bundle_ref is None:
+            if self.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v1":
+                raise ValueError("n7_configured_port_source_version_mismatch")
+        elif (
+            self.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v2"
+            or type(self.derivation_bundle_ref) is not artifacts.ArtifactRef
+            or self.derivation_bundle_ref.kind != _N7_DERIVATION_BUNDLE_KIND
+            or self.derivation_bundle_ref.media_type != "application/json"
+            or self.derivation_bundle_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("n7_configured_port_source_derivation_bundle_ref_invalid")
         grounding = CandidateGroundingObservation.model_validate(self.grounding_observation)
         value = ValuePortObservation.model_validate(self.value_observation)
         routing = value.candidate_n5_l1_routing
@@ -5612,7 +6390,7 @@ _N7_CONFIGURED_PORT_SCHEMA = "polisyos.runtime.N7ConfiguredCandidatePortSource"
 def _n7_configured_port_inputs(
     source: _N7ConfiguredCandidatePortSource,
 ) -> list[artifacts.InputRef]:
-    return [
+    inputs = [
         artifacts.input_ref_from_artifact_ref(ref, role=role)
         for role, ref in (
             ("n4_candidate_source", source.n4_source_ref),
@@ -5622,17 +6400,25 @@ def _n7_configured_port_inputs(
             ("n5_result", source.n5_result_ref),
         )
     ]
+    if source.derivation_bundle_ref is not None:
+        inputs.append(
+            artifacts.input_ref_from_artifact_ref(
+                source.derivation_bundle_ref, role="selected_derivation_bundle"
+            )
+        )
+    return inputs
 
 
 def _n7_configured_port_write_profile(
     source: _N7ConfiguredCandidatePortSource,
 ) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
     spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    schema_version = "2.0" if source.derivation_bundle_ref is not None else "1.0"
     return (
         artifacts.PutOptions(
             kind=_N7_CONFIGURED_PORT_KIND,
             media_type="application/json",
-            schema=artifacts.SchemaInfo(name=_N7_CONFIGURED_PORT_SCHEMA, version="1.0"),
+            schema=artifacts.SchemaInfo(name=_N7_CONFIGURED_PORT_SCHEMA, version=schema_version),
             producer=artifacts.ProducerInfo(
                 component="polisyos.runtime.quality.generation_cycle", version="1.0"
             ),
@@ -5673,13 +6459,15 @@ def _n7_load_configured_candidate_port_source(
     ):
         raise ValueError("n7_configured_port_source_ref_invalid")
     manifest = store.get_manifest(ref)
+    schema_info = manifest.artifact_schema
     if (
         artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
         != artifacts.artifact_ref_identity_key(ref)
         or manifest.kind != _N7_CONFIGURED_PORT_KIND
         or manifest.media_type != "application/json"
-        or manifest.artifact_schema
-        != artifacts.SchemaInfo(name=_N7_CONFIGURED_PORT_SCHEMA, version="1.0")
+        or schema_info is None
+        or schema_info.name != _N7_CONFIGURED_PORT_SCHEMA
+        or schema_info.version not in {"1.0", "2.0"}
         or manifest.producer
         != artifacts.ProducerInfo(
             component="polisyos.runtime.quality.generation_cycle", version="1.0"
@@ -5688,6 +6476,11 @@ def _n7_load_configured_candidate_port_source(
     ):
         raise ValueError("n7_configured_port_source_profile_unverified")
     source = _N7ConfiguredCandidatePortSource.model_validate(load_core_json_artifact(store, ref))
+    expected_schema_version = "2.0" if source.derivation_bundle_ref is not None else "1.0"
+    if schema_info != artifacts.SchemaInfo(
+        name=_N7_CONFIGURED_PORT_SCHEMA, version=expected_schema_version
+    ):
+        raise ValueError("n7_configured_port_source_version_mismatch")
     options, spec = _n7_configured_port_write_profile(source)
     expected = artifacts.expected_artifact_manifest_for_write(
         artifact_id=ref.artifact_id,
@@ -5709,6 +6502,7 @@ def _n7_configured_candidate_input_bindings(
     report: AcquisitionPlannerReport,
     source: _N7ConfiguredCandidatePortSource,
     specs: Sequence[DataRequirementSpec],
+    derivation_bundle: N7DerivationBundle | None = None,
 ) -> tuple[_N7CandidateReportInputBinding, ...]:
     """Classify every report reference occurrence from its actual typed source.
 
@@ -5740,6 +6534,12 @@ def _n7_configured_candidate_input_bindings(
                     for gap in source.accompanying_requirement_gaps
                 ):
                     source_kind = "grounding_digest"
+                elif derivation_bundle is not None and any(
+                    record.requirement_gap_ref == gap.requirement_gap_id
+                    and value == gap.producer_output_ref
+                    for gap in n7_pending_unique_derivation_source_gaps(derivation_bundle)
+                ):
+                    source_kind = "n7_derivation_source_request"
             if (
                 source_kind is None
                 and role == "calibration_feedback"
@@ -5801,18 +6601,27 @@ def _n7_bind_configured_candidate_report(
     compilation = DataRequirementCompilationReport.model_validate(
         load_core_json_artifact(store, basis.compiler_report_ref)
     )
+    derivation_bundle = (
+        _n7_load_derivation_bundle(store, source.derivation_bundle_ref)
+        if source.derivation_bundle_ref is not None
+        else None
+    )
     if not _n7_candidate_n5_l1_planner_records_match(
         source_gap=source.source_gap,
         accompanying_requirement_gaps=source.accompanying_requirement_gaps,
         specs=compilation.specs,
         capability_resolutions=compilation.capability_requirement_resolutions,
         report=report,
+        derivation_bundle=derivation_bundle,
     ):
         raise ValueError("n7_candidate_report_producer_replay_mismatch")
     lineage = _N7CandidateReportLineage(
         port_source_ref=port_source_ref,
         bindings=_n7_configured_candidate_input_bindings(
-            report=report, source=source, specs=compilation.specs
+            report=report,
+            source=source,
+            specs=compilation.specs,
+            derivation_bundle=derivation_bundle,
         ),
     )
     return AcquisitionPlannerReport.model_validate(
@@ -5846,6 +6655,11 @@ def _n7_validate_configured_candidate_report_source(
     compilation = DataRequirementCompilationReport.model_validate(
         load_core_json_artifact(store, basis.compiler_report_ref)
     )
+    derivation_bundle = (
+        _n7_load_derivation_bundle(store, source.derivation_bundle_ref)
+        if source.derivation_bundle_ref is not None
+        else None
+    )
     if report.run_id != f"n7-cycle:{basis.scenario_id}:{source.cycle_index}":
         raise ValueError("n7_candidate_report_source_scope_mismatch")
     legacy_projection = AcquisitionPlannerReport.model_validate(
@@ -5860,8 +6674,12 @@ def _n7_validate_configured_candidate_report_source(
         specs=compilation.specs,
         capability_resolutions=compilation.capability_requirement_resolutions,
         report=legacy_projection,
+        derivation_bundle=derivation_bundle,
     ) or lineage.bindings != _n7_configured_candidate_input_bindings(
-        report=legacy_projection, source=source, specs=compilation.specs
+        report=legacy_projection,
+        source=source,
+        specs=compilation.specs,
+        derivation_bundle=derivation_bundle,
     ):
         raise ValueError("n7_candidate_report_source_replay_mismatch")
 
@@ -5913,6 +6731,22 @@ def _n7_verify_configured_candidate_report_cycle(
     source = _n7_load_configured_candidate_port_source(
         artifact_store, report.candidate_lineage.port_source_ref
     )
+    acquisition_request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
+    if source.derivation_bundle_ref is not None:
+        if not isinstance(acquisition_request, Mapping):
+            raise ValueError("n7_candidate_report_derivation_request_missing")
+        request_bundle_ref, _ = _n7_derivation_bundle_from_request(
+            artifact_store, acquisition_request
+        )
+        if request_bundle_ref is None or artifacts.artifact_ref_identity_key(
+            request_bundle_ref
+        ) != artifacts.artifact_ref_identity_key(source.derivation_bundle_ref):
+            raise ValueError("n7_candidate_report_derivation_request_mismatch")
+    elif isinstance(acquisition_request, Mapping) and {
+        "n7_derivation_bundle_ref",
+        "n7_derivation_bundle",
+    }.intersection(acquisition_request):
+        raise ValueError("n7_candidate_report_derivation_source_missing")
     actual = resolve_selected_acquisition_evaluation_parts(
         artifact_store=artifact_store,
         control_store=control_store,
@@ -6227,6 +7061,7 @@ def _n7_validate_candidate_checkpoint(
     if source_value.get("candidate_n5_l1_routing") is not None and not mixed_rule:
         raise ValueError("n7_candidate_source_rule_mismatch")
     accompanying: tuple[AcquisitionRequirementGap, ...] = ()
+    derivation_bundle: N7DerivationBundle | None = None
     if mixed_rule:
         # The cycle owner validates the selected N4/context/N5 references and
         # reconstructs COV from the actual grounding fields. The request's
@@ -6249,6 +7084,7 @@ def _n7_validate_candidate_checkpoint(
             accompanying = tuple(
                 AcquisitionRequirementGap.model_validate(item) for item in raw_companions
             )
+            _, derivation_bundle = _n7_derivation_bundle_from_request(store, request_in_cycle)
         except (TypeError, ValueError) as exc:
             raise ValueError("n7_candidate_source_port_mismatch") from exc
         if (
@@ -6293,6 +7129,7 @@ def _n7_validate_candidate_checkpoint(
             specs=compiler_report.specs,
             capability_resolutions=compiler_report.capability_requirement_resolutions,
             report=report,
+            derivation_bundle=derivation_bundle,
         )
         if mixed_rule
         else _n7_planner_join_records_match(
@@ -8698,6 +9535,13 @@ __all__ = [
     "AcquisitionWorldWriteOutcome",
     "AuthorityLevel",
     "MandatoryGateState",
+    "N7DerivationBasis",
+    "N7DerivationBundle",
+    "N7DerivationDagBudgetProfile",
+    "N7DerivationOperationNode",
+    "N7DerivationRoleInput",
+    "N7DerivationSourceNode",
+    "N7DerivationSupplierAlternative",
     "PlannerAcquisitionCostSchedule",
     "PlannerAcquisitionCostScheduleRow",
     "RealAcquisitionOwnerGateway",
@@ -8716,8 +9560,12 @@ __all__ = [
     "grounding_coverage_requirement_gap",
     "l1_variable_availability_requirement_gap",
     "load_acquisition_planner_report",
+    "load_n7_derivation_bundle",
     "load_planner_acquisition_cost_schedule",
+    "n7_pending_unique_derivation_source_gaps",
     "persist_acquisition_planner_report",
+    "persist_n7_derivation_bundle",
+    "persist_n7_derivation_dag_budget_profile",
     "plan_evidence_acquisition",
     "plan_requirement_gap_acquisition",
     "produce_acquisition_cost_basis_record",

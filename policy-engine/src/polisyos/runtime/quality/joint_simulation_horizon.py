@@ -6566,7 +6566,7 @@ def _method_state_for_subset(
     )
 
 
-def _require_program_graph_input_preflight(
+def _select_program_graph_input_preflight(
     request: JointSimulationRequest,
     plan: EnginePlan,
     decision: EngineDecision,
@@ -6576,6 +6576,12 @@ def _require_program_graph_input_preflight(
     ]
     | None,
 ) -> _SelectedSemanticProgramGraphInput | None:
+    """Join immutable selected invocation refs without admitting current method ABI.
+
+    Current execution uses the strict wrapper below. Historical intake can use
+    this structural join only together with exact recorded Foundry execution
+    source reconciliation; it is never a current-use admission by itself.
+    """
     from polisyos.core.artifacts import artifact_ref_identity_key
     from polisyos.core.contracts import ProgramGraphInputInvocation
     from polisyos.foundry.execute import program_graph_declares_model_input_ports
@@ -6630,40 +6636,71 @@ def _require_program_graph_input_preflight(
         or invocation.parameter_override_bundle_ref is not None
     ):
         raise JointSimulationControllerError("program_graph_semantic_horizon_profile_unsupported")
-    from polisyos.foundry.data_plane import (
-        load_input_bindings,
-        reconcile_semantic_input_bindings,
+    return _SelectedSemanticProgramGraphInput(
+        ExecuteRequest(
+            exec_plan_ref=invocation.exec_plan_ref,
+            input_bindings_ref=bindings_ref,
+            registry_bundle_ref=invocation.registry_bundle_ref,
+            return_selected_profile=True,
+        ),
+        invocation,
+        preflight.obligation_set_ref,
     )
 
-    foundry_request = ExecuteRequest(
-        exec_plan_ref=invocation.exec_plan_ref,
-        input_bindings_ref=bindings_ref,
-        registry_bundle_ref=invocation.registry_bundle_ref,
-        return_selected_profile=True,
-    )
+
+def _require_program_graph_input_preflight(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    preflight_callback: Callable[
+        [JointSimulationRequest, EnginePlan, EngineDecision],
+        ProgramGraphInputPreflightResult | None,
+    ]
+    | None,
+) -> _SelectedSemanticProgramGraphInput | None:
+    """Reconcile selected semantic inputs against the current execution owners."""
+    from polisyos.foundry.data_plane import load_input_bindings, reconcile_semantic_input_bindings
+    from polisyos.foundry.data_plane.bindings import reconcile_selected_method_input_bindings
+
+    selected = _select_program_graph_input_preflight(request, plan, decision, preflight_callback)
+    if selected is None:
+        return None
+    invocation = selected.invocation
+    foundry_request = selected.request
+    bindings_ref = foundry_request.input_bindings_ref
     try:
         bindings = load_input_bindings(plan.program_store, bindings_ref)
-        reconcile_semantic_input_bindings(
-            plan.program_store,
-            bindings,
-            execute_request=foundry_request,
-            semantic_horizon_step=SemanticHorizonStepContext(
-                obligation_set_ref=preflight.obligation_set_ref,
-                steps=invocation.steps,
-                step_index=0,
-                replication_seed=_replication_seeds(request)[0],
-            ),
-            expected_invocation=invocation,
+        context = SemanticHorizonStepContext(
+            obligation_set_ref=selected.obligation_set_ref,
+            steps=invocation.steps,
+            step_index=0,
+            replication_seed=_replication_seeds(request)[0],
         )
+        if bindings.schema_version == "1.4":
+            if len(invocation.steps) != 1:
+                raise ValueError("program_graph_method_input_horizon_unsupported")
+            reconcile_selected_method_input_bindings(
+                plan.program_store,
+                input_bindings_ref=bindings_ref,
+                execute_request=foundry_request,
+                semantic_horizon_step=context,
+                expected_invocation=invocation,
+            )
+        else:
+            reconcile_semantic_input_bindings(
+                plan.program_store,
+                bindings,
+                execute_request=foundry_request,
+                semantic_horizon_step=context,
+                expected_invocation=invocation,
+            )
     except Exception as exc:
         raise_artifact_read_access_error(exc)
         raise JointSimulationControllerError(
             "program_graph_semantic_horizon_intake_not_established",
             context={"reason": str(exc)},
         ) from exc
-    return _SelectedSemanticProgramGraphInput(
-        foundry_request, invocation, preflight.obligation_set_ref
-    )
+    return selected
 
 
 SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX = "semantic_program_graph_step."

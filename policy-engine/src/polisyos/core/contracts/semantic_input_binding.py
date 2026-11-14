@@ -15,6 +15,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 
+from .semantic_derived_binding import DerivedInputCorrespondenceRef, DerivedInputProfileRef
 from .variable_binding import (
     ScopedCorrespondenceBasisRef,
     ScopedMeasurementOccurrenceRef,
@@ -22,6 +23,7 @@ from .variable_binding import (
 )
 
 RESOLVED_INPUT_BINDING_MANIFEST_ROLE = "input.resolved_binding_manifest_ref"
+DERIVED_MODEL_INPUT_PAYLOAD_KIND = "runtime.quality.derived_semantic_input_payload"
 
 
 class ResolvedInputBindingManifestRef(SelectedVariableBindingRef):
@@ -64,6 +66,79 @@ class ResolvedMeasurementInput(BaseModel):
         return f"binding.{self.binding_id}.occurrence:{self.source_path}"
 
 
+class ResolvedDerivedInput(BaseModel):
+    """An explicit derived output selection, never an acquired observation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$")
+    model_input_obligation_ref: SelectedVariableBindingRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1, max_length=512)
+    recipe_ref: SelectedVariableBindingRef
+    certificate_ref: SelectedVariableBindingRef
+    output_ref: SelectedVariableBindingRef
+    year: int = Field(ge=1900, le=2200, strict=True)
+    correspondence_ref: DerivedInputCorrespondenceRef
+    profile_ref: DerivedInputProfileRef
+    source_path: str = Field(min_length=1, max_length=512)
+    derivation_bundle_ref: SelectedVariableBindingRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @field_validator("source_path")
+    @classmethod
+    def _require_exact_source_path(cls, path: str) -> str:
+        if any(not part or part != part.strip() for part in path.split(".")):
+            raise ValueError("resolved_input_binding_source_path_invalid")
+        return path
+
+    @model_validator(mode="after")
+    def _require_selected_derived_inputs(self) -> ResolvedDerivedInput:
+        for ref, kind in (
+            (self.model_input_obligation_ref, "runtime.quality.model_input_obligation"),
+            (self.model_interface_ref, "runtime.quality.program_graph_input_interface"),
+            (self.recipe_ref, "polisyos.runtime.derivation_recipe"),
+            (self.certificate_ref, "polisyos.runtime.derivation_certificate"),
+            (self.output_ref, "polisyos.runtime.derived_economic_series"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("resolved_derived_input_kind_mismatch")
+        if self.derivation_bundle_ref is not None and (
+            self.derivation_bundle_ref.kind != "runtime.quality.n7_derivation_bundle"
+            or self.derivation_bundle_ref.media_type != "application/json"
+        ):
+            raise ValueError("resolved_derived_input_bundle_kind_mismatch")
+        return self
+
+    def payload_output_role(self) -> str:
+        """Identify the physical source path derived from this exact output."""
+        return f"binding.{self.binding_id}.derived_output:{self.source_path}"
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return complete role-qualified arithmetic and semantic selections."""
+        refs = (
+            ("obligation", self.model_input_obligation_ref),
+            ("interface", self.model_interface_ref),
+            ("recipe", self.recipe_ref),
+            ("certificate", self.certificate_ref),
+            ("output", self.output_ref),
+            ("correspondence", self.correspondence_ref),
+            ("profile", self.profile_ref),
+        )
+        inputs = [
+            input_ref_from_artifact_ref(ref, role=f"binding.{self.binding_id}.{role}")
+            for role, ref in refs
+        ]
+        if self.derivation_bundle_ref is not None:
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    self.derivation_bundle_ref, role=f"binding.{self.binding_id}.n7_bundle"
+                )
+            )
+        return inputs
+
+
 class ResolvedInputBindingManifest(BaseModel):
     """The selected measurement inputs and explicit retained predecessor rules.
 
@@ -75,20 +150,36 @@ class ResolvedInputBindingManifest(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ResolvedInputBindingManifest"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "1.0": "1.0",
+        "2.0": "2.0",
+    }
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "2.0"] = "1.0"
     authority_purpose: Literal["candidate_simulation_input_only"] = (
         "candidate_simulation_input_only"
     )
     data_snapshot_ref: SelectedVariableBindingRef
     model_input_obligation_set_ref: SelectedVariableBindingRef
-    measurements: tuple[ResolvedMeasurementInput, ...] = Field(min_length=1, max_length=32)
+    measurements: tuple[ResolvedMeasurementInput, ...] = Field(
+        default=(), max_length=32, exclude_if=lambda value: not value
+    )
     retained_binding_ids: tuple[str, ...] = Field(default=(), max_length=32)
+    derivations: tuple[ResolvedDerivedInput, ...] = Field(
+        default=(), max_length=32, exclude_if=lambda value: not value
+    )
 
     @model_validator(mode="after")
     def _require_exact_unique_selections(self) -> ResolvedInputBindingManifest:
+        if self.schema_version == "1.0" and (
+            not self.measurements or "derivations" in self.model_fields_set
+        ):
+            raise ValueError("resolved_input_binding_v1_requires_measurements_only")
+        if self.schema_version == "2.0" and not self.derivations:
+            raise ValueError("resolved_input_binding_v2_requires_derived_input")
         if (
             self.data_snapshot_ref.kind != "fabric.data_snapshot"
             or self.data_snapshot_ref.media_type != "application/json"
@@ -99,7 +190,10 @@ class ResolvedInputBindingManifest(BaseModel):
             or self.model_input_obligation_set_ref.media_type != "application/json"
         ):
             raise ValueError("resolved_input_binding_obligation_set_kind_mismatch")
-        binding_ids = (*self.retained_binding_ids, *(item.binding_id for item in self.measurements))
+        binding_ids = (
+            *self.retained_binding_ids,
+            *(item.binding_id for item in (*self.measurements, *self.derivations)),
+        )
         if any(not key or key != key.strip() for key in binding_ids) or len(
             set(binding_ids)
         ) != len(binding_ids):
@@ -131,6 +225,8 @@ class ResolvedInputBindingManifest(BaseModel):
                     ),
                 )
             )
+        for selection in self.derivations:
+            inputs.extend(selection.lineage_inputs())
         return inputs
 
     def require_lineage(self, manifest: ArtifactManifest) -> None:
@@ -148,9 +244,7 @@ def persist_resolved_input_binding_manifest(
         PutOptions(
             kind=value.ARTIFACT_KIND,
             media_type=value.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=value.ARTIFACT_SCHEMA_NAME, version=value.ARTIFACT_SCHEMA_VERSION
-            ),
+            schema=SchemaInfo(name=value.ARTIFACT_SCHEMA_NAME, version=value.schema_version),
             inputs=value.lineage_inputs(),
         ),
         return_selected_profile=True,

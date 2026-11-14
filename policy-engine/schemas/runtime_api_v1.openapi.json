@@ -42146,6 +42146,16 @@
               }
             ]
           },
+          "model_input_use_actions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunModelInputUseActionsProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "operator_diagnostic": {
             "anyOf": [
               {
@@ -44679,6 +44689,102 @@
         "title": "RunLineageResponse",
         "type": "object"
       },
+      "RunModelInputUseActionSelector": {
+        "additionalProperties": false,
+        "description": "One owned historical action locator, without result or currentness authority.",
+        "properties": {
+          "action_job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Action Job Id",
+            "type": "string"
+          },
+          "job_state": {
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Job State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_job_id",
+          "job_state"
+        ],
+        "title": "RunModelInputUseActionSelector",
+        "type": "object"
+      },
+      "RunModelInputUseActionsProjection": {
+        "additionalProperties": false,
+        "description": "Bounded discovery of model-input actions under an owned Control source.",
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/RunModelInputUseActionSelector"
+            },
+            "maxItems": 128,
+            "title": "Actions",
+            "type": "array"
+          },
+          "inventory_status": {
+            "description": "Completeness of this bounded exact-run acquisition-job scan, without unverified bindings; does not establish action currentness or admissibility.",
+            "enum": [
+              "complete",
+              "limited"
+            ],
+            "title": "Inventory Status",
+            "type": "string"
+          },
+          "inventory_truncated": {
+            "title": "Inventory Truncated",
+            "type": "boolean"
+          },
+          "limitation_codes": {
+            "default": [],
+            "items": {
+              "enum": [
+                "action_inventory_truncated",
+                "action_binding_not_established"
+              ],
+              "type": "string"
+            },
+            "title": "Limitation Codes",
+            "type": "array"
+          },
+          "run_id": {
+            "description": "Owned Control alias used by result reads; may differ from the Core run ID.",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scope": {
+            "const": "discovery_only",
+            "default": "discovery_only",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_job_id",
+          "actions",
+          "inventory_status",
+          "inventory_truncated"
+        ],
+        "title": "RunModelInputUseActionsProjection",
+        "type": "object"
+      },
       "RunModelInputUseBlockedSourceProjection": {
         "additionalProperties": false,
         "description": "Identify one original blocked N5 occurrence without replacing it.",
@@ -45156,6 +45262,7 @@
                 "type": "null"
               }
             ],
+            "description": "Provenance recorded on this decision at issuance; historical resolution does not recompute the past provider environment or establish present reuse eligibility.",
             "title": "Predicate Provenance"
           },
           "publication_authority": {

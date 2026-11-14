@@ -48,6 +48,7 @@ from polisyos.runtime.quality.n5_execution_basis import (
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts import FoundryInputBindingRule
+    from polisyos.core.registry import RegistryBundleContent
     from polisyos.runtime.http.services.control.run_lifecycle import VerifiedAcquisitionActionPhase
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
@@ -726,6 +727,18 @@ class _GenericModelInputNumericalQuantity:
     source_image: N5ProductionImage
 
 
+@dataclass(frozen=True, slots=True)
+class _GenericModelInputNumericalIntake:
+    """Immutable owner inputs before selecting current or recorded call content."""
+
+    bound_state_snapshot_ref: ArtifactRef
+    program_graph_ref: ArtifactRef
+    exec_plan_ref: ArtifactRef
+    state: object
+    registry: RegistryBundleContent
+    numerical_values: dict[str, object]
+
+
 GENERIC_NUMERICAL_INTENT_PROFILE = "generic_program_graph_declared_numerical_v2"
 _GENERIC_FIELD_ROLES = frozenset(
     {"numerical", "operational", "output_label", "resolved", "not_consumed"}
@@ -799,6 +812,7 @@ _GENERIC_NODE_FIELD_ROLES = (
     ("method_fqn", "numerical"),
     ("method_version", "numerical"),
     ("method_params", "numerical"),
+    ("input_ports", "numerical"),
     ("params_ref", "resolved"),
     ("op", "resolved"),
     ("inputs", "numerical"),
@@ -898,6 +912,12 @@ def _generic_program_graph_numerical_values(
     nodes = []
     for node in graph.nodes:
         node_values = _generic_numerical_fields(node, _GENERIC_NODE_FIELD_ROLES, scope="node")
+        if graph.schema_version == "0.2":
+            # The optional 0.3 field did not exist in recorded 0.2 numerical
+            # intent; preserve that exact wire rather than adding null bytes.
+            if node.input_ports is not None:
+                raise ValueError("generic_model_input_legacy_input_mapping_invalid")
+            node_values.pop("input_ports")
         if node.op is not None and type(node.op) is not ProgramOp:
             raise ValueError("generic_model_input_op_type_not_established")
         node_values["op"] = (
@@ -980,24 +1000,107 @@ def prepare_generic_model_input_numerical_basis(
     )
 
 
-def _prepare_generic_model_input_numerical_quantity(
+_SELECTED_METHOD_BINDINGS_FIELD_ROLES = (
+    ("schema_version", "resolved"),
+    ("data_snapshot_ref", "resolved"),
+    ("registry_bundle_ref", "resolved"),
+    ("rules", "resolved"),
+    ("bound_state_snapshot_ref", "resolved"),
+    ("quality_report_ref", "resolved"),
+    ("notes", "resolved"),
+    ("registered_sql_admission_ref", "resolved"),
+    ("resolved_binding_manifest_ref", "resolved"),
+    ("selected_method_inputs", "resolved"),
+)
+_SELECTED_METHOD_INPUT_FIELD_ROLES = (
+    ("model_input_obligation_ref", "resolved"),
+    ("binding_id", "resolved"),
+    ("port_id", "resolved"),
+    ("slot_id", "numerical"),
+    ("canonical_value", "resolved"),
+    ("dtype", "numerical"),
+    ("shape", "numerical"),
+    ("npy_value_ref", "resolved"),
+    ("value_sha256", "resolved"),
+)
+
+
+def _selected_method_input_numerical_values(resolution: object) -> tuple[object, ...]:
+    """Encode already reconciled physical method values, without lineage labels.
+
+    The Foundry owner separately resolves every source, selection and NPY edge.
+    This projection is a numerical value only; it supplies no admission proof.
+    Consuming ABI-local mappings, defaults and callables belong to the executor's
+    separate actual-call preparation, never inferred from binding identifiers.
+    """
+    import numpy as np
+
+    from polisyos.core.contracts.foundry import FoundrySelectedMethodInput
+    from polisyos.foundry.data_plane.bindings import SelectedMethodInputResolution
+    from polisyos.foundry.data_plane.selected_tensors import selected_tensor_value_sha256
+
+    if type(resolution) is not SelectedMethodInputResolution:
+        raise TypeError("generic_method_input_resolution_not_established")
+    if resolution.bindings.schema_version != "1.4":
+        raise ValueError("generic_method_input_profile_not_established")
+    _require_n5_field_role_census(
+        exact_n5_model_field_names(resolution.bindings),
+        _SELECTED_METHOD_BINDINGS_FIELD_ROLES,
+        allowed_roles=frozenset({"resolved"}),
+        error_prefix="generic_method_bindings_field_role",
+    )
+    records = resolution.records
+    if not records or len({record.slot_id for record in records}) != len(records):
+        raise ValueError("generic_method_input_census_not_established")
+    if set(resolution.values) != {record.slot_id for record in records}:
+        raise ValueError("generic_method_input_census_not_established")
+    values = []
+    for record in sorted(records, key=lambda item: item.slot_id):
+        if not isinstance(record, FoundrySelectedMethodInput):
+            raise ValueError("generic_method_input_record_not_established")
+        _require_n5_field_role_census(
+            exact_n5_model_field_names(record),
+            _SELECTED_METHOD_INPUT_FIELD_ROLES,
+            allowed_roles=frozenset({"numerical", "resolved"}),
+            error_prefix="generic_method_input_field_role",
+        )
+        value = resolution.values[record.slot_id]
+        if (
+            type(value) is not np.ndarray
+            or value.dtype.kind != "f"
+            or value.dtype.metadata is not None
+            or value.dtype.name != record.dtype
+            or tuple(value.shape) != record.shape
+            or not np.isfinite(value).all()
+            or value.nbytes > 1024 * 1024
+        ):
+            raise ValueError("generic_method_input_physical_value_not_established")
+        raw = value.tobytes(order="C")
+        if (
+            selected_tensor_value_sha256(value.dtype, tuple(value.shape), raw)
+            != record.value_sha256
+        ):
+            raise ValueError("generic_method_input_physical_value_mismatch")
+        values.append((record.slot_id, value.dtype.str, tuple(value.shape), raw))
+    return tuple(values)
+
+
+def _prepare_generic_model_input_numerical_intake(
     *,
     store: CoreJSONArtifactStore,
     request: JointSimulationRequest,
     preflight: ProgramGraphInputPreflight,
     controller: JointSimulationHorizonController,
-) -> _GenericModelInputNumericalQuantity:
-    """Project an already owner-replayed request through the real intake."""
+) -> _GenericModelInputNumericalIntake:
+    """Reopen the complete immutable request, graph, state and registry inputs."""
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.contracts import ExecPlan, LoweredIR, ProgramGraph
     from polisyos.core.registry import load_registry_bundle_content
     from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.foundry.execute import (
-        execute_semantic_horizon_step,
         load_model,
         load_payload,
         load_state_snapshot,
-        prepare_program_graph_mechanism_calls,
         state_snapshot_value_projection,
     )
     from polisyos.foundry.methods import MethodRegistry
@@ -1006,28 +1109,12 @@ def _prepare_generic_model_input_numerical_quantity(
         JointSimulationHorizonController,
         JointSimulationRequest,
         _require_program_graph_input_preflight,
-        prepare_joint_simulation_configuration,
-        read_joint_simulation_configuration,
-        require_prepared_joint_simulation_configuration,
-    )
-    from polisyos.runtime.quality.n5_candidate_content import (
-        _native_profile,
-        _prepared_image_descriptor,
-        _product_root,
-    )
-    from polisyos.runtime.quality.n5_execution_basis import (
-        capture_n5_production_image,
-        snapshot_foundry_mechanism_call,
     )
 
     if type(controller) is not JointSimulationHorizonController:
         raise TypeError("generic_model_input_controller_not_established")
     if controller._registry is not MethodRegistry.get_instance():
         raise ValueError("generic_model_input_controller_registry_not_established")
-    configuration = read_joint_simulation_configuration(controller)
-    require_prepared_joint_simulation_configuration(
-        controller, prepare_joint_simulation_configuration()
-    )
     if type(request) is not JointSimulationRequest or len(request.engine_plan) != 1:
         raise ValueError("generic_model_input_request_census_not_established")
     controller._validate_world_model_record(request)
@@ -1096,19 +1183,13 @@ def _prepare_generic_model_input_numerical_quantity(
     graph_values = _generic_program_graph_numerical_values(
         graph, exec_plan, lowered_ir, parameter_payloads
     )
-    prepared_calls = tuple(
-        (index, node_id, step, snapshot_foundry_mechanism_call(call))
-        for index, node_id, step, call in prepare_program_graph_mechanism_calls(
-            store,
-            program_ref=plan.program_graph_ref,
-            exec_plan_ref=plan.exec_plan_ref,
-            base_state=state,
-            mechanism_registry=registry.mechanism_registry,
-            steps=request.horizon.steps(),
-        )
-    )
-    intent = exact_n5_content_bytes(
-        {
+    return _GenericModelInputNumericalIntake(
+        bound_state_snapshot_ref=state_ref,
+        program_graph_ref=plan.program_graph_ref,
+        exec_plan_ref=plan.exec_plan_ref,
+        state=state,
+        registry=registry,
+        numerical_values={
             "profile": GENERIC_NUMERICAL_INTENT_PROFILE,
             "request": request_values,
             "plan": plan_values,
@@ -1124,12 +1205,83 @@ def _prepare_generic_model_input_numerical_quantity(
                     "constraint_registry",
                 )
             },
+        },
+    )
+
+
+def _generic_model_input_numerical_intent(
+    intake: _GenericModelInputNumericalIntake,
+    *,
+    prepared_calls: tuple[tuple[int, str, int, bytes], ...],
+    configuration: PreparedJointSimulationConfiguration,
+) -> bytes:
+    """Encode the same immutable numerical facets for live and recorded replay."""
+    intent = exact_n5_content_bytes(
+        {
+            **intake.numerical_values,
             "prepared_calls": prepared_calls,
             "configuration": configuration,
         }
     )
     if len(intent) > 1024 * 1024:
         raise ValueError("generic_model_input_intent_limit_exceeded")
+    return intent
+
+
+def _prepare_generic_model_input_numerical_quantity(
+    *,
+    store: CoreJSONArtifactStore,
+    request: JointSimulationRequest,
+    preflight: ProgramGraphInputPreflight,
+    controller: JointSimulationHorizonController,
+) -> _GenericModelInputNumericalQuantity:
+    """Prepare immutable inputs and the actual current callable/provider bytes."""
+    from polisyos.foundry.execute import (
+        execute_semantic_horizon_step,
+        prepare_program_graph_mechanism_calls,
+    )
+    from polisyos.foundry.methods import MethodRegistry
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        prepare_joint_simulation_configuration,
+        read_joint_simulation_configuration,
+        require_prepared_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        _native_profile,
+        _prepared_image_descriptor,
+        _product_root,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import (
+        capture_n5_production_image,
+        snapshot_foundry_mechanism_call,
+    )
+
+    if type(controller) is not JointSimulationHorizonController:
+        raise TypeError("generic_model_input_controller_not_established")
+    if controller._registry is not MethodRegistry.get_instance():
+        raise ValueError("generic_model_input_controller_registry_not_established")
+    configuration = read_joint_simulation_configuration(controller)
+    require_prepared_joint_simulation_configuration(
+        controller, prepare_joint_simulation_configuration()
+    )
+    intake = _prepare_generic_model_input_numerical_intake(
+        store=store, request=request, preflight=preflight, controller=controller
+    )
+    prepared_calls = tuple(
+        (index, node_id, step, snapshot_foundry_mechanism_call(call))
+        for index, node_id, step, call in prepare_program_graph_mechanism_calls(
+            store,
+            program_ref=intake.program_graph_ref,
+            exec_plan_ref=intake.exec_plan_ref,
+            base_state=intake.state,
+            mechanism_registry=intake.registry.mechanism_registry,
+            steps=request.horizon.steps(),
+        )
+    )
+    intent = _generic_model_input_numerical_intent(
+        intake, prepared_calls=prepared_calls, configuration=configuration
+    )
     profile = _native_profile(configuration, numerical_callable=execute_semantic_horizon_step)
     image = capture_n5_production_image(
         root=_product_root(), admitted_profile=_prepared_image_descriptor(configuration)
@@ -1137,7 +1289,7 @@ def _prepare_generic_model_input_numerical_quantity(
     if profile.profile_identity_predicate != "recomputed" or image.provenance != "recomputed":
         raise ValueError("generic_model_input_provider_not_established")
     return _GenericModelInputNumericalQuantity(
-        bound_state_snapshot_ref=state_ref,
+        bound_state_snapshot_ref=intake.bound_state_snapshot_ref,
         numerical_intent=intent,
         prepared_calls=prepared_calls,
         execution_profile=profile,
@@ -1149,14 +1301,14 @@ def _verify_generic_model_input_origin(
     *,
     origin: VerifiedModelInputRoutingOrigin,
     input_ref: ArtifactRef,
-    prepared: PreparedGenericModelInputNumericalBasis,
+    successor: GenericN5SemanticSuccessorRequest,
 ) -> None:
     """Join an independently replayed route origin to this selected request."""
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedModelInputRoutingOrigin
 
     if type(origin) is not VerifiedModelInputRoutingOrigin:
         raise TypeError("generic_model_input_origin_not_established")
-    source, selection = prepared.successor.input_record, prepared.successor.selection
+    source, selection = successor.input_record, successor.selection
     active_problem = (
         origin.source_cycle.design_problem_basis_ref or origin.source_cycle.design_problem_ref
     )
@@ -1174,15 +1326,15 @@ def _verify_generic_model_input_origin(
         raise ValueError("generic_model_input_origin_scope_mismatch")
 
 
-def _verify_generic_model_input_original_evaluation(
+def _read_generic_model_input_original_evaluation(
     *,
     store: CoreJSONArtifactStore,
     input_ref: ArtifactRef,
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
-    prepared: PreparedGenericModelInputNumericalBasis,
+    successor: GenericN5SemanticSuccessorRequest,
 ) -> GenericProgramGraphContentObservationV2:
-    """Reopen the original V5, observed calls, step chains and provider bytes."""
+    """Verify the immutable V5, original observation and selected Foundry chains."""
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationN5ExecutionV5,
@@ -1191,11 +1343,7 @@ def _verify_generic_model_input_original_evaluation(
     from polisyos.runtime.quality.n5_candidate_content import (
         read_generic_program_graph_n5_content_observation,
     )
-    from polisyos.runtime.quality.n5_execution_profile import (
-        reconcile_recorded_n5_profile_current_bytes,
-    )
 
-    successor = prepared.successor
     source = successor.input_record
     if (
         type(evaluation) is not GenericModelInputSelectedEvaluation
@@ -1246,6 +1394,29 @@ def _verify_generic_model_input_original_evaluation(
         semantic_successor_ref=semantic_successor_ref,
         expected_request=resolved.request,
         store=store,
+    )
+    return observation
+
+
+def _verify_generic_model_input_original_evaluation(
+    *,
+    store: CoreJSONArtifactStore,
+    input_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef,
+    evaluation: GenericModelInputSelectedEvaluation,
+    prepared: PreparedGenericModelInputNumericalBasis,
+) -> GenericProgramGraphContentObservationV2:
+    """Require original integrity and exact current call/provider bytes for reuse."""
+    from polisyos.runtime.quality.n5_execution_profile import (
+        reconcile_recorded_n5_profile_current_bytes,
+    )
+
+    observation = _read_generic_model_input_original_evaluation(
+        store=store,
+        input_ref=input_ref,
+        semantic_successor_ref=semantic_successor_ref,
+        evaluation=evaluation,
+        successor=prepared.successor,
     )
     if observation.numerical_intent_sha256 != (
         "sha256:" + hashlib.sha256(prepared.numerical_intent).hexdigest()
@@ -1300,7 +1471,9 @@ def issue_generic_model_input_evaluation_basis(
         expected_blocked_execution_ref=origin.n5_execution_ref,
         controller=controller,
     )
-    _verify_generic_model_input_origin(origin=origin, input_ref=input_ref, prepared=prepared)
+    _verify_generic_model_input_origin(
+        origin=origin, input_ref=input_ref, successor=prepared.successor
+    )
     if (basis_role == "evaluated") != (evaluation is not None):
         raise ValueError("generic_model_input_evaluation_role_mismatch")
     if evaluation is not None:
@@ -1440,7 +1613,7 @@ def compare_generic_model_input_evaluation_bases(
                 controller=controller,
             )
             _verify_generic_model_input_origin(
-                origin=origin, input_ref=basis.input_ref, prepared=item
+                origin=origin, input_ref=basis.input_ref, successor=item.successor
             )
             selection = item.successor.selection
             if (
@@ -1799,6 +1972,348 @@ def reconcile_generic_model_input_evaluation_completion(
     if replayed != evaluated:
         raise ValueError("generic_model_input_completion_replay_mismatch")
     return evaluated
+
+
+def _recorded_generic_model_input_calls(
+    observation: GenericProgramGraphContentObservationV2,
+) -> tuple[tuple[int, str, int, bytes], ...]:
+    """Read the original complete call census, without loading old or present code."""
+    from polisyos.runtime.quality.n5_execution_basis import _require_v2_wire
+
+    by_step: dict[int, tuple[tuple[int, str, bytes], ...]] = {}
+    for step in observation.steps:
+        calls = []
+        for call in step.calls:
+            encoded = call.callable_receiver_hex
+            if encoded is None:
+                raise ValueError("generic_model_input_history_call_not_established")
+            content = bytes.fromhex(encoded)
+            if not content or content.hex() != encoded:
+                raise ValueError("generic_model_input_history_call_not_established")
+            _require_v2_wire(content.decode("utf-8"))
+            calls.append((call.plan_index, call.node_id, content))
+        selected = tuple(calls)
+        if step.step in by_step and by_step[step.step] != selected:
+            raise ValueError("generic_model_input_history_call_census_mismatch")
+        by_step[step.step] = selected
+    return tuple(
+        (index, node_id, step, content)
+        for step, calls in sorted(by_step.items())
+        for index, node_id, content in calls
+    )
+
+
+def _replay_generic_model_input_basis_values_for_history(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    origin: VerifiedModelInputRoutingOrigin,
+    basis_ref: ArtifactRef,
+    evaluation_context: GenericModelInputSelectedEvaluation,
+) -> GenericModelInputEvaluationBasisV1:
+    """Reconstruct immutable basis values from their original numerical observation.
+
+    A retained prospective use has no separate observation of its past provider
+    environment. Its numerical facets can be reconciled with the selected old
+    observation; its issued decision remains a record of the predicate at that
+    time. This path establishes no current provider or reuse permission.
+    """
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import _prepared_image_descriptor
+    from polisyos.runtime.quality.n5_execution_basis import _v2_native_wire
+
+    basis = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=basis_ref,
+        record_type=GenericModelInputEvaluationBasisV1,
+    )
+    if (
+        type(basis) is not GenericModelInputEvaluationBasisV1
+        or basis.comparison_profile != GENERIC_NUMERICAL_INTENT_PROFILE
+        or basis.basis_role not in ("prospective", "evaluated")
+        or basis.predicate_provenance != "recomputed"
+        or basis.reason_codes
+        or type(evaluation_context) is not GenericModelInputSelectedEvaluation
+    ):
+        raise ValueError("generic_model_input_history_basis_not_established")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    successor = owner.prepare_semantic_successor_request(
+        semantic_successor_ref=basis.semantic_successor_ref,
+        expected_blocked_execution_ref=origin.n5_execution_ref,
+        expected_input_ref=basis.input_ref,
+    )
+    _verify_generic_model_input_origin(
+        origin=origin, input_ref=basis.input_ref, successor=successor
+    )
+    source, selection = successor.input_record, successor.selection
+    if (
+        (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id)
+        != (source.tenant_id, source.cell_id, source.run_id, source.job_id)
+        or basis.action_job_id != selection.action_job_id
+        or basis.route_id != selection.route_id
+        or basis.design_problem_ref != origin.source_cycle.design_problem_ref
+        or basis.design_problem_basis_ref != source.design_problem_ref
+        or basis.candidate_id != origin.source_cycle.selected_candidate_ref
+        or (
+            basis.evaluation is not None
+            and not _candidate_model_values_same(basis.evaluation, evaluation_context)
+        )
+    ):
+        raise ValueError("generic_model_input_history_basis_subject_mismatch")
+    original = owner.prepare_semantic_successor_request(
+        semantic_successor_ref=evaluation_context.semantic_successor_ref,
+        expected_blocked_execution_ref=origin.n5_execution_ref,
+        expected_input_ref=evaluation_context.input_ref,
+    )
+    _verify_generic_model_input_origin(
+        origin=origin, input_ref=evaluation_context.input_ref, successor=original
+    )
+    observation = _read_generic_model_input_original_evaluation(
+        store=store,
+        input_ref=evaluation_context.input_ref,
+        semantic_successor_ref=evaluation_context.semantic_successor_ref,
+        evaluation=evaluation_context,
+        successor=original,
+    )
+    configuration = PreparedJointSimulationConfiguration.model_validate(
+        observation.consumed_configuration
+    )
+    if tuple(
+        (item.name, item.value) for item in observation.execution_profile.declared_settings
+    ) != (
+        (
+            "prepared_configuration_hash",
+            exact_n5_content_hash(configuration.model_dump(mode="python")),
+        ),
+    ) or observation.source_image.selected_profile_content != _v2_native_wire(
+        _prepared_image_descriptor(configuration)
+    ):
+        raise ValueError("generic_model_input_history_recorded_profile_binding_mismatch")
+    controller = JointSimulationHorizonController(_prepared_configuration=configuration)
+    intake = _prepare_generic_model_input_numerical_intake(
+        store=store,
+        request=successor.request,
+        preflight=successor.preflight,
+        controller=controller,
+    )
+    intent = _generic_model_input_numerical_intent(
+        intake,
+        prepared_calls=_recorded_generic_model_input_calls(observation),
+        configuration=configuration,
+    )
+    if (
+        not _candidate_ref_same(basis.bound_state_snapshot_ref, intake.bound_state_snapshot_ref)
+        or bytes.fromhex(basis.numerical_intent_hex) != intent
+        or (
+            basis.action_job_id == evaluation_context.action_job_id
+            and basis.numerical_intent_sha256 != observation.numerical_intent_sha256
+        )
+    ):
+        raise ValueError("generic_model_input_history_basis_owner_replay_mismatch")
+    return basis
+
+
+def replay_generic_model_input_decision_for_history(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    origin: VerifiedModelInputRoutingOrigin,
+    decision_ref: ArtifactRef,
+    evaluation_context: GenericModelInputSelectedEvaluation,
+) -> GenericModelInputEvaluationDecisionV1:
+    """Reconcile a recorded decision's parents without issuing a present decision.
+
+    Args:
+        store: Selected-profile artifact reader for the immutable history.
+        event_log: Durable producer-event owner for the selected records.
+        origin: Independently replayed blocked source and subject scope.
+        decision_ref: Exact original decision selected by the completed action.
+        evaluation_context: Original numerical observation selected for this use.
+
+    Returns:
+        The original decision, including its unchanged issuance-time provenance.
+
+    Raises:
+        ValueError: If any selected parent, subject, or recorded comparison conflicts.
+    """
+    from polisyos.foundry.execute import load_state_snapshot, state_snapshot_value_projection
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        read_model_input_successor_selection,
+    )
+
+    decision = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=decision_ref,
+        record_type=GenericModelInputEvaluationDecisionV1,
+    )
+    if (
+        type(decision) is not GenericModelInputEvaluationDecisionV1
+        or decision.comparison_rule != "generic-program-graph-declared-numerical-basis.v2"
+    ):
+        raise ValueError("generic_model_input_history_decision_not_established")
+    selection = read_model_input_successor_selection(store, decision.semantic_successor_ref)
+    if (
+        (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
+        != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+        or decision.action_job_id != selection.action_job_id
+        or decision.route_id != selection.route_id
+        or decision.design_problem_ref != origin.source_cycle.design_problem_ref
+        or decision.design_problem_basis_ref != origin.n5_expectation.design_problem_ref
+        or decision.candidate_id != origin.source_cycle.selected_candidate_ref
+        or not _candidate_ref_same(decision.action_phase_ref, selection.action_phase_ref)
+        or not _candidate_ref_same(
+            decision.routing_use_decision_ref, selection.routing_use_decision_ref
+        )
+        or not _candidate_ref_same(
+            decision.authority_decision_ref, selection.authority_decision_ref
+        )
+        or not _candidate_ref_same(
+            decision.activation_receipt_ref, selection.activation_receipt_ref
+        )
+        or not _candidate_ref_same(selection.blocked_execution_ref, origin.n5_execution_ref)
+        or not _candidate_ref_same(selection.routing_report_ref, origin.routing_report_ref)
+        or not _candidate_ref_same(selection.compiled_ref, origin.compiled_ref)
+    ):
+        raise ValueError("generic_model_input_history_decision_subject_mismatch")
+    current = _replay_generic_model_input_basis_values_for_history(
+        store=store,
+        event_log=event_log,
+        origin=origin,
+        basis_ref=decision.current_basis_ref,
+        evaluation_context=evaluation_context,
+    )
+    if (
+        current.action_job_id != decision.action_job_id
+        or current.route_id != decision.route_id
+        or not _candidate_ref_same(current.semantic_successor_ref, decision.semantic_successor_ref)
+    ):
+        raise ValueError("generic_model_input_history_decision_current_basis_mismatch")
+    if decision.decision_kind == "initial":
+        if (
+            current.basis_role != "evaluated"
+            or current.evaluation is None
+            or current.prospective_basis_ref is not None
+            or current.comparison_decision_ref is not None
+        ):
+            raise ValueError("generic_model_input_history_initial_basis_mismatch")
+    else:
+        if current.basis_role != "prospective":
+            raise ValueError("generic_model_input_history_comparison_basis_mismatch")
+        prior = None
+        if decision.prior_basis_ref is not None:
+            recorded_prior = read_acquisition_evaluation_artifact(
+                store=store,
+                event_log=event_log,
+                ref=decision.prior_basis_ref,
+                record_type=GenericModelInputEvaluationBasisV1,
+            )
+            if (
+                type(recorded_prior) is not GenericModelInputEvaluationBasisV1
+                or recorded_prior.evaluation is None
+                or not _candidate_model_values_same(
+                    recorded_prior.evaluation, decision.prior_evaluation
+                )
+            ):
+                raise ValueError("generic_model_input_history_prior_evaluation_mismatch")
+            prior = _replay_generic_model_input_basis_values_for_history(
+                store=store,
+                event_log=event_log,
+                origin=origin,
+                basis_ref=decision.prior_basis_ref,
+                evaluation_context=recorded_prior.evaluation,
+            )
+        if decision.comparison_result != "not_established":
+            if prior is None:
+                raise ValueError("generic_model_input_history_prior_basis_missing")
+            prior_state = state_snapshot_value_projection(
+                load_state_snapshot(store, snapshot_ref=prior.bound_state_snapshot_ref)
+            )
+            current_state = state_snapshot_value_projection(
+                load_state_snapshot(store, snapshot_ref=current.bound_state_snapshot_ref)
+            )
+            same = (
+                bytes.fromhex(prior.numerical_intent_hex)
+                == bytes.fromhex(current.numerical_intent_hex)
+                and prior_state == current_state
+            )
+            if (decision.comparison_result == "equivalent") != same:
+                raise ValueError("generic_model_input_history_comparison_mismatch")
+        # A recorded refusal cannot reconstruct a past loaded provider world.
+        # Its original reason/provenance remain recorded, and it grants no reuse.
+    return decision
+
+
+def replay_generic_model_input_basis_for_history(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    origin: VerifiedModelInputRoutingOrigin,
+    basis_ref: ArtifactRef,
+    evaluation_context: GenericModelInputSelectedEvaluation,
+) -> GenericModelInputEvaluationBasisV1:
+    """Replay an original basis and replacement parents without current admission.
+
+    Args:
+        store: Selected-profile artifact reader for the immutable history.
+        event_log: Durable producer-event owner for the selected records.
+        origin: Independently replayed blocked source and subject scope.
+        basis_ref: Exact original prospective or evaluated basis.
+        evaluation_context: Original numerical occurrence selector, reopened by this reader.
+
+    Returns:
+        The unchanged original basis after its immutable parents are reconciled.
+
+    Raises:
+        ValueError: If original values, numerical sources, or replacement parents conflict.
+    """
+    basis = _replay_generic_model_input_basis_values_for_history(
+        store=store,
+        event_log=event_log,
+        origin=origin,
+        basis_ref=basis_ref,
+        evaluation_context=evaluation_context,
+    )
+    if basis.prospective_basis_ref is not None:
+        if basis.comparison_decision_ref is None:
+            raise ValueError("generic_model_input_history_replacement_parent_missing")
+        decision = replay_generic_model_input_decision_for_history(
+            store=store,
+            event_log=event_log,
+            origin=origin,
+            decision_ref=basis.comparison_decision_ref,
+            evaluation_context=evaluation_context,
+        )
+        prospective = _replay_generic_model_input_basis_values_for_history(
+            store=store,
+            event_log=event_log,
+            origin=origin,
+            basis_ref=basis.prospective_basis_ref,
+            evaluation_context=evaluation_context,
+        )
+        if (
+            decision.decision_kind != "comparison"
+            or decision.comparison_result not in ("different", "not_established")
+            or not _candidate_ref_same(decision.current_basis_ref, basis.prospective_basis_ref)
+            or not _candidate_ref_same(
+                decision.semantic_successor_ref, basis.semantic_successor_ref
+            )
+            or prospective.action_job_id != basis.action_job_id
+            or prospective.basis_role != "prospective"
+            or not _candidate_ref_same(
+                prospective.bound_state_snapshot_ref, basis.bound_state_snapshot_ref
+            )
+            or bytes.fromhex(prospective.numerical_intent_hex)
+            != bytes.fromhex(basis.numerical_intent_hex)
+        ):
+            raise ValueError("generic_model_input_history_replacement_parent_mismatch")
+    return basis
 
 
 class AcquisitionEvaluationDecision(_Record):

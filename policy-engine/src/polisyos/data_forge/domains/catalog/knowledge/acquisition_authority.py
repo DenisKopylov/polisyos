@@ -18,6 +18,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, time
 from enum import StrEnum
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Literal, Self
 
 import duckdb
@@ -1397,6 +1398,53 @@ class _ModelInputActivationScope:
     current_registry_sha256: str
 
 
+@dataclass(frozen=True, slots=True)
+class _AuthoritySemanticDefinitionIndex:
+    """Exact source-definition candidates derived from one registry snapshot."""
+
+    registry_content_sha256: str
+    entries_by_definition: Mapping[
+        tuple[str, str, str, str | None], tuple[AcquisitionAuthorityEntry, ...]
+    ]
+    indexed_entry_count: int
+    eligible_entry_count: int
+
+    @property
+    def is_complete(self) -> bool:
+        """Return whether every registry entry with a definition ref was indexed."""
+
+        return self.indexed_entry_count == self.eligible_entry_count
+
+
+def _build_authority_semantic_definition_index(
+    registry: AcquisitionAuthorityRegistry,
+) -> _AuthoritySemanticDefinitionIndex:
+    """Build exact selected-ref buckets without interpreting semantic evidence."""
+
+    entries_by_definition: dict[
+        tuple[str, str, str, str | None], list[AcquisitionAuthorityEntry]
+    ] = {}
+    eligible_entry_count = 0
+    for entry in registry.entries:
+        definition_ref = entry.source_semantic_definition_ref
+        if definition_ref is None:
+            continue
+        eligible_entry_count += 1
+        key = artifacts.artifact_ref_identity_key(definition_ref)
+        entries_by_definition.setdefault(key, []).append(entry)
+    frozen_entries = {
+        key: tuple(sorted(entries, key=lambda entry: entry.entry_id))
+        for key, entries in entries_by_definition.items()
+    }
+    indexed_entry_count = sum(len(entries) for entries in frozen_entries.values())
+    return _AuthoritySemanticDefinitionIndex(
+        registry_content_sha256=registry.content_sha256,
+        entries_by_definition=MappingProxyType(frozen_entries),
+        indexed_entry_count=indexed_entry_count,
+        eligible_entry_count=eligible_entry_count,
+    )
+
+
 class CanonicalAcquisitionAuthority:
     """Resolver that reopens every decisive owner instead of trusting callers."""
 
@@ -1423,6 +1471,8 @@ class CanonicalAcquisitionAuthority:
         self.registry_path = self.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
         self.local_rights_trust_path = self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
         self._model_input_activation_scope: _ModelInputActivationScope | None = None
+        self._registry_snapshot_cache: tuple[str, AcquisitionAuthorityRegistry] | None = None
+        self._semantic_definition_index_cache: _AuthoritySemanticDefinitionIndex | None = None
 
     @classmethod
     def from_provision(
@@ -1749,12 +1799,9 @@ class CanonicalAcquisitionAuthority:
         self._require_provision_unchanged()
         registry = self._load_registry()
         target_definition_key = artifacts.artifact_ref_identity_key(port.semantic_definition_ref)
-        selected_descriptors = tuple(
-            entry
-            for entry in registry.entries
-            if entry.source_semantic_definition_ref is not None
-            and artifacts.artifact_ref_identity_key(entry.source_semantic_definition_ref)
-            == target_definition_key
+        selected_descriptors = self._source_entries_for_semantic_definition(
+            registry,
+            target_definition_key,
         )
         if not selected_descriptors:
             envelope = (
@@ -2587,8 +2634,15 @@ class CanonicalAcquisitionAuthority:
                 "authority_registry_missing", self.registry_path.as_posix()
             )
         try:
-            payload = json.loads(self.registry_path.read_text(encoding="utf-8"))
-            registry = AcquisitionAuthorityRegistry.model_validate(payload)
+            raw = self.registry_path.read_bytes()
+            raw_sha256 = hashlib.sha256(raw).hexdigest()
+            cached = self._registry_snapshot_cache
+            if cached is not None and cached[0] == raw_sha256:
+                registry = cached[1]
+            else:
+                payload = json.loads(raw.decode("utf-8"))
+                registry = AcquisitionAuthorityRegistry.model_validate(payload)
+                self._registry_snapshot_cache = (raw_sha256, registry)
         except Exception as exc:
             raise AcquisitionAuthorityError(
                 "authority_registry_invalid", type(exc).__name__
@@ -2597,6 +2651,36 @@ class CanonicalAcquisitionAuthority:
         if actual_baseline != registry.baseline_content_sha256:
             raise AcquisitionAuthorityError("authority_baseline_identity_drift")
         return registry
+
+    def _source_entries_for_semantic_definition(
+        self,
+        registry: AcquisitionAuthorityRegistry,
+        definition_key: tuple[str, str, str, str | None],
+    ) -> tuple[AcquisitionAuthorityEntry, ...]:
+        """Use a snapshot-bound exact index, falling back to exhaustive lookup if needed.
+
+        The index only reduces candidates. Callers still reopen each selected
+        definition, representation, manifest, and evidence before making a
+        compatibility decision.
+        """
+
+        index = self._semantic_definition_index_cache
+        if (
+            index is None
+            or index.registry_content_sha256 != registry.content_sha256
+            or not index.is_complete
+        ):
+            index = _build_authority_semantic_definition_index(registry)
+            self._semantic_definition_index_cache = index
+        if index.registry_content_sha256 == registry.content_sha256 and index.is_complete:
+            return index.entries_by_definition.get(definition_key, ())
+        return tuple(
+            entry
+            for entry in registry.entries
+            if entry.source_semantic_definition_ref is not None
+            and artifacts.artifact_ref_identity_key(entry.source_semantic_definition_ref)
+            == definition_key
+        )
 
     def _resolve_live_catalog(
         self,

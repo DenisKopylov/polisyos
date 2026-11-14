@@ -25,6 +25,7 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from polisyos.ir.kernel.units import MoneyUnit
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
@@ -95,6 +96,7 @@ class MeasurementAxis(StrEnum):
     GRAIN = "grain"
     POPULATION_REF = "population_ref"
     METHODOLOGY_REF = "methodology_ref"
+    MONEY_UNIT = "money_unit"
 
 
 class ModelInputScope(BaseModel):
@@ -459,15 +461,17 @@ class VariableRepresentation(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.VariableRepresentation"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0", "3.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
         "1.0": "polisyos.catalog.variable_representation.v1",
         "2.0": "polisyos.catalog.variable_representation.v2",
+        "3.0": "polisyos.catalog.variable_representation.v3",
     }
 
     schema_version: Literal[
         "polisyos.catalog.variable_representation.v1",
         "polisyos.catalog.variable_representation.v2",
+        "polisyos.catalog.variable_representation.v3",
     ] = "polisyos.catalog.variable_representation.v1"
     representation_id: str = Field(pattern=_NAMESPACED_ID, strict=True)
     revision: str = Field(min_length=1, strict=True)
@@ -502,6 +506,7 @@ class VariableRepresentation(BaseModel):
         default=None,
         exclude_if=lambda value: value is None,
     )
+    money_unit: MoneyUnit | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @model_validator(mode="after")
     def _methodology_matches_transport_version(self) -> VariableRepresentation:
@@ -511,6 +516,10 @@ class VariableRepresentation(BaseModel):
             raise ValueError("variable_representation_methodology_requires_v2")
         if self.methodology_ref is not None and self.methodology_ref.kind != "fabric.doc.raw":
             raise ValueError("variable_representation_methodology_document_kind_mismatch")
+        if self.schema_version != "polisyos.catalog.variable_representation.v3" and (
+            "money_unit" in self.model_fields_set
+        ):
+            raise ValueError("variable_representation_money_unit_requires_v3")
         return self
 
     @field_validator("scale_to_unit")
@@ -558,15 +567,17 @@ class MeasurementBindingProfile(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.MeasurementBindingProfile"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0", "3.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
         "1.0": "polisyos.catalog.measurement_binding_profile.v1",
         "2.0": "polisyos.catalog.measurement_binding_profile.v2",
+        "3.0": "polisyos.catalog.measurement_binding_profile.v3",
     }
 
     schema_version: Literal[
         "polisyos.catalog.measurement_binding_profile.v1",
         "polisyos.catalog.measurement_binding_profile.v2",
+        "polisyos.catalog.measurement_binding_profile.v3",
     ] = "polisyos.catalog.measurement_binding_profile.v1"
     profile_id: str = Field(pattern=_NAMESPACED_ID, strict=True)
     revision: str = Field(min_length=1, strict=True)
@@ -587,6 +598,10 @@ class MeasurementBindingProfile(BaseModel):
             MeasurementAxis.METHODOLOGY_REF in required | optional
         ):
             raise ValueError("measurement_binding_profile_methodology_requires_v2")
+        if self.schema_version != "polisyos.catalog.measurement_binding_profile.v3" and (
+            MeasurementAxis.MONEY_UNIT in required | optional
+        ):
+            raise ValueError("measurement_binding_profile_money_unit_requires_v3")
         return self
 
 

@@ -24,9 +24,11 @@ from polisyos.ir.kernel import MethodMetricSemanticContract, MethodMetricSourceU
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
-from ..artifacts.manifest import ArtifactRef, InputRef
+from ..artifacts.manifest import ArtifactRef, InputRef, artifact_ref_identity_key
 from .distributional import DistributionalReportRef
 from .execution_plan import ExecutionPlanRef
+from .method_input import MethodInputPortSource, validate_method_input_port_name
+from .model_state_layout import ModelScalarStateLayoutRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .semantic_input_binding import ResolvedInputBindingManifestRef
 from .uncertainty import UncertaintyEnvelopeRef
@@ -1191,6 +1193,10 @@ class ProgramNode(BaseModel):
     op: ProgramOp | None = None
     inputs: list[str] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)
+    input_ports: dict[StrictStr, MethodInputPortSource] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
     @model_validator(mode="after")
     def validate_kind(self) -> ProgramNode:
@@ -1238,7 +1244,15 @@ class ProgramGraph(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ProgramGraph"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
-    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {"0.2.0": "0.2"}
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("0.2.0", "0.3.0")
+    ARTIFACT_SCHEMA_VERSION_BY_PAYLOAD: ClassVar[dict[str, str]] = {
+        "0.2": "0.2.0",
+        "0.3": "0.3.0",
+    }
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "0.2.0": "0.2",
+        "0.3.0": "0.3",
+    }
     ARTIFACT_KIND: ClassVar[Literal["foundry.program_graph"]] = "foundry.program_graph"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
@@ -1257,7 +1271,53 @@ class ProgramGraph(BaseModel):
         node_ids = [item.node_id for item in self.nodes]
         if len(node_ids) != len(set(node_ids)):
             raise ValueError("duplicate_program_graph_node_id")
+        supplied_maps = ["input_ports" in item.model_fields_set for item in self.nodes]
+        if self.schema_version == "0.2":
+            if any(supplied_maps):
+                raise ValueError("program_graph_input_ports_version_mismatch")
+            return self
+        if self.schema_version != "0.3":
+            if any(supplied_maps):
+                raise ValueError("program_graph_input_ports_version_mismatch")
+            return self
+        if not any(supplied_maps):
+            raise ValueError("program_graph_input_ports_v03_requires_mapping")
+        nodes_with_maps = 0
+        for node in self.nodes:
+            if node.node_kind != "method":
+                if "input_ports" in node.model_fields_set:
+                    raise ValueError("program_graph_input_ports_non_method_node")
+                continue
+            if node.input_ports is None or "input_ports" not in node.model_fields_set:
+                raise ValueError("program_graph_input_ports_missing")
+            nodes_with_maps += 1
+            registry_slots = sorted(
+                {
+                    source.slot_id
+                    for source in node.input_ports.values()
+                    if source.source_kind == "registry_slot"
+                }
+            )
+            if node.inputs != registry_slots:
+                raise ValueError("program_graph_input_ports_registry_projection_mismatch")
+            if any(validate_method_input_port_name(key) != key for key in node.input_ports):
+                raise ValueError("program_graph_input_ports_abi_name_invalid")
+        if nodes_with_maps != sum(item.node_kind == "method" for item in self.nodes):
+            raise ValueError("program_graph_input_ports_method_coverage_mismatch")
         return self
+
+    @property
+    def artifact_schema_version(self) -> str:
+        """Return the manifest schema version selected by this payload version."""
+        try:
+            return self.ARTIFACT_SCHEMA_VERSION_BY_PAYLOAD[self.schema_version]
+        except KeyError as exc:
+            raise ValueError("unsupported_program_graph_payload_schema_version") from exc
+
+    def to_artifact_payload(self) -> dict[str, Any]:
+        """Return a version-checked graph projection, preserving legacy 0.2 bytes."""
+        _ = self.artifact_schema_version
+        return self.model_dump(mode="json")
 
 
 class LoweredMechanism(BaseModel):
@@ -1529,23 +1589,74 @@ class FoundryInputBindingRule(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class FoundrySelectedMethodInput(BaseModel):
+    """Selected candidate value and physical tensor identity for one method input.
+
+    Reconciliation of the selected evidence and tensor bytes belongs to the
+    Foundry consumer; this record alone does not establish their authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    model_input_obligation_ref: ArtifactRef
+    binding_id: StrictStr = Field(min_length=1, max_length=128)
+    port_id: StrictStr = Field(min_length=1, max_length=256)
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    canonical_value: Decimal = Field(allow_inf_nan=False, strict=True)
+    dtype: Literal["float32", "float64"]
+    shape: tuple[StrictInt, ...]
+    npy_value_ref: ArtifactRef
+    value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @field_validator("canonical_value")
+    @classmethod
+    def _normalize_decimal(cls, value: Decimal) -> Decimal:
+        if not value.is_finite():
+            raise ValueError("foundry_method_input_value_nonfinite")
+        sign, digits, exponent = value.as_tuple()
+        if not any(digits):
+            return Decimal(0)
+        while digits[-1] == 0:
+            digits = digits[:-1]
+            exponent += 1
+        return Decimal((sign, digits, exponent))
+
+    @model_validator(mode="after")
+    def _selected_refs_and_shape(self) -> FoundrySelectedMethodInput:
+        if (
+            self.model_input_obligation_ref.kind != "runtime.quality.model_input_obligation"
+            or self.model_input_obligation_ref.media_type != "application/json"
+            or self.model_input_obligation_ref.manifest_profile_sha256 is None
+            or self.npy_value_ref.kind != "foundry.selected_method_input_value"
+            or self.npy_value_ref.media_type != "application/x-npy"
+            or self.npy_value_ref.manifest_profile_sha256 is None
+            or any(size <= 0 for size in self.shape)
+            or any(
+                value != value.strip() for value in (self.binding_id, self.port_id, self.slot_id)
+            )
+        ):
+            raise ValueError("foundry_method_input_selection_invalid")
+        return self
+
+
 class FoundryInputBindings(BaseModel):
     """Foundry input bindings public type."""
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryInputBindings"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3", "1.4")
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
         "1.2": ("resolved_binding_manifest_ref",),
         "1.3": ("registered_sql_admission_ref", "resolved_binding_manifest_ref"),
+        "1.4": ("resolved_binding_manifest_ref", "selected_method_inputs"),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.input_bindings"]] = "foundry.input_bindings"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3", "1.4"] = "1.0"
     data_snapshot_ref: ArtifactRef
     registry_bundle_ref: ArtifactRef
     rules: list[FoundryInputBindingRule] = Field(default_factory=list)
@@ -1557,6 +1668,9 @@ class FoundryInputBindings(BaseModel):
     resolved_binding_manifest_ref: ResolvedInputBindingManifestRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    selected_method_inputs: tuple[FoundrySelectedMethodInput, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -1564,7 +1678,7 @@ class FoundryInputBindings(BaseModel):
         registered_sql = self.schema_version in {"1.1", "1.3"}
         if (self.registered_sql_admission_ref is not None) != registered_sql:
             raise ValueError("foundry_input_bindings_registered_sql_version_mismatch")
-        semantic = self.schema_version in {"1.2", "1.3"}
+        semantic = self.schema_version in {"1.2", "1.3", "1.4"}
         if (self.resolved_binding_manifest_ref is not None) != semantic or (
             not semantic and "resolved_binding_manifest_ref" in self.model_fields_set
         ):
@@ -1580,6 +1694,24 @@ class FoundryInputBindings(BaseModel):
             )
         ):
             raise ValueError("foundry_input_bindings_semantic_profile_required")
+        if self.schema_version == "1.4":
+            if not self.selected_method_inputs:
+                raise ValueError("foundry_input_bindings_method_inputs_missing")
+            for attr in ("binding_id", "port_id", "slot_id"):
+                values = tuple(getattr(item, attr) for item in self.selected_method_inputs)
+                if len(set(values)) != len(values):
+                    raise ValueError("foundry_input_bindings_method_inputs_duplicate")
+            identities = tuple(
+                artifact_ref_identity_key(item.model_input_obligation_ref)
+                for item in self.selected_method_inputs
+            )
+            if len(set(identities)) != len(identities):
+                raise ValueError("foundry_input_bindings_method_inputs_duplicate")
+        elif (
+            self.selected_method_inputs is not None
+            or "selected_method_inputs" in self.model_fields_set
+        ):
+            raise ValueError("foundry_input_bindings_method_inputs_version_mismatch")
         return self
 
 
@@ -2639,13 +2771,14 @@ class WelfareBoundReport(BaseModel):
 
 
 class StateSnapshot(BaseModel):
-    """Reference bundle for a persisted Foundry state or method-input capture.
+    """Reference bundle for persisted Foundry state or input capture.
 
     ``lineage_inputs`` is the ordered manifest input list. Version 2.1 preserves
     its historical bare state-blob edge; versions 2.2 and 2.3 bind the exact
     selected state-blob view. Version 2.3 is reserved for sparse method-input
-    slot maps and requires its explicit layout discriminator. Older payloads omit
-    that discriminator and retain their historical GlobalState wire bytes.
+    slot maps. Version 2.4 is reserved for the persistent model-scalar-state
+    carrier and binds its exact selected layout artifact. Older payloads omit
+    both layout fields and retain their historical GlobalState wire bytes.
     """
 
     SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION: ClassVar[Mapping[str, str]] = MappingProxyType(
@@ -2654,10 +2787,15 @@ class StateSnapshot(BaseModel):
             "2.1": "2.1.0",
             "2.2": "2.2.0",
             "2.3": "2.3.0",
+            "2.4": "2.4.0",
         }
     )
     METHOD_INPUT_SCHEMA_VERSION: ClassVar[str] = "2.3"
     METHOD_INPUT_LAYOUT: ClassVar[Literal["method_input_slots"]] = "method_input_slots"
+    MODEL_SCALAR_STATE_SCHEMA_VERSION: ClassVar[str] = "2.4"
+    MODEL_SCALAR_STATE_LAYOUT: ClassVar[Literal["model_scalar_state_slots"]] = (
+        "model_scalar_state_slots"
+    )
 
     model_config = ConfigDict(extra="forbid")
 
@@ -2671,20 +2809,40 @@ class StateSnapshot(BaseModel):
     codec: str = "numpy-npz"
     lineage_inputs: list[InputRef] | None = None
     notes: list[str] = Field(default_factory=list)
-    layout: Literal["method_input_slots"] | None = Field(
+    layout: Literal["method_input_slots", "model_scalar_state_slots"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    model_scalar_state_layout_ref: ModelScalarStateLayoutRef | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )
 
     @model_validator(mode="after")
     def validate_versioned_layout(self) -> StateSnapshot:
-        """Bind the sparse method-input layout to schema 2.3 only."""
+        """Bind method-input and persistent model-state layouts to their versions."""
+
         layout_was_supplied = "layout" in self.model_fields_set
+        model_layout_ref_was_supplied = "model_scalar_state_layout_ref" in self.model_fields_set
         if self.schema_version == self.METHOD_INPUT_SCHEMA_VERSION:
-            if not layout_was_supplied or self.layout != self.METHOD_INPUT_LAYOUT:
+            if (
+                not layout_was_supplied
+                or self.layout != self.METHOD_INPUT_LAYOUT
+                or model_layout_ref_was_supplied
+            ):
                 raise ValueError("state_snapshot_2_3_requires_explicit_method_input_layout")
+        elif self.schema_version == self.MODEL_SCALAR_STATE_SCHEMA_VERSION:
+            if (
+                not layout_was_supplied
+                or self.layout != self.MODEL_SCALAR_STATE_LAYOUT
+                or not model_layout_ref_was_supplied
+                or self.model_scalar_state_layout_ref is None
+            ):
+                raise ValueError("state_snapshot_2_4_requires_explicit_model_scalar_state_layout")
         elif layout_was_supplied:
             raise ValueError("state_snapshot_layout_requires_schema_2_3")
+        elif model_layout_ref_was_supplied:
+            raise ValueError("state_snapshot_model_scalar_state_ref_requires_schema_2_4")
         return self
 
 

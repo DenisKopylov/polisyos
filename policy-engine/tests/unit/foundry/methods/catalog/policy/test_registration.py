@@ -38,6 +38,9 @@ def test_register_policy_methods_queryable():
     public_finance_names = {sig.name for sig in registry.query(namespace="policy.public_finance")}
     assert public_finance_names == {"optimal_linear_tax"}
 
+    accounting_names = {sig.name for sig in registry.query(namespace="policy.accounting")}
+    assert accounting_names == {"period_flow_to_stock"}
+
     agent_sim_names = {sig.name for sig in registry.query(namespace="policy.agent_sim")}
     assert agent_sim_names == {"mean_field_equilibrium"}
 

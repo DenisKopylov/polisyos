@@ -43,8 +43,17 @@ from polisyos.core.artifacts.protocol import (
 )
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
+from polisyos.core.contracts.model_state_layout import (
+    ModelScalarStateLayout,
+    ModelScalarStateLayoutRef,
+)
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.model_state_slots import (
+    BoundModelState,
+    ModelScalarStateAccessError,
+    build_model_scalar_state_layout,
+)
 from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 
 __all__ = [
@@ -55,6 +64,7 @@ __all__ = [
     "export_seed_state_npz",
     "import_seed_state_npz",
     "load_state_snapshot",
+    "load_bound_model_state_snapshot",
     "StateSnapshotValueLeaf",
     "state_snapshot_value_projection",
     "put_state_snapshot",
@@ -775,6 +785,84 @@ def load_state_snapshot(
             "Snapshot layout is explicit and cannot be reconstructed as canonical GlobalState"
         )
     _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+    return _load_global_state_payload(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+
+
+def load_bound_model_state_snapshot(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot_ref: ArtifactRef | ArtifactID | str,
+) -> BoundModelState:
+    """Load a model-owned scalar state with its verified selected layout context."""
+
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    if (
+        snapshot.schema_version != StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+        or snapshot.layout != StateSnapshot.MODEL_SCALAR_STATE_LAYOUT
+        or snapshot.model_scalar_state_layout_ref is None
+    ):
+        raise _SnapshotStateLayoutError("state_snapshot_model_scalar_state_layout_required")
+    _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+
+    layout_ref = snapshot.model_scalar_state_layout_ref
+    layout_manifest = store.get_manifest(layout_ref)
+    layout_schema = SchemaInfo(
+        name="polisyos.core.ModelScalarStateLayout",
+        version="1.0",
+    )
+    if (
+        layout_manifest.kind != "foundry.model_scalar_state_layout"
+        or layout_manifest.media_type != "application/json"
+        or layout_manifest.artifact_schema != layout_schema
+        or layout_manifest.manifest_profile_sha256 != layout_ref.manifest_profile_sha256
+    ):
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_manifest_identity_mismatch")
+    try:
+        layout = load_model(store, layout_ref, ModelScalarStateLayout)
+    except Exception as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_payload_invalid") from exc
+    expected_layout_inputs = [
+        artifact_input_ref(layout.registry_bundle_ref, role="registry_bundle")
+    ]
+    if layout_manifest.inputs != expected_layout_inputs:
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_lineage_mismatch")
+    try:
+        recomputed_layout = build_model_scalar_state_layout(
+            store=store,
+            registry_bundle_ref=layout.registry_bundle_ref,
+            slot_ids=tuple(slot.slot_id for slot in layout.slots),
+        )
+    except ModelScalarStateAccessError as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_recompute_failed") from exc
+    if recomputed_layout != layout:
+        raise _SnapshotStateLayoutError("model_scalar_state_layout_registry_content_mismatch")
+
+    state = _load_global_state_payload(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+    if state.model_scalar_state is None:
+        raise _SnapshotStateLayoutError("model_scalar_state_carrier_missing_from_snapshot")
+    try:
+        return BoundModelState(
+            state=state,
+            layout=layout,
+            layout_ref=layout_ref,
+            source_snapshot_ref=StateSnapshotRef.model_validate(
+                snapshot_ref.model_dump(mode="python")
+                if isinstance(snapshot_ref, ArtifactRef)
+                else {"artifact_id": snapshot_ref}
+            ),
+        )
+    except Exception as exc:
+        raise _SnapshotStateLayoutError("model_scalar_state_snapshot_binding_invalid") from exc
+
+
+def _load_global_state_payload(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot_ref: ArtifactRef | ArtifactID | str,
+    snapshot: StateSnapshot,
+) -> GlobalState:
+    """Decode a complete state blob after the caller validates versioned lineage."""
+
     # v2.0/v2.1 persisted the state-blob edge by bare artifact ID. Preserve
     # that historical projection even when the payload happens to contain a
     # newer selected-view marker. The full-state reader uses v2.2 exact-view lineage;

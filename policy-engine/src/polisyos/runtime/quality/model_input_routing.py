@@ -53,6 +53,15 @@ if TYPE_CHECKING:
     from datetime import datetime
     from pathlib import Path
 
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.foundry import FoundryInputBindingsRef
+    from polisyos.core.contracts.semantic_derived_binding import (
+        DerivedInputCorrespondenceRef,
+        DerivedInputProfileRef,
+        DerivedMeasurementRole,
+        RatioDenominatorSourceContextRef,
+    )
+    from polisyos.core.contracts.semantic_input_binding import ResolvedInputBindingManifestRef
     from polisyos.data_forge.read_api.catalog import CatalogAcquisitionOverlay
 
     from .acquisition_executor import AdmissionPassport
@@ -1549,11 +1558,227 @@ def _model_input_routing_inputs(report: ModelInputRoutingReport) -> list[InputRe
     return inputs
 
 
+@dataclass(frozen=True)
+class DerivedModelInputMaterialization:
+    """Persisted candidate derived input and its actual Foundry intake refs."""
+
+    data_snapshot_ref: ArtifactRef
+    resolved_binding_manifest_ref: ResolvedInputBindingManifestRef
+    correspondence_ref: DerivedInputCorrespondenceRef
+    input_bindings_ref: FoundryInputBindingsRef
+
+
+def materialize_derived_model_input(
+    store: FileSystemCAS,
+    *,
+    base_data_snapshot_ref: ArtifactRef,
+    obligation_set_ref: ArtifactRef,
+    model_input_obligation_ref: ArtifactRef,
+    profile_ref: DerivedInputProfileRef,
+    source_context_ref: RatioDenominatorSourceContextRef,
+    recipe_ref: ArtifactRef,
+    certificate_ref: ArtifactRef,
+    output_ref: ArtifactRef,
+    roles: tuple[DerivedMeasurementRole, ...],
+    year: int,
+    binding_id: str,
+    derivation_bundle_ref: ArtifactRef | None = None,
+) -> DerivedModelInputMaterialization:
+    """Wire one complete candidate derivation into the existing Foundry intake.
+
+    This first materializer supports one target obligation. It retains the base
+    snapshot only as physical context and writes distinct derived lineage.
+    A declared method carrier persists a separate scalar NPY argument through
+    Foundry and retains the exact predecessor state; a state carrier uses the
+    existing declared state binding. Neither output claims to be an acquired
+    observation. N7's optional bundle is planning provenance, not permission.
+    """
+    import copy
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
+    from polisyos.core.contracts.semantic_derived_binding import (
+        DerivedInputCorrespondenceBasis,
+        load_derived_input_profile,
+        persist_derived_input_correspondence,
+    )
+    from polisyos.core.contracts.semantic_input_binding import (
+        DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+        ResolvedDerivedInput,
+        ResolvedInputBindingManifest,
+        persist_resolved_input_binding_manifest,
+    )
+    from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
+    from polisyos.core.derivations import (
+        load_derivation_recipe_artifact,
+        resolve_certified_derivation,
+    )
+    from polisyos.foundry.data_plane.bindings import build_input_bindings, load_input_bindings
+
+    def selected(ref: ArtifactRef) -> SelectedVariableBindingRef:
+        return SelectedVariableBindingRef.model_validate(ref.model_dump(mode="python"))
+
+    base_ref = selected(base_data_snapshot_ref)
+    selected_set, obligations = load_model_input_obligation_set(store, obligation_set_ref)
+    if len(selected_set.obligation_refs) != 1 or (
+        artifact_ref_identity_key(selected_set.obligation_refs[0])
+        != artifact_ref_identity_key(model_input_obligation_ref)
+    ):
+        raise ValueError("derived_model_input_single_selected_obligation_required")
+    (obligation,) = obligations
+    profile = load_derived_input_profile(store, profile_ref)
+    if obligation.port.carrier == "method_input" and (
+        profile.output_projection != "scalar"
+        or obligation.port.physical_encoding is None
+        or obligation.port.physical_encoding.shape
+    ):
+        raise ValueError("derived_model_input_method_scalar_profile_required")
+    recipe = load_derivation_recipe_artifact(store, recipe_ref)
+    resolution = resolve_certified_derivation(
+        store,
+        certificate_ref=certificate_ref,
+        consumer_method_id="polisyos.runtime.derived-model-input-materializer.v1",
+    )
+    if recipe != resolution.certificate.recipe:
+        raise ValueError("derived_model_input_recipe_certificate_mismatch")
+    points = tuple(point for point in resolution.series.points if point.year == year)
+    if len(points) != 1:
+        raise ValueError("derived_model_input_exact_year_required")
+    registry = recipe.registry_artifact
+    basis = DerivedInputCorrespondenceBasis(
+        profile_ref=profile_ref,
+        source_context_ref=source_context_ref,
+        model_input_obligation_ref=selected(model_input_obligation_ref),
+        model_interface_ref=selected(obligation.interface_ref),
+        model_port_id=obligation.port.port_id,
+        target_definition_ref=obligation.port.semantic_definition_ref,
+        target_representation_ref=obligation.port.representation_ref,
+        binding_profile_ref=obligation.port.binding_profile_ref,
+        scope=obligation.port.scope,
+        year=year,
+        registry_ref=SelectedVariableBindingRef(
+            artifact_id=registry.artifact_id,
+            kind=registry.kind,
+            media_type=registry.media_type,
+            manifest_profile_sha256=registry.manifest_profile_sha256,
+        ),
+        family_id=recipe.family.family_id,
+        method_version=recipe.method_version,
+        recipe_ref=selected(recipe_ref),
+        certificate_ref=selected(certificate_ref),
+        output_ref=selected(output_ref),
+        roles=roles,
+    )
+    correspondence_ref = persist_derived_input_correspondence(store, basis)
+    source_path_key = hashlib.sha256(binding_id.encode()).hexdigest()[:20]
+    selection = ResolvedDerivedInput(
+        binding_id=binding_id,
+        model_input_obligation_ref=selected(model_input_obligation_ref),
+        model_interface_ref=selected(obligation.interface_ref),
+        model_port_id=obligation.port.port_id,
+        recipe_ref=selected(recipe_ref),
+        certificate_ref=selected(certificate_ref),
+        output_ref=selected(output_ref),
+        year=year,
+        correspondence_ref=correspondence_ref,
+        profile_ref=profile_ref,
+        source_path=f"derived_inputs.{source_path_key}.value",
+        derivation_bundle_ref=(
+            None if derivation_bundle_ref is None else selected(derivation_bundle_ref)
+        ),
+    )
+    base = validate_core_model_json_artifact(DataSnapshot, store, base_ref)
+    raw_payload = load_core_json_artifact(store, base.data_ref)
+    if not isinstance(raw_payload, dict) or "derived_inputs" in raw_payload:
+        raise ValueError("derived_model_input_base_payload_profile_unsupported")
+    payload = copy.deepcopy(raw_payload)
+    value = points[0].value
+    payload["derived_inputs"] = {
+        source_path_key: {"value": value if profile.output_projection == "scalar" else [value]}
+    }
+    payload_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0"
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(base.data_ref, role="context.base_payload"),
+                input_ref_from_artifact_ref(output_ref, role=selection.payload_output_role()),
+                input_ref_from_artifact_ref(correspondence_ref, role="derived.correspondence"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    snapshot = DataSnapshot(
+        data_ref=payload_ref,
+        stats={
+            "snapshot_id": "derived-model-input-" + str(payload_ref.artifact_id).split(":")[1][:20]
+        },
+        notes=[
+            "candidate_simulation_input_only",
+            "derived_input_not_acquired_observation",
+            "external_empirical_context_not_established",
+            "derivation_uncertainty_not_established",
+        ],
+    )
+    snapshot_ref = store.put_json(
+        snapshot,
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=DataSnapshot.ARTIFACT_SCHEMA_NAME, version="0.2.0"),
+            inputs=[
+                input_ref_from_artifact_ref(payload_ref, role="data_ref"),
+                input_ref_from_artifact_ref(base_ref, role="context.base_data_snapshot"),
+                input_ref_from_artifact_ref(correspondence_ref, role="derived.correspondence"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    predecessor = load_input_bindings(store, selected_set.invocation.input_bindings_ref)
+    retained_ids = tuple(
+        rule.binding_id
+        for rule in predecessor.rules
+        if rule.target_slot_id in selected_set.supplied_initial_slots
+    )
+    manifest_ref = persist_resolved_input_binding_manifest(
+        store,
+        ResolvedInputBindingManifest(
+            schema_version="2.0",
+            data_snapshot_ref=selected(snapshot_ref),
+            model_input_obligation_set_ref=selected(obligation_set_ref),
+            derivations=(selection,),
+            retained_binding_ids=retained_ids,
+        ),
+    )
+    built = build_input_bindings(
+        store,
+        data_snapshot_ref=snapshot_ref,
+        registry_bundle_ref=selected_set.invocation.registry_bundle_ref,
+        resolved_binding_manifest_ref=manifest_ref,
+        return_selected_profile=True,
+    )
+    return DerivedModelInputMaterialization(
+        data_snapshot_ref=snapshot_ref,
+        resolved_binding_manifest_ref=manifest_ref,
+        correspondence_ref=correspondence_ref,
+        input_bindings_ref=built.input_bindings_ref,
+    )
+
+
 __all__ = [
+    "DerivedModelInputMaterialization",
     "ModelInputPortRoute",
     "ModelInputRoutingReport",
     "ModelInputRoutingResult",
     "ModelInputRoutingUseDecision",
+    "materialize_derived_model_input",
     "materialize_routed_model_input_observation",
     "persist_current_model_input_routing_use_decision",
     "plan_selected_model_input_routing",

@@ -103,7 +103,10 @@ vi.mock("@/features/whatif", () => ({ ScenarioWorkbench: () => null }));
 
 import OverviewTab from "./OverviewTab";
 
-function parsedRun(candidateSimulation?: unknown): Record<string, unknown> {
+function parsedRun(
+  candidateSimulation?: unknown,
+  modelInputUseActions?: unknown,
+): Record<string, unknown> {
   const { run } = runDetailsSchema.parse({
     meta: {
       request_id: "req-overview",
@@ -117,6 +120,9 @@ function parsedRun(candidateSimulation?: unknown): Record<string, unknown> {
       ...(candidateSimulation === undefined
         ? {}
         : { candidate_simulation: candidateSimulation }),
+      ...(modelInputUseActions === undefined
+        ? {}
+        : { model_input_use_actions: modelInputUseActions }),
     },
     temporal_scope: null,
   });
@@ -879,6 +885,27 @@ describe("OverviewTab", () => {
       mutate: vi.fn(),
     };
     overviewState.run = parsedRun();
+  });
+
+  it("mounts the separate model-input action history surface from typed discovery", () => {
+    overviewState.run = parsedRun(undefined, {
+      run_id: "control-run-owner-id",
+      source_job_id: "source-job-owner-id",
+      scope: "discovery_only",
+      actions: [],
+      inventory_status: "limited",
+      inventory_truncated: false,
+      limitation_codes: ["action_binding_not_established"],
+    });
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(screen.getByTestId("model-input-use-history")).toHaveTextContent(
+      "No action result is available from this limited discovery.",
+    );
+    expect(screen.getByTestId("model-input-use-source-job")).toHaveTextContent(
+      "control-run-owner-id",
+    );
   });
 
   it("renders the actual retained partial capacity response as candidate-only", () => {

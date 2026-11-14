@@ -56,6 +56,16 @@ def _context(tmp_path, *, slot_id: str = "model.accumulated_value", present: boo
             slots={
                 slot_id: slot,
                 "government.balance": DEFAULT_SLOT_REGISTRY.slots["government.balance"],
+                "model.selected_flow": SlotSpec(
+                    slot_id="model.selected_flow",
+                    scope=SlotScope.GLOBAL,
+                    kind=SlotKind.FLOW,
+                    value_type=SlotValueType.DECIMAL,
+                    unit=UnitRef(unit_id="usd"),
+                    merge_rule={"rule_id": "sum"},
+                    dtype="float64",
+                    shape=[],
+                ),
             }
         ),
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
@@ -284,3 +294,46 @@ def test_model_stock_patch_refuses_a_claimed_base_instead_of_the_selected_base(t
     ):
         with pytest.raises(ValueError, match="model_scalar_state_patch_base_value_mismatch"):
             operation()
+
+
+def test_model_state_context_classifies_each_canonical_source_without_shadowing(tmp_path) -> None:
+    context = _context(tmp_path)
+    assert (
+        context.resolve_input_source("model.accumulated_value", external_selected=False)
+        == "model_layout_slot"
+    )
+    assert (
+        context.resolve_input_source("government.balance", external_selected=False) == "state_path"
+    )
+    assert (
+        context.resolve_input_source("model.selected_flow", external_selected=True)
+        == "external_selected"
+    )
+    for slot_id in ("model.accumulated_value", "government.balance"):
+        with pytest.raises(ValueError, match="model_scalar_state_input_source_ambiguous"):
+            context.resolve_input_source(slot_id, external_selected=True)
+    for slot_id, selected in (("model.selected_flow", False), ("model.unknown", True)):
+        with pytest.raises(ValueError, match="model_scalar_state_input_source_unbound"):
+            context.resolve_input_source(slot_id, external_selected=selected)
+
+
+def test_model_state_context_classifier_refuses_absent_persistent_source(tmp_path) -> None:
+    context = _context(tmp_path, present=False)
+    with pytest.raises(ValueError, match="model_scalar_state_slot_absent"):
+        context.resolve_input_source("model.accumulated_value", external_selected=False)
+
+
+def test_model_state_context_opening_admission_is_separate_from_internal_reattachment(
+    tmp_path,
+) -> None:
+    context = _context(tmp_path)
+    context.require_opening_state()
+    context.with_state(context.bound_state.state).require_opening_state()
+    changed = context.write_slot("model.accumulated_value", np.float32(11.0))
+    rebound = context.with_state(changed)
+    assert (
+        rebound.resolve_input_source("model.accumulated_value", external_selected=False)
+        == "model_layout_slot"
+    )
+    with pytest.raises(ValueError, match="model_scalar_state_patch_opening_state_required"):
+        rebound.require_opening_state()

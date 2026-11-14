@@ -28,6 +28,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
 from polisyos.ir.kernel import MoneyUnit, UnitsRegistry
 
+from .model_input_period_steps import ModelInputStepScope
 from .semantic_derived_binding import DerivedInputCorrespondenceRef, DerivedInputProfileRef
 from .variable_binding import (
     MeasurementAxis,
@@ -217,15 +218,17 @@ class RegisteredDerivedInputContext(_CompositionContract):
     The complete context is also the Core composition's shared scope selection.
     Its role scopes remain distinct: the numerator population need not equal
     the denominator population. No provider release/base relationship is
-    invented when the selected registration does not establish one.
+    invented when the selected registration does not establish one. Schema
+    1.1 carries a candidate step scope; consumers still recompute its origin.
     """
 
     ARTIFACT_KIND: ClassVar[str] = "catalog.registered_derivation_context"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.RegisteredDerivedInputContext"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     profile_ref: RegisteredDerivedInputProfileRef
     obligation_set_ref: SelectedVariableBindingRef
     model_input_obligation_ref: SelectedVariableBindingRef
@@ -240,6 +243,9 @@ class RegisteredDerivedInputContext(_CompositionContract):
     uncertainty_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["candidate_simulation_input_only"] = (
         "candidate_simulation_input_only"
+    )
+    step_scope: ModelInputStepScope | None = Field(
+        default=None, exclude_if=lambda value: value is None
     )
 
     @model_validator(mode="after")
@@ -258,6 +264,17 @@ class RegisteredDerivedInputContext(_CompositionContract):
             or tuple(item.role for item in self.role_scopes) != roles
         ):
             raise ValueError("composition_input_context_role_set_mismatch")
+        if self.schema_version == "1.0":
+            if "step_scope" in self.model_fields_set:
+                raise ValueError("composition_input_context_schema_step_scope_mismatch")
+        elif (
+            self.step_scope is None
+            or self.step_scope.port_id != self.model_port_id
+            or self.step_scope.scope != self.output_scope
+            or self.step_scope.scope.period_start.year != self.year
+            or self.step_scope.scope.period_end.year != self.year
+        ):
+            raise ValueError("composition_input_context_temporal_step_scope_mismatch")
         return self
 
     def lineage_inputs(self) -> list[InputRef]:
@@ -338,14 +355,15 @@ class CandidateDerivedMeasurementRole(_CompositionContract):
 
 
 class RegisteredDerivedInputCorrespondence(_CompositionContract):
-    """One selected v3 output, complete recipe and candidate semantic subjects."""
+    """One selected v3 output, recipe, and candidate temporal semantic subject."""
 
     ARTIFACT_KIND: ClassVar[str] = "catalog.derived_input_correspondence"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.RegisteredDerivedInputCorrespondence"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "2.0"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "2.1"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("2.0", "2.1")
 
-    schema_version: Literal["2.0"] = "2.0"
+    schema_version: Literal["2.0", "2.1"] = "2.0"
     profile_ref: RegisteredDerivedInputProfileRef
     context_ref: RegisteredDerivedInputContextRef
     model_input_obligation_ref: SelectedVariableBindingRef
@@ -356,6 +374,9 @@ class RegisteredDerivedInputCorrespondence(_CompositionContract):
     output_ref: SelectedVariableBindingRef
     year: int = Field(ge=1900, le=2200, strict=True)
     roles: tuple[CandidateDerivedMeasurementRole, ...] = Field(min_length=2, max_length=2)
+    step_scope: ModelInputStepScope | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _selected_artifacts(self) -> RegisteredDerivedInputCorrespondence:
@@ -371,6 +392,16 @@ class RegisteredDerivedInputCorrespondence(_CompositionContract):
         roles = tuple(item.role for item in self.roles)
         if roles != tuple(sorted(set(roles))):
             raise ValueError("composition_input_role_set_mismatch")
+        if self.schema_version == "2.0":
+            if "step_scope" in self.model_fields_set:
+                raise ValueError("composition_input_correspondence_schema_step_scope_mismatch")
+        elif (
+            self.step_scope is None
+            or self.step_scope.port_id != self.model_port_id
+            or self.step_scope.scope.period_start.year != self.year
+            or self.step_scope.scope.period_end.year != self.year
+        ):
+            raise ValueError("composition_input_correspondence_temporal_step_scope_mismatch")
         return self
 
     def lineage_inputs(self) -> list[InputRef]:
@@ -589,15 +620,46 @@ def evaluate_registered_derived_input_correspondence(
     recipe: CompositionRecipe,
     series: CompositionDerivedSeries,
     roles: tuple[ReplayedCandidateDerivationRole, ...],
+    expected_step_scope: ModelInputStepScope | None = None,
 ) -> RegisteredDerivedInputEvaluation:
     """Join the registered relation, replayed sources and exact v3 output.
 
     The Core composition resolver supplies arithmetic replay; this predicate
     never evaluates an expression or converts a unit. It separately checks
     declared semantic coordinates and preserves the empirical-authority limit.
+    For schemas 1.1/2.1, callers must supply the step scope recomputed from the
+    selected temporal coverage; this predicate does not reopen the origin set.
     """
     refusals: list[str] = []
     port = obligation.port
+    target_scope = port.scope
+    if (context.schema_version, correspondence.schema_version) == ("1.0", "2.0"):
+        if (
+            context.step_scope is not None
+            or correspondence.step_scope is not None
+            or expected_step_scope is not None
+        ):
+            refusals.append("temporal_step_scope_unexpected")
+    elif (context.schema_version, correspondence.schema_version) == ("1.1", "2.1"):
+        if expected_step_scope is None:
+            refusals.append("temporal_step_scope_not_established")
+        elif (
+            type(expected_step_scope) is not ModelInputStepScope
+            or context.step_scope is None
+            or correspondence.step_scope is None
+            or context.step_scope != correspondence.step_scope
+            or context.step_scope != expected_step_scope
+            or correspondence.step_scope != expected_step_scope
+            or expected_step_scope.port_id != port.port_id
+            or expected_step_scope.scope.period_start.year != context.year
+            or expected_step_scope.scope.period_end.year != context.year
+            or context.output_scope != expected_step_scope.scope
+        ):
+            refusals.append("temporal_step_scope_mismatch")
+        else:
+            target_scope = expected_step_scope.scope
+    else:
+        refusals.append("temporal_step_scope_version_pair_mismatch")
     if any(
         not _same_ref(left, right)
         for left, right in (
@@ -616,7 +678,7 @@ def evaluate_registered_derived_input_correspondence(
         correspondence.year != context.year
         or correspondence.model_port_id != port.port_id
         or context.model_port_id != port.port_id
-        or context.output_scope != port.scope
+        or context.output_scope != target_scope
     ):
         refusals.append("target_selection_mismatch")
     if (
@@ -636,7 +698,7 @@ def evaluate_registered_derived_input_correspondence(
         or target_representation.unit_id != port.unit_id
         or target_representation.numerator_ref is not None
         or target_representation.denominator_ref is not None
-        or target_representation.population_ref != port.scope.population_ref
+        or target_representation.population_ref != target_scope.population_ref
     ):
         refusals.append("target_annual_absolute_flow_required")
     if (
@@ -751,18 +813,18 @@ def evaluate_registered_derived_input_correspondence(
         or denominator.representation.money_unit != money
     ):
         refusals.append("money_basis_not_established")
-    scopes = (port.scope, *(item.occurrence.source_scope for item in roles))
+    scopes = (target_scope, *(item.occurrence.source_scope for item in roles))
     if any(
         scope.period_basis != "calendar_year"
         or scope.period_start != date(context.year, 1, 1)
         or scope.period_end != date(context.year, 12, 31)
         or scope.time_role != "observation_time"
         or (scope.geography_ref, scope.jurisdiction_ref)
-        != (port.scope.geography_ref, port.scope.jurisdiction_ref)
+        != (target_scope.geography_ref, target_scope.jurisdiction_ref)
         for scope in scopes
     ):
         refusals.append("exact_role_geography_calendar_scope_required")
-    if ratio.occurrence.source_scope.population_ref != port.scope.population_ref:
+    if ratio.occurrence.source_scope.population_ref != target_scope.population_ref:
         refusals.append("numerator_population_scope_mismatch")
     try:
         verify_registered_derived_family(profile, recipe.family)
@@ -918,9 +980,7 @@ def _persist(
             producer=ProducerInfo(
                 component="polisyos.core.contracts.semantic_composition_binding", version="1.0.0"
             ),
-            schema=SchemaInfo(
-                name=value.ARTIFACT_SCHEMA_NAME, version=value.ARTIFACT_SCHEMA_VERSION
-            ),
+            schema=SchemaInfo(name=value.ARTIFACT_SCHEMA_NAME, version=value.schema_version),
             inputs=value.lineage_inputs(),
         ),
         return_selected_profile=True,

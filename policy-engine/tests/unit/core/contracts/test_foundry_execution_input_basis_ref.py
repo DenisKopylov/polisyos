@@ -3,7 +3,12 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.contracts.foundry import FoundryExecutionInputBasisRef, SimulationResult
+from polisyos.core.contracts.foundry import (
+    FeedbackExecutionContext,
+    FoundryExecutionInputBasis,
+    FoundryExecutionInputBasisRef,
+    SimulationResult,
+)
 
 
 def _artifact_id(marker: str) -> str:
@@ -32,6 +37,77 @@ def _simulation_result_payload(
         "metrics_ref": {"artifact_id": _artifact_id("d")},
         "execution_input_basis_ref": basis_ref,
         "execution_source_status": execution_source_status,
+    }
+
+
+def _ref_payload(marker: str, kind: str | None = None) -> dict[str, str]:
+    payload = {
+        "artifact_id": _artifact_id(marker),
+        "kind": kind or "foundry.test",
+        "media_type": "application/json",
+    }
+    return payload
+
+
+def _feedback_context_payload(*, captured: bool = True) -> dict[str, object]:
+    return {
+        "schema_version": "1.0",
+        "final_injected_state_snapshot_ref": _ref_payload("e", "foundry.state_snapshot"),
+        "final_parameter_override_bundle_ref": _ref_payload(
+            "f", "foundry.parameter_override_bundle"
+        ),
+        "final_method_execution_bundle_ref": (
+            _ref_payload("1", "foundry.method_execution_bundle") if captured else None
+        ),
+        "feedback_result_ref": _ref_payload("2", "foundry.feedback_result"),
+        "feedback_trace_ref": _ref_payload("3", "foundry.feedback_trace"),
+        "final_map_evaluation_id": "map-eval-final",
+        "final_graph_invocation_id": "graph-invocation-final" if captured else None,
+        "execution_link_status": "captured" if captured else "not_established",
+    }
+
+
+def _basis_payload(*, schema_version: str, feedback: bool) -> dict[str, object]:
+    def registry_members(marker: str) -> dict[str, object]:
+        return {
+            key: _ref_payload(marker, f"foundry.{key}")
+            for key in ("slot_registry", "merge_registry", "constraint_registry", "mechanism_registry")
+        }
+
+    request: dict[str, object] = {
+        "exec_plan_ref": _ref_payload("4", "foundry.exec_plan"),
+        "input_bindings_ref": _ref_payload("5", "foundry.input_bindings"),
+    }
+    if feedback:
+        request["feedback_config_ref"] = _ref_payload("6", "foundry.feedback_config")
+    return {
+        "schema_version": schema_version,
+        "execution_mode": "feedback" if feedback else "single_step",
+        "request": request,
+        "exec_plan_ref": _ref_payload("4", "foundry.exec_plan"),
+        "program_graph_ref": _ref_payload("7", "foundry.program_graph"),
+        "trinity_bundle_ref": _ref_payload("8"),
+        "candidate_ref": _ref_payload("9"),
+        "candidate_data_snapshot_ref": _ref_payload("a"),
+        "candidate_registry_bundle_ref": _ref_payload("b"),
+        "input_bindings_ref": _ref_payload("5", "foundry.input_bindings"),
+        "data_snapshot_ref": _ref_payload("c"),
+        "bound_state_snapshot_ref": _ref_payload("d", "foundry.state_snapshot"),
+        "binding_registry_ref": _ref_payload("e"),
+        "compile_registry_ref": _ref_payload("f"),
+        "runtime_registry_ref": _ref_payload("1"),
+        "binding_registry_members": registry_members("2"),
+        "compile_registry_members": registry_members("3"),
+        "runtime_registry_members": registry_members("4"),
+        "base_state_snapshot_ref": _ref_payload("5", "foundry.state_snapshot"),
+        "effective_step": 0,
+        "effective_seed": 17,
+        "effective_seed_source": "request",
+        "effective_mode": "dev",
+        "effective_nan_guard_enabled": True,
+        "effective_jit": False,
+        "effective_capture_env": False,
+        **({"feedback_execution_context": _feedback_context_payload()} if feedback else {}),
     }
 
 
@@ -148,3 +224,59 @@ def test_core_simulation_result_refuses_unrepresentable_artifact_versions(
     result = SimulationResult.model_validate(payload)
     with pytest.raises(ValueError, match="unsupported_simulation_result_artifact_schema_version"):
         result.to_artifact_payload()
+
+
+def test_feedback_execution_context_requires_truthful_graph_link_status() -> None:
+    captured = FeedbackExecutionContext.model_validate(_feedback_context_payload())
+    assert captured.execution_link_status == "captured"
+    assert captured.final_graph_invocation_id == "graph-invocation-final"
+
+    unavailable = FeedbackExecutionContext.model_validate(_feedback_context_payload(captured=False))
+    assert unavailable.execution_link_status == "not_established"
+    assert unavailable.final_graph_invocation_id is None
+
+    malformed = _feedback_context_payload(captured=False)
+    malformed["final_graph_invocation_id"] = "invented-invocation"
+    with pytest.raises(ValidationError, match="feedback_execution_context_invocation_status_mismatch"):
+        FeedbackExecutionContext.model_validate(malformed)
+
+
+def test_feedback_basis_v1_3_is_typed_without_changing_prior_basis_wire_shapes() -> None:
+    basis = FoundryExecutionInputBasis.model_validate(
+        _basis_payload(schema_version="1.3", feedback=True)
+    )
+    assert basis.execution_mode == "feedback"
+    assert basis.feedback_execution_context is not None
+    assert basis.model_dump(mode="json")["feedback_execution_context"][
+        "final_map_evaluation_id"
+    ] == "map-eval-final"
+
+    prior = FoundryExecutionInputBasis.model_validate(
+        _basis_payload(schema_version="1.0", feedback=False)
+    )
+    prior_wire = prior.model_dump(mode="json")
+    assert "feedback_execution_context" not in prior_wire
+    assert prior_wire["execution_mode"] == "single_step"
+
+    invalid = _basis_payload(schema_version="1.3", feedback=False)
+    with pytest.raises(ValidationError, match="execution_input_basis_v1_3_requires_feedback_context"):
+        FoundryExecutionInputBasis.model_validate(invalid)
+
+
+def test_simulation_result_v1_5_requires_both_feedback_basis_and_solve_result() -> None:
+    payload = _simulation_result_payload(
+        _basis_ref_payload(), schema_version="1.5", execution_source_status="feedback_basis"
+    )
+    payload["feedback_result_ref"] = _ref_payload("6", "foundry.feedback_result")
+    result = SimulationResult.model_validate(payload)
+    assert result.to_artifact_payload()["execution_source_status"] == "feedback_basis"
+
+    missing_basis = dict(payload)
+    missing_basis["execution_input_basis_ref"] = None
+    with pytest.raises(ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"):
+        SimulationResult.model_validate(missing_basis)
+
+    wrong_version = dict(payload)
+    wrong_version["schema_version"] = "1.4"
+    with pytest.raises(ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"):
+        SimulationResult.model_validate(wrong_version)

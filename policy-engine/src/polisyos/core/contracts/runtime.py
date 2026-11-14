@@ -3446,7 +3446,12 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
 
 
 class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
-    """Persisted acquisition action facts projected as candidate history only."""
+    """Persisted acquisition action facts projected as candidate history only.
+
+    The inputs-pending v3 row records a completed collection action while its
+    separate model-input goal remains open. Its selected provenance does not
+    establish permission, cost authority, re-entry, or a new evaluation.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -3454,14 +3459,18 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
     reentry_receipt_ref: ArtifactRef | None = None
     route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     action_generation: int = Field(ge=1)
-    terminal_outcome: Literal["reentry_completed", "quarantined_no_growth"]
+    terminal_outcome: Literal["reentry_completed", "quarantined_no_growth", "inputs_pending"]
     old_candidate_id: str | None = Field(default=None, min_length=1)
     new_candidate_id: str | None = Field(default=None, min_length=1)
     new_candidate_source_ref: ArtifactRef | None = None
     origin_source_ref: ArtifactRef | None = None
     expected_origin_source_ref: ArtifactRef | None = None
     schema_version: (
-        Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v2"] | None
+        Literal[
+            "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+            "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+        ]
+        | None
     ) = None
     reentry_receipt_schema_version: (
         Literal[
@@ -3480,6 +3489,15 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
     continuation: RunCandidateSimulationAcquisitionContinuationProjection | None = None
     selected_n5_observation: RunCandidateSimulationN5Observation | None = None
     evaluation_provenance: Literal["new_execution"] | None = None
+    model_goal_status: Literal["inputs_pending"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_input_collection_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    owner_declared_profile_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
     publication_authority: Literal[False] = False
@@ -3522,6 +3540,60 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
             )
         ):
             raise ValueError("candidate_acquisition_history_ref_invalid")
+        new_pending_fields = (
+            "model_goal_status",
+            "native_input_collection_ref",
+            "owner_declared_profile_ref",
+        )
+        is_inputs_pending_v3 = (
+            self.schema_version
+            == "policyos.runtime.run_candidate_simulation_acquisition_history.v3"
+        )
+        if is_inputs_pending_v3:
+            selected_refs = (
+                (
+                    self.route_receipt_ref,
+                    "runtime_quality.acquisition_route_loop_receipt",
+                ),
+                (
+                    self.native_input_collection_ref,
+                    "runtime_quality.native_derivation_input_checkpoint",
+                ),
+                (
+                    self.owner_declared_profile_ref,
+                    "runtime.quality.native_derivation_leaf_cost_profile",
+                ),
+            )
+            if (
+                self.terminal_outcome != "inputs_pending"
+                or self.model_goal_status != "inputs_pending"
+                or self.continuation_join_status != "not_applicable"
+                or self.origin_source_binding_status != "not_supplied"
+                or self.reentry_receipt_schema_version is not None
+                or self.reentry_receipt_ref is not None
+                or self.old_candidate_id is not None
+                or self.new_candidate_id is not None
+                or self.new_candidate_source_ref is not None
+                or self.origin_source_ref is not None
+                or self.expected_origin_source_ref is not None
+                or self.continuation is not None
+                or self.selected_n5_observation is not None
+                or self.evaluation_provenance is not None
+                or any(
+                    ref is None
+                    or ref.kind != expected_kind
+                    or ref.media_type != "application/json"
+                    or ref.manifest_profile_sha256 is None
+                    for ref, expected_kind in selected_refs
+                )
+            ):
+                raise ValueError("candidate_acquisition_inputs_pending_state_invalid")
+            return self
+        if self.terminal_outcome == "inputs_pending" or any(
+            getattr(self, name) is not None or name in self.model_fields_set
+            for name in new_pending_fields
+        ):
+            raise ValueError("candidate_acquisition_inputs_pending_version_mismatch")
         reentry_fields = (
             self.reentry_receipt_ref,
             self.old_candidate_id,

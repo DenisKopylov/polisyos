@@ -81,6 +81,7 @@ from polisyos.core.contracts import (
     FoundrySelectedMethodInput,
     MeasurementBindingProfile,
     ModelInputObligation,
+    ModelInputObligationSet,
     ProgramGraphInputInvocation,
     ReplayedDerivedMeasurementRole,
     ResolvedDerivedInput,
@@ -1933,6 +1934,7 @@ def _prepare_input_binding_values(
     binding_payload: Any,
     rules: list[FoundryInputBindingRule] | None,
     selected_tensor_policies: Mapping[str, _SelectedBindingTensorPolicy] | None = None,
+    registry_bundle_ref: ArtifactRef | None = None,
 ) -> InputBindingsPreparation:
     """Run the same pure rule/state owner for persisted and prospective inputs.
 
@@ -1956,6 +1958,7 @@ def _prepare_input_binding_values(
         payload=binding_payload,
         slot_registry=slot_registry,
         rules=effective_rules,
+        registry_bundle_ref=registry_bundle_ref,
     )
 
     values = _prepare_materialized_binding_values(
@@ -1971,6 +1974,11 @@ def _prepare_input_binding_values(
         materialized_state=values.materialized_state,
         applied_binding_ids=values.applied_binding_ids,
         warnings=values.warnings,
+        reused_bound_state_snapshot_ref=(
+            StateSnapshotRef.model_validate(snapshot.data_ref.model_dump(mode="python"))
+            if _is_model_state_snapshot(store, snapshot.data_ref)
+            else None
+        ),
     )
 
 
@@ -2131,6 +2139,7 @@ def prepare_input_bindings(
         slot_registry=registry.slot_registry,
         binding_payload=binding_payload,
         rules=rules,
+        registry_bundle_ref=registry_bundle_ref,
     )
     if registered_sql_admission_ref is not None:
         from polisyos.foundry.execute._internal.snapshots import _flatten_state
@@ -2248,7 +2257,13 @@ def build_input_bindings(
         )
     if preparation.reused_bound_state_snapshot_ref is not None:
         if not selected_method_inputs:
-            raise ValueError("foundry_selected_method_input_prestate_without_values")
+            if (
+                preparation.effective_rules
+                or artifact_ref_identity_key(snapshot.data_ref)
+                != artifact_ref_identity_key(preparation.reused_bound_state_snapshot_ref)
+                or not _is_model_state_snapshot(store, snapshot.data_ref)
+            ):
+                raise ValueError("foundry_selected_method_input_prestate_without_values")
         bound_state_snapshot_ref = preparation.reused_bound_state_snapshot_ref
     else:
         if selected_method_inputs:
@@ -2731,11 +2746,24 @@ def _prepare_semantic_input_bindings(
     if expected_invocation is not None and invocation != expected_invocation:
         raise ValueError("foundry_input_bindings_semantic_invocation_mismatch")
     if historical_execution_ref is None:
-        verify_program_graph_input_preflight(
-            store,
-            obligation_set_ref=manifest.model_input_obligation_set_ref,
-            expected_invocation=invocation,
-        )
+        if selected_set.schema_version == "1.3":
+            if getattr(selected_set, "purpose", None) != "current_use_method_input_revalidation":
+                raise ValueError("foundry_method_revalidation_purpose_mismatch")
+            from polisyos.foundry.execute.model_input_requirements import (
+                verify_current_use_method_input_revalidation,
+            )
+
+            verify_current_use_method_input_revalidation(
+                store,
+                obligation_set_ref=manifest.model_input_obligation_set_ref,
+                expected_invocation=invocation,
+            )
+        else:
+            verify_program_graph_input_preflight(
+                store,
+                obligation_set_ref=manifest.model_input_obligation_set_ref,
+                expected_invocation=invocation,
+            )
     else:
         if historical_input_bindings_ref is None:
             raise ValueError("foundry_selected_method_input_historical_binding_ref_required")
@@ -3040,10 +3068,21 @@ def _prepare_semantic_input_binding_facts(
         )
         limitations.extend(derived_limits)
     compiled_rules.sort(key=lambda rule: rule.binding_id)
+    if state_selection_count and _is_model_state_snapshot(
+        store, predecessor.bound_state_snapshot_ref
+    ):
+        raise ValueError("foundry_model_state_binding_state_rewrite_not_established")
     if method_inputs and state_selection_count:
         raise ValueError("foundry_selected_method_input_mixed_carrier_not_established")
     if method_inputs and predecessor.selected_method_inputs is not None:
-        raise ValueError("foundry_selected_method_input_chained_prestate_not_established")
+        _require_current_method_revalidation_facts(
+            store,
+            selected_set=selected_set,
+            manifest=manifest,
+            predecessor=predecessor,
+            method_inputs=tuple(method_inputs),
+            obligations=obligations,
+        )
     if rules is not None and rules != compiled_rules:
         raise ValueError("foundry_input_bindings_semantic_rules_mismatch")
     prepared = _prepare_input_binding_values(
@@ -3053,12 +3092,15 @@ def _prepare_semantic_input_binding_facts(
         binding_payload=payload,
         rules=compiled_rules,
         selected_tensor_policies=policies,
+        registry_bundle_ref=registry_bundle_ref,
     )
     if method_inputs:
         prepared = replace(
             prepared,
-            materialized_state=load_state_snapshot(
-                store, snapshot_ref=predecessor.bound_state_snapshot_ref
+            materialized_state=_load_input_binding_state(
+                store,
+                snapshot_ref=predecessor.bound_state_snapshot_ref,
+                registry_bundle_ref=registry_bundle_ref,
             ),
             selected_method_inputs=tuple(sorted(method_inputs, key=lambda item: item.binding_id)),
             reused_bound_state_snapshot_ref=predecessor.bound_state_snapshot_ref,
@@ -3076,6 +3118,104 @@ def _prepare_semantic_input_binding_facts(
     ):
         raise ValueError("foundry_input_bindings_semantic_execution_step_mismatch")
     return replace(prepared, warnings=tuple(dict.fromkeys((*prepared.warnings, *limitations))))
+
+
+def _require_current_method_revalidation_facts(
+    store: CoreJSONArtifactStore,
+    *,
+    selected_set: ModelInputObligationSet,
+    manifest: ResolvedInputBindingManifest,
+    predecessor: FoundryInputBindings,
+    method_inputs: tuple[_PreparedSelectedMethodInput, ...],
+    obligations: Mapping[tuple[str, str, str, str | None], ModelInputObligation],
+) -> None:
+    """Join original sources only for the explicit current-use reseal purpose.
+
+    This immutable fact predicate grants neither current nominal ABI admission
+    nor source/provider authority. The live preparation separately requires
+    the canonical current-use preflight. A genuine new-data transition must
+    use its own controlled materialization path, not this unchanged-source join.
+    """
+    from polisyos.core.contracts import (
+        load_native_derivation_source_projection,
+        load_registered_derived_input_correspondence,
+    )
+
+    if (
+        selected_set.schema_version != "1.3"
+        or getattr(selected_set, "purpose", None) != "current_use_method_input_revalidation"
+        or selected_set.authority_purpose != "candidate_execution_input_revalidation_only"
+    ):
+        raise ValueError("foundry_selected_method_input_chained_prestate_not_established")
+    original_ref = selected_set.invocation.input_bindings_ref
+    original_manifest_ref = predecessor.resolved_binding_manifest_ref
+    if original_manifest_ref is None:
+        raise ValueError("foundry_method_revalidation_original_selection_required")
+    original_manifest = load_resolved_input_binding_manifest(store, original_manifest_ref)
+    original_set, _ = load_model_input_obligation_set(
+        store, original_manifest.model_input_obligation_set_ref
+    )
+    original_facts = replay_selected_method_input_facts(
+        store,
+        input_bindings_ref=original_ref,
+        expected_invocation=original_set.invocation,
+    )
+    if original_facts.bindings != predecessor or artifact_ref_identity_key(
+        selected_set.prestate_ref
+    ) != artifact_ref_identity_key(predecessor.bound_state_snapshot_ref):
+        raise ValueError("foundry_method_revalidation_original_prestate_mismatch")
+    if (
+        manifest.measurements
+        or original_manifest.measurements
+        or not manifest.derivations
+        or len(original_facts.records) != len(method_inputs)
+    ):
+        raise ValueError("foundry_method_revalidation_source_profile_not_established")
+    old_records = {record.port_id: record for record in original_facts.records}
+    old_selections = {
+        selection.model_port_id: selection for selection in original_manifest.derivations
+    }
+    new_selections = {selection.model_port_id: selection for selection in manifest.derivations}
+    if set(old_records) != set(old_selections) or set(old_records) != set(new_selections):
+        raise ValueError("foundry_method_revalidation_source_inventory_mismatch")
+
+    def role_occurrences(selection: ResolvedDerivedInput) -> tuple[tuple[str, object], ...]:
+        proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
+        return tuple(
+            (
+                role.role,
+                artifact_ref_identity_key(
+                    load_native_derivation_source_projection(
+                        store, role.source_projection_ref
+                    ).occurrence_ref
+                ),
+            )
+            for role in proof.roles
+        )
+
+    for value in method_inputs:
+        record = old_records.get(value.port_id)
+        if record is None:
+            raise ValueError("foundry_method_revalidation_source_inventory_mismatch")
+        old_obligation = validate_core_model_json_artifact(
+            ModelInputObligation, store, record.model_input_obligation_ref
+        )
+        current_obligation = obligations[
+            artifact_ref_identity_key(value.model_input_obligation_ref)
+        ]
+        if (
+            old_obligation.port != current_obligation.port
+            or value.slot_id != record.slot_id
+            or value.canonical_value != record.canonical_value
+            or value.value.dtype.name != record.dtype
+            or value.value.shape != record.shape
+            or _selected_method_tensor_digest(value.value) != record.value_sha256
+            or artifact_ref_identity_key(old_selections[value.port_id].profile_ref)
+            != artifact_ref_identity_key(new_selections[value.port_id].profile_ref)
+            or role_occurrences(old_selections[value.port_id])
+            != role_occurrences(new_selections[value.port_id])
+        ):
+            raise ValueError("foundry_method_revalidation_original_source_mismatch")
 
 
 def _load_scoped_correspondence(
@@ -3726,7 +3866,11 @@ def _replay_selected_method_input_values(
         raise ValueError("foundry_selected_method_input_prestate_mismatch")
     # The prestate remains the predecessor's exact selected artifact. Opening
     # its bytes catches removal/corruption without manufacturing new lineage.
-    load_state_snapshot(core_store, snapshot_ref=bindings.bound_state_snapshot_ref)
+    _load_input_binding_state(
+        core_store,
+        snapshot_ref=bindings.bound_state_snapshot_ref,
+        registry_bundle_ref=bindings.registry_bundle_ref,
+    )
     values: dict[str, np.ndarray] = {}
     for record, expected in zip(records, prepared.selected_method_inputs, strict=True):
         value = expected.value
@@ -3893,7 +4037,11 @@ def reconcile_explicit_initial_binding_slots(
     input_bindings_ref: FoundryInputBindingsRef,
     expected_state_paths: Mapping[str, str],
 ) -> tuple[str, ...]:
-    """Reconcile supplied decimal inputs in an exact legacy initial state.
+    """Reconcile decimal inputs from an exact initial-state source.
+
+    A selected method-only predecessor must first replay its own immutable
+    selection and the original initial-state rules. This does not establish
+    a fresh invocation, source currentness, or authority to use those facts.
 
     Args:
         store: Existing store containing the selected binding, data and state.
@@ -3928,6 +4076,10 @@ def _replay_explicit_initial_bindings(
     expected_state_paths: Mapping[str, str],
 ) -> tuple[_ExplicitInitialBinding, ...]:
     """Read the physical predecessor values once for the calling operation."""
+    if bindings.schema_version == "1.4":
+        return _replay_method_predecessor_initial_bindings(
+            store, input_bindings_ref, bindings, expected_state_paths
+        )
     if bindings.schema_version != "1.0":
         raise ValueError("explicit_initial_binding_legacy_profile_required")
 
@@ -3939,6 +4091,27 @@ def _replay_explicit_initial_bindings(
         store.get_manifest(input_bindings_ref),
         {**source_refs, "artifact.bound_state_snapshot_ref": bindings.bound_state_snapshot_ref},
     )
+    if _is_model_state_snapshot(store, bindings.bound_state_snapshot_ref):
+        snapshot = _load_data_snapshot(store, bindings.data_snapshot_ref)
+        if bindings.rules or artifact_ref_identity_key(
+            snapshot.data_ref
+        ) != artifact_ref_identity_key(bindings.bound_state_snapshot_ref):
+            raise ValueError("explicit_initial_binding_model_state_source_mismatch")
+        slot_registry = load_registry_bundle_content(
+            store, bindings.registry_bundle_ref
+        ).slot_registry
+        for slot_id, path in expected_state_paths.items():
+            slot = slot_registry.slots.get(slot_id)
+            if slot is None or (slot.state_path or "") != path:
+                raise ValueError(f"explicit_initial_binding_destination_mismatch:{slot_id}")
+        _load_input_binding_state(
+            store,
+            snapshot_ref=bindings.bound_state_snapshot_ref,
+            registry_bundle_ref=bindings.registry_bundle_ref,
+        )
+        # The selected snapshot is actual internal prestate, not a fabricated
+        # explicit observed-source binding for one of its individual cells.
+        return ()
     state_manifest = store.get_manifest(bindings.bound_state_snapshot_ref)
     if state_manifest.artifact_schema != SchemaInfo(
         name="polisyos.core.StateSnapshot",
@@ -3995,6 +4168,42 @@ def _replay_explicit_initial_bindings(
             raise ValueError(f"explicit_initial_binding_state_mismatch:{slot_id}")
         supplied.append(_ExplicitInitialBinding(rule, raw, policy))
     return tuple(supplied)
+
+
+def _replay_method_predecessor_initial_bindings(
+    store: CoreJSONArtifactStore,
+    input_bindings_ref: FoundryInputBindingsRef,
+    bindings: FoundryInputBindings,
+    expected_state_paths: Mapping[str, str],
+) -> tuple[_ExplicitInitialBinding, ...]:
+    """Replay one method selection's original physical source without grafting it."""
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    if manifest_ref is None:
+        raise ValueError("explicit_initial_binding_method_selection_required")
+    manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    original_set, _ = load_model_input_obligation_set(
+        store, manifest.model_input_obligation_set_ref
+    )
+    original_ref = original_set.invocation.input_bindings_ref
+    original = load_input_bindings(store, original_ref)
+    if original.schema_version != "1.0":
+        raise ValueError("explicit_initial_binding_method_source_chain_not_established")
+    if artifact_ref_identity_key(original.bound_state_snapshot_ref) != artifact_ref_identity_key(
+        bindings.bound_state_snapshot_ref
+    ):
+        raise ValueError("explicit_initial_binding_method_prestate_mismatch")
+    replay_selected_method_input_facts(
+        store,
+        input_bindings_ref=input_bindings_ref,
+        expected_invocation=original_set.invocation,
+    )
+    supplied = _replay_explicit_initial_bindings(
+        store, original_ref, original, expected_state_paths
+    )
+    retained = {rule.binding_id: rule for rule in bindings.rules}
+    if any(retained.get(item.rule.binding_id) != item.rule for item in supplied):
+        raise ValueError("explicit_initial_binding_method_retained_rule_mismatch")
+    return supplied
 
 
 def _require_selected_binding_edges(
@@ -4696,11 +4905,48 @@ def _build_base_state(
     payload: Any,
     slot_registry: SlotRegistry,
     rules: list[FoundryInputBindingRule],
+    registry_bundle_ref: ArtifactRef | None = None,
 ) -> GlobalState:
     if snapshot.data_ref.kind == "foundry.state_snapshot":
+        if _is_model_state_snapshot(store, snapshot.data_ref):
+            if rules:
+                raise ValueError("foundry_model_state_binding_state_rewrite_not_established")
+            if registry_bundle_ref is None:
+                raise ValueError("foundry_model_state_binding_registry_required")
+            return _load_input_binding_state(
+                store,
+                snapshot_ref=snapshot.data_ref,
+                registry_bundle_ref=registry_bundle_ref,
+            )
         return load_state_snapshot(store, snapshot_ref=snapshot.data_ref)
 
     return _build_payload_base_state(payload=payload, rules=rules, slot_registry=slot_registry)
+
+
+def _is_model_state_snapshot(store: CoreJSONArtifactStore, ref: ArtifactRef) -> bool:
+    """Select the persistent owner by its exact declared artifact schema."""
+    return ref.kind == "foundry.state_snapshot" and store.get_manifest(ref).artifact_schema == (
+        SchemaInfo(
+            name="polisyos.core.StateSnapshot",
+            version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION["2.4"],
+        )
+    )
+
+
+def _load_input_binding_state(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot_ref: ArtifactRef,
+    registry_bundle_ref: ArtifactRef,
+) -> GlobalState:
+    """Open persistent prestate through its bounded canonical context only."""
+    if _is_model_state_snapshot(store, snapshot_ref):
+        from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
+
+        return ModelStatePatchContext(
+            store=store, base_ref=snapshot_ref, registry_bundle_ref=registry_bundle_ref
+        ).bound_state.state
+    return load_state_snapshot(store, snapshot_ref=snapshot_ref)
 
 
 def _build_payload_base_state(

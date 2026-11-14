@@ -1,0 +1,11 @@
+id = "2026-11-14-e02-model-state-revalidation"
+title = "Preserve model-defined state and explicit current-use input revalidation"
+type = "added"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Transport selected scalar model state through the existing graph, patch VM and Snapshot 2.4 reader. Add explicit candidate current-use obligation recomputation and resealing while ordinary preflight stays strict. Preserve feedback failures and add versioned temporal and feedback primitives for subsequent consumer integration."
+evidence = ["tests/unit/foundry/runtime/test_persistent_model_state_execution.py", "tests/unit/runtime/quality/test_model_input_reseal.py", "tests/unit/runtime/quality/test_model_input_requirements.py", "tests/unit/core/contracts/test_temporal_semantic_composition.py", "tests/unit/foundry/feedback/test_reconciliation.py"]
+compatibility = "Legacy snapshot, binding and ordinary obligation-purpose wires remain readable. New current-use purpose is explicit Set 1.3. SimulationResult keeps the existing 1.4 writer default; the feedback 1.5 contract does not silently replace it."
+surface_classification = "public_additive"
+migration = "Migration owner: team-policyos-runtime. No historical artifacts are rewritten. Compose the main additive-precision guard before promoting persistent-state execution. Regenerate affected public/generated families after the active Runtime composition stabilizes."
+limitations = "Persistent execution has nine qualified cases; current-use artifact controls and temporal contracts are qualified in separate recorded scopes. Full temporal, vector, method-dataflow and selected-feedback execution consumers, bounded Snapshot 2.4 source admission, initial Runtime frontier and full LANE-01 acceptance remain open."

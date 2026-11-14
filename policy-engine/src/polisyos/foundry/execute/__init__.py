@@ -230,6 +230,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute.model_input_requirements",
         "verify_program_graph_input_preflight",
     ),
+    "recompute_current_use_method_input_revalidation": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "recompute_current_use_method_input_revalidation",
+    ),
+    "verify_current_use_method_input_revalidation": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "verify_current_use_method_input_revalidation",
+    ),
 }
 
 
@@ -269,3 +277,16 @@ sys.modules[__name__].__class__ = _CallableExecuteModule
 __all__.extend(
     ["load_stored_selected_method_input_occurrences", "ProgramGraphMethodExecutionObserver"]
 )
+
+__all__.extend(
+    [
+        "recompute_current_use_method_input_revalidation",
+        "verify_current_use_method_input_revalidation",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .model_input_requirements import (
+        recompute_current_use_method_input_revalidation,
+        verify_current_use_method_input_revalidation,
+    )

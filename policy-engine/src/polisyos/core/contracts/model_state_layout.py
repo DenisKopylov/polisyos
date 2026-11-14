@@ -10,9 +10,24 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.ir.kernel import SlotSpec
 
 _SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
 _SLOT_ID = re.compile(r"^[a-z][a-z0-9_.]{0,199}$")
+
+
+def model_scalar_state_slot_spec_digest(slot_spec: SlotSpec) -> str:
+    """Hash the complete registered slot descriptor using the layout's wire rule."""
+
+    if type(slot_spec) is not SlotSpec:
+        raise TypeError("model_scalar_state_slot_spec_required")
+    payload = json.dumps(
+        slot_spec.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    )
+    return f"sha256:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 class ModelScalarStateLayoutRef(ArtifactRef):

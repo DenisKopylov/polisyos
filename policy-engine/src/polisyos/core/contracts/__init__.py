@@ -451,6 +451,9 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "MethodMetricInputCapturePayload",
         "MethodMetricInputCaptureRef",
         "MethodOutputPayload",
+        "MethodOutputPayloadV11",
+        "MethodOutputConsumptionRecord",
+        "MethodOutputScalarValueIdentity",
         "MethodOutputRef",
         "MetricObservationBundle",
         "MetricObservationBundleRef",
@@ -542,6 +545,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "ModelScalarStateLayoutRef",
         "ModelScalarStateSlot",
         "model_scalar_state_layout_digest",
+        "model_scalar_state_slot_spec_digest",
     ),
     ".model_input_requirements": (
         "ModelInputContext",
@@ -941,6 +945,14 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "evaluate_derived_input_correspondence",
         "load_derived_input_correspondence",
         "load_ratio_denominator_source_context",
+    ),
+    ".model_input_step_coverage": (
+        "ModelInputStepCoverage",
+        "reconcile_model_input_step_coverage",
+    ),
+    ".semantic_step_binding": (
+        "resolve_model_input_step_scope",
+        "recompute_resolved_step_input_coverage",
     ),
 }
 
@@ -2899,4 +2911,33 @@ if TYPE_CHECKING:
         evaluate_derived_input_correspondence,
         load_derived_input_correspondence,
         load_ratio_denominator_source_context,
+    )
+
+__all__.extend(
+    [
+        "MethodOutputConsumptionRecord",
+        "MethodOutputPayloadV11",
+        "MethodOutputScalarValueIdentity",
+        "ModelInputStepCoverage",
+        "model_scalar_state_slot_spec_digest",
+        "recompute_resolved_step_input_coverage",
+        "reconcile_model_input_step_coverage",
+        "resolve_model_input_step_scope",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .foundry import (
+        MethodOutputConsumptionRecord,
+        MethodOutputPayloadV11,
+        MethodOutputScalarValueIdentity,
+    )
+    from .model_input_step_coverage import (
+        ModelInputStepCoverage,
+        reconcile_model_input_step_coverage,
+    )
+    from .model_state_layout import model_scalar_state_slot_spec_digest
+    from .semantic_step_binding import (
+        recompute_resolved_step_input_coverage,
+        resolve_model_input_step_scope,
     )

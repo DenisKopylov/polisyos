@@ -6,12 +6,54 @@ from collections.abc import Mapping, Sequence
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+from polisyos.core.contracts.model_state_layout import (
+    ModelScalarStateLayout,
+    model_scalar_state_layout_digest,
+    model_scalar_state_slot_spec_digest,
+)
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.types.checker import validate_registered_method_input
-from polisyos.ir.kernel import MergeRuleKind, SlotKind, SlotScope, SlotValueType
+from polisyos.ir.kernel import MergeRuleKind, SlotKind, SlotScope, SlotSpec, SlotValueType
 
 if TYPE_CHECKING:
     from polisyos.core.registry import RegistryBundleContent
+
+
+def _validate_model_state_target(
+    target: SlotSpec,
+    *,
+    registry: RegistryBundleContent,
+    layout: ModelScalarStateLayout | None,
+    target_values: Mapping[str, np.ndarray] | None,
+) -> None:
+    if layout is None or target_values is None:
+        raise ValueError("method_patch_target_profile_mismatch")
+    if type(layout) is not ModelScalarStateLayout:
+        raise ValueError("method_patch_target_state_layout_mismatch")
+    if artifact_ref_identity_key(layout.registry_bundle_ref) != artifact_ref_identity_key(
+        registry.bundle_ref
+    ):
+        raise ValueError("method_patch_target_state_registry_mismatch")
+    if layout.layout_sha256 != model_scalar_state_layout_digest(
+        registry_bundle_ref=layout.registry_bundle_ref, slots=layout.slots
+    ):
+        raise ValueError("method_patch_target_state_layout_mismatch")
+    try:
+        descriptor = layout.slot(target.slot_id)
+    except KeyError as exc:
+        raise ValueError("method_patch_target_state_layout_mismatch") from exc
+    if descriptor.slot_spec_sha256 != model_scalar_state_slot_spec_digest(target):
+        raise ValueError("method_patch_target_state_layout_mismatch")
+    if target.state_path is not None or target.dtype != "float32" or target.shape != []:
+        raise ValueError("method_patch_target_profile_mismatch")
+    if target.slot_id not in target_values:
+        raise ValueError("method_patch_target_state_absent")
+    value = np.asarray(target_values[target.slot_id])
+    if value.shape != () or value.dtype != np.dtype(np.float32) or not bool(np.isfinite(value)):
+        raise ValueError("method_patch_target_state_value_invalid")
 
 
 def validate_method_patch_targets(
@@ -21,6 +63,8 @@ def validate_method_patch_targets(
     declared_outputs: Sequence[str],
     registry: RegistryBundleContent,
     input_slot_sources: Mapping[str, str] | None = None,
+    model_state_layout: ModelScalarStateLayout | None = None,
+    model_state_target_values: Mapping[str, np.ndarray] | None = None,
 ) -> Mapping[str, str]:
     """Resolve the finite additive-flow patch contract before invoking a method.
 
@@ -42,6 +86,11 @@ def validate_method_patch_targets(
         input_slot_sources: Complete local ABI input to registered source map.
             None preserves the legacy identity join. An explicit map never
             falls back to local names for missing or invalid entries.
+        model_state_layout: Actual selected persistent-state layout opened by
+            the canonical host owner; required for pathless stock targets.
+        model_state_target_values: Present target scalars read by that owner
+            through its selected-layout accessor. These are structural input
+            facts, not an authority grant or an independent state reader.
 
     Returns:
         Immutable mapping from exact state target to required operation.
@@ -85,10 +134,20 @@ def validate_method_patch_targets(
             target.kind is not SlotKind.STOCK
             or target.scope is not SlotScope.GLOBAL
             or target.value_type is not SlotValueType.DECIMAL
-            or not target.state_path
+            or target.state_path == ""
             or target.shape not in (None, [])
         ):
             raise ValueError("method_patch_target_profile_mismatch")
+        if target.state_path is None or (
+            type(model_state_layout) is ModelScalarStateLayout
+            and any(slot.slot_id == target_id for slot in model_state_layout.slots)
+        ):
+            _validate_model_state_target(
+                target,
+                registry=registry,
+                layout=model_state_layout,
+                target_values=model_state_target_values,
+            )
         if source.kind is not SlotKind.FLOW:
             raise ValueError("method_patch_source_profile_mismatch")
         rule = registry.merge_registry.rules.get(target.merge_rule.rule_id)

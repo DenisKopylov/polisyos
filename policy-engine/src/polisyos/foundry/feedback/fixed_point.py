@@ -80,20 +80,22 @@ class FeedbackMapEvaluationRecorder:
                     output = np.asarray(result, dtype=float).reshape(-1).copy()
                 if execution_link_provider is not None:
                     graph_invocation_id = execution_link_provider()
-            except Exception as exc:
+            except BaseException as exc:
                 if execution_link_provider is not None:
                     try:
                         graph_invocation_id = execution_link_provider()
-                    except Exception:
-                        graph_invocation_id = None
-                self._append(
+                    except BaseException as link_error:
+                        self._add_exception_note_preserving(
+                            exc,
+                            "feedback map invocation link unavailable: "
+                            f"{type(link_error).__module__}.{type(link_error).__qualname__}",
+                        )
+                self._append_failure_preserving_exception(
+                    original_exception=exc,
                     evaluation_id=evaluation_id,
                     phase=phase,
                     candidate_values=candidate,
                     graph_invocation_id=graph_invocation_id,
-                    mapped_values=None,
-                    outcome="failed",
-                    failure_type=f"{type(exc).__module__}.{type(exc).__qualname__}",
                 )
                 raise
 
@@ -178,16 +180,18 @@ class FeedbackMapEvaluationRecorder:
             if graph_invocation_id is None and execution_link_provider is not None:
                 try:
                     graph_invocation_id = execution_link_provider()
-                except BaseException:
-                    graph_invocation_id = None
-            self._append(
+                except BaseException as link_error:
+                    self._add_exception_note_preserving(
+                        exc,
+                        "feedback final invocation link unavailable: "
+                        f"{type(link_error).__module__}.{type(link_error).__qualname__}",
+                    )
+            self._append_failure_preserving_exception(
+                original_exception=exc,
                 evaluation_id=evaluation_id,
                 phase="final_materialization",
                 candidate_values=candidate,
                 graph_invocation_id=graph_invocation_id,
-                mapped_values=None,
-                outcome="failed",
-                failure_type=f"{type(exc).__module__}.{type(exc).__qualname__}",
             )
             raise
 
@@ -242,6 +246,44 @@ class FeedbackMapEvaluationRecorder:
         )
         self._records.append(record)
         return record
+
+    def _append_failure_preserving_exception(
+        self,
+        *,
+        original_exception: BaseException,
+        evaluation_id: str,
+        phase: str,
+        candidate_values: np.ndarray,
+        graph_invocation_id: str | None,
+    ) -> None:
+        """Best-effort append one failed callback without masking its exception."""
+        try:
+            self._append(
+                evaluation_id=evaluation_id,
+                phase=phase,
+                candidate_values=candidate_values,
+                graph_invocation_id=graph_invocation_id,
+                mapped_values=None,
+                outcome="failed",
+                failure_type=(
+                    f"{type(original_exception).__module__}."
+                    f"{type(original_exception).__qualname__}"
+                ),
+            )
+        except BaseException as ledger_error:
+            self._add_exception_note_preserving(
+                original_exception,
+                "feedback failure ledger unavailable: "
+                f"{type(ledger_error).__module__}.{type(ledger_error).__qualname__}",
+            )
+
+    @staticmethod
+    def _add_exception_note_preserving(original_exception: BaseException, note: str) -> None:
+        """Add diagnostic context when possible without replacing the original error."""
+        try:
+            original_exception.add_note(note)
+        except BaseException:
+            pass
 
 
 @dataclass(frozen=True)

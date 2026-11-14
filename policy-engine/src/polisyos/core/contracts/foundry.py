@@ -3019,19 +3019,60 @@ class SemanticHorizonStepContext(BaseModel):
         return self.replication_seed + self.effective_step
 
 
+class FeedbackExecutionContext(BaseModel):
+    """Typed joins from a feedback solve to its final graph materialization.
+
+    This context records identities only. It does not establish convergence,
+    independent verification, causal validity, or authority to use the result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    final_injected_state_snapshot_ref: StateSnapshotRef
+    final_parameter_override_bundle_ref: ParameterOverrideBundleRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    final_method_execution_bundle_ref: MethodExecutionBundleRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    feedback_result_ref: FeedbackResultRef
+    feedback_trace_ref: FeedbackTraceRef
+    final_map_evaluation_id: StrictStr = Field(min_length=1, max_length=128)
+    final_graph_invocation_id: StrictStr | None = Field(
+        default=None, min_length=1, max_length=64, exclude_if=lambda value: value is None
+    )
+    execution_link_status: Literal["captured", "not_established"]
+
+    @model_validator(mode="after")
+    def validate_final_invocation_link(self) -> FeedbackExecutionContext:
+        if (self.final_graph_invocation_id is not None) != (
+            self.execution_link_status == "captured"
+        ):
+            raise ValueError("feedback_execution_context_invocation_status_mismatch")
+        if (
+            self.final_graph_invocation_id is not None
+            and self.final_method_execution_bundle_ref is None
+        ):
+            raise ValueError("feedback_execution_context_invocation_requires_method_bundle")
+        return self
+
+
 class FoundryExecutionInputBasis(BaseModel):
-    """Exact CAS-bound single-step inputs observed at the Foundry executor boundary.
+    """Exact CAS-bound inputs observed at the Foundry executor boundary.
 
     This artifact identifies producer inputs and effective call arguments only. It
     carries no risk interpretation, refinement, unit, valid-time, or authority claim.
+    Feedback schema 1.3 also joins the final solver map evaluation to its graph run.
     """
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryExecutionInputBasis"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
         "1.2": ("semantic_horizon_step",),
+        "1.3": ("feedback_execution_context",),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.execution_input_basis"]] = (
         "foundry.execution_input_basis"
@@ -3040,9 +3081,9 @@ class FoundryExecutionInputBasis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
     authority_purpose: Literal["execution_input_identity_only"] = "execution_input_identity_only"
-    execution_mode: Literal["single_step"] = "single_step"
+    execution_mode: Literal["single_step", "feedback"] = "single_step"
     request: ExecuteRequest
     request_fields_set: tuple[str, ...] = ()
     request_exec_config_fields_set: tuple[str, ...] = ()
@@ -3080,13 +3121,29 @@ class FoundryExecutionInputBasis(BaseModel):
     semantic_horizon_step: SemanticHorizonStepContext | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    feedback_execution_context: FeedbackExecutionContext | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _validate_registered_sql_transport(self) -> FoundryExecutionInputBasis:
-        if (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1"):
+        if self.schema_version in {"1.0", "1.1", "1.2"} and (
+            (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1")
+        ):
             raise ValueError("execution_input_basis_registered_sql_version_mismatch")
-        if (self.semantic_horizon_step is not None) != (self.schema_version == "1.2"):
+        if self.schema_version in {"1.0", "1.1", "1.2"} and (
+            (self.semantic_horizon_step is not None) != (self.schema_version == "1.2")
+        ):
             raise ValueError("execution_input_basis_semantic_horizon_version_mismatch")
+        if self.schema_version == "1.3":
+            if (
+                self.execution_mode != "feedback"
+                or self.feedback_execution_context is None
+                or self.request.feedback_config_ref is None
+            ):
+                raise ValueError("execution_input_basis_v1_3_requires_feedback_context_and_config")
+        elif self.execution_mode != "single_step" or self.feedback_execution_context is not None:
+            raise ValueError("execution_input_basis_feedback_requires_schema_1_3")
         step = self.semantic_horizon_step
         if step is not None and (
             self.effective_step != step.effective_step or self.effective_seed != step.effective_seed
@@ -3423,6 +3480,7 @@ class SimulationResult(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     LEGACY_ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.3"
+    FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.5"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -3445,20 +3503,27 @@ class SimulationResult(BaseModel):
     feedback_result_ref: FeedbackResultRef | None = None
     identifiability_diagnostic_ref: IdentifiabilityDiagnosticRef | None = None
     execution_input_basis_ref: FoundryExecutionInputBasisRef | None = None
-    execution_source_status: Literal["not_recorded", "single_step_basis", "feedback_uncomposed"] = (
-        "not_recorded"
-    )
+    execution_source_status: Literal[
+        "not_recorded", "single_step_basis", "feedback_uncomposed", "feedback_basis"
+    ] = "not_recorded"
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_execution_source_basis(self) -> SimulationResult:
-        if self.schema_version == "1.4":
+        if self.schema_version in {"1.4", self.FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION}:
             if self.execution_source_status == "single_step_basis":
                 if self.execution_input_basis_ref is None or self.feedback_result_ref is not None:
                     raise ValueError("single_step_source_basis_requires_basis_without_feedback")
             elif self.execution_source_status == "feedback_uncomposed":
                 if self.execution_input_basis_ref is not None or self.feedback_result_ref is None:
                     raise ValueError("feedback_source_status_requires_feedback_without_basis")
+            elif self.execution_source_status == "feedback_basis":
+                if (
+                    self.schema_version != self.FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION
+                    or self.execution_input_basis_ref is None
+                    or self.feedback_result_ref is None
+                ):
+                    raise ValueError("feedback_basis_status_requires_schema_1_5_basis_and_result")
             elif self.execution_input_basis_ref is not None:
                 raise ValueError("execution_basis_ref_requires_single_step_status")
         else:
@@ -3471,10 +3536,10 @@ class SimulationResult(BaseModel):
     def to_artifact_payload(self) -> dict[str, Any]:
         """Project only the fields supported by this result's declared artifact version.
 
-        Schema 1.3 is the frozen historical shape. The execution-basis fields belong
-        only to schema 1.4; they are omitted from legacy bytes and are never promoted
-        by relabeling a newer result. Unsupported historical versions must be migrated
-        through an explicit projection rather than serialized under a guessed schema.
+        Schema 1.3 is the frozen historical shape. Schema 1.4 carries the existing
+        single-step/feedback-uncomposed source statuses; schema 1.5 additionally admits
+        a composed feedback basis. Legacy fields are omitted and are never promoted by
+        relabeling a newer result. Unsupported versions require an explicit projection.
         """
         if self.schema_version == self.LEGACY_ARTIFACT_SCHEMA_VERSION:
             return self.model_dump(
@@ -3482,5 +3547,7 @@ class SimulationResult(BaseModel):
                 exclude={"execution_input_basis_ref", "execution_source_status"},
             )
         if self.schema_version == self.ARTIFACT_SCHEMA_VERSION:
+            return self.model_dump(mode="json")
+        if self.schema_version == self.FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION:
             return self.model_dump(mode="json")
         raise ValueError("unsupported_simulation_result_artifact_schema_version")

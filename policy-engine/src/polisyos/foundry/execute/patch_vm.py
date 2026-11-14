@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field, fields
 from io import BytesIO
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
@@ -130,6 +130,47 @@ class ModelStatePatchContext:
             slot_registry=self.registry.slot_registry, merge_registry=self.registry.merge_registry
         )
         return self._with_state_after_validation(state)
+
+    def require_opening_state(self) -> None:
+        """Refuse replay admission against a reattached post-execution state."""
+        from polisyos.foundry.model_state_slots import ModelScalarStateAccessError
+
+        if self.bound_state.state is not self._opening_state:
+            raise ModelScalarStateAccessError("model_scalar_state_patch_opening_state_required")
+
+    def resolve_input_source(
+        self, slot_id: str, *, external_selected: bool
+    ) -> Literal["state_path", "model_layout_slot", "external_selected"]:
+        """Classify one input after the caller validates this selected context.
+
+        A registered slot must have exactly one source: its physical state
+        path, its selected model layout, or a declared exogenous selection.
+        ``external_selected`` declares that source, not that an input artifact
+        exists or is admitted; execution must separately resolve that artifact.
+        Model-layout reads verify actual presence before returning a source.
+        """
+        from polisyos.foundry.model_state_slots import ModelScalarStateAccessError
+
+        if type(external_selected) is not bool:
+            raise ModelScalarStateAccessError("model_scalar_state_input_source_flag_invalid")
+        slot = self.registry.slot_registry.slots.get(slot_id)
+        if slot is None or slot.state_path == "":
+            raise ModelScalarStateAccessError("model_scalar_state_input_source_unbound")
+        physical = slot.state_path is not None
+        in_layout = any(
+            descriptor.slot_id == slot_id for descriptor in self.bound_state.layout.slots
+        )
+        count = int(physical) + int(in_layout) + int(external_selected)
+        if count > 1:
+            raise ModelScalarStateAccessError("model_scalar_state_input_source_ambiguous")
+        if count == 0:
+            raise ModelScalarStateAccessError("model_scalar_state_input_source_unbound")
+        if in_layout:
+            self.read_slot(slot_id)
+            return "model_layout_slot"
+        if physical:
+            return "state_path"
+        return "external_selected"
 
     def _with_state_after_validation(self, state: GlobalState) -> ModelStatePatchContext:
         """Reattach within an operation whose immutable context was checked once."""

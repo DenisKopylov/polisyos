@@ -15,6 +15,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 
+from .model_input_period_steps import ModelInputStepScope
 from .semantic_derived_binding import DerivedInputCorrespondenceRef, DerivedInputProfileRef
 from .variable_binding import (
     ScopedCorrespondenceBasisRef,
@@ -115,8 +116,8 @@ class ResolvedDerivedInput(BaseModel):
         """Identify the physical source path derived from this exact output."""
         return f"binding.{self.binding_id}.derived_output:{self.source_path}"
 
-    def lineage_inputs(self) -> list[InputRef]:
-        """Return complete role-qualified arithmetic and semantic selections."""
+    def lineage_refs(self) -> tuple[tuple[SelectedVariableBindingRef, str], ...]:
+        """Return exact references with their established binding-qualified roles."""
         refs = (
             ("obligation", self.model_input_obligation_ref),
             ("interface", self.model_interface_ref),
@@ -126,17 +127,46 @@ class ResolvedDerivedInput(BaseModel):
             ("correspondence", self.correspondence_ref),
             ("profile", self.profile_ref),
         )
-        inputs = [
-            input_ref_from_artifact_ref(ref, role=f"binding.{self.binding_id}.{role}")
-            for role, ref in refs
-        ]
+        selected = tuple((ref, f"binding.{self.binding_id}.{role}") for role, ref in refs)
         if self.derivation_bundle_ref is not None:
-            inputs.append(
-                input_ref_from_artifact_ref(
-                    self.derivation_bundle_ref, role=f"binding.{self.binding_id}.n7_bundle"
-                )
-            )
-        return inputs
+            selected += ((self.derivation_bundle_ref, f"binding.{self.binding_id}.n7_bundle"),)
+        return selected
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return complete role-qualified arithmetic and semantic selections."""
+        return [input_ref_from_artifact_ref(ref, role=role) for ref, role in self.lineage_refs()]
+
+
+class ResolvedDerivedInputAtStep(BaseModel):
+    """An exact derived selection for one model-port read at one absolute step.
+
+    The wrapper does not change the model port's immutable scope envelope.
+    Core's selected-model resolver separately reopens the original obligation
+    set and recomputes the exact scope before this row can count as supplied.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    step_scope: ModelInputStepScope
+    selection: ResolvedDerivedInput
+
+    @model_validator(mode="after")
+    def _exact_selected_coordinate(self) -> ResolvedDerivedInputAtStep:
+        if (
+            self.selection.model_port_id != self.step_scope.port_id
+            or self.selection.year != self.step_scope.scope.period_start.year
+            or self.selection.year != self.step_scope.scope.period_end.year
+        ):
+            raise ValueError("resolved_step_input_coordinate_mismatch")
+        return self
+
+    def lineage_refs(self) -> tuple[tuple[SelectedVariableBindingRef, str], ...]:
+        """Reuse the selected derivation's complete exact dependency references."""
+        return self.selection.lineage_refs()
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Reuse the selected derivation's complete binding-qualified edges."""
+        return self.selection.lineage_inputs()
 
 
 class ResolvedInputBindingManifest(BaseModel):
@@ -144,21 +174,25 @@ class ResolvedInputBindingManifest(BaseModel):
 
     The listed refs identify what must be independently reopened and replayed.
     The manifest does not establish correspondence, permission, or currentness.
+    Version 3 carries step-qualified derived annual method inputs.  Direct
+    measurement step transport is a separate, currently unwired source variant;
+    it must not be represented by a no-op derivation.
     """
 
     ARTIFACT_KIND: ClassVar[str] = "foundry.resolved_input_binding_manifest"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ResolvedInputBindingManifest"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0", "3.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
         "1.0": "1.0",
         "2.0": "2.0",
+        "3.0": "3.0",
     }
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.0", "2.0"] = "1.0"
+    schema_version: Literal["1.0", "2.0", "3.0"] = "1.0"
     authority_purpose: Literal["candidate_simulation_input_only"] = (
         "candidate_simulation_input_only"
     )
@@ -171,6 +205,9 @@ class ResolvedInputBindingManifest(BaseModel):
     derivations: tuple[ResolvedDerivedInput, ...] = Field(
         default=(), max_length=32, exclude_if=lambda value: not value
     )
+    method_input_steps: tuple[ResolvedDerivedInputAtStep, ...] = Field(
+        default=(), max_length=32, exclude_if=lambda value: not value
+    )
 
     @model_validator(mode="after")
     def _require_exact_unique_selections(self) -> ResolvedInputBindingManifest:
@@ -180,6 +217,21 @@ class ResolvedInputBindingManifest(BaseModel):
             raise ValueError("resolved_input_binding_v1_requires_measurements_only")
         if self.schema_version == "2.0" and not self.derivations:
             raise ValueError("resolved_input_binding_v2_requires_derived_input")
+        if self.schema_version == "3.0":
+            if not self.method_input_steps or any(
+                name in self.model_fields_set for name in ("measurements", "derivations")
+            ):
+                raise ValueError("resolved_input_binding_v3_requires_step_inputs_only")
+            step_keys = tuple(
+                (row.step_scope.port_id, row.step_scope.step) for row in self.method_input_steps
+            )
+            if step_keys != tuple(sorted(set(step_keys))):
+                raise ValueError("resolved_input_binding_step_inventory_invalid")
+            paths = tuple(row.selection.source_path for row in self.method_input_steps)
+            if len(set(paths)) != len(paths):
+                raise ValueError("resolved_input_binding_step_source_path_duplicate")
+        elif self.method_input_steps or "method_input_steps" in self.model_fields_set:
+            raise ValueError("resolved_input_binding_step_inputs_version_mismatch")
         if (
             self.data_snapshot_ref.kind != "fabric.data_snapshot"
             or self.data_snapshot_ref.media_type != "application/json"
@@ -193,6 +245,7 @@ class ResolvedInputBindingManifest(BaseModel):
         binding_ids = (
             *self.retained_binding_ids,
             *(item.binding_id for item in (*self.measurements, *self.derivations)),
+            *(row.selection.binding_id for row in self.method_input_steps),
         )
         if any(not key or key != key.strip() for key in binding_ids) or len(
             set(binding_ids)
@@ -227,6 +280,8 @@ class ResolvedInputBindingManifest(BaseModel):
             )
         for selection in self.derivations:
             inputs.extend(selection.lineage_inputs())
+        for row in self.method_input_steps:
+            inputs.extend(row.lineage_inputs())
         return inputs
 
     def require_lineage(self, manifest: ArtifactManifest) -> None:
@@ -260,4 +315,11 @@ def load_resolved_input_binding_manifest(
         raise ValueError("resolved_input_binding_manifest_profile_required")
     value = validate_core_model_json_artifact(ResolvedInputBindingManifest, store, ref)
     value.require_lineage(store.get_manifest(ref))
+    if value.schema_version == "3.0":
+        from .semantic_step_binding import recompute_resolved_step_input_coverage
+
+        # A partial selection is candidate staging.  This checks exact selected
+        # subjects; execution additionally requires source/NPY replay and full
+        # computed coverage before reserving numerical work.
+        recompute_resolved_step_input_coverage(store, value)
     return value

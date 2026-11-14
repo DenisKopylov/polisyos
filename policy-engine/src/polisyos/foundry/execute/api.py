@@ -130,6 +130,7 @@ from polisyos.foundry.execute.executor import (
     put_state_snapshot,
 )
 from polisyos.foundry.execute.observation import ProgramGraphExecutionObserver
+from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
 from polisyos.foundry.feedback import (
     AlternativeSolution,
     FeedbackMapEvaluationRecorder,
@@ -1263,7 +1264,14 @@ def _admit_execution_source(
     metrics = _read_typed_model(Metrics, store, metrics_ref, read_session=read_session)
     if metrics.values.get("step") != basis.effective_step:
         raise ValueError("execution_source_metrics_step_differs_from_basis")
-    if semantic_step is not None:
+    model_state_profile = _is_model_state_snapshot_manifest(
+        _selected_manifest(store, basis.base_state_snapshot_ref, read_session=read_session)
+    )
+    if model_state_profile and read_session is not None:
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_model_state_bounded_replay_not_established"
+        )
+    if semantic_step is not None or model_state_profile:
         _verify_semantic_horizon_poststate(store, basis, simulation_result, state_delta_ref)
 
     expected_inventory = _execution_input_basis_inventory(store, basis, read_session=read_session)
@@ -1473,6 +1481,32 @@ def admit_execution_source(
         raise ExecutionSourceAdmissionRefusal(str(exc)) from exc
 
 
+def _is_model_state_snapshot_manifest(manifest: ArtifactManifest) -> bool:
+    return manifest.artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+            StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+        ],
+    )
+
+
+def _load_execution_base_state(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot_ref: StateSnapshotRef,
+    registry_bundle_ref: ArtifactRef,
+) -> tuple[GlobalState, ModelStatePatchContext | None]:
+    """Open the actual selected base with its format's canonical state owner."""
+    if _is_model_state_snapshot_manifest(store.get_manifest(snapshot_ref)):
+        context = ModelStatePatchContext(
+            store=store,
+            base_ref=snapshot_ref,
+            registry_bundle_ref=registry_bundle_ref,
+        )
+        return context.bound_state.state, context
+    return load_state_snapshot(store, snapshot_ref=snapshot_ref), None
+
+
 def _verify_semantic_horizon_poststate(
     store: ArtifactStore,
     basis: FoundryExecutionInputBasis,
@@ -1496,26 +1530,46 @@ def _verify_semantic_horizon_poststate(
         basis.base_state_snapshot_ref,
         expected_kind="foundry.state_snapshot",
     )
-    base = load_state_snapshot(core_store, snapshot_ref=basis.base_state_snapshot_ref)
-    registry = load_registry_bundle_content(core_store, basis.runtime_registry_ref)
+    base, model_state_context = _load_execution_base_state(
+        core_store,
+        snapshot_ref=basis.base_state_snapshot_ref,
+        registry_bundle_ref=basis.runtime_registry_ref,
+    )
+    registry = (
+        model_state_context.registry
+        if model_state_context is not None
+        else load_registry_bundle_content(core_store, basis.runtime_registry_ref)
+    )
     replayed = apply_state_delta(
         core_store,
         base_state=base,
         state_delta_ref=delta_ref,
         slot_registry=registry.slot_registry,
         merge_registry=registry.merge_registry,
+        model_state_context=model_state_context,
     )
     encoded = BytesIO()
     np.savez(encoded, **dict(_flatten_state(replayed)))
     checksum = sha256(encoded.getvalue()).hexdigest()
     if (
-        poststate.schema_version != "2.2"
+        poststate.schema_version
+        != (StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION if model_state_context else "2.2")
         or poststate.step != basis.effective_step
         or poststate.checksum_sha256 != checksum
         or poststate.state_ref.artifact_id.hex != checksum
     ):
         raise ValueError("semantic_horizon_poststate_replay_mismatch")
-    load_state_snapshot(core_store, snapshot_ref=poststate_ref)
+    if model_state_context is None:
+        load_state_snapshot(core_store, snapshot_ref=poststate_ref)
+    else:
+        from polisyos.foundry.execute._internal.snapshots import load_bound_model_state_snapshot
+
+        actual = load_bound_model_state_snapshot(core_store, snapshot_ref=poststate_ref)
+        if (
+            actual.layout != model_state_context.bound_state.layout
+            or actual.layout_ref != model_state_context.bound_state.layout_ref
+        ):
+            raise ValueError("model_scalar_state_poststate_layout_mismatch")
 
 
 def _require_semantic_predecessor(
@@ -1955,7 +2009,11 @@ def _execute(
     if declaration is None and resolved_state.bindings.schema_version == "1.4":
         raise ValueError("method_input_declared_model_required")
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
-    base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
+    base_state, model_state_context = _load_execution_base_state(
+        store,
+        snapshot_ref=state_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+    )
 
     method_execution_capture = new_method_execution_capture(
         store,
@@ -2016,6 +2074,8 @@ def _execute(
     if request.feedback_config_ref is not None:
         feedback_config = _load_model(store, request.feedback_config_ref, FeedbackConfig)
         if feedback_config.mode == "fixed_point":
+            if model_state_context is not None:
+                raise ValueError("foundry_model_state_feedback_basis_not_established")
             return _execute_with_feedback(
                 store,
                 request=request,
@@ -2071,6 +2131,7 @@ def _execute(
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
             observer=program_graph_observer,
+            model_state_context=model_state_context,
         )
     except MethodExecutionAbortError as exc:
         return _method_execution_abort_result(
@@ -2137,6 +2198,7 @@ def _execute(
         step=current_step,
         base_ref=state_snapshot_ref,
         return_selected_profile=request.return_selected_profile,
+        model_state_context=model_state_context,
     )
 
     sim_result = SimulationResult(
@@ -2447,6 +2509,25 @@ def _execute_with_feedback(
                 f"feedback_solve_failed:{exc}",
             ],
         )
+    except BaseException as exc:
+        try:
+            trace_ref = persist_interrupted_solver_trace(
+                f"{type(exc).__module__}.{type(exc).__qualname__}"
+            )
+        except BaseException as trace_error:
+            try:
+                exc.add_note(
+                    "feedback interruption trace persistence failed: "
+                    f"{type(trace_error).__module__}.{type(trace_error).__qualname__}"
+                )
+            except BaseException:
+                pass
+        else:
+            try:
+                exc.add_note(f"feedback_interrupted_trace:{trace_ref.artifact_id}")
+            except BaseException:
+                pass
+        raise
     solved_feedback_state = snapshot_from_vector(
         prepared,
         np.asarray(outcome.solution, dtype=float),

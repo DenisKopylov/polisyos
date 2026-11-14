@@ -2,10 +2,19 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.model_state_layout import (
+    ModelScalarStateLayout,
+    ModelScalarStateSlot,
+    model_scalar_state_layout_digest,
+)
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
+from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -24,6 +33,7 @@ from polisyos.foundry.methods.selection.cache import (
     _complete_signature_payload,
     _signature_from_payload,
 )
+from polisyos.foundry.model_state_slots import bind_model_state, write_model_scalar_state_slot
 from polisyos.ir.kernel import ConstraintRegistry, MechanismTypeRegistry
 from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry, MergeRuleSpec
 from polisyos.ir.kernel.slots import (
@@ -56,7 +66,14 @@ def _signature() -> MethodSignature:
     )
 
 
-def _registry(tmp_path, *, variant: str = "valid", source_slot_id: str = "period_flow"):
+def _registry(
+    tmp_path,
+    *,
+    variant: str = "valid",
+    source_slot_id: str = "period_flow",
+    model_stock: bool = False,
+    registry_note: str | None = None,
+):
     source = RegistrySlotSpec(
         slot_id=source_slot_id,
         scope=SlotScope.GLOBAL,
@@ -72,7 +89,9 @@ def _registry(tmp_path, *, variant: str = "valid", source_slot_id: str = "period
         value_type=SlotValueType.DECIMAL,
         unit=UnitRef(unit_id="selected_currency"),
         merge_rule={"rule_id": "selected_rule"},
-        state_path="government.balance",
+        state_path=None if model_stock else "government.balance",
+        dtype="float32" if model_stock else None,
+        shape=[] if model_stock else None,
     )
     for name, slot, field, value in (
         ("target_flow", target, "kind", SlotKind.FLOW),
@@ -114,7 +133,7 @@ def _registry(tmp_path, *, variant: str = "valid", source_slot_id: str = "period
     store = FileSystemCAS(tmp_path / "cas")
     bundle = build_registry_bundle(
         store,
-        slot_registry=SlotRegistry(slots=slots),
+        slot_registry=SlotRegistry(slots=slots, notes=[registry_note] if registry_note else []),
         merge_registry=MergeRuleRegistry(rules=rules),
         mechanism_registry=MechanismTypeRegistry(),
         constraint_registry=ConstraintRegistry(),
@@ -284,3 +303,119 @@ def test_patch_contract_checks_kind_of_the_mapped_source_not_the_local_abi_name(
             registry=_registry(tmp_path),
             input_slot_sources={"period_flow": "accumulated_net"},
         )
+
+
+def _model_stock_context(tmp_path, *, registry_note: str | None = None):
+    registry = _registry(tmp_path, model_stock=True, registry_note=registry_note)
+    store = FileSystemCAS(tmp_path / "cas")
+    bound = bind_model_state(
+        GlobalState.empty(n_agents=1, n_firms=1),
+        store=store,
+        selected_registry_bundle_ref=registry.bundle_ref,
+        slot_ids=("accumulated_net",),
+    )
+    bound = write_model_scalar_state_slot(
+        bound,
+        slot_id="accumulated_net",
+        value=np.float32(10.0),
+        selected_registry_bundle_ref=registry.bundle_ref,
+        selected_layout_sha256=bound.layout.layout_sha256,
+    )
+    base_ref = put_state_snapshot(store, state=bound, return_selected_profile=True)
+    return ModelStatePatchContext(
+        store=store, base_ref=base_ref, registry_bundle_ref=registry.bundle_ref
+    )
+
+
+def _validate_model_target(context, *, layout=None, values=None, registry=None):
+    return validate_method_patch_targets(
+        _signature(),
+        params={"target_slot": "accumulated_net"},
+        declared_outputs=["accumulated_net"],
+        registry=registry or context.registry,
+        model_state_layout=layout if layout is not None else context.bound_state.layout,
+        model_state_target_values=(
+            values
+            if values is not None
+            else {"accumulated_net": np.asarray(context.read_slot("accumulated_net"))}
+        ),
+    )
+
+
+def test_pathless_patch_target_requires_actual_selected_layout_and_present_value(tmp_path) -> None:
+    context = _model_stock_context(tmp_path)
+    assert dict(_validate_model_target(context)) == {"accumulated_net": "add"}
+    with pytest.raises(ValueError, match="^method_patch_target_profile_mismatch$"):
+        validate_method_patch_targets(
+            _signature(),
+            params={"target_slot": "accumulated_net"},
+            declared_outputs=["accumulated_net"],
+            registry=context.registry,
+        )
+    with pytest.raises(ValueError, match="^method_patch_target_state_absent$"):
+        _validate_model_target(context, values={})
+
+
+def test_pathless_patch_target_refuses_foreign_same_value_layout(tmp_path) -> None:
+    first = _model_stock_context(tmp_path / "first")
+    foreign = _model_stock_context(tmp_path / "foreign", registry_note="foreign selection")
+    assert float(first.read_slot("accumulated_net")) == float(foreign.read_slot("accumulated_net"))
+    with pytest.raises(ValueError, match="^method_patch_target_state_registry_mismatch$"):
+        _validate_model_target(first, layout=foreign.bound_state.layout)
+
+
+@pytest.mark.parametrize(
+    "bad_value", [np.float64(10.0), np.array([10.0], dtype=np.float32), np.float32(np.nan)]
+)
+def test_pathless_patch_target_refuses_noncanonical_present_values(tmp_path, bad_value) -> None:
+    context = _model_stock_context(tmp_path)
+    with pytest.raises(ValueError, match="^method_patch_target_state_value_invalid$"):
+        _validate_model_target(context, values={"accumulated_net": bad_value})
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("dtype", "float64"),
+        ("unit", {"unit_id": "other_currency"}),
+        ("state_path", "government_balance"),
+    ],
+)
+def test_pathless_patch_target_reconciles_actual_registered_slot_descriptor(
+    tmp_path, field, value
+) -> None:
+    context = _model_stock_context(tmp_path)
+    target = context.registry.slot_registry.slots["accumulated_net"]
+    substituted = RegistrySlotSpec.model_validate(
+        {**target.model_dump(mode="python"), field: value}
+    )
+    registry = replace(
+        context.registry,
+        slot_registry=SlotRegistry(
+            slots={**context.registry.slot_registry.slots, "accumulated_net": substituted}
+        ),
+    )
+    with pytest.raises(ValueError, match="^method_patch_target_state_layout_mismatch$"):
+        _validate_model_target(context, registry=registry)
+
+
+def test_pathless_patch_target_refuses_same_shape_wrong_slot_or_spec_digest(tmp_path) -> None:
+    context = _model_stock_context(tmp_path)
+    original = context.bound_state.layout
+    for descriptor in (
+        ModelScalarStateSlot(
+            slot_id="other_stock", index=0, slot_spec_sha256=original.slots[0].slot_spec_sha256
+        ),
+        ModelScalarStateSlot(
+            slot_id="accumulated_net", index=0, slot_spec_sha256=f"sha256:{'0' * 64}"
+        ),
+    ):
+        layout = ModelScalarStateLayout(
+            registry_bundle_ref=original.registry_bundle_ref,
+            slots=(descriptor,),
+            layout_sha256=model_scalar_state_layout_digest(
+                registry_bundle_ref=original.registry_bundle_ref, slots=(descriptor,)
+            ),
+        )
+        with pytest.raises(ValueError, match="^method_patch_target_state_layout_mismatch$"):
+            _validate_model_target(context, layout=layout)

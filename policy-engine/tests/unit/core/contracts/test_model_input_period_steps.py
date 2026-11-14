@@ -301,7 +301,13 @@ def test_required_steps_are_versioned_and_allow_exact_missing_subsets() -> None:
         )
 
 
-def _obligation_set(*, schema_version: str, required_step_scopes=None) -> ModelInputObligationSet:
+def _obligation_set(
+    *,
+    schema_version: str,
+    required_step_scopes=None,
+    purpose: str | None = None,
+    authority_purpose: str = "candidate_acquisition_routing_only",
+) -> ModelInputObligationSet:
     context = ModelInputContext(
         run_id="run:test",
         candidate_id="candidate:test",
@@ -319,6 +325,7 @@ def _obligation_set(*, schema_version: str, required_step_scopes=None) -> ModelI
     )
     values = {
         "schema_version": schema_version,
+        "authority_purpose": authority_purpose,
         "invocation": invocation,
         "prestate_ref": _typed_ref(StateSnapshotRef, "foundry.state_snapshot", 15),
         "supplied_initial_slots": (),
@@ -326,6 +333,8 @@ def _obligation_set(*, schema_version: str, required_step_scopes=None) -> ModelI
     }
     if required_step_scopes is not None:
         values["required_step_scopes"] = required_step_scopes
+    if purpose is not None:
+        values["purpose"] = purpose
     return ModelInputObligationSet(**values)
 
 
@@ -374,6 +383,41 @@ def test_obligation_set_12_requires_explicit_full_scope_field_and_old_wire_omits
     assert tuple(item.step for item in full_denominator.required_step_scopes or ()) == (0, 1)
     with pytest.raises(ValidationError, match="model_input_obligation_set_step_scopes_invalid"):
         _obligation_set(schema_version="1.2", required_step_scopes=tuple(reversed(scopes)))
+
+
+def test_obligation_set_13_requires_explicit_candidate_revalidation_purpose() -> None:
+    legacy_set = _obligation_set(schema_version="1.2", required_step_scopes=())
+    legacy_payload = legacy_set.model_dump(mode="json")
+    assert legacy_payload["authority_purpose"] == "candidate_acquisition_routing_only"
+    assert "purpose" not in legacy_payload
+
+    current_use = _obligation_set(
+        schema_version="1.3",
+        purpose="current_use_method_input_revalidation",
+        authority_purpose="candidate_execution_input_revalidation_only",
+    )
+    payload = current_use.model_dump(mode="json")
+    assert payload["purpose"] == "current_use_method_input_revalidation"
+    assert payload["authority_purpose"] == "candidate_execution_input_revalidation_only"
+    assert "required_step_scopes" not in payload
+
+    with pytest.raises(
+        ValidationError, match="model_input_obligation_set_revalidation_purpose_required"
+    ):
+        _obligation_set(
+            schema_version="1.3",
+            authority_purpose="candidate_execution_input_revalidation_only",
+        )
+
+    with pytest.raises(
+        ValidationError, match="model_input_obligation_set_purpose_version_mismatch"
+    ):
+        _obligation_set(
+            schema_version="1.2",
+            required_step_scopes=(),
+            purpose="current_use_method_input_revalidation",
+            authority_purpose="candidate_execution_input_revalidation_only",
+        )
 
 
 def test_single_profiled_step_uses_exact_year_not_the_wider_port_envelope() -> None:

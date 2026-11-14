@@ -33,6 +33,11 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Compatibility facades** - analytics refs that migrated into `polisyos.ir.registry.refs` still have stable re-export paths here.
 - **Provenance payloads** - shared entity/agent/activity records keep audit and lineage data consistent.
 - **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
+- **Temporal candidate inputs** - `model_input_step_coverage.py` computes exact supplied/missing
+  scopes; `semantic_step_binding.py` reopens their original model clock and obligation subjects.
+  Semantic manifest 3.0 stores step-qualified derived selections without changing a port's scope
+  envelope. Partial selections remain nonexecutable until actual source/physical replay and full
+  horizon coverage. Direct measurement step transport is not supplied by the derived-input variant.
 - **Bounded registered SQL input identity** - `decision_validity.py` owns
   `RegisteredSQLAdmissionBinding` and `RegisteredSQLUseContract`; `fabric.py`
   owns `data_snapshot_manifest_inputs_match`. The stable facade exposes the same

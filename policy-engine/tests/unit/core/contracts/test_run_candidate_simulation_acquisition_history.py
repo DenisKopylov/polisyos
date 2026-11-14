@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from hashlib import sha256
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts import (
     RunCandidateSimulationAcquisitionHistoryEntry as PublicHistoryEntry,
 )
@@ -143,6 +146,187 @@ def test_reentry_history_retains_typed_observed_lineage_as_candidate_only() -> N
     assert projection.acquisition_history[0].currentness_status == "not_established"
     assert projection.acquisition_history[0].authority_purpose == ("candidate_observation_only")
     assert projection.publication_authority is False
+
+
+def _inputs_pending_history_payload() -> dict[str, object]:
+    return {
+        "route_receipt_ref": _ref(
+            "runtime_quality.acquisition_route_loop_receipt",
+            "a",
+            manifest_profile_sha256=f"sha256:{'1' * 64}",
+        ),
+        "route_id": f"sha256:{'c' * 64}",
+        "action_generation": 3,
+        "terminal_outcome": "inputs_pending",
+        "schema_version": "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+        "continuation_join_status": "not_applicable",
+        "origin_source_binding_status": "not_supplied",
+        "model_goal_status": "inputs_pending",
+        "native_input_collection_ref": _ref(
+            "runtime_quality.native_derivation_input_checkpoint",
+            "b",
+            manifest_profile_sha256=f"sha256:{'2' * 64}",
+        ),
+        "owner_declared_profile_ref": _ref(
+            "runtime.quality.native_derivation_leaf_cost_profile",
+            "d",
+            manifest_profile_sha256=f"sha256:{'3' * 64}",
+        ),
+    }
+
+
+def test_inputs_pending_history_binds_completed_action_to_open_goal() -> None:
+    row = RunCandidateSimulationAcquisitionHistoryEntry.model_validate(
+        _inputs_pending_history_payload()
+    )
+    payload = row.model_dump(mode="json")
+
+    assert row.terminal_outcome == "inputs_pending"
+    assert row.model_goal_status == "inputs_pending"
+    assert row.native_input_collection_ref is not None
+    assert row.owner_declared_profile_ref is not None
+    assert row.currentness_status == "not_established"
+    assert row.publication_authority is False
+    assert "reentry_receipt_ref" not in payload or payload["reentry_receipt_ref"] is None
+    assert "selected_n5_observation" not in payload or payload["selected_n5_observation"] is None
+
+
+@pytest.mark.parametrize(
+    ("change", "value"),
+    [
+        ("model_goal_status", None),
+        ("terminal_outcome", "reentry_completed"),
+        (
+            "native_input_collection_ref",
+            _ref(
+                "runtime.quality.foreign_collection",
+                "b",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        ),
+        (
+            "native_input_collection_ref",
+            _ref("runtime_quality.native_derivation_input_checkpoint", "b"),
+        ),
+        (
+            "owner_declared_profile_ref",
+            _ref(
+                "runtime.quality.foreign_cost_profile",
+                "d",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        ),
+        (
+            "reentry_receipt_ref",
+            _ref(
+                "runtime_quality.acquisition_overlay_reentry_receipt",
+                "e",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        ),
+        (
+            "new_candidate_source_ref",
+            _ref(
+                "runtime.quality.n4_candidate_scenario_source",
+                "9",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        ),
+        ("old_candidate_id", "candidate-old"),
+        ("continuation", _model_revision_continuation()),
+        (
+            "selected_n5_observation",
+            {
+                "node_ref": "design-problem://pending",
+                "design_problem_ref": f"sha256:{'a' * 64}",
+                "status": "simulation_pending_n5",
+            },
+        ),
+        ("evaluation_provenance", "new_execution"),
+        (
+            "origin_source_ref",
+            _ref(
+                "runtime.quality.n4_candidate_scenario_source",
+                "8",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        ),
+    ],
+)
+def test_inputs_pending_history_rejects_mixed_terminal_evidence(change: str, value: object) -> None:
+    payload = _inputs_pending_history_payload() | {change: value}
+    with pytest.raises(ValidationError, match="candidate_acquisition_inputs_pending"):
+        RunCandidateSimulationAcquisitionHistoryEntry.model_validate(payload)
+
+
+def test_inputs_pending_history_rejects_authority_claim() -> None:
+    with pytest.raises(ValidationError):
+        RunCandidateSimulationAcquisitionHistoryEntry.model_validate(
+            _inputs_pending_history_payload() | {"publication_authority": True}
+        )
+
+
+def test_inputs_pending_is_rejected_without_v3_and_explicit_absence_is_versioned() -> None:
+    payload = _inputs_pending_history_payload()
+    old_pending = {
+        key: value
+        for key, value in payload.items()
+        if key
+        not in {
+            "schema_version",
+            "model_goal_status",
+            "native_input_collection_ref",
+            "owner_declared_profile_ref",
+        }
+    }
+    with pytest.raises(
+        ValidationError, match="candidate_acquisition_inputs_pending_version_mismatch"
+    ):
+        RunCandidateSimulationAcquisitionHistoryEntry.model_validate(old_pending)
+
+    old_v2 = {
+        **old_pending,
+        "terminal_outcome": "quarantined_no_growth",
+        "schema_version": "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+        "continuation_join_status": "not_applicable",
+        "origin_source_binding_status": "not_supplied",
+        "model_goal_status": None,
+    }
+    with pytest.raises(
+        ValidationError, match="candidate_acquisition_inputs_pending_version_mismatch"
+    ):
+        RunCandidateSimulationAcquisitionHistoryEntry.model_validate(old_v2)
+
+
+def test_legacy_history_canonical_bytes_omit_inputs_pending_fields() -> None:
+    legacy = RunCandidateSimulationAcquisitionHistoryEntry(
+        route_receipt_ref=_ref("runtime_quality.acquisition_route_loop_receipt", "a"),
+        route_id=f"sha256:{'c' * 64}",
+        action_generation=1,
+        terminal_outcome="quarantined_no_growth",
+    )
+    versioned_v2 = RunCandidateSimulationAcquisitionHistoryEntry(
+        route_receipt_ref=_ref("runtime_quality.acquisition_route_loop_receipt", "a"),
+        route_id=f"sha256:{'c' * 64}",
+        action_generation=1,
+        terminal_outcome="quarantined_no_growth",
+        schema_version="policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+        continuation_join_status="not_applicable",
+        origin_source_binding_status="not_supplied",
+    )
+
+    legacy_payload = legacy.model_dump(mode="json")
+    v2_payload = versioned_v2.model_dump(mode="json")
+    for payload in (legacy_payload, v2_payload):
+        assert "model_goal_status" not in payload
+        assert "native_input_collection_ref" not in payload
+        assert "owner_declared_profile_ref" not in payload
+    assert sha256(to_canonical_bytes(legacy_payload, CanonSpec())).hexdigest() == (
+        "5653a6c02bb60dcf1b45eeff11aa4d09ad1b405c103fc7f7123b4df0987e8cf3"
+    )
+    assert sha256(to_canonical_bytes(v2_payload, CanonSpec())).hexdigest() == (
+        "dec9373c3dd81ff69b88f5a25312f50f64243faaed443995ed9befc007fbcbaa"
+    )
 
 
 def test_history_refusal_cannot_be_mixed_with_resolved_rows_or_claim_authority() -> None:

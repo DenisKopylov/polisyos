@@ -160,6 +160,43 @@ def test_recorder_preserves_failed_callback_without_changing_exception() -> None
     assert record.execution_link_status == "captured"
 
 
+def test_recorder_preserves_keyboard_interrupt_when_link_and_ledger_fail(monkeypatch) -> None:
+    recorder = FeedbackMapEvaluationRecorder(base_state_ref=_base_ref())
+    original_interrupt = KeyboardInterrupt("solver interrupted after callback work")
+
+    def fail(_: np.ndarray) -> MapEvaluation:
+        raise original_interrupt
+
+    def fail_link() -> str | None:
+        raise SystemExit("capture link unavailable")
+
+    with pytest.raises(KeyboardInterrupt) as caught:
+        recorder.wrap(fail, execution_link_provider=fail_link)(np.asarray([1.0]))
+
+    assert caught.value is original_interrupt
+    (record,) = recorder.records
+    assert record.outcome == "failed"
+    assert record.failure_type == "builtins.KeyboardInterrupt"
+    assert record.graph_invocation_id is None
+    assert record.execution_link_status == "not_established"
+    assert any("invocation link unavailable" in note for note in original_interrupt.__notes__)
+
+    second_interrupt = KeyboardInterrupt("ledger append also interrupted")
+
+    def fail_again(_: np.ndarray) -> MapEvaluation:
+        raise second_interrupt
+
+    def fail_append(**_: object) -> None:
+        raise SystemExit("ledger append unavailable")
+
+    monkeypatch.setattr(recorder, "_append", fail_append)
+    with pytest.raises(KeyboardInterrupt) as caught_again:
+        recorder.wrap(fail_again)(np.asarray([2.0]))
+
+    assert caught_again.value is second_interrupt
+    assert any("failure ledger unavailable" in note for note in second_interrupt.__notes__)
+
+
 def test_recorder_captures_post_callback_output_conversion_failure() -> None:
     recorder = FeedbackMapEvaluationRecorder(base_state_ref=_base_ref())
     graph_invocation_id = "graph-invocation.000008"
@@ -203,6 +240,30 @@ def test_final_materialization_records_downstream_failure_and_preserves_exceptio
     assert record.failure_type == "builtins.RuntimeError"
     assert record.graph_invocation_id == graph_invocation_id
     assert record.execution_link_status == "captured"
+
+
+def test_final_materialization_preserves_interrupt_when_failure_record_append_fails(
+    monkeypatch,
+) -> None:
+    recorder = FeedbackMapEvaluationRecorder(base_state_ref=_base_ref())
+    original_interrupt = KeyboardInterrupt("final materialization interrupted")
+
+    def fail_append(**_: object) -> None:
+        raise SystemExit("final failure ledger unavailable")
+
+    def fail_materialization() -> tuple[None, np.ndarray]:
+        raise original_interrupt
+
+    monkeypatch.setattr(recorder, "_append", fail_append)
+    with pytest.raises(KeyboardInterrupt) as caught:
+        recorder.run_final_materialization(
+            candidate_values=np.asarray([2.0]),
+            materialize=fail_materialization,
+        )
+
+    assert caught.value is original_interrupt
+    assert recorder.records == ()
+    assert any("failure ledger unavailable" in note for note in original_interrupt.__notes__)
 
 
 def test_final_materialization_records_observed_vector_after_downstream_reads() -> None:

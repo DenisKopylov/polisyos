@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import TYPE_CHECKING, Literal
 
 from polisyos.core.artifacts import (
     ArtifactID,
@@ -20,6 +21,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.contracts import (
     ExecPlan,
     ExecPlanRef,
+    FoundryInputBindings,
     ModelInputContext,
     ModelInputObligation,
     ModelInputObligationSet,
@@ -30,14 +32,17 @@ from polisyos.core.contracts import (
     ParameterOverrideBundleRef,
     ProgramGraph,
     ProgramGraphInputDependency,
+    ProgramGraphInputInterface,
     ProgramGraphInputInvocation,
     ProgramGraphRef,
     ProgramNode,
+    StateSnapshot,
     StateSnapshotRef,
     derive_model_input_step_scopes,
     load_model_input_obligation_set,
     load_model_input_port_declaration,
     load_program_graph_input_interface,
+    load_resolved_input_binding_manifest,
     verify_model_input_port_semantics,
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
@@ -46,6 +51,9 @@ from polisyos.ir.governance import ScheduleSpec, SelectorPredicate, schedule_ran
 from polisyos.ir.kernel import MergeRuleKind, MoneyUnit, SlotKind, SlotScope, SlotValueType
 from polisyos.ir.registry import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
+
+if TYPE_CHECKING:
+    from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
 
 
 @dataclass(frozen=True)
@@ -208,9 +216,49 @@ def verify_program_graph_input_preflight(
     are taken from an unverified producer set to choose the replay basis.
     """
     obligation_set, members = load_model_input_obligation_set(store, obligation_set_ref)
+    if (
+        obligation_set.schema_version == "1.3"
+        or obligation_set.purpose is not None
+        or obligation_set.authority_purpose != "candidate_acquisition_routing_only"
+    ):
+        raise ValueError("model_input_preflight_purpose_mismatch")
     if obligation_set.invocation != expected_invocation:
         raise ValueError("model_input_preflight_invocation_mismatch")
     recomputed = recompute_program_graph_inputs(store, invocation=expected_invocation)
+    _verify_recomputed_program_graph_input_set(obligation_set, members, recomputed)
+    return obligation_set
+
+
+def verify_current_use_method_input_revalidation(
+    store: CoreJSONArtifactStore,
+    *,
+    obligation_set_ref: ArtifactRef,
+    expected_invocation: ProgramGraphInputInvocation,
+) -> ModelInputObligationSet:
+    """Replay the explicit current-use method-input revalidation purpose."""
+    obligation_set, members = load_model_input_obligation_set(store, obligation_set_ref)
+    if (
+        obligation_set.schema_version != "1.3"
+        or obligation_set.purpose != "current_use_method_input_revalidation"
+        or obligation_set.authority_purpose != "candidate_execution_input_revalidation_only"
+    ):
+        raise ValueError("model_input_revalidation_purpose_mismatch")
+    if obligation_set.invocation != expected_invocation:
+        raise ValueError("model_input_preflight_invocation_mismatch")
+    recomputed = recompute_current_use_method_input_revalidation(
+        store,
+        invocation=expected_invocation,
+    )
+    _verify_recomputed_program_graph_input_set(obligation_set, members, recomputed)
+    return obligation_set
+
+
+def _verify_recomputed_program_graph_input_set(
+    obligation_set: ModelInputObligationSet,
+    members: tuple[ModelInputObligation, ...],
+    recomputed: RecomputedProgramGraphInputs,
+) -> None:
+    """Compare persisted preflight members to the independent Foundry replay."""
     if (
         artifact_ref_identity_key(obligation_set.prestate_ref)
         != artifact_ref_identity_key(recomputed.prestate_ref)
@@ -218,13 +266,35 @@ def verify_program_graph_input_preflight(
         or members != recomputed.missing_obligations
     ):
         raise ValueError("model_input_preflight_replay_mismatch")
-    return obligation_set
 
 
 def recompute_program_graph_inputs(
     store: CoreJSONArtifactStore, *, invocation: ProgramGraphInputInvocation
 ) -> RecomputedProgramGraphInputs:
-    """Reconcile external prestate reads against the actual selected graph ABI."""
+    """Reconcile input reads for ordinary candidate-acquisition preflight."""
+    return _recompute_program_graph_inputs(store, invocation=invocation, purpose=None)
+
+
+def recompute_current_use_method_input_revalidation(
+    store: CoreJSONArtifactStore,
+    *,
+    invocation: ProgramGraphInputInvocation,
+) -> RecomputedProgramGraphInputs:
+    """Replay old selected facts, then require every current method input anew."""
+    return _recompute_program_graph_inputs(
+        store,
+        invocation=invocation,
+        purpose="current_use_method_input_revalidation",
+    )
+
+
+def _recompute_program_graph_inputs(
+    store: CoreJSONArtifactStore,
+    *,
+    invocation: ProgramGraphInputInvocation,
+    purpose: Literal["current_use_method_input_revalidation"] | None,
+) -> RecomputedProgramGraphInputs:
+    """Reconcile selected graph inputs for one explicit purpose."""
     from polisyos.foundry.data_plane.bindings import (
         load_input_bindings,
         reconcile_explicit_initial_binding_slots,
@@ -295,11 +365,34 @@ def recompute_program_graph_inputs(
         for ref in (context.candidate_source_ref, context.context_job_ref)
     ):
         raise ValueError("model_input_selected_context_unreadable")
+    if purpose == "current_use_method_input_revalidation":
+        _replay_current_use_method_input_source_facts(
+            store,
+            input_bindings_ref=input_bindings_ref,
+            bindings=bindings,
+            invocation=invocation,
+            current_interface=interface,
+            registry_bundle_ref=registry_bundle_ref,
+        )
+    model_state_context = _open_selected_model_state_context(
+        store,
+        bound_state_snapshot_ref=bindings.bound_state_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        registry=registry,
+    )
     overrides = _load_selected_overrides(
         store,
         ref=parameter_override_bundle_ref,
         context=context,
         program_graph_ref=program_graph_ref,
+    )
+    execution_ports = {
+        port.slot_id: port
+        for port in interface.ports
+        if port.purpose in {"initial_state", "simulation_input"}
+    }
+    method_input_slots = frozenset(
+        slot_id for slot_id, port in execution_ports.items() if port.carrier == "method_input"
     )
     dependencies, graph_slots = _graph_input_dependencies(
         store,
@@ -309,18 +402,15 @@ def recompute_program_graph_inputs(
         steps=invocation.steps,
         overrides=overrides,
         program_graph_schema_version=graph.schema_version,
+        model_state_context=model_state_context,
+        method_input_slots=method_input_slots,
     )
 
-    execution_ports = {
-        port.slot_id: port
-        for port in interface.ports
-        if port.purpose in {"initial_state", "simulation_input"}
-    }
     if set(execution_ports).difference(graph_slots):
         raise ValueError("model_input_declared_port_not_read_by_graph")
 
     supplied_method_slots: set[str] = set()
-    if bindings.schema_version == "1.4":
+    if bindings.schema_version == "1.4" and purpose is None:
         from polisyos.foundry.data_plane.bindings import (
             reconcile_selected_method_input_bindings,
         )
@@ -374,8 +464,25 @@ def recompute_program_graph_inputs(
         if slot is None:
             raise ValueError("model_input_required_slot_unresolved")
         port = execution_ports.get(slot_id)
-        if slot.state_path is None:
-            if (
+        if model_state_context is None:
+            if slot.state_path is None:
+                if (
+                    port is None
+                    or port.carrier != "method_input"
+                    or not any(
+                        dependency.kind == "method_read"
+                        for dependency in dependencies.get(slot_id, ())
+                    )
+                ):
+                    raise ValueError("model_input_method_port_unresolved")
+            elif port is not None and port.carrier == "method_input":
+                raise ValueError("model_input_method_port_shadows_state_slot")
+        else:
+            source_kind = model_state_context.resolve_input_source(
+                slot_id,
+                external_selected=port is not None and port.carrier == "method_input",
+            )
+            if source_kind == "external_selected" and (
                 port is None
                 or port.carrier != "method_input"
                 or not any(
@@ -383,8 +490,13 @@ def recompute_program_graph_inputs(
                 )
             ):
                 raise ValueError("model_input_method_port_unresolved")
-        elif port is not None and port.carrier == "method_input":
-            raise ValueError("model_input_method_port_shadows_state_slot")
+            if source_kind == "model_layout_slot" and port is not None:
+                raise ValueError("model_input_layout_state_slot_declared_as_port")
+            if source_kind == "model_layout_slot" and any(
+                nodes[dependency.node_id].node_kind != "method"
+                for dependency in dependencies.get(slot_id, ())
+            ):
+                raise ValueError("model_input_layout_state_nonmethod_use_unsupported")
         if port is not None:
             representation = verify_model_input_port_semantics(store, port)
             if (
@@ -531,6 +643,134 @@ def _require_method_steps(
     )
 
 
+def _open_selected_model_state_context(
+    store: CoreJSONArtifactStore,
+    *,
+    bound_state_snapshot_ref: StateSnapshotRef,
+    registry_bundle_ref: ArtifactRef,
+    registry: RegistryBundleContent,
+) -> ModelStatePatchContext | None:
+    """Open persistent-state facts only for an exact selected Snapshot 2.4."""
+    expected_schema = SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+            StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+        ],
+    )
+    if store.get_manifest(bound_state_snapshot_ref).artifact_schema != expected_schema:
+        return None
+    from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
+
+    context = ModelStatePatchContext(
+        store,
+        bound_state_snapshot_ref,
+        registry_bundle_ref,
+    )
+    context.require_opening_state()
+    context.validate_inputs(
+        slot_registry=registry.slot_registry,
+        merge_registry=registry.merge_registry,
+        store=store,
+    )
+    return context
+
+
+def _replay_current_use_method_input_source_facts(
+    store: CoreJSONArtifactStore,
+    *,
+    input_bindings_ref: ArtifactRef,
+    bindings: FoundryInputBindings,
+    invocation: ProgramGraphInputInvocation,
+    current_interface: ProgramGraphInputInterface,
+    registry_bundle_ref: ArtifactRef,
+) -> None:
+    """Replay one scalar v1.4 source under its original invocation and base."""
+    if (
+        bindings.schema_version != "1.4"
+        or bindings.resolved_binding_manifest_ref is None
+        or not bindings.selected_method_inputs
+        or len(invocation.steps) != 1
+    ):
+        raise ValueError("model_input_revalidation_source_profile_unsupported")
+    current_method_ports = tuple(
+        port for port in current_interface.ports if port.carrier == "method_input"
+    )
+    if not current_method_ports or any(
+        port.period_step_profile is not None
+        or port.entity_axis_ref is not None
+        or port.physical_encoding is None
+        or port.physical_encoding.shape
+        for port in current_method_ports
+    ):
+        raise ValueError("model_input_revalidation_current_profile_unsupported")
+
+    manifest = load_resolved_input_binding_manifest(
+        store,
+        bindings.resolved_binding_manifest_ref,
+    )
+    source_set, source_members = load_model_input_obligation_set(
+        store,
+        manifest.model_input_obligation_set_ref,
+    )
+    if (
+        source_set.schema_version != "1.1"
+        or source_set.authority_purpose != "candidate_acquisition_routing_only"
+        or source_set.purpose is not None
+        or len(source_set.invocation.steps) != 1
+        or artifact_ref_identity_key(source_set.prestate_ref)
+        != artifact_ref_identity_key(bindings.bound_state_snapshot_ref)
+        or artifact_ref_identity_key(source_set.invocation.registry_bundle_ref)
+        != artifact_ref_identity_key(registry_bundle_ref)
+    ):
+        raise ValueError("model_input_revalidation_source_invocation_unsupported")
+    source_interface = load_program_graph_input_interface(
+        store,
+        source_set.invocation.interface_ref,
+    )
+    source_method_ports = tuple(
+        port for port in source_interface.ports if port.carrier == "method_input"
+    )
+    if not source_method_ports or any(
+        port.period_step_profile is not None
+        or port.entity_axis_ref is not None
+        or port.physical_encoding is None
+        or port.physical_encoding.shape
+        for port in source_method_ports
+    ):
+        raise ValueError("model_input_revalidation_source_profile_unsupported")
+
+    members_by_ref = {
+        artifact_ref_identity_key(ref): member
+        for ref, member in zip(source_set.obligation_refs, source_members, strict=True)
+    }
+    for record in bindings.selected_method_inputs:
+        member = members_by_ref.get(artifact_ref_identity_key(record.model_input_obligation_ref))
+        if (
+            member is None
+            or member.port.carrier != "method_input"
+            or member.port.port_id != record.port_id
+            or member.port.slot_id != record.slot_id
+        ):
+            raise ValueError("model_input_revalidation_source_member_mismatch")
+
+    from polisyos.foundry.data_plane.bindings import replay_selected_method_input_facts
+
+    facts = replay_selected_method_input_facts(
+        store,
+        input_bindings_ref=input_bindings_ref,
+        expected_invocation=source_set.invocation,
+    )
+    if (
+        facts.bindings != bindings
+        or facts.records != bindings.selected_method_inputs
+        or artifact_ref_identity_key(facts.bindings.registry_bundle_ref)
+        != artifact_ref_identity_key(registry_bundle_ref)
+        or artifact_ref_identity_key(facts.bindings.bound_state_snapshot_ref)
+        != artifact_ref_identity_key(bindings.bound_state_snapshot_ref)
+    ):
+        raise ValueError("model_input_revalidation_source_facts_mismatch")
+
+
 def _load_selected_overrides(
     store: CoreJSONArtifactStore,
     *,
@@ -561,6 +801,8 @@ def _graph_input_dependencies(
     steps: tuple[int, ...],
     overrides: dict[str, dict[str, object]],
     program_graph_schema_version: str = "0.2",
+    model_state_context: ModelStatePatchContext | None = None,
+    method_input_slots: frozenset[str] = frozenset(),
 ) -> tuple[dict[str, list[ProgramGraphInputDependency]], set[str]]:
     if program_graph_schema_version not in {"0.2", "0.3"}:
         raise ValueError("unsupported_program_graph_payload_schema_version")
@@ -621,6 +863,20 @@ def _graph_input_dependencies(
                     validate_method_patch_targets,
                 )
 
+                model_state_target_values: dict[str, object] | None = None
+                if model_state_context is not None:
+                    model_state_target_values = {}
+                    for target_id in node.outputs:
+                        target = registry.slot_registry.slots.get(target_id)
+                        if target is not None and target.state_path is None:
+                            source_kind = model_state_context.resolve_input_source(
+                                target_id,
+                                external_selected=False,
+                            )
+                            if source_kind == "model_layout_slot":
+                                model_state_target_values[target_id] = (
+                                    model_state_context.read_slot(target_id)
+                                )
                 try:
                     validate_method_patch_targets(
                         signature,
@@ -628,6 +884,12 @@ def _graph_input_dependencies(
                         declared_outputs=node.outputs,
                         registry=registry,
                         input_slot_sources=(input_slot_sources if mapped_method_inputs else None),
+                        model_state_layout=(
+                            None
+                            if model_state_context is None
+                            else model_state_context.bound_state.layout
+                        ),
+                        model_state_target_values=model_state_target_values,
                     )
                 except (KeyError, TypeError, ValueError) as exc:
                     raise ValueError("model_input_method_patch_target_mismatch") from exc
@@ -644,7 +906,16 @@ def _graph_input_dependencies(
                 slot = registry.slot_registry.slots.get(slot_id)
                 if slot is None:
                     raise ValueError("model_input_method_slot_unregistered")
-                if slot.state_path is None:
+                source_kind = None
+                if model_state_context is not None:
+                    source_kind = model_state_context.resolve_input_source(
+                        slot_id,
+                        external_selected=slot_id in method_input_slots,
+                    )
+                if (model_state_context is None and slot.state_path is None) or source_kind in {
+                    "external_selected",
+                    "model_layout_slot",
+                }:
                     try:
                         validate_registered_method_input(
                             signature,
@@ -654,6 +925,8 @@ def _graph_input_dependencies(
                         )
                     except (KeyError, TypeError, ValueError) as exc:
                         raise ValueError("model_input_method_slot_profile_unsupported") from exc
+                elif source_kind == "state_path" and slot_id in method_input_slots:
+                    raise ValueError("model_input_method_port_shadows_state_slot")
             for slot_id in sorted(set(input_slot_sources.values())):
                 dependencies.setdefault(slot_id, []).append(
                     ProgramGraphInputDependency(
@@ -665,7 +938,20 @@ def _graph_input_dependencies(
                 )
             for slot_id in node.outputs:
                 target = registry.slot_registry.slots.get(slot_id)
-                if target is None or not target.state_path:
+                target_source = (
+                    None
+                    if model_state_context is None or target is None
+                    else model_state_context.resolve_input_source(
+                        slot_id,
+                        external_selected=False,
+                    )
+                )
+                if (
+                    target is None
+                    or (model_state_context is None and not target.state_path)
+                    or (target.state_path is None and target_source != "model_layout_slot")
+                    or (target.state_path is not None and target_source not in {None, "state_path"})
+                ):
                     raise ValueError("model_input_method_write_slot_unresolved")
                 _require_additive_prestate(registry, slot_id, target.merge_rule.rule_id)
                 dependencies.setdefault(slot_id, []).append(

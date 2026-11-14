@@ -400,13 +400,13 @@ class ModelInputObligationSet(_ModelInputContract):
     ARTIFACT_KIND: ClassVar[str] = "runtime.quality.model_input_obligation_set"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.quality.ModelInputObligationSet"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.3"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
 
-    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
-    authority_purpose: Literal["candidate_acquisition_routing_only"] = (
-        "candidate_acquisition_routing_only"
-    )
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
+    authority_purpose: Literal[
+        "candidate_acquisition_routing_only", "candidate_execution_input_revalidation_only"
+    ] = "candidate_acquisition_routing_only"
     invocation: ProgramGraphInputInvocation
     prestate_ref: StateSnapshotRef
     supplied_initial_slots: tuple[str, ...]
@@ -414,9 +414,25 @@ class ModelInputObligationSet(_ModelInputContract):
     required_step_scopes: tuple[ModelInputStepScope, ...] | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    purpose: Literal["current_use_method_input_revalidation"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _selected_obligation_refs(self) -> ModelInputObligationSet:
+        if self.schema_version == "1.3":
+            if (
+                self.authority_purpose != "candidate_execution_input_revalidation_only"
+                or self.purpose != "current_use_method_input_revalidation"
+                or "purpose" not in self.model_fields_set
+            ):
+                raise ValueError("model_input_obligation_set_revalidation_purpose_required")
+        elif (
+            self.authority_purpose != "candidate_acquisition_routing_only"
+            or self.purpose is not None
+            or "purpose" in self.model_fields_set
+        ):
+            raise ValueError("model_input_obligation_set_purpose_version_mismatch")
         if self.prestate_ref.manifest_profile_sha256 is None or any(
             ref.kind != ModelInputObligation.ARTIFACT_KIND
             or ref.media_type != "application/json"
@@ -685,6 +701,27 @@ def _verify_required_step_scope_denominator(
         FoundryInputBindings, store, obligation_set.invocation.input_bindings_ref
     )
     versioned_step_bindings = bindings.schema_version == "1.5"
+    if obligation_set.schema_version == "1.3":
+        if (
+            obligation_set.purpose != "current_use_method_input_revalidation"
+            or obligation_set.authority_purpose != "candidate_execution_input_revalidation_only"
+            or bindings.schema_version != "1.4"
+            or not bindings.selected_method_inputs
+            or len(obligation_set.invocation.steps) != 1
+            or not method_ports
+            or any(
+                port.period_step_profile is not None or port.entity_axis_ref is not None
+                for port in method_ports
+            )
+        ):
+            raise ValueError("model_input_revalidation_profile_unsupported")
+        method_slot_ids = {port.slot_id for port in method_ports}
+        member_slot_ids = {member.port.slot_id for member in members}
+        if not method_slot_ids.issubset(member_slot_ids):
+            raise ValueError("model_input_revalidation_method_ports_missing")
+        # The v1.4 rows are source facts from the predecessor invocation. Foundry
+        # replays their own source basis; they do not satisfy this new denominator.
+        return
 
     if (
         method_ports

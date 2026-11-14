@@ -64,8 +64,8 @@ def apply_state_delta(
         != artifact_ref_identity_key(model_state_context.base_ref)
     ):
         raise ValueError("model_scalar_state_patch_base_ref_mismatch")
-    if model_state_context is not None and base_state is not model_state_context._opening_state:
-        raise ValueError("model_scalar_state_patch_opening_state_required")
+    if model_state_context is not None:
+        model_state_context.require_opening_state()
     return apply_ops_to_state(
         store,
         base_state=base_state,

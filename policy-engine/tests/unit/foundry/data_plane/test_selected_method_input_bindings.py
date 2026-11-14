@@ -21,11 +21,13 @@ from polisyos.core.contracts.variable_binding import (
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
+from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.data_plane.bindings import (
     SelectedMethodInputFacts,
     SelectedMethodInputResolution,
     _prepare_selected_method_input,
     load_input_bindings,
+    reconcile_explicit_initial_binding_slots,
     reconcile_selected_method_input_bindings,
     replay_selected_method_input_facts,
     resolve_bound_state_snapshot_ref,
@@ -320,6 +322,48 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
                 ).values["period_flow"]
             )
             == -6_000_000_000.0
+        )
+    finally:
+        case.close()
+
+
+def test_method_predecessor_initial_facts_replay_the_original_source(tmp_path):
+    case, metadata = prepare_selected_method_input_case(tmp_path, method_class=PeriodFlowToStock)
+    try:
+        materialized = materialize_selected_method_input_case(case, metadata)
+        source = load_input_bindings(case.store, materialized.input_bindings_ref)
+        slots = load_registry_bundle_content(case.store, case.registry_bundle_ref).slot_registry
+        paths = {
+            rule.target_slot_id: slots.slots[rule.target_slot_id].state_path
+            for rule in source.rules
+        }
+        assert paths and all(paths.values())
+        expected = tuple(sorted(paths))
+        assert (
+            reconcile_explicit_initial_binding_slots(
+                case.store,
+                input_bindings_ref=materialized.input_bindings_ref,
+                expected_state_paths=paths,
+            )
+            == expected
+        )
+        (record,) = source.selected_method_inputs
+        with (
+            _removed_blob(case.store, record.npy_value_ref),
+            pytest.raises((ValueError, FileNotFoundError)),
+        ):
+            reconcile_explicit_initial_binding_slots(
+                case.store,
+                input_bindings_ref=materialized.input_bindings_ref,
+                expected_state_paths=paths,
+            )
+        assert (
+            reconcile_explicit_initial_binding_slots(
+                case.store,
+                input_bindings_ref=materialized.input_bindings_ref,
+                expected_state_paths=paths,
+            )
+            == expected
         )
     finally:
         case.close()

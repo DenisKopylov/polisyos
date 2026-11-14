@@ -8,8 +8,6 @@ arrays enter the JAX pytree.
 
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -23,6 +21,7 @@ from polisyos.core.contracts import (
     ModelScalarStateSlot,
     StateSnapshotRef,
     model_scalar_state_layout_digest,
+    model_scalar_state_slot_spec_digest,
 )
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState, ModelScalarState
@@ -80,18 +79,11 @@ def build_model_scalar_state_layout(
             or spec.shape != []
         ):
             raise ModelScalarStateAccessError("model_scalar_state_slot_profile_unsupported")
-        spec_payload = json.dumps(
-            spec.model_dump(mode="json"),
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-        )
-        slot_spec_sha256 = f"sha256:{hashlib.sha256(spec_payload.encode('utf-8')).hexdigest()}"
         descriptors.append(
             ModelScalarStateSlot(
                 slot_id=slot_id,
                 index=len(descriptors),
-                slot_spec_sha256=slot_spec_sha256,
+                slot_spec_sha256=model_scalar_state_slot_spec_digest(spec),
             )
         )
     slot_tuple = tuple(descriptors)

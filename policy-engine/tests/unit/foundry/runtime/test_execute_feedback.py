@@ -269,6 +269,89 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path, monkeypatch) -> No
     assert failed_final_record.execution_link_status == "not_established"
     monkeypatch.undo()
 
+    original_run_feedback_iteration = execute_api._run_feedback_iteration
+    actual_feedback_graphs = []
+    interrupted_feedback_traces = []
+    expected_solver_interrupt = KeyboardInterrupt("feedback solver interrupted")
+
+    def count_feedback_graph(*args, **kwargs):
+        result = original_execute_program_graph(*args, **kwargs)
+        actual_feedback_graphs.append(result)
+        return result
+
+    def run_graph_then_interrupt(*args, **kwargs):
+        original_run_feedback_iteration(*args, **kwargs)
+        raise expected_solver_interrupt
+
+    def retain_interrupted_trace(*args, **kwargs):
+        ref = original_persist_feedback_trace(*args, **kwargs)
+        if kwargs.get("evaluation_scope") == "complete":
+            interrupted_feedback_traces.append(ref)
+        return ref
+
+    monkeypatch.setattr(execute_api, "execute_program_graph", count_feedback_graph)
+    monkeypatch.setattr(execute_api, "_run_feedback_iteration", run_graph_then_interrupt)
+    monkeypatch.setattr(execute_api, "_persist_feedback_trace", retain_interrupted_trace)
+    with pytest.raises(KeyboardInterrupt) as caught_interrupt:
+        execute_foundry(
+            store,
+            execute_request,
+            derived_tenant_context=tenant_context,
+        )
+
+    assert caught_interrupt.value is expected_solver_interrupt
+    assert len(actual_feedback_graphs) == 1
+    assert len(interrupted_feedback_traces) == 1
+    interrupted_trace = FeedbackTrace.model_validate(
+        from_canonical_bytes(store.get_bytes(interrupted_feedback_traces[0].artifact_id))
+    )
+    assert interrupted_trace.evaluation_scope == "complete"
+    (interrupted_record,) = interrupted_trace.map_evaluations
+    assert interrupted_record.phase == "solver_map"
+    assert interrupted_record.outcome == "failed"
+    assert interrupted_record.failure_type == "builtins.KeyboardInterrupt"
+    # This legacy mechanism graph has no method capture, so the real graph call
+    # is recorded honestly without inventing a graph-invocation identity.
+    assert interrupted_record.graph_invocation_id is None
+    assert interrupted_record.execution_link_status == "not_established"
+    assert any(
+        str(interrupted_feedback_traces[0].artifact_id) in note
+        for note in expected_solver_interrupt.__notes__
+    )
+
+    expected_trace_persistence_failure = SystemExit("feedback trace store unavailable")
+    second_solver_interrupt = KeyboardInterrupt("feedback solver interrupted again")
+
+    def run_graph_then_interrupt_again(*args, **kwargs):
+        original_run_feedback_iteration(*args, **kwargs)
+        raise second_solver_interrupt
+
+    def fail_interrupted_trace_persistence(*args, **kwargs):
+        raise expected_trace_persistence_failure
+
+    monkeypatch.setattr(
+        execute_api,
+        "_run_feedback_iteration",
+        run_graph_then_interrupt_again,
+    )
+    monkeypatch.setattr(
+        execute_api,
+        "_persist_feedback_trace",
+        fail_interrupted_trace_persistence,
+    )
+    with pytest.raises(KeyboardInterrupt) as caught_after_trace_failure:
+        execute_foundry(
+            store,
+            execute_request,
+            derived_tenant_context=tenant_context,
+        )
+    assert caught_after_trace_failure.value is second_solver_interrupt
+    assert any(
+        "feedback interruption trace persistence failed" in note
+        for note in second_solver_interrupt.__notes__
+    )
+    monkeypatch.undo()
+
     feedback_config = FeedbackConfig.model_validate(
         from_canonical_bytes(store.get_bytes(feedback_config_ref.artifact_id))
     )

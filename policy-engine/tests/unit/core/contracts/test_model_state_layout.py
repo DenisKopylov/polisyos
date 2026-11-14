@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import hashlib
+import json
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.model_state_layout import ModelScalarStateLayout
+from polisyos.core.contracts.model_state_layout import (
+    ModelScalarStateLayout,
+    model_scalar_state_slot_spec_digest,
+)
 from polisyos.core.registry.builder import build_registry_bundle
 from polisyos.core.registry.loader import load_registry_bundle_content
 from polisyos.foundry.model_state_slots import (
@@ -133,3 +139,21 @@ def test_layout_contract_refuses_profileless_registry_reference(tmp_path) -> Non
             slots=layout.slots,
             layout_sha256=layout.layout_sha256,
         )
+
+
+def test_shared_slot_spec_digest_preserves_original_layout_wire_rule() -> None:
+    slot = SlotSpec.model_validate(
+        {**_slot("finance.reserve").model_dump(mode="python"), "description": "Условный запас"}
+    )
+    original_bytes = json.dumps(
+        slot.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    original_digest = f"sha256:{hashlib.sha256(original_bytes).hexdigest()}"
+    assert model_scalar_state_slot_spec_digest(slot) == original_digest
+    for field, value in (
+        ("dtype", "float64"),
+        ("unit", {"unit_id": "eur"}),
+        ("state_path", "government_balance"),
+    ):
+        substituted = SlotSpec.model_validate({**slot.model_dump(mode="python"), field: value})
+        assert model_scalar_state_slot_spec_digest(substituted) != original_digest

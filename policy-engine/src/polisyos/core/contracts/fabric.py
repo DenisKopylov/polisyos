@@ -24,7 +24,7 @@ from ..artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from .semantic_input_binding import ResolvedDerivedInput
+from .semantic_input_binding import ResolvedDerivedInput, ResolvedDerivedInputAtStep
 from .uncertainty import UncertaintyEnvelopeRef
 from .variable_binding import (
     ScopedCorrespondenceBasisRef,
@@ -439,13 +439,70 @@ class DerivedModelInputDataSnapshotLineage(_DataSnapshotOwnerLineage):
         return tuple(requirements)
 
 
+class DerivedModelInputStepDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Candidate-only lineage for selected derived inputs at model steps.
+
+    The selections may cover only part of a model input obligation set. This
+    witness records candidate inputs and their direct dependencies; it does
+    not assert completeness, empirical truth, currentness, or publication
+    authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    owner: Literal["derived_model_input_steps"] = "derived_model_input_steps"
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+    lineage_status: Literal["not_established"] = "not_established"
+    base_data_snapshot_ref: ArtifactRef
+    model_input_obligation_set_ref: ArtifactRef
+    selections: tuple[ResolvedDerivedInputAtStep, ...] = Field(min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def _selected_temporal_candidate_inputs_are_unique_and_ordered(
+        self,
+    ) -> DerivedModelInputStepDataSnapshotLineage:
+        if (
+            self.base_data_snapshot_ref.kind != "fabric.data_snapshot"
+            or self.base_data_snapshot_ref.media_type != "application/json"
+            or self.base_data_snapshot_ref.manifest_profile_sha256 is None
+            or self.model_input_obligation_set_ref.kind
+            != "runtime.quality.model_input_obligation_set"
+            or self.model_input_obligation_set_ref.media_type != "application/json"
+            or self.model_input_obligation_set_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("derived_model_input_step_snapshot_lineage_ref_mismatch")
+
+        step_keys = tuple(
+            (item.step_scope.port_id, item.step_scope.step) for item in self.selections
+        )
+        if len(set(step_keys)) != len(step_keys):
+            raise ValueError("derived_model_input_step_snapshot_steps_not_unique")
+        if tuple(sorted(step_keys)) != step_keys:
+            raise ValueError("derived_model_input_step_snapshot_steps_not_sorted")
+
+        binding_ids = tuple(item.selection.binding_id for item in self.selections)
+        source_paths = tuple(item.selection.source_path for item in self.selections)
+        if len(set(binding_ids)) != len(binding_ids) or len(set(source_paths)) != len(source_paths):
+            raise ValueError("derived_model_input_step_snapshot_selections_not_unique")
+        return self
+
+    def selection_lineage_refs(self) -> tuple[tuple[ArtifactRef, str], ...]:
+        """Return every exact selected dependency edge across model steps."""
+        return tuple(
+            ref_role for selection in self.selections for ref_role in selection.lineage_refs()
+        )
+
+
 DataSnapshotOwnerLineage = Annotated[
     MeasurementRootDataSnapshotLineage
     | FabricBridgeDataSnapshotLineage
     | AcquiredObservationDataSnapshotLineage
     | AcquiredObservationSemanticInputDataSnapshotLineage
     | CandidateAcquisitionSourceDataSnapshotLineage
-    | DerivedModelInputDataSnapshotLineage,
+    | DerivedModelInputDataSnapshotLineage
+    | DerivedModelInputStepDataSnapshotLineage,
     Field(discriminator="owner"),
 ]
 
@@ -637,6 +694,13 @@ def data_snapshot_owner_input_requirements(
         )
     elif isinstance(lineage, DerivedModelInputDataSnapshotLineage):
         field_roles = {"data_ref": "payload.derived_model_input"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.model_input_obligation_set_ref, "selected_obligation_set"),
+            *lineage.selection_lineage_refs(),
+        )
+    elif isinstance(lineage, DerivedModelInputStepDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.derived_model_input_steps"}
         extra_refs = (
             (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
             (lineage.model_input_obligation_set_ref, "selected_obligation_set"),

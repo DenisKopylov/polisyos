@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
@@ -19,6 +19,7 @@ from polisyos.core.contracts.model_input_requirements import (
     ModelInputPhysicalEncoding,
     ModelInputPort,
     ModelInputPortDeclaration,
+    load_model_input_port_declaration,
     persist_model_input_port_declaration,
 )
 from polisyos.core.contracts.variable_binding import (
@@ -58,6 +59,11 @@ from tests.unit.core.contracts.test_semantic_derived_binding import (
     _put_contract,
     _representation,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts import CoreJSONArtifactStore
 
 
 def selected_method_tax_subsidy_policy() -> PolicySpec:
@@ -105,6 +111,12 @@ def prepare_selected_method_input_case(
     snapshot_id: str | None = None,
     policy_spec: PolicySpec | None = None,
     income_values: tuple[int, ...] = (0,),
+    persistent_stock_slot: str | None = None,
+    persistent_stock_value: float | None = 10_000_000_000.0,
+    store: FileSystemCAS | None = None,
+    opening_balance_usd: int | None = 10_000_000_000,
+    model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
+    | None = None,
 ) -> tuple[ProgramGraphTaxSubsidyInputCase, dict[str, Any]]:
     """Compile real method instances and explicit scalar period-flow ports.
 
@@ -113,8 +125,21 @@ def prepare_selected_method_input_case(
     the fixture makes no cash-on-hand or empirical fiscal assertion.
     ``method_input_slots`` opts into distinct mapped sources and returns each
     explicit semantic port under ``metadata['method_inputs_by_slot']``.
+    ``persistent_stock_slot`` selects a real original Snapshot 2.4 prestate;
+    callers must also explicitly include that target in ``state_writes``.
+    A caller-supplied store retains its lifetime. ``opening_balance_usd=None``
+    omits both the original stock source and its binding; it is not a zero
+    placeholder. An optional real declaration builder adds ports before the
+    original model and graph are compiled.
     """
-    store = FileSystemCAS(tmp_path / "cas")
+    if opening_balance_usd is not None and type(opening_balance_usd) is not int:
+        raise ValueError("selected_method_fixture_opening_stock_invalid")
+    if persistent_stock_slot is not None and opening_balance_usd != 10_000_000_000:
+        raise ValueError("selected_method_fixture_prestate_profile_unsupported")
+    if model_input_port_declaration_builder is not None and not declared:
+        raise ValueError("selected_method_fixture_declared_extra_ports_required")
+    owns_store = store is None
+    store = FileSystemCAS(tmp_path / "cas") if store is None else store
     MethodRegistry.get_instance().register(method_class, override=True)
     signature = method_class.signature
     if type(method_instances) is not int or not 1 <= method_instances <= 2:
@@ -161,6 +186,23 @@ def prepare_selected_method_input_case(
                 "description": "One selected scalar total flow over the declared period.",
             }
         )
+    if persistent_stock_slot is not None:
+        if (
+            type(persistent_stock_slot) is not str
+            or not persistent_stock_slot
+            or persistent_stock_slot in slots
+        ):
+            raise ValueError("selected_method_fixture_persistent_stock_invalid")
+        slots[persistent_stock_slot] = slots["government.balance"].model_copy(
+            update={
+                "slot_id": persistent_stock_slot,
+                "state_path": None,
+                "kind": SlotKind.STOCK,
+                "dtype": "float32",
+                "shape": [],
+                "description": "Accumulated model-owned scalar period flows.",
+            }
+        )
     registry = build_registry_bundle(
         store,
         slot_registry=SlotRegistry(slots=slots),
@@ -172,11 +214,45 @@ def prepare_selected_method_input_case(
         units_registry=DEFAULT_UNITS_REGISTRY,
         return_selected_profile=True,
     )
-    source_ref = store.put_json(
-        {"agents": {"income": list(income_values)}, "government_balance": 10_000_000_000},
-        PutOptions(kind="tests.selected_method_prestate", media_type="application/json"),
-        return_selected_profile=True,
-    )
+    if persistent_stock_slot is None:
+        source_payload: dict[str, Any] = {"agents": {"income": list(income_values)}}
+        if opening_balance_usd is not None:
+            source_payload["government_balance"] = opening_balance_usd
+        source_ref = store.put_json(
+            source_payload,
+            PutOptions(kind="tests.selected_method_prestate", media_type="application/json"),
+            return_selected_profile=True,
+        )
+    else:
+        import jax.numpy as jnp
+        import numpy as np
+
+        from polisyos.foundry.contracts.state import GlobalState
+        from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
+        from polisyos.foundry.model_state_slots import (
+            bind_model_state,
+            write_model_scalar_state_slot,
+        )
+
+        state = GlobalState.empty(n_agents=len(income_values), n_firms=1)
+        state = state.replace(
+            agents=state.agents.replace(income=jnp.asarray(income_values, dtype=jnp.float32))
+        )
+        bound = bind_model_state(
+            state,
+            selected_registry_bundle_ref=registry.bundle_ref,
+            store=store,
+            slot_ids=(persistent_stock_slot,),
+        )
+        if persistent_stock_value is not None:
+            bound = write_model_scalar_state_slot(
+                bound,
+                slot_id=persistent_stock_slot,
+                value=np.asarray(persistent_stock_value, dtype=np.float32),
+                selected_registry_bundle_ref=registry.bundle_ref,
+                selected_layout_sha256=bound.layout.layout_sha256,
+            )
+        source_ref = put_state_snapshot(store, state=bound, return_selected_profile=True)
     snapshot = DataSnapshot(
         data_ref=source_ref,
         **({"stats": {"snapshot_id": snapshot_id}} if snapshot_id is not None else {}),
@@ -195,11 +271,19 @@ def prepare_selected_method_input_case(
         store,
         data_snapshot_ref=snapshot_ref,
         registry_bundle_ref=registry.bundle_ref,
-        rules=[
-            FoundryInputBindingRule(
-                binding_id="opening-stock",
-                source_path="government_balance",
-                target_slot_id="government.balance",
+        rules=[]
+        if persistent_stock_slot is not None
+        else [
+            *(
+                [
+                    FoundryInputBindingRule(
+                        binding_id="opening-stock",
+                        source_path="government_balance",
+                        target_slot_id="government.balance",
+                    )
+                ]
+                if opening_balance_usd is not None
+                else []
             ),
             FoundryInputBindingRule(
                 binding_id="one-community",
@@ -285,6 +369,11 @@ def prepare_selected_method_input_case(
             "profile_ref": profile_ref,
             "money": money,
         }
+    if model_input_port_declaration_builder is not None:
+        extra_declaration = load_model_input_port_declaration(
+            store, model_input_port_declaration_builder(store)
+        )
+        ports.extend(extra_declaration.ports)
     declaration_ref = (
         persist_model_input_port_declaration(
             store,
@@ -365,7 +454,7 @@ def prepare_selected_method_input_case(
                 method_fqn=signature.fqn,
                 method_version=signature.version,
                 backend=signature.execution_backend.value,
-                params={"target_slot": "government.balance"},
+                params={"target_slot": persistent_stock_slot or "government.balance"},
                 reads_slots=sorted(slot.name for slot in signature.input_slots),
                 writes_slots=sorted(slot.name for slot in signature.output_slots),
                 state_writes=list(state_writes),
@@ -427,6 +516,7 @@ def prepare_selected_method_input_case(
             exec_plan_ref=compiled.exec_plan_ref,
             program_graph_ref=program_ref,
             model_input_port_declaration_ref=declaration_ref,
+            _owns_store=owns_store,
         ),
         (
             metadata_by_slot[unique_input_slots[0]]

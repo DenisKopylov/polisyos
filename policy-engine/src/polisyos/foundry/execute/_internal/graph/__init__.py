@@ -41,6 +41,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.protocol import (
@@ -90,6 +91,7 @@ from polisyos.core.contracts.foundry import (
     RestrictedMethodCallWitness,
     SemanticHorizonStepContext,
     StateDelta,
+    StateSnapshot,
     StateSnapshotRef,
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
@@ -124,7 +126,7 @@ from polisyos.foundry.execute.observation import (
     PreparedProgramGraphMethodCall,
     ProgramGraphExecutionObserver,
 )
-from polisyos.foundry.execute.patch_vm import merge_patch_records
+from polisyos.foundry.execute.patch_vm import ModelStatePatchContext, merge_patch_records
 from polisyos.foundry.methods.backends.circuit_breaker import BackendCircuitOpenError
 from polisyos.foundry.methods.backends.dispatch import BackendNotAvailableError
 from polisyos.foundry.methods.base import SideEffectProfile, SlotType
@@ -1018,6 +1020,60 @@ def _prepare_method_call_observation(
     return row, prepared
 
 
+def _validate_model_state_execution_context(
+    store: CoreJSONArtifactStore,
+    *,
+    base_state: Any,
+    base_ref: ArtifactRef | None,
+    registry_bundle_ref: ArtifactRef | None,
+    slot_registry: SlotRegistry,
+    merge_registry: MergeRuleRegistry,
+    model_state_context: ModelStatePatchContext | None,
+) -> ModelStatePatchContext | None:
+    """Keep the selected layout attached to the actual numerical state owner."""
+    if model_state_context is None:
+        if getattr(base_state, "model_scalar_state", None) is not None:
+            raise ValueError("model_scalar_state_execution_context_required")
+        if base_ref is not None and base_ref.manifest_profile_sha256 is not None:
+            manifest = store.get_manifest(base_ref)
+            schema = manifest.artifact_schema
+            if schema == SchemaInfo(
+                name="polisyos.core.StateSnapshot",
+                version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+                    StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION
+                ],
+            ):
+                raise ValueError("model_scalar_state_execution_context_required")
+        return None
+    if type(model_state_context) is not ModelStatePatchContext:
+        raise ValueError("model_scalar_state_execution_context_required")
+    if base_ref is None or artifact_ref_identity_key(base_ref) != artifact_ref_identity_key(
+        model_state_context.base_ref
+    ):
+        raise ValueError("model_scalar_state_execution_base_ref_mismatch")
+    if registry_bundle_ref is None or artifact_ref_identity_key(
+        registry_bundle_ref
+    ) != artifact_ref_identity_key(model_state_context.registry_bundle_ref):
+        raise ValueError("model_scalar_state_execution_registry_mismatch")
+    model_state_context.require_opening_state()
+    model_state_context.validate_inputs(
+        slot_registry=slot_registry,
+        merge_registry=merge_registry,
+        base_state=base_state,
+        store=store,
+    )
+    return model_state_context
+
+
+def _model_state_contains_slot(
+    model_state_context: ModelStatePatchContext | None, slot_id: str
+) -> bool:
+    """Resolve membership from the selected layout, never an array index guess."""
+    return model_state_context is not None and any(
+        descriptor.slot_id == slot_id for descriptor in model_state_context.bound_state.layout.slots
+    )
+
+
 def _resolve_closed_world_method_inputs(
     store: CoreJSONArtifactStore,
     *,
@@ -1031,6 +1087,7 @@ def _resolve_closed_world_method_inputs(
     step: int,
     expected_invocation: ProgramGraphInputInvocation | None,
     semantic_horizon_step: SemanticHorizonStepContext | None,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> _ClosedWorldMethodInputs | None:
     """Resolve opt-in from the actual model, never from a caller's flag/map.
 
@@ -1071,6 +1128,10 @@ def _resolve_closed_world_method_inputs(
         raise ValueError("model_input_declaration_disappeared")
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
     bindings = load_input_bindings(store, input_bindings_ref)
+    if model_state_context is not None and artifact_ref_identity_key(
+        bindings.bound_state_snapshot_ref
+    ) != artifact_ref_identity_key(model_state_context.base_ref):
+        raise ValueError("model_scalar_state_execution_binding_base_mismatch")
     if bindings.resolved_binding_manifest_ref is None:
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     if (
@@ -1144,9 +1205,27 @@ def _resolve_closed_world_method_inputs(
             slot = registry_content.slot_registry.slots.get(slot_id)
             if slot is None:
                 raise ValueError("method_input_slot_unregistered")
-            if slot.state_path is not None:
-                if slot_id in records_by_slot:
+            input_source = (
+                model_state_context.resolve_input_source(
+                    slot_id,
+                    external_selected=slot_id in records_by_slot or slot_id in declared_ports,
+                )
+                if model_state_context is not None
+                else ("state_path" if slot.state_path is not None else "external_selected")
+            )
+            layout_backed = input_source == "model_layout_slot"
+            if input_source in {"state_path", "model_layout_slot"}:
+                if slot_id in records_by_slot or (layout_backed and slot_id in declared_ports):
                     raise ValueError("method_input_shadows_state_slot")
+                if layout_backed:
+                    assert model_state_context is not None
+                    model_state_context.read_slot(slot_id)
+                    validate_registered_method_input(
+                        method_class.signature,
+                        input_slot_id=input_slot_id,
+                        registered_slot_id=slot_id,
+                        registry=registry_content,
+                    )
                 continue
             validate_registered_method_input(
                 method_class.signature,
@@ -1194,6 +1273,7 @@ def _validated_method_patch_operations(
     closed_world: _ClosedWorldMethodInputs | None,
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> Mapping[str, str]:
     """Validate the actual registry and patch contract at both preparation seams."""
     if not getattr(method_class.signature, "patch_targets", ()):
@@ -1220,12 +1300,27 @@ def _validated_method_patch_operations(
             method_fqn=node.method_fqn,
             code="method_patch_execution_registry_mismatch",
         )
+    model_state_target_values: dict[str, np.ndarray] | None = None
+    if model_state_context is not None:
+        model_state_target_values = {}
+        for contract in method_class.signature.patch_targets:
+            target_id = node.method_params.get(contract.target_parameter)
+            if isinstance(target_id, str) and _model_state_contains_slot(
+                model_state_context, target_id
+            ):
+                model_state_target_values[target_id] = np.asarray(
+                    model_state_context.read_slot(target_id)
+                )
     return validate_method_patch_targets(
         method_class.signature,
         params=node.method_params,
         declared_outputs=node.outputs,
         registry=registry,
         input_slot_sources=_registry_method_input_sources(node, method_class=method_class),
+        model_state_layout=(
+            None if model_state_context is None else model_state_context.bound_state.layout
+        ),
+        model_state_target_values=model_state_target_values,
     )
 
 
@@ -1269,6 +1364,7 @@ def _materialize_exact_method_input_state(
     method_class: type[Any],
     slot_registry: SlotRegistry,
     closed_world: _ClosedWorldMethodInputs | None = None,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> Any:
     """Materialize exact declared aliases, retaining legacy identity joins only."""
     signature_input_slots = method_class.signature.input_slots
@@ -1293,7 +1389,14 @@ def _materialize_exact_method_input_state(
                     slot_id=slot_id,
                     code="method_input_slot_unregistered",
                 )
-            if slot.state_path is not None:
+            input_source = (
+                model_state_context.resolve_input_source(
+                    slot_id, external_selected=slot_id in closed_world.values
+                )
+                if model_state_context is not None
+                else ("state_path" if slot.state_path is not None else "external_selected")
+            )
+            if input_source == "state_path":
                 if slot_id in closed_world.values:
                     raise ProgramNodeValidationError(
                         "Selected method input shadows a state-backed slot",
@@ -1304,6 +1407,16 @@ def _materialize_exact_method_input_state(
                 value = get_state_path(state, slot.state_path)
                 if isinstance(value, np.ndarray):
                     value = _immutable_method_array(value)
+            elif input_source == "model_layout_slot":
+                if slot_id in closed_world.values:
+                    raise ProgramNodeValidationError(
+                        "Selected method input shadows a model-state slot",
+                        node_id=node.node_id,
+                        slot_id=slot_id,
+                        code="method_input_shadows_state_slot",
+                    )
+                assert model_state_context is not None
+                value = _immutable_method_array(np.asarray(model_state_context.read_slot(slot_id)))
             else:
                 if slot_id not in closed_world.values:
                     raise ProgramNodeValidationError(
@@ -3223,9 +3336,27 @@ def execute_program_graph(
     finalize_method_execution_capture: bool = True,
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
     observer: ProgramGraphExecutionObserver | None = None,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> ExecuteArtifacts:
     """Execute program graph."""
     start_time = time.perf_counter()
+    model_state_context = _validate_model_state_execution_context(
+        store,
+        base_state=base_state,
+        base_ref=base_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        slot_registry=slot_registry,
+        merge_registry=merge_registry,
+        model_state_context=model_state_context,
+    )
+    opening_model_state_context = model_state_context
+    if model_state_context is not None:
+        selected_registry = model_state_context.registry
+        mechanism_registry = selected_registry.mechanism_registry
+        slot_registry = selected_registry.slot_registry
+        merge_registry = selected_registry.merge_registry
+        selector_field_registry = selected_registry.selector_field_registry
+        constraint_registry = selected_registry.constraint_registry
     program_graph = load_model(store, program_ref, ProgramGraph)
     _validate_program_graph_method_input_profile(program_graph)
     exec_plan = load_model(store, exec_plan_ref, ExecPlan)
@@ -3241,6 +3372,7 @@ def execute_program_graph(
         step=step,
         expected_invocation=model_input_invocation,
         semantic_horizon_step=semantic_horizon_step,
+        model_state_context=model_state_context,
     )
     if closed_world_inputs is not None:
         selected_registry = closed_world_inputs.registry
@@ -3274,7 +3406,12 @@ def execute_program_graph(
             parameter_overrides=parameter_overrides,
             parameter_override_bundle_ref=parameter_override_bundle_ref,
         )
-        _require_preparable_method_inputs(mixed_inventory, slot_registry=slot_registry, step=step)
+        _require_preparable_method_inputs(
+            mixed_inventory,
+            slot_registry=slot_registry,
+            step=step,
+            model_state_context=model_state_context,
+        )
     order = exec_plan.order or [node.node_id for node in program_graph.nodes]
     node_map = {node.node_id: node for node in program_graph.nodes}
     if len(node_map) != len(program_graph.nodes):
@@ -3509,7 +3646,7 @@ def execute_program_graph(
     )
 
     def _flush_pending_records() -> None:
-        nonlocal patch_records, visible_state
+        nonlocal patch_records, visible_state, model_state_context
         if not patch_records:
             return
         touched_slots.update(patch_records.keys())
@@ -3526,6 +3663,7 @@ def execute_program_graph(
             slot_registry=slot_registry,
             merge_registry=merge_registry,
             return_selected_profile=selected_profile,
+            model_state_context=model_state_context,
         )
         visible_state = apply_ops_to_state(
             store,
@@ -3533,7 +3671,10 @@ def execute_program_graph(
             ops=merged_ops,
             slot_registry=slot_registry,
             merge_registry=merge_registry,
+            model_state_context=model_state_context,
         )
+        if model_state_context is not None:
+            model_state_context = model_state_context.with_state(visible_state)
         patch_records = {}
 
     def _persist_welfare_report(node: Any, report: Any) -> None:
@@ -3672,6 +3813,7 @@ def execute_program_graph(
                         welfare_bound_mode=welfare_bound_mode,
                         plan_index=plan_index,
                         observer=observer,
+                        model_state_context=model_state_context,
                     )
                     if patch_map is None:
                         skipped_nodes += 1
@@ -3736,6 +3878,7 @@ def execute_program_graph(
                     welfare_bound_mode=welfare_bound_mode,
                     plan_index=plan_index,
                     observer=observer,
+                    model_state_context=model_state_context,
                 )
                 if patch_map is None:
                     skipped_nodes += 1
@@ -3776,6 +3919,7 @@ def execute_program_graph(
                     closed_world=closed_world_inputs,
                     slot_registry=slot_registry,
                     merge_registry=merge_registry,
+                    model_state_context=model_state_context,
                 )
                 dispatcher = MethodDispatcher.get_instance()
                 key, step_key = jax.random.split(node_key)
@@ -3785,6 +3929,7 @@ def execute_program_graph(
                     method_class=method_class,
                     slot_registry=slot_registry,
                     closed_world=closed_world_inputs,
+                    model_state_context=model_state_context,
                 )
                 planned_occurrence = (
                     next(
@@ -4126,6 +4271,7 @@ def execute_program_graph(
         slot_registry=slot_registry,
         merge_registry=merge_registry,
         return_selected_profile=selected_profile,
+        model_state_context=opening_model_state_context,
     )
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -4723,10 +4869,15 @@ def _program_graph_call_inventory(
 
 
 def _require_preparable_method_inputs(
-    inventory: _ProgramGraphCallInventory, *, slot_registry: SlotRegistry, step: int
+    inventory: _ProgramGraphCallInventory,
+    *,
+    slot_registry: SlotRegistry,
+    step: int,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> None:
     """Reject inputs whose value would require numerical execution to discover."""
     written_paths: set[str] = set()
+    written_model_slots: set[str] = set()
     for node_id in inventory.order:
         node = inventory.nodes[node_id]
         if node.node_kind == "method":
@@ -4734,6 +4885,10 @@ def _require_preparable_method_inputs(
                 slot = slot_registry.slots.get(slot_id)
                 if slot is None:
                     raise ValueError("method_input_slot_unregistered")
+                if _model_state_contains_slot(model_state_context, slot_id) and (
+                    slot_id in written_model_slots
+                ):
+                    raise ValueError("program_graph_method_future_state_not_established")
                 if slot.state_path is not None and any(
                     slot.state_path == path
                     or slot.state_path.startswith(path + ".")
@@ -4746,9 +4901,14 @@ def _require_preparable_method_inputs(
             mutating_slots = inventory.mechanism_writes.get((step, node_id), ())
         for slot_id in mutating_slots:
             slot = slot_registry.slots.get(slot_id)
-            if slot is None or not slot.state_path:
+            if slot is None:
                 raise ValueError("program_graph_method_write_path_not_established")
-            written_paths.add(slot.state_path)
+            if _model_state_contains_slot(model_state_context, slot_id):
+                written_model_slots.add(slot_id)
+            elif slot.state_path:
+                written_paths.add(slot.state_path)
+            else:
+                raise ValueError("program_graph_method_write_path_not_established")
 
 
 def prepare_program_graph_method_calls(
@@ -4764,6 +4924,7 @@ def prepare_program_graph_method_calls(
     seed: int | None = None,
     parameter_override_bundle_ref: ArtifactRef | None = None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> tuple[PreparedProgramGraphMethodCall, ...]:
     """Prepare the actual bounded selected-method route without executing it.
 
@@ -4786,6 +4947,8 @@ def prepare_program_graph_method_calls(
         parameter_override_bundle_ref: Source-bound override identity. Overrides
             are unsupported in this initial bounded profile.
         semantic_horizon_step: Exact one-step semantic context, when applicable.
+        model_state_context: Canonically admitted opening state/layout when the
+            snapshot contains persistent scalar model state.
 
     Returns:
         Ordered held-call observations; none is an execution witness by itself.
@@ -4826,6 +4989,18 @@ def prepare_program_graph_method_calls(
         or load_input_bindings(store, input_bindings_ref).schema_version != "1.4"
     ):
         raise ValueError("program_graph_method_call_preparation_source_not_established")
+    if model_state_context is None and getattr(base_state, "model_scalar_state", None) is not None:
+        raise ValueError("program_graph_method_model_state_basis_not_established")
+    if model_state_context is not None:
+        _validate_model_state_execution_context(
+            store,
+            base_state=base_state,
+            base_ref=model_state_context.base_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            slot_registry=model_state_context.registry.slot_registry,
+            merge_registry=model_state_context.registry.merge_registry,
+            model_state_context=model_state_context,
+        )
     step = steps[0]
     selected = _resolve_closed_world_method_inputs(
         store,
@@ -4839,6 +5014,7 @@ def prepare_program_graph_method_calls(
         step=step,
         expected_invocation=expected_invocation,
         semantic_horizon_step=semantic_horizon_step,
+        model_state_context=model_state_context,
     )
     if selected is None:
         raise ValueError("program_graph_method_call_preparation_declared_model_required")
@@ -4855,7 +5031,10 @@ def prepare_program_graph_method_calls(
     if not inventory.order:
         raise ValueError("program_graph_method_call_preparation_census_not_established")
     _require_preparable_method_inputs(
-        inventory, slot_registry=selected.registry.slot_registry, step=step
+        inventory,
+        slot_registry=selected.registry.slot_registry,
+        step=step,
+        model_state_context=model_state_context,
     )
     treasury = inventory.treasury or _execution_treasury(
         store, program_ref, exec_plan_ref, graph, plan
@@ -4880,6 +5059,7 @@ def prepare_program_graph_method_calls(
             closed_world=selected,
             slot_registry=selected.registry.slot_registry,
             merge_registry=selected.registry.merge_registry,
+            model_state_context=model_state_context,
         )
         dispatch_state = _materialize_exact_method_input_state(
             base_state,
@@ -4887,6 +5067,7 @@ def prepare_program_graph_method_calls(
             method_class=method_class,
             slot_registry=selected.registry.slot_registry,
             closed_world=selected,
+            model_state_context=model_state_context,
         )
         node_key = _treasury_node_key(root_key, treasury, node_id) if treasury else key
         key, step_key = jax.random.split(node_key)
@@ -4936,6 +5117,8 @@ def prepare_program_graph_mechanism_calls(
     Raises:
         ValueError: If the selected graph or bounded structural profile is unsupported.
     """
+    if getattr(base_state, "model_scalar_state", None) is not None:
+        raise ValueError("program_graph_mechanism_model_state_basis_not_established")
     if (
         not isinstance(program_ref, ArtifactRef)
         or program_ref.kind != ProgramGraph.ARTIFACT_KIND
@@ -5017,6 +5200,7 @@ def _execute_mechanism_like_node(
     welfare_bound_mode: str,
     plan_index: int,
     observer: ProgramGraphExecutionObserver | None,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> tuple[jax.Array, dict[str, Any] | None, dict[str, Any], Any | None]:
     if node.params_ref is None:
         raise ProgramNodeValidationError(
@@ -5128,6 +5312,7 @@ def _execute_mechanism_like_node(
                     merge_registry=merge_registry,
                     default_node_id=node.node_id,
                     priority=payload.get("priority"),
+                    model_state_context=model_state_context,
                 )
             except Exception as exc:  # pragma: no cover - defensive envelope
                 state_after_error = f"{type(exc).__name__}: {exc}"
@@ -5163,17 +5348,29 @@ def _build_state_delta_ops(
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
     return_selected_profile: bool = False,
+    model_state_context: ModelStatePatchContext | None = None,
 ) -> list[PatchOp]:
+    final_model_state_context = (
+        None if model_state_context is None else model_state_context.with_state(final_state)
+    )
     ops: list[PatchOp] = []
     for slot_id in sorted(touched_slots):
         slot_spec = slot_registry.slots.get(slot_id)
-        if slot_spec is None or not slot_spec.state_path:
-            raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
+        if slot_spec is None:
+            raise ValueError(f"Slot '{slot_id}' is unregistered for execution")
+        if slot_spec.state_path:
+            base_value = get_state_path(base_state, slot_spec.state_path)
+            final_value = get_state_path(final_state, slot_spec.state_path)
+        elif _model_state_contains_slot(model_state_context, slot_id):
+            assert model_state_context is not None
+            assert final_model_state_context is not None
+            base_value = model_state_context.read_slot(slot_id)
+            final_value = final_model_state_context.read_slot(slot_id)
+        else:
+            raise ValueError(f"Slot '{slot_id}' missing selected state source for execution")
         rule = merge_registry.rules.get(slot_spec.merge_rule.rule_id)
         if rule is None:
             raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
-        base_value = get_state_path(base_state, slot_spec.state_path)
-        final_value = get_state_path(final_state, slot_spec.state_path)
         if rule.kind == MergeRuleKind.SUM:
             payload = jnp.asarray(final_value) - jnp.asarray(base_value)
             op_kind = "add"

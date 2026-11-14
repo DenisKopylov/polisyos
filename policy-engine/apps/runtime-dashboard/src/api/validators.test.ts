@@ -21,6 +21,7 @@ import {
   runEvidenceContextSchema,
   runsListSchema,
 } from "./validators";
+import actualPartialCapacityRunDetails from "./__fixtures__/partial-capacity-run-details.json";
 import { runHteSelectedProjection } from "@/test/fixtures/runExecutionHte";
 import {
   acquisitionGrowthPayloadSchema,
@@ -5717,5 +5718,38 @@ describe("verified capacity checkpoint wire", () => {
       capacity_source_content_hash: null,
     };
     expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+});
+
+describe("actual retained partial capacity response", () => {
+  it("validates the API body and rejects a one-field source-hash mutation", () => {
+    const parsed = runDetailsSchema.parse(actualPartialCapacityRunDetails);
+    const projection = parsed.run.generic_cycle_simulation;
+    expect(projection?.schema_version).toBe(
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    );
+    expect(projection?.run_id).toBe(parsed.run.run_id);
+    expect(projection?.artifact_status).toBe("resolved");
+    expect(projection?.authority_purpose).toBe("cycle_input_candidate_only");
+    expect(projection?.publication_authority).toBe(false);
+    expect(projection?.currentness_status).toBe("not_established");
+    expect(projection?.recursive_cycle_checkpoint).toMatchObject({
+      schema_version: "policyos.runtime.recursive_cycle_checkpoint.v3",
+      status: "partial",
+      root_n9_status: "not_run",
+      capacity_limitation_code: "physical_need_not_established",
+    });
+
+    const corrupted = structuredClone(
+      actualPartialCapacityRunDetails,
+    ) as Record<string, unknown>;
+    const run = mutableRecord(corrupted.run);
+    const corruptedProjection = mutableRecord(run.generic_cycle_simulation);
+    const checkpoint = mutableRecord(
+      corruptedProjection.recursive_cycle_checkpoint,
+    );
+    checkpoint.capacity_source_content_hash = null;
+
+    expect(runDetailsSchema.safeParse(corrupted).success).toBe(false);
   });
 });

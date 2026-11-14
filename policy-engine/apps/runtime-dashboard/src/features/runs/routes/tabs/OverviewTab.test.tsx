@@ -4,6 +4,7 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "../../../../api/validators";
+import actualPartialCapacityRunDetails from "@/api/__fixtures__/partial-capacity-run-details.json";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import { predictiveCalibrationResponseFixture } from "@/test/fixtures/predictiveCalibrationResponse";
 import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
@@ -30,12 +31,16 @@ const overviewState = vi.hoisted(() => ({
   canCreatePredictiveCalibration: false,
   decisionArtifact: null as Record<string, unknown> | null,
   primaryDecisionArtifactRef: null as Record<string, unknown> | null,
+  routeRunId: "run-1",
   run: { run_id: "run-1" } as Record<string, unknown>,
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-router-dom")>();
-  return { ...actual, useParams: () => ({ runId: "run-1" }) };
+  return {
+    ...actual,
+    useParams: () => ({ runId: overviewState.routeRunId }),
+  };
 });
 vi.mock("@/api/hooks/useGovernanceDebug", () => ({
   useSuspenseGovernanceDebug: (...args: unknown[]) =>
@@ -866,6 +871,7 @@ describe("OverviewTab", () => {
     };
     overviewState.primaryDecisionArtifactRef = null;
     overviewState.canCreatePredictiveCalibration = false;
+    overviewState.routeRunId = "run-1";
     overviewState.predictiveCalibrationMutation = {
       isPending: false,
       isError: false,
@@ -873,6 +879,33 @@ describe("OverviewTab", () => {
       mutate: vi.fn(),
     };
     overviewState.run = parsedRun();
+  });
+
+  it("renders the actual retained partial capacity response as candidate-only", () => {
+    const { run } = runDetailsSchema.parse(actualPartialCapacityRunDetails);
+    const projection = run.generic_cycle_simulation;
+    expect(projection?.run_id).toBe(run.run_id);
+    expect(projection?.publication_authority).toBe(false);
+    expect(projection?.currentness_status).toBe("not_established");
+
+    overviewState.run = { ...run };
+    overviewState.routeRunId = run.run_id;
+    renderWithProviders(<OverviewTab />);
+
+    const simulation = screen.getByTestId("overview-generic-cycle-simulation");
+    expect(simulation).toHaveTextContent(
+      "Persisted candidate lineage only. Currentness and publication authority are not established.",
+    );
+    const checkpoint = screen.getByTestId("overview-generic-cycle-checkpoint");
+    expect(checkpoint).toHaveTextContent(
+      "sha256:e250ccd61db945c3018d6e9d0cba50076e0ac17791cc786dc3c89dc9936e23b0",
+    );
+    expect(checkpoint).toHaveTextContent(
+      "design-problem://5a87fe8f73fa3083d344c4b80c97a9a870f05ac3db8d384cb0a2a30713ac7be4",
+    );
+    expect(checkpoint).toHaveTextContent("physical_need_not_established");
+    expect(checkpoint).toHaveTextContent("Root N9: not_run");
+    expect(screen.getByTestId("overview-recursive-capacity-stop")).toBeTruthy();
   });
 
   it("routes Core-only overview reads through the resolved Core identity", () => {

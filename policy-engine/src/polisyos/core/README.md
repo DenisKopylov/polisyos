@@ -47,6 +47,12 @@ depends on `polisyos.ir`, but not the other way around.
   Runtime retains its compatibility exports and epoch recomputation. Derived-series
   verification does not establish source-observation authority or model-port
   correspondence. Existing v2/v2.1 artifact and producer identities remain unchanged.
+  Opt-in v3 adds candidate/legacy/certified-derived inputs, bounded selected DAG
+  materialization and fresh whole-chain replay. Candidate custody, selected
+  configuration and arithmetic are recomputed; empirical source/value correspondence
+  remains `not_established`, with no inferred score. `builtin_v1` binds its definition
+  digest; `selected_registry_bundle` binds the exact bundle and units member profile.
+  This experimental module API does not establish a Runtime N7 production bridge.
 - Narrow worker-lifecycle API leaf: `polisyos.core.run.worker_lifecycle`.
   This does not make `polisyos.core.run` or `RunContext` a supported package API.
 - Lazy facade exports from `src/polisyos/core/__init__.py`: `artifacts`,

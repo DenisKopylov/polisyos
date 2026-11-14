@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Literal, Never, Protocol, Self
 
 from pydantic import (
+    AfterValidator,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -28,6 +29,8 @@ from polisyos.ir import api as ir_api
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from polisyos.ir.kernel import UnitsRegistry
 
 
 DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v2"
@@ -308,9 +311,18 @@ class TransformInputSpec(_StrictModel):
     role: str = Field(min_length=1)
     basis: BasisSignature
     value_constraints: tuple[ValueConstraint, ...] = ()
+    allowed_input_kinds: tuple[Literal["source", "candidate_source", "certified_derived"], ...] = (
+        Field(
+            default=("source",),
+            exclude_if=lambda value: value == ("source",),
+            min_length=1,
+        )
+    )
 
     @model_validator(mode="after")
     def _constraints_are_canonical(self) -> Self:
+        if self.allowed_input_kinds != tuple(sorted(set(self.allowed_input_kinds))):
+            raise ValueError("allowed input kinds must be unique and sorted")
         if self.value_constraints != tuple(sorted(set(self.value_constraints))):
             raise ValueError("input value constraints must be unique and sorted")
         return self
@@ -542,6 +554,7 @@ class TransformFamilyRegistry(_StrictModel):
         self,
         *,
         input_bases: Mapping[str, BasisSignature],
+        input_kinds: Mapping[str, str] | None = None,
         output_basis: BasisSignature,
         family_id: str | None = None,
         method_version: str | None = None,
@@ -556,6 +569,13 @@ class TransformFamilyRegistry(_StrictModel):
             and _output_basis_matches_family(family, output_basis)
             and {item.role for item in family.input_specs} == set(input_bases)
             and all(input_bases[item.role] == item.basis for item in family.input_specs)
+            and (
+                input_kinds is None
+                or all(
+                    input_kinds.get(item.role) in item.allowed_input_kinds
+                    for item in family.input_specs
+                )
+            )
         ]
         if not candidates:
             raise DerivationRefusalError(
@@ -575,6 +595,7 @@ class TransformFamilyRegistry(_StrictModel):
         self,
         *,
         input_bases: Mapping[str, BasisSignature],
+        input_kinds: Mapping[str, str] | None = None,
         family_id: str | None = None,
         method_version: str | None = None,
     ) -> TransformFamily:
@@ -587,6 +608,13 @@ class TransformFamilyRegistry(_StrictModel):
             and (method_version is None or family.method_version == method_version)
             and {item.role for item in family.input_specs} == set(input_bases)
             and all(input_bases[item.role] == item.basis for item in family.input_specs)
+            and (
+                input_kinds is None
+                or all(
+                    input_kinds.get(item.role) in item.allowed_input_kinds
+                    for item in family.input_specs
+                )
+            )
         ]
         if not candidates:
             raise DerivationRefusalError(
@@ -605,6 +633,9 @@ class TransformFamilyRegistry(_StrictModel):
 
 def load_transform_family_registry(
     source: str | Path | Mapping[str, object],
+    *,
+    store: _CertifiedDerivationReader | None = None,
+    registry_bundle_ref: artifacts.ArtifactRef | None = None,
 ) -> TransformFamilyRegistry:
     """Load a strict registry from TOML or an already-decoded owner mapping."""
 
@@ -614,7 +645,12 @@ def load_transform_family_registry(
     else:
         payload = tomllib.loads(Path(source).read_text(encoding="utf-8"))
     registry = TransformFamilyRegistry.model_validate(payload)
-    _require_registered_basis_units(_registry_bases(registry))
+    if registry_bundle_ref is None:
+        _require_registered_basis_units(_registry_bases(registry))
+    elif store is None:
+        raise ValueError("selected model units require their artifact reader")
+    else:
+        _require_composition_units(store, registry_bundle_ref, _registry_bases(registry))
     return registry
 
 
@@ -1090,6 +1126,8 @@ def _authority_input_refs(authority: AuthorityProjection) -> list[artifacts.Inpu
 def persist_source_series(
     store: artifacts.FileSystemCAS,
     series: SourceSeries,
+    *,
+    return_selected_profile: bool = False,
 ) -> artifacts.ArtifactRef:
     """Persist one owner-validated source with its authority input graph."""
 
@@ -1106,6 +1144,7 @@ def persist_source_series(
             inputs=_authority_input_refs(series.authority),
             canon=artifacts.CanonInfo.from_spec(_CANON_SPEC),
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -1260,9 +1299,39 @@ def _registry_bases(
         yield family.output_basis
 
 
+def _registry_uses_composition(registry: TransformFamilyRegistry) -> bool:
+    return any(
+        spec.allowed_input_kinds != ("source",)
+        for family in registry.families
+        for spec in family.input_specs
+    )
+
+
+def _registry_schema(
+    registry: TransformFamilyRegistry, *, selected_units: bool = False
+) -> artifacts.SchemaInfo:
+    return (
+        _TRANSFORM_FAMILY_REGISTRY_V3_SCHEMA
+        if _registry_uses_composition(registry) or selected_units
+        else _TRANSFORM_FAMILY_REGISTRY_SCHEMA
+    )
+
+
+def _registry_producer(
+    registry: TransformFamilyRegistry, *, selected_units: bool = False
+) -> artifacts.ProducerInfo:
+    return (
+        _COMPOSITION_PRODUCER
+        if _registry_uses_composition(registry) or selected_units
+        else _DERIVATION_PRODUCER
+    )
+
+
 def persist_transform_family_registry(
     store: artifacts.FileSystemCAS,
     registry: TransformFamilyRegistry,
+    *,
+    registry_bundle_ref: artifacts.ArtifactRef | None = None,
 ) -> artifacts.ArtifactRef:
     """Persist one unit-resolved owner registry under the canonical CAS contract."""
 
@@ -1273,13 +1342,19 @@ def persist_transform_family_registry(
             DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
             "transform family registry identity or content drift",
         ) from exc
-    _require_registered_basis_units(_registry_bases(registry))
+    _require_composition_units(store, registry_bundle_ref, _registry_bases(registry))
     ref, _ = _put_or_verify(
         store,
-        payload=registry,
+        payload=_CompositionRegistryPayload(registry=registry)
+        if _registry_uses_composition(registry) or registry_bundle_ref is not None
+        else registry,
         kind=TRANSFORM_FAMILY_REGISTRY_KIND,
-        schema=_TRANSFORM_FAMILY_REGISTRY_SCHEMA,
-        inputs=(),
+        schema=_registry_schema(registry, selected_units=registry_bundle_ref is not None),
+        producer=_registry_producer(registry, selected_units=registry_bundle_ref is not None),
+        force_selected=_registry_uses_composition(registry) or registry_bundle_ref is not None,
+        inputs=()
+        if registry_bundle_ref is None
+        else _selected_edges([("model_registry_bundle", _require_selected(registry_bundle_ref))]),
         refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
     )
     return ref
@@ -1299,26 +1374,51 @@ def _load_transform_family_registry_artifact(
             refusal_code,
             f"{projection.artifact_id}: complete manifest projection",
         )
+    try:
+        payload = load_core_json_artifact(store, _projection_ref(projection))
+        registry = (
+            _CompositionRegistryPayload.model_validate(payload).registry
+            if projection.schema_version == "3.0.0"
+            else TransformFamilyRegistry.model_validate(payload)
+        )
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
+    unit_edges = [edge for edge in projection.input_graph if edge.role == "model_registry_bundle"]
+    if len(unit_edges) > 1 or len(unit_edges) != len(projection.input_graph):
+        raise DerivationRefusalError(refusal_code, "registry unit profile input graph differs")
+    unit_ref = (
+        None
+        if not unit_edges
+        else _resolve_input_ref(
+            store,
+            artifacts.InputRef(
+                artifact_id=unit_edges[0].artifact_id,
+                role="model_registry_bundle",
+                manifest_profile_sha256=unit_edges[0].manifest_profile_sha256,
+            ),
+            refusal_code=refusal_code,
+        )
+    )
     _verify_intake_contract(
         projection,
         kind=TRANSFORM_FAMILY_REGISTRY_KIND,
-        schema=_TRANSFORM_FAMILY_REGISTRY_SCHEMA,
-        producer=_DERIVATION_PRODUCER,
-        inputs=(),
+        schema=_registry_schema(registry, selected_units=unit_ref is not None),
+        producer=_registry_producer(registry, selected_units=unit_ref is not None),
+        inputs=() if unit_ref is None else _selected_edges([("model_registry_bundle", unit_ref)]),
         refusal_code=refusal_code,
     )
-    try:
-        payload = load_core_json_artifact(store, _projection_ref(projection))
-        registry = TransformFamilyRegistry.model_validate(payload)
-    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
-        raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
-    _require_registered_basis_units(_registry_bases(registry))
+    _require_composition_units(store, unit_ref, _registry_bases(registry))
     return registry
+
+
+class _SeriesValues(Protocol):
+    @property
+    def points(self) -> tuple[SeriesPoint, ...]: ...
 
 
 def _derive_parameters(
     family: TransformFamily,
-    sources: Mapping[str, SourceSeries],
+    sources: Mapping[str, _SeriesValues],
 ) -> tuple[DerivedParameter, ...]:
     parameters: list[DerivedParameter] = []
     for rule in family.parameter_rules:
@@ -1443,6 +1543,10 @@ def build_derivation_recipe(
             "selected transform registry reference required",
         )
     registry_projection = _manifest_projection(store, registry_ref)
+    if registry_projection.schema_version == "3.0.0":
+        raise DerivationRefusalError(
+            DerivationRefusalCode.BASIS_MISMATCH, "v3 registry requires composition entrypoint"
+        )
     loaded_registry = _load_transform_family_registry_artifact(
         store,
         registry_projection,
@@ -1483,6 +1587,10 @@ def build_derivation_recipe(
             family_id=family_id,
             method_version=method_version,
         )
+    if any(spec.allowed_input_kinds != ("source",) for spec in family.input_specs):
+        raise DerivationRefusalError(
+            DerivationRefusalCode.BASIS_MISMATCH, "v3 family requires composition entrypoint"
+        )
     parameters = _derive_parameters(family, sources)
     resolved_output_basis = (
         _materialize_output_basis(family, parameters) if output_basis is None else output_basis
@@ -1519,7 +1627,7 @@ def build_derivation_recipe(
     return DerivationRecipe.model_validate(payload)
 
 
-def _check_constraints(spec: TransformInputSpec, source: SourceSeries) -> None:
+def _check_constraints(spec: TransformInputSpec, source: _SeriesValues) -> None:
     for constraint in spec.value_constraints:
         for point in source.points:
             valid = {
@@ -1647,6 +1755,10 @@ def _resolve_recipe_family(
     *,
     refusal_code: DerivationRefusalCode,
 ) -> TransformFamily:
+    if recipe.registry_artifact.schema_version == "3.0.0":
+        raise DerivationRefusalError(
+            DerivationRefusalCode.BASIS_MISMATCH, "v3 registry requires composition entrypoint"
+        )
     registry = _load_transform_family_registry_artifact(
         store,
         recipe.registry_artifact,
@@ -1658,6 +1770,10 @@ def _resolve_recipe_family(
         family_id=recipe.family.family_id,
         method_version=recipe.family.method_version,
     )
+    if any(spec.allowed_input_kinds != ("source",) for spec in family.input_specs):
+        raise DerivationRefusalError(
+            DerivationRefusalCode.BASIS_MISMATCH, "v3 family requires composition entrypoint"
+        )
     if family != recipe.family:
         raise DerivationRefusalError(
             DerivationRefusalCode.BASIS_MISMATCH,
@@ -1681,18 +1797,19 @@ def _revalidate_recipe(
         ) from exc
 
 
-def _derive_series(
-    recipe: DerivationRecipe,
-    sources: Mapping[str, SourceSeries],
-) -> DerivedSeries:
-    spec_by_role = {item.role: item for item in recipe.family.input_specs}
+def _evaluate_points(
+    family: TransformFamily,
+    parameters: Sequence[DerivedParameter],
+    sources: Mapping[str, _SeriesValues],
+) -> tuple[SeriesPoint, ...]:
+    spec_by_role = {item.role: item for item in family.input_specs}
     for role, source in sources.items():
         _check_constraints(spec_by_role[role], source)
     values_by_role = {
         role: {point.year: point.value for point in source.points}
         for role, source in sources.items()
     }
-    domain_years = tuple(values_by_role[recipe.family.year_domain_role])
+    domain_years = tuple(values_by_role[family.year_domain_role])
     for role, values in values_by_role.items():
         missing = tuple(year for year in domain_years if year not in values)
         if missing:
@@ -1700,21 +1817,29 @@ def _derive_series(
                 DerivationRefusalCode.EXACT_YEAR_MISSING,
                 f"{role}:" + ",".join(str(year) for year in missing),
             )
-    parameters = {item.name: item.value for item in recipe.parameters}
+    parameter_values = {item.name: item.value for item in parameters}
     with localcontext() as context:
         context.prec = 50
         points = tuple(
             SeriesPoint(
                 year=year,
                 value=_evaluate_expression(
-                    recipe.family.expression,
+                    family.expression,
                     year=year,
                     values_by_role=values_by_role,
-                    parameters=parameters,
+                    parameters=parameter_values,
                 ),
             )
             for year in domain_years
         )
+    return points
+
+
+def _derive_series(
+    recipe: DerivationRecipe,
+    sources: Mapping[str, SourceSeries],
+) -> DerivedSeries:
+    points = _evaluate_points(recipe.family, recipe.parameters, sources)
     return DerivedSeries(
         variable_id=recipe.output_variable_id,
         basis=recipe.output_basis,
@@ -1825,12 +1950,14 @@ def _put_or_verify(
     schema: artifacts.SchemaInfo,
     inputs: Sequence[artifacts.InputRef],
     refusal_code: DerivationRefusalCode,
+    producer: artifacts.ProducerInfo = _DERIVATION_PRODUCER,
+    force_selected: bool = False,
 ) -> tuple[artifacts.ArtifactRef, bool]:
     data = _canonical_bytes(payload)
     artifact_id = artifacts.ArtifactID.from_sha256_hex(canon.content_hash(data))
     cache_hit = store.has(artifact_id)
     sorted_inputs = _sorted_input_refs(inputs)
-    has_selected_input_view = any(
+    has_selected_input_view = force_selected or any(
         item.manifest_profile_sha256 is not None for item in sorted_inputs
     )
     _verify_input_refs(store, sorted_inputs, refusal_code=refusal_code)
@@ -1848,7 +1975,7 @@ def _put_or_verify(
                     expected_bytes=data,
                     kind=kind,
                     schema=schema,
-                    producer=_DERIVATION_PRODUCER,
+                    producer=producer,
                     inputs=sorted_inputs,
                     refusal_code=refusal_code,
                 ),
@@ -1874,7 +2001,7 @@ def _put_or_verify(
                 kind=kind,
                 media_type="application/json",
                 schema=schema,
-                producer=_DERIVATION_PRODUCER,
+                producer=producer,
                 inputs=sorted_inputs,
                 canon=artifacts.CanonInfo.from_spec(_CANON_SPEC),
             ),
@@ -1899,7 +2026,7 @@ def _put_or_verify(
             expected_bytes=data,
             kind=kind,
             schema=schema,
-            producer=_DERIVATION_PRODUCER,
+            producer=producer,
             inputs=sorted_inputs,
             refusal_code=refusal_code,
         ),
@@ -2230,7 +2357,1607 @@ def load_selected_transform_family_registry(
     )
 
 
+COMPOSITION_DERIVATION_SCHEMA_VERSION = "polisyos.core.derivations.v3"
+CANDIDATE_SOURCE_SERIES_KIND = "polisyos.core.candidate_source_series"
+_COMPOSITION_PRODUCER = artifacts.ProducerInfo(
+    component="polisyos.core.derivations", version="3.0.0"
+)
+_TRANSFORM_FAMILY_REGISTRY_V3_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.transform-family-registry", version="3.0.0"
+)
+
+
+_COMPOSITION_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.core.derivation-composition", version="3.0.0"
+)
+_CANDIDATE_SOURCE_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.core.candidate-source-series", version="3.0.0"
+)
+InputKind = Literal["source", "candidate_source", "certified_derived"]
+
+
+def _builtin_units_digest() -> str:
+    return canon.fingerprint(_DEFAULT_UNITS_REGISTRY, prefix=True, canon_spec=_CANON_SPEC)
+
+
+def _validate_units_selection(profile: str, ref: artifacts.ArtifactRef | None) -> None:
+    if (profile == "selected_registry_bundle") != (ref is not None):
+        raise ValueError("selected units profile requires its exact model registry bundle")
+
+
+def _composition_units(
+    store: _CertifiedDerivationReader, bundle_ref: artifacts.ArtifactRef | None
+) -> UnitsRegistry:
+    if bundle_ref is None:
+        return _DEFAULT_UNITS_REGISTRY
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.registry.loader import load_registry_bundle
+    from polisyos.ir.kernel import UnitsRegistry
+
+    _require_selected(bundle_ref)
+    _verify_resolvable_ref(store, bundle_ref)
+    if bundle_ref.kind != "core.registry_bundle":
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "unit configuration is not a model registry bundle",
+        )
+    try:
+        bundle = load_registry_bundle(store, bundle_ref)
+        if bundle.units_registry is None:
+            raise ValueError("model bundle has no units registry")
+        units_ref = _require_selected(bundle.units_registry)
+        expected = artifacts.InputRef(
+            artifact_id=units_ref.artifact_id,
+            role="units_registry",
+            manifest_profile_sha256=units_ref.manifest_profile_sha256,
+        )
+        actual = [
+            item for item in store.get_manifest(bundle_ref).inputs if item.role == "units_registry"
+        ]
+        if actual != [expected] or units_ref.kind != "ir.units_registry":
+            raise ValueError("model bundle units selection differs from its manifest")
+        _verify_resolvable_ref(store, units_ref)
+        return UnitsRegistry.model_validate(load_core_json_artifact(store, units_ref))
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "selected model units registry cannot be reconciled",
+        ) from exc
+
+
+def _require_composition_units(
+    store: _CertifiedDerivationReader,
+    bundle_ref: artifacts.ArtifactRef | None,
+    bases: Iterable[BasisSignature],
+    *,
+    legacy_source: bool = False,
+) -> None:
+    units = _composition_units(store, bundle_ref).units
+    for basis in bases:
+        if basis.unit not in units:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.BASIS_MISMATCH,
+                f"unregistered selected model unit: {basis.unit}",
+            )
+        if legacy_source and units[basis.unit] != _DEFAULT_UNITS_REGISTRY.units.get(basis.unit):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.BASIS_MISMATCH,
+                f"legacy source unit definition differs: {basis.unit}",
+            )
+
+
+def _verify_registry_context_units(
+    store: _CertifiedDerivationReader,
+    projection: ArtifactContractProjection,
+    context: DerivationContext,
+    bases: Iterable[BasisSignature],
+) -> None:
+    actual = [edge for edge in projection.input_graph if edge.role == "model_registry_bundle"]
+    expected = (
+        []
+        if context.registry_bundle_ref is None
+        else list(
+            _expected_input_edges(
+                _selected_edges([("model_registry_bundle", context.registry_bundle_ref)])
+            )
+        )
+    )
+    if actual != expected:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.BASIS_MISMATCH,
+            "family registry and invocation unit profiles differ",
+        )
+    _require_composition_units(store, context.registry_bundle_ref, bases)
+
+
+def _require_selected(ref: artifacts.ArtifactRef) -> artifacts.ArtifactRef:
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("v3 inputs require exact selected manifest profiles")
+    return ref
+
+
+SelectedDerivationRef = Annotated[artifacts.ArtifactRef, AfterValidator(_require_selected)]
+
+
+class _CompositionRegistryPayload(_StrictModel):
+    """Versioned v3 registry envelope; v2 family payload identities stay separate."""
+
+    schema_version: Literal[COMPOSITION_DERIVATION_SCHEMA_VERSION] = (
+        COMPOSITION_DERIVATION_SCHEMA_VERSION
+    )
+    registry: TransformFamilyRegistry
+
+
+class DerivationContext(_StrictModel):
+    """Exact invocation context, scope and complete requested year domain."""
+
+    context_ref: SelectedDerivationRef
+    scope_ref: SelectedDerivationRef
+    years: tuple[int, ...] = Field(min_length=1)
+    builtin_units_sha256: str | None = Field(
+        default_factory=_builtin_units_digest,
+        exclude_if=lambda x: x is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    units_profile: Literal["builtin_v1", "selected_registry_bundle"] = "builtin_v1"
+    registry_bundle_ref: SelectedDerivationRef | None = Field(
+        default=None, exclude_if=lambda x: x is None
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _selected_units_omit_builtin_dependency(cls, payload: object) -> object:
+        if (
+            isinstance(payload, Mapping)
+            and payload.get("units_profile") == "selected_registry_bundle"
+        ):
+            if payload.get("builtin_units_sha256") is not None:
+                raise ValueError("selected model units do not depend on the builtin registry")
+            return {**payload, "builtin_units_sha256": None}
+        return payload
+
+    @model_validator(mode="after")
+    def _canonical_years(self) -> Self:
+        if (
+            self.units_profile == "builtin_v1"
+            and self.builtin_units_sha256 != _builtin_units_digest()
+        ):
+            raise ValueError("builtin unit definitions drifted from the bound v3 profile")
+        _validate_units_selection(self.units_profile, self.registry_bundle_ref)
+        if self.years != tuple(sorted(set(self.years))):
+            raise ValueError("context years must be unique and sorted")
+        return self
+
+
+class CandidateSourceSeries(_StrictModel):
+    """Custodied candidate values without an empirical authority assertion."""
+
+    schema_version: Literal[COMPOSITION_DERIVATION_SCHEMA_VERSION] = (
+        COMPOSITION_DERIVATION_SCHEMA_VERSION
+    )
+    variable_id: str = Field(min_length=1)
+    basis: BasisSignature
+    points: tuple[SeriesPoint, ...]
+    source_occurrence_ref: SelectedDerivationRef
+    source_ref: SelectedDerivationRef
+    context_ref: SelectedDerivationRef
+    scope_ref: SelectedDerivationRef
+    builtin_units_sha256: str | None = Field(
+        default_factory=_builtin_units_digest,
+        exclude_if=lambda x: x is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    units_profile: Literal["builtin_v1", "selected_registry_bundle"] = "builtin_v1"
+    registry_bundle_ref: SelectedDerivationRef | None = Field(
+        default=None, exclude_if=lambda x: x is None
+    )
+    lineage_refs: tuple[SelectedDerivationRef, ...] = Field(min_length=1)
+    evidence_status: Literal["not_established"] = "not_established"
+    observation_class: Literal["candidate"] = "candidate"
+    limitations: tuple[str, ...] = Field(
+        default=(
+            "empirical_authority_not_established",
+            "source_value_correspondence_not_established",
+        ),
+        min_length=1,
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _selected_units_omit_builtin_dependency(cls, payload: object) -> object:
+        if (
+            isinstance(payload, Mapping)
+            and payload.get("units_profile") == "selected_registry_bundle"
+        ):
+            if payload.get("builtin_units_sha256") is not None:
+                raise ValueError("selected model units do not depend on the builtin registry")
+            return {**payload, "builtin_units_sha256": None}
+        return payload
+
+    @model_validator(mode="after")
+    def _canonical_candidate(self) -> Self:
+        if (
+            self.units_profile == "builtin_v1"
+            and self.builtin_units_sha256 != _builtin_units_digest()
+        ):
+            raise ValueError("builtin unit definitions drifted from the bound v3 profile")
+        _validate_units_selection(self.units_profile, self.registry_bundle_ref)
+        _validate_points(self.points)
+        _canonical_limitations(self.limitations)
+        keys = tuple(_ref_key(ref) for ref in self.lineage_refs)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("candidate lineage refs must be unique and sorted")
+        return self
+
+
+class SourceDerivationInput(_StrictModel):
+    """Select one legacy source without changing its declared authority contract."""
+
+    kind: Literal["source"] = "source"
+    artifact_ref: SelectedDerivationRef
+
+
+class CandidateDerivationInput(_StrictModel):
+    """Select one unscored candidate source artifact."""
+
+    kind: Literal["candidate_source"] = "candidate_source"
+    artifact_ref: SelectedDerivationRef
+
+
+class CertifiedDerivedInput(_StrictModel):
+    """Select a derived output together with its exact replayable certificate."""
+
+    kind: Literal["certified_derived"] = "certified_derived"
+    artifact_ref: SelectedDerivationRef
+    certificate_ref: SelectedDerivationRef
+
+
+DerivationInput = Annotated[
+    SourceDerivationInput | CandidateDerivationInput | CertifiedDerivedInput,
+    Field(discriminator="kind"),
+]
+
+
+def _ref_key(ref: artifacts.ArtifactRef) -> tuple[str, str, str, str]:
+    return str(ref.artifact_id), ref.kind, ref.media_type, ref.manifest_profile_sha256 or ""
+
+
+def _canonical_limitations(values: tuple[str, ...]) -> None:
+    if values != tuple(sorted(set(values))) or any(not value.strip() for value in values):
+        raise ValueError("limitations must be nonempty strings, unique and sorted")
+
+
+def _selected_edges(refs: Sequence[tuple[str, artifacts.ArtifactRef]]) -> list[artifacts.InputRef]:
+    return _sorted_input_refs(
+        [
+            artifacts.InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for role, ref in refs
+        ]
+    )
+
+
+def _candidate_edges(series: CandidateSourceSeries) -> list[artifacts.InputRef]:
+    return _selected_edges(
+        [
+            ("source_occurrence", series.source_occurrence_ref),
+            ("source", series.source_ref),
+            ("context", series.context_ref),
+            ("scope", series.scope_ref),
+            *(
+                ([("model_registry_bundle", series.registry_bundle_ref)])
+                if series.registry_bundle_ref is not None
+                else []
+            ),
+            *((f"lineage:{index}", ref) for index, ref in enumerate(series.lineage_refs)),
+        ]
+    )
+
+
+def persist_candidate_source_series(
+    store: artifacts.FileSystemCAS,
+    series: CandidateSourceSeries,
+) -> artifacts.ArtifactRef:
+    """Persist candidate values and exact custody lineage without minting authority."""
+    series = CandidateSourceSeries.model_validate(series.model_dump(mode="python"))
+    _require_composition_units(store, series.registry_bundle_ref, (series.basis,))
+    return _put_or_verify(
+        store,
+        payload=series,
+        kind=CANDIDATE_SOURCE_SERIES_KIND,
+        schema=_CANDIDATE_SOURCE_SCHEMA,
+        producer=_COMPOSITION_PRODUCER,
+        inputs=_candidate_edges(series),
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )[0]
+
+
+class CompositionRecipeInput(_StrictModel):
+    """A role bound to its actual input origin and complete selected CAS profiles."""
+
+    role: str = Field(min_length=1)
+    kind: InputKind
+    artifact: ArtifactContractProjection
+    certificate: ArtifactContractProjection | None = Field(
+        default=None, exclude_if=lambda x: x is None
+    )
+    basis: BasisSignature
+
+    @model_validator(mode="after")
+    def _selected_input(self) -> Self:
+        _require_selected(_projection_ref(self.artifact))
+        if (self.kind == "certified_derived") != (self.certificate is not None):
+            raise ValueError("only certified derived inputs require a certificate")
+        if self.certificate is not None:
+            _require_selected(_projection_ref(self.certificate))
+        return self
+
+
+class CompositionRecipe(_StrictModel):
+    """Version-three exact recipe; no historical source/authority coercion."""
+
+    schema_version: Literal[COMPOSITION_DERIVATION_SCHEMA_VERSION] = (
+        COMPOSITION_DERIVATION_SCHEMA_VERSION
+    )
+    recipe_id: str
+    registry_artifact: ArtifactContractProjection
+    family: TransformFamily
+    inputs: tuple[CompositionRecipeInput, ...] = Field(min_length=1)
+    context: DerivationContext
+    output_variable_id: str = Field(min_length=1)
+    output_basis: BasisSignature
+    parameters: tuple[DerivedParameter, ...]
+    assumptions: tuple[ResolvedAssumption, ...]
+
+    @model_validator(mode="after")
+    def _validate_recipe(self) -> Self:
+        _require_selected(_projection_ref(self.registry_artifact))
+        roles = tuple(item.role for item in self.inputs)
+        specs = {spec.role: spec for spec in self.family.input_specs}
+        if roles != tuple(sorted(set(roles))) or set(roles) != set(specs):
+            raise ValueError("complete unique family AND roles are required")
+        for item in self.inputs:
+            if item.kind not in specs[item.role].allowed_input_kinds:
+                raise ValueError(f"{item.role}: input kind not permitted by family ABI")
+            if item.basis != specs[item.role].basis:
+                raise ValueError(f"{item.role}: input basis differs from family ABI")
+        if not _output_basis_matches_family(self.family, self.output_basis):
+            raise ValueError("output basis differs from family ABI")
+        if tuple(item.rule for item in self.parameters) != self.family.parameter_rules:
+            raise ValueError("parameter rules differ from family ABI")
+        if tuple(item.name for item in self.parameters) != tuple(
+            rule.name for rule in self.family.parameter_rules
+        ):
+            raise ValueError("parameter names differ from family ABI")
+        _validate_output_parameter_bindings(self.family, self.parameters, self.output_basis)
+        if self.assumptions != _resolve_assumptions(self.family, self.parameters):
+            raise ValueError("assumptions differ from family ABI")
+        if self.recipe_id != _identity("derivation-recipe", self.identity_payload()):
+            raise ValueError("composition recipe identity differs")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the content-bound invocation including all selected profiles."""
+        return {
+            key: value
+            for key, value in self.model_dump(mode="python").items()
+            if key != "recipe_id"
+        }
+
+
+class InputContribution(_StrictModel):
+    """Tagged actual authority contribution; unknown is never represented as zero."""
+
+    role: str = Field(min_length=1)
+    kind: InputKind
+    artifact_ref: SelectedDerivationRef
+    certificate_ref: SelectedDerivationRef | None = Field(
+        default=None, exclude_if=lambda x: x is None
+    )
+    evidence_status: Literal["established", "not_established"]
+    effective_score: AuthorityScore | None = Field(default=None, exclude_if=lambda x: x is None)
+    declared_ceiling: AuthorityScore | None = Field(default=None, exclude_if=lambda x: x is None)
+    authority_predicate_class: Literal["consumer_asserted", "not_established"] = "not_established"
+    authority_ref: artifacts.ArtifactID | None = Field(default=None, exclude_if=lambda x: x is None)
+    verifier_provenance_ref: artifacts.ArtifactID | None = Field(
+        default=None, exclude_if=lambda x: x is None
+    )
+    lineage_refs: tuple[SelectedDerivationRef, ...] = ()
+    limitations: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _authority_is_typed(self) -> Self:
+        _canonical_limitations(self.limitations)
+        if self.evidence_status == "not_established":
+            if self.effective_score is not None or not self.limitations:
+                raise ValueError("unknown contribution requires limitations and absent score")
+        elif self.effective_score is None:
+            raise ValueError("established contribution requires a real score")
+        if self.kind == "source":
+            if (
+                self.authority_ref is None
+                or self.verifier_provenance_ref is None
+                or self.authority_ref == self.verifier_provenance_ref
+            ):
+                raise ValueError("legacy source requires distinct declared authority/verifier refs")
+            if (
+                self.evidence_status != "not_established"
+                or self.certificate_ref is not None
+                or self.authority_predicate_class != "consumer_asserted"
+                or self.declared_ceiling is None
+            ):
+                raise ValueError("legacy source authority remains a declared, unverified ceiling")
+        elif (
+            self.authority_ref is not None
+            or self.verifier_provenance_ref is not None
+            or self.declared_ceiling is not None
+        ):
+            raise ValueError("candidate/derived contributions cannot invent source authority refs")
+        if self.kind == "candidate_source" and (
+            self.evidence_status != "not_established" or not self.lineage_refs
+        ):
+            raise ValueError("candidate source must retain unknown status and lineage")
+        if (self.kind == "certified_derived") != (self.certificate_ref is not None):
+            raise ValueError("derived contribution requires the selected prior certificate")
+        return self
+
+
+class CompositionDerivedSeries(_StrictModel):
+    """Derived v3 values with transitive limitations and explicit evidence status."""
+
+    schema_version: Literal[COMPOSITION_DERIVATION_SCHEMA_VERSION] = (
+        COMPOSITION_DERIVATION_SCHEMA_VERSION
+    )
+    variable_id: str
+    basis: BasisSignature
+    points: tuple[SeriesPoint, ...]
+    recipe_id: str
+    context: DerivationContext
+    source_refs: tuple[SelectedDerivationRef, ...] = Field(min_length=1)
+    observation_class: Literal["derived"] = "derived"
+    evidence_status: Literal["established", "not_established"]
+    effective_score: AuthorityScore | None = Field(default=None, exclude_if=lambda x: x is None)
+    limitations: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_output(self) -> Self:
+        _validate_points(self.points)
+        _canonical_limitations(self.limitations)
+        if tuple(point.year for point in self.points) != self.context.years:
+            raise ValueError("derived output differs from requested year domain")
+        if (self.evidence_status == "established") != (self.effective_score is not None):
+            raise ValueError("unknown output must omit score")
+        if self.evidence_status == "not_established" and not self.limitations:
+            raise ValueError("unknown output requires limitations")
+        keys = tuple(_ref_key(ref) for ref in self.source_refs)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("selected source denominator must be unique and sorted")
+        return self
+
+
+class CompositionCertificate(_StrictModel):
+    """Recomputable v3 certificate with actual tagged input contributions."""
+
+    schema_version: Literal[COMPOSITION_DERIVATION_SCHEMA_VERSION] = (
+        COMPOSITION_DERIVATION_SCHEMA_VERSION
+    )
+    certificate_id: str
+    recipe: CompositionRecipe
+    derived_artifact_ref: SelectedDerivationRef
+    input_contributions: tuple[InputContribution, ...]
+    evidence_status: Literal["established", "not_established"]
+    effective_score: AuthorityScore | None = Field(default=None, exclude_if=lambda x: x is None)
+    limitations: tuple[str, ...] = ()
+    authoritative_for: Literal["certified_derived_series"] = "certified_derived_series"
+    may_not_use_for: tuple[
+        Literal["observed_series", "source_observation", "acquisition_passport"], ...
+    ] = ("acquisition_passport", "observed_series", "source_observation")
+
+    @model_validator(mode="after")
+    def _validate_certificate(self) -> Self:
+        expected = _aggregate_contributions(self.input_contributions)
+        if (self.evidence_status, self.effective_score, self.limitations) != expected:
+            raise ValueError("certificate authority differs from actual contributions")
+        if tuple(item.role for item in self.input_contributions) != tuple(
+            item.role for item in self.recipe.inputs
+        ):
+            raise ValueError("certificate contribution roles differ from recipe")
+        if self.may_not_use_for != (
+            "acquisition_passport",
+            "observed_series",
+            "source_observation",
+        ):
+            raise ValueError("composition prohibitions are fixed")
+        if self.certificate_id != _identity(
+            "derivation-certificate",
+            {
+                key: value
+                for key, value in self.model_dump(mode="python").items()
+                if key != "certificate_id"
+            },
+        ):
+            raise ValueError("composition certificate identity differs")
+        return self
+
+
+class CompositionMaterialization(_StrictModel):
+    """Persisted output and certificate selected from one exact v3 invocation."""
+
+    recipe: CompositionRecipe
+    series: CompositionDerivedSeries
+    derived_artifact_ref: SelectedDerivationRef
+    certificate: CompositionCertificate
+    certificate_artifact_ref: SelectedDerivationRef
+    cache_hit: bool
+
+
+class CompositionResolution(_StrictModel):
+    """Read-only replay result exposing derived values and explicit limitations."""
+
+    certificate: CompositionCertificate
+    series: CompositionDerivedSeries
+    consumer_method_id: str = Field(min_length=1)
+    cache_verified: Literal[True] = True
+
+
+class _NormalizedInput(_StrictModel):
+    kind: InputKind
+    basis: BasisSignature
+    points: tuple[SeriesPoint, ...]
+    contribution: InputContribution
+    source_refs: tuple[SelectedDerivationRef, ...]
+
+
+def _aggregate_contributions(
+    contributions: Sequence[InputContribution],
+) -> tuple[Literal["established", "not_established"], Decimal | None, tuple[str, ...]]:
+    if not contributions:
+        raise ValueError("composition requires input contributions")
+    limitations = tuple(sorted({value for item in contributions for value in item.limitations}))
+    if any(item.evidence_status == "not_established" for item in contributions):
+        return "not_established", None, limitations
+    return (
+        "established",
+        min(item.effective_score for item in contributions if item.effective_score is not None),
+        limitations,
+    )
+
+
+def _context_edges(context: DerivationContext) -> list[tuple[str, artifacts.ArtifactRef]]:
+    return [
+        ("context", context.context_ref),
+        ("scope", context.scope_ref),
+        *(
+            ([("model_registry_bundle", context.registry_bundle_ref)])
+            if context.registry_bundle_ref is not None
+            else []
+        ),
+    ]
+
+
+def _composition_edges(recipe: CompositionRecipe) -> list[artifacts.InputRef]:
+    refs = [
+        ("registry", _projection_ref(recipe.registry_artifact)),
+        *_context_edges(recipe.context),
+    ]
+    for item in recipe.inputs:
+        refs.append((f"input:{item.role}", _projection_ref(item.artifact)))
+        if item.certificate is not None:
+            refs.append((f"certificate:{item.role}", _projection_ref(item.certificate)))
+    return _selected_edges(refs)
+
+
+def _read_candidate(
+    store: _CertifiedDerivationReader, projection: ArtifactContractProjection
+) -> CandidateSourceSeries:
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    ref = _projection_ref(projection)
+    if _manifest_projection(store, ref) != projection:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "candidate projection drift"
+        )
+    try:
+        series = CandidateSourceSeries.model_validate(load_core_json_artifact(store, ref))
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "candidate read failed"
+        ) from exc
+    _verify_cached_artifact(
+        store,
+        artifact_ref=ref,
+        expected_bytes=_canonical_bytes(series),
+        kind=CANDIDATE_SOURCE_SERIES_KIND,
+        schema=_CANDIDATE_SOURCE_SCHEMA,
+        producer=_COMPOSITION_PRODUCER,
+        inputs=_candidate_edges(series),
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )
+    _require_composition_units(store, series.registry_bundle_ref, (series.basis,))
+    return series
+
+
+def _normalize_input(
+    store: _CertifiedDerivationReader,
+    *,
+    role: str,
+    selection: DerivationInput,
+    context: DerivationContext,
+    replay: _CompositionReplay,
+    metadata_only: bool = False,
+) -> _NormalizedInput:
+    projection = _manifest_projection(store, selection.artifact_ref)
+    if selection.kind == "source":
+        series = _load_source(
+            store, projection, refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+        )
+        contribution = InputContribution(
+            role=role,
+            kind="source",
+            artifact_ref=selection.artifact_ref,
+            evidence_status="not_established",
+            declared_ceiling=series.authority.effective_score,
+            authority_predicate_class="consumer_asserted",
+            limitations=(
+                "legacy_source_authority_not_independently_reconciled",
+                "source_context_scope_correspondence_not_established",
+            ),
+            authority_ref=series.authority.authority_ref,
+            verifier_provenance_ref=series.authority.verifier_provenance_ref,
+        )
+        _require_composition_units(
+            store, context.registry_bundle_ref, (series.basis,), legacy_source=True
+        )
+        sources = (selection.artifact_ref,)
+    elif selection.kind == "candidate_source":
+        series = _read_candidate(store, projection)
+        if _ref_key(series.context_ref) != _ref_key(context.context_ref) or _ref_key(
+            series.scope_ref
+        ) != _ref_key(context.scope_ref):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+                f"{role}: candidate context/scope mismatch",
+            )
+        if (
+            series.units_profile != context.units_profile
+            or series.registry_bundle_ref != context.registry_bundle_ref
+            or series.builtin_units_sha256 != context.builtin_units_sha256
+        ):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.BASIS_MISMATCH, f"{role}: candidate unit registry differs"
+            )
+        contribution = InputContribution(
+            role=role,
+            kind="candidate_source",
+            artifact_ref=selection.artifact_ref,
+            evidence_status="not_established",
+            lineage_refs=tuple(
+                {
+                    _ref_key(ref): ref
+                    for ref in (
+                        series.source_occurrence_ref,
+                        series.source_ref,
+                        series.context_ref,
+                        series.scope_ref,
+                        *series.lineage_refs,
+                    )
+                }[key]
+                for key in sorted(
+                    {
+                        _ref_key(ref)
+                        for ref in (
+                            series.source_occurrence_ref,
+                            series.source_ref,
+                            series.context_ref,
+                            series.scope_ref,
+                            *series.lineage_refs,
+                        )
+                    }
+                )
+            ),
+            limitations=tuple(
+                sorted(
+                    {
+                        *series.limitations,
+                        "empirical_authority_not_established",
+                        "source_value_correspondence_not_established",
+                    }
+                )
+            ),
+        )
+        sources = (selection.artifact_ref,)
+    else:
+        if metadata_only:
+            replay.preflight(selection.certificate_ref)
+            key = _ref_key(selection.certificate_ref)
+            if key in replay.results:
+                certificate, series = replay.results[key].certificate, replay.results[key].series
+            else:
+                certificate, series = replay.prepared[key], replay.series[key]
+        else:
+            resolution = replay.resolve(selection.certificate_ref)
+            certificate, series = resolution.certificate, resolution.series
+        if (
+            _ref_key(certificate.derived_artifact_ref) != _ref_key(selection.artifact_ref)
+            or series.context != context
+        ):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.CERTIFICATE_DRIFT, f"{role}: certified output/context differs"
+            )
+        contribution = InputContribution(
+            role=role,
+            kind="certified_derived",
+            artifact_ref=selection.artifact_ref,
+            certificate_ref=selection.certificate_ref,
+            evidence_status=series.evidence_status,
+            effective_score=series.effective_score,
+            limitations=series.limitations,
+        )
+        sources = series.source_refs
+    if tuple(point.year for point in series.points) != context.years:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.EXACT_YEAR_MISSING, f"{role}: exact requested year domain differs"
+        )
+    return _NormalizedInput(
+        kind=selection.kind,
+        basis=series.basis,
+        points=series.points,
+        contribution=contribution,
+        source_refs=sources,
+    )
+
+
+def _selection(item: CompositionRecipeInput) -> DerivationInput:
+    ref = _projection_ref(item.artifact)
+    if item.kind == "source":
+        return SourceDerivationInput(artifact_ref=ref)
+    if item.kind == "candidate_source":
+        return CandidateDerivationInput(artifact_ref=ref)
+    if item.certificate is None:
+        raise ValueError("derived certificate missing")
+    return CertifiedDerivedInput(
+        artifact_ref=ref, certificate_ref=_projection_ref(item.certificate)
+    )
+
+
+def _validate_expression_years(
+    family: TransformFamily, parameters: Sequence[DerivedParameter], years: tuple[int, ...]
+) -> None:
+    values = {item.name: item.value for item in parameters}
+
+    def visit(expression: ArithmeticExpression) -> None:
+        if expression.operator == "value_at_parameter":
+            year = _integer_parameter(values, expression.parameter_name or "")
+            if year not in years:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EXACT_YEAR_MISSING,
+                    f"expression requires unselected year {year}",
+                )
+        for operand in expression.operands:
+            visit(operand)
+
+    visit(family.expression)
+
+
+def _composition_recipe(
+    store: _CertifiedDerivationReader,
+    *,
+    registry: TransformFamilyRegistry,
+    registry_projection: ArtifactContractProjection,
+    inputs: Mapping[str, DerivationInput],
+    context: DerivationContext,
+    output_variable_id: str,
+    output_basis: BasisSignature | None,
+    family_id: str | None,
+    method_version: str | None,
+    replay: _CompositionReplay,
+) -> tuple[CompositionRecipe, dict[str, _NormalizedInput]]:
+    _verify_registry_context_units(store, registry_projection, context, _registry_bases(registry))
+    _verify_input_refs(
+        store,
+        _selected_edges(_context_edges(context)),
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )
+    normalized = {
+        role: _normalize_input(
+            store, role=role, selection=selection, context=context, replay=replay
+        )
+        for role, selection in sorted(inputs.items())
+    }
+    bases = {role: item.basis for role, item in normalized.items()}
+    family = (
+        registry.resolve_for_inputs(
+            input_bases=bases,
+            input_kinds={role: item.kind for role, item in normalized.items()},
+            family_id=family_id,
+            method_version=method_version,
+        )
+        if output_basis is None
+        else registry.resolve(
+            input_bases=bases,
+            input_kinds={role: item.kind for role, item in normalized.items()},
+            output_basis=output_basis,
+            family_id=family_id,
+            method_version=method_version,
+        )
+    )
+    for spec in family.input_specs:
+        if normalized[spec.role].kind not in spec.allowed_input_kinds:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.BASIS_MISMATCH,
+                f"{spec.role}: input kind not permitted by family ABI",
+            )
+        _check_constraints(spec, normalized[spec.role])
+    parameters = _derive_parameters(family, normalized)
+    _validate_expression_years(family, parameters, context.years)
+    basis = _materialize_output_basis(family, parameters) if output_basis is None else output_basis
+    _validate_output_parameter_bindings(family, parameters, basis)
+    payload = {
+        "schema_version": COMPOSITION_DERIVATION_SCHEMA_VERSION,
+        "registry_artifact": registry_projection,
+        "family": family,
+        "inputs": tuple(
+            CompositionRecipeInput(
+                role=role,
+                kind=inputs[role].kind,
+                artifact=_manifest_projection(store, inputs[role].artifact_ref),
+                certificate=_manifest_projection(store, inputs[role].certificate_ref)
+                if isinstance(inputs[role], CertifiedDerivedInput)
+                else None,
+                basis=item.basis,
+            )
+            for role, item in normalized.items()
+        ),
+        "context": context,
+        "output_variable_id": output_variable_id,
+        "output_basis": basis,
+        "parameters": parameters,
+        "assumptions": _resolve_assumptions(family, parameters),
+    }
+    payload["recipe_id"] = _identity("derivation-recipe", payload)
+    recipe = CompositionRecipe.model_validate(payload)
+    for selection in inputs.values():
+        if isinstance(selection, CertifiedDerivedInput):
+            replay.resolve(selection.certificate_ref)
+    return recipe, normalized
+
+
+def build_composition_recipe(
+    store: artifacts.FileSystemCAS,
+    *,
+    registry: TransformFamilyRegistry,
+    input_refs: Mapping[str, DerivationInput],
+    context: DerivationContext,
+    output_variable_id: str,
+    output_basis: BasisSignature | None = None,
+    family_id: str | None = None,
+    method_version: str | None = None,
+    registry_ref: artifacts.ArtifactRef,
+) -> CompositionRecipe:
+    """Resolve a v3 family against actual selected input kinds and exact context."""
+    _require_selected(registry_ref)
+    projection = _manifest_projection(store, registry_ref)
+    if (
+        _load_transform_family_registry_artifact(
+            store, projection, refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+        )
+        != registry
+    ):
+        raise DerivationRefusalError(DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "registry differs")
+    return _composition_recipe(
+        store,
+        registry=registry,
+        registry_projection=projection,
+        inputs=input_refs,
+        context=context,
+        output_variable_id=output_variable_id,
+        output_basis=output_basis,
+        family_id=family_id,
+        method_version=method_version,
+        replay=_CompositionReplay(store, DerivationEvaluationLimits()),
+    )[0]
+
+
+def _composition_series(
+    recipe: CompositionRecipe, normalized: Mapping[str, _NormalizedInput]
+) -> CompositionDerivedSeries:
+    status, score, limitations = _aggregate_contributions(
+        tuple(item.contribution for item in normalized.values())
+    )
+    refs = {_ref_key(ref): ref for item in normalized.values() for ref in item.source_refs}
+    return CompositionDerivedSeries(
+        variable_id=recipe.output_variable_id,
+        basis=recipe.output_basis,
+        points=_evaluate_points(recipe.family, recipe.parameters, normalized),
+        recipe_id=recipe.recipe_id,
+        context=recipe.context,
+        source_refs=tuple(refs[key] for key in sorted(refs)),
+        evidence_status=status,
+        effective_score=score,
+        limitations=limitations,
+    )
+
+
+def _composition_certificate(
+    recipe: CompositionRecipe,
+    series: CompositionDerivedSeries,
+    normalized: Mapping[str, _NormalizedInput],
+    ref: artifacts.ArtifactRef,
+) -> CompositionCertificate:
+    payload = {
+        "schema_version": COMPOSITION_DERIVATION_SCHEMA_VERSION,
+        "recipe": recipe,
+        "derived_artifact_ref": ref,
+        "input_contributions": tuple(item.contribution for item in normalized.values()),
+        "evidence_status": series.evidence_status,
+        "effective_score": series.effective_score,
+        "limitations": series.limitations,
+        "authoritative_for": "certified_derived_series",
+        "may_not_use_for": ("acquisition_passport", "observed_series", "source_observation"),
+    }
+    # Optional scores are absent in the wire identity, including the unknown case.
+    if payload["effective_score"] is None:
+        del payload["effective_score"]
+    payload["certificate_id"] = _identity("derivation-certificate", payload)
+    return CompositionCertificate.model_validate(payload)
+
+
+def _reopen_composition_recipe(
+    store: _CertifiedDerivationReader, recipe: CompositionRecipe, replay: _CompositionReplay
+) -> tuple[CompositionRecipe, dict[str, _NormalizedInput]]:
+    recipe = CompositionRecipe.model_validate(recipe.model_dump(mode="python"))
+    registry = _load_transform_family_registry_artifact(
+        store, recipe.registry_artifact, refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT
+    )
+    rebuilt, normalized = _composition_recipe(
+        store,
+        registry=registry,
+        registry_projection=recipe.registry_artifact,
+        inputs={item.role: _selection(item) for item in recipe.inputs},
+        context=recipe.context,
+        output_variable_id=recipe.output_variable_id,
+        output_basis=recipe.output_basis,
+        family_id=recipe.family.family_id,
+        method_version=recipe.family.method_version,
+        replay=replay,
+    )
+    if rebuilt != recipe:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.CERTIFICATE_DRIFT,
+            "recipe differs from reopened full input profiles",
+        )
+    return rebuilt, normalized
+
+
+def materialize_composition(
+    store: artifacts.FileSystemCAS,
+    recipe: CompositionRecipe,
+    *,
+    limits: DerivationEvaluationLimits | None = None,
+) -> CompositionMaterialization:
+    """Persist one certified derivation without promoting candidate authority."""
+    return _materialize_composition(
+        store,
+        recipe,
+        _CompositionReplay(
+            store,
+            limits or DerivationEvaluationLimits(),
+            reserved_nodes=1,
+            reserved_edges=len(recipe.inputs),
+            reserved_points=len(recipe.context.years),
+        ),
+    )
+
+
+def _materialize_composition(
+    store: artifacts.FileSystemCAS, recipe: CompositionRecipe, replay: _CompositionReplay
+) -> CompositionMaterialization:
+    prior_depth = max(
+        (
+            replay.preflight(_projection_ref(item.certificate))
+            for item in recipe.inputs
+            if item.certificate is not None
+        ),
+        default=0,
+    )
+    if prior_depth + 1 > replay.limits.max_depth:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "combined composition depth budget exceeded"
+        )
+    recipe, normalized = _reopen_composition_recipe(store, recipe, replay)
+    selected_sources = {_ref_key(ref) for item in normalized.values() for ref in item.source_refs}
+    if len(selected_sources) > replay.limits.max_selected_sources:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "composition selected-source budget exceeded",
+        )
+    series = _composition_series(recipe, normalized)
+    edges = _composition_edges(recipe)
+    derived_ref, hit = _put_or_verify(
+        store,
+        payload=series,
+        kind=DERIVED_SERIES_KIND,
+        schema=_COMPOSITION_SCHEMA,
+        producer=_COMPOSITION_PRODUCER,
+        inputs=edges,
+        refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
+    )
+    certificate = _composition_certificate(recipe, series, normalized, derived_ref)
+    certificate_ref, _ = _put_or_verify(
+        store,
+        payload=certificate,
+        kind=DERIVATION_CERTIFICATE_KIND,
+        schema=_COMPOSITION_SCHEMA,
+        producer=_COMPOSITION_PRODUCER,
+        inputs=[*edges, *_selected_edges([("derived_series", derived_ref)])],
+        refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
+    )
+    replay.results[_ref_key(certificate_ref)] = CompositionResolution(
+        certificate=certificate, series=series, consumer_method_id="core.composition.materialize"
+    )
+    return CompositionMaterialization(
+        recipe=recipe,
+        series=series,
+        derived_artifact_ref=derived_ref,
+        certificate=certificate,
+        certificate_artifact_ref=certificate_ref,
+        cache_hit=hit,
+    )
+
+
+class DerivationEvaluationLimits(_StrictModel):
+    """Generic finite arithmetic/replay budgets mapped by higher-layer planners."""
+
+    max_nodes: int = Field(default=128, ge=1, le=1024)
+    max_depth: int = Field(default=64, ge=1, le=128)
+    max_edges: int = Field(default=512, ge=1)
+    max_selected_sources: int = Field(default=128, ge=1)
+    max_points: int = Field(default=10000, ge=1)
+
+
+class _CompositionReplay:
+    def __init__(
+        self,
+        store: _CertifiedDerivationReader,
+        limits: DerivationEvaluationLimits,
+        *,
+        reserved_nodes: int = 0,
+        reserved_edges: int = 0,
+        reserved_points: int = 0,
+    ) -> None:
+        if (
+            reserved_nodes > limits.max_nodes
+            or reserved_edges > limits.max_edges
+            or reserved_points > limits.max_points
+        ):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+                "composition node/edge/point budget exceeded",
+            )
+        self.store = store
+        self.limits = limits
+        self.active: set[tuple[str, str, str, str]] = set()
+        self.results: dict[tuple[str, str, str, str], CompositionResolution] = {}
+        self.prepared: dict[tuple[str, str, str, str], CompositionCertificate] = {}
+        self.series: dict[tuple[str, str, str, str], CompositionDerivedSeries] = {}
+        self.depths: dict[tuple[str, str, str, str], int] = {}
+        self.source_sets: dict[tuple[str, str, str, str], tuple[artifacts.ArtifactRef, ...]] = {}
+        self.reserved_nodes = reserved_nodes
+        self.edges = reserved_edges
+        self.points = reserved_points
+        self.sources: set[tuple[str, str, str, str]] = set()
+
+    def preflight(self, ref: artifacts.ArtifactRef) -> int:
+        """Reconcile the entire selected ancestor graph before any arithmetic."""
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        _require_selected(ref)
+        key = _ref_key(ref)
+        if key in self.results:
+            return self.depths.get(key, 1)
+        if key in self.active:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.CERTIFICATE_DRIFT, "certificate cycle"
+            )
+        if key in self.prepared:
+            return self.depths[key]
+        if (
+            len(self.active) >= self.limits.max_depth
+            or self.reserved_nodes + len(self.active) + len(self.prepared) >= self.limits.max_nodes
+        ):
+            raise DerivationRefusalError(
+                DerivationRefusalCode.CERTIFICATE_DRIFT,
+                "combined certificate node/depth budget exceeded",
+            )
+        self.active.add(key)
+        try:
+            certificate = CompositionCertificate.model_validate(
+                load_core_json_artifact(self.store, ref)
+            )
+            recipe = certificate.recipe
+            self.edges += len(recipe.inputs)
+            self.points += len(recipe.context.years)
+            if self.edges > self.limits.max_edges or self.points > self.limits.max_points:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT,
+                    "combined certificate edge/point budget exceeded",
+                )
+            registry = _load_transform_family_registry_artifact(
+                self.store,
+                recipe.registry_artifact,
+                refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
+            )
+            _verify_registry_context_units(
+                self.store, recipe.registry_artifact, recipe.context, _registry_bases(registry)
+            )
+            family = registry.resolve(
+                input_bases={item.role: item.basis for item in recipe.inputs},
+                input_kinds={item.role: item.kind for item in recipe.inputs},
+                output_basis=recipe.output_basis,
+                family_id=recipe.family.family_id,
+                method_version=recipe.family.method_version,
+            )
+            if family != recipe.family:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT,
+                    "embedded family differs from selected registry",
+                )
+            _verify_input_refs(
+                self.store,
+                _selected_edges(_context_edges(recipe.context)),
+                refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
+            )
+            refs: dict[tuple[str, str, str, str], artifacts.ArtifactRef] = {}
+            child_depth = 0
+            leaf_inputs: dict[str, _SeriesValues] = {}
+            for item in recipe.inputs:
+                if (
+                    _manifest_projection(self.store, _projection_ref(item.artifact))
+                    != item.artifact
+                ):
+                    raise DerivationRefusalError(
+                        DerivationRefusalCode.CERTIFICATE_DRIFT, "selected input projection differs"
+                    )
+                if item.kind == "certified_derived":
+                    if item.certificate is None:
+                        raise ValueError("prior certificate missing")
+                    prior_ref = _projection_ref(item.certificate)
+                    if _manifest_projection(self.store, prior_ref) != item.certificate:
+                        raise DerivationRefusalError(
+                            DerivationRefusalCode.CERTIFICATE_DRIFT,
+                            "selected certificate projection differs",
+                        )
+                    child_depth = max(child_depth, self.preflight(prior_ref))
+                    prior_key = _ref_key(prior_ref)
+                    prior = self.prepared.get(prior_key)
+                    prior_recipe = (
+                        prior.recipe
+                        if prior is not None
+                        else self.results[prior_key].certificate.recipe
+                    )
+                    output_ref = (
+                        prior.derived_artifact_ref
+                        if prior is not None
+                        else self.results[prior_key].certificate.derived_artifact_ref
+                    )
+                    if (
+                        _ref_key(output_ref) != _ref_key(_projection_ref(item.artifact))
+                        or prior_recipe.context != recipe.context
+                        or prior_recipe.output_basis != item.basis
+                    ):
+                        raise DerivationRefusalError(
+                            DerivationRefusalCode.CERTIFICATE_DRIFT,
+                            "prior output/context/basis differs",
+                        )
+                    prior_sources = self.source_sets.get(
+                        prior_key,
+                        self.results[prior_key].series.source_refs
+                        if prior_key in self.results
+                        else (),
+                    )
+                    refs.update((_ref_key(source), source) for source in prior_sources)
+                    leaf_inputs[item.role] = _YearDomain(
+                        points=tuple(
+                            SeriesPoint(year=year, value=Decimal(0))
+                            for year in recipe.context.years
+                        )
+                    )
+                else:
+                    normalized = _normalize_input(
+                        self.store,
+                        role=item.role,
+                        selection=_selection(item),
+                        context=recipe.context,
+                        replay=self,
+                    )
+                    if normalized.basis != item.basis:
+                        raise DerivationRefusalError(
+                            DerivationRefusalCode.BASIS_MISMATCH, "actual leaf basis differs"
+                        )
+                    _check_constraints(
+                        next(spec for spec in family.input_specs if spec.role == item.role),
+                        normalized,
+                    )
+                    leaf_inputs[item.role] = normalized
+                    refs.update((_ref_key(source), source) for source in normalized.source_refs)
+            _validate_expression_years(family, recipe.parameters, recipe.context.years)
+            if _derive_parameters(family, leaf_inputs) != recipe.parameters:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT,
+                    "parameters differ from exact year domain",
+                )
+            depth = child_depth + 1
+            if depth > self.limits.max_depth:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT,
+                    "combined certificate depth budget exceeded",
+                )
+            self.sources.update(refs)
+            if len(self.sources) > self.limits.max_selected_sources:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT, "selected source budget exceeded"
+                )
+            series = CompositionDerivedSeries.model_validate(
+                load_core_json_artifact(self.store, certificate.derived_artifact_ref)
+            )
+            if (
+                series.recipe_id != recipe.recipe_id
+                or series.context != recipe.context
+                or series.basis != recipe.output_basis
+                or series.variable_id != recipe.output_variable_id
+                or tuple(_ref_key(source) for source in series.source_refs) != tuple(sorted(refs))
+            ):
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.CERTIFICATE_DRIFT,
+                    "output identity/domain/source denominator differs",
+                )
+            edges = _composition_edges(recipe)
+            _verify_cached_artifact(
+                self.store,
+                artifact_ref=certificate.derived_artifact_ref,
+                expected_bytes=_canonical_bytes(series),
+                kind=DERIVED_SERIES_KIND,
+                schema=_COMPOSITION_SCHEMA,
+                producer=_COMPOSITION_PRODUCER,
+                inputs=edges,
+                refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
+            )
+            _verify_cached_artifact(
+                self.store,
+                artifact_ref=ref,
+                expected_bytes=_canonical_bytes(certificate),
+                kind=DERIVATION_CERTIFICATE_KIND,
+                schema=_COMPOSITION_SCHEMA,
+                producer=_COMPOSITION_PRODUCER,
+                inputs=[
+                    *edges,
+                    *_selected_edges([("derived_series", certificate.derived_artifact_ref)]),
+                ],
+                refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
+            )
+            self.prepared[key] = certificate
+            self.series[key] = series
+            self.depths[key] = depth
+            self.source_sets[key] = tuple(refs[index] for index in sorted(refs))
+            return depth
+        except DerivationRefusalError:
+            raise
+        except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.CERTIFICATE_DRIFT, "composition certificate preflight failed"
+            ) from exc
+        finally:
+            self.active.remove(key)
+
+    def resolve(self, ref: artifacts.ArtifactRef) -> CompositionResolution:
+        key = _ref_key(ref)
+        if key in self.results:
+            return self.results[key]
+        self.preflight(ref)
+        certificate = self.prepared[key]
+        recipe, normalized = _reopen_composition_recipe(self.store, certificate.recipe, self)
+        series = _composition_series(recipe, normalized)
+        expected = _composition_certificate(
+            recipe, series, normalized, certificate.derived_artifact_ref
+        )
+        if certificate != expected:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.CERTIFICATE_DRIFT, "contributions differ after replay"
+            )
+        _verify_cached_artifact(
+            self.store,
+            artifact_ref=certificate.derived_artifact_ref,
+            expected_bytes=_canonical_bytes(series),
+            kind=DERIVED_SERIES_KIND,
+            schema=_COMPOSITION_SCHEMA,
+            producer=_COMPOSITION_PRODUCER,
+            inputs=_composition_edges(recipe),
+            refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
+        )
+        result = CompositionResolution(
+            certificate=certificate, series=series, consumer_method_id="core.composition.replay"
+        )
+        self.results[key] = result
+        return result
+
+
+def resolve_certified_composition(
+    store: _CertifiedDerivationReader,
+    *,
+    certificate_ref: artifacts.ArtifactRef,
+    consumer_method_id: str,
+    limits: DerivationEvaluationLimits | None = None,
+) -> CompositionResolution:
+    """Freshly replay the complete selected certificate chain before consumption."""
+    if not consumer_method_id.strip():
+        raise ValueError("consumer method id must be nonempty")
+    result = _CompositionReplay(store, limits or DerivationEvaluationLimits()).resolve(
+        certificate_ref
+    )
+    return CompositionResolution(
+        certificate=result.certificate, series=result.series, consumer_method_id=consumer_method_id
+    )
+
+
+class DerivationDagInput(_StrictModel):
+    """One selected supplier for one required AND role; alternatives are upstream."""
+
+    role: str = Field(min_length=1)
+    selection: DerivationInput | None = None
+    node_id: str | None = None
+
+    @model_validator(mode="after")
+    def _one_supplier(self) -> Self:
+        if (self.selection is None) == (self.node_id is None):
+            raise ValueError("exactly one selected input or predecessor node is required")
+        return self
+
+
+class DerivationDagNode(_StrictModel):
+    """One registered family application in an explicitly selected arithmetic DAG."""
+
+    node_id: str = Field(min_length=1)
+    family_id: str = Field(min_length=1)
+    method_version: str = Field(min_length=1)
+    output_variable_id: str = Field(min_length=1)
+    output_basis: BasisSignature | None = None
+    inputs: tuple[DerivationDagInput, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _unique_roles(self) -> Self:
+        roles = tuple(item.role for item in self.inputs)
+        if roles != tuple(sorted(set(roles))):
+            raise ValueError("DAG roles must be unique and sorted")
+        return self
+
+
+class DerivationDagMaterialization(_StrictModel):
+    """Topologically ordered persisted node results and the exact selected root."""
+
+    root_node_id: str
+    node_ids: tuple[str, ...]
+    materializations: tuple[CompositionMaterialization, ...]
+
+    @property
+    def root(self) -> CompositionMaterialization:
+        """Return the selected root materialization."""
+        return self.materializations[self.node_ids.index(self.root_node_id)]
+
+
+def materialize_derivation_dag(
+    store: artifacts.FileSystemCAS,
+    *,
+    registry: TransformFamilyRegistry,
+    registry_ref: artifacts.ArtifactRef,
+    nodes: Sequence[DerivationDagNode],
+    root_node_id: str,
+    context: DerivationContext,
+    limits: DerivationEvaluationLimits | None = None,
+) -> DerivationDagMaterialization:
+    """Prevalidate one bounded selected DAG, then persist ordinary per-node outputs."""
+    limits = limits or DerivationEvaluationLimits()
+    by_id = {node.node_id: node for node in nodes}
+    if len(by_id) != len(nodes) or root_node_id not in by_id:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "duplicate nodes or absent root"
+        )
+    if (
+        len(nodes) > limits.max_nodes
+        or sum(len(node.inputs) for node in nodes) > limits.max_edges
+        or len(nodes) * len(context.years) > limits.max_points
+    ):
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG node/edge/point budget exceeded"
+        )
+    order: list[str] = []
+    active: set[str] = set()
+    depths: dict[str, int] = {}
+
+    def visit(node_id: str) -> int:
+        if node_id in active:
+            raise DerivationRefusalError(DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG cycle")
+        if node_id in depths:
+            return depths[node_id]
+        if node_id not in by_id:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG predecessor missing"
+            )
+        if len(active) >= limits.max_depth:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG depth budget exceeded"
+            )
+        active.add(node_id)
+        depth = 1 + max(
+            (visit(item.node_id) for item in by_id[node_id].inputs if item.node_id is not None),
+            default=0,
+        )
+        active.remove(node_id)
+        if depth > limits.max_depth:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG depth budget exceeded"
+            )
+        depths[node_id] = depth
+        order.append(node_id)
+        return depth
+
+    visit(root_node_id)
+    if len(order) != len(nodes):
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "DAG contains nodes unreachable from selected root",
+        )
+    _require_selected(registry_ref)
+    projection = _manifest_projection(store, registry_ref)
+    if (
+        _load_transform_family_registry_artifact(
+            store, projection, refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+        )
+        != registry
+    ):
+        raise DerivationRefusalError(DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "registry differs")
+    _verify_registry_context_units(store, projection, context, _registry_bases(registry))
+    _verify_input_refs(
+        store,
+        _selected_edges(_context_edges(context)),
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )
+    replay = _CompositionReplay(
+        store,
+        limits,
+        reserved_nodes=len(nodes),
+        reserved_edges=sum(len(node.inputs) for node in nodes),
+        reserved_points=len(nodes) * len(context.years),
+    )
+    bases: dict[str, BasisSignature] = {}
+    selected_sources: set[tuple[str, str, str, str]] = set()
+    external_depths: dict[str, int] = {}
+    for node_id in order:
+        node = by_id[node_id]
+        dependency_depths = []
+        for item in node.inputs:
+            if isinstance(item.selection, CertifiedDerivedInput):
+                dependency_depths.append(replay.preflight(item.selection.certificate_ref))
+            elif item.node_id is not None:
+                dependency_depths.append(external_depths[item.node_id])
+        external_depths[node_id] = 1 + max(dependency_depths, default=0)
+        if external_depths[node_id] > limits.max_depth:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+                "combined DAG/certificate depth budget exceeded",
+            )
+    for node_id in order:
+        node = by_id[node_id]
+        inputs = {
+            item.role: _normalize_input(
+                store,
+                role=item.role,
+                selection=item.selection,
+                context=context,
+                replay=replay,
+                metadata_only=True,
+            )
+            for item in node.inputs
+            if item.selection is not None
+        }
+        input_bases = {
+            item.role: bases[item.node_id] if item.node_id is not None else inputs[item.role].basis
+            for item in node.inputs
+        }
+        family = (
+            registry.resolve_for_inputs(
+                input_bases=input_bases,
+                input_kinds={
+                    item.role: "certified_derived"
+                    if item.node_id is not None
+                    else inputs[item.role].kind
+                    for item in node.inputs
+                },
+                family_id=node.family_id,
+                method_version=node.method_version,
+            )
+            if node.output_basis is None
+            else registry.resolve(
+                input_bases=input_bases,
+                input_kinds={
+                    item.role: "certified_derived"
+                    if item.node_id is not None
+                    else inputs[item.role].kind
+                    for item in node.inputs
+                },
+                output_basis=node.output_basis,
+                family_id=node.family_id,
+                method_version=node.method_version,
+            )
+        )
+        for item in node.inputs:
+            spec = next(spec for spec in family.input_specs if spec.role == item.role)
+            kind = "certified_derived" if item.node_id is not None else inputs[item.role].kind
+            if kind not in spec.allowed_input_kinds:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.BASIS_MISMATCH,
+                    f"{item.role}: input kind not permitted by family ABI",
+                )
+        for item in inputs.values():
+            selected_sources.update(_ref_key(ref) for ref in item.source_refs)
+        if len(selected_sources) > limits.max_selected_sources:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT, "DAG selected-source budget exceeded"
+            )
+        # Parameters depend only on the exact year domain or registered literals.
+        year_values = _YearDomain(
+            points=tuple(SeriesPoint(year=year, value=Decimal(0)) for year in context.years)
+        )
+        parameters = _derive_parameters(family, dict.fromkeys(input_bases, year_values))
+        _validate_expression_years(family, parameters, context.years)
+        bases[node_id] = _materialize_output_basis(family, parameters)
+        if node.output_basis is not None:
+            _validate_output_parameter_bindings(family, parameters, node.output_basis)
+            bases[node_id] = node.output_basis
+    results: dict[str, CompositionMaterialization] = {}
+    for node_id in order:
+        node = by_id[node_id]
+        selections: dict[str, DerivationInput] = {}
+        for item in node.inputs:
+            if item.node_id is not None:
+                prior = results[item.node_id]
+                selections[item.role] = CertifiedDerivedInput(
+                    artifact_ref=prior.derived_artifact_ref,
+                    certificate_ref=prior.certificate_artifact_ref,
+                )
+            elif item.selection is not None:
+                selections[item.role] = item.selection
+        recipe, _ = _composition_recipe(
+            store,
+            registry=registry,
+            registry_projection=projection,
+            inputs=selections,
+            context=context,
+            output_variable_id=node.output_variable_id,
+            output_basis=node.output_basis,
+            family_id=node.family_id,
+            method_version=node.method_version,
+            replay=replay,
+        )
+        results[node_id] = _materialize_composition(store, recipe, replay)
+        result = results[node_id]
+        replay.depths[_ref_key(result.certificate_artifact_ref)] = external_depths[node_id]
+    return DerivationDagMaterialization(
+        root_node_id=root_node_id,
+        node_ids=tuple(order),
+        materializations=tuple(results[node_id] for node_id in order),
+    )
+
+
+class _YearDomain(_StrictModel):
+    points: tuple[SeriesPoint, ...]
+
+
 __all__ = [
+    "CANDIDATE_SOURCE_SERIES_KIND",
+    "COMPOSITION_DERIVATION_SCHEMA_VERSION",
     "DERIVATION_CERTIFICATE_KIND",
     "DERIVATION_RECIPE_KIND",
     "DERIVATION_SCHEMA_VERSION",
@@ -2248,10 +3975,25 @@ __all__ = [
     "BasisAttribute",
     "BasisParameterBinding",
     "BasisSignature",
+    "CandidateDerivationInput",
+    "CandidateSourceSeries",
     "CertificateInputAuthority",
     "CertifiedDerivationConsumption",
     "CertifiedDerivationResolution",
+    "CertifiedDerivedInput",
+    "CompositionCertificate",
+    "CompositionDerivedSeries",
+    "CompositionMaterialization",
+    "CompositionRecipe",
+    "CompositionRecipeInput",
+    "CompositionResolution",
     "DerivationCertificate",
+    "DerivationContext",
+    "DerivationDagInput",
+    "DerivationDagMaterialization",
+    "DerivationDagNode",
+    "DerivationEvaluationLimits",
+    "DerivationInput",
     "DerivationMaterialization",
     "DerivationRecipe",
     "DerivationRefusalCode",
@@ -2259,22 +4001,29 @@ __all__ = [
     "DerivationRefusalReason",
     "DerivedParameter",
     "DerivedSeries",
+    "InputContribution",
     "ParameterRule",
     "RecipeInput",
     "ResolvedAssumption",
     "SeriesPoint",
+    "SourceDerivationInput",
     "SourceSeries",
     "TransformFamily",
     "TransformFamilyRegistry",
     "TransformInputSpec",
+    "build_composition_recipe",
     "build_derivation_recipe",
     "consume_certified_derivation",
     "load_derivation_recipe_artifact",
     "load_selected_transform_family_registry",
     "load_transform_family_registry",
+    "materialize_composition",
     "materialize_derivation",
+    "materialize_derivation_dag",
+    "persist_candidate_source_series",
     "persist_derivation_recipe_artifact",
     "persist_source_series",
     "persist_transform_family_registry",
+    "resolve_certified_composition",
     "resolve_certified_derivation",
 ]

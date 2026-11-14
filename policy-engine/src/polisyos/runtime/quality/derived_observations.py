@@ -48,6 +48,12 @@ from polisyos.core.derivations import (
     _TRANSFORM_FAMILY_REGISTRY_SCHEMA as _TRANSFORM_FAMILY_REGISTRY_SCHEMA,
 )
 from polisyos.core.derivations import (
+    CANDIDATE_SOURCE_SERIES_KIND as CANDIDATE_SOURCE_SERIES_KIND,
+)
+from polisyos.core.derivations import (
+    COMPOSITION_DERIVATION_SCHEMA_VERSION as COMPOSITION_DERIVATION_SCHEMA_VERSION,
+)
+from polisyos.core.derivations import (
     DERIVATION_CERTIFICATE_KIND as DERIVATION_CERTIFICATE_KIND,
 )
 from polisyos.core.derivations import (
@@ -108,13 +114,58 @@ from polisyos.core.derivations import (
     BasisSignature as BasisSignature,
 )
 from polisyos.core.derivations import (
+    CandidateDerivationInput as CandidateDerivationInput,
+)
+from polisyos.core.derivations import (
+    CandidateSourceSeries as CandidateSourceSeries,
+)
+from polisyos.core.derivations import (
     CertificateInputAuthority as CertificateInputAuthority,
 )
 from polisyos.core.derivations import (
     CertifiedDerivationConsumption as CertifiedDerivationConsumption,
 )
 from polisyos.core.derivations import (
+    CertifiedDerivedInput as CertifiedDerivedInput,
+)
+from polisyos.core.derivations import (
+    CompositionCertificate as CompositionCertificate,
+)
+from polisyos.core.derivations import (
+    CompositionDerivedSeries as CompositionDerivedSeries,
+)
+from polisyos.core.derivations import (
+    CompositionMaterialization as CompositionMaterialization,
+)
+from polisyos.core.derivations import (
+    CompositionRecipe as CompositionRecipe,
+)
+from polisyos.core.derivations import (
+    CompositionRecipeInput as CompositionRecipeInput,
+)
+from polisyos.core.derivations import (
+    CompositionResolution as CompositionResolution,
+)
+from polisyos.core.derivations import (
     DerivationCertificate as DerivationCertificate,
+)
+from polisyos.core.derivations import (
+    DerivationContext as DerivationContext,
+)
+from polisyos.core.derivations import (
+    DerivationDagInput as DerivationDagInput,
+)
+from polisyos.core.derivations import (
+    DerivationDagMaterialization as DerivationDagMaterialization,
+)
+from polisyos.core.derivations import (
+    DerivationDagNode as DerivationDagNode,
+)
+from polisyos.core.derivations import (
+    DerivationEvaluationLimits as DerivationEvaluationLimits,
+)
+from polisyos.core.derivations import (
+    DerivationInput as DerivationInput,
 )
 from polisyos.core.derivations import (
     DerivationMaterialization as DerivationMaterialization,
@@ -141,6 +192,9 @@ from polisyos.core.derivations import (
     ExactDecimal as ExactDecimal,
 )
 from polisyos.core.derivations import (
+    InputContribution as InputContribution,
+)
+from polisyos.core.derivations import (
     ParameterOperator as ParameterOperator,
 )
 from polisyos.core.derivations import (
@@ -154,6 +208,9 @@ from polisyos.core.derivations import (
 )
 from polisyos.core.derivations import (
     SeriesPoint as SeriesPoint,
+)
+from polisyos.core.derivations import (
+    SourceDerivationInput as SourceDerivationInput,
 )
 from polisyos.core.derivations import (
     SourceSeries as SourceSeries,
@@ -318,6 +375,9 @@ from polisyos.core.derivations import (
     _verify_resolvable_ref as _verify_resolvable_ref,
 )
 from polisyos.core.derivations import (
+    build_composition_recipe as build_composition_recipe,
+)
+from polisyos.core.derivations import (
     build_derivation_recipe as build_derivation_recipe,
 )
 from polisyos.core.derivations import (
@@ -327,7 +387,16 @@ from polisyos.core.derivations import (
     load_transform_family_registry as load_transform_family_registry,
 )
 from polisyos.core.derivations import (
+    materialize_composition as materialize_composition,
+)
+from polisyos.core.derivations import (
     materialize_derivation as materialize_derivation,
+)
+from polisyos.core.derivations import (
+    materialize_derivation_dag as materialize_derivation_dag,
+)
+from polisyos.core.derivations import (
+    persist_candidate_source_series as persist_candidate_source_series,
 )
 from polisyos.core.derivations import (
     persist_derivation_recipe_artifact as persist_derivation_recipe_artifact,
@@ -337,6 +406,9 @@ from polisyos.core.derivations import (
 )
 from polisyos.core.derivations import (
     persist_transform_family_registry as persist_transform_family_registry,
+)
+from polisyos.core.derivations import (
+    resolve_certified_composition as resolve_certified_composition,
 )
 
 if TYPE_CHECKING:
@@ -862,6 +934,8 @@ def persist_price_index_series(*_args: object, **_kwargs: object) -> Never:
 
 
 __all__ = [
+    "CANDIDATE_SOURCE_SERIES_KIND",
+    "COMPOSITION_DERIVATION_SCHEMA_VERSION",
     "DERIVATION_CERTIFICATE_KIND",
     "DERIVATION_RECIPE_KIND",
     "DERIVATION_SCHEMA_VERSION",
@@ -881,9 +955,24 @@ __all__ = [
     "BasisAttribute",
     "BasisParameterBinding",
     "BasisSignature",
+    "CandidateDerivationInput",
+    "CandidateSourceSeries",
     "CertificateInputAuthority",
     "CertifiedDerivationConsumption",
+    "CertifiedDerivedInput",
+    "CompositionCertificate",
+    "CompositionDerivedSeries",
+    "CompositionMaterialization",
+    "CompositionRecipe",
+    "CompositionRecipeInput",
+    "CompositionResolution",
     "DerivationCertificate",
+    "DerivationContext",
+    "DerivationDagInput",
+    "DerivationDagMaterialization",
+    "DerivationDagNode",
+    "DerivationEvaluationLimits",
+    "DerivationInput",
     "DerivationMaterialization",
     "DerivationRecipe",
     "DerivationRefusalCode",
@@ -896,6 +985,7 @@ __all__ = [
     "EconomicSeries",
     "EpochInheritanceRecomputeReceipt",
     "EpochTargetDisposition",
+    "InputContribution",
     "ParameterRule",
     "PersistedEpochInheritanceRecomputeReceipt",
     "PriceIndexBasis",
@@ -903,16 +993,21 @@ __all__ = [
     "RecipeInput",
     "ResolvedAssumption",
     "SeriesPoint",
+    "SourceDerivationInput",
     "SourceSeries",
     "TransformFamily",
     "TransformFamilyRegistry",
     "TransformInputSpec",
+    "build_composition_recipe",
     "build_cpi_derivation_recipe",
     "build_derivation_recipe",
     "consume_certified_derivation",
     "load_transform_family_registry",
+    "materialize_composition",
     "materialize_cpi_real_terms",
     "materialize_derivation",
+    "materialize_derivation_dag",
+    "persist_candidate_source_series",
     "persist_derivation_recipe_artifact",
     "persist_economic_series",
     "persist_price_index_series",
@@ -920,4 +1015,5 @@ __all__ = [
     "persist_transform_family_registry",
     "produce_epoch_inheritance_recompute_receipt",
     "read_epoch_inheritance_recompute_receipt",
+    "resolve_certified_composition",
 ]

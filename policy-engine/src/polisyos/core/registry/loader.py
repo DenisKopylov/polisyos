@@ -10,8 +10,8 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import (
-    ArtifactStore,
-    CoreJSONArtifactStore,
+    ArtifactReader,
+    CoreJSONArtifactProfileReader,
 )
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.ir.kernel import (
@@ -29,9 +29,9 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
 
 
-def _require_core_json_reader(store: ArtifactStore) -> CoreJSONArtifactStore:
+def _require_core_json_reader(store: ArtifactReader) -> CoreJSONArtifactProfileReader:
     """Narrow the minimal store ABI before any semantic registry read."""
-    if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+    if not matches_artifact_store_protocol(store, CoreJSONArtifactProfileReader):
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
     return store
 
@@ -45,7 +45,7 @@ def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
 
 
 def _store_read_ref(value: ArtifactRef | ArtifactID | str) -> ArtifactRef | ArtifactID:
-    """Keep a selected manifest profile intact at the ArtifactStore boundary."""
+    """Keep a selected manifest profile intact at the ArtifactReader boundary."""
     if isinstance(value, ArtifactRef):
         return value
     return _artifact_id(value)
@@ -60,7 +60,7 @@ def _artifact_ref(
 
 
 def _load_model[ModelT: BaseModel](
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     ref: ArtifactRef | ArtifactID | str,
     model_cls: type[ModelT],
 ) -> ModelT:
@@ -86,7 +86,7 @@ class RegistryBundleContent:
 
 
 def _load_registry_bundle_payload_core_json(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load a bundle payload after the public boundary has checked its reader."""
@@ -97,7 +97,7 @@ def _load_registry_bundle_payload_core_json(
 
 
 def load_registry_bundle_payload(
-    store: ArtifactStore,
+    store: ArtifactReader,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load only the bundle payload graph without dereferencing member registries."""
@@ -106,7 +106,7 @@ def load_registry_bundle_payload(
 
 
 def _load_registry_bundle_core_json(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundle:
     """Load and normalize a bundle after the public boundary checked its reader."""
@@ -120,7 +120,7 @@ def _load_registry_bundle_core_json(
 
 
 def load_registry_bundle(
-    store: ArtifactStore,
+    store: ArtifactReader,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundle:
     """Load the bundle payload and normalize the bundle reference ABI."""
@@ -129,7 +129,7 @@ def load_registry_bundle(
 
 
 def load_registry_bundle_content(
-    store: ArtifactStore,
+    store: ArtifactReader,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundleContent:
     """Load a bundle and materialize all referenced registry objects from CAS."""

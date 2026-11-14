@@ -5712,6 +5712,7 @@ def _require_candidate_experiment_evaluation_record_scope(
             type(record)
             in {
                 CandidateAcquisitionEvaluationDecision,
+                CandidateAcquisitionEvaluationDecisionV2,
                 CandidateAcquisitionRetainedContinuation,
                 CandidateRetainedPortCapture,
             }
@@ -6106,6 +6107,67 @@ def _select_candidate_experiment_evaluation_artifact(
         return selected
 
 
+def _candidate_experiment_prospective_basis_version(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: ArtifactRef,
+    previous_basis: CandidateAcquisitionEvaluationBasis | None,
+    prior: ResolvedAcquisitionEvaluation | None,
+) -> Literal["1.0", "2.0"]:
+    """Select one action's comparison profile without upgrading saved history.
+
+    A content-observed prior selects the V2 reader for a new frontier; the
+    reader still has to establish the actual witness and current identity.
+    An existing action-local prospective record keeps its original version.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        _candidate_evaluation_role_event_id,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import CONTENT_OBSERVATION_KEY
+
+    if previous_basis is not None and type(previous_basis) not in {
+        CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationBasisV2,
+    }:
+        raise TypeError("candidate_experiment_previous_basis_untyped")
+    previous_version: Literal["1.0", "2.0"] | None = (
+        "2.0"
+        if type(previous_basis) is CandidateAcquisitionEvaluationBasisV2
+        else "1.0"
+        if previous_basis is not None
+        else None
+    )
+    event_id = _candidate_evaluation_role_event_id(candidate_action_ref, "prospective_basis")
+    events = bridge.event_log.list_events(event_id=event_id, limit=2)
+    if events:
+        recovered = _candidate_evaluation_artifact_for_recovery(
+            bridge=bridge,
+            origin=origin,
+            pending_phase_ref=pending_phase_ref,
+            candidate_action_ref=candidate_action_ref,
+            role="prospective_basis",
+        )
+        if recovered is None:
+            raise ValueError("candidate_experiment_saved_basis_not_established")
+        saved = recovered[1]
+        if type(saved) is CandidateAcquisitionEvaluationBasisV2:
+            saved_version: Literal["1.0", "2.0"] = "2.0"
+        elif type(saved) is CandidateAcquisitionEvaluationBasis:
+            saved_version = "1.0"
+        else:
+            raise TypeError("candidate_experiment_saved_basis_untyped")
+        if previous_version is not None and saved_version != previous_version:
+            raise ValueError("candidate_experiment_saved_basis_version_mismatch")
+        return saved_version
+    if previous_version is not None:
+        return previous_version
+    if prior is not None and CONTENT_OBSERVATION_KEY in prior.result.diagnostics:
+        return "2.0"
+    return "1.0"
+
+
 def dispatch_candidate_experiment_evaluation(
     *,
     bridge: AcquisitionWorldGrowthBridge,
@@ -6323,8 +6385,13 @@ def dispatch_candidate_experiment_evaluation(
         store=bridge.artifact_store,
         origin=origin,
     )
-    basis_version: Literal["1.0", "2.0"] = (
-        "2.0" if type(previous_basis) is CandidateAcquisitionEvaluationBasisV2 else "1.0"
+    basis_version = _candidate_experiment_prospective_basis_version(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=action_ref,
+        previous_basis=previous_basis,
+        prior=prior,
     )
     values, reasons = recompute_candidate_acquisition_basis_values(
         basis_version=basis_version,

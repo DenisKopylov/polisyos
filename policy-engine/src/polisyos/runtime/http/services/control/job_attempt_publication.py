@@ -1407,6 +1407,8 @@ class ControlJobAttemptPublicationMixin:
                 },
             }
         elif isinstance(exc, RuntimeDependencyError):
+            from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+
             failure_phase = "job_execution"
             progress = {
                 "state": "failed",
@@ -1421,6 +1423,10 @@ class ControlJobAttemptPublicationMixin:
                     "job_id": job.job_id,
                 },
             }
+            if type(exc) is _BlockingDependencyWaitTimeoutError:
+                progress["failure"]["blocking_wait"] = (
+                    _BlockingDependencyWaitTimeoutError.diagnostic(exc)
+                )
         else:
             progress = None
         if (

@@ -16,6 +16,7 @@ from polisyos.core import artifacts
 from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.ir.trinity import load_trinity_bundle_artifact
+from polisyos.pdc import WorldModelRecord, world_model_record_content_hash
 from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextInputs
 from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
 from polisyos.runtime.quality.data_state_substrate import (
@@ -214,13 +215,36 @@ def test_registered_derived_method_world_reaches_actual_generic_port_before_n5(
                 foreign_graph.value.code
                 == "generic_cycle_program_graph_derived_model_subject_mismatch"
             )
-            graft = world.model_copy(
+            # Keep the adversarial test value internally consistent so the
+            # selected-subject join, rather than outer WMR validation, refuses.
+            # This value is not persisted or claimed as producer-approved.
+            graft_ref = world_model_artifact_views(base.record).data_snapshot_ref
+            assert graft_ref.manifest_profile_sha256 is not None
+            assert graft_ref.artifact_id != views.data_snapshot_ref.artifact_id
+            assert artifacts.artifact_ref_identity_key(
+                graft_ref
+            ) != artifacts.artifact_ref_identity_key(views.data_snapshot_ref)
+            draft = world.model_copy(
                 update={
-                    "artifact_views": views.model_copy(
-                        update={"data_snapshot_ref": case.data_snapshot_ref}
-                    )
+                    "artifact_views": views.model_copy(update={"data_snapshot_ref": graft_ref}),
+                    "simulation_model_ref": world.simulation_model_ref.model_copy(
+                        update={"data_snapshot_ref": str(graft_ref.artifact_id)}
+                    ),
                 }
             )
+            graft_hash = world_model_record_content_hash(draft)
+            graft = WorldModelRecord.model_validate(
+                {
+                    **draft.model_dump(mode="json"),
+                    "content_hash": graft_hash,
+                    "world_model_record_id": (
+                        "world_model_record_" + graft_hash.removeprefix("sha256:")[:16]
+                    ),
+                }
+            )
+            assert artifacts.artifact_ref_identity_key(
+                world_model_artifact_views(graft).data_snapshot_ref
+            ) == artifacts.artifact_ref_identity_key(graft_ref)
             with pytest.raises(CycleSubstrateContextOwnerError) as foreign_snapshot:
                 owner._require_selected_derived_program_graph_model(**{**subject, "world": graft})
             assert (

@@ -278,6 +278,24 @@ type _GenericCycleN5RequestProfile = (
 )
 
 
+def _current_method_base_artifact_ref(ref: ArtifactRef) -> ArtifactRef:
+    """Project canonical method producer refs without dropping selected identity.
+
+    Generic owner records use the exact base ref type. Foundry's writer and
+    resolved manifest expose their own bounded ref subtypes; this adapter
+    preserves every identity field before the ordinary strict owner checks.
+    It does not admit an arbitrary ref type or establish artifact ownership.
+    """
+    from polisyos.core.contracts import FoundryInputBindingsRef, SelectedVariableBindingRef
+
+    if type(ref) not in (ArtifactRef, FoundryInputBindingsRef, SelectedVariableBindingRef):
+        raise TypeError("generic_current_method_ref_type_unsupported")
+    selected = ArtifactRef.model_validate(ref.model_dump(mode="python"))
+    if artifact_ref_identity_key(selected) != artifact_ref_identity_key(ref):
+        raise ValueError("generic_current_method_ref_projection_mismatch")
+    return selected
+
+
 def _is_selected_json_ref(ref: ArtifactRef | None, kind: str) -> TypeGuard[ArtifactRef]:
     return (
         type(ref) is ArtifactRef
@@ -607,6 +625,53 @@ class GenericCycleSimulationContextHandoffV1(_StrictModel):
         return self
 
 
+class GenericCycleNativeWorldContextHandoffV1(_StrictModel):
+    """A current acquisition context over an unchanged Generic configuration.
+
+    ``profile`` and ``profile_ref`` retain their original configuration meaning.
+    The new world, current problem key, and action ownership are explicit and
+    cannot be passed off as an ordinary verified NL worker handoff.
+    """
+
+    context: CycleSubstrateContext
+    context_job_ref: ArtifactRef
+    profile: GenericCycleSimulationProfileV1
+    profile_ref: ArtifactRef
+    native_world_checkpoint_ref: ArtifactRef
+    original_generic_input_ref: ArtifactRef
+    current_profile_selection_ref: str = Field(pattern=_HASH_PATTERN, strict=True)
+    source_job_id: str = Field(min_length=1, strict=True)
+    job_id: str = Field(min_length=1, strict=True)
+    run_id: str = Field(min_length=1, strict=True)
+    tenant_id: str = Field(min_length=1, strict=True)
+    cell_id: str = Field(min_length=1, strict=True)
+    n4_child_profile_family_ref: None = None
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+
+    @model_validator(mode="after")
+    def _selected_native_subject(self) -> GenericCycleNativeWorldContextHandoffV1:
+        for ref, kind in (
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+            (
+                self.native_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            ),
+            (self.original_generic_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+        ):
+            if not _is_selected_json_ref(ref, kind):
+                raise ValueError("generic_native_world_handoff_selected_ref_invalid")
+        if (
+            self.source_job_id == self.job_id
+            or self.profile.profile_selection_kind != "problem"
+            or not isinstance(self.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or self.context.authority_purpose != self.authority_purpose
+        ):
+            raise ValueError("generic_native_world_handoff_subject_invalid")
+        return self
+
+
 GenericCycleSimulationContextOfferV1.model_rebuild()
 
 
@@ -679,6 +744,7 @@ class GenericCycleSimulationChildSelectionV1(_StrictModel):
 
 _N5_INPUT_KIND = "runtime.quality.generic_cycle_simulation_n5_input"
 _N5_INPUT_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_input.v1"
+_N5_NATIVE_INPUT_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_input.v2"
 _N5_EXECUTION_KIND = "runtime.quality.generic_cycle_simulation_n5_execution"
 _N5_EXECUTION_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v1"
 _N5_EXECUTION_V2_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v2"
@@ -814,8 +880,17 @@ def _validate_n5_typed_request_roundtrip(request: JointSimulationRequest) -> Non
 class GenericCycleSimulationN5InputV1(_StrictModel):
     """Persisted, source-bound N5 input for one server-owned generic profile."""
 
-    schema_version: Literal[_N5_INPUT_SCHEMA] = _N5_INPUT_SCHEMA
+    schema_version: Literal[_N5_INPUT_SCHEMA, _N5_NATIVE_INPUT_SCHEMA] = _N5_INPUT_SCHEMA
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    native_world_checkpoint_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    original_generic_input_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_current_profile_selection_ref: str | None = Field(
+        default=None, pattern=_HASH_PATTERN, strict=True, exclude_if=lambda value: value is None
+    )
     job_id: str = Field(min_length=1, strict=True)
     run_id: str = Field(min_length=1, strict=True)
     source_run_id: str = Field(min_length=1, strict=True)
@@ -841,6 +916,27 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_n5_input(self) -> GenericCycleSimulationN5InputV1:
+        native_fields = {
+            "native_world_checkpoint_ref",
+            "original_generic_input_ref",
+            "native_current_profile_selection_ref",
+        }
+        if self.schema_version == _N5_INPUT_SCHEMA:
+            if native_fields.intersection(self.model_fields_set):
+                raise ValueError("generic_native_world_input_legacy_fields_forbidden")
+        elif (
+            not _is_selected_json_ref(
+                self.native_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            )
+            or not _is_selected_json_ref(self.original_generic_input_ref, _N5_INPUT_KIND)
+            or self.native_current_profile_selection_ref is None
+            or not isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or self.child_selection is not None
+            or self.n4_child_profile_family_ref is not None
+            or self.n4_child_profile_set_ref is not None
+        ):
+            raise ValueError("generic_native_world_input_subject_invalid")
         refs = (
             (self.n4_source_ref, "runtime.generation_source_handoff"),
             (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
@@ -1072,6 +1168,18 @@ class GenericCycleSimulationN5ExecutionV3(GenericCycleSimulationN5ExecutionV2):
 
     schema_version: Literal[_N5_EXECUTION_V3_SCHEMA] = _N5_EXECUTION_V3_SCHEMA
     request_binding: GenericCycleSimulationN5RequestBindingV2 = Field(...)
+    initial_method_input_purpose: Literal["current_use_method_input_revalidation"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @property
+    def current_method_input_bindings_ref(self) -> ArtifactRef | None:
+        """Expose the recorded execution projection, never the WMR's own binding."""
+        if self.initial_method_input_purpose is None:
+            return None
+        plans = self.request_binding.request.engine_plan
+        selected = plans[0].program_semantic_input_bindings_ref if len(plans) == 1 else None
+        return _current_method_base_artifact_ref(selected) if selected is not None else None
 
     @model_validator(mode="after")
     def _typed_request_binding_is_current(self) -> GenericCycleSimulationN5ExecutionV3:
@@ -1082,6 +1190,17 @@ class GenericCycleSimulationN5ExecutionV3(GenericCycleSimulationN5ExecutionV2):
         )
         if validated != self.request_binding:
             raise ValueError("generic_cycle_simulation_n5_execution_request_binding_mismatch")
+        if self.initial_method_input_purpose is not None and (
+            self.schema_version != _N5_EXECUTION_V3_SCHEMA
+            or self.status != "joint_simulated"
+            or self.result_ref is None
+            or len(self.request_binding.request.engine_plan) != 1
+            or self.request_binding.request.engine_plan[0].engine_kind != "program_graph"
+            or not _is_selected_json_ref(
+                self.current_method_input_bindings_ref, "foundry.input_bindings"
+            )
+        ):
+            raise ValueError("generic_cycle_simulation_initial_method_selection_invalid")
         return self
 
 
@@ -1232,6 +1351,7 @@ class GenericN5ResolvedResult:
 
     result: JointSimulationResult
     request: JointSimulationRequest
+    initial_method_input: GenericN5InitialMethodInputRequest | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1240,6 +1360,20 @@ class _ReplayedBlockedGenericN5:
     request: JointSimulationRequest
     candidate: object
     problem: DesignProblem
+
+
+@dataclass(frozen=True, slots=True)
+class GenericN5InitialMethodInputRequest:
+    """Fresh candidate input selection over the unchanged WMR physical prestate.
+
+    This preparation does not appoint an action, grant current authority, or
+    contain a numerical result. Its binding is an execution projection, not
+    the immutable WMR's own binding selection.
+    """
+
+    request: JointSimulationRequest
+    preflight: ProgramGraphInputPreflight
+    current_method_input_bindings_ref: ArtifactRef
 
 
 @dataclass(frozen=True, slots=True)
@@ -1307,6 +1441,74 @@ class GenericCycleSimulationAdmissionOwner:
         self._profiles = by_id
         self._profile_ids_by_selection = by_selection
         self._store = store
+        self._native_world_action_owner: object | None = None
+        self._native_action_control_store: object | None = None
+        self._native_action_event_log: object | None = None
+
+    def bind_native_world_action_owner(self, service: object) -> None:
+        """Bind the existing Control action/history owners without issuing a grant."""
+        from polisyos.runtime.quality.native_generic_context import bind_native_world_action_owner
+
+        bind_native_world_action_owner(self, service)
+
+    def bind_native_world_history(self, *, control_store: object, event_log: object) -> None:
+        """Supply the actual read-only backend needed by recorded action facts."""
+        from polisyos.runtime.quality.native_generic_context import bind_native_world_history
+
+        bind_native_world_history(self, control_store=control_store, event_log=event_log)
+
+    def admit_native_world_context(
+        self, *, checkpoint_ref: ArtifactRef, problem: DesignProblem, repo_root: Path | None = None
+    ) -> GenericCycleNativeWorldContextHandoffV1:
+        """Issue a typed current-action context for the actual selected native world."""
+        from polisyos.runtime.quality.native_generic_context import admit_native_world_context
+
+        return admit_native_world_context(
+            self, checkpoint_ref=checkpoint_ref, problem=problem, repo_root=repo_root
+        )
+
+    def resolve_native_world_handoff(
+        self,
+        *,
+        handoff: GenericCycleNativeWorldContextHandoffV1,
+        problem: DesignProblem,
+        context_owner: CycleSubstrateContextArtifactOwner | None = None,
+        repo_root: Path | None = None,
+    ) -> GenericCycleNativeWorldContextHandoffV1:
+        """Reconcile the native wrapper without borrowing an NL worker scope."""
+        from polisyos.runtime.quality.native_generic_context import resolve_native_world_handoff
+
+        return resolve_native_world_handoff(
+            self,
+            handoff=handoff,
+            problem=problem,
+            context_owner=context_owner,
+            repo_root=repo_root,
+        )
+
+    def _effective_input_profile(
+        self, input_record: GenericCycleSimulationN5InputV1
+    ) -> GenericCycleSimulationProfileV1:
+        if input_record.native_world_checkpoint_ref is None:
+            return input_record.profile
+        from polisyos.runtime.quality.native_generic_context import effective_native_input_profile
+
+        return effective_native_input_profile(self, input_record)
+
+    def _resolve_current_input_profile(self, input_record: GenericCycleSimulationN5InputV1) -> None:
+        if input_record.native_world_checkpoint_ref is not None:
+            from polisyos.runtime.quality.native_generic_context import require_current_native_input
+
+            require_current_native_input(self, input_record)
+            return
+        self.resolve_profile(
+            input_record.profile_ref,
+            expected_profile=input_record.profile,
+            job_id=input_record.job_id,
+            run_id=input_record.run_id,
+            tenant_id=input_record.tenant_id,
+            cell_id=input_record.cell_id,
+        )
 
     @property
     def profiles(self) -> tuple[GenericCycleSimulationProfileV1, ...]:
@@ -2743,7 +2945,7 @@ class GenericCycleSimulationAdmissionOwner:
     def persist_n5_input(
         self,
         *,
-        handoff: GenericCycleSimulationContextHandoffV1,
+        handoff: GenericCycleSimulationContextHandoffV1 | GenericCycleNativeWorldContextHandoffV1,
         source_ref: ArtifactRef,
         source_run_id: str,
         child_profile_family_ref: ArtifactRef | None,
@@ -2756,6 +2958,27 @@ class GenericCycleSimulationAdmissionOwner:
         child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
     ) -> ArtifactRef:
         """Persist one N4-derived input and immediately resolve its exact view."""
+        if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+            from polisyos.runtime.quality.native_generic_context import persist_native_n5_input
+
+            if any(
+                value is not None
+                for value in (child_profile_family_ref, child_profile_set_ref, child_selection)
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_native_world_child_profile_unsupported"
+                )
+            return persist_native_n5_input(
+                self,
+                handoff=handoff,
+                source_ref=source_ref,
+                source_run_id=source_run_id,
+                problem=problem,
+                cycle_index=cycle_index,
+                candidate_id=candidate_id,
+                candidate_atom_hash=candidate_atom_hash,
+                outcome_variable=outcome_variable,
+            )
         if type(handoff) is not GenericCycleSimulationContextHandoffV1:
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_handoff_untyped")
         if type(problem) is not DesignProblem:
@@ -2872,6 +3095,235 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_n5_input_content_mismatch"
             )
         return record
+
+    def prepare_initial_method_input_request(
+        self,
+        *,
+        input_ref: ArtifactRef,
+        input_record: GenericCycleSimulationN5InputV1,
+        request: JointSimulationRequest,
+    ) -> GenericN5InitialMethodInputRequest | None:
+        """Reseal an original WMR method selection for the actual current job.
+
+        The ordinary job builder establishes its current lease and configured
+        profile before this call. This owner independently reopens the exact
+        persisted input and N4 sources, rechecks current profile selection, and
+        uses the canonical current-use producer. No numerical work or action
+        authority is issued here. Unresolved physical bindings keep the normal
+        missing-input preflight path.
+        """
+        from polisyos.core.artifacts import CoreJSONArtifactStore, matches_artifact_store_protocol
+        from polisyos.foundry.data_plane import load_input_bindings
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.model_input_requirements import (
+            derive_program_graph_input_interface,
+            preflight_current_use_method_input_revalidation,
+        )
+        from polisyos.runtime.quality.model_input_routing import (
+            reseal_registered_method_input_bindings,
+        )
+
+        selected_input = self.resolve_n5_input(input_ref, expected=input_record)
+        if type(selected_input.n5) is not GenericCycleN5ProgramGraphRequestProfileV4:
+            return None
+        source_ref = world_model_artifact_views(
+            self._effective_input_profile(selected_input).context_inputs.world_model_record
+        ).input_bindings_ref
+        source_bindings = load_input_bindings(self._store, source_ref)
+        if source_bindings.schema_version != "1.4":
+            return None
+        if not matches_artifact_store_protocol(self._store, CoreJSONArtifactStore):
+            raise CycleSubstrateContextOwnerError("generic_initial_method_input_store_unavailable")
+        self._resolve_current_input_profile(selected_input)
+        source, candidate, context, port = self._replay_n5_input_sources(selected_input)
+        if type(port) is not JointSimulationPort:
+            raise CycleSubstrateContextOwnerError("generic_initial_method_input_owner_unavailable")
+        canonical = self._recompute_n5_request(
+            input_record=selected_input,
+            source=source,
+            source_candidate=candidate,
+            source_context=context,
+            port=port,
+        )
+        bound, _, failures = port._request_with_bound_program_state(canonical)
+        if failures or not _same_typed_public_value(bound, request):
+            raise _GenericN5VerifiedMismatchError("generic_initial_method_input_request_mismatch")
+        if len(bound.engine_plan) != 1:
+            raise CycleSubstrateContextOwnerError("generic_initial_method_input_plan_unsupported")
+        (plan,) = bound.engine_plan
+        basis = port._selected_program_graph_input_basis(
+            request=bound,
+            selected_plan=plan,
+            candidate=candidate,
+            input_record=selected_input,
+        )
+        interface_ref = derive_program_graph_input_interface(
+            self._store,
+            program_graph_ref=basis.program_graph_ref,
+            exec_plan_ref=basis.exec_plan_ref,
+            registry_bundle_ref=basis.registry_bundle_ref,
+        )
+        if interface_ref is None:
+            raise CycleSubstrateContextOwnerError("generic_initial_method_input_interface_missing")
+        preflight = preflight_current_use_method_input_revalidation(
+            self._store,
+            interface_ref=interface_ref,
+            program_graph_ref=basis.program_graph_ref,
+            exec_plan_ref=basis.exec_plan_ref,
+            registry_bundle_ref=basis.registry_bundle_ref,
+            input_bindings_ref=basis.input_bindings_ref,
+            context=basis.context,
+            steps=basis.steps,
+            parameter_override_bundle_ref=basis.parameter_override_bundle_ref,
+        )
+        materialized = reseal_registered_method_input_bindings(
+            self._store,
+            source_input_bindings_ref=basis.input_bindings_ref,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        return self._replay_initial_method_input_selection(
+            input_record=selected_input,
+            request=bound,
+            candidate=candidate,
+            port=port,
+            current_method_input_bindings_ref=materialized.input_bindings_ref,
+        )
+
+    def _replay_initial_method_input_selection(
+        self,
+        *,
+        input_record: GenericCycleSimulationN5InputV1,
+        request: JointSimulationRequest,
+        candidate: object,
+        port: JointSimulationPort,
+        current_method_input_bindings_ref: ArtifactRef,
+    ) -> GenericN5InitialMethodInputRequest:
+        """Join recorded input facts without reissuing proof or today's ABI.
+
+        This is shared by current preparation after its strict producer and by
+        immutable historical intake. The selected set and binding carry their
+        exact current-job subject; neither can replace the WMR's original
+        physical prestate or establish permission for another use.
+        """
+        from polisyos.core.contracts import (
+            FoundryInputBindingsRef,
+            load_model_input_obligation_set,
+            load_resolved_input_binding_manifest,
+        )
+        from polisyos.foundry.data_plane import (
+            load_input_bindings,
+            replay_selected_method_input_facts,
+        )
+        from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
+
+        current_method_input_bindings_ref = _current_method_base_artifact_ref(
+            current_method_input_bindings_ref
+        )
+        if (
+            type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or len(request.engine_plan) != 1
+            or not _is_selected_json_ref(
+                current_method_input_bindings_ref, "foundry.input_bindings"
+            )
+        ):
+            raise _GenericN5VerifiedMismatchError("generic_initial_method_input_subject_mismatch")
+        (plan,) = request.engine_plan
+        views = world_model_artifact_views(request.world_model_record)
+        original_ref = views.input_bindings_ref
+        if (
+            plan.program_store is not self._store
+            or plan.program_semantic_input_bindings_ref is None
+            or artifact_ref_identity_key(plan.program_semantic_input_bindings_ref)
+            != artifact_ref_identity_key(original_ref)
+            or artifact_ref_identity_key(current_method_input_bindings_ref)
+            == artifact_ref_identity_key(original_ref)
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_initial_method_input_predecessor_mismatch"
+            )
+        original = load_input_bindings(self._store, original_ref)
+        selected = load_input_bindings(self._store, current_method_input_bindings_ref)
+        if (
+            original.schema_version != "1.4"
+            or selected.schema_version != "1.4"
+            or original.resolved_binding_manifest_ref is None
+            or selected.resolved_binding_manifest_ref is None
+        ):
+            raise _GenericN5VerifiedMismatchError("generic_initial_method_input_profile_mismatch")
+        original_manifest = load_resolved_input_binding_manifest(
+            self._store, original.resolved_binding_manifest_ref
+        )
+        original_set, _ = load_model_input_obligation_set(
+            self._store, original_manifest.model_input_obligation_set_ref
+        )
+        manifest = load_resolved_input_binding_manifest(
+            self._store, selected.resolved_binding_manifest_ref
+        )
+        selected_set, _ = load_model_input_obligation_set(
+            self._store, manifest.model_input_obligation_set_ref
+        )
+        basis = port._selected_program_graph_input_basis(
+            request=request, selected_plan=plan, candidate=candidate, input_record=input_record
+        )
+        expected_invocation = basis.invocation(selected_set.invocation.interface_ref)
+        if (
+            original_manifest.schema_version != "2.0"
+            or original_set.schema_version != "1.1"
+            or manifest.schema_version != "2.0"
+            or selected_set.schema_version != "1.3"
+            or selected_set.purpose != "current_use_method_input_revalidation"
+            or selected_set.authority_purpose != "candidate_execution_input_revalidation_only"
+            or selected_set.invocation != expected_invocation
+            or manifest.measurements
+            or original_manifest.measurements
+            or not manifest.derivations
+            or artifact_ref_identity_key(original.data_snapshot_ref)
+            != artifact_ref_identity_key(views.data_snapshot_ref)
+            or artifact_ref_identity_key(manifest.data_snapshot_ref)
+            != artifact_ref_identity_key(selected.data_snapshot_ref)
+            or any(
+                artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+                for actual, expected in (
+                    (selected_set.prestate_ref, original.bound_state_snapshot_ref),
+                    (selected.bound_state_snapshot_ref, views.bound_state_snapshot_ref),
+                    (original.bound_state_snapshot_ref, views.bound_state_snapshot_ref),
+                    (selected.registry_bundle_ref, views.registry_bundle_ref),
+                )
+            )
+        ):
+            raise _GenericN5VerifiedMismatchError("generic_initial_method_input_subject_mismatch")
+        facts = replay_selected_method_input_facts(
+            self._store,
+            input_bindings_ref=current_method_input_bindings_ref,
+            expected_invocation=expected_invocation,
+        )
+        if facts.bindings != selected:
+            raise _GenericN5VerifiedMismatchError("generic_initial_method_input_fact_mismatch")
+        selected_ref = FoundryInputBindingsRef.model_validate(
+            current_method_input_bindings_ref.model_dump(mode="python")
+        )
+        return GenericN5InitialMethodInputRequest(
+            request=request.model_copy(
+                update={
+                    "engine_plan": (
+                        plan.model_copy(
+                            update={"program_semantic_input_bindings_ref": selected_ref}
+                        ),
+                    )
+                }
+            ),
+            preflight=ProgramGraphInputPreflight(
+                obligation_refs=selected_set.obligation_refs,
+                supplied_initial_slots=selected_set.supplied_initial_slots,
+                parameter_override_bundle_ref=expected_invocation.parameter_override_bundle_ref,
+                obligation_set_ref=_current_method_base_artifact_ref(
+                    manifest.model_input_obligation_set_ref
+                ),
+                invocation=expected_invocation,
+            ),
+            current_method_input_bindings_ref=current_method_input_bindings_ref,
+        )
 
     def prepare_semantic_successor_request(
         self,
@@ -3067,6 +3519,8 @@ class GenericCycleSimulationAdmissionOwner:
         ) = None,
         model_input_obligation_set_ref: ArtifactRef | None = None,
         semantic_successor_ref: ArtifactRef | None = None,
+        initial_method_input_purpose: Literal["current_use_method_input_revalidation"]
+        | None = None,
         limitation_code: str | None = None,
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
@@ -3118,6 +3572,16 @@ class GenericCycleSimulationAdmissionOwner:
         ):
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_program_graph_selected_execution_required"
+            )
+        if initial_method_input_purpose is not None and (
+            status != "joint_simulated"
+            or not is_typed_binding
+            or semantic_successor_ref is not None
+            or model_input_obligation_set_ref is not None
+            or not isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_initial_method_selection_invalid"
             )
         selected_successor = None
         if semantic_successor_ref is not None:
@@ -3178,6 +3642,8 @@ class GenericCycleSimulationAdmissionOwner:
         )
         if request_binding is not None:
             draft["request_binding"] = request_binding
+        if initial_method_input_purpose is not None:
+            draft["initial_method_input_purpose"] = initial_method_input_purpose
         if model_input_obligation_set_ref is not None:
             draft["model_input_obligation_set_ref"] = model_input_obligation_set_ref
         if selected_successor is not None:
@@ -3373,6 +3839,10 @@ class GenericCycleSimulationAdmissionOwner:
         )
         self.resolve_n5_input(input_ref, expected=input_record)
         is_successor = type(record) is GenericCycleSimulationN5ExecutionV5
+        is_initial_method = (
+            type(record) is GenericCycleSimulationN5ExecutionV3
+            and record.initial_method_input_purpose is not None
+        )
         if is_successor:
             self._require_n5_execution_source_scope(record, input_record)
         else:
@@ -3387,7 +3857,9 @@ class GenericCycleSimulationAdmissionOwner:
             or record.n4_child_profile_family_ref != input_record.n4_child_profile_family_ref
             or record.n4_child_profile_set_ref != input_record.n4_child_profile_set_ref
             or record.world_model_record_content_hash
-            != input_record.profile.context_inputs.world_model_record.content_hash
+            != self._effective_input_profile(
+                input_record
+            ).context_inputs.world_model_record.content_hash
             or record.candidate_id != input_record.candidate_id
             or record.candidate_atom_hash != input_record.candidate_atom_hash
             or record.outcome_variable != input_record.outcome_variable
@@ -3416,6 +3888,7 @@ class GenericCycleSimulationAdmissionOwner:
             )
         blocked_input: _ReplayedBlockedGenericN5 | None = None
         resolved_result: GenericN5ResolvedResult | None = None
+        initial_method_input: GenericN5InitialMethodInputRequest | None = None
         if type(record) in (GenericCycleSimulationN5ExecutionV2, *_N5_TYPED_EXECUTION_TYPES):
             binding = record.request_binding
             if binding is None:
@@ -3440,6 +3913,25 @@ class GenericCycleSimulationAdmissionOwner:
                     source_context=source_context,
                     port=port,
                 )
+                if is_initial_method:
+                    current_ref = record.current_method_input_bindings_ref
+                    if current_ref is None:
+                        raise _GenericN5VerifiedMismatchError(
+                            "generic_initial_method_input_subject_mismatch"
+                        )
+                    bound, _, failures = port._request_with_bound_program_state(expected_request)
+                    if failures:
+                        raise CycleSubstrateContextOwnerError(
+                            "generic_cycle_program_graph_runtime_replay_unavailable", str(failures)
+                        )
+                    initial_method_input = self._replay_initial_method_input_selection(
+                        input_record=input_record,
+                        request=bound,
+                        candidate=source_candidate,
+                        port=port,
+                        current_method_input_bindings_ref=current_ref,
+                    )
+                    expected_request = initial_method_input.request
             if not _same_typed_public_value(request, expected_request):
                 raise _GenericN5VerifiedMismatchError(
                     "generic_cycle_simulation_n5_execution_request_profile_mismatch"
@@ -3453,8 +3945,8 @@ class GenericCycleSimulationAdmissionOwner:
                     load_joint_simulation_result,
                 )
 
-                result_request = expected_request if is_successor else request
-                if program_graph_profile and not is_successor:
+                result_request = expected_request if is_successor or is_initial_method else request
+                if program_graph_profile and not is_successor and not is_initial_method:
                     # The typed request retains selected compilation identity.
                     # Live stores/state are excluded and must be reopened to
                     # reproduce engine eligibility and physical run identity.
@@ -3504,6 +3996,7 @@ class GenericCycleSimulationAdmissionOwner:
                     resolved_result = GenericN5ResolvedResult(
                         result=result,
                         request=result_request,
+                        initial_method_input=initial_method_input,
                     )
             if (
                 type(record) is GenericCycleSimulationN5ExecutionV4
@@ -3755,7 +4248,9 @@ class GenericCycleSimulationAdmissionOwner:
                     or input_record.cycle_index != expected.cycle_index
                     or input_record.candidate_id != expected.candidate_id
                     or input_record.candidate_atom_hash != expected.candidate_atom_hash
-                    or input_record.profile.context_inputs.world_model_record.content_hash
+                    or self._effective_input_profile(
+                        input_record
+                    ).context_inputs.world_model_record.content_hash
                     != expected.world_model_record_content_hash
                     or input_record.job_id != expected.job_id
                     or input_record.run_id != expected.run_id
@@ -3913,7 +4408,25 @@ class GenericCycleSimulationAdmissionOwner:
         record: GenericCycleSimulationN5ExecutionRecord,
         input_record: GenericCycleSimulationN5InputV1,
     ) -> tuple[object, object, CycleSubstrateContext, object]:
-        """Reopen the exact N4 candidate, profile context, and canonical N5 builder inputs."""
+        """Reopen an execution's actual input without constructing another execution."""
+        self._require_n5_execution_source_scope(record, input_record)
+        result = self._replay_n5_input_sources(input_record)
+        if record.profile_selection_ref != input_record.profile.profile_selection_ref:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_profile_selection_mismatch"
+            )
+        return result
+
+    def _replay_n5_input_sources(
+        self,
+        input_record: GenericCycleSimulationN5InputV1,
+    ) -> tuple[object, object, CycleSubstrateContext, object]:
+        """Reopen the exact N4 candidate, profile context, and N5 builder inputs.
+
+        The caller separately resolves the selected input artifact. This
+        common source replay applies before the first execution and when
+        reopening an immutable recorded execution; it grants no current use.
+        """
         from polisyos.runtime.quality.cycle_substrate import (
             CycleSubstrateContextArtifactOwner,
             cycle_job_design_problem_ref,
@@ -3924,7 +4437,12 @@ class GenericCycleSimulationAdmissionOwner:
             GenerationSourceRepository,
         )
 
-        self._require_n5_execution_source_scope(record, input_record)
+        if input_record.native_world_checkpoint_ref is not None:
+            from polisyos.runtime.quality.native_generic_context import (
+                replay_native_n5_input_sources,
+            )
+
+            return replay_native_n5_input_sources(self, input_record)
         source = GenerationSourceRepository(self._store).load(
             input_record.n4_source_ref,
             run_id=input_record.source_run_id,
@@ -4029,7 +4547,7 @@ class GenericCycleSimulationAdmissionOwner:
             )
         if (
             profile.profile_selection_ref != expected_selection
-            or record.profile_selection_ref != expected_selection
+            or input_record.profile.profile_selection_ref != expected_selection
         ):
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_profile_selection_mismatch"
@@ -4700,10 +5218,13 @@ class GenericCycleSimulationAdmissionOwner:
 
             views = world_model_artifact_views(world_record)
             bindings = load_input_bindings(self._store, views.input_bindings_ref)
+            # A structural 1.0 prestate may still lack method arguments.
+            # Default preflight owns the missing-port refusal before N5; only
+            # a real selected 1.4 binding becomes a semantic input projection.
             semantic_bindings_ref: FoundryInputBindingsRef | None = None
             if bindings.schema_version == "1.5" or (
                 any(node.node_kind == "method" for node in selected.graph.nodes)
-                and bindings.schema_version != "1.4"
+                and bindings.schema_version not in {"1.0", "1.4"}
             ):
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_program_graph_method_profile_not_established"
@@ -4854,12 +5375,13 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_request_outcome_mismatch"
             )
+        effective_profile = self._effective_input_profile(input_record)
         world_record = port._context_world_model_record(
             candidate=source_candidate, problem=source.problem
         )
         if (
             source_context != port._cycle_substrate_context
-            or world_record != input_record.profile.context_inputs.world_model_record
+            or world_record != effective_profile.context_inputs.world_model_record
         ):
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_request_world_model_mismatch"
@@ -4868,7 +5390,7 @@ class GenericCycleSimulationAdmissionOwner:
             atoms=atoms, outcome=outcome, raw_hint=None
         )
         plans = self.build_engine_plans(
-            profile=input_record.profile,
+            profile=effective_profile,
             world_record=world_record,
             outcome=outcome,
             variable_map=variable_map,
@@ -4924,10 +5446,24 @@ class GenericCycleSimulationAdmissionOwner:
                     role="recursive_n4_child_profile_set",
                 )
             )
+        if record.native_world_checkpoint_ref is not None:
+            inputs.extend(
+                (
+                    input_ref_from_artifact_ref(
+                        record.native_world_checkpoint_ref, role="native_world_checkpoint"
+                    ),
+                    input_ref_from_artifact_ref(
+                        record.original_generic_input_ref, role="original_generic_n5_input"
+                    ),
+                )
+            )
         return artifacts.ArtifactWriteOptions(
             kind=_N5_INPUT_KIND,
             media_type="application/json",
-            schema=artifacts.SchemaInfo(name=_N5_INPUT_SCHEMA, version="1.0"),
+            schema=artifacts.SchemaInfo(
+                name=record.schema_version,
+                version="2.0" if record.native_world_checkpoint_ref is not None else "1.0",
+            ),
             producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
             inputs=inputs,
             canon=artifacts.CanonInfo.from_spec(_PROFILE_CANON),
@@ -4960,6 +5496,18 @@ class GenericCycleSimulationAdmissionOwner:
             inputs.insert(
                 1,
                 input_ref_from_artifact_ref(record.result_ref, role="joint_simulation_result"),
+            )
+        if (
+            type(record) is GenericCycleSimulationN5ExecutionV3
+            and record.initial_method_input_purpose is not None
+        ):
+            selected_method_ref = record.current_method_input_bindings_ref
+            if selected_method_ref is None:
+                raise ValueError("generic_cycle_simulation_initial_method_selection_invalid")
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    selected_method_ref, role="current_method_input_bindings"
+                )
             )
         if type(record) is GenericCycleSimulationN5ExecutionV4:
             inputs.append(

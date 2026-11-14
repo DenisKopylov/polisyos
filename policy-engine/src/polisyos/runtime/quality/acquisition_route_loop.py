@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -34,9 +34,11 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCostBasisRecord,
     AcquisitionPlannerReport,
     AcquisitionRequirementGap,
+    NativeDerivationLeafCostProfileScope,
     _n7_candidate_n5_l1_planner_records_match,
     _n7_load_derivation_bundle,
     _n7_require_current_report_input_provenance,
+    load_native_derivation_leaf_cost_profile,
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
     validate_persisted_acquisition_planner_report,
@@ -59,6 +61,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _n7_generic_fallback_source_record_matches,
     _n7_joined_planner_records_match,
     _problem_ref,
+    _requirement_missing_distributions,
     generation_cycle_run_content_hash,
     validate_acquisition_overlay_continuation,
     validate_candidate_source_continuation,
@@ -131,6 +134,24 @@ def _select_source_planner_record(
 ) -> AcquisitionActionRecord:
     """Select one source action without dropping other compiler gaps."""
     records = report.acquisition_records
+    if (
+        report.candidate_lineage is not None
+        and report.candidate_lineage.schema_version
+        == "policyos.runtime.n7_candidate_report_lineage.v2"
+    ):
+        if source is None:
+            raise AcquisitionRouteClosureError("model_input_source_requirement_missing")
+        selected = tuple(
+            record
+            for record in records
+            if record.requirement_gap_ref == source.requirement_gap_id
+            and record.requirement_schema_version == source.requirement_schema_version
+            and record.compiled_requirement_ref == source.compiled_requirement_ref
+            and record.gap_type == source.gap_type
+        )
+        if len(selected) != 1:
+            raise AcquisitionRouteClosureError("model_input_source_planner_record_not_unique")
+        return selected[0]
     if len(records) == 1:
         return records[0]
     if source is None:
@@ -253,6 +274,25 @@ def _resolve_source_cycle_problem_basis(
     raise AcquisitionRouteClosureError("source_cycle_basis_unresolved")
 
 
+class NativeDerivationLeafProviderSelection(BaseModel):
+    """Adopted routing identity; this does not issue a source grant."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    source_node_id: str = Field(min_length=1)
+    supplier_ref: ArtifactRef
+    authority_entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    connector_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _selected_supplier(self) -> NativeDerivationLeafProviderSelection:
+        if (
+            self.supplier_ref.manifest_profile_sha256 is None
+            or self.supplier_ref.media_type != "application/json"
+        ):
+            raise ValueError("native_leaf_provider_supplier_unselected")
+        return self
+
+
 class AcquisitionRoutePhaseReceipt(BaseModel):
     """Immutable phase fact for one exact acquisition action generation."""
 
@@ -262,6 +302,7 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         "AcquisitionRoutePhaseReceipt@1.0",
         "AcquisitionRoutePhaseReceipt@1.1",
         "AcquisitionRoutePhaseReceipt@1.2",
+        "AcquisitionRoutePhaseReceipt@1.3",
     ] = "AcquisitionRoutePhaseReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
@@ -292,6 +333,12 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     candidate_receipt_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    owner_declared_profile_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_leaf_provider_selection: NativeDerivationLeafProviderSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     generated_at: AwareDatetime
 
     @model_validator(mode="after")
@@ -315,6 +362,25 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
             raise ValueError("requested_phase_cannot_have_predecessor")
         if self.receipt_phase != "requested" and self.predecessor_receipt_ref is None:
             raise ValueError("acquisition_route_phase_predecessor_missing")
+        if self.schema_version == "AcquisitionRoutePhaseReceipt@1.3":
+            _require_native_leaf_cost_profile_ref(self.owner_declared_profile_ref)
+            if (
+                self.native_leaf_provider_selection is None
+                or self.candidate_receipt_ref is not None
+                or self.receipt_phase == "candidate_input_reentry_pending"
+                or (self.receipt_phase == "outcome_selected" and len(self.owner_receipt_refs) != 1)
+                or (
+                    self.receipt_phase == "world_committed_reentry_pending"
+                    and not self.owner_receipt_refs
+                )
+            ):
+                raise ValueError("native_leaf_phase_binding_invalid")
+            return self
+        if (
+            self.owner_declared_profile_ref is not None
+            or self.native_leaf_provider_selection is not None
+        ):
+            raise ValueError("native_leaf_phase_profile_schema_mismatch")
         if self.receipt_phase == "outcome_selected":
             if (
                 self.schema_version
@@ -350,13 +416,50 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         return self
 
 
+def _require_native_leaf_cost_profile_ref(ref: ArtifactRef | None) -> ArtifactRef:
+    if (
+        ref is None
+        or ref.kind != "runtime.quality.native_derivation_leaf_cost_profile"
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_leaf_cost_profile_unselected")
+    return ref
+
+
+class NativeDerivationInputsPending(BaseModel):
+    """Complete a source action while its exact model-input goal remains open.
+
+    The selected collection records acquired native inputs and the remaining
+    source actions. It is neither a re-entry receipt nor permission to fetch
+    another leaf. The action owner must verify its native provenance before
+    persisting a terminal result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    collection_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_collection(self) -> NativeDerivationInputsPending:
+        if (
+            self.collection_ref.kind != "runtime_quality.native_derivation_input_checkpoint"
+            or self.collection_ref.media_type != "application/json"
+            or self.collection_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_inputs_pending_collection_unselected")
+        return self
+
+
 class AcquisitionRouteLoopReceipt(BaseModel):
     """Immutable terminal fact for one exact acquisition action generation."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal[
-        "AcquisitionRouteLoopReceipt@1.0", "AcquisitionRouteLoopReceipt@1.1"
+        "AcquisitionRouteLoopReceipt@1.0",
+        "AcquisitionRouteLoopReceipt@1.1",
+        "AcquisitionRouteLoopReceipt@1.2",
     ] = "AcquisitionRouteLoopReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
@@ -374,7 +477,10 @@ class AcquisitionRouteLoopReceipt(BaseModel):
     receipt_phase: Literal["terminal"] = "terminal"
     recovery_state: Literal["complete"] = "complete"
     terminal_outcome: Literal[
-        "quarantined_no_growth", "reentry_completed", "candidate_reentry_completed"
+        "quarantined_no_growth",
+        "reentry_completed",
+        "candidate_reentry_completed",
+        "inputs_pending",
     ]
     predecessor_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
@@ -388,10 +494,52 @@ class AcquisitionRouteLoopReceipt(BaseModel):
     candidate_reentry_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    native_input_collection_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    owner_declared_profile_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_leaf_provider_selection: NativeDerivationLeafProviderSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     generated_at: AwareDatetime
 
     @model_validator(mode="after")
     def _validate_terminal_truth(self) -> AcquisitionRouteLoopReceipt:
+        native = self.schema_version == "AcquisitionRouteLoopReceipt@1.2"
+        if native:
+            _require_native_leaf_cost_profile_ref(self.owner_declared_profile_ref)
+            if (
+                self.native_leaf_provider_selection is None
+                or self.candidate_action_ref is not None
+                or self.candidate_reentry_ref is not None
+                or self.terminal_outcome == "candidate_reentry_completed"
+            ):
+                raise ValueError("native_leaf_terminal_binding_invalid")
+            if self.terminal_outcome == "inputs_pending":
+                if self.native_input_collection_ref is None or self.reentry_receipt_ref is not None:
+                    raise ValueError("terminal_inputs_pending_binding_missing")
+                NativeDerivationInputsPending(collection_ref=self.native_input_collection_ref)
+                if str(self.native_input_collection_ref.artifact_id) not in self.owner_receipt_refs:
+                    raise ValueError("terminal_inputs_pending_owner_ref_missing")
+            elif self.native_input_collection_ref is not None:
+                raise ValueError("native_leaf_terminal_collection_unexpected")
+            if self.terminal_outcome == "reentry_completed" and self.reentry_receipt_ref is None:
+                raise ValueError("terminal_reentry_receipt_missing")
+            if (
+                self.terminal_outcome == "quarantined_no_growth"
+                and self.reentry_receipt_ref is not None
+            ):
+                raise ValueError("quarantined_terminal_cannot_claim_reentry")
+            return self
+        if (
+            self.native_input_collection_ref is not None
+            or self.owner_declared_profile_ref is not None
+            or self.native_leaf_provider_selection is not None
+            or self.terminal_outcome == "inputs_pending"
+        ):
+            raise ValueError("terminal_inputs_pending_schema_mismatch")
         if self.terminal_outcome in {"reentry_completed", "candidate_reentry_completed"}:
             if self.reentry_receipt_ref is None:
                 raise ValueError("terminal_reentry_receipt_missing")
@@ -1017,6 +1165,16 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     cost_basis_record: AcquisitionCostBasisRecord
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_declared_profile_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_derivation_leaf_scope: NativeDerivationLeafCostProfileScope | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    native_derivation_leaf_provider: NativeDerivationLeafProviderSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
     # Transport only. The actual action fold replayed these selected receipts;
     # the production mutation bridge re-resolves that owner before using them.
     acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = Field(
@@ -1026,6 +1184,34 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
         default=(), exclude=True, repr=False
     )
     candidate_terminal_history: tuple[object, ...] = Field(default=(), exclude=True, repr=False)
+
+    @model_validator(mode="after")
+    def _native_leaf_cost_selection(self) -> VerifiedAcquisitionRouteClosure:
+        scope = self.native_derivation_leaf_scope
+        provider = self.native_derivation_leaf_provider
+        if scope is None:
+            if self.owner_declared_profile_ref is not None or provider is not None:
+                raise ValueError("native_leaf_route_scope_missing")
+            return self
+        selected = _require_native_leaf_cost_profile_ref(self.owner_declared_profile_ref)
+        cost_selected = self.cost_basis_record.owner_declared_profile_ref
+        if (
+            self.cost_basis_record.schema_version != "AcquisitionCostBasisRecord@1.1"
+            or cost_selected is None
+            or artifact_ref_identity_key(cost_selected) != artifact_ref_identity_key(selected)
+            or scope.planner_record_id != self.planner_record.acquisition_id
+            or (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id)
+            != (self.tenant_id, self.cell_id, self.run_id, self.source_job_id)
+        ):
+            raise ValueError("native_leaf_route_cost_selection_mismatch")
+        if (
+            provider is None
+            or provider.source_node_id != scope.source_node_id
+            or artifact_ref_identity_key(provider.supplier_ref)
+            != artifact_ref_identity_key(scope.selected_supplier_ref)
+        ):
+            raise ValueError("native_leaf_provider_scope_mismatch")
+        return self
 
     @field_validator("candidate_terminal_history")
     @classmethod
@@ -1129,10 +1315,45 @@ class _VerifiedAcquisitionOrigin(_CompletedNLOrigin):
     source_cycle: GenerationCycleRecord
     design_problem_basis: DesignProblem
     report: AcquisitionPlannerReport
+    report_ref: ArtifactRef
     planner_record: AcquisitionActionRecord
     source_requirement: AcquisitionRequirementGap | None
     configured_port_source: object | None
     cost: AcquisitionCostBasisRecord | None
+
+
+@dataclass(frozen=True)
+class NativeDerivationLeafRouteAvailability:
+    """An exact recorded leaf whose price or supplier is not admitted for use.
+
+    This read-only projection deliberately carries no synthetic cost record or
+    action replay pins. A client may inspect the missing input, but cannot turn
+    its recorded graph into permission to acquire it.
+    """
+
+    route_id: str
+    source_node_id: str
+    derivation_bundle_ref: ArtifactRef
+    requirement_gap_id: str
+    planner_record_id: str
+    selected_supplier_ref: ArtifactRef | None
+    source_origin: _VerifiedAcquisitionOrigin
+    expected_scope: NativeDerivationLeafCostProfileScope | None
+    reason_codes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class NativeModelInputTargetAvailability:
+    """An actual unbound target before an immutable supplier plan is selected."""
+
+    route_id: str
+    obligation_set_ref: ArtifactRef
+    model_input_obligation_ref: ArtifactRef
+    configured_port_source_ref: ArtifactRef
+    planner_report_ref: ArtifactRef
+    requirement_gap_id: str
+    planner_record_id: str
+    reason_codes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -1748,14 +1969,104 @@ class AcquisitionRouteLoop:
             compiled=compiled,
         )
 
+    def _resolve_pre_numerical_native_origin(
+        self, *, completed: _CompletedNLOrigin, run_id: str
+    ) -> _VerifiedAcquisitionOrigin | None:
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.acquisition_planner import (
+            _n7_verify_configured_candidate_report_cycle,
+        )
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        candidates = tuple(
+            (leaf.cycle_run, cycle)
+            for leaf in completed.compiled.recursive_run.leaf_nodes
+            if leaf.cycle_run is not None
+            for cycle in leaf.cycle_run.cycles
+            if cycle.model_input_acquisition_report_ref is not None
+        )
+        if not candidates:
+            return None
+        if len(candidates) != 1:
+            raise AcquisitionRouteClosureError("native_model_input_source_not_unique")
+        generation_run, cycle = candidates[0]
+        report_ref = cycle.model_input_acquisition_report_ref
+        report = AcquisitionPlannerReport.model_validate(
+            load_core_json_artifact(self._artifact_store, report_ref)
+        )
+        if (
+            report.candidate_lineage is None
+            or report.candidate_lineage.schema_version
+            != "policyos.runtime.n7_candidate_report_lineage.v2"
+        ):
+            raise AcquisitionRouteClosureError("native_model_input_report_lineage_required")
+        problem = _resolve_source_cycle_problem_basis(
+            generation_run=generation_run,
+            source_cycle=cycle,
+            design_problem=completed.compiled.design_problem,
+            design_problem_ref=completed.compiled.design_problem_ref,
+        )
+        try:
+            source = _n7_verify_configured_candidate_report_cycle(
+                artifact_store=self._artifact_store,
+                control_store=self._control_store,
+                report=report,
+                report_ref=report_ref,
+                generation_run=generation_run,
+                source_cycle=cycle,
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
+                run_id=run_id,
+                source_job_id=completed.job.job_id,
+                design_problem_ref=cycle_job_design_problem_ref(problem),
+            )
+            record = _select_source_planner_record(report, source.source_gap)
+            issues = validate_persisted_acquisition_planner_report(
+                self._artifact_store,
+                report_ref,
+                report,
+                expected_scenario_id=cycle.design_problem_basis_ref or cycle.design_problem_ref,
+                expected_compiled_requirement_ref=record.compiled_requirement_ref,
+                expected_obligation_set_ref=cycle.simulation.model_input_obligation_set_ref,
+            )
+            if issues:
+                raise ValueError("native_model_input_report_basis_not_established")
+            _n7_require_current_report_input_provenance(report)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteClosureError("native_model_input_source_not_established") from exc
+        return _VerifiedAcquisitionOrigin(
+            job=completed.job,
+            payload_ref=completed.payload_ref,
+            manifest_ref=completed.manifest_ref,
+            compiled_ref=completed.compiled_ref,
+            selected_compiled_ref=completed.selected_compiled_ref,
+            terminal_event_id=completed.terminal_event_id,
+            compiled=completed.compiled,
+            generation_run=generation_run,
+            source_cycle=cycle,
+            design_problem_basis=problem,
+            report=report,
+            report_ref=report_ref,
+            planner_record=record,
+            source_requirement=source.source_gap,
+            configured_port_source=source,
+            cost=None,
+        )
+
     def _resolve_verified_origin(
-        self, *, run_id: str, experiment: bool = False
+        self, *, run_id: str, experiment: bool = False, native_derivation: bool = False
     ) -> _VerifiedAcquisitionOrigin:
         """Reopen the completed owner and selected planner/actual-cycle lineage."""
 
         completed = self._resolve_completed_nl_origin(run_id=run_id)
         job = completed.job
         compiled = completed.compiled
+        if native_derivation:
+            pre_numerical = self._resolve_pre_numerical_native_origin(
+                completed=completed, run_id=run_id
+            )
+            if pre_numerical is not None:
+                return pre_numerical
         candidates = [
             (leaf.cycle_run, cycle)
             for leaf in compiled.recursive_run.leaf_nodes
@@ -1763,7 +2074,12 @@ class AcquisitionRouteLoop:
             for cycle in leaf.cycle_run.cycles
             if cycle.acquisition_routing_report is not None
             and (
-                (not experiment and cycle.acquisition_cost_basis_record is not None)
+                (
+                    native_derivation
+                    and cycle.acquisition_routing_report.schema_version
+                    == _N7_CONFIGURED_REPORT_SCHEMA
+                )
+                or (not experiment and cycle.acquisition_cost_basis_record is not None)
                 or (
                     experiment
                     and cycle.acquisition_cost_basis_record is None
@@ -1787,7 +2103,7 @@ class AcquisitionRouteLoop:
         )
         report = source_cycle.acquisition_routing_report
         cost = source_cycle.acquisition_cost_basis_record
-        if report is None or (not experiment and cost is None):
+        if report is None or (not experiment and not native_derivation and cost is None):
             raise AcquisitionRouteClosureError("costed_route_not_unique")
         request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
         configured_port_source = None
@@ -1954,6 +2270,7 @@ class AcquisitionRouteLoop:
             source_cycle=source_cycle,
             design_problem_basis=source_problem,
             report=report,
+            report_ref=planner_ref,
             planner_record=planner_record,
             source_requirement=source_requirement,
             configured_port_source=configured_port_source,
@@ -1980,6 +2297,7 @@ class AcquisitionRouteLoop:
             cycle_job_design_problem_ref,
         )
         from polisyos.runtime.quality.generation_cycle import (
+            _GENERATION_CYCLE_MODEL_INPUT_ACQUISITION_SCHEMA_VERSION,
             _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
             _generation_source_run_id,
             resolve_generation_cycle_run_context_history,
@@ -2014,7 +2332,11 @@ class AcquisitionRouteLoop:
         generation_run = leaves[0].cycle_run
         source_run_id = _generation_source_run_id(compiled.design_problem)
         if (
-            generation_run.schema_version != _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION
+            generation_run.schema_version
+            not in {
+                _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
+                _GENERATION_CYCLE_MODEL_INPUT_ACQUISITION_SCHEMA_VERSION,
+            }
             or not generation_run.cycles
             or generation_run.cycles[-1].model_input_routing_report_ref != routing_report_ref
             or sum(
@@ -2796,16 +3118,368 @@ class AcquisitionRouteLoop:
             outcomes=outcomes,
         )
 
-    def resolve_current_route(
+    def _native_leaf_cost_profile_refs(
+        self, origin: _VerifiedAcquisitionOrigin
+    ) -> tuple[ArtifactRef, ...]:
+        """Read deployment adoption from the existing completed-source owner."""
+        service = getattr(self._core_source_resolver, "__self__", None)
+        getter = getattr(service, "native_derivation_leaf_cost_profile_refs", None)
+        if not callable(getter):
+            return ()
+        refs = getter(
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=origin.job.run_id,
+            source_job_id=origin.job.job_id,
+            configured_port_source_ref=origin.report.candidate_lineage.port_source_ref,
+        )
+        if type(refs) is not tuple:
+            raise AcquisitionRouteClosureError("native_leaf_cost_configuration_untyped")
+        for ref in refs:
+            _require_native_leaf_cost_profile_ref(ref)
+        if len({artifact_ref_identity_key(ref) for ref in refs}) != len(refs):
+            raise AcquisitionRouteClosureError("native_leaf_cost_configuration_duplicate")
+        return refs
+
+    def _native_leaf_provider_selections(
+        self, origin: _VerifiedAcquisitionOrigin
+    ) -> tuple[NativeDerivationLeafProviderSelection, ...]:
+        owner = getattr(self._core_source_resolver, "__self__", None)
+        getter = getattr(owner, "native_derivation_leaf_provider_selections", None)
+        if not callable(getter):
+            return ()
+        values = getter(
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=origin.job.run_id,
+            source_job_id=origin.job.job_id,
+            configured_port_source_ref=origin.report.candidate_lineage.port_source_ref,
+        )
+        if not isinstance(values, tuple) or any(
+            type(row) is not NativeDerivationLeafProviderSelection for row in values
+        ):
+            raise AcquisitionRouteClosureError("native_leaf_provider_configuration_invalid")
+        return values
+
+    def _native_action_recorded_profile_ref(
+        self, origin: _VerifiedAcquisitionOrigin, *, action_job_id: str | None
+    ) -> ArtifactRef | None:
+        """Select one existing action's quote fact without treating it as paid."""
+        if action_job_id is None or self._action_outcome_reader is None:
+            return None
+        heads = self._control_store.list_acquisition_action_heads_for_source(
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=origin.job.run_id,
+            source_job_id=origin.job.job_id,
+        )
+        matches = tuple(head for head in heads if head.job_id == action_job_id)
+        if not matches:
+            return None
+        if len(matches) != 1:
+            raise AcquisitionRouteClosureError("native_action_recorded_profile_ambiguous")
+        head = matches[0]
+        outcomes = self._action_outcome_reader.action_outcomes(
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=origin.job.run_id,
+            source_job_id=origin.job.job_id,
+            route_id=head.route_id,
+        )
+        selected = tuple(item for item in outcomes if item.head == head)
+        if len(selected) != 1:
+            raise AcquisitionRouteClosureError("native_action_recorded_profile_not_verified")
+        receipt = selected[0].latest_receipt
+        if type(receipt) not in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+            return None
+        ref = receipt.owner_declared_profile_ref
+        return _require_native_leaf_cost_profile_ref(ref) if ref is not None else None
+
+    def _native_leaf_paid_action_attempt(
+        self, closure: VerifiedAcquisitionRouteClosure, *, action_job_id: str
+    ) -> ArtifactRef | None:
+        """Resolve spent facts from the installed native owner, never a head flag."""
+        service = getattr(self._core_source_resolver, "__self__", None)
+        getter = getattr(service, "native_derivation_paid_action_attempt", None)
+        if not callable(getter):
+            return None
+        ref = getter(closure=closure, action_job_id=action_job_id)
+        if ref is None:
+            return None
+        if (
+            type(ref) is not ArtifactRef
+            or ref.manifest_profile_sha256 is None
+            or ref.kind != "runtime_quality.acquisition_world_growth_attempt"
+            or ref.media_type != "application/json"
+        ):
+            raise AcquisitionRouteClosureError("native_paid_attempt_selected_ref_invalid")
+        return ref
+
+    def resolve_native_derivation_leaf_routes(
         self,
         *,
         run_id: str,
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
+    ) -> tuple[
+        VerifiedAcquisitionRouteClosure
+        | NativeDerivationLeafRouteAvailability
+        | NativeModelInputTargetAvailability,
+        ...,
+    ]:
+        """Expose the actual N7 leaf records without manufacturing prices or grants.
+
+        Costed leaves use only a deployment-adopted exact owner quote. A missing
+        supplier or quote stays visible as read-only pending input, without the
+        replay pins required by an action mutation.
+        """
+        from dataclasses import replace
+
+        origin = self._resolve_verified_origin(run_id=run_id, native_derivation=True)
+        source = origin.configured_port_source
+        bundle_ref = getattr(source, "derivation_bundle_ref", None)
+        lineage = origin.report.candidate_lineage
+        report_ref = origin.report_ref
+        if lineage is None or report_ref is None:
+            return ()
+        if bundle_ref is None:
+            if source.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v3":
+                return ()
+            target_identity = {
+                "tenant_id": self._tenant_id,
+                "cell_id": self._cell_id,
+                "run_id": run_id,
+                "source_job_id": origin.job.job_id,
+                "source": lineage.port_source_ref.model_dump(mode="json"),
+                "obligation_set": source.model_input_obligation_set_ref.model_dump(mode="json"),
+                "target": source.model_input_obligation_ref.model_dump(mode="json"),
+                "status": "native_derivation_plan_not_selected",
+            }
+            return (
+                NativeModelInputTargetAvailability(
+                    route_id=_content_hash(target_identity),
+                    obligation_set_ref=source.model_input_obligation_set_ref,
+                    model_input_obligation_ref=source.model_input_obligation_ref,
+                    configured_port_source_ref=lineage.port_source_ref,
+                    planner_report_ref=report_ref,
+                    requirement_gap_id=source.source_gap.requirement_gap_id,
+                    planner_record_id=origin.planner_record.acquisition_id,
+                    reason_codes=("native_derivation_plan_not_selected",),
+                ),
+            )
+        bundle = _n7_load_derivation_bundle(self._artifact_store, bundle_ref)
+        configured_profile_refs = self._native_leaf_cost_profile_refs(origin)
+        recorded_profile_ref = self._native_action_recorded_profile_ref(
+            origin, action_job_id=action_job_id
+        )
+        historical_only_key = None
+        profile_refs = list(configured_profile_refs)
+        if recorded_profile_ref is not None and artifact_ref_identity_key(
+            recorded_profile_ref
+        ) not in {artifact_ref_identity_key(ref) for ref in profile_refs}:
+            # Replacing deployment prices affects new admissions. The past
+            # exact quote can still locate paid facts, but is never current
+            # permission and requires the native owner proof below.
+            profile_refs.append(recorded_profile_ref)
+            historical_only_key = artifact_ref_identity_key(recorded_profile_ref)
+        profiles = tuple(
+            (ref, load_native_derivation_leaf_cost_profile(self._artifact_store, ref))
+            for ref in profile_refs
+        )
+        now = datetime.now(UTC)
+        provider_selections = self._native_leaf_provider_selections(origin)
+        recorded_profile_key = (
+            artifact_ref_identity_key(recorded_profile_ref)
+            if recorded_profile_ref is not None
+            else None
+        )
+
+        def selected_ref(ref: ArtifactRef) -> ArtifactRef:
+            if set(type(ref).model_fields) - set(ArtifactRef.model_fields):
+                raise AcquisitionRouteClosureError("native_leaf_ref_subtype_semantics_unsupported")
+            return ArtifactRef.model_validate(ref.model_dump(mode="python"))
+
+        resolved: list[VerifiedAcquisitionRouteClosure | NativeDerivationLeafRouteAvailability] = []
+        for node in bundle.source_nodes:
+            gap = node.requirement_gap
+            if gap is None:
+                continue
+            record = _select_source_planner_record(origin.report, gap)
+            distributions = _requirement_missing_distributions(gap)
+            suppliers = (
+                (node.selected_supplier_ref,)
+                if node.selected_supplier_ref is not None
+                else tuple(item.supplier_ref for item in node.supplier_alternatives)
+            )
+            if len(distributions) != 1:
+                raise AcquisitionRouteClosureError("native_leaf_missing_distribution_ambiguous")
+            for supplier in suppliers or (None,):
+                scope = None
+                if supplier is not None:
+                    scope = NativeDerivationLeafCostProfileScope(
+                        tenant_id=self._tenant_id,
+                        cell_id=self._cell_id,
+                        run_id=run_id,
+                        source_job_id=origin.job.job_id,
+                        configured_port_source_ref=selected_ref(lineage.port_source_ref),
+                        planner_report_ref=selected_ref(report_ref),
+                        derivation_bundle_ref=selected_ref(bundle_ref),
+                        obligation_set_ref=selected_ref(bundle.obligation_set_ref),
+                        source_node_id=node.node_id,
+                        requirement_gap_id=gap.requirement_gap_id,
+                        compiled_requirement_ref=gap.compiled_requirement_ref,
+                        planner_record_id=record.acquisition_id,
+                        strategy=record.recommended_strategy,
+                        selected_supplier_ref=selected_ref(supplier),
+                        missing_distribution=distributions[0],
+                    )
+                matches = tuple(
+                    (ref, profile)
+                    for ref, profile in profiles
+                    if scope is not None
+                    and profile.scope.model_dump(mode="json") == scope.model_dump(mode="json")
+                    and (
+                        artifact_ref_identity_key(ref) == recorded_profile_key
+                        if recorded_profile_key is not None
+                        else profile.effective_at <= now < profile.expires_at
+                    )
+                )
+                if len(matches) > 1:
+                    raise AcquisitionRouteClosureError("native_leaf_cost_profile_ambiguous")
+                provider_matches = tuple(
+                    row
+                    for row in provider_selections
+                    if row.source_node_id == node.node_id
+                    and supplier is not None
+                    and artifact_ref_identity_key(row.supplier_ref)
+                    == artifact_ref_identity_key(supplier)
+                )
+                if len(provider_matches) > 1:
+                    raise AcquisitionRouteClosureError(
+                        "native_leaf_provider_configuration_ambiguous"
+                    )
+                if matches and provider_matches:
+                    (profile_ref, _profile) = matches[0]
+                    current_quote = (
+                        artifact_ref_identity_key(profile_ref) != historical_only_key
+                        and _profile.effective_at <= now < _profile.expires_at
+                    )
+                    cost_time = now if current_quote else _profile.effective_at
+                    cost = produce_acquisition_cost_basis_record(
+                        missing_distribution=distributions[0],
+                        strategy=record.recommended_strategy,
+                        owner_declared_profile_ref=profile_ref,
+                        store=self._artifact_store,
+                        expected_scope=scope,
+                        now=cost_time,
+                    )
+                    if cost is None:
+                        raise AcquisitionRouteClosureError("native_leaf_cost_profile_unavailable")
+                    costed = self._resolve_current_route_from_origin(
+                        replace(origin, planner_record=record, source_requirement=gap, cost=cost),
+                        run_id=run_id,
+                        before_action_generation=before_action_generation,
+                        action_job_id=action_job_id,
+                        native_scope=scope,
+                        native_provider=provider_matches[0],
+                        owner_declared_profile_ref=profile_ref,
+                        native_cost_time=cost_time,
+                    )
+                    if (
+                        current_quote
+                        or self._native_leaf_paid_action_attempt(
+                            costed, action_job_id=action_job_id
+                        )
+                        is not None
+                    ):
+                        resolved.append(costed)
+                        continue
+                selected_identity = {
+                    "tenant_id": self._tenant_id,
+                    "cell_id": self._cell_id,
+                    "run_id": run_id,
+                    "source_job_id": origin.job.job_id,
+                    "derivation_bundle_ref": bundle_ref.model_dump(mode="json"),
+                    "source_node_id": node.node_id,
+                    "planner_record_id": record.acquisition_id,
+                    "selected_supplier_ref": supplier.model_dump(mode="json") if supplier else None,
+                    "cost_status": "not_established",
+                }
+                resolved.append(
+                    NativeDerivationLeafRouteAvailability(
+                        route_id=_content_hash(selected_identity),
+                        source_node_id=node.node_id,
+                        derivation_bundle_ref=bundle_ref,
+                        requirement_gap_id=gap.requirement_gap_id,
+                        planner_record_id=record.acquisition_id,
+                        selected_supplier_ref=supplier,
+                        source_origin=origin,
+                        expected_scope=scope,
+                        reason_codes=(
+                            "native_leaf_supplier_not_established"
+                            if supplier is None
+                            else (
+                                "native_leaf_provider_binding_not_established"
+                                if not provider_matches
+                                else "native_leaf_owner_cost_profile_not_established"
+                            ),
+                        ),
+                    )
+                )
+        return tuple(resolved)
+
+    def resolve_current_route(
+        self,
+        *,
+        run_id: str,
+        route_id: str | None = None,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
         """Resolve the sole completed natural-language costed source closure."""
-
+        if route_id is not None:
+            native = self.resolve_native_derivation_leaf_routes(
+                run_id=run_id,
+                before_action_generation=before_action_generation,
+                action_job_id=action_job_id,
+            )
+            matches = tuple(item for item in native if item.route_id == route_id)
+            if matches:
+                if len(matches) != 1:
+                    raise AcquisitionRouteClosureError("native_leaf_route_ambiguous")
+                selected = matches[0]
+                if type(selected) in {
+                    NativeDerivationLeafRouteAvailability,
+                    NativeModelInputTargetAvailability,
+                }:
+                    raise AcquisitionRouteClosureError(selected.reason_codes[0])
+                return selected
+            if native:
+                raise AcquisitionRouteClosureError("native_leaf_route_not_current")
         origin = self._resolve_verified_origin(run_id=run_id)
+        resolved = self._resolve_current_route_from_origin(
+            origin,
+            run_id=run_id,
+            before_action_generation=before_action_generation,
+            action_job_id=action_job_id,
+        )
+        if route_id is not None and resolved.route_id != route_id:
+            raise AcquisitionRouteClosureError("acquisition_route_not_current")
+        return resolved
+
+    def _resolve_current_route_from_origin(
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        run_id: str,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
+        native_scope: NativeDerivationLeafCostProfileScope | None = None,
+        native_provider: NativeDerivationLeafProviderSelection | None = None,
+        owner_declared_profile_ref: ArtifactRef | None = None,
+        native_cost_time: datetime | None = None,
+    ) -> VerifiedAcquisitionRouteClosure:
+        """Compose the same current action fold with one verified planner selection."""
         job = origin.job
         payload_ref = origin.payload_ref
         manifest_ref = origin.manifest_ref
@@ -2819,33 +3493,55 @@ class AcquisitionRouteLoop:
         cost = origin.cost
         if cost is None:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
-        schedule = load_planner_acquisition_cost_schedule()
-        recomputed = produce_acquisition_cost_basis_record(
-            missing_distribution=cost.missing_distribution,
-            strategy=planner_record.recommended_strategy,
-            schedule=schedule,
-        )
-        if (
-            recomputed is None
-            or recomputed != cost
-            or source_cycle.acquisition_cost_basis_hash != cost.record_content_hash
-            or cost.schedule_content_hash != schedule.schedule_content_hash
-        ):
-            raise AcquisitionRouteClosureError("cost_basis_revalidation_required")
+        if native_scope is None:
+            schedule = load_planner_acquisition_cost_schedule()
+            recomputed = produce_acquisition_cost_basis_record(
+                missing_distribution=cost.missing_distribution,
+                strategy=planner_record.recommended_strategy,
+                schedule=schedule,
+            )
+            if (
+                recomputed is None
+                or recomputed != cost
+                or source_cycle.acquisition_cost_basis_hash != cost.record_content_hash
+                or cost.schedule_content_hash != schedule.schedule_content_hash
+            ):
+                raise AcquisitionRouteClosureError("cost_basis_revalidation_required")
+        else:
+            selected_profile = _require_native_leaf_cost_profile_ref(owner_declared_profile_ref)
+            recomputed = produce_acquisition_cost_basis_record(
+                missing_distribution=native_scope.missing_distribution,
+                strategy=planner_record.recommended_strategy,
+                owner_declared_profile_ref=selected_profile,
+                store=self._artifact_store,
+                expected_scope=native_scope,
+                now=native_cost_time if native_cost_time is not None else datetime.now(UTC),
+            )
+            if recomputed is None or recomputed.model_dump(mode="json") != cost.model_dump(
+                mode="json"
+            ):
+                raise AcquisitionRouteClosureError("native_leaf_cost_revalidation_required")
         route_source_cycle = source_cycle
-        route_id = _content_hash(
-            {
-                "tenant_id": self._tenant_id,
-                "cell_id": self._cell_id,
-                "run_id": run_id,
-                "source_job_id": job.job_id,
-                "compiled_ref": compiled_ref,
-                "design_problem_ref": compiled.design_problem_ref,
-                "planner_run_id": report.run_id,
-                "planner_record_id": planner_record.acquisition_id,
-                "cost_basis_hash": cost.record_content_hash,
-            }
-        )
+        route_identity = {
+            "tenant_id": self._tenant_id,
+            "cell_id": self._cell_id,
+            "run_id": run_id,
+            "source_job_id": job.job_id,
+            "compiled_ref": compiled_ref,
+            "design_problem_ref": compiled.design_problem_ref,
+            "planner_run_id": report.run_id,
+            "planner_record_id": planner_record.acquisition_id,
+            "cost_basis_hash": cost.record_content_hash,
+        }
+        if native_scope is not None:
+            route_identity["native_derivation_leaf_scope"] = native_scope.model_dump(mode="json")
+            if native_provider is None:
+                raise AcquisitionRouteClosureError("native_leaf_provider_binding_not_established")
+            route_identity["native_derivation_leaf_provider"] = native_provider.model_dump(
+                mode="json"
+            )
+            route_identity["owner_declared_profile_ref"] = selected_profile.model_dump(mode="json")
+        route_id = _content_hash(route_identity)
         (
             generation_run,
             source_cycle,
@@ -2897,6 +3593,9 @@ class AcquisitionRouteLoop:
             cost_basis_record=cost,
             cost_basis_hash=cost.record_content_hash,
             route_id=route_id,
+            owner_declared_profile_ref=owner_declared_profile_ref,
+            native_derivation_leaf_scope=native_scope,
+            native_derivation_leaf_provider=native_provider,
         )
 
     def _latest_verified_source(
@@ -2980,6 +3679,7 @@ class AcquisitionRouteLoop:
                         "source_admitted_evaluation_retained",
                         "candidate_reentry_completed",
                         "candidate_evaluation_retained",
+                        "inputs_pending",
                     }:
                         raise AcquisitionRouteClosureError(
                             "acquisition_action_generation_not_resolvable"
@@ -3036,6 +3736,18 @@ class AcquisitionRouteLoop:
                         "candidate_terminal_history_owner_not_established"
                     )
                 candidate_history.append(history)
+            if receipt.terminal_outcome == "inputs_pending":
+                from polisyos.runtime.quality.acquisition_world_growth import (
+                    replay_native_derivation_action_inputs,
+                )
+
+                replay_native_derivation_action_inputs(
+                    self._artifact_store,
+                    event_log=self._event_log,
+                    control_store=self._control_store,
+                    receipt=receipt,
+                )
+                continue
             if receipt.terminal_outcome == "quarantined_no_growth":
                 continue
             if receipt.terminal_outcome == "candidate_reentry_completed":
@@ -3381,7 +4093,7 @@ def persist_world_commit_and_reenter(
     *,
     sink: AcquisitionRoutePhaseSink,
     pending_receipt: AcquisitionRoutePhaseReceipt,
-    reentry: Callable[[], str],
+    reentry: Callable[[], str | NativeDerivationInputsPending],
 ) -> AcquisitionRoutePhaseHead:
     """Persist/read back the recovery head before attempting direct re-entry."""
 
@@ -3409,7 +4121,7 @@ def resume_world_committed_reentry(
     *,
     sink: AcquisitionRoutePhaseSink,
     pending_receipt: AcquisitionRoutePhaseReceipt,
-    reentry: Callable[[], str],
+    reentry: Callable[[], str | NativeDerivationInputsPending],
 ) -> AcquisitionRoutePhaseHead:
     """Resume only re-entry from an exact durable world-committed head."""
 
@@ -3437,11 +4149,47 @@ def _persist_terminal_after_reentry(
     sink: AcquisitionRoutePhaseSink,
     pending_receipt: AcquisitionRoutePhaseReceipt,
     pending_receipt_ref: str,
-    reentry_ref: str,
+    reentry_ref: str | NativeDerivationInputsPending,
 ) -> AcquisitionRoutePhaseHead:
+    if type(reentry_ref) is NativeDerivationInputsPending:
+        collection_ref = reentry_ref.collection_ref
+        terminal = AcquisitionRouteLoopReceipt(
+            schema_version="AcquisitionRouteLoopReceipt@1.2",
+            receipt_id=f"{pending_receipt.receipt_id}.inputs-pending",
+            tenant_id=pending_receipt.tenant_id,
+            cell_id=pending_receipt.cell_id,
+            run_id=pending_receipt.run_id,
+            source_job_id=pending_receipt.source_job_id,
+            route_id=pending_receipt.route_id,
+            action_generation=pending_receipt.action_generation,
+            job_id=pending_receipt.job_id,
+            compiled_ref=pending_receipt.compiled_ref,
+            planner_report_hash=pending_receipt.planner_report_hash,
+            cost_basis_hash=pending_receipt.cost_basis_hash,
+            decision_ref=pending_receipt.decision_ref,
+            terminal_outcome="inputs_pending",
+            predecessor_receipt_ref=pending_receipt_ref,
+            owner_receipt_refs=tuple(
+                dict.fromkeys(
+                    (*pending_receipt.owner_receipt_refs, str(collection_ref.artifact_id))
+                )
+            ),
+            native_input_collection_ref=collection_ref,
+            owner_declared_profile_ref=pending_receipt.owner_declared_profile_ref,
+            native_leaf_provider_selection=pending_receipt.native_leaf_provider_selection,
+            generated_at=datetime.now(pending_receipt.generated_at.tzinfo),
+        )
+        return sink.persist_terminal(terminal)
     if not isinstance(reentry_ref, str) or not reentry_ref.startswith("sha256:"):
         raise AcquisitionRouteRecoveryRequired("reentry_receipt_invalid")
     terminal = AcquisitionRouteLoopReceipt(
+        schema_version=(
+            "AcquisitionRouteLoopReceipt@1.2"
+            if pending_receipt.owner_declared_profile_ref is not None
+            else "AcquisitionRouteLoopReceipt@1.0"
+        ),
+        owner_declared_profile_ref=pending_receipt.owner_declared_profile_ref,
+        native_leaf_provider_selection=pending_receipt.native_leaf_provider_selection,
         receipt_id=f"{pending_receipt.receipt_id}.terminal",
         tenant_id=pending_receipt.tenant_id,
         cell_id=pending_receipt.cell_id,
@@ -3474,6 +4222,10 @@ __all__ = [
     "AcquisitionRoutePhaseReceipt",
     "AcquisitionRouteRecoveryRequired",
     "AcquisitionTerminalReceipt",
+    "NativeDerivationInputsPending",
+    "NativeDerivationLeafProviderSelection",
+    "NativeDerivationLeafRouteAvailability",
+    "NativeModelInputTargetAvailability",
     "VerifiedAcquisitionRouteClosure",
     "VerifiedCandidateExperimentOrigin",
     "VerifiedModelInputRoutingOrigin",

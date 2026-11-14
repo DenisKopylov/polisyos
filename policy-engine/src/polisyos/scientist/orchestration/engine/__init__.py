@@ -5,6 +5,7 @@ from __future__ import annotations
 from importlib import import_module
 
 __all__ = [
+    "verify_completed_standard_invocations_historical",
     "ProducerBudgetObservation",
     "ProducerBudgetSourceError",
     "BudgetInvocationCapacityObservation",
@@ -136,6 +137,10 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "verify_completed_standard_invocations_historical": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "verify_completed_standard_invocations_historical",
+    ),
     "ProducerBudgetObservation": (
         "polisyos.scientist.orchestration.engine.producer_budget",
         "ProducerBudgetObservation",

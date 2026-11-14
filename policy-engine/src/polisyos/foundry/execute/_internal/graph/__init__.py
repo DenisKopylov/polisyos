@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
 from types import MappingProxyType
-from typing import Any, Literal, Protocol, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypedDict, TypeVar
 
 import jax
 import jax.numpy as jnp
@@ -51,7 +51,11 @@ from polisyos.core.artifacts.protocol import (
 )
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonicalResourceLimits, CanonSpec, CanonViolation
-from polisyos.core.contracts import ProgramGraphInputInvocation
+from polisyos.core.contracts import (
+    MethodInputPortSource,
+    ProgramGraphInputInvocation,
+    RegistrySlotInputPortSource,
+)
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
     ConstraintReport,
@@ -80,8 +84,11 @@ from polisyos.core.contracts.foundry import (
     MethodMetricInputCapturePayload,
     MethodMetricInputCaptureRef,
     MethodMetricInputCaptureSlot,
+    MethodOutputConsumptionRecord,
     MethodOutputPayload,
+    MethodOutputPayloadV11,
     MethodOutputRef,
+    MethodOutputScalarValueIdentity,
     Metrics,
     ParameterOverrideBundleRef,
     PatchOp,
@@ -171,6 +178,10 @@ from polisyos.ir.kernel import (
     SlotScope,
     registered_method_metric_semantics_match,
 )
+
+if TYPE_CHECKING:
+    from polisyos.foundry.compile.method_dataflow import MethodDataflowResolution
+    from polisyos.foundry.data_plane.method_output_values import SelectedMethodOutputValue
 
 logger = logging.getLogger(__name__)
 
@@ -881,30 +892,42 @@ class _ClosedWorldMethodInputs:
     values: Mapping[str, np.ndarray]
     records: Mapping[str, Any]
     notes: tuple[str, ...] = ()
+    source_resolution: MethodDataflowResolution | None = None
+
+
+def _stored_method_input_port_sources(node: ProgramNode) -> Mapping[str, MethodInputPortSource]:
+    """Read the immutable tagged source map without reconstructing a live ABI."""
+    ports = node.input_ports
+    if ports is None:
+        sources = {
+            name: RegistrySlotInputPortSource(source_kind="registry_slot", slot_id=name)
+            for name in node.inputs
+        }
+        if len(sources) != len(node.inputs):
+            raise ValueError("method_input_abi_join_not_exact")
+    else:
+        sources = dict(ports)
+        projection = sorted(
+            {source.slot_id for source in sources.values() if source.source_kind == "registry_slot"}
+        )
+        if node.inputs != projection:
+            raise ValueError("method_input_registry_projection_not_exact")
+    return MappingProxyType(sources)
 
 
 def _registry_method_input_sources(
     node: ProgramNode, *, method_class: type[Any] | None = None
 ) -> Mapping[str, str]:
     """Resolve explicit ABI aliases; a method-output edge is not a registry slot."""
-    ports = getattr(node, "input_ports", None)
-    if ports is None:
-        sources = {slot_id: slot_id for slot_id in node.inputs}
-        if len(sources) != len(node.inputs):
-            raise ValueError("method_input_abi_join_not_exact")
-    else:
-        sources = {}
-        for local_name, source in ports.items():
-            if source.source_kind != "registry_slot":
-                raise ProgramNodeValidationError(
-                    "Method-output input execution is not established",
-                    node_id=node.node_id,
-                    method_fqn=node.method_fqn,
-                    code="unsupported_method_output_input_profile",
-                )
-            sources[local_name] = source.slot_id
-        if node.inputs != sorted(set(sources.values())):
-            raise ValueError("method_input_registry_projection_not_exact")
+    ports = _stored_method_input_port_sources(node)
+    if any(source.source_kind != "registry_slot" for source in ports.values()):
+        raise ProgramNodeValidationError(
+            "Method-output input is outside the prospective numerical profile",
+            node_id=node.node_id,
+            method_fqn=node.method_fqn,
+            code="unsupported_method_output_input_observation_profile",
+        )
+    sources = {name: source.slot_id for name, source in ports.items()}
     if method_class is not None and set(sources) != {
         slot.name for slot in method_class.signature.input_slots
     }:
@@ -920,7 +943,7 @@ def _validate_program_graph_method_input_profile(graph: ProgramGraph) -> None:
         if node.node_kind == "method" and mapped:
             if ports is None:
                 raise ValueError("method_input_map_required")
-            _registry_method_input_sources(node)
+            _stored_method_input_port_sources(node)
         elif ports is not None:
             raise ValueError("method_input_map_profile_mismatch")
 
@@ -1196,6 +1219,19 @@ def _resolve_closed_world_method_inputs(
     consumed: set[str] = set()
     method_fqns: set[str] = set()
     method_registry = MethodRegistry.get_instance()
+    source_resolution = None
+    if program_graph.schema_version == "0.3":
+        from polisyos.foundry.compile.method_dataflow import (
+            resolve_program_graph_method_input_sources,
+        )
+
+        source_resolution = resolve_program_graph_method_input_sources(
+            program_graph,
+            registry=method_registry,
+            registry_content=registry_content,
+            order=exec_plan.order or [node.node_id for node in program_graph.nodes],
+            allow_method_output=True,
+        )
     for node in program_graph.nodes:
         if node.node_kind != "method":
             continue
@@ -1205,9 +1241,18 @@ def _resolve_closed_world_method_inputs(
             raise ValueError("method_input_method_instance_profile_unsupported")
         method_fqns.add(node.method_fqn)
         method_class = method_registry.get(node.method_fqn, version=node.method_version)
-        input_sources = _registry_method_input_sources(node, method_class=method_class)
+        input_sources = (
+            source_resolution.input_sources[node.node_id]
+            if source_resolution is not None
+            else _stored_method_input_port_sources(node)
+        )
+        if set(input_sources) != {slot.name for slot in method_class.signature.input_slots}:
+            raise ValueError("method_input_abi_join_not_exact")
         _validate_closed_world_method_outputs(node, method_class)
-        for input_slot_id, slot_id in input_sources.items():
+        for input_slot_id, source in input_sources.items():
+            if source.source_kind == "method_output":
+                continue
+            slot_id = source.slot_id
             slot = registry_content.slot_registry.slots.get(slot_id)
             if slot is None:
                 raise ValueError("method_input_slot_unregistered")
@@ -1253,6 +1298,7 @@ def _resolve_closed_world_method_inputs(
         values=values,
         records=MappingProxyType(records_by_slot),
         notes=notes,
+        source_resolution=source_resolution,
     )
 
 
@@ -1371,12 +1417,19 @@ def _materialize_exact_method_input_state(
     slot_registry: SlotRegistry,
     closed_world: _ClosedWorldMethodInputs | None = None,
     model_state_context: ModelStatePatchContext | None = None,
+    method_output_values: Mapping[str, np.ndarray] | None = None,
 ) -> Any:
     """Materialize exact declared aliases, retaining legacy identity joins only."""
     signature_input_slots = method_class.signature.input_slots
     if closed_world is not None:
         try:
-            input_sources = _registry_method_input_sources(node, method_class=method_class)
+            input_sources = (
+                closed_world.source_resolution.input_sources[node.node_id]
+                if closed_world.source_resolution is not None
+                else _stored_method_input_port_sources(node)
+            )
+            if set(input_sources) != {slot.name for slot in signature_input_slots}:
+                raise ValueError("method_input_abi_join_not_exact")
         except ValueError as error:
             raise ProgramNodeValidationError(
                 "Method inputs do not exactly match the selected ABI",
@@ -1386,7 +1439,17 @@ def _materialize_exact_method_input_state(
             ) from error
         materialized: dict[str, Any] = {}
         signature_slots = {slot.name: slot for slot in signature_input_slots}
-        for input_slot_id, slot_id in input_sources.items():
+        for input_slot_id, source in input_sources.items():
+            if source.source_kind == "method_output":
+                if method_output_values is None or input_slot_id not in method_output_values:
+                    raise ValueError("method_dataflow_actual_output_required")
+                value = method_output_values[input_slot_id]
+                _validate_closed_world_method_input_value(
+                    value, node=node, method_class=method_class, slot=signature_slots[input_slot_id]
+                )
+                materialized[input_slot_id] = value
+                continue
+            slot_id = source.slot_id
             slot = slot_registry.slots.get(slot_id)
             if slot is None:
                 raise ProgramNodeValidationError(
@@ -1485,8 +1548,10 @@ def _verify_selected_method_argument_identities(
     selected: _ClosedWorldMethodInputs,
 ) -> None:
     """Refuse a selected argument changed during a declared method invocation."""
-    for input_slot_id, slot_id in _registry_method_input_sources(node).items():
-        record = selected.records.get(slot_id)
+    for input_slot_id, source in _stored_method_input_port_sources(node).items():
+        if source.source_kind != "registry_slot":
+            continue
+        record = selected.records.get(source.slot_id)
         if record is None:
             continue
         expected = (record.value_sha256, record.shape, np.dtype(record.dtype).str)
@@ -2459,6 +2524,7 @@ def _returned_slot_inventory_row(
     value: Any,
     declared_slot: Any | None,
     selected_output: MethodExecutionOutputSlot | None,
+    dataflow_selected: bool = False,
 ) -> MethodExecutionReturnedSlot:
     """Describe one returned value without retaining non-selected method outputs."""
     codec_status = _runtime_slot_codec_status(value)
@@ -2466,9 +2532,11 @@ def _returned_slot_inventory_row(
     runtime_type = f"{type(value).__module__}.{type(value).__qualname__}"[:512]
     dtype = getattr(value, "dtype", None)
     if selected_output is not None and selected_output.status == "captured":
-        retention_status = "selected_metric_output"
+        retention_status = (
+            "selected_dataflow_output" if dataflow_selected else "selected_metric_output"
+        )
         limitation = None
-        codec_status = "json_scalar_supported"
+        codec_status = "typed_scalar_supported" if dataflow_selected else "json_scalar_supported"
     elif codec_status == "unsupported_codec":
         retention_status = "unsupported_codec"
         limitation = (
@@ -2496,10 +2564,230 @@ def _returned_slot_inventory_row(
         runtime_type=runtime_type,
         runtime_shape=runtime_shape,
         runtime_shape_status=shape_status,
-        runtime_dtype=None if dtype is None else str(dtype)[:128],
+        runtime_dtype=(
+            None
+            if dtype is None
+            else (np.dtype(dtype).str if dataflow_selected else str(dtype)[:128])
+        ),
         codec_status=codec_status,
         retention_status=retention_status,
         limitation=limitation,
+    )
+
+
+def _prepare_method_output_arguments(
+    store: CoreJSONArtifactStore,
+    *,
+    capture: MethodExecutionCapture | None,
+    occurrence: MethodExecutionOccurrence | None,
+    node: ProgramNode,
+    method_class: type[Any],
+    method_classes: Mapping[str, type[Any]],
+) -> Mapping[str, SelectedMethodOutputValue]:
+    """Fresh-read actual earlier outputs before materializing this held call."""
+    sources = {
+        name: source
+        for name, source in _stored_method_input_port_sources(node).items()
+        if source.source_kind == "method_output"
+    }
+    if not sources:
+        return MappingProxyType({})
+    if capture is None or occurrence is None:
+        raise ValueError("method_dataflow_actual_occurrence_capture_required")
+    from polisyos.foundry.data_plane.method_output_values import prepare_method_output_input_value
+
+    partial = MethodExecutionBundle(
+        schema_version="1.3",
+        program_graph_ref=capture.program_graph_ref,
+        exec_plan_ref=capture.exec_plan_ref,
+        method_metric_binding_set_ref=capture.method_metric_binding_set_ref,
+        environment_manifest_ref=capture.environment_manifest_ref,
+        occurrences=list(capture.occurrences),
+        method_output_consumptions=tuple(capture.method_output_consumptions) or None,
+        limitations=tuple(capture.limitations),
+    )
+    selected: dict[str, SelectedMethodOutputValue] = {}
+    for name, source in sources.items():
+        producer_class = method_classes.get(source.producer_node_id)
+        if producer_class is None:
+            raise ValueError("method_dataflow_actual_producer_abi_missing")
+        selected[name] = prepare_method_output_input_value(
+            store,
+            bundle=partial,
+            consumer_occurrence_id=occurrence.occurrence_id,
+            consumer_input_name=name,
+            producer_signature=producer_class.signature,
+            consumer_signature=method_class.signature,
+            limits=_method_dataflow_read_limits(),
+        )
+    return MappingProxyType(selected)
+
+
+def _method_output_consumption_rows(
+    *,
+    occurrence: MethodExecutionOccurrence,
+    method_class: type[Any],
+    state: Mapping[str, Any],
+    selected: Mapping[str, SelectedMethodOutputValue],
+) -> tuple[MethodOutputConsumptionRecord, ...]:
+    """Record producer provenance from the exact argument at the dispatch seam."""
+    rows: list[MethodOutputConsumptionRecord] = []
+    for name, output in selected.items():
+        value = state[name]
+        identity = _bounded_value_identity(value)
+        slot = method_class.signature.get_input_slot(name)
+        if identity is None or slot is None or type(value) is not np.ndarray:
+            raise ValueError("method_dataflow_consumer_argument_identity_unavailable")
+        payload = output.payload
+        rows.append(
+            MethodOutputConsumptionRecord(
+                producer_output_ref=output.output_ref,
+                producer_occurrence_id=payload.occurrence_id,
+                producer_invocation_id=payload.invocation_id,
+                producer_node_id=payload.node_id,
+                producer_method_fqn=payload.method_fqn,
+                producer_method_version=payload.method_version,
+                producer_method_abi_digest=payload.method_abi_digest,
+                producer_method_abi_digest_algorithm=payload.method_abi_digest_algorithm,
+                producer_output_slot_id=payload.output_slot_id,
+                producer_value_identity=payload.value_identity,
+                producer_value_sha256_algorithm=payload.value_sha256_algorithm,
+                producer_raw_bytes_sha256=payload.raw_bytes_sha256,
+                producer_value_sha256=payload.value_sha256,
+                consumer_occurrence_id=occurrence.occurrence_id,
+                consumer_invocation_id=occurrence.invocation_id,
+                consumer_node_id=occurrence.node_id,
+                consumer_method_fqn=method_class.signature.fqn,
+                consumer_method_version=method_class.signature.version,
+                consumer_method_abi_digest=method_class.signature.abi_digest(),
+                consumer_method_abi_digest_algorithm="blake2b",
+                consumer_input_slot_id=name,
+                consumer_argument_identity=MethodOutputScalarValueIdentity(
+                    slot_type=slot.slot_type.name,
+                    shape=identity[1],
+                    dtype=identity[2],
+                    unit=MethodMetricSourceUnit(
+                        dimension=slot.unit.dimension,
+                        symbol=slot.unit.symbol,
+                        scale=slot.unit.scale,
+                    ),
+                    contract_id=slot.contract_id,
+                ),
+                consumer_argument_raw_bytes_sha256=hashlib.sha256(
+                    value.tobytes(order="C")
+                ).hexdigest(),
+                consumer_argument_value_sha256_algorithm="selected_tensor_value_sha256",
+                consumer_argument_value_sha256=identity[0],
+            )
+        )
+    return tuple(rows)
+
+
+def _require_complete_method_output_transfers(
+    capture: MethodExecutionCapture,
+    *,
+    invocation_id: str,
+    resolution: MethodDataflowResolution,
+) -> None:
+    """Require the actual planned edge denominator before producing a result."""
+    occurrences = {
+        occurrence.node_id: occurrence
+        for occurrence in capture.occurrences
+        if occurrence.invocation_id == invocation_id
+    }
+    expected: dict[tuple[str, str], tuple[str, str]] = {}
+    for binding in resolution.bindings:
+        producer = occurrences.get(binding.producer_node_id)
+        consumer = occurrences.get(binding.consumer_node_id)
+        if (
+            producer is None
+            or consumer is None
+            or producer.status != "succeeded"
+            or consumer.status != "succeeded"
+            or producer.dispatch is None
+            or consumer.dispatch is None
+            or producer.dispatch.outcome != "succeeded"
+            or consumer.dispatch.outcome != "succeeded"
+            or producer.dispatch.step != consumer.dispatch.step
+        ):
+            raise ValueError("method_dataflow_planned_transfer_not_completed")
+        expected[(consumer.occurrence_id, binding.consumer_input_slot_id)] = (
+            producer.occurrence_id,
+            binding.producer_output_slot_id,
+        )
+    rows = [
+        row
+        for row in capture.method_output_consumptions
+        if row.consumer_invocation_id == invocation_id
+    ]
+    actual = {
+        (row.consumer_occurrence_id, row.consumer_input_slot_id): (
+            row.producer_occurrence_id,
+            row.producer_output_slot_id,
+        )
+        for row in rows
+    }
+    if len(actual) != len(rows) or actual != expected:
+        raise ValueError("method_dataflow_consumption_inventory_mismatch")
+
+
+def _method_dataflow_read_limits() -> CoreJsonReadLimits:
+    """Bound the current selected graph/output replay before JSON materialization."""
+    return CoreJsonReadLimits(
+        max_bytes=_METHOD_METRIC_BINDING_PAYLOAD_LIMIT_BYTES,
+        max_depth=_METHOD_METRIC_BINDING_JSON_DEPTH_LIMIT,
+        max_elements=_METHOD_METRIC_BINDING_JSON_ELEMENT_LIMIT,
+        max_manifest_bytes=_METHOD_METRIC_BINDING_MANIFEST_LIMIT_BYTES,
+    )
+
+
+def _typed_method_output_payload(
+    value: Any,
+    *,
+    occurrence: MethodExecutionOccurrence,
+    method_class: type[Any],
+    slot_id: str,
+) -> MethodOutputPayloadV11:
+    """Bind an actual finite float64 scalar buffer to its producing occurrence."""
+    slot = method_class.signature.get_output_slot(slot_id)
+    metadata = _bounded_array_metadata(value)
+    if (
+        slot is None
+        or slot.slot_type is not SlotType.SCALAR
+        or slot.shape != ()
+        or metadata is None
+        or metadata[0] != ()
+        or metadata[1].kind != "f"
+        or metadata[1].itemsize != 8
+    ):
+        raise ValueError("method_dataflow_output_scalar_profile_unsupported")
+    array = _bounded_array_value(value, max_bytes=8)
+    identity = _bounded_value_identity(array)
+    if array is None or identity is None:
+        raise ValueError("method_dataflow_output_value_identity_unavailable")
+    raw = array.tobytes(order="C")
+    return MethodOutputPayloadV11(
+        occurrence_id=occurrence.occurrence_id,
+        invocation_id=occurrence.invocation_id,
+        node_id=occurrence.node_id,
+        method_fqn=method_class.signature.fqn,
+        method_version=method_class.signature.version,
+        method_abi_digest=method_class.signature.abi_digest(),
+        method_abi_digest_algorithm="blake2b",
+        output_slot_id=slot_id,
+        value_identity=MethodOutputScalarValueIdentity(
+            slot_type="SCALAR",
+            shape=(),
+            dtype=array.dtype.str,
+            unit=MethodMetricSourceUnit(
+                dimension=slot.unit.dimension, symbol=slot.unit.symbol, scale=slot.unit.scale
+            ),
+            contract_id=slot.contract_id,
+        ),
+        value_sha256_algorithm="selected_tensor_value_sha256",
+        raw_bytes_hex=raw.hex(),
+        raw_bytes_sha256=hashlib.sha256(raw).hexdigest(),
+        value_sha256=identity[0],
     )
 
 
@@ -2512,6 +2800,7 @@ def _capture_method_outputs(
     method_result: Any,
     method_identity: _MethodExecutionIdentity,
     bindings: dict[tuple[str, str], MethodMetricBinding],
+    dataflow_slots: tuple[str, ...] = (),
 ) -> tuple[
     list[MethodExecutionOutputSlot],
     list[MethodExecutionReturnedSlot],
@@ -2530,7 +2819,12 @@ def _capture_method_outputs(
     ]
     if len(selected) > _MAX_METHOD_RETURNED_SLOTS:
         raise ValueError("method_metric_selected_output_inventory_exceeds_capture_limit")
-    selected_by_slot = {binding.output_slot_id: binding for binding in selected}
+    selected_by_slot: dict[str, MethodMetricBinding | None] = {
+        binding.output_slot_id: binding for binding in selected
+    }
+    if set(dataflow_slots) & set(selected_by_slot):
+        raise ValueError("method_dataflow_metric_output_overlap_unsupported")
+    selected_by_slot.update(dict.fromkeys(dataflow_slots))
     declared_slots = method_class.signature.output_slots
     declared_slot_count = len(declared_slots)
     result_slots = getattr(method_result, "slot_outputs", None)
@@ -2612,10 +2906,17 @@ def _capture_method_outputs(
             _MAX_METHOD_RETURNED_SLOTS,
         )
 
+    typed_payloads = {
+        slot_id: _typed_method_output_payload(
+            result_slots[slot_id], occurrence=occurrence, method_class=method_class, slot_id=slot_id
+        )
+        for slot_id in dataflow_slots
+        if slot_id in result_slots
+    }
     selected_outputs: dict[str, MethodExecutionOutputSlot] = {}
     for slot_id in sorted(selected_by_slot):
         binding = selected_by_slot[slot_id]
-        if (
+        if binding is not None and (
             method_identity.get("method_fqn") != binding.method_fqn
             or method_identity.get("method_version") != binding.method_version
             or method_identity.get("method_abi_digest") != binding.method_abi_digest
@@ -2636,68 +2937,71 @@ def _capture_method_outputs(
                 limitation="declared_method_slot_not_emitted",
             )
             continue
-        selected_value = result_slots[slot_id]
-        path_error = False
-        for segment in binding.output_value_path:
-            if isinstance(selected_value, Mapping) and segment in selected_value:
-                selected_value = selected_value[segment]
-            else:
-                path_error = True
-                break
-        if path_error:
-            selected_outputs[slot_id] = MethodExecutionOutputSlot(
-                slot_id=slot_id,
-                status="unavailable",
-                limitation="bound_method_output_value_path_not_found",
-            )
-            continue
-        if isinstance(selected_value, bool):
-            scalar = None
-        elif isinstance(selected_value, int):
-            scalar = selected_value if selected_value.bit_length() <= 4096 else None
-        elif isinstance(selected_value, float):
-            scalar = selected_value
-        elif isinstance(selected_value, np.generic) and selected_value.dtype.kind in "iuf":
-            scalar = selected_value.item()
-        elif getattr(selected_value, "shape", None) == ():
-            metadata = _bounded_array_metadata(selected_value)
-            array = (
-                _bounded_array_value(selected_value, max_bytes=metadata[3])
-                if metadata is not None and metadata[2] == 1
-                else None
-            )
-            scalar = (
-                array.item()
-                if array is not None and array.shape == () and array.dtype.kind in "iuf"
-                else None
-            )
+        if binding is None:
+            payload = typed_payloads[slot_id]
         else:
-            scalar = None
-        if scalar is None or isinstance(scalar, bool):
-            selected_outputs[slot_id] = MethodExecutionOutputSlot(
-                slot_id=slot_id,
-                status="unavailable",
-                limitation="output_not_finite_numeric_scalar",
+            selected_value = result_slots[slot_id]
+            path_error = False
+            for segment in binding.output_value_path:
+                if isinstance(selected_value, Mapping) and segment in selected_value:
+                    selected_value = selected_value[segment]
+                else:
+                    path_error = True
+                    break
+            if path_error:
+                selected_outputs[slot_id] = MethodExecutionOutputSlot(
+                    slot_id=slot_id,
+                    status="unavailable",
+                    limitation="bound_method_output_value_path_not_found",
+                )
+                continue
+            if isinstance(selected_value, bool):
+                scalar = None
+            elif isinstance(selected_value, int):
+                scalar = selected_value if selected_value.bit_length() <= 4096 else None
+            elif isinstance(selected_value, float):
+                scalar = selected_value
+            elif isinstance(selected_value, np.generic) and selected_value.dtype.kind in "iuf":
+                scalar = selected_value.item()
+            elif getattr(selected_value, "shape", None) == ():
+                metadata = _bounded_array_metadata(selected_value)
+                array = (
+                    _bounded_array_value(selected_value, max_bytes=metadata[3])
+                    if metadata is not None and metadata[2] == 1
+                    else None
+                )
+                scalar = (
+                    array.item()
+                    if array is not None and array.shape == () and array.dtype.kind in "iuf"
+                    else None
+                )
+            else:
+                scalar = None
+            if scalar is None or isinstance(scalar, bool):
+                selected_outputs[slot_id] = MethodExecutionOutputSlot(
+                    slot_id=slot_id,
+                    status="unavailable",
+                    limitation="output_not_finite_numeric_scalar",
+                )
+                continue
+            finite = (isinstance(scalar, int) and scalar.bit_length() <= 4096) or (
+                isinstance(scalar, float) and math.isfinite(scalar)
             )
-            continue
-        finite = (isinstance(scalar, int) and scalar.bit_length() <= 4096) or (
-            isinstance(scalar, float) and math.isfinite(scalar)
-        )
-        if not finite:
-            selected_outputs[slot_id] = MethodExecutionOutputSlot(
+            if not finite:
+                selected_outputs[slot_id] = MethodExecutionOutputSlot(
+                    slot_id=slot_id,
+                    status="unavailable",
+                    limitation="output_not_finite_numeric_scalar",
+                )
+                continue
+            payload = MethodOutputPayload(
+                occurrence_id=occurrence.occurrence_id,
+                invocation_id=occurrence.invocation_id,
+                node_id=occurrence.node_id,
                 slot_id=slot_id,
-                status="unavailable",
-                limitation="output_not_finite_numeric_scalar",
+                value_path=binding.output_value_path,
+                value=scalar,
             )
-            continue
-        payload = MethodOutputPayload(
-            occurrence_id=occurrence.occurrence_id,
-            invocation_id=occurrence.invocation_id,
-            node_id=occurrence.node_id,
-            slot_id=slot_id,
-            value_path=binding.output_value_path,
-            value=scalar,
-        )
         try:
             payload_bytes = json.dumps(
                 payload.model_dump(mode="json"),
@@ -2715,11 +3019,11 @@ def _capture_method_outputs(
             output_ref = store.put_json(
                 payload,
                 PutOptions(
-                    kind=MethodOutputPayload.ARTIFACT_KIND,
+                    kind=type(payload).ARTIFACT_KIND,
                     media_type="application/json",
                     schema=SchemaInfo(
-                        name=MethodOutputPayload.ARTIFACT_SCHEMA_NAME,
-                        version=MethodOutputPayload.ARTIFACT_SCHEMA_VERSION,
+                        name=type(payload).ARTIFACT_SCHEMA_NAME,
+                        version=type(payload).ARTIFACT_SCHEMA_VERSION,
                     ),
                     inputs=[
                         artifact_input_ref(capture.program_graph_ref, role="program_graph"),
@@ -2734,8 +3038,20 @@ def _capture_method_outputs(
                 return_selected_profile=True,
             )
             selected_output_ref = _selected_typed_ref(store, output_ref, MethodOutputRef)
-            validate_core_model_json_artifact(MethodOutputPayload, store, selected_output_ref)
+            validate_core_model_json_artifact(type(payload), store, selected_output_ref)
+            if binding is None:
+                from polisyos.foundry.data_plane.method_output_values import (
+                    read_selected_method_output_value,
+                )
+
+                selected_value = read_selected_method_output_value(
+                    store, selected_output_ref, limits=_method_dataflow_read_limits()
+                )
+                if selected_value.payload != payload:
+                    raise ValueError("method_dataflow_output_capture_readback_mismatch")
         except Exception as exc:
+            if binding is None:
+                raise ValueError("method_dataflow_output_capture_failed") from exc
             selected_outputs[slot_id] = MethodExecutionOutputSlot(
                 slot_id=slot_id,
                 status="unavailable",
@@ -2778,6 +3094,7 @@ def _capture_method_outputs(
                     value=result_slots[slot_id],
                     declared_slot=declared_slot,
                     selected_output=selected_outputs.get(slot_id),
+                    dataflow_selected=slot_id in dataflow_slots,
                 )
             )
     return (
@@ -3229,13 +3546,25 @@ def persist_method_execution_capture(
             )
     bundle = MethodExecutionBundle(
         schema_version=(
-            "1.2" if any(row.restricted_call_witness is not None for row in occurrences) else "1.1"
+            "1.3"
+            if capture.method_output_consumptions
+            or any(
+                slot.retention_status == "selected_dataflow_output"
+                for row in occurrences
+                for slot in row.returned_slots
+            )
+            else (
+                "1.2"
+                if any(row.restricted_call_witness is not None for row in occurrences)
+                else "1.1"
+            )
         ),
         program_graph_ref=capture.program_graph_ref,
         exec_plan_ref=capture.exec_plan_ref,
         method_metric_binding_set_ref=capture.method_metric_binding_set_ref,
         environment_manifest_ref=capture.environment_manifest_ref,
         occurrences=occurrences,
+        method_output_consumptions=(tuple(capture.method_output_consumptions) or None),
         limitations=tuple(dict.fromkeys(capture.limitations)),
     )
     if len(inputs) > _MAX_METHOD_CAPTURE_MANIFEST_EDGES:
@@ -3422,6 +3751,18 @@ def execute_program_graph(
     node_map = {node.node_id: node for node in program_graph.nodes}
     if len(node_map) != len(program_graph.nodes):
         raise ValueError("duplicate_program_graph_node_id")
+    dataflow_bindings = (
+        ()
+        if closed_world_inputs is None or closed_world_inputs.source_resolution is None
+        else closed_world_inputs.source_resolution.bindings
+    )
+    dataflow_nodes = {
+        node_id
+        for binding in dataflow_bindings
+        for node_id in (binding.producer_node_id, binding.consumer_node_id)
+    }
+    if dataflow_nodes and callable(getattr(observer, "method_started", None)):
+        raise ValueError("method_dataflow_numerical_observation_profile_not_established")
     metric_bindings: dict[tuple[str, str], MethodMetricBinding] = {}
     selected_slot_ids_by_node: dict[str, tuple[str, ...]] = {}
     metric_input_capture_required_by_node: dict[str, bool] = {}
@@ -3517,23 +3858,47 @@ def execute_program_graph(
             node = node_map.get(node_id)
             occurrence_id = _method_occurrence_id(current_invocation_id, plan_index, node_id)
             invocation_occurrence_ids[plan_index] = occurrence_id
-            capture.occurrences.append(
-                _planned_method_occurrence(
-                    occurrence_id=occurrence_id,
-                    invocation_id=current_invocation_id,
-                    plan_index=plan_index,
-                    node=node,
-                    node_id=node_id,
-                    method_identity=method_identities.get(node_id),
-                    method_class=method_classes.get(node_id),
-                    selected_slot_ids=selected_slot_ids_by_node.get(node_id, ()),
-                    metric_input_capture_required=(
-                        metric_input_capture_required_by_node.get(node_id, False)
-                    ),
-                )
+            planned_occurrence = _planned_method_occurrence(
+                occurrence_id=occurrence_id,
+                invocation_id=current_invocation_id,
+                plan_index=plan_index,
+                node=node,
+                node_id=node_id,
+                method_identity=method_identities.get(node_id),
+                method_class=method_classes.get(node_id),
+                selected_slot_ids=selected_slot_ids_by_node.get(node_id, ()),
+                metric_input_capture_required=(
+                    metric_input_capture_required_by_node.get(node_id, False)
+                ),
             )
+            if node_id in dataflow_nodes and planned_occurrence.dispatch is not None:
+                planned_occurrence = planned_occurrence.model_copy(
+                    update={
+                        "dispatch": _dispatch_record_with_updates(
+                            planned_occurrence.dispatch, step=step
+                        )
+                    }
+                )
+            capture.occurrences.append(planned_occurrence)
     else:
         method_classes, method_identities = {}, {}
+    dataflow_output_slots: dict[str, tuple[str, ...]] = {}
+    if dataflow_nodes:
+        if capture is None:
+            raise ValueError("method_dataflow_actual_occurrence_capture_required")
+        if len(capture.method_output_consumptions) + len(dataflow_bindings) > 128:
+            raise ValueError("method_dataflow_consumption_inventory_exceeds_capture_limit")
+        for dataflow_node_id in sorted(dataflow_nodes):
+            signature = method_classes[dataflow_node_id].signature
+            if any(
+                slot.slot_type is not SlotType.SCALAR or slot.shape != ()
+                for slot in signature.output_slots
+            ):
+                raise ValueError("method_dataflow_output_scalar_profile_unsupported")
+            slots = tuple(slot.name for slot in signature.output_slots)
+            if any((dataflow_node_id, slot) in metric_bindings for slot in slots):
+                raise ValueError("method_dataflow_metric_output_overlap_unsupported")
+            dataflow_output_slots[dataflow_node_id] = slots
     effective_seed = (
         seed if seed is not None else ((exec_plan.random_seed or 0) if treasury is not None else 0)
     )
@@ -3957,14 +4322,6 @@ def execute_program_graph(
                 )
                 dispatcher = MethodDispatcher.get_instance()
                 key, step_key = jax.random.split(node_key)
-                method_dispatch_state = _materialize_exact_method_input_state(
-                    visible_state,
-                    node=node,
-                    method_class=method_class,
-                    slot_registry=slot_registry,
-                    closed_world=closed_world_inputs,
-                    model_state_context=model_state_context,
-                )
                 planned_occurrence = (
                     next(
                         item
@@ -3973,6 +4330,25 @@ def execute_program_graph(
                     )
                     if capture is not None and occurrence_id is not None
                     else None
+                )
+                selected_method_outputs = _prepare_method_output_arguments(
+                    store,
+                    capture=capture,
+                    occurrence=planned_occurrence,
+                    node=node,
+                    method_class=method_class,
+                    method_classes=method_classes,
+                )
+                method_dispatch_state = _materialize_exact_method_input_state(
+                    visible_state,
+                    node=node,
+                    method_class=method_class,
+                    slot_registry=slot_registry,
+                    closed_world=closed_world_inputs,
+                    model_state_context=model_state_context,
+                    method_output_values={
+                        name: output.value for name, output in selected_method_outputs.items()
+                    },
                 )
                 planned_dispatch = (
                     planned_occurrence.dispatch if planned_occurrence is not None else None
@@ -4060,7 +4436,36 @@ def execute_program_graph(
                     metric_input_capture_status = "not_required"
                     metric_input_capture_limitation = None
                     dispatch_prestate_ref = None
+                if selected_method_outputs and (
+                    prestate_arrays is None
+                    or any(
+                        not any(
+                            captured.slot_id == name and captured.status == "captured"
+                            for captured in dispatch_input_slot_values
+                        )
+                        for name in selected_method_outputs
+                    )
+                ):
+                    raise ValueError("method_dataflow_consumer_argument_capture_required")
+                method_output_consumptions = (
+                    _method_output_consumption_rows(
+                        occurrence=planned_occurrence,
+                        method_class=method_class,
+                        state=method_dispatch_state,
+                        selected=selected_method_outputs,
+                    )
+                    if planned_occurrence is not None and selected_method_outputs
+                    else ()
+                )
                 prepared_dispatch_call = None
+                if node_id in dataflow_nodes:
+                    prepared_dispatch_call = dispatcher.prepare_call(
+                        method_class=method_class,
+                        signature=signature,
+                        state=method_dispatch_state,
+                        params=node.method_params,
+                        seed=method_seed,
+                    )
                 observed_method_started = getattr(observer, "method_started", None)
                 observed_method_finished = getattr(observer, "method_finished", None)
                 if callable(observed_method_started):
@@ -4116,6 +4521,17 @@ def execute_program_graph(
                             node=node,
                             selected=closed_world_inputs,
                         )
+                    if selected_method_outputs and (
+                        planned_occurrence is None
+                        or method_output_consumptions
+                        != _method_output_consumption_rows(
+                            occurrence=planned_occurrence,
+                            method_class=method_class,
+                            state=method_dispatch_state,
+                            selected=selected_method_outputs,
+                        )
+                    ):
+                        raise ValueError("method_dataflow_consumer_argument_mutated")
                 except Exception as dispatch_error:
                     if planned_dispatch is not None:
                         occurrence_dispatch = _failed_method_dispatch_record(
@@ -4137,6 +4553,9 @@ def execute_program_graph(
                             metric_input_capture_status=metric_input_capture_status,
                             metric_input_capture_limitation=metric_input_capture_limitation,
                         )
+                        if method_output_consumptions:
+                            assert capture is not None
+                            capture.method_output_consumptions.extend(method_output_consumptions)
                     raise
                 finally:
                     if prepared_dispatch_call is not None and callable(observed_method_finished):
@@ -4170,6 +4589,16 @@ def execute_program_graph(
                         metric_input_capture_status=metric_input_capture_status,
                         metric_input_capture_limitation=metric_input_capture_limitation,
                     )
+                    if node_id in dataflow_nodes:
+                        _append_method_patch_records(
+                            {},
+                            {},
+                            node=node,
+                            output_payload=method_result.output,
+                            strict_outputs=True,
+                            method_class=method_class,
+                            patch_target_operations=patch_target_operations,
+                        )
                     if signature.fqn == "policy.evaluation.ex_ante_simulation@1.0.0":
                         from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
                             bind_occurrence_call_witness,
@@ -4196,7 +4625,18 @@ def execute_program_graph(
                         method_result=method_result,
                         method_identity=identity,
                         bindings=metric_bindings,
+                        dataflow_slots=dataflow_output_slots.get(node_id, ()),
                     )
+                    if node_id in dataflow_nodes and (
+                        occurrence_inventory_status != "captured"
+                        or set(dataflow_output_slots[node_id])
+                        != {
+                            output.slot_id
+                            for output in occurrence_output_slots
+                            if output.status == "captured"
+                        }
+                    ):
+                        raise ValueError("method_dataflow_actual_output_capture_incomplete")
                     (
                         occurrence_artifacts,
                         occurrence_artifact_inventory_status,
@@ -4209,17 +4649,21 @@ def execute_program_graph(
                         occurrence=occurrence,
                         method_result=method_result,
                     )
-                _append_method_patch_records(
-                    patch_records,
-                    provenance,
-                    node=node,
-                    output_payload=method_result.output,
-                    strict_outputs=(
-                        closed_world_inputs is not None or bool(patch_target_operations)
-                    ),
-                    method_class=method_class,
-                    patch_target_operations=patch_target_operations,
-                )
+                if node_id not in dataflow_nodes:
+                    _append_method_patch_records(
+                        patch_records,
+                        provenance,
+                        node=node,
+                        output_payload=method_result.output,
+                        strict_outputs=(
+                            closed_world_inputs is not None or bool(patch_target_operations)
+                        ),
+                        method_class=method_class,
+                        patch_target_operations=patch_target_operations,
+                    )
+                if method_output_consumptions:
+                    assert capture is not None
+                    capture.method_output_consumptions.extend(method_output_consumptions)
                 precision_tracker.activate(patch_target_operations, method_fqn=method_fqn)
                 applied_nodes += 1
                 executed_mutating_nodes.add(node_id)
@@ -4296,6 +4740,22 @@ def execute_program_graph(
                     capture,
                 )
             raise abort_error from abort_cause
+
+    if dataflow_bindings:
+        assert capture is not None
+        assert closed_world_inputs is not None
+        assert closed_world_inputs.source_resolution is not None
+        try:
+            _require_complete_method_output_transfers(
+                capture,
+                invocation_id=current_invocation_id or "",
+                resolution=closed_world_inputs.source_resolution,
+            )
+        except ValueError as exc:
+            card = _build_failure_card(exc, slot_context=())
+            error = MethodExecutionAbortError(card, semantic_input_notes=closed_world_inputs.notes)
+            error.method_execution_bundle_ref = persist_method_execution_capture(store, capture)
+            raise error from exc
 
     try:
         if patch_records:
@@ -5003,6 +5463,16 @@ def _require_preparable_method_inputs(
                 raise ValueError("program_graph_method_write_path_not_established")
 
 
+def _require_preparable_method_output_intent(graph: ProgramGraph) -> None:
+    """Refuse unknown upstream values before keys or held calls are prepared."""
+    if any(
+        source.source_kind == "method_output"
+        for node in graph.nodes
+        for source in (node.input_ports or {}).values()
+    ):
+        raise ValueError("program_graph_method_output_intent_not_established")
+
+
 def prepare_program_graph_method_calls(
     store: CoreJSONArtifactStore,
     *,
@@ -5110,6 +5580,7 @@ def prepare_program_graph_method_calls(
     )
     if selected is None:
         raise ValueError("program_graph_method_call_preparation_declared_model_required")
+    _require_preparable_method_output_intent(graph)
     inventory = _program_graph_call_inventory(
         store,
         program_ref=program_ref,
@@ -5234,6 +5705,7 @@ def prepare_program_graph_mechanism_calls(
         and plan.program_ref.manifest_profile_sha256 != program_ref.manifest_profile_sha256
     ):
         raise ValueError("program_graph_call_preparation_source_mismatch")
+    _require_preparable_method_output_intent(graph)
     inventory = _program_graph_call_inventory(
         store,
         program_ref=program_ref,

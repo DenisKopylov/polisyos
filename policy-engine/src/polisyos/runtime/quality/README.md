@@ -51,14 +51,43 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   Unrelated registry changes permit a fresh decision on the same current query,
   while an already checked revision cannot silently authorize a later action.
 - `model_input_successor_selection.py` checks the exact historical input selected by a protected candidate N5 action.
+- [n7_input_obligation_source.py](n7_input_obligation_source.py) derives the
+  pre-numerical N7 source from the actual blocked Generic input, original N4
+  handoff, full model-input obligation set and replayed routing report. A
+  `simulation_blocked` envelope is not a numerical result or an L1 absence
+  observation. [n7_native_derivation_resolver.py](n7_native_derivation_resolver.py)
+  selects an adopted registration only when the actual target and every required
+  role match real Catalog declarations; missing or ambiguous matches leave the
+  target pending. [n7_registered_derivation_plan.py](n7_registered_derivation_plan.py)
+  persists the selected candidate graph against that compiler subject and its
+  exact role/output bases. The current registered route is one annual
+  ratio-times-denominator operation; planning supplies neither fetch rights,
+  prices, currentness nor satisfaction of the target obligation.
+- [model_input_step_materialization.py](model_input_step_materialization.py)
+  prepares selected annual inputs by port and absolute model step. It reuses
+  `model_input_routing` for native source replay and the registered arithmetic,
+  checks the immutable full-horizon obligation set before calculation, and
+  records supplied/missing coverage in the staged snapshot and manifest.
+  Repeating a selected request reopens its occurrences; it does not fetch data
+  or run N5. Incomplete coverage remains staging until Foundry admits a complete
+  matching horizon.
+- [native_generic_context.py](native_generic_context.py) binds an explicitly
+  selected acquired-world checkpoint to the real action job and a fresh Generic
+  context. Original configured profile evidence, current action ownership and
+  the new N4 source retain separate identities. Resolution rechecks the actual
+  Control owner and current selected world; it does not edit the configured
+  profile map, manufacture an ordinary NL-worker scope or invoke a kernel.
 - `acquisition_evaluation.py` owns a versioned Generic ProgramGraph candidate
   basis and use-decision family. Its preparation replays each selected semantic
   input through the existing Generic and Foundry owners, retains the stable
   source subject separately from the active problem revision, and compares
   complete selected state leaves and bounded numerical intent. The original V5
   execution remains bound to its original action. Current action authority and
-  a fenced frontier are separate obligations; the ordinary Generic action path
-  still requires its retention bridge before this family can select a result.
+  a fenced frontier are separate obligations. An ordinary initial method
+  observation records its actual completed producer without inventing an
+  acquisition action. Its initial frontier selection binds that observation to
+  the empty frontier revision; it is distinct from a later action-use decision.
+  Action-bound selection retains its separate current-owner and reuse checks.
   An initial decision has no comparison result and can refer only to an actual
   completed, owner-replayed evaluation from that current action. An unknown
   prior comparison can advance only after a fresh, complete current evaluation;

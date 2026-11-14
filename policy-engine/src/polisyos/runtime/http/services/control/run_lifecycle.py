@@ -2123,13 +2123,20 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_evaluation_history import (
         _CandidateExperimentHistoryPrefix,
     )
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_planner import N7DerivationBundle
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        NativeDerivationLeafProviderSelection,
+        VerifiedAcquisitionRouteClosure,
+    )
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedAcquisitionPolicy,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateSourceRoute,
         AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+        NativeDerivationPlanningSelection,
+        NativeDerivationPortSelection,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
@@ -2373,6 +2380,123 @@ class _AcquisitionRouteLoopArtifactStore(ArtifactStore, CoreJSONArtifactProfileR
     ) -> ArtifactRef: ...
 
 
+def _acquisition_route_event_id(receipt: object, event_suffix: str) -> str:
+    """Keep native leaf events unique while preserving every legacy event ID."""
+    native = (
+        type(receipt) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}
+        and receipt.owner_declared_profile_ref is not None
+    )
+    if native:
+        identity = "\0".join(
+            (
+                receipt.tenant_id,
+                receipt.cell_id,
+                receipt.run_id,
+                receipt.source_job_id,
+                receipt.route_id,
+                receipt.job_id,
+            )
+        )
+        digest = hashlib.sha256(identity.encode()).hexdigest()[:24]
+        return f"evt_acquisition_{receipt.action_generation}_native_{digest}_{event_suffix}"
+    return f"evt_acquisition_{receipt.action_generation}_{event_suffix}"
+
+
+def _native_acquisition_receipt_selected_inputs(
+    receipt: object,
+) -> list[artifacts.InputRef]:
+    """Return exact selected native waiting lineage, preserving old receipt bytes."""
+    if type(receipt) not in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+        return []
+    refs: list[artifacts.InputRef] = []
+    if receipt.owner_declared_profile_ref is not None:
+        refs.append(
+            input_ref_from_artifact_ref(
+                receipt.owner_declared_profile_ref, role="native_leaf_cost_profile"
+            )
+        )
+    if (
+        type(receipt) is AcquisitionRouteLoopReceipt
+        and receipt.native_input_collection_ref is not None
+    ):
+        refs.append(
+            input_ref_from_artifact_ref(
+                receipt.native_input_collection_ref, role="native_input_collection"
+            )
+        )
+    if receipt.native_leaf_provider_selection is not None:
+        refs.append(
+            input_ref_from_artifact_ref(
+                receipt.native_leaf_provider_selection.supplier_ref, role="native_leaf_supplier"
+            )
+        )
+    return refs
+
+
+def _replay_native_acquisition_receipt_profile(
+    *,
+    artifact_store: ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    receipt: object,
+    control_store: ControlPlaneStore | None = None,
+) -> None:
+    """Reconcile native receipt identity without manufacturing current authority."""
+    if type(receipt) not in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+        return
+    profile_ref = receipt.owner_declared_profile_ref
+    if profile_ref is None:
+        return
+    from polisyos.runtime.quality.acquisition_planner import (
+        load_native_derivation_leaf_cost_profile,
+        produce_acquisition_cost_basis_record,
+    )
+
+    profile = load_native_derivation_leaf_cost_profile(artifact_store, profile_ref)
+    scope = profile.scope
+    provider = receipt.native_leaf_provider_selection
+    if (
+        provider is None
+        or provider.source_node_id != scope.source_node_id
+        or artifacts.artifact_ref_identity_key(provider.supplier_ref)
+        != artifacts.artifact_ref_identity_key(scope.selected_supplier_ref)
+    ):
+        raise ValueError("native_leaf_action_provider_scope_mismatch")
+    if (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id) != (
+        receipt.tenant_id,
+        receipt.cell_id,
+        receipt.run_id,
+        receipt.source_job_id,
+    ):
+        raise ValueError("native_leaf_action_profile_scope_mismatch")
+    cost = produce_acquisition_cost_basis_record(
+        missing_distribution=scope.missing_distribution,
+        strategy=scope.strategy,
+        owner_declared_profile_ref=profile_ref,
+        store=artifact_store,
+        expected_scope=scope,
+        now=profile.effective_at,
+    )
+    if cost is None or cost.record_content_hash != receipt.cost_basis_hash:
+        raise ValueError("native_leaf_action_profile_cost_mismatch")
+    if (
+        type(receipt) is AcquisitionRoutePhaseReceipt
+        and receipt.receipt_phase in {"requested", "executing"}
+        and not profile.effective_at <= receipt.generated_at < profile.expires_at
+    ):
+        raise ValueError("native_leaf_action_profile_not_effective_at_admission")
+    if (
+        type(receipt) is AcquisitionRouteLoopReceipt
+        and receipt.terminal_outcome == "inputs_pending"
+    ):
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            replay_native_derivation_action_inputs,
+        )
+
+        replay_native_derivation_action_inputs(
+            artifact_store, event_log=event_log, control_store=control_store, receipt=receipt
+        )
+
+
 def _acquisition_route_receipt_inputs(
     receipt: AcquisitionRoutePhaseReceipt
     | AcquisitionCandidateExperimentPhaseReceipt
@@ -2382,6 +2506,9 @@ def _acquisition_route_receipt_inputs(
 ) -> tuple[str, ...]:
     """Derive complete event lineage for the actual typed receipt family."""
     refs = set(receipt.owner_receipt_refs)
+    refs.update(
+        str(item.artifact_id) for item in _native_acquisition_receipt_selected_inputs(receipt)
+    )
     if receipt.predecessor_receipt_ref is not None:
         refs.add(receipt.predecessor_receipt_ref)
     if isinstance(receipt, AcquisitionCandidateExperimentPhaseReceipt):
@@ -2451,6 +2578,7 @@ def _read_verified_acquisition_action_phase(
     event_log: RuntimeDiagnosticEventLog,
     receipt_ref: str,
     selected_ref: ArtifactRef | None = None,
+    control_store: ControlPlaneStore | None = None,
 ) -> VerifiedAcquisitionActionPhase:
     """Read exact receipt bytes and verify their complete producer-event binding.
 
@@ -2469,6 +2597,7 @@ def _read_verified_acquisition_action_phase(
         or selected_ref.kind
         not in {
             "runtime_quality.acquisition_route_loop_receipt",
+            "runtime_quality.acquisition_route_phase_receipt",
             "runtime_quality.acquisition_candidate_experiment_phase_receipt",
         }
         or selected_ref.media_type != "application/json"
@@ -2545,6 +2674,17 @@ def _read_verified_acquisition_action_phase(
         or closure.closure_sha256 != receipt.route_id
     ):
         raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
+    for expected_input in _native_acquisition_receipt_selected_inputs(receipt):
+        if [item for item in manifest.inputs if item.role == expected_input.role] != [
+            expected_input
+        ]:
+            raise ValueError("native_acquisition_receipt_selected_input_mismatch")
+    _replay_native_acquisition_receipt_profile(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        control_store=control_store,
+        receipt=receipt,
+    )
     if type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
         if selected_ref is None:
             raise ValueError("candidate_experiment_reuse_terminal_profile_required")
@@ -3030,6 +3170,7 @@ class AcquisitionRouteLoopAuthoritySink:
             "reentry_completed",
             "source_admitted_evaluation_retained",
             "candidate_reentry_completed",
+            "inputs_pending",
         }:
             raise ValueError("acquisition_action_generation_not_reopenable")
         return latest.head.action_generation + 1
@@ -3156,7 +3297,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 AcquisitionCandidateRouteLoopReceipt,
             ),
         ):
-            if receipt.terminal_outcome == "reentry_completed":
+            if receipt.terminal_outcome in {"reentry_completed", "inputs_pending"}:
                 return frozenset({"world_committed_reentry_pending"})
             if receipt.terminal_outcome == "candidate_reentry_completed":
                 return frozenset({"candidate_input_reentry_pending"})
@@ -3187,10 +3328,42 @@ class AcquisitionRouteLoopAuthoritySink:
             if current_ref in seen_refs:
                 raise ValueError("acquisition_action_phase_chain_cycle")
             seen_refs.add(current_ref)
-            current = self._read_verified_action_phase(
-                current_ref,
-                selected_ref=selected_terminal_ref if not newest_first else None,
+            row = self._control_store.get_acquisition_action_head_by_receipt(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+                action_generation=head.action_generation,
+                receipt_ref=current_ref,
             )
+            if row is None or row.head_generation != head.head_generation - len(newest_first):
+                raise ValueError("acquisition_action_phase_chain_sql_head_missing")
+            sql_selected_ref = (
+                artifact_ref_for_manifest(
+                    artifacts.resolve_manifest_by_profile(
+                        self._artifact_store, current_ref, row.receipt_manifest_profile_sha256
+                    )
+                )
+                if row.receipt_manifest_profile_sha256 is not None
+                else None
+            )
+            if (
+                not newest_first
+                and selected_terminal_ref is not None
+                and (
+                    sql_selected_ref is None
+                    or artifacts.artifact_ref_identity_key(sql_selected_ref)
+                    != artifacts.artifact_ref_identity_key(selected_terminal_ref)
+                )
+            ):
+                raise ValueError("acquisition_action_phase_chain_selected_head_mismatch")
+            current = self._read_verified_action_phase(current_ref, selected_ref=sql_selected_ref)
+            if (
+                _native_acquisition_receipt_selected_inputs(current.receipt)
+                and sql_selected_ref is None
+            ):
+                raise ValueError("native_acquisition_phase_selected_profile_missing")
             newest_first.append(current)
             current_ref = current.receipt.predecessor_receipt_ref
         chain = tuple(reversed(newest_first))
@@ -3269,8 +3442,10 @@ class AcquisitionRouteLoopAuthoritySink:
             selected_terminal_ref is None
         ):
             raise ValueError("acquisition_candidate_terminal_history_not_established")
-        if selected_terminal_ref is not None and not isinstance(
-            latest_receipt, AcquisitionCandidateRouteLoopReceipt
+        if (
+            selected_terminal_ref is not None
+            and not isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+            and not _native_acquisition_receipt_selected_inputs(latest_receipt)
         ):
             raise ValueError("acquisition_candidate_terminal_profile_invalid")
         if isinstance(latest_receipt, AcquisitionRouteLoopReceiptV2) and (
@@ -3364,6 +3539,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 "reentry_completed",
                 "candidate_reentry_completed",
                 "candidate_evaluation_retained",
+                "inputs_pending",
             }:
                 pending_phase = (
                     "candidate_input_reentry_pending"
@@ -3380,6 +3556,7 @@ class AcquisitionRouteLoopAuthoritySink:
                             set(latest_receipt.owner_receipt_refs)
                         )
                         if isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+                        or latest_receipt.terminal_outcome == "inputs_pending"
                         else chain[-2].receipt.owner_receipt_refs
                         != latest_receipt.owner_receipt_refs
                     )
@@ -3481,6 +3658,25 @@ class AcquisitionRouteLoopAuthoritySink:
                 and _candidate_ref_same(left.authority_decision_ref, right.authority_decision_ref)
                 and _candidate_model_values_same(left.voi_decision, right.voi_decision)
             )
+        if type(left) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt} and type(
+            right
+        ) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+            lp = left.owner_declared_profile_ref
+            rp = right.owner_declared_profile_ref
+            lv = left.native_leaf_provider_selection
+            rv = right.native_leaf_provider_selection
+            if lv is not None and rv is not None and lv != rv:
+                return False
+
+            if (
+                lp is not None
+                and rp is not None
+                and artifacts.artifact_ref_identity_key(lp)
+                != artifacts.artifact_ref_identity_key(rp)
+            ):
+                return False
+            if (lp is None) != (rp is None) or (lv is None) != (rv is None):
+                return False
         return all(
             getattr(left, field) == getattr(right, field)
             for field in (
@@ -3545,6 +3741,7 @@ class AcquisitionRouteLoopAuthoritySink:
             event_log=self._event_log,
             receipt_ref=receipt_ref,
             selected_ref=selected_ref,
+            control_store=self._control_store,
         )
 
     def _verified_receipt_ref(
@@ -3743,6 +3940,13 @@ class AcquisitionRouteLoopAuthoritySink:
             recovery_state=receipt.recovery_state,
             job_id=receipt.job_id,
             predecessor_receipt_ref=receipt.predecessor_receipt_ref,
+            receipt_manifest_profile_sha256=(
+                artifact_ref_for_manifest(
+                    self._artifact_store.get_manifest(receipt_ref)
+                ).manifest_profile_sha256
+                if receipt.owner_declared_profile_ref is not None
+                else None
+            ),
         )
         if self.get_head(receipt) != head:
             raise RuntimeError("acquisition_action_selection_head_readback_failed")
@@ -3826,9 +4030,13 @@ class AcquisitionRouteLoopAuthoritySink:
         suffix = f"outcome_selected_{digest[:24]}"
         selection = AcquisitionRoutePhaseReceipt(
             schema_version=(
-                "AcquisitionRoutePhaseReceipt@1.2"
-                if candidate_receipt_ref
-                else "AcquisitionRoutePhaseReceipt@1.1"
+                "AcquisitionRoutePhaseReceipt@1.3"
+                if executing.owner_declared_profile_ref is not None
+                else (
+                    "AcquisitionRoutePhaseReceipt@1.2"
+                    if candidate_receipt_ref
+                    else "AcquisitionRoutePhaseReceipt@1.1"
+                )
             ),
             receipt_id=f"{executing.job_id}.outcome-selected.{digest[:24]}",
             tenant_id=executing.tenant_id,
@@ -3848,9 +4056,11 @@ class AcquisitionRouteLoopAuthoritySink:
             predecessor_receipt_ref=action_phase_ref,
             owner_receipt_refs=(outcome_ref,),
             candidate_receipt_ref=candidate_receipt_ref,
+            owner_declared_profile_ref=executing.owner_declared_profile_ref,
+            native_leaf_provider_selection=executing.native_leaf_provider_selection,
             generated_at=datetime.now(UTC),
         )
-        event_id = f"evt_acquisition_{executing.action_generation}_{suffix}"
+        event_id = _acquisition_route_event_id(executing, suffix)
         existing = self._existing_action_selection_event(selection, event_id)
         if existing is None:
             try:
@@ -4941,15 +5151,10 @@ class AcquisitionRouteLoopAuthoritySink:
         candidate_history = None
         candidate_experiment_history = None
         if head.receipt_manifest_profile_sha256 is not None:
-            selected_ref = artifacts.ArtifactRef(
-                artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
-                kind=(
-                    "runtime_quality.acquisition_candidate_experiment_phase_receipt"
-                    if head.receipt_phase != "terminal"
-                    else "runtime_quality.acquisition_route_loop_receipt"
-                ),
-                media_type="application/json",
-                manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+            selected_ref = artifact_ref_for_manifest(
+                artifacts.resolve_manifest_by_profile(
+                    self._artifact_store, head.receipt_ref, head.receipt_manifest_profile_sha256
+                )
             )
             owner = getattr(self._core_source_resolver, "__self__", None)
             selected = self._read_verified_action_phase(head.receipt_ref, selected_ref=selected_ref)
@@ -4982,6 +5187,10 @@ class AcquisitionRouteLoopAuthoritySink:
                         )
                     )
                 phase_chain = candidate_experiment_history.phase_chain
+            elif _native_acquisition_receipt_selected_inputs(selected.receipt):
+                phase_chain = self._verified_action_phase_chain(
+                    head, selected_terminal_ref=selected_ref
+                )
             else:
                 from polisyos.runtime.quality.acquisition_evaluation_history import (
                     verify_candidate_terminal_history,
@@ -5760,7 +5969,7 @@ class AcquisitionRouteLoopAuthoritySink:
             + "_"
             + hashlib.sha256(typed.receipt_id.encode()).hexdigest()[:16]
         )
-        expected_event_id = f"evt_acquisition_{typed.action_generation}_{event_suffix}"
+        expected_event_id = _acquisition_route_event_id(typed, event_suffix)
         events = self._event_log.list_events(
             event_id=expected_event_id,
             run_id=typed.run_id,
@@ -6467,7 +6676,9 @@ class AcquisitionRouteLoopAuthoritySink:
             tenant_id=terminal.tenant_id,
             cell_id=terminal.cell_id,
             action_outcome_reader=_PriorOutcomeReader(),
-        ).resolve_current_route(run_id=terminal.run_id, before_action_generation=cutoff)
+        ).resolve_current_route(
+            run_id=terminal.run_id, route_id=terminal.route_id, before_action_generation=cutoff
+        )
         if (
             prior.source_job_id != terminal.source_job_id
             or prior.route_id != terminal.route_id
@@ -6639,6 +6850,12 @@ class AcquisitionRouteLoopAuthoritySink:
                 raise ValueError("acquisition_action_phase_duplicate")
         elif self._allowed_predecessor_phases(typed) != frozenset():
             raise ValueError("acquisition_action_phase_root_invalid")
+        _replay_native_acquisition_receipt_profile(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            control_store=self._control_store,
+            receipt=typed,
+        )
         payload = typed.model_dump(mode="json")
         canon_spec = CanonSpec(forbid_floats=False)
         generated_at = typed.generated_at.isoformat()
@@ -6680,7 +6897,7 @@ class AcquisitionRouteLoopAuthoritySink:
                         )
                     ]
                     if type(typed) is AcquisitionCandidateExperimentTerminalReceiptV2
-                    else []
+                    else _native_acquisition_receipt_selected_inputs(typed)
                 ),
             ),
             evidence_id=typed.receipt_id,
@@ -6748,7 +6965,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 override_policy="no_override",
                 approval_policy="pa2_ds9_decision_required",
             ),
-            event_id=f"evt_acquisition_{typed.action_generation}_{event_suffix}",
+            event_id=_acquisition_route_event_id(typed, event_suffix),
             event_source="polisyos.runtime.quality.acquisition_route_loop",
             event_type=event_type,
             event_subject=(
@@ -6772,7 +6989,10 @@ class AcquisitionRouteLoopAuthoritySink:
         selected_experiment_phase = (
             result.cas_ref if type(typed) is AcquisitionCandidateExperimentPhaseReceipt else None
         )
-        selected_action_ref = selected_receipt or selected_experiment_phase
+        selected_native_ref = (
+            result.cas_ref if _native_acquisition_receipt_selected_inputs(typed) else None
+        )
+        selected_action_ref = selected_receipt or selected_experiment_phase or selected_native_ref
         if selected_receipt is not None and (
             selected_receipt.manifest_profile_sha256 is None
             or set(type(selected_receipt).model_fields) - set(ArtifactRef.model_fields)
@@ -8747,6 +8967,7 @@ class ControlPlaneService(
                 generic_cycle_simulation_currentness_resolver=(
                     generic_cycle_simulation_currentness_resolver
                 ),
+                native_derivation_planning_selector=self.native_derivation_planning_selections,
                 verified_nl_job_scope=verified_nl_job_scope,
                 physical_n5_budget_scope=physical_n5_budget_scope,
                 n4_recursive_source=n4_recursive_source,
@@ -9281,7 +9502,9 @@ class ControlPlaneService(
             tenant_id=tenant_id,
             cell_id=cell_id,
             action_outcome_reader=self.acquisition_route_sink,
-        ).resolve_current_route(run_id=run_id, action_job_id=admission.job.job_id)
+        ).resolve_current_route(
+            run_id=run_id, route_id=closure.route_id, action_job_id=admission.job.job_id
+        )
         if current != closure:
             raise ValueError("acquisition_source_budget_route_changed")
         settlement_store = self._llm_producer_settlement_store
@@ -9809,6 +10032,306 @@ class ControlPlaneService(
         if self._acquisition_job_handler is not None:
             raise RuntimeError("acquisition job handler is already bound")
         self._acquisition_job_handler = handler
+
+    def bind_native_derivation_route_configuration(
+        self, configuration: AcquisitionWorldGrowthConfig
+    ) -> None:
+        """Adopt deployment quote/profile selections without issuing an action grant.
+
+        The native bridge and this service already share the actual CAS, action
+        sink and control-store owner. Replacing the deployment selection affects
+        new route admission; historical receipt/profile bytes remain unchanged.
+        """
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthConfig,
+        )
+
+        if type(configuration) is not AcquisitionWorldGrowthConfig:
+            raise TypeError("native_derivation_route_configuration_untyped")
+        generic_owner = self._generic_cycle_simulation_admission_owner
+        if generic_owner is not None:
+            generic_owner.bind_native_world_action_owner(self)
+        self._native_derivation_route_configuration = configuration
+
+    def native_derivation_planning_selections(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        profile_selection_ref: str,
+    ) -> tuple[NativeDerivationPlanningSelection, ...]:
+        """Read adopted candidate registrations for the current configured profile."""
+        configuration = getattr(self, "_native_derivation_route_configuration", None)
+        if configuration is None:
+            return ()
+        return tuple(
+            row
+            for row in configuration.native_derivation_planning_selections
+            if (row.tenant_id, row.cell_id, row.profile_selection_ref)
+            == (tenant_id, cell_id, profile_selection_ref)
+        )
+
+    def native_derivation_paid_action_attempt(
+        self, *, closure: VerifiedAcquisitionRouteClosure, action_job_id: str
+    ) -> ArtifactRef | None:
+        """Ask the actual installed native owner for already-spent exact evidence."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+        )
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+
+        owner = getattr(self._acquisition_job_handler, "__self__", None)
+        if type(owner) is not AcquisitionActionService or owner.control_service is not self:
+            return None
+        port = owner._production_execution_port
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or owner._execution_port is not port
+        ):
+            return None
+        return port.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
+
+    def _native_derivation_selected_planning_sources(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        configured_port_source_ref: ArtifactRef,
+    ) -> tuple[tuple[NativeDerivationPlanningSelection, N7DerivationBundle], ...]:
+        """Project adopted role providers onto an actual selected source bundle.
+
+        This does not discover an authority or make a source current. The
+        current origin already replays the canonical Generic/source owner;
+        this helper reopens its exact input/profile and declared role facts.
+        """
+        from polisyos.core.contracts import (
+            RegisteredDerivedInputProfileRef,
+            load_registered_derived_input_profile,
+        )
+        from polisyos.data_forge import read_api
+        from polisyos.runtime.quality.acquisition_planner import (
+            _n7_load_configured_candidate_port_source,
+            load_n7_derivation_bundle,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationN5InputV1,
+        )
+
+        source = _n7_load_configured_candidate_port_source(
+            self._artifact_store, configured_port_source_ref
+        )
+        if (source.tenant_id, source.cell_id, source.run_id, source.source_job_id) != (
+            tenant_id,
+            cell_id,
+            run_id,
+            source_job_id,
+        ):
+            raise ValueError("native_derivation_planning_source_scope_mismatch")
+        if (
+            source.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v3"
+            or source.derivation_bundle_ref is None
+        ):
+            return ()
+        record = GenericCycleSimulationN5InputV1.model_validate(
+            read_core_json_artifact(self._artifact_store, source.n5_input_ref).value
+        )
+        owner = self._generic_cycle_simulation_admission_owner
+        if owner is None or owner.resolve_n5_input(source.n5_input_ref, expected=record) != record:
+            raise ValueError("native_derivation_planning_profile_source_unverified")
+        bundle = load_n7_derivation_bundle(self._artifact_store, source.derivation_bundle_ref)
+        # Planning adoption must reopen the exact selected provenance retained
+        # by the post-preflight producer, not rediscover an equivalent profile.
+        if bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v2":
+            return ()
+        if artifacts.artifact_ref_identity_key(
+            bundle.model_input_routing_report_ref
+        ) != artifacts.artifact_ref_identity_key(source.model_input_routing_report_ref):
+            raise ValueError("native_derivation_planning_routing_report_mismatch")
+        roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
+        if len(roots) != 1 or len(bundle.operation_nodes) != 1:
+            return ()
+        root = roots[0]
+        selected = []
+        for planning in self.native_derivation_planning_selections(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_selection_ref=record.profile.profile_selection_ref,
+        ):
+            if artifacts.artifact_ref_identity_key(
+                planning.registered_profile_ref
+            ) != artifacts.artifact_ref_identity_key(bundle.registered_profile_ref):
+                continue
+            profile = load_registered_derived_input_profile(
+                self._artifact_store,
+                RegisteredDerivedInputProfileRef.model_validate(
+                    planning.registered_profile_ref.model_dump(mode="python")
+                ),
+            )
+
+            def basis_keys(value: object) -> tuple[tuple[str, str, str, str | None], ...]:
+                return tuple(
+                    artifacts.artifact_ref_identity_key(getattr(value, name))
+                    for name in (
+                        "semantic_definition_ref",
+                        "representation_ref",
+                        "binding_profile_ref",
+                    )
+                )
+
+            if (
+                root.family_id != profile.family_id
+                or root.method_version != profile.method_version
+                or artifacts.artifact_ref_identity_key(root.operator_ref)
+                != artifacts.artifact_ref_identity_key(profile.registry_ref)
+                or basis_keys(bundle.target_basis) != basis_keys(profile.output)
+            ):
+                continue
+            roles = {row.role: row.basis for row in profile.inputs}
+            if set(roles) != {row.role for row in root.role_inputs} or any(
+                basis_keys(row.source_basis) != basis_keys(roles[row.role])
+                for row in root.role_inputs
+            ):
+                continue
+            for row in planning.role_suppliers:
+                declaration = read_api.catalog.load_acquisition_supplier_declaration(
+                    self._artifact_store, row.source_declaration_ref
+                )
+                entry = declaration.entry
+                if (
+                    row.role not in roles
+                    or row.provider.authority_entry_id != entry.entry_id
+                    or row.provider.connector_id != declaration.connector_id
+                    or entry.source_semantic_definition_ref is None
+                    or entry.source_representation_ref is None
+                    or artifacts.artifact_ref_identity_key(entry.source_semantic_definition_ref)
+                    != artifacts.artifact_ref_identity_key(roles[row.role].semantic_definition_ref)
+                    or artifacts.artifact_ref_identity_key(entry.source_representation_ref)
+                    != artifacts.artifact_ref_identity_key(roles[row.role].representation_ref)
+                ):
+                    raise ValueError("native_derivation_planning_supplier_basis_mismatch")
+            selected.append((planning, bundle))
+        if len(selected) > 1:
+            raise ValueError("native_derivation_planning_profile_ambiguous")
+        return tuple(selected)
+
+    def native_derivation_source_port_selections(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        configured_port_source_ref: ArtifactRef,
+    ) -> tuple[NativeDerivationPortSelection, ...]:
+        """Reuse selected planning profiles after the real bundle is persisted."""
+        from polisyos.runtime.quality.acquisition_planner import (
+            _n7_load_configured_candidate_port_source,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationPortSelection
+
+        selected = self._native_derivation_selected_planning_sources(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            configured_port_source_ref=configured_port_source_ref,
+        )
+        source = _n7_load_configured_candidate_port_source(
+            self._artifact_store, configured_port_source_ref
+        )
+        return tuple(
+            NativeDerivationPortSelection(
+                derivation_bundle_ref=source.derivation_bundle_ref,
+                registered_profile_ref=planning.registered_profile_ref,
+                binding_id=planning.binding_id,
+            )
+            for planning, _bundle in selected
+        )
+
+    def native_derivation_leaf_provider_selections(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        configured_port_source_ref: ArtifactRef,
+    ) -> tuple[NativeDerivationLeafProviderSelection, ...]:
+        """Return explicit deployment routing inputs, never a source permission."""
+        configuration = getattr(self, "_native_derivation_route_configuration", None)
+        if configuration is None:
+            return ()
+        rows = tuple(
+            row
+            for row in configuration.native_derivation_routes
+            if row.key == (tenant_id, cell_id, run_id, source_job_id)
+        )
+        if len(rows) > 1:
+            raise ValueError("native_derivation_route_configuration_ambiguous")
+        if rows and artifacts.artifact_ref_identity_key(
+            rows[0].configured_port_source_ref
+        ) != artifacts.artifact_ref_identity_key(configured_port_source_ref):
+            raise ValueError("native_derivation_route_configuration_source_mismatch")
+        if rows and rows[0].supplier_selections:
+            return rows[0].supplier_selections
+        selected = self._native_derivation_selected_planning_sources(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            configured_port_source_ref=configured_port_source_ref,
+        )
+        providers = {}
+        for planning, bundle in selected:
+            by_node = {node.node_id: node for node in bundle.source_nodes}
+            roots = tuple(
+                node for node in bundle.operation_nodes if node.node_id == bundle.root_node_id
+            )
+            role_nodes = {row.role: row.input_node_id for row in roots[0].role_inputs}
+            for row in planning.role_suppliers:
+                node_id = role_nodes.get(row.role)
+                node = by_node.get(node_id)
+                if node is None or row.provider.source_node_id != node_id:
+                    raise ValueError("native_derivation_planning_provider_node_mismatch")
+                alternatives = {
+                    artifacts.artifact_ref_identity_key(item.supplier_ref)
+                    for item in node.supplier_alternatives
+                }
+                key = artifacts.artifact_ref_identity_key(row.provider.supplier_ref)
+                if key not in alternatives:
+                    raise ValueError("native_derivation_planning_provider_supplier_mismatch")
+                providers[(node_id, key)] = row.provider
+        return tuple(providers[key] for key in sorted(providers))
+
+    def native_derivation_leaf_cost_profile_refs(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        configured_port_source_ref: ArtifactRef,
+    ) -> tuple[ArtifactRef, ...]:
+        """Return only actor/source-scoped deployment adoptions, never permissions."""
+        configuration = getattr(self, "_native_derivation_route_configuration", None)
+        if configuration is None:
+            return ()
+        matches = tuple(
+            item
+            for item in configuration.native_derivation_routes
+            if item.key == (tenant_id, cell_id, run_id, source_job_id)
+        )
+        if len(matches) > 1:
+            raise ValueError("native_derivation_source_configuration_ambiguous")
+        if not matches or artifacts.artifact_ref_identity_key(
+            matches[0].configured_port_source_ref
+        ) != artifacts.artifact_ref_identity_key(configured_port_source_ref):
+            return ()
+        return matches[0].owner_declared_cost_profile_refs
 
     def enqueue_acquisition_job(
         self,

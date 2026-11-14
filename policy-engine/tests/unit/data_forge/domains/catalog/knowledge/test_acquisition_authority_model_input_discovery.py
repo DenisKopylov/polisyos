@@ -100,6 +100,7 @@ def _put_semantic_definition(
 def _model_inputs(
     store: FileSystemCAS,
     *,
+    unit_id: str = "usd",
     source_quantity_kind: str = "stock",
     definition_namespace: str = "test.fiscal",
     definition_revision: str = "r1",
@@ -139,7 +140,7 @@ def _model_inputs(
         semantic_definition_ref=definition_ref,
         quantity_kind=source_quantity_kind,
         measure_form="absolute",
-        unit_id="usd",
+        unit_id=unit_id,
         scale_to_unit=Decimal("1"),
         time_support="period_average",
         temporal_granularity="annual",
@@ -250,7 +251,7 @@ def _model_inputs(
                 port_id="fiscal-balance-input",
                 slot_id="fiscal_balance",
                 state_path="government.balance",
-                unit_id="usd",
+                unit_id=unit_id,
                 purpose="simulation_input",
                 semantic_definition_ref=definition_ref,
                 representation_ref=model_representation_ref,
@@ -303,6 +304,28 @@ def _authority_entry(
         values["temporal_start"] = temporal_start
     if temporal_end is not None:
         values["temporal_end"] = temporal_end
+    return build_authority_entry(**values)
+
+
+def _supplier_declaration_entry(
+    definition_ref: VariableSemanticDefinitionRef,
+    representation_ref: VariableRepresentationRef,
+    *,
+    suffix: str,
+) -> AcquisitionAuthorityEntry:
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values.update(
+        {
+            "landing_dataset_id": f"acquisition.test.supplier_declaration.{suffix}",
+            "landing_distribution_id": (f"acquisition.test.supplier_declaration.{suffix}.json"),
+            "source_semantic_definition_ref": definition_ref,
+            "source_representation_ref": representation_ref,
+            "source_measure_scope": AcquisitionSourceMeasureScope(
+                population="population:whole-country",
+                temporal_granularity="annual",
+            ),
+        }
+    )
     return build_authority_entry(**values)
 
 
@@ -359,6 +382,280 @@ def test_catalog_discovers_one_exact_model_input_source_descriptor(
         "claim_evidence",
         "source_currentness",
     }
+
+
+def test_catalog_supplier_declaration_replays_selected_owner_refs_and_scope(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persist a real authority resolution without promoting it to permission."""
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, _ = _model_inputs(store, unit_id="percent_gdp")
+    entry = _supplier_declaration_entry(
+        definition_ref,
+        representation_ref,
+        suffix="supplier-declaration",
+    )
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    resolved = authority.resolve(entry.entry_id)
+
+    declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+        store,
+        authority,
+        entry_id=entry.entry_id,
+    )
+    declaration = catalog_read_api.load_acquisition_supplier_declaration(
+        store,
+        declaration_ref,
+    )
+
+    assert declaration.entry == resolved.entry
+    assert declaration.entry.target_variable == entry.target_variable
+    assert declaration.entry.source_semantic_definition_ref == definition_ref
+    assert declaration.entry.source_representation_ref == representation_ref
+    assert declaration.entry.source_measure_scope == entry.source_measure_scope
+    assert declaration.connector_id == resolved.registration.connector_id
+    assert declaration.authority_provision_id == resolved.authority_provision_id
+    assert (
+        declaration.authority_provision_content_sha256
+        == resolved.authority_provision_content_sha256
+    )
+    assert declaration.registry_content_sha256 == resolved.registry_content_sha256
+    assert declaration.baseline_content_sha256 == resolved.baseline_content_sha256
+    assert (
+        declaration.upstream_catalog_projection_sha256
+        == resolved.upstream_catalog_projection_sha256
+    )
+    assert declaration.l5_owner_content_sha256 == resolved.l5_trust.owner_content_sha256
+    assert declaration.semantic_refs_status == "declared"
+    assert declaration.source_scope_status == "declared"
+    assert declaration.semantic_authority == "not_established"
+    assert declaration.acquisition_permission == "not_established"
+    assert declaration.source_currentness == "not_established"
+    assert "effective_authority_score" not in declaration.model_dump(mode="json")
+    assert "license_disposition" not in declaration.model_dump(mode="json")
+
+    manifest = store.get_manifest(declaration_ref)
+    assert {item.role for item in manifest.inputs} == {
+        "source_semantic_definition",
+        "source_representation",
+    }
+    assert declaration_ref.manifest_profile_sha256 is not None
+    fresh_store = FileSystemCAS(store.root)
+    assert (
+        catalog_read_api.load_acquisition_supplier_declaration(
+            fresh_store,
+            declaration_ref,
+        )
+        == declaration
+    )
+
+    matching_scope = ModelInputScope(
+        population_ref="population:whole-country",
+        geography_ref="UKR",
+        jurisdiction_ref="UKR",
+        period_start=date(2022, 1, 1),
+        period_end=date(2022, 12, 31),
+        time_role="observation_time",
+        period_basis="calendar_year",
+    )
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            fresh_store,
+            declaration_ref,
+            scope=matching_scope,
+        )
+        is None
+    )
+    foreign_geography = matching_scope.model_copy(
+        update={"geography_ref": "CAN", "jurisdiction_ref": "CAN"}
+    )
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            fresh_store,
+            declaration_ref,
+            scope=foreign_geography,
+        )
+        == "source_geography_scope_mismatch"
+    )
+    outside_declared_period = matching_scope.model_copy(
+        update={
+            "period_start": date(2025, 1, 1),
+            "period_end": date(2025, 12, 31),
+        }
+    )
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            fresh_store,
+            declaration_ref,
+            scope=outside_declared_period,
+        )
+        == "source_temporal_scope_mismatch"
+    )
+
+    annual_representation = load_variable_representation(store, representation_ref)
+    wrong_unit_representation = annual_representation.model_copy(
+        update={
+            "representation_id": "test.fiscal.balance.wrong-canonical-unit",
+            "unit_id": "usd",
+        }
+    )
+    wrong_unit_representation_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            wrong_unit_representation,
+            PutOptions(
+                kind=wrong_unit_representation.ARTIFACT_KIND,
+                media_type=wrong_unit_representation.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=wrong_unit_representation.ARTIFACT_SCHEMA_NAME,
+                    version="1.0",
+                ),
+                inputs=list(variable_representation_manifest_inputs(wrong_unit_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump(mode="json")
+    )
+    wrong_unit_entry = _supplier_declaration_entry(
+        definition_ref,
+        wrong_unit_representation_ref,
+        suffix="wrong-canonical-unit",
+    )
+    wrong_unit_authority, _ = _resolver(
+        tmp_path / "wrong-unit-catalog-owner",
+        authority_entry=wrong_unit_entry,
+    )
+    wrong_unit_declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+        store,
+        wrong_unit_authority,
+        entry_id=wrong_unit_entry.entry_id,
+    )
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            fresh_store,
+            wrong_unit_declaration_ref,
+            scope=matching_scope,
+        )
+        == "source_descriptor_definition_or_unit_mismatch"
+    )
+
+    quarterly_representation = annual_representation.model_copy(
+        update={
+            "representation_id": "test.fiscal.balance.quarterly-source",
+            "temporal_granularity": "quarterly",
+        }
+    )
+    quarterly_representation_ref = VariableRepresentationRef.model_validate(
+        store.put_json(
+            quarterly_representation,
+            PutOptions(
+                kind=quarterly_representation.ARTIFACT_KIND,
+                media_type=quarterly_representation.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=quarterly_representation.ARTIFACT_SCHEMA_NAME,
+                    version="1.0",
+                ),
+                inputs=list(variable_representation_manifest_inputs(quarterly_representation)),
+            ),
+            return_selected_profile=True,
+        ).model_dump(mode="json")
+    )
+    quarterly_entry = _supplier_declaration_entry(
+        definition_ref,
+        quarterly_representation_ref,
+        suffix="quarterly-supplier",
+    )
+    quarterly_authority, _ = _resolver(
+        tmp_path / "quarterly-catalog-owner",
+        authority_entry=quarterly_entry,
+    )
+    quarterly_declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+        store,
+        quarterly_authority,
+        entry_id=quarterly_entry.entry_id,
+    )
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            fresh_store,
+            quarterly_declaration_ref,
+            scope=matching_scope,
+        )
+        == "source_temporal_granularity_unresolved"
+    )
+
+    foreign_definition_ref, foreign_representation_ref, _, _ = _model_inputs(
+        store,
+        definition_namespace="test.foreign.fiscal",
+    )
+    forged_entry = entry.model_dump(mode="json")
+    forged_entry["source_semantic_definition_ref"] = foreign_definition_ref.model_dump(mode="json")
+    forged_entry["source_representation_ref"] = foreign_representation_ref.model_dump(mode="json")
+    with pytest.raises(ValidationError, match="authority entry identity must be recomputed"):
+        AcquisitionAuthorityEntry.model_validate(forged_entry)
+
+    removed_ref = representation_ref
+    actual_get_bytes = fresh_store.get_bytes
+
+    def get_bytes_without_representation(ref):
+        if isinstance(ref, ArtifactRef) and artifact_ref_identity_key(
+            ref
+        ) == artifact_ref_identity_key(removed_ref):
+            raise FileNotFoundError("test removed the selected source representation")
+        return actual_get_bytes(ref)
+
+    with monkeypatch.context() as context:
+        context.setattr(fresh_store, "get_bytes", get_bytes_without_representation)
+        with pytest.raises(
+            AcquisitionAuthorityError,
+            match="supplier_declaration_source_artifact_unavailable",
+        ):
+            catalog_read_api.load_acquisition_supplier_declaration(
+                fresh_store,
+                declaration_ref,
+            )
+
+
+def test_catalog_supplier_declaration_keeps_missing_semantics_not_established(
+    tmp_path: Path,
+) -> None:
+    """A real unresolved registry row remains candidate-only with explicit unknowns."""
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    store = FileSystemCAS(tmp_path / "cas")
+    entry = _entry()
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+    declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+        store,
+        authority,
+        entry_id=entry.entry_id,
+    )
+    declaration = catalog_read_api.load_acquisition_supplier_declaration(
+        store,
+        declaration_ref,
+    )
+
+    assert declaration.entry.source_semantic_definition_ref is None
+    assert declaration.entry.source_representation_ref is None
+    assert declaration.entry.source_measure_scope is None
+    assert declaration.semantic_refs_status == "not_established"
+    assert declaration.source_scope_status == "not_established"
+    assert (
+        catalog_read_api.acquisition_supplier_declaration_scope_refusal(
+            store,
+            declaration_ref,
+            scope=ModelInputScope(
+                population_ref="population:whole-country",
+                geography_ref="UKR",
+                jurisdiction_ref="UKR",
+                period_start=date(2022, 1, 1),
+                period_end=date(2022, 12, 31),
+                time_role="observation_time",
+                period_basis="calendar_year",
+            ),
+        )
+        == "model_input_source_descriptor_ref_pair_missing"
+    )
 
 
 def test_exact_semantic_definition_index_is_snapshot_bound_and_reused(

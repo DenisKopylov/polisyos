@@ -35,6 +35,8 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
+    NativeDerivationLeafRouteProjection,
+    NativeModelInputTargetProjection,
 )
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
@@ -317,7 +319,9 @@ def execute_run_candidate_acquisition_experiment_reuse(
 
 @router.get(
     "/{run_id}/acquisition-routes/{route_id}",
-    response_model=AcquisitionRouteProjection,
+    response_model=AcquisitionRouteProjection
+    | NativeDerivationLeafRouteProjection
+    | NativeModelInputTargetProjection,
     operation_id="get_run_acquisition_route",
     dependencies=[Depends(_GET_AUTHZ)],
 )
@@ -326,7 +330,11 @@ def get_run_acquisition_route(
     route_id: str,
     request: Request,
     service: _Service,
-) -> AcquisitionRouteProjection:
+) -> (
+    AcquisitionRouteProjection
+    | NativeDerivationLeafRouteProjection
+    | NativeModelInputTargetProjection
+):
     tenant_id, cell_id, _ = _scope(request)
     set_authz_resource(request, tenant_id=tenant_id, kind="runtime.acquisition_route")
     try:

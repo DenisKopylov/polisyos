@@ -1,0 +1,16 @@
+id = "2026-11-14-e02-selected-input-composition"
+title = "Compose selected method inputs, initial observations and acquisition boundaries"
+type = "changed"
+component = "core-foundry-runtime"
+owner = "team-policyos-runtime"
+summary = "Wire bounded scalar method-output transfers through compiler, actual dispatch, persisted capture and historical reader. Extend the existing Generic initial observation/frontier, complete durable quota reconciliation, N7 registered input resolution and per-leaf acquisition history. Add candidate-only initial observations to RunDetails and preserve temporal scalar preparation as an explicit unfinished consumer slice."
+change_class = "schema-openapi-abi"
+surface_classification = "public_experimental: additive candidate RunDetails projection and versioned selected-input/capture artifacts"
+compatibility = "Legacy request and artifact writers retain their declared versions and omitted fields. RunDetails omits the new projection when unavailable as an owner surface. Old method payload and capture versions remain readable; explicit new dataflow profiles require exact same-invocation, step, ABI, value and source joins. No historic artifact is rewritten."
+migration = "Regenerate Runtime OpenAPI and client/dashboard types together. Consumers distinguish Core run identity from the actual Control run identity and keep candidate limitations and closure residuals. Deployment requires no production trust or authority invented by this change."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/public-surface.md"]
+runbook_docs = ["docs/runbooks/retained-artifact-recovery.md"]
+evidence = ["tests/unit/foundry/runtime/test_method_output_inputs.py", "tests/unit/runtime/http/test_control_plane_store_generic_initial.py", "tests/unit/scientist/orchestration/engine/test_completed_standard_invocations.py", "tests/unit/core/contracts/test_run_model_input_initial_observation.py", "tests/unit/runtime/http/services/test_native_derivation_pending_action.py"]
+limitations = "The ordinary paired N5 producer-to-frontier, served projection authorization, full Native paid reentry and temporal/vector/feedback execution consumers remain separately unverified. New paired actuation/comparator implementation follows this component checkpoint; old unpaired results are not causal effect proof. No G acceptance or formal closure."

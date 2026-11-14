@@ -108,10 +108,13 @@ def test_method_output_binding_resolves_exact_nodes_and_derives_dependency() -> 
         producer,
         consumer,
         producer_node_id="producer.instance.alpha",
-        state_writes=["government.balance"],
     )
 
-    resolution = resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+    resolution = resolve_method_output_input_bindings(
+        plan,
+        registry=MethodRegistry.get_instance(),
+        allow_method_output=True,
+    )
 
     assert len(resolution.bindings) == 1
     binding = resolution.bindings[0]
@@ -122,6 +125,9 @@ def test_method_output_binding_resolves_exact_nodes_and_derives_dependency() -> 
     assert binding.producer_abi_digest == producer.abi_digest()
     assert binding.consumer_abi_digest == consumer.abi_digest()
     assert resolution.dependency_edges == (("producer.instance.alpha", "consumer.node"),)
+    assert resolution.registry_inputs["producer.instance.alpha"] == ("seed",)
+    assert resolution.registry_inputs["consumer.node"] == ()
+    assert resolution.input_sources["consumer.node"]["renamed_input"].source_kind == "method_output"
     assert resolution.execution_order.index("producer.instance.alpha") < (
         resolution.execution_order.index("consumer.node")
     )
@@ -152,7 +158,11 @@ def test_method_output_binding_disambiguates_repeated_fqn_instances() -> None:
         ],
     )
 
-    resolution = resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+    resolution = resolve_method_output_input_bindings(
+        plan,
+        registry=MethodRegistry.get_instance(),
+        allow_method_output=True,
+    )
 
     assert [binding.producer_node_id for binding in resolution.bindings] == ["producer.second"]
     assert resolution.dependency_edges == (("producer.second", "consumer.node"),)
@@ -203,7 +213,38 @@ def test_method_output_binding_rejects_implicit_unit_or_shape_adapters(
     plan = _plan(producer, consumer)
 
     with pytest.raises(ValueError, match="method_dataflow_abi_slot_contract_mismatch"):
-        resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
+
+
+def test_method_output_binding_requires_exact_contract_id_including_none() -> None:
+    from dataclasses import replace
+
+    from polisyos.foundry.compile.method_dataflow import resolve_method_output_input_bindings
+
+    producer, consumer = _pair()
+    producer_output = next(iter(producer.output_slots))
+    consumer_input = next(iter(consumer.input_slots))
+    producer = replace(
+        producer,
+        output_slots=frozenset({replace(producer_output, contract_id="result.contract.v1")}),
+    )
+    consumer = replace(
+        consumer,
+        input_slots=frozenset({replace(consumer_input, contract_id=None)}),
+    )
+    _register(producer)
+    _register(consumer)
+
+    with pytest.raises(ValueError, match="method_dataflow_abi_slot_contract_mismatch"):
+        resolve_method_output_input_bindings(
+            _plan(producer, consumer),
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
 
 
 def test_method_output_binding_rejects_foreign_or_missing_output() -> None:
@@ -212,11 +253,19 @@ def test_method_output_binding_rejects_foreign_or_missing_output() -> None:
     producer, consumer = _pair()
     plan = _plan(producer, consumer, source=("unrelated.node", "result"))
     with pytest.raises(ValueError, match="method_dataflow_producer_node_missing"):
-        resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
 
     plan = _plan(producer, consumer, source=("producer.node", "government.balance"))
     with pytest.raises(ValueError, match="method_dataflow_producer_output_slot_missing"):
-        resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
 
 
 def test_method_output_binding_rejects_dependency_cycle() -> None:
@@ -226,7 +275,57 @@ def test_method_output_binding_rejects_dependency_cycle() -> None:
     plan = _plan(producer, consumer, depends_on=["consumer.node"])
 
     with pytest.raises(ValueError, match="method_dataflow_dependency_cycle"):
-        resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
+
+
+def test_method_output_binding_rejects_forward_producer_reference() -> None:
+    from polisyos.core.contracts.method_input import MethodOutputInputPortSource
+    from polisyos.foundry.compile.method_dataflow import resolve_method_output_input_bindings
+
+    producer, consumer = _pair()
+    plan = ExecutionPlan(
+        plan_id="forward-method-output-reference",
+        schema_version="1.2",
+        method_dag=[
+            _node(
+                consumer,
+                node_id="consumer.node",
+                input_ports={
+                    "renamed_input": MethodOutputInputPortSource(
+                        source_kind="method_output",
+                        producer_node_id="producer.node",
+                        output_slot_id="result",
+                    )
+                },
+            ),
+            _node(producer, node_id="producer.node"),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="method_dataflow_producer_forward_reference"):
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
+
+
+def test_method_output_binding_rejects_patch_channel_participants() -> None:
+    from polisyos.foundry.compile.method_dataflow import resolve_method_output_input_bindings
+
+    producer, consumer = _pair()
+    plan = _plan(producer, consumer, state_writes=["government.balance"])
+
+    with pytest.raises(ValueError, match="method_dataflow_patch_transfer_not_supported"):
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )
 
 
 def test_method_output_binding_rejects_registry_version_mismatch() -> None:
@@ -237,4 +336,8 @@ def test_method_output_binding_rejects_registry_version_mismatch() -> None:
     plan.method_dag[0].method_version = "9.9.9"
 
     with pytest.raises(ValueError, match="method_dataflow_registered_signature_identity_mismatch"):
-        resolve_method_output_input_bindings(plan, registry=MethodRegistry.get_instance())
+        resolve_method_output_input_bindings(
+            plan,
+            registry=MethodRegistry.get_instance(),
+            allow_method_output=True,
+        )

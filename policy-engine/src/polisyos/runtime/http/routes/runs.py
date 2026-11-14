@@ -72,6 +72,8 @@ from polisyos.core.contracts.runtime import (
     RunGenericCycleSimulationN6CycleHistoryEntry,
     RunGenericCycleSimulationProjection,
     RunLineageResponse,
+    RunModelInputInitialObservation,
+    RunModelInputInitialObservationsProjection,
     RunModelInputUseActionSelector,
     RunModelInputUseActionsProjection,
     RunModelInputUseBlockedSourceProjection,
@@ -1130,7 +1132,13 @@ def _candidate_acquisition_history_projection(
                 route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
                 route_schema = route_manifest.artifact_schema
                 terminal_epochs = {
-                    "polisyos.runtime.AcquisitionRouteLoopReceipt": ("1.0", "1.1", "2.0", "3.0"),
+                    "polisyos.runtime.AcquisitionRouteLoopReceipt": (
+                        "1.0",
+                        "1.1",
+                        "1.2",
+                        "2.0",
+                        "3.0",
+                    ),
                     "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt": (
                         "1.0",
                         "2.0",
@@ -1258,13 +1266,14 @@ def _candidate_acquisition_history_projection(
                 route_receipt_ref = _selected_ref(
                     head.receipt_ref,
                     kind="runtime_quality.acquisition_route_phase_receipt",
+                    profile=head.receipt_manifest_profile_sha256,
                 )
                 route_payload, _route_bytes, route_report, route_receipt_ref = (
                     _read_authority_payload(
                         route_receipt_ref,
                         expected_kind="runtime_quality.acquisition_route_phase_receipt",
                         expected_schema="polisyos.runtime.AcquisitionRoutePhaseReceipt",
-                        expected_version=("1.0", "1.1"),
+                        expected_version=("1.0", "1.1", "1.3"),
                         expected_job_id=head.job_id,
                     )
                 )
@@ -1308,6 +1317,10 @@ def _candidate_acquisition_history_projection(
             if receipt.run_id != source_run_id or receipt.source_job_id != source_job_id:
                 raise ValueError("acquisition_action_head_source_binding_mismatch")
             route_receipt = receipt
+            if route_receipt.terminal_outcome == "inputs_pending":
+                verified_pending = control_service.acquisition_route_sink.verify_action_head(head)
+                if verified_pending.latest_receipt != route_receipt:
+                    raise ValueError("native_inputs_pending_history_head_mismatch")
             matching_receipts.append((head, route_receipt_ref, route_receipt, verified_source))
 
         if not matching_receipts and not history_entries:
@@ -1450,6 +1463,30 @@ def _candidate_acquisition_history_projection(
                         continued_generation_run_content_hash=selected.continued_generation_run_content_hash,
                         basis_transition_content_hash=selected.basis_transition.content_hash,
                         limitations=selected.limitations,
+                    )
+                )
+                continue
+            if route_receipt.terminal_outcome == "inputs_pending":
+                from polisyos.runtime.quality.acquisition_world_growth import (
+                    replay_native_derivation_action_inputs,
+                )
+
+                replay_native_derivation_action_inputs(
+                    store, event_log=event_log, control_store=control_store, receipt=route_receipt
+                )
+                history_entries.append(
+                    RunCandidateSimulationAcquisitionHistoryEntry(
+                        schema_version="policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+                        route_receipt_ref=route_receipt_ref,
+                        route_id=route_receipt.route_id,
+                        action_generation=route_receipt.action_generation,
+                        terminal_outcome="inputs_pending",
+                        model_goal_status="inputs_pending",
+                        native_input_collection_ref=route_receipt.native_input_collection_ref,
+                        owner_declared_profile_ref=route_receipt.owner_declared_profile_ref,
+                        reentry_receipt_schema_version=None,
+                        continuation_join_status="not_applicable",
+                        origin_source_binding_status="not_supplied",
                     )
                 )
                 continue
@@ -5931,7 +5968,7 @@ def _model_input_use_actions_for_indexed_run(
         jobs = database.list_jobs_by_run_and_kind(
             run_id=source_job.run_id, kind="acquisition", limit=129
         )
-    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+    except (KeyError, OSError, RuntimeError, TypeError, ValidationError, ValueError):
         return None
 
     truncated = len(jobs) > 128
@@ -5989,7 +6026,7 @@ def _model_input_use_actions_for_indexed_run(
             selectors.append(
                 RunModelInputUseActionSelector(action_job_id=job.job_id, job_state=job.state)
             )
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except (KeyError, OSError, RuntimeError, TypeError, ValidationError, ValueError):
             binding_not_established = True
     limitations: list[Literal["action_inventory_truncated", "action_binding_not_established"]] = []
     if truncated:
@@ -6005,6 +6042,189 @@ def _model_input_use_actions_for_indexed_run(
         inventory_status="limited" if limitations else "complete",
         inventory_truncated=truncated,
         limitation_codes=tuple(limitations),
+    )
+
+
+def _model_input_initial_observations_for_indexed_run(
+    run: Any,
+    *,
+    store: Any,
+    control_service: Any | None,
+) -> RunModelInputInitialObservationsProjection | None:
+    """Read completed initial observations from exact immutable source frontiers.
+
+    The bounded frontier table is only a locator. Each selected row is replayed
+    by the canonical History reader against its immutable completion, producer,
+    binding, and result evidence before entering RunDetails. Mutable progress is
+    never the selection source and the projection grants no current-use authority.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobRecord,
+        GenericModelInputEvaluationFrontierRecord,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputInitialEvaluation,
+        read_generic_model_input_initial_evaluation_history,
+    )
+
+    details = run.details
+    tenant_id, cell_id, source_job_id = (
+        details.tenant_id,
+        details.cell_id,
+        details.control_job_id,
+    )
+    if (
+        not tenant_id
+        or not cell_id
+        or not source_job_id
+        or type(control_service) is not ControlPlaneService
+        or control_service._artifact_store is not store
+    ):
+        return None
+
+    def unavailable() -> RunModelInputInitialObservationsProjection:
+        return RunModelInputInitialObservationsProjection(
+            source_job_id=source_job_id,
+            core_run_id=details.run_id,
+            actual_run_id=None,
+            observations=(),
+            inventory_status="limited",
+            inventory_truncated=False,
+            limitation_codes=("initial_observation_history_unavailable",),
+        )
+
+    database = control_service._control_store
+    try:
+        source_job = database.get_job(source_job_id)
+        if (
+            type(source_job) is not ControlJobRecord
+            or source_job.job_id != source_job_id
+            or source_job.kind != "natural_language_run"
+            or source_job.state != "completed"
+            or not source_job.run_id
+        ):
+            return None
+        source_scope, _ = database._reconcile_control_job_creation_envelope(source_job)
+        if (
+            source_scope.status != "established"
+            or source_scope.actor_authenticated is not True
+            or (source_scope.tenant_id, source_scope.cell_id) != (tenant_id, cell_id)
+        ):
+            return unavailable()
+        source = control_service.resolve_completed_control_job_core_run_source(
+            source_job,
+            expected_control_run_id=source_job.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        if (
+            source.run_id != details.run_id
+            or (source.tenant_id, source.cell_id) != (tenant_id, cell_id)
+            or source.manifest.run_id != details.run_id
+            or source.manifest.control_job_id != source_job_id
+            or details.manifest_ref is None
+            or artifact_ref_identity_key(source.manifest_ref)
+            != artifact_ref_identity_key(details.manifest_ref)
+        ):
+            return unavailable()
+        records, truncated = database.list_generic_model_input_initial_frontiers_by_source(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_job_id=source_job_id,
+            limit=128,
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return unavailable()
+
+    rows: list[RunModelInputInitialObservation] = []
+    history_unavailable = False
+    for record in records:
+        try:
+            if (
+                type(record) is not GenericModelInputEvaluationFrontierRecord
+                or record.revision != 1
+                or record.key.source_job_id != source_job_id
+                or (record.key.tenant_id, record.key.cell_id) != (tenant_id, cell_id)
+                or type(record.selected_evaluation) is not GenericModelInputInitialEvaluation
+            ):
+                raise ValueError("initial_observation_frontier_subject_invalid")
+            basis, decision = read_generic_model_input_initial_evaluation_history(
+                store=store,
+                event_log=control_service._diagnostic_event_log,
+                control_store=database,
+                frontier_ref=record.frontier_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_run_id=source_job.run_id,
+                expected_source_job_id=source_job_id,
+                settlement_store=control_service.llm_producer_settlement_store,
+            )
+            selected = basis.initial_observation
+            if (
+                decision.initial_observation != selected
+                or selected != record.selected_evaluation
+                or basis.run_id != source_job.run_id
+                or basis.source_job_id != source_job_id
+                or basis.authority_purpose != "candidate_evaluation_retention_only"
+                or basis.observed_admission is not False
+                or basis.publication_authority is not False
+                or decision.observed_admission is not False
+                or decision.publication_authority is not False
+            ):
+                raise ValueError("initial_observation_history_subject_mismatch")
+            rows.append(
+                RunModelInputInitialObservation(
+                    execution_job_id=selected.execution_job_id,
+                    actual_run_id=selected.run_id,
+                    source_run_id=selected.source_run_id,
+                    frontier_ref=record.frontier_ref,
+                    frontier_revision=record.revision,
+                    basis_ref=record.basis_ref,
+                    decision_ref=record.selection_decision_ref,
+                    candidate_content_hash=selected.candidate_content_hash,
+                    observation_content_hash=selected.observation_content_hash,
+                    input_ref=selected.input_ref,
+                    execution_ref=selected.execution_ref,
+                    result_ref=selected.result_ref,
+                    current_method_input_bindings_ref=selected.current_method_input_bindings_ref,
+                    model_input_obligation_set_ref=selected.model_input_obligation_set_ref,
+                    context_job_ref=selected.context_job_ref,
+                    n4_source_ref=selected.n4_source_ref,
+                    profile_ref=selected.profile_ref,
+                    authority_purpose=basis.authority_purpose,
+                    recorded_predicate_provenance=basis.predicate_provenance,
+                    historical_replay_status="reconciled",
+                    currentness_status="not_established",
+                    observed_admission=basis.observed_admission,
+                    publication_authority=basis.publication_authority,
+                    limitations=basis.limitations,
+                    closure_residuals=basis.closure_residuals,
+                )
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValidationError, ValueError):
+            history_unavailable = True
+
+    if not rows and not truncated and not history_unavailable:
+        return None
+    limitations: list[
+        Literal[
+            "initial_observation_frontier_inventory_truncated",
+            "initial_observation_history_unavailable",
+        ]
+    ] = []
+    if truncated:
+        limitations.append("initial_observation_frontier_inventory_truncated")
+    if history_unavailable:
+        limitations.append("initial_observation_history_unavailable")
+    return RunModelInputInitialObservationsProjection(
+        source_job_id=source_job_id,
+        core_run_id=details.run_id,
+        actual_run_id=source_job.run_id,
+        observations=tuple(sorted(rows, key=lambda item: item.frontier_ref)),
+        inventory_status="limited" if limitations else "complete",
+        inventory_truncated=truncated,
+        limitation_codes=tuple(sorted(limitations)),
     )
 
 
@@ -7782,6 +8002,13 @@ if router is not None:
                 )
                 if model_input_use_actions is not None:
                     updates["model_input_use_actions"] = model_input_use_actions
+                model_input_initial_observations = (
+                    _model_input_initial_observations_for_indexed_run(
+                        run, store=ctx.store, control_service=control_service
+                    )
+                )
+                if model_input_initial_observations is not None:
+                    updates["model_input_initial_observations"] = model_input_initial_observations
             if operator_diagnostic is not None:
                 updates["operator_diagnostic"] = operator_diagnostic
             if policy_design_case_projection is not None:

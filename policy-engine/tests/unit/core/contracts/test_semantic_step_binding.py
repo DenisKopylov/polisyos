@@ -11,7 +11,11 @@ from polisyos.core.artifacts import ArtifactID, FileSystemCAS
 from polisyos.core.contracts.model_input_requirements import (
     load_model_input_obligation_set,
 )
-from polisyos.core.contracts.semantic_step_binding import resolve_model_input_step_scope
+from polisyos.core.contracts.semantic_step_binding import (
+    ModelInputStepSubject,
+    resolve_model_input_step_scope,
+    resolve_model_input_step_subjects,
+)
 from polisyos.core.contracts.variable_binding import ModelInputScope
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.ir.kernel.time_semantics import TimeFrequency, TimeSemantics
@@ -77,6 +81,49 @@ def test_temporal_step_subject_reopens_full_original_set_and_clock(tmp_path: Pat
         )
         assert members[0].port.scope.period_end == date(2021, 12, 31)
         assert resolved[0].scope.period_end == date(2020, 12, 31)
+    finally:
+        case.close()
+
+
+def test_pre_output_step_subject_batch_opens_original_set_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Validate real missing subjects without placeholder output artifacts."""
+    from polisyos.core.contracts import model_input_requirements
+
+    case, preflight = _two_year_preflight(tmp_path)
+    try:
+        selected_set, _ = load_model_input_obligation_set(case.store, preflight.obligation_set_ref)
+        assert selected_set.required_step_scopes is not None
+        (obligation_ref,) = selected_set.obligation_refs
+        subjects = tuple(
+            ModelInputStepSubject(model_input_obligation_ref=obligation_ref, step_scope=scope)
+            for scope in selected_set.required_step_scopes
+        )
+        loads = []
+        original_loader = model_input_requirements.load_model_input_obligation_set
+
+        def counted_loader(store, ref):
+            loads.append(ref)
+            return original_loader(store, ref)
+
+        monkeypatch.setattr(
+            model_input_requirements, "load_model_input_obligation_set", counted_loader
+        )
+        resolved = resolve_model_input_step_subjects(
+            FileSystemCAS.open_existing_read_only(case.store.root),
+            obligation_set_ref=preflight.obligation_set_ref,
+            subjects=subjects,
+        )
+        assert loads == [preflight.obligation_set_ref]
+        assert resolved.coverage.is_complete
+        assert resolved.coverage.supplied_step_scopes == selected_set.required_step_scopes
+        with pytest.raises(ValueError, match="model_input_step_coverage_supplied_duplicate"):
+            resolve_model_input_step_subjects(
+                case.store,
+                obligation_set_ref=preflight.obligation_set_ref,
+                subjects=(subjects[0], subjects[0]),
+            )
     finally:
         case.close()
 

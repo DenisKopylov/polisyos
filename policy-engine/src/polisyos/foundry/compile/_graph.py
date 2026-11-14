@@ -7,7 +7,6 @@ from graphlib import TopologicalSorter
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts import RegistrySlotInputPortSource
 from polisyos.core.contracts.execution_plan import ExecutionPlan
 from polisyos.core.contracts.foundry import (
     LoweredIRRef,
@@ -17,11 +16,13 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
+from polisyos.core.contracts.method_input import MethodInputPortSource
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.methods.base import MethodKind, SideEffectProfile
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.foundry.methods.types.checker import validate_registered_method_input
 from polisyos.ir.kernel.slots import SlotRegistry
+
+from .method_dataflow import MethodDataflowResolution, resolve_method_output_input_bindings
 
 
 def build_program_graph(
@@ -93,8 +94,17 @@ def build_program_graph(
         source.input_ports is not None for source in method_plan.method_dag
     )
     registry_content: RegistryBundleContent | None = None
+    method_dataflow: MethodDataflowResolution | None = None
     if uses_mapped_method_inputs:
         registry_content = _selected_registry_bundle_content(store, lowered_ir_ref)
+        if method_plan is None:
+            raise ValueError("execution_plan_method_input_plan_missing")
+        method_dataflow = resolve_method_output_input_bindings(
+            method_plan,
+            registry=MethodRegistry.get_instance(),
+            registry_content=registry_content,
+            allow_method_output=True,
+        )
     if method_plan is not None:
         method_nodes, method_edges = _method_plan_graph_nodes(
             method_plan,
@@ -102,6 +112,7 @@ def build_program_graph(
             existing_nodes=nodes,
             registry_content=registry_content,
             use_mapped_method_inputs=uses_mapped_method_inputs,
+            method_dataflow=method_dataflow,
         )
         method_node_ids = {node.node_id for node in method_nodes}
         planned_method_edges = {(edge.src, edge.dst) for edge in method_edges}
@@ -169,10 +180,13 @@ def _method_plan_graph_nodes(
     existing_nodes: list[ProgramNode],
     registry_content: RegistryBundleContent | None = None,
     use_mapped_method_inputs: bool = False,
+    method_dataflow: MethodDataflowResolution | None = None,
 ) -> tuple[list[ProgramNode], list[ProgramEdge]]:
     """Adapt the whole supported method DAG to the existing graph ABI or refuse it."""
     if use_mapped_method_inputs and registry_content is None:
         raise ValueError("execution_plan_method_selected_registry_unavailable")
+    if use_mapped_method_inputs and method_dataflow is None:
+        raise ValueError("execution_plan_method_dataflow_resolution_unavailable")
     if any(source.input_ports is not None for source in plan.method_dag) and not (
         use_mapped_method_inputs
     ):
@@ -215,41 +229,13 @@ def _method_plan_graph_nodes(
             raise ValueError("execution_plan_method_parameter_names_invalid")
         if set(source.params) - parameter_names:
             raise ValueError("execution_plan_method_unknown_parameter")
-        method_input_ports: dict[str, RegistrySlotInputPortSource] | None = None
+        method_input_ports: dict[str, MethodInputPortSource] | None = None
         program_inputs = list(source.reads_slots)
         if use_mapped_method_inputs:
-            if registry_content is None:
-                raise ValueError("execution_plan_method_selected_registry_unavailable")
-            declared_ports = source.input_ports
-            if declared_ports is not None and set(declared_ports) != set(input_slots):
-                raise ValueError("execution_plan_method_input_ports_abi_mismatch")
-            method_input_ports = {}
-            for input_slot_id in sorted(input_slots):
-                input_source = (
-                    declared_ports.get(input_slot_id)
-                    if declared_ports is not None
-                    else RegistrySlotInputPortSource(
-                        source_kind="registry_slot",
-                        slot_id=input_slot_id,
-                    )
-                )
-                if input_source is None:
-                    raise ValueError("execution_plan_method_input_ports_abi_mismatch")
-                if input_source.source_kind != "registry_slot":
-                    raise ValueError("execution_plan_method_output_input_not_supported")
-                if input_source.slot_id not in registry_content.slot_registry.slots:
-                    raise ValueError("execution_plan_method_input_slot_unregistered")
-                try:
-                    validate_registered_method_input(
-                        signature,
-                        input_slot_id=input_slot_id,
-                        registered_slot_id=input_source.slot_id,
-                        registry=registry_content,
-                    )
-                except ValueError as exc:
-                    raise ValueError(f"execution_plan_method_input_source_invalid:{exc}") from exc
-                method_input_ports[input_slot_id] = input_source
-            program_inputs = sorted({item.slot_id for item in method_input_ports.values()})
+            if method_dataflow is None:
+                raise ValueError("execution_plan_method_dataflow_resolution_unavailable")
+            method_input_ports = dict(method_dataflow.input_sources[source.node_id])
+            program_inputs = list(method_dataflow.registry_inputs[source.node_id])
         if source.state_writes and (
             entry is None
             or entry.metadata.side_effect_profile is not SideEffectProfile.PATCH_EMISSION
@@ -294,51 +280,56 @@ def _method_plan_graph_nodes(
             raise ValueError("execution_plan_method_edges_not_unique")
         explicit_edges.add(edge_key)
     dependencies.update(explicit_edges)
+    if method_dataflow is not None:
+        dependencies.update(method_dataflow.dependency_edges)
     if any(
         source not in method_id_set or target not in method_id_set
         for source, target in dependencies
     ):
         raise ValueError("execution_plan_method_dependency_endpoint_missing")
-    # The adapter has no typed transfer between a method return and a later graph
-    # node. Refuse direct slot matches and declared dependency paths that could
-    # carry a return under a different alias, before ProgramGraph construction.
-    all_return_slots = (
-        set().union(*return_slots_by_node.values()) if return_slots_by_node else set()
-    )
-    all_method_reads = set().union(*read_slots_by_node.values()) if read_slots_by_node else set()
-    if all_return_slots.intersection(all_method_reads):
-        raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
-
-    dependents: dict[str, set[str]] = {node_id: set() for node_id in method_ids}
-    for source, target in dependencies:
-        dependents[source].add(target)
-    for producer_id, produced_slots in return_slots_by_node.items():
-        if not produced_slots:
-            continue
-        pending = list(dependents[producer_id])
-        visited: set[str] = set()
-        while pending:
-            consumer_id = pending.pop()
-            if consumer_id in visited:
-                continue
-            visited.add(consumer_id)
-            if read_slots_by_node[consumer_id]:
-                raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
-            pending.extend(dependents[consumer_id])
-
-    graph_method_nodes = [
-        node
-        for node in existing_nodes
-        if node.node_kind == "mechanism"
-        or (
-            node.node_kind == "op"
-            and node.op is not None
-            and node.op.op_kind in {"apply_mechanism", "apply_method"}
+    if not use_mapped_method_inputs:
+        # Legacy Graph 0.2 carries only identity registry-slot joins. Keep its
+        # conservative return-name overlap refusal unchanged; Graph 0.3 has an
+        # explicit source arm and never infers method dataflow from slot names.
+        all_return_slots = (
+            set().union(*return_slots_by_node.values()) if return_slots_by_node else set()
         )
-    ]
-    graph_inputs = {slot for node in graph_method_nodes for slot in node.inputs}
-    if all_return_slots.intersection(graph_inputs):
-        raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
+        all_method_reads = (
+            set().union(*read_slots_by_node.values()) if read_slots_by_node else set()
+        )
+        if all_return_slots.intersection(all_method_reads):
+            raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
+
+        dependents: dict[str, set[str]] = {node_id: set() for node_id in method_ids}
+        for source, target in dependencies:
+            dependents[source].add(target)
+        for producer_id, produced_slots in return_slots_by_node.items():
+            if not produced_slots:
+                continue
+            pending = list(dependents[producer_id])
+            visited: set[str] = set()
+            while pending:
+                consumer_id = pending.pop()
+                if consumer_id in visited:
+                    continue
+                visited.add(consumer_id)
+                if read_slots_by_node[consumer_id]:
+                    raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
+                pending.extend(dependents[consumer_id])
+
+        graph_method_nodes = [
+            node
+            for node in existing_nodes
+            if node.node_kind == "mechanism"
+            or (
+                node.node_kind == "op"
+                and node.op is not None
+                and node.op.op_kind in {"apply_mechanism", "apply_method"}
+            )
+        ]
+        graph_inputs = {slot for node in graph_method_nodes for slot in node.inputs}
+        if all_return_slots.intersection(graph_inputs):
+            raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
 
     sorter = TopologicalSorter()
     for method_id in method_ids:

@@ -8,7 +8,7 @@ are their production implementations; no service or port object is fabricated.
 import hashlib
 import json
 import socket
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, ClassVar
@@ -581,8 +581,13 @@ def intercepted_wdi_transport(
     monkeypatch: pytest.MonkeyPatch,
     *,
     allow_loopback: bool = False,
+    response_factory: Callable[[str, str, Mapping[str, str]], bytes] | None = None,
 ) -> list[tuple[str, str, dict[str, str]]]:
-    """Intercept external HTTP bytes while executing the real WDI/Fabric owners."""
+    """Intercept external HTTP bytes while executing the real WDI/Fabric owners.
+
+    A response factory may select fixture bytes from normalized request coordinates;
+    connector parsing, normalization and evidence production remain real.
+    """
     original_request = aiohttp.ClientSession._request
     original_connect = socket.socket.connect
     original_connect_ex = socket.socket.connect_ex
@@ -621,6 +626,11 @@ def intercepted_wdi_transport(
         assert isinstance(params, Mapping)
         normalized = {str(key): str(value) for key, value in params.items()}
         transport_calls.append((method, str(url), normalized))
+        if response_factory is not None:
+            body = response_factory(method, str(url), dict(normalized))
+            if not isinstance(body, bytes):
+                raise TypeError("fixture WDI response factory must return bytes")
+            return _InterceptedResponse(body)
         bounds = normalized["date"].split(":")
         start_year, end_year = int(bounds[0]), int(bounds[-1])
         rows = [row for row in _normalized_rows() if start_year <= row["year"] <= end_year]

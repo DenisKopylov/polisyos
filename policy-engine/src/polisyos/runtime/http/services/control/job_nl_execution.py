@@ -19,6 +19,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.http.services.control_plane_store import (
+        GenericModelInputInitialFrontierCAS,
+    )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
     from polisyos.runtime.quality.generation_cycle import _GenerationCycleN5Completion
 
@@ -463,6 +466,237 @@ class ControlNLJobExecutionMixin:
                     if ref not in refs:
                         refs.append(ref)
         return tuple(refs)
+
+    def _completed_generic_initial_observations(
+        self,
+        context: _ControlNLJobContext,
+        compiled: CompiledRecursiveGenerationCycleRun,
+    ) -> tuple[tuple[ArtifactRef, ...], tuple[GenericModelInputInitialFrontierCAS, ...]]:
+        """Seed only actual ordinary method observations selected by this job.
+
+        Old Generic outputs retain their existing completion behavior. Every
+        completed current-method occurrence is reopened with its source owner;
+        a missing or corrupt qualified occurrence refuses completion.
+        """
+        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+
+        if not any(
+            cycle.simulation.status == "joint_simulated"
+            and cycle.simulation.generic_n5_input_ref is not None
+            for node in compiled.recursive_run.nodes
+            if type(node) is RecursiveCycleNode and node.cycle_run is not None
+            for cycle in node.cycle_run.cycles
+        ):
+            return (), ()
+
+        from datetime import UTC, datetime
+
+        from polisyos.core.artifacts import artifact_ref_identity_key, load_core_json_artifact
+        from polisyos.runtime.http.services.control_plane_store import (
+            GenericModelInputEvaluationFrontierKey,
+            GenericModelInputInitialFrontierCAS,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            issue_generic_model_input_initial_evaluation_basis,
+            issue_generic_model_input_initial_evaluation_decision,
+            persist_acquisition_evaluation_artifact,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationN5ExecutionV3,
+            GenericCycleSimulationN5InputV1,
+            GenericN5ExecutionJoinExpectation,
+            parse_generic_cycle_simulation_n5_execution,
+        )
+
+        owner = self._generic_cycle_simulation_admission_owner
+        refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        seeds = []
+        keys = set()
+        for node in compiled.recursive_run.nodes:
+            if type(node) is not RecursiveCycleNode or node.cycle_run is None:
+                continue
+            for cycle in node.cycle_run.cycles:
+                simulation = cycle.simulation
+                if (
+                    simulation.status != "joint_simulated"
+                    or simulation.generic_n5_input_ref is None
+                ):
+                    continue
+                execution_ref = simulation.generic_n5_execution_ref
+                if execution_ref is None:
+                    raise ValueError("compiled_generic_initial_execution_missing")
+                execution = parse_generic_cycle_simulation_n5_execution(
+                    load_core_json_artifact(self._artifact_store, execution_ref)
+                )
+                if type(execution) is not GenericCycleSimulationN5ExecutionV3 or (
+                    execution.initial_method_input_purpose is None
+                ):
+                    continue
+                scope = context.execution_scope
+                if (
+                    type(owner) is not GenericCycleSimulationAdmissionOwner
+                    or context.producer_run_binding is None
+                    or context.verified_nl_job_scope is None
+                    or not context.verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+                    or scope.status != "established"
+                    or scope.tenant_id is None
+                    or scope.cell_id is None
+                    or self._llm_producer_settlement_store is None
+                ):
+                    raise ValueError("compiled_generic_initial_owner_missing")
+                source = GenericCycleSimulationN5InputV1.model_validate(
+                    load_core_json_artifact(self._artifact_store, simulation.generic_n5_input_ref)
+                )
+                expected_refs = (
+                    (source.n4_source_ref, simulation.generic_n4_source_ref),
+                    (source.context_job_ref, simulation.generic_context_job_ref),
+                    (source.profile_ref, simulation.generic_profile_ref),
+                    (execution.input_ref, simulation.generic_n5_input_ref),
+                    (execution.result_ref, simulation.simulation_result_ref),
+                )
+                world_hash = source.profile.context_inputs.world_model_record.content_hash
+                if (
+                    (source.job_id, source.run_id, source.tenant_id, source.cell_id)
+                    != (context.job.job_id, context.job.run_id, scope.tenant_id, scope.cell_id)
+                    or source.cycle_index != cycle.cycle_index
+                    or source.candidate_id != cycle.selected_candidate_ref
+                    or source.candidate_id != simulation.candidate_id
+                    or source.candidate_atom_hash != cycle.selected_candidate_content_hash
+                    or source.design_problem_ref
+                    != (cycle.design_problem_basis_ref or cycle.design_problem_ref)
+                    or source.profile.profile_selection_ref
+                    != simulation.generic_profile_selection_ref
+                    or source.n4_child_profile_family_ref
+                    != simulation.generic_n4_child_profile_family_ref
+                    or source.n4_child_profile_set_ref
+                    != simulation.generic_n4_child_profile_set_ref
+                    or simulation.k_world_ref_before != world_hash
+                    or simulation.k_world_ref_after != world_hash
+                    or any(
+                        actual is None
+                        or selected is None
+                        or artifact_ref_identity_key(actual) != artifact_ref_identity_key(selected)
+                        for actual, selected in expected_refs
+                    )
+                ):
+                    raise ValueError("compiled_generic_initial_subject_mismatch")
+                expected = GenericN5ExecutionJoinExpectation(
+                    input_ref=simulation.generic_n5_input_ref,
+                    result_ref=simulation.simulation_result_ref,
+                    status="joint_simulated",
+                    model_input_obligation_set_ref=None,
+                    n4_source_ref=source.n4_source_ref,
+                    context_job_ref=source.context_job_ref,
+                    profile_ref=source.profile_ref,
+                    child_family_ref=source.n4_child_profile_family_ref,
+                    child_set_ref=source.n4_child_profile_set_ref,
+                    profile_selection_ref=source.profile.profile_selection_ref,
+                    profile=source.profile,
+                    child_selection=source.child_selection,
+                    design_problem_ref=source.design_problem_ref,
+                    outcome_variable=source.outcome_variable,
+                    cycle_index=cycle.cycle_index,
+                    candidate_id=cycle.selected_candidate_ref,
+                    candidate_atom_hash=cycle.selected_candidate_content_hash,
+                    world_model_record_content_hash=world_hash,
+                    job_id=context.job.job_id,
+                    run_id=str(context.job.run_id),
+                    source_run_id=source.source_run_id,
+                    tenant_id=scope.tenant_id,
+                    cell_id=scope.cell_id,
+                )
+                basis = issue_generic_model_input_initial_evaluation_basis(
+                    owner=owner,
+                    execution_ref=execution_ref,
+                    expected=expected,
+                    design_problem_ref=cycle.design_problem_ref,
+                    settlement_store=self._llm_producer_settlement_store,
+                    expected_run_binding=context.producer_run_binding,
+                )
+                key = GenericModelInputEvaluationFrontierKey(
+                    tenant_id=basis.tenant_id,
+                    cell_id=basis.cell_id,
+                    source_job_id=basis.source_job_id,
+                    design_problem_ref=basis.design_problem_ref,
+                    candidate_id=basis.candidate_id,
+                )
+                if key in keys:
+                    raise ValueError("compiled_generic_initial_subject_ambiguous")
+                keys.add(key)
+                basis_ref = persist_acquisition_evaluation_artifact(
+                    store=self._artifact_store,
+                    event_log=self._diagnostic_event_log,
+                    record=basis,
+                )
+                decision = issue_generic_model_input_initial_evaluation_decision(
+                    basis=basis,
+                    basis_ref=basis_ref,
+                    generated_at=datetime.now(UTC).isoformat(),
+                )
+                decision_ref = persist_acquisition_evaluation_artifact(
+                    store=self._artifact_store,
+                    event_log=self._diagnostic_event_log,
+                    record=decision,
+                )
+                seeds.append(
+                    GenericModelInputInitialFrontierCAS(
+                        key=key,
+                        decision_ref=decision_ref,
+                        decision=decision,
+                        basis=basis,
+                    )
+                )
+                for ref in (
+                    basis.initial_observation.input_ref,
+                    execution_ref,
+                    basis.initial_observation.result_ref,
+                    basis_ref,
+                    decision_ref,
+                ):
+                    refs[artifact_ref_identity_key(ref)] = ref
+        return tuple(refs.values()), tuple(seeds)
+
+    def _revalidate_generic_initial_completion(
+        self,
+        context: _ControlNLJobContext,
+        seeds: tuple[GenericModelInputInitialFrontierCAS, ...],
+    ) -> None:
+        """Reopen current profile, selected outputs and durable units at completion."""
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            verify_generic_initial_physical_work,
+        )
+        from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationN5InputV1,
+        )
+
+        for seed in seeds:
+            selected = seed.basis.initial_observation
+            source = GenericCycleSimulationN5InputV1.model_validate(
+                load_core_json_artifact(self._artifact_store, selected.input_ref)
+            )
+            self._generic_cycle_simulation_admission_owner.resolve_profile(
+                source.profile_ref,
+                expected_profile=source.profile,
+                job_id=source.job_id,
+                run_id=source.run_id,
+                tenant_id=source.tenant_id,
+                cell_id=source.cell_id,
+            )
+            result = load_joint_simulation_result(
+                selected.result_ref,
+                store=self._artifact_store,
+                expected_world_model_record_content_hash=source.profile.context_inputs.world_model_record.content_hash,
+                expected_selected_outcomes=(source.outcome_variable,),
+            )
+            verify_generic_initial_physical_work(
+                result=result,
+                input_record=source,
+                settlement_store=self._llm_producer_settlement_store,
+                expected_run_binding=context.producer_run_binding,
+            )
 
     def _compile_control_nl_job(
         self, context: _ControlNLJobContext
@@ -1336,12 +1570,19 @@ class ControlNLJobExecutionMixin:
         cycle_substrate_context_job_ref = context.cycle_substrate_context_job_ref
         cycle_substrate_context_job_selected_ref = context.cycle_substrate_context_job_selected_ref
         candidate_outputs = self._completed_candidate_n5_output_refs(context, compiled)
+        generic_outputs, generic_initial_seeds = self._completed_generic_initial_observations(
+            context, compiled
+        )
+        completed_outputs = (*candidate_outputs, *generic_outputs)
         compiled_artifact_ref = self._put_json_artifact_ref(
             compiled.model_dump(mode="json"),
             kind="runtime.compiled_recursive_generation_cycle",
             schema_name=("polisyos.runtime.CompiledRecursiveGenerationCycleRun"),
-            inputs=list(candidate_outputs),
-            input_roles=tuple("completed_candidate_simulation" for _ in candidate_outputs),
+            inputs=list(completed_outputs),
+            input_roles=(
+                *("completed_candidate_simulation" for _ in candidate_outputs),
+                *("completed_generic_initial_observation" for _ in generic_outputs),
+            ),
             tenant_context=(
                 ArtifactTenantContextInfo(
                     tenant_id=execution_scope.tenant_id,
@@ -1361,7 +1602,7 @@ class ControlNLJobExecutionMixin:
                 core_run_id=core_run_id,
                 run_context=core_run_context,
                 compiled_run_ref=compiled_artifact_ref,
-                candidate_output_refs=candidate_outputs,
+                candidate_output_refs=completed_outputs,
             )
             core_progress = self._core_run_progress_fields(
                 job=job,
@@ -1404,11 +1645,13 @@ class ControlNLJobExecutionMixin:
             progress["recursive_budget_resolution"] = (
                 compiled.recursive_budget_resolution.model_dump(mode="json")
             )
+        self._revalidate_generic_initial_completion(context, generic_initial_seeds)
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=run_id,
             capability_manifest_ref=str(capability_manifest_ref),
             progress=progress,
+            generic_model_input_initial_frontiers=generic_initial_seeds,
         )
         self._emit_runtime_diagnostic_event(
             execution_scope=execution_scope,

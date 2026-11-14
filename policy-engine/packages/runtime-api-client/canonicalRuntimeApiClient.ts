@@ -1281,6 +1281,12 @@ export type N13bHistoryProjection =
 
 export type NLProvenance = RuntimeApiComponents["schemas"]["NLProvenance"];
 
+export type NativeDerivationLeafRouteProjection =
+  RuntimeApiComponents["schemas"]["NativeDerivationLeafRouteProjection"];
+
+export type NativeModelInputTargetProjection =
+  RuntimeApiComponents["schemas"]["NativeModelInputTargetProjection"];
+
 export type NaturalLanguageRunRequest =
   RuntimeApiComponents["schemas"]["NaturalLanguageRunRequest"];
 
@@ -1708,6 +1714,12 @@ export type RunLaunchResponse =
 
 export type RunLineageResponse =
   RuntimeApiComponents["schemas"]["RunLineageResponse"];
+
+export type RunModelInputInitialObservation =
+  RuntimeApiComponents["schemas"]["RunModelInputInitialObservation"];
+
+export type RunModelInputInitialObservationsProjection =
+  RuntimeApiComponents["schemas"]["RunModelInputInitialObservationsProjection"];
 
 export type RunModelInputUseActionSelector =
   RuntimeApiComponents["schemas"]["RunModelInputUseActionSelector"];
@@ -3381,16 +3393,18 @@ export class RuntimeApiClient {
   async getRunAcquisitionRoute(params: {
     run_id: string;
     route_id: string;
-  }): Promise<AcquisitionRouteProjection> {
+  }): Promise<
+    | AcquisitionRouteProjection
+    | NativeDerivationLeafRouteProjection
+    | NativeModelInputTargetProjection
+  > {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
     const query = undefined;
-    return this.request<AcquisitionRouteProjection>(
-      "GET",
-      path,
-      query,
-      undefined,
-      undefined,
-    );
+    return this.request<
+      | AcquisitionRouteProjection
+      | NativeDerivationLeafRouteProjection
+      | NativeModelInputTargetProjection
+    >("GET", path, query, undefined, undefined);
   }
 
   async requestRunAcquisitionDecision(params: {

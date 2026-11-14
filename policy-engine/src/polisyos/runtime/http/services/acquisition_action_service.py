@@ -32,6 +32,9 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteRecoveryRequired,
     AcquisitionSelectedEvaluation,
     CandidateExperimentTerminalHistory,
+    NativeDerivationInputsPending,
+    NativeDerivationLeafRouteAvailability,
+    NativeModelInputTargetAvailability,
     VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
     persist_world_commit_and_reenter,
@@ -562,7 +565,9 @@ class AcquisitionRouteProjection(BaseModel):
     recommended_strategy: str
     cost_basis: dict[str, object]
     replay_pins: AcquisitionRouteReplayPins
-    route_status: Literal["costed_actionable"] = "costed_actionable"
+    route_status: Literal["costed_actionable"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     authority_capability: Literal["ready", "producer_missing"]
     execution_capability: Literal["ready", "producer_missing"]
     qualification_status: Literal["pending_epoch_activation", "activated"] = (
@@ -614,13 +619,95 @@ class AcquisitionRouteProjection(BaseModel):
         return self
 
 
+class NativeDerivationLeafRouteProjection(BaseModel):
+    """Read-only native leaf route whose supplier or owner quote is missing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["NativeDerivationLeafRouteProjection@1.0"] = (
+        "NativeDerivationLeafRouteProjection@1.0"
+    )
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    route_status: Literal["inputs_pending"] = "inputs_pending"
+    source_node_id: str
+    derivation_bundle_ref: artifacts.ArtifactRef
+    requirement_gap_id: str
+    planner_record_id: str
+    selected_supplier_ref: artifacts.ArtifactRef | None = None
+    reason_codes: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _selected_bundle(self) -> NativeDerivationLeafRouteProjection:
+        if (
+            self.derivation_bundle_ref.kind != "runtime.quality.n7_derivation_bundle"
+            or self.derivation_bundle_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_leaf_projection_bundle_unselected")
+        return self
+
+
+class NativeModelInputTargetProjection(BaseModel):
+    """Read-only target for a native model-input goal awaiting an N7 plan."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["NativeModelInputTargetProjection@1.0"] = (
+        "NativeModelInputTargetProjection@1.0"
+    )
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    obligation_set_ref: artifacts.ArtifactRef
+    model_input_obligation_ref: artifacts.ArtifactRef
+    configured_port_source_ref: artifacts.ArtifactRef
+    planner_report_ref: artifacts.ArtifactRef
+    requirement_gap_id: str
+    planner_record_id: str
+    reason_codes: tuple[Literal["native_derivation_plan_not_selected"], ...]
+    model_goal_status: Literal["inputs_pending"] = "inputs_pending"
+    action_authority: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+    source_currentness: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _selected_target_refs(self) -> NativeModelInputTargetProjection:
+        expected = (
+            (self.obligation_set_ref, "runtime.quality.model_input_obligation_set"),
+            (self.model_input_obligation_ref, "runtime.quality.model_input_obligation"),
+            (
+                self.configured_port_source_ref,
+                "runtime.quality.n7_configured_candidate_port_source",
+            ),
+            (self.planner_report_ref, "runtime.acquisition_planner_report"),
+        )
+        if any(
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in expected
+        ):
+            raise ValueError("native_model_input_target_ref_unselected")
+        if self.reason_codes != ("native_derivation_plan_not_selected",):
+            raise ValueError("native_model_input_target_reason_mismatch")
+        return self
+
+
 class AcquisitionRouteListResponse(BaseModel):
     """Run-bound list response; the current closure admits at most one route."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     run_id: str
-    routes: tuple[AcquisitionRouteProjection, ...]
+    routes: tuple[
+        AcquisitionRouteProjection
+        | NativeDerivationLeafRouteProjection
+        | NativeModelInputTargetProjection,
+        ...,
+    ]
 
 
 class AcquisitionDecisionRequestResponse(BaseModel):
@@ -787,13 +874,13 @@ class AcquisitionExecutionPort(Protocol):
         self,
         closure: VerifiedAcquisitionRouteClosure,
         result: AcquisitionOwnerExecutionResult,
-    ) -> str: ...
+    ) -> str | NativeDerivationInputsPending: ...
 
     def resume_reentry(
         self,
         closure: VerifiedAcquisitionRouteClosure,
         owner_receipt_refs: tuple[str, ...],
-    ) -> str: ...
+    ) -> str | NativeDerivationInputsPending: ...
 
 
 class AcquisitionAuthorityGatewayProvider(Protocol):
@@ -931,8 +1018,27 @@ class AcquisitionActionService:
         cell_id: str,
         run_id: str,
     ) -> AcquisitionRouteListResponse:
-        """Return the exact current costed route or a typed closure error."""
+        """Return costed routes and read-only native leaves awaiting owner inputs."""
 
+        loop = self._route_loop(tenant_id=tenant_id, cell_id=cell_id)
+        try:
+            native_routes = loop.resolve_native_derivation_leaf_routes(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        if native_routes:
+            routes = tuple(
+                self._native_model_input_target_projection(
+                    item, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+                )
+                if type(item) is NativeModelInputTargetAvailability
+                else self._native_leaf_projection(
+                    item, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+                )
+                if type(item) is NativeDerivationLeafRouteAvailability
+                else self._projection(item)
+                for item in native_routes
+            )
+            return AcquisitionRouteListResponse(run_id=run_id, routes=routes)
         closure = self._resolve(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
         return AcquisitionRouteListResponse(
             run_id=run_id,
@@ -946,13 +1052,81 @@ class AcquisitionActionService:
         cell_id: str,
         run_id: str,
         route_id: str,
-    ) -> AcquisitionRouteProjection:
-        """Return one exact current route; stale route ids never revive."""
+    ) -> (
+        AcquisitionRouteProjection
+        | NativeDerivationLeafRouteProjection
+        | NativeModelInputTargetProjection
+    ):
+        """Return one exact costed route or a read-only native leaf projection."""
 
-        closure = self._resolve(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
-        if closure.route_id != route_id:
-            raise AcquisitionActionServiceError("acquisition_route_not_current")
+        loop = self._route_loop(tenant_id=tenant_id, cell_id=cell_id)
+        try:
+            native_routes = loop.resolve_native_derivation_leaf_routes(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        matches = tuple(item for item in native_routes if item.route_id == route_id)
+        if len(matches) > 1:
+            raise AcquisitionActionServiceError("native_leaf_route_ambiguous")
+        if matches:
+            selected = matches[0]
+            if type(selected) is NativeModelInputTargetAvailability:
+                return self._native_model_input_target_projection(
+                    selected, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+                )
+            if type(selected) is NativeDerivationLeafRouteAvailability:
+                return self._native_leaf_projection(
+                    selected, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+                )
+            return self._projection(selected)
+        if native_routes:
+            raise AcquisitionActionServiceError("native_leaf_route_not_current")
+        closure = self._resolve(
+            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, route_id=route_id
+        )
         return self._projection(closure)
+
+    @staticmethod
+    def _native_model_input_target_projection(
+        target: NativeModelInputTargetAvailability,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+    ) -> NativeModelInputTargetProjection:
+        return NativeModelInputTargetProjection(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=target.route_id,
+            obligation_set_ref=target.obligation_set_ref,
+            model_input_obligation_ref=target.model_input_obligation_ref,
+            configured_port_source_ref=target.configured_port_source_ref,
+            planner_report_ref=target.planner_report_ref,
+            requirement_gap_id=target.requirement_gap_id,
+            planner_record_id=target.planner_record_id,
+            reason_codes=target.reason_codes,
+        )
+
+    @staticmethod
+    def _native_leaf_projection(
+        route: NativeDerivationLeafRouteAvailability,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+    ) -> NativeDerivationLeafRouteProjection:
+        return NativeDerivationLeafRouteProjection(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route.route_id,
+            source_node_id=route.source_node_id,
+            derivation_bundle_ref=route.derivation_bundle_ref,
+            requirement_gap_id=route.requirement_gap_id,
+            planner_record_id=route.planner_record_id,
+            selected_supplier_ref=route.selected_supplier_ref,
+            reason_codes=route.reason_codes,
+        )
 
     def request_decision(
         self,
@@ -1167,12 +1341,7 @@ class AcquisitionActionService:
         port = self._require_execution_port()
         if head.receipt_phase == "terminal":
             self._consume_movement(head.receipt_ref)
-            return {
-                "state": "completed",
-                "phase": "acquisition",
-                "receipt_phase": "terminal",
-                "terminal_receipt_ref": head.receipt_ref,
-            }
+            return self._terminal_progress(head)
         if head.receipt_phase == "candidate_input_reentry_pending":
             completed = self._complete_production_candidate_input(closure)
             if completed is None:
@@ -1487,8 +1656,22 @@ class AcquisitionActionService:
         return port.complete_positive_admission(closure)
 
     def _consume_movement(self, receipt_ref: str) -> None:
-        if getattr(self, "_movement_service", None) is not None:
-            self._movement_service.consume_terminal(supplier_receipt_ref=receipt_ref)
+        movement_service = getattr(self, "_movement_service", None)
+        if movement_service is None:
+            return
+        try:
+            verified = self.control_service.acquisition_route_sink._read_verified_action_phase(
+                receipt_ref
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError("acquisition_terminal_readback_failed") from exc
+        terminal = verified.receipt
+        if (
+            type(terminal) is AcquisitionRouteLoopReceipt
+            and terminal.terminal_outcome == "inputs_pending"
+        ):
+            return
+        movement_service.consume_terminal(supplier_receipt_ref=receipt_ref)
 
     @_receipt_verification_scoped
     def get_candidate_experiment_route(
@@ -4852,11 +5035,25 @@ class AcquisitionActionService:
         tenant_id: str,
         cell_id: str,
         run_id: str,
+        route_id: str | None = None,
         action_job_id: str | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
         if not tenant_id or not cell_id or not run_id:
             raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
-        loop = AcquisitionRouteLoop(
+        loop = self._route_loop(tenant_id=tenant_id, cell_id=cell_id)
+        try:
+            return loop.resolve_current_route(
+                run_id=run_id,
+                route_id=route_id,
+                action_job_id=action_job_id,
+            )
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+
+    def _route_loop(self, *, tenant_id: str, cell_id: str) -> AcquisitionRouteLoop:
+        if not tenant_id or not cell_id:
+            raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
+        return AcquisitionRouteLoop(
             control_store=self.control_service._control_store,
             artifact_store=self.control_service._artifact_store,
             event_log=self.control_service._diagnostic_event_log,
@@ -4867,10 +5064,6 @@ class AcquisitionActionService:
             cell_id=cell_id,
             action_outcome_reader=self.control_service.acquisition_route_sink,
         )
-        try:
-            return loop.resolve_current_route(run_id=run_id, action_job_id=action_job_id)
-        except AcquisitionRouteClosureError as exc:
-            raise AcquisitionActionServiceError(exc.code) from exc
 
     def _projection(self, closure: VerifiedAcquisitionRouteClosure) -> AcquisitionRouteProjection:
         from polisyos.runtime.quality.acquisition_executor import (
@@ -4967,6 +5160,7 @@ class AcquisitionActionService:
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            route_id=route_id,
             action_job_id=job_id,
         )
         if (
@@ -5130,9 +5324,13 @@ class AcquisitionActionService:
         }[receipt_phase]
         return AcquisitionRoutePhaseReceipt(
             schema_version=(
-                "AcquisitionRoutePhaseReceipt@1.2"
-                if receipt_phase == "candidate_input_reentry_pending"
-                else "AcquisitionRoutePhaseReceipt@1.0"
+                "AcquisitionRoutePhaseReceipt@1.3"
+                if closure.owner_declared_profile_ref is not None
+                else (
+                    "AcquisitionRoutePhaseReceipt@1.2"
+                    if receipt_phase == "candidate_input_reentry_pending"
+                    else "AcquisitionRoutePhaseReceipt@1.0"
+                )
             ),
             receipt_id=f"{job_id}.{receipt_phase}",
             tenant_id=closure.tenant_id,
@@ -5152,6 +5350,8 @@ class AcquisitionActionService:
             predecessor_receipt_ref=predecessor_receipt_ref,
             owner_receipt_refs=owner_receipt_refs,
             candidate_receipt_ref=candidate_receipt_ref,
+            owner_declared_profile_ref=closure.owner_declared_profile_ref,
+            native_leaf_provider_selection=closure.native_derivation_leaf_provider,
             generated_at=datetime.now(UTC),
         )
 
@@ -5165,7 +5365,13 @@ class AcquisitionActionService:
         owner_receipt_refs: tuple[str, ...],
         action_generation: int = 1,
     ) -> AcquisitionRouteLoopReceipt:
+        is_native_leaf = closure.owner_declared_profile_ref is not None
         return AcquisitionRouteLoopReceipt(
+            schema_version=(
+                "AcquisitionRouteLoopReceipt@1.2"
+                if is_native_leaf
+                else "AcquisitionRouteLoopReceipt@1.0"
+            ),
             receipt_id=f"{job_id}.terminal",
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -5182,6 +5388,12 @@ class AcquisitionActionService:
             predecessor_receipt_ref=predecessor_receipt_ref,
             owner_receipt_refs=owner_receipt_refs,
             reentry_receipt_ref=None,
+            owner_declared_profile_ref=(
+                closure.owner_declared_profile_ref if is_native_leaf else None
+            ),
+            native_leaf_provider_selection=(
+                closure.native_derivation_leaf_provider if is_native_leaf else None
+            ),
             generated_at=datetime.now(UTC),
         )
 
@@ -5195,10 +5407,42 @@ class AcquisitionActionService:
         except Exception as exc:
             raise AcquisitionActionServiceError("acquisition_phase_readback_failed") from exc
 
-    @staticmethod
-    def _terminal_progress(head: AcquisitionActionHeadRecord) -> dict[str, Any]:
+    def _terminal_progress(self, head: AcquisitionActionHeadRecord) -> dict[str, Any]:
         if head.receipt_phase != "terminal":
             raise AcquisitionActionServiceError("acquisition_terminal_head_missing")
+        try:
+            verified = self.control_service.acquisition_route_sink.verify_action_head(head)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError("acquisition_terminal_readback_failed") from exc
+        terminal = verified.latest_receipt
+        if (
+            verified.head != head
+            or terminal.tenant_id != head.tenant_id
+            or terminal.cell_id != head.cell_id
+            or terminal.run_id != head.run_id
+            or terminal.source_job_id != head.source_job_id
+            or terminal.route_id != head.route_id
+            or terminal.job_id != head.job_id
+            or terminal.action_generation != head.action_generation
+        ):
+            raise AcquisitionActionServiceError("acquisition_terminal_head_mismatch")
+        if (
+            type(terminal) is AcquisitionRouteLoopReceipt
+            and terminal.terminal_outcome == "inputs_pending"
+        ):
+            collection = terminal.native_input_collection_ref
+            profile = terminal.owner_declared_profile_ref
+            if collection is None or profile is None:
+                raise AcquisitionActionServiceError("native_inputs_pending_binding_missing")
+            return {
+                "state": "completed",
+                "phase": "acquisition",
+                "receipt_phase": "terminal",
+                "terminal_receipt_ref": head.receipt_ref,
+                "model_goal_status": "inputs_pending",
+                "native_input_collection_ref": collection,
+                "owner_declared_profile_ref": profile,
+            }
         return {
             "state": "completed",
             "phase": "acquisition",
@@ -5300,4 +5544,6 @@ __all__ = [
     "CandidateExperimentRouteMutationRequest",
     "CandidateExperimentRouteProjection",
     "CandidateExperimentRouteReplayPins",
+    "NativeDerivationLeafRouteProjection",
+    "NativeModelInputTargetProjection",
 ]

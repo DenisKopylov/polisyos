@@ -33,7 +33,9 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
     AcquiredObservationDataSnapshotLineage,
+    AcquiredObservationSemanticInputDataSnapshotLineage,
     CandidateAcquisitionSourceDataSnapshotLineage,
     DataSnapshot,
     DataSnapshotOwnerLineage,
@@ -45,10 +47,6 @@ from polisyos.core.contracts import (
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
 )
-from polisyos.core.contracts.fabric import (
-    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
-    AcquiredObservationSemanticInputDataSnapshotLineage,
-)
 
 _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS = frozenset(
     {DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION, DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION}
@@ -56,8 +54,11 @@ _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS = frozenset(
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactBoundedMemberReader
-    from polisyos.core.contracts import ModelInputStepScope, ResolvedDerivedInput
-    from polisyos.core.contracts.fabric import DerivedModelInputStepDataSnapshotLineage
+    from polisyos.core.contracts import (
+        DerivedModelInputStepDataSnapshotLineage,
+        ModelInputStepScope,
+        ResolvedDerivedInput,
+    )
 
 
 class DataSnapshotLineageError(ValueError):
@@ -271,7 +272,7 @@ def validate_data_snapshot_owner_lineage(
             raise DataSnapshotLineageError("fabric_bridge_lineage_invalid")
         _verify_fabric_bridge_owner(store, snapshot, lineage)
     elif family == "derived_model_input_steps":
-        from polisyos.core.contracts.fabric import DerivedModelInputStepDataSnapshotLineage
+        from polisyos.core.contracts import DerivedModelInputStepDataSnapshotLineage
 
         if not isinstance(lineage, DerivedModelInputStepDataSnapshotLineage):
             raise DataSnapshotLineageError("derived_model_input_steps_lineage_invalid")
@@ -511,8 +512,10 @@ def _owner_family(
     raw_payload: object,
 ) -> str | None:
     kind = getattr(manifest, "kind", None)
-    from polisyos.core.contracts import DERIVED_MODEL_INPUT_PAYLOAD_KIND
-    from polisyos.core.contracts.fabric import DerivedModelInputStepDataSnapshotLineage
+    from polisyos.core.contracts import (
+        DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+        DerivedModelInputStepDataSnapshotLineage,
+    )
 
     is_derived_payload = kind == DERIVED_MODEL_INPUT_PAYLOAD_KIND or manifest.artifact_schema == (
         SchemaInfo(name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0")
@@ -619,7 +622,7 @@ def _owner_family(
 
 
 def _lineage_family(lineage: DataSnapshotOwnerLineage) -> str:
-    from polisyos.core.contracts.fabric import DerivedModelInputStepDataSnapshotLineage
+    from polisyos.core.contracts import DerivedModelInputStepDataSnapshotLineage
 
     if isinstance(lineage, DerivedModelInputStepDataSnapshotLineage):
         return "derived_model_input_steps"
@@ -1300,8 +1303,9 @@ def _verify_derived_model_input_steps_owner(
     the Foundry consumer's responsibility.
     """
     from polisyos.core.artifacts import validate_core_model_json_artifact
-    from polisyos.core.contracts import DERIVED_MODEL_INPUT_PAYLOAD_KIND
-    from polisyos.core.contracts.semantic_step_binding import (
+    from polisyos.core.contracts import (
+        DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+        DerivedModelInputStepDataSnapshotLineage,
         resolve_model_input_step_selections,
     )
     from polisyos.foundry.data_plane import load_input_bindings
@@ -1317,8 +1321,9 @@ def _verify_derived_model_input_steps_owner(
     if (
         snapshot.data_ref.kind != DERIVED_MODEL_INPUT_PAYLOAD_KIND
         or payload_manifest.artifact_schema
-        != SchemaInfo(name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0")
+        != SchemaInfo(name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.1")
         or not isinstance(raw_payload, Mapping)
+        or set(raw_payload) != {"derived_inputs"}
     ):
         raise DataSnapshotLineageError("derived_model_input_steps_payload_manifest_mismatch")
 
@@ -1339,8 +1344,15 @@ def _verify_derived_model_input_steps_owner(
     )
     selected_set = resolution.obligation_set
     predecessor = load_input_bindings(store, selected_set.invocation.input_bindings_ref)
-    if artifact_ref_identity_key(predecessor.data_snapshot_ref) != artifact_ref_identity_key(
-        lineage.base_data_snapshot_ref
+    if (
+        isinstance(base_snapshot.source_lineage, DerivedModelInputStepDataSnapshotLineage)
+        or predecessor.schema_version == "1.5"
+        or artifact_ref_identity_key(predecessor.data_snapshot_ref)
+        != artifact_ref_identity_key(lineage.base_data_snapshot_ref)
+        or artifact_ref_identity_key(predecessor.registry_bundle_ref)
+        != artifact_ref_identity_key(selected_set.invocation.registry_bundle_ref)
+        or artifact_ref_identity_key(predecessor.bound_state_snapshot_ref)
+        != artifact_ref_identity_key(selected_set.prestate_ref)
     ):
         raise DataSnapshotLineageError("derived_model_input_steps_base_context_mismatch")
 
@@ -1350,12 +1362,6 @@ def _verify_derived_model_input_steps_owner(
             selected_set.obligation_refs, resolution.obligations, strict=True
         )
     }
-    base_payload = _read_owner_band_payload(
-        store, _verified_manifest(store, base_snapshot.data_ref)
-    )
-    if not isinstance(base_payload, dict) or "derived_inputs" in base_payload:
-        raise DataSnapshotLineageError("derived_model_input_steps_base_payload_profile_unsupported")
-    expected_payload = copy.deepcopy(base_payload)
     derived_values: dict[str, dict[str, object]] = {}
     payload_edges: list[tuple[ArtifactRef, str]] = [
         (base_snapshot.data_ref, "context.base_payload")
@@ -1388,7 +1394,7 @@ def _verify_derived_model_input_steps_owner(
             )
         )
     _require_exact_owner_edges(store, manifest=payload_manifest, expected=tuple(payload_edges))
-    expected_payload["derived_inputs"] = derived_values
+    expected_payload = {"derived_inputs": derived_values}
     spec = CanonSpec(forbid_floats=False)
     if to_canonical_bytes(raw_payload, spec) != to_canonical_bytes(expected_payload, spec):
         raise DataSnapshotLineageError("derived_model_input_steps_payload_replay_mismatch")

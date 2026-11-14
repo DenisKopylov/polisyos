@@ -417,7 +417,7 @@ class MethodOutputScalarValueIdentity(BaseModel):
     shape: tuple[StrictInt, ...] = Field(max_length=0)
     dtype: StrictStr = Field(min_length=1, max_length=4)
     unit: MethodMetricSourceUnit
-    contract_id: StrictStr | None
+    contract_id: StrictStr | None = None
 
     @model_validator(mode="after")
     def validate_scalar_identity(self) -> MethodOutputScalarValueIdentity:
@@ -954,10 +954,18 @@ class MethodExecutionReturnedSlot(BaseModel):
     runtime_shape_status: Literal["captured", "not_established", "not_returned"]
     runtime_dtype: StrictStr | None = Field(default=None, max_length=128)
     codec_status: Literal[
-        "json_scalar_supported", "unsupported_codec", "not_attempted", "not_returned"
+        "json_scalar_supported",
+        "typed_scalar_supported",
+        "unsupported_codec",
+        "not_attempted",
+        "not_returned",
     ]
     retention_status: Literal[
-        "selected_metric_output", "not_retained", "unsupported_codec", "not_emitted"
+        "selected_metric_output",
+        "selected_dataflow_output",
+        "not_retained",
+        "unsupported_codec",
+        "not_emitted",
     ]
     limitation: StrictStr | None = Field(default=None, max_length=512)
 
@@ -994,6 +1002,20 @@ class MethodExecutionReturnedSlot(BaseModel):
             and self.codec_status != "unsupported_codec"
         ):
             raise ValueError("unsupported_method_slot_retention_requires_codec_failure")
+        if self.retention_status == "selected_dataflow_output" and (
+            self.returned != "returned"
+            or self.codec_status != "typed_scalar_supported"
+            or self.runtime_shape_status != "captured"
+            or self.runtime_shape != ()
+            or self.runtime_dtype not in _METHOD_OUTPUT_SCALAR_DTYPE_LAYOUT
+            or self.declared_slot_type != "SCALAR"
+            or self.declared_shape != ()
+        ):
+            raise ValueError("selected_dataflow_output_requires_typed_scalar_capture")
+        if self.codec_status == "typed_scalar_supported" and (
+            self.retention_status != "selected_dataflow_output"
+        ):
+            raise ValueError("typed_scalar_capture_requires_dataflow_retention")
         return self
 
 
@@ -1207,14 +1229,20 @@ class MethodExecutionOccurrence(BaseModel):
 
 
 class MethodExecutionBundle(BaseModel):
-    """Selected actual execution capture with complete occurrence inventory."""
+    """Selected actual execution capture with complete occurrence inventory.
+
+    Schema 1.3 may add bounded, occurrence-joined method-output consumption
+    records. Those records describe observed candidate execution flow; they do
+    not authorize value reuse outside the separately validated consumer.
+    """
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodExecutionBundle"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.1", "1.2")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.1", "1.2", "1.3")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
         "1.1": "1.1",
         "1.2": "1.2",
+        "1.3": "1.3",
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.method_execution_bundle"]] = (
         "foundry.method_execution_bundle"
@@ -1223,7 +1251,7 @@ class MethodExecutionBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.1", "1.2"] = "1.1"
+    schema_version: Literal["1.1", "1.2", "1.3"] = "1.1"
     captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     program_graph_ref: ProgramGraphRef
     exec_plan_ref: ExecPlanRef
@@ -1231,6 +1259,9 @@ class MethodExecutionBundle(BaseModel):
     environment_manifest_ref: EnvironmentManifestRef | None = None
     occurrences: list[MethodExecutionOccurrence] = Field(default_factory=list, max_length=128)
     limitations: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+    method_output_consumptions: tuple[MethodOutputConsumptionRecord, ...] | None = Field(
+        default=None, max_length=128, exclude_if=lambda value: not value
+    )
 
     @field_validator("limitations")
     @classmethod
@@ -1251,14 +1282,166 @@ class MethodExecutionBundle(BaseModel):
             item.restricted_call_witness is not None for item in self.occurrences
         ):
             raise ValueError("legacy_method_execution_bundle_cannot_claim_call_witness")
-        if self.schema_version == "1.2" and any(
+        if self.schema_version in {"1.2", "1.3"} and any(
             item.status == "succeeded"
             and item.method_fqn == "policy.evaluation.ex_ante_simulation@1.0.0"
             and item.restricted_call_witness is None
             for item in self.occurrences
         ):
             raise ValueError("succeeded_exante_occurrence_requires_call_witness_or_refusal")
+        if self.schema_version != "1.3" and self.method_output_consumptions:
+            raise ValueError("method_execution_bundle_output_consumption_version_mismatch")
+        has_dataflow_capture = self._validate_dataflow_output_captures()
+        if self.schema_version == "1.3":
+            if self.method_output_consumptions:
+                self._validate_method_output_consumptions(has_dataflow_capture)
+            elif not has_dataflow_capture:
+                raise ValueError("method_execution_bundle_v13_requires_dataflow_output_capture")
         return self
+
+    def _validate_dataflow_output_captures(self) -> set[tuple[str, str]]:
+        """Validate selected typed scalar outputs and return their occurrence keys."""
+        captures: set[tuple[str, str]] = set()
+        for occurrence in self.occurrences:
+            if (
+                any(
+                    slot.retention_status == "selected_dataflow_output"
+                    or slot.codec_status == "typed_scalar_supported"
+                    for slot in occurrence.returned_slots
+                )
+                and self.schema_version != "1.3"
+            ):
+                raise ValueError("legacy_method_execution_bundle_cannot_claim_dataflow_output")
+
+            for returned_slot in occurrence.returned_slots:
+                if returned_slot.retention_status != "selected_dataflow_output":
+                    continue
+                output_slot = next(
+                    (
+                        item
+                        for item in occurrence.output_slots
+                        if item.slot_id == returned_slot.slot_id
+                    ),
+                    None,
+                )
+                if (
+                    occurrence.node_kind != "method"
+                    or occurrence.status != "succeeded"
+                    or occurrence.dispatch is None
+                    or occurrence.dispatch.outcome != "succeeded"
+                    or returned_slot.returned != "returned"
+                    or returned_slot.codec_status != "typed_scalar_supported"
+                    or returned_slot.runtime_shape_status != "captured"
+                    or returned_slot.runtime_shape != ()
+                    or returned_slot.runtime_dtype not in _METHOD_OUTPUT_SCALAR_DTYPE_LAYOUT
+                    or not returned_slot.declared_by_signature
+                    or returned_slot.declared_slot_type != "SCALAR"
+                    or returned_slot.declared_shape != ()
+                    or returned_slot.slot_id not in occurrence.dispatch.signature_output_slot_ids
+                    or output_slot is None
+                    or output_slot.status != "captured"
+                    or output_slot.output_ref is None
+                    or output_slot.output_ref.manifest_profile_sha256 is None
+                ):
+                    raise ValueError("method_execution_bundle_dataflow_output_capture_mismatch")
+                captures.add((occurrence.occurrence_id, returned_slot.slot_id))
+        return captures
+
+    def _validate_method_output_consumptions(
+        self, dataflow_capture_keys: set[tuple[str, str]]
+    ) -> None:
+        """Join each claimed transfer to its selected producer and consumer occurrence."""
+        occurrences_by_id = {item.occurrence_id: item for item in self.occurrences}
+        consumer_keys = tuple(
+            (item.consumer_occurrence_id, item.consumer_input_slot_id)
+            for item in self.method_output_consumptions or ()
+        )
+        if len(set(consumer_keys)) != len(consumer_keys):
+            raise ValueError("method_execution_bundle_duplicate_output_consumption_input")
+
+        for item in self.method_output_consumptions or ():
+            producer = occurrences_by_id.get(item.producer_occurrence_id)
+            consumer = occurrences_by_id.get(item.consumer_occurrence_id)
+            if producer is None or consumer is None:
+                raise ValueError("method_execution_bundle_output_consumption_occurrence_missing")
+            if (
+                producer.node_kind != "method"
+                or consumer.node_kind != "method"
+                or producer.invocation_id != item.producer_invocation_id
+                or producer.node_id != item.producer_node_id
+                or producer.method_fqn != item.producer_method_fqn
+                or producer.method_version != item.producer_method_version
+                or producer.method_abi_digest != item.producer_method_abi_digest
+                or producer.method_abi_digest_algorithm != item.producer_method_abi_digest_algorithm
+                or consumer.invocation_id != item.consumer_invocation_id
+                or consumer.node_id != item.consumer_node_id
+                or consumer.method_fqn != item.consumer_method_fqn
+                or consumer.method_version != item.consumer_method_version
+                or consumer.method_abi_digest != item.consumer_method_abi_digest
+                or consumer.method_abi_digest_algorithm != item.consumer_method_abi_digest_algorithm
+                or producer.invocation_id != consumer.invocation_id
+                or producer.plan_index >= consumer.plan_index
+                or producer.status != "succeeded"
+                or producer.dispatch is None
+                or producer.dispatch.outcome != "succeeded"
+                or consumer.status not in {"succeeded", "failed"}
+                or consumer.dispatch is None
+                or consumer.dispatch.outcome != consumer.status
+            ):
+                raise ValueError("method_execution_bundle_output_consumption_occurrence_mismatch")
+
+            producer_output = next(
+                (
+                    slot
+                    for slot in producer.output_slots
+                    if slot.slot_id == item.producer_output_slot_id
+                ),
+                None,
+            )
+            producer_returned = next(
+                (
+                    slot
+                    for slot in producer.returned_slots
+                    if slot.slot_id == item.producer_output_slot_id
+                ),
+                None,
+            )
+            if (
+                item.producer_output_slot_id not in producer.dispatch.signature_output_slot_ids
+                or producer_output is None
+                or producer_output.status != "captured"
+                or producer_output.output_ref is None
+                or (item.producer_occurrence_id, item.producer_output_slot_id)
+                not in dataflow_capture_keys
+                or producer_returned is None
+                or not producer_returned.declared_by_signature
+                or producer_returned.declared_slot_type != "SCALAR"
+                or producer_returned.declared_shape != ()
+                or producer_returned.runtime_dtype != item.producer_value_identity.dtype
+                or producer_returned.runtime_shape != item.producer_value_identity.shape
+                or artifact_ref_identity_key(producer_output.output_ref)
+                != artifact_ref_identity_key(item.producer_output_ref)
+            ):
+                raise ValueError("method_execution_bundle_output_consumption_output_ref_mismatch")
+
+            if item.consumer_input_slot_id not in consumer.dispatch.signature_input_slot_ids:
+                raise ValueError("method_execution_bundle_output_consumption_input_mismatch")
+            consumer_input = next(
+                (
+                    slot
+                    for slot in consumer.dispatch.input_slot_values
+                    if slot.slot_id == item.consumer_input_slot_id
+                ),
+                None,
+            )
+            if (
+                consumer_input is None
+                or consumer_input.status != "captured"
+                or consumer_input.value_sha256 != item.consumer_argument_value_sha256
+                or consumer_input.runtime_dtype != item.consumer_argument_identity.dtype
+                or consumer_input.runtime_shape != item.consumer_argument_identity.shape
+            ):
+                raise ValueError("method_execution_bundle_output_consumption_input_mismatch")
 
 
 class AgentPolicyRef(ArtifactRef):

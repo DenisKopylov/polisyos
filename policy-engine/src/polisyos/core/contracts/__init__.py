@@ -334,6 +334,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "WarningsRef",
         "AcquiredObservationSemanticInputDataSnapshotLineage",
         "DerivedModelInputDataSnapshotLineage",
+        "DerivedModelInputStepDataSnapshotLineage",
     ),
     ".forecast_profile_member": (
         "FORECAST_PROFILE_MEMBER_CONTRACT_VERSION",
@@ -399,6 +400,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "FoundryExecutionInputBasisRef",
         "FeedbackConfig",
         "FeedbackConfigRef",
+        "FeedbackExecutionContext",
         "FeedbackConvergenceCertificate",
         "FeedbackConvergenceCertificateRef",
         "FeedbackDiagnosticSpec",
@@ -600,6 +602,8 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "RelationType",
     ),
     ".runtime": (
+        "RunModelInputInitialObservation",
+        "RunModelInputInitialObservationsProjection",
         "RunCandidateSimulationN5ResultBody",
         "AgentPipelineAttempt",
         "CompletedMethodHTESource",
@@ -902,6 +906,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "persist_resolved_input_binding_manifest",
         "DERIVED_MODEL_INPUT_PAYLOAD_KIND",
         "ResolvedDerivedInput",
+        "ResolvedDerivedInputAtStep",
     ),
     ".uncertainty": (
         "ForecastingUncertaintyBundleRef",
@@ -909,10 +914,12 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "UncertaintyEnvelopeRef",
     ),
     ".method_input": (
+        "MethodInputPortSource",
         "RegistrySlotInputPortSource",
         "MethodOutputInputPortSource",
     ),
     ".semantic_composition_binding": (
+        "RegisteredDerivedInputProfile",
         "RegisteredDerivedInputProfileRef",
         "RegisteredDerivedModelInputRequest",
         "RegisteredMeasurementRole",
@@ -951,8 +958,12 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "reconcile_model_input_step_coverage",
     ),
     ".semantic_step_binding": (
+        "ModelInputStepSubject",
+        "resolve_model_input_step_subjects",
         "resolve_model_input_step_scope",
         "recompute_resolved_step_input_coverage",
+        "ModelInputStepSelectionResolution",
+        "resolve_model_input_step_selections",
     ),
 }
 
@@ -1700,6 +1711,8 @@ if TYPE_CHECKING:
         RunGenericCycleSimulationN5TrajectoryPoint,
         RunGenericCycleSimulationN6CycleHistoryEntry,
         RunLineageResponse,
+        RunModelInputInitialObservation,
+        RunModelInputInitialObservationsProjection,
         RunModelInputUseActionSelector,
         RunModelInputUseActionsProjection,
         RunModelInputUseBlockedSourceProjection,
@@ -2648,6 +2661,7 @@ __all__.extend(
         "EntityAxisMemberId",
         "EntityAxisValueIdentity",
         "FeedbackConfig",
+        "FeedbackExecutionContext",
         "FeedbackMapEvaluationRecord",
         "FeedbackSolveResult",
         "FoundrySelectedMethodInputAtStep",
@@ -2831,6 +2845,7 @@ if TYPE_CHECKING:
         METHOD_METRIC_BINDING_LIMIT,
         ConstraintReport,
         ConstraintReportRef,
+        FeedbackExecutionContext,
         LoweredMechanism,
         MethodMetricInputCaptureSlot,
         ParameterOverrideBundle,
@@ -2838,6 +2853,7 @@ if TYPE_CHECKING:
         RestrictedMethodCallWitness,
     )
     from .method_input import (
+        MethodInputPortSource,
         MethodOutputInputPortSource,
         RegistrySlotInputPortSource,
     )
@@ -2851,6 +2867,7 @@ if TYPE_CHECKING:
         CandidateDerivedMeasurementRole,
         RegisteredDerivedInputContext,
         RegisteredDerivedInputCorrespondence,
+        RegisteredDerivedInputProfile,
         RegisteredDerivedInputProfileRef,
         RegisteredDerivedModelInputRequest,
         RegisteredMeasurementRole,
@@ -2874,15 +2891,18 @@ if TYPE_CHECKING:
     from .semantic_input_binding import (
         DERIVED_MODEL_INPUT_PAYLOAD_KIND,
         ResolvedDerivedInput,
+        ResolvedDerivedInputAtStep,
     )
 
 __all__.extend(
     [
         "AcquiredObservationSemanticInputDataSnapshotLineage",
         "DerivedModelInputDataSnapshotLineage",
+        "DerivedModelInputStepDataSnapshotLineage",
         "RegisteredSemanticBasis",
         "ReplayedCandidateDerivationRole",
         "ReplayedDerivedMeasurementRole",
+        "ResolvedDerivedInputAtStep",
         "evaluate_derived_input_correspondence",
         "evaluate_registered_derived_input_correspondence",
         "load_derived_input_correspondence",
@@ -2897,6 +2917,7 @@ if TYPE_CHECKING:
     from .fabric import (
         AcquiredObservationSemanticInputDataSnapshotLineage,
         DerivedModelInputDataSnapshotLineage,
+        DerivedModelInputStepDataSnapshotLineage,
     )
     from .semantic_composition_binding import (
         RegisteredSemanticBasis,
@@ -2915,14 +2936,22 @@ if TYPE_CHECKING:
 
 __all__.extend(
     [
+        "MethodInputPortSource",
         "MethodOutputConsumptionRecord",
         "MethodOutputPayloadV11",
         "MethodOutputScalarValueIdentity",
         "ModelInputStepCoverage",
+        "ModelInputStepSelectionResolution",
+        "ModelInputStepSubject",
+        "RegisteredDerivedInputProfile",
+        "RunModelInputInitialObservation",
+        "RunModelInputInitialObservationsProjection",
         "model_scalar_state_slot_spec_digest",
         "recompute_resolved_step_input_coverage",
         "reconcile_model_input_step_coverage",
         "resolve_model_input_step_scope",
+        "resolve_model_input_step_selections",
+        "resolve_model_input_step_subjects",
     ]
 )
 
@@ -2938,6 +2967,10 @@ if TYPE_CHECKING:
     )
     from .model_state_layout import model_scalar_state_slot_spec_digest
     from .semantic_step_binding import (
+        ModelInputStepSelectionResolution,
+        ModelInputStepSubject,
         recompute_resolved_step_input_coverage,
         resolve_model_input_step_scope,
+        resolve_model_input_step_selections,
+        resolve_model_input_step_subjects,
     )

@@ -261,12 +261,19 @@ class GenericProgramGraphContentObservationV1(BaseModel):
     protected_use_allowed: Literal[False] = False
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
+    def _selection_subject_valid(self) -> bool:
+        ref = self.semantic_successor_ref
+        return (
+            ref is not None
+            and ref.kind == "runtime.quality.model_input_successor_selection"
+            and ref.media_type == "application/json"
+            and ref.manifest_profile_sha256 is not None
+        )
+
     @model_validator(mode="after")
     def _bound_content(self) -> Self:
         if (
-            self.semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
-            or self.semantic_successor_ref.media_type != "application/json"
-            or self.semantic_successor_ref.manifest_profile_sha256 is None
+            not self._selection_subject_valid()
             or self.closure_residuals != CANDIDATE_CONTENT_RESIDUALS
             or (self.predicate_provenance == "recomputed") == bool(self.reason_codes)
             or self.content_hash
@@ -388,6 +395,30 @@ class GenericProgramGraphContentObservationV3(GenericProgramGraphContentObservat
     numerical_intent_profile: Literal["generic_program_graph_mapped_numpy_methods_v3"]
     numerical_intent_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     steps: tuple[GenericProgramGraphMethodStepObservation, ...]
+    semantic_successor_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    initial_method_input_purpose: Literal["current_use_method_input_revalidation"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    current_method_input_bindings_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    def _selection_subject_valid(self) -> bool:
+        if self.initial_method_input_purpose is None:
+            return (
+                self.current_method_input_bindings_ref is None
+                and super()._selection_subject_valid()
+            )
+        ref = self.current_method_input_bindings_ref
+        return (
+            self.semantic_successor_ref is None
+            and ref is not None
+            and ref.kind == "foundry.input_bindings"
+            and ref.media_type == "application/json"
+            and ref.manifest_profile_sha256 is not None
+        )
 
 
 def _product_root() -> Path:
@@ -678,11 +709,15 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
         controller: JointSimulationHorizonController,
         request: JointSimulationRequest,
         input_ref: ArtifactRef,
-        semantic_successor_ref: ArtifactRef,
+        semantic_successor_ref: ArtifactRef | None,
         store: CoreJSONArtifactStore,
+        current_method_input_bindings_ref: ArtifactRef | None = None,
     ) -> None:
         super().__init__(controller=controller, request=request, input_ref=input_ref)
+        if (semantic_successor_ref is None) == (current_method_input_bindings_ref is None):
+            raise ValueError("generic_program_graph_content_subject_not_unique")
         self.semantic_successor_ref = semantic_successor_ref
+        self.current_method_input_bindings_ref = current_method_input_bindings_ref
         self.store = store
         self.source_image: N5ProductionImage | None = None
         self.steps: list[_GenericGraphStep] = []
@@ -735,6 +770,15 @@ class GenericProgramGraphN5ContentRun(CandidateN5ContentRun):
             read_joint_simulation_configuration,
         )
 
+        if self.current_method_input_bindings_ref is not None and (
+            quantity.numerical_intent_profile != "generic_program_graph_mapped_numpy_methods_v3"
+            or plan.program_semantic_input_bindings_ref is None
+            or artifact_ref_identity_key(self.current_method_input_bindings_ref)
+            != artifact_ref_identity_key(plan.program_semantic_input_bindings_ref)
+            or artifact_ref_identity_key(self.current_method_input_bindings_ref)
+            != artifact_ref_identity_key(semantic_input.request.input_bindings_ref)
+        ):
+            raise ValueError("generic_program_graph_current_method_subject_mismatch")
         self.configuration = read_joint_simulation_configuration(self.controller)
         self.selected_callable = execute_semantic_horizon_step
         self.profile = quantity.execution_profile
@@ -1053,9 +1097,10 @@ def observe_generic_program_graph_n5_input(
     port: object,
     request: JointSimulationRequest,
     input_ref: ArtifactRef,
-    semantic_successor_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef | None = None,
+    current_method_input_bindings_ref: ArtifactRef | None = None,
 ) -> Iterator[GenericProgramGraphN5ContentRun]:
-    """Observe a request already reopened by the canonical semantic successor owner."""
+    """Observe a request already selected by its canonical Runtime input owner."""
     from polisyos.runtime.quality.generation_cycle import JointSimulationPort
 
     if (
@@ -1064,8 +1109,23 @@ def observe_generic_program_graph_n5_input(
         or _ACTIVE.get() is not None
         or input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
         or input_ref.manifest_profile_sha256 is None
-        or semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
-        or semantic_successor_ref.manifest_profile_sha256 is None
+        or (semantic_successor_ref is None) == (current_method_input_bindings_ref is None)
+        or (
+            semantic_successor_ref is not None
+            and (
+                semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
+                or semantic_successor_ref.media_type != "application/json"
+                or semantic_successor_ref.manifest_profile_sha256 is None
+            )
+        )
+        or (
+            current_method_input_bindings_ref is not None
+            and (
+                current_method_input_bindings_ref.kind != "foundry.input_bindings"
+                or current_method_input_bindings_ref.media_type != "application/json"
+                or current_method_input_bindings_ref.manifest_profile_sha256 is None
+            )
+        )
     ):
         raise ValueError("generic_program_graph_content_scope_not_established")
     scope = GenericProgramGraphN5ContentRun(
@@ -1074,6 +1134,7 @@ def observe_generic_program_graph_n5_input(
         input_ref=input_ref,
         semantic_successor_ref=semantic_successor_ref,
         store=port._artifact_store,
+        current_method_input_bindings_ref=current_method_input_bindings_ref,
     )
     token = _ACTIVE.set(scope)
     try:
@@ -1153,6 +1214,19 @@ def bind_generic_program_graph_n5_content_observation(
             reasons.append("generic_program_graph_numerical_intent_changed")
     except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
         reasons.append("generic_program_graph_numerical_intent_not_established")
+    if scope.semantic_successor_ref is not None:
+        selection_values = {
+            "semantic_successor_ref": scope.semantic_successor_ref.model_dump(mode="json")
+        }
+    elif scope.current_method_input_bindings_ref is not None:
+        selection_values = {
+            "initial_method_input_purpose": "current_use_method_input_revalidation",
+            "current_method_input_bindings_ref": scope.current_method_input_bindings_ref.model_dump(
+                mode="json"
+            ),
+        }
+    else:
+        raise ValueError("generic_program_graph_content_subject_not_established")
     values = {
         "schema_version": (
             "GenericProgramGraphContentObservation@3.0"
@@ -1164,7 +1238,7 @@ def bind_generic_program_graph_n5_content_observation(
         "numerical_intent_profile": scope.numerical_intent_profile,
         "numerical_intent_sha256": "sha256:" + hashlib.sha256(scope.numerical_intent).hexdigest(),
         "input_ref_identity": artifact_ref_identity_key(scope.input_ref),
-        "semantic_successor_ref": scope.semantic_successor_ref.model_dump(mode="json"),
+        **selection_values,
         "source_image": scope.source_image.model_dump(mode="json"),
         "execution_profile": observed_profile.model_dump(mode="json"),
         "profile_stability": "recomputed" if profile_stable else "not_established",
@@ -1690,7 +1764,8 @@ def read_generic_program_graph_n5_content_observation(
     result: JointSimulationResult,
     *,
     input_ref: ArtifactRef,
-    semantic_successor_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef | None = None,
+    current_method_input_bindings_ref: ArtifactRef | None = None,
     expected_request: JointSimulationRequest,
     store: CoreJSONArtifactStore,
 ) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
@@ -1721,6 +1796,30 @@ def read_generic_program_graph_n5_content_observation(
     if type(raw) is not dict:
         raise ValueError("generic_program_graph_content_observation_missing")
     observation = _read_generic_program_graph_observation_wire(raw)
+    if current_method_input_bindings_ref is not None:
+        subject_matches = (
+            semantic_successor_ref is None
+            and type(observation) is GenericProgramGraphContentObservationV3
+            and observation.initial_method_input_purpose == "current_use_method_input_revalidation"
+            and observation.current_method_input_bindings_ref is not None
+            and artifact_ref_identity_key(observation.current_method_input_bindings_ref)
+            == artifact_ref_identity_key(current_method_input_bindings_ref)
+            and current_method_input_bindings_ref.kind == "foundry.input_bindings"
+            and current_method_input_bindings_ref.media_type == "application/json"
+            and current_method_input_bindings_ref.manifest_profile_sha256 is not None
+            and store.verify(current_method_input_bindings_ref).ok
+        )
+    else:
+        subject_matches = (
+            semantic_successor_ref is not None
+            and observation.semantic_successor_ref is not None
+            and semantic_successor_ref.kind == "runtime.quality.model_input_successor_selection"
+            and semantic_successor_ref.media_type == "application/json"
+            and semantic_successor_ref.manifest_profile_sha256 is not None
+            and artifact_ref_identity_key(observation.semantic_successor_ref)
+            == artifact_ref_identity_key(semantic_successor_ref)
+            and store.verify(semantic_successor_ref).ok
+        )
     if (
         type(observation)
         not in {GenericProgramGraphContentObservationV2, GenericProgramGraphContentObservationV3}
@@ -1733,14 +1832,9 @@ def read_generic_program_graph_n5_content_observation(
         or input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
         or input_ref.media_type != "application/json"
         or input_ref.manifest_profile_sha256 is None
-        or semantic_successor_ref.kind != "runtime.quality.model_input_successor_selection"
-        or semantic_successor_ref.media_type != "application/json"
-        or semantic_successor_ref.manifest_profile_sha256 is None
+        or not subject_matches
         or not store.verify(input_ref).ok
-        or not store.verify(semantic_successor_ref).ok
         or observation.input_ref_identity != artifact_ref_identity_key(input_ref)
-        or artifact_ref_identity_key(observation.semantic_successor_ref)
-        != artifact_ref_identity_key(semantic_successor_ref)
         or observation.call_normalization_profile != GENERIC_FOUNDRY_CALL_NORMALIZATION
         or observation.predicate_provenance != "recomputed"
     ):
@@ -1754,6 +1848,12 @@ def read_generic_program_graph_n5_content_observation(
     selected = controller._select_engine(expected_request)
     if selected.decision.decision != "selected" or selected.decision.engine_kind != "program_graph":
         raise ValueError("generic_program_graph_content_engine_mismatch")
+    if current_method_input_bindings_ref is not None and (
+        selected.plan.program_semantic_input_bindings_ref is None
+        or artifact_ref_identity_key(selected.plan.program_semantic_input_bindings_ref)
+        != artifact_ref_identity_key(current_method_input_bindings_ref)
+    ):
+        raise ValueError("generic_program_graph_content_current_method_request_mismatch")
     planned = _planned_units(expected_request, selected.plan, selected.decision)
     if (
         observation.completion.planned_units != planned

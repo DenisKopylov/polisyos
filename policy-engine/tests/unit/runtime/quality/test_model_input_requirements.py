@@ -14,6 +14,8 @@ from polisyos.core.artifacts import (
     CoreJSONArtifactStore,
     WarningRecord,
     input_ref_from_artifact_ref,
+    load_core_json_artifact,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -26,6 +28,7 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
+    ModelInputObligationSet,
     ModelInputPhysicalEncoding,
     ModelInputPort,
     ModelInputPortDeclaration,
@@ -33,6 +36,7 @@ from polisyos.core.contracts.model_input_requirements import (
     load_model_input_obligation,
     load_model_input_obligation_set,
     load_program_graph_input_interface,
+    model_input_obligation_set_inputs,
     persist_model_input_obligation,
     persist_model_input_obligation_set,
     persist_model_input_port_declaration,
@@ -271,9 +275,13 @@ def _stock_declaration(
 
 
 def _context(case: ProgramGraphTaxSubsidyInputCase) -> ModelInputContext:
+    candidate = load_core_json_artifact(case.store, case.policy_candidate_ref)
+    candidate_id = candidate.get("candidate_id") if isinstance(candidate, dict) else None
+    if not isinstance(candidate_id, str) or not candidate_id:
+        raise AssertionError("selected_candidate_id_missing_from_persisted_candidate")
     return ModelInputContext(
         run_id="model-input-preflight-test",
-        candidate_id="program_graph_tax_subsidy_input",
+        candidate_id=candidate_id,
         candidate_content_hash=str(case.policy_candidate_ref.artifact_id),
         design_problem_ref=str(case.trinity_ref.artifact_id),
         candidate_source_ref=case.policy_candidate_ref,
@@ -555,6 +563,435 @@ def test_selected_method_input_emits_versioned_abi_obligation(tmp_path: Path) ->
 
         with pytest.raises(ValueError, match="model_input_method_multi_step_reuse_unsupported"):
             _preflight(case, interface_ref, _context(case), steps=(0, 1))
+    finally:
+        case.close()
+
+
+def test_current_use_method_input_revalidation_replays_two_port_source_and_requires_both_again(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.foundry.execute.model_input_requirements import (
+        verify_current_use_method_input_revalidation,
+    )
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.runtime.quality.model_input_requirements import (
+        preflight_current_use_method_input_revalidation,
+    )
+    from polisyos.runtime.quality.model_input_routing import (
+        materialize_registered_derived_model_inputs,
+    )
+    from tests._helpers.registered_derived_method_input import (
+        prepare_registered_method_input_preflight,
+        prepare_registered_method_input_request,
+    )
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    slots = ("ledger.a", "ledger.b")
+    case, metadata = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        method_input_slots=slots,
+        mapped=True,
+    )
+    try:
+        source_preflight = prepare_registered_method_input_preflight(case)
+        source_set, source_members = load_model_input_obligation_set(
+            case.store, source_preflight.obligation_set_ref
+        )
+        obligation_refs = {
+            member.port.slot_id: ref
+            for ref, member in zip(source_set.obligation_refs, source_members, strict=True)
+        }
+        assert set(obligation_refs) == set(slots)
+
+        per_port = metadata["method_inputs_by_slot"]
+        requests = tuple(
+            prepare_registered_method_input_request(
+                case,
+                per_port[slot],
+                preflight=source_preflight,
+                model_input_obligation_ref=obligation_refs[slot],
+                ratio_value=Decimal("-0.03") if slot == "ledger.a" else Decimal("0.01"),
+                binding_id=f"revalidation-{slot}",
+            )
+            for slot in slots
+        )
+        source = materialize_registered_derived_model_inputs(
+            case.store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            obligation_set_ref=source_preflight.obligation_set_ref,
+            inputs=requests,
+        )
+        source_bindings = load_input_bindings(case.store, source.input_bindings_ref)
+        assert source_bindings.schema_version == "1.4"
+        assert {item.slot_id for item in source_bindings.selected_method_inputs} == set(slots)
+
+        source_manifest = load_resolved_input_binding_manifest(
+            case.store, source.resolved_binding_manifest_ref
+        )
+        old_set, _ = load_model_input_obligation_set(
+            case.store, source_manifest.model_input_obligation_set_ref
+        )
+        current_context = source_preflight.invocation.context.model_copy(
+            update={"run_id": "current-use-method-input-revalidation"}
+        )
+        assert old_set.invocation.context != current_context
+
+        current = preflight_current_use_method_input_revalidation(
+            case.store,
+            interface_ref=_interface(case),
+            program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump()),
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=source.input_bindings_ref,
+            context=current_context,
+            steps=(0,),
+        )
+        fresh_store = FileSystemCAS(case.store.root)
+        selected_set, members = load_model_input_obligation_set(
+            fresh_store, current.obligation_set_ref
+        )
+        assert selected_set.schema_version == "1.3"
+        assert selected_set.purpose == "current_use_method_input_revalidation"
+        assert selected_set.authority_purpose == "candidate_execution_input_revalidation_only"
+        assert selected_set.invocation.context == current_context
+        assert selected_set.required_step_scopes is None
+        assert {member.port.slot_id for member in members} == set(slots)
+        assert all(member.context == current_context for member in members)
+        assert len(source_bindings.selected_method_inputs) == len(members) == 2
+
+        assert (
+            verify_current_use_method_input_revalidation(
+                fresh_store,
+                obligation_set_ref=current.obligation_set_ref,
+                expected_invocation=current.invocation,
+            )
+            == selected_set
+        )
+        with pytest.raises(ValueError, match="model_input_preflight_purpose_mismatch"):
+            verify_program_graph_input_preflight(
+                fresh_store,
+                obligation_set_ref=current.obligation_set_ref,
+                expected_invocation=current.invocation,
+            )
+
+        missing_source_blob = source_bindings.selected_method_inputs[0].npy_value_ref
+        source_blob_path = (
+            case.store.root
+            / "artifacts"
+            / "sha256"
+            / missing_source_blob.artifact_id.hex[:2]
+            / missing_source_blob.artifact_id.hex[2:4]
+            / f"{missing_source_blob.artifact_id.hex}.blob"
+        )
+        held_source_blob = source_blob_path.with_suffix(".held")
+        source_blob_path.rename(held_source_blob)
+        try:
+            with pytest.raises((ValueError, FileNotFoundError)):
+                verify_current_use_method_input_revalidation(
+                    fresh_store,
+                    obligation_set_ref=current.obligation_set_ref,
+                    expected_invocation=current.invocation,
+                )
+        finally:
+            held_source_blob.rename(source_blob_path)
+
+        def persist_tampered_set(value: ModelInputObligationSet) -> ArtifactRef:
+            return case.store.put_json(
+                value,
+                PutOptions(
+                    kind=ModelInputObligationSet.ARTIFACT_KIND,
+                    media_type=ModelInputObligationSet.ARTIFACT_MEDIA_TYPE,
+                    schema=SchemaInfo(
+                        name=ModelInputObligationSet.ARTIFACT_SCHEMA_NAME,
+                        version=value.schema_version,
+                    ),
+                    inputs=model_input_obligation_set_inputs(value),
+                ),
+                return_selected_profile=True,
+            )
+
+        omitted = selected_set.model_copy(
+            update={"obligation_refs": selected_set.obligation_refs[:1]}
+        )
+        omitted_ref = persist_tampered_set(omitted)
+        with pytest.raises(ValueError, match="model_input_revalidation_method_ports_missing"):
+            load_model_input_obligation_set(fresh_store, omitted_ref)
+
+        false_supplied = selected_set.model_copy(
+            update={
+                "supplied_initial_slots": tuple(
+                    sorted((*selected_set.supplied_initial_slots, "ledger.a"))
+                )
+            }
+        )
+        false_supplied_ref = persist_tampered_set(false_supplied)
+        with pytest.raises(ValueError, match="model_input_obligation_set_membership_mismatch"):
+            load_model_input_obligation_set(fresh_store, false_supplied_ref)
+
+        missing_purpose = selected_set.model_copy(update={"purpose": None})
+        missing_purpose_ref = persist_tampered_set(missing_purpose)
+        with pytest.raises(
+            ValueError, match="model_input_obligation_set_revalidation_purpose_required"
+        ):
+            load_model_input_obligation_set(fresh_store, missing_purpose_ref)
+
+        grafted_prestate = selected_set.prestate_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+
+        def persist_untrusted_prestate_member(ref: ArtifactRef, member: object) -> ArtifactRef:
+            # The verified producer correctly refuses this graft. Persist
+            # adversarial CAS bytes to exercise the independent reader too.
+            manifest = case.store.get_manifest(ref)
+            assert sum(edge.role == "selected_prestate" for edge in manifest.inputs) == 1
+            return case.store.put_json(
+                member,
+                PutOptions(
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    schema=manifest.artifact_schema,
+                    inputs=[
+                        input_ref_from_artifact_ref(grafted_prestate, role=edge.role)
+                        if edge.role == "selected_prestate"
+                        else edge
+                        for edge in manifest.inputs
+                    ],
+                ),
+                return_selected_profile=True,
+            )
+
+        grafted_member_refs = tuple(
+            persist_untrusted_prestate_member(
+                ref, member.model_copy(update={"prestate_ref": grafted_prestate})
+            )
+            for ref, member in zip(selected_set.obligation_refs, members, strict=True)
+        )
+        grafted_state_set = selected_set.model_copy(
+            update={
+                "prestate_ref": grafted_prestate,
+                "obligation_refs": grafted_member_refs,
+            }
+        )
+        grafted_state_ref = persist_tampered_set(grafted_state_set)
+        with pytest.raises(ValueError, match=r"^model_input_obligation_prestate_mismatch$"):
+            verify_current_use_method_input_revalidation(
+                fresh_store,
+                obligation_set_ref=grafted_state_ref,
+                expected_invocation=current.invocation,
+            )
+
+        method_registry = MethodRegistry.get_instance()
+        changed_parameters = (
+            replace(PeriodFlowToStock.signature.parameters[0], default="government.balance"),
+        )
+
+        class ChangedPeriodFlowToStock(PeriodFlowToStock):
+            signature = replace(PeriodFlowToStock.signature, parameters=changed_parameters)
+
+        method_registry.register(ChangedPeriodFlowToStock, override=True)
+        try:
+            with pytest.raises(ValueError, match="model_input_preflight_replay_mismatch"):
+                verify_current_use_method_input_revalidation(
+                    fresh_store,
+                    obligation_set_ref=current.obligation_set_ref,
+                    expected_invocation=current.invocation,
+                )
+        finally:
+            method_registry.register(PeriodFlowToStock, override=True)
+    finally:
+        case.close()
+
+
+def test_persistent_model_state_supplies_pathless_method_target_prestate(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.contracts import ExecPlan, ProgramGraph, ProgramNode
+    from polisyos.core.contracts.method_input import RegistrySlotInputPortSource
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.foundry.execute.model_input_requirements import (
+        _graph_input_dependencies,
+        _open_selected_model_state_context,
+    )
+    from polisyos.foundry.methods.base import (
+        MethodMetadata,
+        SideEffectProfile,
+        foundry_method,
+    )
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        state_writes=("model.accumulated_flow",),
+        persistent_stock_slot="model.accumulated_flow",
+        persistent_stock_value=10_000_000_000.0,
+    )
+    try:
+        bindings = load_input_bindings(case.store, case.input_bindings_ref)
+        assert bindings.schema_version == "1.0"
+        assert bindings.bound_state_snapshot_ref == case.bound_state_snapshot_ref
+        assert (
+            case.store.get_manifest(case.bound_state_snapshot_ref).artifact_schema.version
+            == "2.4.0"
+        )
+
+        interface_ref = _interface(case)
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0,))
+        assert preflight.supplied_initial_slots == ()
+        (obligation_ref,) = preflight.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.port.slot_id == "period_flow"
+        assert obligation.prestate_ref == case.bound_state_snapshot_ref
+        assert obligation.dependencies == (
+            ProgramGraphInputDependency(
+                node_id="period_flow_node",
+                kind="method_read",
+                first_required_step=0,
+                method_abi_digest=PeriodFlowToStock.signature.abi_digest(),
+            ),
+        )
+
+        state_context = _open_selected_model_state_context(
+            case.store,
+            bound_state_snapshot_ref=bindings.bound_state_snapshot_ref,
+            registry_bundle_ref=case.registry_bundle_ref,
+            registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+        )
+        assert state_context is not None
+        graph = validate_core_model_json_artifact(ProgramGraph, case.store, case.program_graph_ref)
+        plan = validate_core_model_json_artifact(ExecPlan, case.store, case.exec_plan_ref)
+        dependencies, graph_slots = _graph_input_dependencies(
+            case.store,
+            nodes={node.node_id: node for node in graph.nodes},
+            order={node_id: index for index, node_id in enumerate(plan.order)},
+            registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+            steps=(0,),
+            overrides={},
+            program_graph_schema_version=graph.schema_version,
+            model_state_context=state_context,
+            method_input_slots=frozenset({"period_flow"}),
+        )
+        assert graph_slots == {"model.accumulated_flow", "period_flow"}
+        assert dependencies["model.accumulated_flow"] == [
+            ProgramGraphInputDependency(
+                node_id="period_flow_node",
+                kind="additive_prestate",
+                first_required_step=0,
+            )
+        ]
+
+        class PersistentStockReader(PeriodFlowToStock):
+            signature = replace(
+                PeriodFlowToStock.signature,
+                namespace="",
+                version="0.0.0",
+                parameters=(),
+                patch_targets=(),
+            )
+            side_effect_profile = SideEffectProfile.NONE
+            metadata = MethodMetadata(
+                description="Read a selected scalar stock without a write target.",
+                side_effect_profile=SideEffectProfile.NONE,
+            )
+
+            @staticmethod
+            def pure_step(
+                state: dict[str, object], _params: dict[str, object]
+            ) -> dict[str, object]:
+                return {"result": state["period_flow"]}
+
+        read_only = foundry_method(namespace="test.accounting", version="1.0.0")(
+            PersistentStockReader
+        )
+        method_registry = MethodRegistry.get_instance()
+        method_registry.register(read_only, override=True)
+        read_node = ProgramNode(
+            node_id="persistent_stock_read",
+            node_kind="method",
+            method_fqn=read_only.signature.fqn,
+            method_version=read_only.signature.version,
+            method_params={},
+            inputs=["model.accumulated_flow"],
+            outputs=[],
+            input_ports={
+                "period_flow": RegistrySlotInputPortSource(
+                    source_kind="registry_slot",
+                    slot_id="model.accumulated_flow",
+                )
+            },
+        )
+        try:
+            read_dependencies, read_slots = _graph_input_dependencies(
+                case.store,
+                nodes={"persistent_stock_read": read_node},
+                order={"persistent_stock_read": 0},
+                registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                steps=(0,),
+                overrides={},
+                program_graph_schema_version="0.3",
+                model_state_context=state_context,
+            )
+            assert read_slots == {"model.accumulated_flow"}
+            assert read_dependencies["model.accumulated_flow"] == [
+                ProgramGraphInputDependency(
+                    node_id="persistent_stock_read",
+                    kind="method_read",
+                    first_required_step=0,
+                    method_abi_digest=read_only.signature.abi_digest(),
+                )
+            ]
+            with pytest.raises(
+                ValueError,
+                match="model_scalar_state_input_source_ambiguous",
+            ):
+                _graph_input_dependencies(
+                    case.store,
+                    nodes={"persistent_stock_read": read_node},
+                    order={"persistent_stock_read": 0},
+                    registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                    steps=(0,),
+                    overrides={},
+                    program_graph_schema_version="0.3",
+                    model_state_context=state_context,
+                    method_input_slots=frozenset({"model.accumulated_flow"}),
+                )
+        finally:
+            method_registry.unregister(read_only.signature.fqn)
+
+        selected_set = verify_program_graph_input_preflight(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        assert selected_set.obligation_refs == (obligation_ref,)
+    finally:
+        case.close()
+
+
+def test_persistent_model_state_preflight_refuses_absent_pathless_target(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        state_writes=("model.accumulated_flow",),
+        persistent_stock_slot="model.accumulated_flow",
+        persistent_stock_value=None,
+    )
+    try:
+        interface_ref = _interface(case)
+        with pytest.raises(ValueError, match="model_scalar_state_slot_absent"):
+            _preflight(case, interface_ref, _context(case), steps=(0,))
     finally:
         case.close()
 
@@ -1018,7 +1455,7 @@ def test_method_input_dependency_closure_supports_distinct_methods(
         )
         with pytest.raises(
             ValueError,
-            match="model_input_method_output_input_not_supported",
+            match="model_input_method_dataflow_not_verified",
         ):
             _graph_input_dependencies(
                 case.store,
@@ -1159,6 +1596,212 @@ def test_method_input_dependency_closure_supports_distinct_methods(
         method_registry.unregister(read_only.signature.fqn)
         method_registry.unregister(incompatible.signature.fqn)
         method_registry.unregister(aliased.signature.fqn)
+
+
+def test_method_output_transfer_is_internal_to_preflight_dag(tmp_path: Path) -> None:
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.execution_plan import (
+        ExecutionPlan,
+        ExecutionPlanRef,
+        MethodDagNode,
+    )
+    from polisyos.core.contracts.foundry import CompileRequest, ExecPlan
+    from polisyos.core.contracts.method_input import MethodOutputInputPortSource
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.compile.api import compile as compile_foundry
+    from polisyos.foundry.compile.method_dataflow import (
+        resolve_program_graph_method_input_sources,
+    )
+    from polisyos.foundry.methods.base import MethodMetadata, SideEffectProfile, foundry_method
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    class ReadOnlyPeriodFlow(PeriodFlowToStock):
+        signature = replace(
+            PeriodFlowToStock.signature,
+            namespace="",
+            version="0.0.0",
+            parameters=(),
+            patch_targets=(),
+        )
+        side_effect_profile = SideEffectProfile.NONE
+        metadata = MethodMetadata(
+            description="Copy a typed period flow through a pure method output.",
+            side_effect_profile=SideEffectProfile.NONE,
+        )
+
+        @staticmethod
+        def pure_step(state: dict[str, object], _params: dict[str, object]) -> dict[str, object]:
+            return {"result": state["period_flow"]}
+
+    pure_method = foundry_method(namespace="test.accounting", version="1.1.0")(ReadOnlyPeriodFlow)
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+    )
+    try:
+        signature = pure_method.signature
+        method_plan = ExecutionPlan(
+            schema_version="1.2",
+            plan_id="method-output-preflight",
+            method_dag=[
+                MethodDagNode(
+                    node_id="flow_source",
+                    method_fqn=signature.fqn,
+                    method_version=signature.version,
+                    backend=signature.execution_backend.value,
+                    reads_slots=["period_flow"],
+                    writes_slots=["result"],
+                    state_writes=[],
+                    input_ports={
+                        "period_flow": {
+                            "source_kind": "registry_slot",
+                            "slot_id": "period_flow",
+                        }
+                    },
+                ),
+                MethodDagNode(
+                    node_id="flow_consumer",
+                    method_fqn=signature.fqn,
+                    method_version=signature.version,
+                    backend=signature.execution_backend.value,
+                    reads_slots=["period_flow"],
+                    writes_slots=["result"],
+                    state_writes=[],
+                    input_ports={
+                        "period_flow": {
+                            "source_kind": "method_output",
+                            "producer_node_id": "flow_source",
+                            "output_slot_id": "result",
+                        }
+                    },
+                ),
+            ],
+        )
+        plan_ref = case.store.put_json(
+            method_plan,
+            PutOptions(
+                kind="scientist.execution_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.ExecutionPlan", version="1.2"),
+                inputs=[input_ref_from_artifact_ref(case.trinity_ref, role="policy_candidate")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        compiled = compile_foundry(
+            case.store,
+            CompileRequest(
+                schema_version="1.2",
+                input_kind="trinity",
+                policy_ref=case.trinity_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                method_execution_plan_ref=ExecutionPlanRef.model_validate(plan_ref.model_dump()),
+                return_selected_profile=True,
+            ),
+        )
+        assert compiled.ok and compiled.exec_plan_ref is not None
+        (graph_ref,) = (item.ref for item in compiled.derived_refs if item.role == "program_graph")
+        selected_case = replace(
+            case,
+            exec_plan_ref=compiled.exec_plan_ref,
+            program_graph_ref=graph_ref,
+        )
+        graph = validate_core_model_json_artifact(ProgramGraph, case.store, graph_ref)
+        assert graph.schema_version == "0.3"
+        method_nodes = {node.node_id: node for node in graph.nodes if node.node_kind == "method"}
+        assert method_nodes["flow_source"].inputs == ["period_flow"]
+        assert method_nodes["flow_consumer"].inputs == []
+
+        selected_registry = load_registry_bundle_content(case.store, case.registry_bundle_ref)
+        selected_exec_plan = validate_core_model_json_artifact(
+            ExecPlan, case.store, compiled.exec_plan_ref
+        )
+        resolution = resolve_program_graph_method_input_sources(
+            graph,
+            registry=MethodRegistry.get_instance(),
+            registry_content=selected_registry,
+            order=selected_exec_plan.order,
+            allow_method_output=True,
+        )
+        assert resolution.registry_inputs["flow_source"] == ("period_flow",)
+        assert resolution.registry_inputs["flow_consumer"] == ()
+        assert resolution.dependency_edges == (("flow_source", "flow_consumer"),)
+
+        missing_edge_graph = graph.model_copy(
+            update={
+                "edges": [
+                    edge
+                    for edge in graph.edges
+                    if (edge.src, edge.dst) != ("flow_source", "flow_consumer")
+                ]
+            }
+        )
+        with pytest.raises(
+            ValueError,
+            match="method_dataflow_persisted_output_edge_missing",
+        ):
+            resolve_program_graph_method_input_sources(
+                missing_edge_graph,
+                registry=MethodRegistry.get_instance(),
+                registry_content=selected_registry,
+                order=selected_exec_plan.order,
+                allow_method_output=True,
+            )
+
+        wrong_output_graph = ProgramGraph.model_validate(
+            graph.model_dump(mode="python")
+            | {
+                "nodes": [
+                    node.model_dump(mode="python")
+                    | {
+                        "input_ports": {
+                            "period_flow": MethodOutputInputPortSource(
+                                source_kind="method_output",
+                                producer_node_id="flow_source",
+                                output_slot_id="same_value_wrong_slot",
+                            ).model_dump(mode="python")
+                        }
+                    }
+                    if node.node_id == "flow_consumer"
+                    else node.model_dump(mode="python")
+                    for node in graph.nodes
+                ]
+            }
+        )
+        with pytest.raises(ValueError, match="method_dataflow_producer_output_slot_missing"):
+            resolve_program_graph_method_input_sources(
+                wrong_output_graph,
+                registry=MethodRegistry.get_instance(),
+                registry_content=selected_registry,
+                order=selected_exec_plan.order,
+                allow_method_output=True,
+            )
+
+        interface_ref = _interface(selected_case)
+        preflight = _preflight(selected_case, interface_ref, _context(selected_case), steps=(0,))
+        (obligation_ref,) = preflight.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.port.slot_id == "period_flow"
+        assert obligation.dependencies == (
+            ProgramGraphInputDependency(
+                node_id="flow_source",
+                kind="method_read",
+                first_required_step=0,
+                method_abi_digest=signature.abi_digest(),
+            ),
+        )
+        assert preflight.supplied_initial_slots == ()
+        selected_set = verify_program_graph_input_preflight(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        assert selected_set.obligation_refs == (obligation_ref,)
+    finally:
+        case.close()
+        MethodRegistry.get_instance().unregister(pure_method.signature.fqn)
 
 
 def test_selected_graph_cannot_be_substituted_by_equal_bytes(tmp_path: Path) -> None:

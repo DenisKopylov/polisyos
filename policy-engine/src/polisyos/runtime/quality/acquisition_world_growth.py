@@ -35,6 +35,9 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
+    NativeDerivationInputsPending,
+    NativeDerivationLeafProviderSelection,
+    VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.agent_action_authority import (
@@ -82,9 +85,7 @@ if TYPE_CHECKING:
         CandidateExperimentEvaluationPreflight,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
-    from polisyos.runtime.quality.acquisition_route_loop import (
-        VerifiedAcquisitionRouteClosure,
-    )
+    from polisyos.runtime.quality.acquisition_planner import NativeDerivationLeafCostProfileScope
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
         _VerifiedCurrentCandidateExperimentReentryAction,
@@ -112,6 +113,11 @@ if TYPE_CHECKING:
         SimulationPortObservation,
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationProfileV1,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
         PreparedJointSimulationConfiguration,
@@ -158,6 +164,10 @@ class _CurrentActionOutcomeReader(Protocol):
         source_job_id: str,
         route_id: str,
     ) -> _CurrentActionOutcomeSnapshot | None: ...
+
+    def verify_action_head(
+        self, head: AcquisitionActionHeadRecord
+    ) -> _CurrentActionOutcomeSnapshot: ...
 
     def persist_terminal(self, receipt: AcquisitionRouteLoopReceipt) -> AcquisitionActionHeadRecord:
         """Persist an independently verified terminal under the current action fence."""
@@ -760,12 +770,161 @@ class AcquisitionCandidateSourceRoute(_Strict):
         return self.tenant_id, self.cell_id, self.run_id, self.route_id
 
 
+class NativeDerivationPlanningRoleSupplier(_Strict):
+    """A selected native declaration offered for one registered family role.
+
+    The declaration's Catalog reader must independently replay its semantic
+    facts. The provider row routes an eventual action; it is not permission.
+    """
+
+    role: str = Field(min_length=1)
+    provider: NativeDerivationLeafProviderSelection
+    source_declaration_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_declaration(self) -> Self:
+        ref = self.source_declaration_ref
+        if (
+            ref.kind != "catalog.acquisition_supplier_declaration"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_derivation_planning_declaration_unselected")
+        if artifacts.artifact_ref_identity_key(ref) != artifacts.artifact_ref_identity_key(
+            self.provider.supplier_ref
+        ):
+            raise ValueError("native_derivation_planning_supplier_declaration_mismatch")
+        return self
+
+
+class NativeDerivationPlanningSelection(_Strict):
+    """Preknown candidate planning inputs, before any invocation set exists.
+
+    The configured profile is content-bound. The real post-preflight owner
+    supplies the current full obligation set and target; this selection never
+    predicts those future refs or authorizes a provider call.
+    """
+
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    profile_selection_ref: str = Field(pattern=_SHA)
+    registered_profile_ref: artifacts.ArtifactRef
+    dag_budget_profile_ref: artifacts.ArtifactRef
+    binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$")
+    role_suppliers: tuple[NativeDerivationPlanningRoleSupplier, ...] = Field(min_length=1)
+    authority_purpose: Literal["candidate_acquisition_routing_only"] = (
+        "candidate_acquisition_routing_only"
+    )
+
+    @model_validator(mode="after")
+    def _selected_planning_inputs(self) -> Self:
+        for ref, kind in (
+            (self.registered_profile_ref, "catalog.derived_input_profile"),
+            (self.dag_budget_profile_ref, "runtime.quality.n7_derivation_dag_budget_profile"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_derivation_planning_profile_unselected")
+        keys = tuple(
+            (
+                row.role,
+                row.provider.source_node_id,
+                artifacts.artifact_ref_identity_key(row.provider.supplier_ref),
+                artifacts.artifact_ref_identity_key(row.source_declaration_ref),
+            )
+            for row in self.role_suppliers
+        )
+        if len(keys) != len(set(keys)):
+            raise ValueError("native_derivation_planning_supplier_duplicate")
+        return self
+
+
+class NativeDerivationPortSelection(_Strict):
+    """Deployment-selected semantic registration for one actual N7 target port."""
+
+    derivation_bundle_ref: artifacts.ArtifactRef
+    registered_profile_ref: artifacts.ArtifactRef
+    binding_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _selected_semantic_sources(self) -> Self:
+        for ref, kind in (
+            (self.derivation_bundle_ref, "runtime.quality.n7_derivation_bundle"),
+            (self.registered_profile_ref, "catalog.derived_input_profile"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_derivation_port_selection_unselected")
+        return self
+
+
+class NativeDerivationRouteConfiguration(_Strict):
+    """Adopted external quote and semantic inputs, without an acquisition grant.
+
+    Empty quote and semantic selections remain unestablished. Each native leaf
+    must still pass its own current route, PA2, DS9, provider and budget fences.
+    """
+
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    configured_port_source_ref: artifacts.ArtifactRef
+    owner_declared_cost_profile_refs: tuple[artifacts.ArtifactRef, ...] = ()
+    ports: tuple[NativeDerivationPortSelection, ...] = ()
+    supplier_selections: tuple[NativeDerivationLeafProviderSelection, ...] = ()
+
+    @property
+    def key(self) -> tuple[str, str, str, str]:
+        """Return the original source occurrence, not a new action identity."""
+        return self.tenant_id, self.cell_id, self.run_id, self.source_job_id
+
+    @model_validator(mode="after")
+    def _selected_configuration(self) -> Self:
+        source = self.configured_port_source_ref
+        if (
+            source.kind != "runtime.quality.n7_configured_candidate_port_source"
+            or source.media_type != "application/json"
+            or source.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_derivation_configured_source_unselected")
+        for ref in self.owner_declared_cost_profile_refs:
+            if (
+                ref.kind != "runtime.quality.native_derivation_leaf_cost_profile"
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_derivation_cost_profile_unselected")
+        if len(
+            {
+                artifacts.artifact_ref_identity_key(ref)
+                for ref in self.owner_declared_cost_profile_refs
+            }
+        ) != len(self.owner_declared_cost_profile_refs) or len(
+            {artifacts.artifact_ref_identity_key(port.derivation_bundle_ref) for port in self.ports}
+        ) != len(self.ports):
+            raise ValueError("native_derivation_configuration_duplicate")
+        return self
+
+
 class AcquisitionWorldGrowthConfig(_Strict):
     """Typed empty-by-default evidence and controlled-refresh selections."""
 
     routes: tuple[AcquisitionWorldGrowthRoute, ...] = ()
     candidate_world_refreshes: tuple[AcquisitionCandidateWorldRefresh, ...] = ()
     candidate_source_routes: tuple[AcquisitionCandidateSourceRoute, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    native_derivation_routes: tuple[NativeDerivationRouteConfiguration, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    native_derivation_planning_selections: tuple[NativeDerivationPlanningSelection, ...] = Field(
         default=(), exclude_if=lambda value: not value
     )
 
@@ -784,6 +943,21 @@ class AcquisitionWorldGrowthConfig(_Strict):
             raise ValueError("acquisition_candidate_source_route_ambiguous")
         if candidate_keys & route_keys:
             raise ValueError("acquisition_candidate_and_observed_route_overlap")
+        native_keys = {selection.key for selection in self.native_derivation_routes}
+        if len(native_keys) != len(self.native_derivation_routes):
+            raise ValueError("native_derivation_source_configuration_ambiguous")
+        planning_keys = tuple(
+            (
+                row.tenant_id,
+                row.cell_id,
+                row.profile_selection_ref,
+                artifacts.artifact_ref_identity_key(row.registered_profile_ref),
+                row.binding_id,
+            )
+            for row in self.native_derivation_planning_selections
+        )
+        if len(planning_keys) != len(set(planning_keys)):
+            raise ValueError("native_derivation_planning_configuration_duplicate")
         return self
 
 
@@ -1102,23 +1276,38 @@ def _acquired_world_context_binding(
     *,
     controller: GenerationCycleController,
     context_owner: CycleSubstrateContextArtifactOwner,
-    handoff: CandidateSimulationContextHandoff,
+    handoff: CandidateSimulationContextHandoff | GenericCycleNativeWorldContextHandoffV1,
     currentness_resolver: Callable[[], bool],
     control_store: ControlPlaneStore,
 ) -> Iterator[None]:
     """Bind the bridge's verified acquired context only during its N6 re-entry."""
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+    )
 
+    native = type(handoff) is GenericCycleNativeWorldContextHandoffV1
     if (
         type(controller) is not GenerationCycleController
         or type(context_owner) is not CycleSubstrateContextArtifactOwner
-        or type(handoff) is not CandidateSimulationContextHandoff
+        or type(handoff)
+        not in {CandidateSimulationContextHandoff, GenericCycleNativeWorldContextHandoffV1}
         or context_owner._store is not controller._artifact_store
         or context_owner._control_store is not control_store
-        or controller._candidate_simulation_handoff != handoff
+        or (
+            controller._generic_cycle_simulation_handoff
+            if native
+            else controller._candidate_simulation_handoff
+        )
+        != handoff
         or controller._cycle_substrate_context != handoff.context
-        or controller._candidate_simulation_currentness_resolver is not currentness_resolver
+        or (
+            controller._generic_cycle_simulation_currentness_resolver
+            if native
+            else controller._candidate_simulation_currentness_resolver
+        )
+        is not currentness_resolver
     ):
         raise ValueError("acquisition_candidate_context_owner_binding_mismatch")
     admission = control_store.current_execution_job_admission()
@@ -1190,6 +1379,116 @@ class CandidateAcquisitionWorldCheckpoint(_Strict):
     action_job_id: str = Field(min_length=1)
     route_id: str = Field(pattern=_SHA)
     transaction_time: AwareDatetime
+
+
+class NativeDerivationWorldCheckpoint(_Strict):
+    """Retain the actual plural materialization under the existing world owner."""
+
+    schema_version: Literal["NativeDerivationWorldCheckpoint@1.2"] = (
+        "NativeDerivationWorldCheckpoint@1.2"
+    )
+    collection_refs: tuple[artifacts.ArtifactRef, ...] = Field(min_length=1)
+    configured_port_source_ref: artifacts.ArtifactRef
+    registered_profile_refs: tuple[artifacts.ArtifactRef, ...] = Field(min_length=1)
+    base_data_snapshot_ref: artifacts.ArtifactRef
+    data_snapshot_ref: artifacts.ArtifactRef
+    resolved_binding_manifest_ref: artifacts.ArtifactRef
+    correspondence_refs: tuple[artifacts.ArtifactRef, ...] = Field(min_length=1)
+    input_bindings_ref: artifacts.ArtifactRef
+    world_model_ref: artifacts.ArtifactRef
+    action_phase_ref: str = Field(pattern=_SHA)
+    pending_action_phase_ref: artifacts.ArtifactRef
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=_SHA)
+    transaction_time: AwareDatetime
+
+    @model_validator(mode="after")
+    def _selected_inputs(self) -> Self:
+        """Keep every retained boundary content-addressed and profile-selected."""
+        selected = (
+            self.configured_port_source_ref,
+            self.base_data_snapshot_ref,
+            self.data_snapshot_ref,
+            self.resolved_binding_manifest_ref,
+            self.input_bindings_ref,
+            self.world_model_ref,
+            self.pending_action_phase_ref,
+        )
+        if self.pending_action_phase_ref.kind != "runtime_quality.acquisition_route_phase_receipt":
+            raise ValueError("native_derivation_world_checkpoint_pending_phase_kind_invalid")
+        # Specific artifact kinds are checked again by the owning readers.
+        for ref in selected:
+            _native_derivation_ref_key(ref)
+            if ref.media_type != "application/json":
+                raise ValueError("native_derivation_world_checkpoint_ref_profile_invalid")
+        for ref in (
+            *self.collection_refs,
+            *self.registered_profile_refs,
+            *self.correspondence_refs,
+        ):
+            _native_derivation_ref_key(ref)
+        if len({_native_derivation_ref_key(ref) for ref in self.collection_refs}) != len(
+            self.collection_refs
+        ):
+            raise ValueError("native_derivation_world_checkpoint_duplicate_collection")
+        return self
+
+    def lineage_inputs(self) -> tuple[artifacts.InputRef, ...]:
+        """Return the exact selected producer/consumer denominator."""
+        rows = [
+            ("configured_port_source", self.configured_port_source_ref),
+            ("base_data_snapshot", self.base_data_snapshot_ref),
+            ("materialized_data_snapshot", self.data_snapshot_ref),
+            ("resolved_binding_manifest", self.resolved_binding_manifest_ref),
+            ("input_bindings", self.input_bindings_ref),
+            ("world_model", self.world_model_ref),
+            ("pending_native_action_phase", self.pending_action_phase_ref),
+        ]
+        rows.extend((f"collection.{i}", ref) for i, ref in enumerate(self.collection_refs))
+        rows.extend(
+            (f"registered_profile.{i}", ref) for i, ref in enumerate(self.registered_profile_refs)
+        )
+        rows.extend((f"correspondence.{i}", ref) for i, ref in enumerate(self.correspondence_refs))
+        return tuple(artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in rows)
+
+
+@dataclass(frozen=True)
+class NativeDerivedWorldSelection:
+    """Reopened action-owned world facts, not an NL worker admission.
+
+    The original Generic profile is retained as algorithm configuration. The
+    new world and its action scope are separate selected facts. A current use
+    must pass the bridge's current selector; this historical value grants none.
+    """
+
+    checkpoint_ref: artifacts.ArtifactRef
+    checkpoint: NativeDerivationWorldCheckpoint
+    pending_action_phase_ref: artifacts.ArtifactRef
+    pending_action_phase: AcquisitionRoutePhaseReceipt
+    original_generic_input_ref: artifacts.ArtifactRef
+    original_generic_input: GenericCycleSimulationN5InputV1
+    original_generic_execution_ref: artifacts.ArtifactRef
+    world_model_record: WorldModelRecord
+    problem: DesignProblem
+
+    @property
+    def original_profile(self) -> GenericCycleSimulationProfileV1:
+        """Return the unchanged configured numerical profile."""
+        return self.original_generic_input.profile
+
+    @property
+    def original_profile_ref(self) -> artifacts.ArtifactRef:
+        """Return the actual original profile selector, never a new appointment."""
+        return self.original_generic_input.profile_ref
+
+    @property
+    def world_model_record_ref(self) -> artifacts.ArtifactRef:
+        """Return the exact owner-built candidate world selector."""
+        return self.checkpoint.world_model_ref
 
 
 class _CandidateWorldSelectedPointer(_Strict):
@@ -1378,6 +1677,562 @@ def resolve_first_candidate_n4_prior(
     return source
 
 
+def verify_native_derivation_reentry_collection(
+    store: artifacts.ArtifactStore,
+    *,
+    closure: VerifiedAcquisitionRouteClosure,
+    collection_ref: artifacts.ArtifactRef,
+    world_model: WorldModelRecord,
+) -> AcquisitionRequirementGap:
+    """Join a current route to the complete selected native candidate world.
+
+    This is immutable input reconciliation. Current membership, action rights,
+    and context admission remain the native owner's separate responsibility.
+    """
+    scope = closure.native_derivation_leaf_scope
+    if scope is None or closure.native_derivation_leaf_provider is None:
+        raise ValueError("native_derivation_reentry_leaf_not_selected")
+    return _replay_native_derivation_world_bindings(
+        store, scope=scope, collection_ref=collection_ref, world_model=world_model
+    )
+
+
+def _replay_native_derivation_world_bindings(
+    store: artifacts.ArtifactStore,
+    *,
+    scope: NativeDerivationLeafCostProfileScope,
+    collection_ref: artifacts.ArtifactRef,
+    world_model: WorldModelRecord,
+) -> AcquisitionRequirementGap:
+    """Share exact recorded input closure between current and historical reads."""
+    from polisyos.core.contracts import (
+        load_model_input_obligation_set,
+        load_registered_derived_input_context,
+        load_registered_derived_input_correspondence,
+        load_resolved_input_binding_manifest,
+    )
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    collection = replay_native_derivation_input_collection(store, collection_ref).collection
+    if collection.input_closure_status != "inputs_complete" or collection.pending_actions:
+        raise ValueError("native_derivation_reentry_partial_inputs")
+    if _native_derivation_ref_key(collection.derivation_bundle_ref) != _native_derivation_ref_key(
+        scope.derivation_bundle_ref
+    ):
+        raise ValueError("native_derivation_reentry_bundle_mismatch")
+    bundle = load_n7_derivation_bundle(store, collection.derivation_bundle_ref)
+    if _native_derivation_ref_key(bundle.obligation_set_ref) != _native_derivation_ref_key(
+        scope.obligation_set_ref
+    ):
+        raise ValueError("native_derivation_reentry_obligation_set_mismatch")
+    nodes = tuple(node for node in bundle.source_nodes if node.node_id == scope.source_node_id)
+    if len(nodes) != 1 or nodes[0].requirement_gap is None:
+        raise ValueError("native_derivation_reentry_leaf_gap_missing")
+    selected_set, _ = load_model_input_obligation_set(store, bundle.obligation_set_ref)
+    views = world_model_artifact_views(world_model)
+    bindings = load_input_bindings(store, views.input_bindings_ref)
+    if bindings.schema_version != "1.4" or bindings.resolved_binding_manifest_ref is None:
+        raise ValueError("native_derivation_reentry_selected_method_bindings_required")
+    manifest = load_resolved_input_binding_manifest(store, bindings.resolved_binding_manifest_ref)
+    if (
+        _native_derivation_ref_key(manifest.model_input_obligation_set_ref)
+        != _native_derivation_ref_key(bundle.obligation_set_ref)
+        or _native_derivation_ref_key(manifest.data_snapshot_ref)
+        != _native_derivation_ref_key(views.data_snapshot_ref)
+        or {
+            _native_derivation_ref_key(row.model_input_obligation_ref)
+            for row in manifest.derivations
+        }
+        != {_native_derivation_ref_key(ref) for ref in selected_set.obligation_refs}
+        or len(manifest.derivations) != len(selected_set.obligation_refs)
+    ):
+        raise ValueError("native_derivation_reentry_complete_manifest_required")
+    selected = tuple(
+        row
+        for row in manifest.derivations
+        if row.derivation_bundle_ref is not None
+        and _native_derivation_ref_key(row.derivation_bundle_ref)
+        == _native_derivation_ref_key(collection.derivation_bundle_ref)
+    )
+    if len(selected) != 1:
+        raise ValueError("native_derivation_reentry_target_selection_not_unique")
+    row = selected[0]
+    expected = prepare_native_derivation_materialization_request(
+        store, collection_ref=collection_ref, profile_ref=row.profile_ref, binding_id=row.binding_id
+    )
+    correspondence = load_registered_derived_input_correspondence(store, row.correspondence_ref)
+    context = load_registered_derived_input_context(store, correspondence.context_ref)
+    if (
+        tuple(
+            (role.role, _native_derivation_ref_key(role.occurrence_ref)) for role in context.roles
+        )
+        != tuple(
+            (role.role, _native_derivation_ref_key(role.occurrence_ref))
+            for role in expected.role_occurrences
+        )
+        or _native_derivation_ref_key(context.obligation_set_ref)
+        != _native_derivation_ref_key(bundle.obligation_set_ref)
+        or _native_derivation_ref_key(context.model_input_obligation_ref)
+        != _native_derivation_ref_key(bundle.model_input_obligation_ref)
+        or _native_derivation_ref_key(row.model_input_obligation_ref)
+        != _native_derivation_ref_key(bundle.model_input_obligation_ref)
+    ):
+        raise ValueError("native_derivation_reentry_materialized_roles_mismatch")
+    return nodes[0].requirement_gap
+
+
+def replay_native_derivation_action_inputs(
+    store: artifacts.ArtifactStore,
+    *,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore | None = None,
+    receipt: AcquisitionRouteLoopReceipt,
+) -> NativeDerivationInputReplay:
+    """Reopen a waiting terminal without asserting current rights or membership."""
+    if (
+        type(receipt) is not AcquisitionRouteLoopReceipt
+        or receipt.terminal_outcome != "inputs_pending"
+        or receipt.native_input_collection_ref is None
+        or receipt.owner_declared_profile_ref is None
+    ):
+        raise ValueError("native_derivation_waiting_terminal_required")
+    return _replay_native_derivation_action_collection(
+        store,
+        event_log=event_log,
+        control_store=control_store,
+        receipt=receipt,
+        collection_ref=receipt.native_input_collection_ref,
+    )
+
+
+def _replay_native_derivation_action_collection(
+    store: artifacts.ArtifactStore,
+    *,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore | None,
+    receipt: AcquisitionRouteLoopReceipt | AcquisitionRoutePhaseReceipt,
+    collection_ref: artifacts.ArtifactRef,
+) -> NativeDerivationInputReplay:
+    """Replay an actual paid source occurrence and its selected collection."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerReport,
+        _n7_load_configured_candidate_port_source,
+        _n7_load_derivation_bundle,
+        _n7_validate_configured_candidate_report_source,
+        _n7_verify_configured_candidate_report_cycle,
+        load_native_derivation_leaf_cost_profile,
+        produce_acquisition_cost_basis_record,
+        validate_persisted_acquisition_planner_report,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import _select_source_planner_record
+
+    if (
+        type(receipt) not in {AcquisitionRouteLoopReceipt, AcquisitionRoutePhaseReceipt}
+        or receipt.owner_declared_profile_ref is None
+        or (
+            type(receipt) is AcquisitionRoutePhaseReceipt
+            and (
+                receipt.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+                or receipt.receipt_phase != "world_committed_reentry_pending"
+            )
+        )
+    ):
+        raise ValueError("native_derivation_committed_action_required")
+    profile = load_native_derivation_leaf_cost_profile(store, receipt.owner_declared_profile_ref)
+    scope = profile.scope
+    if (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id) != (
+        receipt.tenant_id,
+        receipt.cell_id,
+        receipt.run_id,
+        receipt.source_job_id,
+    ):
+        raise ValueError("native_derivation_pending_source_scope_mismatch")
+    replay = replay_native_derivation_input_collection(store, collection_ref)
+    collection = replay.collection
+    if _native_derivation_ref_key(collection.derivation_bundle_ref) != _native_derivation_ref_key(
+        scope.derivation_bundle_ref
+    ):
+        raise ValueError("native_derivation_pending_bundle_mismatch")
+    bundle = _n7_load_derivation_bundle(store, scope.derivation_bundle_ref)
+    if _native_derivation_ref_key(bundle.obligation_set_ref) != _native_derivation_ref_key(
+        scope.obligation_set_ref
+    ):
+        raise ValueError("native_derivation_pending_obligation_set_mismatch")
+    source = _n7_load_configured_candidate_port_source(store, scope.configured_port_source_ref)
+    report = AcquisitionPlannerReport.model_validate(
+        load_core_json_artifact(store, scope.planner_report_ref)
+    )
+    if (
+        (source.tenant_id, source.cell_id, source.run_id, source.source_job_id)
+        != (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.source_job_id)
+        or source.derivation_bundle_ref is None
+        or _native_derivation_ref_key(source.derivation_bundle_ref)
+        != _native_derivation_ref_key(scope.derivation_bundle_ref)
+        or report.candidate_lineage is None
+        or _native_derivation_ref_key(report.candidate_lineage.port_source_ref)
+        != _native_derivation_ref_key(scope.configured_port_source_ref)
+        or agent_action_content_hash(report) != receipt.planner_report_hash
+    ):
+        raise ValueError("native_derivation_pending_planner_source_mismatch")
+    _n7_validate_configured_candidate_report_source(store=store, report=report)
+    # A source capture is not its own proof that the selected ordinary cycle
+    # produced it. Reopen the exact compiled occurrence and use the same
+    # canonical Generic/N4/context join as current route admission.
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+    if control_store is None:
+        raise ValueError("native_derivation_pending_historical_control_owner_missing")
+    generation_run, source_cycle, actual_problem = _native_derivation_compiled_source_occurrence(
+        store, source=source, compiled_ref=receipt.compiled_ref
+    )
+    reselected_source = _n7_verify_configured_candidate_report_cycle(
+        artifact_store=store,
+        control_store=control_store,
+        report=report,
+        report_ref=scope.planner_report_ref,
+        generation_run=generation_run,
+        source_cycle=source_cycle,
+        tenant_id=receipt.tenant_id,
+        cell_id=receipt.cell_id,
+        run_id=receipt.run_id,
+        source_job_id=receipt.source_job_id,
+        design_problem_ref=cycle_job_design_problem_ref(actual_problem),
+    )
+    if reselected_source != source:
+        raise ValueError("native_derivation_pending_compiled_source_changed")
+    nodes = tuple(row for row in bundle.source_nodes if row.node_id == scope.source_node_id)
+    if len(nodes) != 1 or nodes[0].requirement_gap is None:
+        raise ValueError("native_derivation_pending_source_node_missing")
+    node = nodes[0]
+    gap = node.requirement_gap
+    record = _select_source_planner_record(report, gap)
+    pre_numerical = (
+        source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3"
+    )
+    if not pre_numerical and report.requirement_basis_binding is None:
+        raise ValueError("native_derivation_pending_compiler_basis_missing")
+    if (
+        gap.requirement_gap_id != scope.requirement_gap_id
+        or gap.compiled_requirement_ref != scope.compiled_requirement_ref
+        or record.acquisition_id != scope.planner_record_id
+        or record.recommended_strategy != scope.strategy
+        or not any(
+            _native_derivation_ref_key(scope.selected_supplier_ref)
+            == _native_derivation_ref_key(ref)
+            for ref in (
+                (node.selected_supplier_ref,)
+                if node.selected_supplier_ref is not None
+                else tuple(item.supplier_ref for item in node.supplier_alternatives)
+            )
+        )
+        or validate_persisted_acquisition_planner_report(
+            store,
+            scope.planner_report_ref,
+            report,
+            expected_scenario_id=(
+                source.design_problem_basis_ref
+                if pre_numerical
+                else report.requirement_basis_binding.scenario_id
+            ),
+            expected_compiled_requirement_ref=record.compiled_requirement_ref,
+            expected_obligation_set_ref=scope.obligation_set_ref if pre_numerical else None,
+        )
+    ):
+        raise ValueError("native_derivation_pending_leaf_route_mismatch")
+    # Reproduce the quote arithmetic at its declared historical epoch. This
+    # deliberately makes no assertion that it is still valid for a new action.
+    cost = produce_acquisition_cost_basis_record(
+        missing_distribution=scope.missing_distribution,
+        strategy=scope.strategy,
+        owner_declared_profile_ref=receipt.owner_declared_profile_ref,
+        store=store,
+        expected_scope=scope,
+        now=profile.effective_at,
+    )
+    if cost is None or cost.record_content_hash != receipt.cost_basis_hash:
+        raise ValueError("native_derivation_pending_cost_basis_mismatch")
+    selected = tuple(row for row in collection.source_inputs if row.source_node_id == node.node_id)
+    if len(selected) != 1 or _native_derivation_ref_key(
+        selected[0].supplier_ref
+    ) != _native_derivation_ref_key(scope.selected_supplier_ref):
+        raise ValueError("native_derivation_pending_acquired_leaf_missing")
+    growth_refs = tuple(
+        ref for ref in receipt.owner_receipt_refs if store.get_manifest(ref).kind == _GROWTH_KIND
+    )
+    if len(growth_refs) != 1:
+        raise ValueError("native_derivation_pending_native_growth_missing")
+    growth = AcquisitionWorldGrowthReceipt.model_validate(
+        AcquisitionWorldGrowthBridge.read_verified_artifact(
+            store, event_log, growth_refs[0], _GROWTH_KIND
+        )
+    )
+    reconcile_authority_ref(
+        artifact_store=store,
+        event_log=event_log,
+        cas_ref=growth_refs[0],
+        expected_tenant_id=receipt.tenant_id,
+        expected_cell_id=receipt.cell_id,
+        expected_run_id=receipt.run_id,
+        expected_job_id=receipt.source_job_id,
+    )
+    row = selected[0]
+    if (
+        growth.selection.key
+        != (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.route_id)
+        or growth.action_phase_ref is None
+        or growth.action_phase_ref not in receipt.owner_receipt_refs
+        or receipt.native_leaf_provider_selection is None
+        or receipt.native_leaf_provider_selection.authority_entry_id
+        != acquisition_executor.AdmissionPassport.model_validate(
+            contracts.epoch.load_verified_epoch_statement(
+                store=store,
+                ref=growth.activation.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        ).authority_entry_id
+        or _native_derivation_ref_key(growth.activation.overlay_admission_receipt_ref)
+        != _native_derivation_ref_key(row.source_receipt_ref)
+        or _native_derivation_ref_key(growth.activation.passport_ref)
+        != _native_derivation_ref_key(row.source_passport_ref)
+    ):
+        raise ValueError("native_derivation_pending_native_action_binding_mismatch")
+    return replay
+
+
+def _native_derivation_compiled_source_occurrence(
+    store: artifacts.ArtifactStore, *, source: object, compiled_ref: str
+) -> tuple[GenerationCycleRun, GenerationCycleRecord, DesignProblem]:
+    """Reselect the exact original source cycle and its complete problem."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import _resolve_source_cycle_problem_basis
+
+    compiled_manifest = store.get_manifest(compiled_ref)
+    if (
+        compiled_manifest.kind != "runtime.compiled_recursive_generation_cycle"
+        or compiled_manifest.media_type != "application/json"
+        or compiled_manifest.artifact_schema is None
+        or compiled_manifest.artifact_schema.name
+        != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+        or not store.verify(artifacts.artifact_ref_for_manifest(compiled_manifest)).ok
+    ):
+        raise ValueError("native_derivation_pending_compiled_source_unverified")
+    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+        load_core_json_artifact(store, artifacts.artifact_ref_for_manifest(compiled_manifest))
+    )
+    candidates = tuple(
+        (leaf.cycle_run, cycle)
+        for leaf in compiled.recursive_run.leaf_nodes
+        if leaf.cycle_run is not None
+        and leaf.cycle_run.run_id == getattr(source, "source_generation_run_id", None)
+        for cycle in leaf.cycle_run.cycles
+        if cycle.cycle_index == getattr(source, "cycle_index", None)
+    )
+    if len(candidates) != 1:
+        raise ValueError("native_derivation_pending_compiled_cycle_not_unique")
+    generation_run, source_cycle = candidates[0]
+    problem = _resolve_source_cycle_problem_basis(
+        generation_run=generation_run,
+        source_cycle=source_cycle,
+        design_problem=compiled.design_problem,
+        design_problem_ref=compiled.design_problem_ref,
+    )
+    return generation_run, source_cycle, problem
+
+
+def replay_native_derived_world_selection(
+    store: artifacts.ArtifactStore,
+    *,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    checkpoint_ref: artifacts.ArtifactRef,
+) -> NativeDerivedWorldSelection:
+    """Replay exact recorded native world facts without a current-use grant.
+
+    The existing SQL and diagnostic owners retain the selected action profile.
+    A historical read needs those owners as well as CAS; it never guesses a
+    default manifest or presents the old action as today's permission.
+    """
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_planner import (
+        _n7_load_configured_candidate_port_source,
+        load_native_derivation_leaf_cost_profile,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5ExecutionV4,
+        GenericCycleSimulationN5InputV1,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        load_world_model_record,
+        world_model_artifact_views,
+    )
+
+    if (
+        checkpoint_ref.kind != _CANDIDATE_WORLD_CHECKPOINT_KIND
+        or checkpoint_ref.media_type != "application/json"
+        or checkpoint_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_derived_world_checkpoint_unselected")
+    checkpoint = NativeDerivationWorldCheckpoint.model_validate(
+        load_core_json_artifact(store, checkpoint_ref)
+    )
+    AcquisitionWorldGrowthBridge.read_verified_artifact(
+        store,
+        event_log,
+        checkpoint_ref,
+        _CANDIDATE_WORLD_CHECKPOINT_KIND,
+        expected_inputs=checkpoint.lineage_inputs(),
+    )
+    phase_ref = checkpoint.pending_action_phase_ref
+    phase = AcquisitionRoutePhaseReceipt.model_validate(load_core_json_artifact(store, phase_ref))
+    if (
+        phase.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+        or phase.receipt_phase != "world_committed_reentry_pending"
+        or (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id, phase.job_id)
+        != (
+            checkpoint.tenant_id,
+            checkpoint.cell_id,
+            checkpoint.run_id,
+            checkpoint.source_job_id,
+            checkpoint.action_job_id,
+        )
+        or phase.route_id != checkpoint.route_id
+    ):
+        raise ValueError("native_derived_world_action_scope_mismatch")
+    phase_head = control_store.get_acquisition_action_head_by_receipt(
+        tenant_id=phase.tenant_id,
+        cell_id=phase.cell_id,
+        run_id=phase.run_id,
+        source_job_id=phase.source_job_id,
+        route_id=phase.route_id,
+        action_generation=phase.action_generation,
+        receipt_ref=str(phase_ref.artifact_id),
+    )
+    if (
+        phase_head is None
+        or phase_head.receipt_manifest_profile_sha256 != phase_ref.manifest_profile_sha256
+        or phase_head.job_id != phase.job_id
+    ):
+        raise ValueError("native_derived_world_selected_action_profile_missing")
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=store, event_log=event_log, control_store=control_store
+    )
+    chain = sink._verified_action_phase_chain(phase_head)
+    if (
+        not chain
+        or chain[-1].receipt != phase
+        or len(
+            [
+                row
+                for row in chain
+                if row.receipt_ref == checkpoint.action_phase_ref
+                and type(row.receipt) is AcquisitionRoutePhaseReceipt
+                and row.receipt.receipt_phase == "executing"
+            ]
+        )
+        != 1
+        or len(checkpoint.collection_refs) != 1
+    ):
+        raise ValueError("native_derived_world_action_chain_mismatch")
+    replay = _replay_native_derivation_action_collection(
+        store,
+        event_log=event_log,
+        control_store=control_store,
+        receipt=phase,
+        collection_ref=checkpoint.collection_refs[0],
+    )
+    if replay.collection.input_closure_status != "inputs_complete":
+        raise ValueError("native_derived_world_complete_inputs_required")
+    cost_profile = load_native_derivation_leaf_cost_profile(store, phase.owner_declared_profile_ref)
+    scope = cost_profile.scope
+    if _native_derivation_ref_key(scope.configured_port_source_ref) != _native_derivation_ref_key(
+        checkpoint.configured_port_source_ref
+    ):
+        raise ValueError("native_derived_world_configured_source_mismatch")
+    source = _n7_load_configured_candidate_port_source(store, checkpoint.configured_port_source_ref)
+    if source.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v3":
+        raise ValueError("native_derived_world_generic_source_required")
+    input_record = GenericCycleSimulationN5InputV1.model_validate(
+        load_core_json_artifact(store, source.n5_input_ref)
+    )
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    owner.bind_native_world_history(control_store=control_store, event_log=event_log)
+    if owner.resolve_n5_input(source.n5_input_ref, expected=input_record) != input_record:
+        raise ValueError("native_derived_world_original_input_unverified")
+    execution = parse_generic_cycle_simulation_n5_execution(
+        load_core_json_artifact(store, source.n5_execution_ref)
+    )
+    if (
+        type(execution) is not GenericCycleSimulationN5ExecutionV4
+        or execution.status != "simulation_blocked"
+        or execution.result_ref is not None
+        or _native_derivation_ref_key(execution.input_ref)
+        != _native_derivation_ref_key(source.n5_input_ref)
+        or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or input_record.profile.profile_selection_kind != "problem"
+        or input_record.n4_child_profile_family_ref is not None
+    ):
+        raise ValueError("native_derived_world_original_generic_basis_invalid")
+    owner.resolve_n5_execution(source.n5_execution_ref, expected=execution)
+    world = load_world_model_record(store, checkpoint.world_model_ref)
+    views = world_model_artifact_views(world)
+    original_views = world_model_artifact_views(
+        input_record.profile.context_inputs.world_model_record
+    )
+    bindings = load_input_bindings(store, views.input_bindings_ref)
+    if (
+        world.authority_status != "limited"
+        or _native_derivation_ref_key(views.data_snapshot_ref)
+        != _native_derivation_ref_key(checkpoint.data_snapshot_ref)
+        or _native_derivation_ref_key(views.input_bindings_ref)
+        != _native_derivation_ref_key(checkpoint.input_bindings_ref)
+        or _native_derivation_ref_key(original_views.data_snapshot_ref)
+        != _native_derivation_ref_key(checkpoint.base_data_snapshot_ref)
+        or _native_derivation_ref_key(views.bound_state_snapshot_ref)
+        != _native_derivation_ref_key(original_views.bound_state_snapshot_ref)
+        or _native_derivation_ref_key(views.registry_bundle_ref)
+        != _native_derivation_ref_key(original_views.registry_bundle_ref)
+        or bindings.resolved_binding_manifest_ref is None
+        or _native_derivation_ref_key(bindings.resolved_binding_manifest_ref)
+        != _native_derivation_ref_key(checkpoint.resolved_binding_manifest_ref)
+    ):
+        raise ValueError("native_derived_world_selected_transport_mismatch")
+    _replay_native_derivation_world_bindings(
+        store,
+        scope=scope,
+        collection_ref=checkpoint.collection_refs[0],
+        world_model=world,
+    )
+    # Reuse the actual compiled graph owner's complete model-transport law,
+    # including calibration refusal and the unchanged physical predecessor.
+    owner._read_selected_program_graph(input_record.n5, world)
+    return NativeDerivedWorldSelection(
+        checkpoint_ref=checkpoint_ref,
+        checkpoint=checkpoint,
+        pending_action_phase_ref=phase_ref,
+        pending_action_phase=phase,
+        original_generic_input_ref=source.n5_input_ref,
+        original_generic_input=input_record,
+        original_generic_execution_ref=source.n5_execution_ref,
+        world_model_record=world,
+        problem=_native_derivation_compiled_source_occurrence(
+            store, source=source, compiled_ref=phase.compiled_ref
+        )[2],
+    )
+
+
 class AcquisitionWorldGrowthBridge:
     """Production owner composition for growth and durable re-entry recovery."""
 
@@ -1423,6 +2278,8 @@ class AcquisitionWorldGrowthBridge:
             ):
                 raise TypeError("acquisition_source_control_owner_unbound")
         self._source_control_service = source_control_service
+        if source_control_service is not None:
+            source_control_service.bind_native_derivation_route_configuration(config)
 
     def selection(
         self, closure: VerifiedAcquisitionRouteClosure
@@ -2432,47 +3289,77 @@ class AcquisitionWorldGrowthBridge:
 
         if not re.fullmatch(_SHA, action_phase_ref):
             raise ValueError("acquisition_action_phase_ref_invalid")
-        manifest = contracts.epoch._preflight_core_manifest_profile(
-            store=self.artifact_store,
-            selector=action_phase_ref,
-            expected_kind="runtime_quality.acquisition_route_phase_receipt",
-            expected_media_type="application/json",
-            expected_schema=artifacts.SchemaInfo(
-                name="polisyos.runtime.AcquisitionRoutePhaseReceipt", version="1.0"
-            ),
-            expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
-            require_selected_profile=False,
-            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
-        )
-        selected_ref = artifact_ref_for_manifest(manifest)
-        producer, schema = manifest.producer, manifest.artifact_schema
-        if (
-            producer is None
-            or producer.component != "polisyos.runtime.acquisition_route_loop"
-            or schema is None
-        ):
-            raise ValueError("acquisition_action_phase_receipt_unverified")
-        payload = self.artifact_store.get_bytes(action_phase_ref)
-        if self.artifact_store.get_manifest(action_phase_ref) != manifest:
-            raise ValueError("acquisition_action_phase_receipt_unverified")
-        if "sha256:" + hashlib.sha256(payload).hexdigest() != action_phase_ref:
-            raise ValueError("acquisition_action_phase_receipt_unverified")
-        phase = AcquisitionRoutePhaseReceipt.model_validate(
-            read_core_json_artifact(
-                self.artifact_store, selected_ref, raw_payload_bytes=payload
-            ).value
-        )
-        report = reconcile_authority_ref(
-            artifact_store=self.artifact_store,
-            event_log=self.event_log,
-            cas_ref=action_phase_ref,
-            expected_tenant_id=closure.tenant_id,
-            expected_cell_id=closure.cell_id,
-            expected_run_id=closure.run_id,
-            expected_job_id=phase.job_id,
-        )
-        if report.durable_event_id is None:
-            raise ValueError("acquisition_action_phase_source_binding_mismatch")
+        if closure.native_derivation_leaf_scope is not None:
+            # Native @1.3 owns selected quote/supplier manifest edges and SQL
+            # profiles. Reuse the action owner's complete current-head proof;
+            # the legacy empty-input @1.0 profile is not its contract.
+            reader = self.action_head_sink
+            if reader is None or self._source_control_service is None:
+                raise ValueError("native_derivation_action_phase_owner_unavailable")
+            snapshot = reader.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=selected.route_id,
+            )
+            if (
+                snapshot is None
+                or snapshot.executing_phase_ref != action_phase_ref
+                or snapshot.executing_phase is None
+            ):
+                raise ValueError("native_derivation_action_phase_head_missing")
+            phase = snapshot.executing_phase
+            if (
+                phase.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+                or phase.owner_declared_profile_ref is None
+                or _native_derivation_ref_key(phase.owner_declared_profile_ref)
+                != _native_derivation_ref_key(closure.owner_declared_profile_ref)
+                or phase.native_leaf_provider_selection != closure.native_derivation_leaf_provider
+            ):
+                raise ValueError("native_derivation_action_phase_selection_mismatch")
+        else:
+            manifest = contracts.epoch._preflight_core_manifest_profile(
+                store=self.artifact_store,
+                selector=action_phase_ref,
+                expected_kind="runtime_quality.acquisition_route_phase_receipt",
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(
+                    name="polisyos.runtime.AcquisitionRoutePhaseReceipt", version="1.0"
+                ),
+                expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+                require_selected_profile=False,
+                expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+            )
+            selected_ref = artifact_ref_for_manifest(manifest)
+            producer, schema = manifest.producer, manifest.artifact_schema
+            if (
+                producer is None
+                or producer.component != "polisyos.runtime.acquisition_route_loop"
+                or schema is None
+            ):
+                raise ValueError("acquisition_action_phase_receipt_unverified")
+            payload = self.artifact_store.get_bytes(action_phase_ref)
+            if self.artifact_store.get_manifest(action_phase_ref) != manifest:
+                raise ValueError("acquisition_action_phase_receipt_unverified")
+            if "sha256:" + hashlib.sha256(payload).hexdigest() != action_phase_ref:
+                raise ValueError("acquisition_action_phase_receipt_unverified")
+            phase = AcquisitionRoutePhaseReceipt.model_validate(
+                read_core_json_artifact(
+                    self.artifact_store, selected_ref, raw_payload_bytes=payload
+                ).value
+            )
+            report = reconcile_authority_ref(
+                artifact_store=self.artifact_store,
+                event_log=self.event_log,
+                cas_ref=action_phase_ref,
+                expected_tenant_id=closure.tenant_id,
+                expected_cell_id=closure.cell_id,
+                expected_run_id=closure.run_id,
+                expected_job_id=phase.job_id,
+            )
+            if report.durable_event_id is None:
+                raise ValueError("acquisition_action_phase_source_binding_mismatch")
         if (
             phase.receipt_phase != "executing"
             or phase.tenant_id != closure.tenant_id
@@ -3929,23 +4816,38 @@ class AcquisitionWorldGrowthBridge:
                 ),
             )
             attempt_pointer = self._growth_pointer(selected).with_suffix(".attempt.json")
+            native = closure.native_derivation_leaf_scope is not None
             if attempt_pointer.exists():
-                prior_ref = json.loads(attempt_pointer.read_text())["receipt_ref"]
+                prior_selector = self._attempt_pointer_ref(attempt_pointer, require_selected=native)
                 prior = AcquisitionWorldGrowthAttempt.model_validate(
-                    self._read(prior_ref, _ATTEMPT_KIND)
+                    self._read(prior_selector, _ATTEMPT_KIND)
                 )
                 if prior != attempt:
                     raise ValueError("acquisition_world_growth_attempt_replay_conflict")
-                attempt_ref = prior_ref
+                attempt_ref = self._attempt_pointer_id(prior_selector)
             else:
-                attempt_ref = self._persist(
-                    closure,
-                    attempt.model_dump(mode="json"),
-                    _ATTEMPT_KIND,
-                    "AcquisitionWorldGrowthAttempt",
-                    "admission_pending",
-                )
-                self._write_pointer(attempt_pointer, attempt_ref)
+                if native:
+                    selected_attempt_ref = self._persist(
+                        closure,
+                        attempt.model_dump(mode="json"),
+                        _ATTEMPT_KIND,
+                        "AcquisitionWorldGrowthAttempt",
+                        "admission_pending",
+                        return_selected_profile=True,
+                    )
+                    attempt_ref = str(selected_attempt_ref.artifact_id)
+                    self._write_pointer(
+                        attempt_pointer, attempt_ref, selected_ref=selected_attempt_ref
+                    )
+                else:
+                    attempt_ref = self._persist(
+                        closure,
+                        attempt.model_dump(mode="json"),
+                        _ATTEMPT_KIND,
+                        "AcquisitionWorldGrowthAttempt",
+                        "admission_pending",
+                    )
+                    self._write_pointer(attempt_pointer, attempt_ref)
             return self._admit_stored_attempt(
                 closure, attempt_ref, attempt, action_phase_ref=action_phase_ref
             )
@@ -4041,14 +4943,17 @@ class AcquisitionWorldGrowthBridge:
             attempt_pointer = pointer.with_suffix(".attempt.json")
             if not attempt_pointer.exists():
                 raise ValueError("acquisition_world_growth_attempt_missing")
-            attempt_ref = json.loads(attempt_pointer.read_text())["receipt_ref"]
+            attempt_selector = self._attempt_pointer_ref(
+                attempt_pointer, require_selected=closure.native_derivation_leaf_scope is not None
+            )
+            attempt_ref = self._attempt_pointer_id(attempt_selector)
             attempt = AcquisitionWorldGrowthAttempt.model_validate(
-                self._read(attempt_ref, _ATTEMPT_KIND)
+                self._read(attempt_selector, _ATTEMPT_KIND)
             )
             reconcile_authority_ref(
                 artifact_store=self.artifact_store,
                 event_log=self.event_log,
-                cas_ref=attempt_ref,
+                cas_ref=attempt_selector,
                 expected_tenant_id=closure.tenant_id,
                 expected_cell_id=closure.cell_id,
                 expected_run_id=closure.run_id,
@@ -4141,6 +5046,102 @@ class AcquisitionWorldGrowthBridge:
                 owner_refs = (*owner_refs, action_phase_ref)
             return tuple(dict.fromkeys(owner_refs))
 
+    def read_paid_native_action_attempt(
+        self, closure: VerifiedAcquisitionRouteClosure, *, action_job_id: str
+    ) -> artifacts.ArtifactRef | None:
+        """Reopen the exact completed provider call without another request.
+
+        A requested head, reservation, or started marker is insufficient. The
+        canonical source owner replays both raw/journal and normalized carriers
+        for the actual executing action and its adopted provider identity.
+        This preserves spent facts; it issues no new price or action permission.
+        """
+        scope = closure.native_derivation_leaf_scope
+        provider = closure.native_derivation_leaf_provider
+        selected = self.selection(closure)
+        if scope is None or provider is None or selected is None or self.action_head_sink is None:
+            return None
+        snapshot = self.action_head_sink.current_action_outcome(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        if (
+            snapshot is None
+            or snapshot.head.job_id != action_job_id
+            or snapshot.executing_phase_ref is None
+            or snapshot.executing_phase is None
+        ):
+            return None
+        phase = snapshot.executing_phase
+        if (
+            phase.owner_declared_profile_ref is None
+            or _native_derivation_ref_key(phase.owner_declared_profile_ref)
+            != _native_derivation_ref_key(closure.owner_declared_profile_ref)
+            or phase.native_leaf_provider_selection != provider
+        ):
+            raise ValueError("native_paid_attempt_action_profile_mismatch")
+        pointer = self._growth_pointer(selected, create=False).with_suffix(".attempt.json")
+        if not pointer.exists():
+            return None
+        attempt_ref = self._attempt_pointer_ref(pointer, require_selected=True)
+        if not isinstance(attempt_ref, artifacts.ArtifactRef):
+            raise ValueError("native_paid_attempt_selected_profile_required")
+        _native_derivation_ref_key(attempt_ref)
+        attempt = AcquisitionWorldGrowthAttempt.model_validate(
+            self._read(attempt_ref, _ATTEMPT_KIND)
+        )
+        reconcile_authority_ref(
+            artifact_store=self.artifact_store,
+            event_log=self.event_log,
+            cas_ref=attempt_ref,
+            expected_tenant_id=closure.tenant_id,
+            expected_cell_id=closure.cell_id,
+            expected_run_id=closure.run_id,
+            expected_job_id=closure.source_job_id,
+        )
+        if (
+            attempt.selection != selected
+            or attempt.action_phase_ref != snapshot.executing_phase_ref
+            or attempt.target_variable != scope.missing_distribution
+        ):
+            raise ValueError("native_paid_attempt_action_binding_mismatch")
+        evidence = attempt.evidence
+        if (
+            evidence.raw_artifact_ref is None
+            or evidence.raw_artifact_ref.manifest_profile_sha256 is None
+            or evidence.evidence_bundle_ref.manifest_profile_sha256 is None
+            or evidence.data_snapshot_ref.manifest_profile_sha256 is None
+            or evidence.authorization.connector_id != provider.connector_id
+        ):
+            raise ValueError("native_paid_attempt_selected_carriers_required")
+        self.authority.resolve_live_source_execution(
+            provider.authority_entry_id, evidence, self.artifact_store
+        )
+        # Verify all selected immutable carriers before retaining this paid fact.
+        for ref in (
+            evidence.raw_artifact_ref,
+            evidence.evidence_bundle_ref,
+            evidence.data_snapshot_ref,
+        ):
+            _native_derivation_ref_key(ref)
+            if not self.artifact_store.verify(ref).ok:
+                raise ValueError("native_paid_attempt_carrier_unverified")
+        if (
+            self.action_head_sink.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+            ).head
+            != snapshot.head
+        ):
+            raise ValueError("native_paid_attempt_current_head_changed")
+        return attempt_ref
+
     def has_admission_attempt(self, closure: VerifiedAcquisitionRouteClosure) -> bool:
         """Recognize any prior attempt marker, including corrupt or unreadable state."""
         selected = self.selection(closure)
@@ -4222,17 +5223,18 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_deferred_admission_outcome_not_established")
         ref = json.loads(pointer.with_suffix(".deferred.json").read_text())["receipt_ref"]
         deferral = AcquisitionWorldGrowthDeferral.model_validate(self._read(ref, _DEFERRAL_KIND))
-        if (
-            json.loads(pointer.with_suffix(".attempt.json").read_text())["receipt_ref"]
-            != deferral.attempt_ref
-        ):
+        attempt_selector = self._attempt_pointer_ref(
+            pointer.with_suffix(".attempt.json"),
+            require_selected=closure.native_derivation_leaf_scope is not None,
+        )
+        if self._attempt_pointer_id(attempt_selector) != deferral.attempt_ref:
             raise ValueError("acquisition_deferred_admission_attempt_mismatch")
         attempt = AcquisitionWorldGrowthAttempt.model_validate(
-            self._read(deferral.attempt_ref, _ATTEMPT_KIND)
+            self._read(attempt_selector, _ATTEMPT_KIND)
         )
         if attempt.selection != selected:
             raise ValueError("acquisition_world_growth_case_mismatch")
-        for owner_ref in (ref, deferral.attempt_ref):
+        for owner_ref in (ref, attempt_selector):
             reconcile_authority_ref(
                 artifact_store=self.artifact_store,
                 event_log=self.event_log,
@@ -4393,8 +5395,14 @@ class AcquisitionWorldGrowthBridge:
         attempt_ref: str,
         action_phase_ref: str,
     ) -> AcquisitionWorldGrowthRecoveredOutcome:
+        attempt_selector = self._attempt_pointer_ref(
+            self._growth_pointer(selected, create=False).with_suffix(".attempt.json"),
+            require_selected=closure.native_derivation_leaf_scope is not None,
+        )
+        if self._attempt_pointer_id(attempt_selector) != attempt_ref:
+            raise ValueError("acquisition_world_growth_attempt_pointer_mismatch")
         attempt = AcquisitionWorldGrowthAttempt.model_validate(
-            self._read(attempt_ref, _ATTEMPT_KIND)
+            self._read(attempt_selector, _ATTEMPT_KIND)
         )
         if attempt.selection != selected:
             raise ValueError("acquisition_world_growth_case_mismatch")
@@ -4629,11 +5637,13 @@ class AcquisitionWorldGrowthBridge:
                 ".attempt.json"
             )
             if attempt_pointer.exists():
-                attempt_ref = json.loads(attempt_pointer.read_text()).get("receipt_ref")
-                if not isinstance(attempt_ref, str):
-                    raise ValueError("acquisition_world_growth_attempt_pointer_unverified")
+                attempt_selector = self._attempt_pointer_ref(
+                    attempt_pointer,
+                    require_selected=closure.native_derivation_leaf_scope is not None,
+                )
+                attempt_ref = self._attempt_pointer_id(attempt_selector)
                 attempt = AcquisitionWorldGrowthAttempt.model_validate(
-                    self._read(attempt_ref, _ATTEMPT_KIND)
+                    self._read(attempt_selector, _ATTEMPT_KIND)
                 )
                 if attempt.action_phase_ref == action_phase_ref:
                     return self._recover_current_positive_from_activation(
@@ -4657,9 +5667,11 @@ class AcquisitionWorldGrowthBridge:
                     raise ValueError("acquisition_deferred_action_fence_scope_mismatch")
                 if not attempt_pointer.exists():
                     raise ValueError("acquisition_world_growth_attempt_missing")
-                attempt_ref = json.loads(attempt_pointer.read_text()).get("receipt_ref")
-                if not isinstance(attempt_ref, str):
-                    raise ValueError("acquisition_world_growth_attempt_pointer_unverified")
+                attempt_selector = self._attempt_pointer_ref(
+                    attempt_pointer,
+                    require_selected=closure.native_derivation_leaf_scope is not None,
+                )
+                attempt_ref = self._attempt_pointer_id(attempt_selector)
                 deferral_ref = fence_value["deferral_ref"]
                 deferral = AcquisitionWorldGrowthDeferral.model_validate(
                     self._read(deferral_ref, _DEFERRAL_KIND)
@@ -4772,9 +5784,10 @@ class AcquisitionWorldGrowthBridge:
         started_path = pointer.with_suffix(".admission.started")
         if not os.path.lexists(attempt_path):
             raise ValueError("acquisition_legacy_growth_attempt_unverified")
-        attempt_ref = selected_ref(attempt_path)
+        attempt_selector = self._attempt_pointer_ref(attempt_path)
+        attempt_ref = self._attempt_pointer_id(attempt_selector)
         attempt = AcquisitionWorldGrowthAttempt.model_validate(
-            self._read(attempt_ref, _ATTEMPT_KIND)
+            self._read(attempt_selector, _ATTEMPT_KIND)
         )
         if os.path.lexists(deferred_path):
             deferred_ref = selected_ref(deferred_path)
@@ -4818,8 +5831,55 @@ class AcquisitionWorldGrowthBridge:
         return kind, ref
 
     @staticmethod
-    def _write_pointer(pointer: Path, ref: str, *, receipt_kind: str | None = None) -> None:
-        value = {"receipt_ref": ref}
+    def _attempt_pointer_ref(
+        pointer: Path, *, require_selected: bool = False
+    ) -> str | artifacts.ArtifactRef:
+        """Read the retained attempt view without substituting a CAS default."""
+        value = json.loads(pointer.read_text())
+        if (
+            not isinstance(value, dict)
+            or set(value) not in ({"receipt_ref"}, {"receipt_ref", "selected_ref"})
+            or not isinstance(value.get("receipt_ref"), str)
+            or re.fullmatch(_SHA, value["receipt_ref"]) is None
+        ):
+            raise ValueError("acquisition_attempt_pointer_unverified")
+        if "selected_ref" not in value:
+            if require_selected:
+                raise ValueError("native_paid_attempt_selected_profile_required")
+            return value["receipt_ref"]
+        ref = artifacts.ArtifactRef.model_validate(value["selected_ref"])
+        if (
+            ref.kind != _ATTEMPT_KIND
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or str(ref.artifact_id) != value["receipt_ref"]
+        ):
+            raise ValueError("acquisition_attempt_pointer_selected_profile_mismatch")
+        return ref
+
+    @staticmethod
+    def _attempt_pointer_id(ref: str | artifacts.ArtifactRef) -> str:
+        return str(ref.artifact_id) if isinstance(ref, artifacts.ArtifactRef) else ref
+
+    @staticmethod
+    def _write_pointer(
+        pointer: Path,
+        ref: str,
+        *,
+        receipt_kind: str | None = None,
+        selected_ref: artifacts.ArtifactRef | None = None,
+    ) -> None:
+        value: dict[str, object] = {"receipt_ref": ref}
+        if selected_ref is not None:
+            if (
+                receipt_kind is not None
+                or selected_ref.kind != _ATTEMPT_KIND
+                or selected_ref.media_type != "application/json"
+                or selected_ref.manifest_profile_sha256 is None
+                or str(selected_ref.artifact_id) != ref
+            ):
+                raise ValueError("acquisition_attempt_pointer_selected_profile_mismatch")
+            value["selected_ref"] = selected_ref.model_dump(mode="json")
         if receipt_kind is not None:
             if receipt_kind not in (_GROWTH_KIND, _NO_GROWTH_KIND):
                 raise ValueError("acquisition_world_growth_pointer_kind_invalid")
@@ -5070,16 +6130,19 @@ class AcquisitionWorldGrowthBridge:
         attempt_pointer = pointer.with_suffix(".attempt.json")
         if not attempt_pointer.exists():
             raise ValueError("acquisition_world_growth_attempt_missing")
-        attempt_ref = json.loads(attempt_pointer.read_text()).get("receipt_ref")
-        if not isinstance(attempt_ref, str) or attempt_ref != receipt.attempt_ref:
+        attempt_selector = self._attempt_pointer_ref(
+            attempt_pointer, require_selected=closure.native_derivation_leaf_scope is not None
+        )
+        attempt_ref = self._attempt_pointer_id(attempt_selector)
+        if attempt_ref != receipt.attempt_ref:
             raise ValueError("acquisition_no_growth_attempt_binding_mismatch")
         attempt = AcquisitionWorldGrowthAttempt.model_validate(
-            self._read(attempt_ref, _ATTEMPT_KIND)
+            self._read(attempt_selector, _ATTEMPT_KIND)
         )
         reconcile_authority_ref(
             artifact_store=self.artifact_store,
             event_log=self.event_log,
-            cas_ref=attempt_ref,
+            cas_ref=attempt_selector,
             expected_tenant_id=closure.tenant_id,
             expected_cell_id=closure.cell_id,
             expected_run_id=closure.run_id,
@@ -5126,13 +6189,16 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_no_growth_membership_drift")
         return receipt, growth, admitted
 
-    def _read(
-        self,
+    @staticmethod
+    def read_verified_artifact(
+        artifact_store: artifacts.ArtifactStore,
+        event_log: RuntimeDiagnosticEventLog,
         ref: str | artifacts.ArtifactRef,
         kind: str,
         *,
         expected_inputs: tuple[artifacts.InputRef, ...] = (),
     ) -> dict[str, Any]:
+        """Replay the native owner's exact CAS/event artifact without current-use rights."""
         from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
 
         schema_names = {
@@ -5156,7 +6222,7 @@ class AcquisitionWorldGrowthBridge:
             _REENTRY_KIND: ("2.0",),
             _CANDIDATE_ACTION_KIND: ("1.1",),
             _CANDIDATE_WORLD_INTENT_KIND: ("1.2",),
-            _CANDIDATE_WORLD_CHECKPOINT_KIND: ("1.1",),
+            _CANDIDATE_WORLD_CHECKPOINT_KIND: ("1.1", "1.2"),
             _CANDIDATE_REENTRY_KIND: ("1.0",),
         }
         if kind not in schema_names:
@@ -5166,7 +6232,7 @@ class AcquisitionWorldGrowthBridge:
             for version in schema_versions[kind]
         )
         manifest = contracts.epoch._preflight_core_manifest_profile(
-            store=self.artifact_store,
+            store=artifact_store,
             selector=ref,
             expected_kind=kind,
             expected_media_type="application/json",
@@ -5191,20 +6257,18 @@ class AcquisitionWorldGrowthBridge:
             )
         ):
             raise ValueError("acquisition_world_growth_receipt_unverified")
-        payload = self.artifact_store.get_bytes(ref)
-        if self.artifact_store.get_manifest(ref) != manifest:
+        payload = artifact_store.get_bytes(ref)
+        if artifact_store.get_manifest(ref) != manifest:
             raise ValueError("acquisition_world_growth_receipt_unverified")
         ref_id = str(ref.artifact_id) if isinstance(ref, artifacts.ArtifactRef) else ref
         if "sha256:" + hashlib.sha256(payload).hexdigest() != ref_id:
             raise ValueError("acquisition_world_growth_receipt_unverified")
         report = reconcile_authority_ref(
-            artifact_store=self.artifact_store, event_log=self.event_log, cas_ref=ref
+            artifact_store=artifact_store, event_log=event_log, cas_ref=ref
         )
         if report.durable_event_id is None:
             raise ValueError("acquisition_world_growth_receipt_unverified")
-        value = load_core_json_artifact(
-            self.artifact_store, selected_ref, raw_payload_bytes=payload
-        )
+        value = load_core_json_artifact(artifact_store, selected_ref, raw_payload_bytes=payload)
         if (
             kind in (_GROWTH_KIND, _NO_GROWTH_KIND)
             and schema is not None
@@ -5213,6 +6277,17 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_world_growth_receipt_schema_mismatch")
         return value
 
+    def _read(
+        self,
+        ref: str | artifacts.ArtifactRef,
+        kind: str,
+        *,
+        expected_inputs: tuple[artifacts.InputRef, ...] = (),
+    ) -> dict[str, Any]:
+        return self.read_verified_artifact(
+            self.artifact_store, self.event_log, ref, kind, expected_inputs=expected_inputs
+        )
+
     def resume(
         self,
         closure: VerifiedAcquisitionRouteClosure,
@@ -5220,7 +6295,7 @@ class AcquisitionWorldGrowthBridge:
         *,
         prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
         native_context: CandidateN5NativeContext | None = None,
-    ) -> str:
+    ) -> str | NativeDerivationInputsPending:
         """Read verified native activation and enter the original case at the next cycle."""
         from polisyos.core.artifacts import load_core_json_artifact
 
@@ -5242,7 +6317,9 @@ class AcquisitionWorldGrowthBridge:
             current_job = self.control_store.current_execution_job_record()
             current_action_job_id = current_job.job_id
             refreshed = source_route_reader.resolve_current_route(
-                run_id=closure.run_id, action_job_id=current_action_job_id
+                run_id=closure.run_id,
+                route_id=closure.route_id,
+                action_job_id=current_action_job_id,
             )
             if (
                 refreshed.tenant_id != closure.tenant_id
@@ -5272,8 +6349,103 @@ class AcquisitionWorldGrowthBridge:
         # This operation lock protects recovery pointers only. It deliberately
         # does not exclude native acquisition writers during an async N5 job.
         operation_path = _reentry_operation_namespace(overlay_path)
+        native_scope = closure.native_derivation_leaf_scope
+        native_owner_pointer = None
+        if native_scope is not None:
+            from polisyos.runtime.quality.acquisition_planner import (
+                _n7_load_configured_candidate_port_source,
+            )
+
+            configured_source = _n7_load_configured_candidate_port_source(
+                self.artifact_store, native_scope.configured_port_source_ref
+            )
+            current_context_ref = (
+                closure.source_cycle.simulation.candidate_simulation_context_job_ref
+            )
+            if current_context_ref is None:
+                raise ValueError("native_derivation_current_context_not_established")
+            n4_payload = closure.source_cycle.simulation.diagnostics.get(
+                "candidate_simulation_n4_source_selected_ref"
+            )
+            if n4_payload is not None:
+                current_n4_ref = artifacts.ArtifactRef.model_validate(n4_payload)
+            elif (
+                closure.source_cycle.cycle_index == configured_source.cycle_index
+                and closure.source_cycle.selected_candidate_content_hash
+                == configured_source.candidate_content_hash
+            ):
+                current_n4_ref = configured_source.n4_source_ref
+            else:
+                raise ValueError("native_derivation_current_n4_source_not_established")
+            _native_derivation_ref_key(current_n4_ref)
+            group_id = agent_action_content_hash(
+                {
+                    "source": native_scope.configured_port_source_ref.model_dump(mode="json"),
+                    "bundle": native_scope.derivation_bundle_ref.model_dump(mode="json"),
+                    "original_obligation_set": native_scope.obligation_set_ref.model_dump(
+                        mode="json"
+                    ),
+                    "original_n4_source": configured_source.n4_source_ref.model_dump(mode="json"),
+                    "original_context_job": configured_source.context_job_ref.model_dump(
+                        mode="json"
+                    ),
+                    "current_context_job": current_context_ref.model_dump(mode="json"),
+                    "current_n4_source": current_n4_ref.model_dump(mode="json"),
+                    "current_cycle_index": closure.source_cycle.cycle_index,
+                    "current_candidate_hash": closure.source_cycle.selected_candidate_content_hash,
+                    "source_job_id": closure.source_job_id,
+                }
+            ).removeprefix("sha256:")
+            group_root = (
+                self.runtime_root / "runtime/acquisition/world-growth/native-reentry" / group_id
+            )
+            group_root.mkdir(parents=True, exist_ok=True)
+            operation_path = group_root / "reentry.lock-target"
+            native_owner_pointer = group_root / "owner.json"
         with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation_path):
             growth, admitted = self._verified_growth(closure, growth_refs[0])
+            native_collections: tuple[artifacts.ArtifactRef, ...] = ()
+            native_configuration = self._native_derivation_configuration(closure)
+            if native_configuration is not None:
+                collection_ref = self._collect_current_native_derivation_inputs(
+                    closure, growth_refs[0]
+                )
+                collection = replay_native_derivation_input_collection(
+                    self.artifact_store, collection_ref
+                ).collection
+                if collection.pending_actions:
+                    return NativeDerivationInputsPending(collection_ref=collection_ref)
+                # The source action is complete even when other original ports
+                # or semantic registrations are still missing. No partial AND
+                # value or executable bindings are created in that case.
+                required = self._native_derivation_complete_requests(
+                    native_configuration, collection_ref
+                )
+                if required is None:
+                    return NativeDerivationInputsPending(collection_ref=collection_ref)
+                native_collections = (collection_ref,)
+                current_owner = {
+                    "action_job_id": current_action_job_id,
+                    "route_id": closure.route_id,
+                    "growth_ref": growth_refs[0],
+                    "collection_ref": collection_ref.model_dump(mode="json"),
+                }
+                if native_owner_pointer.exists():
+                    if json.loads(native_owner_pointer.read_text()) != current_owner:
+                        return NativeDerivationInputsPending(collection_ref=collection_ref)
+                else:
+                    fd, temporary = tempfile.mkstemp(
+                        prefix="native-owner-", dir=native_owner_pointer.parent
+                    )
+                    try:
+                        with os.fdopen(fd, "w") as stream:
+                            json.dump(current_owner, stream, sort_keys=True)
+                            stream.flush()
+                            os.fsync(stream.fileno())
+                        os.replace(temporary, native_owner_pointer)
+                    finally:
+                        if os.path.exists(temporary):
+                            os.unlink(temporary)
             if pointer.exists():
                 ref = json.loads(pointer.read_text())["receipt_ref"]
                 receipt = AcquisitionOverlayReentryReceipt.model_validate(
@@ -5344,7 +6516,54 @@ class AcquisitionWorldGrowthBridge:
                 None,
             )
             controller_kwargs: dict[str, object] = {}
-            if refresh is not None:
+            if native_collections:
+                context, handoff, context_owner, currentness_resolver = (
+                    self._native_derivation_context_handoff(
+                        closure=closure,
+                        growth=growth,
+                        collection_refs=native_collections,
+                        growth_ref=growth_refs[0],
+                        configuration=native_configuration,
+                    )
+                )
+                from polisyos.runtime.quality.generic_simulation_admission import (
+                    GenericCycleNativeWorldContextHandoffV1,
+                )
+
+                if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+                    if native_context is not None:
+                        raise ValueError("native_derivation_ncm_port_substitution_refused")
+                    controller_kwargs = {
+                        "cycle_substrate_context": context,
+                        "generic_cycle_simulation_admission_owner": (
+                            self._source_control_service._generic_cycle_simulation_admission_owner
+                        ),
+                        "generic_cycle_simulation_handoff": handoff,
+                        "generic_cycle_simulation_currentness_resolver": currentness_resolver,
+                        "_prepared_n5_configuration": prepared_n5_configuration,
+                    }
+                else:
+                    controller_kwargs = {
+                        "cycle_substrate_context": context,
+                        "candidate_simulation_handoff": handoff,
+                        "candidate_simulation_currentness_resolver": currentness_resolver,
+                        "_prepared_n5_configuration": prepared_n5_configuration,
+                    }
+                if native_context is not None:
+                    if (
+                        type(native_context) is not CandidateN5NativeContext
+                        or native_context.prepared_configuration != prepared_n5_configuration
+                        or native_context.budget_observer is not None
+                    ):
+                        raise ValueError("acquisition_n5_native_context_mismatch")
+                    native_context.port.bind_candidate_context_once(
+                        context=context,
+                        handoff=handoff,
+                        artifact_store=self.artifact_store,
+                        currentness_resolver=currentness_resolver,
+                    )
+                    controller_kwargs["simulation_port"] = native_context.port
+            elif refresh is not None:
                 context, handoff, context_owner, currentness_resolver = (
                     self._candidate_world_context_handoff(
                         closure=closure,
@@ -5382,7 +6601,7 @@ class AcquisitionWorldGrowthBridge:
                 promotion_runtime=self.promotion_runtime,
                 **controller_kwargs,
             )
-            if refresh is not None:
+            if refresh is not None or native_collections:
                 if (
                     self._source_control_service is None
                     or self._source_control_service._control_store is not self.control_store
@@ -5413,6 +6632,14 @@ class AcquisitionWorldGrowthBridge:
                         baseline_path=self.authority.baseline_path,
                         overlay_path=overlay_path,
                         source_control_service=self._source_control_service,
+                        **(
+                            {
+                                "action_route_id": closure.route_id,
+                                "native_input_collection_ref": native_collections[0],
+                            }
+                            if native_collections
+                            else {}
+                        ),
                         budget_state=BudgetState.model_validate(
                             {
                                 "limits": {
@@ -5444,10 +6671,16 @@ class AcquisitionWorldGrowthBridge:
                     raise ValueError("acquisition_reentry_native_selector_changed")
                 if source_route_reader is not None:
                     final_source = source_route_reader.resolve_current_route(
-                        run_id=closure.run_id, action_job_id=current_action_job_id
+                        run_id=closure.run_id,
+                        route_id=closure.route_id,
+                        action_job_id=current_action_job_id,
                     )
                     if final_source != closure:
                         raise ValueError("acquisition_reentry_source_selector_changed")
+                if native_collections and _native_derivation_ref_key(
+                    self._collect_current_native_derivation_inputs(closure, growth_refs[0])
+                ) != _native_derivation_ref_key(native_collections[0]):
+                    raise ValueError("native_derivation_reentry_source_collection_changed")
                 self._validate_reentry(closure, growth, receipt)
                 ref = self._persist(
                     closure,
@@ -5459,6 +6692,767 @@ class AcquisitionWorldGrowthBridge:
                 )
                 self._write_pointer(pointer, ref)
                 return ref
+
+    def _native_derivation_configuration(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> NativeDerivationRouteConfiguration | None:
+        """Select adopted semantic/quote inputs for this exact native source."""
+        scope = closure.native_derivation_leaf_scope
+        if scope is None:
+            return None
+        if (
+            self._source_control_service is None
+            or getattr(self._source_control_service, "_native_derivation_route_configuration", None)
+            is not self.config
+        ):
+            raise ValueError("native_derivation_deployment_configuration_changed")
+        key = closure.tenant_id, closure.cell_id, closure.run_id, closure.source_job_id
+        rows = tuple(row for row in self.config.native_derivation_routes if row.key == key)
+        if len(rows) != 1 or _native_derivation_ref_key(
+            rows[0].configured_port_source_ref
+        ) != _native_derivation_ref_key(scope.configured_port_source_ref):
+            raise ValueError("native_derivation_route_configuration_not_established")
+        if not any(
+            _native_derivation_ref_key(ref)
+            == _native_derivation_ref_key(closure.owner_declared_profile_ref)
+            for ref in rows[0].owner_declared_cost_profile_refs
+        ):
+            # A past quote removed from the current list remains a historical
+            # pricing fact only for the exact durable already-paid action.
+            # Current native provider/route/rights remain independently required.
+            if self.action_head_sink is None:
+                raise ValueError("native_derivation_action_cost_profile_not_adopted")
+            snapshot = self.action_head_sink.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+            )
+            if (
+                snapshot is None
+                or self.read_paid_native_action_attempt(closure, action_job_id=snapshot.head.job_id)
+                is None
+            ):
+                raise ValueError("native_derivation_action_cost_profile_not_adopted")
+        return rows[0]
+
+    def _native_derivation_adopted_providers(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[NativeDerivationLeafProviderSelection, ...]:
+        scope = closure.native_derivation_leaf_scope
+        if scope is None or self._source_control_service is None:
+            return ()
+        return self._source_control_service.native_derivation_leaf_provider_selections(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            configured_port_source_ref=scope.configured_port_source_ref,
+        )
+
+    def require_native_derivation_provider_bindings(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        bindings: tuple[WorldBankWDIRouteExecutionBinding, ...],
+    ) -> None:
+        """Match the adopted supplier route to the actual native provider before I/O."""
+        if closure.native_derivation_leaf_scope is None:
+            return
+        self._require_profile_inventory(closure.owner_declared_profile_ref)
+        configuration = self._native_derivation_configuration(closure)
+        selected = closure.native_derivation_leaf_provider
+        if (
+            configuration is None
+            or selected is None
+            or selected not in self._native_derivation_adopted_providers(closure)
+        ):
+            raise ValueError("native_derivation_provider_selection_not_adopted")
+        if not bindings or any(
+            binding.authority_entry_id != selected.authority_entry_id
+            or binding.connector_id != selected.connector_id
+            for binding in bindings
+        ):
+            raise ValueError("native_derivation_native_provider_mismatch")
+
+    def _native_derivation_route_reader(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> AcquisitionRouteLoop:
+        service = self._source_control_service
+        if service is None or self.action_head_sink is None or self.control_store is None:
+            raise ValueError("native_derivation_action_owner_unavailable")
+        return AcquisitionRouteLoop(
+            control_store=self.control_store,
+            artifact_store=self.artifact_store,
+            event_log=self.event_log,
+            core_source_resolver=service.resolve_completed_control_job_core_run_source,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            action_outcome_reader=self.action_head_sink,
+        )
+
+    def _collect_current_native_derivation_inputs(
+        self, closure: VerifiedAcquisitionRouteClosure, growth_ref: str
+    ) -> artifacts.ArtifactRef:
+        """Reopen actual authorized action results, then ask Catalog for current rows.
+
+        Historical collections locate prior leaf actions only. Every selected
+        leaf is re-resolved through its own current configured route and native
+        membership owner; no old PA2 decision is reused for a new fetch.
+        """
+        from polisyos.runtime.quality.acquisition_planner import (
+            load_native_derivation_leaf_cost_profile,
+        )
+
+        scope = closure.native_derivation_leaf_scope
+        if scope is None:
+            raise ValueError("native_derivation_leaf_scope_missing")
+        self._native_derivation_configuration(closure)
+        reader = self._native_derivation_route_reader(closure)
+        heads = self.control_store.list_acquisition_action_heads_for_source(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+        )
+        selected: dict[str, tuple[VerifiedAcquisitionRouteClosure, str]] = {
+            scope.source_node_id: (closure, growth_ref)
+        }
+        for head in heads:
+            if head.job_id == self.control_store.current_execution_job_record().job_id:
+                continue
+            outcome = self.action_head_sink.verify_action_head(head)
+            terminal = outcome.latest_receipt
+            pending_terminal = (
+                type(terminal) is AcquisitionRouteLoopReceipt
+                and terminal.terminal_outcome == "inputs_pending"
+            )
+            committed_phase = (
+                type(terminal) is AcquisitionRoutePhaseReceipt
+                and terminal.receipt_phase == "world_committed_reentry_pending"
+                and terminal.owner_declared_profile_ref is not None
+            )
+            if not pending_terminal and not committed_phase:
+                continue
+            profile = load_native_derivation_leaf_cost_profile(
+                self.artifact_store, terminal.owner_declared_profile_ref
+            )
+            prior_scope = profile.scope
+            if _native_derivation_ref_key(
+                prior_scope.derivation_bundle_ref
+            ) != _native_derivation_ref_key(scope.derivation_bundle_ref):
+                continue
+            if _native_derivation_ref_key(
+                prior_scope.configured_port_source_ref
+            ) != _native_derivation_ref_key(scope.configured_port_source_ref):
+                raise ValueError("native_derivation_previous_source_changed")
+            prior_route = reader.resolve_current_route(
+                run_id=closure.run_id,
+                route_id=terminal.route_id,
+                action_job_id=terminal.job_id,
+            )
+            refs = tuple(
+                ref
+                for ref in terminal.owner_receipt_refs
+                if self.artifact_store.get_manifest(ref).kind == _GROWTH_KIND
+            )
+            if len(refs) != 1 or prior_route.native_derivation_leaf_scope != prior_scope:
+                raise ValueError("native_derivation_previous_action_route_mismatch")
+            prior = selected.get(prior_scope.source_node_id)
+            if prior is not None and prior[1] != refs[0]:
+                raise ValueError("native_derivation_source_action_selection_ambiguous")
+            selected[prior_scope.source_node_id] = prior_route, refs[0]
+        native_inputs: list[NativeDerivationSourceInput] = []
+        for node_id, (route, selected_growth_ref) in sorted(selected.items()):
+            leaf_scope = route.native_derivation_leaf_scope
+            if leaf_scope is None:
+                raise ValueError("native_derivation_previous_leaf_scope_missing")
+            growth, admitted = self._verified_growth(route, selected_growth_ref)
+            passport = acquisition_executor.AdmissionPassport.model_validate(
+                contracts.epoch.load_verified_epoch_statement(
+                    store=self.artifact_store,
+                    ref=growth.activation.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            provider = route.native_derivation_leaf_provider
+            if (
+                provider is None
+                or provider not in self._native_derivation_adopted_providers(route)
+                or provider.authority_entry_id != passport.authority_entry_id
+            ):
+                raise ValueError("native_derivation_passport_provider_mismatch")
+            overlay_path, _ = self._paths(growth.selection, create=False)
+            overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+                self.authority.baseline_path, overlay_path
+            )
+            projection = overlay.read_activated_semantic_epoch_observations(
+                receipt_ref=admitted.receipt_ref,
+                artifact_store=self.artifact_store,
+                passport=passport,
+                authority=self.authority,
+            )
+            if len(projection.observations) != 1:
+                # Selecting among years/geographies requires its own explicit
+                # source selection. An arbitrary first row is never a binding.
+                raise ValueError("native_derivation_observation_not_unique")
+            native_inputs.append(
+                NativeDerivationSourceInput(
+                    source_node_id=node_id,
+                    supplier_ref=leaf_scope.selected_supplier_ref,
+                    overlay=overlay,
+                    receipt_ref=admitted.receipt_ref,
+                    passport=passport,
+                    observation_id=projection.observations[0].observation.observation_id,
+                )
+            )
+        collection = collect_native_derivation_inputs(
+            self.artifact_store,
+            derivation_bundle_ref=scope.derivation_bundle_ref,
+            source_inputs=tuple(native_inputs),
+            authority=self.authority,
+        )
+        if (
+            self.control_store.list_acquisition_action_heads_for_source(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+            )
+            != heads
+        ):
+            raise ValueError("native_derivation_source_action_history_changed")
+        return persist_native_derivation_input_collection(self.artifact_store, collection)
+
+    def _native_derivation_complete_requests(
+        self,
+        configuration: NativeDerivationRouteConfiguration,
+        collection_ref: artifacts.ArtifactRef,
+    ) -> tuple[RegisteredDerivedModelInputRequest, ...] | None:
+        """Close the full selected obligation set before creating any input value."""
+        from polisyos.core.contracts import load_model_input_obligation_set
+        from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+
+        collection = replay_native_derivation_input_collection(
+            self.artifact_store, collection_ref
+        ).collection
+        bundle = load_n7_derivation_bundle(self.artifact_store, collection.derivation_bundle_ref)
+        obligation_set, _ = load_model_input_obligation_set(
+            self.artifact_store, bundle.obligation_set_ref
+        )
+        ports = configuration.ports
+        if not ports and self._source_control_service is not None:
+            ports = self._source_control_service.native_derivation_source_port_selections(
+                tenant_id=configuration.tenant_id,
+                cell_id=configuration.cell_id,
+                run_id=configuration.run_id,
+                source_job_id=configuration.source_job_id,
+                configured_port_source_ref=configuration.configured_port_source_ref,
+            )
+        selected = tuple(
+            port
+            for port in ports
+            if _native_derivation_ref_key(port.derivation_bundle_ref)
+            == _native_derivation_ref_key(collection.derivation_bundle_ref)
+        )
+        if len(selected) != 1 or collection.pending_actions:
+            return None
+        # First bounded native route has one actual selected target bundle.
+        # Other targets stay open rather than silently borrowing this value.
+        if tuple(_native_derivation_ref_key(ref) for ref in obligation_set.obligation_refs) != (
+            _native_derivation_ref_key(bundle.model_input_obligation_ref),
+        ):
+            return None
+        port = selected[0]
+        request = prepare_native_derivation_materialization_request(
+            self.artifact_store,
+            collection_ref=collection_ref,
+            profile_ref=port.registered_profile_ref,
+            binding_id=port.binding_id,
+        )
+        return (request,)
+
+    def resolve_native_derived_world_selection(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        checkpoint_ref: artifacts.ArtifactRef,
+    ) -> NativeDerivedWorldSelection:
+        """Reopen the recorded world under this actual current action owner."""
+        from polisyos.core.contracts import load_resolved_input_binding_manifest
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+
+        configuration = self._native_derivation_configuration(closure)
+        service = self._source_control_service
+        if configuration is None or service is None or self.control_store is None:
+            raise ValueError("native_derived_world_current_owner_missing")
+        current = self.control_store.current_execution_job_record()
+        admission = self.control_store.current_execution_job_admission()
+        if (
+            not admission.matches_job_record(current)
+            or current.kind != "acquisition"
+            or current.state != "running"
+            or (admission.scope.tenant_id, admission.scope.cell_id)
+            != (closure.tenant_id, closure.cell_id)
+            or admission.scope.status != "established"
+        ):
+            raise ValueError("native_derived_world_current_job_not_admitted")
+        current_closure = self._native_derivation_route_reader(closure).resolve_current_route(
+            run_id=closure.run_id, route_id=closure.route_id, action_job_id=current.job_id
+        )
+        if current_closure != closure:
+            raise ValueError("native_derived_world_current_route_changed")
+        selected = replay_native_derived_world_selection(
+            self.artifact_store,
+            event_log=self.event_log,
+            control_store=self.control_store,
+            checkpoint_ref=checkpoint_ref,
+        )
+        pending_ref, _phase = self._native_derivation_pending_phase(closure)
+        if (
+            selected.checkpoint.action_job_id != current.job_id
+            or selected.pending_action_phase_ref != pending_ref
+            or (
+                selected.checkpoint.tenant_id,
+                selected.checkpoint.cell_id,
+                selected.checkpoint.run_id,
+            )
+            != (closure.tenant_id, closure.cell_id, closure.run_id)
+            or selected.checkpoint.route_id != closure.route_id
+            or selected.problem.model_dump(mode="python")
+            != closure.design_problem_basis.model_dump(mode="python")
+        ):
+            raise ValueError("native_derived_world_current_selection_mismatch")
+        generic_owner = service._generic_cycle_simulation_admission_owner
+        if (
+            type(generic_owner) is not GenericCycleSimulationAdmissionOwner
+            or generic_owner.store is not self.artifact_store
+        ):
+            raise ValueError("native_derived_world_generic_owner_missing")
+        original = selected.original_generic_input
+        generic_owner.resolve_profile(
+            original.profile_ref,
+            expected_profile=original.profile,
+            job_id=original.job_id,
+            run_id=original.run_id,
+            tenant_id=original.tenant_id,
+            cell_id=original.cell_id,
+        )
+        growth_refs = tuple(
+            ref
+            for ref in selected.pending_action_phase.owner_receipt_refs
+            if self.artifact_store.get_manifest(ref).kind == _GROWTH_KIND
+        )
+        if len(growth_refs) != 1:
+            raise ValueError("native_derived_world_current_growth_missing")
+        actual_collection_ref = self._collect_current_native_derivation_inputs(
+            closure, growth_refs[0]
+        )
+        if _native_derivation_ref_key(actual_collection_ref) != _native_derivation_ref_key(
+            selected.checkpoint.collection_refs[0]
+        ):
+            raise ValueError("native_derived_world_current_sources_changed")
+        requests = self._native_derivation_complete_requests(configuration, actual_collection_ref)
+        if requests is None:
+            raise ValueError("native_derived_world_current_full_closure_missing")
+        manifest = load_resolved_input_binding_manifest(
+            self.artifact_store, selected.checkpoint.resolved_binding_manifest_ref
+        )
+        if tuple(
+            (row.binding_id, _native_derivation_ref_key(row.profile_ref))
+            for row in manifest.derivations
+        ) != tuple(
+            (row.binding_id, _native_derivation_ref_key(row.profile_ref)) for row in requests
+        ):
+            raise ValueError("native_derived_world_current_registration_changed")
+        return selected
+
+    def _native_derivation_pending_phase(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[artifacts.ArtifactRef, AcquisitionRoutePhaseReceipt]:
+        """Return the actual current SQL-selected committed action phase."""
+        if self.action_head_sink is None or self.control_store is None:
+            raise ValueError("native_derivation_pending_action_owner_missing")
+        snapshot = self.action_head_sink.current_action_outcome(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        current = self.control_store.current_execution_job_record()
+        if (
+            snapshot is None
+            or snapshot.head.job_id != current.job_id
+            or snapshot.head.receipt_manifest_profile_sha256 is None
+            or type(snapshot.latest_receipt) is not AcquisitionRoutePhaseReceipt
+            or snapshot.latest_receipt.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+            or snapshot.latest_receipt.receipt_phase != "world_committed_reentry_pending"
+        ):
+            raise ValueError("native_derivation_pending_action_not_current")
+        selected = artifacts.artifact_ref_for_manifest(
+            artifacts.resolve_manifest_by_profile(
+                self.artifact_store,
+                snapshot.head.receipt_ref,
+                snapshot.head.receipt_manifest_profile_sha256,
+            )
+        )
+        verified = self.action_head_sink._read_verified_action_phase(
+            snapshot.head.receipt_ref, selected_ref=selected
+        )
+        if verified.receipt != snapshot.latest_receipt:
+            raise ValueError("native_derivation_pending_action_readback_changed")
+        return selected, verified.receipt
+
+    def _native_derivation_context_handoff(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        growth: AcquisitionWorldGrowthReceipt,
+        collection_refs: tuple[artifacts.ArtifactRef, ...],
+        growth_ref: str,
+        configuration: NativeDerivationRouteConfiguration,
+    ) -> tuple[
+        CycleSubstrateContext,
+        CandidateSimulationContextHandoff | GenericCycleNativeWorldContextHandoffV1,
+        CycleSubstrateContextArtifactOwner,
+        Callable[[], bool],
+    ]:
+        """Use the canonical semantic batch and actual WMR before ordinary reentry."""
+        from polisyos.runtime.quality.acquisition_planner import (
+            _n7_load_configured_candidate_port_source,
+        )
+        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.data_state_substrate import (
+            build_derived_model_input_candidate_world,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationN5InputV1,
+        )
+        from polisyos.runtime.quality.model_input_routing import (
+            materialize_registered_derived_model_inputs,
+        )
+        from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+        from polisyos.runtime.quality.world_model_record import (
+            load_world_model_record,
+            world_model_artifact_views,
+        )
+
+        source = _n7_load_configured_candidate_port_source(
+            self.artifact_store, configuration.configured_port_source_ref
+        )
+        generic_owner = None
+        if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+            service = self._source_control_service
+            generic_owner = (
+                service._generic_cycle_simulation_admission_owner if service is not None else None
+            )
+            if (
+                type(generic_owner) is not GenericCycleSimulationAdmissionOwner
+                or generic_owner.store is not self.artifact_store
+            ):
+                raise ValueError("native_derivation_generic_context_owner_unavailable")
+            original_input = GenericCycleSimulationN5InputV1.model_validate(
+                artifacts.load_core_json_artifact(self.artifact_store, source.n5_input_ref)
+            )
+            generic_owner.resolve_n5_input(source.n5_input_ref, expected=original_input)
+            configured = generic_owner.resolve_profile(
+                original_input.profile_ref,
+                expected_profile=original_input.profile,
+                job_id=original_input.job_id,
+                run_id=original_input.run_id,
+                tenant_id=original_input.tenant_id,
+                cell_id=original_input.cell_id,
+            )
+            admission_owner = None
+        else:
+            admission_owner = self.cycle_substrate_context_admission_owner
+            if type(admission_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner:
+                raise ValueError("native_derivation_context_owner_unavailable")
+            configured = admission_owner.configured_profile_for_selection_ref(
+                cycle_job_profile_selection_ref(closure.design_problem_basis)
+            )
+        if len(collection_refs) != 1:
+            raise ValueError("native_derivation_multiple_target_bundles_not_established")
+        requests = self._native_derivation_complete_requests(configuration, collection_refs[0])
+        if requests is None:
+            raise ValueError("native_derivation_full_obligation_closure_required")
+        current_job = self.control_store.current_execution_job_record()
+        admission = self.control_store.current_execution_job_admission()
+        if (
+            not admission.matches_job_record(current_job)
+            or admission.job.kind != "acquisition"
+            or admission.scope.status != "established"
+            or (admission.scope.tenant_id, admission.scope.cell_id)
+            != (closure.tenant_id, closure.cell_id)
+        ):
+            raise ValueError("native_derivation_context_job_not_current")
+        profile_ref = cycle_job_profile_selection_ref(closure.design_problem_basis)
+        base_world = configured.context_inputs.world_model_record
+        base_views = world_model_artifact_views(base_world)
+        scope = closure.native_derivation_leaf_scope
+        if scope is None:
+            raise ValueError("native_derivation_leaf_scope_missing")
+        pending_phase_ref, pending_phase = self._native_derivation_pending_phase(closure)
+        if growth.action_phase_ref not in pending_phase.owner_receipt_refs:
+            raise ValueError("native_derivation_world_pending_phase_mismatch")
+        identity = agent_action_content_hash(
+            {
+                "source": configuration.configured_port_source_ref.model_dump(mode="json"),
+                "route_id": closure.route_id,
+                "action_job_id": current_job.job_id,
+                "collections": [ref.model_dump(mode="json") for ref in collection_refs],
+                "profiles": [request.profile_ref.model_dump(mode="json") for request in requests],
+            }
+        ).removeprefix("sha256:")
+        workspace = self.runtime_root / "runtime/acquisition/world-growth/native-inputs" / identity
+        workspace.mkdir(parents=True, exist_ok=True)
+        pointer = workspace / "world.json"
+        event_id = "evt_native_derivation_world_" + identity
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(
+            workspace / "world.lock-target"
+        ):
+            recovered_ref = None
+            if not pointer.exists():
+                events = self.event_log.list_events(event_id=event_id, limit=2)
+                if len(events) > 1:
+                    raise ValueError("native_derivation_world_checkpoint_event_ambiguous")
+                if events:
+                    refs = tuple(
+                        ref
+                        for ref in events[0].event.artifact_refs
+                        if self.artifact_store.get_manifest(ref).kind
+                        == _CANDIDATE_WORLD_CHECKPOINT_KIND
+                    )
+                    if len(refs) != 1:
+                        raise ValueError("native_derivation_world_checkpoint_event_unresolved")
+                    recovered_ref = artifacts.artifact_ref_for_manifest(
+                        self.artifact_store.get_manifest(refs[0])
+                    )
+            if pointer.exists() or recovered_ref is not None:
+                if recovered_ref is None:
+                    raw_pointer = json.loads(pointer.read_text())
+                    selected_ref = artifacts.ArtifactRef.model_validate(raw_pointer["selected_ref"])
+                else:
+                    selected_ref = recovered_ref
+                manifest = self.artifact_store.get_manifest(selected_ref)
+                payload = self.artifact_store.get_bytes(selected_ref)
+                checkpoint = NativeDerivationWorldCheckpoint.model_validate(
+                    artifacts.load_core_json_artifact(
+                        self.artifact_store, selected_ref, raw_payload_bytes=payload
+                    )
+                )
+                self._read(
+                    selected_ref,
+                    _CANDIDATE_WORLD_CHECKPOINT_KIND,
+                    expected_inputs=checkpoint.lineage_inputs(),
+                )
+                reconcile_authority_ref(
+                    artifact_store=self.artifact_store,
+                    event_log=self.event_log,
+                    cas_ref=selected_ref,
+                    expected_tenant_id=closure.tenant_id,
+                    expected_cell_id=closure.cell_id,
+                    expected_run_id=closure.run_id,
+                    expected_job_id=closure.source_job_id,
+                )
+                if (
+                    checkpoint.collection_refs != collection_refs
+                    or checkpoint.configured_port_source_ref
+                    != configuration.configured_port_source_ref
+                    or checkpoint.registered_profile_refs
+                    != tuple(request.profile_ref for request in requests)
+                    or checkpoint.base_data_snapshot_ref != base_views.data_snapshot_ref
+                    or checkpoint.action_job_id != current_job.job_id
+                    or checkpoint.route_id != closure.route_id
+                    or checkpoint.source_job_id != closure.source_job_id
+                    or (checkpoint.tenant_id, checkpoint.cell_id, checkpoint.run_id)
+                    != (closure.tenant_id, closure.cell_id, closure.run_id)
+                    or checkpoint.action_phase_ref != growth.action_phase_ref
+                    or checkpoint.pending_action_phase_ref != pending_phase_ref
+                    or manifest.artifact_schema is None
+                    or manifest.artifact_schema.version != "1.2"
+                ):
+                    raise ValueError("native_derivation_world_checkpoint_selection_mismatch")
+                world = load_world_model_record(self.artifact_store, checkpoint.world_model_ref)
+                # The WMR owner reopens exact selected bindings, manifest and
+                # predecessor state; no stored success flag is an admission.
+                views = world_model_artifact_views(world)
+                if _native_derivation_ref_key(
+                    views.input_bindings_ref
+                ) != _native_derivation_ref_key(
+                    checkpoint.input_bindings_ref
+                ) or _native_derivation_ref_key(
+                    views.data_snapshot_ref
+                ) != _native_derivation_ref_key(checkpoint.data_snapshot_ref):
+                    raise ValueError("native_derivation_world_checkpoint_output_mismatch")
+            else:
+                transaction_time = datetime.now(UTC)
+                materialization = materialize_registered_derived_model_inputs(
+                    self.artifact_store,
+                    base_data_snapshot_ref=base_views.data_snapshot_ref,
+                    obligation_set_ref=scope.obligation_set_ref,
+                    inputs=requests,
+                )
+                registry_ref = base_views.substrate_registry_ref or persist_substrate_registry(
+                    self.artifact_store, configured.context_inputs.substrate_registry
+                )
+                built = build_derived_model_input_candidate_world(
+                    self.artifact_store,
+                    base_world_model=base_world,
+                    substrate_registry=configured.context_inputs.substrate_registry,
+                    substrate_registry_artifact_ref=registry_ref,
+                    materialization=materialization,
+                    workspace_dir=workspace / "world",
+                    transaction_time=transaction_time,
+                )
+                world = built.world_model.record
+                checkpoint = NativeDerivationWorldCheckpoint(
+                    collection_refs=collection_refs,
+                    configured_port_source_ref=configuration.configured_port_source_ref,
+                    registered_profile_refs=tuple(request.profile_ref for request in requests),
+                    base_data_snapshot_ref=base_views.data_snapshot_ref,
+                    data_snapshot_ref=materialization.data_snapshot_ref,
+                    resolved_binding_manifest_ref=materialization.resolved_binding_manifest_ref,
+                    correspondence_refs=materialization.correspondence_refs,
+                    input_bindings_ref=materialization.input_bindings_ref,
+                    world_model_ref=built.world_model.record_ref,
+                    action_phase_ref=growth.action_phase_ref,
+                    pending_action_phase_ref=pending_phase_ref,
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                    run_id=closure.run_id,
+                    source_job_id=closure.source_job_id,
+                    action_job_id=current_job.job_id,
+                    route_id=closure.route_id,
+                    transaction_time=transaction_time,
+                )
+                selected_ref = self._persist(
+                    closure,
+                    checkpoint.model_dump(mode="json"),
+                    _CANDIDATE_WORLD_CHECKPOINT_KIND,
+                    "polisyos.runtime.CandidateAcquisitionWorldCheckpoint",
+                    "native_derived_world_checkpoint",
+                    artifact_inputs=checkpoint.lineage_inputs(),
+                    event_id=event_id,
+                    return_selected_profile=True,
+                )
+            if not pointer.exists():
+                fd, temporary = tempfile.mkstemp(prefix="world-pointer-", dir=workspace)
+                try:
+                    with os.fdopen(fd, "w") as stream:
+                        json.dump(
+                            {"selected_ref": selected_ref.model_dump(mode="json")},
+                            stream,
+                            sort_keys=True,
+                        )
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    os.replace(temporary, pointer)
+                finally:
+                    if os.path.exists(temporary):
+                        os.unlink(temporary)
+        if generic_owner is not None:
+            handoff = generic_owner.admit_native_world_context(
+                checkpoint_ref=selected_ref,
+                problem=closure.design_problem_basis,
+                repo_root=self.repo_root,
+            )
+            context_owner = CycleSubstrateContextArtifactOwner(
+                store=self.artifact_store, control_store=self.control_store
+            )
+
+            def native_currentness_resolver() -> bool:
+                try:
+                    current = self.control_store.current_execution_job_admission()
+                    if not current.same_execution_identity(admission):
+                        return False
+                    return (
+                        generic_owner.resolve_native_world_handoff(
+                            handoff=handoff,
+                            problem=closure.design_problem_basis,
+                            context_owner=context_owner,
+                            repo_root=self.repo_root,
+                        )
+                        == handoff
+                    )
+                except Exception as exc:
+                    artifacts.raise_artifact_read_access_error(exc)
+                    return False
+
+            return handoff.context, handoff, context_owner, native_currentness_resolver
+        offer = admission_owner.admit_context_for_acquired_world(
+            problem=closure.design_problem_basis,
+            profile_selection_ref=profile_ref,
+            world_model_record=world,
+            job_id=current_job.job_id,
+            run_id=current_job.run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+        )
+        context_owner = CycleSubstrateContextArtifactOwner(
+            store=self.artifact_store, control_store=self.control_store
+        )
+        context_ref = context_owner.persist_for_current_job(
+            offer.context, problem=closure.design_problem_basis, return_selected_profile=True
+        )
+        resolved = context_owner.resolve_for_current_job(
+            context_ref, problem=closure.design_problem_basis
+        )
+        if resolved.context != offer.context:
+            raise ValueError("native_derivation_context_readback_changed")
+        handoff = CandidateSimulationContextHandoff(
+            context=resolved.context,
+            context_job_ref=context_ref,
+            profile=offer.profile,
+            profile_config_ref=offer.profile_config_ref,
+            job_id=current_job.job_id,
+            run_id=current_job.run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            model_declaration=offer.model_declaration,
+            model_declaration_ref=offer.model_declaration_ref,
+            ncm_ref=offer.ncm_ref,
+        )
+
+        def currentness_resolver() -> bool:
+            try:
+                current = self.control_store.current_execution_job_admission()
+                if not current.same_execution_identity(admission):
+                    return False
+                replayed = context_owner.resolve_for_current_job(
+                    context_ref, problem=closure.design_problem_basis
+                )
+                latest_collection = self._collect_current_native_derivation_inputs(
+                    closure, growth_ref
+                )
+                latest_offer = admission_owner.admit_context_for_acquired_world(
+                    problem=closure.design_problem_basis,
+                    profile_selection_ref=profile_ref,
+                    world_model_record=world,
+                    job_id=current_job.job_id,
+                    run_id=current_job.run_id,
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                )
+                return (
+                    _native_derivation_ref_key(latest_collection)
+                    == _native_derivation_ref_key(collection_refs[0])
+                    and replayed.context == handoff.context
+                    and latest_offer == offer
+                )
+            except Exception as exc:
+                artifacts.raise_artifact_read_access_error(exc)
+                return False
+
+        return offer.context, handoff, context_owner, currentness_resolver
 
     def _prepare_candidate_world_context(
         self,
@@ -7350,6 +9344,78 @@ class AcquisitionWorldGrowthBridge:
 
             validate_acquisition_overlay_continuation(closure.generation_run, receipt)
 
+    def _require_profile_inventory(self, subject_ref: artifacts.ArtifactRef | None = None) -> None:
+        """Require usable filtered inventory before Native provider I/O."""
+        snapshotter = getattr(self.artifact_store, "inventory_snapshot", None)
+        if not callable(snapshotter):
+            raise ValueError("acquisition_world_growth_profile_inventory_unavailable")
+        if subject_ref is None:
+            # The canonical writer exercises this capability against its own
+            # payload before publishing. Provider preflight supplies an already
+            # selected quote so unsupported backends are refused before fetch.
+            return
+        if (
+            type(subject_ref) is not artifacts.ArtifactRef
+            or subject_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_profile_inventory_subject_unselected")
+        try:
+            snapshot = snapshotter(artifact_id=subject_ref.artifact_id)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("acquisition_world_growth_profile_inventory_unavailable") from exc
+        if (
+            type(snapshot) is not artifacts.CASInventorySnapshot
+            or snapshot.verdict != "pass"
+            or not snapshot.entries
+            or any(type(entry) is not artifacts.CASInventoryEntry for entry in snapshot.entries)
+        ):
+            raise ValueError("acquisition_world_growth_profile_inventory_unverified")
+        expected = artifacts.artifact_ref_identity_key(subject_ref)
+        selected_seen = False
+        for entry in snapshot.entries:
+            if entry.manifest.artifact_id != subject_ref.artifact_id or entry.blob_sha256 != str(
+                subject_ref.artifact_id
+            ):
+                raise ValueError("acquisition_world_growth_profile_inventory_subject_mismatch")
+            ref = artifacts.artifact_ref_for_manifest(entry.manifest)
+            if artifacts.artifact_ref_identity_key(ref) == expected:
+                selected_seen = True
+        if not selected_seen:
+            raise ValueError("acquisition_world_growth_profile_inventory_subject_missing")
+
+    def _retained_authority_write_time(
+        self,
+        *,
+        expected_ref: str,
+        event_id: str,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        require_inventory: bool,
+    ) -> str:
+        """Recover only event time; the canonical writer reconciles full identity."""
+        if require_inventory:
+            self._require_profile_inventory()
+        records = self.event_log.list_events(event_id=event_id, limit=2)
+        if len(records) > 1:
+            raise ValueError("acquisition_world_growth_event_binding_ambiguous")
+        if not records:
+            return datetime.now(UTC).isoformat()
+        event = records[0].event
+        if (
+            event.event_id != event_id
+            or event.payload_ref != expected_ref
+            or event.artifact_refs != (expected_ref,)
+            or str(event.tenant_id) != tenant_id
+            or str(event.cell_id) != cell_id
+            or event.run_id != run_id
+            or event.job_id != source_job_id
+            or not self.artifact_store.has(expected_ref)
+        ):
+            raise ValueError("acquisition_world_growth_event_binding_mismatch")
+        return event.event_time.isoformat()
+
     @overload
     def _persist(
         self,
@@ -7395,30 +9461,21 @@ class AcquisitionWorldGrowthBridge:
         encoded = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
         identity = hashlib.sha256(encoded).hexdigest()
         expected_ref = "sha256:" + identity
-        if self.artifact_store.has(expected_ref):
-            # Resolve once, then keep this exact view for both readback and the
-            # durable event reconciliation. A later default-view change cannot
-            # silently change the recovered result.
-            selected = artifacts.artifact_ref_for_manifest(
-                self.artifact_store.get_manifest(expected_ref)
-            )
-            if self._read(selected, kind, expected_inputs=artifact_inputs) != payload:
-                raise ValueError("acquisition_world_growth_readback_mismatch")
-            reconciliation = reconcile_authority_ref(
-                artifact_store=self.artifact_store,
-                event_log=self.event_log,
-                cas_ref=selected,
-                expected_tenant_id=closure.tenant_id,
-                expected_cell_id=closure.cell_id,
-                expected_run_id=closure.run_id,
-                expected_job_id=closure.source_job_id,
-            )
-            if reconciliation.durable_event_id != (
-                event_id or "evt_acquisition_growth_" + identity
-            ):
-                raise ValueError("acquisition_world_growth_event_binding_mismatch")
-            return selected if return_selected_profile else expected_ref
-        now = datetime.now(UTC).isoformat()
+        selected_event_id = event_id or "evt_acquisition_growth_" + identity
+        # Only the durable event supplies its original time. Every other
+        # authority field and view selection is reconciled by the shared writer.
+        now = self._retained_authority_write_time(
+            expected_ref=expected_ref,
+            event_id=selected_event_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            require_inventory=(
+                return_selected_profile
+                or getattr(closure, "native_derivation_leaf_scope", None) is not None
+            ),
+        )
         owner_input_refs = tuple(
             dict.fromkeys(
                 (closure.compiled_ref, *(str(item.artifact_id) for item in artifact_inputs))
@@ -7439,7 +9496,12 @@ class AcquisitionWorldGrowthBridge:
                         else (
                             "1.2"
                             if kind == _CANDIDATE_WORLD_INTENT_KIND
-                            else ("1.1" if "action_phase_ref" in payload else "1.0")
+                            else (
+                                "1.2"
+                                if payload.get("schema_version")
+                                == "NativeDerivationWorldCheckpoint@1.2"
+                                else ("1.1" if "action_phase_ref" in payload else "1.0")
+                            )
                         )
                     ),
                 ),
@@ -7493,7 +9555,7 @@ class AcquisitionWorldGrowthBridge:
                 override_policy="no_override",
                 approval_policy="pa2_ds9_decision_required",
             ),
-            event_id=event_id or "evt_acquisition_growth_" + identity,
+            event_id=selected_event_id,
             event_source="polisyos.runtime.acquisition_world_growth",
             event_type="polisyos.runtime.diagnostic.producer_execution.v1",
             event_subject="run/" + closure.run_id + "/acquisition/" + phase,
@@ -7528,25 +9590,15 @@ class AcquisitionWorldGrowthBridge:
         identity = hashlib.sha256(encoded).hexdigest()
         selected_event_id = event_id or "evt_candidate_experiment_" + identity
         expected_ref = "sha256:" + identity
-        if self.artifact_store.has(expected_ref):
-            selected = artifacts.artifact_ref_for_manifest(
-                self.artifact_store.get_manifest(expected_ref)
-            )
-            if self._read(selected, kind, expected_inputs=artifact_inputs) != payload:
-                raise ValueError("candidate_experiment_receipt_readback_mismatch")
-            report = reconcile_authority_ref(
-                artifact_store=self.artifact_store,
-                event_log=self.event_log,
-                cas_ref=selected,
-                expected_tenant_id=origin.tenant_id,
-                expected_cell_id=origin.cell_id,
-                expected_run_id=origin.run_id,
-                expected_job_id=origin.source_job_id,
-            )
-            if report.durable_event_id != selected_event_id:
-                raise ValueError("candidate_experiment_receipt_event_mismatch")
-            return selected
-        now = datetime.now(UTC).isoformat()
+        now = self._retained_authority_write_time(
+            expected_ref=expected_ref,
+            event_id=selected_event_id,
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            require_inventory=True,
+        )
         owner_input_refs = tuple(
             dict.fromkeys(
                 (

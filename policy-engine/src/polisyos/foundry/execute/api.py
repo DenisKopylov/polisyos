@@ -22,6 +22,7 @@ from pydantic import BaseModel
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     CoreJsonArtifactBoundedRead,
+    CoreJsonReadLimits,
     RegistryBundlePayload,
     artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
@@ -923,6 +924,14 @@ def _admit_execution_source(
     graph = _read_typed_model(
         ProgramGraph, store, basis.program_graph_ref, read_session=read_session
     )
+    if read_session is not None and any(
+        source.source_kind == "method_output"
+        for node in graph.nodes
+        for source in (node.input_ports or {}).values()
+    ):
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_method_dataflow_bounded_replay_not_established"
+        )
     if _execution_ref_key(graph.ir_ref) != _execution_ref_key(basis.trinity_bundle_ref):
         raise ValueError("execution_source_basis_trinity_differs_from_program_graph")
     _require_execution_edge_ref(
@@ -1011,6 +1020,17 @@ def _admit_execution_source(
                 effective_step=basis.effective_step,
                 semantic_horizon_step=semantic_step,
             )
+            if any(
+                source.source_kind == "method_output"
+                for node in graph.nodes
+                for source in (node.input_ports or {}).values()
+            ):
+                bundle_ref, bundle = _load_execution_method_bundle(
+                    store, simulation_result_ref=simulation_result_ref, basis=basis
+                )
+                _reconcile_method_output_transfers(
+                    store, bundle_ref=bundle_ref, bundle=bundle, basis=basis, graph=graph
+                )
         historical_projection_notes = {
             "semantic_input_limitation:method_historical_abi_completeness_not_established",
             "semantic_input_limitation:method_historical_provider_completeness_not_established",
@@ -1308,17 +1328,13 @@ def _admit_execution_source(
     )
 
 
-def _reconcile_selected_method_dispatch_inputs(
+def _load_execution_method_bundle(
     store: ArtifactStore,
     *,
     simulation_result_ref: SimulationResultRef,
     basis: FoundryExecutionInputBasis,
-    graph: ProgramGraph,
-    records: tuple[FoundrySelectedMethodInput, ...],
-) -> tuple[MethodExecutionOccurrence, ...]:
-    """Join stored method arguments to selected inputs without live method lookup."""
-    from polisyos.foundry.execute._internal.graph import _registry_method_input_sources
-
+) -> tuple[ArtifactRef, MethodExecutionBundle]:
+    """Join the actual result, bundle, graph and plan without today's method ABI."""
     bundle_ref = _selected_ref_from_edge(
         store,
         simulation_result_ref,
@@ -1340,6 +1356,189 @@ def _reconcile_selected_method_dispatch_inputs(
             expected,
             expected_kind=expected.kind,
         )
+    return bundle_ref, bundle
+
+
+def _reconcile_method_output_transfers(
+    store: ArtifactStore,
+    *,
+    bundle_ref: ArtifactRef,
+    bundle: MethodExecutionBundle,
+    basis: FoundryExecutionInputBasis,
+    graph: ProgramGraph,
+) -> None:
+    """Replay every actual dataflow edge and selected output from stored bytes."""
+    from polisyos.foundry.data_plane.method_output_values import (
+        MethodOutputValueRefusal,
+        read_selected_method_output_value,
+        reconcile_method_output_consumption,
+    )
+    from polisyos.foundry.execute._internal.graph import _stored_method_input_port_sources
+
+    source_maps = {
+        node.node_id: _stored_method_input_port_sources(node)
+        for node in graph.nodes
+        if node.node_kind == "method"
+    }
+    internal_sources = {
+        (node_id, local_name): source
+        for node_id, sources in source_maps.items()
+        for local_name, source in sources.items()
+        if source.source_kind == "method_output"
+    }
+    rows = tuple(bundle.method_output_consumptions or ())
+    typed_returns = [
+        slot
+        for occurrence in bundle.occurrences
+        for slot in occurrence.returned_slots
+        if slot.retention_status == "selected_dataflow_output"
+    ]
+    if not internal_sources:
+        if rows or typed_returns or bundle.schema_version == "1.3":
+            raise ValueError("execution_source_method_dataflow_not_declared")
+        return
+    if bundle.schema_version != "1.3":
+        raise ValueError("execution_source_method_dataflow_bundle_profile_required")
+    nodes = {node.node_id: node for node in graph.nodes}
+    participants = {node_id for node_id, _name in internal_sources} | {
+        source.producer_node_id for source in internal_sources.values()
+    }
+    invocations = {occurrence.invocation_id for occurrence in bundle.occurrences}
+    expected_consumptions: set[tuple[str, str]] = set()
+    selected_outputs = {}
+    limits = CoreJsonReadLimits(
+        max_bytes=1024 * 1024,
+        max_depth=24,
+        max_elements=32768,
+        max_manifest_bytes=64 * 1024,
+    )
+    for invocation_id in invocations:
+        for node_id in participants:
+            matches = [
+                occurrence
+                for occurrence in bundle.occurrences
+                if occurrence.invocation_id == invocation_id and occurrence.node_id == node_id
+            ]
+            if len(matches) != 1:
+                raise ValueError("execution_source_method_dataflow_occurrence_not_exact")
+            occurrence = matches[0]
+            dispatch = occurrence.dispatch
+            node = nodes.get(node_id)
+            if (
+                node is None
+                or occurrence.status != "succeeded"
+                or occurrence.node_kind != "method"
+                or occurrence.method_fqn != node.method_fqn
+                or occurrence.method_version != node.method_version
+                or dispatch is None
+                or dispatch.outcome != "succeeded"
+                or dispatch.step != basis.effective_step
+                or dispatch.graph_input_ids != tuple(node.inputs)
+                or dispatch.graph_input_inventory_observed_count != len(node.inputs)
+                or set(dispatch.signature_input_slot_ids) != set(source_maps[node_id])
+                or dispatch.signature_input_inventory_observed_count != len(source_maps[node_id])
+            ):
+                raise ValueError("execution_source_method_dataflow_dispatch_not_established")
+            for local_name, source in source_maps[node_id].items():
+                if source.source_kind == "method_output":
+                    expected_consumptions.add((occurrence.occurrence_id, local_name))
+            returned = {
+                slot.slot_id: slot
+                for slot in occurrence.returned_slots
+                if slot.retention_status == "selected_dataflow_output"
+            }
+            captured = {
+                slot.slot_id: slot for slot in occurrence.output_slots if slot.status == "captured"
+            }
+            if (
+                set(returned) != set(dispatch.signature_output_slot_ids)
+                or set(captured) != set(returned)
+                or occurrence.returned_slot_inventory_status != "captured"
+            ):
+                raise ValueError("execution_source_method_dataflow_outputs_incomplete")
+            for slot_id, output in captured.items():
+                if output.output_ref is None:
+                    raise ValueError("execution_source_method_dataflow_output_ref_missing")
+                _require_execution_edge_ref(
+                    store,
+                    bundle_ref,
+                    f"method_output:{occurrence.occurrence_id}:{slot_id}",
+                    output.output_ref,
+                    expected_kind=output.output_ref.kind,
+                )
+                try:
+                    selected = read_selected_method_output_value(
+                        store, output.output_ref, limits=limits
+                    )
+                except MethodOutputValueRefusal as exc:
+                    raise ValueError(str(exc)) from exc
+                payload = selected.payload
+                returned_slot = returned[slot_id]
+                if (
+                    payload.occurrence_id != occurrence.occurrence_id
+                    or payload.invocation_id != occurrence.invocation_id
+                    or payload.node_id != node_id
+                    or payload.method_fqn != occurrence.method_fqn
+                    or payload.method_version != occurrence.method_version
+                    or payload.method_abi_digest != occurrence.method_abi_digest
+                    or payload.method_abi_digest_algorithm != occurrence.method_abi_digest_algorithm
+                    or payload.output_slot_id != slot_id
+                    or returned_slot.codec_status != "typed_scalar_supported"
+                    or returned_slot.runtime_dtype != payload.value_identity.dtype
+                    or returned_slot.runtime_shape != payload.value_identity.shape
+                ):
+                    raise ValueError("execution_source_method_dataflow_output_identity_mismatch")
+                for role, parent_ref in (
+                    ("program_graph", basis.program_graph_ref),
+                    ("exec_plan", basis.exec_plan_ref),
+                    ("method_metric_binding_set", bundle.method_metric_binding_set_ref),
+                ):
+                    _require_execution_edge_ref(
+                        store,
+                        output.output_ref,
+                        role,
+                        parent_ref,
+                        expected_kind=parent_ref.kind,
+                    )
+                selected_outputs[_execution_ref_key(output.output_ref)] = selected
+    actual_consumptions = {
+        (row.consumer_occurrence_id, row.consumer_input_slot_id): row for row in rows
+    }
+    if len(actual_consumptions) != len(rows) or set(actual_consumptions) != expected_consumptions:
+        raise ValueError("execution_source_method_dataflow_consumption_inventory_mismatch")
+    for row in rows:
+        selected = selected_outputs.get(_execution_ref_key(row.producer_output_ref))
+        if selected is None:
+            raise ValueError("execution_source_method_dataflow_selected_output_missing")
+        try:
+            reconcile_method_output_consumption(
+                program_graph_ref=basis.program_graph_ref,
+                graph=graph,
+                bundle=bundle,
+                consumption=row,
+                selected_output=selected,
+            )
+        except MethodOutputValueRefusal as exc:
+            raise ValueError(str(exc)) from exc
+
+
+def _reconcile_selected_method_dispatch_inputs(
+    store: ArtifactStore,
+    *,
+    simulation_result_ref: SimulationResultRef,
+    basis: FoundryExecutionInputBasis,
+    graph: ProgramGraph,
+    records: tuple[FoundrySelectedMethodInput, ...],
+) -> tuple[MethodExecutionOccurrence, ...]:
+    """Join stored method arguments to selected inputs without live method lookup."""
+    from polisyos.foundry.execute._internal.graph import _stored_method_input_port_sources
+
+    bundle_ref, bundle = _load_execution_method_bundle(
+        store, simulation_result_ref=simulation_result_ref, basis=basis
+    )
+    _reconcile_method_output_transfers(
+        store, bundle_ref=bundle_ref, bundle=bundle, basis=basis, graph=graph
+    )
     nodes = {node.node_id: node for node in graph.nodes}
     for record in records:
         obligation = load_model_input_obligation(store, record.model_input_obligation_ref)
@@ -1378,7 +1577,7 @@ def _reconcile_selected_method_dispatch_inputs(
             dispatch = matches[0].dispatch
             if dispatch is None:
                 raise ValueError("execution_source_method_input_dispatch_not_established")
-            input_sources = _registry_method_input_sources(node)
+            input_sources = _stored_method_input_port_sources(node)
             if (
                 dispatch.graph_input_ids != tuple(node.inputs)
                 or dispatch.graph_input_inventory_observed_count != len(node.inputs)
@@ -1388,8 +1587,8 @@ def _reconcile_selected_method_dispatch_inputs(
                 raise ValueError("execution_source_method_input_abi_join_not_exact")
             local_aliases = {
                 local
-                for local, source_slot in input_sources.items()
-                if source_slot == record.slot_id
+                for local, source in input_sources.items()
+                if source.source_kind == "registry_slot" and source.slot_id == record.slot_id
             }
             if not local_aliases:
                 raise ValueError("execution_source_method_input_dependency_mismatch")

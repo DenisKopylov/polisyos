@@ -152,6 +152,8 @@ from .store import (
     ArtifactMemberReceipt as ArtifactMemberReceipt,
 )
 from .store import (
+    CASInventoryEntry,
+    CASInventorySnapshot,
     FileSystemCAS,
     PutOptions,
     ReadOnlyFileSystemCAS,
@@ -378,6 +380,8 @@ __all__ = [
     "BulkSigningReport",
     "BulkVerificationReport",
     "CASIntegrityReport",
+    "CASInventoryEntry",
+    "CASInventorySnapshot",
     "CanonInfo",
     "CoreArtifactOwnerProfile",
     "CoreJSONArtifactBoundedInputManifestReader",

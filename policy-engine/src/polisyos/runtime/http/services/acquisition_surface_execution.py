@@ -33,6 +33,7 @@ if TYPE_CHECKING:
         _PreparedLiveCatalogAuthorization,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        NativeDerivationInputsPending,
         VerifiedAcquisitionRouteClosure,
         VerifiedCandidateExperimentOrigin,
     )
@@ -161,6 +162,7 @@ def resolve_world_bank_wdi_route_execution_bindings(
     registry: _AcquisitionAuthorityRegistry,
     provision: _AcquisitionAuthorityProvision,
     provision_content_sha256: str,
+    artifact_store: ArtifactStore | None = None,
 ) -> tuple[WorldBankWDIRouteExecutionBinding, ...]:
     """Resolve one current data route into exact provisioned WDI attempt bindings."""
 
@@ -170,6 +172,7 @@ def resolve_world_bank_wdi_route_execution_bindings(
         registry=registry,
         provision=provision,
         provision_content_sha256=provision_content_sha256,
+        artifact_store=artifact_store,
     )
     bindings: list[WorldBankWDIRouteExecutionBinding] = []
     for attempt, receipt in attempts:
@@ -208,10 +211,11 @@ def _resolve_world_bank_wdi_source_attempts(
     registry: _AcquisitionAuthorityRegistry,
     provision: _AcquisitionAuthorityProvision,
     provision_content_sha256: str,
+    artifact_store: ArtifactStore | None = None,
 ) -> tuple[str, str, LiveCatalogExecutionConstraints, tuple[tuple[Any, Any], ...]]:
     """Resolve exact provisioned source attempts before any route ID is needed."""
 
-    variable_id = _require_live_variable_route(source)
+    variable_id = _require_live_variable_route(source, artifact_store=artifact_store)
     entries = tuple(
         entry
         for entry in registry.entries
@@ -297,7 +301,9 @@ def _resolve_world_bank_wdi_source_attempts(
     return variable_id, entry.entry_id, constraints, tuple(attempts)
 
 
-def _require_live_variable_route(closure: _LiveVariableSource) -> str:
+def _require_live_variable_route(
+    closure: _LiveVariableSource, *, artifact_store: ArtifactStore | None = None
+) -> str:
     record = closure.planner_record
     gap_type = getattr(record.gap_type, "value", record.gap_type)
     recommended_strategy = getattr(
@@ -305,10 +311,17 @@ def _require_live_variable_route(closure: _LiveVariableSource) -> str:
         "value",
         record.recommended_strategy,
     )
+    role_gap = (
+        record.requirement_schema_version
+        == "policyos.runtime.registered_derivation_role_input_gap.v1"
+    )
     if (
         gap_type != "data_snapshot_release"
         or record.requirement_family != "data_requirement"
-        or record.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
+        or (
+            record.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
+            and not role_gap
+        )
         or recommended_strategy != "production_snapshot_build"
     ):
         raise LiveAcquisitionExecutionError("live_route_requirement_shape_invalid")
@@ -319,7 +332,101 @@ def _require_live_variable_route(closure: _LiveVariableSource) -> str:
     variable_id = fields[0].removeprefix(prefix)
     if not variable_id or variable_id.strip() != variable_id:
         raise LiveAcquisitionExecutionError("live_route_variable_requirement_invalid")
+    if role_gap:
+        from polisyos.core.artifacts import raise_artifact_read_access_error
+
+        try:
+            replayed_variable = _require_registered_native_role_route(
+                closure, artifact_store=artifact_store
+            )
+        except LiveAcquisitionExecutionError:
+            raise
+        except Exception as exc:
+            raise_artifact_read_access_error(exc)
+            raise LiveAcquisitionExecutionError(
+                "native_registered_role_input_refused", str(exc)
+            ) from exc
+        if replayed_variable != variable_id:
+            raise LiveAcquisitionExecutionError("native_role_variable_source_mismatch")
     return variable_id
+
+
+def _require_registered_native_role_route(
+    closure: _LiveVariableSource, *, artifact_store: ArtifactStore | None
+) -> str:
+    """Replay the selected registered role without asserting Catalog absence.
+
+    A role requests an unbound input; it is not an L1 availability observation.
+    The source owner's exact declaration supplies its variable identity. Native
+    route and action owners independently establish current permission and cost.
+    """
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.runtime.quality.acquisition_planner import (
+        _n7_load_configured_candidate_port_source,
+        load_n7_derivation_bundle,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.n7_native_derivation_resolver import (
+        validate_registered_derivation_role_input_gap,
+    )
+
+    if type(closure) is not VerifiedAcquisitionRouteClosure or artifact_store is None:
+        raise LiveAcquisitionExecutionError("native_role_route_owner_not_established")
+    scope = closure.native_derivation_leaf_scope
+    provider = closure.native_derivation_leaf_provider
+    if scope is None or provider is None:
+        raise LiveAcquisitionExecutionError("native_role_route_selection_missing")
+    bundle = load_n7_derivation_bundle(artifact_store, scope.derivation_bundle_ref)
+    source = _n7_load_configured_candidate_port_source(
+        artifact_store, scope.configured_port_source_ref
+    )
+    if (
+        bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v2"
+        or source.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v3"
+        or source.derivation_bundle_ref is None
+        or artifact_ref_identity_key(source.derivation_bundle_ref)
+        != artifact_ref_identity_key(scope.derivation_bundle_ref)
+        or artifact_ref_identity_key(bundle.obligation_set_ref)
+        != artifact_ref_identity_key(scope.obligation_set_ref)
+        or artifact_ref_identity_key(source.model_input_obligation_set_ref)
+        != artifact_ref_identity_key(bundle.obligation_set_ref)
+        or artifact_ref_identity_key(source.model_input_obligation_ref)
+        != artifact_ref_identity_key(bundle.model_input_obligation_ref)
+        or artifact_ref_identity_key(source.model_input_routing_report_ref)
+        != artifact_ref_identity_key(bundle.model_input_routing_report_ref)
+    ):
+        raise LiveAcquisitionExecutionError("native_role_route_source_selection_mismatch")
+    nodes = tuple(node for node in bundle.source_nodes if node.node_id == scope.source_node_id)
+    if len(nodes) != 1 or nodes[0].requirement_gap is None:
+        raise LiveAcquisitionExecutionError("native_role_route_leaf_missing")
+    node = nodes[0]
+    gap = node.requirement_gap
+    if (
+        gap.requirement_gap_id != scope.requirement_gap_id
+        or gap.requirement_gap_id != closure.planner_record.gap_id
+        or gap.compiled_requirement_ref != scope.compiled_requirement_ref
+        or gap.compiled_requirement_ref != closure.planner_record.compiled_requirement_ref
+        or provider.source_node_id != node.node_id
+        or artifact_ref_identity_key(provider.supplier_ref)
+        != artifact_ref_identity_key(scope.selected_supplier_ref)
+        or artifact_ref_identity_key(provider.supplier_ref)
+        not in {
+            artifact_ref_identity_key(alternative.supplier_ref)
+            for alternative in node.supplier_alternatives
+        }
+    ):
+        raise LiveAcquisitionExecutionError("native_role_route_leaf_selection_mismatch")
+    return validate_registered_derivation_role_input_gap(
+        artifact_store,
+        gap,
+        supplier_ref=provider.supplier_ref,
+        authority_entry_id=provider.authority_entry_id,
+        connector_id=provider.connector_id,
+        expected_registered_profile_ref=bundle.registered_profile_ref,
+        expected_obligation_set_ref=bundle.obligation_set_ref,
+        expected_target_obligation_ref=bundle.model_input_obligation_ref,
+        expected_routing_report_ref=bundle.model_input_routing_report_ref,
+    )
 
 
 def _constraints_from_live_variable_route(
@@ -417,10 +524,66 @@ class WorldBankWDIAcquisitionExecutionPort:
                 raise ValueError("acquisition_world_growth_authority_mismatch")
         self._world_growth_bridge = world_growth_bridge
 
+    def read_paid_native_action_attempt(
+        self, closure: VerifiedAcquisitionRouteClosure, *, action_job_id: str
+    ) -> ArtifactRef | None:
+        """Reopen a completed exact provider call without reserving or fetching."""
+        bridge = self._world_growth_bridge
+        if bridge is None:
+            return None
+        return bridge.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
+
+    def _require_native_quote_or_paid_attempt(
+        self, closure: VerifiedAcquisitionRouteClosure, *, allow_paid: bool = True
+    ) -> None:
+        """An expired quote never authorizes a fresh transport call or spend."""
+        if closure.native_derivation_leaf_scope is None:
+            return
+        from datetime import UTC, datetime
+
+        from polisyos.runtime.quality.acquisition_planner import (
+            load_native_derivation_leaf_cost_profile,
+        )
+
+        profile = load_native_derivation_leaf_cost_profile(
+            self._artifact_store, closure.owner_declared_profile_ref
+        )
+        bridge = self._world_growth_bridge
+        adopted = False
+        if bridge is not None:
+            rows = tuple(
+                row
+                for row in bridge.config.native_derivation_routes
+                if row.key
+                == (closure.tenant_id, closure.cell_id, closure.run_id, closure.source_job_id)
+            )
+            adopted = len(rows) == 1 and any(
+                ref == closure.owner_declared_profile_ref
+                for ref in rows[0].owner_declared_cost_profile_refs
+            )
+        if adopted and profile.effective_at <= datetime.now(UTC) < profile.expires_at:
+            return
+        if not allow_paid or bridge is None or bridge.action_head_sink is None:
+            raise LiveAcquisitionExecutionError("native_leaf_quote_expired_before_fetch")
+        snapshot = bridge.action_head_sink.current_action_outcome(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        if (
+            snapshot is None
+            or self.read_paid_native_action_attempt(closure, action_job_id=snapshot.head.job_id)
+            is None
+        ):
+            raise LiveAcquisitionExecutionError("native_leaf_quote_expired_before_fetch")
+
     def require_route_ready(self, closure: VerifiedAcquisitionRouteClosure) -> None:
         """Require fresh transport, deferred admission, or a verified duplicate check."""
 
         bridge = self._world_growth_bridge
+        self._require_native_quote_or_paid_attempt(closure)
         if bridge is not None and bridge.candidate_source_selection(closure) is not None:
             if not callable(getattr(bridge, "complete_candidate_reentry", None)):
                 raise LiveAcquisitionExecutionError("candidate_reentry_owner_not_available")
@@ -431,7 +594,12 @@ class WorldBankWDIAcquisitionExecutionPort:
             registry=self._registry,
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
+            artifact_store=self._artifact_store,
         )
+        if closure.native_derivation_leaf_scope is not None:
+            if self._world_growth_bridge is None:
+                raise LiveAcquisitionExecutionError("native_derivation_provider_owner_unavailable")
+            self._world_growth_bridge.require_native_derivation_provider_bindings(closure, bindings)
         candidate_selection = (
             bridge.candidate_source_selection(closure) if bridge is not None else None
         )
@@ -503,14 +671,20 @@ class WorldBankWDIAcquisitionExecutionPort:
     ) -> WorldBankWDIRouteExecutionBinding:
         """Atomically reserve one exact attempt before any authority/provider side effect."""
 
+        self._require_native_quote_or_paid_attempt(closure, allow_paid=False)
         bindings = resolve_world_bank_wdi_route_execution_bindings(
             closure=closure,
             authority=self._authority,
             registry=self._registry,
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
+            artifact_store=self._artifact_store,
         )
-        return self._reserve_first_fresh(bindings)
+        if closure.native_derivation_leaf_scope is not None:
+            if self._world_growth_bridge is None:
+                raise LiveAcquisitionExecutionError("native_derivation_provider_owner_unavailable")
+            self._world_growth_bridge.require_native_derivation_provider_bindings(closure, bindings)
+        return self._reserve_first_fresh(bindings, closure=closure)
 
     def execute(
         self,
@@ -561,10 +735,14 @@ class WorldBankWDIAcquisitionExecutionPort:
             )
         cas_root = self._runtime_artifact_store_root()
         binding = self.reserve_route_binding(closure)
+        self._require_native_quote_or_paid_attempt(closure, allow_paid=False)
         self._claim_reserved_binding(binding)
         journal_path = self._governed_journal_path(binding)
         cache_namespace = _connector_cache_namespace(binding)
         evidence: _LiveSourceExecutionEvidence
+        # Resolution and lease I/O may outlast a short-lived quote. An already
+        # paid recovery returned above; this branch begins a new provider call.
+        self._require_native_quote_or_paid_attempt(closure, allow_paid=False)
         if self._executor is None:
             evidence = execute_live_catalog_acquisition(
                 authority=self._authority,
@@ -868,6 +1046,7 @@ class WorldBankWDIAcquisitionExecutionPort:
             registry=self._registry,
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
+            artifact_store=self._artifact_store,
         )
         selected_authorization = policy.select_source_authorization(origin.source_attempt_prefix)
         matching = tuple(
@@ -1095,6 +1274,12 @@ class WorldBankWDIAcquisitionExecutionPort:
         """Dispatch real source admission through the shared evaluation owner."""
         if self._world_growth_bridge is None:
             return None
+        if closure.native_derivation_leaf_scope is not None:
+            # The source action has completed, while its declared model-input
+            # goal may still need other leaves. The native collection owner
+            # determines that state before any derived batch or N5; the scalar
+            # evaluation-retention path cannot decide this different basis.
+            return None
         from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
             complete_positive_acquisition_admission,
         )
@@ -1117,7 +1302,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         self,
         closure: VerifiedAcquisitionRouteClosure,
         result: AcquisitionOwnerExecutionResult,
-    ) -> str:
+    ) -> str | NativeDerivationInputsPending:
         """Re-enter only after current native admission revalidation."""
 
         if (
@@ -1132,7 +1317,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         self,
         closure: VerifiedAcquisitionRouteClosure,
         owner_receipt_refs: tuple[str, ...],
-    ) -> str:
+    ) -> str | NativeDerivationInputsPending:
         """Recover re-entry from verified active owner receipts without refetching."""
 
         if (
@@ -1145,6 +1330,8 @@ class WorldBankWDIAcquisitionExecutionPort:
     def _reserve_first_fresh(
         self,
         bindings: tuple[WorldBankWDIRouteExecutionBinding, ...],
+        *,
+        closure: VerifiedAcquisitionRouteClosure | None = None,
     ) -> WorldBankWDIRouteExecutionBinding:
         lease_root = self._runtime_state_root / _RUNTIME_SUBTREE / "attempt-leases"
         lease_root.mkdir(parents=True, exist_ok=True)
@@ -1158,6 +1345,8 @@ class WorldBankWDIAcquisitionExecutionPort:
                 )
                 + b"\n"
             )
+            if closure is not None:
+                self._require_native_quote_or_paid_attempt(closure, allow_paid=False)
             try:
                 descriptor = os.open(
                     lease_path,

@@ -707,6 +707,17 @@ stop. It must retain `physical_need_not_established` when the unstarted child's
 need for physical work has not been established; a cheaper action needs its own
 admission. The current ledger schema remains `1.8`.
 
+`verify_completed_standard_invocations_historical(...)` reads the same durable
+ledger and lock to reconcile already completed standard work. Its caller must
+first reopen the actual result and its full physical-work observations, then
+supply the original run binding, quota policy, settlement owner and exact
+operation/request/profile digest rows. Each selected row must be a completed
+single-unit reservation under that owner. A readable aggregate balance or a
+producer's completion label cannot substitute for those records. The verifier
+returns the stored rows without configuring a policy, reserving capacity or
+granting future work; it does not by itself assert exhaustion or protected
+permission.
+
 The observation also retains the existing Core producer request digest as
 `producer_request_ref`. The caller-input hash names another quantity and is not
 a claim to recompute Core's tenant/sanitizer/caching contract. The canonical Core

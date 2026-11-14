@@ -103,6 +103,7 @@ def prepare_selected_method_input_case(
     shape: tuple[int, ...] = (),
     time_semantics: TimeSemantics | Literal["default"] | None = "default",
     scope: ModelInputScope | None = None,
+    money_unit: MoneyUnit | None = None,
     method_input_slot: str = "period_flow",
     method_input_slots: tuple[str, ...] | None = None,
     method_instances: int = 1,
@@ -131,9 +132,15 @@ def prepare_selected_method_input_case(
     omits both the original stock source and its binding; it is not a zero
     placeholder. An optional real declaration builder adds ports before the
     original model and graph are compiled.
+
+    ``money_unit`` explicitly sets the selected model's USD valuation basis
+    and the port representation before compilation. The omitted default keeps
+    the existing registry and 2024-current representation bytes unchanged.
     """
     if opening_balance_usd is not None and type(opening_balance_usd) is not int:
         raise ValueError("selected_method_fixture_opening_stock_invalid")
+    if money_unit is not None and type(money_unit) is not MoneyUnit:
+        raise ValueError("selected_method_fixture_money_unit_invalid")
     if persistent_stock_slot is not None and opening_balance_usd != 10_000_000_000:
         raise ValueError("selected_method_fixture_prestate_profile_unsupported")
     if model_input_port_declaration_builder is not None and not declared:
@@ -203,6 +210,11 @@ def prepare_selected_method_input_case(
                 "description": "Accumulated model-owned scalar period flows.",
             }
         )
+    units_registry = DEFAULT_UNITS_REGISTRY
+    if money_unit is not None:
+        units_registry = DEFAULT_UNITS_REGISTRY.model_copy(
+            update={"units": {**DEFAULT_UNITS_REGISTRY.units, "usd": money_unit}}
+        )
     registry = build_registry_bundle(
         store,
         slot_registry=SlotRegistry(slots=slots),
@@ -211,7 +223,7 @@ def prepare_selected_method_input_case(
         constraint_registry=DEFAULT_CONSTRAINT_REGISTRY,
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         metric_registry=DEFAULT_METRIC_REGISTRY,
-        units_registry=DEFAULT_UNITS_REGISTRY,
+        units_registry=units_registry,
         return_selected_profile=True,
     )
     if persistent_stock_slot is None:
@@ -298,7 +310,7 @@ def prepare_selected_method_input_case(
         ),
         return_selected_profile=True,
     )
-    money = MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
+    money = money_unit or MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
     profile = MeasurementBindingProfile(
         schema_version="polisyos.catalog.measurement_binding_profile.v3",
         profile_id="fixture.selected_method_flow",

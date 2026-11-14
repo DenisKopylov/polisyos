@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
@@ -14,18 +15,24 @@ from polisyos.core.artifacts import (
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
+    ModelInputPort,
     load_model_input_obligation_set,
+    load_model_input_port_declaration,
 )
 from polisyos.core.contracts.semantic_composition_binding import (
     RegisteredDerivationRoleBasis,
     RegisteredDerivedInputProfile,
+    RegisteredDerivedInputProfileRef,
     RegisteredDerivedModelInputRequest,
     RegisteredMeasurementRole,
     RegisteredSemanticBasis,
     persist_registered_derived_input_profile,
 )
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
-from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
+from polisyos.core.contracts.variable_binding import (
+    SelectedVariableBindingRef,
+    load_variable_representation,
+)
 from polisyos.core.derivations import (
     TransformFamily,
     TransformFamilyRegistry,
@@ -47,6 +54,8 @@ from tests.unit.runtime.quality.test_model_input_requirements import _interface,
 
 def prepare_registered_method_input_preflight(
     case: ProgramGraphTaxSubsidyInputCase,
+    *,
+    steps: tuple[int, ...] = (0,),
 ) -> ProgramGraphInputPreflight:
     """Derive the real complete input denominator of this persisted candidate."""
     candidate = validate_core_model_json_artifact(
@@ -59,7 +68,7 @@ def prepare_registered_method_input_preflight(
         design_problem_ref=str(case.trinity_ref.artifact_id),
         candidate_source_ref=case.policy_candidate_ref,
     )
-    return _preflight(case, _interface(case), context, steps=(0,))
+    return _preflight(case, _interface(case), context, steps=steps)
 
 
 def materialize_registered_method_input_case(
@@ -69,6 +78,7 @@ def materialize_registered_method_input_case(
     ratio_value: Decimal = Decimal("-0.03"),
     denominator_value: Decimal = Decimal("200000000000"),
     binding_id: str = "registered-period-flow",
+    source_year: int = 2024,
 ) -> DerivedModelInputMaterialization:
     """Replay real native rows through the registered v3 materializer.
 
@@ -88,6 +98,7 @@ def materialize_registered_method_input_case(
         ratio_value=ratio_value,
         denominator_value=denominator_value,
         binding_id=binding_id,
+        source_year=source_year,
     )
     batch = materialize_registered_derived_model_inputs(
         case.store,
@@ -113,31 +124,38 @@ def materialize_registered_method_input_case(
     return materialized
 
 
-def prepare_registered_method_input_request(
+@dataclass(frozen=True)
+class RegisteredMethodInputProfileSetup:
+    """Selected fixture profile and requirements before any source is fetched."""
+
+    profile: RegisteredDerivedInputProfile
+    profile_ref: RegisteredDerivedInputProfileRef
+    source_specs: tuple[dict[str, Any], ...]
+    role_aliases: dict[str, str]
+
+
+def prepare_registered_method_input_profile(
     case: ProgramGraphTaxSubsidyInputCase,
     metadata: dict[str, Any],
     *,
-    preflight: ProgramGraphInputPreflight,
-    model_input_obligation_ref: ArtifactRef,
-    ratio_value: Decimal = Decimal("-0.03"),
-    denominator_value: Decimal = Decimal("200000000000"),
-    binding_id: str = "registered-period-flow",
-) -> RegisteredDerivedModelInputRequest:
-    """Prepare real selected native role inputs for one exact obligation member.
+    port: ModelInputPort | None = None,
+) -> RegisteredMethodInputProfileSetup:
+    """Persist pure registration requirements without preflight or activation.
 
-    This emits no binding manifest. The plural Runtime producer owns the full
-    required-port denominator and materializes all requests atomically.
+    The selected model declaration and target representation own the port and
+    valuation coordinates. No observation, receipt, source series, or claim of
+    source availability is created by this setup.
     """
     store = case.store
-    selected_set, obligations = load_model_input_obligation_set(store, preflight.obligation_set_ref)
-    members = {
-        artifact_ref_identity_key(ref): member
-        for ref, member in zip(selected_set.obligation_refs, obligations, strict=True)
-    }
-    obligation = members.get(artifact_ref_identity_key(model_input_obligation_ref))
-    if obligation is None or obligation.port != metadata["port"]:
-        raise ValueError("registered_method_fixture_obligation_member_required")
-    obligation_ref = model_input_obligation_ref
+    port = metadata.get("port") if port is None else port
+    if type(port) is not ModelInputPort or case.model_input_port_declaration_ref is None:
+        raise ValueError("registered_method_fixture_model_port_required")
+    declaration = load_model_input_port_declaration(store, case.model_input_port_declaration_ref)
+    if not any(member == port for member in declaration.ports):
+        raise ValueError("registered_method_fixture_model_port_required")
+    money = load_variable_representation(store, port.representation_ref).money_unit
+    if money is None:
+        raise ValueError("registered_method_fixture_money_unit_required")
     ratio_role, denominator_role = "rate_input", "scale_input"
     ratio_definition, _ = _definition(store, "registered-source-ratio")
     denominator_definition, _ = _definition(store, "registered-source-total")
@@ -149,18 +167,18 @@ def prepare_registered_method_input_request(
         ratio_role: _representation(
             store,
             ratio_definition,
-            population=obligation.port.scope.population_ref,
-            money=metadata["money"],
-            numerator_ref=obligation.port.semantic_definition_ref,
+            population=port.scope.population_ref,
+            money=money,
+            numerator_ref=port.semantic_definition_ref,
             denominator_ref=denominator_definition,
         )[0],
         denominator_role: _representation(
-            store, denominator_definition, population="population:economy", money=metadata["money"]
+            store, denominator_definition, population="population:economy", money=money
         )[0],
     }
     aliases = {ratio_role: "provider.share_series", denominator_role: "provider.total_series"}
-    units = {ratio_role: "ratio", denominator_role: "usd"}
-    profile_for_source = obligation.port.binding_profile_ref
+    units = {ratio_role: "ratio", denominator_role: port.unit_id}
+    profile_for_source = port.binding_profile_ref
     family = TransformFamily.model_validate(
         {
             "family_id": "registered.flow_from_share",
@@ -174,7 +192,7 @@ def prepare_registered_method_input_request(
                 }
                 for role in (ratio_role, denominator_role)
             ),
-            "output_basis": {"quantity_kind": "flow", "unit": "usd"},
+            "output_basis": {"quantity_kind": "flow", "unit": port.unit_id},
             # With exact common requested years, either registered role can
             # own the arithmetic year domain; no literal role-name proxy.
             "year_domain_role": denominator_role,
@@ -213,9 +231,9 @@ def prepare_registered_method_input_request(
             for role in (ratio_role, denominator_role)
         ),
         output=RegisteredSemanticBasis(
-            semantic_definition_ref=obligation.port.semantic_definition_ref,
-            representation_ref=obligation.port.representation_ref,
-            binding_profile_ref=obligation.port.binding_profile_ref,
+            semantic_definition_ref=port.semantic_definition_ref,
+            representation_ref=port.representation_ref,
+            binding_profile_ref=port.binding_profile_ref,
         ),
     )
     profile_ref = persist_registered_derived_input_profile(store, profile)
@@ -229,29 +247,67 @@ def prepare_registered_method_input_request(
             "valid_min": -1 if role == ratio_role else 0,
             "valid_max": 1 if role == ratio_role else 300_000_000_000,
             "source_measure_scope": {
-                "population": obligation.port.scope.population_ref
+                "population": port.scope.population_ref
                 if role == ratio_role
                 else "population:economy",
                 "temporal_granularity": "annual",
-                "jurisdiction_ref": obligation.port.scope.jurisdiction_ref,
+                "jurisdiction_ref": port.scope.jurisdiction_ref,
                 "time_period_basis": "calendar_year",
                 "source_geography_id": "UA",
-                "geography_ref": obligation.port.scope.geography_ref,
+                "geography_ref": port.scope.geography_ref,
             },
             "source_semantic_definition_ref": source_definitions[role],
             "source_representation_ref": source_representations[role],
         }
         for role in (ratio_role, denominator_role)
     )
-    fixture_id = hashlib.sha256(
-        f"{binding_id}:{ratio_value}:{denominator_value}".encode()
-    ).hexdigest()[:16]
+    return RegisteredMethodInputProfileSetup(
+        profile=profile, profile_ref=profile_ref, source_specs=specs, role_aliases=aliases
+    )
+
+
+def prepare_registered_method_input_request(
+    case: ProgramGraphTaxSubsidyInputCase,
+    metadata: dict[str, Any],
+    *,
+    preflight: ProgramGraphInputPreflight,
+    model_input_obligation_ref: ArtifactRef,
+    ratio_value: Decimal = Decimal("-0.03"),
+    denominator_value: Decimal = Decimal("200000000000"),
+    binding_id: str = "registered-period-flow",
+    source_year: int = 2024,
+) -> RegisteredDerivedModelInputRequest:
+    """Prepare real selected native role inputs for one exact obligation member.
+
+    This emits no binding manifest. The plural Runtime producer owns the full
+    required-port denominator and materializes all requests atomically.
+    """
+    if type(source_year) is not int or not 1900 <= source_year <= 2200:
+        raise ValueError("registered_method_fixture_source_year_invalid")
+    store = case.store
+    selected_set, obligations = load_model_input_obligation_set(store, preflight.obligation_set_ref)
+    members = {
+        artifact_ref_identity_key(ref): member
+        for ref, member in zip(selected_set.obligation_refs, obligations, strict=True)
+    }
+    obligation = members.get(artifact_ref_identity_key(model_input_obligation_ref))
+    if obligation is None or obligation.port != metadata["port"]:
+        raise ValueError("registered_method_fixture_obligation_member_required")
+    obligation_ref = model_input_obligation_ref
+    setup = prepare_registered_method_input_profile(case, metadata, port=obligation.port)
+    profile, profile_ref = setup.profile, setup.profile_ref
+    ratio_role, denominator_role = profile.ratio_role, profile.denominator_role
+    aliases, specs = setup.role_aliases, setup.source_specs
+    fixture_key = f"{binding_id}:{ratio_value}:{denominator_value}"
+    if source_year != 2024:
+        fixture_key += f":year:{source_year}"
+    fixture_id = hashlib.sha256(fixture_key.encode()).hexdigest()[:16]
     owner = make_native_multivariable_active_projections(
         case.store_root.parent / f"registered-sources-{fixture_id}",
         source_rows=[
             {
                 "country_code": "UA",
-                "year": 2024,
+                "year": source_year,
                 ratio_role: float(ratio_value),
                 denominator_role: float(denominator_value),
                 "condition_json": {},

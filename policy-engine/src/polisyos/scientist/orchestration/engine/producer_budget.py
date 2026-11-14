@@ -46,6 +46,7 @@ __all__ = [
     "ProducerBudgetObservation",
     "ProducerBudgetObserver",
     "ProducerBudgetSourceError",
+    "verify_completed_standard_invocations_historical",
     "verify_standard_invocation_exhaustion_historical",
 ]
 
@@ -377,6 +378,99 @@ def verify_standard_invocation_exhaustion_historical(
         raise ProducerBudgetSourceError("invocation_exhaustion_owner_mismatch")
     _verify_exhaustion_terminal_records(snapshot, profile, checked)
     return True
+
+
+def verify_completed_standard_invocations_historical(
+    *,
+    settlement_store: BudgetMiddleware,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+    expected_policy: BudgetInvocationQuotaPolicy,
+    expected_settlement_owner: tuple[str, str, str],
+    expected_invocations: tuple[tuple[str, str, str], ...],
+) -> tuple[BudgetLedgerInvocationReservation, ...]:
+    """Reopen completed physical units, without configuring or granting a permit.
+
+    The caller independently reopens the actual result and its complete work
+    observations. Each row here is its exact operation id, request digest and
+    selected quota profile digest. The existing durable owner must still hold
+    all of those standard-unit completions under the original run binding.
+
+    Args:
+        settlement_store: The selected run's existing durable budget owner.
+        expected_run_binding: Original server-issued run owner.
+        expected_policy: Policy reopened from the original selected input.
+        expected_settlement_owner: Original owner in the result's budget basis.
+        expected_invocations: Complete named physical work rows being reconciled.
+
+    Returns:
+        The exact durable completed reservation rows, in the supplied order.
+
+    Raises:
+        ProducerBudgetSourceError: If any original owner or completion is unavailable.
+    """
+    if (
+        type(expected_run_binding) is not BudgetLedgerProducerRunBinding
+        or type(expected_policy) is not BudgetInvocationQuotaPolicy
+        or type(expected_settlement_owner) is not tuple
+        or len(expected_settlement_owner) != 3
+        or any(type(item) is not str or not item for item in expected_settlement_owner)
+        or type(expected_invocations) is not tuple
+        or not expected_invocations
+    ):
+        raise ProducerBudgetSourceError("completed_invocation_selection_untyped")
+    for row in expected_invocations:
+        if (
+            type(row) is not tuple
+            or len(row) != 3
+            or any(
+                type(value) is not str
+                or len(value) != 64
+                or any(char not in "0123456789abcdef" for char in value)
+                for value in row
+            )
+        ):
+            raise ProducerBudgetSourceError("completed_invocation_selection_invalid")
+    if len({row[0] for row in expected_invocations}) != len(expected_invocations):
+        raise ProducerBudgetSourceError("completed_invocation_selection_duplicate")
+    try:
+        binding = BudgetLedgerProducerRunBinding.model_validate_json(
+            expected_run_binding.model_dump_json(), strict=True
+        )
+        policy = BudgetInvocationQuotaPolicy.model_validate_json(
+            expected_policy.model_dump_json(), strict=True
+        )
+        profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+        owner, _resource, anchor, snapshot = _capacity_store_snapshot(
+            settlement_store, require_existing_lock=True
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ProducerBudgetSourceError("completed_invocation_source_unavailable") from exc
+    if (
+        owner != expected_settlement_owner
+        or type(snapshot) is not BudgetLedgerSnapshot
+        or snapshot.revision != anchor[0]
+        or snapshot.invocation_profiles.get(binding.run_id) != profile
+        or len(expected_invocations) > profile.total_units - profile.protected_units
+    ):
+        raise ProducerBudgetSourceError("completed_invocation_owner_mismatch")
+    result = []
+    for operation_id, request_digest, profile_digest in expected_invocations:
+        record = snapshot.invocation_reservations.get(operation_id)
+        if (
+            profile_digest != profile.profile_digest
+            or type(record) is not BudgetLedgerInvocationReservation
+            or record.operation_id != operation_id
+            or record.request_digest != request_digest
+            or record.run_id != binding.run_id
+            or record.profile_digest != profile.profile_digest
+            or record.purpose != "standard"
+            or record.units != 1
+            or record.status != "completed"
+            or record.revision > anchor[0]
+        ):
+            raise ProducerBudgetSourceError("completed_invocation_record_mismatch")
+        result.append(record)
+    return tuple(result)
 
 
 class _LiveProducerReconciliation:

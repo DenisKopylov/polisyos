@@ -94,6 +94,9 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+        GenericN5ExecutionJoinExpectation,
         GenericN5SemanticSuccessorRequest,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -109,7 +112,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
     from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
     from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerProducerRunBinding,
         BudgetLedgerReentryBudgetWindow,
+        BudgetMiddleware,
     )
 
 _HASH = r"^sha256:[0-9a-f]{64}$"
@@ -507,6 +512,183 @@ class GenericModelInputSelectedEvaluation(_Record):
         return self
 
 
+class GenericModelInputInitialEvaluation(_Record):
+    """One ordinary Generic execution; never a protected action occurrence."""
+
+    subject_kind: Literal["initial_observation"] = "initial_observation"
+    execution_job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_run_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=_HASH)
+    input_ref: ArtifactRef
+    execution_ref: ArtifactRef
+    result_ref: ArtifactRef
+    current_method_input_bindings_ref: ArtifactRef
+    model_input_obligation_set_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    n4_source_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    observation_content_hash: str = Field(pattern=_HASH)
+
+    @model_validator(mode="after")
+    def _selected_refs(self) -> GenericModelInputInitialEvaluation:
+        refs = (
+            (self.input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+            (self.execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.result_ref, "polisyos.runtime.joint_simulation_result"),
+            (self.current_method_input_bindings_ref, "foundry.input_bindings"),
+            (self.model_input_obligation_set_ref, "runtime.quality.model_input_obligation_set"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.n4_source_ref, "runtime.generation_source_handoff"),
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+        )
+        if any(not _candidate_selected_ref(ref, kind) for ref, kind in refs):
+            raise ValueError("generic_initial_evaluation_selected_ref_invalid")
+        return self
+
+
+def parse_generic_model_input_selected_evaluation(
+    value: object,
+) -> GenericModelInputSelectedEvaluation | GenericModelInputInitialEvaluation:
+    """Read the explicit initial subject without upgrading the old action wire."""
+    if not isinstance(value, dict):
+        raise TypeError("generic_model_input_selected_evaluation_untyped")
+    if value.get("subject_kind") == "initial_observation":
+        return GenericModelInputInitialEvaluation.model_validate(value)
+    return GenericModelInputSelectedEvaluation.model_validate(value)
+
+
+class GenericModelInputInitialEvaluationBasis(_Record):
+    """Recorded initial method observation in the existing candidate basis family.
+
+    The original input, physical execution and provider observation are facts
+    about that occurrence. They do not appoint an action, establish today's
+    provider compatibility, or grant another numerical use.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = BASIS_KIND
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.GenericModelInputEvaluationBasis"
+    schema_version: Literal["GenericModelInputEvaluationBasis@1.1"] = (
+        "GenericModelInputEvaluationBasis@1.1"
+    )
+    authority_purpose: Literal["candidate_evaluation_retention_only"] = (
+        "candidate_evaluation_retention_only"
+    )
+    comparison_profile: Literal["generic_program_graph_mapped_numpy_methods_v3"] = (
+        "generic_program_graph_mapped_numpy_methods_v3"
+    )
+    basis_role: Literal["evaluated"] = "evaluated"
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=_HASH)
+    design_problem_basis_ref: str = Field(pattern=_HASH)
+    candidate_id: str = Field(min_length=1)
+    initial_observation: GenericModelInputInitialEvaluation
+    bound_state_snapshot_ref: ArtifactRef
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    reason_codes: tuple[str, ...] = ()
+    limitations: tuple[str, ...] = Field(min_length=1)
+    closure_residuals: tuple[str, ...] = CANDIDATE_N5_CLOSURE_RESIDUALS_V2
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+    numerical_intent_hex: str = Field(max_length=2 * 1024 * 1024)
+    numerical_intent_sha256: str = Field(pattern=_HASH)
+    content_hash: str = Field(pattern=_HASH)
+
+    @property
+    def evaluation(self) -> GenericModelInputInitialEvaluation:
+        """Return the explicitly initial selected occurrence for the frontier."""
+        return self.initial_observation
+
+    @model_validator(mode="after")
+    def _bind_initial_basis(self) -> GenericModelInputInitialEvaluationBasis:
+        if (
+            self.source_job_id != self.initial_observation.execution_job_id
+            or self.run_id != self.initial_observation.run_id
+            or not _candidate_selected_ref(self.bound_state_snapshot_ref, "foundry.state_snapshot")
+            or self.reason_codes
+            or not all(type(item) is str and item.strip() for item in self.limitations)
+            or len(set(self.limitations)) != len(self.limitations)
+            or self.closure_residuals != CANDIDATE_N5_CLOSURE_RESIDUALS_V2
+        ):
+            raise ValueError("generic_initial_evaluation_basis_subject_invalid")
+        _require_generic_model_input_basis_content(
+            self.numerical_intent_hex,
+            self.numerical_intent_sha256,
+            self.content_hash,
+            self.model_dump(mode="json", exclude={"content_hash"}),
+        )
+        return self
+
+
+class GenericModelInputInitialEvaluationDecision(_Record):
+    """Seed selection of an ordinary observation, not an action-use decision."""
+
+    ARTIFACT_KIND: ClassVar[str] = DECISION_KIND
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.GenericModelInputEvaluationDecision"
+    schema_version: Literal["GenericModelInputEvaluationDecision@1.1"] = (
+        "GenericModelInputEvaluationDecision@1.1"
+    )
+    authority_purpose: Literal["candidate_evaluation_retention_only"] = (
+        "candidate_evaluation_retention_only"
+    )
+    comparison_rule: Literal["generic-program-graph-initial-observation.v1"] = (
+        "generic-program-graph-initial-observation.v1"
+    )
+    decision_kind: Literal["initial_observation"] = "initial_observation"
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=_HASH)
+    design_problem_basis_ref: str = Field(pattern=_HASH)
+    candidate_id: str = Field(min_length=1)
+    initial_observation: GenericModelInputInitialEvaluation
+    current_basis_ref: ArtifactRef
+    expected_frontier_revision: Literal[0] = 0
+    expected_frontier_ref: None = None
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    reason_codes: tuple[str, ...] = ()
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+    generated_at: str = Field(min_length=1)
+    content_hash: str = Field(pattern=_HASH)
+
+    @model_validator(mode="after")
+    def _bind_initial_decision(self) -> GenericModelInputInitialEvaluationDecision:
+        if (
+            self.source_job_id != self.initial_observation.execution_job_id
+            or not _candidate_selected_ref(self.current_basis_ref, BASIS_KIND)
+            or self.reason_codes
+            or self.content_hash
+            != exact_n5_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
+        ):
+            raise ValueError("generic_initial_evaluation_decision_invalid")
+        return self
+
+
+def _require_generic_model_input_basis_content(
+    encoded_hex: str,
+    expected_sha256: str,
+    content_hash: str,
+    payload: dict[str, object],
+) -> None:
+    """Use one exact intent/content validator for both Generic subject versions."""
+    try:
+        encoded = bytes.fromhex(encoded_hex)
+    except ValueError as exc:
+        raise ValueError("generic_model_input_basis_intent_invalid") from exc
+    if (
+        encoded.hex() != encoded_hex
+        or "sha256:" + hashlib.sha256(encoded).hexdigest() != expected_sha256
+    ):
+        raise ValueError("generic_model_input_basis_intent_mismatch")
+    if content_hash != exact_n5_content_hash(payload):
+        raise ValueError("generic_model_input_basis_content_mismatch")
+
+
 class GenericModelInputEvaluationBasisV1(_Record):
     """Owner-replayable candidate basis for one semantic ProgramGraph input.
 
@@ -595,19 +777,12 @@ class GenericModelInputEvaluationBasisV1(_Record):
             or self.closure_residuals != CANDIDATE_N5_CLOSURE_RESIDUALS_V2
         ):
             raise ValueError("generic_model_input_basis_limitations_invalid")
-        try:
-            encoded = bytes.fromhex(self.numerical_intent_hex)
-        except ValueError as exc:
-            raise ValueError("generic_model_input_basis_intent_invalid") from exc
-        if (
-            encoded.hex() != self.numerical_intent_hex
-            or "sha256:" + hashlib.sha256(encoded).hexdigest() != self.numerical_intent_sha256
-        ):
-            raise ValueError("generic_model_input_basis_intent_mismatch")
-        if self.content_hash != exact_n5_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        ):
-            raise ValueError("generic_model_input_basis_content_mismatch")
+        _require_generic_model_input_basis_content(
+            self.numerical_intent_hex,
+            self.numerical_intent_sha256,
+            self.content_hash,
+            self.model_dump(mode="json", exclude={"content_hash"}),
+        )
         return self
 
 
@@ -708,6 +883,17 @@ class GenericModelInputEvaluationDecisionV1(_Record):
         ):
             raise ValueError("generic_model_input_decision_content_mismatch")
         return self
+
+
+_GENERIC_INITIAL_EVALUATION_TYPES = (
+    GenericModelInputInitialEvaluationBasis,
+    GenericModelInputInitialEvaluationDecision,
+)
+_GENERIC_MODEL_INPUT_EVALUATION_TYPES = (
+    GenericModelInputEvaluationBasisV1,
+    GenericModelInputEvaluationDecisionV1,
+    *_GENERIC_INITIAL_EVALUATION_TYPES,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -2291,6 +2477,484 @@ def _recorded_generic_model_input_method_calls(
     return tuple((*key, content) for key, content in sorted(selected.items()))
 
 
+def _replay_generic_observed_numerical_values(
+    *,
+    store: CoreJSONArtifactStore,
+    request: JointSimulationRequest,
+    preflight: ProgramGraphInputPreflight,
+    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
+) -> tuple[_GenericModelInputNumericalIntake, bytes]:
+    """Reconstruct recorded physical facets using the common immutable engine.
+
+    This compares stored call/configuration facts. It never prepares today's
+    callable as a substitute for the execution being read.
+    """
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.runtime.quality.n5_candidate_content import _prepared_image_descriptor
+    from polisyos.runtime.quality.n5_execution_basis import _v2_native_wire
+
+    configuration = PreparedJointSimulationConfiguration.model_validate(
+        observation.consumed_configuration
+    )
+    if tuple(
+        (item.name, item.value) for item in observation.execution_profile.declared_settings
+    ) != (
+        (
+            "prepared_configuration_hash",
+            exact_n5_content_hash(configuration.model_dump(mode="python")),
+        ),
+    ) or observation.source_image.selected_profile_content != _v2_native_wire(
+        _prepared_image_descriptor(configuration)
+    ):
+        raise ValueError("generic_model_input_history_recorded_profile_binding_mismatch")
+    historical_method_facts = None
+    if observation.numerical_intent_profile == GENERIC_METHOD_NUMERICAL_INTENT_PROFILE:
+        from polisyos.foundry.data_plane import replay_selected_method_input_facts
+
+        (selected_plan,) = request.engine_plan
+        if selected_plan.program_semantic_input_bindings_ref is None:
+            raise ValueError("generic_method_history_binding_missing")
+        historical_method_facts = replay_selected_method_input_facts(
+            store,
+            input_bindings_ref=selected_plan.program_semantic_input_bindings_ref,
+            expected_invocation=preflight.invocation,
+        )
+    controller = JointSimulationHorizonController(_prepared_configuration=configuration)
+    intake = _prepare_generic_model_input_numerical_intake(
+        store=store,
+        request=request,
+        preflight=preflight,
+        controller=controller,
+        historical_method_facts=historical_method_facts,
+    )
+    intent = _generic_model_input_numerical_intent(
+        intake,
+        prepared_calls=_recorded_generic_model_input_calls(observation),
+        prepared_method_calls=_recorded_generic_model_input_method_calls(observation),
+        configuration=configuration,
+    )
+    return intake, intent
+
+
+def verify_generic_initial_physical_work(
+    *,
+    result: JointSimulationResult,
+    input_record: GenericCycleSimulationN5InputV1,
+    settlement_store: BudgetMiddleware,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+) -> None:
+    """Reconcile the complete observed physical units with their durable owner.
+
+    This proves recorded standard-quota completions, not numerical authenticity,
+    a USD price, a new reservation, or permission to perform another call.
+    """
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+    )
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerProducerRunBinding,
+        ProducerBudgetObservation,
+        verify_completed_standard_invocations_historical,
+    )
+
+    work = result.physical_work_observations
+    if (
+        not work
+        or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or type(expected_run_binding) is not BudgetLedgerProducerRunBinding
+        or (
+            expected_run_binding.run_id,
+            expected_run_binding.control_job_id,
+            expected_run_binding.tenant_id,
+            expected_run_binding.cell_id,
+        )
+        != (input_record.run_id, input_record.job_id, input_record.tenant_id, input_record.cell_id)
+        or any(
+            item.status != "completed"
+            or item.budget_status != "current_owner_checked"
+            or item.invocation_quota_purpose != "standard"
+            or item.invocation_quota_status != "completed"
+            for item in work
+        )
+    ):
+        raise ValueError("generic_initial_physical_completion_not_established")
+    bases = result.diagnostics.get("producer_budget_observations")
+    if type(bases) is not dict:
+        raise ValueError("generic_initial_budget_basis_not_established")
+    owners = []
+    for item in work:
+        basis = ProducerBudgetObservation.model_validate(bases.get(item.budget_source_basis_digest))
+        if (
+            basis.source_basis_digest != item.budget_source_basis_digest
+            or basis.run_binding != expected_run_binding
+        ):
+            raise ValueError("generic_initial_budget_owner_mismatch")
+        owners.append(basis.settlement_owner)
+    if any(owner != owners[0] for owner in owners):
+        raise ValueError("generic_initial_budget_owner_mismatch")
+    verified = verify_completed_standard_invocations_historical(
+        settlement_store=settlement_store,
+        expected_run_binding=expected_run_binding,
+        expected_policy=input_record.n5.invocation_quota_policy,
+        expected_settlement_owner=owners[0],
+        expected_invocations=tuple(
+            (
+                item.invocation_quota_operation_id,
+                item.invocation_quota_request_digest,
+                item.invocation_quota_profile_digest,
+            )
+            for item in work
+        ),
+    )
+    if len(verified) != len(work):
+        raise ValueError("generic_initial_physical_completion_denominator_mismatch")
+
+
+def issue_generic_model_input_initial_evaluation_basis(
+    *,
+    owner: GenericCycleSimulationAdmissionOwner,
+    execution_ref: ArtifactRef,
+    expected: GenericN5ExecutionJoinExpectation,
+    design_problem_ref: str,
+    settlement_store: BudgetMiddleware,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+) -> GenericModelInputInitialEvaluationBasis:
+    """Record a real ordinary method observation without inventing an action.
+
+    The Generic owner reopens the original input, N4, context, exact current
+    binding, execution, result, and stored Foundry call chain. Recorded calls
+    feed the same numerical-intent engine as protected history. Current-use
+    permission and a new numerical execution are outside this artifact.
+    """
+    from polisyos.core.artifacts import SelectedProfileVerificationReader
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5ExecutionV3,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        GenericProgramGraphContentObservationV3,
+        read_generic_program_graph_n5_content_observation,
+    )
+
+    if type(owner) is not GenericCycleSimulationAdmissionOwner or (
+        expected.status != "joint_simulated"
+        or expected.result_ref is None
+        or expected.semantic_successor_ref is not None
+        or expected.model_input_obligation_set_ref is not None
+    ):
+        raise ValueError("generic_initial_evaluation_subject_invalid")
+    replay_store = (
+        owner.store
+        if type(owner.store) is SelectedProfileVerificationReader
+        else SelectedProfileVerificationReader(owner.store)
+    )
+    replay_owner = GenericCycleSimulationAdmissionOwner(profiles=owner.profiles, store=replay_store)
+    outcome, resolved = replay_owner.resolve_n5_execution_join_with_result(
+        execution_ref, expected=expected
+    )
+    execution, source = outcome.execution, outcome.input_record
+    if (
+        outcome.status != "resolved"
+        or type(execution) is not GenericCycleSimulationN5ExecutionV3
+        or execution.initial_method_input_purpose != "current_use_method_input_revalidation"
+        or execution.current_method_input_bindings_ref is None
+        or resolved is None
+        or resolved.initial_method_input is None
+        or source is None
+    ):
+        raise ValueError(outcome.code or "generic_initial_evaluation_execution_not_established")
+    selected = resolved.initial_method_input
+    observation = read_generic_program_graph_n5_content_observation(
+        resolved.result,
+        input_ref=expected.input_ref,
+        current_method_input_bindings_ref=execution.current_method_input_bindings_ref,
+        expected_request=resolved.request,
+        store=replay_store,
+    )
+    if type(observation) is not GenericProgramGraphContentObservationV3:
+        raise ValueError("generic_initial_evaluation_observation_profile_invalid")
+    if tuple(
+        sorted(
+            (item.physical_spec_ref, item.effective_seed)
+            for item in resolved.result.physical_work_observations
+        )
+    ) != tuple(sorted(observation.completion.planned_units)):
+        raise ValueError("generic_initial_physical_completion_denominator_mismatch")
+    intake, intent = _replay_generic_observed_numerical_values(
+        store=replay_store,
+        request=resolved.request,
+        preflight=selected.preflight,
+        observation=observation,
+    )
+    intent_hash = "sha256:" + hashlib.sha256(intent).hexdigest()
+    if (
+        intake.numerical_values["profile"] != GENERIC_METHOD_NUMERICAL_INTENT_PROFILE
+        or observation.numerical_intent_sha256 != intent_hash
+    ):
+        raise ValueError("generic_initial_evaluation_recorded_intent_mismatch")
+    verify_generic_initial_physical_work(
+        result=resolved.result,
+        input_record=source,
+        settlement_store=settlement_store,
+        expected_run_binding=expected_run_binding,
+    )
+    initial = GenericModelInputInitialEvaluation(
+        execution_job_id=source.job_id,
+        run_id=source.run_id,
+        source_run_id=source.source_run_id,
+        candidate_content_hash=source.candidate_atom_hash,
+        input_ref=expected.input_ref,
+        execution_ref=execution_ref,
+        result_ref=expected.result_ref,
+        current_method_input_bindings_ref=execution.current_method_input_bindings_ref,
+        model_input_obligation_set_ref=selected.preflight.obligation_set_ref,
+        context_job_ref=source.context_job_ref,
+        n4_source_ref=source.n4_source_ref,
+        profile_ref=source.profile_ref,
+        observation_content_hash=observation.content_hash,
+    )
+    payload = {
+        "schema_version": "GenericModelInputEvaluationBasis@1.1",
+        "authority_purpose": "candidate_evaluation_retention_only",
+        "comparison_profile": GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
+        "basis_role": "evaluated",
+        "tenant_id": source.tenant_id,
+        "cell_id": source.cell_id,
+        "run_id": source.run_id,
+        "source_job_id": source.job_id,
+        "design_problem_ref": design_problem_ref,
+        "design_problem_basis_ref": source.design_problem_ref,
+        "candidate_id": source.candidate_id,
+        "initial_observation": initial.model_dump(mode="json"),
+        "bound_state_snapshot_ref": intake.bound_state_snapshot_ref.model_dump(mode="json"),
+        "predicate_provenance": "recomputed",
+        "reason_codes": [],
+        "limitations": [
+            "candidate_simulation_input_only",
+            "producer_observed_intermediate_state_not_independently_recomputed",
+        ],
+        "closure_residuals": list(CANDIDATE_N5_CLOSURE_RESIDUALS_V2),
+        "observed_admission": False,
+        "publication_authority": False,
+        "numerical_intent_hex": intent.hex(),
+        "numerical_intent_sha256": intent_hash,
+    }
+    return GenericModelInputInitialEvaluationBasis.model_validate(
+        {**payload, "content_hash": exact_n5_content_hash(payload)}
+    )
+
+
+def issue_generic_model_input_initial_evaluation_decision(
+    *,
+    basis: GenericModelInputInitialEvaluationBasis,
+    basis_ref: ArtifactRef,
+    generated_at: str,
+) -> GenericModelInputInitialEvaluationDecision:
+    """Bind one initial candidate observation to the frontier's empty revision."""
+    if type(basis) is not GenericModelInputInitialEvaluationBasis:
+        raise TypeError("generic_initial_evaluation_basis_untyped")
+    checked = GenericModelInputInitialEvaluationBasis.model_validate_json(basis.model_dump_json())
+    payload = {
+        "schema_version": "GenericModelInputEvaluationDecision@1.1",
+        "authority_purpose": "candidate_evaluation_retention_only",
+        "comparison_rule": "generic-program-graph-initial-observation.v1",
+        "decision_kind": "initial_observation",
+        "tenant_id": checked.tenant_id,
+        "cell_id": checked.cell_id,
+        "run_id": checked.run_id,
+        "source_job_id": checked.source_job_id,
+        "design_problem_ref": checked.design_problem_ref,
+        "design_problem_basis_ref": checked.design_problem_basis_ref,
+        "candidate_id": checked.candidate_id,
+        "initial_observation": checked.initial_observation.model_dump(mode="json"),
+        "current_basis_ref": basis_ref.model_dump(mode="json"),
+        "expected_frontier_revision": 0,
+        "expected_frontier_ref": None,
+        "predicate_provenance": "recomputed",
+        "reason_codes": [],
+        "observed_admission": False,
+        "publication_authority": False,
+        "generated_at": generated_at,
+    }
+    return GenericModelInputInitialEvaluationDecision.model_validate(
+        {**payload, "content_hash": exact_n5_content_hash(payload)}
+    )
+
+
+def read_generic_model_input_initial_evaluation_history(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    frontier_ref: str,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+    expected_run_id: str,
+    expected_source_job_id: str,
+    settlement_store: BudgetMiddleware,
+) -> tuple[GenericModelInputInitialEvaluationBasis, GenericModelInputInitialEvaluationDecision]:
+    """Read the committed ordinary observation under its original immutable owners.
+
+    The caller separately admits current read access. This function reopens the
+    historical NL completion, exact SQL selector, compiled output membership,
+    producer events, source/call/result parents and durable physical units. It
+    preserves the recorded records; it grants no current reuse or worker lease.
+    A superseded initial selector remains readable by its exact historical ref.
+    """
+    from polisyos.core.artifacts import read_core_manifest_profile
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+        GenericN5ExecutionJoinExpectation,
+    )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+
+    frontier = control_store.get_generic_model_input_frontier_by_ref(frontier_ref)
+    completed = control_store.get_job(expected_source_job_id)
+    scope = control_store.historical_completed_job_execution_scope(
+        job_id=expected_source_job_id,
+        expected_run_id=expected_run_id,
+    )
+    if (
+        frontier is None
+        or type(frontier.selected_evaluation) is not GenericModelInputInitialEvaluation
+        or frontier.revision != 1
+        or (frontier.key.tenant_id, frontier.key.cell_id, frontier.key.source_job_id)
+        != (expected_tenant_id, expected_cell_id, expected_source_job_id)
+        or completed is None
+        or completed.kind != "natural_language_run"
+        or completed.state != "completed"
+        or completed.run_id != expected_run_id
+        or scope.status != "established"
+        or (scope.tenant_id, scope.cell_id) != (expected_tenant_id, expected_cell_id)
+    ):
+        raise ValueError("generic_initial_history_completion_not_established")
+    progress_rows = completed.progress.get("generic_model_input_initial_observations")
+    if type(progress_rows) is not list:
+        raise ValueError("generic_initial_history_selection_missing")
+    matches = [
+        row
+        for row in progress_rows
+        if type(row) is dict and row.get("frontier_ref") == frontier_ref
+    ]
+    terminal = control_store.get_job_terminal_source_event_record(expected_source_job_id)
+    if (
+        len(matches) != 1
+        or matches[0].get("subject_kind") != "initial_observation"
+        or terminal.event_type != "job_completed"
+        or terminal.payload.get("generic_model_input_initial_observations") != progress_rows
+    ):
+        raise ValueError("generic_initial_history_completion_selection_mismatch")
+    basis = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=frontier.basis_ref,
+        record_type=GenericModelInputInitialEvaluationBasis,
+    )
+    decision = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=frontier.selection_decision_ref,
+        record_type=GenericModelInputInitialEvaluationDecision,
+    )
+    selected = frontier.selected_evaluation
+    if (
+        type(basis) is not GenericModelInputInitialEvaluationBasis
+        or type(decision) is not GenericModelInputInitialEvaluationDecision
+        or basis.initial_observation != selected
+        or decision.initial_observation != selected
+        or basis.content_hash != frontier.basis_content_hash
+        or decision.current_basis_ref != frontier.basis_ref
+        or (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id)
+        != (expected_tenant_id, expected_cell_id, expected_run_id, expected_source_job_id)
+        or basis.design_problem_ref != frontier.key.design_problem_ref
+        or basis.candidate_id != frontier.key.candidate_id
+    ):
+        raise ValueError("generic_initial_history_frontier_subject_mismatch")
+    compiled_ref = ArtifactRef.model_validate(
+        completed.progress.get("compiled_recursive_generation_cycle_artifact_ref")
+    )
+    manifest = read_core_manifest_profile(store, compiled_ref)[0]
+    if (
+        compiled_ref.kind != "runtime.compiled_recursive_generation_cycle"
+        or str(compiled_ref.artifact_id)
+        != completed.progress.get("compiled_recursive_generation_cycle_ref")
+        or not store.verify(compiled_ref).ok
+        or any(
+            manifest.inputs.count(
+                input_ref_from_artifact_ref(ref, role="completed_generic_initial_observation")
+            )
+            != 1
+            for ref in (
+                selected.input_ref,
+                selected.execution_ref,
+                selected.result_ref,
+                frontier.basis_ref,
+                frontier.selection_decision_ref,
+            )
+        )
+    ):
+        raise ValueError("generic_initial_history_compiled_output_mismatch")
+    source = GenericCycleSimulationN5InputV1.model_validate(
+        load_core_json_artifact(store, selected.input_ref)
+    )
+    expected = GenericN5ExecutionJoinExpectation(
+        input_ref=selected.input_ref,
+        result_ref=selected.result_ref,
+        status="joint_simulated",
+        model_input_obligation_set_ref=None,
+        n4_source_ref=selected.n4_source_ref,
+        context_job_ref=selected.context_job_ref,
+        profile_ref=selected.profile_ref,
+        child_family_ref=source.n4_child_profile_family_ref,
+        child_set_ref=source.n4_child_profile_set_ref,
+        profile_selection_ref=source.profile.profile_selection_ref,
+        profile=source.profile,
+        child_selection=source.child_selection,
+        design_problem_ref=basis.design_problem_basis_ref,
+        outcome_variable=source.outcome_variable,
+        cycle_index=source.cycle_index,
+        candidate_id=basis.candidate_id,
+        candidate_atom_hash=selected.candidate_content_hash,
+        world_model_record_content_hash=source.profile.context_inputs.world_model_record.content_hash,
+        job_id=expected_source_job_id,
+        run_id=expected_run_id,
+        source_run_id=selected.source_run_id,
+        tenant_id=expected_tenant_id,
+        cell_id=expected_cell_id,
+    )
+    replayed = issue_generic_model_input_initial_evaluation_basis(
+        owner=GenericCycleSimulationAdmissionOwner(profiles=(), store=store),
+        execution_ref=selected.execution_ref,
+        expected=expected,
+        design_problem_ref=basis.design_problem_ref,
+        settlement_store=settlement_store,
+        expected_run_binding=BudgetLedgerProducerRunBinding(
+            run_id=expected_run_id,
+            control_job_id=expected_source_job_id,
+            tenant_id=expected_tenant_id,
+            cell_id=expected_cell_id,
+            profile_id=completed.effective_execution_profile,
+        ),
+    )
+    if (
+        replayed.initial_observation != selected
+        or not _candidate_ref_same(
+            replayed.bound_state_snapshot_ref, basis.bound_state_snapshot_ref
+        )
+        or replayed.numerical_intent_hex != basis.numerical_intent_hex
+        or replayed.numerical_intent_sha256 != basis.numerical_intent_sha256
+        or issue_generic_model_input_initial_evaluation_decision(
+            basis=basis,
+            basis_ref=frontier.basis_ref,
+            generated_at=decision.generated_at,
+        )
+        != decision
+    ):
+        raise ValueError("generic_initial_history_recorded_values_mismatch")
+    return basis, decision
+
+
 def _replay_generic_model_input_basis_values_for_history(
     *,
     store: CoreJSONArtifactStore,
@@ -2309,11 +2973,6 @@ def _replay_generic_model_input_basis_values_for_history(
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
     )
-    from polisyos.runtime.quality.joint_simulation_horizon import (
-        JointSimulationHorizonController,
-    )
-    from polisyos.runtime.quality.n5_candidate_content import _prepared_image_descriptor
-    from polisyos.runtime.quality.n5_execution_basis import _v2_native_wire
 
     basis = read_acquisition_evaluation_artifact(
         store=store,
@@ -2369,45 +3028,11 @@ def _replay_generic_model_input_basis_values_for_history(
         evaluation=evaluation_context,
         successor=original,
     )
-    configuration = PreparedJointSimulationConfiguration.model_validate(
-        observation.consumed_configuration
-    )
-    if tuple(
-        (item.name, item.value) for item in observation.execution_profile.declared_settings
-    ) != (
-        (
-            "prepared_configuration_hash",
-            exact_n5_content_hash(configuration.model_dump(mode="python")),
-        ),
-    ) or observation.source_image.selected_profile_content != _v2_native_wire(
-        _prepared_image_descriptor(configuration)
-    ):
-        raise ValueError("generic_model_input_history_recorded_profile_binding_mismatch")
-    historical_method_facts = None
-    if basis.comparison_profile == GENERIC_METHOD_NUMERICAL_INTENT_PROFILE:
-        from polisyos.foundry.data_plane import replay_selected_method_input_facts
-
-        (selected_plan,) = successor.request.engine_plan
-        if selected_plan.program_semantic_input_bindings_ref is None:
-            raise ValueError("generic_method_history_binding_missing")
-        historical_method_facts = replay_selected_method_input_facts(
-            store,
-            input_bindings_ref=selected_plan.program_semantic_input_bindings_ref,
-            expected_invocation=successor.preflight.invocation,
-        )
-    controller = JointSimulationHorizonController(_prepared_configuration=configuration)
-    intake = _prepare_generic_model_input_numerical_intake(
+    intake, intent = _replay_generic_observed_numerical_values(
         store=store,
         request=successor.request,
         preflight=successor.preflight,
-        controller=controller,
-        historical_method_facts=historical_method_facts,
-    )
-    intent = _generic_model_input_numerical_intent(
-        intake,
-        prepared_calls=_recorded_generic_model_input_calls(observation),
-        prepared_method_calls=_recorded_generic_model_input_method_calls(observation),
-        configuration=configuration,
+        observation=observation,
     )
     if (
         basis.comparison_profile != intake.numerical_values["profile"]
@@ -3430,21 +4055,47 @@ def _candidate_evaluation_role_event_id(
 
 
 def _generic_model_input_evaluation_event_id(
-    record: GenericModelInputEvaluationBasisV1 | GenericModelInputEvaluationDecisionV1,
+    record: GenericModelInputEvaluationBasisV1
+    | GenericModelInputEvaluationDecisionV1
+    | GenericModelInputInitialEvaluationBasis
+    | GenericModelInputInitialEvaluationDecision,
 ) -> str:
     """Name one candidate record role on its exact current semantic selection."""
-    if type(record) is GenericModelInputEvaluationBasisV1:
+    if type(record) in _GENERIC_INITIAL_EVALUATION_TYPES:
+        role = (
+            "initial_evaluated_basis"
+            if type(record) is GenericModelInputInitialEvaluationBasis
+            else "initial_seed_decision"
+        )
+        selected_ref = record.initial_observation.execution_ref
+    elif type(record) is GenericModelInputEvaluationBasisV1:
+        selected_ref = record.semantic_successor_ref
         role = {
             "prospective": "prospective_basis",
             "evaluated": "evaluated_basis",
             "blocked": "blocked_basis",
         }[record.basis_role]
     elif type(record) is GenericModelInputEvaluationDecisionV1:
+        selected_ref = record.semantic_successor_ref
         role = "decision"
     else:
         raise TypeError("generic_model_input_evaluation_record_untyped")
-    identity = hashlib.sha256(exact_n5_content_bytes(record.semantic_successor_ref)).hexdigest()
+    identity = hashlib.sha256(exact_n5_content_bytes(selected_ref)).hexdigest()
     return f"evt_generic_model_input_{role}_{identity}"
+
+
+def _evaluation_artifact_schema_version(record_type: type[_Record]) -> str:
+    """Keep the selected schema version explicit for each existing record type."""
+    if record_type in _GENERIC_INITIAL_EVALUATION_TYPES:
+        return "1.1"
+    if record_type in (
+        CandidateAcquisitionEvaluationBasisV2,
+        CandidateAcquisitionEvaluationDecisionV2,
+        AcquisitionEvaluationBasisV2,
+        AcquisitionEvaluationDecisionV2,
+    ):
+        return "2.0"
+    return "1.0"
 
 
 def persist_acquisition_evaluation_artifact(
@@ -3459,7 +4110,9 @@ def persist_acquisition_evaluation_artifact(
     | CandidateRetainedPortCapture
     | AcquisitionRetainedContinuation
     | GenericModelInputEvaluationBasisV1
-    | GenericModelInputEvaluationDecisionV1,
+    | GenericModelInputEvaluationDecisionV1
+    | GenericModelInputInitialEvaluationBasis
+    | GenericModelInputInitialEvaluationDecision,
 ) -> ArtifactRef:
     """Persist and reopen one strict basis/decision with its real producer event."""
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -3482,6 +4135,8 @@ def persist_acquisition_evaluation_artifact(
         AcquisitionRetainedContinuation,
         GenericModelInputEvaluationBasisV1,
         GenericModelInputEvaluationDecisionV1,
+        GenericModelInputInitialEvaluationBasis,
+        GenericModelInputInitialEvaluationDecision,
     }:
         raise TypeError("acquisition_evaluation_artifact_untyped")
     if type(record) is CandidateRetainedPortCapture:
@@ -3504,17 +4159,7 @@ def persist_acquisition_evaluation_artifact(
             media_type="application/json",
             schema=artifacts.SchemaInfo(
                 name=record.ARTIFACT_SCHEMA_NAME,
-                version=(
-                    "2.0"
-                    if type(record)
-                    in (
-                        CandidateAcquisitionEvaluationBasisV2,
-                        CandidateAcquisitionEvaluationDecisionV2,
-                        AcquisitionEvaluationBasisV2,
-                        AcquisitionEvaluationDecisionV2,
-                    )
-                    else "1.0"
-                ),
+                version=_evaluation_artifact_schema_version(type(record)),
             ),
             producer=artifacts.ProducerInfo(component=PRODUCER, version="1.0"),
             inputs=[input_ref_from_artifact_ref(ref, role=path) for path, ref in typed_refs],
@@ -3525,17 +4170,7 @@ def persist_acquisition_evaluation_artifact(
         provenance_kind="runtime_emitted",
         owner="team-runtime-quality",
         reader_contract=record.ARTIFACT_KIND + ".reader",
-        reader_contract_version=(
-            "2.0"
-            if type(record)
-            in (
-                CandidateAcquisitionEvaluationBasisV2,
-                CandidateAcquisitionEvaluationDecisionV2,
-                AcquisitionEvaluationBasisV2,
-                AcquisitionEvaluationDecisionV2,
-            )
-            else "1.0"
-        ),
+        reader_contract_version=_evaluation_artifact_schema_version(type(record)),
         tenant_id=record.tenant_id,
         cell_id=record.cell_id,
         run_id=record.run_id,
@@ -3566,6 +4201,7 @@ def persist_acquisition_evaluation_artifact(
                 AcquisitionEvaluationBasis,
                 CandidateAcquisitionEvaluationBasis,
                 GenericModelInputEvaluationBasisV1,
+                GenericModelInputInitialEvaluationBasis,
             ),
         )
         else record.comparison_rule,
@@ -3580,12 +4216,15 @@ def persist_acquisition_evaluation_artifact(
             retention_policy="runtime-quality-90d",
             review_status="runtime_verified",
             override_policy="no_override",
-            approval_policy="pa2_ds9_decision_required",
+            approval_policy=(
+                "candidate_observation_seed_only"
+                if type(record) in _GENERIC_INITIAL_EVALUATION_TYPES
+                else "pa2_ds9_decision_required"
+            ),
         ),
         event_id=(
             _generic_model_input_evaluation_event_id(record)
-            if type(record)
-            in (GenericModelInputEvaluationBasisV1, GenericModelInputEvaluationDecisionV1)
+            if type(record) in _GENERIC_MODEL_INPUT_EVALUATION_TYPES
             else _candidate_evaluation_event_id(record)
             if isinstance(
                 record,
@@ -3599,7 +4238,11 @@ def persist_acquisition_evaluation_artifact(
             else "evt_acquisition_evaluation_" + identity
         ),
         event_source=PRODUCER,
-        event_type="polisyos.runtime.acquisition.evaluation.v1",
+        event_type=(
+            "polisyos.runtime.generic.initial_evaluation.v1"
+            if type(record) in _GENERIC_INITIAL_EVALUATION_TYPES
+            else "polisyos.runtime.acquisition.evaluation.v1"
+        ),
         event_subject="run/" + record.run_id + "/candidate/" + record.candidate_id,
         state_before=None,
         state_after=record.predicate_provenance,
@@ -3629,7 +4272,9 @@ def read_acquisition_evaluation_artifact(
     | type[CandidateRetainedPortCapture]
     | type[AcquisitionRetainedContinuation]
     | type[GenericModelInputEvaluationBasisV1]
-    | type[GenericModelInputEvaluationDecisionV1],
+    | type[GenericModelInputEvaluationDecisionV1]
+    | type[GenericModelInputInitialEvaluationBasis]
+    | type[GenericModelInputInitialEvaluationDecision],
 ) -> (
     AcquisitionEvaluationBasis
     | AcquisitionEvaluationDecision
@@ -3640,6 +4285,8 @@ def read_acquisition_evaluation_artifact(
     | AcquisitionRetainedContinuation
     | GenericModelInputEvaluationBasisV1
     | GenericModelInputEvaluationDecisionV1
+    | GenericModelInputInitialEvaluationBasis
+    | GenericModelInputInitialEvaluationDecision
 ):
     """Resolve exact selected bytes, schema, producer and durable event scope."""
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -3662,6 +4309,8 @@ def read_acquisition_evaluation_artifact(
         AcquisitionRetainedContinuation,
         GenericModelInputEvaluationBasisV1,
         GenericModelInputEvaluationDecisionV1,
+        GenericModelInputInitialEvaluationBasis,
+        GenericModelInputInitialEvaluationDecision,
     }:
         raise TypeError("acquisition_evaluation_artifact_reader_untyped")
     if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
@@ -3675,18 +4324,7 @@ def read_acquisition_evaluation_artifact(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != record_type.ARTIFACT_SCHEMA_NAME
-        or manifest.artifact_schema.version
-        != (
-            "2.0"
-            if record_type
-            in (
-                CandidateAcquisitionEvaluationBasisV2,
-                CandidateAcquisitionEvaluationDecisionV2,
-                AcquisitionEvaluationBasisV2,
-                AcquisitionEvaluationDecisionV2,
-            )
-            else "1.0"
-        )
+        or manifest.artifact_schema.version != _evaluation_artifact_schema_version(record_type)
         or manifest.producer is None
         or manifest.producer.component != PRODUCER
         or manifest.producer.version != "1.0"
@@ -3722,6 +4360,8 @@ def read_acquisition_evaluation_artifact(
                     CandidateRetainedPortCapture,
                     GenericModelInputEvaluationBasisV1,
                     GenericModelInputEvaluationDecisionV1,
+                    GenericModelInputInitialEvaluationBasis,
+                    GenericModelInputInitialEvaluationDecision,
                 ),
             )
             else str(ref.artifact_id)
@@ -3742,12 +4382,13 @@ def read_acquisition_evaluation_artifact(
             CandidateRetainedPortCapture,
             GenericModelInputEvaluationBasisV1,
             GenericModelInputEvaluationDecisionV1,
+            GenericModelInputInitialEvaluationBasis,
+            GenericModelInputInitialEvaluationDecision,
         ),
     ):
         expected_event_id = (
             _generic_model_input_evaluation_event_id(record)
-            if type(record)
-            in (GenericModelInputEvaluationBasisV1, GenericModelInputEvaluationDecisionV1)
+            if type(record) in _GENERIC_MODEL_INPUT_EVALUATION_TYPES
             else _candidate_evaluation_event_id(record)
         )
         rows = event_log.list_events(event_id=expected_event_id, limit=2)
@@ -3756,7 +4397,12 @@ def read_acquisition_evaluation_artifact(
         event = rows[0].event
         if (
             event.event_source != PRODUCER
-            or event.event_type != "polisyos.runtime.acquisition.evaluation.v1"
+            or event.event_type
+            != (
+                "polisyos.runtime.generic.initial_evaluation.v1"
+                if type(record) in _GENERIC_INITIAL_EVALUATION_TYPES
+                else "polisyos.runtime.acquisition.evaluation.v1"
+            )
             or event.tenant_id != record.tenant_id
             or event.cell_id != record.cell_id
             or event.run_id != record.run_id

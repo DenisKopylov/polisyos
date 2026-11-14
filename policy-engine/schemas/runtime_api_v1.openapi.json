@@ -561,7 +561,17 @@
         "properties": {
           "routes": {
             "items": {
-              "$ref": "#/components/schemas/AcquisitionRouteProjection"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/AcquisitionRouteProjection"
+                },
+                {
+                  "$ref": "#/components/schemas/NativeDerivationLeafRouteProjection"
+                },
+                {
+                  "$ref": "#/components/schemas/NativeModelInputTargetProjection"
+                }
+              ]
             },
             "title": "Routes",
             "type": "array"
@@ -740,10 +750,16 @@
             "type": "string"
           },
           "route_status": {
-            "const": "costed_actionable",
-            "default": "costed_actionable",
-            "title": "Route Status",
-            "type": "string"
+            "anyOf": [
+              {
+                "const": "costed_actionable",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route Status"
           },
           "run_id": {
             "title": "Run Id",
@@ -30915,6 +30931,182 @@
         "title": "NLProvenance",
         "type": "object"
       },
+      "NativeDerivationLeafRouteProjection": {
+        "additionalProperties": false,
+        "description": "Read-only native leaf route whose supplier or owner quote is missing.",
+        "properties": {
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "derivation_bundle_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "planner_record_id": {
+            "title": "Planner Record Id",
+            "type": "string"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "requirement_gap_id": {
+            "title": "Requirement Gap Id",
+            "type": "string"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_status": {
+            "const": "inputs_pending",
+            "default": "inputs_pending",
+            "title": "Route Status",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "NativeDerivationLeafRouteProjection@1.0",
+            "default": "NativeDerivationLeafRouteProjection@1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_supplier_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_node_id": {
+            "title": "Source Node Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "run_id",
+          "route_id",
+          "source_node_id",
+          "derivation_bundle_ref",
+          "requirement_gap_id",
+          "planner_record_id",
+          "reason_codes"
+        ],
+        "title": "NativeDerivationLeafRouteProjection",
+        "type": "object"
+      },
+      "NativeModelInputTargetProjection": {
+        "additionalProperties": false,
+        "description": "Read-only target for a native model-input goal awaiting an N7 plan.",
+        "properties": {
+          "action_authority": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Action Authority",
+            "type": "string"
+          },
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "configured_port_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "model_goal_status": {
+            "const": "inputs_pending",
+            "default": "inputs_pending",
+            "title": "Model Goal Status",
+            "type": "string"
+          },
+          "model_input_obligation_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "obligation_set_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "planner_record_id": {
+            "title": "Planner Record Id",
+            "type": "string"
+          },
+          "planner_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "items": {
+              "const": "native_derivation_plan_not_selected",
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "requirement_gap_id": {
+            "title": "Requirement Gap Id",
+            "type": "string"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "NativeModelInputTargetProjection@1.0",
+            "default": "NativeModelInputTargetProjection@1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_currentness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Currentness",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "run_id",
+          "route_id",
+          "obligation_set_ref",
+          "model_input_obligation_ref",
+          "configured_port_source_ref",
+          "planner_report_ref",
+          "requirement_gap_id",
+          "planner_record_id",
+          "reason_codes"
+        ],
+        "title": "NativeModelInputTargetProjection",
+        "type": "object"
+      },
       "NaturalLanguageRunRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
@@ -38659,7 +38851,7 @@
       },
       "RunCandidateSimulationAcquisitionHistoryEntry": {
         "additionalProperties": false,
-        "description": "Persisted acquisition action facts projected as candidate history only.",
+        "description": "Persisted acquisition action facts projected as candidate history only.\n\nThe inputs-pending v3 row records a completed collection action while its\nseparate model-input goal remains open. Its selected provenance does not\nestablish permission, cost authority, re-entry, or a new evaluation.",
         "properties": {
           "action_generation": {
             "minimum": 1.0,
@@ -38717,6 +38909,28 @@
             "title": "Evaluation Provenance"
           },
           "expected_origin_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_goal_status": {
+            "anyOf": [
+              {
+                "const": "inputs_pending",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Goal Status"
+          },
+          "native_input_collection_ref": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/ArtifactRef-Output"
@@ -38786,6 +39000,16 @@
               }
             ]
           },
+          "owner_declared_profile_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publication_authority": {
             "const": false,
             "default": false,
@@ -38829,7 +39053,10 @@
           "schema_version": {
             "anyOf": [
               {
-                "const": "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+                "enum": [
+                  "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+                  "policyos.runtime.run_candidate_simulation_acquisition_history.v3"
+                ],
                 "type": "string"
               },
               {
@@ -38851,7 +39078,8 @@
           "terminal_outcome": {
             "enum": [
               "reentry_completed",
-              "quarantined_no_growth"
+              "quarantined_no_growth",
+              "inputs_pending"
             ],
             "title": "Terminal Outcome",
             "type": "string"
@@ -42146,6 +42374,16 @@
               }
             ]
           },
+          "model_input_initial_observations": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunModelInputInitialObservationsProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "model_input_use_actions": {
             "anyOf": [
               {
@@ -44687,6 +44925,242 @@
           "lineage"
         ],
         "title": "RunLineageResponse",
+        "type": "object"
+      },
+      "RunModelInputInitialObservation": {
+        "additionalProperties": false,
+        "description": "One replayed historical Generic input observation, kept candidate-only.",
+        "properties": {
+          "actual_run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Actual Run Id",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_evaluation_retention_only",
+            "default": "candidate_evaluation_retention_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "closure_residuals": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Closure Residuals",
+            "type": "array"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "current_method_input_bindings_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "execution_job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Execution Job Id",
+            "type": "string"
+          },
+          "execution_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "frontier_ref": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Frontier Ref",
+            "type": "string"
+          },
+          "frontier_revision": {
+            "const": 1,
+            "default": 1,
+            "title": "Frontier Revision",
+            "type": "integer"
+          },
+          "historical_replay_status": {
+            "const": "reconciled",
+            "default": "reconciled",
+            "title": "Historical Replay Status",
+            "type": "string"
+          },
+          "input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "model_input_obligation_set_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "observation_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Observation Content Hash",
+            "type": "string"
+          },
+          "observed_admission": {
+            "const": false,
+            "default": false,
+            "title": "Observed Admission",
+            "type": "boolean"
+          },
+          "profile_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "recorded_predicate_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Recorded Predicate Provenance",
+            "type": "string"
+          },
+          "result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "source_run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Run Id",
+            "type": "string"
+          },
+          "subject_kind": {
+            "const": "initial_observation",
+            "default": "initial_observation",
+            "title": "Subject Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "execution_job_id",
+          "actual_run_id",
+          "source_run_id",
+          "frontier_ref",
+          "basis_ref",
+          "decision_ref",
+          "candidate_content_hash",
+          "observation_content_hash",
+          "input_ref",
+          "execution_ref",
+          "result_ref",
+          "current_method_input_bindings_ref",
+          "model_input_obligation_set_ref",
+          "context_job_ref",
+          "n4_source_ref",
+          "profile_ref",
+          "limitations",
+          "closure_residuals"
+        ],
+        "title": "RunModelInputInitialObservation",
+        "type": "object"
+      },
+      "RunModelInputInitialObservationsProjection": {
+        "additionalProperties": false,
+        "description": "Bounded exact-source-job discovery of historical initial observations.",
+        "properties": {
+          "actual_run_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Run Id"
+          },
+          "core_run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Core Run Id",
+            "type": "string"
+          },
+          "inventory_status": {
+            "enum": [
+              "complete",
+              "limited"
+            ],
+            "title": "Inventory Status",
+            "type": "string"
+          },
+          "inventory_truncated": {
+            "title": "Inventory Truncated",
+            "type": "boolean"
+          },
+          "limitation_codes": {
+            "default": [],
+            "items": {
+              "enum": [
+                "initial_observation_frontier_inventory_truncated",
+                "initial_observation_history_unavailable"
+              ],
+              "type": "string"
+            },
+            "title": "Limitation Codes",
+            "type": "array"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/RunModelInputInitialObservation"
+            },
+            "maxItems": 128,
+            "title": "Observations",
+            "type": "array"
+          },
+          "scope": {
+            "const": "exact_source_job",
+            "default": "exact_source_job",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_job_id",
+          "core_run_id",
+          "observations",
+          "inventory_status",
+          "inventory_truncated"
+        ],
+        "title": "RunModelInputInitialObservationsProjection",
         "type": "object"
       },
       "RunModelInputUseActionSelector": {
@@ -49449,7 +49923,8 @@
             "enum": [
               "not_recorded",
               "single_step_basis",
-              "feedback_uncomposed"
+              "feedback_uncomposed",
+              "feedback_basis"
             ],
             "title": "Execution Source Status",
             "type": "string"
@@ -85430,7 +85905,18 @@
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AcquisitionRouteProjection"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/AcquisitionRouteProjection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NativeDerivationLeafRouteProjection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NativeModelInputTargetProjection"
+                    }
+                  ],
+                  "title": "Response Get Run Acquisition Route"
                 }
               }
             },

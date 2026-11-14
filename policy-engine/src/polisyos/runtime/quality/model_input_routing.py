@@ -59,9 +59,12 @@ if TYPE_CHECKING:
         DerivedInputCorrespondenceRef,
         DerivedInputProfileRef,
         DerivedMeasurementRole,
+        FoundryInputBindings,
         FoundryInputBindingsRef,
         ModelInputObligationSet,
+        ModelInputStepScope,
         RatioDenominatorSourceContextRef,
+        RegisteredDerivedInputCorrespondence,
         RegisteredDerivedInputProfileRef,
         RegisteredDerivedModelInputRequest,
         RegisteredMeasurementRole,
@@ -1760,8 +1763,18 @@ def _persist_derived_input_batch(
         raise ValueError("derived_model_input_base_context_mismatch")
     base = validate_core_model_json_artifact(DataSnapshot, store, base_ref)
     raw_payload = load_core_json_artifact(store, base.data_ref)
-    if not isinstance(raw_payload, dict) or "derived_inputs" in raw_payload:
+    if not isinstance(raw_payload, dict):
         raise ValueError("derived_model_input_base_payload_profile_unsupported")
+    if "derived_inputs" in raw_payload:
+        _verify_registered_method_reseal_namespace(
+            store,
+            source_input_bindings_ref=selected_set.invocation.input_bindings_ref,
+            predecessor=predecessor,
+            obligation_set_ref=obligation_set_ref,
+            selected_set=selected_set,
+            outputs=outputs,
+            namespace=raw_payload["derived_inputs"],
+        )
     payload = copy.deepcopy(raw_payload)
     derived_values: dict[str, dict[str, object]] = {}
     payload_inputs = [input_ref_from_artifact_ref(base.data_ref, role="context.base_payload")]
@@ -1855,6 +1868,127 @@ def _persist_derived_input_batch(
     )
 
 
+def _verify_registered_method_reseal_namespace(
+    store: FileSystemCAS,
+    *,
+    source_input_bindings_ref: FoundryInputBindingsRef,
+    predecessor: FoundryInputBindings,
+    obligation_set_ref: ArtifactRef,
+    selected_set: ModelInputObligationSet,
+    outputs: tuple[_DerivedPortOutput, ...],
+    namespace: object,
+) -> None:
+    """Reopen the complete old namespace before its method-only replacement."""
+    from polisyos.core.contracts import (
+        load_model_input_obligation_set,
+        load_native_derivation_source_projection,
+        load_registered_derived_input_correspondence,
+        load_resolved_input_binding_manifest,
+    )
+    from polisyos.foundry.data_plane import replay_selected_method_input_facts
+    from polisyos.foundry.execute import verify_current_use_method_input_revalidation
+
+    if (
+        selected_set.schema_version != "1.3"
+        or selected_set.purpose != "current_use_method_input_revalidation"
+        or selected_set.authority_purpose != "candidate_execution_input_revalidation_only"
+        or predecessor.schema_version != "1.4"
+        or predecessor.resolved_binding_manifest_ref is None
+    ):
+        raise ValueError("derived_model_input_base_payload_profile_unsupported")
+    fresh = verify_current_use_method_input_revalidation(
+        store,
+        obligation_set_ref=obligation_set_ref,
+        expected_invocation=selected_set.invocation,
+    )
+    if fresh != selected_set:
+        raise ValueError("registered_method_reseal_set_replay_mismatch")
+    old_manifest = load_resolved_input_binding_manifest(
+        store, predecessor.resolved_binding_manifest_ref
+    )
+    old_set, old_members = load_model_input_obligation_set(
+        store, old_manifest.model_input_obligation_set_ref
+    )
+    if (
+        old_set.schema_version != "1.1"
+        or old_manifest.schema_version != "2.0"
+        or old_manifest.measurements
+        or old_manifest.method_input_steps
+        or len(old_manifest.derivations) != len(old_members)
+    ):
+        raise ValueError("registered_method_reseal_source_profile_unsupported")
+    old_facts = replay_selected_method_input_facts(
+        store,
+        input_bindings_ref=source_input_bindings_ref,
+        expected_invocation=old_set.invocation,
+    )
+    if (
+        old_facts.bindings != predecessor
+        or len(old_facts.records) != len(old_members)
+        or any(row.shape for row in old_facts.records)
+        or artifact_ref_identity_key(selected_set.prestate_ref)
+        != artifact_ref_identity_key(predecessor.bound_state_snapshot_ref)
+    ):
+        raise ValueError("registered_method_reseal_source_prestate_mismatch")
+    expected_namespace = {
+        hashlib.sha256(row.binding_id.encode()).hexdigest()[:20]: {"value": row.canonical_value}
+        for row in old_facts.records
+    }
+    if (
+        len(expected_namespace) != len(old_facts.records)
+        or namespace != expected_namespace
+        or any(
+            row.source_path
+            != "derived_inputs."
+            + hashlib.sha256(row.binding_id.encode()).hexdigest()[:20]
+            + ".value"
+            for row in old_manifest.derivations
+        )
+    ):
+        raise ValueError("registered_method_reseal_source_namespace_mismatch")
+    _, fresh_members = load_model_input_obligation_set(store, obligation_set_ref)
+    old_ports = {member.port.port_id: member.port for member in old_members}
+    fresh_ports = {member.port.port_id: member.port for member in fresh_members}
+    if (
+        len(old_ports) != len(old_members)
+        or len(fresh_ports) != len(fresh_members)
+        or old_ports != fresh_ports
+        or any(port.carrier != "method_input" for port in fresh_ports.values())
+    ):
+        raise ValueError("registered_method_reseal_complete_port_set_required")
+    old_by_port = {row.model_port_id: row for row in old_manifest.derivations}
+    if len(old_by_port) != len(outputs):
+        raise ValueError("registered_method_reseal_complete_port_set_required")
+    for item in outputs:
+        prior = old_by_port.get(item.selection.model_port_id)
+        if prior is None or artifact_ref_identity_key(
+            prior.profile_ref
+        ) != artifact_ref_identity_key(item.selection.profile_ref):
+            raise ValueError("registered_method_reseal_source_selection_mismatch")
+        old_proof = load_registered_derived_input_correspondence(store, prior.correspondence_ref)
+        new_proof = load_registered_derived_input_correspondence(
+            store, item.selection.correspondence_ref
+        )
+
+        def role_selection(
+            proof: RegisteredDerivedInputCorrespondence,
+        ) -> tuple[tuple[str, tuple[str, str, str, str | None]], ...]:
+            return tuple(
+                (
+                    role.role,
+                    artifact_ref_identity_key(
+                        load_native_derivation_source_projection(
+                            store, role.source_projection_ref
+                        ).occurrence_ref
+                    ),
+                )
+                for role in proof.roles
+            )
+
+        if role_selection(old_proof) != role_selection(new_proof):
+            raise ValueError("registered_method_reseal_source_selection_mismatch")
+
+
 def materialize_registered_derived_model_inputs(
     store: FileSystemCAS,
     *,
@@ -1900,6 +2034,188 @@ def materialize_registered_derived_model_inputs(
         selected_set=selected_set,
         outputs=outputs,
     )
+
+
+def reseal_registered_method_input_bindings(
+    store: FileSystemCAS,
+    *,
+    source_input_bindings_ref: FoundryInputBindingsRef,
+    obligation_set_ref: ArtifactRef,
+    expected_invocation: ProgramGraphInputInvocation,
+) -> DerivedModelInputBatchMaterialization:
+    """Replay selected native sources into an exact new method-input context.
+
+    The old binding is immutable source evidence, not a supplied input for the
+    new invocation. Recipes, certificates and correspondence are freshly
+    produced by the existing registered batch owner. No acquisition, numerical
+    execution, current permission or new N7 bundle is asserted here.
+
+    Args:
+        store: The caller's current, access-controlled artifact store.
+        source_input_bindings_ref: Exact prior method-only 1.4 source selection.
+        obligation_set_ref: Complete fresh set from the canonical preflight.
+        expected_invocation: Actual invocation selected by the Runtime owner.
+
+    Returns:
+        A new typed snapshot, manifest and binding with the exact prior prestate.
+
+    Raises:
+        ValueError: If either subject, source closure or bounded profile differs.
+    """
+    from polisyos.core.contracts import (
+        RegisteredDerivedModelInputRequest,
+        RegisteredMeasurementRole,
+        SelectedVariableBindingRef,
+        load_model_input_obligation_set,
+        load_native_derivation_source_projection,
+        load_registered_derived_input_context,
+        load_registered_derived_input_correspondence,
+        load_resolved_input_binding_manifest,
+    )
+    from polisyos.foundry.data_plane import (
+        load_input_bindings,
+        reconcile_selected_method_input_bindings,
+        replay_selected_method_input_facts,
+    )
+    from polisyos.foundry.execute import verify_current_use_method_input_revalidation
+
+    fresh_set = verify_current_use_method_input_revalidation(
+        store,
+        obligation_set_ref=obligation_set_ref,
+        expected_invocation=expected_invocation,
+    )
+    loaded_set, fresh_obligations = load_model_input_obligation_set(store, obligation_set_ref)
+    if loaded_set != fresh_set:
+        raise ValueError("registered_method_reseal_set_replay_mismatch")
+    source = load_input_bindings(store, source_input_bindings_ref)
+    manifest_ref = source.resolved_binding_manifest_ref
+    if (
+        source.schema_version != "1.4"
+        or manifest_ref is None
+        or fresh_set.schema_version != "1.3"
+        or fresh_set.purpose != "current_use_method_input_revalidation"
+        or fresh_set.authority_purpose != "candidate_execution_input_revalidation_only"
+        or len(expected_invocation.steps) != 1
+        or fresh_set.invocation != expected_invocation
+        or artifact_ref_identity_key(expected_invocation.input_bindings_ref)
+        != artifact_ref_identity_key(source_input_bindings_ref)
+        or artifact_ref_identity_key(fresh_set.prestate_ref)
+        != artifact_ref_identity_key(source.bound_state_snapshot_ref)
+    ):
+        raise ValueError("registered_method_reseal_current_subject_mismatch")
+    source_manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    if (
+        source_manifest.schema_version != "2.0"
+        or source_manifest.measurements
+        or not source_manifest.derivations
+        or source_manifest.method_input_steps
+    ):
+        raise ValueError("registered_method_reseal_source_profile_unsupported")
+    source_set, source_obligations = load_model_input_obligation_set(
+        store, source_manifest.model_input_obligation_set_ref
+    )
+    if source_set.schema_version != "1.1":
+        raise ValueError("registered_method_reseal_source_profile_unsupported")
+    facts = replay_selected_method_input_facts(
+        store,
+        input_bindings_ref=source_input_bindings_ref,
+        expected_invocation=source_set.invocation,
+    )
+    if (
+        facts.bindings != source
+        or any(
+            artifact_ref_identity_key(getattr(source_set.invocation, name))
+            != artifact_ref_identity_key(getattr(expected_invocation, name))
+            for name in (
+                "interface_ref",
+                "program_graph_ref",
+                "exec_plan_ref",
+                "registry_bundle_ref",
+            )
+        )
+        or (
+            source_set.invocation.steps != expected_invocation.steps
+            or source_set.invocation.parameter_override_bundle_ref is not None
+            or expected_invocation.parameter_override_bundle_ref is not None
+        )
+    ):
+        raise ValueError("registered_method_reseal_invocation_profile_mismatch")
+    old_members = {
+        artifact_ref_identity_key(ref): member
+        for ref, member in zip(source_set.obligation_refs, source_obligations, strict=True)
+    }
+    fresh_members = {
+        member.port.port_id: (ref, member)
+        for ref, member in zip(fresh_set.obligation_refs, fresh_obligations, strict=True)
+    }
+    if (
+        len(fresh_members) != len(fresh_obligations)
+        or len(fresh_members) != len(source_manifest.derivations)
+        or len(source_manifest.derivations) != len(source_obligations)
+        or len(facts.records) != len(source_manifest.derivations)
+        or any(member.port.carrier != "method_input" for member in fresh_obligations)
+    ):
+        raise ValueError("registered_method_reseal_complete_port_set_required")
+    requests = []
+    selected_ports = set()
+    for selection in source_manifest.derivations:
+        old_member = old_members.get(
+            artifact_ref_identity_key(selection.model_input_obligation_ref)
+        )
+        selected = fresh_members.get(selection.model_port_id)
+        if (
+            old_member is None
+            or selected is None
+            or old_member.port.carrier != "method_input"
+            or old_member.port != selected[1].port
+            or selection.model_port_id in selected_ports
+        ):
+            raise ValueError("registered_method_reseal_port_subject_mismatch")
+        selected_ports.add(selection.model_port_id)
+        proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
+        context = load_registered_derived_input_context(store, proof.context_ref)
+        if proof.schema_version != "2.0" or context.schema_version != "1.0":
+            raise ValueError("registered_method_reseal_temporal_profile_unsupported")
+        roles = tuple(
+            RegisteredMeasurementRole(
+                role=role.role,
+                occurrence_ref=load_native_derivation_source_projection(
+                    store, role.source_projection_ref
+                ).occurrence_ref,
+            )
+            for role in proof.roles
+        )
+        if roles != context.roles:
+            raise ValueError("registered_method_reseal_role_selection_mismatch")
+        requests.append(
+            RegisteredDerivedModelInputRequest(
+                model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
+                    selected[0].model_dump(mode="python")
+                ),
+                profile_ref=proof.profile_ref,
+                role_occurrences=roles,
+                binding_id=selection.binding_id,
+            )
+        )
+    # Any old N7 bundle remains in the immutable source lineage. It is not
+    # reissued as a planning or authority claim about this new invocation.
+    result = materialize_registered_derived_model_inputs(
+        store,
+        base_data_snapshot_ref=source.data_snapshot_ref,
+        obligation_set_ref=obligation_set_ref,
+        inputs=tuple(requests),
+    )
+    current = reconcile_selected_method_input_bindings(
+        store,
+        input_bindings_ref=result.input_bindings_ref,
+        expected_invocation=expected_invocation,
+        effective_step=expected_invocation.steps[0],
+    )
+    if artifact_ref_identity_key(
+        current.bindings.bound_state_snapshot_ref
+    ) != artifact_ref_identity_key(source.bound_state_snapshot_ref):
+        raise ValueError("registered_method_reseal_physical_prestate_changed")
+    return result
 
 
 def materialize_registered_derived_model_input(
@@ -1954,18 +2270,27 @@ def _prepare_registered_derived_port_output(
     obligation_set_ref: ArtifactRef,
     request: RegisteredDerivedModelInputRequest,
     obligation: object,
+    expected_step_scope: ModelInputStepScope | None = None,
 ) -> _DerivedPortOutput:
-    """Replay native role points, then use the one Core composition producer."""
+    """Replay native roles through the one Core producer and semantic predicate.
+
+    A temporal caller supplies the scope already recomputed from one original
+    full-horizon set. The immutable port envelope is never narrowed in place.
+    The default branch retains the historical one-period wire contract.
+    """
     from polisyos.core.contracts import (
         CandidateDerivedMeasurementRole,
         MeasurementBindingProfile,
         ModelInputObligation,
+        ModelInputStepScope,
         RegisteredDerivedInputContext,
         RegisteredDerivedInputCorrespondence,
         RegisteredRoleScope,
+        ReplayedCandidateDerivationRole,
         ResolvedDerivedInput,
         SelectedVariableBindingRef,
         VariableSemanticDefinition,
+        evaluate_registered_derived_input_correspondence,
         load_registered_derived_input_profile,
         load_variable_representation,
         persist_native_derivation_source_projection,
@@ -1985,10 +2310,19 @@ def _prepare_registered_derived_port_output(
         persist_candidate_source_series,
         persist_composition_recipe_artifact,
     )
+    from polisyos.core.registry import load_registry_bundle_content
     from polisyos.data_forge.read_api import catalog
 
     if not isinstance(obligation, ModelInputObligation):
         raise TypeError("registered_derived_model_input_obligation_type_required")
+    if expected_step_scope is not None and (
+        type(expected_step_scope) is not ModelInputStepScope
+        or expected_step_scope.port_id != obligation.port.port_id
+    ):
+        raise ValueError("registered_derived_model_input_step_subject_mismatch")
+    target_scope = (
+        obligation.port.scope if expected_step_scope is None else expected_step_scope.scope
+    )
 
     def selected(ref: ArtifactRef) -> SelectedVariableBindingRef:
         return SelectedVariableBindingRef.model_validate(ref.model_dump(mode="python"))
@@ -2027,16 +2361,22 @@ def _prepare_registered_derived_port_output(
         model_interface_ref=selected(obligation.interface_ref),
         model_port_id=obligation.port.port_id,
         registry_bundle_ref=selected(obligation.registry_bundle_ref),
-        year=obligation.port.scope.period_start.year,
-        output_scope=obligation.port.scope,
+        year=target_scope.period_start.year,
+        output_scope=target_scope,
         roles=request.role_occurrences,
         role_scopes=tuple(
             RegisteredRoleScope(role=role, scope=facts[role][0].source_scope)
             for role in expected_roles
         ),
+        **(
+            {"schema_version": "1.1", "step_scope": expected_step_scope}
+            if expected_step_scope is not None
+            else {}
+        ),
     )
     context_ref = persist_registered_derived_input_context(store, context)
     roles = []
+    replayed_roles: list[ReplayedCandidateDerivationRole] = []
     input_refs = {}
     for role_basis in profile.inputs:
         role = role_basis.role
@@ -2100,13 +2440,26 @@ def _prepare_registered_derived_port_output(
             lineage_refs=tuple(lineage[key] for key in sorted(lineage)),
         )
         source_ref = persist_candidate_source_series(store, source)
-        roles.append(
-            CandidateDerivedMeasurementRole(
-                role=role,
-                source_series_ref=selected(source_ref),
-                source_projection_ref=projection_ref,
-            )
+        role_selection = CandidateDerivedMeasurementRole(
+            role=role,
+            source_series_ref=selected(source_ref),
+            source_projection_ref=projection_ref,
         )
+        roles.append(role_selection)
+        if expected_step_scope is not None:
+            replayed_roles.append(
+                ReplayedCandidateDerivationRole(
+                    selection=role_selection,
+                    projection=projection,
+                    occurrence=occurrence,
+                    replayed_occurrence=replayed,
+                    source_selection=source_selection,
+                    definition=definition,
+                    representation=representation,
+                    binding_profile=binding_profile,
+                    series=source,
+                )
+            )
         input_refs[role] = CandidateDerivationInput(artifact_ref=source_ref)
     target_definition = validate_core_model_json_artifact(
         VariableSemanticDefinition, store, obligation.port.semantic_definition_ref
@@ -2133,21 +2486,51 @@ def _prepare_registered_derived_port_output(
     )
     recipe_ref = persist_composition_recipe_artifact(store, recipe)
     produced = materialize_composition(store, recipe)
-    correspondence_ref = persist_registered_derived_input_correspondence(
-        store,
-        RegisteredDerivedInputCorrespondence(
-            profile_ref=request.profile_ref,
-            context_ref=context_ref,
-            model_input_obligation_ref=request.model_input_obligation_ref,
-            model_interface_ref=selected(obligation.interface_ref),
-            model_port_id=obligation.port.port_id,
-            recipe_ref=selected(recipe_ref),
-            certificate_ref=selected(produced.certificate_artifact_ref),
-            output_ref=selected(produced.derived_artifact_ref),
-            year=context.year,
-            roles=tuple(roles),
+    correspondence = RegisteredDerivedInputCorrespondence(
+        profile_ref=request.profile_ref,
+        context_ref=context_ref,
+        model_input_obligation_ref=request.model_input_obligation_ref,
+        model_interface_ref=selected(obligation.interface_ref),
+        model_port_id=obligation.port.port_id,
+        recipe_ref=selected(recipe_ref),
+        certificate_ref=selected(produced.certificate_artifact_ref),
+        output_ref=selected(produced.derived_artifact_ref),
+        year=context.year,
+        roles=tuple(roles),
+        **(
+            {"schema_version": "2.1", "step_scope": expected_step_scope}
+            if expected_step_scope is not None
+            else {}
         ),
     )
+    if expected_step_scope is not None:
+        if any(not store.verify(ref).ok for ref in target_definition.definition_evidence_refs):
+            raise ValueError("registered_derived_model_input_definition_evidence_unavailable")
+        result = evaluate_registered_derived_input_correspondence(
+            correspondence=correspondence,
+            profile=profile,
+            context=context,
+            obligation_ref=request.model_input_obligation_ref,
+            obligation=obligation,
+            target_definition=target_definition,
+            target_representation=target_representation,
+            binding_profile=validate_core_model_json_artifact(
+                MeasurementBindingProfile, store, obligation.port.binding_profile_ref
+            ),
+            units_registry=load_registry_bundle_content(
+                store, obligation.registry_bundle_ref
+            ).units_registry,
+            recipe=recipe,
+            series=produced.series,
+            roles=tuple(replayed_roles),
+            expected_step_scope=expected_step_scope,
+        )
+        if result.status != "candidate" or result.value != produced.series.points[0].value:
+            raise ValueError(
+                "registered_derived_model_input_semantic_refused:"
+                + ",".join(result.refusal_codes or ("output_value_mismatch",))
+            )
+    correspondence_ref = persist_registered_derived_input_correspondence(store, correspondence)
     source_key = hashlib.sha256(request.binding_id.encode()).hexdigest()[:20]
     selection = ResolvedDerivedInput(
         binding_id=request.binding_id,

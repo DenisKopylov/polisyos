@@ -33,6 +33,7 @@ from polisyos.core.contracts.foundry import (
     MethodExecutionOccurrence,
     MethodMetricBinding,
     MethodMetricBindingSetRef,
+    MethodOutputConsumptionRecord,
     ProgramGraphRef,
 )
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
@@ -144,6 +145,7 @@ class MethodExecutionCapture:
     method_metric_binding_set_ref: MethodMetricBindingSetRef
     method_metric_bindings: tuple[MethodMetricBinding, ...] | None = None
     occurrences: list[MethodExecutionOccurrence] = field(default_factory=list)
+    method_output_consumptions: list[MethodOutputConsumptionRecord] = field(default_factory=list)
     environment_manifest_ref: EnvironmentManifestRef | None = None
     limitations: list[str] = field(default_factory=list)
     invocation_count: int = 0

@@ -1,0 +1,950 @@
+"""Serve configured N7 leaves and independently admitted native partial actions.
+
+Controlled transport bytes and signed test institutions exercise actual owners.
+The partial route never enters N5 or establishes empirical source truth.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+from polisyos.runtime.quality.acquisition_planner import (
+    N7DerivationDagBudgetProfile,
+    persist_n7_derivation_dag_budget_profile,
+)
+from polisyos.runtime.quality.acquisition_route_loop import (
+    NativeDerivationLeafProviderSelection,
+)
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionWorldGrowthConfig,
+    NativeDerivationPlanningRoleSupplier,
+    NativeDerivationPlanningSelection,
+)
+from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextInputs
+from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.generic_simulation_admission import (
+    GenericCycleN5ProgramGraphRequestProfileV4,
+    GenericCycleSimulationProfileV1,
+)
+from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+from tests._helpers import world_model_record as world_fixture
+from tests._helpers.derived_input_world import build_selected_method_base_world
+from tests._helpers.lane01_wdi_profiles import (
+    CandidateWDIProfile,
+    FixtureWDIRegisteredSourceSemantics,
+    FixtureWDIRoleBinding,
+    build_fixture_wdi_authority_bundle,
+)
+from tests._helpers.registered_derived_method_input import (
+    prepare_registered_method_input_profile,
+)
+from tests._helpers.selected_method_input import (
+    prepare_selected_method_input_case,
+    selected_method_tax_subsidy_policy,
+)
+from tests.integration.runtime_quality.test_program_graph_model_input_served import (
+    _fiscal_problem,
+)
+from tests.integration.runtime_quality.test_program_graph_stock_n7_served import (
+    controlled_candidate_gateway as _gateway_fixture,
+)
+from tests.integration.runtime_quality.test_program_graph_stock_n7_served import (
+    served_blocked_generic_source_case,
+)
+from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
+    _with_hash,
+)
+
+controlled_candidate_gateway = _gateway_fixture
+
+
+def _problem() -> DesignProblem:
+    payload = _fiscal_problem().model_dump(mode="json")
+    payload["jurisdiction_time"].update(
+        region="UKR", valid_time="2024", as_of="2024-12-31", policy_time="2024", data_time="2024"
+    )
+    payload["nl_provenance"]["raw_request"] = (
+        "Evaluate one bounded 2024 tax subsidy and the government balance in USD. "
+        "Use the selected registered method inputs. Do not promote generated candidates."
+    )
+    return DesignProblem.model_validate(payload)
+
+
+def _selected_policy():
+    policy = selected_method_tax_subsidy_policy()
+    intervention = policy.interventions[0].model_copy(
+        update={
+            "notes": ["do.target=agents.income"],
+            "measurement_expectations": {
+                "sign": "increase",
+                "outcome": ["agents.income"],
+                "effect_path": ["tax_subsidy", "agents.income", "agents.income"],
+                "estimand": "average_treatment_effect",
+            },
+        }
+    )
+    return type(policy).model_validate(
+        {**policy.model_dump(mode="python"), "interventions": [intervention]}
+    )
+
+
+def _install_two_role_wdi_declarations(
+    *, store: Any, case: Any, metadata: dict[str, Any], root: Path
+) -> tuple[Any, ArtifactRef, tuple[dict[str, Any], ...], dict[str, Any]]:
+    """Persist the exact selected profile and two distinct fixture declarations."""
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+    setup = prepare_registered_method_input_profile(case, metadata)
+    metadata["native_registered_setup"] = setup
+    profiles: list[CandidateWDIProfile] = []
+    bindings: dict[str, FixtureWDIRoleBinding] = {}
+    denominator_definition_ref = next(
+        row.basis.semantic_definition_ref
+        for row in setup.profile.inputs
+        if row.role == setup.profile.denominator_role
+    )
+    for spec in setup.source_specs:
+        role = next(
+            role for role, alias in setup.role_aliases.items() if alias == spec["target_variable"]
+        )
+        semantic_ref = spec["source_semantic_definition_ref"]
+        representation_ref = spec["source_representation_ref"]
+        alias = setup.role_aliases[role]
+        source_scope = dict(spec["source_measure_scope"])
+        if role == setup.profile.ratio_role:
+            source_scope.update(
+                denominator=str(denominator_definition_ref.artifact_id),
+                quantity_kind="share_of_denominator",
+            )
+            indicator_id = "GC.BAL.CASH.GD.ZS"
+            raw_unit = "percent"
+            canonical_unit = "ratio"
+            transform = "fixed_multiplicative"
+            transform_ref = "fabric://units/fixed-multiplicative/v1"
+            fixture_value = -3.0
+            valid_min, valid_max = -1.0, 1.0
+        else:
+            indicator_id = "NY.GDP.MKTP.CD"
+            raw_unit = canonical_unit = "usd"
+            transform = "identity"
+            transform_ref = "fabric://units/usd-identity/v1"
+            fixture_value = 200_000_000_000.0
+            valid_min, valid_max = 0.0, 300_000_000_000.0
+        profiles.append(
+            CandidateWDIProfile(
+                construct=f"test.native.{role}",
+                indicator_id=indicator_id,
+                source_title=f"Controlled candidate input {role}",
+                source_description="Synthetic fixture declaration; no empirical source truth asserted.",
+                target_slot=alias,
+                raw_unit=raw_unit,
+                canonical_unit=canonical_unit,
+                transform=transform,
+                transform_ref=transform_ref,
+                population=str(spec["source_measure_scope"]["population"]),
+                fixture_value=fixture_value,
+                source_provenance_class="observed",
+                valid_min=valid_min,
+                valid_max=valid_max,
+                denominator=(
+                    str(denominator_definition_ref.artifact_id)
+                    if role == setup.profile.ratio_role
+                    else None
+                ),
+                quantity_kind=(
+                    "share_of_denominator" if role == setup.profile.ratio_role else "unconstrained"
+                ),
+                country_code="UKR",
+                country_id="UA",
+                year=2024,
+                catalog_metric_id=f"test.native.{role}",
+            )
+        )
+        bindings[alias] = FixtureWDIRoleBinding(
+            attempt_ids=(f"configured-native-{role}",),
+            registered_source_semantics=FixtureWDIRegisteredSourceSemantics(
+                source_semantic_definition_ref=semantic_ref,
+                source_representation_ref=representation_ref,
+                source_measure_scope=source_scope,
+                country_codes=("UKR",),
+            ),
+        )
+    authority, entries = build_fixture_wdi_authority_bundle(
+        root,
+        tuple(profiles),
+        role_bindings=bindings,
+        baseline_path=default_substrate_catalog_paths(root).l1_dcat_path,
+    )
+    metadata["native_authority"] = authority
+    metadata["native_profiles"] = tuple(profiles)
+    rows: list[dict[str, Any]] = []
+    for profile, entry in zip(profiles, entries, strict=True):
+        role = next(
+            role for role, alias in setup.role_aliases.items() if alias == profile.target_slot
+        )
+        declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+            store, authority, entry_id=entry.entry_id
+        )
+        declaration = catalog_read_api.load_acquisition_supplier_declaration(store, declaration_ref)
+        provider = NativeDerivationLeafProviderSelection(
+            source_node_id=("input-a" if role == setup.profile.ratio_role else "input-b"),
+            supplier_ref=declaration_ref,
+            authority_entry_id=entry.entry_id,
+            connector_id=declaration.connector_id,
+        )
+        rows.append(
+            {
+                "role": role,
+                "ref": declaration_ref,
+                "provider": provider,
+                "selection_row": NativeDerivationPlanningRoleSupplier(
+                    role=role,
+                    provider=provider,
+                    source_declaration_ref=declaration_ref,
+                ),
+            }
+        )
+    holder_oracle = {
+        "ratio_raw_percent": -3.0,
+        "ratio_canonical": -0.03,
+        "denominator_usd": 200_000_000_000.0,
+        "flow_usd": -6_000_000_000.0,
+        "empirical_truth": "not_established",
+    }
+    return setup, setup.profile_ref, tuple(rows), holder_oracle
+
+
+@contextmanager
+def configured_native_source_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    *,
+    deployment_security_factory: Callable[[], Any] | None = None,
+    claims: Any | None = None,
+    request_headers: dict[str, str] | None = None,
+    forbid_fetch: bool = True,
+    catalog_ready: Callable[..., None] | None = None,
+) -> Iterator[tuple[Any, dict[str, Any]]]:
+    """Build one actual source/profile before any independently admitted leaf action."""
+    problem = _problem()
+    holder: dict[str, Any] = {}
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    fetch_calls: list[str] = []
+
+    async def reject_worldbank_fetch(_connector: Any, _handle: Any, request: Any):
+        fetch_calls.append(request.dataset_id)
+        raise AssertionError("unpriced native leaf attempted provider fetch")
+
+    if forbid_fetch:
+        monkeypatch.setattr(WorldBankConnector, "fetch", reject_worldbank_fetch)
+    holder["fetch_calls"] = fetch_calls
+
+    def prepare_case(path: Path, **kwargs: Any):
+        case, metadata = prepare_selected_method_input_case(
+            path,
+            method_class=PeriodFlowToStock,
+            mapped=True,
+            method_input_slot="ledger.flow",
+            snapshot_id=world_fixture.SNAPSHOT_ID,
+            policy_spec=_selected_policy(),
+            income_values=(2**26, 2**27),
+            store=kwargs["store"],
+            opening_balance_usd=10_000_000_000,
+        )
+        holder["metadata"] = metadata
+        return case
+
+    def prepare_catalog(*, store: Any, case: Any, root: Path, **kwargs: Any) -> None:
+        setup, profile_ref, rows, oracle = _install_two_role_wdi_declarations(
+            store=store, case=case, metadata=holder["metadata"], root=root
+        )
+        holder.update(setup=setup, profile_ref=profile_ref, rows=rows, oracle=oracle)
+        if catalog_ready is not None:
+            catalog_ready(store=store, case=case, root=root, holder=holder, **kwargs)
+
+    def profile_factory(
+        case: Any, _trinity: Any, selected_problem: DesignProblem, path: Path, *, skg_prior: Any
+    ):
+        from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+
+        assert selected_problem == problem
+
+        def selected_skg_ref(_path: Path, *, snapshot_id: str):
+            assert snapshot_id == skg_prior.source_data_snapshot_id
+            return skg_prior
+
+        with monkeypatch.context() as selected_source:
+            selected_source.setattr(world_fixture, "_skg_ref", selected_skg_ref)
+            base, registry, registry_ref = build_selected_method_base_world(
+                case,
+                path,
+                region_or_jurisdiction=selected_problem.jurisdiction_time.region,
+                policy_domain=selected_problem.domain,
+            )
+        holder.update(base=base, registry=registry, registry_ref=registry_ref)
+        return _with_hash(
+            GenericCycleSimulationProfileV1.model_construct(
+                profile_id="test-native-derived-source",
+                profile_selection_ref=cycle_job_profile_selection_ref(selected_problem),
+                world_model_record_ref=base.record_ref,
+                substrate_registry_ref=registry_ref,
+                context_inputs=CandidateSimulationContextInputs(
+                    substrate_registry=registry,
+                    selected_registry_entry_hashes=tuple(
+                        entry.entry_content_hash for entry in registry.entries
+                    ),
+                    world_model_record=base.record,
+                ),
+                n5=GenericCycleN5ProgramGraphRequestProfileV4(
+                    budget_ref="budget://test/native-source-preflight",
+                    horizon=HorizonSpec(start=0, end=0, step=1),
+                    baseline_state={"government.balance": 10_000_000_000.0},
+                    compile_report_ref=ArtifactRef.model_validate(
+                        case.compile_report_ref.model_dump(mode="python")
+                    ),
+                    invocation_quota_policy=BudgetInvocationQuotaPolicy(
+                        allocation_id="test-native-source-preflight",
+                        total_units=5,
+                        protected_units=1,
+                    ),
+                ),
+                limitations=(
+                    "controlled_inputs_only",
+                    "currentness_not_established",
+                    "n5_simulation_not_world_evidence",
+                    "n9_not_admitted",
+                    "s8_blocked",
+                    "source_truth_not_established",
+                ),
+            )
+        )
+
+    def before_dispatch(
+        *, service: Any, store: Any, claims: Any, profile: Any, **_kwargs: Any
+    ) -> None:
+        budget_ref = persist_n7_derivation_dag_budget_profile(
+            store,
+            N7DerivationDagBudgetProfile(
+                profile_id="test-native-source-dag-budget",
+                max_nodes=16,
+                max_edges=32,
+                max_depth=8,
+                max_unique_sources=16,
+            ),
+        )
+        setup = holder["setup"]
+        selection = NativeDerivationPlanningSelection(
+            tenant_id=claims.tenant_id,
+            cell_id=claims.cell_id,
+            profile_selection_ref=profile.profile_selection_ref,
+            registered_profile_ref=holder["profile_ref"],
+            dag_budget_profile_ref=budget_ref,
+            binding_id="configured-native-two-leaf",
+            role_suppliers=tuple(row["selection_row"] for row in holder["rows"]),
+        )
+        configuration = AcquisitionWorldGrowthConfig(
+            native_derivation_planning_selections=(selection,)
+        )
+        holder["configuration"] = configuration
+        service.bind_native_derivation_route_configuration(configuration)
+
+    with served_blocked_generic_source_case(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        prepare_case=prepare_case,
+        prepare_catalog=prepare_catalog,
+        profile_factory=profile_factory,
+        problem=problem,
+        before_dispatch=before_dispatch,
+        deployment_security_factory=deployment_security_factory,
+        claims=claims,
+        request_headers=request_headers,
+    ) as served_case:
+        yield served_case, holder
+
+
+@pytest.mark.integration
+def test_configured_native_source_exposes_two_unpriced_leaf_routes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Use actual source/N4 and N7 producers while stopping before fetch/N5."""
+    with configured_native_source_case(tmp_path, monkeypatch, controlled_candidate_gateway) as (
+        served_case,
+        holder,
+    ):
+        response = served_case.client.get(
+            f"/api/v1/runs/{served_case.control_run_id}/acquisition-routes"
+        )
+        assert response.status_code == 200, response.text
+        routes = response.json()["routes"]
+        projections = tuple(
+            row
+            for row in routes
+            if row["schema_version"] == "NativeDerivationLeafRouteProjection@1.0"
+        )
+        assert len(projections) == 2
+        expected_by_node = {row["provider"].source_node_id: row["ref"] for row in holder["rows"]}
+        assert {row["source_node_id"] for row in projections} == set(expected_by_node)
+        assert all(row["selected_supplier_ref"] for row in projections)
+        for projection in projections:
+            assert (
+                ArtifactRef.model_validate(projection["selected_supplier_ref"])
+                == expected_by_node[projection["source_node_id"]]
+            )
+        assert all(row["publication_authority"] is False for row in projections)
+        assert all(row["action_authority"] == "not_established" for row in projections)
+        assert all(row["route_status"] == "inputs_pending" for row in projections)
+        assert all("cost_basis" not in row and "replay_pins" not in row for row in projections)
+        assert holder["fetch_calls"] == []
+        assert holder["oracle"] == {
+            "ratio_raw_percent": -3.0,
+            "ratio_canonical": -0.03,
+            "denominator_usd": 200_000_000_000.0,
+            "flow_usd": -6_000_000_000.0,
+            "empirical_truth": "not_established",
+        }
+        for row in projections:
+            detail = served_case.client.get(
+                f"/api/v1/runs/{served_case.control_run_id}/acquisition-routes/{row['route_id']}"
+            )
+            assert detail.status_code == 200, detail.text
+            assert detail.json() == row
+        assert served_case.semantic_kernel_entries == []
+
+
+def _prepare_native_epoch_owner_inputs(
+    *, store: Any, claims: Any, problem: DesignProblem, holder: dict[str, Any], **_kwargs: Any
+) -> None:
+    """Prepare the existing native owner before the serving source is captured."""
+    import hashlib
+
+    from polisyos.core import canon
+    from tests._helpers.acquisition_epoch_production import production_admission_inputs
+
+    scope = hashlib.sha256(canon.to_canonical_bytes([claims.tenant_id, claims.cell_id])).hexdigest()
+    owner_root = store.root / "runtime/acquisition/world-growth" / scope
+    holder["native_epoch_args"] = production_admission_inputs(
+        owner_root,
+        store=store,
+        authority=holder["metadata"]["native_authority"],
+        overlay_path=owner_root / "overlay.duckdb",
+        epoch_history_root=owner_root / "epochs",
+        scope_payload={
+            "domain": problem.domain,
+            "jurisdiction": problem.jurisdiction_time.region,
+            "year": 2024,
+            "population": holder["metadata"]["native_profiles"][0].population,
+        },
+        authority_purpose="candidate_simulation",
+    )
+
+
+def _native_fixture_port_factory(state: dict[str, Any]):
+    """Compose actual Runtime/Catalog owners over the same predeclared fixture store."""
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.semantic_epoch_qualification import (
+        build_semantic_epoch_native_deployment,
+    )
+
+    def build(*, control_service: Any, **_kwargs: Any):
+        holder = state["holder"]
+        authority = holder["metadata"]["native_authority"]
+        registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+            authority.registry_path.read_bytes()
+        )
+        appointments = state["appointments"]
+        bridge = AcquisitionWorldGrowthBridge(
+            config=holder.get("configuration", AcquisitionWorldGrowthConfig()),
+            repo_root=authority.repo_root,
+            runtime_root=Path(control_service._cas_root),
+            authority=authority,
+            artifact_store=control_service._artifact_store,
+            event_log=control_service._diagnostic_event_log,
+            epoch_deployment=(
+                build_semantic_epoch_native_deployment(appointments[-1].config)
+                if appointments
+                else None
+            ),
+            promotion_runtime=control_service._promotion_runtime,
+            cycle_substrate_context_admission_owner=(
+                control_service._cycle_substrate_context_admission_owner
+            ),
+            control_store=control_service._control_store,
+            action_head_sink=control_service.acquisition_route_sink,
+            source_control_service=control_service,
+        )
+        port = WorldBankWDIAcquisitionExecutionPort(
+            authority=authority,
+            registry=registry,
+            provision=authority.provision,
+            provision_content_sha256=authority.provision_content_sha256,
+            runtime_state_root=Path(control_service._cas_root),
+            artifact_store=control_service._artifact_store,
+            world_growth_bridge=bridge,
+        )
+        state["ports"].append(port)
+        return port
+
+    return build
+
+
+def _adopt_native_growth_routes(served: Any, holder: dict[str, Any], closures: tuple[Any, ...]):
+    """Bind exact current leaf routes to the already prepared native owner evidence."""
+    from decimal import Decimal
+
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthRoute
+
+    args = holder["native_epoch_args"]
+    routes = tuple(
+        AcquisitionWorldGrowthRoute(
+            **{
+                name: args[name]
+                for name in (
+                    "epoch_scope_identity",
+                    "authority_purpose",
+                    "valid_effect_coordinate_evidence_ref",
+                    "visibility_knowledge_cutoff_evidence_ref",
+                    "purpose_admission_cutoff_evidence_ref",
+                    "facet_source_refs",
+                )
+            },
+            epoch_id=args["epoch_id"] + index,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            route_id=closure.route_id,
+            design_problem_ref=closure.design_problem_ref,
+            reentry_budget_usd=Decimal("0.50"),
+        )
+        for index, closure in enumerate(closures)
+    )
+    configuration = AcquisitionWorldGrowthConfig.model_validate(
+        {**holder["configuration"].model_dump(mode="python"), "routes": routes}
+    )
+    holder["configuration"] = configuration
+    served.service.bind_native_derivation_route_configuration(configuration)
+
+
+def _appoint_exact_native_epoch_policy(*, state: dict[str, Any], closure: Any, root: Path) -> None:
+    """Supply independent test-root admission for the actual persisted prepared epoch."""
+    from types import SimpleNamespace
+
+    from polisyos.core import contracts
+    from polisyos.runtime.quality import semantic_epoch
+    from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
+    from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
+
+    bridge = state["ports"][-1]._world_growth_bridge
+    _ref, deferral, attempt = bridge._load_deferral(closure)
+    state["paid_attempt"] = attempt
+    assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
+    prepared_ref = deferral.negative_receipt.prepared_epoch_ref
+    statement = contracts.epoch.load_verified_epoch_statement(
+        store=bridge.artifact_store, ref=prepared_ref, expected_kind="epoch.prepared"
+    )
+    prepared = semantic_epoch.PreparedSemanticEpoch(
+        **statement,
+        prepared_epoch_ref=prepared_ref,
+        prepared_content_hash=semantic_epoch._model_hash(
+            b"polisyos.epoch.prepared.v1\0", statement
+        ),
+    )
+    selected = bridge.selection(closure)
+    assert selected is not None
+    _overlay_path, history_root = bridge._paths(selected, create=False)
+    history = FileSemanticEpochHistoryRepository(root=history_root, artifacts=bridge.artifact_store)
+    appointments = state["appointments"]
+    previous = appointments[-1] if appointments else None
+    native = sign_native_epoch_scenario(
+        SimpleNamespace(
+            store=bridge.artifact_store,
+            prepared=prepared,
+            query=prepared.query,
+            history=history,
+            service=None,
+        ),
+        root,
+        custodian=previous.custodian if previous is not None else None,
+        prior_admission_refs=(
+            previous.config.predicate_policy_admission_refs if previous is not None else ()
+        ),
+    )
+    appointments.append(native)
+
+
+def _run_signed_native_leaf_action(
+    *,
+    served: Any,
+    trust: Any,
+    signers: Any,
+    identities: Any,
+    trust_root: Path,
+    route_id: str,
+    idempotency_key: str,
+) -> dict[str, Any]:
+    """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionRouteMutationRequest,
+    )
+    from tests._helpers.acquisition_served_history import (
+        _appoint_served_acquisition_mandate,
+        _approve_served_acquisition_request,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
+
+    route_path = f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{route_id}"
+    route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
+    with trust.authorization_exchange("acquisition-operator"):
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            projection = client.get(
+                route_path,
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": served.claims.tenant_id,
+                },
+            )
+            assert projection.status_code == 200, projection.text
+            row = projection.json()
+            request = AcquisitionRouteMutationRequest(
+                route_projection_hash=row["route_projection_hash"],
+                planner_report_hash=row["planner_report_hash"],
+                replay_pins=row["replay_pins"],
+                idempotency_key=idempotency_key,
+            )
+            action_service = client.app.state.runtime_container.acquisition_action_service
+            with tenant_scope(
+                None, tenant_id=served.claims.tenant_id, cell_id=served.claims.cell_id
+            ):
+                closure = action_service._route_loop(
+                    tenant_id=served.claims.tenant_id, cell_id=served.claims.cell_id
+                ).resolve_current_route(run_id=served.control_run_id, route_id=route_id)
+            refused, resource_digest = trust.post(
+                client,
+                route_path + "/decision-request",
+                request.model_dump(mode="json"),
+                route=route_template + "/decision-request",
+            )
+            assert refused.status_code == 200, refused.text
+            slot, job_id = _appoint_served_acquisition_mandate(
+                control,
+                closure,
+                request,
+                resource_digest,
+                tmp_path=trust_root,
+                signers=signers,
+                identities=identities,
+            )
+        trust.raw["acquisition_authority"]["mandates"].append(slot)
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            _source, human_ref = _approve_served_acquisition_request(
+                client,
+                request,
+                resource_digest,
+                closure=closure,
+                trust=trust,
+                signers=signers,
+                identities=identities,
+                cas_root=served.cas_root,
+            )
+            slot["human_decision_record_ref"] = human_ref
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            accepted, observed_digest = trust.post(
+                client,
+                route_path + "/execute",
+                request.model_dump(mode="json"),
+                route=route_template + "/execute",
+            )
+            assert accepted.status_code in {200, 202}, accepted.text
+            assert observed_digest == resource_digest
+            assert accepted.json()["job_id"] == job_id
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            assert (
+                dispatch_one_control_job(
+                    store=control._control_store,
+                    handler=control._process_control_job,
+                    expected_job_id=job_id,
+                )
+                == job_id
+            )
+            job = control._control_store.get_job(job_id)
+            assert job is not None and job.state == "completed", job
+            with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
+                outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                    run_id=closure.run_id,
+                    source_job_id=closure.source_job_id,
+                    route_id=route_id,
+                )
+            assert outcome is not None and outcome.head.job_id == job_id
+            assert outcome.head.receipt_manifest_profile_sha256 is not None
+            return {
+                "request": request,
+                "job_id": job_id,
+                "terminal": outcome.latest_receipt,
+                "head": outcome.head,
+                "progress": job.progress,
+                "closure": closure,
+            }
+
+
+@pytest.mark.integration
+def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Keep one paid native input while a separately unauthorized sibling is pending."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import deployment_security as security
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        replay_native_derivation_input_collection,
+    )
+    from tests._helpers.acquisition_production import intercepted_wdi_transport
+    from tests._helpers.acquisition_served_history import _ExternalTrust, _key_config
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests._helpers.lane01_wdi_profiles import fixture_wdi_response
+    from tests._helpers.native_derivation_quotes import adopt_served_native_leaf_quotes
+
+    trust_root = tmp_path / "trust"
+    trust_root.mkdir()
+    trust = _ExternalTrust(trust_root)
+    signers, identities = _key_config(trust_root, trust)
+    state: dict[str, Any] = {"appointments": [], "ports": []}
+
+    def deployment():
+        return security.build_deployment_security(
+            security.DeploymentSecurityConfig.from_mapping(trust.raw)
+        )
+
+    try:
+        claims = deployment().identity_provider.extract_user_claims(
+            trust.tokens["acquisition-operator"]
+        )
+
+        def catalog_ready(**kwargs: Any) -> None:
+            state["holder"] = kwargs["holder"]
+            _prepare_native_epoch_owner_inputs(**kwargs)
+
+        def response_factory(_method: str, url: str, params: Any) -> bytes:
+            profiles = state["holder"]["metadata"]["native_profiles"]
+            matching = tuple(profile for profile in profiles if profile.indicator_id in url)
+            assert len(matching) == 1, url
+            profile = matching[0]
+            assert params["date"] in {str(profile.year), f"{profile.year}:{profile.year}"}
+            return fixture_wdi_response(profile)
+
+        transport_calls = intercepted_wdi_transport(
+            monkeypatch, allow_loopback=True, response_factory=response_factory
+        )
+        monkeypatch.setattr(
+            surface_owner,
+            "build_production_world_bank_wdi_execution_port",
+            _native_fixture_port_factory(state),
+        )
+        with configured_native_source_case(
+            tmp_path,
+            monkeypatch,
+            controlled_candidate_gateway,
+            deployment_security_factory=deployment,
+            claims=claims,
+            request_headers={
+                "Authorization": trust.authorization_header("acquisition-operator"),
+                "X-Tenant-ID": claims.tenant_id,
+            },
+            forbid_fetch=False,
+            catalog_ready=catalog_ready,
+        ) as (served, holder):
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                closures = adopt_served_native_leaf_quotes(
+                    served, holder, quote_usd_by_node={"input-a": 0.01, "input-b": 0.02}
+                )
+                _adopt_native_growth_routes(served, holder, closures)
+            assert transport_calls == []
+            assert served.semantic_kernel_entries == []
+            leaf_a = next(
+                closure
+                for closure in closures
+                if closure.native_derivation_leaf_scope.source_node_id == "input-a"
+            )
+
+        # The first genuine action captures bytes, then truthfully stops because
+        # no native institutional policy has yet been appointed for that basis.
+        quarantined = _run_signed_native_leaf_action(
+            served=served,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+            trust_root=trust_root,
+            route_id=leaf_a.route_id,
+            idempotency_key="native-leaf-a-before-epoch-appointment",
+        )
+        assert quarantined["terminal"].terminal_outcome == "quarantined_no_growth"
+        assert len(transport_calls) == 1
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            _appoint_exact_native_epoch_policy(
+                state=state, closure=quarantined["closure"], root=tmp_path / "native-institution"
+            )
+        before_admission = tuple(transport_calls)
+        from polisyos.fabric.data_plane import resolve_live_transport_trace
+
+        paid_attempt = state["paid_attempt"]
+        trace_before = resolve_live_transport_trace(paid_attempt.evidence.raw_evidence_ref)
+        assert trace_before == paid_attempt.evidence.transport_trace
+        assert (
+            trace_before.call_count == paid_attempt.evidence.authorization.budget.call_budget == 1
+        )
+        journal_path = Path(paid_attempt.evidence.request_ref.journal_path)
+        journal_before = journal_path.read_bytes()
+
+        # Admission is a distinct action with a new exact mandate, DS9 record,
+        # PA2 decision and job. It reopens the paid owner bytes, never fetches.
+        pending = _run_signed_native_leaf_action(
+            served=served,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+            trust_root=trust_root,
+            route_id=leaf_a.route_id,
+            idempotency_key="native-leaf-a-after-epoch-appointment",
+        )
+        terminal = pending["terminal"]
+        assert terminal.terminal_outcome == "inputs_pending"
+        assert terminal.reentry_receipt_ref is None
+        assert terminal.native_input_collection_ref is not None
+        assert tuple(transport_calls) == before_admission
+        assert pending["job_id"] != quarantined["job_id"]
+        assert terminal.decision_ref != quarantined["terminal"].decision_ref
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            collection = replay_native_derivation_input_collection(
+                served.store, terminal.native_input_collection_ref
+            ).collection
+        assert collection.input_closure_status == "partial"
+        assert {row.source_node_id for row in collection.source_inputs} == {"input-a"}
+        assert {row.source_node_id for row in collection.pending_actions} == {"input-b"}
+        from decimal import Decimal
+
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            _stored, replayed, _selection = (
+                catalog_read_api.replay_selected_scoped_measurement_facts(
+                    served.store, collection.source_inputs[0].occurrence_ref
+                )
+            )
+        assert replayed.canonical_value == Decimal("-0.03")
+
+        # A fresh app reads the exact selected partial terminal and model-goal
+        # status. No pending sibling mandate, fetch, or numerical result appears.
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                    run_id=served.control_run_id,
+                    source_job_id=served.job_id,
+                    route_id=leaf_a.route_id,
+                )
+            assert outcome is not None and outcome.head == pending["head"]
+            assert outcome.latest_receipt == terminal
+            response = client.get(
+                f"/api/v1/runs/{served.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert response.status_code == 200, response.text
+            projection = response.json()["run"]["candidate_simulation"]
+            assert projection["acquisition_history_limitation_code"] is None
+            history = projection["acquisition_history"]
+            pending_rows = tuple(
+                row for row in history if row["terminal_outcome"] == "inputs_pending"
+            )
+            assert len(pending_rows) == 1
+            assert pending_rows[0]["model_goal_status"] == "inputs_pending"
+            assert ArtifactRef.model_validate(pending_rows[0]["native_input_collection_ref"]) == (
+                terminal.native_input_collection_ref
+            )
+            assert projection["n5_observations"] == []
+
+            # The already approved A action is not a grant for the distinct B
+            # route, even though its own quote and provider are configured.
+            from polisyos.runtime.http.services.acquisition_action_service import (
+                AcquisitionActionService,
+                AcquisitionRouteMutationRequest,
+            )
+
+            leaf_b = next(
+                closure
+                for closure in closures
+                if closure.native_derivation_leaf_scope.source_node_id == "input-b"
+            )
+            leaf_b_path = (
+                f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{leaf_b.route_id}"
+            )
+            response = client.get(
+                leaf_b_path,
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert response.status_code == 200, response.text
+            row = response.json()
+            denied_request = AcquisitionRouteMutationRequest(
+                route_projection_hash=row["route_projection_hash"],
+                planner_report_hash=row["planner_report_hash"],
+                replay_pins=row["replay_pins"],
+                idempotency_key="native-leaf-b-without-independent-mandate",
+            )
+            denied_job_id = AcquisitionActionService._job_id(leaf_b, denied_request)
+            refused, _digest = trust.post(
+                client,
+                leaf_b_path + "/execute",
+                denied_request.model_dump(mode="json"),
+                route="/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+            )
+            assert refused.status_code == 409, refused.text
+            assert refused.json()["code"] == "human_decision_required"
+            assert control._control_store.get_job(denied_job_id) is None
+        assert tuple(transport_calls) == before_admission
+        assert journal_path.read_bytes() == journal_before
+        assert resolve_live_transport_trace(paid_attempt.evidence.raw_evidence_ref) == trace_before
+        assert served.semantic_kernel_entries == []
+    finally:
+        trust.close()

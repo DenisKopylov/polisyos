@@ -18,6 +18,7 @@ from pydantic import (
     Field,
     JsonValue,
     PrivateAttr,
+    StrictStr,
     TypeAdapter,
     ValidationInfo,
     field_validator,
@@ -8682,6 +8683,119 @@ class RunModelInputUseActionsProjection(BaseModel):
         return self
 
 
+class RunModelInputInitialObservation(BaseModel):
+    """One replayed historical Generic input observation, kept candidate-only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    subject_kind: Literal["initial_observation"] = "initial_observation"
+    execution_job_id: StrictStr = Field(min_length=1, max_length=128)
+    actual_run_id: StrictStr = Field(min_length=1, max_length=128)
+    source_run_id: StrictStr = Field(min_length=1, max_length=128)
+    frontier_ref: StrictStr = Field(min_length=1, max_length=512)
+    frontier_revision: Literal[1] = 1
+    basis_ref: ArtifactRef
+    decision_ref: ArtifactRef
+    candidate_content_hash: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    observation_content_hash: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    input_ref: ArtifactRef
+    execution_ref: ArtifactRef
+    result_ref: ArtifactRef
+    current_method_input_bindings_ref: ArtifactRef
+    model_input_obligation_set_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    n4_source_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    authority_purpose: Literal["candidate_evaluation_retention_only"] = (
+        "candidate_evaluation_retention_only"
+    )
+    recorded_predicate_provenance: Literal["recomputed"] = "recomputed"
+    historical_replay_status: Literal["reconciled"] = "reconciled"
+    currentness_status: Literal["not_established"] = "not_established"
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+    limitations: tuple[StrictStr, ...] = Field(min_length=1, max_length=32)
+    closure_residuals: tuple[StrictStr, ...] = Field(min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def validate_initial_observation(self) -> RunModelInputInitialObservation:
+        """Keep each selected record tied to profiled owner artifacts and fixed purpose."""
+        expected_kinds = (
+            (self.basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+            (self.execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.result_ref, "polisyos.runtime.joint_simulation_result"),
+            (self.current_method_input_bindings_ref, "foundry.input_bindings"),
+            (
+                self.model_input_obligation_set_ref,
+                "runtime.quality.model_input_obligation_set",
+            ),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.n4_source_ref, "runtime.generation_source_handoff"),
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+        )
+        if any(
+            ref.kind != expected_kind
+            or ref.media_type != "application/json"
+            or not ref.manifest_profile_sha256
+            for ref, expected_kind in expected_kinds
+        ):
+            raise ValueError("model_input_initial_observation_selected_ref_invalid")
+        if (
+            any(not value.strip() for value in (*self.limitations, *self.closure_residuals))
+            or len(set(self.limitations)) != len(self.limitations)
+            or len(set(self.closure_residuals)) != len(self.closure_residuals)
+        ):
+            raise ValueError("model_input_initial_observation_limitations_invalid")
+        return self
+
+
+class RunModelInputInitialObservationsProjection(BaseModel):
+    """Bounded exact-source-job discovery of historical initial observations."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    scope: Literal["exact_source_job"] = "exact_source_job"
+    source_job_id: StrictStr = Field(min_length=1, max_length=128)
+    core_run_id: StrictStr = Field(min_length=1, max_length=128)
+    actual_run_id: StrictStr | None = Field(default=None, min_length=1, max_length=128)
+    observations: tuple[RunModelInputInitialObservation, ...] = Field(max_length=128)
+    inventory_status: Literal["complete", "limited"]
+    inventory_truncated: bool
+    limitation_codes: tuple[
+        Literal[
+            "initial_observation_frontier_inventory_truncated",
+            "initial_observation_history_unavailable",
+        ],
+        ...,
+    ] = ()
+
+    @model_validator(mode="after")
+    def validate_initial_observation_inventory(
+        self,
+    ) -> RunModelInputInitialObservationsProjection:
+        """Expose scan limits and keep all rows in the displayed source run."""
+        frontier_refs = tuple(item.frontier_ref for item in self.observations)
+        expected_codes = set(self.limitation_codes)
+        if (
+            frontier_refs != tuple(sorted(set(frontier_refs)))
+            or any(
+                item.execution_job_id != self.source_job_id
+                or item.actual_run_id != self.actual_run_id
+                for item in self.observations
+            )
+            or (self.observations and self.actual_run_id is None)
+            or len(expected_codes) != len(self.limitation_codes)
+            or self.inventory_truncated
+            != ("initial_observation_frontier_inventory_truncated" in expected_codes)
+            or (self.inventory_status == "limited") != bool(expected_codes)
+            or (not self.observations and self.inventory_status == "complete")
+        ):
+            raise ValueError("model_input_initial_observation_inventory_mismatch")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -8704,6 +8818,9 @@ class RunDetails(RunRecordV1):
     ) = None
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
     model_input_use_actions: RunModelInputUseActionsProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    model_input_initial_observations: RunModelInputInitialObservationsProjection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
@@ -10764,6 +10881,8 @@ __all__ = [
     "RunGenericCycleSimulationN5Observation",
     "RunGenericCycleSimulationProjection",
     "RunLineageResponse",
+    "RunModelInputInitialObservation",
+    "RunModelInputInitialObservationsProjection",
     "RunModelInputUseActionSelector",
     "RunModelInputUseActionsProjection",
     "RunModelInputUseBlockedSourceProjection",

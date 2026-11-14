@@ -75,6 +75,7 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
     )
+    from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationPlanningSelection
     from polisyos.runtime.quality.confidence_ledger import (
         N6DeploymentCurrentnessObservation,
     )
@@ -1738,6 +1739,10 @@ async def compile_and_run_recursive_generation_cycle(
         Callable[[DesignProblem], GenericCycleSimulationContextHandoffV1 | None] | None
     ) = None,
     generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
+    native_derivation_planning_selector: Callable[
+        ..., tuple[NativeDerivationPlanningSelection, ...]
+    ]
+    | None = None,
     verified_nl_job_scope: VerifiedNLJobScope | None = None,
     physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
     generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
@@ -2669,6 +2674,7 @@ async def compile_and_run_recursive_generation_cycle(
             promotion_runtime=promotion_runtime,
             eval_safety_verifier=eval_safety_verifier,
             measurement_root_execution_binding=measurement_root_execution_binding,
+            native_derivation_planning_selector=native_derivation_planning_selector,
         )
 
     # The internal candidate-child route takes complete immutable actual N4

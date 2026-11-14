@@ -8,7 +8,7 @@ from typing import Literal
 import numpy as np
 
 from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     FeedbackConfig,
     FeedbackConfigRef,
     FeedbackMapEvaluationRecord,
@@ -160,9 +160,8 @@ def reconcile_feedback_execution(
 
     if (
         feedback_result.final_state.variable_ids != feedback_result.initial_state.variable_ids
-        or tuple(feedback_result.final_state.variable_ids) != tuple(
-            item.variable_id for item in feedback_config.variables
-        )
+        or tuple(feedback_result.final_state.variable_ids)
+        != tuple(item.variable_id for item in feedback_config.variables)
     ):
         raise ValueError("feedback_execution_final_vector_identity_mismatch")
     if tuple(feedback_result.final_state.values) != tuple(final_record.mapped_values or ()):

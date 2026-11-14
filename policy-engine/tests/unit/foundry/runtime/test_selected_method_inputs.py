@@ -23,8 +23,6 @@ from polisyos.core.contracts.foundry import (
     ExecPlan,
     ExecPlanRef,
     ExecuteRequest,
-    LoweredIR,
-    LoweredIRRef,
     MethodExecutionBundle,
     ProgramGraph,
     ProgramGraphRef,
@@ -478,88 +476,87 @@ def test_old_selected_result_remains_readable_after_live_method_abi_changes(tmp_
         case.close()
 
 
-def test_method_output_map_is_refused_before_legacy_dispatch(tmp_path, monkeypatch):
-    store = FileSystemCAS(tmp_path / "cas")
-    MethodRegistry.get_instance().register(_UndeclaredReader, override=True)
-    anchor = store.put_json(
-        {"candidate": "legacy-anchor"},
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
-        return_selected_profile=True,
+def test_method_output_map_requires_a_real_declared_model_before_dispatch(tmp_path, monkeypatch):
+    from tests._helpers.program_graph_tax_subsidy_input import (
+        prepare_program_graph_tax_subsidy_input_case,
     )
-    lowered = LoweredIR(ir_ref=anchor, mechanisms=[], constraints=[])
-    lowered_ref = store.put_json(
-        lowered,
-        PutOptions(
-            kind="foundry.lowered_ir",
-            media_type="application/json",
-        ),
-        return_selected_profile=True,
-    )
-    graph = ProgramGraph(
-        schema_version="0.3",
-        ir_ref=anchor,
-        lowered_ir_ref=LoweredIRRef.model_validate(lowered_ref.model_dump()),
-        nodes=[
-            ProgramNode(
-                node_id="mapped-method",
-                node_kind="method",
-                method_fqn=_UndeclaredReader.signature.fqn,
-                method_version=_UndeclaredReader.signature.version,
-                inputs=[],
-                input_ports={
-                    "period_flow": {
-                        "source_kind": "method_output",
-                        "producer_node_id": "prior-method",
-                        "output_slot_id": "result",
-                    }
-                },
-            )
-        ],
-    )
-    graph_ref = store.put_json(
-        graph,
-        PutOptions(
-            kind=ProgramGraph.ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=ProgramGraph.ARTIFACT_SCHEMA_NAME, version=graph.artifact_schema_version
-            ),
-        ),
-        return_selected_profile=True,
-    )
-    plan = ExecPlan(
-        program_ref=ProgramGraphRef.model_validate(graph_ref.model_dump()), order=["mapped-method"]
-    )
-    plan_ref = store.put_json(
-        plan,
-        PutOptions(
-            kind=ExecPlan.ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=ExecPlan.ARTIFACT_SCHEMA_NAME, version=ExecPlan.ARTIFACT_SCHEMA_VERSION
-            ),
-        ),
-        return_selected_profile=True,
-    )
-    calls = []
 
-    def forbidden_dispatch(*args, **kwargs):
-        calls.append(True)
-        raise AssertionError("Mapped wire entered legacy method dispatch")
-
-    monkeypatch.setattr(MethodDispatcher, "dispatch", forbidden_dispatch)
-    with pytest.raises(ProgramNodeValidationError) as caught:
-        execute_program_graph(
-            store,
-            program_ref=graph_ref,
-            exec_plan_ref=plan_ref,
-            base_state=GlobalState.empty(n_agents=1, n_firms=1),
-            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
-            slot_registry=DEFAULT_SLOT_REGISTRY,
-            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+    case = prepare_program_graph_tax_subsidy_input_case(tmp_path)
+    assert case.model_input_port_declaration_ref is None
+    registry = MethodRegistry.get_instance()
+    registry.register(_UndeclaredReader, override=True)
+    try:
+        compiled_graph = validate_core_model_json_artifact(
+            ProgramGraph, case.store, case.program_graph_ref
         )
-    assert caught.value.code == "unsupported_method_output_input_profile"
-    assert calls == []
+        graph = ProgramGraph(
+            schema_version="0.3",
+            ir_ref=case.trinity_ref,
+            lowered_ir_ref=compiled_graph.lowered_ir_ref,
+            nodes=[
+                ProgramNode(
+                    node_id="mapped-method",
+                    node_kind="method",
+                    method_fqn=_UndeclaredReader.signature.fqn,
+                    method_version=_UndeclaredReader.signature.version,
+                    inputs=[],
+                    input_ports={
+                        "period_flow": {
+                            "source_kind": "method_output",
+                            "producer_node_id": "prior-method",
+                            "output_slot_id": "result",
+                        }
+                    },
+                )
+            ],
+        )
+        graph_ref = case.store.put_json(
+            graph,
+            PutOptions(
+                kind=ProgramGraph.ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=ProgramGraph.ARTIFACT_SCHEMA_NAME, version=graph.artifact_schema_version
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        plan = ExecPlan(
+            program_ref=ProgramGraphRef.model_validate(graph_ref.model_dump()),
+            order=["mapped-method"],
+        )
+        plan_ref = case.store.put_json(
+            plan,
+            PutOptions(
+                kind=ExecPlan.ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=ExecPlan.ARTIFACT_SCHEMA_NAME, version=ExecPlan.ARTIFACT_SCHEMA_VERSION
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        calls = []
+
+        def forbidden_dispatch(*args, **kwargs):
+            calls.append(True)
+            raise AssertionError("Undeclared mapped model entered legacy method dispatch")
+
+        monkeypatch.setattr(MethodDispatcher, "dispatch", forbidden_dispatch)
+        with pytest.raises(ValueError, match=r"^mapped_method_input_declared_model_required$"):
+            execute_program_graph(
+                case.store,
+                program_ref=graph_ref,
+                exec_plan_ref=plan_ref,
+                base_state=GlobalState.empty(n_agents=1, n_firms=1),
+                mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+                slot_registry=DEFAULT_SLOT_REGISTRY,
+                merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            )
+        assert calls == []
+    finally:
+        registry.register(PeriodFlowToStock, override=True)
+        case.close()
 
 
 def test_two_mapped_instances_consume_global_input_and_preserve_local_capture(tmp_path):

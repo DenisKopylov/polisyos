@@ -98,6 +98,7 @@ if TYPE_CHECKING:
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts import ArtifactStore, ArtifactWriteOptions
     from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationPlanningSelection
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
@@ -4314,6 +4315,10 @@ def build_default_recursive_generation_cycle_controller(
     catalog_serving_source: CatalogServingSourcePaths | None = None,
     capability_resolver: core_contracts.CapabilityResolverPort | None = None,
     measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
+    native_derivation_planning_selector: Callable[
+        ..., tuple[NativeDerivationPlanningSelection, ...]
+    ]
+    | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router from one container-owned promotion runtime."""
 
@@ -4324,6 +4329,7 @@ def build_default_recursive_generation_cycle_controller(
         catalog_serving_source=catalog_serving_source,
         capability_resolver=capability_resolver,
         measurement_root_execution_binding=measurement_root_execution_binding,
+        native_derivation_planning_selector=native_derivation_planning_selector,
         promotion_runtime=promotion_runtime,
         eval_safety_verifier=eval_safety_verifier,
     )
@@ -4341,6 +4347,10 @@ class RecursiveGenerationCycleController:
         catalog_serving_source: CatalogServingSourcePaths | None = None,
         capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
+        native_derivation_planning_selector: Callable[
+            ..., tuple[NativeDerivationPlanningSelection, ...]
+        ]
+        | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
@@ -4373,6 +4383,7 @@ class RecursiveGenerationCycleController:
         self._catalog_serving_source = catalog_serving_source
         self._capability_resolver = capability_resolver
         self._measurement_root_execution_binding = measurement_root_execution_binding
+        self._native_derivation_planning_selector = native_derivation_planning_selector
         self._promotion_runtime = promotion_runtime
         self._artifact_store = artifact_store
         self._eval_safety_verifier = eval_safety_verifier
@@ -5045,6 +5056,7 @@ class RecursiveGenerationCycleController:
                             generic_currentness_resolvers.get(node_ref)
                         ),
                         generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
+                        native_derivation_planning_selector=self._native_derivation_planning_selector,
                         promotion_runtime=self._promotion_runtime,
                         artifact_store=self._artifact_store,
                         _producer_budget_reconciler=_producer_budget_reconciler,

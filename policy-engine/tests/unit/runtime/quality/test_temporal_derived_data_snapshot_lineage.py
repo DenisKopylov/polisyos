@@ -12,6 +12,7 @@ from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
     input_ref_from_artifact_ref,
+    load_core_json_artifact,
     validate_core_model_json_artifact,
 )
 from polisyos.core.contracts import (
@@ -75,8 +76,22 @@ def test_temporal_snapshot_rejects_legacy_one_period_proof_graft(tmp_path: Path)
             model_input_obligation_set_ref=original.source_lineage.model_input_obligation_set_ref,
             selections=(ResolvedDerivedInputAtStep(step_scope=step_scope, selection=selection),),
         )
+        original_payload = load_core_json_artifact(case.store, original.data_ref)
+        compact_payload_ref = case.store.put_json(
+            {"derived_inputs": original_payload["derived_inputs"]},
+            PutOptions(
+                kind=original.data_ref.kind,
+                media_type=original.data_ref.media_type,
+                schema=SchemaInfo(
+                    name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.1"
+                ),
+                inputs=list(case.store.get_manifest(original.data_ref).inputs),
+            ),
+            return_selected_profile=True,
+        )
         temporal_snapshot = DataSnapshotOwnerBound.model_validate(
-            original.model_dump(mode="python") | {"source_lineage": lineage}
+            original.model_dump(mode="python")
+            | {"data_ref": compact_payload_ref, "source_lineage": lineage}
         )
         temporal_snapshot_ref = _persist_snapshot(case.store, temporal_snapshot)
 

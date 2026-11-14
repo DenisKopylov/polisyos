@@ -2560,7 +2560,11 @@ export interface components {
      */
     AcquisitionRouteListResponse: {
       /** Routes */
-      routes: components["schemas"]["AcquisitionRouteProjection"][];
+      routes: (
+        | components["schemas"]["AcquisitionRouteProjection"]
+        | components["schemas"]["NativeDerivationLeafRouteProjection"]
+        | components["schemas"]["NativeModelInputTargetProjection"]
+      )[];
       /** Run Id */
       run_id: string;
     };
@@ -2651,12 +2655,8 @@ export interface components {
       route_id: string;
       /** Route Projection Hash */
       route_projection_hash: string;
-      /**
-       * Route Status
-       * @default costed_actionable
-       * @constant
-       */
-      route_status: "costed_actionable";
+      /** Route Status */
+      route_status?: "costed_actionable" | null;
       /** Run Id */
       run_id: string;
       /**
@@ -15499,6 +15499,98 @@ export interface components {
       source_surface: string;
     };
     /**
+     * NativeDerivationLeafRouteProjection
+     * @description Read-only native leaf route whose supplier or owner quote is missing.
+     */
+    NativeDerivationLeafRouteProjection: {
+      /** Cell Id */
+      cell_id: string;
+      derivation_bundle_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Planner Record Id */
+      planner_record_id: string;
+      /** Reason Codes */
+      reason_codes: string[];
+      /** Requirement Gap Id */
+      requirement_gap_id: string;
+      /** Route Id */
+      route_id: string;
+      /**
+       * Route Status
+       * @default inputs_pending
+       * @constant
+       */
+      route_status: "inputs_pending";
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default NativeDerivationLeafRouteProjection@1.0
+       * @constant
+       */
+      schema_version: "NativeDerivationLeafRouteProjection@1.0";
+      selected_supplier_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Source Node Id */
+      source_node_id: string;
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
+     * NativeModelInputTargetProjection
+     * @description Read-only target for a native model-input goal awaiting an N7 plan.
+     */
+    NativeModelInputTargetProjection: {
+      /**
+       * Action Authority
+       * @default not_established
+       * @constant
+       */
+      action_authority: "not_established";
+      /** Cell Id */
+      cell_id: string;
+      configured_port_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Model Goal Status
+       * @default inputs_pending
+       * @constant
+       */
+      model_goal_status: "inputs_pending";
+      model_input_obligation_ref: components["schemas"]["ArtifactRef-Output"];
+      obligation_set_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Planner Record Id */
+      planner_record_id: string;
+      planner_report_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /** Reason Codes */
+      reason_codes: "native_derivation_plan_not_selected"[];
+      /** Requirement Gap Id */
+      requirement_gap_id: string;
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default NativeModelInputTargetProjection@1.0
+       * @constant
+       */
+      schema_version: "NativeModelInputTargetProjection@1.0";
+      /**
+       * Source Currentness
+       * @default not_established
+       * @constant
+       */
+      source_currentness: "not_established";
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
      * NaturalLanguageRunRequest
      * @description POST /api/v1/control/runs/nl — NL request triggering agent circuit.
      */
@@ -18822,6 +18914,10 @@ export interface components {
     /**
      * RunCandidateSimulationAcquisitionHistoryEntry
      * @description Persisted acquisition action facts projected as candidate history only.
+     *
+     *     The inputs-pending v3 row records a completed collection action while its
+     *     separate model-input goal remains open. Its selected provenance does not
+     *     establish permission, cost authority, re-entry, or a new evaluation.
      */
     RunCandidateSimulationAcquisitionHistoryEntry: {
       /** Action Generation */
@@ -18854,6 +18950,11 @@ export interface components {
       expected_origin_source_ref?:
         | components["schemas"]["ArtifactRef-Output"]
         | null;
+      /** Model Goal Status */
+      model_goal_status?: "inputs_pending" | null;
+      native_input_collection_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** New Candidate Id */
       new_candidate_id?: string | null;
       new_candidate_source_ref?:
@@ -18866,6 +18967,9 @@ export interface components {
         | ("not_supplied" | "observed_only" | "verified_same_candidate_root")
         | null;
       origin_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      owner_declared_profile_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /**
        * Publication Authority
        * @default false
@@ -18886,7 +18990,10 @@ export interface components {
       route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
       /** Schema Version */
       schema_version?:
-        | "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+        | (
+            | "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+            | "policyos.runtime.run_candidate_simulation_acquisition_history.v3"
+          )
         | null;
       selected_n5_observation?:
         | components["schemas"]["RunCandidateSimulationN5Observation"]
@@ -18895,7 +19002,10 @@ export interface components {
        * Terminal Outcome
        * @enum {string}
        */
-      terminal_outcome: "reentry_completed" | "quarantined_no_growth";
+      terminal_outcome:
+        | "reentry_completed"
+        | "quarantined_no_growth"
+        | "inputs_pending";
     };
     /**
      * RunCandidateSimulationAcquisitionHistoryEntryV3
@@ -20249,6 +20359,9 @@ export interface components {
       method_execution_selection?:
         | components["schemas"]["DirectMethodExecutionRunProjection"]
         | null;
+      model_input_initial_observations?:
+        | components["schemas"]["RunModelInputInitialObservationsProjection"]
+        | null;
       model_input_use_actions?:
         | components["schemas"]["RunModelInputUseActionsProjection"]
         | null;
@@ -21299,6 +21412,121 @@ export interface components {
       /** Run Id */
       run_id: string;
       temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * RunModelInputInitialObservation
+     * @description One replayed historical Generic input observation, kept candidate-only.
+     */
+    RunModelInputInitialObservation: {
+      /** Actual Run Id */
+      actual_run_id: string;
+      /**
+       * Authority Purpose
+       * @default candidate_evaluation_retention_only
+       * @constant
+       */
+      authority_purpose: "candidate_evaluation_retention_only";
+      basis_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Candidate Content Hash */
+      candidate_content_hash: string;
+      /** Closure Residuals */
+      closure_residuals: string[];
+      context_job_ref: components["schemas"]["ArtifactRef-Output"];
+      current_method_input_bindings_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      decision_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Execution Job Id */
+      execution_job_id: string;
+      execution_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Frontier Ref */
+      frontier_ref: string;
+      /**
+       * Frontier Revision
+       * @default 1
+       * @constant
+       */
+      frontier_revision: 1;
+      /**
+       * Historical Replay Status
+       * @default reconciled
+       * @constant
+       */
+      historical_replay_status: "reconciled";
+      input_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Limitations */
+      limitations: string[];
+      model_input_obligation_set_ref: components["schemas"]["ArtifactRef-Output"];
+      n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Observation Content Hash */
+      observation_content_hash: string;
+      /**
+       * Observed Admission
+       * @default false
+       * @constant
+       */
+      observed_admission: false;
+      profile_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Recorded Predicate Provenance
+       * @default recomputed
+       * @constant
+       */
+      recorded_predicate_provenance: "recomputed";
+      result_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Source Run Id */
+      source_run_id: string;
+      /**
+       * Subject Kind
+       * @default initial_observation
+       * @constant
+       */
+      subject_kind: "initial_observation";
+    };
+    /**
+     * RunModelInputInitialObservationsProjection
+     * @description Bounded exact-source-job discovery of historical initial observations.
+     */
+    RunModelInputInitialObservationsProjection: {
+      /** Actual Run Id */
+      actual_run_id?: string | null;
+      /** Core Run Id */
+      core_run_id: string;
+      /**
+       * Inventory Status
+       * @enum {string}
+       */
+      inventory_status: "complete" | "limited";
+      /** Inventory Truncated */
+      inventory_truncated: boolean;
+      /**
+       * Limitation Codes
+       * @default []
+       */
+      limitation_codes: (
+        | "initial_observation_frontier_inventory_truncated"
+        | "initial_observation_history_unavailable"
+      )[];
+      /** Observations */
+      observations: components["schemas"]["RunModelInputInitialObservation"][];
+      /**
+       * Scope
+       * @default exact_source_job
+       * @constant
+       */
+      scope: "exact_source_job";
+      /** Source Job Id */
+      source_job_id: string;
     };
     /**
      * RunModelInputUseActionSelector
@@ -23364,7 +23592,8 @@ export interface components {
       execution_source_status:
         | "not_recorded"
         | "single_step_basis"
-        | "feedback_uncomposed";
+        | "feedback_uncomposed"
+        | "feedback_basis";
       fairness_audit_report_ref?:
         | components["schemas"]["FairnessAuditReportRef"]
         | null;
@@ -33182,7 +33411,10 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AcquisitionRouteProjection"];
+          "application/json":
+            | components["schemas"]["AcquisitionRouteProjection"]
+            | components["schemas"]["NativeDerivationLeafRouteProjection"]
+            | components["schemas"]["NativeModelInputTargetProjection"];
         };
       };
       /** @description Malformed request payload or parameters. */

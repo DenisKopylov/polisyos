@@ -406,7 +406,7 @@ class AcquisitionCostBasisRecord(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["AcquisitionCostBasisRecord@1.0"]
+    schema_version: Literal["AcquisitionCostBasisRecord@1.0", "AcquisitionCostBasisRecord@1.1"]
     record_ref: str = Field(min_length=1)
     record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     schedule_ref: str
@@ -422,14 +422,144 @@ class AcquisitionCostBasisRecord(BaseModel):
     expert_hours: float
     line_items: tuple[AcquisitionCostLineItem, ...] = Field(min_length=1)
     total_amount: float = Field(gt=0.0)
+    owner_declared_profile_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _totals_and_hash_are_recomputed(self) -> Self:
+        if self.schema_version == "AcquisitionCostBasisRecord@1.0":
+            if (
+                self.owner_declared_profile_ref is not None
+                or "owner_declared_profile_ref" in self.model_fields_set
+            ):
+                raise ValueError("cost_basis_legacy_profile_field_forbidden")
+        elif (
+            type(self.owner_declared_profile_ref) is not artifacts.ArtifactRef
+            or self.owner_declared_profile_ref.kind != _NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND
+            or self.owner_declared_profile_ref.media_type != "application/json"
+            or self.owner_declared_profile_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("cost_basis_owner_profile_ref_required")
         if self.total_amount != round(sum(item.amount for item in self.line_items), 2):
             raise ValueError("cost_basis_total_mismatch")
         payload = self.model_dump(mode="json", exclude={"record_content_hash"})
         if self.record_content_hash != _stable_content_hash(payload):
             raise ValueError("cost_basis_content_hash_mismatch")
+        return self
+
+
+_NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND = "runtime.quality.native_derivation_leaf_cost_profile"
+_NATIVE_DERIVATION_LEAF_COST_PROFILE_SCHEMA = (
+    "polisyos.runtime.quality.NativeDerivationLeafCostProfile"
+)
+_NATIVE_DERIVATION_LEAF_COST_SCOPE_REF_KINDS: tuple[tuple[str, str], ...] = (
+    ("configured_port_source_ref", "runtime.quality.n7_configured_candidate_port_source"),
+    ("planner_report_ref", ACQUISITION_PLANNER_KIND),
+    ("derivation_bundle_ref", "runtime.quality.n7_derivation_bundle"),
+    ("obligation_set_ref", "runtime.quality.model_input_obligation_set"),
+    ("selected_supplier_ref", ""),
+)
+
+
+class NativeDerivationLeafCostProfileScope(BaseModel):
+    """Bind one owner-declared cost quote to an exact selected N7 source leaf."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    tenant_id: str = Field(min_length=1, strict=True)
+    cell_id: str = Field(min_length=1, strict=True)
+    run_id: str = Field(min_length=1, strict=True)
+    source_job_id: str = Field(min_length=1, strict=True)
+    configured_port_source_ref: artifacts.ArtifactRef
+    planner_report_ref: artifacts.ArtifactRef
+    derivation_bundle_ref: artifacts.ArtifactRef
+    obligation_set_ref: artifacts.ArtifactRef
+    source_node_id: str = Field(min_length=1, strict=True)
+    requirement_gap_id: str = Field(min_length=1, strict=True)
+    compiled_requirement_ref: str = Field(min_length=1, strict=True)
+    planner_record_id: str = Field(min_length=1, strict=True)
+    strategy: AcquisitionStrategy
+    selected_supplier_ref: artifacts.ArtifactRef
+    missing_distribution: str = Field(min_length=1, strict=True)
+
+    @model_validator(mode="after")
+    def _selected_sources_are_exact(self) -> Self:
+        for field_name, expected_kind in _NATIVE_DERIVATION_LEAF_COST_SCOPE_REF_KINDS:
+            ref = getattr(self, field_name)
+            if (
+                type(ref) is not artifacts.ArtifactRef
+                or (expected_kind and ref.kind != expected_kind)
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_derivation_leaf_cost_scope_ref_invalid")
+        return self
+
+
+class NativeDerivationLeafCostProfile(BaseModel):
+    """Record a selected external quote's owner-declared terms for candidate routing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.native_derivation_leaf_cost_profile.v1"] = (
+        "polisyos.runtime.native_derivation_leaf_cost_profile.v1"
+    )
+    authority_purpose: Literal["costing_and_provenance_only"] = "costing_and_provenance_only"
+    scope: NativeDerivationLeafCostProfileScope
+    quote_evidence_ref: artifacts.ArtifactRef
+    effective_at: datetime
+    expires_at: datetime
+    rule_version: str = Field(min_length=1, strict=True)
+    collection_mode: str = Field(min_length=1, strict=True)
+    currency: Literal["USD"] = "USD"
+    line_items: tuple[AcquisitionCostLineItem, ...] = Field(min_length=1)
+    quantity_unit_by_line_item: dict[str, str]
+    calendar_days: int = Field(ge=0, strict=True)
+    expert_hours: float = Field(ge=0.0, strict=True, allow_inf_nan=False)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("quantity_unit_by_line_item", mode="before")
+    @classmethod
+    def _unit_mapping_is_owner_declared_text(cls, value: object) -> object:
+        if not isinstance(value, Mapping) or any(
+            type(key) is not str or type(unit) is not str for key, unit in value.items()
+        ):
+            raise ValueError("native_derivation_leaf_cost_quantity_units_untyped")
+        return value
+
+    @model_validator(mode="after")
+    def _bind_quote_terms(self) -> Self:
+        quote_ref = self.quote_evidence_ref
+        if (
+            type(quote_ref) is not artifacts.ArtifactRef
+            or quote_ref.media_type != "application/json"
+            or quote_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_derivation_leaf_cost_quote_ref_invalid")
+        for timestamp in (self.effective_at, self.expires_at):
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError("native_derivation_leaf_cost_profile_time_not_aware")
+        if self.expires_at <= self.effective_at:
+            raise ValueError("native_derivation_leaf_cost_profile_window_invalid")
+        if any(
+            not math.isfinite(value)
+            for item in self.line_items
+            for value in (item.quantity, item.unit_rate, item.amount)
+        ):
+            raise ValueError("native_derivation_leaf_cost_line_item_nonfinite")
+        line_item_ids = tuple(item.line_item_id for item in self.line_items)
+        if len(line_item_ids) != len(set(line_item_ids)):
+            raise ValueError("native_derivation_leaf_cost_line_item_duplicate")
+        unit_items = self.quantity_unit_by_line_item
+        if set(unit_items) != set(line_item_ids) or any(
+            type(unit) is not str or not unit.strip() or unit != unit.strip()
+            for unit in unit_items.values()
+        ):
+            raise ValueError("native_derivation_leaf_cost_quantity_units_incomplete")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != _stable_content_hash(payload):
+            raise ValueError("native_derivation_leaf_cost_profile_content_hash_mismatch")
         return self
 
 
@@ -1169,11 +1299,30 @@ class _N7CandidateReportLineage(BaseModel):
     """Complete, ordered reference denominator for one configured candidate plan."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
-    schema_version: Literal["policyos.runtime.n7_candidate_report_lineage.v1"] = (
-        "policyos.runtime.n7_candidate_report_lineage.v1"
-    )
+    schema_version: Literal[
+        "policyos.runtime.n7_candidate_report_lineage.v1",
+        "policyos.runtime.n7_candidate_report_lineage.v2",
+    ] = "policyos.runtime.n7_candidate_report_lineage.v1"
     port_source_ref: artifacts.ArtifactRef
     bindings: tuple[_N7CandidateReportInputBinding, ...]
+    model_input_compilation_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _model_input_compiler_version(self) -> _N7CandidateReportLineage:
+        selected = self.model_input_compilation_ref
+        if self.schema_version == "policyos.runtime.n7_candidate_report_lineage.v1":
+            if "model_input_compilation_ref" in self.model_fields_set:
+                raise ValueError("n7_legacy_lineage_model_input_compiler_forbidden")
+        elif (
+            type(selected) is not artifacts.ArtifactRef
+            or selected.kind != "data_requirement.model_input_compilation"
+            or selected.media_type != "application/json"
+            or selected.manifest_profile_sha256 is None
+        ):
+            raise ValueError("n7_model_input_compiler_ref_unselected")
+        return self
 
 
 _N7_CONFIGURED_REPORT_SCHEMA = "policyos.runtime.acquisition_planner.v2"
@@ -4590,6 +4739,7 @@ def validate_persisted_acquisition_planner_report(
     *,
     expected_scenario_id: str,
     expected_compiled_requirement_ref: str,
+    expected_obligation_set_ref: artifacts.ArtifactRef | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Re-resolve a selected plan and its compiler basis for a route consumer.
 
@@ -4603,6 +4753,23 @@ def validate_persisted_acquisition_planner_report(
         return ({"code": "acquisition_planner_report_ref_untyped"},)
     if type(report) is not AcquisitionPlannerReport:
         return ({"code": "acquisition_planner_report_untyped"},)
+    if (
+        report.candidate_lineage is not None
+        and report.candidate_lineage.schema_version
+        == "policyos.runtime.n7_candidate_report_lineage.v2"
+    ):
+        from polisyos.runtime.quality.n7_input_obligation_source import (
+            validate_persisted_pre_numerical_candidate_report,
+        )
+
+        return validate_persisted_pre_numerical_candidate_report(
+            store,
+            ref,
+            report,
+            expected_design_problem_basis_ref=expected_scenario_id,
+            expected_compiled_requirement_ref=expected_compiled_requirement_ref,
+            expected_obligation_set_ref=expected_obligation_set_ref,
+        )
     issues = list(_validate_persisted_planner_report(store=store, ref=ref, report=report))
     if (
         report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
@@ -4692,13 +4859,226 @@ def load_planner_acquisition_cost_schedule() -> PlannerAcquisitionCostSchedule:
     )
 
 
+def _native_derivation_leaf_cost_profile_refs(
+    profile: NativeDerivationLeafCostProfile,
+) -> tuple[tuple[artifacts.ArtifactRef, str], ...]:
+    scope = profile.scope
+    return (
+        (scope.configured_port_source_ref, "selected_configured_port_source"),
+        (scope.planner_report_ref, "selected_planner_report"),
+        (scope.derivation_bundle_ref, "selected_derivation_bundle"),
+        (scope.obligation_set_ref, "selected_obligation_set"),
+        (scope.selected_supplier_ref, "selected_source_supplier"),
+        (profile.quote_evidence_ref, "owner_declared_quote_evidence"),
+    )
+
+
+def _native_derivation_leaf_cost_profile_write_profile(
+    profile: NativeDerivationLeafCostProfile,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    inputs = [
+        artifacts.input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in _native_derivation_leaf_cost_profile_refs(profile)
+    ]
+    return (
+        artifacts.PutOptions(
+            kind=_NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=_NATIVE_DERIVATION_LEAF_COST_PROFILE_SCHEMA, version="1.0"
+            ),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=inputs,
+        ),
+        spec,
+    )
+
+
+def _native_derivation_leaf_cost_profile_inputs_are_present(
+    store: ArtifactStore,
+    profile: NativeDerivationLeafCostProfile,
+) -> None:
+    for ref, _role in _native_derivation_leaf_cost_profile_refs(profile):
+        manifest = store.get_manifest(ref)
+        if (
+            artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+            != artifacts.artifact_ref_identity_key(ref)
+            or not store.verify(ref).ok
+        ):
+            raise ValueError("native_derivation_leaf_cost_profile_input_unverified")
+
+
+def persist_native_derivation_leaf_cost_profile(
+    store: ArtifactStore,
+    profile: NativeDerivationLeafCostProfile,
+) -> artifacts.ArtifactRef:
+    """Persist one selected, externally sourced leaf cost profile with exact input lineage.
+
+    This artifact records owner-declared quote terms for candidate routing. It does
+    not grant source admission, execution, or publication authority.
+    """
+    if type(profile) is not NativeDerivationLeafCostProfile:
+        raise TypeError("native_derivation_leaf_cost_profile_untyped")
+    profile = NativeDerivationLeafCostProfile.model_validate(profile.model_dump(mode="json"))
+    _native_derivation_leaf_cost_profile_inputs_are_present(store, profile)
+    options, spec = _native_derivation_leaf_cost_profile_write_profile(profile)
+    selected = store.put_json(profile, options, canon_spec=spec, return_selected_profile=True)
+    loaded = load_native_derivation_leaf_cost_profile(store, selected)
+    if _n7_exact_wire(loaded.model_dump(mode="json")) != _n7_exact_wire(
+        profile.model_dump(mode="json")
+    ):
+        raise ValueError("native_derivation_leaf_cost_profile_write_readback_mismatch")
+    return selected
+
+
+def load_native_derivation_leaf_cost_profile(
+    store: ArtifactStore,
+    ref: artifacts.ArtifactRef,
+) -> NativeDerivationLeafCostProfile:
+    """Load an exact historical cost profile and verify bytes, manifest, and selected inputs."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        type(ref) is not artifacts.ArtifactRef
+        or ref.kind != _NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_derivation_leaf_cost_profile_ref_invalid")
+    manifest = store.get_manifest(ref)
+    if (
+        artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+        != artifacts.artifact_ref_identity_key(ref)
+        or manifest.kind != _NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=_NATIVE_DERIVATION_LEAF_COST_PROFILE_SCHEMA, version="1.0")
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.acquisition_planner", version="1.0"
+        )
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("native_derivation_leaf_cost_profile_unverified")
+    profile = NativeDerivationLeafCostProfile.model_validate(load_core_json_artifact(store, ref))
+    options, spec = _native_derivation_leaf_cost_profile_write_profile(profile)
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=canon.to_canonical_bytes(profile, spec),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if artifacts.artifact_manifest_profile_projection(
+        manifest
+    ) != artifacts.artifact_manifest_profile_projection(
+        expected
+    ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(expected):
+        raise ValueError("native_derivation_leaf_cost_profile_lineage_mismatch")
+    _native_derivation_leaf_cost_profile_inputs_are_present(store, profile)
+    return profile
+
+
+def _native_derivation_leaf_cost_scope_identity(
+    scope: NativeDerivationLeafCostProfileScope,
+) -> str:
+    payload = scope.model_dump(mode="json")
+    for field_name, _expected_kind in _NATIVE_DERIVATION_LEAF_COST_SCOPE_REF_KINDS:
+        ref = getattr(scope, field_name)
+        payload[field_name] = artifacts.artifact_ref_identity_key(ref)
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def validate_native_derivation_leaf_cost_profile_for_scope(
+    profile: NativeDerivationLeafCostProfile,
+    *,
+    expected_scope: NativeDerivationLeafCostProfileScope,
+    now: datetime,
+) -> NativeDerivationLeafCostProfile:
+    """Require exact leaf scope and a currently effective quote before new use."""
+    if (
+        type(profile) is not NativeDerivationLeafCostProfile
+        or type(expected_scope) is not NativeDerivationLeafCostProfileScope
+    ):
+        raise TypeError("native_derivation_leaf_cost_profile_scope_untyped")
+    if _native_derivation_leaf_cost_scope_identity(profile.scope) != (
+        _native_derivation_leaf_cost_scope_identity(expected_scope)
+    ):
+        raise ValueError("native_derivation_leaf_cost_profile_scope_mismatch")
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("native_derivation_leaf_cost_profile_current_time_not_aware")
+    current_time = _utc(now)
+    if not (_utc(profile.effective_at) <= current_time < _utc(profile.expires_at)):
+        raise ValueError("native_derivation_leaf_cost_profile_not_current")
+    return profile
+
+
 def produce_acquisition_cost_basis_record(
     *,
     missing_distribution: str,
     strategy: AcquisitionStrategy,
     schedule: PlannerAcquisitionCostSchedule | None = None,
+    owner_declared_profile_ref: artifacts.ArtifactRef | None = None,
+    store: ArtifactStore | None = None,
+    expected_scope: NativeDerivationLeafCostProfileScope | None = None,
+    now: datetime | None = None,
 ) -> AcquisitionCostBasisRecord | None:
-    """Produce a cost record only for an exact row in the current owner schedule."""
+    """Produce a cost record from the canonical schedule or an exact selected quote profile."""
+    if owner_declared_profile_ref is not None:
+        if store is None or expected_scope is None or now is None or schedule is not None:
+            raise ValueError("native_derivation_leaf_cost_profile_selection_incomplete")
+        profile = load_native_derivation_leaf_cost_profile(store, owner_declared_profile_ref)
+        validate_native_derivation_leaf_cost_profile_for_scope(
+            profile,
+            expected_scope=expected_scope,
+            now=now,
+        )
+        if (
+            profile.scope.missing_distribution != missing_distribution
+            or profile.scope.strategy != strategy
+        ):
+            raise ValueError("native_derivation_leaf_cost_profile_cost_selection_mismatch")
+        profile_identity = json.dumps(
+            artifacts.artifact_ref_identity_key(owner_declared_profile_ref),
+            separators=(",", ":"),
+        )
+        quote_identity = json.dumps(
+            artifacts.artifact_ref_identity_key(profile.quote_evidence_ref),
+            separators=(",", ":"),
+        )
+        record_payload: dict[str, Any] = {
+            "schema_version": "AcquisitionCostBasisRecord@1.1",
+            "record_ref": (
+                "acquisition-cost-basis:owner-declared:"
+                f"{_slug(missing_distribution)}:{strategy.value}:"
+                f"{profile.content_hash.removeprefix('sha256:')[:16]}:v1.1"
+            ),
+            "schedule_ref": f"native-derivation-leaf-cost-profile:{profile_identity}",
+            "schedule_content_hash": profile.content_hash,
+            "basis_ref": quote_identity,
+            "missing_distribution": missing_distribution,
+            "collection_mode": profile.collection_mode,
+            "strategy": strategy,
+            "currency": profile.currency,
+            "effective_at": profile.model_dump(mode="json")["effective_at"],
+            "rule_version": profile.rule_version,
+            "calendar_days": profile.calendar_days,
+            "expert_hours": profile.expert_hours,
+            "line_items": [item.model_dump(mode="json") for item in profile.line_items],
+            "total_amount": round(sum(float(item.amount) for item in profile.line_items), 2),
+            "owner_declared_profile_ref": owner_declared_profile_ref.model_dump(mode="json"),
+        }
+        return AcquisitionCostBasisRecord.model_validate(
+            {
+                **record_payload,
+                "record_content_hash": _stable_content_hash(record_payload),
+            }
+        )
+    if store is not None or expected_scope is not None or now is not None:
+        raise ValueError("native_derivation_leaf_cost_profile_selection_incomplete")
 
     canonical = load_planner_acquisition_cost_schedule()
     supplied = (
@@ -5447,10 +5827,12 @@ def _n7_candidate_n5_l1_planner_records_match(
 _N7_SOURCE_JOIN_RULE = "policyos.runtime.n7_source_compiler_join.v1"
 _N7_SOURCE_DESCRIPTOR_JOIN_RULE = "policyos.runtime.n7_source_compiler_descriptor_join.v1"
 _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE = "policyos.runtime.n7_candidate_n5_l1_obligations.v1"
+_N7_CANDIDATE_INPUT_OBLIGATIONS_RULE = "policyos.runtime.n7_candidate_input_obligations.v1"
 _N7_SOURCE_JOIN_RULES = (
     _N7_SOURCE_JOIN_RULE,
     _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
     _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+    _N7_CANDIDATE_INPUT_OBLIGATIONS_RULE,
 )
 
 _N7_DERIVATION_BUDGET_KIND = "runtime.quality.n7_derivation_dag_budget_profile"
@@ -5684,9 +6066,10 @@ class N7DerivationBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.runtime.n7_derivation_bundle.v1"] = (
-        "policyos.runtime.n7_derivation_bundle.v1"
-    )
+    schema_version: Literal[
+        "policyos.runtime.n7_derivation_bundle.v1",
+        "policyos.runtime.n7_derivation_bundle.v2",
+    ] = "policyos.runtime.n7_derivation_bundle.v1"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -5700,9 +6083,32 @@ class N7DerivationBundle(BaseModel):
     root_node_id: str = Field(min_length=1, strict=True)
     input_closure_status: Literal["partial", "inputs_complete"]
     target_satisfaction_status: Literal["unsatisfied"] = "unsatisfied"
+    registered_profile_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    model_input_routing_report_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _replay_graph_and_limits(self) -> N7DerivationBundle:
+        semantic_fields = {"registered_profile_ref", "model_input_routing_report_ref"}
+        if self.schema_version == "policyos.runtime.n7_derivation_bundle.v1":
+            if semantic_fields.intersection(self.model_fields_set):
+                raise ValueError("n7_derivation_legacy_registered_profile_fields_forbidden")
+        else:
+            for name, kind in (
+                ("registered_profile_ref", "catalog.derived_input_profile"),
+                ("model_input_routing_report_ref", "runtime.quality.model_input_routing_report"),
+            ):
+                ref = getattr(self, name)
+                if (
+                    type(ref) is not artifacts.ArtifactRef
+                    or ref.kind != kind
+                    or ref.media_type != "application/json"
+                    or ref.manifest_profile_sha256 is None
+                ):
+                    raise ValueError("n7_derivation_registered_profile_parent_unselected")
         object.__setattr__(
             self,
             "source_nodes",
@@ -5925,6 +6331,9 @@ def _n7_derivation_bundle_input_edges(
     include(bundle.target_basis.representation_ref, "target_representation")
     include(bundle.target_basis.binding_profile_ref, "target_binding_profile")
     include(bundle.dag_budget_profile_ref, "caller_selected_dag_budget")
+    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+        include(bundle.registered_profile_ref, "selected_registered_semantic_profile")
+        include(bundle.model_input_routing_report_ref, "selected_model_input_routing_report")
     for source in bundle.source_nodes:
         include(source.source_basis.semantic_definition_ref, f"source.{source.node_id}.definition")
         include(source.source_basis.representation_ref, f"source.{source.node_id}.representation")
@@ -5987,7 +6396,14 @@ def _n7_derivation_bundle_write_profile(
         artifacts.PutOptions(
             kind=_N7_DERIVATION_BUNDLE_KIND,
             media_type="application/json",
-            schema=artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0"),
+            schema=artifacts.SchemaInfo(
+                name=_N7_DERIVATION_BUNDLE_SCHEMA,
+                version=(
+                    "2.0"
+                    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2"
+                    else "1.0"
+                ),
+            ),
             producer=artifacts.ProducerInfo(
                 component="polisyos.runtime.quality.acquisition_planner", version="1.0"
             ),
@@ -6055,6 +6471,62 @@ def _n7_validate_derivation_bundle_dependencies(
             sorted(item.role for item in families[0].input_specs)
         ) != tuple(item.role for item in operation.role_inputs):
             raise ValueError("n7_derivation_operator_required_roles_mismatch")
+    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+        from polisyos.core.contracts import (
+            RegisteredDerivedInputProfileRef,
+            load_registered_derived_input_profile,
+            verify_registered_derived_family,
+        )
+        from polisyos.runtime.quality.n7_input_obligation_source import (
+            _selected_model_requirements,
+        )
+
+        _selected_model_requirements(
+            store,
+            obligation_set_ref=bundle.obligation_set_ref,
+            routing_report_ref=bundle.model_input_routing_report_ref,
+            target_obligation_ref=bundle.model_input_obligation_ref,
+        )
+        registered = load_registered_derived_input_profile(
+            store,
+            RegisteredDerivedInputProfileRef.model_validate(
+                bundle.registered_profile_ref.model_dump(mode="python")
+            ),
+        )
+        roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
+        if len(bundle.operation_nodes) != 1 or len(roots) != 1:
+            raise ValueError("n7_derivation_registered_profile_graph_unsupported")
+        (root,) = roots
+        registered_output = N7DerivationBasis.model_validate(
+            registered.output.model_dump(mode="python")
+        )
+        roles = {row.role: row.basis for row in registered.inputs}
+        sources = {row.node_id: row for row in bundle.source_nodes}
+        if (
+            artifacts.artifact_ref_identity_key(root.operator_ref)
+            != artifacts.artifact_ref_identity_key(registered.registry_ref)
+            or root.family_id != registered.family_id
+            or root.method_version != registered.method_version
+            or _n7_derivation_basis_key(root.output_basis)
+            != _n7_derivation_basis_key(registered_output)
+            or set(roles) != {row.role for row in root.role_inputs}
+            or any(
+                row.input_node_id not in sources
+                or _n7_derivation_basis_key(row.source_basis)
+                != _n7_derivation_basis_key(
+                    N7DerivationBasis.model_validate(roles[row.role].model_dump(mode="python"))
+                )
+                for row in root.role_inputs
+            )
+        ):
+            raise ValueError("n7_derivation_registered_profile_graph_mismatch")
+        registry = registries[artifacts.artifact_ref_identity_key(root.operator_ref)]
+        family = next(
+            item
+            for item in registry.families
+            if item.family_id == root.family_id and item.method_version == root.method_version
+        )
+        verify_registered_derived_family(registered, family)
     for input_ref, _role in _n7_derivation_bundle_input_edges(bundle):
         manifest = store.get_manifest(input_ref)
         selected_ref = artifacts.artifact_ref_for_manifest(manifest)
@@ -6101,7 +6573,10 @@ def _n7_load_derivation_bundle(
         or manifest.kind != _N7_DERIVATION_BUNDLE_KIND
         or manifest.media_type != "application/json"
         or manifest.artifact_schema
-        != artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0")
+        not in (
+            artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0"),
+            artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="2.0"),
+        )
         or manifest.producer
         != artifacts.ProducerInfo(
             component="polisyos.runtime.quality.acquisition_planner", version="1.0"
@@ -6250,6 +6725,7 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
     schema_version: Literal[
         "policyos.runtime.n7_configured_candidate_port_source.v1",
         "policyos.runtime.n7_configured_candidate_port_source.v2",
+        "policyos.runtime.n7_configured_candidate_port_source.v3",
     ] = "policyos.runtime.n7_configured_candidate_port_source.v1"
     authority_purpose: Literal["recorded_candidate_routing_only"] = (
         "recorded_candidate_routing_only"
@@ -6268,7 +6744,21 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
     context_job_ref: artifacts.ArtifactRef
     n5_input_ref: artifacts.ArtifactRef
     n5_execution_ref: artifacts.ArtifactRef
-    n5_result_ref: artifacts.ArtifactRef
+    n5_result_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    numerical_execution_status: Literal["unrun"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    model_input_obligation_set_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    model_input_obligation_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    model_input_routing_report_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     grounding_observation: dict[str, Any]
     value_observation: dict[str, Any]
     grounding_digest_payload: dict[str, Any] | None
@@ -6287,6 +6777,21 @@ class _N7ConfiguredCandidatePortSource(BaseModel):
             CandidateGroundingObservation,
             ValuePortObservation,
         )
+
+        if self.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+            from polisyos.runtime.quality.n7_input_obligation_source import (
+                validate_pre_numerical_source_shape,
+            )
+
+            validate_pre_numerical_source_shape(self)
+            return self
+        if {
+            "numerical_execution_status",
+            "model_input_obligation_set_ref",
+            "model_input_obligation_ref",
+            "model_input_routing_report_ref",
+        }.intersection(self.model_fields_set):
+            raise ValueError("n7_legacy_port_source_pre_numerical_fields_forbidden")
 
         refs = (
             (self.n4_source_ref, "runtime.quality.n4_candidate_scenario_source"),
@@ -6399,7 +6904,17 @@ def _n7_configured_port_inputs(
             ("n5_execution", source.n5_execution_ref),
             ("n5_result", source.n5_result_ref),
         )
+        if ref is not None
     ]
+    if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+        for role, ref in (
+            ("model_input_obligation_set", source.model_input_obligation_set_ref),
+            ("selected_model_input_obligation", source.model_input_obligation_ref),
+            ("model_input_routing_report", source.model_input_routing_report_ref),
+        ):
+            if ref is None:
+                raise ValueError("n7_pre_numerical_source_input_missing")
+            inputs.append(artifacts.input_ref_from_artifact_ref(ref, role=role))
     if source.derivation_bundle_ref is not None:
         inputs.append(
             artifacts.input_ref_from_artifact_ref(
@@ -6413,7 +6928,11 @@ def _n7_configured_port_write_profile(
     source: _N7ConfiguredCandidatePortSource,
 ) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
     spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
-    schema_version = "2.0" if source.derivation_bundle_ref is not None else "1.0"
+    schema_version = {
+        "policyos.runtime.n7_configured_candidate_port_source.v1": "1.0",
+        "policyos.runtime.n7_configured_candidate_port_source.v2": "2.0",
+        "policyos.runtime.n7_configured_candidate_port_source.v3": "3.0",
+    }[source.schema_version]
     return (
         artifacts.PutOptions(
             kind=_N7_CONFIGURED_PORT_KIND,
@@ -6467,7 +6986,7 @@ def _n7_load_configured_candidate_port_source(
         or manifest.media_type != "application/json"
         or schema_info is None
         or schema_info.name != _N7_CONFIGURED_PORT_SCHEMA
-        or schema_info.version not in {"1.0", "2.0"}
+        or schema_info.version not in {"1.0", "2.0", "3.0"}
         or manifest.producer
         != artifacts.ProducerInfo(
             component="polisyos.runtime.quality.generation_cycle", version="1.0"
@@ -6476,7 +6995,11 @@ def _n7_load_configured_candidate_port_source(
     ):
         raise ValueError("n7_configured_port_source_profile_unverified")
     source = _N7ConfiguredCandidatePortSource.model_validate(load_core_json_artifact(store, ref))
-    expected_schema_version = "2.0" if source.derivation_bundle_ref is not None else "1.0"
+    expected_schema_version = {
+        "policyos.runtime.n7_configured_candidate_port_source.v1": "1.0",
+        "policyos.runtime.n7_configured_candidate_port_source.v2": "2.0",
+        "policyos.runtime.n7_configured_candidate_port_source.v3": "3.0",
+    }[source.schema_version]
     if schema_info != artifacts.SchemaInfo(
         name=_N7_CONFIGURED_PORT_SCHEMA, version=expected_schema_version
     ):
@@ -6587,13 +7110,20 @@ def _n7_bind_configured_candidate_report(
         type(report) is not AcquisitionPlannerReport
         or report.schema_version != ACQUISITION_PLANNER_SCHEMA_VERSION
         or report.candidate_lineage is not None
-        or report.requirement_basis_binding is None
         or report.planning_context_hash is not None
         or report.planning_binding_hash is not None
     ):
         raise ValueError("n7_candidate_report_binding_input_invalid")
     source = _n7_load_configured_candidate_port_source(store, port_source_ref)
+    if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+        from polisyos.runtime.quality.n7_input_obligation_source import (
+            bind_pre_numerical_candidate_report,
+        )
+
+        return bind_pre_numerical_candidate_report(store, report, port_source_ref, source)
     basis = report.requirement_basis_binding
+    if basis is None:
+        raise ValueError("n7_candidate_report_compiler_not_established")
     if _validate_persisted_data_requirement_compilation_report(
         store=store, binding=basis, require_selected_writer_profile=True
     ):
@@ -6645,13 +7175,20 @@ def _n7_validate_configured_candidate_report_source(
         type(report) is not AcquisitionPlannerReport
         or report.schema_version != _N7_CONFIGURED_REPORT_SCHEMA
         or lineage is None
-        or basis is None
-        or _validate_persisted_data_requirement_compilation_report(
-            store=store, binding=basis, require_selected_writer_profile=True
-        )
     ):
         raise ValueError("n7_candidate_report_source_not_established")
     source = _n7_load_configured_candidate_port_source(store, lineage.port_source_ref)
+    if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+        from polisyos.runtime.quality.n7_input_obligation_source import (
+            validate_pre_numerical_candidate_report,
+        )
+
+        validate_pre_numerical_candidate_report(store, report, source)
+        return
+    if basis is None or _validate_persisted_data_requirement_compilation_report(
+        store=store, binding=basis, require_selected_writer_profile=True
+    ):
+        raise ValueError("n7_candidate_report_source_not_established")
     compilation = DataRequirementCompilationReport.model_validate(
         load_core_json_artifact(store, basis.compiler_report_ref)
     )
@@ -6712,12 +7249,28 @@ def _n7_verify_configured_candidate_report_cycle(
         type(generation_run) is not GenerationCycleRun
         or type(source_cycle) is not GenerationCycleRecord
         or report.candidate_lineage is None
-        or source_cycle.acquisition_routing_report is None
-        or source_cycle.acquisition_routing_report_ref is None
-        or artifacts.artifact_ref_identity_key(source_cycle.acquisition_routing_report_ref)
+    ):
+        raise ValueError("n7_candidate_report_selected_cycle_mismatch")
+    pre_numerical = (
+        report.candidate_lineage.schema_version == "policyos.runtime.n7_candidate_report_lineage.v2"
+    )
+    selected_report_ref = (
+        source_cycle.model_input_acquisition_report_ref
+        if pre_numerical
+        else source_cycle.acquisition_routing_report_ref
+    )
+    if (
+        selected_report_ref is None
+        or artifacts.artifact_ref_identity_key(selected_report_ref)
         != artifacts.artifact_ref_identity_key(report_ref)
-        or _canonical_model_bytes(source_cycle.acquisition_routing_report)
-        != _canonical_model_bytes(report)
+        or (
+            not pre_numerical
+            and (
+                source_cycle.acquisition_routing_report is None
+                or _canonical_model_bytes(source_cycle.acquisition_routing_report)
+                != _canonical_model_bytes(report)
+            )
+        )
         or _validate_persisted_planner_report(store=artifact_store, ref=report_ref, report=report)
     ):
         raise ValueError("n7_candidate_report_selected_cycle_mismatch")
@@ -6731,6 +7284,24 @@ def _n7_verify_configured_candidate_report_cycle(
     source = _n7_load_configured_candidate_port_source(
         artifact_store, report.candidate_lineage.port_source_ref
     )
+    if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+        from polisyos.runtime.quality.n7_input_obligation_source import (
+            verify_pre_numerical_candidate_report_cycle,
+        )
+
+        verify_pre_numerical_candidate_report_cycle(
+            store=artifact_store,
+            source=source,
+            report=report,
+            generation_run=generation_run,
+            source_cycle=source_cycle,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            design_problem_ref=design_problem_ref,
+        )
+        return source
     acquisition_request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
     if source.derivation_bundle_ref is not None:
         if not isinstance(acquisition_request, Mapping):
@@ -7727,15 +8298,22 @@ def acquisition_report_inputs(
 
     if report.candidate_lineage is not None:
         basis = report.requirement_basis_binding
-        if basis is None or basis.compiler_report_ref.manifest_profile_sha256 is None:
-            raise ValueError("n7_candidate_report_compiler_not_established")
+        model_compiler = report.candidate_lineage.model_input_compilation_ref
+        if model_compiler is not None:
+            if basis is not None:
+                raise ValueError("n7_candidate_report_compiler_variants_mixed")
+            compiler_ref = model_compiler
+            compiler_role = "model_input_compiler_report"
+        else:
+            if basis is None or basis.compiler_report_ref.manifest_profile_sha256 is None:
+                raise ValueError("n7_candidate_report_compiler_not_established")
+            compiler_ref = basis.compiler_report_ref
+            compiler_role = "data_requirement_compiler_report"
         inputs = [
             artifacts.input_ref_from_artifact_ref(
                 report.candidate_lineage.port_source_ref, role="configured_candidate_port_source"
             ),
-            artifacts.input_ref_from_artifact_ref(
-                basis.compiler_report_ref, role="data_requirement_compiler_report"
-            ),
+            artifacts.input_ref_from_artifact_ref(compiler_ref, role=compiler_role),
         ]
         for index, binding in enumerate(report.candidate_lineage.bindings):
             if binding.source_kind == "selected_artifact":

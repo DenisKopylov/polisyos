@@ -193,6 +193,12 @@ if TYPE_CHECKING:
         AcquisitionSourceMeasureScope as AcquisitionSourceMeasureScope,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionSupplierDeclaration as AcquisitionSupplierDeclaration,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionSupplierDeclarationRef as AcquisitionSupplierDeclarationRef,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         AuthoritySchemaColumn as AuthoritySchemaColumn,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -232,6 +238,9 @@ if TYPE_CHECKING:
         ResolvedLiveHarnessReceipt as ResolvedLiveHarnessReceipt,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        acquisition_supplier_declaration_scope_refusal as acquisition_supplier_declaration_scope_refusal,  # noqa: E501
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         build_acquisition_authority_provision as build_acquisition_authority_provision,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -256,10 +265,16 @@ if TYPE_CHECKING:
         derive_license_disposition as derive_license_disposition,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        load_acquisition_supplier_declaration as load_acquisition_supplier_declaration,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         normalize_acquisition_unit as normalize_acquisition_unit,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         normalized_acquisition_source_body as normalized_acquisition_source_body,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        persist_acquisition_supplier_declaration as persist_acquisition_supplier_declaration,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         read_selected_live_raw_source as read_selected_live_raw_source,
@@ -602,9 +617,7 @@ _EXPORTS = {
     "CatalogFetchRequest": "polisyos.data_forge.domains.catalog.knowledge.types",
     "CatalogFetchResolution": "polisyos.data_forge.domains.catalog.knowledge.types",
     "AcquisitionDatasetRegistration": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
-    "ActivatedAcquisitionPassport": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "ActivatedAcquisitionPassport": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "BaselineIdentity": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "derive_canonical_observations": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
@@ -642,6 +655,12 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "AcquisitionAuthorityRegistry": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "AcquisitionSupplierDeclaration": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "AcquisitionSupplierDeclarationRef": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "AuthoritySchemaColumn": (
@@ -714,6 +733,15 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_authority_registry": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "acquisition_supplier_declaration_scope_refusal": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "load_acquisition_supplier_declaration": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "persist_acquisition_supplier_declaration": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_live_source_execution_evidence": (

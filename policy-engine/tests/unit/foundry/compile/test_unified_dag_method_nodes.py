@@ -276,9 +276,7 @@ def _register_one_scalar_money_input_method(*, method_name, input_name):
         source,
         namespace="test.ad01",
         name=method_name,
-        input_slots=frozenset(
-            {SlotSpec(input_name, SlotType.SCALAR, Unit("currency", "USD"))}
-        ),
+        input_slots=frozenset({SlotSpec(input_name, SlotType.SCALAR, Unit("currency", "USD"))}),
     )
 
     class OneScalarMoneyInputMethod:
@@ -288,6 +286,47 @@ def _register_one_scalar_money_input_method(*, method_name, input_name):
     OneScalarMoneyInputMethod.signature = signature
     MethodRegistry.get_instance().register(OneScalarMoneyInputMethod, override=True)
     return signature
+
+
+def _register_scalar_method_output_pair():
+    from dataclasses import replace
+
+    from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
+    from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    source = ExAnteSimulationEstimator.signature
+    usd = Unit("currency", "USD")
+    producer_signature = replace(
+        source,
+        namespace="test.ad01",
+        name="method_output_producer",
+        input_slots=frozenset({SlotSpec("seed", SlotType.SCALAR, usd)}),
+        output_slots=frozenset({SlotSpec("flow", SlotType.SCALAR, usd)}),
+    )
+    consumer_signature = replace(
+        source,
+        namespace="test.ad01",
+        name="method_output_consumer",
+        input_slots=frozenset({SlotSpec("consumed", SlotType.SCALAR, usd)}),
+        output_slots=frozenset({SlotSpec("summary", SlotType.SCALAR, usd)}),
+    )
+
+    class ProducerMethod:
+        metadata = ExAnteSimulationEstimator.metadata
+        pure_step = staticmethod(lambda state, params: {"flow": state["seed"]})
+
+    ProducerMethod.signature = producer_signature
+
+    class ConsumerMethod:
+        metadata = ExAnteSimulationEstimator.metadata
+        pure_step = staticmethod(lambda state, params: {"summary": state["consumed"]})
+
+    ConsumerMethod.signature = consumer_signature
+    registry = MethodRegistry.get_instance()
+    registry.register(ProducerMethod, override=True)
+    registry.register(ConsumerMethod, override=True)
+    return producer_signature, consumer_signature
 
 
 def test_selected_pure_method_return_is_not_a_program_state_patch() -> None:
@@ -672,35 +711,146 @@ def test_mapped_plan_rejects_a_same_unit_slot_from_a_sibling_registry(tmp_path) 
         _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
 
 
-def test_mapped_plan_refuses_method_output_sources_until_execution_bridge_exists(tmp_path) -> None:
+def test_mapped_plan_compiles_exact_method_output_edge_and_persisted_reader(tmp_path) -> None:
     from polisyos.core.contracts.execution_plan import ExecutionPlan
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.compile._graph import build_exec_order
+    from polisyos.foundry.compile.method_dataflow import (
+        resolve_program_graph_method_input_sources,
+    )
+    from polisyos.foundry.methods.registry import MethodRegistry
 
-    signature = _register_patch_emitting_method_signature()
-    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    producer, consumer = _register_scalar_method_output_pair()
+    store, registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
     plan = ExecutionPlan(
-        plan_id="ad01-method-output-source-not-yet-supported",
+        plan_id="ad01-method-output-explicit-source",
         schema_version="1.2",
         method_dag=[
             _method_dag_node(
-                signature,
-                node_id="writer",
-                params={"target_slot": "government.balance"},
-                state_writes=["government.balance"],
+                producer,
+                node_id="producer.first",
                 input_ports={
-                    "period_flow": {
-                        "source_kind": "method_output",
-                        "producer_node_id": "producer",
-                        "output_slot_id": "result",
+                    "seed": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "global.gdp",
                     }
                 },
-            )
+            ),
+            _method_dag_node(
+                producer,
+                node_id="producer.second",
+                input_ports={
+                    "seed": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "global.gdp",
+                    }
+                },
+            ),
+            _method_dag_node(
+                consumer,
+                node_id="consumer",
+                input_ports={
+                    "consumed": {
+                        "source_kind": "method_output",
+                        "producer_node_id": "producer.second",
+                        "output_slot_id": "flow",
+                    }
+                },
+            ),
         ],
     )
 
+    graph = _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+    nodes = {node.node_id: node for node in graph.nodes if node.node_kind == "method"}
+    edge = next(
+        edge for edge in graph.edges if edge.src == "producer.second" and edge.dst == "consumer"
+    )
+    assert graph.schema_version == "0.3"
+    assert nodes["producer.first"].inputs == ["global.gdp"]
+    assert nodes["producer.second"].inputs == ["global.gdp"]
+    assert nodes["consumer"].inputs == []
+    assert nodes["consumer"].input_ports is not None
+    assert nodes["consumer"].input_ports["consumed"].source_kind == "method_output"
+    assert nodes["consumer"].input_ports["consumed"].producer_node_id == "producer.second"
+    assert nodes["producer.second"].outputs == []
+    assert edge.relation == "depends_on"
+
+    registry_content = load_registry_bundle_content(store, registry_bundle_ref)
+    resolved = resolve_program_graph_method_input_sources(
+        graph,
+        registry=MethodRegistry.get_instance(),
+        registry_content=registry_content,
+        order=build_exec_order(graph),
+        allow_method_output=True,
+    )
+    assert [binding.producer_node_id for binding in resolved.bindings] == ["producer.second"]
+    assert resolved.registry_inputs["consumer"] == ()
+
+    without_edge = graph.model_copy(
+        update={
+            "edges": [
+                candidate
+                for candidate in graph.edges
+                if not (candidate.src == "producer.second" and candidate.dst == "consumer")
+            ]
+        }
+    )
     with pytest.raises(
         ValueError,
-        match="execution_plan_method_output_input_not_supported",
+        match="method_dataflow_persisted_output_edge_missing",
     ):
+        resolve_program_graph_method_input_sources(
+            without_edge,
+            registry=MethodRegistry.get_instance(),
+            registry_content=registry_content,
+            order=build_exec_order(graph),
+            allow_method_output=True,
+        )
+
+
+@pytest.mark.parametrize(
+    ("producer_node_id", "output_slot_id", "expected_error"),
+    [
+        ("foreign.producer", "flow", "method_dataflow_producer_node_missing"),
+        ("producer", "unknown", "method_dataflow_producer_output_slot_missing"),
+    ],
+)
+def test_mapped_method_output_rejects_missing_source_occurrence_or_slot(
+    tmp_path, producer_node_id, output_slot_id, expected_error
+) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    producer, consumer = _register_scalar_method_output_pair()
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    plan = ExecutionPlan(
+        plan_id="ad01-method-output-invalid-source",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                producer,
+                node_id="producer",
+                input_ports={
+                    "seed": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "global.gdp",
+                    }
+                },
+            ),
+            _method_dag_node(
+                consumer,
+                node_id="consumer",
+                input_ports={
+                    "consumed": {
+                        "source_kind": "method_output",
+                        "producer_node_id": producer_node_id,
+                        "output_slot_id": output_slot_id,
+                    }
+                },
+            ),
+        ],
+    )
+
+    with pytest.raises(ValueError, match=expected_error):
         _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
 
 
@@ -720,6 +870,30 @@ def test_plan_v12_without_input_maps_keeps_legacy_graph_v02() -> None:
     assert graph.schema_version == "0.2"
     assert method.inputs == sorted(slot.name for slot in signature.input_slots)
     assert "input_ports" not in method.model_dump(mode="json")
+
+
+def test_legacy_graph_reader_preserves_vector_identity_inputs(tmp_path) -> None:
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.compile._graph import build_exec_order
+    from polisyos.foundry.compile.method_dataflow import (
+        resolve_program_graph_method_input_sources,
+    )
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    signature = _registered_method_signature()
+    store, registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    plan = _plan_for([_method_dag_node(signature, node_id="legacy.reader")], schema_version="1.2")
+
+    graph = _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+    assert graph.schema_version == "0.2"
+    resolution = resolve_program_graph_method_input_sources(
+        graph,
+        registry=MethodRegistry.get_instance(),
+        registry_content=load_registry_bundle_content(store, registry_bundle_ref),
+        order=build_exec_order(graph),
+    )
+
+    assert resolution.registry_inputs["legacy.reader"] == ("baseline", "scenario")
 
 
 def test_selected_method_plan_rejects_registered_return_slot_mismatch() -> None:

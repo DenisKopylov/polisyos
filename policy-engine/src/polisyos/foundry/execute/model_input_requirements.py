@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Literal
@@ -44,6 +45,11 @@ from polisyos.core.contracts import (
     load_program_graph_input_interface,
     load_resolved_input_binding_manifest,
     verify_model_input_port_semantics,
+)
+from polisyos.core.contracts.method_input import (
+    MethodInputPortSource,
+    MethodOutputInputPortSource,
+    RegistrySlotInputPortSource,
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.contracts.specs import get_mechanism_spec, validate_mechanism_params
@@ -350,6 +356,28 @@ def _recompute_program_graph_inputs(
     ):
         raise ValueError("model_input_interface_not_selected_by_compiled_model")
     registry = load_registry_bundle_content(store, registry_bundle_ref)
+    method_input_sources = None
+    has_method_output_source = graph.schema_version == "0.3" and any(
+        isinstance(source, MethodOutputInputPortSource)
+        for node in graph.nodes
+        for source in (node.input_ports or {}).values()
+    )
+    if has_method_output_source:
+        try:
+            from polisyos.foundry.compile.method_dataflow import (
+                resolve_program_graph_method_input_sources,
+            )
+            from polisyos.foundry.methods.selection.registry import MethodRegistry
+        except ImportError as exc:
+            raise ValueError("model_input_method_dataflow_not_verified") from exc
+
+        method_input_sources = resolve_program_graph_method_input_sources(
+            graph,
+            registry=MethodRegistry.get_instance(),
+            registry_content=registry,
+            order=plan.order,
+            allow_method_output=True,
+        ).input_sources
     bindings = load_input_bindings(store, input_bindings_ref)
     if (
         input_bindings_ref.manifest_profile_sha256 is None
@@ -404,6 +432,7 @@ def _recompute_program_graph_inputs(
         program_graph_schema_version=graph.schema_version,
         model_state_context=model_state_context,
         method_input_slots=method_input_slots,
+        method_input_sources=method_input_sources,
     )
 
     if set(execution_ports).difference(graph_slots):
@@ -803,6 +832,7 @@ def _graph_input_dependencies(
     program_graph_schema_version: str = "0.2",
     model_state_context: ModelStatePatchContext | None = None,
     method_input_slots: frozenset[str] = frozenset(),
+    method_input_sources: Mapping[str, Mapping[str, MethodInputPortSource]] | None = None,
 ) -> tuple[dict[str, list[ProgramGraphInputDependency]], set[str]]:
     if program_graph_schema_version not in {"0.2", "0.3"}:
         raise ValueError("unsupported_program_graph_payload_schema_version")
@@ -839,17 +869,31 @@ def _graph_input_dependencies(
                 raise ValueError("model_input_method_registry_mismatch")
             method_abi_digest = signature.abi_digest()
             signature_inputs = {slot.name: slot for slot in signature.input_slots}
+            internal_input_names: set[str] = set()
             if mapped_method_inputs:
                 declared_sources = node.input_ports
                 if declared_sources is None:
                     raise ValueError("model_input_method_input_map_missing")
-                input_slot_sources: dict[str, str] = {}
-                for input_slot_id, source in declared_sources.items():
-                    if source.source_kind != "registry_slot":
-                        raise ValueError("model_input_method_output_input_not_supported")
-                    input_slot_sources[input_slot_id] = source.slot_id
-                if set(input_slot_sources) != set(signature_inputs):
+                if method_input_sources is None:
+                    resolved_sources = declared_sources
+                else:
+                    resolved_sources = method_input_sources.get(node_id)
+                    if resolved_sources is None:
+                        raise ValueError("model_input_method_input_source_node_missing")
+                    if dict(resolved_sources) != declared_sources:
+                        raise ValueError("model_input_method_input_source_map_mismatch")
+                if set(resolved_sources) != set(signature_inputs):
                     raise ValueError("model_input_method_abi_join_not_exact")
+                input_slot_sources: dict[str, str] = {}
+                for input_slot_id, source in resolved_sources.items():
+                    if isinstance(source, RegistrySlotInputPortSource):
+                        input_slot_sources[input_slot_id] = source.slot_id
+                    elif isinstance(source, MethodOutputInputPortSource):
+                        if method_input_sources is None:
+                            raise ValueError("model_input_method_dataflow_not_verified")
+                        internal_input_names.add(input_slot_id)
+                    else:
+                        raise ValueError("model_input_method_input_source_unsupported")
                 if len(node.inputs) != len(set(node.inputs)) or node.inputs != sorted(
                     set(input_slot_sources.values())
                 ):
@@ -859,6 +903,8 @@ def _graph_input_dependencies(
                     raise ValueError("model_input_method_abi_join_not_exact")
                 input_slot_sources = {slot_id: slot_id for slot_id in node.inputs}
             if signature.patch_targets:
+                if internal_input_names:
+                    raise ValueError("model_input_method_output_patch_target_unsupported")
                 from polisyos.foundry.methods.patch_contracts import (
                     validate_method_patch_targets,
                 )

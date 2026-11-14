@@ -37,6 +37,29 @@ class ModelInputStepSelectionResolution:
     coverage: ModelInputStepCoverage
 
 
+@dataclass(frozen=True)
+class ModelInputStepSubject:
+    """An original missing-input subject before any derived output exists.
+
+    This is an in-memory coordinate, not an artifact, value or admission.
+    It lets a producer verify all requested steps before creating arithmetic
+    outputs without minting placeholder result references.
+    """
+
+    model_input_obligation_ref: ArtifactRef
+    step_scope: ModelInputStepScope
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.model_input_obligation_ref, ArtifactRef)
+            or self.model_input_obligation_ref.kind != "runtime.quality.model_input_obligation"
+            or self.model_input_obligation_ref.media_type != "application/json"
+            or self.model_input_obligation_ref.manifest_profile_sha256 is None
+            or type(self.step_scope) is not ModelInputStepScope
+        ):
+            raise ValueError("model_input_step_subject_invalid")
+
+
 def resolve_model_input_step_scope(
     store: ArtifactStore,
     *,
@@ -215,5 +238,56 @@ def resolve_model_input_step_selections(
         coverage=reconcile_model_input_step_coverage(
             required_step_scopes=selected_set.required_step_scopes,
             supplied_step_scopes=tuple(resolved),
+        ),
+    )
+
+
+def resolve_model_input_step_subjects(
+    store: ArtifactStore,
+    *,
+    obligation_set_ref: ArtifactRef,
+    subjects: tuple[ModelInputStepSubject, ...],
+) -> ModelInputStepSelectionResolution:
+    """Verify pre-output step subjects with one original full-set read.
+
+    The same origin predicate used for persisted selections checks each
+    requested coordinate.  Coverage is computed from the model-owned complete
+    denominator; source facts, arithmetic and execution remain separate.
+
+    Args:
+        store: Existing store containing the selected model and original set.
+        obligation_set_ref: Exact original full-horizon obligation set.
+        subjects: Canonically ordered original obligation and step coordinates.
+
+    Returns:
+        The reopened original set, its members and computed scope coverage.
+
+    Raises:
+        ValueError: If a coordinate, origin or canonical inventory differs.
+    """
+    from .model_input_requirements import load_model_input_obligation_set
+
+    if type(subjects) is not tuple or any(
+        type(row) is not ModelInputStepSubject for row in subjects
+    ):
+        raise ValueError("model_input_step_subject_inventory_invalid")
+    selected_set, members = load_model_input_obligation_set(store, obligation_set_ref)
+    if selected_set.required_step_scopes is None:
+        raise ValueError("model_input_step_selection_set_profile_required")
+    resolved = tuple(
+        _resolve_model_input_step_scope_from_origin(
+            selected_set,
+            members,
+            model_input_obligation_ref=row.model_input_obligation_ref,
+            step_scope=row.step_scope,
+        )
+        for row in subjects
+    )
+    return ModelInputStepSelectionResolution(
+        obligation_set=selected_set,
+        obligations=members,
+        coverage=reconcile_model_input_step_coverage(
+            required_step_scopes=selected_set.required_step_scopes,
+            supplied_step_scopes=resolved,
         ),
     )

@@ -19,7 +19,7 @@ from datetime import UTC, date, datetime, time
 from enum import StrEnum
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Literal, Self
+from typing import Any, ClassVar, Literal, Self
 
 import duckdb
 import pandas as pd
@@ -106,6 +106,19 @@ _MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES = (
 )
 _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION = (
     "polisyos.data_forge.model_input_source_query_envelope.v1"
+)
+_ACQUISITION_SUPPLIER_DECLARATION_KIND = "catalog.acquisition_supplier_declaration"
+_ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_NAME = "polisyos.data_forge.AcquisitionSupplierDeclaration"
+_ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_VERSION = "1.0"
+_ACQUISITION_SUPPLIER_DECLARATION_PAYLOAD_SCHEMA_VERSION = (
+    "polisyos.data_forge.acquisition_supplier_declaration.v1"
+)
+_ACQUISITION_SUPPLIER_DECLARATION_PROHIBITED_USES = (
+    "acquisition_permission",
+    "claim_evidence",
+    "measurement_admission",
+    "semantic_authority",
+    "source_currentness",
 )
 _MODELED_SOURCE_HINT = re.compile(
     r"\bmodel(?:l?ed|l?ing)\b"
@@ -873,6 +886,89 @@ class ResolvedAcquisitionAuthority(_StrictModel):
             != self.upstream_catalog_projection_sha256
         ):
             raise ValueError("resolved catalog projection identity must be recomputed")
+        return self
+
+
+class AcquisitionSupplierDeclarationRef(artifacts.ArtifactRef):
+    """Selected CAS reference to one candidate-only supplier declaration."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    kind: Literal[_ACQUISITION_SUPPLIER_DECLARATION_KIND] = _ACQUISITION_SUPPLIER_DECLARATION_KIND
+    media_type: Literal["application/json"] = "application/json"
+    manifest_profile_sha256: str = Field(pattern=_SHA256_PATTERN, strict=True)
+
+
+class AcquisitionSupplierDeclaration(_StrictModel):
+    """Immutable candidate view of one canonically resolved supplier row.
+
+    The declaration preserves the exact registry entry and the connector and
+    owner-content hashes resolved by ``CanonicalAcquisitionAuthority``. It is
+    routing provenance only: it is not a measurement, fetch permission, source
+    currentness claim, or semantic authority.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = _ACQUISITION_SUPPLIER_DECLARATION_KIND
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = _ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_NAME
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = _ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_VERSION
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        _ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_VERSION: (
+            _ACQUISITION_SUPPLIER_DECLARATION_PAYLOAD_SCHEMA_VERSION
+        )
+    }
+
+    schema_version: Literal[_ACQUISITION_SUPPLIER_DECLARATION_PAYLOAD_SCHEMA_VERSION] = (
+        _ACQUISITION_SUPPLIER_DECLARATION_PAYLOAD_SCHEMA_VERSION
+    )
+    authority_purpose: Literal["candidate_supplier_declaration_only"] = (
+        "candidate_supplier_declaration_only"
+    )
+    entry: AcquisitionAuthorityEntry
+    connector_id: str = Field(min_length=1)
+    authority_provision_id: str = Field(
+        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    )
+    authority_provision_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    upstream_catalog_projection_sha256: str = Field(pattern=_SHA256_PATTERN)
+    l5_owner_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    semantic_refs_status: Literal["declared", "not_established"]
+    source_scope_status: Literal["declared", "not_established"]
+    semantic_authority: Literal["not_established"] = "not_established"
+    acquisition_permission: Literal["not_established"] = "not_established"
+    source_currentness: Literal["not_established"] = "not_established"
+    may_not_use_for: tuple[
+        Literal[
+            "acquisition_permission",
+            "claim_evidence",
+            "measurement_admission",
+            "semantic_authority",
+            "source_currentness",
+        ],
+        ...,
+    ] = _ACQUISITION_SUPPLIER_DECLARATION_PROHIBITED_USES
+
+    @model_validator(mode="after")
+    def _declaration_limitations_and_statuses_are_exact(
+        self,
+    ) -> AcquisitionSupplierDeclaration:
+        semantic_refs_status = (
+            "declared"
+            if self.entry.source_semantic_definition_ref is not None
+            and self.entry.source_representation_ref is not None
+            else "not_established"
+        )
+        scope_status = (
+            "declared" if self.entry.source_measure_scope is not None else "not_established"
+        )
+        if self.semantic_refs_status != semantic_refs_status:
+            raise ValueError("supplier_declaration_semantic_refs_status_mismatch")
+        if self.source_scope_status != scope_status:
+            raise ValueError("supplier_declaration_source_scope_status_mismatch")
+        if self.may_not_use_for != _ACQUISITION_SUPPLIER_DECLARATION_PROHIBITED_USES:
+            raise ValueError("supplier_declaration_prohibited_uses_mismatch")
         return self
 
 
@@ -1891,16 +1987,14 @@ class CanonicalAcquisitionAuthority:
                     "model_input_source_descriptor_definition_ref_mismatch",
                     entry.entry_id,
                 )
-            if (
-                source_definition != target_definition
-                or source_definition.revision != target_definition.revision
-                or artifacts.artifact_ref_identity_key(
-                    source_representation.semantic_definition_ref
-                )
-                != artifacts.artifact_ref_identity_key(source_definition_ref)
-                or source_representation.unit_id != entry.canonical_unit
-            ):
-                reason = "source_descriptor_definition_or_unit_mismatch"
+            reason = _preacquisition_source_definition_or_unit_refusal(
+                entry,
+                source_definition,
+                source_representation,
+                expected_definition=target_definition,
+                expected_definition_ref=source_definition_ref,
+            )
+            if reason is not None:
                 record_incompatible(entry.entry_id, reason)
                 continue
 
@@ -3266,6 +3360,33 @@ def _preacquisition_axis_value(
     return value
 
 
+def _preacquisition_source_definition_or_unit_refusal(
+    entry: AcquisitionAuthorityEntry,
+    source_definition: VariableSemanticDefinition,
+    source_representation: VariableRepresentation,
+    *,
+    expected_definition: VariableSemanticDefinition | None = None,
+    expected_definition_ref: VariableSemanticDefinitionRef | None = None,
+) -> str | None:
+    """Check selected source-definition identity and its declared canonical unit."""
+    selected_definition_ref = expected_definition_ref or entry.source_semantic_definition_ref
+    if (
+        selected_definition_ref is None
+        or artifacts.artifact_ref_identity_key(source_representation.semantic_definition_ref)
+        != artifacts.artifact_ref_identity_key(selected_definition_ref)
+        or source_representation.unit_id != entry.canonical_unit
+        or (
+            expected_definition is not None
+            and (
+                source_definition != expected_definition
+                or source_definition.revision != expected_definition.revision
+            )
+        )
+    ):
+        return "source_descriptor_definition_or_unit_mismatch"
+    return None
+
+
 def _preacquisition_source_scope_refusal(
     entry: AcquisitionAuthorityEntry,
     model_scope: ModelInputScope,
@@ -3334,6 +3455,251 @@ def _preacquisition_source_scope_refusal(
     if entry.is_proxy:
         return "proxy_source_not_supported_for_exact_definition"
     return None
+
+
+def _acquisition_supplier_declaration_manifest_inputs(
+    declaration: AcquisitionSupplierDeclaration,
+) -> list[artifacts.InputRef]:
+    refs: list[tuple[str, artifacts.ArtifactRef]] = []
+    if declaration.entry.source_semantic_definition_ref is not None:
+        refs.append(
+            ("source_semantic_definition", declaration.entry.source_semantic_definition_ref)
+        )
+    if declaration.entry.source_representation_ref is not None:
+        refs.append(("source_representation", declaration.entry.source_representation_ref))
+    return [artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in refs]
+
+
+def _reopen_acquisition_supplier_source_artifacts(
+    store: artifacts.ArtifactReader,
+    entry: AcquisitionAuthorityEntry,
+) -> VariableRepresentation | None:
+    definition_ref = entry.source_semantic_definition_ref
+    representation_ref = entry.source_representation_ref
+    if definition_ref is None or representation_ref is None:
+        if definition_ref is not None or representation_ref is not None:
+            raise AcquisitionAuthorityError("supplier_declaration_source_ref_pair_mismatch")
+        return None
+    try:
+        artifacts.validate_core_model_json_artifact(
+            VariableSemanticDefinition,
+            store,
+            definition_ref,
+        )
+        representation = load_variable_representation(store, representation_ref)
+        manifest = store.get_manifest(representation_ref)
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_source_artifact_unavailable") from exc
+    if artifacts.artifact_ref_identity_key(
+        representation.semantic_definition_ref
+    ) != artifacts.artifact_ref_identity_key(definition_ref):
+        raise AcquisitionAuthorityError(
+            "supplier_declaration_representation_definition_ref_mismatch"
+        )
+    if tuple(manifest.inputs) != tuple(variable_representation_manifest_inputs(representation)):
+        raise AcquisitionAuthorityError("supplier_declaration_representation_lineage_mismatch")
+    return representation
+
+
+def _selected_acquisition_supplier_declaration_ref(
+    store: artifacts.ArtifactReader,
+    ref: artifacts.ArtifactRef,
+) -> AcquisitionSupplierDeclarationRef:
+    try:
+        selected = AcquisitionSupplierDeclarationRef.model_validate(ref.model_dump(mode="json"))
+        manifest = store.get_manifest(selected)
+        manifest_ref = artifacts.ArtifactRef(
+            artifact_id=manifest.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+        )
+    except (AttributeError, FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_selected_ref_unavailable") from exc
+    if artifacts.artifact_ref_identity_key(manifest_ref) != artifacts.artifact_ref_identity_key(
+        selected
+    ):
+        raise AcquisitionAuthorityError("supplier_declaration_selected_ref_mismatch")
+    return selected
+
+
+def load_acquisition_supplier_declaration(
+    store: artifacts.ArtifactReader,
+    ref: artifacts.ArtifactRef,
+) -> AcquisitionSupplierDeclaration:
+    """Reopen one immutable supplier declaration from its selected CAS bytes.
+
+    This operation replays the declaration snapshot and its selected semantic
+    inputs. It does not re-resolve the mutable authority registry or establish
+    that the supplier remains current, permitted, or semantically authoritative.
+
+    Args:
+        store: CAS reader containing the declaration and its declared source refs.
+        ref: Exact selected supplier-declaration reference.
+
+    Returns:
+        AcquisitionSupplierDeclaration: Reopened candidate routing provenance.
+
+    Raises:
+        AcquisitionAuthorityError: If the declaration, selected refs, or source
+            artifacts cannot be reopened consistently.
+    """
+    selected_ref = _selected_acquisition_supplier_declaration_ref(store, ref)
+    try:
+        declaration = artifacts.validate_core_model_json_artifact(
+            AcquisitionSupplierDeclaration,
+            store,
+            selected_ref,
+        )
+        manifest = store.get_manifest(selected_ref)
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_artifact_unavailable") from exc
+    expected_inputs = _acquisition_supplier_declaration_manifest_inputs(declaration)
+    if tuple(manifest.inputs) != tuple(expected_inputs):
+        raise AcquisitionAuthorityError("supplier_declaration_manifest_inputs_mismatch")
+    _reopen_acquisition_supplier_source_artifacts(store, declaration.entry)
+    return declaration
+
+
+def persist_acquisition_supplier_declaration(
+    store: artifacts.CoreJSONArtifactStore,
+    authority: CanonicalAcquisitionAuthority,
+    *,
+    entry_id: str,
+) -> AcquisitionSupplierDeclarationRef:
+    """Resolve and persist a candidate-only snapshot of one Catalog supplier.
+
+    The canonical authority owner resolves the entry and connector registration;
+    this function persists only the declared supplier fields and owner-content
+    hashes needed for candidate routing. It does not fetch data or carry a price,
+    grant, currentness, measurement-admission, or semantic-authority result.
+
+    Args:
+        store: Core CAS writer shared with the Catalog authority artifacts.
+        authority: Canonical owner that resolves the selected registry entry.
+        entry_id: Exact content-addressed acquisition-authority entry ID.
+
+    Returns:
+        AcquisitionSupplierDeclarationRef: Selected declaration artifact.
+
+    Raises:
+        AcquisitionAuthorityError: If the owner cannot resolve the entry or its
+            declared source artifacts cannot be reopened and bound.
+    """
+    try:
+        resolved = ResolvedAcquisitionAuthority.model_validate(authority.resolve(entry_id))
+    except (OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_authority_resolution_failed") from exc
+    if (
+        resolved.entry.entry_id != entry_id
+        or resolved.registration.metric_id != resolved.entry.target_variable
+        or resolved.registration.connector_id.strip() == ""
+    ):
+        raise AcquisitionAuthorityError("supplier_declaration_resolved_owner_mismatch", entry_id)
+    entry = resolved.entry
+    declaration = AcquisitionSupplierDeclaration(
+        entry=entry,
+        connector_id=resolved.registration.connector_id,
+        authority_provision_id=resolved.authority_provision_id,
+        authority_provision_content_sha256=resolved.authority_provision_content_sha256,
+        registry_content_sha256=resolved.registry_content_sha256,
+        baseline_content_sha256=resolved.baseline_content_sha256,
+        upstream_catalog_projection_sha256=resolved.upstream_catalog_projection_sha256,
+        l5_owner_content_sha256=resolved.l5_trust.owner_content_sha256,
+        semantic_refs_status=(
+            "declared"
+            if entry.source_semantic_definition_ref is not None
+            and entry.source_representation_ref is not None
+            else "not_established"
+        ),
+        source_scope_status=(
+            "declared" if entry.source_measure_scope is not None else "not_established"
+        ),
+    )
+    _reopen_acquisition_supplier_source_artifacts(store, entry)
+    inputs = _acquisition_supplier_declaration_manifest_inputs(declaration)
+    try:
+        raw_ref = store.put_json(
+            declaration,
+            artifacts.PutOptions(
+                kind=declaration.ARTIFACT_KIND,
+                media_type=declaration.ARTIFACT_MEDIA_TYPE,
+                schema=artifacts.SchemaInfo(
+                    name=declaration.ARTIFACT_SCHEMA_NAME,
+                    version=declaration.ARTIFACT_SCHEMA_VERSION,
+                ),
+                producer=artifacts.ProducerInfo(
+                    component="polisyos.data_forge.acquisition_authority",
+                    version="1.0",
+                ),
+                inputs=inputs,
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        selected_ref = AcquisitionSupplierDeclarationRef.model_validate(
+            raw_ref.model_dump(mode="json")
+        )
+        reopened = load_acquisition_supplier_declaration(store, selected_ref)
+        manifest = store.get_manifest(selected_ref)
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_persist_readback_failed") from exc
+    if reopened != declaration or tuple(manifest.inputs) != tuple(inputs):
+        raise AcquisitionAuthorityError("supplier_declaration_persist_readback_mismatch")
+    return selected_ref
+
+
+def acquisition_supplier_declaration_scope_refusal(
+    store: artifacts.ArtifactReader,
+    ref: artifacts.ArtifactRef,
+    *,
+    scope: ModelInputScope,
+) -> str | None:
+    """Apply the existing source-scope rule to a selected supplier declaration.
+
+    The exact owner matcher determines population, geography, period, and
+    quantity refusal. This helper only reopens the selected declaration and
+    representation before delegating; it does not infer source semantics or
+    currentness.
+
+    Args:
+        store: CAS reader containing the declaration and source artifacts.
+        ref: Exact selected supplier declaration.
+        scope: Requested model-input scope supplied by the consumer.
+
+    Returns:
+        str | None: Existing owner refusal code, or ``None`` when its declared
+            source-scope predicates match.
+
+    Raises:
+        AcquisitionAuthorityError: If the selected declaration or its source
+            representation cannot be reopened consistently.
+    """
+    declaration = load_acquisition_supplier_declaration(store, ref)
+    if declaration.semantic_refs_status != "declared":
+        return "model_input_source_descriptor_ref_pair_missing"
+    representation = _reopen_acquisition_supplier_source_artifacts(
+        store,
+        declaration.entry,
+    )
+    if representation is None:
+        return "model_input_source_descriptor_ref_pair_missing"
+    try:
+        source_definition = artifacts.validate_core_model_json_artifact(
+            VariableSemanticDefinition,
+            store,
+            declaration.entry.source_semantic_definition_ref,
+        )
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise AcquisitionAuthorityError("supplier_declaration_source_artifact_unavailable") from exc
+    definition_refusal = _preacquisition_source_definition_or_unit_refusal(
+        declaration.entry,
+        source_definition,
+        representation,
+    )
+    if definition_refusal is not None:
+        return definition_refusal
+    return _preacquisition_source_scope_refusal(declaration.entry, scope, representation)
 
 
 def _normalize_preacquisition_temporal_bound(
@@ -3626,6 +3992,8 @@ __all__ = [
     "AcquisitionAuthorityProvision",
     "AcquisitionAuthorityRegistry",
     "AcquisitionSourceMeasureScope",
+    "AcquisitionSupplierDeclaration",
+    "AcquisitionSupplierDeclarationRef",
     "AuthoritySchemaColumn",
     "CanonicalAcquisitionAuthority",
     "LicenseDisposition",
@@ -3641,6 +4009,7 @@ __all__ = [
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
     "ResolvedLiveHarnessReceipt",
+    "acquisition_supplier_declaration_scope_refusal",
     "build_acquisition_authority_provision",
     "build_authority_entry",
     "build_authority_registry",
@@ -3649,8 +4018,10 @@ __all__ = [
     "build_local_source_rights_declaration",
     "derive_catalog_unit_from_text",
     "derive_license_disposition",
+    "load_acquisition_supplier_declaration",
     "normalize_acquisition_unit",
     "normalized_acquisition_source_body",
+    "persist_acquisition_supplier_declaration",
     "read_selected_live_raw_source",
     "resolve_live_temporal_bounds",
     "resolve_source_observation_class",

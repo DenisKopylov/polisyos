@@ -41,6 +41,11 @@ from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
 if TYPE_CHECKING:
     from typing import Any
 
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionRouteMutationRequest,
+    )
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioSetToRule,
         CandidateSimulationScenarioProfile,
@@ -993,6 +998,176 @@ def _configure_key_trust(tmp_path, trust, pairs):
     return signers, identities
 
 
+def _appoint_served_acquisition_mandate(
+    control: ControlPlaneService,
+    closure: VerifiedAcquisitionRouteClosure,
+    request: AcquisitionRouteMutationRequest,
+    resource_digest: str,
+    *,
+    tmp_path: Path,
+    signers: dict[str, artifacts.Ed25519Signer],
+    identities: dict[str, str],
+) -> tuple[dict[str, object], str]:
+    """Persist a signed mandate and current-owner evidence for one exact action."""
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
+    from polisyos.runtime.quality.agent_action_authority import (
+        CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+        CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+        DELEGATION_CONTRACT_ARTIFACT_KIND,
+        LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+    )
+    from tests._helpers.acquisition_human_decision import persist_signed
+
+    store = control._artifact_store
+    now = datetime.now(UTC)
+    job_id = AcquisitionActionService._job_id(closure, request)
+    contract = _contract()
+    envelope = contract.action_envelopes[0].model_copy(
+        update={
+            "mandate_owner_ref": identities["owner"],
+            "authorized_subject": "acquisition-operator",
+            "authorized_runtime_roles": (PolicyOSRole.ANALYST,),
+            "required_tenant_id": closure.tenant_id,
+            "required_resource_digest": resource_digest,
+            "valid_from": now - timedelta(minutes=1),
+            "valid_until": now + timedelta(hours=1),
+        }
+    )
+    contract = contract.model_copy(
+        update={
+            "mandate_owner_ref": identities["owner"],
+            "action_envelopes": (envelope,),
+        }
+    )
+    context = {
+        "control": control,
+        "tenant_id": closure.tenant_id,
+        "cell_id": closure.cell_id,
+        "run_id": closure.run_id,
+        "job_id": job_id,
+        "now": now,
+    }
+    with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
+        contract_ref = persist_signed(
+            payload=contract,
+            kind=DELEGATION_CONTRACT_ARTIFACT_KIND,
+            schema_name="polisyos.runtime.DelegationContract",
+            schema_version=LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+            signer=signers["owner"],
+            signer_identity=identities["owner"],
+            **context,
+        )
+        evidence = _mandate_authority_evidence(
+            owner_ref=identities["owner"],
+            signer_identity=identities["current"],
+            rule_version_ref=contract.rule_version_ref,
+            effective_from=now - timedelta(minutes=1),
+            effective_until=now + timedelta(hours=1),
+        )
+        evidence_ref = persist_signed(
+            payload=evidence,
+            kind=CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+            schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+            schema_version=CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+            signer=signers["current"],
+            signer_identity=identities["current"],
+            **context,
+        )
+        info = store.put_json(
+            {"risk": "Fiscal measurement excludes unreported balances; review required."},
+            artifacts.ArtifactWriteOptions(
+                kind="test.acquisition.disconfirming", media_type="application/json"
+            ),
+        )
+    slot: dict[str, object] = {
+        "tenant_id": closure.tenant_id,
+        "cell_id": closure.cell_id,
+        "run_id": closure.run_id,
+        "route_id": closure.route_id,
+        "resource_digest": resource_digest,
+        "delegation_contract_ref": contract_ref,
+        "mandate_owner_ref": identities["owner"],
+        "delegation_public_key_path": str(tmp_path / "owner.pub"),
+        "current_mandate_evidence_ref": evidence_ref,
+        "current_mandate_signer_identity": identities["current"],
+        "current_mandate_public_key_path": str(tmp_path / "current.pub"),
+        "verifier_provenance_ref": "fixture://appointment-registry",
+        "decision_information_refs": [info.model_dump(mode="json")],
+        "decision_disconfirming_refs": [info.model_dump(mode="json")],
+    }
+    return slot, job_id
+
+
+def _approve_served_acquisition_request(
+    client: TestClient,
+    request: AcquisitionRouteMutationRequest,
+    resource_digest: str,
+    *,
+    closure: VerifiedAcquisitionRouteClosure,
+    trust: _ExternalTrust,
+    signers: dict[str, artifacts.Ed25519Signer],
+    identities: dict[str, str],
+    cas_root: Path,
+) -> tuple[authority.AgentActionAuthorityDecision, str]:
+    """Obtain real DS9 approval after the exact PA2 source decision refuses."""
+    from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
+    from tests._helpers.acquisition_human_decision import prepare_human_decision
+
+    run_id = closure.run_id
+    route_path = f"/api/v1/runs/{run_id}/acquisition-routes/{closure.route_id}"
+    route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
+    container = client.app.state.runtime_container
+    response, digest = trust.post(
+        client,
+        route_path + "/decision-request",
+        request.model_dump(mode="json"),
+        route=route_template + "/decision-request",
+    )
+    assert response.status_code == 200 and digest == resource_digest, response.text
+    source_ref = response.json()["authority_decision_ref"]
+    with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
+        source = AgentActionAuthorityDecision.model_validate(
+            canon.from_canonical_bytes(
+                container.control_service._artifact_store.get_bytes(source_ref)
+            )
+        )
+    assert source.refusal_reasons == ("human_decision_missing",), source.refusal_reasons
+    with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
+        gate = prepare_human_decision(
+            container.control_service,
+            container.human_decision_service,
+            source_ref,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=run_id,
+            signers=signers,
+            identities=identities,
+            now=datetime.now(UTC),
+            audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
+        )
+    body = {
+        name: value
+        for name, value in gate.model_dump(mode="json").items()
+        if name not in {"tenant_id", "run_id", "exposure_session_ref"}
+    }
+    body.update(
+        action="approve",
+        decision_mode="ordinary",
+        accountability_statement="I accept this bounded acquisition.",
+        dissent_statement="The measurement limitations remain material and were reviewed.",
+    )
+    response, _ = trust.post(
+        client,
+        f"/api/v1/runs/{run_id}/human-decisions",
+        body,
+        route="/api/v1/runs/{run_id}/human-decisions",
+        subject="human-reviewer-1",
+        extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
+    )
+    assert response.status_code == 201, response.text
+    return source, response.json()["record_ref"]
+
+
 def _seed_observer_mode(
     *, seed_only: bool, seed_only_context: bool, continuing: bool, custom_seed: bool
 ) -> Literal["none", "stop", "continue"]:
@@ -1058,7 +1233,6 @@ def _produce_served_acquisition_history(
 
     from polisyos.core.artifacts.manifest import artifact_ref_identity_key
     from polisyos.runtime.http.services import (
-        acquisition_action_service,
         acquisition_surface_execution,
     )
     from polisyos.runtime.http.services.control import (
@@ -1083,10 +1257,6 @@ def _produce_served_acquisition_history(
         N4CandidateScenarioSourceRecordV3,
     )
     from tests._helpers import acquisition_chain
-    from tests._helpers.acquisition_human_decision import (
-        persist_signed,
-        prepare_human_decision,
-    )
     from tests._helpers.acquisition_production import (
         install_fixture_wdi_cost_basis,
         intercepted_wdi_transport,
@@ -1591,139 +1761,27 @@ def _produce_served_acquisition_history(
     assert cycle_job_profile_selection_ref(recorded_problem) == profile.profile_selection_ref
 
     def appoint_mandate(control, request, resource_digest):
-        store = control._artifact_store
-        now = datetime.now(UTC)
-        job_id = acquisition_action_service.AcquisitionActionService._job_id(closure, request)
-        contract = _contract()
-        envelope = contract.action_envelopes[0].model_copy(
-            update={
-                "mandate_owner_ref": identities["owner"],
-                "authorized_subject": "acquisition-operator",
-                "authorized_runtime_roles": (PolicyOSRole.ANALYST,),
-                "required_tenant_id": TENANT,
-                "required_resource_digest": resource_digest,
-                "valid_from": now - timedelta(minutes=1),
-                "valid_until": now + timedelta(hours=1),
-            }
-        )
-        contract = contract.model_copy(
-            update={
-                "mandate_owner_ref": identities["owner"],
-                "action_envelopes": (envelope,),
-            }
-        )
-        context = {
-            "control": control,
-            "tenant_id": TENANT,
-            "cell_id": CELL,
-            "run_id": run_id,
-            "job_id": job_id,
-            "now": now,
-        }
-        contract_ref = _within_fixture_owner(
-            persist_signed,
-            payload=contract,
-            kind=authority.DELEGATION_CONTRACT_ARTIFACT_KIND,
-            schema_name="polisyos.runtime.DelegationContract",
-            schema_version=authority.LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
-            signer=signers["owner"],
-            signer_identity=identities["owner"],
-            **context,
-        )
-        evidence = _mandate_authority_evidence(
-            owner_ref=identities["owner"],
-            signer_identity=identities["current"],
-            rule_version_ref=contract.rule_version_ref,
-            effective_from=now - timedelta(minutes=1),
-            effective_until=now + timedelta(hours=1),
-        )
-        evidence_ref = _within_fixture_owner(
-            persist_signed,
-            payload=evidence,
-            kind=authority.CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
-            schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
-            schema_version=authority.CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
-            signer=signers["current"],
-            signer_identity=identities["current"],
-            **context,
-        )
-        info = _within_fixture_owner(
-            store.put_json,
-            {"risk": "Fiscal measurement excludes unreported balances; review required."},
-            artifacts.ArtifactWriteOptions(
-                kind="test.acquisition.disconfirming", media_type="application/json"
-            ),
-        )
-        slot = {
-            "tenant_id": TENANT,
-            "cell_id": CELL,
-            "run_id": run_id,
-            "route_id": closure.route_id,
-            "resource_digest": resource_digest,
-            "delegation_contract_ref": contract_ref,
-            "mandate_owner_ref": identities["owner"],
-            "delegation_public_key_path": str(tmp_path / "owner.pub"),
-            "current_mandate_evidence_ref": evidence_ref,
-            "current_mandate_signer_identity": identities["current"],
-            "current_mandate_public_key_path": str(tmp_path / "current.pub"),
-            "verifier_provenance_ref": "fixture://appointment-registry",
-            "decision_information_refs": [info.model_dump(mode="json")],
-            "decision_disconfirming_refs": [info.model_dump(mode="json")],
-        }
-        return slot, job_id
-
-    def approve_request(client, request, resource_digest):
-        container = client.app.state.runtime_container
-        response, digest = trust.post(
-            client,
-            path + "/decision-request",
-            request.model_dump(mode="json"),
-            route=route_prefix + "/decision-request",
-        )
-        assert response.status_code == 200 and digest == resource_digest, response.text
-        source_ref = response.json()["authority_decision_ref"]
-        source = authority.AgentActionAuthorityDecision.model_validate(
-            canon.from_canonical_bytes(
-                _within_fixture_owner(
-                    container.control_service._artifact_store.get_bytes, source_ref
-                )
-            )
-        )
-        assert source.refusal_reasons == ("human_decision_missing",), source.refusal_reasons
-        gate = _within_fixture_owner(
-            prepare_human_decision,
-            container.control_service,
-            container.human_decision_service,
-            source_ref,
-            tenant_id=TENANT,
-            cell_id=CELL,
-            run_id=run_id,
+        return _appoint_served_acquisition_mandate(
+            control,
+            closure,
+            request,
+            resource_digest,
+            tmp_path=tmp_path,
             signers=signers,
             identities=identities,
-            now=datetime.now(UTC),
-            audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
         )
-        body = {
-            name: value
-            for name, value in gate.model_dump(mode="json").items()
-            if name not in {"tenant_id", "run_id", "exposure_session_ref"}
-        }
-        body.update(
-            action="approve",
-            decision_mode="ordinary",
-            accountability_statement="I accept this bounded acquisition.",
-            dissent_statement="The measurement limitations remain material and were reviewed.",
-        )
-        response, _ = trust.post(
+
+    def approve_request(client, request, resource_digest):
+        return _approve_served_acquisition_request(
             client,
-            f"/api/v1/runs/{run_id}/human-decisions",
-            body,
-            route="/api/v1/runs/{run_id}/human-decisions",
-            subject="human-reviewer-1",
-            extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
+            request,
+            resource_digest,
+            closure=closure,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+            cas_root=cas_root,
         )
-        assert response.status_code == 201, response.text
-        return source, response.json()["record_ref"]
 
     b09_evidence: dict[str, object] | None = None
     path = None

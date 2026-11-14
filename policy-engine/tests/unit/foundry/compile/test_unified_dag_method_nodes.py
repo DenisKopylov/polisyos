@@ -113,14 +113,15 @@ def _plan_for(nodes, edges=(), *, schema_version="1.0"):
     )
 
 
-def _build_selected_plan(plan, mechanisms=()):
+def _build_selected_plan(plan, mechanisms=(), *, store=None, lowered_ir_ref=None):
     from polisyos.core.contracts.foundry import LoweredIRRef
     from polisyos.foundry.compile._graph import build_program_graph
 
     return build_program_graph(
-        None,
+        store,
         ir_ref=_dummy_ir_ref(),
-        lowered_ir_ref=LoweredIRRef(
+        lowered_ir_ref=lowered_ir_ref
+        or LoweredIRRef(
             artifact_id="sha256:" + "b" * 64,
             kind="foundry.lowered_ir",
             media_type="application/json",
@@ -129,6 +130,33 @@ def _build_selected_plan(plan, mechanisms=()):
         constraint_ids=[],
         method_plan=plan,
     )[0]
+
+
+def _selected_registry_store(tmp_path):
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.contracts.foundry import LoweredIRRef
+    from polisyos.core.registry import build_default_registry_bundle
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    lowered_ref = store.put_json(
+        {"schema_version": "1.0"},
+        PutOptions(
+            kind="foundry.lowered_ir",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.LoweredIR", version="1.0"),
+            inputs=[
+                input_ref_from_artifact_ref(registry_bundle.bundle_ref, role="registry_bundle")
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    return (
+        store,
+        registry_bundle.bundle_ref,
+        LoweredIRRef.model_validate(lowered_ref.model_dump(mode="python")),
+    )
 
 
 def _registered_method_signature():
@@ -204,6 +232,61 @@ def _register_consumer_signature(*, alias):
 
     ConsumerMethod.signature = signature
     MethodRegistry.get_instance().register(ConsumerMethod, override=True)
+    return signature
+
+
+def _register_two_scalar_money_input_method():
+    from dataclasses import replace
+
+    from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
+    from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    source = ExAnteSimulationEstimator.signature
+    signature = replace(
+        source,
+        namespace="test.ad01",
+        name="two_scalar_money_inputs",
+        input_slots=frozenset(
+            {
+                SlotSpec("flow_a", SlotType.SCALAR, Unit("currency", "USD")),
+                SlotSpec("flow_b", SlotType.SCALAR, Unit("currency", "USD")),
+            }
+        ),
+    )
+
+    class TwoScalarMoneyInputMethod:
+        metadata = ExAnteSimulationEstimator.metadata
+        pure_step = staticmethod(lambda state, params: {"result": 0.0})
+
+    TwoScalarMoneyInputMethod.signature = signature
+    MethodRegistry.get_instance().register(TwoScalarMoneyInputMethod, override=True)
+    return signature
+
+
+def _register_one_scalar_money_input_method(*, method_name, input_name):
+    from dataclasses import replace
+
+    from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
+    from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    source = ExAnteSimulationEstimator.signature
+    signature = replace(
+        source,
+        namespace="test.ad01",
+        name=method_name,
+        input_slots=frozenset(
+            {SlotSpec(input_name, SlotType.SCALAR, Unit("currency", "USD"))}
+        ),
+    )
+
+    class OneScalarMoneyInputMethod:
+        metadata = ExAnteSimulationEstimator.metadata
+        pure_step = staticmethod(lambda state, params: {"result": 0.0})
+
+    OneScalarMoneyInputMethod.signature = signature
+    MethodRegistry.get_instance().register(OneScalarMoneyInputMethod, override=True)
     return signature
 
 
@@ -314,21 +397,269 @@ def test_selected_method_preserves_explicit_empty_state_writes() -> None:
     assert plan.method_dag[0].model_dump(mode="json")["state_writes"] == []
 
 
-def test_selected_method_plan_refuses_unmapped_input_ports() -> None:
+def test_selected_method_input_ports_compile_to_global_registry_slots(tmp_path) -> None:
     from polisyos.core.contracts.execution_plan import ExecutionPlan
 
-    signature = _registered_method_signature()
-    input_names = sorted(slot.name for slot in signature.input_slots)
+    signature = _register_patch_emitting_method_signature()
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
     plan = ExecutionPlan(
-        plan_id="ad01-unmapped-input-ports",
+        plan_id="ad01-mapped-input-ports",
         schema_version="1.2",
         method_dag=[
             _method_dag_node(
                 signature,
-                node_id="reader",
+                node_id="writer",
+                params={"target_slot": "government.balance"},
+                state_writes=["government.balance"],
                 input_ports={
-                    name: {"source_kind": "registry_slot", "slot_id": f"slot.{name}"}
-                    for name in input_names
+                    "period_flow": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "global.gdp",
+                    }
+                },
+            )
+        ],
+    )
+
+    graph = _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+    method = next(node for node in graph.nodes if node.node_id == "writer")
+
+    assert graph.schema_version == "0.3"
+    assert method.inputs == ["global.gdp"]
+    assert method.input_ports is not None
+    assert method.input_ports["period_flow"].source_kind == "registry_slot"
+    assert method.input_ports["period_flow"].slot_id == "global.gdp"
+    assert method.outputs == ["government.balance"]
+
+
+def test_selected_method_input_aliases_and_repeated_fqn_are_node_scoped(tmp_path) -> None:
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_two_scalar_money_input_method()
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+
+    def _graph(*, reverse_ports):
+        first_ports = [
+            ("flow_a", {"source_kind": "registry_slot", "slot_id": "global.gdp"}),
+            ("flow_b", {"source_kind": "registry_slot", "slot_id": "global.gdp"}),
+        ]
+        second_ports = [
+            ("flow_a", {"source_kind": "registry_slot", "slot_id": "government.balance"}),
+            ("flow_b", {"source_kind": "registry_slot", "slot_id": "global.gdp"}),
+        ]
+        if reverse_ports:
+            first_ports.reverse()
+            second_ports.reverse()
+        plan = ExecutionPlan(
+            plan_id="ad01-repeated-fqn-input-ports",
+            schema_version="1.2",
+            method_dag=[
+                _method_dag_node(
+                    signature,
+                    node_id="reader.one",
+                    input_ports=dict(first_ports),
+                ),
+                _method_dag_node(
+                    signature,
+                    node_id="reader.two",
+                    input_ports=dict(second_ports),
+                ),
+            ],
+        )
+        return _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+
+    first = _graph(reverse_ports=False)
+    permuted = _graph(reverse_ports=True)
+    first_by_id = {node.node_id: node for node in first.nodes if node.node_kind == "method"}
+    second_by_id = {node.node_id: node for node in permuted.nodes if node.node_kind == "method"}
+
+    assert first.schema_version == permuted.schema_version == "0.3"
+    assert first_by_id["reader.one"].method_fqn == first_by_id["reader.two"].method_fqn
+    assert first_by_id["reader.one"].inputs == ["global.gdp"]
+    assert first_by_id["reader.one"].input_ports is not None
+    assert first_by_id["reader.one"].input_ports["flow_a"].slot_id == "global.gdp"
+    assert first_by_id["reader.one"].input_ports["flow_b"].slot_id == "global.gdp"
+    assert first_by_id["reader.two"].inputs == ["global.gdp", "government.balance"]
+    assert first_by_id["reader.two"].input_ports is not None
+    assert first_by_id["reader.two"].input_ports["flow_a"].slot_id == "government.balance"
+    assert second_by_id["reader.one"].inputs == first_by_id["reader.one"].inputs
+    assert second_by_id["reader.two"].input_ports == first_by_id["reader.two"].input_ports
+    assert to_canonical_bytes(
+        first.to_artifact_payload(), CanonSpec(forbid_floats=False)
+    ) == to_canonical_bytes(permuted.to_artifact_payload(), CanonSpec(forbid_floats=False))
+
+
+def test_program_graph_persistence_round_trips_each_payload_manifest_version(tmp_path) -> None:
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+    from polisyos.core.contracts.foundry import ProgramGraph
+    from polisyos.foundry.compile.trinity_compiler import _persist_program_graph
+
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    legacy_signature = _registered_method_signature()
+    legacy_graph = _build_selected_plan(
+        ExecutionPlan(
+            plan_id="ad01-persist-legacy-graph",
+            schema_version="1.2",
+            method_dag=[_method_dag_node(legacy_signature, node_id="legacy.reader")],
+        )
+    )
+    mapped_signature = _register_patch_emitting_method_signature()
+    mapped_graph = _build_selected_plan(
+        ExecutionPlan(
+            plan_id="ad01-persist-mapped-graph",
+            schema_version="1.2",
+            method_dag=[
+                _method_dag_node(
+                    mapped_signature,
+                    node_id="mapped.writer",
+                    params={"target_slot": "government.balance"},
+                    state_writes=["government.balance"],
+                    input_ports={
+                        "period_flow": {
+                            "source_kind": "registry_slot",
+                            "slot_id": "global.gdp",
+                        }
+                    },
+                )
+            ],
+        ),
+        store=store,
+        lowered_ir_ref=lowered_ir_ref,
+    )
+
+    assert legacy_graph.schema_version == "0.2"
+    assert mapped_graph.schema_version == "0.3"
+    for graph, expected_manifest_version in (
+        (legacy_graph, "0.2.0"),
+        (mapped_graph, "0.3.0"),
+    ):
+        graph_ref = _persist_program_graph(
+            store,
+            graph,
+            inputs=[],
+            return_selected_profile=True,
+        )
+        manifest = store.get_manifest(graph_ref)
+        assert manifest.artifact_schema.version == expected_manifest_version
+        reopened = validate_core_model_json_artifact(ProgramGraph, store, graph_ref)
+        assert reopened == graph
+
+
+def test_mixed_mapped_plan_normalizes_only_registry_validated_identity_inputs(tmp_path) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_one_scalar_money_input_method(
+        method_name="selected_identity_reader",
+        input_name="global.gdp",
+    )
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    plan = ExecutionPlan(
+        plan_id="ad01-mixed-input-ports",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="reader.explicit",
+                input_ports={
+                    "global.gdp": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "government.balance",
+                    }
+                },
+            ),
+            _method_dag_node(signature, node_id="reader.identity"),
+        ],
+    )
+
+    graph = _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+    nodes = {node.node_id: node for node in graph.nodes if node.node_kind == "method"}
+
+    assert graph.schema_version == "0.3"
+    assert nodes["reader.explicit"].inputs == ["government.balance"]
+    assert nodes["reader.identity"].inputs == ["global.gdp"]
+    assert nodes["reader.identity"].input_ports is not None
+    assert nodes["reader.identity"].input_ports["global.gdp"].slot_id == "global.gdp"
+
+
+def test_mixed_mapped_plan_does_not_fallback_for_unregistered_identity_inputs(tmp_path) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_one_scalar_money_input_method(
+        method_name="unregistered_identity_reader",
+        input_name="not.registered",
+    )
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    plan = ExecutionPlan(
+        plan_id="ad01-mixed-unregistered-identity",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="reader.explicit",
+                input_ports={
+                    "not.registered": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "global.gdp",
+                    }
+                },
+            ),
+            _method_dag_node(signature, node_id="reader.identity"),
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_input_slot_unregistered",
+    ):
+        _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+
+
+def test_mapped_plan_rejects_a_same_unit_slot_from_a_sibling_registry(tmp_path) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+    from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
+    from polisyos.ir.kernel import (
+        DEFAULT_CONSTRAINT_REGISTRY,
+        DEFAULT_MECHANISM_REGISTRY,
+        DEFAULT_MERGE_RULE_REGISTRY,
+        DEFAULT_SLOT_REGISTRY,
+        DEFAULT_UNITS_REGISTRY,
+    )
+    from polisyos.ir.kernel.slots import SlotRegistry
+
+    signature = _register_patch_emitting_method_signature()
+    store, _selected_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    foreign_slots = dict(DEFAULT_SLOT_REGISTRY.slots)
+    foreign_slots["foreign.same_unit_gdp"] = foreign_slots["global.gdp"].model_copy(
+        update={"slot_id": "foreign.same_unit_gdp"}
+    )
+    foreign_bundle = build_registry_bundle(
+        store,
+        slot_registry=SlotRegistry(slots=foreign_slots),
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        constraint_registry=DEFAULT_CONSTRAINT_REGISTRY,
+        units_registry=DEFAULT_UNITS_REGISTRY,
+        return_selected_profile=True,
+    )
+    selected = load_registry_bundle_content(store, _selected_bundle_ref).slot_registry
+    foreign = load_registry_bundle_content(store, foreign_bundle.bundle_ref).slot_registry
+    assert foreign.slots["foreign.same_unit_gdp"].unit == selected.slots["global.gdp"].unit
+    plan = ExecutionPlan(
+        plan_id="ad01-foreign-registry-source",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="writer",
+                params={"target_slot": "government.balance"},
+                state_writes=["government.balance"],
+                input_ports={
+                    "period_flow": {
+                        "source_kind": "registry_slot",
+                        "slot_id": "foreign.same_unit_gdp",
+                    }
                 },
             )
         ],
@@ -336,9 +667,59 @@ def test_selected_method_plan_refuses_unmapped_input_ports() -> None:
 
     with pytest.raises(
         ValueError,
-        match="execution_plan_method_input_ports_not_supported",
+        match="execution_plan_method_input_slot_unregistered",
     ):
-        _build_selected_plan(plan)
+        _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+
+
+def test_mapped_plan_refuses_method_output_sources_until_execution_bridge_exists(tmp_path) -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _register_patch_emitting_method_signature()
+    store, _registry_bundle_ref, lowered_ir_ref = _selected_registry_store(tmp_path)
+    plan = ExecutionPlan(
+        plan_id="ad01-method-output-source-not-yet-supported",
+        schema_version="1.2",
+        method_dag=[
+            _method_dag_node(
+                signature,
+                node_id="writer",
+                params={"target_slot": "government.balance"},
+                state_writes=["government.balance"],
+                input_ports={
+                    "period_flow": {
+                        "source_kind": "method_output",
+                        "producer_node_id": "producer",
+                        "output_slot_id": "result",
+                    }
+                },
+            )
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_output_input_not_supported",
+    ):
+        _build_selected_plan(plan, store=store, lowered_ir_ref=lowered_ir_ref)
+
+
+def test_plan_v12_without_input_maps_keeps_legacy_graph_v02() -> None:
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+
+    signature = _registered_method_signature()
+    plan = ExecutionPlan(
+        plan_id="ad01-v12-without-input-maps",
+        schema_version="1.2",
+        method_dag=[_method_dag_node(signature, node_id="reader")],
+    )
+
+    graph = _build_selected_plan(plan)
+    method = next(node for node in graph.nodes if node.node_id == "reader")
+
+    assert graph.schema_version == "0.2"
+    assert method.inputs == sorted(slot.name for slot in signature.input_slots)
+    assert "input_ports" not in method.model_dump(mode="json")
 
 
 def test_selected_method_plan_rejects_registered_return_slot_mismatch() -> None:

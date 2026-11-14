@@ -92,6 +92,29 @@ def _require_bounded_method_metric_bindings(request: CompileRequest) -> None:
         raise ValueError("method_metric_binding_inventory_exceeds_capture_limit")
 
 
+def _persist_program_graph(
+    store: CoreJSONArtifactStore,
+    program_graph: ProgramGraph,
+    *,
+    inputs: list[InputRef],
+    return_selected_profile: bool,
+) -> ArtifactRef:
+    """Persist a graph using the manifest version selected by its payload."""
+    return store.put_json(
+        program_graph.to_artifact_payload(),
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=program_graph.artifact_schema_version,
+            ),
+            inputs=inputs,
+        ),
+        return_selected_profile=return_selected_profile,
+    )
+
+
 def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle and persist the execution graph artifacts.
 
@@ -310,17 +333,10 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
         params_refs=params_refs,
         method_execution_plan_ref=exact_method_plan_ref,
     )
-    program_ref = store.put_json(
+    program_ref = _persist_program_graph(
+        store,
         program_graph,
-        PutOptions(
-            kind=ProgramGraph.ARTIFACT_KIND,
-            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
-                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
-            ),
-            inputs=program_inputs,
-        ),
+        inputs=program_inputs,
         return_selected_profile=request.return_selected_profile,
     )
     program_graph_ref = ProgramGraphRef.model_validate(program_ref.model_dump(mode="python"))

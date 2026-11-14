@@ -56,9 +56,9 @@ def _signature() -> MethodSignature:
     )
 
 
-def _registry(tmp_path, *, variant: str = "valid"):
+def _registry(tmp_path, *, variant: str = "valid", source_slot_id: str = "period_flow"):
     source = RegistrySlotSpec(
-        slot_id="period_flow",
+        slot_id=source_slot_id,
         scope=SlotScope.GLOBAL,
         kind=SlotKind.FLOW,
         value_type=SlotValueType.DECIMAL,
@@ -232,3 +232,55 @@ def test_legacy_method_without_patch_contract_keeps_legacy_gate(tmp_path) -> Non
         declared_outputs=[],
         registry=_registry(tmp_path),
     )
+
+
+def test_patch_contract_resolves_explicit_abi_source_alias_from_selected_registry(tmp_path) -> None:
+    registry = _registry(tmp_path, source_slot_id="model.selected_flow")
+    operations = validate_method_patch_targets(
+        _signature(),
+        params={"target_slot": "accumulated_net"},
+        declared_outputs=["accumulated_net"],
+        registry=registry,
+        input_slot_sources={"period_flow": "model.selected_flow"},
+    )
+    assert dict(operations) == {"accumulated_net": "add"}
+    with pytest.raises(ValueError, match="^method_input_source_unregistered$"):
+        validate_method_patch_targets(
+            _signature(),
+            params={"target_slot": "accumulated_net"},
+            declared_outputs=["accumulated_net"],
+            registry=registry,
+        )
+
+
+@pytest.mark.parametrize(
+    "sources",
+    [
+        {},
+        {"foreign": "model.selected_flow"},
+        {"period_flow": ""},
+        {"period_flow": " model.selected_flow"},
+        {"period_flow": 3},
+        {"period_flow": "model.selected_flow", "foreign": "model.selected_flow"},
+    ],
+)
+def test_patch_contract_explicit_aliases_never_fall_back_to_local_names(tmp_path, sources) -> None:
+    with pytest.raises(ValueError, match="^method_patch_input_slot_sources_mismatch$"):
+        validate_method_patch_targets(
+            _signature(),
+            params={"target_slot": "accumulated_net"},
+            declared_outputs=["accumulated_net"],
+            registry=_registry(tmp_path),
+            input_slot_sources=sources,
+        )
+
+
+def test_patch_contract_checks_kind_of_the_mapped_source_not_the_local_abi_name(tmp_path) -> None:
+    with pytest.raises(ValueError, match="^method_patch_source_profile_mismatch$"):
+        validate_method_patch_targets(
+            _signature(),
+            params={"target_slot": "accumulated_net"},
+            declared_outputs=["accumulated_net"],
+            registry=_registry(tmp_path),
+            input_slot_sources={"period_flow": "accumulated_net"},
+        )

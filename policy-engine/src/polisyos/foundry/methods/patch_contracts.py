@@ -21,6 +21,7 @@ def validate_method_patch_targets(
     params: Mapping[str, Any],
     declared_outputs: Sequence[str],
     registry: RegistryBundleContent,
+    input_slot_sources: Mapping[str, str] | None = None,
 ) -> Mapping[str, str]:
     """Resolve the finite additive-flow patch contract before invoking a method.
 
@@ -39,6 +40,9 @@ def validate_method_patch_targets(
         params: Actual invocation parameters, including static target names.
         declared_outputs: State slots the selected graph authorizes writing.
         registry: Materialized canonical registry bundle for the model.
+        input_slot_sources: Complete local ABI input to registered source map.
+            None preserves the legacy identity join. An explicit map never
+            falls back to local names for missing or invalid entries.
 
     Returns:
         Immutable mapping from exact state target to required operation.
@@ -48,6 +52,14 @@ def validate_method_patch_targets(
     """
     if not signature.patch_targets:
         return MappingProxyType({})
+    if input_slot_sources is not None and (
+        set(input_slot_sources) != signature.input_slot_names
+        or any(
+            not isinstance(source_id, str) or not source_id or source_id.strip() != source_id
+            for source_id in input_slot_sources.values()
+        )
+    ):
+        raise ValueError("method_patch_input_slot_sources_mismatch")
     if len(declared_outputs) != len(set(declared_outputs)):
         raise ValueError("method_patch_declared_outputs_not_unique")
     operations: dict[str, str] = {}
@@ -63,7 +75,11 @@ def validate_method_patch_targets(
         source = validate_registered_method_input(
             signature,
             input_slot_id=contract.source_input,
-            registered_slot_id=contract.source_input,
+            registered_slot_id=(
+                contract.source_input
+                if input_slot_sources is None
+                else input_slot_sources[contract.source_input]
+            ),
             registry=registry,
         )
         if (

@@ -20,6 +20,7 @@ import math
 import os
 import platform
 import re
+import struct
 import sys
 import threading
 import types
@@ -1929,7 +1930,7 @@ _GRAPH_NORMALIZATION = "supported-native-callable-graph/3"
 
 
 def _n5_typed_instance_dictionary(
-    value: object, *, allowed_slots: frozenset[str]
+    value: object, *, allowed_slots: frozenset[str], native_scalar_base: type | None = None
 ) -> dict[str, object] | None:
     """Establish all native instance storage across the actual MRO passively.
 
@@ -1945,10 +1946,15 @@ def _n5_typed_instance_dictionary(
         for descriptor in namespace.values():
             if type(descriptor) is types.MemberDescriptorType:
                 name = descriptor.__name__
+                declared = namespace.get("__slots__", ())
+                declared = (declared,) if type(declared) is str else declared
                 if (
                     not any(descriptor.__objclass__ is owner for owner in mro)
                     or name not in allowed_slots
                     or (name in slots and slots[name] is not descriptor)
+                    or type(declared) not in {tuple, list}
+                    or any(type(item) is not str for item in declared)
+                    or name not in declared
                 ):
                     raise ValueError("n5_native_instance_storage_not_established")
                 slots[name] = descriptor
@@ -1970,7 +1976,74 @@ def _n5_typed_instance_dictionary(
                     ):
                         raise ValueError("n5_native_instance_storage_not_established")
                     dictionary = actual
+    _require_accounted_n5_instance_layout(
+        kind, mro=mro, slots=tuple(slots.values()), native_scalar_base=native_scalar_base
+    )
     return dictionary
+
+
+def _require_accounted_n5_instance_layout(
+    kind: type,
+    *,
+    mro: tuple[type, ...],
+    slots: tuple[object, ...],
+    native_scalar_base: type | None,
+) -> None:
+    """Refuse unaccounted inline payload in the supported CPython typed domain.
+
+    Declared Python object slots and dictionary/weakref pointer storage are
+    accounted separately. An empty dictionary does not establish the state of
+    an opaque native ancestor. External side tables, globals and mutation
+    during a call remain outside this candidate observation.
+    """
+    if (
+        sys.implementation.name != "cpython"
+        or sys.version_info[:2] != (3, 14)
+        or (native_scalar_base is not None and native_scalar_base is not str)
+    ):
+        raise ValueError("n5_instance_storage_profile_not_established")
+    pointer_size = struct.calcsize("P")
+
+    def native_type_field(owner: type, name: str) -> int:
+        descriptor = type.__dict__[name]
+        result = descriptor.__get__(owner, type(owner))
+        if type(result) is not int:
+            raise ValueError("n5_instance_storage_profile_not_established")
+        return result
+
+    header_size = native_type_field(object, "__basicsize__")
+    for owner in mro:
+        owner_mro = type.__dict__["__mro__"].__get__(owner, type(owner))
+        base_size = (
+            native_type_field(str, "__basicsize__")
+            if native_scalar_base is str and any(base is str for base in owner_mro)
+            else header_size
+        )
+        actual_size = native_type_field(owner, "__basicsize__")
+        if native_type_field(owner, "__itemsize__") != 0:
+            raise ValueError("n5_instance_native_payload_not_established")
+        actual_slots = {
+            id(descriptor)
+            for descriptor in slots
+            if any(descriptor.__objclass__ is base for base in owner_mro)
+        }
+        pointer_fields = set()
+        for base in owner_mro:
+            flags = native_type_field(base, "__flags__")
+            for role, attribute, managed_flag, managed_offset in (
+                ("dict", "__dictoffset__", 1 << 4, -1),
+                ("weakref", "__weakrefoffset__", 1 << 3, -4 * pointer_size),
+            ):
+                offset = native_type_field(base, attribute)
+                if offset < 0 and (offset != managed_offset or not flags & managed_flag):
+                    raise ValueError("n5_instance_storage_profile_not_established")
+                if offset > 0:
+                    if offset < header_size or offset + pointer_size > actual_size:
+                        raise ValueError("n5_instance_storage_profile_not_established")
+                    pointer_fields.add((role, offset))
+        expected_size = base_size + pointer_size * (len(actual_slots) + len(pointer_fields))
+        if actual_size != expected_size:
+            raise ValueError("n5_instance_native_payload_not_established")
 
 
 class _N5ContentGraph:
@@ -2077,7 +2150,10 @@ class _N5ContentGraph:
         elif type(kind) is type(BaseModel) and issubclass(kind, BaseModel):
             self._model_row(value, row, encode)
         elif type(kind) is type(Enum) and issubclass(kind, Enum):
-            values = _n5_typed_instance_dictionary(value, allowed_slots=frozenset())
+            scalar_base = str if any(base is str for base in kind.__mro__) else None
+            values = _n5_typed_instance_dictionary(
+                value, allowed_slots=frozenset(), native_scalar_base=scalar_base
+            )
             if type(values) is not dict or "_value_" not in values or "_name_" not in values:
                 raise ValueError("n5_native_content_not_established")
             if (
@@ -2094,6 +2170,8 @@ class _N5ContentGraph:
                     if name != "__objclass__"
                 },
             )
+            if scalar_base is str:
+                row["native_scalar_payload"] = encode(str.__str__(value))
         elif type(kind) is type and "__dataclass_fields__" in vars(kind):
             self._dataclass_row(value, row, encode)
         elif kind is types.ModuleType or issubclass(kind, type):
@@ -2143,9 +2221,10 @@ class _N5ContentGraph:
             raise ValueError("n5_bound_receiver_not_established")
         row.update(
             kind="plain_bound_receiver",
-            receiver_profile="recorded-python-class/plain-instance-dictionary/1",
+            receiver_profile="recorded-python-class/cpython-3.14-dictionary-layout/2",
             class_binding=binding,
             fields=encode(values),
+            external_state_completeness="not_established",
         )
 
     @staticmethod
@@ -2474,8 +2553,11 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
                 is not inspect.getattr_static(Enum, "value")
             ):
                 raise ValueError("n5_foundry_enum_protocol_not_established")
+            scalar_base = str if any(base is str for base in kind.__mro__) else None
             try:
-                values = _n5_typed_instance_dictionary(item, allowed_slots=frozenset())
+                values = _n5_typed_instance_dictionary(
+                    item, allowed_slots=frozenset(), native_scalar_base=scalar_base
+                )
             except (AttributeError, TypeError, ValueError) as exc:
                 raise ValueError("n5_foundry_enum_state_not_established") from exc
             if (
@@ -2491,7 +2573,7 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
             if position is not None:
                 return {"ref": position}
             positions[id(item)] = len(positions)
-            return {
+            result = {
                 "enum": {
                     "id": positions[id(item)],
                     "type": _native_type_label(kind),
@@ -2502,6 +2584,9 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
                     },
                 }
             }
+            if scalar_base is str:
+                result["enum"]["native_scalar_payload"] = project(str.__str__(item), depth + 1)
+            return result
         if kind is ArrayImpl or kind is np.ndarray:
             if kind is np.ndarray:
                 if item.flags.writeable:

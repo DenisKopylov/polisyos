@@ -19,7 +19,10 @@ def recorded_bound_method_module(tmp_path, monkeypatch):
     from tools import loaded_execution_capture as recorder_owner
     from tools.loaded_execution_capture import ExpectedSource, SourceExecutionCapture
 
-    source = """from typing import Protocol
+    source = """import random
+import _random
+from dataclasses import dataclass
+from typing import Protocol
 class RunnerProtocol(Protocol):
     def execute(self, value=1): ...
 class Runner(RunnerProtocol):
@@ -34,6 +37,17 @@ class CustomReader:
         raise AssertionError("opaque receiver getter must not run")
     def execute(self):
         return 1
+class NativeRandom(random.Random):
+    def execute(self):
+        return self.random()
+@dataclass(frozen=True)
+class FrozenNativeRandom(_random.Random):
+    marker: int = 3
+    def execute(self):
+        return self.random()
+class NativeList(list):
+    def execute(self):
+        return self[0]
 """
     name = "codec_bound_method_sample"
     path = tmp_path / f"{name}.py"
@@ -41,7 +55,16 @@ class CustomReader:
     capture = SourceExecutionCapture(
         tmp_path,
         {name: ExpectedSource(path.name, hashlib.sha256(path.read_bytes()).hexdigest())},
-        exports={name: {"Runner", "Slotted", "CustomReader"}},
+        exports={
+            name: {
+                "Runner",
+                "Slotted",
+                "CustomReader",
+                "NativeRandom",
+                "FrozenNativeRandom",
+                "NativeList",
+            }
+        },
     )
     slot = "_polisyos_loaded_execution_owner_v1"
     assert slot not in vars(sys)
@@ -121,3 +144,60 @@ def test_callable_snapshot_refuses_noncallable_with_native_export_reference(monk
     # module can also export data. Do not infer the latter from the former.
     monkeypatch.setattr(basis, "_n5_recorded_native_reference", lambda _value: {"selected": True})
     assert basis.snapshot_n5_callable_content_v3(7) is None
+
+
+@pytest.mark.parametrize("receiver_kind", ["NativeRandom", "FrozenNativeRandom", "NativeList"])
+def test_bound_receiver_native_ancestor_state_is_unknown(
+    recorded_bound_method_module, monkeypatch, receiver_kind
+):
+    module = recorded_bound_method_module
+    cls = vars(module)[receiver_kind]
+    if receiver_kind == "FrozenNativeRandom":
+        first, second = cls(), cls()
+        first.seed(1)
+        second.seed(2)
+    elif receiver_kind == "NativeList":
+        first, second = cls([1]), cls([2])
+    else:
+        first, second = cls(1), cls(2)
+    assert vars(first) == vars(second)
+    first_content = basis.snapshot_n5_callable_content_v3(first.execute)
+    second_content = basis.snapshot_n5_callable_content_v3(second.execute)
+    assert first.execute() != second.execute()
+    assert first_content is None and second_content is None
+    # Removing the shared physical-storage guard re-establishes an equal key
+    # for genuinely different native state, including a frozen dataclass.
+    with monkeypatch.context() as control:
+        control.setattr(basis, "_require_accounted_n5_instance_layout", lambda *args, **kw: None)
+        first_content = basis.snapshot_n5_callable_content_v3(first.execute)
+        second_content = basis.snapshot_n5_callable_content_v3(second.execute)
+        assert first_content is not None and first_content == second_content
+
+
+def test_string_enum_native_payload_is_bound_without_calling_override():
+    import json
+    from enum import Enum
+
+    class Mode(str, Enum):
+        FIRST = "one"
+        SECOND = "two"
+
+        def __str__(self):
+            raise AssertionError("native scalar projection must not dispatch override")
+
+    first = Mode.FIRST
+    second = Mode.SECOND
+    # All Python instance fields can be made equal; the real Unicode payload
+    # remains different and must still distinguish the supported enum values.
+    original = vars(second).copy()
+    try:
+        vars(second).clear()
+        vars(second).update(vars(first))
+        before = basis._N5ContentGraph().wire(first)
+        after = basis._N5ContentGraph().wire(second)
+        assert before != after
+        assert json.loads(before)["nodes"][0]["native_scalar_payload"] == {"str": "one"}
+        assert json.loads(after)["nodes"][0]["native_scalar_payload"] == {"str": "two"}
+    finally:
+        vars(second).clear()
+        vars(second).update(original)

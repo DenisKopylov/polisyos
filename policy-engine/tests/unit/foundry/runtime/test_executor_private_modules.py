@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import artifact_manifest_profile_sha256, load_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlan,
@@ -162,6 +162,87 @@ def test_put_tensor_selects_its_written_profile_instead_of_same_bytes_default(tm
         artifact_manifest_profile_sha256(selected_manifest) == selected_ref.manifest_profile_sha256
     )
     np.testing.assert_array_equal(load_tensor(fresh, selected_ref), value)
+
+
+def test_selected_method_tensor_reuses_npy_codec_with_exact_source_lineage(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source = store.put_json(
+        {"scope": "physical codec fixture only"},
+        PutOptions(kind="fixture.selected_source", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    inputs = [input_ref_from_artifact_ref(source, role="source.selected_value")]
+    value = np.array(16777217, dtype=np.float64)
+    selected = put_tensor(
+        store,
+        value,
+        return_selected_profile=True,
+        kind="foundry.selected_method_input_value",
+        inputs=inputs,
+    )
+    legacy = put_tensor(store, value, return_selected_profile=True)
+    assert selected.artifact_id == legacy.artifact_id
+    assert selected.manifest_profile_sha256 != legacy.manifest_profile_sha256
+    fresh = FileSystemCAS(store.root)
+    manifest = fresh.get_manifest(selected)
+    assert manifest.kind == "foundry.selected_method_input_value"
+    assert manifest.media_type == "application/x-npy"
+    assert manifest.inputs == inputs
+    reopened = load_tensor(
+        fresh, selected, expected_shape=(), expected_dtype="float64", max_payload_bytes=16392
+    )
+    assert type(reopened) is np.ndarray and reopened.shape == ()
+    assert reopened.dtype == np.dtype("float64")
+    assert reopened.item() == 16777217
+    assert fresh.get_manifest(legacy).kind == "foundry.patch_value"
+    assert fresh.get_manifest(legacy).inputs == []
+
+
+@pytest.mark.parametrize(
+    ("value", "shape", "dtype"),
+    [
+        (np.array([1], dtype=np.float64), (), "float64"),
+        (np.array(1, dtype=np.float32), (), "float64"),
+        (np.array(1, dtype=np.float64), (1,), "float64"),
+    ],
+)
+def test_selected_tensor_loader_refuses_header_shape_or_dtype_before_decode(
+    tmp_path, value, shape, dtype
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = put_tensor(store, value, return_selected_profile=True)
+    with pytest.raises(ValueError, match="Tensor shape or dtype differs"):
+        load_tensor(store, ref, expected_shape=shape, expected_dtype=dtype, max_payload_bytes=16392)
+
+
+def test_selected_tensor_header_cannot_request_unselected_large_allocation(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = BytesIO()
+    np.lib.format.write_array_header_1_0(
+        payload,
+        {"descr": np.dtype("float64").str, "fortran_order": False, "shape": (10**9,)},
+    )
+    ref = store.put_bytes(
+        payload.getvalue(),
+        PutOptions(kind="foundry.selected_method_input_value", media_type="application/x-npy"),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="Tensor shape or dtype differs"):
+        load_tensor(
+            store, ref, expected_shape=(), expected_dtype="float64", max_payload_bytes=16392
+        )
+
+
+def test_selected_tensor_payload_bound_refuses_before_reader(tmp_path, monkeypatch) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = put_tensor(store, np.array(1, dtype=np.float64), return_selected_profile=True)
+
+    def forbidden_reader(*_args, **_kwargs):
+        pytest.fail("over-bound selected tensor reached the payload reader")
+
+    monkeypatch.setattr(store, "get_bytes", forbidden_reader)
+    with pytest.raises(ValueError, match="Tensor payload exceeds the selected byte bound"):
+        load_tensor(store, ref, expected_shape=(), expected_dtype="float64", max_payload_bytes=1)
 
 
 def test_put_tensor_preserves_legacy_writer_and_refuses_unsupported_selected_mode(tmp_path) -> None:

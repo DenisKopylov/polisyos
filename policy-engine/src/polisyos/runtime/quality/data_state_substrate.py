@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Literal
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from polisyos.core.artifacts import CanonInfo
     from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.core.contracts.epoch import ActivatedOverlayAdmissionStatement
     from polisyos.data_forge.read_api.catalog import (
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.model_input_routing import DerivedModelInputBatchMaterialization
     from polisyos.runtime.quality.world_model_record import WorldModelOwnerValues
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -50,6 +52,7 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
     matches_artifact_store_protocol,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
@@ -131,6 +134,13 @@ ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_to_target_measurement_contract_not_established",
     "causal_coupling_not_established",
     "acquired_source_row_revalidation_not_established",
+)
+DERIVED_MODEL_INPUT_CANDIDATE_PROFILE = "candidate_derived_model_input_world.v1"
+DERIVED_MODEL_INPUT_LIMITATION_CODES = (
+    "source_time_not_established",
+    "causal_coupling_not_established",
+    "external_empirical_context_not_established",
+    "derivation_uncertainty_not_established",
 )
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
 DEFAULT_DATA_STATE_PERIOD_START = "2021-12"
@@ -495,6 +505,36 @@ class CandidateAcquisitionWorldBuildResult:
     model_spec: ModelSpec
     registry_bundle_ref: ArtifactRef
     substrate_registry_ref: ArtifactRef
+
+
+@dataclass(frozen=True)
+class DerivedModelInputCandidateWorldBuildResult:
+    """Limited world consuming a real derived manifest and its preserved prestate."""
+
+    materialization: DerivedModelInputBatchMaterialization
+    world_model: WorldModelBuildResult
+    simulation_input: WorldModelSimulationInput
+    model_spec: ModelSpec
+    registry_bundle_ref: ArtifactRef
+    substrate_registry_ref: ArtifactRef
+
+
+@dataclass(frozen=True)
+class _DerivedModelInputWorldSource:
+    """Verified physical publication coordinates for the actual derived output."""
+
+    materialization: DerivedModelInputBatchMaterialization
+    data_forge_snapshot_binding_path: Path
+    snapshot_id: str
+    payload_content_hash: str
+
+    @property
+    def data_snapshot_ref(self) -> ArtifactRef:
+        return self.materialization.data_snapshot_ref
+
+    @property
+    def data_forge_role(self) -> str:
+        return _data_forge_snapshot_role()
 
 
 @dataclass(frozen=True)
@@ -1326,8 +1366,8 @@ def _prepare_acquired_observation_snapshot_from_projection(
             or any(edge.manifest_profile_sha256 is None for edge in base_manifest.inputs)
         ):
             raise DataStateSubstrateError("acquisition_base_snapshot_profile_unselected")
-        base_snapshot = DataSnapshot.model_validate(
-            load_core_json_artifact(store, base_data_snapshot_ref)
+        base_snapshot = validate_core_model_json_artifact(
+            DataSnapshot, store, base_data_snapshot_ref
         )
         _require_selected_profile(
             base_snapshot.data_ref,
@@ -1932,7 +1972,6 @@ def _replay_acquired_observation_projection(
     """Replay source and typed activation history without a present native permit."""
     import polisyos.fabric.connectors as connectors
     import polisyos.fabric.data_plane as data_plane
-    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.contracts import epoch
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
@@ -2030,8 +2069,8 @@ def _replay_acquired_observation_projection(
         ):
             raise DataStateSubstrateError("acquisition_semantic_source_codec_unsupported")
         _require_selected_profile(source_ref, "acquisition_semantic_source_profile_unselected")
-        live_snapshot = DataSnapshot.model_validate(
-            load_core_json_artifact(store, live.data_snapshot_ref)
+        live_snapshot = validate_core_model_json_artifact(
+            DataSnapshot, store, live.data_snapshot_ref
         )
         if (
             live_snapshot.data_ref != source_ref
@@ -2154,7 +2193,7 @@ def _read_acquired_observation_selection(
 
     _require_selected_profile(data_snapshot_ref, "acquisition_semantic_snapshot_profile_unselected")
     try:
-        snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, data_snapshot_ref))
+        snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
         lineage = snapshot.source_lineage
         if not isinstance(
             lineage,
@@ -2296,9 +2335,7 @@ def _candidate_acquisition_snapshot_values(
     ):
         raise DataStateSubstrateError("candidate_source_slot_binding_mismatch")
 
-    base_snapshot = DataSnapshot.model_validate(
-        load_core_json_artifact(store, base_data_snapshot_ref)
-    )
+    base_snapshot = validate_core_model_json_artifact(DataSnapshot, store, base_data_snapshot_ref)
     _require_selected_profile(base_snapshot.data_ref, "candidate_source_base_payload_unselected")
     raw = load_core_json_artifact(store, base_snapshot.data_ref)
     if not isinstance(raw, dict):
@@ -2449,7 +2486,7 @@ def verify_candidate_acquisition_snapshot_payload(
     """
     from polisyos.core.artifacts import load_core_json_artifact
 
-    persisted = DataSnapshot.model_validate(load_core_json_artifact(store, snapshot_ref))
+    persisted = validate_core_model_json_artifact(DataSnapshot, store, snapshot_ref)
     if persisted.model_dump(mode="json") != snapshot.model_dump(mode="json"):
         raise DataStateSubstrateError("candidate_source_snapshot_ref_mismatch")
     payload = load_core_json_artifact(store, snapshot.data_ref)
@@ -2521,14 +2558,13 @@ def materialize_candidate_acquisition_snapshot(
     The live source owner is revalidated before writing. Historical verification
     reopens immutable inputs but does not assert present source authority.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
     from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
 
     if type(authority) is not CanonicalAcquisitionAuthority:
         raise DataStateSubstrateError("candidate_source_live_authority_required")
     _require_selected_profile(base_data_snapshot_ref, "candidate_source_base_profile_unselected")
-    base = DataSnapshot.model_validate(load_core_json_artifact(store, base_data_snapshot_ref))
+    base = validate_core_model_json_artifact(DataSnapshot, store, base_data_snapshot_ref)
     validate_data_snapshot_owner_lineage(store, base_data_snapshot_ref, base, candidate_only=True)
     payload, stats, notes, rule = _candidate_acquisition_snapshot_values(
         store,
@@ -2731,7 +2767,7 @@ def verify_acquired_observation_snapshot_payload(
     """
     from polisyos.core.artifacts import load_core_json_artifact
 
-    persisted = DataSnapshot.model_validate(load_core_json_artifact(store, snapshot_ref))
+    persisted = validate_core_model_json_artifact(DataSnapshot, store, snapshot_ref)
     if persisted.model_dump(mode="json") != snapshot.model_dump(mode="json"):
         raise DataStateSubstrateError("acquisition_snapshot_ref_mismatch")
     payload = load_core_json_artifact(store, snapshot.data_ref)
@@ -2992,13 +3028,40 @@ class AcquiredObservationWorldPreparation:
         )
 
 
+def materialize_derived_candidate_model_spec(
+    source_model: ModelSpec, data_snapshot_ref: ArtifactRef
+) -> ModelSpec:
+    """Reproduce the finite same-program candidate data-transport transition.
+
+    Every other ModelSpec field is retained. This first adapter supports only
+    explicitly uncalibrated programs; changing a calibration input requires a
+    new compiler route rather than relabeling the existing compiled program.
+    The caller separately verifies the selected semantic manifest, graph and
+    predecessor state. This pure projection conveys no admission or authority.
+    """
+    if type(source_model) is not ModelSpec:
+        raise DataStateSubstrateError("derived_model_input_source_model_untyped")
+    if source_model.calibrated or source_model.calibration_ref is not None:
+        raise DataStateSubstrateError("derived_model_input_calibration_recompile_required")
+    if (
+        data_snapshot_ref.kind != DataSnapshot.ARTIFACT_KIND
+        or data_snapshot_ref.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+        or data_snapshot_ref.manifest_profile_sha256 is None
+    ):
+        raise DataStateSubstrateError("derived_model_input_snapshot_selection_required")
+    payload = source_model.model_dump(mode="json")
+    payload["data_snapshot_ref"] = str(data_snapshot_ref.artifact_id)
+    return ModelSpec.model_validate(payload)
+
+
 def _prepare_acquired_observation_world(
     store: ArtifactStore,
     *,
     base_world_model_record: WorldModelRecord,
-    acquired_rule: FoundryInputBindingRule,
+    acquired_rule: FoundryInputBindingRule | None,
     registry_bundle_ref: ArtifactRef,
     substrate_registry: SubstrateRegistry | None,
+    source_kind: Literal["native_acquisition", "derived_model_input"] = "native_acquisition",
 ) -> AcquiredObservationWorldPreparation:
     """Construct the existing producer's full model/rules/limitations without writes."""
     from polisyos.core.artifacts import load_core_json_artifact
@@ -3008,7 +3071,9 @@ def _prepare_acquired_observation_world(
         raise DataStateSubstrateError("acquisition_world_base_record_untyped")
     base = WorldModelRecord.model_validate(base_world_model_record.model_dump(mode="json"))
     views = world_model_artifact_views(base)
-    if acquired_rule.target_slot_id not in {binding.slot_id for binding in base.policy_slot_map}:
+    if acquired_rule is not None and acquired_rule.target_slot_id not in {
+        binding.slot_id for binding in base.policy_slot_map
+    }:
         raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
     if views.registry_bundle_ref != registry_bundle_ref:
         raise DataStateSubstrateError("acquisition_world_registry_selection_mismatch")
@@ -3021,26 +3086,41 @@ def _prepare_acquired_observation_world(
         != base.simulation_model_ref.model_spec_hash
     ):
         raise DataStateSubstrateError("acquisition_base_model_spec_hash_mismatch")
-    payload = model_spec.model_dump(mode="json")
+    payload = (
+        materialize_derived_candidate_model_spec(model_spec, views.data_snapshot_ref).model_dump(
+            mode="json"
+        )
+        if source_kind == "derived_model_input"
+        else model_spec.model_dump(mode="json")
+    )
     # All model fields survive. Only the source slot is late-bound to the actual
     # new DataSnapshot; its entire numerical value is separately prepared below.
     payload.pop("data_snapshot_ref")
-    payload.update(
-        {
-            "calibrated": False,
-            "calibration_ref": None,
-            "notes": [
-                *model_spec.notes,
-                "candidate_acquisition_world",
-                "source_time_not_established",
-                "causal_coupling_not_established",
-            ],
-        }
-    )
+    if source_kind != "derived_model_input":
+        payload.update(
+            {
+                "calibrated": False,
+                "calibration_ref": None,
+                "notes": [
+                    *model_spec.notes,
+                    "candidate_acquisition_world",
+                    "source_time_not_established",
+                    "causal_coupling_not_established",
+                ],
+            }
+        )
     bindings = load_input_bindings(store, world_model_artifact_views(base).input_bindings_ref)
     rules = (
-        *(rule for rule in bindings.rules if rule.target_slot_id != acquired_rule.target_slot_id),
-        acquired_rule,
+        tuple(bindings.rules)
+        if acquired_rule is None
+        else (
+            *(
+                rule
+                for rule in bindings.rules
+                if rule.target_slot_id != acquired_rule.target_slot_id
+            ),
+            acquired_rule,
+        )
     )
     limitations = base.limitations.model_copy(
         update={
@@ -3048,8 +3128,27 @@ def _prepare_acquired_observation_world(
                 sorted(
                     set(base.limitations.admissibility_blockers)
                     | set(ACQUIRED_DATA_STATE_LIMITATION_CODES)
+                    | (
+                        set(DERIVED_MODEL_INPUT_LIMITATION_CODES)
+                        if source_kind == "derived_model_input"
+                        else set()
+                    )
                 )
-            )
+            ),
+            **(
+                {
+                    "transport_limits": tuple(
+                        dict.fromkeys(
+                            (
+                                *base.limitations.transport_limits,
+                                DERIVED_MODEL_INPUT_CANDIDATE_PROFILE,
+                            )
+                        )
+                    )
+                }
+                if source_kind == "derived_model_input"
+                else {}
+            ),
         }
     )
     return AcquiredObservationWorldPreparation(
@@ -3522,9 +3621,7 @@ def read_acquired_observation_world_semantic_values(
         ):
             raise DataStateSubstrateError("acquisition_world_producer_profile_not_established")
         views = world_model_artifact_views(world)
-        snapshot = DataSnapshot.model_validate(
-            load_core_json_artifact(store, views.data_snapshot_ref)
-        )
+        snapshot = validate_core_model_json_artifact(DataSnapshot, store, views.data_snapshot_ref)
         payload = load_core_json_artifact(store, snapshot.data_ref)
         data_values = read_acquired_observation_semantic_values(store, views.data_snapshot_ref)
         acquired_rule = read_acquired_observation_binding_rule(store, views.data_snapshot_ref)
@@ -3748,8 +3845,8 @@ def build_candidate_acquisition_world(
         raise DataStateSubstrateError("candidate_source_world_owner_untyped")
     if not isinstance(transaction_time, datetime) or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
-    snapshot = DataSnapshot.model_validate(
-        load_core_json_artifact(store, materialization.data_snapshot_ref)
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshot, store, materialization.data_snapshot_ref
     )
     lineage = snapshot.source_lineage
     if not isinstance(lineage, core_contracts.CandidateAcquisitionSourceDataSnapshotLineage):
@@ -3804,34 +3901,180 @@ def build_candidate_acquisition_world(
     return result
 
 
+def build_derived_model_input_candidate_world(
+    store: ArtifactStore,
+    *,
+    base_world_model: WorldModelRecord,
+    substrate_registry: SubstrateRegistry,
+    substrate_registry_artifact_ref: ArtifactRef,
+    materialization: DerivedModelInputBatchMaterialization,
+    workspace_dir: Path,
+    transaction_time: datetime,
+) -> DerivedModelInputCandidateWorldBuildResult:
+    """Publish the actual derived input as a limited candidate world version.
+
+    A method-carried input does not replace a state slot. Its canonical
+    semantic manifest and selected values are passed to the existing WMR/
+    Foundry owners, which retain the predecessor physical state. The Data
+    Forge and Fabric projections identify a derived candidate input, never an
+    acquired observation, empirical authority or a current causal model.
+    """
+    from polisyos.core.artifacts import (
+        artifact_ref_identity_key,
+        load_core_json_artifact,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.core.contracts import (
+        load_model_input_obligation_set,
+        load_resolved_input_binding_manifest,
+    )
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.runtime.quality.model_input_routing import DerivedModelInputBatchMaterialization
+
+    if type(materialization) is not DerivedModelInputBatchMaterialization:
+        raise DataStateSubstrateError("derived_model_input_world_materialization_untyped")
+    if type(base_world_model) is not WorldModelRecord:
+        raise DataStateSubstrateError("derived_model_input_world_base_untyped")
+    if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
+        raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
+    base_views = world_model_artifact_views(base_world_model)
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshot, store, materialization.data_snapshot_ref
+    )
+    manifest = load_resolved_input_binding_manifest(
+        store, materialization.resolved_binding_manifest_ref
+    )
+    obligation_set, _obligations = load_model_input_obligation_set(
+        store, manifest.model_input_obligation_set_ref
+    )
+    bindings = load_input_bindings(store, materialization.input_bindings_ref)
+
+    def same(left: ArtifactRef, right: ArtifactRef) -> bool:
+        return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
+
+    if (
+        bindings.schema_version != "1.4"
+        or not bindings.selected_method_inputs
+        or bindings.resolved_binding_manifest_ref is None
+        or not same(manifest.data_snapshot_ref, materialization.data_snapshot_ref)
+        or not same(bindings.data_snapshot_ref, materialization.data_snapshot_ref)
+        or not same(bindings.registry_bundle_ref, base_views.registry_bundle_ref)
+        or not same(obligation_set.invocation.registry_bundle_ref, base_views.registry_bundle_ref)
+        or not same(obligation_set.invocation.input_bindings_ref, base_views.input_bindings_ref)
+        or artifact_ref_identity_key(obligation_set.invocation.program_graph_ref)
+        not in {artifact_ref_identity_key(ref) for ref in base_views.program_graph_refs}
+        or not same(
+            bindings.resolved_binding_manifest_ref, materialization.resolved_binding_manifest_ref
+        )
+        or not same(bindings.bound_state_snapshot_ref, base_views.bound_state_snapshot_ref)
+        or not manifest.derivations
+        or tuple(artifact_ref_identity_key(row.correspondence_ref) for row in manifest.derivations)
+        != tuple(artifact_ref_identity_key(ref) for ref in materialization.correspondence_refs)
+    ):
+        raise DataStateSubstrateError("derived_model_input_world_selected_basis_mismatch")
+    snapshot_id = snapshot.stats.get("snapshot_id")
+    if not isinstance(snapshot_id, str) or not snapshot_id.strip():
+        raise DataStateSubstrateError("derived_model_input_world_snapshot_version_missing")
+    if (
+        not store.verify(materialization.data_snapshot_ref).ok
+        or not store.verify(snapshot.data_ref).ok
+    ):
+        raise DataStateSubstrateError("derived_model_input_world_source_unverified")
+    payload = load_core_json_artifact(store, snapshot.data_ref)
+    if not isinstance(payload, dict):
+        raise DataStateSubstrateError("derived_model_input_world_payload_not_object")
+    tx_time = transaction_time.astimezone(UTC).isoformat()
+    payload_hash = str(snapshot.data_ref.artifact_id)
+    binding_path = _write_data_forge_snapshot_binding(
+        workspace_dir=workspace_dir,
+        snapshot_id=snapshot_id,
+        payload=payload,
+        payload_content_hash=payload_hash,
+        published_at=tx_time,
+        corpus_id="candidate-derived-model-input",
+        payload_bytes=store.get_bytes(snapshot.data_ref),
+        payload_canon=store.get_manifest(snapshot.data_ref).canon,
+        builder_revision=(
+            "polisyos.runtime.quality.data_state_substrate."
+            "build_derived_model_input_candidate_world"
+        ),
+        lineage_refs=tuple(
+            _cas_data_forge_ref(ref)
+            for ref, _role in data_snapshot_owner_input_requirements(snapshot)
+        ),
+        claim_requirement_bindings=(
+            {
+                "claim_id": "candidate-derived-model-input",
+                "requirement_id": "candidate-derived-model-input:" + snapshot_id,
+                "requirement_kind": "candidate_derived_model_input",
+                "authority_level": "candidate",
+                "time_role": "transaction_time",
+            },
+        ),
+    )
+    prepared = _DerivedModelInputWorldSource(
+        materialization=materialization,
+        data_forge_snapshot_binding_path=binding_path,
+        snapshot_id=snapshot_id,
+        payload_content_hash=payload_hash,
+    )
+    result = _build_acquisition_candidate_world(
+        store,
+        base_world_model=base_world_model,
+        substrate_registry=substrate_registry,
+        substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+        materialization=prepared,
+        workspace_dir=workspace_dir,
+        transaction_time=transaction_time,
+    )
+    if type(result) is not DerivedModelInputCandidateWorldBuildResult:
+        raise DataStateSubstrateError("derived_model_input_world_result_type_mismatch")
+    return result
+
+
 def _build_acquisition_candidate_world(
     store: ArtifactStore,
     *,
     base_world_model: WorldModelRecord,
     substrate_registry: SubstrateRegistry,
     substrate_registry_artifact_ref: ArtifactRef,
-    materialization: AcquiredObservationDataSnapshotResult | CandidateAcquisitionDataSnapshotResult,
+    materialization: AcquiredObservationDataSnapshotResult
+    | CandidateAcquisitionDataSnapshotResult
+    | _DerivedModelInputWorldSource,
     workspace_dir: Path,
     transaction_time: datetime,
-) -> AcquiredObservationWorldBuildResult | CandidateAcquisitionWorldBuildResult:
+) -> (
+    AcquiredObservationWorldBuildResult
+    | CandidateAcquisitionWorldBuildResult
+    | DerivedModelInputCandidateWorldBuildResult
+):
     """Reuse the WMR, Foundry and candidate Fabric owners for either source family."""
 
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
     base = WorldModelRecord.model_validate(base_world_model.model_dump(mode="json"))
     base_views = world_model_artifact_views(base)
-    selected_slot = materialization.foundry_binding_rule.target_slot_id
+    derived_source = (
+        materialization if isinstance(materialization, _DerivedModelInputWorldSource) else None
+    )
+    is_derived = derived_source is not None
+    acquired_rule = (
+        None
+        if isinstance(materialization, _DerivedModelInputWorldSource)
+        else materialization.foundry_binding_rule
+    )
     base_slots = tuple(binding.slot_id for binding in base.policy_slot_map)
-    if selected_slot not in base_slots:
+    if acquired_rule is not None and acquired_rule.target_slot_id not in base_slots:
         raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
 
     registry_bundle_ref = base_views.registry_bundle_ref
     plan = _prepare_acquired_observation_world(
         store,
         base_world_model_record=base,
-        acquired_rule=materialization.foundry_binding_rule,
+        acquired_rule=acquired_rule,
         registry_bundle_ref=registry_bundle_ref,
         substrate_registry=substrate_registry,
+        **({"source_kind": "derived_model_input"} if is_derived else {}),
     )
     model_spec = plan.materialized_model(materialization.data_snapshot_ref)
     retained_rules = list(plan.rules)
@@ -3842,10 +4085,12 @@ def _build_acquisition_candidate_world(
         payload_hash=materialization.payload_content_hash,
         transaction_time=tx_time,
         as_of_valid_time=base.fabric_world_ref.as_of_valid_time,
+        **({"source_kind": "derived_model_input"} if is_derived else {}),
     )
     limitations = plan.limitations
     data_snapshot_ref = materialization.data_snapshot_ref
     is_protected_candidate = isinstance(materialization, CandidateAcquisitionDataSnapshotResult)
+    selected_profiles = is_protected_candidate or is_derived
     built = build_world_model_record(
         store,
         fabric_world_ref=FabricWorldRef(
@@ -3873,7 +4118,9 @@ def _build_acquisition_candidate_world(
         producer_ref=(
             "polisyos.runtime.quality.data_state_substrate."
             + (
-                "build_acquired_observation_candidate_world"
+                "build_derived_model_input_candidate_world"
+                if is_derived
+                else "build_acquired_observation_candidate_world"
                 if isinstance(materialization, AcquiredObservationDataSnapshotResult)
                 else "build_candidate_acquisition_world"
             )
@@ -3883,7 +4130,16 @@ def _build_acquisition_candidate_world(
         registry_bundle_artifact_ref=registry_bundle_ref,
         _loaded_substrate_registry=substrate_registry,
         _selected_substrate_registry_ref=base.substrate_registry_ref,
-        foundry_binding_rules=retained_rules,
+        foundry_binding_rules=None if is_derived else retained_rules,
+        **(
+            {
+                "resolved_binding_manifest_ref": (
+                    derived_source.materialization.resolved_binding_manifest_ref
+                )
+            }
+            if derived_source is not None
+            else {}
+        ),
         mechanism_refs=base.simulation_model_ref.mechanism_refs,
         gcm_refs=base.simulation_model_ref.gcm_refs,
         ncm_refs=base.simulation_model_ref.ncm_refs,
@@ -3901,15 +4157,30 @@ def _build_acquisition_candidate_world(
         limitations=limitations,
         candidate_only=True,
         deployment_update_refs=base.deployment_update_refs,
-        return_selected_profile=is_protected_candidate,
-        select_foundry_input_profiles=is_protected_candidate,
+        return_selected_profile=selected_profiles,
+        select_foundry_input_profiles=selected_profiles,
     )
-    if is_protected_candidate and built.record_ref.manifest_profile_sha256 is None:
+    if selected_profiles and built.record_ref.manifest_profile_sha256 is None:
         raise DataStateSubstrateError("candidate_world_selected_profile_missing")
     if built.record.skg_causal_prior_ref != base.skg_causal_prior_ref:
         raise DataStateSubstrateError("acquisition_candidate_skg_prior_changed")
     if built.record.authority_status != "limited":
         raise DataStateSubstrateError("acquisition_candidate_world_not_limited")
+    if derived_source is not None:
+        from polisyos.core.artifacts import artifact_ref_identity_key
+
+        if artifact_ref_identity_key(built.bound_state_snapshot_ref) != artifact_ref_identity_key(
+            base_views.bound_state_snapshot_ref
+        ):
+            raise DataStateSubstrateError("derived_model_input_physical_prestate_changed")
+        return DerivedModelInputCandidateWorldBuildResult(
+            materialization=derived_source.materialization,
+            world_model=built,
+            simulation_input=consume_world_model_record_for_simulation(built.record),
+            model_spec=model_spec,
+            registry_bundle_ref=registry_bundle_ref,
+            substrate_registry_ref=substrate_registry_artifact_ref,
+        )
     result_type = (
         AcquiredObservationWorldBuildResult
         if isinstance(materialization, AcquiredObservationDataSnapshotResult)
@@ -4762,7 +5033,25 @@ def _write_data_forge_snapshot_binding(
     lineage_refs: Sequence[str] | None = None,
     claim_requirement_bindings: Sequence[Mapping[str, Any]] | None = None,
     confine_outputs: bool = False,
+    payload_bytes: bytes | None = None,
+    payload_canon: CanonInfo | None = None,
 ) -> Path:
+    from polisyos.core.canon import to_canonical_bytes
+
+    if payload_bytes is None:
+        if payload_canon is not None:
+            raise DataStateSubstrateError("data_forge_payload_codec_without_bytes")
+        published_bytes = _data_forge_payload_file_bytes(payload)
+    else:
+        if payload_canon is None:
+            raise DataStateSubstrateError("data_forge_payload_canonical_profile_required")
+        spec = CanonSpec(**payload_canon.model_dump(mode="python"))
+        if (
+            to_canonical_bytes(payload, spec) != payload_bytes
+            or "sha256:" + hashlib.sha256(payload_bytes).hexdigest() != payload_content_hash
+        ):
+            raise DataStateSubstrateError("data_forge_payload_canonical_bytes_mismatch")
+        published_bytes = payload_bytes
     snapshot_root = workspace_dir / snapshot_id
     pipeline_root = snapshot_root / _DATA_FORGE_SNAPSHOT_PIPELINE
     artifact_path = pipeline_root / "data_state_payload.json"
@@ -4775,21 +5064,28 @@ def _write_data_forge_snapshot_binding(
     if confine_outputs:
         artifact_path = _require_workspace_output_path(workspace_dir, artifact_path)
         manifest_path = _require_workspace_output_path(workspace_dir, manifest_path)
-    artifact_path.write_bytes(_data_forge_payload_file_bytes(payload))
+    artifact_path.write_bytes(published_bytes)
     if confine_outputs:
         _require_workspace_output_tree(workspace_dir, snapshot_root)
+    extra = _data_forge_snapshot_manifest_extra(
+        corpus_id=corpus_id,
+        builder_revision=builder_revision,
+        lineage_refs=lineage_refs,
+        claim_requirement_bindings=claim_requirement_bindings,
+        payload_content_hash=payload_content_hash,
+    )
+    if payload_canon is not None:
+        extra["payload_encoding"] = {
+            "codec": "polisyos.core.canon",
+            "decoder": "from_canonical_bytes",
+            "canon": payload_canon.model_dump(mode="json"),
+        }
     data_forge_read_api.write_publish_manifest(
         manifest_path=manifest_path,
         pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
         artifacts=(artifact_path,),
         published_at=published_at,
-        extra=_data_forge_snapshot_manifest_extra(
-            corpus_id=corpus_id,
-            builder_revision=builder_revision,
-            lineage_refs=lineage_refs,
-            claim_requirement_bindings=claim_requirement_bindings,
-            payload_content_hash=payload_content_hash,
-        ),
+        extra=extra,
     )
     if confine_outputs:
         _require_workspace_output_tree(workspace_dir, snapshot_root)
@@ -4914,6 +5210,7 @@ def _acquired_candidate_fabric_rows(
     snapshot_id: str,
     payload_hash: str,
     transaction_time: str,
+    source_kind: Literal["native_acquisition", "derived_model_input"] = "native_acquisition",
 ) -> tuple[WorldSnapshotNodeWrite, tuple[WorldSnapshotFactWrite, ...]]:
     """Prepare the actual native rows; no world is written by this constructor."""
     from polisyos.fabric.world import WorldSnapshotFactWrite, WorldSnapshotNodeWrite
@@ -4921,7 +5218,11 @@ def _acquired_candidate_fabric_rows(
     node_id = f"world.acquisition-candidate.{snapshot_id}"
     node = WorldSnapshotNodeWrite(
         node_id=node_id,
-        kind="candidate_acquired_data_state",
+        kind=(
+            "candidate_derived_model_input_state"
+            if source_kind == "derived_model_input"
+            else "candidate_acquired_data_state"
+        ),
         label="Candidate state with unresolved source time and causal coupling",
         artifact_id=payload_hash,
         props_ref=None,
@@ -4952,6 +5253,7 @@ def _write_acquired_candidate_fabric_snapshot(
     payload_hash: str,
     transaction_time: str,
     as_of_valid_time: str | None,
+    source_kind: Literal["native_acquisition", "derived_model_input"] = "native_acquisition",
 ) -> Path:
     """Use Fabric's snapshot writer with unknown valid time for acquired facts."""
     from polisyos.fabric.world import (
@@ -4968,6 +5270,7 @@ def _write_acquired_candidate_fabric_snapshot(
         snapshot_id=snapshot_id,
         payload_hash=payload_hash,
         transaction_time=transaction_time,
+        source_kind=source_kind,
     )
     write_world_snapshot(
         db_path,
@@ -4981,6 +5284,11 @@ def _write_acquired_candidate_fabric_snapshot(
                 "producer": "polisyos.runtime.quality.data_state_substrate",
                 "source_time_status": "not_established",
                 "valid_time_role": "unknown",
+                **(
+                    {"source_kind": "derived_model_input"}
+                    if source_kind == "derived_model_input"
+                    else {}
+                ),
             },
             nodes=(node,),
             facts=facts,
@@ -5302,6 +5610,8 @@ __all__ = [
     "ACQUIRED_DATA_STATE_SCHEMA_VERSION",
     "CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION",
     "DATA_STATE_SUBSTRATE_SCHEMA_VERSION",
+    "DERIVED_MODEL_INPUT_CANDIDATE_PROFILE",
+    "DERIVED_MODEL_INPUT_LIMITATION_CODES",
     "AcquiredObservationDataPreparation",
     "AcquiredObservationDataSnapshotResult",
     "CandidateAcquisitionDataSnapshotResult",
@@ -5310,16 +5620,19 @@ __all__ = [
     "ControlledAcquisitionSlotBinding",
     "DataStateMaterializationResult",
     "DataStateSubstrateError",
+    "DerivedModelInputCandidateWorldBuildResult",
     "L1VariableAvailability",
     "L5FamilyAuthority",
     "L5FamilyBindingProfile",
     "ProductionDataStateWorldBuildResult",
     "build_candidate_acquisition_world",
+    "build_derived_model_input_candidate_world",
     "build_l5_family_binding_profile",
     "build_production_data_state_world_model_record",
     "l1_dcat_variable_availability",
     "materialize_acquired_observation_snapshot",
     "materialize_candidate_acquisition_snapshot",
+    "materialize_derived_candidate_model_spec",
     "materialize_l4_data_state_snapshot",
     "prepare_acquired_observation_snapshot",
     "verify_acquired_observation_snapshot_payload",

@@ -5135,6 +5135,57 @@ class ControlPlaneStore:
             return None
         return self._row_to_record(row)
 
+    def list_jobs_by_run_and_kind(
+        self,
+        *,
+        run_id: str,
+        kind: ControlJobKind,
+        limit: int,
+    ) -> tuple[ControlJobRecord, ...]:
+        """Read a bounded, stable job inventory for an exact run and kind.
+
+        This locator does not establish tenant ownership or action authority.
+        A caller needing a complete inventory must request one extra row and
+        expose truncation when that row is present.
+        """
+        if not isinstance(run_id, str) or not run_id.strip() or run_id != run_id.strip():
+            raise ValueError("control_job_inventory_run_invalid")
+        if type(limit) is not int or not 1 <= limit <= 1000:
+            raise ValueError("control_job_inventory_limit_invalid")
+        normalized_kind = _coerce_control_job_kind(kind)
+        rows = self._fetchall(
+            """
+            SELECT
+                j.job_id,
+                j.job_kind,
+                j.state,
+                j.run_id,
+                j.pipeline_id,
+                j.requested_profile,
+                j.effective_profile,
+                j.policy_flags_json,
+                j.capability_manifest_ref,
+                j.payload_ref,
+                j.submitted_by,
+                j.created_at,
+                j.started_at,
+                j.finished_at,
+                j.lease_owner,
+                j.lease_expires_at,
+                j.attempt,
+                j.error_message,
+                j.method_execution_selection_json,
+                p.progress_json
+            FROM control_jobs j
+            LEFT JOIN control_job_progress p ON p.job_id = j.job_id
+            WHERE j.run_id = ? AND j.job_kind = ?
+            ORDER BY j.job_id
+            LIMIT ?
+            """,
+            (run_id, normalized_kind, limit),
+        )
+        return tuple(self._row_to_record(row) for row in rows)
+
     def get_unique_completed_job_by_run_and_kind(
         self,
         *,

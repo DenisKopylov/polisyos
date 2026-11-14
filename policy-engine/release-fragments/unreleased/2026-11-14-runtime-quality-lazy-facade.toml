@@ -1,0 +1,20 @@
+id = "2026-11-14-runtime-quality-lazy-facade"
+title = "Load Runtime Quality owners on demand"
+type = "changed"
+owner = "team-polisyos"
+summary = "The experimental Runtime Quality Python facade resolves existing exports lazily, avoiding initialization of unrelated subsystems."
+evidence = ["tests/unit/runtime/quality/test_quality_facade.py", "src/polisyos/runtime/quality/README.md", "architecture/public_surface/inventory.json"]
+compatibility = "Existing export names, defining-object identities, wildcard imports and direct owner-module routes are preserved; requested-owner errors propagate without being cached."
+limitations = "Code relying on unrelated import side effects must initialize its actual owner explicitly. Import measurements do not establish a whole-runtime or N5 speedup."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "runtime-quality-owner-import-timing"
+change_class = "internal"
+impact = "compatible"
+surface = "polisyos.runtime.quality"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Existing Runtime Quality exports are loaded from their defining owner on first request."

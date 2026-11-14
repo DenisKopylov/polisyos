@@ -325,7 +325,13 @@ if TYPE_CHECKING:
         assess_measurement_to_model_candidate as assess_measurement_to_model_candidate,
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        materialize_activated_measurement_occurrence as materialize_activated_measurement_occurrence,  # noqa: E501
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         read_scoped_measurement_source_body as read_scoped_measurement_source_body,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        replay_selected_scoped_measurement_facts as replay_selected_scoped_measurement_facts,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
@@ -338,6 +344,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         ActivatedAcquisitionObservationProjection as ActivatedAcquisitionObservationProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionPassport as ActivatedAcquisitionPassport,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         BaselineIdentity as BaselineIdentity,
@@ -593,6 +602,9 @@ _EXPORTS = {
     "CatalogFetchRequest": "polisyos.data_forge.domains.catalog.knowledge.types",
     "CatalogFetchResolution": "polisyos.data_forge.domains.catalog.knowledge.types",
     "AcquisitionDatasetRegistration": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "ActivatedAcquisitionPassport": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    ),
     "BaselineIdentity": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "derive_canonical_observations": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
@@ -645,6 +657,12 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "assess_measurement_to_model_candidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
+    "materialize_activated_measurement_occurrence": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
+    "replay_selected_scoped_measurement_facts": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "read_scoped_measurement_source_body": (

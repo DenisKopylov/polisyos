@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator, model_validator
 
 from polisyos.common.timestamps import ensure_utc, utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.contracts.method_input import (
+    MethodInputPortSource,
+    validate_method_input_port_name,
+)
 from polisyos.ir.analytics import (
     TruthfulnessTier,
     parse_truthfulness_scope,
@@ -117,9 +121,23 @@ class MethodDagNode(BaseModel):
     depends_on: list[str] = Field(default_factory=list)
     reads_slots: list[str] = Field(default_factory=list)
     writes_slots: list[str] = Field(default_factory=list)
+    state_writes: list[str] | None = Field(default=None, exclude_if=lambda value: value is None)
+    input_ports: dict[StrictStr, MethodInputPortSource] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     incompatibilities: list[str] = Field(default_factory=list)
     deprecations: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _state_writes_are_unique(self) -> MethodDagNode:
+        if self.state_writes is not None and (
+            len(set(self.state_writes)) != len(self.state_writes)
+            or any(not value or value != value.strip() for value in self.state_writes)
+        ):
+            raise ValueError("method_dag_state_writes_invalid")
+        return self
 
 
 class MethodDagEdge(BaseModel):
@@ -183,6 +201,8 @@ class ExpectedOutputSpec(BaseModel):
 class ExecutionPlan(BaseModel):
     """First-class planning artifact for unified LLM execution loops."""
 
+    SUPPORTED_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -204,6 +224,29 @@ class ExecutionPlan(BaseModel):
     @classmethod
     def _ensure_created_at_utc(cls, value: datetime) -> datetime:
         return ensure_utc(value)
+
+    @model_validator(mode="after")
+    def _state_writes_version(self) -> ExecutionPlan:
+        if any(
+            node.state_writes is not None for node in self.method_dag
+        ) and self.schema_version not in {"1.1", "1.2"}:
+            raise ValueError("execution_plan_state_writes_version_mismatch")
+        for node in self.method_dag:
+            supplied = "input_ports" in node.model_fields_set
+            if supplied and node.input_ports is None:
+                raise ValueError("execution_plan_input_ports_explicit_null")
+            if node.input_ports is None:
+                continue
+            if self.schema_version != "1.2":
+                raise ValueError("execution_plan_input_ports_version_mismatch")
+            reads = tuple(node.reads_slots)
+            if (
+                len(set(reads)) != len(reads)
+                or set(node.input_ports) != set(reads)
+                or any(validate_method_input_port_name(key) != key for key in node.input_ports)
+            ):
+                raise ValueError("execution_plan_input_ports_abi_coverage_mismatch")
+        return self
 
     def stable_hash(self) -> str:
         return fingerprint(

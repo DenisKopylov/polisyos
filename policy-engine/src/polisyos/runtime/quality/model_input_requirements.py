@@ -15,6 +15,7 @@ from polisyos.core.contracts import (
     ModelInputContext,
     ModelInputObligationSet,
     ParameterOverrideBundleRef,
+    ProgramGraph,
     ProgramGraphInputInterface,
     ProgramGraphInputInvocation,
     ProgramGraphRef,
@@ -106,9 +107,20 @@ def derive_program_graph_input_interface(
     )
     if selected is None:
         return None
+    advanced_method_input_profile = any(
+        port.carrier == "method_input"
+        and (port.period_step_profile is not None or port.entity_axis_ref is not None)
+        for port in selected.declaration.ports
+    )
+    method_input_profile = any(
+        port.carrier == "method_input" for port in selected.declaration.ports
+    )
     return persist_program_graph_input_interface(
         store,
         ProgramGraphInputInterface(
+            schema_version=("1.2" if advanced_method_input_profile else "1.1")
+            if method_input_profile
+            else "1.0",
             program_graph_ref=program_graph_ref,
             exec_plan_ref=exec_plan_ref,
             registry_bundle_ref=registry_bundle_ref,
@@ -135,10 +147,11 @@ def preflight_program_graph_inputs(
 
     The caller derives the interface from the graph's compiled ModelSpec.
     The producer independently verifies that selection against the compiled
-    origin before using its ports. This bounded
-    profile supports one compiled additive mechanism, structural all-entity masks
-    and merge steps. Unsupported graph operations, dynamic selectors and
-    unexplained inputs refuse before invoking a numerical producer.
+    origin before using its ports. The bounded profile supports registered
+    mechanisms and methods, structural all-entity masks, and merge steps.
+    Method reads join the selected method ABI; external scalar method inputs
+    require one exact model transition. Unsupported graph operations, dynamic
+    selectors and unexplained inputs refuse before invoking a numerical producer.
 
     Parameter overrides are reopened from the same exact bundle as the
     numerical request. A missing state port stays missing even when the
@@ -158,13 +171,37 @@ def preflight_program_graph_inputs(
         persist_model_input_obligation(store, obligation)
         for obligation in recomputed.missing_obligations
     )
+    graph = validate_core_model_json_artifact(ProgramGraph, store, program_graph_ref)
+    interface = validate_core_model_json_artifact(ProgramGraphInputInterface, store, interface_ref)
+    method_profile = any(node.node_kind == "method" for node in graph.nodes)
+    method_obligation_profile = any(
+        obligation.schema_version in {"1.1", "1.2"} for obligation in recomputed.missing_obligations
+    )
+    advanced_execution_profile = any(
+        port.purpose in {"initial_state", "simulation_input"}
+        and (port.period_step_profile is not None or port.entity_axis_ref is not None)
+        for port in interface.ports
+    )
+    schema_version = (
+        "1.2"
+        if advanced_execution_profile
+        else "1.1"
+        if method_profile or method_obligation_profile
+        else "1.0"
+    )
     set_ref = persist_model_input_obligation_set(
         store,
         ModelInputObligationSet(
+            schema_version=schema_version,
             invocation=invocation,
             prestate_ref=recomputed.prestate_ref,
             supplied_initial_slots=recomputed.supplied_initial_slots,
             obligation_refs=refs,
+            **(
+                {"required_step_scopes": recomputed.required_step_scopes}
+                if schema_version == "1.2"
+                else {}
+            ),
         ),
     )
     return ProgramGraphInputPreflight(

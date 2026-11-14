@@ -34,6 +34,49 @@ class EntityAxisMemberId(BaseModel):
         return self
 
 
+class EntityAxisValueIdentity(BaseModel):
+    """Content identity of one vector aligned to a selected entity axis."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    axis_sha256: str = Field(pattern=_SHA256)
+    unit_id: str = Field(min_length=1, strict=True)
+    dtype: str = Field(pattern=r"^float(32|64)$")
+    shape: tuple[StrictInt, ...] = Field(min_length=1)
+    input_order_sha256: str = Field(pattern=_SHA256)
+    value_sha256: str = Field(pattern=_SHA256)
+    aligned_value_sha256: str = Field(pattern=_SHA256)
+    alignment_sha256: str = Field(pattern=_SHA256)
+
+
+class SelectedEntityVectorSourceDescriptor(BaseModel):
+    """Bounded pointers for one scalar value per selected source-view member.
+
+    The descriptor identifies source bytes and paths only. Consumers must
+    reopen the selected view, recompute membership and values, and must not
+    treat this declaration as semantic correspondence or representativeness.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    source_view_ref: ArtifactRef
+    member_ids_pointer: str = Field(min_length=1, strict=True)
+    values_pointer: str = Field(min_length=1, strict=True)
+
+    @model_validator(mode="after")
+    def _selected_view_and_pointers(self) -> SelectedEntityVectorSourceDescriptor:
+        if (
+            self.source_view_ref.media_type != "application/json"
+            or self.source_view_ref.manifest_profile_sha256 is None
+            or not _is_pointer(self.member_ids_pointer)
+            or not _is_pointer(self.values_pointer)
+            or self.member_ids_pointer == self.values_pointer
+        ):
+            raise ValueError("entity_vector_source_descriptor_invalid")
+        return self
+
+
 class SelectedEntityAxis(BaseModel):
     """Content-bound finite membership for one candidate computation.
 
@@ -96,14 +139,14 @@ class SelectedEntityAxis(BaseModel):
 
         if self.cardinality != len(self.members):
             raise ValueError("entity_axis_cardinality_mismatch")
-        keys = tuple(_member_sort_key(member) for member in self.members)
+        keys = tuple(entity_axis_member_sort_key(member) for member in self.members)
         if len(set(keys)) != len(keys):
             raise ValueError("entity_axis_duplicate_member")
         if keys != tuple(sorted(keys)):
             raise ValueError("entity_axis_member_order_noncanonical")
-        if self.membership_sha256 != _membership_digest(self.members):
+        if self.membership_sha256 != entity_axis_membership_digest(self.members):
             raise ValueError("entity_axis_membership_digest_mismatch")
-        if self.axis_sha256 != _axis_digest(
+        if self.axis_sha256 != entity_axis_digest(
             identity_basis=self.identity_basis,
             namespace=self.namespace,
             source_view_ref=self.source_view_ref,
@@ -127,7 +170,8 @@ def _is_pointer(value: str | None) -> bool:
     )
 
 
-def _member_sort_key(member: EntityAxisMemberId) -> tuple[str, int | str]:
+def entity_axis_member_sort_key(member: EntityAxisMemberId) -> tuple[str, int | str]:
+    """Return the canonical typed key used to order entity axis members."""
     return (member.kind, member.value)  # type: ignore[return-value]
 
 
@@ -141,12 +185,13 @@ def _canonical_json(value: object) -> bytes:
     ).encode("utf-8")
 
 
-def _membership_digest(members: tuple[EntityAxisMemberId, ...]) -> str:
+def entity_axis_membership_digest(members: tuple[EntityAxisMemberId, ...]) -> str:
+    """Compute the existing canonical digest for the ordered typed members."""
     payload = [member.model_dump(mode="json") for member in members]
     return "sha256:" + hashlib.sha256(_canonical_json(payload)).hexdigest()
 
 
-def _axis_digest(
+def entity_axis_digest(
     *,
     identity_basis: str,
     namespace: str,
@@ -158,6 +203,7 @@ def _axis_digest(
     members: tuple[EntityAxisMemberId, ...],
     cardinality: int,
 ) -> str:
+    """Compute the existing canonical digest for a complete entity axis."""
     payload = {
         "schema_version": _AXIS_SCHEMA_VERSION,
         "identity_basis": identity_basis,
@@ -174,3 +220,10 @@ def _axis_digest(
         "canonical_order": "typed_id_ascending_v1",
     }
     return "sha256:" + hashlib.sha256(_canonical_json(payload)).hexdigest()
+
+
+# Compatibility aliases retain existing private import paths without a second
+# implementation or a cross-layer dependency on private Core helpers.
+_member_sort_key = entity_axis_member_sort_key
+_membership_digest = entity_axis_membership_digest
+_axis_digest = entity_axis_digest

@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import RunCandidateSimulationCheapConsequences
     from polisyos.runtime.http.resilience import GuardedDependencyProxy
     from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
         ControlPlaneService,
         VerifiedAcquisitionActionOutcome,
         VerifiedAcquisitionActionPhase,
@@ -65,6 +66,7 @@ if TYPE_CHECKING:
         AcquisitionRetainedContinuation,
         AcquisitionRetainedCurrentProjection,
     )
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
@@ -115,6 +117,93 @@ class _VerifiedRetainedRoute:
     evaluation: ResolvedAcquisitionEvaluation
     growth: AcquisitionWorldGrowthReceipt
     continuation: AcquisitionRetainedContinuation
+
+
+@dataclass(frozen=True, slots=True)
+class _CandidateExperimentHistoryPrefix:
+    """Earlier generations replayed by one ordered owner sweep, never a permit.
+
+    Only the canonical action fold constructs this private carrier. A supplied
+    public origin is comparison input, never a source of verified histories.
+    The carrier and its selected heads live for one sweep only.
+    """
+
+    control_service: ControlPlaneService
+    sink: AcquisitionRouteLoopAuthoritySink
+    artifact_store: object
+    control_store: object
+    event_log: object
+    heads: tuple[AcquisitionActionHeadRecord, ...]
+    origin: VerifiedCandidateExperimentOrigin
+
+
+def _candidate_experiment_history_prefix_origin(
+    prefix: _CandidateExperimentHistoryPrefix,
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord | None = None,
+) -> VerifiedCandidateExperimentOrigin:
+    """Require the exact composed owner and next selected generation of a sweep."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateExperimentTerminalHistory,
+        _candidate_ref_same,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+
+    if (
+        type(prefix) is not _CandidateExperimentHistoryPrefix
+        or type(control_service) is not ControlPlaneService
+        or prefix.control_service is not control_service
+        or type(prefix.sink) is not AcquisitionRouteLoopAuthoritySink
+        or control_service.acquisition_route_sink is not prefix.sink
+        or control_service._artifact_store is not prefix.artifact_store
+        or control_service._control_store is not prefix.control_store
+        or control_service._diagnostic_event_log is not prefix.event_log
+        or prefix.sink._artifact_store is not prefix.artifact_store
+        or prefix.sink._control_store is not prefix.control_store
+        or prefix.sink._event_log is not prefix.event_log
+        or getattr(prefix.sink._core_source_resolver, "__self__", None) is not control_service
+        or type(prefix.origin) is not VerifiedCandidateExperimentOrigin
+    ):
+        raise ValueError("candidate_experiment_history_prefix_owner_mismatch")
+    origin = prefix.origin
+    chain = origin.candidate_terminal_history_chain
+    if head is None and len(chain) < len(prefix.heads):
+        head = prefix.heads[len(chain)]
+    if (
+        head is None
+        or len(chain) >= len(prefix.heads)
+        or prefix.heads[len(chain)] != head
+        or head.action_generation != len(chain) + 1
+        or (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id, origin.route_id)
+        != (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+        or origin.current_action_head is not None
+        or origin.current_terminal_history is not (chain[-1] if chain else None)
+    ):
+        raise ValueError("candidate_experiment_history_prefix_generation_mismatch")
+    for index, history in enumerate(chain):
+        if (
+            type(history) is not CandidateExperimentTerminalHistory
+            or history.head != prefix.heads[index]
+            or history.head.action_generation != index + 1
+            or history.head.receipt_ref != str(history.terminal_ref.artifact_id)
+            or history.head.receipt_manifest_profile_sha256
+            != history.terminal_ref.manifest_profile_sha256
+            or not _candidate_ref_same(history.terminal_ref, history.terminal_ref)
+            or len(history.origin.candidate_terminal_history_chain) != index
+            or any(
+                earlier is not expected
+                for earlier, expected in zip(
+                    history.origin.candidate_terminal_history_chain, chain[:index], strict=True
+                )
+            )
+        ):
+            raise ValueError("candidate_experiment_history_prefix_selection_mismatch")
+    return origin
 
 
 def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
@@ -758,6 +847,7 @@ def _verify_candidate_experiment_reuse_terminal_history(
     terminal_ref: ArtifactRef,
     terminal_verified: VerifiedAcquisitionActionPhase,
     committed: bool,
+    history_prefix: _CandidateExperimentHistoryPrefix | None = None,
 ) -> CandidateExperimentTerminalHistory:
     """Replay a no-fetch occurrence against its signed action and prior N5.
 
@@ -875,10 +965,11 @@ def _verify_candidate_experiment_reuse_terminal_history(
         cell_id=head.cell_id,
         action_outcome_reader=sink,
     )
-    origin = loop.resolve_candidate_experiment_predecessor_origin(
+    origin = loop._resolve_candidate_experiment_predecessor_origin(
         run_id=head.run_id,
         predecessor_terminal_ref=candidate_selection.predecessor_terminal_ref,
         expected_action_generation=head.action_generation,
+        history_prefix=history_prefix,
     )
     chain_before = origin.candidate_terminal_history_chain
     if (
@@ -1264,6 +1355,23 @@ def verify_candidate_experiment_terminal_history(
     head: AcquisitionActionHeadRecord,
     terminal_ref: ArtifactRef,
 ) -> CandidateExperimentTerminalHistory:
+    """Fully replay a selected terminal and its original signed predecessor history.
+
+    The public standalone reader never accepts a caller-provided proof prefix.
+    Historical PA2 evidence establishes no current permission or lease.
+    """
+    return _verify_candidate_experiment_terminal_history_generation(
+        control_service=control_service, head=head, terminal_ref=terminal_ref
+    )
+
+
+def _verify_candidate_experiment_terminal_history_generation(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    terminal_ref: ArtifactRef,
+    history_prefix: _CandidateExperimentHistoryPrefix | None = None,
+) -> CandidateExperimentTerminalHistory:
     """Replay one candidate-experiment terminal from its original signed history.
 
     ``head`` may be the exact pending predecessor while a selected terminal is
@@ -1338,6 +1446,11 @@ def verify_candidate_experiment_terminal_history(
     ):
         raise ValueError("candidate_experiment_terminal_history_sink_not_established")
 
+    if history_prefix is not None:
+        _candidate_experiment_history_prefix_origin(
+            history_prefix, control_service=control_service, head=head
+        )
+
     committed = str(
         terminal_ref.artifact_id
     ) == head.receipt_ref and terminal_ref.manifest_profile_sha256 == getattr(
@@ -1375,6 +1488,7 @@ def verify_candidate_experiment_terminal_history(
             terminal_ref=terminal_ref,
             terminal_verified=terminal_verified,
             committed=committed,
+            history_prefix=history_prefix,
         )
     if type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt:
         raise ValueError("candidate_experiment_terminal_chain_untyped")
@@ -1409,7 +1523,9 @@ def verify_candidate_experiment_terminal_history(
         raise ValueError("candidate_experiment_terminal_pending_phase_untyped")
     # The phase owner reopens the signed request's earlier prefix. A full
     # current fold here would recursively verify this terminal again.
-    _, _, _, origin = sink._candidate_experiment_phase_action_context(pending_phase)
+    _, _, _, origin = sink._candidate_experiment_phase_action_context(
+        pending_phase, history_prefix=history_prefix
+    )
     predecessor_history_chain = origin.candidate_terminal_history_chain
     if len(predecessor_history_chain) + 1 != head.action_generation:
         raise ValueError("candidate_experiment_terminal_prior_generation_missing")

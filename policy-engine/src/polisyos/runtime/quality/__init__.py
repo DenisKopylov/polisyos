@@ -1,1127 +1,1138 @@
-"""Runtime quality evaluation helpers."""
+"""Expose runtime-quality contracts without importing unrelated owners eagerly.
 
-from polisyos.pdc import gy_content_hash, gy_content_hash_rows
+The historical package exports resolve to the same defining objects on demand.
+Owner initialization and its failures occur when that owner is requested; this
+facade does not run admission, register authority, or manufacture fallback values.
+"""
 
-from .acquisition_planner import (
-    ACQUISITION_PLANNER_GATE_LAYER,
-    ACQUISITION_PLANNER_GATE_PHASE,
-    ACQUISITION_PLANNER_KIND,
-    ACQUISITION_PLANNER_REPORT_KEY,
-    ACQUISITION_PLANNER_SCHEMA_NAME,
-    ACQUISITION_PLANNER_SCHEMA_VERSION,
-    AcquisitionActionRecord,
-    AcquisitionDisposition,
-    AcquisitionGap,
-    AcquisitionGapType,
-    AcquisitionNextAction,
-    AcquisitionPlannerReport,
-    AcquisitionRequirementBasisBinding,
-    AcquisitionRequirementGap,
-    AcquisitionStrategy,
-    AcquisitionStrategyRecord,
-    AuthorityLevel,
-    MandatoryGateState,
-    RequirementGapFamily,
-    acquisition_planner_reports_from_quality_evidence,
-    acquisition_planner_scorecard_gates,
-    acquisition_report_deficit_records,
-    acquisition_report_inputs,
-    load_acquisition_planner_report,
-    persist_acquisition_planner_report,
-    plan_evidence_acquisition,
-    plan_requirement_gap_acquisition,
-    requirement_gaps_from_compiled_specs,
-    validate_persisted_acquisition_planner_report,
-)
-from .approval import (
-    ProductionApprovalCurrentnessProjection,
-    ProductionApprovalIssuanceInput,
-    ProductionApprovalPacketResolver,
-    ProductionApprovalResolutionError,
-    build_production_approval_packet,
-    build_resolved_production_approval_packet,
-    persist_production_approval_packet,
-    resolve_production_approval_currentness_receipt,
-)
-from .argument_graph import (
-    ARGUMENT_GRAPH_CONTRACT_ID,
-    ARGUMENT_GRAPH_EXPORT_SCHEMA_VERSION,
-    ARGUMENT_GRAPH_INSPECTION_SCHEMA_VERSION,
-    ARGUMENT_GRAPH_KIND,
-    ARGUMENT_GRAPH_SCHEMA_VERSION,
-    ArgumentGraphError,
-    build_argument_graph,
-    build_argument_graph_quality_evidence_surfaces,
-    export_argument_graph,
-    inspect_argument_graph,
-    merge_argument_graph_quality_evidence_surfaces,
-    persist_argument_graph,
-)
-from .assurance_case import (
-    POLICY_DESIGN_CAPABILITY_DUTY_STATES,
-    POLICY_DESIGN_CAPABILITY_LEDGER_SCHEMA_VERSION,
-    POLICY_DESIGN_CASE_CORE_NODE_TYPES,
-    POLICY_DESIGN_CASE_OWNER,
-    POLICY_DESIGN_CASE_PROFILE,
-    POLICY_DESIGN_CASE_PROFILE_METADATA,
-    POLICY_DESIGN_CASE_REGISTRY_ENTRY_SCHEMA_VERSION,
-    POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES,
-    POLICY_DESIGN_CASE_SCHEMA_VERSION,
-    POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID,
-    POLICY_DESIGN_CONCEPT_SPINE_REQUIRED_CLOSURE_FIELDS,
-    POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION,
-    POLICY_DESIGN_JURISDICTION_AUTHORITY_LEVELS,
-    POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION,
-    POLICY_DESIGN_REQUIRED_CAPABILITIES,
-    POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID,
-    POLICY_DESIGN_WALKING_SKELETON_SCHEMA_VERSION,
-    POLICY_INTENT_ENVELOPE_SCHEMA_VERSION,
-    PolicyDesignCaseAuthorityError,
-    build_assurance_case_for_scorecard,
-    build_capability_duty_record,
-    build_capability_selection_ledger,
-    build_policy_design_case_concept_spine,
-    build_policy_design_case_profile,
-    build_policy_design_case_registry_entry,
-    build_policy_design_case_walking_skeleton,
-    build_policy_design_jurisdiction_spine,
-    build_policy_intent_envelope,
-    build_universality_assurance_case,
-    policy_design_concept_spine_json_schema,
-    policy_design_jurisdiction_spine_json_schema,
-    validate_capability_selection_ledger,
-    validate_policy_design_case_concept_spine,
-    validate_policy_design_case_profile,
-    validate_policy_design_jurisdiction_spine,
-    validate_policy_intent_envelope,
-)
-from .authority import (
-    AuthorityEnvelopeError,
-    AuthorityEnvelopeViolation,
-    EvidenceAuthorityEnvelope,
-    GovernanceMetadata,
-    ProducerIdentity,
-    SameInputClosure,
-    assert_authority_bearing,
-    assert_authority_purpose_allowed,
-    assert_capability_binding_purpose_allowed,
-    assert_runtime_emitted,
-    assert_same_input_closure,
-    authority_envelope_json_schema,
-    capability_binding_purpose_blockers,
-    classify_authority_role,
-    deserialize_authority_envelope,
-    serialize_authority_envelope,
-    write_authority_envelope_json_schema,
-)
-from .authority_reconciliation import (
-    AuthorityReconciliationError,
-    AuthorityReconciliationReport,
-    reconcile_authority_event,
-    reconcile_authority_ref,
-)
-from .calibration_ledger import (
-    CALIBRATION_LEDGER_CONTRACT_ID,
-    CALIBRATION_LEDGER_KIND,
-    CALIBRATION_LEDGER_SCHEMA_VERSION,
-    HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION,
-    CalibrationHistoryPolicy,
-    CalibrationLedger,
-    CalibrationLedgerContractError,
-    CalibrationLedgerEntry,
-    build_calibration_ledger,
-    calibration_influence_for_scope,
-    calibration_ledger_public_export,
-    historical_prior_claim_evidence_issues,
-    is_historical_prior_ref,
-    persist_calibration_ledger,
-)
-from .candidate_firewall import (
-    AUTHORITY_CANDIDATE_FIREWALL_NAME,
-    AuthorityCandidateInventoryRow,
-    CandidateFirewallError,
-    assert_candidate_positive_firewall_boundary,
-    assert_no_candidate_authority_laundering,
-    build_authority_candidate_inventory_rows,
-    candidate_firewall_issues_for_payload,
-    candidate_refs_from_payload,
-)
-from .capability_authority import (
-    AUTHORITY_FACTOR_NAMES,
-    CAPABILITY_AUTHORITY_RULE_VERSION,
-    CAPABILITY_AUTHORITY_SCHEMA_VERSION,
-    POSTURE_THRESHOLDS,
-    CapabilityAuthorityError,
-    CapabilityAuthorityFactor,
-    CapabilityAuthorityFactorName,
-    CapabilityBindingResult,
-    CapabilityBindingStatus,
-    compose_capability_authority,
-)
-from .capability_index import (
-    ACQUISITION_STRATEGY_SCHEMA_VERSION,
-    CAPABILITY_FAILURE_MODE_SCHEMA_VERSION,
-    CAPABILITY_INDEX_SCHEMA_VERSION,
-    CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION,
-    CONFLICT_RECORD_SCHEMA_VERSION,
-    EVIDENCE_CAPABILITY_SCHEMA_VERSION,
-    AuthorityEnvelope,
-    CapabilityConflictRecord,
-    CapabilityIndex,
-    CapabilityLifecycle,
-    CapabilityScope,
-    CapabilitySourceAsset,
-    EvidenceCapability,
-    FailureModeNode,
-    FreshnessEnvelope,
-    QualityScore,
-    RightsEnvelope,
-)
-from .capability_index import (
-    AcquisitionStrategy as CapabilityIndexAcquisitionStrategy,
-)
-from .capability_index_compiler import (
-    CAPABILITY_INDEX_COMPILER_VERSION,
-    FULL_MODE_CAPABILITY_FLOORS,
-    PERFORMANCE_BUDGET_SECONDS,
-    CapabilityIndexBuildResult,
-    CapabilityIndexCompilerConfig,
-    compile_capability_index,
-    create_capability_index_fixture_inputs,
-    validate_capability_authority,
-)
-from .capability_ratchet import (
-    CAPABILITY_RATCHET_CONTRACT_ID,
-    CAPABILITY_RATCHET_SCHEMA_VERSION,
-    MISSING_REALITY_STATES,
-    PURPOSE_MULTIPLIERS,
-    REALITY_STATE_BASE_POINTS,
-    REALITY_STATES,
-    build_capability_reality_report,
-    evaluate_capability_claim,
-    ratchet_templates,
-    severity_for_points,
-)
-from .capability_resolver import (
-    DEFAULT_CAPABILITY_INDEX_REF,
-    REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION,
-    REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION,
-    RequirementTimeWindow,
-    RequirementToCapabilityQuery,
-    RequirementToCapabilityResolver,
-    construct_for_legacy_family,
-    legacy_family_for_construct,
-)
-from .case_integrity import (
-    EVIDENCE_GRAPH_THREAT_MODEL_RECORD_FAMILY,
-    EVIDENCE_GRAPH_THREAT_MODEL_RECORD_KEY,
-    EVIDENCE_GRAPH_THREAT_MODEL_SCHEMA_VERSION,
-    EVIDENCE_GRAPH_THREATS,
-    PolicyDesignCaseIntegrityIssue,
-    validate_evidence_graph_threat_model_record,
-)
-from .case_lifecycle import (
-    CASE_LIFECYCLE_CONTRACT_ID,
-    CASE_LIFECYCLE_SCHEMA_VERSION,
-    COMMITMENT_PROFILE_SCHEMA_VERSION,
-    EX_POST_LEARNING_CONTRACT_ID,
-    EX_POST_LEARNING_SCHEMA_VERSION,
-    CommitmentProfileRecord,
-    FloorBand,
-    LifecycleStage,
-    P23StakesFloorError,
-    PolicyDesignLifecycleError,
-    PolicyDesignLifecycleIssue,
-    Reversibility,
-    StakesBand,
-    assert_stakes_floor_consistency,
-    build_case_lifecycle_record,
-    build_commitment_profile,
-    build_ex_post_learning_record,
-    select_floor,
-    validate_case_lifecycle_record,
-    validate_ex_post_learning_record,
-    validate_policy_design_lifecycle_records,
-)
-from .case_maturity import (
-    CASE_MATURITY_PROFILE_RECORD_FAMILY,
-    CASE_MATURITY_PROFILE_RECORD_KEY,
-    CASE_MATURITY_PROFILE_SCHEMA_VERSION,
-    CASE_MATURITY_PROFILE_SCORECARD_GATE,
-    RECORD_FAMILY_MATURITY_LEVELS,
-    CaseMaturityIssue,
-    CaseMaturityValidationResult,
-    RecordFamilyMaturity,
-    build_case_maturity_profile,
-    policy_design_case_maturity_scorecard_gates,
-    validate_case_maturity_profile,
-)
-from .claim_argument import (
-    CLAIM_ARGUMENT_CONTRACT_ID,
-    CLAIM_ARGUMENT_MAPPING_SCHEMA_VERSION,
-    CLAIM_ARGUMENT_NODE_MAPPING,
-    CLAIM_ARGUMENT_VALIDATION_SCHEMA_VERSION,
-    PRE_PUBLICATION_CHALLENGE_NODE_SCHEMA_VERSION,
-    ClaimArgumentIssue,
-    ClaimArgumentValidationResult,
-    build_pre_publication_challenge_node,
-    build_pre_publication_challenge_node_from_scientist_outputs,
-    export_claim_argument_case_mapping,
-    validate_claim_argument_case_surfaces,
-)
-from .closeout_reader import (
-    CLOSEOUT_READER_CONTRACT_ID,
-    CLOSEOUT_READER_CONTRACT_VERSION,
-    CLOSEOUT_READER_SCHEMA_VERSION,
-    DEFAULT_CLOSEOUT_MODULE_READERS,
-    CloseoutModuleReaderSpec,
-    build_closeout_reader_skeleton,
-    build_closeout_reader_skeleton_from_bundle_dir,
-)
-from .complexity_governance import (
-    COMPLEXITY_GOVERNANCE_CONTRACT_ID,
-    COMPLEXITY_GOVERNANCE_CONTROL_ID,
-    COMPLEXITY_GOVERNANCE_FILENAME,
-    COMPLEXITY_GOVERNANCE_REPORT_KEY,
-    COMPLEXITY_GOVERNANCE_SCHEMA_VERSION,
-    NET_MAV_FORMULA,
-    ComplexityGovernanceError,
-    build_complexity_governance_report,
-    complexity_governance_scorecard_gates,
-    compute_net_mav,
-    evaluate_blocking_frontier_control,
-    review_controls_for_pruning,
-)
-from .compliance import normalize_runtime_privacy_compliance_report
-from .concept_spine import (
-    CONCEPT_SPINE_BRIDGE_AUTHORITY_SCHEMA_VERSION,
-    CONCEPT_SPINE_HANDSHAKE_LEDGER_SCHEMA_VERSION,
-    CONCEPT_SPINE_HANDSHAKE_RECORD_SCHEMA_VERSION,
-    CONCEPT_SPINE_HYBRID_CARRIER_SCHEMA_VERSION,
-    ConceptNamespaceRef,
-    ConceptRelation,
-    ProducerHandshakeBinding,
-    ProducerHandshakeValidationError,
-    ProducerWaitCondition,
-    ReconciledConcept,
-    build_concept_spine_bridge_authority_record,
-    build_hybrid_concept_spine_carrier,
-    build_producer_handshake_ledger,
-    build_producer_handshake_record,
-    validate_hybrid_concept_spine_carrier,
-)
-from .config_release_hardening import (
-    CONFIG_RELEASE_HARDENING_CONTRACT_ID,
-    CONFIG_RELEASE_HARDENING_PDD_IDS,
-    CONFIG_RELEASE_HARDENING_RECORD_FAMILY,
-    CONFIG_RELEASE_HARDENING_SCHEMA_VERSION,
-    ConfigReleaseHardeningIssue,
-    validate_config_release_deployment_migration_hardening_record,
-)
-from .construct_registry import (
-    CONSTRUCT_REGISTRY_DEFAULT_PATH,
-    CONSTRUCT_REGISTRY_ID,
-    CONSTRUCT_REGISTRY_RULE_VERSION,
-    CONSTRUCT_REGISTRY_SCHEMA_VERSION,
-    CONSTRUCT_REGISTRY_VERSION,
-    ConstructAliasDeprecation,
-    ConstructAuthorityRequirement,
-    ConstructCompatibilityAlias,
-    ConstructCorpusBinding,
-    ConstructEntry,
-    ConstructRegistry,
-    ConstructRegistryError,
-    ConstructValidityRequirements,
-    assert_scenario_family_name_alone_does_not_grant_authority,
-    construct_refs_for_alias,
-    construct_registry_concept_spine_entries,
-    construct_registry_public_surface,
-    load_construct_registry,
-    non_ukraine_bound_constructs,
-    validate_construct_registry_coverage,
-    validate_obligation_rule_construct_refs,
-)
-from .cost_degradation import (
-    COST_DEGRADATION_TELEMETRY_CONTRACT_ID,
-    COST_DEGRADATION_TELEMETRY_FILENAME,
-    COST_DEGRADATION_TELEMETRY_REPORT_KEY,
-    COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION,
-    CostDegradationTelemetryError,
-    build_cost_degradation_telemetry_from_quality_context,
-    cost_degradation_scorecard_gates,
-    validate_cost_degradation_telemetry,
-)
-from .cost_gate import (
-    RUN_COST_GATE_CONTRACT_ID,
-    RUN_COST_GATE_FILENAME,
-    RUN_COST_GATE_REPORT_KEY,
-    RUN_COST_GATE_SCHEMA_VERSION,
-    RunCostGateError,
-    build_run_cost_gate_report,
-    cost_gate_scorecard_gates,
-    validate_run_cost_gate_report,
-)
-from .data_quality import build_production_data_quality_report
-from .ddm_monitoring import (
-    DDM_EVENT_GROUPS,
-    IMPLEMENTATION_MONITORING_EVALUATION_CONTRACT_ID,
-    IMPLEMENTATION_MONITORING_EVALUATION_SCHEMA_VERSION,
-    ImplementationMonitoringEvaluationError,
-    build_implementation_monitoring_evaluation_record,
-    validate_implementation_monitoring_evaluation_record,
-)
-from .degradation import (
-    DegradationLedgerContractError,
-    DegradationLedgerRecord,
-    DegradationPolicyDecision,
-    assert_serious_fallback_allowed,
-    build_degradation_record,
-    deserialize_degradation_record,
-    evaluate_degradation_policy,
-    serialize_degradation_record,
-)
-from .design_axes.blind_spot_firewalls import (
-    LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION,
-    AggregationClaimLevel,
-    AggregationScopeRow,
-    AggregationValidityDisposition,
-    AggregationValidityRecord,
-    AxisFailClosedDisposition,
-    BlindSpotAxis,
-    BlindSpotBridgeConsumerRecord,
-    BlindSpotConstraintStoreUpdate,
-    BlindSpotFirewallReport,
-    BlindSpotOverallPosture,
-    CapacityBuildingObligation,
-    CapacityDimension,
-    CapacityDimensionAssessment,
-    CapacityDisposition,
-    CapacityFeasibilityRecord,
-    ClusterAuthorityDimensionRecord,
-    ConstraintRefinementRoute,
-    ConstraintStatus,
-    ConstructMeasurabilityRow,
-    ConstructMeasurabilityStatus,
-    LegitimacyDisposition,
-    MandateBasis,
-    MandateLegitimacyRecord,
-    MandateSourceRecord,
-    MeasurabilityAdequacyRecord,
-    P18StreetlightMeasurabilityError,
-    P19AggregationLaunderingError,
-    P21CapacityFeasibilityError,
-    P22MandateLegitimacyError,
-    P24StrategicResponseError,
-    ParticipationProvenanceRow,
-    PostInterventionDGPUpdate,
-    ProxyValidityDisposition,
-    ProxyValidityRecord,
-    SourceAuthority,
-    StrategicResponseChannel,
-    StrategicResponseChannelAssessment,
-    StrategicResponseDisposition,
-    StrategicResponseRecord,
-    ValueLossDisclosure,
-    build_s6_blind_spot_firewall_report,
-    evaluate_aggregation_validity,
-    evaluate_capacity_feasibility,
-    evaluate_mandate_legitimacy,
-    evaluate_measurability_adequacy,
-    evaluate_strategic_response,
-    s6_fail_closed_coverage,
-    s6_firewall_report_to_axis_positions,
-    s6_firewall_report_to_c3_dimension_records,
-    s6_firewall_report_to_constraint_store_updates,
-)
-from .design_axes.coupling_composition import (
-    LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION,
-    BoundaryCouplingClassification,
-    CompositionAuthorityMode,
-    CompositionDisposition,
-    CompositionLawCheck,
-    CompositionReceipt,
-    ComputationalTractabilityBudget,
-    CouplingEdge,
-    CouplingGraph,
-    CouplingRegime,
-    CouplingRegimeClassification,
-    DecompositionResult,
-    DesignInterfaceContract,
-    DynamicsRequirementLevel,
-    FeedbackIntensity,
-    ForecastClaimScope,
-    ForecastSupportBaseOrigin,
-    ForecastSupportScope,
-    InteractionStrength,
-    ModuleDiscoveryResult,
-    P17BoundarySpoofError,
-    P17FalseModularityError,
-    P17SyntacticCompositionError,
-    P17SystemDynamicsRequiredError,
-    RecursiveDesignGraph,
-    SystemDynamicsRequirement,
-    SystemEffectSupportLabel,
-    assert_composition_laws_hold,
-    build_composition_receipt,
-    build_computational_tractability_budget,
-    build_coupling_graph,
-    build_system_dynamics_requirement,
-    build_system_effect_support,
-    classify_coupling,
-    composition_to_axis_positions,
-    coupling_accuracy,
-    critical_path_regime,
-    decompose_design,
-    derive_recursive_design_graph,
-    discover_design_modules,
-)
-from .design_axes.epistemic_regime import (
-    LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION,
-    DesignStrategy,
-    EpistemicRegimeClaim,
-    P16OverconfidenceError,
-    P16PrecautionLaunderingError,
-    RegimeEvidenceBasis,
-    classify_regime,
-    regime_accuracy,
-    regime_claim_to_axis_position,
-    regime_design_strategy,
-)
-from .design_axes.mandate_bounded_delegation import (
-    LAYER2_S7_DELEGATION_SCHEMA_VERSION,
-    DecisionAction,
-    DecisionNeedReason,
-    DecisionOption,
-    DecisionRightsMatrix,
-    DecisionRightsMatrixRow,
-    DecisionRole,
-    DelegationContract,
-    DelegationDisposition,
-    DelegationIntegrityReport,
-    DelegationInteractionMode,
-    DelegationNegativeControlResult,
-    FiveRightsCheck,
-    FiveRightsDimension,
-    FiveRightsRequirement,
-    HumanDecisionRecord,
-    HumanDecisionRequest,
-    P26ResponsibilityIntegrityError,
-    ResponsibilityIntegrityCheck,
-    ResponsibilityIntegrityStatus,
-    build_decision_rights_matrix,
-    build_delegation_contract,
-    build_governance_decision_class_registry,
-    build_human_decision_request,
-    evaluate_delegation_for_case,
-    record_human_decision,
-    s7_delegation_integrity,
-)
-from .design_axes.outcome_prediction import (
-    LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
-    LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION,
-    S10_CALIBRATION_FLOOR_ID,
-    S10_FALSE_CLEAR_FIELDS,
-    ForecastAuthorityDisposition,
-    ForecastCalibrationRecord,
-    ForecastMethodFamily,
-    ForecastSupport,
-    ForecastSupportIntegrityReport,
-    ObservableSubsetCalibrationStatus,
-    OutcomeDistributionRecord,
-    PredictionAuthorityEnvelope,
-    WelfareComparisonRecord,
-    WelfareComparisonStatus,
-    build_forecast_calibration_record,
-    build_forecast_support,
-    build_prediction_authority_boundary,
-    build_welfare_comparison_record,
-    summarize_forecast_support_integrity,
-    verify_prediction_authority_envelope,
-)
-from .design_axes.post_deploy_accountability import (
-    LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
-    LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION,
-    S13_ACCOUNTABILITY_FLOOR_ID,
-    S13_FALSE_CLEAR_FIELDS,
-    ActionItemStatus,
-    AssuranceCaseChange,
-    AssuranceCaseDelta,
-    AttributionStatus,
-    CertifiedEnvelopeDelta,
-    DeploymentDossier,
-    DeploymentReadinessDisposition,
-    DivergenceAttributionClass,
-    DivergenceRecord,
-    EnvelopeRevision,
-    EnvelopeRevisionDirection,
-    LearningChangeControlClass,
-    LearningUpdateProposal,
-    LearningUpdateTarget,
-    LifecycleReissueDisposition,
-    OversightLinkedAccountabilityState,
-    PostDeployAccountabilitySummary,
-    PostDeployMapeKPhase,
-    PostDeployMapeKTrace,
-    build_assurance_case_delta,
-    build_certified_envelope_delta,
-    build_deployment_dossier,
-    build_envelope_revision,
-    build_learning_update_proposal,
-    build_post_deploy_mape_k_trace,
-    build_s13_accountability_authority_boundary,
-    build_s13_post_deploy_accountability_posture,
-    classify_post_deploy_divergence,
-    summarize_post_deploy_accountability,
-    verify_post_deploy_learning_authority,
-)
-from .design_axes.predictive_knowledge import (
-    LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
-    LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
-    S11_AXIS_CALIBRATION_FLOOR_ID,
-    S11_FALSE_CLEAR_FIELDS,
-    S11_PREDICTIVE_AXES,
-    ForecastQualityDisposition,
-    PredictiveAxis,
-    PredictiveAxisCalibrationRecord,
-    PredictiveAxisUpgradeRecord,
-    PredictiveMaturity,
-    ProofCarryingAnalyticsRecord,
-    ProofComposabilityStatus,
-    ProofStatus,
-    RelaxationDecision,
-    S11CalibrationStatus,
-    S11PredictiveKnowledgeAuthorityEnvelope,
-    S11PredictiveKnowledgeIntegrityReport,
-    build_predictive_axis_calibration_record,
-    build_predictive_axis_upgrade_record,
-    build_proof_carrying_analytics_record,
-    build_s11_predictive_authority_boundary,
-    build_s11_predictive_knowledge_posture,
-    summarize_s11_predictive_knowledge_integrity,
-    verify_s11_predictive_knowledge_authority_envelope,
-)
-from .design_axes.projection_lowering import (
-    LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
-    LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
-    S9_PROJECTION_FLOOR_ID,
-    CanonicalDesignRecord,
-    DesignRecordMaturityReport,
-    LoweringAppendReceipt,
-    LoweringArtifactRecord,
-    LoweringAuthorityGateRecord,
-    LoweringRequestRecord,
-    ProjectionAlgebraRequest,
-    ProjectionFaithfulnessRecord,
-    ProjectionLoweringIntegrityReport,
-    ProjectionRenderRecord,
-    append_verified_lowering_artifact,
-    build_canonical_design_record,
-    build_design_record_maturity_report,
-    build_projection_algebra_request,
-    build_projection_render_record,
-    gate_lowering_request,
-    persist_projection_lowering_bundle,
-    s9_projection_lowering_integrity,
-    verify_projection_faithfulness,
-)
-from .design_axes.resource_economics import (
-    LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
-    LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
-    S12_FALSE_CLEAR_FIELDS,
-    S12_GROWTH_THERMOMETERS_FLOOR_ID,
-    S12_TYPED_BUDGETS,
-    S12_VOI_SITES,
-    AllocationPriorityRow,
-    BudgetKind,
-    EnvelopeGrowthEntry,
-    EnvelopeGrowthLedger,
-    ExploreExploitPosture,
-    GrowthCountingDisposition,
-    GrowthThermometerRecord,
-    KnowledgeGovernanceMode,
-    KnowledgeGovernanceThroughputLedger,
-    ResourceAllocationPolicy,
-    ResourceAuthorityDisposition,
-    ResourceEconomicsAuthorityEnvelope,
-    ResourceEconomicsIntegrityReport,
-    S12ResourceReferenceResolution,
-    ThermometerTrend,
-    ThroughputRow,
-    TypedBudgetRow,
-    ValueOfInformationAllocation,
-    VoiAllocationRow,
-    VoiSite,
-    allocate_value_of_information,
-    build_envelope_growth_ledger,
-    build_growth_thermometers,
-    build_knowledge_governance_throughput_ledger,
-    build_resource_allocation_policy,
-    build_s12_resource_authority_boundary,
-    build_s12_resource_economics_posture,
-    resolve_s12_resource_refs,
-    summarize_resource_economics_integrity,
-    verify_resource_authority_envelope,
-)
-from .design_axes.substrate_acquisition import (
-    LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION,
-    AcquisitionState,
-    AcquisitionTaskRecord,
-    ConstructDemandLedger,
-    ConstructExpression,
-    FrozenClosedCase,
-    RerunClosureReceipt,
-    SourceContract,
-    SourceDiscoveryCandidate,
-    SubstrateAcquisitionLoop,
-    SubstrateCoverageSnapshot,
-    is_production_claim_admissible,
-    max_admissible_posture,
-    resolve_expression,
-)
-from .design_axes.universality_assurance import (
-    LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
-    LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION,
-    S14_FALSE_CLEAR_FIELDS,
-    S14_SKEPTIC_DEFEATER_IDS,
-    S14_UNIVERSALITY_FLOOR_ID,
-    D4CorpusTrackCoverage,
-    D4CorpusTrackRow,
-    EnvelopeRevisionDynamicsRecord,
-    EvaluationStatusCompositionRecord,
-    EvaluationStatusCompositionRow,
-    ExpertOracleBootstrapRecord,
-    ExpertOracleLayerRow,
-    GroundedAuthorityCoverageRecord,
-    MechanismGeneralityReport,
-    SealedUniversalityBatteryRun,
-    SkepticDefeaterRecord,
-    UniversalityAssuranceSummary,
-    UniversalityAxisScorecard,
-    UniversalityAxisScoreRow,
-    UniversalityBaselineComparison,
-    UniversalityBaselineRow,
-    UniversalityBreadthFloorConfig,
-    UniversalityClaimAssuranceCase,
-    UniversalityClaimGateRecord,
-    build_d4_corpus_track_coverage,
-    build_envelope_revision_dynamics_record,
-    build_evaluation_status_composition_record,
-    build_expert_oracle_bootstrap_record,
-    build_grounded_authority_coverage_record,
-    build_mechanism_generality_report,
-    build_s14_cae_scorecard,
-    build_s14_capability_reality_axis_rows,
-    build_s14_mechanism_generality_from_growth_thermometer,
-    build_s14_universality_assurance_projection,
-    build_s14_universality_authority_boundary,
-    build_skeptic_defeater_records,
-    build_universality_axis_scorecard,
-    build_universality_baseline_comparison,
-    build_universality_breadth_floor_config,
-    build_universality_claim_assurance_case,
-    compute_sealed_battery_freeze_hash,
-    gate_universality_claim,
-    project_cae_defeaters_to_s14_skeptic_records,
-    summarize_universality_assurance,
-    verify_sealed_battery_integrity,
-    verify_universality_claim_authority,
-)
-from .design_axes.value_choice_provenance import (
-    LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
-    LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
-    S8_VALUE_CHOICE_CELL_REF,
-    S8_VALUE_CHOICE_FLOOR_ID,
-    AuthorizedValueSchedule,
-    DelegationReferenceClass,
-    FirewallStatus,
-    ObjectiveFunctionProvenanceRecord,
-    P20NormativeChoiceError,
-    ParetoArchive,
-    RankingMode,
-    ValueChoiceIntegrityReport,
-    ValueChoiceProvenanceRecord,
-    ValueDisposition,
-    ValueScheduleReviewStatus,
-    ValueSourceClass,
-    ValueTradeoffDisclosureRecord,
-    build_authorized_value_schedule,
-    build_objective_function_provenance,
-    build_pareto_archive,
-    build_shadow_scenario_value_schedule,
-    build_value_choice_provenance_record,
-    coerce_social_weight_provenance_for_s8,
-    persist_value_choice_provenance_bundle,
-    project_value_tradeoff_disclosure,
-    s8_value_provenance_integrity,
-)
-from .design_problem import (
-    DESIGN_PROBLEM_SCHEMA_VERSION,
-    AuthorityProfile,
-    CandidateLever,
-    CandidateLeverSpace,
-    DesignConstraint,
-    DesignObjective,
-    DesignProblem,
-    DesignProblemAuthorityError,
-    DesignStakeholder,
-    EvidenceAcquisitionNeeds,
-    EvidenceNeed,
-    JurisdictionTimeSemantics,
-    NLProvenance,
-    OutcomeOfInterest,
-)
-from .diagnostic_slos import (
-    build_diagnostic_slo_report,
-    build_diagnostic_slo_report_from_quality_context,
-    default_diagnostic_slo_targets,
-    diagnostic_slo_gates,
-)
-from .disconfirming_evidence import (
-    DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID,
-    DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION,
-    DisconfirmingEvidenceLedgerError,
-    build_disconfirming_evidence_ledger,
-    validate_disconfirming_evidence_ledger_record,
-)
-from .effective_mode import (
-    EffectiveModeLedger,
-    ModePolicyError,
-    ModePolicyViolation,
-    assert_serious_mode_allowed,
-    explain_mode_mismatch,
-    mode_policy_failure_code,
-)
-from .evaluation_modes import resolve_evaluation_mode
-from .evaluation_safety import (
-    EvalSafetyAdmissionChallenge,
-    EvalSafetyVerifierPort,
-    EvaluationExecutionContext,
-    evaluation_safety_consumer_admission_is_verified,
-)
-from .event_log import DiagnosticEventPayloadPolicy, RuntimeDiagnosticEventLog
-from .evidence_independence import (
-    GRADED_INDEPENDENCE_FEATURE_FLAG,
-    INDEPENDENCE_MAP_CONTRACT_ID,
-    INDEPENDENCE_MAP_SCHEMA_VERSION,
-    CapabilityIndependenceFactor,
-    EvidenceIndependenceError,
-    build_evidence_independence_map,
-    effective_independence_factor_for_capability,
-    validate_evidence_independence_map_record,
-)
-from .evidence_line import (
-    EVIDENCE_LINE_CONTRACT_ID,
-    EVIDENCE_LINE_SCHEMA_VERSION,
-    SUPPORTED_EVIDENCE_LINE_STRANDS,
-    EvidenceLineError,
-    evidence_line_record_id,
-    validate_evidence_line_record,
-    validate_evidence_line_records,
-)
-from .evidence_synthesis import (
-    EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID,
-    EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION,
-    EvidenceSynthesisReportError,
-    build_evidence_synthesis_report,
-    evidence_synthesis_refs_by_claim,
-    synthesis_report_record_id,
-    validate_evidence_synthesis_report_record,
-)
-from .explanation_reliability import build_berl_warrant_reliability_record
-from .external_audit import (
-    EXTERNAL_AUDIT_RECORD_FAMILY,
-    EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION,
-    ExternalAuditRecordError,
-    build_public_audit_archive_record,
-    validate_public_audit_archive_record,
-)
-from .generation_cycle import (
-    CandidateSourceCurrentOccurrence,
-    CandidateSourceCurrentProjection,
-    RealValueOwnerGateway,
-    ValueOwnerSourceProjectionRequestV1,
-    ValueOwnerSourceVariableProjectionV1,
-    ValueTransportRunReceiptV1,
-    project_candidate_source_current_occurrences,
-)
-from .graded_outcomes import (
-    S1_GRADED_OUTCOME_SCHEMA_VERSION,
-    GradedOutcomeDecision,
-    GradedOutcomeEvidenceInput,
-    GradedOutcomeInputError,
-    compose_graded_outcome,
-    graded_outcome_closeout_record,
-)
-from .human_review import (
-    build_human_review_calibration_report,
-    deterministic_review_fixtures,
-    evaluate_review_packet,
-    human_review_public_export,
-    persist_human_review_calibration_report,
-)
-from .hypothesis_ledger import (
-    HYPOTHESIS_LEDGER_FILENAME,
-    HYPOTHESIS_LEDGER_KIND,
-    HYPOTHESIS_LEDGER_REF_KEY,
-    HYPOTHESIS_LEDGER_REPORT_KEY,
-    HYPOTHESIS_LEDGER_SCHEMA_VERSION,
-    CandidateAuthorityEnvelope,
-    HypothesisLedger,
-    HypothesisLedgerEntry,
-    build_hypothesis_ledger_from_prompt_tool_ledger,
-    deserialize_hypothesis_ledger,
-    persist_hypothesis_ledger,
-    serialize_hypothesis_ledger,
-)
-from .ir_analytics_bridge import (
-    IR_ANALYTICS_CLAIM_BRIDGE_KIND,
-    IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
-    IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
-    IRAnalyticsClaimBinding,
-    build_ir_analytics_claim_bridge,
-    ir_analytics_bridge_issues_for_claims,
-    ir_analytics_claim_bindings_by_claim,
-    merge_ir_analytics_binding_into_registry_entry,
-    normalize_ir_analytics_claim_bridge,
-)
-from .legacy_payload_migration_audit import (
-    LEGACY_MIGRATION_SEMANTIC_LOSS,
-    build_legacy_migration_sandbox,
-    comparison_failure_codes,
-    legacy_compatible_payload,
-    persist_legacy_migration_sandbox_report,
-)
-from .memory_influence import (
-    CLAIM_EVIDENCE_SLOT_KEYS,
-    CORE_FORBIDDEN_CURRENT_USES,
-    MEMORY_INFLUENCE_ADR_REF,
-    MEMORY_INFLUENCE_RECORD_KIND,
-    MEMORY_INFLUENCE_REF_PREFIXES,
-    MEMORY_INFLUENCE_SCHEMA_VERSION,
-    MemoryInfluenceRecord,
-    assert_memory_influence_not_claim_evidence,
-    build_memory_influence_record,
-    is_memory_influence_ref,
-    memory_influence_claim_evidence_issues,
-)
-from .multiverse_specification_curve import (
-    MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID,
-    MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION,
-    REQUIRED_MULTIVERSE_SOURCE_KINDS,
-    MultiverseSpecificationCurveError,
-    build_multiverse_specification_curve_record,
-    validate_multiverse_specification_curve_record,
-)
-from .observability_static_audit import (
-    DORMANT_CAPABILITY_INVENTORY_RECORD_KEY,
-    DORMANT_CAPABILITY_INVENTORY_SCHEMA_VERSION,
-    FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY,
-    FRESHNESS_POLICY_TIME_SEMANTICS_SCHEMA_VERSION,
-    SKIP_CAUSALITY_LEDGER_RECORD_KEY,
-    SKIP_CAUSALITY_LEDGER_SCHEMA_VERSION,
-    PolicyDesignObservabilityStaticAuditIssue,
-    build_dormant_capability_inventory_record,
-    build_freshness_policy_time_semantics_record,
-    build_skip_causality_ledger_record,
-    validate_observability_orchestration_static_audit_records,
-)
-from .performance_budget import (
-    build_canary_performance_budget,
-    run_cost_budget_policy_from_performance_budget,
-)
-from .phase_barriers import (
-    PhaseBarrierBlocker,
-    PhaseBarrierId,
-    PhaseBarrierLedger,
-    PhaseBarrierRecord,
-    PhaseBarrierStatus,
-    PhaseBarrierViolation,
-    assert_barrier_closed,
-    assert_barrier_passed,
-)
-from .policy_benchmarking import (
-    POLICY_BENCHMARKING_RECORD_CONTRACT_ID,
-    POLICY_BENCHMARKING_RECORD_FAMILY,
-    POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION,
-    REQUIRED_POLICY_BENCHMARK_METRICS,
-    PolicyBenchmarkingError,
-    PolicyBenchmarkingIssue,
-    PolicyBenchmarkingValidationResult,
-    best_in_class_benchmarking_record_id,
-    validate_policy_benchmarking_record,
-    validate_policy_design_best_in_class_benchmarking_records,
-)
-from .policy_design_case import (
-    POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES,
-    RECORD_REGISTRY_READINESS_CHECK,
-    RECORD_REGISTRY_SCHEMA_VERSION,
-    PolicyDesignCaseRecordApplicability,
-    PolicyDesignCaseRecordFamily,
-    PolicyDesignCaseRecordRegistryIssue,
-    PolicyDesignCaseRecordRegistryValidationResult,
-    build_policy_design_case_record_registry_report,
-    policy_design_case_record_registry_payload,
-    policy_design_case_record_registry_scorecard_gates,
-    validate_policy_design_case_record_registry_payload,
-)
-from .policy_design_case_integration_skeleton import (
-    WAVE2_I2_MANIFEST_SCHEMA_VERSION,
-    WAVE2_I2_SCHEMA_VERSION,
-    build_wave2_policy_design_case_walking_skeleton,
-    persist_wave2_policy_design_case_walking_skeleton,
-)
-from .producer_pipeline import (
-    PRODUCER_PIPELINE_FEATURE_FLAG,
-    PRODUCER_PIPELINE_SCHEMA_VERSION,
-    ProducerPipelineBinding,
-    ProducerPipelineProducer,
-    build_producer_pipeline_quality_evidence_surfaces,
-    merge_producer_pipeline_quality_evidence_surfaces,
-    run_eight_stage_producer_pipeline,
-    run_requirement_spec_producer_pipeline,
-)
-from .projection_semantics import (
-    POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION,
-    PROJECTION_STATES,
-    PolicyDesignCaseProjectionError,
-    assert_policy_design_projection_not_authority,
-    build_policy_design_case_projection_contract_fixture,
-    build_policy_design_case_projection_semantics,
-    verify_policy_design_case_projection_consumer_contract,
-    verify_s9_projection_faithfulness_for_pdc_consumer_contract,
-    verify_s10_forecast_projection_consumer_contract,
-)
-from .prompt_tool_ledger import (
-    PromptToolParserAuthorityLedger,
-    PromptToolParserAuthorityValidation,
-    persist_prompt_tool_ledger,
-    validate_prompt_tool_parser_authority,
-)
-from .public_export import (
-    PublicExportRedactionError,
-    assert_public_export_official_use_limits,
-    build_public_export_bundle,
-)
-from .replay import (
-    POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS,
-    POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION,
-    build_replay_manifest,
-    explain_replay_drift,
-    persist_drift_explanation,
-    persist_replay_manifest,
-    validate_policy_evidence_capability_replay_refs,
-)
-from .rule_evolution import (
-    RULE_EVOLUTION_CONTRACT_ID,
-    RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
-    RULE_EVOLUTION_RECORD_FAMILY,
-    RULE_EVOLUTION_REGISTRY_KIND,
-    RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
-    RULE_EVOLUTION_REPLAY_SCHEMA_VERSION,
-    build_rule_evolution_registry,
-    build_rule_evolution_replay_context,
-    logic_hash_for_rule,
-    persist_rule_evolution_registry,
-    public_rule_evolution_annotation,
-)
-from .rule_replay_engine import (
-    C33_RULE_CHANGE_CLASS_TABLE,
-    RULE_REPLAY_COMPARISON_SCHEMA_VERSION,
-    RULE_REPLAY_EXECUTION_SCHEMA_VERSION,
-    RULE_REPLAY_PUBLIC_REPORT_SCHEMA_VERSION,
-    build_rule_replay_comparison_report,
-    persist_rule_replay_comparison_report,
-    replay_under_new_rules,
-    replay_under_original_rules,
-)
-from .run_cost_proportionality import (
-    HIGH_COST_LOW_IMPACT_COST_USD,
-    HIGH_COST_LOW_IMPACT_ELAPSED_SECONDS,
-    HIGH_COST_LOW_IMPACT_REVIEW_HOURS,
-    RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID,
-    RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION,
-    RunCostProportionalityError,
-    build_run_cost_proportionality_ledger_from_quality_context,
-    run_cost_ledger_record_id,
-    validate_run_cost_proportionality_blocker,
-    validate_run_cost_proportionality_ledger,
-)
-from .run_state import (
-    RunIntentBinding,
-    RunState,
-    RunStateMachine,
-    RunStateSnapshot,
-    RunStateTransitionError,
-    assert_approval_readiness_projection_allowed,
-    assert_canary_bundle_closeout_allowed,
-    assert_final_decision_artifact_allowed,
-    assert_public_artifact_allowed,
-)
-from .schema_compat import evaluate_schema_compatibility, reader_schema_ranges
-from .scorecard import build_quality_scorecard, normalize_quality_evidence
-from .semantic_binding import (
-    PRODUCER_SPINE_CONSUMER_COMPONENTS,
-    PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
-    SEMANTIC_BINDING_SCHEMA_VERSION,
-    ClaimBindingRecord,
-    ColumnBinding,
-    CoverageBinding,
-    DerivedFeatureBinding,
-    FabricBindingRecord,
-    FoundryBindingRecord,
-    IntentBindingRecord,
-    LexBindingRecord,
-    MetricBinding,
-    ProducerSpineReadContext,
-    ScholarBindingRecord,
-    SemanticBindingEvaluation,
-    SemanticBindingIssue,
-    SemanticBindingLedger,
-    SourceFacetBinding,
-    authority_envelopes_missing_semantic_binding_ref,
-    build_producer_spine_read_context,
-    build_semantic_binding_ledger,
-    deserialize_semantic_binding_ledger,
-    evaluate_semantic_binding_ledger,
-    producer_spine_read_context_for,
-)
-from .semantic_fixtures import (
-    SEMANTIC_EVALUATION_PACK_CONTRACT_ID,
-    SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION,
-    SEMANTIC_GOLD_CARD_CONTRACT_ID,
-    SEMANTIC_GOLD_CARD_SCHEMA_VERSION,
-    PolicyDesignCaseSemanticEvaluationPack,
-    PolicyDesignCaseSemanticGoldCardFixture,
-    evaluate_semantic_evaluation_pack,
-    evaluate_semantic_gold_card_fixture,
-    semantic_evaluation_pack_json_schema,
-    semantic_gold_card_json_schema,
-)
-from .skip_blockers import skip_blocker_gate_from_payloads
-from .soft_gate_telemetry import (
-    DEFAULT_SOFT_GATE_ESCALATION_SECONDS,
-    DEFAULT_SOFT_GATE_TTL_SECONDS,
-    SOFT_GATE_TELEMETRY_SCHEMA_VERSION,
-    build_soft_gate_telemetry_report,
-    warning_lifecycle_summaries,
-)
-from .tenant_cas_approval_governance import (
-    PASS1B_HARDENING_READINESS_CHECK,
-    PASS1B_HARDENING_SCORECARD_GATE,
-    PASS1B_PDD_REQUIRED_SURFACES,
-    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION,
-    PolicyDesignPass1BHardeningError,
-    PolicyDesignPass1BHardeningIssue,
-    build_pass1b_tenant_cas_approval_governance_record,
-    pass1b_tenant_cas_approval_governance_issues,
-    policy_design_pass1b_hardening_scorecard_gates,
-    validate_pass1b_tenant_cas_approval_governance_record,
-)
-from .world_model_record import WorldModelRecord, world_model_record_content_hash
+from __future__ import annotations
+
+import importlib
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from polisyos.pdc import gy_content_hash, gy_content_hash_rows
+
+    from .acquisition_planner import (
+        ACQUISITION_PLANNER_GATE_LAYER,
+        ACQUISITION_PLANNER_GATE_PHASE,
+        ACQUISITION_PLANNER_KIND,
+        ACQUISITION_PLANNER_REPORT_KEY,
+        ACQUISITION_PLANNER_SCHEMA_NAME,
+        ACQUISITION_PLANNER_SCHEMA_VERSION,
+        AcquisitionActionRecord,
+        AcquisitionDisposition,
+        AcquisitionGap,
+        AcquisitionGapType,
+        AcquisitionNextAction,
+        AcquisitionPlannerReport,
+        AcquisitionRequirementBasisBinding,
+        AcquisitionRequirementGap,
+        AcquisitionStrategy,
+        AcquisitionStrategyRecord,
+        AuthorityLevel,
+        MandatoryGateState,
+        RequirementGapFamily,
+        acquisition_planner_reports_from_quality_evidence,
+        acquisition_planner_scorecard_gates,
+        acquisition_report_deficit_records,
+        acquisition_report_inputs,
+        load_acquisition_planner_report,
+        persist_acquisition_planner_report,
+        plan_evidence_acquisition,
+        plan_requirement_gap_acquisition,
+        requirement_gaps_from_compiled_specs,
+        validate_persisted_acquisition_planner_report,
+    )
+    from .approval import (
+        ProductionApprovalCurrentnessProjection,
+        ProductionApprovalIssuanceInput,
+        ProductionApprovalPacketResolver,
+        ProductionApprovalResolutionError,
+        build_production_approval_packet,
+        build_resolved_production_approval_packet,
+        persist_production_approval_packet,
+        resolve_production_approval_currentness_receipt,
+    )
+    from .argument_graph import (
+        ARGUMENT_GRAPH_CONTRACT_ID,
+        ARGUMENT_GRAPH_EXPORT_SCHEMA_VERSION,
+        ARGUMENT_GRAPH_INSPECTION_SCHEMA_VERSION,
+        ARGUMENT_GRAPH_KIND,
+        ARGUMENT_GRAPH_SCHEMA_VERSION,
+        ArgumentGraphError,
+        build_argument_graph,
+        build_argument_graph_quality_evidence_surfaces,
+        export_argument_graph,
+        inspect_argument_graph,
+        merge_argument_graph_quality_evidence_surfaces,
+        persist_argument_graph,
+    )
+    from .assurance_case import (
+        POLICY_DESIGN_CAPABILITY_DUTY_STATES,
+        POLICY_DESIGN_CAPABILITY_LEDGER_SCHEMA_VERSION,
+        POLICY_DESIGN_CASE_CORE_NODE_TYPES,
+        POLICY_DESIGN_CASE_OWNER,
+        POLICY_DESIGN_CASE_PROFILE,
+        POLICY_DESIGN_CASE_PROFILE_METADATA,
+        POLICY_DESIGN_CASE_REGISTRY_ENTRY_SCHEMA_VERSION,
+        POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES,
+        POLICY_DESIGN_CASE_SCHEMA_VERSION,
+        POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID,
+        POLICY_DESIGN_CONCEPT_SPINE_REQUIRED_CLOSURE_FIELDS,
+        POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION,
+        POLICY_DESIGN_JURISDICTION_AUTHORITY_LEVELS,
+        POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION,
+        POLICY_DESIGN_REQUIRED_CAPABILITIES,
+        POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID,
+        POLICY_DESIGN_WALKING_SKELETON_SCHEMA_VERSION,
+        POLICY_INTENT_ENVELOPE_SCHEMA_VERSION,
+        PolicyDesignCaseAuthorityError,
+        build_assurance_case_for_scorecard,
+        build_capability_duty_record,
+        build_capability_selection_ledger,
+        build_policy_design_case_concept_spine,
+        build_policy_design_case_profile,
+        build_policy_design_case_registry_entry,
+        build_policy_design_case_walking_skeleton,
+        build_policy_design_jurisdiction_spine,
+        build_policy_intent_envelope,
+        build_universality_assurance_case,
+        policy_design_concept_spine_json_schema,
+        policy_design_jurisdiction_spine_json_schema,
+        validate_capability_selection_ledger,
+        validate_policy_design_case_concept_spine,
+        validate_policy_design_case_profile,
+        validate_policy_design_jurisdiction_spine,
+        validate_policy_intent_envelope,
+    )
+    from .authority import (
+        AuthorityEnvelopeError,
+        AuthorityEnvelopeViolation,
+        EvidenceAuthorityEnvelope,
+        GovernanceMetadata,
+        ProducerIdentity,
+        SameInputClosure,
+        assert_authority_bearing,
+        assert_authority_purpose_allowed,
+        assert_capability_binding_purpose_allowed,
+        assert_runtime_emitted,
+        assert_same_input_closure,
+        authority_envelope_json_schema,
+        capability_binding_purpose_blockers,
+        classify_authority_role,
+        deserialize_authority_envelope,
+        serialize_authority_envelope,
+        write_authority_envelope_json_schema,
+    )
+    from .authority_reconciliation import (
+        AuthorityReconciliationError,
+        AuthorityReconciliationReport,
+        reconcile_authority_event,
+        reconcile_authority_ref,
+    )
+    from .calibration_ledger import (
+        CALIBRATION_LEDGER_CONTRACT_ID,
+        CALIBRATION_LEDGER_KIND,
+        CALIBRATION_LEDGER_SCHEMA_VERSION,
+        HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION,
+        CalibrationHistoryPolicy,
+        CalibrationLedger,
+        CalibrationLedgerContractError,
+        CalibrationLedgerEntry,
+        build_calibration_ledger,
+        calibration_influence_for_scope,
+        calibration_ledger_public_export,
+        historical_prior_claim_evidence_issues,
+        is_historical_prior_ref,
+        persist_calibration_ledger,
+    )
+    from .candidate_firewall import (
+        AUTHORITY_CANDIDATE_FIREWALL_NAME,
+        AuthorityCandidateInventoryRow,
+        CandidateFirewallError,
+        assert_candidate_positive_firewall_boundary,
+        assert_no_candidate_authority_laundering,
+        build_authority_candidate_inventory_rows,
+        candidate_firewall_issues_for_payload,
+        candidate_refs_from_payload,
+    )
+    from .capability_authority import (
+        AUTHORITY_FACTOR_NAMES,
+        CAPABILITY_AUTHORITY_RULE_VERSION,
+        CAPABILITY_AUTHORITY_SCHEMA_VERSION,
+        POSTURE_THRESHOLDS,
+        CapabilityAuthorityError,
+        CapabilityAuthorityFactor,
+        CapabilityAuthorityFactorName,
+        CapabilityBindingResult,
+        CapabilityBindingStatus,
+        compose_capability_authority,
+    )
+    from .capability_index import (
+        ACQUISITION_STRATEGY_SCHEMA_VERSION,
+        CAPABILITY_FAILURE_MODE_SCHEMA_VERSION,
+        CAPABILITY_INDEX_SCHEMA_VERSION,
+        CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION,
+        CONFLICT_RECORD_SCHEMA_VERSION,
+        EVIDENCE_CAPABILITY_SCHEMA_VERSION,
+        AuthorityEnvelope,
+        CapabilityConflictRecord,
+        CapabilityIndex,
+        CapabilityLifecycle,
+        CapabilityScope,
+        CapabilitySourceAsset,
+        EvidenceCapability,
+        FailureModeNode,
+        FreshnessEnvelope,
+        QualityScore,
+        RightsEnvelope,
+    )
+    from .capability_index import (
+        AcquisitionStrategy as CapabilityIndexAcquisitionStrategy,
+    )
+    from .capability_index_compiler import (
+        CAPABILITY_INDEX_COMPILER_VERSION,
+        FULL_MODE_CAPABILITY_FLOORS,
+        PERFORMANCE_BUDGET_SECONDS,
+        CapabilityIndexBuildResult,
+        CapabilityIndexCompilerConfig,
+        compile_capability_index,
+        create_capability_index_fixture_inputs,
+        validate_capability_authority,
+    )
+    from .capability_ratchet import (
+        CAPABILITY_RATCHET_CONTRACT_ID,
+        CAPABILITY_RATCHET_SCHEMA_VERSION,
+        MISSING_REALITY_STATES,
+        PURPOSE_MULTIPLIERS,
+        REALITY_STATE_BASE_POINTS,
+        REALITY_STATES,
+        build_capability_reality_report,
+        evaluate_capability_claim,
+        ratchet_templates,
+        severity_for_points,
+    )
+    from .capability_resolver import (
+        DEFAULT_CAPABILITY_INDEX_REF,
+        REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION,
+        REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION,
+        RequirementTimeWindow,
+        RequirementToCapabilityQuery,
+        RequirementToCapabilityResolver,
+        construct_for_legacy_family,
+        legacy_family_for_construct,
+    )
+    from .case_integrity import (
+        EVIDENCE_GRAPH_THREAT_MODEL_RECORD_FAMILY,
+        EVIDENCE_GRAPH_THREAT_MODEL_RECORD_KEY,
+        EVIDENCE_GRAPH_THREAT_MODEL_SCHEMA_VERSION,
+        EVIDENCE_GRAPH_THREATS,
+        PolicyDesignCaseIntegrityIssue,
+        validate_evidence_graph_threat_model_record,
+    )
+    from .case_lifecycle import (
+        CASE_LIFECYCLE_CONTRACT_ID,
+        CASE_LIFECYCLE_SCHEMA_VERSION,
+        COMMITMENT_PROFILE_SCHEMA_VERSION,
+        EX_POST_LEARNING_CONTRACT_ID,
+        EX_POST_LEARNING_SCHEMA_VERSION,
+        CommitmentProfileRecord,
+        FloorBand,
+        LifecycleStage,
+        P23StakesFloorError,
+        PolicyDesignLifecycleError,
+        PolicyDesignLifecycleIssue,
+        Reversibility,
+        StakesBand,
+        assert_stakes_floor_consistency,
+        build_case_lifecycle_record,
+        build_commitment_profile,
+        build_ex_post_learning_record,
+        select_floor,
+        validate_case_lifecycle_record,
+        validate_ex_post_learning_record,
+        validate_policy_design_lifecycle_records,
+    )
+    from .case_maturity import (
+        CASE_MATURITY_PROFILE_RECORD_FAMILY,
+        CASE_MATURITY_PROFILE_RECORD_KEY,
+        CASE_MATURITY_PROFILE_SCHEMA_VERSION,
+        CASE_MATURITY_PROFILE_SCORECARD_GATE,
+        RECORD_FAMILY_MATURITY_LEVELS,
+        CaseMaturityIssue,
+        CaseMaturityValidationResult,
+        RecordFamilyMaturity,
+        build_case_maturity_profile,
+        policy_design_case_maturity_scorecard_gates,
+        validate_case_maturity_profile,
+    )
+    from .claim_argument import (
+        CLAIM_ARGUMENT_CONTRACT_ID,
+        CLAIM_ARGUMENT_MAPPING_SCHEMA_VERSION,
+        CLAIM_ARGUMENT_NODE_MAPPING,
+        CLAIM_ARGUMENT_VALIDATION_SCHEMA_VERSION,
+        PRE_PUBLICATION_CHALLENGE_NODE_SCHEMA_VERSION,
+        ClaimArgumentIssue,
+        ClaimArgumentValidationResult,
+        build_pre_publication_challenge_node,
+        build_pre_publication_challenge_node_from_scientist_outputs,
+        export_claim_argument_case_mapping,
+        validate_claim_argument_case_surfaces,
+    )
+    from .closeout_reader import (
+        CLOSEOUT_READER_CONTRACT_ID,
+        CLOSEOUT_READER_CONTRACT_VERSION,
+        CLOSEOUT_READER_SCHEMA_VERSION,
+        DEFAULT_CLOSEOUT_MODULE_READERS,
+        CloseoutModuleReaderSpec,
+        build_closeout_reader_skeleton,
+        build_closeout_reader_skeleton_from_bundle_dir,
+    )
+    from .complexity_governance import (
+        COMPLEXITY_GOVERNANCE_CONTRACT_ID,
+        COMPLEXITY_GOVERNANCE_CONTROL_ID,
+        COMPLEXITY_GOVERNANCE_FILENAME,
+        COMPLEXITY_GOVERNANCE_REPORT_KEY,
+        COMPLEXITY_GOVERNANCE_SCHEMA_VERSION,
+        NET_MAV_FORMULA,
+        ComplexityGovernanceError,
+        build_complexity_governance_report,
+        complexity_governance_scorecard_gates,
+        compute_net_mav,
+        evaluate_blocking_frontier_control,
+        review_controls_for_pruning,
+    )
+    from .compliance import normalize_runtime_privacy_compliance_report
+    from .concept_spine import (
+        CONCEPT_SPINE_BRIDGE_AUTHORITY_SCHEMA_VERSION,
+        CONCEPT_SPINE_HANDSHAKE_LEDGER_SCHEMA_VERSION,
+        CONCEPT_SPINE_HANDSHAKE_RECORD_SCHEMA_VERSION,
+        CONCEPT_SPINE_HYBRID_CARRIER_SCHEMA_VERSION,
+        ConceptNamespaceRef,
+        ConceptRelation,
+        ProducerHandshakeBinding,
+        ProducerHandshakeValidationError,
+        ProducerWaitCondition,
+        ReconciledConcept,
+        build_concept_spine_bridge_authority_record,
+        build_hybrid_concept_spine_carrier,
+        build_producer_handshake_ledger,
+        build_producer_handshake_record,
+        validate_hybrid_concept_spine_carrier,
+    )
+    from .config_release_hardening import (
+        CONFIG_RELEASE_HARDENING_CONTRACT_ID,
+        CONFIG_RELEASE_HARDENING_PDD_IDS,
+        CONFIG_RELEASE_HARDENING_RECORD_FAMILY,
+        CONFIG_RELEASE_HARDENING_SCHEMA_VERSION,
+        ConfigReleaseHardeningIssue,
+        validate_config_release_deployment_migration_hardening_record,
+    )
+    from .construct_registry import (
+        CONSTRUCT_REGISTRY_DEFAULT_PATH,
+        CONSTRUCT_REGISTRY_ID,
+        CONSTRUCT_REGISTRY_RULE_VERSION,
+        CONSTRUCT_REGISTRY_SCHEMA_VERSION,
+        CONSTRUCT_REGISTRY_VERSION,
+        ConstructAliasDeprecation,
+        ConstructAuthorityRequirement,
+        ConstructCompatibilityAlias,
+        ConstructCorpusBinding,
+        ConstructEntry,
+        ConstructRegistry,
+        ConstructRegistryError,
+        ConstructValidityRequirements,
+        assert_scenario_family_name_alone_does_not_grant_authority,
+        construct_refs_for_alias,
+        construct_registry_concept_spine_entries,
+        construct_registry_public_surface,
+        load_construct_registry,
+        non_ukraine_bound_constructs,
+        validate_construct_registry_coverage,
+        validate_obligation_rule_construct_refs,
+    )
+    from .cost_degradation import (
+        COST_DEGRADATION_TELEMETRY_CONTRACT_ID,
+        COST_DEGRADATION_TELEMETRY_FILENAME,
+        COST_DEGRADATION_TELEMETRY_REPORT_KEY,
+        COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION,
+        CostDegradationTelemetryError,
+        build_cost_degradation_telemetry_from_quality_context,
+        cost_degradation_scorecard_gates,
+        validate_cost_degradation_telemetry,
+    )
+    from .cost_gate import (
+        RUN_COST_GATE_CONTRACT_ID,
+        RUN_COST_GATE_FILENAME,
+        RUN_COST_GATE_REPORT_KEY,
+        RUN_COST_GATE_SCHEMA_VERSION,
+        RunCostGateError,
+        build_run_cost_gate_report,
+        cost_gate_scorecard_gates,
+        validate_run_cost_gate_report,
+    )
+    from .data_quality import build_production_data_quality_report
+    from .ddm_monitoring import (
+        DDM_EVENT_GROUPS,
+        IMPLEMENTATION_MONITORING_EVALUATION_CONTRACT_ID,
+        IMPLEMENTATION_MONITORING_EVALUATION_SCHEMA_VERSION,
+        ImplementationMonitoringEvaluationError,
+        build_implementation_monitoring_evaluation_record,
+        validate_implementation_monitoring_evaluation_record,
+    )
+    from .degradation import (
+        DegradationLedgerContractError,
+        DegradationLedgerRecord,
+        DegradationPolicyDecision,
+        assert_serious_fallback_allowed,
+        build_degradation_record,
+        deserialize_degradation_record,
+        evaluate_degradation_policy,
+        serialize_degradation_record,
+    )
+    from .design_axes.blind_spot_firewalls import (
+        LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION,
+        AggregationClaimLevel,
+        AggregationScopeRow,
+        AggregationValidityDisposition,
+        AggregationValidityRecord,
+        AxisFailClosedDisposition,
+        BlindSpotAxis,
+        BlindSpotBridgeConsumerRecord,
+        BlindSpotConstraintStoreUpdate,
+        BlindSpotFirewallReport,
+        BlindSpotOverallPosture,
+        CapacityBuildingObligation,
+        CapacityDimension,
+        CapacityDimensionAssessment,
+        CapacityDisposition,
+        CapacityFeasibilityRecord,
+        ClusterAuthorityDimensionRecord,
+        ConstraintRefinementRoute,
+        ConstraintStatus,
+        ConstructMeasurabilityRow,
+        ConstructMeasurabilityStatus,
+        LegitimacyDisposition,
+        MandateBasis,
+        MandateLegitimacyRecord,
+        MandateSourceRecord,
+        MeasurabilityAdequacyRecord,
+        P18StreetlightMeasurabilityError,
+        P19AggregationLaunderingError,
+        P21CapacityFeasibilityError,
+        P22MandateLegitimacyError,
+        P24StrategicResponseError,
+        ParticipationProvenanceRow,
+        PostInterventionDGPUpdate,
+        ProxyValidityDisposition,
+        ProxyValidityRecord,
+        SourceAuthority,
+        StrategicResponseChannel,
+        StrategicResponseChannelAssessment,
+        StrategicResponseDisposition,
+        StrategicResponseRecord,
+        ValueLossDisclosure,
+        build_s6_blind_spot_firewall_report,
+        evaluate_aggregation_validity,
+        evaluate_capacity_feasibility,
+        evaluate_mandate_legitimacy,
+        evaluate_measurability_adequacy,
+        evaluate_strategic_response,
+        s6_fail_closed_coverage,
+        s6_firewall_report_to_axis_positions,
+        s6_firewall_report_to_c3_dimension_records,
+        s6_firewall_report_to_constraint_store_updates,
+    )
+    from .design_axes.coupling_composition import (
+        LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION,
+        BoundaryCouplingClassification,
+        CompositionAuthorityMode,
+        CompositionDisposition,
+        CompositionLawCheck,
+        CompositionReceipt,
+        ComputationalTractabilityBudget,
+        CouplingEdge,
+        CouplingGraph,
+        CouplingRegime,
+        CouplingRegimeClassification,
+        DecompositionResult,
+        DesignInterfaceContract,
+        DynamicsRequirementLevel,
+        FeedbackIntensity,
+        ForecastClaimScope,
+        ForecastSupportBaseOrigin,
+        ForecastSupportScope,
+        InteractionStrength,
+        ModuleDiscoveryResult,
+        P17BoundarySpoofError,
+        P17FalseModularityError,
+        P17SyntacticCompositionError,
+        P17SystemDynamicsRequiredError,
+        RecursiveDesignGraph,
+        SystemDynamicsRequirement,
+        SystemEffectSupportLabel,
+        assert_composition_laws_hold,
+        build_composition_receipt,
+        build_computational_tractability_budget,
+        build_coupling_graph,
+        build_system_dynamics_requirement,
+        build_system_effect_support,
+        classify_coupling,
+        composition_to_axis_positions,
+        coupling_accuracy,
+        critical_path_regime,
+        decompose_design,
+        derive_recursive_design_graph,
+        discover_design_modules,
+    )
+    from .design_axes.epistemic_regime import (
+        LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION,
+        DesignStrategy,
+        EpistemicRegimeClaim,
+        P16OverconfidenceError,
+        P16PrecautionLaunderingError,
+        RegimeEvidenceBasis,
+        classify_regime,
+        regime_accuracy,
+        regime_claim_to_axis_position,
+        regime_design_strategy,
+    )
+    from .design_axes.mandate_bounded_delegation import (
+        LAYER2_S7_DELEGATION_SCHEMA_VERSION,
+        DecisionAction,
+        DecisionNeedReason,
+        DecisionOption,
+        DecisionRightsMatrix,
+        DecisionRightsMatrixRow,
+        DecisionRole,
+        DelegationContract,
+        DelegationDisposition,
+        DelegationIntegrityReport,
+        DelegationInteractionMode,
+        DelegationNegativeControlResult,
+        FiveRightsCheck,
+        FiveRightsDimension,
+        FiveRightsRequirement,
+        HumanDecisionRecord,
+        HumanDecisionRequest,
+        P26ResponsibilityIntegrityError,
+        ResponsibilityIntegrityCheck,
+        ResponsibilityIntegrityStatus,
+        build_decision_rights_matrix,
+        build_delegation_contract,
+        build_governance_decision_class_registry,
+        build_human_decision_request,
+        evaluate_delegation_for_case,
+        record_human_decision,
+        s7_delegation_integrity,
+    )
+    from .design_axes.outcome_prediction import (
+        LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
+        LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION,
+        S10_CALIBRATION_FLOOR_ID,
+        S10_FALSE_CLEAR_FIELDS,
+        ForecastAuthorityDisposition,
+        ForecastCalibrationRecord,
+        ForecastMethodFamily,
+        ForecastSupport,
+        ForecastSupportIntegrityReport,
+        ObservableSubsetCalibrationStatus,
+        OutcomeDistributionRecord,
+        PredictionAuthorityEnvelope,
+        WelfareComparisonRecord,
+        WelfareComparisonStatus,
+        build_forecast_calibration_record,
+        build_forecast_support,
+        build_prediction_authority_boundary,
+        build_welfare_comparison_record,
+        summarize_forecast_support_integrity,
+        verify_prediction_authority_envelope,
+    )
+    from .design_axes.post_deploy_accountability import (
+        LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+        LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION,
+        S13_ACCOUNTABILITY_FLOOR_ID,
+        S13_FALSE_CLEAR_FIELDS,
+        ActionItemStatus,
+        AssuranceCaseChange,
+        AssuranceCaseDelta,
+        AttributionStatus,
+        CertifiedEnvelopeDelta,
+        DeploymentDossier,
+        DeploymentReadinessDisposition,
+        DivergenceAttributionClass,
+        DivergenceRecord,
+        EnvelopeRevision,
+        EnvelopeRevisionDirection,
+        LearningChangeControlClass,
+        LearningUpdateProposal,
+        LearningUpdateTarget,
+        LifecycleReissueDisposition,
+        OversightLinkedAccountabilityState,
+        PostDeployAccountabilitySummary,
+        PostDeployMapeKPhase,
+        PostDeployMapeKTrace,
+        build_assurance_case_delta,
+        build_certified_envelope_delta,
+        build_deployment_dossier,
+        build_envelope_revision,
+        build_learning_update_proposal,
+        build_post_deploy_mape_k_trace,
+        build_s13_accountability_authority_boundary,
+        build_s13_post_deploy_accountability_posture,
+        classify_post_deploy_divergence,
+        summarize_post_deploy_accountability,
+        verify_post_deploy_learning_authority,
+    )
+    from .design_axes.predictive_knowledge import (
+        LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
+        LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
+        S11_AXIS_CALIBRATION_FLOOR_ID,
+        S11_FALSE_CLEAR_FIELDS,
+        S11_PREDICTIVE_AXES,
+        ForecastQualityDisposition,
+        PredictiveAxis,
+        PredictiveAxisCalibrationRecord,
+        PredictiveAxisUpgradeRecord,
+        PredictiveMaturity,
+        ProofCarryingAnalyticsRecord,
+        ProofComposabilityStatus,
+        ProofStatus,
+        RelaxationDecision,
+        S11CalibrationStatus,
+        S11PredictiveKnowledgeAuthorityEnvelope,
+        S11PredictiveKnowledgeIntegrityReport,
+        build_predictive_axis_calibration_record,
+        build_predictive_axis_upgrade_record,
+        build_proof_carrying_analytics_record,
+        build_s11_predictive_authority_boundary,
+        build_s11_predictive_knowledge_posture,
+        summarize_s11_predictive_knowledge_integrity,
+        verify_s11_predictive_knowledge_authority_envelope,
+    )
+    from .design_axes.projection_lowering import (
+        LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
+        LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
+        S9_PROJECTION_FLOOR_ID,
+        CanonicalDesignRecord,
+        DesignRecordMaturityReport,
+        LoweringAppendReceipt,
+        LoweringArtifactRecord,
+        LoweringAuthorityGateRecord,
+        LoweringRequestRecord,
+        ProjectionAlgebraRequest,
+        ProjectionFaithfulnessRecord,
+        ProjectionLoweringIntegrityReport,
+        ProjectionRenderRecord,
+        append_verified_lowering_artifact,
+        build_canonical_design_record,
+        build_design_record_maturity_report,
+        build_projection_algebra_request,
+        build_projection_render_record,
+        gate_lowering_request,
+        persist_projection_lowering_bundle,
+        s9_projection_lowering_integrity,
+        verify_projection_faithfulness,
+    )
+    from .design_axes.resource_economics import (
+        LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+        LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
+        S12_FALSE_CLEAR_FIELDS,
+        S12_GROWTH_THERMOMETERS_FLOOR_ID,
+        S12_TYPED_BUDGETS,
+        S12_VOI_SITES,
+        AllocationPriorityRow,
+        BudgetKind,
+        EnvelopeGrowthEntry,
+        EnvelopeGrowthLedger,
+        ExploreExploitPosture,
+        GrowthCountingDisposition,
+        GrowthThermometerRecord,
+        KnowledgeGovernanceMode,
+        KnowledgeGovernanceThroughputLedger,
+        ResourceAllocationPolicy,
+        ResourceAuthorityDisposition,
+        ResourceEconomicsAuthorityEnvelope,
+        ResourceEconomicsIntegrityReport,
+        S12ResourceReferenceResolution,
+        ThermometerTrend,
+        ThroughputRow,
+        TypedBudgetRow,
+        ValueOfInformationAllocation,
+        VoiAllocationRow,
+        VoiSite,
+        allocate_value_of_information,
+        build_envelope_growth_ledger,
+        build_growth_thermometers,
+        build_knowledge_governance_throughput_ledger,
+        build_resource_allocation_policy,
+        build_s12_resource_authority_boundary,
+        build_s12_resource_economics_posture,
+        resolve_s12_resource_refs,
+        summarize_resource_economics_integrity,
+        verify_resource_authority_envelope,
+    )
+    from .design_axes.substrate_acquisition import (
+        LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION,
+        AcquisitionState,
+        AcquisitionTaskRecord,
+        ConstructDemandLedger,
+        ConstructExpression,
+        FrozenClosedCase,
+        RerunClosureReceipt,
+        SourceContract,
+        SourceDiscoveryCandidate,
+        SubstrateAcquisitionLoop,
+        SubstrateCoverageSnapshot,
+        is_production_claim_admissible,
+        max_admissible_posture,
+        resolve_expression,
+    )
+    from .design_axes.universality_assurance import (
+        LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
+        LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION,
+        S14_FALSE_CLEAR_FIELDS,
+        S14_SKEPTIC_DEFEATER_IDS,
+        S14_UNIVERSALITY_FLOOR_ID,
+        D4CorpusTrackCoverage,
+        D4CorpusTrackRow,
+        EnvelopeRevisionDynamicsRecord,
+        EvaluationStatusCompositionRecord,
+        EvaluationStatusCompositionRow,
+        ExpertOracleBootstrapRecord,
+        ExpertOracleLayerRow,
+        GroundedAuthorityCoverageRecord,
+        MechanismGeneralityReport,
+        SealedUniversalityBatteryRun,
+        SkepticDefeaterRecord,
+        UniversalityAssuranceSummary,
+        UniversalityAxisScorecard,
+        UniversalityAxisScoreRow,
+        UniversalityBaselineComparison,
+        UniversalityBaselineRow,
+        UniversalityBreadthFloorConfig,
+        UniversalityClaimAssuranceCase,
+        UniversalityClaimGateRecord,
+        build_d4_corpus_track_coverage,
+        build_envelope_revision_dynamics_record,
+        build_evaluation_status_composition_record,
+        build_expert_oracle_bootstrap_record,
+        build_grounded_authority_coverage_record,
+        build_mechanism_generality_report,
+        build_s14_cae_scorecard,
+        build_s14_capability_reality_axis_rows,
+        build_s14_mechanism_generality_from_growth_thermometer,
+        build_s14_universality_assurance_projection,
+        build_s14_universality_authority_boundary,
+        build_skeptic_defeater_records,
+        build_universality_axis_scorecard,
+        build_universality_baseline_comparison,
+        build_universality_breadth_floor_config,
+        build_universality_claim_assurance_case,
+        compute_sealed_battery_freeze_hash,
+        gate_universality_claim,
+        project_cae_defeaters_to_s14_skeptic_records,
+        summarize_universality_assurance,
+        verify_sealed_battery_integrity,
+        verify_universality_claim_authority,
+    )
+    from .design_axes.value_choice_provenance import (
+        LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
+        LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        S8_VALUE_CHOICE_CELL_REF,
+        S8_VALUE_CHOICE_FLOOR_ID,
+        AuthorizedValueSchedule,
+        DelegationReferenceClass,
+        FirewallStatus,
+        ObjectiveFunctionProvenanceRecord,
+        P20NormativeChoiceError,
+        ParetoArchive,
+        RankingMode,
+        ValueChoiceIntegrityReport,
+        ValueChoiceProvenanceRecord,
+        ValueDisposition,
+        ValueScheduleReviewStatus,
+        ValueSourceClass,
+        ValueTradeoffDisclosureRecord,
+        build_authorized_value_schedule,
+        build_objective_function_provenance,
+        build_pareto_archive,
+        build_shadow_scenario_value_schedule,
+        build_value_choice_provenance_record,
+        coerce_social_weight_provenance_for_s8,
+        persist_value_choice_provenance_bundle,
+        project_value_tradeoff_disclosure,
+        s8_value_provenance_integrity,
+    )
+    from .design_problem import (
+        DESIGN_PROBLEM_SCHEMA_VERSION,
+        AuthorityProfile,
+        CandidateLever,
+        CandidateLeverSpace,
+        DesignConstraint,
+        DesignObjective,
+        DesignProblem,
+        DesignProblemAuthorityError,
+        DesignStakeholder,
+        EvidenceAcquisitionNeeds,
+        EvidenceNeed,
+        JurisdictionTimeSemantics,
+        NLProvenance,
+        OutcomeOfInterest,
+    )
+    from .diagnostic_slos import (
+        build_diagnostic_slo_report,
+        build_diagnostic_slo_report_from_quality_context,
+        default_diagnostic_slo_targets,
+        diagnostic_slo_gates,
+    )
+    from .disconfirming_evidence import (
+        DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID,
+        DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION,
+        DisconfirmingEvidenceLedgerError,
+        build_disconfirming_evidence_ledger,
+        validate_disconfirming_evidence_ledger_record,
+    )
+    from .effective_mode import (
+        EffectiveModeLedger,
+        ModePolicyError,
+        ModePolicyViolation,
+        assert_serious_mode_allowed,
+        explain_mode_mismatch,
+        mode_policy_failure_code,
+    )
+    from .evaluation_modes import resolve_evaluation_mode
+    from .evaluation_safety import (
+        EvalSafetyAdmissionChallenge,
+        EvalSafetyVerifierPort,
+        EvaluationExecutionContext,
+        evaluation_safety_consumer_admission_is_verified,
+    )
+    from .event_log import DiagnosticEventPayloadPolicy, RuntimeDiagnosticEventLog
+    from .evidence_independence import (
+        GRADED_INDEPENDENCE_FEATURE_FLAG,
+        INDEPENDENCE_MAP_CONTRACT_ID,
+        INDEPENDENCE_MAP_SCHEMA_VERSION,
+        CapabilityIndependenceFactor,
+        EvidenceIndependenceError,
+        build_evidence_independence_map,
+        effective_independence_factor_for_capability,
+        validate_evidence_independence_map_record,
+    )
+    from .evidence_line import (
+        EVIDENCE_LINE_CONTRACT_ID,
+        EVIDENCE_LINE_SCHEMA_VERSION,
+        SUPPORTED_EVIDENCE_LINE_STRANDS,
+        EvidenceLineError,
+        evidence_line_record_id,
+        validate_evidence_line_record,
+        validate_evidence_line_records,
+    )
+    from .evidence_synthesis import (
+        EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID,
+        EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION,
+        EvidenceSynthesisReportError,
+        build_evidence_synthesis_report,
+        evidence_synthesis_refs_by_claim,
+        synthesis_report_record_id,
+        validate_evidence_synthesis_report_record,
+    )
+    from .explanation_reliability import build_berl_warrant_reliability_record
+    from .external_audit import (
+        EXTERNAL_AUDIT_RECORD_FAMILY,
+        EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION,
+        ExternalAuditRecordError,
+        build_public_audit_archive_record,
+        validate_public_audit_archive_record,
+    )
+    from .generation_cycle import (
+        CandidateSourceCurrentOccurrence,
+        CandidateSourceCurrentProjection,
+        RealValueOwnerGateway,
+        ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceVariableProjectionV1,
+        ValueTransportRunReceiptV1,
+        project_candidate_source_current_occurrences,
+    )
+    from .graded_outcomes import (
+        S1_GRADED_OUTCOME_SCHEMA_VERSION,
+        GradedOutcomeDecision,
+        GradedOutcomeEvidenceInput,
+        GradedOutcomeInputError,
+        compose_graded_outcome,
+        graded_outcome_closeout_record,
+    )
+    from .human_review import (
+        build_human_review_calibration_report,
+        deterministic_review_fixtures,
+        evaluate_review_packet,
+        human_review_public_export,
+        persist_human_review_calibration_report,
+    )
+    from .hypothesis_ledger import (
+        HYPOTHESIS_LEDGER_FILENAME,
+        HYPOTHESIS_LEDGER_KIND,
+        HYPOTHESIS_LEDGER_REF_KEY,
+        HYPOTHESIS_LEDGER_REPORT_KEY,
+        HYPOTHESIS_LEDGER_SCHEMA_VERSION,
+        CandidateAuthorityEnvelope,
+        HypothesisLedger,
+        HypothesisLedgerEntry,
+        build_hypothesis_ledger_from_prompt_tool_ledger,
+        deserialize_hypothesis_ledger,
+        persist_hypothesis_ledger,
+        serialize_hypothesis_ledger,
+    )
+    from .ir_analytics_bridge import (
+        IR_ANALYTICS_CLAIM_BRIDGE_KIND,
+        IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
+        IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
+        IRAnalyticsClaimBinding,
+        build_ir_analytics_claim_bridge,
+        ir_analytics_bridge_issues_for_claims,
+        ir_analytics_claim_bindings_by_claim,
+        merge_ir_analytics_binding_into_registry_entry,
+        normalize_ir_analytics_claim_bridge,
+    )
+    from .legacy_payload_migration_audit import (
+        LEGACY_MIGRATION_SEMANTIC_LOSS,
+        build_legacy_migration_sandbox,
+        comparison_failure_codes,
+        legacy_compatible_payload,
+        persist_legacy_migration_sandbox_report,
+    )
+    from .memory_influence import (
+        CLAIM_EVIDENCE_SLOT_KEYS,
+        CORE_FORBIDDEN_CURRENT_USES,
+        MEMORY_INFLUENCE_ADR_REF,
+        MEMORY_INFLUENCE_RECORD_KIND,
+        MEMORY_INFLUENCE_REF_PREFIXES,
+        MEMORY_INFLUENCE_SCHEMA_VERSION,
+        MemoryInfluenceRecord,
+        assert_memory_influence_not_claim_evidence,
+        build_memory_influence_record,
+        is_memory_influence_ref,
+        memory_influence_claim_evidence_issues,
+    )
+    from .multiverse_specification_curve import (
+        MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID,
+        MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION,
+        REQUIRED_MULTIVERSE_SOURCE_KINDS,
+        MultiverseSpecificationCurveError,
+        build_multiverse_specification_curve_record,
+        validate_multiverse_specification_curve_record,
+    )
+    from .observability_static_audit import (
+        DORMANT_CAPABILITY_INVENTORY_RECORD_KEY,
+        DORMANT_CAPABILITY_INVENTORY_SCHEMA_VERSION,
+        FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY,
+        FRESHNESS_POLICY_TIME_SEMANTICS_SCHEMA_VERSION,
+        SKIP_CAUSALITY_LEDGER_RECORD_KEY,
+        SKIP_CAUSALITY_LEDGER_SCHEMA_VERSION,
+        PolicyDesignObservabilityStaticAuditIssue,
+        build_dormant_capability_inventory_record,
+        build_freshness_policy_time_semantics_record,
+        build_skip_causality_ledger_record,
+        validate_observability_orchestration_static_audit_records,
+    )
+    from .performance_budget import (
+        build_canary_performance_budget,
+        run_cost_budget_policy_from_performance_budget,
+    )
+    from .phase_barriers import (
+        PhaseBarrierBlocker,
+        PhaseBarrierId,
+        PhaseBarrierLedger,
+        PhaseBarrierRecord,
+        PhaseBarrierStatus,
+        PhaseBarrierViolation,
+        assert_barrier_closed,
+        assert_barrier_passed,
+    )
+    from .policy_benchmarking import (
+        POLICY_BENCHMARKING_RECORD_CONTRACT_ID,
+        POLICY_BENCHMARKING_RECORD_FAMILY,
+        POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION,
+        REQUIRED_POLICY_BENCHMARK_METRICS,
+        PolicyBenchmarkingError,
+        PolicyBenchmarkingIssue,
+        PolicyBenchmarkingValidationResult,
+        best_in_class_benchmarking_record_id,
+        validate_policy_benchmarking_record,
+        validate_policy_design_best_in_class_benchmarking_records,
+    )
+    from .policy_design_case import (
+        POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES,
+        RECORD_REGISTRY_READINESS_CHECK,
+        RECORD_REGISTRY_SCHEMA_VERSION,
+        PolicyDesignCaseRecordApplicability,
+        PolicyDesignCaseRecordFamily,
+        PolicyDesignCaseRecordRegistryIssue,
+        PolicyDesignCaseRecordRegistryValidationResult,
+        build_policy_design_case_record_registry_report,
+        policy_design_case_record_registry_payload,
+        policy_design_case_record_registry_scorecard_gates,
+        validate_policy_design_case_record_registry_payload,
+    )
+    from .policy_design_case_integration_skeleton import (
+        WAVE2_I2_MANIFEST_SCHEMA_VERSION,
+        WAVE2_I2_SCHEMA_VERSION,
+        build_wave2_policy_design_case_walking_skeleton,
+        persist_wave2_policy_design_case_walking_skeleton,
+    )
+    from .producer_pipeline import (
+        PRODUCER_PIPELINE_FEATURE_FLAG,
+        PRODUCER_PIPELINE_SCHEMA_VERSION,
+        ProducerPipelineBinding,
+        ProducerPipelineProducer,
+        build_producer_pipeline_quality_evidence_surfaces,
+        merge_producer_pipeline_quality_evidence_surfaces,
+        run_eight_stage_producer_pipeline,
+        run_requirement_spec_producer_pipeline,
+    )
+    from .projection_semantics import (
+        POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION,
+        PROJECTION_STATES,
+        PolicyDesignCaseProjectionError,
+        assert_policy_design_projection_not_authority,
+        build_policy_design_case_projection_contract_fixture,
+        build_policy_design_case_projection_semantics,
+        verify_policy_design_case_projection_consumer_contract,
+        verify_s9_projection_faithfulness_for_pdc_consumer_contract,
+        verify_s10_forecast_projection_consumer_contract,
+    )
+    from .prompt_tool_ledger import (
+        PromptToolParserAuthorityLedger,
+        PromptToolParserAuthorityValidation,
+        persist_prompt_tool_ledger,
+        validate_prompt_tool_parser_authority,
+    )
+    from .public_export import (
+        PublicExportRedactionError,
+        assert_public_export_official_use_limits,
+        build_public_export_bundle,
+    )
+    from .replay import (
+        POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS,
+        POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION,
+        build_replay_manifest,
+        explain_replay_drift,
+        persist_drift_explanation,
+        persist_replay_manifest,
+        validate_policy_evidence_capability_replay_refs,
+    )
+    from .rule_evolution import (
+        RULE_EVOLUTION_CONTRACT_ID,
+        RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
+        RULE_EVOLUTION_RECORD_FAMILY,
+        RULE_EVOLUTION_REGISTRY_KIND,
+        RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
+        RULE_EVOLUTION_REPLAY_SCHEMA_VERSION,
+        build_rule_evolution_registry,
+        build_rule_evolution_replay_context,
+        logic_hash_for_rule,
+        persist_rule_evolution_registry,
+        public_rule_evolution_annotation,
+    )
+    from .rule_replay_engine import (
+        C33_RULE_CHANGE_CLASS_TABLE,
+        RULE_REPLAY_COMPARISON_SCHEMA_VERSION,
+        RULE_REPLAY_EXECUTION_SCHEMA_VERSION,
+        RULE_REPLAY_PUBLIC_REPORT_SCHEMA_VERSION,
+        build_rule_replay_comparison_report,
+        persist_rule_replay_comparison_report,
+        replay_under_new_rules,
+        replay_under_original_rules,
+    )
+    from .run_cost_proportionality import (
+        HIGH_COST_LOW_IMPACT_COST_USD,
+        HIGH_COST_LOW_IMPACT_ELAPSED_SECONDS,
+        HIGH_COST_LOW_IMPACT_REVIEW_HOURS,
+        RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID,
+        RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION,
+        RunCostProportionalityError,
+        build_run_cost_proportionality_ledger_from_quality_context,
+        run_cost_ledger_record_id,
+        validate_run_cost_proportionality_blocker,
+        validate_run_cost_proportionality_ledger,
+    )
+    from .run_state import (
+        RunIntentBinding,
+        RunState,
+        RunStateMachine,
+        RunStateSnapshot,
+        RunStateTransitionError,
+        assert_approval_readiness_projection_allowed,
+        assert_canary_bundle_closeout_allowed,
+        assert_final_decision_artifact_allowed,
+        assert_public_artifact_allowed,
+    )
+    from .schema_compat import evaluate_schema_compatibility, reader_schema_ranges
+    from .scorecard import build_quality_scorecard, normalize_quality_evidence
+    from .semantic_binding import (
+        PRODUCER_SPINE_CONSUMER_COMPONENTS,
+        PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
+        SEMANTIC_BINDING_SCHEMA_VERSION,
+        ClaimBindingRecord,
+        ColumnBinding,
+        CoverageBinding,
+        DerivedFeatureBinding,
+        FabricBindingRecord,
+        FoundryBindingRecord,
+        IntentBindingRecord,
+        LexBindingRecord,
+        MetricBinding,
+        ProducerSpineReadContext,
+        ScholarBindingRecord,
+        SemanticBindingEvaluation,
+        SemanticBindingIssue,
+        SemanticBindingLedger,
+        SourceFacetBinding,
+        authority_envelopes_missing_semantic_binding_ref,
+        build_producer_spine_read_context,
+        build_semantic_binding_ledger,
+        deserialize_semantic_binding_ledger,
+        evaluate_semantic_binding_ledger,
+        producer_spine_read_context_for,
+    )
+    from .semantic_fixtures import (
+        SEMANTIC_EVALUATION_PACK_CONTRACT_ID,
+        SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION,
+        SEMANTIC_GOLD_CARD_CONTRACT_ID,
+        SEMANTIC_GOLD_CARD_SCHEMA_VERSION,
+        PolicyDesignCaseSemanticEvaluationPack,
+        PolicyDesignCaseSemanticGoldCardFixture,
+        evaluate_semantic_evaluation_pack,
+        evaluate_semantic_gold_card_fixture,
+        semantic_evaluation_pack_json_schema,
+        semantic_gold_card_json_schema,
+    )
+    from .skip_blockers import skip_blocker_gate_from_payloads
+    from .soft_gate_telemetry import (
+        DEFAULT_SOFT_GATE_ESCALATION_SECONDS,
+        DEFAULT_SOFT_GATE_TTL_SECONDS,
+        SOFT_GATE_TELEMETRY_SCHEMA_VERSION,
+        build_soft_gate_telemetry_report,
+        warning_lifecycle_summaries,
+    )
+    from .tenant_cas_approval_governance import (
+        PASS1B_HARDENING_READINESS_CHECK,
+        PASS1B_HARDENING_SCORECARD_GATE,
+        PASS1B_PDD_REQUIRED_SURFACES,
+        PASS1B_REQUIRED_CASE_BINDING_FIELDS,
+        PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID,
+        PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS,
+        PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY,
+        PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION,
+        PolicyDesignPass1BHardeningError,
+        PolicyDesignPass1BHardeningIssue,
+        build_pass1b_tenant_cas_approval_governance_record,
+        pass1b_tenant_cas_approval_governance_issues,
+        policy_design_pass1b_hardening_scorecard_gates,
+        validate_pass1b_tenant_cas_approval_governance_record,
+    )
+    from .world_model_record import WorldModelRecord, world_model_record_content_hash
 
 __all__ = [
     "ACQUISITION_PLANNER_GATE_LAYER",
@@ -2101,3 +2112,3707 @@ __all__ = [
     "world_model_record_content_hash",
     "write_authority_envelope_json_schema",
 ]
+
+_SUBMODULES = (
+    "acquisition_planner",
+    "approval",
+    "argument_graph",
+    "assurance_case",
+    "authority",
+    "authority_reconciliation",
+    "calibration_ledger",
+    "candidate_firewall",
+    "capability_authority",
+    "capability_index",
+    "capability_index_compiler",
+    "capability_ratchet",
+    "capability_resolver",
+    "case_integrity",
+    "case_lifecycle",
+    "case_maturity",
+    "claim_argument",
+    "closeout_reader",
+    "complexity_governance",
+    "compliance",
+    "concept_spine",
+    "config_release_hardening",
+    "construct_registry",
+    "cost_degradation",
+    "cost_gate",
+    "data_quality",
+    "ddm_monitoring",
+    "degradation",
+    "design_axes",
+    "design_problem",
+    "diagnostic_slos",
+    "disconfirming_evidence",
+    "effective_mode",
+    "evaluation_modes",
+    "evaluation_safety",
+    "event_log",
+    "evidence_independence",
+    "evidence_line",
+    "evidence_synthesis",
+    "explanation_reliability",
+    "external_audit",
+    "generation_cycle",
+    "graded_outcomes",
+    "human_review",
+    "hypothesis_ledger",
+    "ir_analytics_bridge",
+    "legacy_payload_migration_audit",
+    "memory_influence",
+    "multiverse_specification_curve",
+    "observability_static_audit",
+    "performance_budget",
+    "phase_barriers",
+    "policy_benchmarking",
+    "policy_design_case",
+    "policy_design_case_integration_skeleton",
+    "producer_pipeline",
+    "projection_semantics",
+    "prompt_tool_ledger",
+    "public_export",
+    "replay",
+    "rule_evolution",
+    "rule_replay_engine",
+    "run_cost_proportionality",
+    "run_state",
+    "schema_compat",
+    "scorecard",
+    "semantic_binding",
+    "semantic_fixtures",
+    "skip_blockers",
+    "soft_gate_telemetry",
+    "tenant_cas_approval_governance",
+    "world_model_record",
+)
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "gy_content_hash": ("polisyos.pdc", "gy_content_hash"),
+    "gy_content_hash_rows": ("polisyos.pdc", "gy_content_hash_rows"),
+    "ACQUISITION_PLANNER_GATE_LAYER": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_GATE_LAYER",
+    ),
+    "ACQUISITION_PLANNER_GATE_PHASE": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_GATE_PHASE",
+    ),
+    "ACQUISITION_PLANNER_KIND": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_KIND",
+    ),
+    "ACQUISITION_PLANNER_REPORT_KEY": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_REPORT_KEY",
+    ),
+    "ACQUISITION_PLANNER_SCHEMA_NAME": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_SCHEMA_NAME",
+    ),
+    "ACQUISITION_PLANNER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "ACQUISITION_PLANNER_SCHEMA_VERSION",
+    ),
+    "AcquisitionActionRecord": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionActionRecord",
+    ),
+    "AcquisitionDisposition": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionDisposition",
+    ),
+    "AcquisitionGap": ("polisyos.runtime.quality.acquisition_planner", "AcquisitionGap"),
+    "AcquisitionGapType": ("polisyos.runtime.quality.acquisition_planner", "AcquisitionGapType"),
+    "AcquisitionNextAction": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionNextAction",
+    ),
+    "AcquisitionPlannerReport": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionPlannerReport",
+    ),
+    "AcquisitionRequirementBasisBinding": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionRequirementBasisBinding",
+    ),
+    "AcquisitionRequirementGap": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionRequirementGap",
+    ),
+    "AcquisitionStrategy": ("polisyos.runtime.quality.acquisition_planner", "AcquisitionStrategy"),
+    "AcquisitionStrategyRecord": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "AcquisitionStrategyRecord",
+    ),
+    "AuthorityLevel": ("polisyos.runtime.quality.acquisition_planner", "AuthorityLevel"),
+    "MandatoryGateState": ("polisyos.runtime.quality.acquisition_planner", "MandatoryGateState"),
+    "RequirementGapFamily": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "RequirementGapFamily",
+    ),
+    "acquisition_planner_reports_from_quality_evidence": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "acquisition_planner_reports_from_quality_evidence",
+    ),
+    "acquisition_planner_scorecard_gates": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "acquisition_planner_scorecard_gates",
+    ),
+    "acquisition_report_deficit_records": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "acquisition_report_deficit_records",
+    ),
+    "acquisition_report_inputs": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "acquisition_report_inputs",
+    ),
+    "load_acquisition_planner_report": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "load_acquisition_planner_report",
+    ),
+    "persist_acquisition_planner_report": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "persist_acquisition_planner_report",
+    ),
+    "plan_evidence_acquisition": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "plan_evidence_acquisition",
+    ),
+    "plan_requirement_gap_acquisition": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "plan_requirement_gap_acquisition",
+    ),
+    "requirement_gaps_from_compiled_specs": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "requirement_gaps_from_compiled_specs",
+    ),
+    "validate_persisted_acquisition_planner_report": (
+        "polisyos.runtime.quality.acquisition_planner",
+        "validate_persisted_acquisition_planner_report",
+    ),
+    "ProductionApprovalCurrentnessProjection": (
+        "polisyos.runtime.quality.approval",
+        "ProductionApprovalCurrentnessProjection",
+    ),
+    "ProductionApprovalIssuanceInput": (
+        "polisyos.runtime.quality.approval",
+        "ProductionApprovalIssuanceInput",
+    ),
+    "ProductionApprovalPacketResolver": (
+        "polisyos.runtime.quality.approval",
+        "ProductionApprovalPacketResolver",
+    ),
+    "ProductionApprovalResolutionError": (
+        "polisyos.runtime.quality.approval",
+        "ProductionApprovalResolutionError",
+    ),
+    "build_production_approval_packet": (
+        "polisyos.runtime.quality.approval",
+        "build_production_approval_packet",
+    ),
+    "build_resolved_production_approval_packet": (
+        "polisyos.runtime.quality.approval",
+        "build_resolved_production_approval_packet",
+    ),
+    "persist_production_approval_packet": (
+        "polisyos.runtime.quality.approval",
+        "persist_production_approval_packet",
+    ),
+    "resolve_production_approval_currentness_receipt": (
+        "polisyos.runtime.quality.approval",
+        "resolve_production_approval_currentness_receipt",
+    ),
+    "ARGUMENT_GRAPH_CONTRACT_ID": (
+        "polisyos.runtime.quality.argument_graph",
+        "ARGUMENT_GRAPH_CONTRACT_ID",
+    ),
+    "ARGUMENT_GRAPH_EXPORT_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.argument_graph",
+        "ARGUMENT_GRAPH_EXPORT_SCHEMA_VERSION",
+    ),
+    "ARGUMENT_GRAPH_INSPECTION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.argument_graph",
+        "ARGUMENT_GRAPH_INSPECTION_SCHEMA_VERSION",
+    ),
+    "ARGUMENT_GRAPH_KIND": ("polisyos.runtime.quality.argument_graph", "ARGUMENT_GRAPH_KIND"),
+    "ARGUMENT_GRAPH_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.argument_graph",
+        "ARGUMENT_GRAPH_SCHEMA_VERSION",
+    ),
+    "ArgumentGraphError": ("polisyos.runtime.quality.argument_graph", "ArgumentGraphError"),
+    "build_argument_graph": ("polisyos.runtime.quality.argument_graph", "build_argument_graph"),
+    "build_argument_graph_quality_evidence_surfaces": (
+        "polisyos.runtime.quality.argument_graph",
+        "build_argument_graph_quality_evidence_surfaces",
+    ),
+    "export_argument_graph": ("polisyos.runtime.quality.argument_graph", "export_argument_graph"),
+    "inspect_argument_graph": ("polisyos.runtime.quality.argument_graph", "inspect_argument_graph"),
+    "merge_argument_graph_quality_evidence_surfaces": (
+        "polisyos.runtime.quality.argument_graph",
+        "merge_argument_graph_quality_evidence_surfaces",
+    ),
+    "persist_argument_graph": ("polisyos.runtime.quality.argument_graph", "persist_argument_graph"),
+    "POLICY_DESIGN_CAPABILITY_DUTY_STATES": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CAPABILITY_DUTY_STATES",
+    ),
+    "POLICY_DESIGN_CAPABILITY_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CAPABILITY_LEDGER_SCHEMA_VERSION",
+    ),
+    "POLICY_DESIGN_CASE_CORE_NODE_TYPES": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_CORE_NODE_TYPES",
+    ),
+    "POLICY_DESIGN_CASE_OWNER": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_OWNER",
+    ),
+    "POLICY_DESIGN_CASE_PROFILE": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_PROFILE",
+    ),
+    "POLICY_DESIGN_CASE_PROFILE_METADATA": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_PROFILE_METADATA",
+    ),
+    "POLICY_DESIGN_CASE_REGISTRY_ENTRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_REGISTRY_ENTRY_SCHEMA_VERSION",
+    ),
+    "POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES",
+    ),
+    "POLICY_DESIGN_CASE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CASE_SCHEMA_VERSION",
+    ),
+    "POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID",
+    ),
+    "POLICY_DESIGN_CONCEPT_SPINE_REQUIRED_CLOSURE_FIELDS": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CONCEPT_SPINE_REQUIRED_CLOSURE_FIELDS",
+    ),
+    "POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION",
+    ),
+    "POLICY_DESIGN_JURISDICTION_AUTHORITY_LEVELS": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_JURISDICTION_AUTHORITY_LEVELS",
+    ),
+    "POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION",
+    ),
+    "POLICY_DESIGN_REQUIRED_CAPABILITIES": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_REQUIRED_CAPABILITIES",
+    ),
+    "POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID",
+    ),
+    "POLICY_DESIGN_WALKING_SKELETON_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_DESIGN_WALKING_SKELETON_SCHEMA_VERSION",
+    ),
+    "POLICY_INTENT_ENVELOPE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.assurance_case",
+        "POLICY_INTENT_ENVELOPE_SCHEMA_VERSION",
+    ),
+    "PolicyDesignCaseAuthorityError": (
+        "polisyos.runtime.quality.assurance_case",
+        "PolicyDesignCaseAuthorityError",
+    ),
+    "build_assurance_case_for_scorecard": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_assurance_case_for_scorecard",
+    ),
+    "build_capability_duty_record": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_capability_duty_record",
+    ),
+    "build_capability_selection_ledger": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_capability_selection_ledger",
+    ),
+    "build_policy_design_case_concept_spine": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_design_case_concept_spine",
+    ),
+    "build_policy_design_case_profile": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_design_case_profile",
+    ),
+    "build_policy_design_case_registry_entry": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_design_case_registry_entry",
+    ),
+    "build_policy_design_case_walking_skeleton": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_design_case_walking_skeleton",
+    ),
+    "build_policy_design_jurisdiction_spine": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_design_jurisdiction_spine",
+    ),
+    "build_policy_intent_envelope": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_policy_intent_envelope",
+    ),
+    "build_universality_assurance_case": (
+        "polisyos.runtime.quality.assurance_case",
+        "build_universality_assurance_case",
+    ),
+    "policy_design_concept_spine_json_schema": (
+        "polisyos.runtime.quality.assurance_case",
+        "policy_design_concept_spine_json_schema",
+    ),
+    "policy_design_jurisdiction_spine_json_schema": (
+        "polisyos.runtime.quality.assurance_case",
+        "policy_design_jurisdiction_spine_json_schema",
+    ),
+    "validate_capability_selection_ledger": (
+        "polisyos.runtime.quality.assurance_case",
+        "validate_capability_selection_ledger",
+    ),
+    "validate_policy_design_case_concept_spine": (
+        "polisyos.runtime.quality.assurance_case",
+        "validate_policy_design_case_concept_spine",
+    ),
+    "validate_policy_design_case_profile": (
+        "polisyos.runtime.quality.assurance_case",
+        "validate_policy_design_case_profile",
+    ),
+    "validate_policy_design_jurisdiction_spine": (
+        "polisyos.runtime.quality.assurance_case",
+        "validate_policy_design_jurisdiction_spine",
+    ),
+    "validate_policy_intent_envelope": (
+        "polisyos.runtime.quality.assurance_case",
+        "validate_policy_intent_envelope",
+    ),
+    "AuthorityEnvelopeError": ("polisyos.runtime.quality.authority", "AuthorityEnvelopeError"),
+    "AuthorityEnvelopeViolation": (
+        "polisyos.runtime.quality.authority",
+        "AuthorityEnvelopeViolation",
+    ),
+    "EvidenceAuthorityEnvelope": (
+        "polisyos.runtime.quality.authority",
+        "EvidenceAuthorityEnvelope",
+    ),
+    "GovernanceMetadata": ("polisyos.runtime.quality.authority", "GovernanceMetadata"),
+    "ProducerIdentity": ("polisyos.runtime.quality.authority", "ProducerIdentity"),
+    "SameInputClosure": ("polisyos.runtime.quality.authority", "SameInputClosure"),
+    "assert_authority_bearing": ("polisyos.runtime.quality.authority", "assert_authority_bearing"),
+    "assert_authority_purpose_allowed": (
+        "polisyos.runtime.quality.authority",
+        "assert_authority_purpose_allowed",
+    ),
+    "assert_capability_binding_purpose_allowed": (
+        "polisyos.runtime.quality.authority",
+        "assert_capability_binding_purpose_allowed",
+    ),
+    "assert_runtime_emitted": ("polisyos.runtime.quality.authority", "assert_runtime_emitted"),
+    "assert_same_input_closure": (
+        "polisyos.runtime.quality.authority",
+        "assert_same_input_closure",
+    ),
+    "authority_envelope_json_schema": (
+        "polisyos.runtime.quality.authority",
+        "authority_envelope_json_schema",
+    ),
+    "capability_binding_purpose_blockers": (
+        "polisyos.runtime.quality.authority",
+        "capability_binding_purpose_blockers",
+    ),
+    "classify_authority_role": ("polisyos.runtime.quality.authority", "classify_authority_role"),
+    "deserialize_authority_envelope": (
+        "polisyos.runtime.quality.authority",
+        "deserialize_authority_envelope",
+    ),
+    "serialize_authority_envelope": (
+        "polisyos.runtime.quality.authority",
+        "serialize_authority_envelope",
+    ),
+    "write_authority_envelope_json_schema": (
+        "polisyos.runtime.quality.authority",
+        "write_authority_envelope_json_schema",
+    ),
+    "AuthorityReconciliationError": (
+        "polisyos.runtime.quality.authority_reconciliation",
+        "AuthorityReconciliationError",
+    ),
+    "AuthorityReconciliationReport": (
+        "polisyos.runtime.quality.authority_reconciliation",
+        "AuthorityReconciliationReport",
+    ),
+    "reconcile_authority_event": (
+        "polisyos.runtime.quality.authority_reconciliation",
+        "reconcile_authority_event",
+    ),
+    "reconcile_authority_ref": (
+        "polisyos.runtime.quality.authority_reconciliation",
+        "reconcile_authority_ref",
+    ),
+    "CALIBRATION_LEDGER_CONTRACT_ID": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CALIBRATION_LEDGER_CONTRACT_ID",
+    ),
+    "CALIBRATION_LEDGER_KIND": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CALIBRATION_LEDGER_KIND",
+    ),
+    "CALIBRATION_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CALIBRATION_LEDGER_SCHEMA_VERSION",
+    ),
+    "HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION",
+    ),
+    "CalibrationHistoryPolicy": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CalibrationHistoryPolicy",
+    ),
+    "CalibrationLedger": ("polisyos.runtime.quality.calibration_ledger", "CalibrationLedger"),
+    "CalibrationLedgerContractError": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CalibrationLedgerContractError",
+    ),
+    "CalibrationLedgerEntry": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "CalibrationLedgerEntry",
+    ),
+    "build_calibration_ledger": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "build_calibration_ledger",
+    ),
+    "calibration_influence_for_scope": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "calibration_influence_for_scope",
+    ),
+    "calibration_ledger_public_export": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "calibration_ledger_public_export",
+    ),
+    "historical_prior_claim_evidence_issues": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "historical_prior_claim_evidence_issues",
+    ),
+    "is_historical_prior_ref": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "is_historical_prior_ref",
+    ),
+    "persist_calibration_ledger": (
+        "polisyos.runtime.quality.calibration_ledger",
+        "persist_calibration_ledger",
+    ),
+    "AUTHORITY_CANDIDATE_FIREWALL_NAME": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "AUTHORITY_CANDIDATE_FIREWALL_NAME",
+    ),
+    "AuthorityCandidateInventoryRow": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "AuthorityCandidateInventoryRow",
+    ),
+    "CandidateFirewallError": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "CandidateFirewallError",
+    ),
+    "assert_candidate_positive_firewall_boundary": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "assert_candidate_positive_firewall_boundary",
+    ),
+    "assert_no_candidate_authority_laundering": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "assert_no_candidate_authority_laundering",
+    ),
+    "build_authority_candidate_inventory_rows": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "build_authority_candidate_inventory_rows",
+    ),
+    "candidate_firewall_issues_for_payload": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "candidate_firewall_issues_for_payload",
+    ),
+    "candidate_refs_from_payload": (
+        "polisyos.runtime.quality.candidate_firewall",
+        "candidate_refs_from_payload",
+    ),
+    "AUTHORITY_FACTOR_NAMES": (
+        "polisyos.runtime.quality.capability_authority",
+        "AUTHORITY_FACTOR_NAMES",
+    ),
+    "CAPABILITY_AUTHORITY_RULE_VERSION": (
+        "polisyos.runtime.quality.capability_authority",
+        "CAPABILITY_AUTHORITY_RULE_VERSION",
+    ),
+    "CAPABILITY_AUTHORITY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_authority",
+        "CAPABILITY_AUTHORITY_SCHEMA_VERSION",
+    ),
+    "POSTURE_THRESHOLDS": ("polisyos.runtime.quality.capability_authority", "POSTURE_THRESHOLDS"),
+    "CapabilityAuthorityError": (
+        "polisyos.runtime.quality.capability_authority",
+        "CapabilityAuthorityError",
+    ),
+    "CapabilityAuthorityFactor": (
+        "polisyos.runtime.quality.capability_authority",
+        "CapabilityAuthorityFactor",
+    ),
+    "CapabilityAuthorityFactorName": (
+        "polisyos.runtime.quality.capability_authority",
+        "CapabilityAuthorityFactorName",
+    ),
+    "CapabilityBindingResult": (
+        "polisyos.runtime.quality.capability_authority",
+        "CapabilityBindingResult",
+    ),
+    "CapabilityBindingStatus": (
+        "polisyos.runtime.quality.capability_authority",
+        "CapabilityBindingStatus",
+    ),
+    "compose_capability_authority": (
+        "polisyos.runtime.quality.capability_authority",
+        "compose_capability_authority",
+    ),
+    "ACQUISITION_STRATEGY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "ACQUISITION_STRATEGY_SCHEMA_VERSION",
+    ),
+    "CAPABILITY_FAILURE_MODE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "CAPABILITY_FAILURE_MODE_SCHEMA_VERSION",
+    ),
+    "CAPABILITY_INDEX_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "CAPABILITY_INDEX_SCHEMA_VERSION",
+    ),
+    "CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION",
+    ),
+    "CONFLICT_RECORD_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "CONFLICT_RECORD_SCHEMA_VERSION",
+    ),
+    "EVIDENCE_CAPABILITY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_index",
+        "EVIDENCE_CAPABILITY_SCHEMA_VERSION",
+    ),
+    "AuthorityEnvelope": ("polisyos.runtime.quality.capability_index", "AuthorityEnvelope"),
+    "CapabilityConflictRecord": (
+        "polisyos.runtime.quality.capability_index",
+        "CapabilityConflictRecord",
+    ),
+    "CapabilityIndex": ("polisyos.runtime.quality.capability_index", "CapabilityIndex"),
+    "CapabilityLifecycle": ("polisyos.runtime.quality.capability_index", "CapabilityLifecycle"),
+    "CapabilityScope": ("polisyos.runtime.quality.capability_index", "CapabilityScope"),
+    "CapabilitySourceAsset": ("polisyos.runtime.quality.capability_index", "CapabilitySourceAsset"),
+    "EvidenceCapability": ("polisyos.runtime.quality.capability_index", "EvidenceCapability"),
+    "FailureModeNode": ("polisyos.runtime.quality.capability_index", "FailureModeNode"),
+    "FreshnessEnvelope": ("polisyos.runtime.quality.capability_index", "FreshnessEnvelope"),
+    "QualityScore": ("polisyos.runtime.quality.capability_index", "QualityScore"),
+    "RightsEnvelope": ("polisyos.runtime.quality.capability_index", "RightsEnvelope"),
+    "CapabilityIndexAcquisitionStrategy": (
+        "polisyos.runtime.quality.capability_index",
+        "AcquisitionStrategy",
+    ),
+    "CAPABILITY_INDEX_COMPILER_VERSION": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "CAPABILITY_INDEX_COMPILER_VERSION",
+    ),
+    "FULL_MODE_CAPABILITY_FLOORS": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "FULL_MODE_CAPABILITY_FLOORS",
+    ),
+    "PERFORMANCE_BUDGET_SECONDS": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "PERFORMANCE_BUDGET_SECONDS",
+    ),
+    "CapabilityIndexBuildResult": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "CapabilityIndexBuildResult",
+    ),
+    "CapabilityIndexCompilerConfig": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "CapabilityIndexCompilerConfig",
+    ),
+    "compile_capability_index": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "compile_capability_index",
+    ),
+    "create_capability_index_fixture_inputs": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "create_capability_index_fixture_inputs",
+    ),
+    "validate_capability_authority": (
+        "polisyos.runtime.quality.capability_index_compiler",
+        "validate_capability_authority",
+    ),
+    "CAPABILITY_RATCHET_CONTRACT_ID": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "CAPABILITY_RATCHET_CONTRACT_ID",
+    ),
+    "CAPABILITY_RATCHET_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "CAPABILITY_RATCHET_SCHEMA_VERSION",
+    ),
+    "MISSING_REALITY_STATES": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "MISSING_REALITY_STATES",
+    ),
+    "PURPOSE_MULTIPLIERS": ("polisyos.runtime.quality.capability_ratchet", "PURPOSE_MULTIPLIERS"),
+    "REALITY_STATE_BASE_POINTS": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "REALITY_STATE_BASE_POINTS",
+    ),
+    "REALITY_STATES": ("polisyos.runtime.quality.capability_ratchet", "REALITY_STATES"),
+    "build_capability_reality_report": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "build_capability_reality_report",
+    ),
+    "evaluate_capability_claim": (
+        "polisyos.runtime.quality.capability_ratchet",
+        "evaluate_capability_claim",
+    ),
+    "ratchet_templates": ("polisyos.runtime.quality.capability_ratchet", "ratchet_templates"),
+    "severity_for_points": ("polisyos.runtime.quality.capability_ratchet", "severity_for_points"),
+    "DEFAULT_CAPABILITY_INDEX_REF": (
+        "polisyos.runtime.quality.capability_resolver",
+        "DEFAULT_CAPABILITY_INDEX_REF",
+    ),
+    "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.capability_resolver",
+        "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
+    ),
+    "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION": (
+        "polisyos.runtime.quality.capability_resolver",
+        "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION",
+    ),
+    "RequirementTimeWindow": (
+        "polisyos.runtime.quality.capability_resolver",
+        "RequirementTimeWindow",
+    ),
+    "RequirementToCapabilityQuery": (
+        "polisyos.runtime.quality.capability_resolver",
+        "RequirementToCapabilityQuery",
+    ),
+    "RequirementToCapabilityResolver": (
+        "polisyos.runtime.quality.capability_resolver",
+        "RequirementToCapabilityResolver",
+    ),
+    "construct_for_legacy_family": (
+        "polisyos.runtime.quality.capability_resolver",
+        "construct_for_legacy_family",
+    ),
+    "legacy_family_for_construct": (
+        "polisyos.runtime.quality.capability_resolver",
+        "legacy_family_for_construct",
+    ),
+    "EVIDENCE_GRAPH_THREAT_MODEL_RECORD_FAMILY": (
+        "polisyos.runtime.quality.case_integrity",
+        "EVIDENCE_GRAPH_THREAT_MODEL_RECORD_FAMILY",
+    ),
+    "EVIDENCE_GRAPH_THREAT_MODEL_RECORD_KEY": (
+        "polisyos.runtime.quality.case_integrity",
+        "EVIDENCE_GRAPH_THREAT_MODEL_RECORD_KEY",
+    ),
+    "EVIDENCE_GRAPH_THREAT_MODEL_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.case_integrity",
+        "EVIDENCE_GRAPH_THREAT_MODEL_SCHEMA_VERSION",
+    ),
+    "EVIDENCE_GRAPH_THREATS": ("polisyos.runtime.quality.case_integrity", "EVIDENCE_GRAPH_THREATS"),
+    "PolicyDesignCaseIntegrityIssue": (
+        "polisyos.runtime.quality.case_integrity",
+        "PolicyDesignCaseIntegrityIssue",
+    ),
+    "validate_evidence_graph_threat_model_record": (
+        "polisyos.runtime.quality.case_integrity",
+        "validate_evidence_graph_threat_model_record",
+    ),
+    "CASE_LIFECYCLE_CONTRACT_ID": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "CASE_LIFECYCLE_CONTRACT_ID",
+    ),
+    "CASE_LIFECYCLE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "CASE_LIFECYCLE_SCHEMA_VERSION",
+    ),
+    "COMMITMENT_PROFILE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "COMMITMENT_PROFILE_SCHEMA_VERSION",
+    ),
+    "EX_POST_LEARNING_CONTRACT_ID": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "EX_POST_LEARNING_CONTRACT_ID",
+    ),
+    "EX_POST_LEARNING_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "EX_POST_LEARNING_SCHEMA_VERSION",
+    ),
+    "CommitmentProfileRecord": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "CommitmentProfileRecord",
+    ),
+    "FloorBand": ("polisyos.runtime.quality.case_lifecycle", "FloorBand"),
+    "LifecycleStage": ("polisyos.runtime.quality.case_lifecycle", "LifecycleStage"),
+    "P23StakesFloorError": ("polisyos.runtime.quality.case_lifecycle", "P23StakesFloorError"),
+    "PolicyDesignLifecycleError": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "PolicyDesignLifecycleError",
+    ),
+    "PolicyDesignLifecycleIssue": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "PolicyDesignLifecycleIssue",
+    ),
+    "Reversibility": ("polisyos.runtime.quality.case_lifecycle", "Reversibility"),
+    "StakesBand": ("polisyos.runtime.quality.case_lifecycle", "StakesBand"),
+    "assert_stakes_floor_consistency": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "assert_stakes_floor_consistency",
+    ),
+    "build_case_lifecycle_record": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "build_case_lifecycle_record",
+    ),
+    "build_commitment_profile": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "build_commitment_profile",
+    ),
+    "build_ex_post_learning_record": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "build_ex_post_learning_record",
+    ),
+    "select_floor": ("polisyos.runtime.quality.case_lifecycle", "select_floor"),
+    "validate_case_lifecycle_record": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "validate_case_lifecycle_record",
+    ),
+    "validate_ex_post_learning_record": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "validate_ex_post_learning_record",
+    ),
+    "validate_policy_design_lifecycle_records": (
+        "polisyos.runtime.quality.case_lifecycle",
+        "validate_policy_design_lifecycle_records",
+    ),
+    "CASE_MATURITY_PROFILE_RECORD_FAMILY": (
+        "polisyos.runtime.quality.case_maturity",
+        "CASE_MATURITY_PROFILE_RECORD_FAMILY",
+    ),
+    "CASE_MATURITY_PROFILE_RECORD_KEY": (
+        "polisyos.runtime.quality.case_maturity",
+        "CASE_MATURITY_PROFILE_RECORD_KEY",
+    ),
+    "CASE_MATURITY_PROFILE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.case_maturity",
+        "CASE_MATURITY_PROFILE_SCHEMA_VERSION",
+    ),
+    "CASE_MATURITY_PROFILE_SCORECARD_GATE": (
+        "polisyos.runtime.quality.case_maturity",
+        "CASE_MATURITY_PROFILE_SCORECARD_GATE",
+    ),
+    "RECORD_FAMILY_MATURITY_LEVELS": (
+        "polisyos.runtime.quality.case_maturity",
+        "RECORD_FAMILY_MATURITY_LEVELS",
+    ),
+    "CaseMaturityIssue": ("polisyos.runtime.quality.case_maturity", "CaseMaturityIssue"),
+    "CaseMaturityValidationResult": (
+        "polisyos.runtime.quality.case_maturity",
+        "CaseMaturityValidationResult",
+    ),
+    "RecordFamilyMaturity": ("polisyos.runtime.quality.case_maturity", "RecordFamilyMaturity"),
+    "build_case_maturity_profile": (
+        "polisyos.runtime.quality.case_maturity",
+        "build_case_maturity_profile",
+    ),
+    "policy_design_case_maturity_scorecard_gates": (
+        "polisyos.runtime.quality.case_maturity",
+        "policy_design_case_maturity_scorecard_gates",
+    ),
+    "validate_case_maturity_profile": (
+        "polisyos.runtime.quality.case_maturity",
+        "validate_case_maturity_profile",
+    ),
+    "CLAIM_ARGUMENT_CONTRACT_ID": (
+        "polisyos.runtime.quality.claim_argument",
+        "CLAIM_ARGUMENT_CONTRACT_ID",
+    ),
+    "CLAIM_ARGUMENT_MAPPING_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.claim_argument",
+        "CLAIM_ARGUMENT_MAPPING_SCHEMA_VERSION",
+    ),
+    "CLAIM_ARGUMENT_NODE_MAPPING": (
+        "polisyos.runtime.quality.claim_argument",
+        "CLAIM_ARGUMENT_NODE_MAPPING",
+    ),
+    "CLAIM_ARGUMENT_VALIDATION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.claim_argument",
+        "CLAIM_ARGUMENT_VALIDATION_SCHEMA_VERSION",
+    ),
+    "PRE_PUBLICATION_CHALLENGE_NODE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.claim_argument",
+        "PRE_PUBLICATION_CHALLENGE_NODE_SCHEMA_VERSION",
+    ),
+    "ClaimArgumentIssue": ("polisyos.runtime.quality.claim_argument", "ClaimArgumentIssue"),
+    "ClaimArgumentValidationResult": (
+        "polisyos.runtime.quality.claim_argument",
+        "ClaimArgumentValidationResult",
+    ),
+    "build_pre_publication_challenge_node": (
+        "polisyos.runtime.quality.claim_argument",
+        "build_pre_publication_challenge_node",
+    ),
+    "build_pre_publication_challenge_node_from_scientist_outputs": (
+        "polisyos.runtime.quality.claim_argument",
+        "build_pre_publication_challenge_node_from_scientist_outputs",
+    ),
+    "export_claim_argument_case_mapping": (
+        "polisyos.runtime.quality.claim_argument",
+        "export_claim_argument_case_mapping",
+    ),
+    "validate_claim_argument_case_surfaces": (
+        "polisyos.runtime.quality.claim_argument",
+        "validate_claim_argument_case_surfaces",
+    ),
+    "CLOSEOUT_READER_CONTRACT_ID": (
+        "polisyos.runtime.quality.closeout_reader",
+        "CLOSEOUT_READER_CONTRACT_ID",
+    ),
+    "CLOSEOUT_READER_CONTRACT_VERSION": (
+        "polisyos.runtime.quality.closeout_reader",
+        "CLOSEOUT_READER_CONTRACT_VERSION",
+    ),
+    "CLOSEOUT_READER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.closeout_reader",
+        "CLOSEOUT_READER_SCHEMA_VERSION",
+    ),
+    "DEFAULT_CLOSEOUT_MODULE_READERS": (
+        "polisyos.runtime.quality.closeout_reader",
+        "DEFAULT_CLOSEOUT_MODULE_READERS",
+    ),
+    "CloseoutModuleReaderSpec": (
+        "polisyos.runtime.quality.closeout_reader",
+        "CloseoutModuleReaderSpec",
+    ),
+    "build_closeout_reader_skeleton": (
+        "polisyos.runtime.quality.closeout_reader",
+        "build_closeout_reader_skeleton",
+    ),
+    "build_closeout_reader_skeleton_from_bundle_dir": (
+        "polisyos.runtime.quality.closeout_reader",
+        "build_closeout_reader_skeleton_from_bundle_dir",
+    ),
+    "COMPLEXITY_GOVERNANCE_CONTRACT_ID": (
+        "polisyos.runtime.quality.complexity_governance",
+        "COMPLEXITY_GOVERNANCE_CONTRACT_ID",
+    ),
+    "COMPLEXITY_GOVERNANCE_CONTROL_ID": (
+        "polisyos.runtime.quality.complexity_governance",
+        "COMPLEXITY_GOVERNANCE_CONTROL_ID",
+    ),
+    "COMPLEXITY_GOVERNANCE_FILENAME": (
+        "polisyos.runtime.quality.complexity_governance",
+        "COMPLEXITY_GOVERNANCE_FILENAME",
+    ),
+    "COMPLEXITY_GOVERNANCE_REPORT_KEY": (
+        "polisyos.runtime.quality.complexity_governance",
+        "COMPLEXITY_GOVERNANCE_REPORT_KEY",
+    ),
+    "COMPLEXITY_GOVERNANCE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.complexity_governance",
+        "COMPLEXITY_GOVERNANCE_SCHEMA_VERSION",
+    ),
+    "NET_MAV_FORMULA": ("polisyos.runtime.quality.complexity_governance", "NET_MAV_FORMULA"),
+    "ComplexityGovernanceError": (
+        "polisyos.runtime.quality.complexity_governance",
+        "ComplexityGovernanceError",
+    ),
+    "build_complexity_governance_report": (
+        "polisyos.runtime.quality.complexity_governance",
+        "build_complexity_governance_report",
+    ),
+    "complexity_governance_scorecard_gates": (
+        "polisyos.runtime.quality.complexity_governance",
+        "complexity_governance_scorecard_gates",
+    ),
+    "compute_net_mav": ("polisyos.runtime.quality.complexity_governance", "compute_net_mav"),
+    "evaluate_blocking_frontier_control": (
+        "polisyos.runtime.quality.complexity_governance",
+        "evaluate_blocking_frontier_control",
+    ),
+    "review_controls_for_pruning": (
+        "polisyos.runtime.quality.complexity_governance",
+        "review_controls_for_pruning",
+    ),
+    "normalize_runtime_privacy_compliance_report": (
+        "polisyos.runtime.quality.compliance",
+        "normalize_runtime_privacy_compliance_report",
+    ),
+    "CONCEPT_SPINE_BRIDGE_AUTHORITY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.concept_spine",
+        "CONCEPT_SPINE_BRIDGE_AUTHORITY_SCHEMA_VERSION",
+    ),
+    "CONCEPT_SPINE_HANDSHAKE_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.concept_spine",
+        "CONCEPT_SPINE_HANDSHAKE_LEDGER_SCHEMA_VERSION",
+    ),
+    "CONCEPT_SPINE_HANDSHAKE_RECORD_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.concept_spine",
+        "CONCEPT_SPINE_HANDSHAKE_RECORD_SCHEMA_VERSION",
+    ),
+    "CONCEPT_SPINE_HYBRID_CARRIER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.concept_spine",
+        "CONCEPT_SPINE_HYBRID_CARRIER_SCHEMA_VERSION",
+    ),
+    "ConceptNamespaceRef": ("polisyos.runtime.quality.concept_spine", "ConceptNamespaceRef"),
+    "ConceptRelation": ("polisyos.runtime.quality.concept_spine", "ConceptRelation"),
+    "ProducerHandshakeBinding": (
+        "polisyos.runtime.quality.concept_spine",
+        "ProducerHandshakeBinding",
+    ),
+    "ProducerHandshakeValidationError": (
+        "polisyos.runtime.quality.concept_spine",
+        "ProducerHandshakeValidationError",
+    ),
+    "ProducerWaitCondition": ("polisyos.runtime.quality.concept_spine", "ProducerWaitCondition"),
+    "ReconciledConcept": ("polisyos.runtime.quality.concept_spine", "ReconciledConcept"),
+    "build_concept_spine_bridge_authority_record": (
+        "polisyos.runtime.quality.concept_spine",
+        "build_concept_spine_bridge_authority_record",
+    ),
+    "build_hybrid_concept_spine_carrier": (
+        "polisyos.runtime.quality.concept_spine",
+        "build_hybrid_concept_spine_carrier",
+    ),
+    "build_producer_handshake_ledger": (
+        "polisyos.runtime.quality.concept_spine",
+        "build_producer_handshake_ledger",
+    ),
+    "build_producer_handshake_record": (
+        "polisyos.runtime.quality.concept_spine",
+        "build_producer_handshake_record",
+    ),
+    "validate_hybrid_concept_spine_carrier": (
+        "polisyos.runtime.quality.concept_spine",
+        "validate_hybrid_concept_spine_carrier",
+    ),
+    "CONFIG_RELEASE_HARDENING_CONTRACT_ID": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "CONFIG_RELEASE_HARDENING_CONTRACT_ID",
+    ),
+    "CONFIG_RELEASE_HARDENING_PDD_IDS": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "CONFIG_RELEASE_HARDENING_PDD_IDS",
+    ),
+    "CONFIG_RELEASE_HARDENING_RECORD_FAMILY": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "CONFIG_RELEASE_HARDENING_RECORD_FAMILY",
+    ),
+    "CONFIG_RELEASE_HARDENING_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "CONFIG_RELEASE_HARDENING_SCHEMA_VERSION",
+    ),
+    "ConfigReleaseHardeningIssue": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "ConfigReleaseHardeningIssue",
+    ),
+    "validate_config_release_deployment_migration_hardening_record": (
+        "polisyos.runtime.quality.config_release_hardening",
+        "validate_config_release_deployment_migration_hardening_record",
+    ),
+    "CONSTRUCT_REGISTRY_DEFAULT_PATH": (
+        "polisyos.runtime.quality.construct_registry",
+        "CONSTRUCT_REGISTRY_DEFAULT_PATH",
+    ),
+    "CONSTRUCT_REGISTRY_ID": (
+        "polisyos.runtime.quality.construct_registry",
+        "CONSTRUCT_REGISTRY_ID",
+    ),
+    "CONSTRUCT_REGISTRY_RULE_VERSION": (
+        "polisyos.runtime.quality.construct_registry",
+        "CONSTRUCT_REGISTRY_RULE_VERSION",
+    ),
+    "CONSTRUCT_REGISTRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.construct_registry",
+        "CONSTRUCT_REGISTRY_SCHEMA_VERSION",
+    ),
+    "CONSTRUCT_REGISTRY_VERSION": (
+        "polisyos.runtime.quality.construct_registry",
+        "CONSTRUCT_REGISTRY_VERSION",
+    ),
+    "ConstructAliasDeprecation": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructAliasDeprecation",
+    ),
+    "ConstructAuthorityRequirement": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructAuthorityRequirement",
+    ),
+    "ConstructCompatibilityAlias": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructCompatibilityAlias",
+    ),
+    "ConstructCorpusBinding": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructCorpusBinding",
+    ),
+    "ConstructEntry": ("polisyos.runtime.quality.construct_registry", "ConstructEntry"),
+    "ConstructRegistry": ("polisyos.runtime.quality.construct_registry", "ConstructRegistry"),
+    "ConstructRegistryError": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructRegistryError",
+    ),
+    "ConstructValidityRequirements": (
+        "polisyos.runtime.quality.construct_registry",
+        "ConstructValidityRequirements",
+    ),
+    "assert_scenario_family_name_alone_does_not_grant_authority": (
+        "polisyos.runtime.quality.construct_registry",
+        "assert_scenario_family_name_alone_does_not_grant_authority",
+    ),
+    "construct_refs_for_alias": (
+        "polisyos.runtime.quality.construct_registry",
+        "construct_refs_for_alias",
+    ),
+    "construct_registry_concept_spine_entries": (
+        "polisyos.runtime.quality.construct_registry",
+        "construct_registry_concept_spine_entries",
+    ),
+    "construct_registry_public_surface": (
+        "polisyos.runtime.quality.construct_registry",
+        "construct_registry_public_surface",
+    ),
+    "load_construct_registry": (
+        "polisyos.runtime.quality.construct_registry",
+        "load_construct_registry",
+    ),
+    "non_ukraine_bound_constructs": (
+        "polisyos.runtime.quality.construct_registry",
+        "non_ukraine_bound_constructs",
+    ),
+    "validate_construct_registry_coverage": (
+        "polisyos.runtime.quality.construct_registry",
+        "validate_construct_registry_coverage",
+    ),
+    "validate_obligation_rule_construct_refs": (
+        "polisyos.runtime.quality.construct_registry",
+        "validate_obligation_rule_construct_refs",
+    ),
+    "COST_DEGRADATION_TELEMETRY_CONTRACT_ID": (
+        "polisyos.runtime.quality.cost_degradation",
+        "COST_DEGRADATION_TELEMETRY_CONTRACT_ID",
+    ),
+    "COST_DEGRADATION_TELEMETRY_FILENAME": (
+        "polisyos.runtime.quality.cost_degradation",
+        "COST_DEGRADATION_TELEMETRY_FILENAME",
+    ),
+    "COST_DEGRADATION_TELEMETRY_REPORT_KEY": (
+        "polisyos.runtime.quality.cost_degradation",
+        "COST_DEGRADATION_TELEMETRY_REPORT_KEY",
+    ),
+    "COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.cost_degradation",
+        "COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION",
+    ),
+    "CostDegradationTelemetryError": (
+        "polisyos.runtime.quality.cost_degradation",
+        "CostDegradationTelemetryError",
+    ),
+    "build_cost_degradation_telemetry_from_quality_context": (
+        "polisyos.runtime.quality.cost_degradation",
+        "build_cost_degradation_telemetry_from_quality_context",
+    ),
+    "cost_degradation_scorecard_gates": (
+        "polisyos.runtime.quality.cost_degradation",
+        "cost_degradation_scorecard_gates",
+    ),
+    "validate_cost_degradation_telemetry": (
+        "polisyos.runtime.quality.cost_degradation",
+        "validate_cost_degradation_telemetry",
+    ),
+    "RUN_COST_GATE_CONTRACT_ID": (
+        "polisyos.runtime.quality.cost_gate",
+        "RUN_COST_GATE_CONTRACT_ID",
+    ),
+    "RUN_COST_GATE_FILENAME": ("polisyos.runtime.quality.cost_gate", "RUN_COST_GATE_FILENAME"),
+    "RUN_COST_GATE_REPORT_KEY": ("polisyos.runtime.quality.cost_gate", "RUN_COST_GATE_REPORT_KEY"),
+    "RUN_COST_GATE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.cost_gate",
+        "RUN_COST_GATE_SCHEMA_VERSION",
+    ),
+    "RunCostGateError": ("polisyos.runtime.quality.cost_gate", "RunCostGateError"),
+    "build_run_cost_gate_report": (
+        "polisyos.runtime.quality.cost_gate",
+        "build_run_cost_gate_report",
+    ),
+    "cost_gate_scorecard_gates": (
+        "polisyos.runtime.quality.cost_gate",
+        "cost_gate_scorecard_gates",
+    ),
+    "validate_run_cost_gate_report": (
+        "polisyos.runtime.quality.cost_gate",
+        "validate_run_cost_gate_report",
+    ),
+    "build_production_data_quality_report": (
+        "polisyos.runtime.quality.data_quality",
+        "build_production_data_quality_report",
+    ),
+    "DDM_EVENT_GROUPS": ("polisyos.runtime.quality.ddm_monitoring", "DDM_EVENT_GROUPS"),
+    "IMPLEMENTATION_MONITORING_EVALUATION_CONTRACT_ID": (
+        "polisyos.runtime.quality.ddm_monitoring",
+        "IMPLEMENTATION_MONITORING_EVALUATION_CONTRACT_ID",
+    ),
+    "IMPLEMENTATION_MONITORING_EVALUATION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.ddm_monitoring",
+        "IMPLEMENTATION_MONITORING_EVALUATION_SCHEMA_VERSION",
+    ),
+    "ImplementationMonitoringEvaluationError": (
+        "polisyos.runtime.quality.ddm_monitoring",
+        "ImplementationMonitoringEvaluationError",
+    ),
+    "build_implementation_monitoring_evaluation_record": (
+        "polisyos.runtime.quality.ddm_monitoring",
+        "build_implementation_monitoring_evaluation_record",
+    ),
+    "validate_implementation_monitoring_evaluation_record": (
+        "polisyos.runtime.quality.ddm_monitoring",
+        "validate_implementation_monitoring_evaluation_record",
+    ),
+    "DegradationLedgerContractError": (
+        "polisyos.runtime.quality.degradation",
+        "DegradationLedgerContractError",
+    ),
+    "DegradationLedgerRecord": ("polisyos.runtime.quality.degradation", "DegradationLedgerRecord"),
+    "DegradationPolicyDecision": (
+        "polisyos.runtime.quality.degradation",
+        "DegradationPolicyDecision",
+    ),
+    "assert_serious_fallback_allowed": (
+        "polisyos.runtime.quality.degradation",
+        "assert_serious_fallback_allowed",
+    ),
+    "build_degradation_record": (
+        "polisyos.runtime.quality.degradation",
+        "build_degradation_record",
+    ),
+    "deserialize_degradation_record": (
+        "polisyos.runtime.quality.degradation",
+        "deserialize_degradation_record",
+    ),
+    "evaluate_degradation_policy": (
+        "polisyos.runtime.quality.degradation",
+        "evaluate_degradation_policy",
+    ),
+    "serialize_degradation_record": (
+        "polisyos.runtime.quality.degradation",
+        "serialize_degradation_record",
+    ),
+    "LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION",
+    ),
+    "AggregationClaimLevel": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "AggregationClaimLevel",
+    ),
+    "AggregationScopeRow": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "AggregationScopeRow",
+    ),
+    "AggregationValidityDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "AggregationValidityDisposition",
+    ),
+    "AggregationValidityRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "AggregationValidityRecord",
+    ),
+    "AxisFailClosedDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "AxisFailClosedDisposition",
+    ),
+    "BlindSpotAxis": ("polisyos.runtime.quality.design_axes.blind_spot_firewalls", "BlindSpotAxis"),
+    "BlindSpotBridgeConsumerRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "BlindSpotBridgeConsumerRecord",
+    ),
+    "BlindSpotConstraintStoreUpdate": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "BlindSpotConstraintStoreUpdate",
+    ),
+    "BlindSpotFirewallReport": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "BlindSpotFirewallReport",
+    ),
+    "BlindSpotOverallPosture": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "BlindSpotOverallPosture",
+    ),
+    "CapacityBuildingObligation": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "CapacityBuildingObligation",
+    ),
+    "CapacityDimension": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "CapacityDimension",
+    ),
+    "CapacityDimensionAssessment": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "CapacityDimensionAssessment",
+    ),
+    "CapacityDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "CapacityDisposition",
+    ),
+    "CapacityFeasibilityRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "CapacityFeasibilityRecord",
+    ),
+    "ClusterAuthorityDimensionRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ClusterAuthorityDimensionRecord",
+    ),
+    "ConstraintRefinementRoute": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ConstraintRefinementRoute",
+    ),
+    "ConstraintStatus": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ConstraintStatus",
+    ),
+    "ConstructMeasurabilityRow": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ConstructMeasurabilityRow",
+    ),
+    "ConstructMeasurabilityStatus": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ConstructMeasurabilityStatus",
+    ),
+    "LegitimacyDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "LegitimacyDisposition",
+    ),
+    "MandateBasis": ("polisyos.runtime.quality.design_axes.blind_spot_firewalls", "MandateBasis"),
+    "MandateLegitimacyRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "MandateLegitimacyRecord",
+    ),
+    "MandateSourceRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "MandateSourceRecord",
+    ),
+    "MeasurabilityAdequacyRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "MeasurabilityAdequacyRecord",
+    ),
+    "P18StreetlightMeasurabilityError": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "P18StreetlightMeasurabilityError",
+    ),
+    "P19AggregationLaunderingError": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "P19AggregationLaunderingError",
+    ),
+    "P21CapacityFeasibilityError": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "P21CapacityFeasibilityError",
+    ),
+    "P22MandateLegitimacyError": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "P22MandateLegitimacyError",
+    ),
+    "P24StrategicResponseError": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "P24StrategicResponseError",
+    ),
+    "ParticipationProvenanceRow": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ParticipationProvenanceRow",
+    ),
+    "PostInterventionDGPUpdate": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "PostInterventionDGPUpdate",
+    ),
+    "ProxyValidityDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ProxyValidityDisposition",
+    ),
+    "ProxyValidityRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ProxyValidityRecord",
+    ),
+    "SourceAuthority": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "SourceAuthority",
+    ),
+    "StrategicResponseChannel": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "StrategicResponseChannel",
+    ),
+    "StrategicResponseChannelAssessment": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "StrategicResponseChannelAssessment",
+    ),
+    "StrategicResponseDisposition": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "StrategicResponseDisposition",
+    ),
+    "StrategicResponseRecord": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "StrategicResponseRecord",
+    ),
+    "ValueLossDisclosure": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "ValueLossDisclosure",
+    ),
+    "build_s6_blind_spot_firewall_report": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "build_s6_blind_spot_firewall_report",
+    ),
+    "evaluate_aggregation_validity": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "evaluate_aggregation_validity",
+    ),
+    "evaluate_capacity_feasibility": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "evaluate_capacity_feasibility",
+    ),
+    "evaluate_mandate_legitimacy": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "evaluate_mandate_legitimacy",
+    ),
+    "evaluate_measurability_adequacy": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "evaluate_measurability_adequacy",
+    ),
+    "evaluate_strategic_response": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "evaluate_strategic_response",
+    ),
+    "s6_fail_closed_coverage": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "s6_fail_closed_coverage",
+    ),
+    "s6_firewall_report_to_axis_positions": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "s6_firewall_report_to_axis_positions",
+    ),
+    "s6_firewall_report_to_c3_dimension_records": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "s6_firewall_report_to_c3_dimension_records",
+    ),
+    "s6_firewall_report_to_constraint_store_updates": (
+        "polisyos.runtime.quality.design_axes.blind_spot_firewalls",
+        "s6_firewall_report_to_constraint_store_updates",
+    ),
+    "LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION",
+    ),
+    "BoundaryCouplingClassification": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "BoundaryCouplingClassification",
+    ),
+    "CompositionAuthorityMode": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CompositionAuthorityMode",
+    ),
+    "CompositionDisposition": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CompositionDisposition",
+    ),
+    "CompositionLawCheck": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CompositionLawCheck",
+    ),
+    "CompositionReceipt": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CompositionReceipt",
+    ),
+    "ComputationalTractabilityBudget": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "ComputationalTractabilityBudget",
+    ),
+    "CouplingEdge": ("polisyos.runtime.quality.design_axes.coupling_composition", "CouplingEdge"),
+    "CouplingGraph": ("polisyos.runtime.quality.design_axes.coupling_composition", "CouplingGraph"),
+    "CouplingRegime": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CouplingRegime",
+    ),
+    "CouplingRegimeClassification": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "CouplingRegimeClassification",
+    ),
+    "DecompositionResult": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "DecompositionResult",
+    ),
+    "DesignInterfaceContract": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "DesignInterfaceContract",
+    ),
+    "DynamicsRequirementLevel": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "DynamicsRequirementLevel",
+    ),
+    "FeedbackIntensity": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "FeedbackIntensity",
+    ),
+    "ForecastClaimScope": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "ForecastClaimScope",
+    ),
+    "ForecastSupportBaseOrigin": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "ForecastSupportBaseOrigin",
+    ),
+    "ForecastSupportScope": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "ForecastSupportScope",
+    ),
+    "InteractionStrength": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "InteractionStrength",
+    ),
+    "ModuleDiscoveryResult": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "ModuleDiscoveryResult",
+    ),
+    "P17BoundarySpoofError": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "P17BoundarySpoofError",
+    ),
+    "P17FalseModularityError": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "P17FalseModularityError",
+    ),
+    "P17SyntacticCompositionError": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "P17SyntacticCompositionError",
+    ),
+    "P17SystemDynamicsRequiredError": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "P17SystemDynamicsRequiredError",
+    ),
+    "RecursiveDesignGraph": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "RecursiveDesignGraph",
+    ),
+    "SystemDynamicsRequirement": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "SystemDynamicsRequirement",
+    ),
+    "SystemEffectSupportLabel": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "SystemEffectSupportLabel",
+    ),
+    "assert_composition_laws_hold": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "assert_composition_laws_hold",
+    ),
+    "build_composition_receipt": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "build_composition_receipt",
+    ),
+    "build_computational_tractability_budget": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "build_computational_tractability_budget",
+    ),
+    "build_coupling_graph": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "build_coupling_graph",
+    ),
+    "build_system_dynamics_requirement": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "build_system_dynamics_requirement",
+    ),
+    "build_system_effect_support": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "build_system_effect_support",
+    ),
+    "classify_coupling": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "classify_coupling",
+    ),
+    "composition_to_axis_positions": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "composition_to_axis_positions",
+    ),
+    "coupling_accuracy": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "coupling_accuracy",
+    ),
+    "critical_path_regime": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "critical_path_regime",
+    ),
+    "decompose_design": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "decompose_design",
+    ),
+    "derive_recursive_design_graph": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "derive_recursive_design_graph",
+    ),
+    "discover_design_modules": (
+        "polisyos.runtime.quality.design_axes.coupling_composition",
+        "discover_design_modules",
+    ),
+    "LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION",
+    ),
+    "DesignStrategy": ("polisyos.runtime.quality.design_axes.epistemic_regime", "DesignStrategy"),
+    "EpistemicRegimeClaim": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "EpistemicRegimeClaim",
+    ),
+    "P16OverconfidenceError": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "P16OverconfidenceError",
+    ),
+    "P16PrecautionLaunderingError": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "P16PrecautionLaunderingError",
+    ),
+    "RegimeEvidenceBasis": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "RegimeEvidenceBasis",
+    ),
+    "classify_regime": ("polisyos.runtime.quality.design_axes.epistemic_regime", "classify_regime"),
+    "regime_accuracy": ("polisyos.runtime.quality.design_axes.epistemic_regime", "regime_accuracy"),
+    "regime_claim_to_axis_position": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "regime_claim_to_axis_position",
+    ),
+    "regime_design_strategy": (
+        "polisyos.runtime.quality.design_axes.epistemic_regime",
+        "regime_design_strategy",
+    ),
+    "LAYER2_S7_DELEGATION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "LAYER2_S7_DELEGATION_SCHEMA_VERSION",
+    ),
+    "DecisionAction": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionAction",
+    ),
+    "DecisionNeedReason": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionNeedReason",
+    ),
+    "DecisionOption": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionOption",
+    ),
+    "DecisionRightsMatrix": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionRightsMatrix",
+    ),
+    "DecisionRightsMatrixRow": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionRightsMatrixRow",
+    ),
+    "DecisionRole": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DecisionRole",
+    ),
+    "DelegationContract": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DelegationContract",
+    ),
+    "DelegationDisposition": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DelegationDisposition",
+    ),
+    "DelegationIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DelegationIntegrityReport",
+    ),
+    "DelegationInteractionMode": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DelegationInteractionMode",
+    ),
+    "DelegationNegativeControlResult": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "DelegationNegativeControlResult",
+    ),
+    "FiveRightsCheck": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "FiveRightsCheck",
+    ),
+    "FiveRightsDimension": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "FiveRightsDimension",
+    ),
+    "FiveRightsRequirement": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "FiveRightsRequirement",
+    ),
+    "HumanDecisionRecord": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "HumanDecisionRecord",
+    ),
+    "HumanDecisionRequest": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "HumanDecisionRequest",
+    ),
+    "P26ResponsibilityIntegrityError": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "P26ResponsibilityIntegrityError",
+    ),
+    "ResponsibilityIntegrityCheck": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "ResponsibilityIntegrityCheck",
+    ),
+    "ResponsibilityIntegrityStatus": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "ResponsibilityIntegrityStatus",
+    ),
+    "build_decision_rights_matrix": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "build_decision_rights_matrix",
+    ),
+    "build_delegation_contract": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "build_delegation_contract",
+    ),
+    "build_governance_decision_class_registry": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "build_governance_decision_class_registry",
+    ),
+    "build_human_decision_request": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "build_human_decision_request",
+    ),
+    "evaluate_delegation_for_case": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "evaluate_delegation_for_case",
+    ),
+    "record_human_decision": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "record_human_decision",
+    ),
+    "s7_delegation_integrity": (
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "s7_delegation_integrity",
+    ),
+    "LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION",
+    ),
+    "LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION",
+    ),
+    "S10_CALIBRATION_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "S10_CALIBRATION_FLOOR_ID",
+    ),
+    "S10_FALSE_CLEAR_FIELDS": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "S10_FALSE_CLEAR_FIELDS",
+    ),
+    "ForecastAuthorityDisposition": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ForecastAuthorityDisposition",
+    ),
+    "ForecastCalibrationRecord": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ForecastCalibrationRecord",
+    ),
+    "ForecastMethodFamily": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ForecastMethodFamily",
+    ),
+    "ForecastSupport": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ForecastSupport",
+    ),
+    "ForecastSupportIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ForecastSupportIntegrityReport",
+    ),
+    "ObservableSubsetCalibrationStatus": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "ObservableSubsetCalibrationStatus",
+    ),
+    "OutcomeDistributionRecord": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "OutcomeDistributionRecord",
+    ),
+    "PredictionAuthorityEnvelope": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "PredictionAuthorityEnvelope",
+    ),
+    "WelfareComparisonRecord": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "WelfareComparisonRecord",
+    ),
+    "WelfareComparisonStatus": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "WelfareComparisonStatus",
+    ),
+    "build_forecast_calibration_record": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "build_forecast_calibration_record",
+    ),
+    "build_forecast_support": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "build_forecast_support",
+    ),
+    "build_prediction_authority_boundary": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "build_prediction_authority_boundary",
+    ),
+    "build_welfare_comparison_record": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "build_welfare_comparison_record",
+    ),
+    "summarize_forecast_support_integrity": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "summarize_forecast_support_integrity",
+    ),
+    "verify_prediction_authority_envelope": (
+        "polisyos.runtime.quality.design_axes.outcome_prediction",
+        "verify_prediction_authority_envelope",
+    ),
+    "LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION",
+    ),
+    "LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION",
+    ),
+    "S13_ACCOUNTABILITY_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "S13_ACCOUNTABILITY_FLOOR_ID",
+    ),
+    "S13_FALSE_CLEAR_FIELDS": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "S13_FALSE_CLEAR_FIELDS",
+    ),
+    "ActionItemStatus": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "ActionItemStatus",
+    ),
+    "AssuranceCaseChange": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "AssuranceCaseChange",
+    ),
+    "AssuranceCaseDelta": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "AssuranceCaseDelta",
+    ),
+    "AttributionStatus": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "AttributionStatus",
+    ),
+    "CertifiedEnvelopeDelta": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "CertifiedEnvelopeDelta",
+    ),
+    "DeploymentDossier": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "DeploymentDossier",
+    ),
+    "DeploymentReadinessDisposition": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "DeploymentReadinessDisposition",
+    ),
+    "DivergenceAttributionClass": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "DivergenceAttributionClass",
+    ),
+    "DivergenceRecord": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "DivergenceRecord",
+    ),
+    "EnvelopeRevision": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "EnvelopeRevision",
+    ),
+    "EnvelopeRevisionDirection": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "EnvelopeRevisionDirection",
+    ),
+    "LearningChangeControlClass": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LearningChangeControlClass",
+    ),
+    "LearningUpdateProposal": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LearningUpdateProposal",
+    ),
+    "LearningUpdateTarget": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LearningUpdateTarget",
+    ),
+    "LifecycleReissueDisposition": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "LifecycleReissueDisposition",
+    ),
+    "OversightLinkedAccountabilityState": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "OversightLinkedAccountabilityState",
+    ),
+    "PostDeployAccountabilitySummary": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "PostDeployAccountabilitySummary",
+    ),
+    "PostDeployMapeKPhase": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "PostDeployMapeKPhase",
+    ),
+    "PostDeployMapeKTrace": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "PostDeployMapeKTrace",
+    ),
+    "build_assurance_case_delta": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_assurance_case_delta",
+    ),
+    "build_certified_envelope_delta": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_certified_envelope_delta",
+    ),
+    "build_deployment_dossier": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_deployment_dossier",
+    ),
+    "build_envelope_revision": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_envelope_revision",
+    ),
+    "build_learning_update_proposal": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_learning_update_proposal",
+    ),
+    "build_post_deploy_mape_k_trace": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_post_deploy_mape_k_trace",
+    ),
+    "build_s13_accountability_authority_boundary": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_s13_accountability_authority_boundary",
+    ),
+    "build_s13_post_deploy_accountability_posture": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "build_s13_post_deploy_accountability_posture",
+    ),
+    "classify_post_deploy_divergence": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "classify_post_deploy_divergence",
+    ),
+    "summarize_post_deploy_accountability": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "summarize_post_deploy_accountability",
+    ),
+    "verify_post_deploy_learning_authority": (
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability",
+        "verify_post_deploy_learning_authority",
+    ),
+    "LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION",
+    ),
+    "LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION",
+    ),
+    "S11_AXIS_CALIBRATION_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11_AXIS_CALIBRATION_FLOOR_ID",
+    ),
+    "S11_FALSE_CLEAR_FIELDS": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11_FALSE_CLEAR_FIELDS",
+    ),
+    "S11_PREDICTIVE_AXES": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11_PREDICTIVE_AXES",
+    ),
+    "ForecastQualityDisposition": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "ForecastQualityDisposition",
+    ),
+    "PredictiveAxis": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "PredictiveAxis",
+    ),
+    "PredictiveAxisCalibrationRecord": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "PredictiveAxisCalibrationRecord",
+    ),
+    "PredictiveAxisUpgradeRecord": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "PredictiveAxisUpgradeRecord",
+    ),
+    "PredictiveMaturity": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "PredictiveMaturity",
+    ),
+    "ProofCarryingAnalyticsRecord": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "ProofCarryingAnalyticsRecord",
+    ),
+    "ProofComposabilityStatus": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "ProofComposabilityStatus",
+    ),
+    "ProofStatus": ("polisyos.runtime.quality.design_axes.predictive_knowledge", "ProofStatus"),
+    "RelaxationDecision": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "RelaxationDecision",
+    ),
+    "S11CalibrationStatus": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11CalibrationStatus",
+    ),
+    "S11PredictiveKnowledgeAuthorityEnvelope": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11PredictiveKnowledgeAuthorityEnvelope",
+    ),
+    "S11PredictiveKnowledgeIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "S11PredictiveKnowledgeIntegrityReport",
+    ),
+    "build_predictive_axis_calibration_record": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "build_predictive_axis_calibration_record",
+    ),
+    "build_predictive_axis_upgrade_record": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "build_predictive_axis_upgrade_record",
+    ),
+    "build_proof_carrying_analytics_record": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "build_proof_carrying_analytics_record",
+    ),
+    "build_s11_predictive_authority_boundary": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "build_s11_predictive_authority_boundary",
+    ),
+    "build_s11_predictive_knowledge_posture": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "build_s11_predictive_knowledge_posture",
+    ),
+    "summarize_s11_predictive_knowledge_integrity": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "summarize_s11_predictive_knowledge_integrity",
+    ),
+    "verify_s11_predictive_knowledge_authority_envelope": (
+        "polisyos.runtime.quality.design_axes.predictive_knowledge",
+        "verify_s11_predictive_knowledge_authority_envelope",
+    ),
+    "LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION",
+    ),
+    "LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION",
+    ),
+    "S9_PROJECTION_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "S9_PROJECTION_FLOOR_ID",
+    ),
+    "CanonicalDesignRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "CanonicalDesignRecord",
+    ),
+    "DesignRecordMaturityReport": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "DesignRecordMaturityReport",
+    ),
+    "LoweringAppendReceipt": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LoweringAppendReceipt",
+    ),
+    "LoweringArtifactRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LoweringArtifactRecord",
+    ),
+    "LoweringAuthorityGateRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LoweringAuthorityGateRecord",
+    ),
+    "LoweringRequestRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "LoweringRequestRecord",
+    ),
+    "ProjectionAlgebraRequest": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "ProjectionAlgebraRequest",
+    ),
+    "ProjectionFaithfulnessRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "ProjectionFaithfulnessRecord",
+    ),
+    "ProjectionLoweringIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "ProjectionLoweringIntegrityReport",
+    ),
+    "ProjectionRenderRecord": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "ProjectionRenderRecord",
+    ),
+    "append_verified_lowering_artifact": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "append_verified_lowering_artifact",
+    ),
+    "build_canonical_design_record": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "build_canonical_design_record",
+    ),
+    "build_design_record_maturity_report": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "build_design_record_maturity_report",
+    ),
+    "build_projection_algebra_request": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "build_projection_algebra_request",
+    ),
+    "build_projection_render_record": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "build_projection_render_record",
+    ),
+    "gate_lowering_request": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "gate_lowering_request",
+    ),
+    "persist_projection_lowering_bundle": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "persist_projection_lowering_bundle",
+    ),
+    "s9_projection_lowering_integrity": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "s9_projection_lowering_integrity",
+    ),
+    "verify_projection_faithfulness": (
+        "polisyos.runtime.quality.design_axes.projection_lowering",
+        "verify_projection_faithfulness",
+    ),
+    "LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION",
+    ),
+    "LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION",
+    ),
+    "S12_FALSE_CLEAR_FIELDS": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "S12_FALSE_CLEAR_FIELDS",
+    ),
+    "S12_GROWTH_THERMOMETERS_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "S12_GROWTH_THERMOMETERS_FLOOR_ID",
+    ),
+    "S12_TYPED_BUDGETS": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "S12_TYPED_BUDGETS",
+    ),
+    "S12_VOI_SITES": ("polisyos.runtime.quality.design_axes.resource_economics", "S12_VOI_SITES"),
+    "AllocationPriorityRow": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "AllocationPriorityRow",
+    ),
+    "BudgetKind": ("polisyos.runtime.quality.design_axes.resource_economics", "BudgetKind"),
+    "EnvelopeGrowthEntry": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "EnvelopeGrowthEntry",
+    ),
+    "EnvelopeGrowthLedger": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "EnvelopeGrowthLedger",
+    ),
+    "ExploreExploitPosture": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ExploreExploitPosture",
+    ),
+    "GrowthCountingDisposition": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "GrowthCountingDisposition",
+    ),
+    "GrowthThermometerRecord": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "GrowthThermometerRecord",
+    ),
+    "KnowledgeGovernanceMode": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "KnowledgeGovernanceMode",
+    ),
+    "KnowledgeGovernanceThroughputLedger": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "KnowledgeGovernanceThroughputLedger",
+    ),
+    "ResourceAllocationPolicy": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ResourceAllocationPolicy",
+    ),
+    "ResourceAuthorityDisposition": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ResourceAuthorityDisposition",
+    ),
+    "ResourceEconomicsAuthorityEnvelope": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ResourceEconomicsAuthorityEnvelope",
+    ),
+    "ResourceEconomicsIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ResourceEconomicsIntegrityReport",
+    ),
+    "S12ResourceReferenceResolution": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "S12ResourceReferenceResolution",
+    ),
+    "ThermometerTrend": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ThermometerTrend",
+    ),
+    "ThroughputRow": ("polisyos.runtime.quality.design_axes.resource_economics", "ThroughputRow"),
+    "TypedBudgetRow": ("polisyos.runtime.quality.design_axes.resource_economics", "TypedBudgetRow"),
+    "ValueOfInformationAllocation": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "ValueOfInformationAllocation",
+    ),
+    "VoiAllocationRow": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "VoiAllocationRow",
+    ),
+    "VoiSite": ("polisyos.runtime.quality.design_axes.resource_economics", "VoiSite"),
+    "allocate_value_of_information": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "allocate_value_of_information",
+    ),
+    "build_envelope_growth_ledger": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_envelope_growth_ledger",
+    ),
+    "build_growth_thermometers": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_growth_thermometers",
+    ),
+    "build_knowledge_governance_throughput_ledger": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_knowledge_governance_throughput_ledger",
+    ),
+    "build_resource_allocation_policy": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_resource_allocation_policy",
+    ),
+    "build_s12_resource_authority_boundary": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_s12_resource_authority_boundary",
+    ),
+    "build_s12_resource_economics_posture": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "build_s12_resource_economics_posture",
+    ),
+    "resolve_s12_resource_refs": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "resolve_s12_resource_refs",
+    ),
+    "summarize_resource_economics_integrity": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "summarize_resource_economics_integrity",
+    ),
+    "verify_resource_authority_envelope": (
+        "polisyos.runtime.quality.design_axes.resource_economics",
+        "verify_resource_authority_envelope",
+    ),
+    "LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION",
+    ),
+    "AcquisitionState": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "AcquisitionState",
+    ),
+    "AcquisitionTaskRecord": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "AcquisitionTaskRecord",
+    ),
+    "ConstructDemandLedger": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "ConstructDemandLedger",
+    ),
+    "ConstructExpression": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "ConstructExpression",
+    ),
+    "FrozenClosedCase": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "FrozenClosedCase",
+    ),
+    "RerunClosureReceipt": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "RerunClosureReceipt",
+    ),
+    "SourceContract": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "SourceContract",
+    ),
+    "SourceDiscoveryCandidate": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "SourceDiscoveryCandidate",
+    ),
+    "SubstrateAcquisitionLoop": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "SubstrateAcquisitionLoop",
+    ),
+    "SubstrateCoverageSnapshot": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "SubstrateCoverageSnapshot",
+    ),
+    "is_production_claim_admissible": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "is_production_claim_admissible",
+    ),
+    "max_admissible_posture": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "max_admissible_posture",
+    ),
+    "resolve_expression": (
+        "polisyos.runtime.quality.design_axes.substrate_acquisition",
+        "resolve_expression",
+    ),
+    "LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION",
+    ),
+    "LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION",
+    ),
+    "S14_FALSE_CLEAR_FIELDS": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "S14_FALSE_CLEAR_FIELDS",
+    ),
+    "S14_SKEPTIC_DEFEATER_IDS": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "S14_SKEPTIC_DEFEATER_IDS",
+    ),
+    "S14_UNIVERSALITY_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "S14_UNIVERSALITY_FLOOR_ID",
+    ),
+    "D4CorpusTrackCoverage": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "D4CorpusTrackCoverage",
+    ),
+    "D4CorpusTrackRow": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "D4CorpusTrackRow",
+    ),
+    "EnvelopeRevisionDynamicsRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "EnvelopeRevisionDynamicsRecord",
+    ),
+    "EvaluationStatusCompositionRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "EvaluationStatusCompositionRecord",
+    ),
+    "EvaluationStatusCompositionRow": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "EvaluationStatusCompositionRow",
+    ),
+    "ExpertOracleBootstrapRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "ExpertOracleBootstrapRecord",
+    ),
+    "ExpertOracleLayerRow": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "ExpertOracleLayerRow",
+    ),
+    "GroundedAuthorityCoverageRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "GroundedAuthorityCoverageRecord",
+    ),
+    "MechanismGeneralityReport": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "MechanismGeneralityReport",
+    ),
+    "SealedUniversalityBatteryRun": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "SealedUniversalityBatteryRun",
+    ),
+    "SkepticDefeaterRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "SkepticDefeaterRecord",
+    ),
+    "UniversalityAssuranceSummary": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityAssuranceSummary",
+    ),
+    "UniversalityAxisScorecard": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityAxisScorecard",
+    ),
+    "UniversalityAxisScoreRow": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityAxisScoreRow",
+    ),
+    "UniversalityBaselineComparison": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityBaselineComparison",
+    ),
+    "UniversalityBaselineRow": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityBaselineRow",
+    ),
+    "UniversalityBreadthFloorConfig": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityBreadthFloorConfig",
+    ),
+    "UniversalityClaimAssuranceCase": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityClaimAssuranceCase",
+    ),
+    "UniversalityClaimGateRecord": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "UniversalityClaimGateRecord",
+    ),
+    "build_d4_corpus_track_coverage": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_d4_corpus_track_coverage",
+    ),
+    "build_envelope_revision_dynamics_record": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_envelope_revision_dynamics_record",
+    ),
+    "build_evaluation_status_composition_record": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_evaluation_status_composition_record",
+    ),
+    "build_expert_oracle_bootstrap_record": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_expert_oracle_bootstrap_record",
+    ),
+    "build_grounded_authority_coverage_record": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_grounded_authority_coverage_record",
+    ),
+    "build_mechanism_generality_report": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_mechanism_generality_report",
+    ),
+    "build_s14_cae_scorecard": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_s14_cae_scorecard",
+    ),
+    "build_s14_capability_reality_axis_rows": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_s14_capability_reality_axis_rows",
+    ),
+    "build_s14_mechanism_generality_from_growth_thermometer": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_s14_mechanism_generality_from_growth_thermometer",
+    ),
+    "build_s14_universality_assurance_projection": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_s14_universality_assurance_projection",
+    ),
+    "build_s14_universality_authority_boundary": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_s14_universality_authority_boundary",
+    ),
+    "build_skeptic_defeater_records": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_skeptic_defeater_records",
+    ),
+    "build_universality_axis_scorecard": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_universality_axis_scorecard",
+    ),
+    "build_universality_baseline_comparison": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_universality_baseline_comparison",
+    ),
+    "build_universality_breadth_floor_config": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_universality_breadth_floor_config",
+    ),
+    "build_universality_claim_assurance_case": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "build_universality_claim_assurance_case",
+    ),
+    "compute_sealed_battery_freeze_hash": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "compute_sealed_battery_freeze_hash",
+    ),
+    "gate_universality_claim": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "gate_universality_claim",
+    ),
+    "project_cae_defeaters_to_s14_skeptic_records": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "project_cae_defeaters_to_s14_skeptic_records",
+    ),
+    "summarize_universality_assurance": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "summarize_universality_assurance",
+    ),
+    "verify_sealed_battery_integrity": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "verify_sealed_battery_integrity",
+    ),
+    "verify_universality_claim_authority": (
+        "polisyos.runtime.quality.design_axes.universality_assurance",
+        "verify_universality_claim_authority",
+    ),
+    "LAYER2_S8_VALUE_CHOICE_RULE_VERSION": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "LAYER2_S8_VALUE_CHOICE_RULE_VERSION",
+    ),
+    "LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION",
+    ),
+    "S8_VALUE_CHOICE_CELL_REF": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "S8_VALUE_CHOICE_CELL_REF",
+    ),
+    "S8_VALUE_CHOICE_FLOOR_ID": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "S8_VALUE_CHOICE_FLOOR_ID",
+    ),
+    "AuthorizedValueSchedule": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "AuthorizedValueSchedule",
+    ),
+    "DelegationReferenceClass": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "DelegationReferenceClass",
+    ),
+    "FirewallStatus": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "FirewallStatus",
+    ),
+    "ObjectiveFunctionProvenanceRecord": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ObjectiveFunctionProvenanceRecord",
+    ),
+    "P20NormativeChoiceError": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "P20NormativeChoiceError",
+    ),
+    "ParetoArchive": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ParetoArchive",
+    ),
+    "RankingMode": ("polisyos.runtime.quality.design_axes.value_choice_provenance", "RankingMode"),
+    "ValueChoiceIntegrityReport": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueChoiceIntegrityReport",
+    ),
+    "ValueChoiceProvenanceRecord": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueChoiceProvenanceRecord",
+    ),
+    "ValueDisposition": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueDisposition",
+    ),
+    "ValueScheduleReviewStatus": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueScheduleReviewStatus",
+    ),
+    "ValueSourceClass": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueSourceClass",
+    ),
+    "ValueTradeoffDisclosureRecord": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "ValueTradeoffDisclosureRecord",
+    ),
+    "build_authorized_value_schedule": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "build_authorized_value_schedule",
+    ),
+    "build_objective_function_provenance": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "build_objective_function_provenance",
+    ),
+    "build_pareto_archive": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "build_pareto_archive",
+    ),
+    "build_shadow_scenario_value_schedule": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "build_shadow_scenario_value_schedule",
+    ),
+    "build_value_choice_provenance_record": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "build_value_choice_provenance_record",
+    ),
+    "coerce_social_weight_provenance_for_s8": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "coerce_social_weight_provenance_for_s8",
+    ),
+    "persist_value_choice_provenance_bundle": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "persist_value_choice_provenance_bundle",
+    ),
+    "project_value_tradeoff_disclosure": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "project_value_tradeoff_disclosure",
+    ),
+    "s8_value_provenance_integrity": (
+        "polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "s8_value_provenance_integrity",
+    ),
+    "DESIGN_PROBLEM_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.design_problem",
+        "DESIGN_PROBLEM_SCHEMA_VERSION",
+    ),
+    "AuthorityProfile": ("polisyos.runtime.quality.design_problem", "AuthorityProfile"),
+    "CandidateLever": ("polisyos.runtime.quality.design_problem", "CandidateLever"),
+    "CandidateLeverSpace": ("polisyos.runtime.quality.design_problem", "CandidateLeverSpace"),
+    "DesignConstraint": ("polisyos.runtime.quality.design_problem", "DesignConstraint"),
+    "DesignObjective": ("polisyos.runtime.quality.design_problem", "DesignObjective"),
+    "DesignProblem": ("polisyos.runtime.quality.design_problem", "DesignProblem"),
+    "DesignProblemAuthorityError": (
+        "polisyos.runtime.quality.design_problem",
+        "DesignProblemAuthorityError",
+    ),
+    "DesignStakeholder": ("polisyos.runtime.quality.design_problem", "DesignStakeholder"),
+    "EvidenceAcquisitionNeeds": (
+        "polisyos.runtime.quality.design_problem",
+        "EvidenceAcquisitionNeeds",
+    ),
+    "EvidenceNeed": ("polisyos.runtime.quality.design_problem", "EvidenceNeed"),
+    "JurisdictionTimeSemantics": (
+        "polisyos.runtime.quality.design_problem",
+        "JurisdictionTimeSemantics",
+    ),
+    "NLProvenance": ("polisyos.runtime.quality.design_problem", "NLProvenance"),
+    "OutcomeOfInterest": ("polisyos.runtime.quality.design_problem", "OutcomeOfInterest"),
+    "build_diagnostic_slo_report": (
+        "polisyos.runtime.quality.diagnostic_slos",
+        "build_diagnostic_slo_report",
+    ),
+    "build_diagnostic_slo_report_from_quality_context": (
+        "polisyos.runtime.quality.diagnostic_slos",
+        "build_diagnostic_slo_report_from_quality_context",
+    ),
+    "default_diagnostic_slo_targets": (
+        "polisyos.runtime.quality.diagnostic_slos",
+        "default_diagnostic_slo_targets",
+    ),
+    "diagnostic_slo_gates": ("polisyos.runtime.quality.diagnostic_slos", "diagnostic_slo_gates"),
+    "DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID": (
+        "polisyos.runtime.quality.disconfirming_evidence",
+        "DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID",
+    ),
+    "DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.disconfirming_evidence",
+        "DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION",
+    ),
+    "DisconfirmingEvidenceLedgerError": (
+        "polisyos.runtime.quality.disconfirming_evidence",
+        "DisconfirmingEvidenceLedgerError",
+    ),
+    "build_disconfirming_evidence_ledger": (
+        "polisyos.runtime.quality.disconfirming_evidence",
+        "build_disconfirming_evidence_ledger",
+    ),
+    "validate_disconfirming_evidence_ledger_record": (
+        "polisyos.runtime.quality.disconfirming_evidence",
+        "validate_disconfirming_evidence_ledger_record",
+    ),
+    "EffectiveModeLedger": ("polisyos.runtime.quality.effective_mode", "EffectiveModeLedger"),
+    "ModePolicyError": ("polisyos.runtime.quality.effective_mode", "ModePolicyError"),
+    "ModePolicyViolation": ("polisyos.runtime.quality.effective_mode", "ModePolicyViolation"),
+    "assert_serious_mode_allowed": (
+        "polisyos.runtime.quality.effective_mode",
+        "assert_serious_mode_allowed",
+    ),
+    "explain_mode_mismatch": ("polisyos.runtime.quality.effective_mode", "explain_mode_mismatch"),
+    "mode_policy_failure_code": (
+        "polisyos.runtime.quality.effective_mode",
+        "mode_policy_failure_code",
+    ),
+    "resolve_evaluation_mode": (
+        "polisyos.runtime.quality.evaluation_modes",
+        "resolve_evaluation_mode",
+    ),
+    "EvalSafetyAdmissionChallenge": (
+        "polisyos.runtime.quality.evaluation_safety",
+        "EvalSafetyAdmissionChallenge",
+    ),
+    "EvalSafetyVerifierPort": (
+        "polisyos.runtime.quality.evaluation_safety",
+        "EvalSafetyVerifierPort",
+    ),
+    "EvaluationExecutionContext": (
+        "polisyos.runtime.quality.evaluation_safety",
+        "EvaluationExecutionContext",
+    ),
+    "evaluation_safety_consumer_admission_is_verified": (
+        "polisyos.runtime.quality.evaluation_safety",
+        "evaluation_safety_consumer_admission_is_verified",
+    ),
+    "DiagnosticEventPayloadPolicy": (
+        "polisyos.runtime.quality.event_log",
+        "DiagnosticEventPayloadPolicy",
+    ),
+    "RuntimeDiagnosticEventLog": (
+        "polisyos.runtime.quality.event_log",
+        "RuntimeDiagnosticEventLog",
+    ),
+    "GRADED_INDEPENDENCE_FEATURE_FLAG": (
+        "polisyos.runtime.quality.evidence_independence",
+        "GRADED_INDEPENDENCE_FEATURE_FLAG",
+    ),
+    "INDEPENDENCE_MAP_CONTRACT_ID": (
+        "polisyos.runtime.quality.evidence_independence",
+        "INDEPENDENCE_MAP_CONTRACT_ID",
+    ),
+    "INDEPENDENCE_MAP_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.evidence_independence",
+        "INDEPENDENCE_MAP_SCHEMA_VERSION",
+    ),
+    "CapabilityIndependenceFactor": (
+        "polisyos.runtime.quality.evidence_independence",
+        "CapabilityIndependenceFactor",
+    ),
+    "EvidenceIndependenceError": (
+        "polisyos.runtime.quality.evidence_independence",
+        "EvidenceIndependenceError",
+    ),
+    "build_evidence_independence_map": (
+        "polisyos.runtime.quality.evidence_independence",
+        "build_evidence_independence_map",
+    ),
+    "effective_independence_factor_for_capability": (
+        "polisyos.runtime.quality.evidence_independence",
+        "effective_independence_factor_for_capability",
+    ),
+    "validate_evidence_independence_map_record": (
+        "polisyos.runtime.quality.evidence_independence",
+        "validate_evidence_independence_map_record",
+    ),
+    "EVIDENCE_LINE_CONTRACT_ID": (
+        "polisyos.runtime.quality.evidence_line",
+        "EVIDENCE_LINE_CONTRACT_ID",
+    ),
+    "EVIDENCE_LINE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.evidence_line",
+        "EVIDENCE_LINE_SCHEMA_VERSION",
+    ),
+    "SUPPORTED_EVIDENCE_LINE_STRANDS": (
+        "polisyos.runtime.quality.evidence_line",
+        "SUPPORTED_EVIDENCE_LINE_STRANDS",
+    ),
+    "EvidenceLineError": ("polisyos.runtime.quality.evidence_line", "EvidenceLineError"),
+    "evidence_line_record_id": (
+        "polisyos.runtime.quality.evidence_line",
+        "evidence_line_record_id",
+    ),
+    "validate_evidence_line_record": (
+        "polisyos.runtime.quality.evidence_line",
+        "validate_evidence_line_record",
+    ),
+    "validate_evidence_line_records": (
+        "polisyos.runtime.quality.evidence_line",
+        "validate_evidence_line_records",
+    ),
+    "EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID",
+    ),
+    "EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION",
+    ),
+    "EvidenceSynthesisReportError": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "EvidenceSynthesisReportError",
+    ),
+    "build_evidence_synthesis_report": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "build_evidence_synthesis_report",
+    ),
+    "evidence_synthesis_refs_by_claim": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "evidence_synthesis_refs_by_claim",
+    ),
+    "synthesis_report_record_id": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "synthesis_report_record_id",
+    ),
+    "validate_evidence_synthesis_report_record": (
+        "polisyos.runtime.quality.evidence_synthesis",
+        "validate_evidence_synthesis_report_record",
+    ),
+    "build_berl_warrant_reliability_record": (
+        "polisyos.runtime.quality.explanation_reliability",
+        "build_berl_warrant_reliability_record",
+    ),
+    "EXTERNAL_AUDIT_RECORD_FAMILY": (
+        "polisyos.runtime.quality.external_audit",
+        "EXTERNAL_AUDIT_RECORD_FAMILY",
+    ),
+    "EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.external_audit",
+        "EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION",
+    ),
+    "ExternalAuditRecordError": (
+        "polisyos.runtime.quality.external_audit",
+        "ExternalAuditRecordError",
+    ),
+    "build_public_audit_archive_record": (
+        "polisyos.runtime.quality.external_audit",
+        "build_public_audit_archive_record",
+    ),
+    "validate_public_audit_archive_record": (
+        "polisyos.runtime.quality.external_audit",
+        "validate_public_audit_archive_record",
+    ),
+    "CandidateSourceCurrentOccurrence": (
+        "polisyos.runtime.quality.generation_cycle",
+        "CandidateSourceCurrentOccurrence",
+    ),
+    "CandidateSourceCurrentProjection": (
+        "polisyos.runtime.quality.generation_cycle",
+        "CandidateSourceCurrentProjection",
+    ),
+    "RealValueOwnerGateway": ("polisyos.runtime.quality.generation_cycle", "RealValueOwnerGateway"),
+    "ValueOwnerSourceProjectionRequestV1": (
+        "polisyos.runtime.quality.generation_cycle",
+        "ValueOwnerSourceProjectionRequestV1",
+    ),
+    "ValueOwnerSourceVariableProjectionV1": (
+        "polisyos.runtime.quality.generation_cycle",
+        "ValueOwnerSourceVariableProjectionV1",
+    ),
+    "ValueTransportRunReceiptV1": (
+        "polisyos.runtime.quality.generation_cycle",
+        "ValueTransportRunReceiptV1",
+    ),
+    "project_candidate_source_current_occurrences": (
+        "polisyos.runtime.quality.generation_cycle",
+        "project_candidate_source_current_occurrences",
+    ),
+    "S1_GRADED_OUTCOME_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.graded_outcomes",
+        "S1_GRADED_OUTCOME_SCHEMA_VERSION",
+    ),
+    "GradedOutcomeDecision": ("polisyos.runtime.quality.graded_outcomes", "GradedOutcomeDecision"),
+    "GradedOutcomeEvidenceInput": (
+        "polisyos.runtime.quality.graded_outcomes",
+        "GradedOutcomeEvidenceInput",
+    ),
+    "GradedOutcomeInputError": (
+        "polisyos.runtime.quality.graded_outcomes",
+        "GradedOutcomeInputError",
+    ),
+    "compose_graded_outcome": (
+        "polisyos.runtime.quality.graded_outcomes",
+        "compose_graded_outcome",
+    ),
+    "graded_outcome_closeout_record": (
+        "polisyos.runtime.quality.graded_outcomes",
+        "graded_outcome_closeout_record",
+    ),
+    "build_human_review_calibration_report": (
+        "polisyos.runtime.quality.human_review",
+        "build_human_review_calibration_report",
+    ),
+    "deterministic_review_fixtures": (
+        "polisyos.runtime.quality.human_review",
+        "deterministic_review_fixtures",
+    ),
+    "evaluate_review_packet": ("polisyos.runtime.quality.human_review", "evaluate_review_packet"),
+    "human_review_public_export": (
+        "polisyos.runtime.quality.human_review",
+        "human_review_public_export",
+    ),
+    "persist_human_review_calibration_report": (
+        "polisyos.runtime.quality.human_review",
+        "persist_human_review_calibration_report",
+    ),
+    "HYPOTHESIS_LEDGER_FILENAME": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HYPOTHESIS_LEDGER_FILENAME",
+    ),
+    "HYPOTHESIS_LEDGER_KIND": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HYPOTHESIS_LEDGER_KIND",
+    ),
+    "HYPOTHESIS_LEDGER_REF_KEY": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HYPOTHESIS_LEDGER_REF_KEY",
+    ),
+    "HYPOTHESIS_LEDGER_REPORT_KEY": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HYPOTHESIS_LEDGER_REPORT_KEY",
+    ),
+    "HYPOTHESIS_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HYPOTHESIS_LEDGER_SCHEMA_VERSION",
+    ),
+    "CandidateAuthorityEnvelope": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "CandidateAuthorityEnvelope",
+    ),
+    "HypothesisLedger": ("polisyos.runtime.quality.hypothesis_ledger", "HypothesisLedger"),
+    "HypothesisLedgerEntry": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "HypothesisLedgerEntry",
+    ),
+    "build_hypothesis_ledger_from_prompt_tool_ledger": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "build_hypothesis_ledger_from_prompt_tool_ledger",
+    ),
+    "deserialize_hypothesis_ledger": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "deserialize_hypothesis_ledger",
+    ),
+    "persist_hypothesis_ledger": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "persist_hypothesis_ledger",
+    ),
+    "serialize_hypothesis_ledger": (
+        "polisyos.runtime.quality.hypothesis_ledger",
+        "serialize_hypothesis_ledger",
+    ),
+    "IR_ANALYTICS_CLAIM_BRIDGE_KIND": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "IR_ANALYTICS_CLAIM_BRIDGE_KIND",
+    ),
+    "IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY",
+    ),
+    "IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION",
+    ),
+    "IRAnalyticsClaimBinding": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "IRAnalyticsClaimBinding",
+    ),
+    "build_ir_analytics_claim_bridge": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "build_ir_analytics_claim_bridge",
+    ),
+    "ir_analytics_bridge_issues_for_claims": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "ir_analytics_bridge_issues_for_claims",
+    ),
+    "ir_analytics_claim_bindings_by_claim": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "ir_analytics_claim_bindings_by_claim",
+    ),
+    "merge_ir_analytics_binding_into_registry_entry": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "merge_ir_analytics_binding_into_registry_entry",
+    ),
+    "normalize_ir_analytics_claim_bridge": (
+        "polisyos.runtime.quality.ir_analytics_bridge",
+        "normalize_ir_analytics_claim_bridge",
+    ),
+    "LEGACY_MIGRATION_SEMANTIC_LOSS": (
+        "polisyos.runtime.quality.legacy_payload_migration_audit",
+        "LEGACY_MIGRATION_SEMANTIC_LOSS",
+    ),
+    "build_legacy_migration_sandbox": (
+        "polisyos.runtime.quality.legacy_payload_migration_audit",
+        "build_legacy_migration_sandbox",
+    ),
+    "comparison_failure_codes": (
+        "polisyos.runtime.quality.legacy_payload_migration_audit",
+        "comparison_failure_codes",
+    ),
+    "legacy_compatible_payload": (
+        "polisyos.runtime.quality.legacy_payload_migration_audit",
+        "legacy_compatible_payload",
+    ),
+    "persist_legacy_migration_sandbox_report": (
+        "polisyos.runtime.quality.legacy_payload_migration_audit",
+        "persist_legacy_migration_sandbox_report",
+    ),
+    "CLAIM_EVIDENCE_SLOT_KEYS": (
+        "polisyos.runtime.quality.memory_influence",
+        "CLAIM_EVIDENCE_SLOT_KEYS",
+    ),
+    "CORE_FORBIDDEN_CURRENT_USES": (
+        "polisyos.runtime.quality.memory_influence",
+        "CORE_FORBIDDEN_CURRENT_USES",
+    ),
+    "MEMORY_INFLUENCE_ADR_REF": (
+        "polisyos.runtime.quality.memory_influence",
+        "MEMORY_INFLUENCE_ADR_REF",
+    ),
+    "MEMORY_INFLUENCE_RECORD_KIND": (
+        "polisyos.runtime.quality.memory_influence",
+        "MEMORY_INFLUENCE_RECORD_KIND",
+    ),
+    "MEMORY_INFLUENCE_REF_PREFIXES": (
+        "polisyos.runtime.quality.memory_influence",
+        "MEMORY_INFLUENCE_REF_PREFIXES",
+    ),
+    "MEMORY_INFLUENCE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.memory_influence",
+        "MEMORY_INFLUENCE_SCHEMA_VERSION",
+    ),
+    "MemoryInfluenceRecord": ("polisyos.runtime.quality.memory_influence", "MemoryInfluenceRecord"),
+    "assert_memory_influence_not_claim_evidence": (
+        "polisyos.runtime.quality.memory_influence",
+        "assert_memory_influence_not_claim_evidence",
+    ),
+    "build_memory_influence_record": (
+        "polisyos.runtime.quality.memory_influence",
+        "build_memory_influence_record",
+    ),
+    "is_memory_influence_ref": (
+        "polisyos.runtime.quality.memory_influence",
+        "is_memory_influence_ref",
+    ),
+    "memory_influence_claim_evidence_issues": (
+        "polisyos.runtime.quality.memory_influence",
+        "memory_influence_claim_evidence_issues",
+    ),
+    "MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID",
+    ),
+    "MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION",
+    ),
+    "REQUIRED_MULTIVERSE_SOURCE_KINDS": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "REQUIRED_MULTIVERSE_SOURCE_KINDS",
+    ),
+    "MultiverseSpecificationCurveError": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "MultiverseSpecificationCurveError",
+    ),
+    "build_multiverse_specification_curve_record": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "build_multiverse_specification_curve_record",
+    ),
+    "validate_multiverse_specification_curve_record": (
+        "polisyos.runtime.quality.multiverse_specification_curve",
+        "validate_multiverse_specification_curve_record",
+    ),
+    "DORMANT_CAPABILITY_INVENTORY_RECORD_KEY": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "DORMANT_CAPABILITY_INVENTORY_RECORD_KEY",
+    ),
+    "DORMANT_CAPABILITY_INVENTORY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "DORMANT_CAPABILITY_INVENTORY_SCHEMA_VERSION",
+    ),
+    "FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY",
+    ),
+    "FRESHNESS_POLICY_TIME_SEMANTICS_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "FRESHNESS_POLICY_TIME_SEMANTICS_SCHEMA_VERSION",
+    ),
+    "SKIP_CAUSALITY_LEDGER_RECORD_KEY": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "SKIP_CAUSALITY_LEDGER_RECORD_KEY",
+    ),
+    "SKIP_CAUSALITY_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "SKIP_CAUSALITY_LEDGER_SCHEMA_VERSION",
+    ),
+    "PolicyDesignObservabilityStaticAuditIssue": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "PolicyDesignObservabilityStaticAuditIssue",
+    ),
+    "build_dormant_capability_inventory_record": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "build_dormant_capability_inventory_record",
+    ),
+    "build_freshness_policy_time_semantics_record": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "build_freshness_policy_time_semantics_record",
+    ),
+    "build_skip_causality_ledger_record": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "build_skip_causality_ledger_record",
+    ),
+    "validate_observability_orchestration_static_audit_records": (
+        "polisyos.runtime.quality.observability_static_audit",
+        "validate_observability_orchestration_static_audit_records",
+    ),
+    "build_canary_performance_budget": (
+        "polisyos.runtime.quality.performance_budget",
+        "build_canary_performance_budget",
+    ),
+    "run_cost_budget_policy_from_performance_budget": (
+        "polisyos.runtime.quality.performance_budget",
+        "run_cost_budget_policy_from_performance_budget",
+    ),
+    "PhaseBarrierBlocker": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierBlocker"),
+    "PhaseBarrierId": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierId"),
+    "PhaseBarrierLedger": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierLedger"),
+    "PhaseBarrierRecord": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierRecord"),
+    "PhaseBarrierStatus": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierStatus"),
+    "PhaseBarrierViolation": ("polisyos.runtime.quality.phase_barriers", "PhaseBarrierViolation"),
+    "assert_barrier_closed": ("polisyos.runtime.quality.phase_barriers", "assert_barrier_closed"),
+    "assert_barrier_passed": ("polisyos.runtime.quality.phase_barriers", "assert_barrier_passed"),
+    "POLICY_BENCHMARKING_RECORD_CONTRACT_ID": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "POLICY_BENCHMARKING_RECORD_CONTRACT_ID",
+    ),
+    "POLICY_BENCHMARKING_RECORD_FAMILY": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "POLICY_BENCHMARKING_RECORD_FAMILY",
+    ),
+    "POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION",
+    ),
+    "REQUIRED_POLICY_BENCHMARK_METRICS": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "REQUIRED_POLICY_BENCHMARK_METRICS",
+    ),
+    "PolicyBenchmarkingError": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "PolicyBenchmarkingError",
+    ),
+    "PolicyBenchmarkingIssue": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "PolicyBenchmarkingIssue",
+    ),
+    "PolicyBenchmarkingValidationResult": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "PolicyBenchmarkingValidationResult",
+    ),
+    "best_in_class_benchmarking_record_id": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "best_in_class_benchmarking_record_id",
+    ),
+    "validate_policy_benchmarking_record": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "validate_policy_benchmarking_record",
+    ),
+    "validate_policy_design_best_in_class_benchmarking_records": (
+        "polisyos.runtime.quality.policy_benchmarking",
+        "validate_policy_design_best_in_class_benchmarking_records",
+    ),
+    "POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES": (
+        "polisyos.runtime.quality.policy_design_case",
+        "POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES",
+    ),
+    "RECORD_REGISTRY_READINESS_CHECK": (
+        "polisyos.runtime.quality.policy_design_case",
+        "RECORD_REGISTRY_READINESS_CHECK",
+    ),
+    "RECORD_REGISTRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.policy_design_case",
+        "RECORD_REGISTRY_SCHEMA_VERSION",
+    ),
+    "PolicyDesignCaseRecordApplicability": (
+        "polisyos.runtime.quality.policy_design_case",
+        "PolicyDesignCaseRecordApplicability",
+    ),
+    "PolicyDesignCaseRecordFamily": (
+        "polisyos.runtime.quality.policy_design_case",
+        "PolicyDesignCaseRecordFamily",
+    ),
+    "PolicyDesignCaseRecordRegistryIssue": (
+        "polisyos.runtime.quality.policy_design_case",
+        "PolicyDesignCaseRecordRegistryIssue",
+    ),
+    "PolicyDesignCaseRecordRegistryValidationResult": (
+        "polisyos.runtime.quality.policy_design_case",
+        "PolicyDesignCaseRecordRegistryValidationResult",
+    ),
+    "build_policy_design_case_record_registry_report": (
+        "polisyos.runtime.quality.policy_design_case",
+        "build_policy_design_case_record_registry_report",
+    ),
+    "policy_design_case_record_registry_payload": (
+        "polisyos.runtime.quality.policy_design_case",
+        "policy_design_case_record_registry_payload",
+    ),
+    "policy_design_case_record_registry_scorecard_gates": (
+        "polisyos.runtime.quality.policy_design_case",
+        "policy_design_case_record_registry_scorecard_gates",
+    ),
+    "validate_policy_design_case_record_registry_payload": (
+        "polisyos.runtime.quality.policy_design_case",
+        "validate_policy_design_case_record_registry_payload",
+    ),
+    "WAVE2_I2_MANIFEST_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.policy_design_case_integration_skeleton",
+        "WAVE2_I2_MANIFEST_SCHEMA_VERSION",
+    ),
+    "WAVE2_I2_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.policy_design_case_integration_skeleton",
+        "WAVE2_I2_SCHEMA_VERSION",
+    ),
+    "build_wave2_policy_design_case_walking_skeleton": (
+        "polisyos.runtime.quality.policy_design_case_integration_skeleton",
+        "build_wave2_policy_design_case_walking_skeleton",
+    ),
+    "persist_wave2_policy_design_case_walking_skeleton": (
+        "polisyos.runtime.quality.policy_design_case_integration_skeleton",
+        "persist_wave2_policy_design_case_walking_skeleton",
+    ),
+    "PRODUCER_PIPELINE_FEATURE_FLAG": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "PRODUCER_PIPELINE_FEATURE_FLAG",
+    ),
+    "PRODUCER_PIPELINE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "PRODUCER_PIPELINE_SCHEMA_VERSION",
+    ),
+    "ProducerPipelineBinding": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "ProducerPipelineBinding",
+    ),
+    "ProducerPipelineProducer": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "ProducerPipelineProducer",
+    ),
+    "build_producer_pipeline_quality_evidence_surfaces": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "build_producer_pipeline_quality_evidence_surfaces",
+    ),
+    "merge_producer_pipeline_quality_evidence_surfaces": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "merge_producer_pipeline_quality_evidence_surfaces",
+    ),
+    "run_eight_stage_producer_pipeline": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "run_eight_stage_producer_pipeline",
+    ),
+    "run_requirement_spec_producer_pipeline": (
+        "polisyos.runtime.quality.producer_pipeline",
+        "run_requirement_spec_producer_pipeline",
+    ),
+    "POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.projection_semantics",
+        "POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION",
+    ),
+    "PROJECTION_STATES": ("polisyos.runtime.quality.projection_semantics", "PROJECTION_STATES"),
+    "PolicyDesignCaseProjectionError": (
+        "polisyos.runtime.quality.projection_semantics",
+        "PolicyDesignCaseProjectionError",
+    ),
+    "assert_policy_design_projection_not_authority": (
+        "polisyos.runtime.quality.projection_semantics",
+        "assert_policy_design_projection_not_authority",
+    ),
+    "build_policy_design_case_projection_contract_fixture": (
+        "polisyos.runtime.quality.projection_semantics",
+        "build_policy_design_case_projection_contract_fixture",
+    ),
+    "build_policy_design_case_projection_semantics": (
+        "polisyos.runtime.quality.projection_semantics",
+        "build_policy_design_case_projection_semantics",
+    ),
+    "verify_policy_design_case_projection_consumer_contract": (
+        "polisyos.runtime.quality.projection_semantics",
+        "verify_policy_design_case_projection_consumer_contract",
+    ),
+    "verify_s9_projection_faithfulness_for_pdc_consumer_contract": (
+        "polisyos.runtime.quality.projection_semantics",
+        "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
+    ),
+    "verify_s10_forecast_projection_consumer_contract": (
+        "polisyos.runtime.quality.projection_semantics",
+        "verify_s10_forecast_projection_consumer_contract",
+    ),
+    "PromptToolParserAuthorityLedger": (
+        "polisyos.runtime.quality.prompt_tool_ledger",
+        "PromptToolParserAuthorityLedger",
+    ),
+    "PromptToolParserAuthorityValidation": (
+        "polisyos.runtime.quality.prompt_tool_ledger",
+        "PromptToolParserAuthorityValidation",
+    ),
+    "persist_prompt_tool_ledger": (
+        "polisyos.runtime.quality.prompt_tool_ledger",
+        "persist_prompt_tool_ledger",
+    ),
+    "validate_prompt_tool_parser_authority": (
+        "polisyos.runtime.quality.prompt_tool_ledger",
+        "validate_prompt_tool_parser_authority",
+    ),
+    "PublicExportRedactionError": (
+        "polisyos.runtime.quality.public_export",
+        "PublicExportRedactionError",
+    ),
+    "assert_public_export_official_use_limits": (
+        "polisyos.runtime.quality.public_export",
+        "assert_public_export_official_use_limits",
+    ),
+    "build_public_export_bundle": (
+        "polisyos.runtime.quality.public_export",
+        "build_public_export_bundle",
+    ),
+    "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS": (
+        "polisyos.runtime.quality.replay",
+        "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS",
+    ),
+    "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.replay",
+        "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION",
+    ),
+    "build_replay_manifest": ("polisyos.runtime.quality.replay", "build_replay_manifest"),
+    "explain_replay_drift": ("polisyos.runtime.quality.replay", "explain_replay_drift"),
+    "persist_drift_explanation": ("polisyos.runtime.quality.replay", "persist_drift_explanation"),
+    "persist_replay_manifest": ("polisyos.runtime.quality.replay", "persist_replay_manifest"),
+    "validate_policy_evidence_capability_replay_refs": (
+        "polisyos.runtime.quality.replay",
+        "validate_policy_evidence_capability_replay_refs",
+    ),
+    "RULE_EVOLUTION_CONTRACT_ID": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_CONTRACT_ID",
+    ),
+    "RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION",
+    ),
+    "RULE_EVOLUTION_RECORD_FAMILY": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_RECORD_FAMILY",
+    ),
+    "RULE_EVOLUTION_REGISTRY_KIND": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_REGISTRY_KIND",
+    ),
+    "RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION",
+    ),
+    "RULE_EVOLUTION_REPLAY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_evolution",
+        "RULE_EVOLUTION_REPLAY_SCHEMA_VERSION",
+    ),
+    "build_rule_evolution_registry": (
+        "polisyos.runtime.quality.rule_evolution",
+        "build_rule_evolution_registry",
+    ),
+    "build_rule_evolution_replay_context": (
+        "polisyos.runtime.quality.rule_evolution",
+        "build_rule_evolution_replay_context",
+    ),
+    "logic_hash_for_rule": ("polisyos.runtime.quality.rule_evolution", "logic_hash_for_rule"),
+    "persist_rule_evolution_registry": (
+        "polisyos.runtime.quality.rule_evolution",
+        "persist_rule_evolution_registry",
+    ),
+    "public_rule_evolution_annotation": (
+        "polisyos.runtime.quality.rule_evolution",
+        "public_rule_evolution_annotation",
+    ),
+    "C33_RULE_CHANGE_CLASS_TABLE": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "C33_RULE_CHANGE_CLASS_TABLE",
+    ),
+    "RULE_REPLAY_COMPARISON_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "RULE_REPLAY_COMPARISON_SCHEMA_VERSION",
+    ),
+    "RULE_REPLAY_EXECUTION_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "RULE_REPLAY_EXECUTION_SCHEMA_VERSION",
+    ),
+    "RULE_REPLAY_PUBLIC_REPORT_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "RULE_REPLAY_PUBLIC_REPORT_SCHEMA_VERSION",
+    ),
+    "build_rule_replay_comparison_report": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "build_rule_replay_comparison_report",
+    ),
+    "persist_rule_replay_comparison_report": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "persist_rule_replay_comparison_report",
+    ),
+    "replay_under_new_rules": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "replay_under_new_rules",
+    ),
+    "replay_under_original_rules": (
+        "polisyos.runtime.quality.rule_replay_engine",
+        "replay_under_original_rules",
+    ),
+    "HIGH_COST_LOW_IMPACT_COST_USD": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "HIGH_COST_LOW_IMPACT_COST_USD",
+    ),
+    "HIGH_COST_LOW_IMPACT_ELAPSED_SECONDS": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "HIGH_COST_LOW_IMPACT_ELAPSED_SECONDS",
+    ),
+    "HIGH_COST_LOW_IMPACT_REVIEW_HOURS": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "HIGH_COST_LOW_IMPACT_REVIEW_HOURS",
+    ),
+    "RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID",
+    ),
+    "RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION",
+    ),
+    "RunCostProportionalityError": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "RunCostProportionalityError",
+    ),
+    "build_run_cost_proportionality_ledger_from_quality_context": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "build_run_cost_proportionality_ledger_from_quality_context",
+    ),
+    "run_cost_ledger_record_id": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "run_cost_ledger_record_id",
+    ),
+    "validate_run_cost_proportionality_blocker": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "validate_run_cost_proportionality_blocker",
+    ),
+    "validate_run_cost_proportionality_ledger": (
+        "polisyos.runtime.quality.run_cost_proportionality",
+        "validate_run_cost_proportionality_ledger",
+    ),
+    "RunIntentBinding": ("polisyos.runtime.quality.run_state", "RunIntentBinding"),
+    "RunState": ("polisyos.runtime.quality.run_state", "RunState"),
+    "RunStateMachine": ("polisyos.runtime.quality.run_state", "RunStateMachine"),
+    "RunStateSnapshot": ("polisyos.runtime.quality.run_state", "RunStateSnapshot"),
+    "RunStateTransitionError": ("polisyos.runtime.quality.run_state", "RunStateTransitionError"),
+    "assert_approval_readiness_projection_allowed": (
+        "polisyos.runtime.quality.run_state",
+        "assert_approval_readiness_projection_allowed",
+    ),
+    "assert_canary_bundle_closeout_allowed": (
+        "polisyos.runtime.quality.run_state",
+        "assert_canary_bundle_closeout_allowed",
+    ),
+    "assert_final_decision_artifact_allowed": (
+        "polisyos.runtime.quality.run_state",
+        "assert_final_decision_artifact_allowed",
+    ),
+    "assert_public_artifact_allowed": (
+        "polisyos.runtime.quality.run_state",
+        "assert_public_artifact_allowed",
+    ),
+    "evaluate_schema_compatibility": (
+        "polisyos.runtime.quality.schema_compat",
+        "evaluate_schema_compatibility",
+    ),
+    "reader_schema_ranges": ("polisyos.runtime.quality.schema_compat", "reader_schema_ranges"),
+    "build_quality_scorecard": ("polisyos.runtime.quality.scorecard", "build_quality_scorecard"),
+    "normalize_quality_evidence": (
+        "polisyos.runtime.quality.scorecard",
+        "normalize_quality_evidence",
+    ),
+    "PRODUCER_SPINE_CONSUMER_COMPONENTS": (
+        "polisyos.runtime.quality.semantic_binding",
+        "PRODUCER_SPINE_CONSUMER_COMPONENTS",
+    ),
+    "PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.semantic_binding",
+        "PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION",
+    ),
+    "SEMANTIC_BINDING_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.semantic_binding",
+        "SEMANTIC_BINDING_SCHEMA_VERSION",
+    ),
+    "ClaimBindingRecord": ("polisyos.runtime.quality.semantic_binding", "ClaimBindingRecord"),
+    "ColumnBinding": ("polisyos.runtime.quality.semantic_binding", "ColumnBinding"),
+    "CoverageBinding": ("polisyos.runtime.quality.semantic_binding", "CoverageBinding"),
+    "DerivedFeatureBinding": ("polisyos.runtime.quality.semantic_binding", "DerivedFeatureBinding"),
+    "FabricBindingRecord": ("polisyos.runtime.quality.semantic_binding", "FabricBindingRecord"),
+    "FoundryBindingRecord": ("polisyos.runtime.quality.semantic_binding", "FoundryBindingRecord"),
+    "IntentBindingRecord": ("polisyos.runtime.quality.semantic_binding", "IntentBindingRecord"),
+    "LexBindingRecord": ("polisyos.runtime.quality.semantic_binding", "LexBindingRecord"),
+    "MetricBinding": ("polisyos.runtime.quality.semantic_binding", "MetricBinding"),
+    "ProducerSpineReadContext": (
+        "polisyos.runtime.quality.semantic_binding",
+        "ProducerSpineReadContext",
+    ),
+    "ScholarBindingRecord": ("polisyos.runtime.quality.semantic_binding", "ScholarBindingRecord"),
+    "SemanticBindingEvaluation": (
+        "polisyos.runtime.quality.semantic_binding",
+        "SemanticBindingEvaluation",
+    ),
+    "SemanticBindingIssue": ("polisyos.runtime.quality.semantic_binding", "SemanticBindingIssue"),
+    "SemanticBindingLedger": ("polisyos.runtime.quality.semantic_binding", "SemanticBindingLedger"),
+    "SourceFacetBinding": ("polisyos.runtime.quality.semantic_binding", "SourceFacetBinding"),
+    "authority_envelopes_missing_semantic_binding_ref": (
+        "polisyos.runtime.quality.semantic_binding",
+        "authority_envelopes_missing_semantic_binding_ref",
+    ),
+    "build_producer_spine_read_context": (
+        "polisyos.runtime.quality.semantic_binding",
+        "build_producer_spine_read_context",
+    ),
+    "build_semantic_binding_ledger": (
+        "polisyos.runtime.quality.semantic_binding",
+        "build_semantic_binding_ledger",
+    ),
+    "deserialize_semantic_binding_ledger": (
+        "polisyos.runtime.quality.semantic_binding",
+        "deserialize_semantic_binding_ledger",
+    ),
+    "evaluate_semantic_binding_ledger": (
+        "polisyos.runtime.quality.semantic_binding",
+        "evaluate_semantic_binding_ledger",
+    ),
+    "producer_spine_read_context_for": (
+        "polisyos.runtime.quality.semantic_binding",
+        "producer_spine_read_context_for",
+    ),
+    "SEMANTIC_EVALUATION_PACK_CONTRACT_ID": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "SEMANTIC_EVALUATION_PACK_CONTRACT_ID",
+    ),
+    "SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION",
+    ),
+    "SEMANTIC_GOLD_CARD_CONTRACT_ID": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "SEMANTIC_GOLD_CARD_CONTRACT_ID",
+    ),
+    "SEMANTIC_GOLD_CARD_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "SEMANTIC_GOLD_CARD_SCHEMA_VERSION",
+    ),
+    "PolicyDesignCaseSemanticEvaluationPack": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "PolicyDesignCaseSemanticEvaluationPack",
+    ),
+    "PolicyDesignCaseSemanticGoldCardFixture": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "PolicyDesignCaseSemanticGoldCardFixture",
+    ),
+    "evaluate_semantic_evaluation_pack": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "evaluate_semantic_evaluation_pack",
+    ),
+    "evaluate_semantic_gold_card_fixture": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "evaluate_semantic_gold_card_fixture",
+    ),
+    "semantic_evaluation_pack_json_schema": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "semantic_evaluation_pack_json_schema",
+    ),
+    "semantic_gold_card_json_schema": (
+        "polisyos.runtime.quality.semantic_fixtures",
+        "semantic_gold_card_json_schema",
+    ),
+    "skip_blocker_gate_from_payloads": (
+        "polisyos.runtime.quality.skip_blockers",
+        "skip_blocker_gate_from_payloads",
+    ),
+    "DEFAULT_SOFT_GATE_ESCALATION_SECONDS": (
+        "polisyos.runtime.quality.soft_gate_telemetry",
+        "DEFAULT_SOFT_GATE_ESCALATION_SECONDS",
+    ),
+    "DEFAULT_SOFT_GATE_TTL_SECONDS": (
+        "polisyos.runtime.quality.soft_gate_telemetry",
+        "DEFAULT_SOFT_GATE_TTL_SECONDS",
+    ),
+    "SOFT_GATE_TELEMETRY_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.soft_gate_telemetry",
+        "SOFT_GATE_TELEMETRY_SCHEMA_VERSION",
+    ),
+    "build_soft_gate_telemetry_report": (
+        "polisyos.runtime.quality.soft_gate_telemetry",
+        "build_soft_gate_telemetry_report",
+    ),
+    "warning_lifecycle_summaries": (
+        "polisyos.runtime.quality.soft_gate_telemetry",
+        "warning_lifecycle_summaries",
+    ),
+    "PASS1B_HARDENING_READINESS_CHECK": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_HARDENING_READINESS_CHECK",
+    ),
+    "PASS1B_HARDENING_SCORECARD_GATE": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_HARDENING_SCORECARD_GATE",
+    ),
+    "PASS1B_PDD_REQUIRED_SURFACES": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_PDD_REQUIRED_SURFACES",
+    ),
+    "PASS1B_REQUIRED_CASE_BINDING_FIELDS": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_REQUIRED_CASE_BINDING_FIELDS",
+    ),
+    "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID",
+    ),
+    "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS",
+    ),
+    "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY",
+    ),
+    "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION",
+    ),
+    "PolicyDesignPass1BHardeningError": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PolicyDesignPass1BHardeningError",
+    ),
+    "PolicyDesignPass1BHardeningIssue": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "PolicyDesignPass1BHardeningIssue",
+    ),
+    "build_pass1b_tenant_cas_approval_governance_record": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "build_pass1b_tenant_cas_approval_governance_record",
+    ),
+    "pass1b_tenant_cas_approval_governance_issues": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "pass1b_tenant_cas_approval_governance_issues",
+    ),
+    "policy_design_pass1b_hardening_scorecard_gates": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "policy_design_pass1b_hardening_scorecard_gates",
+    ),
+    "validate_pass1b_tenant_cas_approval_governance_record": (
+        "polisyos.runtime.quality.tenant_cas_approval_governance",
+        "validate_pass1b_tenant_cas_approval_governance_record",
+    ),
+    "WorldModelRecord": ("polisyos.runtime.quality.world_model_record", "WorldModelRecord"),
+    "world_model_record_content_hash": (
+        "polisyos.runtime.quality.world_model_record",
+        "world_model_record_content_hash",
+    ),
+}
+
+
+def __getattr__(name: str) -> object:
+    """Resolve and cache one historical export or direct owner module.
+
+    Args:
+        name: Historical package export or direct owner module name.
+
+    Returns:
+        The exact object returned by its defining module.
+
+    Raises:
+        AttributeError: If the package has no declared route for ``name``.
+        ImportError: If the requested owner cannot be imported. Owner failures
+            propagate unchanged and are not cached as successful exports.
+    """
+    if name in _LAZY_IMPORTS:
+        module_name, attr_name = _LAZY_IMPORTS[name]
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr_name)
+        globals()[name] = value
+        return value
+    if name in _SUBMODULES:
+        module = importlib.import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    """List deferred exports and historical direct owners without importing them."""
+    return sorted(
+        {
+            *globals(),
+            *__all__,
+            "acquisition_planner",
+            "approval",
+            "argument_graph",
+            "assurance_case",
+            "authority",
+            "authority_reconciliation",
+            "calibration_ledger",
+            "candidate_firewall",
+            "capability_authority",
+            "capability_index",
+            "capability_index_compiler",
+            "capability_ratchet",
+            "capability_resolver",
+            "case_integrity",
+            "case_lifecycle",
+            "case_maturity",
+            "claim_argument",
+            "closeout_reader",
+            "complexity_governance",
+            "compliance",
+            "concept_spine",
+            "config_release_hardening",
+            "construct_registry",
+            "cost_degradation",
+            "cost_gate",
+            "data_quality",
+            "ddm_monitoring",
+            "degradation",
+            "design_axes",
+            "design_problem",
+            "diagnostic_slos",
+            "disconfirming_evidence",
+            "effective_mode",
+            "evaluation_modes",
+            "evaluation_safety",
+            "event_log",
+            "evidence_independence",
+            "evidence_line",
+            "evidence_synthesis",
+            "explanation_reliability",
+            "external_audit",
+            "generation_cycle",
+            "graded_outcomes",
+            "human_review",
+            "hypothesis_ledger",
+            "ir_analytics_bridge",
+            "legacy_payload_migration_audit",
+            "memory_influence",
+            "multiverse_specification_curve",
+            "observability_static_audit",
+            "performance_budget",
+            "phase_barriers",
+            "policy_benchmarking",
+            "policy_design_case",
+            "policy_design_case_integration_skeleton",
+            "producer_pipeline",
+            "projection_semantics",
+            "prompt_tool_ledger",
+            "public_export",
+            "replay",
+            "rule_evolution",
+            "rule_replay_engine",
+            "run_cost_proportionality",
+            "run_state",
+            "schema_compat",
+            "scorecard",
+            "semantic_binding",
+            "semantic_fixtures",
+            "skip_blockers",
+            "soft_gate_telemetry",
+            "tenant_cas_approval_governance",
+            "world_model_record",
+        }
+    )

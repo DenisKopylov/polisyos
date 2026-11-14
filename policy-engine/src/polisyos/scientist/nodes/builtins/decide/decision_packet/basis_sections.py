@@ -696,7 +696,11 @@ def _build_data_basis(
         return DecisionBasisSection(dependencies=dependencies, summary=summary)
 
     try:
-        snapshot = DataSnapshot.model_validate(snapshot_payload)
+        from polisyos.core.artifacts import ArtifactID, validate_core_model_json_artifact
+
+        snapshot = validate_core_model_json_artifact(
+            DataSnapshot, ctx.store, ArtifactID.model_validate(data_snapshot_ref)
+        )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _record_decision_packet_section_degraded(
             packet_payload,

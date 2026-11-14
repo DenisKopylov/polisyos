@@ -1709,6 +1709,12 @@ export type RunLaunchResponse =
 export type RunLineageResponse =
   RuntimeApiComponents["schemas"]["RunLineageResponse"];
 
+export type RunModelInputUseActionSelector =
+  RuntimeApiComponents["schemas"]["RunModelInputUseActionSelector"];
+
+export type RunModelInputUseActionsProjection =
+  RuntimeApiComponents["schemas"]["RunModelInputUseActionsProjection"];
+
 export type RunModelInputUseBlockedSourceProjection =
   RuntimeApiComponents["schemas"]["RunModelInputUseBlockedSourceProjection"];
 

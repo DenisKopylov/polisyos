@@ -16,11 +16,12 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     ParameterOverrideBundle,
     ParameterOverrideBundleRef,
+    ProgramGraph,
     ProgramGraphRef,
 )
 from polisyos.core.contracts.model_input_requirements import (
@@ -28,7 +29,9 @@ from polisyos.core.contracts.model_input_requirements import (
     ModelInputPhysicalEncoding,
     ModelInputPort,
     ModelInputPortDeclaration,
+    ProgramGraphInputDependency,
     load_model_input_obligation,
+    load_model_input_obligation_set,
     load_program_graph_input_interface,
     persist_model_input_obligation,
     persist_model_input_obligation_set,
@@ -52,7 +55,12 @@ from polisyos.data_requirement.compiler import (
     verify_model_input_compilation_report,
 )
 from polisyos.foundry.execute import load_state_snapshot
-from polisyos.foundry.execute.model_input_requirements import verify_program_graph_input_preflight
+from polisyos.foundry.execute.model_input_requirements import (
+    _selected_model_input_bundle,
+    program_graph_declares_model_input_ports,
+    verify_program_graph_input_preflight,
+)
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.quality.model_input_requirements import (
     ProgramGraphInputPreflight,
     SelectedProgramGraphInputBasis,
@@ -66,6 +74,72 @@ from tests._helpers.program_graph_tax_subsidy_input import (
 )
 
 _SUBSIDY_NODE_ID = "fixture_subsidy"
+
+
+def _persist_graph_with_ir(store: FileSystemCAS, ir_ref: ArtifactRef) -> ArtifactRef:
+    graph = ProgramGraph(ir_ref=ir_ref)
+    return store.put_json(
+        graph,
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+
+
+def test_unselected_missing_legacy_trinity_anchor_keeps_raw_graph_path(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    missing_ir = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind=TrinityBundle.ARTIFACT_KIND,
+        media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+    )
+    graph_ref = _persist_graph_with_ir(store, missing_ir)
+
+    assert program_graph_declares_model_input_ports(store, graph_ref) is False
+
+
+def test_selected_missing_trinity_anchor_is_not_treated_as_legacy(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    missing_ir = ArtifactRef(
+        artifact_id="sha256:" + "b" * 64,
+        kind=TrinityBundle.ARTIFACT_KIND,
+        media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+        manifest_profile_sha256="sha256:" + "c" * 64,
+    )
+    graph = ProgramGraph(ir_ref=missing_ir)
+
+    with pytest.raises(FileNotFoundError):
+        _selected_model_input_bundle(store, graph)
+
+
+def test_malformed_trinity_anchor_is_not_treated_as_legacy(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    malformed_ir = store.put_json(
+        {"schema_version": "1.0", "model_spec": {"model_input_port_declaration_ref": "invalid"}},
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    graph = ProgramGraph(ir_ref=malformed_ir)
+
+    with pytest.raises(ValueError):
+        _selected_model_input_bundle(store, graph)
 
 
 def _opening_stock_port(store: CoreJSONArtifactStore) -> ModelInputPort:
@@ -288,6 +362,7 @@ def test_required_input_is_produced_by_selected_model(tmp_path: Path) -> None:
         preflight = _preflight(
             case, interface_ref, context, steps=(0, 1, 2), parameter_override_bundle_ref=rate_ref
         )
+        assert interface.schema_version == "1.0"
         (obligation_ref,) = preflight.obligation_refs
         assert preflight.supplied_initial_slots == ("agents.income",)
         assert preflight.parameter_override_bundle_ref == rate_ref
@@ -322,7 +397,9 @@ def test_required_input_is_produced_by_selected_model(tmp_path: Path) -> None:
             obligation_set_ref=preflight.obligation_set_ref,
             expected_invocation=preflight.invocation,
         )
+        assert selected_set.schema_version == "1.0"
         assert selected_set.obligation_refs == (obligation_ref,)
+        assert obligation.schema_version == "1.0"
         selected_basis = SelectedProgramGraphInputBasis(
             context=context,
             program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
@@ -436,6 +513,652 @@ def test_calibration_and_predicted_outcome_do_not_supply_the_model_port(tmp_path
         )
     finally:
         case.close()
+
+
+def test_selected_method_input_emits_versioned_abi_obligation(tmp_path: Path) -> None:
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    case, metadata = prepare_selected_method_input_case(tmp_path, method_class=PeriodFlowToStock)
+    try:
+        interface_ref = _interface(case)
+        interface = load_program_graph_input_interface(case.store, interface_ref)
+        assert interface.schema_version == "1.1"
+        (port,) = interface.ports
+        assert port == metadata["port"]
+
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0,))
+        assert preflight.supplied_initial_slots == ("government.balance",)
+        (obligation_ref,) = preflight.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.schema_version == "1.1"
+        assert obligation.port == port
+        (dependency,) = obligation.dependencies
+        assert (
+            dependency.node_id,
+            dependency.kind,
+            dependency.first_required_step,
+            dependency.method_abi_digest,
+        ) == (
+            "period_flow_node",
+            "method_read",
+            0,
+            PeriodFlowToStock.signature.abi_digest(),
+        )
+        selected_set = verify_program_graph_input_preflight(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        assert selected_set.schema_version == "1.1"
+        assert selected_set.obligation_refs == (obligation_ref,)
+
+        with pytest.raises(ValueError, match="model_input_method_multi_step_reuse_unsupported"):
+            _preflight(case, interface_ref, _context(case), steps=(0, 1))
+    finally:
+        case.close()
+
+
+def test_temporal_method_input_persists_full_step_scope_denominator_and_replays(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.ir.kernel.time_semantics import TimeFrequency, TimeSemantics
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        period_step_profile=True,
+        time_semantics=TimeSemantics(
+            frequency=TimeFrequency.YEAR,
+            start_date="2020-01-01",
+            step_count=2,
+        ),
+        scope=ModelInputScope(
+            population_ref="population:government",
+            geography_ref="UA",
+            jurisdiction_ref="jurisdiction:fixture",
+            period_start=date(2020, 1, 1),
+            period_end=date(2021, 12, 31),
+            time_role="observation_time",
+            period_basis="calendar_year",
+        ),
+    )
+    try:
+        interface_ref = _interface(case)
+        interface = load_program_graph_input_interface(case.store, interface_ref)
+        assert interface.schema_version == "1.2"
+        (port,) = interface.ports
+        assert port.period_step_profile is not None
+
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0, 1))
+        (obligation_ref,) = preflight.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.schema_version == "1.2"
+        (dependency,) = obligation.dependencies
+        assert dependency.required_steps == (0, 1)
+        assert dependency.first_required_step == 0
+
+        fresh_store = FileSystemCAS(case.store.root)
+        selected_set, members = load_model_input_obligation_set(
+            fresh_store, preflight.obligation_set_ref
+        )
+        assert selected_set.schema_version == "1.2"
+        assert selected_set.obligation_refs == (obligation_ref,)
+        assert tuple(
+            (item.port_id, item.step, item.scope.period_start, item.scope.period_end)
+            for item in selected_set.required_step_scopes or ()
+        ) == (
+            (port.port_id, 0, date(2020, 1, 1), date(2020, 12, 31)),
+            (port.port_id, 1, date(2021, 1, 1), date(2021, 12, 31)),
+        )
+        assert len(members) == 1
+        assert (
+            verify_program_graph_input_preflight(
+                fresh_store,
+                obligation_set_ref=preflight.obligation_set_ref,
+                expected_invocation=preflight.invocation,
+            )
+            == selected_set
+        )
+
+        tampered_set = selected_set.model_copy(
+            update={"required_step_scopes": selected_set.required_step_scopes[:-1]}
+        )
+        tampered_ref = persist_model_input_obligation_set(fresh_store, tampered_set)
+        with pytest.raises(
+            ValueError, match="model_input_obligation_set_step_scope_denominator_mismatch"
+        ):
+            load_model_input_obligation_set(FileSystemCAS(case.store.root), tampered_ref)
+    finally:
+        case.close()
+
+
+def test_temporal_method_input_refuses_missing_clock_and_short_scope_envelope(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.ir.kernel.time_semantics import TimeFrequency, TimeSemantics
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    temporal_clock = TimeSemantics(
+        frequency=TimeFrequency.YEAR,
+        start_date="2020-01-01",
+        step_count=2,
+    )
+    envelope = ModelInputScope(
+        population_ref="population:government",
+        geography_ref="UA",
+        jurisdiction_ref="jurisdiction:fixture",
+        period_start=date(2020, 1, 1),
+        period_end=date(2020, 12, 31),
+        time_role="observation_time",
+        period_basis="calendar_year",
+    )
+    for time_semantics, expected in (
+        (None, "model_input_temporal_profile_time_semantics_missing"),
+        (temporal_clock, "model_input_step_scope_outside_envelope"),
+    ):
+        case, _ = prepare_selected_method_input_case(
+            tmp_path,
+            method_class=PeriodFlowToStock,
+            period_step_profile=True,
+            time_semantics=time_semantics,
+            scope=envelope.model_copy(deep=True),
+        )
+        try:
+            interface_ref = _interface(case)
+            with pytest.raises(ValueError, match=expected):
+                _preflight(case, interface_ref, _context(case), steps=(0, 1))
+        finally:
+            case.close()
+
+
+def test_mapped_method_input_preflight_joins_global_slot_for_repeated_method(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.method_input import RegistrySlotInputPortSource
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        method_input_slot="ledger.flow",
+        method_instances=2,
+        mapped=True,
+    )
+    try:
+        graph = validate_core_model_json_artifact(ProgramGraph, case.store, case.program_graph_ref)
+        assert graph.schema_version == "0.3"
+        method_nodes = [node for node in graph.nodes if node.node_kind == "method"]
+        assert len(method_nodes) == 2
+        assert len({node.method_fqn for node in method_nodes}) == 1
+        assert all(node.inputs == ["ledger.flow"] for node in method_nodes)
+        assert all(
+            node.input_ports
+            == {
+                "period_flow": RegistrySlotInputPortSource(
+                    source_kind="registry_slot",
+                    slot_id="ledger.flow",
+                )
+            }
+            for node in method_nodes
+        )
+
+        interface_ref = _interface(case)
+        preflight = _preflight(case, interface_ref, _context(case), steps=(0,))
+        (obligation_ref,) = preflight.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.port.slot_id == "ledger.flow"
+        assert [
+            (dependency.node_id, dependency.kind, dependency.method_abi_digest)
+            for dependency in obligation.dependencies
+        ] == [
+            (node.node_id, "method_read", PeriodFlowToStock.signature.abi_digest())
+            for node in method_nodes
+        ]
+        selected_set = verify_program_graph_input_preflight(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        assert selected_set.obligation_refs == (obligation_ref,)
+    finally:
+        case.close()
+
+
+@pytest.mark.parametrize(
+    ("time_semantics", "scope", "error"),
+    [
+        (None, None, "model_input_method_time_semantics_not_established"),
+        (
+            "monthly",
+            None,
+            "model_input_method_time_semantics_not_established",
+        ),
+        (
+            "default",
+            ModelInputScope(
+                population_ref="population:government",
+                geography_ref="UA",
+                jurisdiction_ref="jurisdiction:fixture",
+                period_start=date(2023, 1, 1),
+                period_end=date(2023, 12, 31),
+                time_role="observation_time",
+                period_basis="calendar_year",
+            ),
+            "model_input_method_transition_period_mismatch",
+        ),
+        (
+            "default",
+            ModelInputScope(
+                population_ref="population:government",
+                geography_ref="UA",
+                jurisdiction_ref="jurisdiction:fixture",
+                period_start=date(2024, 1, 1),
+                period_end=date(2024, 12, 31),
+                time_role="observation_time",
+                period_basis="unknown",
+            ),
+            "model_input_method_period_basis_not_established",
+        ),
+    ],
+)
+def test_method_input_requires_exact_selected_annual_transition(
+    tmp_path: Path, time_semantics, scope, error: str
+) -> None:
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.ir.kernel.time_semantics import TimeFrequency, TimeSemantics
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    selected_time = (
+        TimeSemantics(frequency=TimeFrequency.MONTH, start_date="2024-01-01", step_count=1)
+        if time_semantics == "monthly"
+        else None
+        if time_semantics is None
+        else "default"
+    )
+    case, _ = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        time_semantics=selected_time,
+        scope=scope,
+    )
+    try:
+        interface_ref = _interface(case)
+        with pytest.raises(ValueError, match=error):
+            _preflight(case, interface_ref, _context(case), steps=(0,))
+    finally:
+        case.close()
+
+
+def test_method_input_dependency_closure_supports_distinct_methods(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.core.contracts.foundry import ProgramNode
+    from polisyos.core.contracts.method_input import (
+        MethodOutputInputPortSource,
+        RegistrySlotInputPortSource,
+    )
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.execute.model_input_requirements import _graph_input_dependencies
+    from polisyos.foundry.methods.base import (
+        MethodMetadata,
+        SideEffectProfile,
+        Unit,
+        foundry_method,
+    )
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+
+    class AlternatePeriodFlowToStock(PeriodFlowToStock):
+        signature = replace(
+            PeriodFlowToStock.signature,
+            namespace="",
+            version="0.0.0",
+        )
+        pure_step = staticmethod(PeriodFlowToStock.pure_step)
+
+    alternate = foundry_method(namespace="test.accounting", version="1.0.0")(
+        AlternatePeriodFlowToStock
+    )
+
+    class ReadOnlyPeriodFlow(PeriodFlowToStock):
+        signature = replace(
+            PeriodFlowToStock.signature,
+            namespace="",
+            version="0.0.0",
+            parameters=(),
+            patch_targets=(),
+        )
+        side_effect_profile = SideEffectProfile.NONE
+        metadata = MethodMetadata(
+            description="Return a selected scalar period flow without writing state.",
+            side_effect_profile=SideEffectProfile.NONE,
+        )
+
+        @staticmethod
+        def pure_step(state: dict[str, object], _params: dict[str, object]) -> dict[str, object]:
+            return {"result": state["period_flow"]}
+
+    read_only = foundry_method(namespace="test.accounting", version="1.1.0")(ReadOnlyPeriodFlow)
+
+    period_flow_abi = next(iter(PeriodFlowToStock.signature.input_slots))
+
+    class IncompatibleReadOnlyPeriodFlow(ReadOnlyPeriodFlow):
+        signature = replace(
+            ReadOnlyPeriodFlow.signature,
+            namespace="",
+            version="0.0.0",
+            input_slots=frozenset({replace(period_flow_abi, unit=Unit("currency", "EUR"))}),
+        )
+
+    incompatible = foundry_method(namespace="test.accounting", version="1.2.0")(
+        IncompatibleReadOnlyPeriodFlow
+    )
+
+    class AliasedReadOnlyPeriodFlow(ReadOnlyPeriodFlow):
+        signature = replace(
+            ReadOnlyPeriodFlow.signature,
+            namespace="",
+            version="0.0.0",
+            input_slots=frozenset(
+                {
+                    period_flow_abi,
+                    replace(period_flow_abi, name="matching_flow"),
+                }
+            ),
+        )
+
+        @staticmethod
+        def pure_step(state: dict[str, object], _params: dict[str, object]) -> dict[str, object]:
+            return {"result": state["period_flow"] + state["matching_flow"]}
+
+    aliased = foundry_method(namespace="test.accounting", version="1.3.0")(
+        AliasedReadOnlyPeriodFlow
+    )
+    method_registry = MethodRegistry.get_instance()
+    method_registry.register(alternate, override=True)
+    method_registry.register(read_only, override=True)
+    method_registry.register(incompatible, override=True)
+    method_registry.register(aliased, override=True)
+    case, _ = prepare_selected_method_input_case(tmp_path, method_class=PeriodFlowToStock)
+    try:
+        selected_registry = load_registry_bundle_content(case.store, case.registry_bundle_ref)
+        nodes = {
+            "first": ProgramNode(
+                node_id="first",
+                node_kind="method",
+                method_fqn=PeriodFlowToStock.signature.fqn,
+                method_version=PeriodFlowToStock.signature.version,
+                method_params={"target_slot": "government.balance"},
+                inputs=["period_flow"],
+                outputs=["government.balance"],
+            ),
+            "second": ProgramNode(
+                node_id="second",
+                node_kind="method",
+                method_fqn=alternate.signature.fqn,
+                method_version=alternate.signature.version,
+                method_params={"target_slot": "government.balance"},
+                inputs=["period_flow"],
+                outputs=["government.balance"],
+            ),
+        }
+        dependencies, graph_slots = _graph_input_dependencies(
+            case.store,
+            nodes=nodes,
+            order={"first": 0, "second": 1},
+            registry=selected_registry,
+            steps=(0,),
+            overrides={},
+        )
+        assert graph_slots == {"period_flow", "government.balance"}
+        assert {
+            (item.node_id, item.kind, item.method_abi_digest)
+            for item in dependencies["period_flow"]
+        } == {
+            ("first", "method_read", PeriodFlowToStock.signature.abi_digest()),
+            ("second", "method_read", alternate.signature.abi_digest()),
+        }
+        assert {(item.node_id, item.kind) for item in dependencies["government.balance"]} == {
+            ("first", "additive_prestate"),
+            ("second", "additive_prestate"),
+        }
+
+        read_only_node = ProgramNode(
+            node_id="read_only",
+            node_kind="method",
+            method_fqn=read_only.signature.fqn,
+            method_version=read_only.signature.version,
+            method_params={},
+            inputs=["period_flow"],
+            outputs=[],
+        )
+        read_only_dependencies, read_only_slots = _graph_input_dependencies(
+            case.store,
+            nodes={"read_only": read_only_node},
+            order={"read_only": 0},
+            registry=selected_registry,
+            steps=(0,),
+            overrides={},
+        )
+        assert read_only_slots == {"period_flow"}
+        assert read_only_dependencies["period_flow"] == [
+            ProgramGraphInputDependency(
+                node_id="read_only",
+                kind="method_read",
+                first_required_step=0,
+                method_abi_digest=read_only.signature.abi_digest(),
+            )
+        ]
+
+        aliased_node = ProgramNode(
+            node_id="aliased_first",
+            node_kind="method",
+            method_fqn=aliased.signature.fqn,
+            method_version=aliased.signature.version,
+            method_params={},
+            inputs=["period_flow"],
+            outputs=[],
+            input_ports={
+                "period_flow": RegistrySlotInputPortSource(
+                    source_kind="registry_slot",
+                    slot_id="period_flow",
+                ),
+                "matching_flow": RegistrySlotInputPortSource(
+                    source_kind="registry_slot",
+                    slot_id="period_flow",
+                ),
+            },
+        )
+        aliased_nodes = {
+            "aliased_first": aliased_node,
+            "aliased_second": aliased_node.model_copy(update={"node_id": "aliased_second"}),
+        }
+        aliased_dependencies, aliased_slots = _graph_input_dependencies(
+            case.store,
+            nodes=aliased_nodes,
+            order={"aliased_first": 0, "aliased_second": 1},
+            registry=selected_registry,
+            steps=(0,),
+            overrides={},
+            program_graph_schema_version="0.3",
+        )
+        assert aliased_slots == {"period_flow"}
+        assert aliased_dependencies["period_flow"] == [
+            ProgramGraphInputDependency(
+                node_id=node_id,
+                kind="method_read",
+                first_required_step=0,
+                method_abi_digest=aliased.signature.abi_digest(),
+            )
+            for node_id in ("aliased_first", "aliased_second")
+        ]
+
+        unsupported_output_node = ProgramNode(
+            node_id="unsupported_output",
+            node_kind="method",
+            method_fqn=read_only.signature.fqn,
+            method_version=read_only.signature.version,
+            method_params={},
+            inputs=[],
+            outputs=[],
+            input_ports={
+                "period_flow": MethodOutputInputPortSource(
+                    source_kind="method_output",
+                    producer_node_id="producer",
+                    output_slot_id="result",
+                )
+            },
+        )
+        with pytest.raises(
+            ValueError,
+            match="model_input_method_output_input_not_supported",
+        ):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"unsupported_output": unsupported_output_node},
+                order={"unsupported_output": 0},
+                registry=selected_registry,
+                steps=(0,),
+                overrides={},
+                program_graph_schema_version="0.3",
+            )
+
+        incompatible_node = read_only_node.model_copy(
+            update={
+                "method_fqn": incompatible.signature.fqn,
+                "method_version": incompatible.signature.version,
+            }
+        )
+        with pytest.raises(ValueError, match="model_input_method_slot_profile_unsupported"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"incompatible": incompatible_node},
+                order={"incompatible": 0},
+                registry=selected_registry,
+                steps=(0,),
+                overrides={},
+            )
+
+        foreign_mapped_node = read_only_node.model_copy(
+            update={
+                "inputs": ["foreign.flow"],
+                "input_ports": {
+                    "period_flow": RegistrySlotInputPortSource(
+                        source_kind="registry_slot",
+                        slot_id="foreign.flow",
+                    )
+                },
+            }
+        )
+        with pytest.raises(ValueError, match="model_input_method_slot_unregistered"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"foreign_mapped": foreign_mapped_node},
+                order={"foreign_mapped": 0},
+                registry=selected_registry,
+                steps=(0,),
+                overrides={},
+                program_graph_schema_version="0.3",
+            )
+
+        duplicate = nodes["second"].model_copy(
+            update={
+                "method_fqn": PeriodFlowToStock.signature.fqn,
+                "method_version": PeriodFlowToStock.signature.version,
+            }
+        )
+        with pytest.raises(ValueError, match="model_input_graph_method_instance_duplicate"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={**nodes, "second": duplicate},
+                order={"first": 0, "second": 1},
+                registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                steps=(0,),
+                overrides={},
+            )
+
+        extra_abi_input = nodes["first"].model_copy(
+            update={"inputs": ["period_flow", "foreign.slot"]}
+        )
+        with pytest.raises(ValueError, match="model_input_method_abi_join_not_exact"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"first": extra_abi_input},
+                order={"first": 0},
+                registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                steps=(0,),
+                overrides={},
+            )
+
+        unregistered = nodes["first"].model_copy(
+            update={
+                "method_fqn": "tests.unregistered_method_input@1.0.0",
+                "method_version": "1.0.0",
+            }
+        )
+        with pytest.raises(ValueError, match="model_input_method_registry_unresolved"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"first": unregistered},
+                order={"first": 0},
+                registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                steps=(0,),
+                overrides={},
+            )
+
+        original_signature = PeriodFlowToStock.signature
+        target_parameter = next(
+            parameter
+            for parameter in original_signature.parameters
+            if parameter.name == "target_slot"
+        )
+        changed_signature = replace(
+            original_signature,
+            parameters=(replace(target_parameter, default="government.balance"),),
+        )
+        monkeypatch.setattr(PeriodFlowToStock, "signature", changed_signature)
+        changed_dependencies, _ = _graph_input_dependencies(
+            case.store,
+            nodes={"first": nodes["first"]},
+            order={"first": 0},
+            registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+            steps=(0,),
+            overrides={},
+        )
+        assert changed_dependencies["period_flow"][0].method_abi_digest == (
+            changed_signature.abi_digest()
+        )
+        assert changed_dependencies["period_flow"][0].method_abi_digest != (
+            original_signature.abi_digest()
+        )
+
+        monkeypatch.setattr(
+            PeriodFlowToStock,
+            "signature",
+            replace(changed_signature, version="1.0.1"),
+        )
+        with pytest.raises(ValueError, match="model_input_method_registry_mismatch"):
+            _graph_input_dependencies(
+                case.store,
+                nodes={"first": nodes["first"]},
+                order={"first": 0},
+                registry=load_registry_bundle_content(case.store, case.registry_bundle_ref),
+                steps=(0,),
+                overrides={},
+            )
+    finally:
+        case.close()
+        method_registry.unregister(alternate.signature.fqn)
+        method_registry.unregister(read_only.signature.fqn)
+        method_registry.unregister(incompatible.signature.fqn)
+        method_registry.unregister(aliased.signature.fqn)
 
 
 def test_selected_graph_cannot_be_substituted_by_equal_bytes(tmp_path: Path) -> None:

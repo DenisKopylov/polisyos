@@ -473,7 +473,16 @@ def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_r
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The admitted source, selected scope and model binding meet in real CAS."""
-    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.core.artifacts import (
+        artifact_ref_identity_key,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.core.contracts.variable_binding import (
+        ScopedMeasurementOccurrence,
+        scoped_measurement_occurrence_manifest_inputs,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import OverlayAdmissionError
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
     from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
     from tests._helpers.semantic_epoch_native import make_native_live_measurement_history
     from tests.integration.runtime_quality.test_program_graph_held_out_fund_binding import (
@@ -547,6 +556,72 @@ def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_r
         projection = active.projections[history.entry.target_variable]
         (row,) = projection.observations
         assert row.observation.value == 640.0
+
+        occurrence_ref = catalog_read_api.materialize_activated_measurement_occurrence(
+            store,
+            history.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=active.passport,
+            authority=history.authority,
+            observation_id=row.observation.observation_id,
+        )
+        assert occurrence_ref.manifest_profile_sha256 is not None
+        occurrence = validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, occurrence_ref
+        )
+        assert occurrence.observation_id == row.observation.observation_id
+        assert occurrence.canonical_value == str(row.observation.value)
+        assert occurrence.year == 2022
+        assert occurrence.source_scope.geography_ref == "UA"
+        assert occurrence.source_scope.jurisdiction_ref == "UA"
+        assert artifact_ref_identity_key(occurrence.source_receipt_ref) == (
+            artifact_ref_identity_key(projection.receipt_ref)
+        )
+
+        fresh_store = FileSystemCAS(store.root)
+        stored_occurrence, replayed_occurrence, source_selection = (
+            catalog_read_api.replay_selected_scoped_measurement_facts(
+                fresh_store, occurrence_ref
+            )
+        )
+        assert stored_occurrence == occurrence == replayed_occurrence
+        assert source_selection.source_receipt_ref == occurrence.source_receipt_ref
+        assert source_selection.source_passport_ref == occurrence.source_passport_ref
+        assert (
+            source_selection.source_boundary_candidate_ref
+            == occurrence.source_boundary_candidate_ref
+        )
+        assert source_selection.source_record_ref == occurrence.source_record_ref
+        assert tuple(fresh_store.get_manifest(occurrence_ref).inputs) == (
+            scoped_measurement_occurrence_manifest_inputs(occurrence)
+        )
+
+        raw_ref = active.evidence.raw_artifact_ref
+        assert raw_ref is not None
+        actual_get = store.get_bytes
+
+        def missing_raw(ref):
+            if isinstance(ref, ArtifactRef) and artifact_ref_identity_key(
+                ref
+            ) == artifact_ref_identity_key(raw_ref):
+                raise FileNotFoundError("test removed the selected raw source")
+            return actual_get(ref)
+
+        with monkeypatch.context() as context:
+            context.setattr(store, "get_bytes", missing_raw)
+            with pytest.raises(_AssessmentRefusal):
+                catalog_read_api.replay_selected_scoped_measurement_facts(
+                    store, occurrence_ref
+                )
+            with pytest.raises(OverlayAdmissionError):
+                catalog_read_api.materialize_activated_measurement_occurrence(
+                    store,
+                    history.overlay,
+                    receipt_ref=projection.receipt_ref,
+                    passport=active.passport,
+                    authority=history.authority,
+                    observation_id=row.observation.observation_id,
+                )
 
         def assess():
             return assess_measurement_to_model_candidate(

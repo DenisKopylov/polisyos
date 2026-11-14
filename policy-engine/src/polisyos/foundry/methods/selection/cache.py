@@ -458,6 +458,7 @@ def _complete_signature_payload(signature) -> dict[str, Any]:
     payload["representation_profiles"] = [
         p._stable_dict() for p in signature.representation_profiles
     ]
+    payload["patch_targets"] = [contract._stable_dict() for contract in signature.patch_targets]
     for field_name, slots in (
         ("input_slots", signature.input_slots),
         ("output_slots", signature.output_slots),
@@ -593,6 +594,7 @@ def _signature_from_payload(payload: dict[str, Any]):
         ComputeBackend,
         FidelityLevel,
         MethodKind,
+        MethodPatchTargetContract,
         MethodRepresentationProfile,
         MethodSignature,
     )
@@ -631,6 +633,9 @@ def _signature_from_payload(payload: dict[str, Any]):
         supports_vmap=bool(payload.get("supports_vmap", True)),
         supports_grad=bool(payload.get("supports_grad", True)),
         representation_profiles=profiles,
+        patch_targets=tuple(
+            MethodPatchTargetContract(**row) for row in payload.get("patch_targets", ())
+        ),
     )
 
 

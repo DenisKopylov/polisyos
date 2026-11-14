@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -14,6 +16,7 @@ from polisyos.core.contracts.foundry import (
     FeedbackConfigRef,
     FeedbackConvergenceCertificate,
     FeedbackSolveResult,
+    FeedbackTrace,
     ObservedRange,
     ObservedRangeBundle,
     SimulationResult,
@@ -24,6 +27,7 @@ from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_confi
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import build_input_bindings
+from polisyos.foundry.execute import api as execute_api
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.foundry.welfare.bounds import (
@@ -39,7 +43,7 @@ from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 
 
-def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
+def test_execute_supports_feedback_fixed_point_mode(tmp_path, monkeypatch) -> None:
     tenant_context = ArtifactTenantContextInfo(tenant_id="tenant-feedback", cell_id="cell-feedback")
     store = FileSystemCAS(
         tmp_path,
@@ -134,15 +138,16 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
         ),
     )
 
+    execute_request = ExecuteRequest(
+        exec_plan_ref=compile_result.exec_plan_ref,
+        input_bindings_ref=input_bindings_ref,
+        registry_bundle_ref=bundle.bundle_ref,
+        feedback_config_ref=FeedbackConfigRef(artifact_id=feedback_config_ref.artifact_id),
+        observed_range_bundle_ref=observed_range_bundle_ref,
+    )
     exec_result = execute_foundry(
         store,
-        ExecuteRequest(
-            exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=input_bindings_ref,
-            registry_bundle_ref=bundle.bundle_ref,
-            feedback_config_ref=FeedbackConfigRef(artifact_id=feedback_config_ref.artifact_id),
-            observed_range_bundle_ref=observed_range_bundle_ref,
-        ),
+        execute_request,
         derived_tenant_context=tenant_context,
     )
 
@@ -175,6 +180,31 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
     assert feedback_result.status == "converged"
     assert feedback_result.convergence_certificate_ref is not None
     assert feedback_result.final_state.values[0] == 0.5
+    complete_trace_refs = [
+        artifact.ref for artifact in exec_result.derived_refs if artifact.role == "feedback_trace"
+    ]
+    assert len(complete_trace_refs) == 1
+    assert feedback_result.trace_ref == complete_trace_refs[0]
+    assert feedback_result.trace_ref is not None
+    feedback_trace = FeedbackTrace.model_validate(
+        from_canonical_bytes(store.get_bytes(feedback_result.trace_ref.artifact_id))
+    )
+    assert feedback_trace.schema_version == "1.1"
+    assert feedback_trace.evaluation_scope == "complete"
+    assert feedback_trace.map_evaluations
+    assert feedback_trace.map_evaluations[-1].phase == "final_materialization"
+    assert feedback_trace.map_evaluations[-1].outcome == "completed"
+    solver_prefix_ref = next(
+        artifact.ref
+        for artifact in exec_result.derived_refs
+        if artifact.role == "feedback_trace_solver_prefix"
+    )
+    solver_prefix = FeedbackTrace.model_validate(
+        from_canonical_bytes(store.get_bytes(solver_prefix_ref.artifact_id))
+    )
+    assert solver_prefix.evaluation_scope == "solver_prefix"
+    assert solver_prefix.map_evaluations
+    assert {item.phase for item in solver_prefix.map_evaluations} == {"solver_map"}
     assert any(note == "feedback_mode:fixed_point" for note in exec_result.notes)
     certificate = FeedbackConvergenceCertificate.model_validate(
         from_canonical_bytes(
@@ -189,6 +219,56 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
     assert simulation_result.welfare_bound_refs is not None
     assert welfare_report.node_id in simulation_result.welfare_bound_refs
 
+    original_execute_program_graph = execute_api.execute_program_graph
+    completed_final_graphs = []
+    persisted_feedback_traces = []
+
+    def count_final_graphs(*args, **kwargs):
+        result = original_execute_program_graph(*args, **kwargs)
+        if kwargs.get("finalize_method_execution_capture") is True:
+            completed_final_graphs.append(result)
+        return result
+
+    original_persist_feedback_trace = execute_api._persist_feedback_trace
+
+    def retain_completed_trace(*args, **kwargs):
+        ref = original_persist_feedback_trace(*args, **kwargs)
+        if kwargs.get("evaluation_scope") == "complete":
+            persisted_feedback_traces.append(ref)
+        return ref
+
+    expected_post_graph_failure = RuntimeError("final state application failed")
+
+    def fail_final_state_application(*args, **kwargs):
+        raise expected_post_graph_failure
+
+    monkeypatch.setattr(execute_api, "execute_program_graph", count_final_graphs)
+    monkeypatch.setattr(execute_api, "_persist_feedback_trace", retain_completed_trace)
+    monkeypatch.setattr(
+        execute_api,
+        "apply_state_delta_and_snapshot",
+        fail_final_state_application,
+    )
+    with pytest.raises(RuntimeError) as caught:
+        execute_foundry(
+            store,
+            execute_request,
+            derived_tenant_context=tenant_context,
+        )
+    assert caught.value is expected_post_graph_failure
+    assert len(completed_final_graphs) == 1
+    assert persisted_feedback_traces
+    failed_final_trace = FeedbackTrace.model_validate(
+        from_canonical_bytes(store.get_bytes(persisted_feedback_traces[-1].artifact_id))
+    )
+    assert failed_final_trace.evaluation_scope == "complete"
+    failed_final_record = failed_final_trace.map_evaluations[-1]
+    assert failed_final_record.phase == "final_materialization"
+    assert failed_final_record.outcome == "failed"
+    assert failed_final_record.failure_type == "builtins.RuntimeError"
+    assert failed_final_record.execution_link_status == "not_established"
+    monkeypatch.undo()
+
     feedback_config = FeedbackConfig.model_validate(
         from_canonical_bytes(store.get_bytes(feedback_config_ref.artifact_id))
     )
@@ -198,9 +278,10 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
                 update={
                     "detect_multiplicity": True,
                     "multiplicity_mode": "baseline",
-                    "multiplicity_max_attempts": 1,
+                    "multiplicity_max_attempts": 2,
                     "multiplicity_sobol_draws": 0,
                     "basin_draws": 0,
+                    "multi_start_values": [[0.25]],
                 }
             )
         }
@@ -229,6 +310,28 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
         "equilibrium_multiplicity_report",
         "feedback_result",
     }
+    multiplicity_feedback_result_ref = next(
+        artifact.ref
+        for artifact in multiplicity_exec_result.derived_refs
+        if artifact.role == "feedback_result"
+    )
+    multiplicity_feedback_result = FeedbackSolveResult.model_validate(
+        from_canonical_bytes(store.get_bytes(multiplicity_feedback_result_ref.artifact_id))
+    )
+    assert multiplicity_feedback_result.trace_ref is not None
+    multiplicity_trace = FeedbackTrace.model_validate(
+        from_canonical_bytes(store.get_bytes(multiplicity_feedback_result.trace_ref.artifact_id))
+    )
+    assert multiplicity_trace.evaluation_scope == "complete"
+    assert any(item.phase == "equilibrium_discovery" for item in multiplicity_trace.map_evaluations)
+    assert multiplicity_trace.solver_prefix_trace_ref is not None
+    multiplicity_prefix = FeedbackTrace.model_validate(
+        from_canonical_bytes(
+            store.get_bytes(multiplicity_trace.solver_prefix_trace_ref.artifact_id)
+        )
+    )
+    assert multiplicity_prefix.evaluation_scope == "solver_prefix"
+    assert {item.phase for item in multiplicity_prefix.map_evaluations} == {"solver_map"}
     multiplicity_report_ref = next(
         artifact.ref
         for artifact in multiplicity_exec_result.derived_refs

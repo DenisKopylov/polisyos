@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, TypeVar
 
 import numpy as np
+
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.contracts import FeedbackMapEvaluationRecord
 
 from .config import PreparedFeedbackConfig, project_bounds
 from .diagnostics import (
@@ -28,9 +31,217 @@ class MapEvaluation:
     diagnostics: dict[str, Any]
     budget_gap: float | None = None
     noise_sd: float | None = None
+    graph_invocation_id: str | None = None
 
 
 FeedbackMap = Callable[[np.ndarray], MapEvaluation | np.ndarray]
+FinalMaterializationT = TypeVar("FinalMaterializationT")
+
+
+@dataclass
+class FeedbackMapEvaluationRecorder:
+    """Record each actual map callback, independent of solver iteration numbers.
+
+    Numerical methods may evaluate the map for accepted or rejected proposals,
+    finite-difference Jacobians, restarts, and equilibrium exploration. Those
+    calls are not in one-to-one correspondence with solver trace iterations.
+    This recorder preserves callback order and the exact input/output vectors.
+    """
+
+    base_state_ref: ArtifactRef | None = None
+    _records: list[FeedbackMapEvaluationRecord] = field(default_factory=list, repr=False)
+
+    @property
+    def records(self) -> tuple[FeedbackMapEvaluationRecord, ...]:
+        """Return the immutable sequence of map calls observed so far."""
+        return tuple(self._records)
+
+    def wrap(
+        self,
+        evaluate_map: FeedbackMap,
+        *,
+        phase: str = "solver_map",
+        execution_link_provider: Callable[[], str | None] | None = None,
+    ) -> FeedbackMap:
+        """Wrap one map consumer and append a record for every callback call."""
+        if phase not in {"solver_map", "equilibrium_discovery"}:
+            raise ValueError("feedback_map_evaluation_phase_unsupported")
+
+        def recorded(values: np.ndarray) -> MapEvaluation | np.ndarray:
+            candidate = np.asarray(values, dtype=float).reshape(-1).copy()
+            evaluation_id = self._next_evaluation_id()
+            graph_invocation_id: str | None = None
+            try:
+                result = evaluate_map(np.asarray(values, dtype=float).copy())
+                if isinstance(result, MapEvaluation):
+                    graph_invocation_id = result.graph_invocation_id
+                    output = np.asarray(result.map_value, dtype=float).reshape(-1).copy()
+                else:
+                    output = np.asarray(result, dtype=float).reshape(-1).copy()
+                if execution_link_provider is not None:
+                    graph_invocation_id = execution_link_provider()
+            except Exception as exc:
+                if execution_link_provider is not None:
+                    try:
+                        graph_invocation_id = execution_link_provider()
+                    except Exception:
+                        graph_invocation_id = None
+                self._append(
+                    evaluation_id=evaluation_id,
+                    phase=phase,
+                    candidate_values=candidate,
+                    graph_invocation_id=graph_invocation_id,
+                    mapped_values=None,
+                    outcome="failed",
+                    failure_type=f"{type(exc).__module__}.{type(exc).__qualname__}",
+                )
+                raise
+
+            finite_output = output.shape == candidate.shape and bool(np.all(np.isfinite(output)))
+            self._append(
+                evaluation_id=evaluation_id,
+                phase=phase,
+                candidate_values=candidate,
+                graph_invocation_id=graph_invocation_id,
+                mapped_values=output if finite_output else None,
+                outcome="completed" if finite_output else "invalid_output",
+                failure_type=(
+                    None
+                    if finite_output
+                    else "map_vector_shape_mismatch"
+                    if output.shape != candidate.shape
+                    else "non_finite_map_output"
+                ),
+            )
+            return result
+
+        return recorded
+
+    def record_final_materialization(
+        self,
+        *,
+        candidate_values: np.ndarray,
+        mapped_values: np.ndarray | None,
+        graph_invocation_id: str | None,
+    ) -> FeedbackMapEvaluationRecord:
+        """Record the one result-producing graph replay after a solve."""
+        candidate = np.asarray(candidate_values, dtype=float).reshape(-1).copy()
+        output = (
+            None
+            if mapped_values is None
+            else np.asarray(mapped_values, dtype=float).reshape(-1).copy()
+        )
+        finite_output = (
+            output is not None
+            and output.shape == candidate.shape
+            and bool(np.all(np.isfinite(output)))
+        )
+        return self._append(
+            evaluation_id=self._next_evaluation_id(),
+            phase="final_materialization",
+            candidate_values=candidate,
+            graph_invocation_id=graph_invocation_id,
+            mapped_values=output if finite_output else None,
+            outcome="completed" if finite_output else "failed",
+            failure_type=(
+                None
+                if finite_output
+                else "final_vector_shape_mismatch"
+                if output is not None and output.shape != candidate.shape
+                else "final_map_reconciliation_unavailable"
+            ),
+        )
+
+    def run_final_materialization(
+        self,
+        *,
+        candidate_values: np.ndarray,
+        materialize: Callable[[], tuple[FinalMaterializationT, np.ndarray]],
+        execution_link_provider: Callable[[], str | None] | None = None,
+    ) -> FinalMaterializationT:
+        """Record one graph-plus-consumer finalization across every failure path.
+
+        ``materialize`` includes the final graph execution and the downstream
+        state/result reads that establish the final map vector. A failure in
+        any post-callback conversion or consumer operation is recorded and the
+        original exception is re-raised unchanged.
+        """
+        candidate = np.asarray(candidate_values, dtype=float).reshape(-1).copy()
+        evaluation_id = self._next_evaluation_id()
+        graph_invocation_id: str | None = None
+        try:
+            result, raw_mapped_values = materialize()
+            mapped = np.asarray(raw_mapped_values, dtype=float).reshape(-1).copy()
+            if execution_link_provider is not None:
+                graph_invocation_id = execution_link_provider()
+        except BaseException as exc:
+            if graph_invocation_id is None and execution_link_provider is not None:
+                try:
+                    graph_invocation_id = execution_link_provider()
+                except BaseException:
+                    graph_invocation_id = None
+            self._append(
+                evaluation_id=evaluation_id,
+                phase="final_materialization",
+                candidate_values=candidate,
+                graph_invocation_id=graph_invocation_id,
+                mapped_values=None,
+                outcome="failed",
+                failure_type=f"{type(exc).__module__}.{type(exc).__qualname__}",
+            )
+            raise
+
+        finite_output = mapped.shape == candidate.shape and bool(np.all(np.isfinite(mapped)))
+        record = self._append(
+            evaluation_id=evaluation_id,
+            phase="final_materialization",
+            candidate_values=candidate,
+            graph_invocation_id=graph_invocation_id,
+            mapped_values=mapped if finite_output else None,
+            outcome="completed" if finite_output else "invalid_output",
+            failure_type=(
+                None
+                if finite_output
+                else "final_vector_shape_mismatch"
+                if mapped.shape != candidate.shape
+                else "non_finite_final_map_output"
+            ),
+        )
+        if record.outcome != "completed":
+            raise ValueError("feedback_final_materialization_output_invalid")
+        return result
+
+    def _next_evaluation_id(self) -> str:
+        return f"feedback-map-evaluation.{len(self._records) + 1:06d}"
+
+    def _append(
+        self,
+        *,
+        evaluation_id: str,
+        phase: str,
+        candidate_values: np.ndarray,
+        graph_invocation_id: str | None,
+        mapped_values: np.ndarray | None,
+        outcome: str,
+        failure_type: str | None,
+    ) -> FeedbackMapEvaluationRecord:
+        record = FeedbackMapEvaluationRecord(
+            evaluation_id=evaluation_id,
+            phase=phase,
+            candidate_values=tuple(float(value) for value in candidate_values),
+            mapped_values=(
+                None if mapped_values is None else tuple(float(value) for value in mapped_values)
+            ),
+            base_state_ref=self.base_state_ref,
+            graph_invocation_id=graph_invocation_id,
+            execution_link_status=(
+                "captured" if graph_invocation_id is not None else "not_established"
+            ),
+            outcome=outcome,
+            failure_type=failure_type,
+        )
+        self._records.append(record)
+        return record
 
 
 @dataclass(frozen=True)

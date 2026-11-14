@@ -652,13 +652,20 @@ class ForecastOwner:
             policy_spec_ref=request.policy_spec_ref,
         )
 
-        observed_source_ref, snapshot_payload = _resolve_json(
+        observed_source_ref, _snapshot_payload = _resolve_json(
             self._store,
             request.observed_source_ref,
             expected_kind="fabric.data_snapshot",
         )
         try:
-            snapshot = DataSnapshot.model_validate(snapshot_payload)
+            from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+            from polisyos.core.artifacts import validate_core_model_json_artifact
+
+            snapshot = validate_core_model_json_artifact(
+                DataSnapshot,
+                self._store,
+                CoreArtifactRef.model_validate(observed_source_ref.model_dump(mode="python")),
+            )
         except Exception as exc:
             raise ValueError("observed source snapshot is malformed") from exc
         observed_data_ref, observed_payload = _resolve_json(self._store, snapshot.data_ref)

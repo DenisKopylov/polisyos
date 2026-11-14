@@ -18819,6 +18819,7 @@ export interface components {
             manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             method_execution_producer_diagnostic?: components["schemas"]["MethodExecutionProducerDiagnostic"] | null;
             method_execution_selection?: components["schemas"]["DirectMethodExecutionRunProjection"] | null;
+            model_input_use_actions?: components["schemas"]["RunModelInputUseActionsProjection"] | null;
             operator_diagnostic?: components["schemas"]["RunOperatorDiagnostic"] | null;
             policy_design_case_projection?: components["schemas"]["PolicyDesignCaseProjection"] | null;
             /** Root Artifacts */
@@ -19718,6 +19719,53 @@ export interface components {
             temporal_scope?: components["schemas"]["TemporalScope"] | null;
         };
         /**
+         * RunModelInputUseActionSelector
+         * @description One owned historical action locator, without result or currentness authority.
+         */
+        RunModelInputUseActionSelector: {
+            /** Action Job Id */
+            action_job_id: string;
+            /**
+             * Job State
+             * @enum {string}
+             */
+            job_state: "pending" | "running" | "completed" | "failed" | "cancelled";
+        };
+        /**
+         * RunModelInputUseActionsProjection
+         * @description Bounded discovery of model-input actions under an owned Control source.
+         */
+        RunModelInputUseActionsProjection: {
+            /** Actions */
+            actions: components["schemas"]["RunModelInputUseActionSelector"][];
+            /**
+             * Inventory Status
+             * @description Completeness of this bounded exact-run acquisition-job scan, without unverified bindings; does not establish action currentness or admissibility.
+             * @enum {string}
+             */
+            inventory_status: "complete" | "limited";
+            /** Inventory Truncated */
+            inventory_truncated: boolean;
+            /**
+             * Limitation Codes
+             * @default []
+             */
+            limitation_codes: ("action_inventory_truncated" | "action_binding_not_established")[];
+            /**
+             * Run Id
+             * @description Owned Control alias used by result reads; may differ from the Core run ID.
+             */
+            run_id: string;
+            /**
+             * Scope
+             * @default discovery_only
+             * @constant
+             */
+            scope: "discovery_only";
+            /** Source Job Id */
+            source_job_id: string;
+        };
+        /**
          * RunModelInputUseBlockedSourceProjection
          * @description Identify one original blocked N5 occurrence without replacing it.
          */
@@ -19880,7 +19928,10 @@ export interface components {
             original_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             original_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             original_semantic_successor_ref?: components["schemas"]["ArtifactRef-Output"] | null;
-            /** Predicate Provenance */
+            /**
+             * Predicate Provenance
+             * @description Provenance recorded on this decision at issuance; historical resolution does not recompute the past provider environment or establish present reuse eligibility.
+             */
             predicate_provenance?: ("recomputed" | "not_established") | null;
             /**
              * Publication Authority

@@ -656,8 +656,8 @@ def _replay_source(
     _require_safe_connector_encoding(normalized, source.normalized_source_ref.media_type)
     _read_selected(store, source.source_snapshot_ref)
     _read_selected(store, source.source_evidence_ref)
-    snapshot = DataSnapshot.model_validate(
-        artifacts.load_core_json_artifact(store, source.source_snapshot_ref)
+    snapshot = artifacts.validate_core_model_json_artifact(
+        DataSnapshot, store, source.source_snapshot_ref
     )
     bundle = EvidenceBundle.model_validate(
         artifacts.load_core_json_artifact(store, source.source_evidence_ref)
@@ -816,7 +816,7 @@ def persist_candidate_acquisition_source(
         raise ValueError("candidate_source_request_missing")
     snapshot_ref = _selected(store, _as_ref(proof.data_snapshot_ref))
     evidence_ref = _selected(store, _as_ref(proof.evidence_bundle_ref))
-    snapshot = DataSnapshot.model_validate(artifacts.load_core_json_artifact(store, snapshot_ref))
+    snapshot = artifacts.validate_core_model_json_artifact(DataSnapshot, store, snapshot_ref)
     source = CandidateAcquisitionSource(
         schema_version=(
             CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3

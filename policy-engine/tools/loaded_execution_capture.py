@@ -315,6 +315,20 @@ class NativeModuleExecution:
 
 
 @dataclass(frozen=True, slots=True)
+class NativeExportBinding:
+    """A recorded initializer import, exact live export and selected native image.
+
+    This binds the observed objects and files, not native mutable state or the
+    machine code mapped by an operating system.
+    """
+
+    importer: ModuleExecution
+    importer_export: str
+    provider: NativeModuleExecution
+    provider_export: str
+
+
+@dataclass(frozen=True, slots=True)
 class ImportEvidence:
     """A successful import observed at a selected source-owned call site."""
 
@@ -733,7 +747,11 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         ):
             return _FIND_SPEC(fullname, path, target)
         if target is not None:
-            if fullname in capture._sources or fullname in capture._external_native_modules:
+            if (
+                fullname in capture._sources
+                or fullname in capture._external_native_modules
+                or fullname in capture._native_completed
+            ):
                 capture._module_fail(fullname, "module_reload_not_admitted")
             return _FIND_SPEC(fullname, path, target)
         spec = _FIND_SPEC(fullname, path, target)
@@ -747,7 +765,14 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
             type(loader) is _EXTENSION_LOADER
             and type(origin) is str
             and name == fullname
-            and fullname in capture._external_native_modules
+            and (
+                fullname in capture._external_native_modules
+                or (
+                    capture._external_native_profile == "locked_wheel_providers"
+                    and capture._external_source_root is not None
+                    and Path(origin).is_relative_to(capture._external_source_root)
+                )
+            )
         ):
             native_selector = capture._external_native_selector
             if native_selector is None:
@@ -862,6 +887,9 @@ class SourceExecutionCapture:
         external_native_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
         external_native_modules: frozenset[str] = frozenset(),
         external_source_root: Path | None = None,
+        external_native_profile: Literal["selected_modules", "locked_wheel_providers"] = (
+            "selected_modules"
+        ),
     ) -> None:
         self._root = root.resolve(strict=True)
         self._process_id = _GETPID()
@@ -883,11 +911,21 @@ class SourceExecutionCapture:
         if (
             type(external_native_modules) is not frozenset
             or any(type(name) is not str or not name for name in external_native_modules)
-            or bool(external_native_modules) != (external_native_selector is not None)
+            or type(external_native_profile) is not str
+            or external_native_profile not in {"selected_modules", "locked_wheel_providers"}
+            or (
+                external_native_profile == "selected_modules"
+                and bool(external_native_modules) != (external_native_selector is not None)
+            )
+            or (
+                external_native_profile == "locked_wheel_providers"
+                and (external_native_selector is None or external_source_root is None)
+            )
         ):
             raise ValueError("capture_native_selection_invalid")
         self._external_native_selector = external_native_selector
         self._external_native_modules = external_native_modules
+        self._external_native_profile = external_native_profile
         self._native_completed: dict[str, NativeModuleExecution] = {}
         self._native_anchors: dict[str, tuple[object, ...]] = {}
         self._selecting_external = False
@@ -1344,6 +1382,7 @@ class SourceExecutionCapture:
         self._external_source_selector = None
         self._external_native_selector = None
         self._external_native_modules = frozenset()
+        self._external_native_profile = "selected_modules"
         self._import_hook = None
         self._import_module_hook = None
         self._prior_import = None
@@ -1531,6 +1570,55 @@ class SourceExecutionCapture:
             self._fail("retained_module_changed")
             raise CaptureError("retained_module_changed")
         return MappingProxyType(namespace)
+
+    def completed_native_export_reference(self, value: object) -> NativeExportBinding:
+        """Resolve an actual recorded Python re-export to its native image.
+
+        Names nominate no object here: candidates come from retained import
+        events and initializer-end exports by identity. Only direct initializer
+        imports are supported. Absence is unknown, not a negative import census.
+        """
+        self._require_same_process()
+        if self._phase != "collecting":
+            raise CaptureError("capture_not_collecting")
+        candidates: list[tuple[str, str, str, str, ImportEvidence]] = []
+        for event in self.import_events():
+            if event.route != "builtin_import" or event.provider_name not in self._native_completed:
+                continue
+            # An unrelated initializer may import this same native value and
+            # then fail. It has no completed export and is not a candidate for
+            # this reference; its failure does not erase a completed importer.
+            if event.importer_name not in self._completed:
+                continue
+            importer = self.completed(event.importer_name)
+            if event.caller_code is not importer.code:
+                continue
+            for exported, retained in event.retained_exports.items():
+                if (
+                    retained is not value
+                    or exported not in event.requested_exports
+                    or exported in event.unresolved_exports
+                ):
+                    continue
+                for local, held in importer.watched_exports.items():
+                    if held is value:
+                        candidates.append(
+                            (event.importer_name, local, event.provider_name, exported, event)
+                        )
+        if not candidates:
+            raise CaptureError("native_export_binding_not_recorded")
+        importer_name, local, provider_name, exported, event = min(
+            candidates, key=lambda item: item[:4]
+        )
+        self.assert_import_binding(event, importer_attribute=local, provider_export=exported)
+        if self.completed_binding(importer_name, local) is not value:
+            raise CaptureError("native_export_binding_changed")
+        return NativeExportBinding(
+            importer=self.completed(importer_name),
+            importer_export=local,
+            provider=self.completed_native(provider_name),
+            provider_export=exported,
+        )
 
     def assert_binding(
         self,

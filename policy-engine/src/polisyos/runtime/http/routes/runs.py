@@ -72,6 +72,8 @@ from polisyos.core.contracts.runtime import (
     RunGenericCycleSimulationN6CycleHistoryEntry,
     RunGenericCycleSimulationProjection,
     RunLineageResponse,
+    RunModelInputUseActionSelector,
+    RunModelInputUseActionsProjection,
     RunModelInputUseBlockedSourceProjection,
     RunModelInputUseN5SuccessorProjection,
     RunModelInputUseN5SuccessorProjectionV2,
@@ -5853,6 +5855,159 @@ def _generic_cycle_simulation_projection(
     )
 
 
+def _model_input_use_actions_for_indexed_run(
+    run: Any,
+    *,
+    store: Any,
+    control_service: Any | None,
+) -> RunModelInputUseActionsProjection | None:
+    """Discover exact action jobs without selecting a current use or exposing results.
+
+    The completed NL source resolves the displayed Core run to the Control alias
+    used by the existing result endpoint. Each locator additionally reconciles
+    the action's immutable creation envelope, payload and persisted owner phase.
+    Uncheckpointed or corrupt actions are omitted with a bounded scan limitation.
+    Result reads still independently establish their ownership and authority.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
+    from polisyos.runtime.http.services.model_input_successor_action import (
+        ModelInputSuccessorActionRequest,
+        ModelInputUseActionCheckpoint,
+    )
+    from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        read_model_input_use_action_phase,
+    )
+
+    details = run.details
+    tenant_id, cell_id, source_job_id = (
+        details.tenant_id,
+        details.cell_id,
+        details.control_job_id,
+    )
+    if (
+        not tenant_id
+        or not cell_id
+        or not source_job_id
+        or type(control_service) is not ControlPlaneService
+        or control_service._artifact_store is not store
+    ):
+        return None
+    database = control_service._control_store
+    try:
+        source_job = database.get_job(source_job_id)
+        if (
+            type(source_job) is not ControlJobRecord
+            or source_job.job_id != source_job_id
+            or source_job.kind != "natural_language_run"
+            or source_job.state != "completed"
+            or not source_job.run_id
+        ):
+            return None
+        source_scope, _ = database._reconcile_control_job_creation_envelope(source_job)
+        if (
+            source_scope.status != "established"
+            or source_scope.actor_authenticated is not True
+            or (source_scope.tenant_id, source_scope.cell_id) != (tenant_id, cell_id)
+        ):
+            return None
+        source = control_service.resolve_completed_control_job_core_run_source(
+            source_job,
+            expected_control_run_id=source_job.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        if (
+            source.run_id != details.run_id
+            or (source.tenant_id, source.cell_id) != (tenant_id, cell_id)
+            or source.manifest.run_id != details.run_id
+            or source.manifest.control_job_id != source_job_id
+            or details.manifest_ref is None
+            or artifact_ref_identity_key(source.manifest_ref)
+            != artifact_ref_identity_key(details.manifest_ref)
+        ):
+            return None
+        jobs = database.list_jobs_by_run_and_kind(
+            run_id=source_job.run_id, kind="acquisition", limit=129
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+    truncated = len(jobs) > 128
+    binding_not_established = False
+    selectors: list[RunModelInputUseActionSelector] = []
+    for job in jobs[:128]:
+        try:
+            if (
+                type(job) is not ControlJobRecord
+                or job.kind != "acquisition"
+                or job.run_id != source_job.run_id
+                or not job.payload_ref
+            ):
+                raise ValueError("model_input_use_action_job_binding_not_established")
+            scope, _ = database._reconcile_control_job_creation_envelope(job)
+            if (
+                scope.status != "established"
+                or scope.actor_authenticated is not True
+                or (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id)
+            ):
+                raise ValueError("model_input_use_action_scope_not_established")
+            raw_payload = control_service._load_payload_ref(
+                job.payload_ref, kind="runtime.control_job_payload.acquisition"
+            )
+            payload = ControlPlaneService._job_payload_without_telemetry(raw_payload)
+            action_kind = payload.get("action_kind")
+            if isinstance(action_kind, str) and action_kind != MODEL_INPUT_USE_ACTION_KIND:
+                continue
+            if (
+                action_kind != MODEL_INPUT_USE_ACTION_KIND
+                or (payload.get("tenant_id"), payload.get("cell_id")) != (tenant_id, cell_id)
+                or payload.get("run_id") != source_job.run_id
+            ):
+                raise ValueError("model_input_use_action_payload_not_established")
+            action_request = ModelInputSuccessorActionRequest.model_validate(payload.get("request"))
+            if not any(
+                artifact_ref_identity_key(ref)
+                == artifact_ref_identity_key(action_request.compiled_ref)
+                for ref in source.manifest.outputs
+            ):
+                raise ValueError("model_input_use_action_compiled_source_mismatch")
+            checkpoint = ModelInputUseActionCheckpoint.model_validate(
+                job.progress.get("model_input_use")
+            )
+            phase = read_model_input_use_action_phase(store, checkpoint.phase_ref)
+            if (
+                (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id)
+                != (tenant_id, cell_id, source_job.run_id, source_job_id)
+                or phase.action_job_id != job.job_id
+                or phase.route_id != payload.get("route_id")
+                or str(phase.action_payload_ref.artifact_id) != job.payload_ref
+                or str(phase.authority_decision_ref.artifact_id) != payload.get("decision_ref")
+            ):
+                raise ValueError("model_input_use_action_phase_binding_not_established")
+            selectors.append(
+                RunModelInputUseActionSelector(action_job_id=job.job_id, job_state=job.state)
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            binding_not_established = True
+    limitations: list[Literal["action_inventory_truncated", "action_binding_not_established"]] = []
+    if truncated:
+        limitations.append("action_inventory_truncated")
+    if binding_not_established:
+        limitations.append("action_binding_not_established")
+    if not selectors and not limitations:
+        return None
+    return RunModelInputUseActionsProjection(
+        run_id=source_job.run_id,
+        source_job_id=source_job_id,
+        actions=tuple(sorted(selectors, key=lambda item: item.action_job_id)),
+        inventory_status="limited" if limitations else "complete",
+        inventory_truncated=truncated,
+        limitation_codes=tuple(limitations),
+    )
+
+
 def _model_input_use_n5_successor_projection(
     *,
     run_id: str,
@@ -6232,7 +6387,11 @@ def _model_input_use_n5_successor_projection(
             original_result_ref=selected_result_ref,
             result_body=body,
             semantic_input_limitation_codes=semantic_input_limitation_codes,
-            current_basis_limitations=use_history.current_basis.limitations,
+            current_basis_limitations=tuple(
+                dict.fromkeys(
+                    (*use_history.current_basis.limitations, *use_history.history_limitation_codes)
+                )
+            ),
             selected_basis_limitations=use_history.selected_basis.limitations,
         )
     return RunModelInputUseN5SuccessorProjection(
@@ -7614,6 +7773,15 @@ if router is not None:
             )
             if generic_cycle_simulation is not None:
                 updates["generic_cycle_simulation"] = generic_cycle_simulation
+            if (
+                review_scope.tenant_id == run.details.tenant_id
+                and review_scope.cell_id == run.details.cell_id
+            ):
+                model_input_use_actions = _model_input_use_actions_for_indexed_run(
+                    run, store=ctx.store, control_service=control_service
+                )
+                if model_input_use_actions is not None:
+                    updates["model_input_use_actions"] = model_input_use_actions
             if operator_diagnostic is not None:
                 updates["operator_diagnostic"] = operator_diagnostic
             if policy_design_case_projection is not None:

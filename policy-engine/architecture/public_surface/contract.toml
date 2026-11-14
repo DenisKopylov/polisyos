@@ -162,6 +162,7 @@ supported_entrypoints = [
   "polisyos.core.components",
   "polisyos.core.contracts",
   "polisyos.core.contracts.forecast_profile_member",
+  "polisyos.core.derivations",
   "polisyos.core.governance",
   "polisyos.core.llm",
   "polisyos.core.llm.cache_settlement",
@@ -343,7 +344,7 @@ notes = "Replay and runtime-facing contracts. HTTP subpackages stay internal unl
 [[package]]
 module = "polisyos.runtime.quality"
 classification = "public_experimental"
-facade_mode = "eager_exports"
+facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/runtime/quality/README.md"
 reference_doc = "docs/reference/public-surface.md"

@@ -20,6 +20,7 @@ import math
 import os
 import platform
 import re
+import struct
 import sys
 import threading
 import types
@@ -1929,7 +1930,7 @@ _GRAPH_NORMALIZATION = "supported-native-callable-graph/3"
 
 
 def _n5_typed_instance_dictionary(
-    value: object, *, allowed_slots: frozenset[str]
+    value: object, *, allowed_slots: frozenset[str], native_scalar_base: type | None = None
 ) -> dict[str, object] | None:
     """Establish all native instance storage across the actual MRO passively.
 
@@ -1945,10 +1946,15 @@ def _n5_typed_instance_dictionary(
         for descriptor in namespace.values():
             if type(descriptor) is types.MemberDescriptorType:
                 name = descriptor.__name__
+                declared = namespace.get("__slots__", ())
+                declared = (declared,) if type(declared) is str else declared
                 if (
-                    descriptor.__objclass__ not in mro
+                    not any(descriptor.__objclass__ is owner for owner in mro)
                     or name not in allowed_slots
                     or (name in slots and slots[name] is not descriptor)
+                    or type(declared) not in {tuple, list}
+                    or any(type(item) is not str for item in declared)
+                    or name not in declared
                 ):
                     raise ValueError("n5_native_instance_storage_not_established")
                 slots[name] = descriptor
@@ -1958,7 +1964,10 @@ def _n5_typed_instance_dictionary(
                 if descriptor is object.__dict__["__class__"]:
                     continue
                 name = descriptor.__name__
-                if descriptor.__objclass__ not in mro or name not in {"__dict__", "__weakref__"}:
+                if not any(descriptor.__objclass__ is owner for owner in mro) or name not in {
+                    "__dict__",
+                    "__weakref__",
+                }:
                     raise ValueError("n5_native_instance_storage_not_established")
                 if name == "__dict__":
                     actual = descriptor.__get__(value, kind)
@@ -1967,7 +1976,74 @@ def _n5_typed_instance_dictionary(
                     ):
                         raise ValueError("n5_native_instance_storage_not_established")
                     dictionary = actual
+    _require_accounted_n5_instance_layout(
+        kind, mro=mro, slots=tuple(slots.values()), native_scalar_base=native_scalar_base
+    )
     return dictionary
+
+
+def _require_accounted_n5_instance_layout(
+    kind: type,
+    *,
+    mro: tuple[type, ...],
+    slots: tuple[object, ...],
+    native_scalar_base: type | None,
+) -> None:
+    """Refuse unaccounted inline payload in the supported CPython typed domain.
+
+    Declared Python object slots and dictionary/weakref pointer storage are
+    accounted separately. An empty dictionary does not establish the state of
+    an opaque native ancestor. External side tables, globals and mutation
+    during a call remain outside this candidate observation.
+    """
+    if (
+        sys.implementation.name != "cpython"
+        or sys.version_info[:2] != (3, 14)
+        or (native_scalar_base is not None and native_scalar_base is not str)
+    ):
+        raise ValueError("n5_instance_storage_profile_not_established")
+    pointer_size = struct.calcsize("P")
+
+    def native_type_field(owner: type, name: str) -> int:
+        descriptor = type.__dict__[name]
+        result = descriptor.__get__(owner, type(owner))
+        if type(result) is not int:
+            raise ValueError("n5_instance_storage_profile_not_established")
+        return result
+
+    header_size = native_type_field(object, "__basicsize__")
+    for owner in mro:
+        owner_mro = type.__dict__["__mro__"].__get__(owner, type(owner))
+        base_size = (
+            native_type_field(str, "__basicsize__")
+            if native_scalar_base is str and any(base is str for base in owner_mro)
+            else header_size
+        )
+        actual_size = native_type_field(owner, "__basicsize__")
+        if native_type_field(owner, "__itemsize__") != 0:
+            raise ValueError("n5_instance_native_payload_not_established")
+        actual_slots = {
+            id(descriptor)
+            for descriptor in slots
+            if any(descriptor.__objclass__ is base for base in owner_mro)
+        }
+        pointer_fields = set()
+        for base in owner_mro:
+            flags = native_type_field(base, "__flags__")
+            for role, attribute, managed_flag, managed_offset in (
+                ("dict", "__dictoffset__", 1 << 4, -1),
+                ("weakref", "__weakrefoffset__", 1 << 3, -4 * pointer_size),
+            ):
+                offset = native_type_field(base, attribute)
+                if offset < 0 and (offset != managed_offset or not flags & managed_flag):
+                    raise ValueError("n5_instance_storage_profile_not_established")
+                if offset > 0:
+                    if offset < header_size or offset + pointer_size > actual_size:
+                        raise ValueError("n5_instance_storage_profile_not_established")
+                    pointer_fields.add((role, offset))
+        expected_size = base_size + pointer_size * (len(actual_slots) + len(pointer_fields))
+        if actual_size != expected_size:
+            raise ValueError("n5_instance_native_payload_not_established")
 
 
 class _N5ContentGraph:
@@ -1984,7 +2060,7 @@ class _N5ContentGraph:
         root = self._encode(value, 0)
         return _v2_json({"root": root, "nodes": self._rows})
 
-    def _encode(self, value: object, depth: int) -> object:
+    def _encode(self, value: object, depth: int, *, bound_receiver: bool = False) -> object:
         if depth > 40 or self._budget[0] <= 0:
             raise ValueError("n5_native_content_not_established")
         kind = type(value)
@@ -2046,6 +2122,12 @@ class _N5ContentGraph:
                 kwdefaults=encode(value.__kwdefaults__),
                 closure=closure,
             )
+        elif kind is types.MethodType:
+            row.update(
+                kind="bound_method",
+                function=encode(value.__func__),
+                receiver=self._encode(value.__self__, depth + 1, bound_receiver=True),
+            )
         elif kind is dict:
             if len(value) > self._budget[0]:
                 raise ValueError("n5_native_content_not_established")
@@ -2068,7 +2150,10 @@ class _N5ContentGraph:
         elif type(kind) is type(BaseModel) and issubclass(kind, BaseModel):
             self._model_row(value, row, encode)
         elif type(kind) is type(Enum) and issubclass(kind, Enum):
-            values = _n5_typed_instance_dictionary(value, allowed_slots=frozenset())
+            scalar_base = str if any(base is str for base in kind.__mro__) else None
+            values = _n5_typed_instance_dictionary(
+                value, allowed_slots=frozenset(), native_scalar_base=scalar_base
+            )
             if type(values) is not dict or "_value_" not in values or "_name_" not in values:
                 raise ValueError("n5_native_content_not_established")
             if (
@@ -2085,6 +2170,8 @@ class _N5ContentGraph:
                     if name != "__objclass__"
                 },
             )
+            if scalar_base is str:
+                row["native_scalar_payload"] = encode(str.__str__(value))
         elif type(kind) is type and "__dataclass_fields__" in vars(kind):
             self._dataclass_row(value, row, encode)
         elif kind is types.ModuleType or issubclass(kind, type):
@@ -2092,6 +2179,13 @@ class _N5ContentGraph:
             if binding is None:
                 raise ValueError("n5_reference_binding_not_established")
             row.update(kind="recorded_binding", binding=binding)
+        elif bound_receiver:
+            self._plain_bound_receiver_row(value, row, encode)
+        elif callable(value):
+            binding = _n5_recorded_native_reference(value)
+            if binding is None:
+                raise ValueError("n5_reference_binding_not_established")
+            row.update(kind="recorded_native_export", binding=binding)
         else:
             from polisyos.ir import read_canonical_immutable_container
 
@@ -2108,6 +2202,30 @@ class _N5ContentGraph:
                 else [[encode(key), encode(item)] for key, item in items],
             )
         return {"ref": position}
+
+    def _plain_bound_receiver_row(
+        self, value: object, row: dict[str, object], encode: Callable[[object], object]
+    ) -> None:
+        """Bind a recorded Python class and every supported plain instance field.
+
+        This does not support arbitrary objects in closures. Hidden slots,
+        custom attribute protocols and unsupported field values stay unknown.
+        Class/global mutation completeness remains a declared candidate limit.
+        """
+        kind = type(value)
+        if inspect.getattr_static(kind, "__getattribute__") is not object.__getattribute__:
+            raise ValueError("n5_bound_receiver_not_established")
+        values = _n5_typed_instance_dictionary(value, allowed_slots=frozenset())
+        binding = _n5_recorded_reference(kind, self._namespaces)
+        if type(values) is not dict or binding is None:
+            raise ValueError("n5_bound_receiver_not_established")
+        row.update(
+            kind="plain_bound_receiver",
+            receiver_profile="recorded-python-class/cpython-3.14-dictionary-layout/2",
+            class_binding=binding,
+            fields=encode(values),
+            external_state_completeness="not_established",
+        )
 
     @staticmethod
     def _model_row(
@@ -2195,13 +2313,13 @@ def _n5_recorded_reference(
     value: object, namespaces: list[dict[str, object]]
 ) -> dict[str, object] | None:
     """Bind an actual class/module via the recorder, never by name equivalence."""
-    from polisyos.runtime.quality.confidence_ledger import _retained_n5_host_capture
+    from polisyos.runtime.quality.confidence_ledger import _candidate_n5_host_capture
 
     try:
-        retained = _retained_n5_host_capture()
+        retained = _candidate_n5_host_capture()
         if retained is None:
             return None
-        capture = retained[0].capture
+        capture = retained[0]
         candidates: list[tuple[str, str]] = []
         for namespace in namespaces:
             module = namespace.get("__name__")
@@ -2244,6 +2362,69 @@ def _n5_recorded_reference(
     return None
 
 
+def _n5_recorded_native_reference(value: object) -> dict[str, object] | None:
+    """Bind an observed native export through the canonical early recorder.
+
+    The native file and locked wheel are observed bytes, not proof of mapped
+    code, opaque native mutable state or a complete numerical readset.
+    """
+    from polisyos.runtime.quality.confidence_ledger import (
+        _candidate_n5_host_capture,
+        _code_tree_contains,
+    )
+
+    try:
+        retained = _candidate_n5_host_capture()
+        if retained is None:
+            return None
+        capture, session = retained
+        binding = capture.completed_native_export_reference(value)
+        member_reader = session.get("locked_native_member")
+        host = sys.modules.get("_polisyos_early_host")
+        # Reuse the canonical host callback boundary: a callable in a session
+        # field is not a wheel reconciliation result or its source ownership.
+        if (
+            type(member_reader) is not types.FunctionType
+            or type(host) is not types.ModuleType
+            or member_reader.__globals__ is not vars(host)
+            or member_reader.__code__.co_qualname != "_child_main.<locals>.locked_native_member"
+            or not _code_tree_contains(session.get("host_code"), member_reader.__code__)
+            or member_reader.__defaults__ is not None
+            or member_reader.__kwdefaults__ is not None
+        ):
+            return None
+        member = member_reader(binding.provider.module_name)
+        if (
+            type(member) is not tuple
+            or len(member) != 5
+            or any(type(item) is not str for item in member)
+            or member[:3]
+            != (
+                binding.provider.module_name,
+                binding.provider.relative_path,
+                binding.provider.file_sha256,
+            )
+        ):
+            return None
+        return {
+            "reference_profile": "recorded-initializer-native-export/1",
+            "importer_module": binding.importer.module_name,
+            "importer_export": binding.importer_export,
+            "importer_relative_path": binding.importer.relative_path,
+            "importer_source_sha256": binding.importer.source_sha256,
+            "provider_module": member[0],
+            "provider_export": binding.provider_export,
+            "provider_relative_path": member[1],
+            "provider_file_sha256": member[2],
+            "provider_wheel_sha256": member[3],
+            "lock_sha256": member[4],
+            "native_state_completeness": "not_established",
+            "mapped_image_identity": "not_established",
+        }
+    except (AttributeError, ImportError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+
 class N5ExecutionContentWitnessV3(N5ExecutionContentWitness):
     """Versioned candidate native/callable graph content; never protected authority."""
 
@@ -2267,8 +2448,18 @@ class N5ControlledCallCaptureV3(N5ControlledCallCapture):
 
     @staticmethod
     def _callable_wire(function: object) -> str:
-        if type(function) is not types.FunctionType:
+        if not callable(function):
             raise ValueError("n5_callable_state_not_established")
+        if type(function) not in {types.FunctionType, types.MethodType}:
+            binding = _n5_recorded_native_reference(function)
+            if binding is None:
+                raise ValueError("n5_callable_state_not_established")
+            return _v2_json(
+                {
+                    "root": {"ref": 0},
+                    "nodes": [{"kind": "recorded_native_export", "binding": binding}],
+                }
+            )
         return N5ControlledCallCaptureV3._native_wire(function)
 
     def _arguments_wire(
@@ -2362,8 +2553,11 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
                 is not inspect.getattr_static(Enum, "value")
             ):
                 raise ValueError("n5_foundry_enum_protocol_not_established")
+            scalar_base = str if any(base is str for base in kind.__mro__) else None
             try:
-                values = _n5_typed_instance_dictionary(item, allowed_slots=frozenset())
+                values = _n5_typed_instance_dictionary(
+                    item, allowed_slots=frozenset(), native_scalar_base=scalar_base
+                )
             except (AttributeError, TypeError, ValueError) as exc:
                 raise ValueError("n5_foundry_enum_state_not_established") from exc
             if (
@@ -2379,7 +2573,7 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
             if position is not None:
                 return {"ref": position}
             positions[id(item)] = len(positions)
-            return {
+            result = {
                 "enum": {
                     "id": positions[id(item)],
                     "type": _native_type_label(kind),
@@ -2390,6 +2584,9 @@ def snapshot_foundry_call_value(value: object, *, max_bytes: int = 65536) -> byt
                     },
                 }
             }
+            if scalar_base is str:
+                result["enum"]["native_scalar_payload"] = project(str.__str__(item), depth + 1)
+            return result
         if kind is ArrayImpl or kind is np.ndarray:
             if kind is np.ndarray:
                 if item.flags.writeable:

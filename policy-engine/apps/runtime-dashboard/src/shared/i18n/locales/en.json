@@ -809,6 +809,28 @@
         "unavailable": "Generic cycle observations are withheld: {reason}.",
         "refused": "Generic cycle projection withheld: {reason}"
       },
+      "modelInputUse": {
+        "title": "Model-input action records",
+        "discoveryScope": "Actions are listed by job ID, not in chronological order. The list only identifies per-job detail queries; it does not establish which result is selected or whether source data is current.",
+        "runSource": "Control run: {runId}; source job: {sourceJobId}.",
+        "inventoryLimited": "Action history is partial; listed actions may omit records.",
+        "noActions": "No model-input action was discovered for this run.",
+        "noActionsLimited": "No action result is available from this limited discovery.",
+        "chooseAction": "Open one discovered action to load its validated result.",
+        "action": "Action {actionJobId}",
+        "selectionNotEstablished": "Selection is not established for this result version.",
+        "frontier": "Model-input use selection: {status} (revision {revision}); source currentness is not established.",
+        "actionStatus": "Action status: {status}.",
+        "provenance": "N5 provenance: {provenance}.",
+        "basisComparison": "Basis comparison: {result}; predicate: {provenance}.",
+        "resultStatus": "Result status: {status}.",
+        "currentness": "Source currentness: {status}.",
+        "candidateScope": "Candidate-only N5 evidence. No observed admission or publication authority is granted.",
+        "resultUnitNotSupplied": "Output units are not supplied by this result.",
+        "references": "Action and result references",
+        "resultBody": "Saved N5 result body (candidate-only)",
+        "resultUnavailable": "Result details are unavailable for action {actionJobId} (discovery status: {jobState})."
+      },
       "predictiveCalibration": {
         "eyebrow": "Candidate only",
         "title": "Empirical predictive diagnostic",

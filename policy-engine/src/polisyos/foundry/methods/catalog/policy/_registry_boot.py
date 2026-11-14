@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from .accounting import PeriodFlowToStock
 from .evaluation import (
     BudgetImpactEstimator,
     ExAnteSimulationEstimator,
@@ -66,6 +67,7 @@ def register_policy_methods() -> Sequence[type]:
         RobustTOPSISEstimator,
         RobustAHPEstimator,
         RobustELECTREEstimator,
+        PeriodFlowToStock,
     )
 
 

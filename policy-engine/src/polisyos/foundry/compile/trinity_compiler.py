@@ -92,6 +92,29 @@ def _require_bounded_method_metric_bindings(request: CompileRequest) -> None:
         raise ValueError("method_metric_binding_inventory_exceeds_capture_limit")
 
 
+def _persist_program_graph(
+    store: CoreJSONArtifactStore,
+    program_graph: ProgramGraph,
+    *,
+    inputs: list[InputRef],
+    return_selected_profile: bool,
+) -> ArtifactRef:
+    """Persist a graph using the manifest version selected by its payload."""
+    return store.put_json(
+        program_graph.to_artifact_payload(),
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=program_graph.artifact_schema_version,
+            ),
+            inputs=inputs,
+        ),
+        return_selected_profile=return_selected_profile,
+    )
+
+
 def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle and persist the execution graph artifacts.
 
@@ -310,17 +333,10 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
         params_refs=params_refs,
         method_execution_plan_ref=exact_method_plan_ref,
     )
-    program_ref = store.put_json(
+    program_ref = _persist_program_graph(
+        store,
         program_graph,
-        PutOptions(
-            kind=ProgramGraph.ARTIFACT_KIND,
-            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
-                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
-            ),
-            inputs=program_inputs,
-        ),
+        inputs=program_inputs,
         return_selected_profile=request.return_selected_profile,
     )
     program_graph_ref = ProgramGraphRef.model_validate(program_ref.model_dump(mode="python"))
@@ -526,9 +542,10 @@ def _load_selected_method_execution_plan(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != "polisyos.core.ExecutionPlan"
-        or manifest.artifact_schema.version != "1.0"
     ):
         raise ValueError("method_execution_plan_manifest_schema_mismatch")
+    if manifest.artifact_schema.version not in ExecutionPlan.SUPPORTED_SCHEMA_VERSIONS:
+        raise ValueError("method_execution_plan_schema_unsupported")
     candidate_edges = [item for item in manifest.inputs if item.role == "policy_candidate"]
     if len(candidate_edges) != 1:
         raise ValueError("method_execution_plan_requires_one_policy_candidate_edge")
@@ -539,6 +556,8 @@ def _load_selected_method_execution_plan(
     ):
         raise ValueError("method_execution_plan_policy_candidate_edge_mismatch")
     plan = validate_core_model_json_artifact(ExecutionPlan, store, exact_plan_ref)
+    if plan.schema_version != manifest.artifact_schema.version:
+        raise ValueError("method_execution_plan_manifest_schema_mismatch")
     return plan, ExecutionPlanRef.model_validate(exact_plan_ref.model_dump(mode="python"))
 
 

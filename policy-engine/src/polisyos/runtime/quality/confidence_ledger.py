@@ -6858,6 +6858,35 @@ class _LoadedExecutionObservationSeal:
 _LOADED_EXECUTION_OBSERVATION_SEAL: _LoadedExecutionObservationSeal | None = None
 
 
+def _candidate_n5_host_capture() -> tuple[object, dict[str, object]] | None:
+    """Reconcile the live early recorder for candidate-only binding observations.
+
+    This establishes the recorder and this loaded owner, not optional import
+    closure, a retained authority seal, or permission for protected use.
+    """
+    session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    if type(session) is not dict or _passive_capture_lookup(session, "phase") != "collecting":
+        return None
+    capture = _passive_capture_lookup(session, "capture")
+    recorder = _passive_capture_lookup(session, "recorder")
+    if not _host_recorder_anchor_matches(recorder, capture):
+        return None
+    try:
+        execution = capture.completed(__name__)
+        capture.assert_retained(frozenset({__name__}))
+        owner = _passive_capture_lookup(sys.modules, __name__)
+        if (
+            type(owner) is not types.ModuleType
+            or execution.module is not owner
+            or _candidate_n5_host_capture.__globals__ is not vars(owner)
+            or not capture._code_belongs_to(execution.code, _candidate_n5_host_capture.__code__)
+        ):
+            return None
+        return capture, session
+    except (AttributeError, ImportError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+
 def _retained_n5_host_capture() -> tuple[_LoadedExecutionObservationSeal, dict[str, object]] | None:
     """Reopen the ledger's observation of the same live early recorder."""
 

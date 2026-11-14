@@ -5269,7 +5269,13 @@ class RunModelInputUseN5SuccessorProjectionV2(BaseModel):
     basis_comparison_result: (
         Literal["initial", "equivalent", "different", "not_established"] | None
     ) = None
-    predicate_provenance: Literal["recomputed", "not_established"] | None = None
+    predicate_provenance: Literal["recomputed", "not_established"] | None = Field(
+        default=None,
+        description=(
+            "Provenance recorded on this decision at issuance; historical resolution does not "
+            "recompute the past provider environment or establish present reuse eligibility."
+        ),
+    )
     evaluation_provenance: Literal["new_execution", "retained_prior"] | None = None
     original_action_job_id: str | None = Field(default=None, min_length=1)
     original_input_ref: ArtifactRef | None = None
@@ -8554,6 +8560,56 @@ class RunConditionalTransportCandidateProjection(BaseModel):
         return self
 
 
+class RunModelInputUseActionSelector(BaseModel):
+    """One owned historical action locator, without result or currentness authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    action_job_id: str = Field(min_length=1, max_length=128)
+    job_state: Literal["pending", "running", "completed", "failed", "cancelled"]
+
+
+class RunModelInputUseActionsProjection(BaseModel):
+    """Bounded discovery of model-input actions under an owned Control source."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(
+        min_length=1,
+        max_length=128,
+        description="Owned Control alias used by result reads; may differ from the Core run ID.",
+    )
+    source_job_id: str = Field(min_length=1, max_length=128)
+    scope: Literal["discovery_only"] = "discovery_only"
+    actions: tuple[RunModelInputUseActionSelector, ...] = Field(max_length=128)
+    inventory_status: Literal["complete", "limited"] = Field(
+        description=(
+            "Completeness of this bounded exact-run acquisition-job scan, without unverified "
+            "bindings; does not establish action currentness or admissibility."
+        )
+    )
+    inventory_truncated: bool
+    limitation_codes: tuple[
+        Literal["action_inventory_truncated", "action_binding_not_established"], ...
+    ] = ()
+
+    @model_validator(mode="after")
+    def validate_discovery_inventory(self) -> RunModelInputUseActionsProjection:
+        """Keep scan limits explicit and selectors deterministic without ranking them."""
+        job_ids = tuple(action.action_job_id for action in self.actions)
+        if job_ids != tuple(sorted(set(job_ids))):
+            raise ValueError("model_input_use_action_selector_order_invalid")
+        expected_limits = set(self.limitation_codes)
+        if (
+            len(expected_limits) != len(self.limitation_codes)
+            or self.inventory_truncated != ("action_inventory_truncated" in expected_limits)
+            or (self.inventory_status == "limited") != bool(expected_limits)
+            or (not self.actions and self.inventory_status == "complete")
+        ):
+            raise ValueError("model_input_use_action_inventory_status_mismatch")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -8575,6 +8631,9 @@ class RunDetails(RunRecordV1):
         RunCandidateSimulationProjection | RunFailedCandidateSimulationProjection | None
     ) = None
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
+    model_input_use_actions: RunModelInputUseActionsProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
     method_execution_selection: DirectMethodExecutionRunProjection | None = None
     conditional_transport_candidate: RunConditionalTransportCandidateProjection | None = Field(
@@ -10633,6 +10692,8 @@ __all__ = [
     "RunGenericCycleSimulationN5Observation",
     "RunGenericCycleSimulationProjection",
     "RunLineageResponse",
+    "RunModelInputUseActionSelector",
+    "RunModelInputUseActionsProjection",
     "RunModelInputUseBlockedSourceProjection",
     "RunModelInputUseN5SuccessorProjection",
     "RunModelInputUseN5SuccessorProjectionV2",

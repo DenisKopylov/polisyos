@@ -17,7 +17,14 @@ from pydantic import (
 )
 
 from ..artifacts.ids import ArtifactID
-from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord, input_ref_from_artifact_ref
+from ..artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    WarningRecord,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
+from .semantic_input_binding import ResolvedDerivedInput
 from .uncertainty import UncertaintyEnvelopeRef
 from .variable_binding import (
     ScopedCorrespondenceBasisRef,
@@ -361,12 +368,84 @@ class CandidateAcquisitionSourceDataSnapshotLineage(_DataSnapshotOwnerLineage):
     candidate_source_ref: ArtifactRef
 
 
+class DerivedModelInputDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Candidate-only snapshot lineage for a complete selected derived-input set.
+
+    This records selected candidate computations and their direct dependencies.
+    It does not establish empirical truth, currentness, or authority to publish.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    owner: Literal["derived_model_input"] = "derived_model_input"
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+    lineage_status: Literal["not_established"] = "not_established"
+    base_data_snapshot_ref: ArtifactRef
+    model_input_obligation_set_ref: ArtifactRef
+    selections: tuple[ResolvedDerivedInput, ...] = Field(min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def _selected_candidate_inputs_are_unique(self) -> DerivedModelInputDataSnapshotLineage:
+        if (
+            self.base_data_snapshot_ref.kind != "fabric.data_snapshot"
+            or self.base_data_snapshot_ref.media_type != "application/json"
+            or self.base_data_snapshot_ref.manifest_profile_sha256 is None
+            or self.model_input_obligation_set_ref.kind
+            != "runtime.quality.model_input_obligation_set"
+            or self.model_input_obligation_set_ref.media_type != "application/json"
+            or self.model_input_obligation_set_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("derived_model_input_snapshot_lineage_ref_mismatch")
+
+        binding_ids = tuple(item.binding_id for item in self.selections)
+        selection_keys = tuple(
+            (
+                artifact_ref_identity_key(item.model_input_obligation_ref),
+                item.model_port_id,
+                item.year,
+            )
+            for item in self.selections
+        )
+        if len(set(binding_ids)) != len(binding_ids) or len(set(selection_keys)) != len(
+            selection_keys
+        ):
+            raise ValueError("derived_model_input_snapshot_selections_not_unique")
+        return self
+
+    def selection_lineage_refs(self) -> tuple[tuple[ArtifactRef, str], ...]:
+        """Resolve the established selection edge roles back to typed references."""
+        requirements: list[tuple[ArtifactRef, str]] = []
+        for selection in self.selections:
+            selected_refs = (
+                selection.model_input_obligation_ref,
+                selection.model_interface_ref,
+                selection.recipe_ref,
+                selection.certificate_ref,
+                selection.output_ref,
+                selection.correspondence_ref,
+                selection.profile_ref,
+                *((selection.derivation_bundle_ref,) if selection.derivation_bundle_ref else ()),
+            )
+            refs_by_identity = {
+                (str(ref.artifact_id), ref.manifest_profile_sha256): ref for ref in selected_refs
+            }
+            for edge in selection.lineage_inputs():
+                ref = refs_by_identity.get((str(edge.artifact_id), edge.manifest_profile_sha256))
+                if ref is None:
+                    raise ValueError("derived_model_input_snapshot_selection_edge_unresolved")
+                requirements.append((ref, edge.role))
+        return tuple(requirements)
+
+
 DataSnapshotOwnerLineage = Annotated[
     MeasurementRootDataSnapshotLineage
     | FabricBridgeDataSnapshotLineage
     | AcquiredObservationDataSnapshotLineage
     | AcquiredObservationSemanticInputDataSnapshotLineage
-    | CandidateAcquisitionSourceDataSnapshotLineage,
+    | CandidateAcquisitionSourceDataSnapshotLineage
+    | DerivedModelInputDataSnapshotLineage,
     Field(discriminator="owner"),
 ]
 
@@ -555,6 +634,13 @@ def data_snapshot_owner_input_requirements(
         extra_refs = (
             (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
             (lineage.candidate_source_ref, "evidence.candidate_acquisition_source"),
+        )
+    elif isinstance(lineage, DerivedModelInputDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.derived_model_input"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.model_input_obligation_set_ref, "selected_obligation_set"),
+            *lineage.selection_lineage_refs(),
         )
     else:  # pragma: no cover - Pydantic's discriminated union owns this boundary.
         raise ValueError("data_snapshot_owner_lineage_unsupported")

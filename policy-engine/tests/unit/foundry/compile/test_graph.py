@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import hashlib
+
+import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.foundry import (
     LoweredIRRef,
     LoweredMechanism,
@@ -120,3 +125,144 @@ class TestBuildExecOrder:
             entrypoints=[],
         )
         assert build_exec_order(graph) == []
+
+
+def test_program_graph_v02_keeps_legacy_wire_and_rejects_input_port_maps() -> None:
+    node = {
+        "node_id": "method-a",
+        "node_kind": "method",
+        "method_fqn": "policy.example@1.0.0",
+        "inputs": ["ledger.flow"],
+    }
+    graph = ProgramGraph(ir_ref=_artifact_ref("ir"), nodes=[node])
+
+    assert graph.schema_version == "0.2"
+    assert graph.artifact_schema_version == "0.2.0"
+    legacy_node = graph.to_artifact_payload()["nodes"][0]
+    assert legacy_node["node_id"] == node["node_id"]
+    assert legacy_node["method_fqn"] == node["method_fqn"]
+    assert legacy_node["inputs"] == node["inputs"]
+    assert "input_ports" not in legacy_node
+    assert hashlib.sha256(to_canonical_bytes(graph)).hexdigest() == (
+        "8db5fffa2aee868a86db50d291af9f1503474a82812b8476a7a757835efbcdfc"
+    )
+    with pytest.raises(ValueError, match="program_graph_input_ports_version_mismatch"):
+        ProgramGraph(
+            ir_ref=_artifact_ref("ir"),
+            nodes=[
+                {
+                    **node,
+                    "input_ports": {
+                        "period_flow": {"source_kind": "registry_slot", "slot_id": "ledger.flow"}
+                    },
+                }
+            ],
+        )
+
+
+def test_program_graph_v03_requires_complete_maps_and_projects_registry_slots() -> None:
+    source = {"source_kind": "registry_slot", "slot_id": "ledger.flow"}
+    node = {
+        "node_id": "method-a",
+        "node_kind": "method",
+        "method_fqn": "policy.example@1.0.0",
+        "inputs": ["ledger.flow"],
+        "input_ports": {"period_flow": source, "baseline_flow": source},
+    }
+    graph = ProgramGraph(
+        ir_ref=_artifact_ref("ir"),
+        schema_version="0.3",
+        nodes=[node],
+    )
+
+    assert graph.artifact_schema_version == "0.3.0"
+    assert graph.ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST[graph.artifact_schema_version] == "0.3"
+    assert graph.to_artifact_payload()["nodes"][0]["input_ports"] == node["input_ports"]
+
+    with pytest.raises(ValueError, match="program_graph_input_ports_missing"):
+        ProgramGraph(
+            ir_ref=_artifact_ref("ir"),
+            schema_version="0.3",
+            nodes=[
+                node,
+                {
+                    "node_id": "method-b",
+                    "node_kind": "method",
+                    "method_fqn": "policy.other@1.0.0",
+                    "inputs": [],
+                },
+            ],
+        )
+    with pytest.raises(
+        ValueError,
+        match="program_graph_input_ports_registry_projection_mismatch",
+    ):
+        ProgramGraph(
+            ir_ref=_artifact_ref("ir"),
+            schema_version="0.3",
+            nodes=[{**node, "inputs": ["wrong.slot"]}],
+        )
+
+
+def test_program_graph_v03_represents_method_output_source_structurally() -> None:
+    graph = ProgramGraph(
+        ir_ref=_artifact_ref("ir"),
+        schema_version="0.3",
+        nodes=[
+            {
+                "node_id": "consumer",
+                "node_kind": "method",
+                "method_fqn": "policy.example@1.0.0",
+                "input_ports": {
+                    "period_flow": {
+                        "source_kind": "method_output",
+                        "producer_node_id": "producer",
+                        "output_slot_id": "derived.flow",
+                    }
+                },
+                "inputs": [],
+            }
+        ],
+    )
+
+    assert graph.to_artifact_payload()["nodes"][0]["input_ports"]["period_flow"] == {
+        "source_kind": "method_output",
+        "producer_node_id": "producer",
+        "output_slot_id": "derived.flow",
+    }
+
+
+def test_program_graph_v03_projection_is_canonical_order_independent() -> None:
+    from polisyos.core.canon import to_canonical_bytes
+
+    source_by_port = {
+        "z_port": {"source_kind": "registry_slot", "slot_id": "slot.a"},
+        "a_port": {"source_kind": "registry_slot", "slot_id": "slot.z"},
+        "alias_port": {"source_kind": "registry_slot", "slot_id": "slot.a"},
+    }
+
+    def graph_for(ports: dict[str, dict[str, str]]) -> ProgramGraph:
+        return ProgramGraph(
+            ir_ref=_artifact_ref("ir"),
+            schema_version="0.3",
+            nodes=[
+                {
+                    "node_id": "method-a",
+                    "node_kind": "method",
+                    "method_fqn": "policy.example@1.0.0",
+                    "inputs": ["slot.a", "slot.z"],
+                    "input_ports": ports,
+                }
+            ],
+        )
+
+    first = graph_for(source_by_port)
+    second = graph_for(dict(reversed(tuple(source_by_port.items()))))
+    first_bytes = to_canonical_bytes(first)
+    second_bytes = to_canonical_bytes(second)
+
+    assert first.nodes[0].inputs == ["slot.a", "slot.z"]
+    assert second.nodes[0].inputs == ["slot.a", "slot.z"]
+    assert first_bytes == second_bytes
+    assert ProgramGraph.model_validate_json(first_bytes) == first
+    assert ProgramGraph.model_validate_json(second_bytes) == second

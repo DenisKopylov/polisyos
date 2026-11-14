@@ -6,6 +6,7 @@ from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_metho
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_policy_methods
+from .accounting import PeriodFlowToStock
 from .evaluation import (
     BudgetImpactEstimator,
     ExAnteSimulationEstimator,
@@ -64,6 +65,7 @@ __all__ = [
     "KrusellSmithLiteEstimator",
     "MeanFieldEquilibriumEstimator",
     "OptimalLinearTaxEstimator",
+    "PeriodFlowToStock",
     "PolicyScorecardEstimator",
     "RankStabilityEstimator",
     "RawlsianSWFEstimator",

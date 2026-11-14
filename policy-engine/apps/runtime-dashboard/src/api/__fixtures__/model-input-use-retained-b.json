@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "request_id": "a6811ce237b54ca29f64e0c23bd84f9f",
+    "generated_at": "2026-11-14T08:48:08.820936Z",
+    "source_kinds": ["core_run"]
+  },
+  "result": {
+    "schema_version": "policyos.runtime.run_model_input_use_n5_successor_projection.v2",
+    "run_id": "R_1ba434752c3b19a0",
+    "action_job_id": "model-input-use.835dd46855290673311c6526744018f262c4fed937fe89e30f527af10cfa592d",
+    "action_status": "completed",
+    "result_status": "resolved",
+    "blocked_source": {
+      "run_id": "R_1ba434752c3b19a0",
+      "source_job_id": "6d6071f708c6469f8a892f41b8a8c12d",
+      "design_problem_ref": "sha256:4eea6feb1b8ef9d3865f4399d3d847137d5f91c84e1661d2afdd44393302ad67",
+      "cycle_index": 0,
+      "candidate_id": "candidate_a2bf1fa2e852d890",
+      "candidate_content_hash": "sha256:faa8359d17f4b4caa0e8a2b864410354891e52474658d530732d2807b1319407",
+      "status": "simulation_blocked",
+      "blocked_execution_ref": {
+        "artifact_id": "sha256:f9f89ad8d4176e96d80b8708b4eff39c85a0a15936a95744f36b9419d27c8043",
+        "kind": "runtime.quality.generic_cycle_simulation_n5_execution",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:eef10aa8a259a1bf19af79bf4fd296e45118ca4af60937da2474f83fdfd12fec"
+      },
+      "model_input_obligation_set_ref": {
+        "artifact_id": "sha256:f2715a8cedc47214f545469f27e5255c25448d2e1905768bf9bd36fa0c2decad",
+        "kind": "runtime.quality.model_input_obligation_set",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9362d99772f2a278f52183bcb9ea03bb49e232ffed2c23886ad4270f68b8bfb0"
+      },
+      "routing_report_ref": {
+        "artifact_id": "sha256:7a7b82335988e7bfe6acd9932d91f718ec211def19cacdb1a265ea5a22a8a31f",
+        "kind": "runtime.quality.model_input_routing_report",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:8bd487a121031a1b286acef1ab3099ab319cdae7e12a27040af5b60289f16137"
+      },
+      "authority_purpose": "cycle_input_candidate_only",
+      "currentness_status": "not_established",
+      "publication_authority": false
+    },
+    "current_action_phase_ref": {
+      "artifact_id": "sha256:88b14fa71990d2d0bbad84c415c7579695603c6b21c3e9e787054781218430a7",
+      "kind": "runtime.quality.model_input_use_action_phase",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:a54f8c05ab9f7e654d765203e3b54713b205b0e9a6a5d023ed53da52c860e2c1"
+    },
+    "current_semantic_successor_ref": {
+      "artifact_id": "sha256:df75f2004ad51ed7676c459405c0c71d617093e86adc60f53126ccb61d17b83a",
+      "kind": "runtime.quality.model_input_successor_selection",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:c91b482dff3ff3cf221782188eea42b9306827de62b0a1719202713e8c31bc40"
+    },
+    "current_authority_decision_ref": {
+      "artifact_id": "sha256:e5215b4feecced6a27626abf793f6eb78b9831ef82ea8ac835dedace103cee5e",
+      "kind": "runtime_quality.agent_action_authority_decision",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:cc48c23acbb45fd9122b9505a87608488151edc4d600656d60a81954f81dc854"
+    },
+    "current_use_decision_ref": {
+      "artifact_id": "sha256:ab1ae7e0418c6f0846f905490145debe4b27c534da5c0cee1d752e060c16abaf",
+      "kind": "runtime_quality.acquisition_evaluation_decision",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:ab8d26b6e3cddaf7d1510a5dbeab23550cdbeeb7e30fff49fc3fd235624f7d6a"
+    },
+    "current_basis_ref": {
+      "artifact_id": "sha256:892831e40286e46effde4a4bcef6e7a266505b2d0dfc973c5b034f715c51aad6",
+      "kind": "runtime_quality.acquisition_evaluation_basis",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:39c896cf0d83c0eb6f1c45d6591a915862b9cd4668318b026bb246f8661e35b0"
+    },
+    "selected_basis_ref": {
+      "artifact_id": "sha256:2073d5ab873bf970ec9365243b8a8cbe46bb8cfc17e282bbbd77e04b51c1bbe3",
+      "kind": "runtime_quality.acquisition_evaluation_basis",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:7b8d4f6e357a92dce61938d24f03b05ff670f144a50ee7d57f41c7acf5fd0b4b"
+    },
+    "frontier_ref": "sha256:8e22f277d2afcf2509cf1064991b1cd4cf8ae5da9e507fa6c34dc9fb30b33900",
+    "frontier_revision": 1,
+    "frontier_selection": "superseded",
+    "basis_comparison_result": "equivalent",
+    "predicate_provenance": "recomputed",
+    "evaluation_provenance": "retained_prior",
+    "original_action_job_id": "model-input-use.f1aa63004d488d934a557be120b0a1cfe75b20fca0017a99d8cc67cfd746c672",
+    "original_input_ref": {
+      "artifact_id": "sha256:b75ba20961f2645cb0ca14b3b13b449451509bfb247d87131eb7aba3afb1afb4",
+      "kind": "runtime.quality.generic_cycle_simulation_n5_input",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:1779eefa5517637f5b11390cedf316f4180c72ecce6fc5adc0470d458360bafd"
+    },
+    "original_semantic_successor_ref": {
+      "artifact_id": "sha256:ac5161d0240850538dd3b61176b386afea0ac483b31e12134d4aa1ac78f2245d",
+      "kind": "runtime.quality.model_input_successor_selection",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:6000f13edc7c93f591691b33bab45f7940dc0942909600c73ba24544e973a38e"
+    },
+    "original_execution_ref": {
+      "artifact_id": "sha256:9916261e693bad5565f35e0835e76650ac262d92df4fbdfe2ea2fd7e6518417e",
+      "kind": "runtime.quality.generic_cycle_simulation_n5_execution",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:20771c9160cde022a3bc317e3c9343fe151d5be2fbbbbf854efe14c52a7777c3"
+    },
+    "original_result_ref": {
+      "artifact_id": "sha256:27ec14ebb3f67c645853ca0907fb31f5ffee16e871717b678196bb4df5122822",
+      "kind": "polisyos.runtime.joint_simulation_result",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:2733e36e14e43c77cbb65485f9e81718eeb6c1c722ee760105bf6c0f02938be9"
+    },
+    "result_body": {
+      "schema_version": "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+      "artifact_ref": {
+        "artifact_id": "sha256:27ec14ebb3f67c645853ca0907fb31f5ffee16e871717b678196bb4df5122822",
+        "kind": "polisyos.runtime.joint_simulation_result",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:2733e36e14e43c77cbb65485f9e81718eeb6c1c722ee760105bf6c0f02938be9"
+      },
+      "artifact_schema_name": "policyos.runtime.n5.joint_simulation_result",
+      "artifact_schema_version": "5.0.0",
+      "result_schema_version": "policyos.runtime.joint_simulation_horizon.v5",
+      "selected_manifest_profile_sha256": "sha256:2733e36e14e43c77cbb65485f9e81718eeb6c1c722ee760105bf6c0f02938be9",
+      "world_model_record_ref": "world_model_record_05f764ffaaeae88a",
+      "world_model_record_content_hash": "sha256:05f764ffaaeae88a20668fee6ff844c6652ad16f9c06c7a080c67a6bd4416627",
+      "atom_ids": ["fixture_subsidy"],
+      "selected_outcomes": ["government.balance"],
+      "horizon": {
+        "start": 0,
+        "end": 2,
+        "step": 1,
+        "valid_time_role": "valid_time",
+        "transaction_time_role": "transaction_time",
+        "scenario_branch_policy": "hold_world_record_constant"
+      },
+      "trajectories": [
+        {
+          "run_level": "individual",
+          "atom_ids": ["fixture_subsidy"],
+          "points": [
+            {
+              "step": 0,
+              "outcomes": { "government.balance": 640.0 },
+              "effects": { "government.balance": 640.0 }
+            },
+            {
+              "step": 1,
+              "outcomes": { "government.balance": 640.0 },
+              "effects": { "government.balance": 640.0 }
+            },
+            {
+              "step": 2,
+              "outcomes": { "government.balance": 602.5 },
+              "effects": { "government.balance": 602.5 }
+            }
+          ]
+        },
+        {
+          "run_level": "joint",
+          "atom_ids": ["fixture_subsidy"],
+          "points": [
+            {
+              "step": 0,
+              "outcomes": { "government.balance": 640.0 },
+              "effects": { "government.balance": 640.0 }
+            },
+            {
+              "step": 1,
+              "outcomes": { "government.balance": 640.0 },
+              "effects": { "government.balance": 640.0 }
+            },
+            {
+              "step": 2,
+              "outcomes": { "government.balance": 602.5 },
+              "effects": { "government.balance": 602.5 }
+            }
+          ]
+        }
+      ],
+      "uncertainty_kind": "K_sim",
+      "authority_purpose": "cycle_input_candidate_only",
+      "candidate_status": "candidate_unverified",
+      "currentness_status": "not_established",
+      "publication_authority": false
+    },
+    "limitation_code": null,
+    "semantic_input_limitation_codes": [
+      "external_empirical_origin_not_established",
+      "source_currentness_not_established"
+    ],
+    "current_basis_limitations": [
+      "candidate_simulation_input_only",
+      "producer_observed_intermediate_state_not_independently_recomputed"
+    ],
+    "selected_basis_limitations": [
+      "candidate_simulation_input_only",
+      "producer_observed_intermediate_state_not_independently_recomputed"
+    ],
+    "authority_purpose": "cycle_input_candidate_only",
+    "currentness_status": "not_established",
+    "observed_admission": false,
+    "publication_authority": false
+  }
+}

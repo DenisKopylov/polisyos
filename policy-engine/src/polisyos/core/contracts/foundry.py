@@ -24,9 +24,13 @@ from polisyos.ir.kernel import MethodMetricSemanticContract, MethodMetricSourceU
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
-from ..artifacts.manifest import ArtifactRef, InputRef
+from ..artifacts.manifest import ArtifactRef, InputRef, artifact_ref_identity_key
 from .distributional import DistributionalReportRef
+from .entity_axis import EntityAxisValueIdentity, SelectedEntityVectorSourceDescriptor
 from .execution_plan import ExecutionPlanRef
+from .method_input import MethodInputPortSource, validate_method_input_port_name
+from .model_input_period_steps import ModelInputStepScope
+from .model_state_layout import ModelScalarStateLayoutRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .semantic_input_binding import ResolvedInputBindingManifestRef
 from .uncertainty import UncertaintyEnvelopeRef
@@ -380,6 +384,174 @@ class MethodOutputPayload(BaseModel):
         if isinstance(value, bool) or (isinstance(value, float) and not math.isfinite(value)):
             raise ValueError("method_output_requires_finite_numeric_scalar")
         return value
+
+
+_METHOD_OUTPUT_SCALAR_DTYPE_LAYOUT: dict[str, tuple[int, str, bool]] = {
+    "|i1": (1, "b", False),
+    "|u1": (1, "B", False),
+    "<i2": (2, "<h", False),
+    ">i2": (2, ">h", False),
+    "<u2": (2, "<H", False),
+    ">u2": (2, ">H", False),
+    "<i4": (4, "<i", False),
+    ">i4": (4, ">i", False),
+    "<u4": (4, "<I", False),
+    ">u4": (4, ">I", False),
+    "<i8": (8, "<q", False),
+    ">i8": (8, ">q", False),
+    "<u8": (8, "<Q", False),
+    ">u8": (8, ">Q", False),
+    "<f4": (4, "<f", True),
+    ">f4": (4, ">f", True),
+    "<f8": (8, "<d", True),
+    ">f8": (8, ">d", True),
+}
+
+
+class MethodOutputScalarValueIdentity(BaseModel):
+    """Typed scalar identity required to reuse an actual method output as input."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    slot_type: Literal["SCALAR"]
+    shape: tuple[StrictInt, ...] = Field(max_length=0)
+    dtype: StrictStr = Field(min_length=1, max_length=4)
+    unit: MethodMetricSourceUnit
+    contract_id: StrictStr | None
+
+    @model_validator(mode="after")
+    def validate_scalar_identity(self) -> MethodOutputScalarValueIdentity:
+        if self.shape != ():
+            raise ValueError("method_output_scalar_identity_requires_zero_dimensional_shape")
+        if self.dtype not in _METHOD_OUTPUT_SCALAR_DTYPE_LAYOUT:
+            raise ValueError("method_output_scalar_identity_dtype_unsupported")
+        return self
+
+
+class MethodOutputPayloadV11(BaseModel):
+    """Actual scalar output bytes and producer ABI identity for dataflow capture."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodOutputPayload"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_output"]] = "foundry.method_output"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.1"] = "1.1"
+    occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    node_id: StrictStr = Field(min_length=1, max_length=256)
+    method_fqn: StrictStr = Field(min_length=1, max_length=512)
+    method_version: StrictStr = Field(min_length=1, max_length=128)
+    method_abi_digest: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    method_abi_digest_algorithm: Literal["blake2b"]
+    output_slot_id: StrictStr = Field(min_length=1, max_length=256)
+    value_identity: MethodOutputScalarValueIdentity
+    value_sha256_algorithm: Literal["selected_tensor_value_sha256"]
+    raw_bytes_hex: StrictStr = Field(
+        min_length=2,
+        max_length=16,
+        pattern=r"^(?:[0-9a-f]{2})+$",
+    )
+    raw_bytes_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def validate_scalar_bytes(self) -> MethodOutputPayloadV11:
+        import hashlib
+        import math
+        import struct
+
+        raw = bytes.fromhex(self.raw_bytes_hex)
+        item_size, struct_format, is_float = _METHOD_OUTPUT_SCALAR_DTYPE_LAYOUT[
+            self.value_identity.dtype
+        ]
+        if len(raw) != item_size:
+            raise ValueError("method_output_scalar_raw_bytes_size_mismatch")
+        if hashlib.sha256(raw).hexdigest() != self.raw_bytes_sha256:
+            raise ValueError("method_output_scalar_raw_bytes_digest_mismatch")
+        decoded = struct.unpack(struct_format, raw)[0]
+        if is_float and not math.isfinite(decoded):
+            raise ValueError("method_output_scalar_raw_value_not_finite")
+        return self
+
+
+class MethodOutputConsumptionRecord(BaseModel):
+    """Nested provenance tying one actual consumer argument to its producer ref."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    producer_output_ref: MethodOutputRef
+    producer_occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    producer_invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    producer_node_id: StrictStr = Field(min_length=1, max_length=256)
+    producer_method_fqn: StrictStr = Field(min_length=1, max_length=512)
+    producer_method_version: StrictStr = Field(min_length=1, max_length=128)
+    producer_method_abi_digest: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    producer_method_abi_digest_algorithm: Literal["blake2b"]
+    producer_output_slot_id: StrictStr = Field(min_length=1, max_length=256)
+    producer_value_identity: MethodOutputScalarValueIdentity
+    producer_value_sha256_algorithm: Literal["selected_tensor_value_sha256"]
+    producer_raw_bytes_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    producer_value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    consumer_occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    consumer_invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    consumer_node_id: StrictStr = Field(min_length=1, max_length=256)
+    consumer_method_fqn: StrictStr = Field(min_length=1, max_length=512)
+    consumer_method_version: StrictStr = Field(min_length=1, max_length=128)
+    consumer_method_abi_digest: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    consumer_method_abi_digest_algorithm: Literal["blake2b"]
+    consumer_input_slot_id: StrictStr = Field(min_length=1, max_length=256)
+    consumer_argument_identity: MethodOutputScalarValueIdentity
+    consumer_argument_raw_bytes_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    consumer_argument_value_sha256_algorithm: Literal["selected_tensor_value_sha256"]
+    consumer_argument_value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def validate_identity_preserving_consumption(self) -> MethodOutputConsumptionRecord:
+        if self.producer_output_ref.manifest_profile_sha256 is None:
+            raise ValueError("method_output_consumption_requires_selected_profile")
+        if self.producer_identity_key != self.consumer_identity_key:
+            raise ValueError("method_output_consumption_value_identity_mismatch")
+        if self.producer_raw_bytes_sha256 != self.consumer_argument_raw_bytes_sha256:
+            raise ValueError("method_output_consumption_raw_bytes_digest_mismatch")
+        if self.producer_value_sha256 != self.consumer_argument_value_sha256:
+            raise ValueError("method_output_consumption_value_digest_mismatch")
+        return self
+
+    @property
+    def producer_identity_key(
+        self,
+    ) -> tuple[str, tuple[int, ...], str, str, str, int | float, str | None]:
+        """Return semantic and physical identity fields for exact transfer checks."""
+        value = self.producer_value_identity
+        return (
+            value.slot_type,
+            value.shape,
+            value.dtype,
+            value.unit.dimension,
+            value.unit.symbol,
+            value.unit.scale,
+            value.contract_id,
+        )
+
+    @property
+    def consumer_identity_key(
+        self,
+    ) -> tuple[str, tuple[int, ...], str, str, str, int | float, str | None]:
+        """Return consumer semantic and physical identity fields for exact transfer checks."""
+        value = self.consumer_argument_identity
+        return (
+            value.slot_type,
+            value.shape,
+            value.dtype,
+            value.unit.dimension,
+            value.unit.symbol,
+            value.unit.scale,
+            value.contract_id,
+        )
 
 
 class MethodMetricInputCaptureSlot(BaseModel):
@@ -1191,6 +1363,10 @@ class ProgramNode(BaseModel):
     op: ProgramOp | None = None
     inputs: list[str] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)
+    input_ports: dict[StrictStr, MethodInputPortSource] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
     @model_validator(mode="after")
     def validate_kind(self) -> ProgramNode:
@@ -1238,7 +1414,15 @@ class ProgramGraph(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ProgramGraph"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
-    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {"0.2.0": "0.2"}
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("0.2.0", "0.3.0")
+    ARTIFACT_SCHEMA_VERSION_BY_PAYLOAD: ClassVar[dict[str, str]] = {
+        "0.2": "0.2.0",
+        "0.3": "0.3.0",
+    }
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "0.2.0": "0.2",
+        "0.3.0": "0.3",
+    }
     ARTIFACT_KIND: ClassVar[Literal["foundry.program_graph"]] = "foundry.program_graph"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
@@ -1257,7 +1441,53 @@ class ProgramGraph(BaseModel):
         node_ids = [item.node_id for item in self.nodes]
         if len(node_ids) != len(set(node_ids)):
             raise ValueError("duplicate_program_graph_node_id")
+        supplied_maps = ["input_ports" in item.model_fields_set for item in self.nodes]
+        if self.schema_version == "0.2":
+            if any(supplied_maps):
+                raise ValueError("program_graph_input_ports_version_mismatch")
+            return self
+        if self.schema_version != "0.3":
+            if any(supplied_maps):
+                raise ValueError("program_graph_input_ports_version_mismatch")
+            return self
+        if not any(supplied_maps):
+            raise ValueError("program_graph_input_ports_v03_requires_mapping")
+        nodes_with_maps = 0
+        for node in self.nodes:
+            if node.node_kind != "method":
+                if "input_ports" in node.model_fields_set:
+                    raise ValueError("program_graph_input_ports_non_method_node")
+                continue
+            if node.input_ports is None or "input_ports" not in node.model_fields_set:
+                raise ValueError("program_graph_input_ports_missing")
+            nodes_with_maps += 1
+            registry_slots = sorted(
+                {
+                    source.slot_id
+                    for source in node.input_ports.values()
+                    if source.source_kind == "registry_slot"
+                }
+            )
+            if node.inputs != registry_slots:
+                raise ValueError("program_graph_input_ports_registry_projection_mismatch")
+            if any(validate_method_input_port_name(key) != key for key in node.input_ports):
+                raise ValueError("program_graph_input_ports_abi_name_invalid")
+        if nodes_with_maps != sum(item.node_kind == "method" for item in self.nodes):
+            raise ValueError("program_graph_input_ports_method_coverage_mismatch")
         return self
+
+    @property
+    def artifact_schema_version(self) -> str:
+        """Return the manifest schema version selected by this payload version."""
+        try:
+            return self.ARTIFACT_SCHEMA_VERSION_BY_PAYLOAD[self.schema_version]
+        except KeyError as exc:
+            raise ValueError("unsupported_program_graph_payload_schema_version") from exc
+
+    def to_artifact_payload(self) -> dict[str, Any]:
+        """Return a version-checked graph projection, preserving legacy 0.2 bytes."""
+        _ = self.artifact_schema_version
+        return self.model_dump(mode="json")
 
 
 class LoweredMechanism(BaseModel):
@@ -1529,23 +1759,141 @@ class FoundryInputBindingRule(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class FoundrySelectedMethodInput(BaseModel):
+    """Selected candidate value and physical tensor identity for one method input.
+
+    Reconciliation of the selected evidence and tensor bytes belongs to the
+    Foundry consumer; this record alone does not establish their authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    model_input_obligation_ref: ArtifactRef
+    binding_id: StrictStr = Field(min_length=1, max_length=128)
+    port_id: StrictStr = Field(min_length=1, max_length=256)
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    canonical_value: Decimal = Field(allow_inf_nan=False, strict=True)
+    dtype: Literal["float32", "float64"]
+    shape: tuple[StrictInt, ...]
+    npy_value_ref: ArtifactRef
+    value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @field_validator("canonical_value")
+    @classmethod
+    def _normalize_decimal(cls, value: Decimal) -> Decimal:
+        if not value.is_finite():
+            raise ValueError("foundry_method_input_value_nonfinite")
+        sign, digits, exponent = value.as_tuple()
+        if not any(digits):
+            return Decimal(0)
+        while digits[-1] == 0:
+            digits = digits[:-1]
+            exponent += 1
+        return Decimal((sign, digits, exponent))
+
+    @model_validator(mode="after")
+    def _selected_refs_and_shape(self) -> FoundrySelectedMethodInput:
+        if (
+            self.model_input_obligation_ref.kind != "runtime.quality.model_input_obligation"
+            or self.model_input_obligation_ref.media_type != "application/json"
+            or self.model_input_obligation_ref.manifest_profile_sha256 is None
+            or self.npy_value_ref.kind != "foundry.selected_method_input_value"
+            or self.npy_value_ref.media_type != "application/x-npy"
+            or self.npy_value_ref.manifest_profile_sha256 is None
+            or any(size <= 0 for size in self.shape)
+            or any(
+                value != value.strip() for value in (self.binding_id, self.port_id, self.slot_id)
+            )
+        ):
+            raise ValueError("foundry_method_input_selection_invalid")
+        return self
+
+
+class FoundrySelectedMethodVectorInput(BaseModel):
+    """Selected vector input bound to an exact candidate entity axis and alignment identity."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    model_input_obligation_ref: ArtifactRef
+    binding_id: StrictStr = Field(min_length=1, max_length=128)
+    port_id: StrictStr = Field(min_length=1, max_length=256)
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    npy_value_ref: ArtifactRef
+    entity_axis_ref: ArtifactRef
+    source_descriptor: SelectedEntityVectorSourceDescriptor
+    alignment_identity: EntityAxisValueIdentity
+    tensor_value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _selected_vector_refs(self) -> FoundrySelectedMethodVectorInput:
+        if (
+            self.model_input_obligation_ref.kind != "runtime.quality.model_input_obligation"
+            or self.model_input_obligation_ref.media_type != "application/json"
+            or self.model_input_obligation_ref.manifest_profile_sha256 is None
+            or self.npy_value_ref.kind != "foundry.selected_method_input_value"
+            or self.npy_value_ref.media_type != "application/x-npy"
+            or self.npy_value_ref.manifest_profile_sha256 is None
+            or self.entity_axis_ref.kind != "foundry.selected_entity_axis"
+            or self.entity_axis_ref.media_type != "application/json"
+            or self.entity_axis_ref.manifest_profile_sha256 is None
+            or self.alignment_identity.dtype not in {"float32", "float64"}
+            or any(
+                value != value.strip() for value in (self.binding_id, self.port_id, self.slot_id)
+            )
+        ):
+            raise ValueError("foundry_method_input_vector_selection_invalid")
+        return self
+
+
+class FoundrySelectedMethodInputAtStep(BaseModel):
+    """One selected method input value for one exact temporal port scope."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    step_scope: ModelInputStepScope
+    input_kind: Literal["scalar", "vector"]
+    input: FoundrySelectedMethodInput | FoundrySelectedMethodVectorInput
+
+    @model_validator(mode="after")
+    def _step_input_matches_scope(self) -> FoundrySelectedMethodInputAtStep:
+        expected_type = (
+            FoundrySelectedMethodInput
+            if self.input_kind == "scalar"
+            else FoundrySelectedMethodVectorInput
+        )
+        if type(self.input) is not expected_type or self.step_scope.port_id != self.input.port_id:
+            raise ValueError("foundry_method_input_step_scope_mismatch")
+        if self.input_kind == "scalar" and self.input.shape:
+            raise ValueError("foundry_method_input_step_scalar_shape_invalid")
+        return self
+
+
 class FoundryInputBindings(BaseModel):
     """Foundry input bindings public type."""
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryInputBindings"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
+        "1.0",
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+    )
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
         "1.2": ("resolved_binding_manifest_ref",),
         "1.3": ("registered_sql_admission_ref", "resolved_binding_manifest_ref"),
+        "1.4": ("resolved_binding_manifest_ref", "selected_method_inputs"),
+        "1.5": ("resolved_binding_manifest_ref", "selected_method_input_steps"),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.input_bindings"]] = "foundry.input_bindings"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3", "1.4", "1.5"] = "1.0"
     data_snapshot_ref: ArtifactRef
     registry_bundle_ref: ArtifactRef
     rules: list[FoundryInputBindingRule] = Field(default_factory=list)
@@ -1557,6 +1905,12 @@ class FoundryInputBindings(BaseModel):
     resolved_binding_manifest_ref: ResolvedInputBindingManifestRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    selected_method_inputs: tuple[FoundrySelectedMethodInput, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    selected_method_input_steps: tuple[FoundrySelectedMethodInputAtStep, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -1564,7 +1918,7 @@ class FoundryInputBindings(BaseModel):
         registered_sql = self.schema_version in {"1.1", "1.3"}
         if (self.registered_sql_admission_ref is not None) != registered_sql:
             raise ValueError("foundry_input_bindings_registered_sql_version_mismatch")
-        semantic = self.schema_version in {"1.2", "1.3"}
+        semantic = self.schema_version in {"1.2", "1.3", "1.4", "1.5"}
         if (self.resolved_binding_manifest_ref is not None) != semantic or (
             not semantic and "resolved_binding_manifest_ref" in self.model_fields_set
         ):
@@ -1580,6 +1934,55 @@ class FoundryInputBindings(BaseModel):
             )
         ):
             raise ValueError("foundry_input_bindings_semantic_profile_required")
+        if self.schema_version == "1.4":
+            if not self.selected_method_inputs:
+                raise ValueError("foundry_input_bindings_method_inputs_missing")
+            if (
+                self.selected_method_input_steps is not None
+                or "selected_method_input_steps" in self.model_fields_set
+            ):
+                raise ValueError("foundry_input_bindings_method_input_steps_version_mismatch")
+            for attr in ("binding_id", "port_id", "slot_id"):
+                values = tuple(getattr(item, attr) for item in self.selected_method_inputs)
+                if len(set(values)) != len(values):
+                    raise ValueError("foundry_input_bindings_method_inputs_duplicate")
+            identities = tuple(
+                artifact_ref_identity_key(item.model_input_obligation_ref)
+                for item in self.selected_method_inputs
+            )
+            if len(set(identities)) != len(identities):
+                raise ValueError("foundry_input_bindings_method_inputs_duplicate")
+        elif self.schema_version == "1.5":
+            if not self.selected_method_input_steps:
+                raise ValueError("foundry_input_bindings_method_input_steps_missing")
+            if (
+                self.selected_method_inputs is not None
+                or "selected_method_inputs" in self.model_fields_set
+            ):
+                raise ValueError("foundry_input_bindings_method_inputs_version_mismatch")
+            step_identities = tuple(
+                (item.input.port_id, item.step_scope.step)
+                for item in self.selected_method_input_steps
+            )
+            if len(set(step_identities)) != len(step_identities):
+                raise ValueError("foundry_input_bindings_method_input_steps_duplicate")
+            if step_identities != tuple(sorted(step_identities)):
+                raise ValueError("foundry_input_bindings_method_input_steps_order_invalid")
+            binding_ids = tuple(item.input.binding_id for item in self.selected_method_input_steps)
+            if len(set(binding_ids)) != len(binding_ids):
+                raise ValueError("foundry_input_bindings_method_input_step_binding_duplicate")
+            state_slot_ids = {rule.target_slot_id for rule in self.rules}
+            if any(
+                item.input.slot_id in state_slot_ids for item in self.selected_method_input_steps
+            ):
+                raise ValueError("foundry_input_bindings_method_input_step_shadows_state_slot")
+        elif (
+            self.selected_method_inputs is not None
+            or "selected_method_inputs" in self.model_fields_set
+            or self.selected_method_input_steps is not None
+            or "selected_method_input_steps" in self.model_fields_set
+        ):
+            raise ValueError("foundry_input_bindings_method_inputs_version_mismatch")
         return self
 
 
@@ -1762,14 +2165,107 @@ class FeedbackFixedPointCandidate(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class FeedbackMapEvaluationRecord(BaseModel):
+    """One actual fixed-point map call, including numerical-solver probes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    evaluation_id: StrictStr = Field(min_length=1, max_length=128)
+    phase: Literal["solver_map", "equilibrium_discovery", "final_materialization"]
+    candidate_values: tuple[StrictFloat, ...] = Field(min_length=1, max_length=128)
+    mapped_values: tuple[StrictFloat, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    base_state_ref: ArtifactRef | None = Field(default=None, exclude_if=lambda value: value is None)
+    graph_invocation_id: StrictStr | None = Field(
+        default=None, min_length=1, max_length=64, exclude_if=lambda value: value is None
+    )
+    execution_link_status: Literal["captured", "not_established"] = "not_established"
+    outcome: Literal["completed", "failed", "invalid_output"] = "completed"
+    failure_type: StrictStr | None = Field(default=None, max_length=512)
+
+    @model_validator(mode="after")
+    def validate_map_evaluation(self) -> FeedbackMapEvaluationRecord:
+        if self.execution_link_status == "captured" and self.graph_invocation_id is None:
+            raise ValueError("feedback_map_evaluation_invocation_id_required")
+        if self.execution_link_status == "not_established" and self.graph_invocation_id is not None:
+            raise ValueError("feedback_map_evaluation_invocation_status_mismatch")
+        if self.outcome == "completed":
+            if self.mapped_values is None or len(self.candidate_values) != len(self.mapped_values):
+                raise ValueError("feedback_map_evaluation_completed_vectors_mismatch")
+            if self.failure_type is not None:
+                raise ValueError("feedback_map_evaluation_completed_has_failure")
+        elif self.mapped_values is not None or not self.failure_type:
+            raise ValueError("feedback_map_evaluation_failure_incomplete")
+        return self
+
+
 class FeedbackTrace(BaseModel):
-    """Residual and step trace emitted by a feedback solve."""
+    """Residual trace, plus an optional versioned ledger of actual map calls."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     records: list[FeedbackIterationRecord] = Field(default_factory=list)
+    map_evaluations: tuple[FeedbackMapEvaluationRecord, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    evaluation_scope: Literal["solver_prefix", "complete"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    solver_prefix_trace_ref: FeedbackTraceRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_trace_version(self) -> FeedbackTrace:
+        if self.schema_version == "1.0":
+            if (
+                self.map_evaluations is not None
+                or "map_evaluations" in self.model_fields_set
+                or self.evaluation_scope is not None
+                or "evaluation_scope" in self.model_fields_set
+                or self.solver_prefix_trace_ref is not None
+                or "solver_prefix_trace_ref" in self.model_fields_set
+            ):
+                raise ValueError("feedback_trace_v1_cannot_carry_map_evaluations")
+            return self
+        if self.map_evaluations is None or not self.map_evaluations:
+            raise ValueError("feedback_trace_v1_1_requires_map_evaluations")
+        if self.evaluation_scope is None:
+            raise ValueError("feedback_trace_v1_1_requires_evaluation_scope")
+        if self.evaluation_scope == "solver_prefix" and (
+            self.solver_prefix_trace_ref is not None
+            or any(item.phase != "solver_map" for item in self.map_evaluations)
+        ):
+            raise ValueError("feedback_trace_solver_prefix_scope_mismatch")
+        if (
+            self.evaluation_scope == "complete"
+            and any(item.phase == "equilibrium_discovery" for item in self.map_evaluations)
+            and self.solver_prefix_trace_ref is None
+        ):
+            raise ValueError("feedback_trace_complete_discovery_requires_solver_prefix_ref")
+        evaluation_ids = tuple(item.evaluation_id for item in self.map_evaluations)
+        invocation_ids = tuple(
+            item.graph_invocation_id
+            for item in self.map_evaluations
+            if item.graph_invocation_id is not None
+        )
+        if len(set(evaluation_ids)) != len(evaluation_ids):
+            raise ValueError("feedback_trace_duplicate_map_evaluation_id")
+        if len(set(invocation_ids)) != len(invocation_ids):
+            raise ValueError("feedback_trace_duplicate_graph_invocation_id")
+        if sum(item.phase == "final_materialization" for item in self.map_evaluations) > 1:
+            raise ValueError("feedback_trace_duplicate_final_materialization")
+        base_state_identities = {
+            artifact_ref_identity_key(item.base_state_ref)
+            for item in self.map_evaluations
+            if item.base_state_ref is not None
+        }
+        if len(base_state_identities) > 1:
+            raise ValueError("feedback_trace_map_evaluations_mixed_base_state")
+        return self
 
 
 class FeedbackJacobianDiagnostics(BaseModel):
@@ -2639,13 +3135,14 @@ class WelfareBoundReport(BaseModel):
 
 
 class StateSnapshot(BaseModel):
-    """Reference bundle for a persisted Foundry state or method-input capture.
+    """Reference bundle for persisted Foundry state or input capture.
 
     ``lineage_inputs`` is the ordered manifest input list. Version 2.1 preserves
     its historical bare state-blob edge; versions 2.2 and 2.3 bind the exact
     selected state-blob view. Version 2.3 is reserved for sparse method-input
-    slot maps and requires its explicit layout discriminator. Older payloads omit
-    that discriminator and retain their historical GlobalState wire bytes.
+    slot maps. Version 2.4 is reserved for the persistent model-scalar-state
+    carrier and binds its exact selected layout artifact. Older payloads omit
+    both layout fields and retain their historical GlobalState wire bytes.
     """
 
     SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION: ClassVar[Mapping[str, str]] = MappingProxyType(
@@ -2654,10 +3151,15 @@ class StateSnapshot(BaseModel):
             "2.1": "2.1.0",
             "2.2": "2.2.0",
             "2.3": "2.3.0",
+            "2.4": "2.4.0",
         }
     )
     METHOD_INPUT_SCHEMA_VERSION: ClassVar[str] = "2.3"
     METHOD_INPUT_LAYOUT: ClassVar[Literal["method_input_slots"]] = "method_input_slots"
+    MODEL_SCALAR_STATE_SCHEMA_VERSION: ClassVar[str] = "2.4"
+    MODEL_SCALAR_STATE_LAYOUT: ClassVar[Literal["model_scalar_state_slots"]] = (
+        "model_scalar_state_slots"
+    )
 
     model_config = ConfigDict(extra="forbid")
 
@@ -2671,20 +3173,40 @@ class StateSnapshot(BaseModel):
     codec: str = "numpy-npz"
     lineage_inputs: list[InputRef] | None = None
     notes: list[str] = Field(default_factory=list)
-    layout: Literal["method_input_slots"] | None = Field(
+    layout: Literal["method_input_slots", "model_scalar_state_slots"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    model_scalar_state_layout_ref: ModelScalarStateLayoutRef | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )
 
     @model_validator(mode="after")
     def validate_versioned_layout(self) -> StateSnapshot:
-        """Bind the sparse method-input layout to schema 2.3 only."""
+        """Bind method-input and persistent model-state layouts to their versions."""
+
         layout_was_supplied = "layout" in self.model_fields_set
+        model_layout_ref_was_supplied = "model_scalar_state_layout_ref" in self.model_fields_set
         if self.schema_version == self.METHOD_INPUT_SCHEMA_VERSION:
-            if not layout_was_supplied or self.layout != self.METHOD_INPUT_LAYOUT:
+            if (
+                not layout_was_supplied
+                or self.layout != self.METHOD_INPUT_LAYOUT
+                or model_layout_ref_was_supplied
+            ):
                 raise ValueError("state_snapshot_2_3_requires_explicit_method_input_layout")
+        elif self.schema_version == self.MODEL_SCALAR_STATE_SCHEMA_VERSION:
+            if (
+                not layout_was_supplied
+                or self.layout != self.MODEL_SCALAR_STATE_LAYOUT
+                or not model_layout_ref_was_supplied
+                or self.model_scalar_state_layout_ref is None
+            ):
+                raise ValueError("state_snapshot_2_4_requires_explicit_model_scalar_state_layout")
         elif layout_was_supplied:
             raise ValueError("state_snapshot_layout_requires_schema_2_3")
+        elif model_layout_ref_was_supplied:
+            raise ValueError("state_snapshot_model_scalar_state_ref_requires_schema_2_4")
         return self
 
 

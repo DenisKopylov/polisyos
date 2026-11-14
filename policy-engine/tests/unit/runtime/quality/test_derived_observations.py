@@ -17,6 +17,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.core import artifacts, canon
+from polisyos.core import derivations as core_derivations
 from polisyos.runtime.quality import derived_observations as derived_module
 from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade
 from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
@@ -1897,6 +1898,11 @@ def test_declared_ratio_times_denominator_materializes_and_replays_annual_flow(
     )
 
     produced = materialize_derivation(store, recipe)
+    resolved = core_derivations.resolve_certified_derivation(
+        artifacts.FileSystemCAS(tmp_path / "cas"),
+        certificate_ref=produced.certificate_artifact_ref,
+        consumer_method_id="test.fixture.derived.flow.consumer@1.0.0",
+    )
     consumed = consume_certified_derivation(
         artifacts.FileSystemCAS(tmp_path / "cas"),
         certificate_ref=produced.certificate_artifact_ref,
@@ -1915,6 +1921,40 @@ def test_declared_ratio_times_denominator_materializes_and_replays_annual_flow(
     assert consumed.certificate_artifact_id == produced.certificate_artifact_ref.artifact_id
     assert consumed.derived_artifact_id == produced.derived_artifact_ref.artifact_id
     assert consumed.cache_verified
+    assert resolved.consumption == consumed
+    assert resolved.certificate == produced.certificate
+    assert resolved.series == produced.series
+    # Captured from the pre-consolidation derived-consumer-r2 fixture.
+    expected = (
+        b'{"basis":{"attributes":[{"name":"currency","value":"USD"},'
+        b'{"name":"period","value":"annual"},{"name":"price_basis","value":"current"}],'
+        b'"quantity_kind":"monetary_flow","unit":"usd"},"observation_class":"derived",'
+        b'"points":[{"value":{"_type":"decimal","value":"-6000000000.00"},"year":2024}],'
+        b'"recipe_id":"derivation-recipe:sha256:23e12cede0599ee9901a896c9cb75d5bac227409efef6c0f796279421c87aef4",'
+        b'"schema_version":"polisyos.runtime.derived_observations.v2",'
+        b'"source_artifact_ids":["sha256:67520fe0512d2fb927d831959404e6be78200c4a7ede807c74594288fdd9d43d",'
+        b'"sha256:f641e59b280cb9cfa5926dc6740e5218ba6ecc23ea0a19f21e808be9005366b6"],'
+        b'"variable_id":"test.fixture.derived.flow"}'
+    )
+    assert store.get_bytes(produced.derived_artifact_ref) == expected
+    assert str(produced.derived_artifact_ref.artifact_id) == (
+        "sha256:1a2b217930d64f11cfbfc33efb32c7f3d3716fe07a8fdb914d10559b887a650c"
+    )
+    assert str(produced.certificate_artifact_ref.artifact_id) == (
+        "sha256:b639a9a0daa426480335dcd1bd7f352e03c153a931a49fbe1411c14a739c737f"
+    )
+    assert derived_module.DerivationRecipe is core_derivations.DerivationRecipe
+    assert (
+        derived_module.consume_certified_derivation is core_derivations.consume_certified_derivation
+    )
+    source_blob, _ = store._paths(refs["ratio"].artifact_id)
+    source_blob.write_bytes(b"{}")
+    with pytest.raises(DerivationRefusalError):
+        core_derivations.resolve_certified_derivation(
+            artifacts.FileSystemCAS(tmp_path / "cas"),
+            certificate_ref=produced.certificate_artifact_ref,
+            consumer_method_id="test.fixture.derived.flow.consumer@1.0.0",
+        )
 
 
 def test_ratio_derivation_requires_both_exact_roles_and_annual_flow_output(
@@ -2589,3 +2629,84 @@ def test_epoch_inheritance_recompute_reader_rejects_receipt_manifest_input_drift
         _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
 
     assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+
+
+def test_selected_registry_profile_is_replayed_by_core_consumer(tmp_path: Path) -> None:
+    """The exact registry view survives recipe, certificate and fresh Core replay."""
+    store, refs, output_basis, _, _ = _case_inputs(tmp_path / "cas", "price_level_rebase")
+    registry = _registry()
+    unselected = persist_transform_family_registry(store, registry)
+    selected = artifacts.ArtifactRef(
+        artifact_id=unselected.artifact_id,
+        kind=unselected.kind,
+        media_type=unselected.media_type,
+        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(
+            store.get_manifest(unselected)
+        ),
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=registry,
+        registry_ref=selected,
+        input_refs=refs,
+        output_variable_id="test.selected.registry.output",
+        output_basis=output_basis,
+    )
+    assert core_derivations.load_selected_transform_family_registry(store, selected) == registry
+    assert recipe.registry_artifact.manifest_profile_sha256 == selected.manifest_profile_sha256
+    assert recipe.schema_version == derived_module.SELECTED_VIEW_DERIVATION_SCHEMA_VERSION
+    recipe_ref = core_derivations.persist_derivation_recipe_artifact(store, recipe)
+    output = materialize_derivation(store, recipe)
+    fresh = artifacts.FileSystemCAS(tmp_path / "cas")
+    assert core_derivations.load_derivation_recipe_artifact(fresh, recipe_ref) == recipe
+    resolution = core_derivations.resolve_certified_derivation(
+        fresh,
+        certificate_ref=output.certificate_artifact_ref,
+        consumer_method_id="test.selected.registry.consumer@1.0.0",
+    )
+    assert resolution.certificate.recipe.registry_artifact == recipe.registry_artifact
+    assert resolution.series == output.series
+    assert resolution.consumption.cache_verified
+    blob, _ = store._paths(selected.artifact_id)
+    withheld = tmp_path / "withheld-selected-registry"
+    blob.rename(withheld)
+    try:
+        with pytest.raises(DerivationRefusalError):
+            core_derivations.resolve_certified_derivation(
+                artifacts.FileSystemCAS(tmp_path / "cas"),
+                certificate_ref=output.certificate_artifact_ref,
+                consumer_method_id="test.selected.registry.removal@1.0.0",
+            )
+    finally:
+        withheld.rename(blob)
+
+
+@pytest.mark.parametrize("mismatch", ["unselected", "different_registry"])
+def test_explicit_registry_selection_refuses_ambiguous_or_foreign_payload(
+    tmp_path: Path, mismatch: str
+) -> None:
+    """A caller cannot smuggle a different family through a selected registry view."""
+    store, refs, output_basis, _, _ = _case_inputs(tmp_path / "cas", "price_level_rebase")
+    registry = _registry()
+    ref = persist_transform_family_registry(store, registry)
+    expected = registry
+    if mismatch == "different_registry":
+        ref = artifacts.ArtifactRef(
+            artifact_id=ref.artifact_id,
+            kind=ref.kind,
+            media_type=ref.media_type,
+            manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(
+                store.get_manifest(ref)
+            ),
+        )
+        expected = _registry(_ratio_times_denominator_family_data())
+    with pytest.raises(DerivationRefusalError) as refused:
+        build_derivation_recipe(
+            store,
+            registry=expected,
+            registry_ref=ref,
+            input_refs=refs,
+            output_variable_id="test.invalid.registry.output",
+            output_basis=output_basis,
+        )
+    assert refused.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT

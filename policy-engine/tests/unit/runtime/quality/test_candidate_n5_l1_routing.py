@@ -742,3 +742,82 @@ async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(
     ):
         with pytest.raises(ValueError):
             planner._n7_validate_candidate_checkpoint(request=changed, **replay)
+
+
+def test_n7_request_reopens_partial_bundle_against_the_selected_model_target(
+    tmp_path: Path,
+) -> None:
+    from tests.unit.runtime.quality.test_n7_derivation_bundle import (
+        _bundle,
+        _complete_source,
+        _marker,
+        _pending_source,
+        _profile,
+        _registry_ref,
+        _selected_target,
+        _source_basis,
+        _target_gap,
+    )
+
+    case, set_ref, obligation_ref, target_basis, context = _selected_target(tmp_path)
+    try:
+        budget, budget_ref = _profile(case.store)
+        ratio_basis = _source_basis(case.store, "route-ratio")
+        denominator_basis = _source_basis(case.store, "route-denominator")
+        ratio = _complete_source(case.store, "route-ratio", ratio_basis)
+        denominator = _pending_source(
+            "route-denominator",
+            denominator_basis,
+            _target_gap(context, "test.denominator"),
+            alternatives=(
+                _marker(case.store, "route-supplier-a"),
+                _marker(case.store, "route-supplier-b"),
+            ),
+        )
+        bundle = _bundle(
+            obligation_set_ref=set_ref,
+            obligation_ref=obligation_ref,
+            target_basis=target_basis,
+            budget=budget,
+            budget_ref=budget_ref,
+            sources=(ratio, denominator),
+            operator_ref=_registry_ref(case.store),
+            role_inputs=(
+                planner.N7DerivationRoleInput(
+                    role="ratio", input_node_id=ratio.node_id, source_basis=ratio_basis
+                ),
+                planner.N7DerivationRoleInput(
+                    role="denominator",
+                    input_node_id=denominator.node_id,
+                    source_basis=denominator_basis,
+                ),
+            ),
+        )
+        bundle_ref = planner.persist_n7_derivation_bundle(case.store, bundle)
+        request = {
+            "n7_derivation_bundle_ref": bundle_ref.model_dump(mode="json"),
+            "model_input_obligation_set_ref": set_ref.model_dump(mode="json"),
+            "model_input_obligation_ref": obligation_ref.model_dump(mode="json"),
+        }
+
+        selected_ref, selected_bundle = owner._n7_derivation_bundle_from_request(
+            case.store, request
+        )
+
+        assert selected_ref is not None and selected_bundle is not None
+        assert planner.artifacts.artifact_ref_identity_key(selected_ref) == (
+            planner.artifacts.artifact_ref_identity_key(bundle_ref)
+        )
+        assert selected_bundle.input_closure_status == "partial"
+        assert selected_bundle.target_satisfaction_status == "unsatisfied"
+        assert owner.n7_pending_unique_derivation_source_gaps(selected_bundle) == (
+            denominator.requirement_gap,
+        )
+        foreign_target = _marker(case.store, "foreign-target")
+        with pytest.raises(ValueError, match="n7_derivation_request_target_mismatch"):
+            owner._n7_derivation_bundle_from_request(
+                case.store,
+                {**request, "model_input_obligation_ref": foreign_target.model_dump(mode="json")},
+            )
+    finally:
+        case.close()

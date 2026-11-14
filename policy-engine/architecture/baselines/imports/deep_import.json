@@ -4087,13 +4087,6 @@
       "source_module": "polisyos.foundry.compile._graph",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/compile/_graph.py",
-      "target_module": "polisyos.core.registry.loader",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.compile._graph",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/compile/_graph.py",
       "target_module": "polisyos.ir.kernel.slots",
       "target_root": "ir"
     },
@@ -4285,41 +4278,6 @@
       "source_file": "src/polisyos/foundry/contracts/specs.py",
       "target_module": "polisyos.ir.model_layer.units",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.contracts.decision_validity",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.contracts.fabric",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.contracts.foundry",
-      "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.data_plane.bindings",
@@ -4606,13 +4564,6 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/execute/api.py",
       "target_module": "polisyos.core.contracts.foundry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.execute.api",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/execute/api.py",
-      "target_module": "polisyos.core.contracts.uncertainty",
       "target_root": "core"
     },
     {
@@ -10865,13 +10816,6 @@
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
       "target_module": "polisyos.ir.model_layer.model_spec",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.derived_observations",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/derived_observations.py",
-      "target_module": "polisyos.core.artifacts.protocol",
-      "target_root": "core"
     },
     {
       "source_module": "polisyos.runtime.quality.design_generation",

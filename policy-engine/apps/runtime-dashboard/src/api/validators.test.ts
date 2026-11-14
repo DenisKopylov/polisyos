@@ -19,9 +19,13 @@ import {
   runAgentsSchema,
   runDetailsSchema,
   runEvidenceContextSchema,
+  runModelInputUseActionsSchema,
+  runModelInputUseN5SuccessorResponseSchema,
   runsListSchema,
 } from "./validators";
 import actualPartialCapacityRunDetails from "./__fixtures__/partial-capacity-run-details.json";
+import actualModelInputUseCurrentC from "./__fixtures__/model-input-use-current-c.json";
+import actualModelInputUseRetainedB from "./__fixtures__/model-input-use-retained-b.json";
 import { runHteSelectedProjection } from "@/test/fixtures/runExecutionHte";
 import {
   acquisitionGrowthPayloadSchema,
@@ -5751,5 +5755,114 @@ describe("actual retained partial capacity response", () => {
     checkpoint.capacity_source_content_hash = null;
 
     expect(runDetailsSchema.safeParse(corrupted).success).toBe(false);
+  });
+});
+
+describe("model-input use action result selectors", () => {
+  it("keeps discovery scoped and preserves the owned run alias", () => {
+    const payload = runDetailsPayload("model-input-use action selector");
+    const run = mutableRecord(payload.run);
+    run.run_id = "core-run-display-id";
+    run.model_input_use_actions = {
+      run_id: "control-run-owner-id",
+      source_job_id: "source-job-owner-id",
+      scope: "discovery_only",
+      actions: [
+        { action_job_id: "action-job-a", job_state: "completed" },
+        { action_job_id: "action-job-b", job_state: "running" },
+      ],
+      inventory_status: "complete",
+      inventory_truncated: false,
+      limitation_codes: [],
+    };
+
+    const parsed = runDetailsSchema.parse(payload).run;
+    expect(parsed.model_input_use_actions?.run_id).toBe("control-run-owner-id");
+    expect(parsed.model_input_use_actions?.scope).toBe("discovery_only");
+    expect(
+      parsed.model_input_use_actions?.actions.map((row) => row.action_job_id),
+    ).toEqual(["action-job-a", "action-job-b"]);
+  });
+
+  it("refuses inconsistent inventory completeness and unknown result versions", () => {
+    const validInventory = {
+      run_id: "control-run-owner-id",
+      source_job_id: "source-job-owner-id",
+      scope: "discovery_only",
+      actions: [{ action_job_id: "action-job-a", job_state: "completed" }],
+      inventory_status: "complete",
+      inventory_truncated: false,
+      limitation_codes: [],
+    };
+    expect(
+      runModelInputUseActionsSchema.safeParse({
+        ...validInventory,
+        inventory_truncated: true,
+      }).success,
+    ).toBe(false);
+    expect(
+      runModelInputUseActionsSchema.safeParse({
+        ...validInventory,
+        actions: Array.from({ length: 129 }, (_, index) => ({
+          action_job_id: `action-job-${String(index).padStart(3, "0")}`,
+          job_state: "completed",
+        })),
+      }).success,
+    ).toBe(false);
+    expect(
+      runModelInputUseN5SuccessorResponseSchema.safeParse({
+        meta: {
+          generated_at: "2026-11-14T10:00:00.000Z",
+          request_id: "req-unknown-result-version",
+          source_kinds: ["core_run"],
+        },
+        result: {
+          schema_version:
+            "policyos.runtime.run_model_input_use_n5_successor_projection.v3",
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("validates actual selected and superseded C/B result bodies and refuses authority promotion", () => {
+    const current = runModelInputUseN5SuccessorResponseSchema.parse(
+      actualModelInputUseCurrentC,
+    ).result;
+    const retained = runModelInputUseN5SuccessorResponseSchema.parse(
+      actualModelInputUseRetainedB,
+    ).result;
+
+    expect(current.schema_version).toBe(
+      "policyos.runtime.run_model_input_use_n5_successor_projection.v2",
+    );
+    expect(current).toMatchObject({
+      basis_comparison_result: "different",
+      evaluation_provenance: "new_execution",
+      frontier_selection: "selected",
+      result_status: "resolved",
+      currentness_status: "not_established",
+      observed_admission: false,
+      publication_authority: false,
+    });
+    expect(retained).toMatchObject({
+      basis_comparison_result: "equivalent",
+      evaluation_provenance: "retained_prior",
+      frontier_selection: "superseded",
+      result_status: "resolved",
+      currentness_status: "not_established",
+      observed_admission: false,
+      publication_authority: false,
+    });
+    expect(current.result_body).not.toHaveProperty("outcome_units");
+    expect(retained.result_body).not.toHaveProperty("outcome_units");
+
+    const promoted = structuredClone(actualModelInputUseCurrentC) as Record<
+      string,
+      unknown
+    >;
+    mutableRecord(promoted.result).publication_authority = true;
+    expect(
+      runModelInputUseN5SuccessorResponseSchema.safeParse(promoted).success,
+    ).toBe(false);
   });
 });

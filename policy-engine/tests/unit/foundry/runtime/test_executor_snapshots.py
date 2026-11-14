@@ -19,11 +19,17 @@ from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
+from polisyos.core.contracts.model_state_layout import (
+    ModelScalarStateLayout,
+    model_scalar_state_layout_digest,
+)
+from polisyos.core.registry.builder import build_registry_bundle
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute import SnapshotStateLayoutError
 from polisyos.foundry.execute._internal.models import load_model
 from polisyos.foundry.execute._internal.snapshots import (
+    BoundedModelStateSnapshotReadLimits,
     StateSnapshotInputReadRefusal,
     _build_dataclass,
     _dataclass_type_hints,
@@ -35,10 +41,21 @@ from polisyos.foundry.execute._internal.snapshots import (
     _validate_snapshot_blob,
     export_seed_state_npz,
     import_seed_state_npz,
+    load_bound_model_state_snapshot,
     load_state_snapshot,
     put_state_snapshot,
     read_state_snapshot_inputs_bounded,
 )
+from polisyos.foundry.model_state_slots import (
+    BoundModelState,
+    bind_model_state,
+    read_model_scalar_state_slot,
+    write_model_scalar_state_slot,
+)
+from polisyos.ir.kernel import ConstraintRegistry, MechanismTypeRegistry, MergeRuleRegistry
+from polisyos.ir.kernel.merge_rules import MergeRuleRef
+from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
+from polisyos.ir.kernel.units import UnitRef
 from polisyos.runtime.http.resilience import guard_runtime_cas
 
 if TYPE_CHECKING:
@@ -88,6 +105,112 @@ def _seed_legacy_state_blob(tmp_path, state: GlobalState):
         ),
     )
     return store, legacy_ref, legacy_inputs
+
+
+def _build_scalar_stock_registry(store: FileSystemCAS, slot_ids: tuple[str, ...]):
+    slots = {
+        slot_id: SlotSpec(
+            slot_id=slot_id,
+            scope=SlotScope.GLOBAL,
+            kind=SlotKind.STOCK,
+            value_type=SlotValueType.DECIMAL,
+            unit=UnitRef(unit_id="usd"),
+            merge_rule=MergeRuleRef(rule_id="sum"),
+            dtype="float32",
+            shape=[],
+        )
+        for slot_id in slot_ids
+    }
+    return build_registry_bundle(
+        store,
+        slot_registry=SlotRegistry(slots=slots),
+        merge_registry=MergeRuleRegistry(),
+        mechanism_registry=MechanismTypeRegistry(),
+        constraint_registry=ConstraintRegistry(),
+        return_selected_profile=True,
+    )
+
+
+class _BoundedOnlySnapshotReader:
+    """Delegate CAS reads but forbid legacy methods for selected state artifacts."""
+
+    def __init__(self, store: FileSystemCAS, *, bounded_only_refs: set[str]) -> None:
+        self._store = store
+        self._bounded_only_refs = bounded_only_refs
+        self.unbounded_selected_reads: list[str] = []
+        self.blob_payload_bytes = 0
+        self._state_blob_id: str | None = None
+
+    @staticmethod
+    def _artifact_id(reference: object) -> str | None:
+        if isinstance(reference, ArtifactRef):
+            return str(reference.artifact_id)
+        if isinstance(reference, ArtifactID):
+            return str(reference)
+        if isinstance(reference, str):
+            try:
+                return str(ArtifactID(reference))
+            except ValueError:
+                return None
+        return None
+
+    def get_bytes(self, reference: ArtifactRef | ArtifactID | str) -> bytes:
+        artifact_id = self._artifact_id(reference)
+        if artifact_id in self._bounded_only_refs:
+            self.unbounded_selected_reads.append("get_bytes")
+            raise AssertionError("bounded_state_reader_used_unbounded_get_bytes")
+        return self._store.get_bytes(reference)
+
+    def get_manifest(self, reference: ArtifactRef | ArtifactID | str):
+        artifact_id = self._artifact_id(reference)
+        if artifact_id in self._bounded_only_refs:
+            self.unbounded_selected_reads.append("get_manifest")
+            raise AssertionError("bounded_state_reader_used_unbounded_get_manifest")
+        return self._store.get_manifest(reference)
+
+    def open_member_bounded(self, reference, member, **kwargs):
+        attempt = self._store.open_member_bounded(reference, member, **kwargs)
+        artifact_id = self._artifact_id(reference)
+        if artifact_id != self._state_blob_id:
+            return attempt
+        return _TrackedBoundedMemberAttempt(attempt, self)
+
+    def open_member(self, reference, member, **kwargs):
+        artifact_id = self._artifact_id(reference)
+        if artifact_id == self._state_blob_id:
+            self.unbounded_selected_reads.append("open_member")
+            raise AssertionError("bounded_state_reader_used_unbounded_open_member")
+        return self._store.open_member(reference, member, **kwargs)
+
+    def __getattr__(self, name: str):
+        return getattr(self._store, name)
+
+
+class _TrackedBoundedMemberAttempt:
+    def __init__(self, attempt, reader: _BoundedOnlySnapshotReader) -> None:
+        self._attempt = attempt
+        self._reader = reader
+
+    def __enter__(self):
+        stream = self._attempt.__enter__()
+        return _TrackedBoundedMemberStream(stream, self._reader)
+
+    def __exit__(self, exc_type, exc, traceback):
+        return self._attempt.__exit__(exc_type, exc, traceback)
+
+
+class _TrackedBoundedMemberStream:
+    def __init__(self, stream, reader: _BoundedOnlySnapshotReader) -> None:
+        self._stream = stream
+        self._reader = reader
+
+    def read(self, size: int = -1) -> bytes:
+        payload = self._stream.read(size)
+        self._reader.blob_payload_bytes += len(payload)
+        return payload
+
+    def __getattr__(self, name: str):
+        return getattr(self._stream, name)
 
 
 def _put_legacy_snapshot_with_unknown_field(tmp_path, field_path: str):
@@ -191,6 +314,7 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert snapshot.schema_version == "2.2"
     assert snapshot.layout is None
     assert "layout" not in snapshot.model_dump(mode="json")
+    assert "model_scalar_state_layout_ref" not in snapshot.model_dump(mode="json")
     assert b'"layout"' not in store.get_bytes(snapshot_ref.artifact_id)
     assert snapshot.format_version == "npz-v2"
     assert snapshot.codec == "numpy-npz"
@@ -205,6 +329,179 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert store.get_manifest(snapshot_ref.artifact_id).artifact_schema == SchemaInfo(
         name="polisyos.core.StateSnapshot", version="2.2.0"
     )
+
+
+def test_model_scalar_state_snapshot_2_4_roundtrips_in_fresh_bound_reader(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    slot_ids = ("finance.reserve", "health.staff_stock")
+    registry = _build_scalar_stock_registry(store, slot_ids)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    bound = bind_model_state(
+        state,
+        store=store,
+        selected_registry_bundle_ref=registry.bundle_ref,
+        slot_ids=slot_ids,
+    )
+    for slot_id, amount in ((slot_ids[0], 12.5), (slot_ids[1], 3.0)):
+        bound = write_model_scalar_state_slot(
+            bound,
+            slot_id=slot_id,
+            value=np.float32(amount),
+            selected_registry_bundle_ref=registry.bundle_ref,
+            selected_layout_sha256=bound.layout.layout_sha256,
+        )
+
+    snapshot_ref = put_state_snapshot(store, state=bound, step=4)
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+
+    assert snapshot.schema_version == "2.4"
+    assert snapshot.layout == "model_scalar_state_slots"
+    assert snapshot.model_scalar_state_layout_ref is not None
+    assert snapshot.model_scalar_state_layout_ref.manifest_profile_sha256 is not None
+    assert snapshot.state_ref.manifest_profile_sha256 is not None
+    assert snapshot.lineage_inputs is not None
+    assert snapshot.lineage_inputs[-2].role == "model_scalar_state_layout"
+    assert snapshot.lineage_inputs[-1].role == "state_blob"
+    snapshot_manifest = store.get_manifest(snapshot_ref)
+    layout_manifest = store.get_manifest(snapshot.model_scalar_state_layout_ref)
+    assert snapshot_manifest.inputs == snapshot.lineage_inputs
+    assert len(layout_manifest.inputs) == 1
+    assert layout_manifest.inputs[0].role == "registry_bundle"
+    assert layout_manifest.inputs[0].artifact_id == registry.bundle_ref.artifact_id
+    assert (
+        layout_manifest.inputs[0].manifest_profile_sha256
+        == registry.bundle_ref.manifest_profile_sha256
+    )
+    assert store.get_manifest(snapshot_ref).artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot", version="2.4.0"
+    )
+
+    with pytest.raises(SnapshotStateLayoutError, match="layout is explicit"):
+        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+    bounded_reader = _BoundedOnlySnapshotReader(
+        store,
+        bounded_only_refs={
+            str(snapshot_ref.artifact_id),
+            str(snapshot.model_scalar_state_layout_ref.artifact_id),
+            str(snapshot.state_ref.artifact_id),
+        },
+    )
+    bounded_reader._state_blob_id = str(snapshot.state_ref.artifact_id)
+    restored = load_bound_model_state_snapshot(bounded_reader, snapshot_ref=snapshot_ref)
+    assert bounded_reader.unbounded_selected_reads == []
+    assert bounded_reader.blob_payload_bytes == len(store.get_bytes(snapshot.state_ref))
+    assert restored.source_snapshot_ref == snapshot_ref
+    assert restored.layout_ref == snapshot.model_scalar_state_layout_ref
+    for slot_id, amount in ((slot_ids[0], 12.5), (slot_ids[1], 3.0)):
+        value = read_model_scalar_state_slot(
+            restored,
+            slot_id=slot_id,
+            selected_registry_bundle_ref=registry.bundle_ref,
+            selected_layout_sha256=restored.layout.layout_sha256,
+        )
+        assert float(value) == amount
+
+
+def test_model_scalar_state_snapshot_refuses_oversized_blob_before_payload_read(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    slot_id = "finance.reserve"
+    registry = _build_scalar_stock_registry(store, (slot_id,))
+    bound = bind_model_state(
+        GlobalState.empty(n_agents=1, n_firms=1),
+        store=store,
+        selected_registry_bundle_ref=registry.bundle_ref,
+        slot_ids=(slot_id,),
+    )
+    snapshot_ref = put_state_snapshot(store, state=bound)
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    blob_bytes = store.get_bytes(snapshot.state_ref)
+    assert len(blob_bytes) > 1
+
+    bounded_reader = _BoundedOnlySnapshotReader(
+        store,
+        bounded_only_refs={
+            str(snapshot_ref.artifact_id),
+            str(snapshot.model_scalar_state_layout_ref.artifact_id),
+            str(snapshot.state_ref.artifact_id),
+        },
+    )
+    bounded_reader._state_blob_id = str(snapshot.state_ref.artifact_id)
+    with pytest.raises(
+        SnapshotStateLayoutError,
+        match="model_scalar_state_blob_size_limit_exceeded",
+    ):
+        load_bound_model_state_snapshot(
+            bounded_reader,
+            snapshot_ref=snapshot_ref,
+            limits=BoundedModelStateSnapshotReadLimits(max_blob_bytes=len(blob_bytes) - 1),
+        )
+    assert bounded_reader.unbounded_selected_reads == []
+    assert bounded_reader.blob_payload_bytes == 0
+
+
+def test_model_scalar_state_snapshot_requires_bound_context_and_exact_snapshot_ref(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    slot_id = "finance.reserve"
+    registry = _build_scalar_stock_registry(store, (slot_id,))
+    bound = bind_model_state(
+        GlobalState.empty(n_agents=1, n_firms=1),
+        store=store,
+        selected_registry_bundle_ref=registry.bundle_ref,
+        slot_ids=(slot_id,),
+    )
+    with pytest.raises(
+        SnapshotStateLayoutError,
+        match="model_scalar_state_snapshot_requires_bound_context",
+    ):
+        put_state_snapshot(store, state=bound.state)
+
+    bound = write_model_scalar_state_slot(
+        bound,
+        slot_id=slot_id,
+        value=np.float32(1.0),
+        selected_registry_bundle_ref=registry.bundle_ref,
+        selected_layout_sha256=bound.layout.layout_sha256,
+    )
+    snapshot_ref = put_state_snapshot(store, state=bound)
+    with pytest.raises(
+        SnapshotStateLayoutError,
+        match="model_scalar_state_snapshot_requires_selected_ref",
+    ):
+        load_bound_model_state_snapshot(store, snapshot_ref=snapshot_ref.artifact_id)
+
+
+def test_model_scalar_state_snapshot_writer_recomputes_layout_from_selected_registry(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    slot_id = "finance.reserve"
+    registry = _build_scalar_stock_registry(store, (slot_id,))
+    bound = bind_model_state(
+        GlobalState.empty(n_agents=1, n_firms=1),
+        store=store,
+        selected_registry_bundle_ref=registry.bundle_ref,
+        slot_ids=(slot_id,),
+    )
+    original = bound.layout.slots[0]
+    forged_slot = original.model_copy(update={"slot_spec_sha256": f"sha256:{'f' * 64}"})
+    forged_slots = (forged_slot,)
+    forged_layout = ModelScalarStateLayout(
+        registry_bundle_ref=registry.bundle_ref,
+        slots=forged_slots,
+        layout_sha256=model_scalar_state_layout_digest(
+            registry_bundle_ref=registry.bundle_ref,
+            slots=forged_slots,
+        ),
+    )
+    forged_bound = BoundModelState(state=bound.state, layout=forged_layout)
+
+    with pytest.raises(
+        SnapshotStateLayoutError,
+        match="layout_registry_content_mismatch",
+    ):
+        put_state_snapshot(store, state=forged_bound)
 
 
 def test_snapshot_flattens_named_mapping_values_deterministically() -> None:
@@ -366,9 +663,12 @@ def test_state_snapshot_schema_registry_pins_historical_and_sparse_versions() ->
         "2.1": "2.1.0",
         "2.2": "2.2.0",
         "2.3": "2.3.0",
+        "2.4": "2.4.0",
     }
     assert StateSnapshot.METHOD_INPUT_SCHEMA_VERSION == "2.3"
     assert StateSnapshot.METHOD_INPUT_LAYOUT == "method_input_slots"
+    assert StateSnapshot.MODEL_SCALAR_STATE_SCHEMA_VERSION == "2.4"
+    assert StateSnapshot.MODEL_SCALAR_STATE_LAYOUT == "model_scalar_state_slots"
 
 
 def test_valid_legacy_global_state_uses_cpu_fallback_when_jax_discovery_fails(

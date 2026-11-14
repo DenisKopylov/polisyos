@@ -7,6 +7,8 @@ It deliberately does not infer edges by recursively scanning arbitrary JSON.
 
 from __future__ import annotations
 
+import copy
+import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, cast
@@ -23,17 +25,19 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     artifact_manifest_profile_sha256,
     artifact_ref_for_manifest,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
     load_core_json_artifact,
     read_core_json_artifact_bounded,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
     AcquiredObservationDataSnapshotLineage,
     CandidateAcquisitionSourceDataSnapshotLineage,
     DataSnapshot,
     DataSnapshotOwnerLineage,
+    DerivedModelInputDataSnapshotLineage,
     FabricBridgeDataSnapshotLineage,
     MeasurementRootDataSnapshotLineage,
     data_snapshot_manifest_inputs_match,
@@ -52,6 +56,7 @@ _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS = frozenset(
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactBoundedMemberReader
+    from polisyos.core.contracts import ResolvedDerivedInput
 
 
 class DataSnapshotLineageError(ValueError):
@@ -64,6 +69,13 @@ CANDIDATE_SOURCE_LIMITATIONS = (
     "source_time_not_established",
     "measurement_authority_not_established",
     "publication_authority_not_established",
+)
+DERIVED_MODEL_INPUT_LIMITATIONS = (
+    "derived_input_not_acquired_observation",
+    "source_time_not_established",
+    "causal_coupling_not_established",
+    "external_empirical_context_not_established",
+    "derivation_uncertainty_not_established",
 )
 _CANDIDATE_PAYLOAD_SCHEMAS = tuple(
     SchemaInfo(
@@ -257,6 +269,31 @@ def validate_data_snapshot_owner_lineage(
         if not isinstance(lineage, FabricBridgeDataSnapshotLineage):
             raise DataSnapshotLineageError("fabric_bridge_lineage_invalid")
         _verify_fabric_bridge_owner(store, snapshot, lineage)
+    elif family == "derived_model_input":
+        if not isinstance(lineage, DerivedModelInputDataSnapshotLineage):
+            raise DataSnapshotLineageError("derived_model_input_lineage_invalid")
+        try:
+            base_result = _verify_derived_model_input_owner(
+                store, snapshot, lineage, raw_payload=raw_payload, seen=seen
+            )
+        except DataSnapshotLineageError:
+            raise
+        except (OSError, TypeError, ValueError, RuntimeError) as exc:
+            raise DataSnapshotLineageError("derived_model_input_owner_replay_failed") from exc
+        if binding_lineage_refs is not None and binding_lineage_refs != tuple(
+            _data_forge_cas_uri(ref)
+            for ref, _role in data_snapshot_owner_input_requirements(snapshot)
+        ):
+            raise DataSnapshotLineageError("derived_model_input_binding_lineage_mismatch")
+        if not candidate_only:
+            raise DataSnapshotLineageError("derived_model_input_candidate_only")
+        return DataSnapshotLineageResult(
+            candidate_source_limitations=tuple(
+                dict.fromkeys(
+                    (*DERIVED_MODEL_INPUT_LIMITATIONS, *base_result.required_admissibility_blockers)
+                )
+            )
+        )
     elif family == "candidate_acquisition_source":
         if not isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
             raise DataSnapshotLineageError("candidate_acquisition_source_lineage_invalid")
@@ -446,6 +483,14 @@ def _owner_family(
     raw_payload: object,
 ) -> str | None:
     kind = getattr(manifest, "kind", None)
+    from polisyos.core.contracts import DERIVED_MODEL_INPUT_PAYLOAD_KIND
+
+    if kind == DERIVED_MODEL_INPUT_PAYLOAD_KIND or manifest.artifact_schema == SchemaInfo(
+        name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0"
+    ):
+        if not isinstance(snapshot.source_lineage, DerivedModelInputDataSnapshotLineage):
+            raise DataSnapshotLineageError("derived_model_input_lineage_missing")
+        return "derived_model_input"
     if (
         kind == "runtime.quality.candidate_acquisition_source"
         or getattr(getattr(manifest, "artifact_schema", None), "name", None)
@@ -550,6 +595,8 @@ def _lineage_family(lineage: DataSnapshotOwnerLineage) -> str:
         return "acquired_observation_overlay"
     if isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
         return "candidate_acquisition_source"
+    if isinstance(lineage, DerivedModelInputDataSnapshotLineage):
+        return "derived_model_input"
     raise DataSnapshotLineageError("data_snapshot_owner_lineage_unsupported")
 
 
@@ -971,6 +1018,179 @@ def _verify_acquired_observation_owner(
     return base_result
 
 
+def _replay_derived_selection_value(
+    store: ArtifactStore, selection: ResolvedDerivedInput
+) -> object:
+    """Replay the existing arithmetic owner, without claiming source authority."""
+    from polisyos.core.contracts import (
+        load_derived_input_correspondence,
+        load_derived_input_profile,
+        load_registered_derived_input_correspondence,
+        load_registered_derived_input_profile,
+    )
+    from polisyos.core.derivations import (
+        load_composition_recipe_artifact,
+        load_derivation_recipe_artifact,
+        resolve_certified_composition,
+        resolve_certified_derivation,
+    )
+
+    schema = _verified_manifest(
+        store, selection.correspondence_ref, require_selected_profile=True
+    ).artifact_schema
+    if schema == SchemaInfo(
+        name="polisyos.catalog.RegisteredDerivedInputCorrespondence", version="2.0"
+    ):
+        proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
+        profile = load_registered_derived_input_profile(store, proof.profile_ref)
+        recipe = load_composition_recipe_artifact(store, selection.recipe_ref)
+        resolution = resolve_certified_composition(
+            store,
+            certificate_ref=selection.certificate_ref,
+            consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
+        )
+    elif schema == SchemaInfo(
+        name="polisyos.catalog.DerivedInputCorrespondenceBasis", version="1.0"
+    ):
+        proof = load_derived_input_correspondence(store, selection.correspondence_ref)
+        profile = load_derived_input_profile(store, proof.profile_ref)
+        recipe = load_derivation_recipe_artifact(store, selection.recipe_ref)
+        resolution = resolve_certified_derivation(
+            store,
+            certificate_ref=selection.certificate_ref,
+            consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
+        )
+    else:
+        raise DataSnapshotLineageError("derived_model_input_correspondence_profile_unsupported")
+    if any(
+        artifact_ref_identity_key(getattr(selection, field))
+        != artifact_ref_identity_key(getattr(proof, field))
+        for field in (
+            "model_input_obligation_ref",
+            "model_interface_ref",
+            "profile_ref",
+            "recipe_ref",
+            "certificate_ref",
+            "output_ref",
+        )
+    ) or (selection.year, selection.model_port_id) != (proof.year, proof.model_port_id):
+        raise DataSnapshotLineageError("derived_model_input_selected_proof_mismatch")
+    certified_output = resolution.certificate.derived_artifact_ref
+    if (
+        recipe != resolution.certificate.recipe
+        or certified_output is None
+        or artifact_ref_identity_key(certified_output)
+        != artifact_ref_identity_key(selection.output_ref)
+    ):
+        raise DataSnapshotLineageError("derived_model_input_selected_output_mismatch")
+    points = tuple(point for point in resolution.series.points if point.year == selection.year)
+    if len(points) != 1:
+        raise DataSnapshotLineageError("derived_model_input_selected_year_missing")
+    value = points[0].value
+    return value if profile.output_projection == "scalar" else [value]
+
+
+def _verify_derived_model_input_owner(
+    store: ArtifactStore,
+    snapshot: DataSnapshot,
+    lineage: DerivedModelInputDataSnapshotLineage,
+    *,
+    raw_payload: object,
+    seen: frozenset[tuple[str, str | None]],
+) -> DataSnapshotLineageResult:
+    """Rebuild the full candidate payload from its actual predecessor and outputs.
+
+    Arithmetic uses the existing Core certificate replay. Semantic correspondence
+    remains the Foundry binding owner's separate check; this transport verifier
+    grants neither observed-source authority nor native currentness.
+    """
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts import (
+        DERIVED_MODEL_INPUT_PAYLOAD_KIND,
+        load_model_input_obligation_set,
+    )
+    from polisyos.foundry.data_plane import load_input_bindings
+
+    _require_selected_refs(
+        snapshot.data_ref,
+        lineage.base_data_snapshot_ref,
+        lineage.model_input_obligation_set_ref,
+    )
+    payload_manifest = _verified_manifest(store, snapshot.data_ref, require_selected_profile=True)
+    for ref, _role in data_snapshot_owner_input_requirements(snapshot):
+        _verified_manifest(store, ref, require_selected_profile=True)
+    if (
+        snapshot.data_ref.kind != DERIVED_MODEL_INPUT_PAYLOAD_KIND
+        or payload_manifest.artifact_schema
+        != SchemaInfo(name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.0")
+        or not isinstance(raw_payload, Mapping)
+    ):
+        raise DataSnapshotLineageError("derived_model_input_payload_manifest_mismatch")
+    base_snapshot = validate_core_model_json_artifact(
+        DataSnapshot, store, lineage.base_data_snapshot_ref
+    )
+    base_result = validate_data_snapshot_owner_lineage(
+        store,
+        lineage.base_data_snapshot_ref,
+        base_snapshot,
+        candidate_only=True,
+        _seen=seen,
+    )
+    selected_set, obligations = load_model_input_obligation_set(
+        store, lineage.model_input_obligation_set_ref
+    )
+    expected_members = tuple(artifact_ref_identity_key(ref) for ref in selected_set.obligation_refs)
+    actual_members = tuple(
+        artifact_ref_identity_key(item.model_input_obligation_ref) for item in lineage.selections
+    )
+    if (
+        not actual_members
+        or len(actual_members) != len(set(actual_members))
+        or set(actual_members) != set(expected_members)
+    ):
+        raise DataSnapshotLineageError("derived_model_input_complete_target_set_required")
+    predecessor = load_input_bindings(store, selected_set.invocation.input_bindings_ref)
+    if artifact_ref_identity_key(predecessor.data_snapshot_ref) != artifact_ref_identity_key(
+        lineage.base_data_snapshot_ref
+    ):
+        raise DataSnapshotLineageError("derived_model_input_base_context_mismatch")
+    by_member = dict(zip(expected_members, obligations, strict=True))
+    base_payload = _read_owner_band_payload(
+        store, _verified_manifest(store, base_snapshot.data_ref)
+    )
+    if not isinstance(base_payload, dict) or "derived_inputs" in base_payload:
+        raise DataSnapshotLineageError("derived_model_input_base_payload_profile_unsupported")
+    expected_payload = copy.deepcopy(base_payload)
+    derived_values: dict[str, dict[str, object]] = {}
+    payload_edges: list[tuple[ArtifactRef, str]] = [
+        (base_snapshot.data_ref, "context.base_payload")
+    ]
+    for selection in lineage.selections:
+        obligation = by_member[artifact_ref_identity_key(selection.model_input_obligation_ref)]
+        if (
+            artifact_ref_identity_key(selection.model_interface_ref)
+            != artifact_ref_identity_key(selected_set.invocation.interface_ref)
+            or selection.model_port_id != obligation.port.port_id
+        ):
+            raise DataSnapshotLineageError("derived_model_input_selected_port_mismatch")
+        key = hashlib.sha256(selection.binding_id.encode()).hexdigest()[:20]
+        if key in derived_values or selection.source_path != f"derived_inputs.{key}.value":
+            raise DataSnapshotLineageError("derived_model_input_source_path_collision")
+        derived_values[key] = {"value": _replay_derived_selection_value(store, selection)}
+        payload_edges.extend(
+            (
+                (selection.output_ref, selection.payload_output_role()),
+                (selection.correspondence_ref, "derived.correspondence"),
+            )
+        )
+    _require_exact_owner_edges(store, manifest=payload_manifest, expected=tuple(payload_edges))
+    expected_payload["derived_inputs"] = derived_values
+    spec = CanonSpec(forbid_floats=False)
+    if to_canonical_bytes(raw_payload, spec) != to_canonical_bytes(expected_payload, spec):
+        raise DataSnapshotLineageError("derived_model_input_payload_replay_mismatch")
+    return base_result
+
+
 def _verify_candidate_acquisition_source_owner(
     store: ArtifactStore,
     snapshot_ref: ArtifactRef,
@@ -1065,6 +1285,7 @@ def _data_forge_cas_uri(ref: ArtifactRef) -> str:
 __all__ = [
     "ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION",
     "CANDIDATE_SOURCE_LIMITATIONS",
+    "DERIVED_MODEL_INPUT_LIMITATIONS",
     "DataSnapshotLineageError",
     "DataSnapshotLineageResult",
     "DataSnapshotSourceRowNotEstablishedError",

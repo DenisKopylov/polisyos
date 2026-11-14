@@ -102,10 +102,15 @@ def dematerialize_method_output(
     method_class: type,
     signature: MethodSignature,
     output: Any,
+    _captured_projection: tuple[object, bool] | None = None,
 ) -> dict[str, Any]:
     """Dematerialize method output helper."""
     expected_slots = sorted(signature.output_slots, key=lambda item: item.name)
-    custom = getattr(method_class, "dematerialize_output", None)
+    if _captured_projection is None:
+        custom = getattr(method_class, "dematerialize_output", None)
+        strict_extras = bool(getattr(method_class, "strict_output_contract", False))
+    else:
+        custom, strict_extras = _captured_projection
     if callable(custom):
         materialized = custom(output)
         if not isinstance(materialized, Mapping):
@@ -115,7 +120,6 @@ def dematerialize_method_output(
         return result
 
     result = _coerce_output_mapping(signature=signature, output=output)
-    strict_extras = bool(getattr(method_class, "strict_output_contract", False))
     _validate_output_mapping(
         signature=signature, output_mapping=result, strict_extras=strict_extras
     )

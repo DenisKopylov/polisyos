@@ -9122,11 +9122,11 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "finish canonical method-input preflight/binding/executor/catalog route and required public/schema companions",
-          "run repaired N7/history checks and independent semantic method controls on a stable affected source set",
-          "compose reviewed author changes and publish ordinary main progress with remote readback",
-          "wire actual N7 acquisition/accounting -> derived materializer, then P07/P08 and Gate B",
-          "address repeated proof amplification before a valid future matched NCM sequence; preserve expired retained R2 history"
+          "finish actual derived WMR -> Generic/JointSimulationPort -> strict preflight and fresh-reader controls",
+          "save current imported source, verify canonical early-host native provider without N5, then composed numeric route",
+          "implement exact per-leaf native route/cost/permission plus durable partial action and history/API companions",
+          "compose mapped dataflow, temporal1.5, persistent graph/API, vectors and feedback after respective reviewed identity contracts",
+          "P07/P08/GateB and original REQ/SIM/SEL reconciliation; preserve expired NCM R2 and DA06/07/08"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9137,7 +9137,7 @@
           "disk_floor_GiB": 3,
           "planned_wave_disk_growth_GiB": 2
         },
-        "free_disk_GiB_at_update": 7.3,
+        "free_disk_GiB_at_update": 6.3,
         "G_acceptance": false,
         "formal_closure": false,
         "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
@@ -9252,7 +9252,7 @@
             "generic declared patch-target unit/kind/merge/operation validation",
             "versioned 1.1 ports/obligations/plans and 1.4 semantic method bindings; legacy readers preserved"
           ],
-          "source_location": "existing secondary checkout; uncommitted author delta, not main code",
+          "source_location": "existing secondary author branch and current WIP; main composition pending",
           "core_contract_check": {
             "PASS": 4,
             "wall_seconds": 1.622,
@@ -9301,14 +9301,25 @@
               "scope": "candidate source-view axis producer/reconciler/alignment; actual method consumer bridge pending",
               "output": "PRIMARY:policy-engine/_cache/e02/entity-axis-r2-20261114/"
             }
+          },
+          "temporal_identity_decision": {
+            "status": "IMPLEMENTATION_AUTHORIZED_AFTER_REVIEW",
+            "obligation": "one aggregate per port; immutable original full-horizon set",
+            "selection": "manifest3.0 step-qualified wrapper, context1.1, correspondence2.1, bindings1.5",
+            "source": "replay source/correspondence/encoding/NPY and original obligation before supplied coverage",
+            "partial": "source-valid staging only; nonexecutable",
+            "final": "exact full horizon before numerical reservation/callback",
+            "history": "replay/reseal retained prior occurrences; no repeated acquisition/N5",
+            "snapshot": "explicit temporal owner branch; preserve one-step0.3",
+            "currency_fixture_limit": "nominal2024 preflight fixture establishes clock denominator only"
           }
         },
         "latest_author_checkpoint": {
-          "commit": "1288a7c5d32262556164d11d66550e8550d1bed6",
-          "tree": "3cb13ef9a7a208a55d385e03addaac0ee49c25fc",
+          "commit": "cbf5d8e380de4bebd39e1250a611a86dc411aade",
+          "tree": "bfebc3f72229ccec4b79c85d15a29c7c56045078",
           "branch": "codex/e02-lane01-verify-20261108",
-          "prior_remote_readback": "5873290a9e8d12cbfe618ce6d74c7fc3d4154b81",
-          "scope": "author implementation, not completed main composition or G acceptance"
+          "remote_readback": "3d6344271ef80a5d4d3cc1afd83faa874ddcac9a",
+          "scope": "author source plus ordinary main docs merge; newer bridge/growth source remains WIP, not main qualification/G acceptance"
         },
         "latest_growth_checks": {
           "core_v3_and_legacy": {
@@ -9328,10 +9339,48 @@
             "output": "selected-method-facts-r3-20261114"
           },
           "snapshot_2_4": {
-            "pass": 17,
-            "limitation": "independent review found unbounded snapshot/blob reader; repair pending"
+            "initial_pass": 17,
+            "bounded_reader_pass": 2,
+            "independent_source_review": "GO after bounded repair",
+            "graph_API_transport": "pending"
           },
-          "runtime_method_provider": "native callable content not established in ordinary unrecorded pytest; canonical early-host provider reference owner active"
+          "runtime_method_provider": "native callable content not established in ordinary unrecorded pytest; canonical early-host provider reference owner active",
+          "persistent_patch_VM": {
+            "pass": 10,
+            "independent_source_review": "GO",
+            "output": "model-state-patch-development-r1-20261114",
+            "graph_API_transport": "pending"
+          },
+          "entity_axis_vector": {
+            "pass": 13,
+            "output": "entity-vector-axis-r2-20261114",
+            "live_consumer": "pending"
+          },
+          "quality_facade": {
+            "pass": 32,
+            "exports": 976,
+            "package_import_seconds_before": 42.436385,
+            "package_import_seconds_after": 0.010057,
+            "output": "quality-facade-inventory-r4-20261114",
+            "whole_N5_speedup": "not measured"
+          },
+          "native_two_port_retained_reader": {
+            "classification": "PASS retained deciding tail + binding matrix; original full R1 failure retained",
+            "wall_seconds": 131.322,
+            "peak_sampled_tree_RSS_bytes": 1584611328,
+            "physical_removal_restore_controls": 12,
+            "stock": 6000000000,
+            "new_producer_calls": 0,
+            "new_N5_calls": 0,
+            "source_pins": 25,
+            "output": "p06-retained-two-inputs-r3-20261114"
+          },
+          "feedback_ledger": {
+            "API_ledger_pass": 12,
+            "scientist_consumer_pass": 1,
+            "catchable_interruption": "repair in progress",
+            "selected_input_basis": "uncomposed; gate preserved"
+          }
         }
       },
       "day_stop_20261113": {

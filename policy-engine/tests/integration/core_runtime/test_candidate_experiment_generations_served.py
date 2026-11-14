@@ -13,7 +13,12 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
-    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        ControlPlaneService,
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
     from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
 
@@ -299,6 +304,7 @@ def _assert_genuine_ordered_history_replay(
     origin: VerifiedCandidateExperimentOrigin,
     histories: tuple[CandidateExperimentTerminalHistory, ...],
     monkeypatch: pytest.MonkeyPatch,
+    replay_outcomes: Callable[[], tuple[VerifiedAcquisitionActionOutcome, ...]] | None = None,
 ) -> None:
     """Replay actual retained history twice, then remove deep inputs between cuts.
 
@@ -330,6 +336,14 @@ def _assert_genuine_ordered_history_replay(
         "route_id": origin.route_id,
         "verified_origin": origin,
     }
+
+    def read_outcomes() -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        return (
+            sink.experiment_action_outcomes(**scope)
+            if replay_outcomes is None
+            else replay_outcomes()
+        )
+
     ledger = control._llm_producer_settlement_store
     ledger_before = ledger.snapshot_safe()
     generation_reads: list[int] = []
@@ -345,7 +359,7 @@ def _assert_genuine_ordered_history_replay(
             "_verify_candidate_experiment_terminal_history_generation",
             counted_generation,
         )
-        baseline = sink.experiment_action_outcomes(**scope)
+        baseline = read_outcomes()
         assert generation_reads == list(range(1, len(histories) + 1)) * 2
         assert tuple(item.head for item in baseline) == tuple(item.head for item in histories)
         assert all(
@@ -374,12 +388,32 @@ def _assert_genuine_ordered_history_replay(
                 / digest[2:4]
                 / f"{digest}.blob"
             )
+            import os
+            import stat
+            import tempfile
+
+            selected = path.lstat()
+            if not stat.S_ISREG(selected.st_mode):
+                raise AssertionError("history_control_blob_not_ordinary_file")
             original = path.read_bytes()
+
+            def replace_owned_blob(raw: bytes) -> None:
+                # Atomic replacement detaches this one owned selector from
+                # any hardlinked alias and never writes through a symlink.
+                with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as temporary:
+                    temporary.write(raw)
+                    temporary_path = Path(temporary.name)
+                try:
+                    os.chmod(temporary_path, stat.S_IMODE(selected.st_mode))
+                    os.replace(temporary_path, path)
+                finally:
+                    temporary_path.unlink(missing_ok=True)
+
             if corrupt:
-                path.write_bytes(original + b" ")
+                replace_owned_blob(original + b" ")
             else:
                 path.unlink()
-            return lambda: path.write_bytes(original)
+            return lambda: replace_owned_blob(original)
 
         def remove_sql_row(table, column, value):
             # This closed fixture inventory supplies all identifiers; values
@@ -459,18 +493,63 @@ def _assert_genuine_ordered_history_replay(
                         perturb_after_first_cut,
                     )
                     with pytest.raises((OSError, ValueError)):
-                        sink.experiment_action_outcomes(**scope)
+                        read_outcomes()
                 assert len(completed_cuts) == len(restorations) == 1, name
             finally:
                 for restore in reversed(restorations):
                     restore()
-            restored = sink.experiment_action_outcomes(**scope)
+            restored = read_outcomes()
             assert all(
                 _candidate_model_values_same(before, after)
                 for before, after in zip(baseline, restored, strict=True)
             ), name
         assert n5_entries == []
     assert ledger.snapshot_safe() == ledger_before
+
+
+def _assert_genuine_historical_ordered_history_replay(
+    *,
+    control: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    terminal_ref: ArtifactRef,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Qualify an existing complete owner fixture without renewing its authority.
+
+    The caller must serially own the retained fixture before invoking the
+    reversible CAS/SQL controls. This entry is independently callable around
+    the existing retained_candidate_runtime owner; it creates no producer,
+    lease, source acquisition, or N5 result.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+
+    sink = control.acquisition_route_sink
+    with _forbid_retained_generation_n5() as initial_entries:
+        recorded = sink.experiment_action_history_for_terminal(head=head, terminal_ref=terminal_ref)
+        assert initial_entries == []
+    histories = tuple(item.candidate_experiment_terminal_history for item in recorded.outcomes)
+    assert len(histories) >= 3
+    assert all(type(item) is CandidateExperimentTerminalHistory for item in histories)
+    policy_body = recorded.policy.model_dump(mode="json")
+    assert recorded.current_authority == recorded.current_lease == "not_revalidated"
+    assert recorded.purpose == "historical_terminal_evidence_only"
+    assert "recorded_expiry_not_renewed" in recorded.limitations
+    assert recorded.policy_ref == histories[-1].terminal.policy_ref
+
+    def replay() -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        result = sink.experiment_action_history_for_terminal(head=head, terminal_ref=terminal_ref)
+        assert result.policy.model_dump(mode="json") == policy_body
+        assert result.policy_ref == recorded.policy_ref
+        assert result.current_authority == result.current_lease == "not_revalidated"
+        return result.outcomes
+
+    _assert_genuine_ordered_history_replay(
+        control=control,
+        origin=histories[0].origin,
+        histories=histories,
+        monkeypatch=monkeypatch,
+        replay_outcomes=replay,
+    )
 
 
 def _continue_genuine_candidate_experiment_generations(

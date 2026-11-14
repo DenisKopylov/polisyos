@@ -1550,13 +1550,19 @@ def read_candidate_experiment_acquisition_action_historical(
     CandidateAcquisitionSource,
     BudgetLedgerReentryBudgetWindow,
 ]:
-    """Reopen a historical experiment action and source without a live lease."""
+    """Replay recorded action/source/policy facts without admitting current use.
+
+    The policy is selected by this action's immutable executing phase and
+    subject, never by today's configured binding or template. Current readers
+    and effect owners independently require fresh policy selection, read rights,
+    source ownership and live admission at their existing boundaries.
+    """
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
         VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
-        resolve_current_candidate_unpriced_policy,
+        read_candidate_unpriced_policy,
         verify_candidate_unpriced_experiment_policy_intent,
     )
     from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
@@ -1670,18 +1676,19 @@ def read_candidate_experiment_acquisition_action_historical(
     service = bridge._source_control_service
     if service is None or type(service._llm_producer_settlement_store) is not BudgetMiddleware:
         raise ValueError("candidate_experiment_budget_historical_owner_missing")
-    policy_ref, policy = resolve_current_candidate_unpriced_policy(
-        control_service=service, scope=origin.policy_scope
+    policy = read_candidate_unpriced_policy(
+        store=bridge.artifact_store, event_log=bridge.event_log, ref=origin.policy_ref
     )
     evidence = verify_candidate_unpriced_experiment_policy_intent(
         control_service=service,
         closure=origin,
         scope=origin.policy_scope,
         policy_ref=origin.policy_ref,
+        require_current=False,
     )
     template = policy.configured_template
     if (
-        policy_ref != origin.policy_ref
+        policy.scope != origin.policy_scope
         or template is None
         or evidence.run_budget_usd is None
         or evidence.run_budget_usd <= 0

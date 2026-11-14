@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
@@ -667,8 +668,158 @@ def test_current_fold_uses_exact_v2_history_for_the_selected_head(
     assert generation_reads == [1, 2, 1, 2]
     assert tuple(item.head for item in unpinned) == heads
     assert unpinned[1].candidate_experiment_terminal_history is reuse
+    _assert_terminal_anchored_historical_fold(
+        monkeypatch=monkeypatch,
+        sink=sink,
+        origin=origin,
+        terminal_history=reuse,
+        heads=heads,
+        by_ref=by_ref,
+        generation_reads=generation_reads,
+    )
     if blocked:
         assert reuse.evaluation is None
         assert reuse.frontier_after == first.frontier_after
     else:
         assert reuse.terminal.selected_evaluation == physical.selected_evaluation
+
+
+def _assert_terminal_anchored_historical_fold(
+    *, monkeypatch, sink, origin, terminal_history, heads, by_ref, generation_reads
+) -> None:
+    """Exercise purpose/selector fences over explicit upstream owner adapters.
+
+    This component control does not establish immutable source custody. The real
+    retained three-generation control must reopen actual CAS, SQL and events.
+    """
+    from polisyos.runtime.quality import acquisition_route_loop as route_owner
+    from polisyos.runtime.quality import acquisition_unpriced_candidate_policy as policy_owner
+
+    terminal_head = terminal_history.head
+    terminal_ref = terminal_history.terminal_ref
+    source_reads = []
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+    from tests.unit.runtime.quality.test_candidate_acquisition_action import (
+        _recorded_component_experiment_policy,
+    )
+    from tests.unit.runtime.quality.test_candidate_unpriced_policy import _live_authorization
+
+    recorded_policy = _recorded_component_experiment_policy(
+        scope=origin.policy_scope,
+        authorization=_live_authorization(),
+        source_payload_ref=origin.source_payload_ref,
+        request_content_hash=origin.request_content_hash,
+        run_binding=BudgetLedgerProducerRunBinding(
+            run_id=origin.run_id,
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            profile_id="component-history",
+            control_job_id=origin.source_job_id,
+        ),
+        fresh_limit_usd=Decimal("1"),
+    )
+
+    def source_adapter(_loop, *, run_id, historical_policy_ref=None):
+        source_reads.append(historical_policy_ref)
+        assert run_id == origin.run_id
+        if historical_policy_ref is None:
+            raise AcquisitionRouteClosureError("component_current_policy_deselected")
+        assert historical_policy_ref == terminal_history.terminal.policy_ref
+        return origin
+
+    def selected_receipt_adapter(*, artifact_store, event_log, head):
+        assert artifact_store is sink._artifact_store
+        assert event_log is sink._event_log
+        assert head == heads[head.action_generation - 1]
+        return by_ref[head.receipt_ref].latest_receipt
+
+    def policy_adapter(*, store, event_log, ref):
+        assert store is sink._artifact_store
+        assert event_log is sink._event_log
+        assert ref == terminal_history.terminal.policy_ref
+        return recorded_policy
+
+    with monkeypatch.context() as historical:
+        historical.setattr(
+            AcquisitionRouteLoop, "_resolve_candidate_experiment_source", source_adapter
+        )
+        historical.setattr(
+            route_owner,
+            "_read_selected_candidate_experiment_receipt_historical",
+            selected_receipt_adapter,
+        )
+        historical.setattr(policy_owner, "read_candidate_unpriced_policy", policy_adapter)
+        scope = {
+            "tenant_id": origin.tenant_id,
+            "cell_id": origin.cell_id,
+            "run_id": origin.run_id,
+            "source_job_id": origin.source_job_id,
+            "route_id": origin.route_id,
+        }
+        generation_reads.clear()
+        with pytest.raises(
+            AcquisitionRouteClosureError, match=r"^component_current_policy_deselected$"
+        ):
+            sink.experiment_action_outcomes(**scope)
+        assert generation_reads == []
+        assert source_reads == [None]
+        source_reads.clear()
+        recorded = sink.experiment_action_history_for_terminal(
+            head=terminal_head, terminal_ref=terminal_ref
+        )
+        assert generation_reads == [1, 2, 1, 2]
+        assert tuple(item.head for item in recorded.outcomes) == heads[:2]
+        assert source_reads == [terminal_history.terminal.policy_ref] * 4
+        assert recorded.purpose == "historical_terminal_evidence_only"
+        assert recorded.current_authority == recorded.current_lease == "not_revalidated"
+        assert recorded.policy is recorded_policy
+        assert type(recorded.policy) is policy_owner.CandidateUnpricedAcquisitionPolicy
+        assert recorded.policy.scope == origin.policy_scope
+        assert "recorded_expiry_not_renewed" in recorded.limitations
+        assert "current_policy_selection_not_revalidated" in recorded.limitations
+        assert "historical_policy_does_not_admit_current_use" in recorded.limitations
+
+        for changed_head, changed_ref in (
+            (
+                terminal_head,
+                terminal_ref.model_copy(update={"manifest_profile_sha256": _hash("a")}),
+            ),
+            (terminal_head, terminal_ref.model_copy(update={"manifest_profile_sha256": None})),
+            (replace(terminal_head, job_id="foreign-action"), terminal_ref),
+            (replace(terminal_head, tenant_id="foreign-tenant"), terminal_ref),
+        ):
+            with pytest.raises(
+                ValueError, match=r"^candidate_experiment_historical_terminal_not_selected$"
+            ):
+                sink.experiment_action_history_for_terminal(
+                    head=changed_head, terminal_ref=changed_ref
+                )
+
+        # Returning a different historical source cannot be laundered through
+        # the selected terminal policy, even though today's policy is expired.
+        def wrong_historical_source(*_args, **_kwargs):
+            return replace(
+                origin,
+                policy_ref=_ref("runtime_quality.candidate_unpriced_acquisition_policy", "a"),
+            )
+
+        with historical.context() as changed:
+            changed.setattr(
+                AcquisitionRouteLoop,
+                "_resolve_candidate_experiment_source",
+                wrong_historical_source,
+            )
+            with pytest.raises(
+                ValueError, match=r"^candidate_experiment_historical_source_mismatch$"
+            ):
+                sink.experiment_action_history_for_terminal(
+                    head=terminal_head, terminal_ref=terminal_ref
+                )
+        restored = sink.experiment_action_history_for_terminal(
+            head=terminal_head, terminal_ref=terminal_ref
+        )
+        assert restored == recorded
+        with pytest.raises(
+            AcquisitionRouteClosureError, match=r"^component_current_policy_deselected$"
+        ):
+            sink.experiment_action_outcomes(**scope)

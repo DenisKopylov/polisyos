@@ -351,6 +351,18 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
         assert replayed == receipt
         assert replayed.candidate_source_ref == source_case.source_ref
         assert replayed.candidate_source_ref.kind == CANDIDATE_ACQUISITION_SOURCE_KIND
+        _assert_recorded_action_policy_is_independent_of_current_selection(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+            bridge=bridge,
+            origin=origin,
+            source=source,
+            phase=phase,
+            phase_ref=phase_ref_id,
+            receipt=receipt,
+            persist_action=persist_action,
+            control_store=control_store,
+        )
 
         foreign_origin = replace(origin, cell_id=origin.cell_id + "-foreign")
         with pytest.raises(ValueError, match="candidate_experiment_action_parent_mismatch"):
@@ -384,6 +396,232 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
             )
     finally:
         control_store.close()
+
+
+def _recorded_component_experiment_policy(
+    *, scope, authorization, source_payload_ref, request_content_hash, run_binding, fresh_limit_usd
+):
+    """Issue typed component policy bytes; source custody remains upstream."""
+    from polisyos.runtime.quality import acquisition_unpriced_candidate_policy as policy_owner
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+    )
+
+    quota = BudgetLedgerInvocationProfile.from_policy(
+        run_binding,
+        BudgetInvocationQuotaPolicy(
+            allocation_id="component-history", total_units=2, protected_units=0
+        ),
+    )
+    template = policy_owner.CandidateUnpricedExperimentPolicyTemplate(
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        authority_entry_id="component-recorded-authority",
+        authority_registry_sha256=_hash("a"),
+        authority_provision_sha256=_hash("b"),
+        attempt_id=authorization.attempt_id,
+        max_http_response_bytes=authorization.budget.max_response_bytes,
+        max_http_decompressed_bytes=authorization.budget.max_decompressed_bytes,
+        max_http_timeout_seconds=authorization.budget.timeout_seconds,
+        max_standard_n5_invocations=2,
+        max_metered_reentry_usd=fresh_limit_usd,
+    )
+    return policy_owner.issue_candidate_unpriced_experiment_policy(
+        scope=scope,
+        live_authorization=authorization,
+        n5_quota_profile=quota,
+        source_payload_ref=source_payload_ref,
+        request_content_hash=request_content_hash,
+        original_metered_budget_usd=Decimal("5"),
+        limitations=tuple(
+            sorted(
+                policy_owner._REQUIRED_LIMITATIONS
+                | {
+                    "component_source_custody_not_established",
+                    "candidate_experiment_voi_not_established",
+                }
+            )
+        ),
+        configured_template=template,
+    )
+
+
+def _assert_recorded_action_policy_is_independent_of_current_selection(
+    *,
+    tmp_path,
+    monkeypatch,
+    bridge,
+    origin,
+    source,
+    phase,
+    phase_ref,
+    receipt,
+    persist_action,
+    control_store,
+) -> None:
+    """Replay actual action/source/events/window with explicit policy-owner adapters.
+
+    The selected policy's source custody and original NL request owner are
+    upstream component boundaries here. This is not a full signed policy or
+    protected-action test; the retained owner fixture must establish those.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        ControlPlaneService,
+        OriginalRunBudgetScopeEvidence,
+    )
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+    from polisyos.runtime.quality import acquisition_unpriced_candidate_policy as policy_owner
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        read_candidate_experiment_acquisition_action_historical,
+    )
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerProducerRunBinding,
+        BudgetLedgerReentryBudgetScope,
+        BudgetMiddleware,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+
+    run_binding = BudgetLedgerProducerRunBinding(
+        run_id=origin.run_id,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        profile_id="component-recorded-policy",
+        control_job_id=origin.source_job_id,
+    )
+    ledger = FileBudgetLedger(tmp_path / "historical-action-ledger.json")
+    middleware = BudgetMiddleware(BudgetState(), ledger=ledger)
+    policy = _recorded_component_experiment_policy(
+        scope=origin.policy_scope,
+        authorization=source.live_source_execution.authorization,
+        source_payload_ref=origin.source_payload_ref,
+        request_content_hash=origin.request_content_hash,
+        run_binding=run_binding,
+        fresh_limit_usd=receipt.selection.reentry_budget_usd,
+    )
+    evidence = OriginalRunBudgetScopeEvidence(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        source_payload_ref=origin.source_payload_ref,
+        run_budget_usd=Decimal("5"),
+        run_budget_scope="metered_paid_producers_and_bounded_candidate",
+        scope_explicit=True,
+        request_snapshot_schema="polisyos.runtime.control_nl_request_snapshot.v5",
+        request_content_hash=origin.request_content_hash,
+        candidate_acquisition_intent_present=True,
+        candidate_acquisition_intent="bounded_experiment_voi_unknown",
+    )
+    budget_scope = BudgetLedgerReentryBudgetScope(
+        run_binding=run_binding,
+        action_job_id=phase.job_id,
+        route_id=origin.route_id,
+        action_generation=phase.action_generation,
+        action_phase_ref=phase_ref,
+        source_payload_ref=origin.source_payload_ref,
+        profile_selection_ref=receipt.profile_selection_ref,
+    )
+    with middleware.producer_run_binding_scope(run_binding, control_job_attempt=1):
+        middleware.settle_producer_event_safe(
+            "component-historical-nl-prefix",
+            _hash("a").removeprefix("sha256:"),
+            _hash("b").removeprefix("sha256:"),
+            key=f"nl-run:{origin.run_id}",
+            model="controlled-component-model",
+            provider="controlled-component-provider",
+            amount=Decimal("0.20"),
+            cost_origin="reported",
+        )
+    window = middleware.open_reentry_budget_window_safe(
+        budget_scope,
+        fresh_limit_usd=receipt.selection.reentry_budget_usd,
+        global_limit_usd=Decimal("5"),
+    )
+    recorded_receipt = receipt.model_copy(
+        update={
+            "candidate_budget_window_id": window.window_id,
+            "candidate_budget_window_digest": window.record_digest,
+        }
+    )
+    recorded_ref = persist_action(recorded_receipt)
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store = bridge.artifact_store
+    service._diagnostic_event_log = bridge.event_log
+    service._control_store = control_store
+    service._llm_producer_settlement_store = middleware
+    service._registry_providers = resolve_control_registry_providers()
+    bridge._source_control_service = service
+    bridge.control_store = control_store
+
+    def selected_policy_adapter(*, store, event_log, ref):
+        assert store is bridge.artifact_store
+        assert event_log is bridge.event_log
+        assert ref == origin.policy_ref
+        return policy
+
+    with monkeypatch.context() as owner_adapter:
+        owner_adapter.setattr(
+            policy_owner, "read_candidate_unpriced_policy", selected_policy_adapter
+        )
+        owner_adapter.setattr(
+            ControlPlaneService,
+            "verify_candidate_experiment_intent",
+            lambda *_args, **_kwargs: evidence,
+        )
+        owner_adapter.setattr(
+            ControlPlaneService,
+            "verify_acquisition_source_budget_owner",
+            lambda *_args, **_kwargs: run_binding,
+        )
+        with pytest.raises(ValueError, match=r"^candidate_unpriced_policy_not_selected$"):
+            policy_owner.resolve_current_candidate_unpriced_policy(
+                control_service=service, scope=origin.policy_scope
+            )
+        before = ledger.snapshot()
+        result = read_candidate_experiment_acquisition_action_historical(
+            bridge=bridge,
+            origin=origin,
+            receipt_ref=recorded_ref,
+            executing_phase=phase,
+            executing_phase_ref=phase_ref,
+        )
+        assert result == (recorded_receipt, source, window)
+        assert ledger.snapshot() == before
+        # Exact immutable intent remains mandatory despite current deselection.
+        with owner_adapter.context() as corrupt:
+            corrupt.setattr(
+                ControlPlaneService,
+                "verify_candidate_experiment_intent",
+                lambda *_args, **_kwargs: replace(evidence, request_content_hash=_hash("f")),
+            )
+            with pytest.raises(
+                ValueError, match=r"^candidate_experiment_policy_intent_not_established$"
+            ):
+                read_candidate_experiment_acquisition_action_historical(
+                    bridge=bridge,
+                    origin=origin,
+                    receipt_ref=recorded_ref,
+                    executing_phase=phase,
+                    executing_phase_ref=phase_ref,
+                )
+        assert (
+            read_candidate_experiment_acquisition_action_historical(
+                bridge=bridge,
+                origin=origin,
+                receipt_ref=recorded_ref,
+                executing_phase=phase,
+                executing_phase_ref=phase_ref,
+            )
+            == result
+        )
+        with pytest.raises(ValueError, match=r"^candidate_unpriced_policy_not_selected$"):
+            policy_owner.resolve_current_candidate_unpriced_policy(
+                control_service=service, scope=origin.policy_scope
+            )
 
 
 @pytest.mark.parametrize("drift", [None, "head", "owner", "source", "history_head"])

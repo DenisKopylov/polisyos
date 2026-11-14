@@ -2124,6 +2124,9 @@ if TYPE_CHECKING:
         _CandidateExperimentHistoryPrefix,
     )
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedAcquisitionPolicy,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateSourceRoute,
         AcquisitionWorldGrowthBridge,
@@ -2303,6 +2306,30 @@ class VerifiedAcquisitionActionOutcome:
     phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
     candidate_terminal_history: CandidateEvaluationTerminalHistory | None = None
     candidate_experiment_terminal_history: CandidateExperimentTerminalHistory | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _HistoricalCandidateExperimentTerminalSelection:
+    head: AcquisitionActionHeadRecord
+    terminal_ref: ArtifactRef
+
+
+@dataclass(frozen=True, slots=True)
+class HistoricalCandidateExperimentActionHistory:
+    """Recorded selected history, explicitly unavailable as current permission."""
+
+    terminal_ref: ArtifactRef
+    policy_ref: ArtifactRef
+    policy: CandidateUnpricedAcquisitionPolicy
+    outcomes: tuple[VerifiedAcquisitionActionOutcome, ...]
+    purpose: Literal["historical_terminal_evidence_only"] = "historical_terminal_evidence_only"
+    current_authority: Literal["not_revalidated"] = "not_revalidated"
+    current_lease: Literal["not_revalidated"] = "not_revalidated"
+    limitations: tuple[str, ...] = (
+        "historical_policy_does_not_admit_current_use",
+        "current_policy_selection_not_revalidated",
+        "recorded_expiry_not_renewed",
+    )
 
 
 def _require_action_phase_receipt(
@@ -4727,6 +4754,88 @@ class AcquisitionRouteLoopAuthoritySink:
             action_outcome_reader=self,
         )._resolve_candidate_experiment_source(run_id=run_id)
 
+    def _candidate_experiment_fold_source(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        historical_source: _HistoricalCandidateExperimentTerminalSelection | None,
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Resolve current use or exact terminal-anchored immutable evidence."""
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_ref_same,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+        if historical_source is None:
+            return self._resolve_candidate_experiment_source(
+                tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+            )
+        if type(historical_source) is not _HistoricalCandidateExperimentTerminalSelection:
+            raise ValueError("candidate_experiment_historical_source_untyped")
+        head, ref = historical_source.head, historical_source.terminal_ref
+        if type(head) is not AcquisitionActionHeadRecord:
+            raise ValueError("candidate_experiment_historical_terminal_not_selected")
+        expected = ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+            kind="runtime_quality.acquisition_route_loop_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+        )
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": source_job_id,
+            "route_id": route_id,
+        }
+        if (
+            head.receipt_phase != "terminal"
+            or ref.manifest_profile_sha256 is None
+            or not _candidate_ref_same(ref, expected)
+            or (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+            != (tenant_id, cell_id, run_id, source_job_id, route_id)
+            or self._control_store.get_acquisition_action_head(
+                **scope, action_generation=head.action_generation
+            )
+            != head
+        ):
+            raise ValueError("candidate_experiment_historical_terminal_not_selected")
+        loop = AcquisitionRouteLoop(
+            control_store=self._control_store,
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            core_source_resolver=self._core_source_resolver,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=self,
+        )
+        # This existing owner reopens the selected profile and durable event,
+        # verifies exact owner composition, and never infers a current grant.
+        receipt = loop._selected_candidate_experiment_receipt(head)
+        if type(receipt) not in {
+            AcquisitionCandidateExperimentTerminalReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        }:
+            raise ValueError("candidate_experiment_historical_terminal_untyped")
+        origin = loop._resolve_candidate_experiment_source(
+            run_id=run_id, historical_policy_ref=receipt.policy_ref
+        )
+        if (
+            origin.tenant_id,
+            origin.cell_id,
+            origin.run_id,
+            origin.source_job_id,
+            origin.route_id,
+        ) != (tenant_id, cell_id, run_id, source_job_id, route_id) or not _candidate_ref_same(
+            origin.policy_ref, receipt.policy_ref
+        ):
+            raise ValueError("candidate_experiment_historical_source_mismatch")
+        return origin
+
     def _verified_candidate_experiment_phase_chain(
         self,
         head: AcquisitionActionHeadRecord,
@@ -4961,6 +5070,80 @@ class AcquisitionRouteLoopAuthoritySink:
         event and artifact reads. These are two observations, not an atomic read
         or a guarantee against an unobserved intervening A-to-B-to-A change.
         """
+        return self._reconcile_experiment_action_outcomes(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+            verified_origin=verified_origin,
+        )
+
+    @_receipt_verification_scoped
+    def experiment_action_history_for_terminal(
+        self,
+        *,
+        head: AcquisitionActionHeadRecord,
+        terminal_ref: ArtifactRef,
+    ) -> HistoricalCandidateExperimentActionHistory:
+        """Replay the complete prefix through one selected terminal as evidence.
+
+        Args:
+            head: Exact committed terminal selector, independently read from SQL.
+            terminal_ref: Exact selected terminal view, including manifest profile.
+
+        Returns:
+            Recorded policy and original owner outcomes, with current authority
+            and lease explicitly not revalidated. Recorded expiry is not renewed.
+
+        Raises:
+            ValueError: If any terminal, source, profile or complete prefix differs.
+        """
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            read_candidate_unpriced_policy,
+        )
+
+        if type(head) is not AcquisitionActionHeadRecord or not isinstance(
+            terminal_ref, ArtifactRef
+        ):
+            raise ValueError("candidate_experiment_historical_terminal_not_selected")
+        selected = _HistoricalCandidateExperimentTerminalSelection(head, terminal_ref)
+        outcomes = self._reconcile_experiment_action_outcomes(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+            historical_source=selected,
+        )
+        if not outcomes or outcomes[-1].head != head:
+            raise ValueError("candidate_experiment_historical_prefix_not_complete")
+        terminal = outcomes[-1].latest_receipt
+        if type(terminal) not in {
+            AcquisitionCandidateExperimentTerminalReceipt,
+            AcquisitionCandidateExperimentTerminalReceiptV2,
+        }:
+            raise ValueError("candidate_experiment_historical_prefix_not_complete")
+        policy_ref = terminal.policy_ref
+        policy = read_candidate_unpriced_policy(
+            store=self._artifact_store, event_log=self._event_log, ref=policy_ref
+        )
+        return HistoricalCandidateExperimentActionHistory(
+            terminal_ref=terminal_ref, policy_ref=policy_ref, policy=policy, outcomes=outcomes
+        )
+
+    def _reconcile_experiment_action_outcomes(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        historical_source: _HistoricalCandidateExperimentTerminalSelection | None = None,
+    ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        """Repeat one operation-owned complete prefix at two observed cuts."""
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
         from polisyos.runtime.quality.joint_simulation_horizon import (
             _receipt_verification_operation,
@@ -4973,6 +5156,7 @@ class AcquisitionRouteLoopAuthoritySink:
             "source_job_id": source_job_id,
             "route_id": route_id,
             "verified_origin": verified_origin,
+            "historical_source": historical_source,
         }
         with _receipt_verification_operation(fresh=True):
             first = self._experiment_action_outcomes_once(**scope)
@@ -4994,6 +5178,7 @@ class AcquisitionRouteLoopAuthoritySink:
         source_job_id: str,
         route_id: str,
         verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        historical_source: _HistoricalCandidateExperimentTerminalSelection | None = None,
     ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
         """Resolve only owner-replayed in-flight experiment phases for one source."""
         from dataclasses import replace
@@ -5037,10 +5222,21 @@ class AcquisitionRouteLoopAuthoritySink:
             if verified_origin is not None and verified_origin.candidate_terminal_history_chain:
                 raise ValueError("candidate_experiment_action_prefix_mismatch")
             return ()
+        all_heads = heads
+        if historical_source is not None:
+            if type(historical_source) is not _HistoricalCandidateExperimentTerminalSelection:
+                raise ValueError("candidate_experiment_historical_source_untyped")
+            heads = tuple(
+                head
+                for head in all_heads
+                if head.action_generation <= historical_source.head.action_generation
+            )
+            if not heads or heads[-1] != historical_source.head:
+                raise ValueError("candidate_experiment_historical_terminal_not_selected")
         # Reopen the source independently. A caller's origin may constrain this
         # sweep, but none of its histories supplies the proof prefix.
-        source_origin = self._resolve_candidate_experiment_source(
-            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+        source_origin = self._candidate_experiment_fold_source(
+            **scope, historical_source=historical_source
         )
         if verified_origin is not None and not _candidate_model_values_same(
             source_origin,
@@ -5123,12 +5319,10 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("candidate_experiment_action_prefix_mismatch")
         outcome = outcomes[-1]
         latest = outcome.latest_receipt
-        if self._control_store.list_acquisition_action_heads(**scope) != heads:
+        if self._control_store.list_acquisition_action_heads(**scope) != all_heads:
             raise ValueError("candidate_experiment_action_history_changed")
-        refreshed_origin = self._resolve_candidate_experiment_source(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
+        refreshed_origin = self._candidate_experiment_fold_source(
+            **scope, historical_source=historical_source
         )
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_ref_same
 

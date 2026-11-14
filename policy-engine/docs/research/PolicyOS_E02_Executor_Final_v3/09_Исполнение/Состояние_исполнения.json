@@ -9316,11 +9316,14 @@
           }
         },
         "latest_author_checkpoint": {
-          "commit": "9d7116eff4c046786a0fd121dde90e0e107f781d",
-          "tree": "e1b54ea8400c029528186aaa4a0f5dd4fa5ed3f0",
-          "remote_readback_at_update": "9d7116eff4c046786a0fd121dde90e0e107f781d",
+          "commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "remote_readback_at_update": "30a4c860b1da62802878dae78767b0f6870ff435",
           "branch": "codex/e02-lane01-verify-20261108",
-          "scope": "40-path released checkpoint plus ordinary main precision merge; later Runtime and growth changes remain visible author WIP"
+          "changed_files": 93,
+          "commit_files_readback": "93/93 exact",
+          "hooks": "normal pre-commit + app/node/tools pre-push typecheck PASS",
+          "scope": "released implementation, tests and generated companions saved; main code remains72dfc8f3b; LANE/G closure open"
         },
         "latest_growth_checks": {
           "core_v3_and_legacy": {
@@ -9529,6 +9532,34 @@
           "numeric_identity": "operator/target/dose/schedule/direct effects remain algorithmic; provenance refs resolved after full field census",
           "prototype": "raw4B test unrun/superseded, not an effect or N5 acceptance proof",
           "owners": "Foundry/Core canonical executor + Runtime horizon/intent owner; no new engine/queue"
+        },
+        "composed_component_checkpoint": {
+          "merge_commit": "e15d53ab1e99cf2f32d4843f2e1a6b79655fd01e",
+          "merge_tree": "b448653b1cc8ec25ca20816f98152fb5f807b6d9",
+          "main_delivery": "72dfc8f3bc6adab8023be55f4973bcb7a8045ac5",
+          "initial_store_quota": "20 distinct PASS across R1/R2; original fixture failure retained; zero N5",
+          "native_guards": "23 distinct PASS across R2/R3/R4; exact node census retained; zero paid work/N5",
+          "initial_projection": "10 DTO PASS; independent source GO; canonical closure residuals copied exactly; served ACL/producer remains UNRUN",
+          "generated": "global public inventory, Runtime OpenAPI and client/dashboard types regenerated as one composed family; final affected contract/type checks separate",
+          "temporal_fixture": "explicit synthetic local_lift inputs; no WDI current-price relabel; first 1.5 consumer cohort UNRUN",
+          "paired_effect_oracle": "same external flow on baseline/T: government effect -25165824, income mean +12582912; flow changes absolute outcomes/intent but need not change effect",
+          "acceptance": "component checkpoint only; original 11 packets / 66 requirements / 64 contracts and G acceptance unchanged"
+        },
+        "daily_pause_20261114": {
+          "requested_by_user": true,
+          "active_numerical_jobs": 0,
+          "new_jobs_or_agents": "do not start during pause",
+          "source_save": "ordinary author checkpoint with released source/tests/global generated companions; LANE and G acceptance remain open",
+          "style": "Ruff check/format pass complete79 changed Python denominator; seven formatter changes AST-equivalent",
+          "preflight_tail": "R4 failed before preflight: method_execution_plan_invalid; missing custom-method registration is static hypothesis; failed/unrun three-case tail awaits tomorrow",
+          "prototype": "superseded unpaired c1 source preserved byte-identical in tests/integration/runtime_quality/test_derived_method_model_input_use_served.py.draft; not collected/evidence",
+          "first_next": "read checkpoint; fix custom-method fixture/actual diagnostic; focused tail only; Core/Foundry actuation and Runtime V4 in parallel, then one genuinely paired ordinary N5 wave",
+          "actuation_census": "one group per exact LoweredMechanism row; legitimate repeated binding IDs preserved; whole-row intervention membership; full mask/apply/params/ordered IO/selector/direct-edge joins",
+          "native_parallel": "versioned N4/world source linkage, existing durable recovery and independent per-leaf admission; no expired authority reuse",
+          "generated_input_repair": "21,556-byte identity document absent under sparse working tree materialized from exact own HEAD; first trust generation UNRUN retained, corrected generation PASS",
+          "remaining": "original 11 packets/66 requirements/64 contracts; ordinary A/B/C routes, Native paid reentry, temporal/vector/feedback consumers, P07/P08/Gate B and DA06/07/08 remain scoped as recorded",
+          "author_source_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "author_source_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8"
         }
       },
       "day_stop_20261113": {

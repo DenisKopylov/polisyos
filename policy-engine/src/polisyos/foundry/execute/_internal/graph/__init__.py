@@ -8,7 +8,7 @@ import json
 import logging
 import math
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -113,14 +113,20 @@ from polisyos.foundry.execute._internal.models import (
     get_state_path,
     load_model,
     load_payload,
+    load_tensor,
     put_tensor,
 )
 from polisyos.foundry.execute._internal.ops import (
+    apply_ops_for_slot,
     apply_ops_to_state,
     coerce_number,
     evaluate_selector,
 )
 from polisyos.foundry.execute._internal.patching import apply_patch_map
+from polisyos.foundry.execute._internal.precision import (
+    MethodPatchArithmeticPrecisionError,
+    MethodPatchPrecisionTracker,
+)
 from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
 from polisyos.foundry.execute.observation import (
     PreparedProgramGraphMethodCall,
@@ -3622,6 +3628,14 @@ def execute_program_graph(
     )
     visible_state = base_state
     patch_records: dict[str, list[dict[str, Any]]] = {}
+    precision_tracker = MethodPatchPrecisionTracker(
+        {
+            slot_id
+            for candidate in program_graph.nodes
+            if candidate.node_kind == "method"
+            for slot_id in candidate.outputs
+        }
+    )
     ops: list[PatchOp] = []
     applied_nodes = 0
     skipped_nodes = 0
@@ -3645,17 +3659,33 @@ def execute_program_graph(
         notes=[],
     )
 
+    def _precision_state_values(
+        state: Any,
+        slot_ids: Iterable[str],
+        context: ModelStatePatchContext | None,
+    ) -> dict[str, Any]:
+        """Read exact physical state sources without interpreting slot names."""
+        values: dict[str, Any] = {}
+        for slot_id in slot_ids:
+            slot = slot_registry.slots.get(slot_id)
+            if slot is None:
+                continue
+            if slot.state_path:
+                values[slot_id] = get_state_path(state, slot.state_path)
+            elif _model_state_contains_slot(context, slot_id):
+                assert context is not None
+                if state is not context.bound_state.state:
+                    raise ValueError("model_scalar_state_execution_context_state_mismatch")
+                values[slot_id] = context.read_slot(slot_id)
+        return values
+
     def _flush_pending_records() -> None:
         nonlocal patch_records, visible_state, model_state_context
         if not patch_records:
             return
         touched_slots.update(patch_records.keys())
-        base_values = {
-            slot_id: get_state_path(visible_state, slot_spec.state_path)
-            for slot_id in patch_records
-            for slot_spec in [slot_registry.slots.get(slot_id)]
-            if slot_spec is not None and slot_spec.state_path
-        }
+        base_values = _precision_state_values(visible_state, patch_records, model_state_context)
+        exact_targets = precision_tracker.before_flush(patch_records, base_values)
         merged_ops = merge_patch_records(
             store,
             patch_records,
@@ -3675,6 +3705,10 @@ def execute_program_graph(
         )
         if model_state_context is not None:
             model_state_context = model_state_context.with_state(visible_state)
+        precision_tracker.after_flush(
+            exact_targets,
+            _precision_state_values(visible_state, exact_targets, model_state_context),
+        )
         patch_records = {}
 
     def _persist_welfare_report(node: Any, report: Any) -> None:
@@ -4186,6 +4220,7 @@ def execute_program_graph(
                     method_class=method_class,
                     patch_target_operations=patch_target_operations,
                 )
+                precision_tracker.activate(patch_target_operations, method_fqn=method_fqn)
                 applied_nodes += 1
                 executed_mutating_nodes.add(node_id)
                 continue
@@ -4208,7 +4243,9 @@ def execute_program_graph(
                 card.failure_kind.value,
                 card.error_message,
             )
-            if _should_abort(card, strictness):
+            if isinstance(exc, MethodPatchArithmeticPrecisionError) or _should_abort(
+                card, strictness
+            ):
                 occurrence_status = "failed"
                 abort_error = MethodExecutionAbortError(
                     card,
@@ -4260,19 +4297,74 @@ def execute_program_graph(
                 )
             raise abort_error from abort_cause
 
-    if patch_records:
-        _flush_pending_records()
+    try:
+        if patch_records:
+            _flush_pending_records()
 
-    ops = _build_state_delta_ops(
-        store,
-        base_state=base_state,
-        final_state=visible_state,
-        touched_slots=touched_slots,
-        slot_registry=slot_registry,
-        merge_registry=merge_registry,
-        return_selected_profile=selected_profile,
-        model_state_context=opening_model_state_context,
-    )
+        ops = _build_state_delta_ops(
+            store,
+            base_state=base_state,
+            final_state=visible_state,
+            touched_slots=touched_slots,
+            slot_registry=slot_registry,
+            merge_registry=merge_registry,
+            return_selected_profile=selected_profile,
+            model_state_context=opening_model_state_context,
+        )
+        replayed_model_state_context = None
+        if opening_model_state_context is not None and any(
+            precision_tracker.is_active(op.slot_id) for op in ops
+        ):
+            replayed_state = apply_ops_to_state(
+                store,
+                base_state=base_state,
+                ops=ops,
+                slot_registry=slot_registry,
+                merge_registry=merge_registry,
+                model_state_context=opening_model_state_context,
+            )
+            replayed_model_state_context = opening_model_state_context.with_state(replayed_state)
+        for op in ops:
+            if not precision_tracker.is_active(op.slot_id):
+                continue
+            if op.op != "add" or op.value_ref is None or op.mask_ref is not None:
+                precision_tracker.refuse_active(op.slot_id)
+            initial_values = _precision_state_values(
+                base_state, (op.slot_id,), opening_model_state_context
+            )
+            final_values = _precision_state_values(
+                visible_state, (op.slot_id,), model_state_context
+            )
+            if op.slot_id not in initial_values or op.slot_id not in final_values:
+                precision_tracker.refuse_active(op.slot_id)
+            initial = initial_values[op.slot_id]
+            final = final_values[op.slot_id]
+            delta = load_tensor(store, op.value_ref)
+            if replayed_model_state_context is None:
+                replayed = apply_ops_for_slot(store, initial, (op,))
+            else:
+                replayed_values = _precision_state_values(
+                    replayed_model_state_context.bound_state.state,
+                    (op.slot_id,),
+                    replayed_model_state_context,
+                )
+                if op.slot_id not in replayed_values:
+                    precision_tracker.refuse_active(op.slot_id)
+                replayed = replayed_values[op.slot_id]
+            precision_tracker.verify_serialized_delta(
+                op.slot_id, base=initial, final=final, delta=delta, replayed=replayed
+            )
+    except MethodPatchArithmeticPrecisionError as exc:
+        card = _build_failure_card(exc, slot_context=(exc.slot_id,))
+        abort_error = MethodExecutionAbortError(
+            card,
+            semantic_input_notes=(() if closed_world_inputs is None else closed_world_inputs.notes),
+        )
+        if capture is not None:
+            abort_error.method_execution_bundle_ref = persist_method_execution_capture(
+                store, capture
+            )
+        raise abort_error from exc
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
 

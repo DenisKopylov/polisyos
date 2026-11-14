@@ -638,7 +638,9 @@ class MethodPatchTargetContract:
     This finite profile requires a registered GLOBAL DECIMAL flow and stock
     with the same resolved monetary unit and a SUM merge rule. The executor
     validates the selected registry before invocation and accepts delta-only
-    patch records. It does not infer an empirical stock-accumulation law.
+    patch records. It refuses an effect that cannot be carried exactly in the
+    target and replayed without a declared tolerance. It does not infer an
+    empirical stock-accumulation law.
 
     Attributes:
         target_parameter: Static parameter naming the registered target slot.

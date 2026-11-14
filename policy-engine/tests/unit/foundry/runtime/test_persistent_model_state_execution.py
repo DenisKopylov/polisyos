@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
 import sys
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 
 import numpy as np
 import pytest
 
 from polisyos.core.artifacts import validate_core_model_json_artifact
-from polisyos.core.contracts.foundry import ExecuteRequest, SimulationResult
+from polisyos.core.contracts.foundry import ExecuteRequest, MethodExecutionBundle, SimulationResult
 from polisyos.foundry.data_plane.bindings import load_input_bindings
 from polisyos.foundry.execute._internal.graph import (
     _ClosedWorldMethodInputs,
@@ -23,6 +25,7 @@ from polisyos.foundry.execute._internal.graph import (
     execute_program_graph,
     prepare_program_graph_method_calls,
 )
+from polisyos.foundry.execute._internal.precision import METHOD_PATCH_PRECISION_REFUSAL
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.patch_vm import ModelStatePatchContext
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
@@ -318,3 +321,66 @@ def test_persistent_state_input_is_read_only_and_future_read_is_not_prepared(tmp
             step=0,
             model_state_context=context,
         )
+
+
+def test_persistent_float32_stock_refuses_a_lost_selected_dollar(tmp_path):
+    """A supported float64 input cannot silently become a zero stock effect."""
+    case, metadata = prepare_selected_method_input_case(
+        tmp_path,
+        method_class=PeriodFlowToStock,
+        state_writes=(_STOCK,),
+        persistent_stock_slot=_STOCK,
+    )
+    try:
+        materialized = materialize_registered_method_input_case(
+            case,
+            metadata,
+            ratio_value=Decimal("-1"),
+            denominator_value=Decimal("1"),
+        )
+        bindings = load_input_bindings(case.store, materialized.input_bindings_ref)
+        (selected,) = bindings.selected_method_inputs
+        assert selected.canonical_value == Decimal("-1")
+        expected_argument = np.asarray(-1, dtype=np.float64)
+        expected_hash = hashlib.sha256(
+            expected_argument.dtype.str.encode("ascii")
+            + json.dumps(expected_argument.shape, separators=(",", ":")).encode("ascii")
+            + expected_argument.tobytes(order="C")
+        ).hexdigest()
+        assert selected.value_sha256 == expected_hash
+
+        executed = execute_foundry(
+            case.store,
+            ExecuteRequest(
+                exec_plan_ref=case.exec_plan_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                input_bindings_ref=materialized.input_bindings_ref,
+                return_selected_profile=True,
+            ),
+        )
+        assert not executed.ok
+        assert executed.simulation_result_ref is None
+        assert METHOD_PATCH_PRECISION_REFUSAL in executed.notes
+        assert executed.method_execution_bundle_ref is not None
+        capture = validate_core_model_json_artifact(
+            MethodExecutionBundle, case.store, executed.method_execution_bundle_ref
+        )
+        (occurrence,) = (item for item in capture.occurrences if item.node_kind == "method")
+        assert occurrence.status == "succeeded"
+        (argument,) = occurrence.dispatch.input_slot_values
+        assert argument.status == "captured"
+        assert argument.runtime_dtype == np.dtype(np.float64).str
+        assert argument.value_sha256 == expected_hash
+
+        # The state owner stays float32. With no tolerance or wider carrier,
+        # its inability to represent 10B - 1 is an explicit refusal, not PASS0.
+        original = ModelStatePatchContext(
+            store=case.store,
+            base_ref=case.bound_state_snapshot_ref,
+            registry_bundle_ref=case.registry_bundle_ref,
+        )
+        original_value = np.asarray(original.read_slot(_STOCK))
+        assert original_value.dtype == np.dtype(np.float32)
+        assert float(original_value) == 10_000_000_000.0
+    finally:
+        case.close()

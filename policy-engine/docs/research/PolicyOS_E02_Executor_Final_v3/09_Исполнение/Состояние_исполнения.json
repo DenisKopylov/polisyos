@@ -9122,10 +9122,10 @@
           "authority_or_recovery_claim": false
         },
         "next": [
-          "zero-N5 current Generic preflight with timing profile",
-          "true Generic and matched NCM sequence on frozen composition",
-          "retained partial GET-to-UI bridge without N5",
-          "after Gate A only P06/P07/P08/Gate B"
+          "finish retained heldout removal control and independent Gate A property qualification without repeating N5",
+          "inspect retained NCM state/resource amplification; separate no-N5 recovery from new computation",
+          "implement CYC-03-05 typed API action selector and actual current/original dashboard consumer",
+          "after Gate A consolidate canonical derivation engine into Core; P06 AND/OR semantic bundles and Foundry bridge; then P07/P08/Gate B"
         ],
         "resource_limits": {
           "aggregate_process_tree_RSS_GiB": 8,
@@ -9136,9 +9136,56 @@
           "disk_floor_GiB": 3,
           "planned_wave_disk_growth_GiB": 2
         },
-        "free_disk_GiB_at_update": 8.51,
+        "free_disk_GiB_at_update": 7.77,
         "G_acceptance": false,
-        "formal_closure": false
+        "formal_closure": false,
+        "composed_source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
+        "composed_source_tree": "58f1353b962e401dea14190e49cb2884139f074e",
+        "generic_r4": {
+          "classification": "PASS",
+          "cases": 1,
+          "wall_seconds": 1638.691,
+          "peak_process_tree_RSS_bytes": 2264924160,
+          "source_bindings_stable": true,
+          "physical_standard_units_completed": 2,
+          "B_physical_N5_calls": 0,
+          "history_scope": "B1 new equal-value source occurrence; B2/B3 reuse occurrence with distinct current-use/history decisions; C new numerical result; old B superseded",
+          "recovery_scope": "A/C interrupted worker after durable V5, no repeated N5; not OS-process restart",
+          "output": "MAIN:policy-engine/_cache/e02/generic-served-sequence-r4-20261114/"
+        },
+        "heldout_r1": {
+          "classification": "2 PASS / 1 fixture FAIL",
+          "wall_seconds": 410.991,
+          "peak_process_tree_RSS_bytes": 2094137344,
+          "source_bindings_stable": true,
+          "failure": "obsolete V1 simulation_result_ref access on V2 at final signature-removal assertion",
+          "next_control": "retained baseline/removal/restored GET, all numerical refs/body absent under removal, unchanged complete ledger, zero N5; original invocation not relabeled",
+          "output": "MAIN:policy-engine/_cache/e02/gate-a-heldout-r1-20261114/"
+        },
+        "capacity_partial_UI": {
+          "author_commit": "aee917841f93a230a1015350b2f8330ebea3e172",
+          "author_tree": "e8475171d0f0aa81cf47aec6c3b8a62a3b5f8a44",
+          "paths": 3,
+          "focused_Vitest_PASS": 2,
+          "typecheck": "PASS app/node/tools; ordinary pre-push PASS",
+          "source_delivery_readback": true,
+          "scope": "CYC-05-03 actual retained capacity partial; not CYC-03-05 current/result/history UI"
+        },
+        "matched_NCM_r2": {
+          "classification": "RESOURCE_ABORT",
+          "reason": "rss_cap_observed",
+          "wall_seconds": 2594.997,
+          "peak_process_tree_RSS_bytes": 5409652736,
+          "RSS_cap_bytes": 5368709120,
+          "SIGINT_count": 1,
+          "process_group_quiescence_observed": true,
+          "initial_A_observed": true,
+          "B1_job_state": "running at interruption",
+          "full_chain_semantic_verdict": "UNRUN",
+          "final_loaded_source_qualification": "unavailable after interrupted host; no final JUnit",
+          "next": "inspect retained durable B/receipt/accounting and supported no-N5 recovery; do not repeat full chain blindly",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-current-sequence-r2-20261114/"
+        }
       },
       "day_stop_20261113": {
         "status": "PAUSED_BY_USER",

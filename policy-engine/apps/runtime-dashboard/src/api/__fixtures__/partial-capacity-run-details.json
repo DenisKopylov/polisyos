@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "generated_at": "2026-11-14T06:54:46.527014Z",
+    "request_id": "dcb7992e073f48b0b71dfec157f7acaf",
+    "source_kinds": ["core_run"]
+  },
+  "run": {
+    "candidate_simulation": null,
+    "capability_manifest_ref": null,
+    "cell_id": "cell-a",
+    "control_job_id": "4c46cc42d0844a2982f0a73eded4ae03",
+    "decision_review_required": false,
+    "decision_superseded_by_ref": null,
+    "decision_validity_checked_at": null,
+    "decision_validity_status": null,
+    "duration_ms": 35000,
+    "execution_profile": "dev",
+    "finished_at": "2026-11-09T13:57:02Z",
+    "generic_cycle_simulation": {
+      "artifact_status": "resolved",
+      "authority_purpose": "cycle_input_candidate_only",
+      "child_profile_bindings": [
+        {
+          "context_job_ref": {
+            "artifact_id": "sha256:36f79c37417d289ee461e462f053b45a7cfb0115a1f64c6b1b7d23c752b2491f",
+            "kind": "runtime.quality.cycle_substrate_context_job",
+            "manifest_profile_sha256": "sha256:f7e69951f3c8e0248865c53ab049922b20ceef95446d169db3da60eea8fe7239",
+            "media_type": "application/json"
+          },
+          "currentness_status": "not_established",
+          "design_problem_ref": "sha256:ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "historical_binding_status": "resolved",
+          "limitation_code": null,
+          "node_ref": "design-problem://ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "profile_id": "v6-n4-child-0",
+          "profile_ref": {
+            "artifact_id": "sha256:149e33c9d0ef4b9942eda9a70bc45526a00959b4e7456f778209695143ffb17a",
+            "kind": "runtime.quality.generic_cycle_simulation_profile",
+            "manifest_profile_sha256": "sha256:107d66a001d5ff01418982392584388123ad5106f9b47a8bc6a2528e939de374",
+            "media_type": "application/json"
+          },
+          "profile_selection_ref": "sha256:fd06f827c842dfc7863f8f917428dba8cdac066d8cab76548f05d8687be5dd71",
+          "semantic_ref": "sha256:6e4c2d0fcae6994a0c8d0765049bd0c466bb2d0e3e68394a9d53f38ef62c0ae6",
+          "source_atom_refs": [
+            "sha256:830551671712ac74964b7f939d23417b517361ca7091bc881537a651333d3a15"
+          ],
+          "source_ref": {
+            "artifact_id": "sha256:970c9c8fda08cb1587c6fd056ffc8b739a3a0c98978f88cbbc35195788a1364d",
+            "kind": "runtime.generation_source_handoff",
+            "manifest_profile_sha256": "sha256:845e921884de8995d811f90ba9d4d6e18bd2705ff417e2bf1769b633534da3e0",
+            "media_type": "application/json"
+          },
+          "source_result_ref": "sha256:6632a4d08c4a3337fd5bffad8d8e00ea645445b10344046188bfdf17b8c4cdfb"
+        },
+        {
+          "context_job_ref": {
+            "artifact_id": "sha256:55845d86f9dbcbc47646d90732650595473d596e006eb6a3dd0fdaf1819f4f6a",
+            "kind": "runtime.quality.cycle_substrate_context_job",
+            "manifest_profile_sha256": "sha256:f7e69951f3c8e0248865c53ab049922b20ceef95446d169db3da60eea8fe7239",
+            "media_type": "application/json"
+          },
+          "currentness_status": "not_established",
+          "design_problem_ref": "sha256:5a87fe8f73fa3083d344c4b80c97a9a870f05ac3db8d384cb0a2a30713ac7be4",
+          "historical_binding_status": "resolved",
+          "limitation_code": null,
+          "node_ref": "design-problem://5a87fe8f73fa3083d344c4b80c97a9a870f05ac3db8d384cb0a2a30713ac7be4",
+          "profile_id": "v6-n4-child-1",
+          "profile_ref": {
+            "artifact_id": "sha256:f801d77e9a623095fb223dfb4843ae98ecff588d70122d55ed326cf1ca55eb8f",
+            "kind": "runtime.quality.generic_cycle_simulation_profile",
+            "manifest_profile_sha256": "sha256:ef0362429f9e987f7710b2731e7870024ae476a5d6775c7bcf7d76189eb6c383",
+            "media_type": "application/json"
+          },
+          "profile_selection_ref": "sha256:0b856c2451ad497927d6f018aae45018c5ea2b539a7c1d782fff53faa58034db",
+          "semantic_ref": "sha256:9990a28b9508a39ad96387c506ac476f4dbf6d645a60650362beeb61b7495084",
+          "source_atom_refs": [
+            "sha256:9f55e3881bb23154bbb6bb21083b041393a00c9646ec278c36ca8835637d4f6c"
+          ],
+          "source_ref": {
+            "artifact_id": "sha256:970c9c8fda08cb1587c6fd056ffc8b739a3a0c98978f88cbbc35195788a1364d",
+            "kind": "runtime.generation_source_handoff",
+            "manifest_profile_sha256": "sha256:845e921884de8995d811f90ba9d4d6e18bd2705ff417e2bf1769b633534da3e0",
+            "media_type": "application/json"
+          },
+          "source_result_ref": "sha256:6632a4d08c4a3337fd5bffad8d8e00ea645445b10344046188bfdf17b8c4cdfb"
+        }
+      ],
+      "child_profile_family_ref": {
+        "artifact_id": "sha256:933ec1e517071383a873963fefea7b2e0c9eab70a09fad219e11d27e5c25df4f",
+        "kind": "runtime.quality.generic_cycle_simulation_child_profile_family",
+        "manifest_profile_sha256": "sha256:0b95496c30f1166c54e256881de200f51ffe9e575a87b5ba3fe2fc8be6744ba7",
+        "media_type": "application/json"
+      },
+      "child_profile_limitation_code": null,
+      "child_profile_set_ref": {
+        "artifact_id": "sha256:25e5c2fb3fcf6e9b30447c18ef2a043fcc082f8aaf542b21eb5165afbd1e82e2",
+        "kind": "runtime.quality.recursive_n4_child_profile_set",
+        "manifest_profile_sha256": "sha256:d910932913d881e172ecaede6655dcded41ff221d98baa80f5a3904394f62c50",
+        "media_type": "application/json"
+      },
+      "child_profile_status": "resolved",
+      "credal_source_attempt_ref": null,
+      "credal_source_limitation_code": null,
+      "credal_source_status": null,
+      "currentness_status": "not_established",
+      "limitation_code": "generic_n5_sibling_checkpoint_not_established",
+      "n4_source_limitation_code": null,
+      "n4_source_ref": {
+        "artifact_id": "sha256:970c9c8fda08cb1587c6fd056ffc8b739a3a0c98978f88cbbc35195788a1364d",
+        "kind": "runtime.generation_source_handoff",
+        "manifest_profile_sha256": "sha256:845e921884de8995d811f90ba9d4d6e18bd2705ff417e2bf1769b633534da3e0",
+        "media_type": "application/json"
+      },
+      "n4_source_status": "resolved",
+      "n5_limitation_code": "generic_n5_sibling_checkpoint_not_established",
+      "n5_observations": [
+        {
+          "atom_ids": ["industrial_retention_tax_credit"],
+          "authority_blockers": [
+            "simulation_only_k_sim_not_world_evidence",
+            "simulation_effect_basis_not_established"
+          ],
+          "authority_purpose": "cycle_input_candidate_only",
+          "candidate_id": "candidate_59abb239f28cbb38",
+          "child_profile_family_ref": {
+            "artifact_id": "sha256:933ec1e517071383a873963fefea7b2e0c9eab70a09fad219e11d27e5c25df4f",
+            "kind": "runtime.quality.generic_cycle_simulation_child_profile_family",
+            "manifest_profile_sha256": "sha256:0b95496c30f1166c54e256881de200f51ffe9e575a87b5ba3fe2fc8be6744ba7",
+            "media_type": "application/json"
+          },
+          "child_profile_set_ref": {
+            "artifact_id": "sha256:25e5c2fb3fcf6e9b30447c18ef2a043fcc082f8aaf542b21eb5165afbd1e82e2",
+            "kind": "runtime.quality.recursive_n4_child_profile_set",
+            "manifest_profile_sha256": "sha256:d910932913d881e172ecaede6655dcded41ff221d98baa80f5a3904394f62c50",
+            "media_type": "application/json"
+          },
+          "context_job_ref": {
+            "artifact_id": "sha256:36f79c37417d289ee461e462f053b45a7cfb0115a1f64c6b1b7d23c752b2491f",
+            "kind": "runtime.quality.cycle_substrate_context_job",
+            "manifest_profile_sha256": "sha256:f7e69951f3c8e0248865c53ab049922b20ceef95446d169db3da60eea8fe7239",
+            "media_type": "application/json"
+          },
+          "currentness_status": "not_established",
+          "cycle_index": 0,
+          "design_problem_ref": "sha256:ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "executed_steps": [0],
+          "n4_source_ref": {
+            "artifact_id": "sha256:05e1729cedf1551e6b75699489a801c1190af2fb9719a9ca67a0e7c54647c2b9",
+            "kind": "runtime.generation_source_handoff",
+            "manifest_profile_sha256": "sha256:d577e1ec507848717277205acd3834f52d13e4cf63758cccefae8d34bca40baa",
+            "media_type": "application/json"
+          },
+          "n5_execution_ref": {
+            "artifact_id": "sha256:b087cb501139ac11a418f33ee231176333d70382ab9df79e0fff06ee71254c9b",
+            "kind": "runtime.quality.generic_cycle_simulation_n5_execution",
+            "manifest_profile_sha256": "sha256:594b63363c35ecf71916c448751050b3ca1917b6e99dc3ae5582ca9ba200af9c",
+            "media_type": "application/json"
+          },
+          "n5_input_ref": {
+            "artifact_id": "sha256:2c5b0bec07c885ad321201b16a18b33b9487a87356a9fb4d739a7bc916f0e937",
+            "kind": "runtime.quality.generic_cycle_simulation_n5_input",
+            "manifest_profile_sha256": "sha256:494a171d84ac2b290290d56f9ccbdc638e6a31efe976772a184c73254b404104",
+            "media_type": "application/json"
+          },
+          "n5_interaction_evidence": {
+            "authority_purpose": "candidate_checked_model_only",
+            "checked_interaction_orders": [1],
+            "higher_order_residual_sampling": {},
+            "higher_order_residuals": {},
+            "interaction_sampling_status": "estimated",
+            "interaction_terms": [],
+            "numeric_interaction": "none",
+            "numeric_interaction_basis": "finite_checked_model_point_estimate_only",
+            "publication_authority": false,
+            "schema_version": "policyos.runtime.joint_simulation_horizon.v5"
+          },
+          "n5_owner_join_status": "resolved",
+          "n5_request_binding_status": "resolved",
+          "n5_request_content_hash": "sha256:546b79856b200f6e68c61af772f9d173ba2347aaa8575fe88b085bb213330618",
+          "n8_authority_blockers": [
+            "simulation_effect_basis_not_established",
+            "simulation_only_k_sim_not_world_evidence"
+          ],
+          "n8_interaction_sampling_status": "estimated",
+          "n8_limitation_code": null,
+          "n8_lineage_status": "resolved",
+          "n8_numeric_interaction": "none",
+          "n8_numeric_interaction_basis": "finite_checked_model_point_estimate_only",
+          "n8_status": "value_conditional",
+          "n8_value_ref": "sha256:fa1c371a42765e09a336c338b1e700786935ef242bc273b34a8202f40c416131",
+          "node_ref": "design-problem://ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "profile_ref": {
+            "artifact_id": "sha256:149e33c9d0ef4b9942eda9a70bc45526a00959b4e7456f778209695143ffb17a",
+            "kind": "runtime.quality.generic_cycle_simulation_profile",
+            "manifest_profile_sha256": "sha256:107d66a001d5ff01418982392584388123ad5106f9b47a8bc6a2528e939de374",
+            "media_type": "application/json"
+          },
+          "profile_selection_ref": "sha256:fd06f827c842dfc7863f8f917428dba8cdac066d8cab76548f05d8687be5dd71",
+          "publication_authority": false,
+          "replication_seeds": [11, 12],
+          "selected_outcomes": ["employment_retention"],
+          "simulation_result_body": {
+            "artifact_ref": {
+              "artifact_id": "sha256:fa1c371a42765e09a336c338b1e700786935ef242bc273b34a8202f40c416131",
+              "kind": "polisyos.runtime.joint_simulation_result",
+              "manifest_profile_sha256": "sha256:77bf0dc482e52683b1513a498e8e7e43fe5e6b3b05ad5dac795ca9fa24ecd43b",
+              "media_type": "application/json"
+            },
+            "artifact_schema_name": "policyos.runtime.n5.joint_simulation_result",
+            "artifact_schema_version": "5.0.0",
+            "atom_ids": ["industrial_retention_tax_credit"],
+            "authority_purpose": "cycle_input_candidate_only",
+            "candidate_status": "candidate_unverified",
+            "currentness_status": "not_established",
+            "horizon": {
+              "end": 0,
+              "scenario_branch_policy": "hold_world_record_constant",
+              "start": 0,
+              "step": 1,
+              "transaction_time_role": "transaction_time",
+              "valid_time_role": "valid_time"
+            },
+            "publication_authority": false,
+            "result_schema_version": "policyos.runtime.joint_simulation_horizon.v5",
+            "schema_version": "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+            "selected_manifest_profile_sha256": "sha256:77bf0dc482e52683b1513a498e8e7e43fe5e6b3b05ad5dac795ca9fa24ecd43b",
+            "selected_outcomes": ["employment_retention"],
+            "trajectories": [
+              {
+                "atom_ids": ["industrial_retention_tax_credit"],
+                "points": [
+                  {
+                    "effects": {
+                      "employment_retention": 0.125
+                    },
+                    "outcomes": {
+                      "employment_retention": 0.125
+                    },
+                    "step": 0
+                  }
+                ],
+                "run_level": "individual"
+              },
+              {
+                "atom_ids": ["industrial_retention_tax_credit"],
+                "points": [
+                  {
+                    "effects": {
+                      "employment_retention": 0.125
+                    },
+                    "outcomes": {
+                      "employment_retention": 0.125
+                    },
+                    "step": 0
+                  }
+                ],
+                "run_level": "joint"
+              }
+            ],
+            "uncertainty_kind": "K_sim",
+            "world_model_record_content_hash": "sha256:fba6f80a2f6762d8aa7430f1b440cbb8322fbbdbd2958d2a0a911214ef86ca54",
+            "world_model_record_ref": "world_model_record_fba6f80a2f6762d8"
+          },
+          "simulation_result_body_limitation_code": null,
+          "simulation_result_body_status": "resolved",
+          "simulation_result_ref": {
+            "artifact_id": "sha256:fa1c371a42765e09a336c338b1e700786935ef242bc273b34a8202f40c416131",
+            "kind": "polisyos.runtime.joint_simulation_result",
+            "manifest_profile_sha256": "sha256:77bf0dc482e52683b1513a498e8e7e43fe5e6b3b05ad5dac795ca9fa24ecd43b",
+            "media_type": "application/json"
+          },
+          "status": "joint_simulated",
+          "world_model_record_content_hash": "sha256:fba6f80a2f6762d8aa7430f1b440cbb8322fbbdbd2958d2a0a911214ef86ca54"
+        }
+      ],
+      "n6_cycle_history": [
+        {
+          "cycle_index": 0,
+          "design_problem_basis_ref": "sha256:ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "design_problem_ref": "sha256:ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "generation_cycle_run_terminal_status": "blocked",
+          "grounding_current_valid": false,
+          "grounding_status": "grounded_shadow",
+          "node_ref": "design-problem://ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b",
+          "refinement_decision": "block_candidate",
+          "search_iteration_status": "blocked_no_retry",
+          "selected_candidate_content_hash": "sha256:a1ad69ad2e97e6d81cf165d80e05d78756842a1814f0fcbdb810f50c455f5a76",
+          "selected_candidate_ref": "candidate_59abb239f28cbb38",
+          "terminal_kind": "search_ceiling_repair_required",
+          "value_authority_blockers": [
+            "simulation_effect_basis_not_established",
+            "simulation_only_k_sim_not_world_evidence"
+          ],
+          "value_decision_grade": "low",
+          "value_ref": "sha256:fa1c371a42765e09a336c338b1e700786935ef242bc273b34a8202f40c416131",
+          "value_status": "value_conditional",
+          "voi_next_action": "blocked"
+        }
+      ],
+      "n6_cycle_history_limitation_code": null,
+      "n6_cycle_history_status": "resolved",
+      "parent_context_job_ref": {
+        "artifact_id": "sha256:63e09a587e7a28af229282c1a9974d2132314ed61839210ceab3e88f3fbc5646",
+        "kind": "runtime.quality.cycle_substrate_context_job",
+        "manifest_profile_sha256": "sha256:f7e69951f3c8e0248865c53ab049922b20ceef95446d169db3da60eea8fe7239",
+        "media_type": "application/json"
+      },
+      "parent_profile_id": "v6-generic-root",
+      "parent_profile_ref": {
+        "artifact_id": "sha256:07efa088f1732e68a0db73364962ccec3df48c120214220cc113a68b5bb1a6c0",
+        "kind": "runtime.quality.generic_cycle_simulation_profile",
+        "manifest_profile_sha256": "sha256:af7a96e7c66cbac4f059b392771855ff498671039be8db7a4ca1989747d1ced2",
+        "media_type": "application/json"
+      },
+      "publication_authority": false,
+      "recursive_cycle_checkpoint": {
+        "budget_stop_node_ref": null,
+        "capacity_limitation_code": "physical_need_not_established",
+        "capacity_pending_child_index": 1,
+        "capacity_pending_child_node_ref": "design-problem://5a87fe8f73fa3083d344c4b80c97a9a870f05ac3db8d384cb0a2a30713ac7be4",
+        "capacity_source_content_hash": "sha256:e250ccd61db945c3018d6e9d0cba50076e0ac17791cc786dc3c89dc9936e23b0",
+        "capacity_stop_parent_node_ref": "design-problem://2a8e79c66cb08def42440ef3a942d085f9f9207924608bb32acacae5f5b88287",
+        "completed_design_refs": [
+          "design-problem://ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b"
+        ],
+        "failed_branches": [],
+        "leaf_terminal_kinds": {
+          "design-problem://ee5d88940fbc6a3a58ab582f3b717f970ab2adce9cc7ba4c0cbac3f8e83a719b": "recursive_blocked"
+        },
+        "pending_frontier": [
+          "design-problem://5a87fe8f73fa3083d344c4b80c97a9a870f05ac3db8d384cb0a2a30713ac7be4"
+        ],
+        "publication_authority": false,
+        "root_n9_status": "not_run",
+        "schema_version": "policyos.runtime.recursive_cycle_checkpoint.v3",
+        "status": "partial"
+      },
+      "run_id": "control-e3d2f1c4ccc8a4148c1cacad6cd87f9dc5ef66a7d715e1484630f105bc9cf71b",
+      "schema_version": "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+      "source_content_hash": "sha256:3d0e0fcaf413ad1397d8817264d3d465d1234c48452206ab41fdb2622c1e4dc0",
+      "source_ref": {
+        "artifact_id": "sha256:b225cae334b709a6d8859c8642d95420c129dc5c5b68efae1fe6fca5c03aac44",
+        "kind": "runtime.compiled_recursive_generation_cycle",
+        "manifest_profile_sha256": "sha256:bcb994e1941748f71244c1e708c852deff3dfd0b0c637d813a8f0a8d41669eab",
+        "media_type": "application/json"
+      }
+    },
+    "has_trace": true,
+    "has_workflow_report": false,
+    "manifest_ref": {
+      "artifact_id": "sha256:9fd132dcf2f80e92725b0a690d2684d0b74d9b4d8b099fbd4763d7120ca3ad18",
+      "kind": "core.run_manifest",
+      "manifest_profile_sha256": "sha256:8c556062f1da48a3f038644392eb444b0e3860198d2408a876c4cb6e94a0753c",
+      "media_type": "application/json"
+    },
+    "method_execution_producer_diagnostic": null,
+    "method_execution_selection": {
+      "candidate_only": true,
+      "input_refusal": null,
+      "limitations": ["execution_outcome_not_established"],
+      "refusal_code": null,
+      "request": null,
+      "selection": null,
+      "status": "unavailable",
+      "time_roles": null
+    },
+    "operator_diagnostic": null,
+    "policy_design_case_projection": null,
+    "root_artifacts": [
+      {
+        "artifact_id": "sha256:b225cae334b709a6d8859c8642d95420c129dc5c5b68efae1fe6fca5c03aac44",
+        "kind": "runtime.compiled_recursive_generation_cycle",
+        "manifest_profile_sha256": "sha256:bcb994e1941748f71244c1e708c852deff3dfd0b0c637d813a8f0a8d41669eab",
+        "media_type": "application/json"
+      }
+    ],
+    "root_input_artifacts": [],
+    "run_id": "control-e3d2f1c4ccc8a4148c1cacad6cd87f9dc5ef66a7d715e1484630f105bc9cf71b",
+    "source_kind": "core_run",
+    "started_at": "2026-11-09T13:56:27Z",
+    "status": "ok",
+    "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "trace_ref": {
+      "artifact_id": "sha256:28c6a3af89f5d463c26dd6194e9436ca2d56173d1ce7bff74df963a801529ec0",
+      "kind": "core.trace.jsonl",
+      "media_type": "application/jsonl"
+    },
+    "warnings": ["core_run_workflow_finalization_not_established"],
+    "workflow_report_ref": null
+  },
+  "temporal_scope": null
+}

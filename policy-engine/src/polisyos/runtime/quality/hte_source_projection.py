@@ -30,7 +30,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     artifact_ref_identity_key,
 )
-from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+from polisyos.data_forge.read_api.catalog import (
     ActivatedAcquisitionObservationProjection,
 )
 from polisyos.foundry.data_plane.bindings import materialize_method_contract

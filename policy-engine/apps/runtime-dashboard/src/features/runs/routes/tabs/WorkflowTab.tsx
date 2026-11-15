@@ -1,9 +1,10 @@
 import { lazy } from "react";
 import { useParams } from "react-router-dom";
 
-import { useSuspenseRunLineage } from "@/api/hooks/useRunLineage";
+import { useRunLineage } from "@/api/hooks/useRunLineage";
 import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
 import { useSuspenseRunWorkflow } from "@/api/hooks/useRunWorkflow";
+import { isRuntimeApiRequestError } from "@/api/http";
 import { RunChoreographyPanel } from "@/features/runs/components/RunChoreographyPanel";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { buildRunChoreographyView } from "@/features/runs/domain/runChoreography";
@@ -37,9 +38,90 @@ function RunChoreographyPanelContent({ runId }: { runId: string }) {
   return <RunChoreographyPanel view={view} />;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
+  return value as Record<string, unknown>;
+}
+
+function getLineageAdmissionLimitation(error: unknown) {
+  if (
+    !isRuntimeApiRequestError(error) ||
+    error.status !== 409 ||
+    error.code !== "authority_surface_admission_blocked"
+  ) {
+    return null;
+  }
+
+  const decision = asRecord(
+    error.problem?.extensions?.authority_surface_decision,
+  );
+  return {
+    code: error.code,
+    detail: error.detail,
+    reason: typeof decision?.reason === "string" ? decision.reason : null,
+    status: typeof decision?.status === "string" ? decision.status : null,
+  };
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function LineagePanelContent({ runId }: { runId: string }) {
   const { t } = useI18n();
-  const lineageQuery = useSuspenseRunLineage(runId);
+  const lineageQuery = useRunLineage(runId);
+
+  if (lineageQuery.isPending) {
+    return <PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />;
+  }
+
+  if (lineageQuery.isError) {
+    const limitation = getLineageAdmissionLimitation(lineageQuery.error);
+    if (limitation) {
+      return (
+        <div
+          className="border-warning/40 rounded-md border p-4 text-sm"
+          data-testid="lineage-admission-limitation"
+          role="status"
+        >
+          <p>{t("pages.runs.lineageLoadError")}</p>
+          <p>{limitation.detail}</p>
+          <p data-testid="lineage-admission-decision">
+            <code>{limitation.code}</code>
+            {limitation.status ? ` · ${limitation.status}` : ""}
+            {limitation.reason ? ` · ${limitation.reason}` : ""}
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className="border-destructive/40 rounded-md border p-4 text-sm"
+        data-testid="lineage-load-error"
+        role="alert"
+      >
+        <p>{t("pages.runs.lineageLoadError")}</p>
+        <p>{errorMessage(lineageQuery.error)}</p>
+      </div>
+    );
+  }
+
+  if (!lineageQuery.data) {
+    return (
+      <div
+        className="border-destructive/40 rounded-md border p-4 text-sm"
+        data-testid="lineage-load-error"
+        role="alert"
+      >
+        <p>{t("pages.runs.lineageLoadError")}</p>
+        <p>{t("common.pageErrorBody")}</p>
+      </div>
+    );
+  }
+
   const lineage = lineageQuery.data.lineage;
 
   if (lineage.nodes.length === 0 && lineage.edges.length === 0) {

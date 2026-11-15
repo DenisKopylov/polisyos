@@ -11,7 +11,7 @@ import { runLineageQueryOptions } from "@/api/hooks/useRunLineage";
 import { runNodesQueryOptions } from "@/api/hooks/useRunNodes";
 import { runTimelineQueryOptions } from "@/api/hooks/useRunTimeline";
 import { runWorkflowQueryOptions } from "@/api/hooks/useRunWorkflow";
-import { isRuntimeApiNotFound } from "@/api/http";
+import { isRuntimeApiNotFound, isRuntimeApiRequestError } from "@/api/http";
 import { queryClient } from "@/api/queryClient";
 import { resolveRoutePrefetchEntry } from "@/app/routes/routeManifest";
 import {
@@ -40,6 +40,27 @@ function ensureQueryData(
   options: RunTabQueryOptions | ReturnType<typeof buildBootstrapQueryOptions>,
 ) {
   return queryClient.ensureQueryData(options as never);
+}
+
+function isLineageQuery(options: RunTabQueryOptions) {
+  return options.queryKey.some((part) => part === "lineage");
+}
+
+async function ensureOptionalLineageQueryData(options: RunTabQueryOptions) {
+  try {
+    return await ensureQueryData(options);
+  } catch (error) {
+    if (
+      isRuntimeApiRequestError(error) &&
+      error.status === 409 &&
+      error.code === "authority_surface_admission_blocked"
+    ) {
+      // Keep the query's error state in React Query so the lineage panel can
+      // show the typed admission limitation; only the workflow route is optional.
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 function sleep(ms: number) {
@@ -126,9 +147,19 @@ export async function primeRunTab(runId: string, tabKey: RunTabKey) {
   const tabQueries = createRunTabQueries(runId);
 
   if (runReady) {
-    await Promise.all(
-      tabQueries[tabKey].map((options) => ensureQueryData(options)),
-    );
+    const queries = tabQueries[tabKey];
+    const optionalLineageQuery =
+      tabKey === "workflow" ? queries.find(isLineageQuery) : undefined;
+    const requiredQueries = optionalLineageQuery
+      ? queries.filter((options) => options !== optionalLineageQuery)
+      : queries;
+
+    await Promise.all([
+      ...requiredQueries.map((options) => ensureQueryData(options)),
+      ...(optionalLineageQuery
+        ? [ensureOptionalLineageQueryData(optionalLineageQuery)]
+        : []),
+    ]);
   }
 
   return { runBootstrapPending: !runReady, runId, tabKey };

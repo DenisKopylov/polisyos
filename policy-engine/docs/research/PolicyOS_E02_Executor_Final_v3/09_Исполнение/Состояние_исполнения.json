@@ -9559,7 +9559,24 @@
           "generated_input_repair": "21,556-byte identity document absent under sparse working tree materialized from exact own HEAD; first trust generation UNRUN retained, corrected generation PASS",
           "remaining": "original 11 packets/66 requirements/64 contracts; ordinary A/B/C routes, Native paid reentry, temporal/vector/feedback consumers, P07/P08/Gate B and DA06/07/08 remain scoped as recorded",
           "author_source_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
-          "author_source_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8"
+          "author_source_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "resumed_by_user_on": "2026-11-15"
+        },
+        "resume_20261115": {
+          "status": "ACTIVE_BY_USER_REQUEST",
+          "published_checkpoint": "ba7126665cd30ef5e04bb547c7da00ad7e2c2426",
+          "published_tree": "78181adf822b4ecef7dac698b5e003dfd9cac2bb",
+          "delivered_paths": 47,
+          "hosted_pair": "RUNNING; source-recorded locked-wheel host; no terminal or lane verdict yet",
+          "API_unit_checks": "57 PASS then5 affected service PASS; independent review GO; full hosted consumer remains under verification",
+          "author_base_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "author_base_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "preflight": "2 actual preflight PASS; legacy guard joins the passing actuation cohort",
+          "core_actuation": "5 original component PASS then4 affected PASS; 25 distinct cheap actuation cases across R1/R2/R3 and actual Foundry pair1/1 PASS with fresh reader/removal; hosted N5 remains UNRUN",
+          "native": "V2/actual constructor/legacy4 PASS; missing-history negative PASS; truthful source prerequisites7 distinct PASS across R1/R2; readonly retry active; no paid/N5",
+          "implementation_owners": "Core/compiler/Foundry selector released; Runtime paired V4 components16/16 PASS and released; Native current N4/source released; units/API consumer and independent UI repair active",
+          "main_CI": "Fast/Standard fail; inventory/singular companions fixed; actual optional lineage409 coupling repaired with3 prefetch and40 render PASS; browserUNRUN; import gates/test economics remain explicit",
+          "authority": "G acceptance and formal closure unchanged; original11/66/64 and repeated bindings preserved"
         }
       },
       "day_stop_20261113": {

@@ -1997,7 +1997,41 @@ class PhysicalSimulationWorkObservation(_StrictModel):
 
 def _safe_work_cause(error: Exception | None) -> tuple[str | None, dict[str, str] | None]:
     """Retain only selected structured controller causes, never exception text."""
+    if error is None:
+        return None, None
+
     from polisyos.foundry.coupling import PairedMonteCarloNumericalError
+    from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+
+    if type(error) is _BlockingDependencyWaitTimeoutError and error.dependency in {
+        "content_addressed_storage",
+        "control_store",
+    }:
+        expected_code = f"{error.dependency}_timeout"
+        if error.code != expected_code:
+            return None, None
+        diagnostic = _BlockingDependencyWaitTimeoutError.diagnostic(error)
+        context = {
+            "dependency": error.dependency,
+            "wait_disposition": str(diagnostic["wait_disposition"]),
+            # A deadline is not proof that the worker stopped or produced a
+            # usable numerical result, even if it finished before inspection.
+            "underlying_work_outcome": "not_established",
+        }
+        for name in (
+            "timeout_seconds",
+            "wait_elapsed_seconds",
+            "queue_wait_seconds",
+            "operation_elapsed_seconds",
+        ):
+            value = diagnostic[name]
+            if type(value) is float:
+                context[name] = str(value)
+        for name in ("operation", "caller"):
+            identity = diagnostic[name]
+            if type(identity) is dict:
+                context[name] = f"{identity['module']}.{identity['qualname']}"
+        return expected_code, context
 
     if type(error) is PairedMonteCarloNumericalError:
         metric = error.details.get("metric")

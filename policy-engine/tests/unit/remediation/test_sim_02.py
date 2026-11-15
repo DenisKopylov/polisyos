@@ -2445,12 +2445,21 @@ def test_unknown_native_failure_does_not_invent_typed_cause_or_persist_secret(
     calls = 0
     private_marker = "private-output-do-not-persist"
 
+    diagnostic_calls: list[str] = []
+
+    def forged_diagnostic() -> dict[str, str]:
+        diagnostic_calls.append("called")
+        return {"wait_disposition": "finished_after_deadline"}
+
     def fail_second(state: Any, params: Any) -> dict[str, Any]:
         nonlocal calls
         output = original(state, params)
         calls += 1
         if calls == 2:
-            raise ValueError(f"ncm_outcome_non_finite: {private_marker}")
+            error = ValueError(f"ncm_outcome_non_finite: {private_marker}")
+            vars(error)["code"] = "content_addressed_storage_timeout"
+            vars(error)["diagnostic"] = forged_diagnostic
+            raise error
         return output
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fail_second))
@@ -2467,6 +2476,66 @@ def test_unknown_native_failure_does_not_invent_typed_cause_or_persist_secret(
     assert "error_code" not in failure.model_dump(mode="json")
     assert "error_context" not in failure.model_dump(mode="json")
     assert private_marker not in json.dumps(restored.model_dump(mode="json"))
+    assert diagnostic_calls == []
+
+
+def test_native_dependency_timeout_retains_safe_wait_details_after_fresh_read(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Retain a real dependency deadline without treating its work as completed."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    from polisyos.fabric.connectors.resilience.circuit_breaker import CircuitBreaker
+    from polisyos.runtime.http.resilience import BlockingDependencyGuard
+
+    release = threading.Event()
+    original = NCMEngineMethod.pure_step
+    calls = 0
+
+    def delayed_dependency() -> bool:
+        return release.wait(10)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        guard = BlockingDependencyGuard(
+            dependency_name="content_addressed_storage",
+            timeout_seconds=0.1,
+            breaker=CircuitBreaker("test-n5-dependency-timeout"),
+            executor=executor,
+        )
+        # Establish worker startup before measuring the intentionally blocked read.
+        assert guard.run(lambda: True) is True
+
+        def fail_second(state: Any, params: Any) -> dict[str, Any]:
+            nonlocal calls
+            output = original(state, params)
+            calls += 1
+            if calls == 2:
+                guard.run(delayed_dependency)
+            return output
+
+        monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fail_second))
+        try:
+            result = JointSimulationHorizonController().run(_single_step_ncm_request())
+        finally:
+            release.set()
+            guard.close()
+
+    restored = _persist_and_read_result(result, tmp_path)
+    assert calls == 2
+    assert [item.status for item in restored.physical_work_observations] == ["completed", "failed"]
+    assert len(restored.trajectories) == 1
+    failure = restored.physical_work_observations[-1]
+    assert failure.error_type == "_BlockingDependencyWaitTimeoutError"
+    assert failure.error_code == "content_addressed_storage_timeout"
+    assert failure.error_context is not None
+    assert failure.error_context["dependency"] == "content_addressed_storage"
+    assert failure.error_context["timeout_seconds"] == "0.1"
+    assert failure.error_context["wait_disposition"] == "running_at_observation"
+    assert failure.error_context["underlying_work_outcome"] == "not_established"
+    assert failure.error_context["operation"].endswith(".delayed_dependency")
+    assert "n5_physical_work_failed" in restored.promotion_ready_value_packet["authority_blockers"]
 
 
 def test_native_ncm_explicit_zero_remains_observed_after_fresh_read(tmp_path: Path) -> None:

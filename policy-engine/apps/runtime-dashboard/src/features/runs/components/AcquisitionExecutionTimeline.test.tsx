@@ -10,6 +10,7 @@ import {
   type AcquisitionExecutionResponseCurrent,
   type AcquisitionRouteProjection,
   type NoGrowthAcquisitionRouteV11,
+  type PaidInputAdmissionAcquisitionRouteV12,
   type PendingAcquisitionRouteV11,
 } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
@@ -79,6 +80,64 @@ function route(): PendingAcquisitionRouteV11 {
     world_growth: "not_established",
     admitted_observation_delta: null,
   });
+}
+
+function paidInputAdmissionRoute(): PaidInputAdmissionAcquisitionRouteV12 {
+  const ref = (
+    suffix: string,
+    kind: string,
+    mediaType = "application/json",
+  ) => ({
+    artifact_id: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+    kind,
+    media_type: mediaType,
+    manifest_profile_sha256: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+  });
+  const selection = {
+    schema_version: "NativePaidInputAdmissionSelection@1.0" as const,
+    original_action_job_id: "prior-paid-action-1",
+    attempt_ref: ref("a", "runtime_quality.acquisition_world_growth_attempt"),
+    executing_phase_ref: ref(
+      "b",
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    terminal_ref: ref("c", "runtime_quality.acquisition_route_loop_receipt"),
+    deferral_ref: ref("d", "runtime_quality.acquisition_world_growth_deferral"),
+    negative_receipt_ref: ref(
+      "e",
+      "epoch.production_receipt",
+      "application/vnd.polisyos.epoch-production-receipt+json",
+    ),
+    prepared_epoch_ref: ref(
+      "f",
+      "epoch.prepared",
+      "application/vnd.polisyos.epoch+json",
+    ),
+    owner_declared_profile_ref: ref(
+      "g",
+      "runtime.quality.native_derivation_leaf_cost_profile",
+    ),
+  };
+  const costBasisHash = digest("c");
+  return {
+    ...route(),
+    cost_basis: {
+      currency: "USD",
+      owner_declared_profile_ref: selection.owner_declared_profile_ref,
+      record_content_hash: costBasisHash,
+      record_ref: "sha256:historical-cost-basis",
+      schema_version: "AcquisitionCostBasisRecord@1.1",
+      total_amount: 1250,
+    },
+    prior_paid_input_admission: selection,
+    replay_pins: {
+      ...route().replay_pins,
+      cost_basis_hash: costBasisHash,
+    },
+    route_projection_hash: digest("q"),
+    route_status: "paid_input_admission_only",
+    schema_version: "AcquisitionRouteProjection@1.2",
+  };
 }
 
 function noGrowthRoute(): NoGrowthAcquisitionRouteV11 {
@@ -383,6 +442,25 @@ describe("AcquisitionExecutionTimeline", () => {
       "data-acquisition-scope",
       "global_n13b_history",
     );
+  });
+
+  it("labels a previously paid input cost as historical rather than a new offer", () => {
+    render(
+      <LocaleProvider>
+        <AcquisitionExecutionTimeline route={paidInputAdmissionRoute()} />
+      </LocaleProvider>,
+    );
+
+    const timeline = screen.getByTestId("acquisition-execution-timeline");
+    const routeFact = screen
+      .getAllByTestId("acquisition-timeline-fact")
+      .find((fact) => fact.dataset.acquisitionPhase === "refusal_with_path");
+    if (!routeFact) throw new Error("timeline must retain the route fact");
+    expect(routeFact).toHaveTextContent("Historical cost basis");
+    expect(routeFact).toHaveTextContent("USD 1250");
+    expect(routeFact).toHaveTextContent("not a current offer");
+    expect(routeFact).not.toHaveTextContent("Owner-backed estimated cost");
+    expect(timeline).not.toHaveTextContent("USD 0");
   });
 
   it("pins the complete two-route by two-history control denominator", () => {

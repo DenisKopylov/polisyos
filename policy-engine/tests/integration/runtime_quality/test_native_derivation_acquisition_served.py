@@ -846,26 +846,79 @@ def _live_native_fixture_bridge(*, served: Any, state: dict[str, Any]) -> Iterat
         yield bridge
 
 
-def _appoint_exact_native_epoch_policy(
+def _native_epoch_scenario_for_paid_attempt(
     *,
     state: dict[str, Any],
     bridge: Any,
     institution_store: Any,
     closure: Any,
-    root: Path,
-) -> None:
-    """Supply independent test-root admission for the actual persisted prepared epoch."""
+) -> Any:
+    """Snapshot exact paid refs and reopen their existing prepared epoch without issuance."""
     from types import SimpleNamespace
 
     from polisyos.core import contracts
     from polisyos.runtime.quality import semantic_epoch
     from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
-    from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
 
     assert institution_store.root.resolve() == bridge.artifact_store.root.resolve()
     _ref, deferral, attempt = bridge._load_deferral(closure)
     state["paid_attempt"] = attempt
     assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
+    outcome = bridge.action_head_sink.current_action_outcome(
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        source_job_id=closure.source_job_id,
+        route_id=closure.route_id,
+    )
+    assert outcome is not None
+    assert outcome.latest_receipt.terminal_outcome == "quarantined_no_growth"
+    assert outcome.executing_phase_ref == attempt.action_phase_ref
+    executing_head = bridge.control_store.get_acquisition_action_head_by_receipt(
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        source_job_id=closure.source_job_id,
+        route_id=closure.route_id,
+        action_generation=outcome.head.action_generation,
+        receipt_ref=outcome.executing_phase_ref,
+    )
+    assert executing_head is not None
+    assert executing_head.receipt_manifest_profile_sha256 is not None
+    assert outcome.head.receipt_manifest_profile_sha256 is not None
+    pointer = bridge._growth_pointer(attempt.selection, create=False)
+    attempt_ref = bridge._attempt_pointer_ref(
+        pointer.with_suffix(".attempt.json"), require_selected=True
+    )
+    deferral_ref = bridge._attempt_pointer_ref(
+        pointer.with_suffix(".deferred.json"),
+        require_selected=True,
+        expected_kind="runtime_quality.acquisition_world_growth_deferral",
+    )
+    assert str(attempt_ref.artifact_id) == deferral.attempt_ref
+    assert str(deferral_ref.artifact_id) == _ref
+    # Snapshot the actual purchase's independent SQL selections and owner
+    # pointers before the new admission-selection producer can run.
+    state["paid_reference_snapshot"] = {
+        "original_action_job_id": outcome.head.job_id,
+        "attempt_ref": attempt_ref,
+        "executing_phase_ref": ArtifactRef(
+            artifact_id=outcome.executing_phase_ref,
+            kind="runtime_quality.acquisition_route_phase_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=executing_head.receipt_manifest_profile_sha256,
+        ),
+        "terminal_ref": ArtifactRef(
+            artifact_id=outcome.head.receipt_ref,
+            kind="runtime_quality.acquisition_route_loop_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=outcome.head.receipt_manifest_profile_sha256,
+        ),
+        "deferral_ref": deferral_ref,
+        "negative_receipt_ref": deferral.negative_receipt.receipt_ref,
+        "prepared_epoch_ref": deferral.negative_receipt.prepared_epoch_ref,
+        "owner_declared_profile_ref": closure.owner_declared_profile_ref,
+    }
     prepared_ref = deferral.negative_receipt.prepared_epoch_ref
     statement = contracts.epoch.load_verified_epoch_statement(
         store=bridge.artifact_store, ref=prepared_ref, expected_kind="epoch.prepared"
@@ -881,16 +934,36 @@ def _appoint_exact_native_epoch_policy(
     assert selected is not None
     _overlay_path, history_root = bridge._paths(selected, create=False)
     history = FileSemanticEpochHistoryRepository(root=history_root, artifacts=institution_store)
+    return SimpleNamespace(
+        store=institution_store,
+        prepared=prepared,
+        query=prepared.query,
+        history=history,
+        service=None,
+    )
+
+
+def _appoint_exact_native_epoch_policy(
+    *,
+    state: dict[str, Any],
+    bridge: Any,
+    institution_store: Any,
+    closure: Any,
+    root: Path,
+) -> None:
+    """Supply independent test-root admission for the actual persisted prepared epoch."""
+    from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
+
+    scenario = _native_epoch_scenario_for_paid_attempt(
+        state=state,
+        bridge=bridge,
+        institution_store=institution_store,
+        closure=closure,
+    )
     appointments = state["appointments"]
     previous = appointments[-1] if appointments else None
     native = sign_native_epoch_scenario(
-        SimpleNamespace(
-            store=institution_store,
-            prepared=prepared,
-            query=prepared.query,
-            history=history,
-            service=None,
-        ),
+        scenario,
         root,
         custodian=previous.custodian if previous is not None else None,
         prior_admission_refs=(
@@ -900,15 +973,107 @@ def _appoint_exact_native_epoch_policy(
     appointments.append(native)
 
 
+def _read_retained_native_human_decision(
+    *,
+    client: Any,
+    served: Any,
+    trust: Any,
+    closure: Any,
+    checkpoint: Any,
+    resource_digest: str,
+) -> str:
+    """Read a known committed receipt through the authenticated canonical reader.
+
+    The retained fixture supplies the exact owner-selected CAS reference. This
+    does not implement public discovery of a lost POST receipt. The protected
+    action still revalidates current PA2/DS9 evidence after this historical read.
+    """
+    from datetime import UTC, datetime
+
+    from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionRecord
+    from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
+    from tests._helpers.native_derivation_retained import _verify_retained_selected_signature
+
+    reference = checkpoint.human_decision_record_ref
+    assert reference is not None and reference.manifest_profile_sha256 is not None
+    response = client.get(
+        f"/api/v1/runs/{served.control_run_id}/human-decisions",
+        params={"record_ref": str(reference.artifact_id)},
+        headers={
+            "Authorization": trust.authorization_header("acquisition-operator"),
+            "X-Tenant-ID": served.claims.tenant_id,
+        },
+    )
+    assert response.status_code == 200, response.text
+    record = HumanDecisionRecord.model_validate(response.json())
+    container = client.app.state.runtime_container
+    control = container.control_service
+    with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
+        store = control._artifact_store
+        _verify_retained_selected_signature(
+            store, reference, container.human_decision_service.custody.verifier
+        )
+        assert record == HumanDecisionRecord.model_validate(
+            artifacts.load_core_json_artifact(store, reference)
+        )
+        reservation = control.human_decision_sink.get_reservation_generation(
+            tenant_id=closure.tenant_id,
+            governed_action_key=record.governed_action_key,
+            reservation_version=record.reservation_version,
+        )
+        assert reservation is not None and reservation.state == "committed"
+        assert reservation.reservation_id == record.reservation_id
+        assert reservation.binding_sha256 == record.binding_sha256
+        assert reservation.record_ref == reservation.record_sha256 == str(reference.artifact_id)
+        assert reservation.durable_event_id is not None
+        assert reservation == control.human_decision_sink.get_reservation(
+            tenant_id=closure.tenant_id, governed_action_key=record.governed_action_key
+        )
+        source = AgentActionAuthorityDecision.model_validate(
+            artifacts.load_core_json_artifact(store, record.source_ref)
+        )
+        source_context = store.get_manifest(record.source_ref).same_input_closure
+    assert source_context is not None
+    assert (
+        source_context.tenant_id,
+        source_context.cell_id,
+        source_context.run_id,
+        source_context.job_id,
+    ) == (closure.tenant_id, closure.cell_id, closure.run_id, checkpoint.action_job_id)
+    assert record.source_kind == "agent_action_authority"
+    assert record.tenant_id == closure.tenant_id and record.run_id == closure.run_id
+    assert record.decision_action_exercised == "approve"
+    assert (
+        source.contract_ref
+        == record.basis_ref
+        == checkpoint.mandate_slot["delegation_contract_ref"]
+    )
+    assert source.contract_ref in record.mandate_source_refs
+    assert source.bound_resource_digest == resource_digest
+    assert source.permission_snapshot is not None
+    assert source.permission_snapshot.resource_digest == resource_digest
+    now = datetime.now(UTC)
+    if (
+        record.valid_from is None
+        or record.valid_until is None
+        or not (record.valid_from <= now < record.valid_until)
+    ):
+        raise ValueError("retained_native_human_decision_not_current")
+    return str(reference.artifact_id)
+
+
 def _run_signed_native_leaf_action(
     *,
     served: Any,
     trust: Any,
     signers: Any,
     identities: Any,
-    trust_root: Path,
+    institution_key_root: Path,
     route_id: str,
     idempotency_key: str,
+    retained_mandate: Any | None = None,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
     from fastapi.testclient import TestClient
@@ -925,7 +1090,10 @@ def _run_signed_native_leaf_action(
 
     route_path = f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{route_id}"
     route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
-    with trust.authorization_exchange("acquisition-operator"):
+    slot = dict(retained_mandate.mandate_slot) if retained_mandate is not None else None
+    if slot is not None:
+        trust.raw["acquisition_authority"]["mandates"].append(slot)
+    with trust.authorization_exchange("acquisition-operator") as authorization:
         with TestClient(served.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
@@ -958,30 +1126,56 @@ def _run_signed_native_leaf_action(
                 route=route_template + "/decision-request",
             )
             assert refused.status_code == 200, refused.text
-            slot, job_id = _appoint_served_acquisition_mandate(
-                control,
-                closure,
-                request,
-                resource_digest,
-                tmp_path=trust_root,
-                signers=signers,
-                identities=identities,
-            )
-        trust.raw["acquisition_authority"]["mandates"].append(slot)
-        with TestClient(served.app_factory()) as client:
-            control = client.app.state.runtime_container.control_service
-            stop_embedded_control_worker(control)
-            _source, human_ref = _approve_served_acquisition_request(
-                client,
-                request,
-                resource_digest,
-                closure=closure,
-                trust=trust,
-                signers=signers,
-                identities=identities,
-                cas_root=served.cas_root,
-            )
-            slot["human_decision_record_ref"] = human_ref
+            if retained_mandate is None:
+                slot, job_id = _appoint_served_acquisition_mandate(
+                    control,
+                    closure,
+                    request,
+                    resource_digest,
+                    tmp_path=institution_key_root,
+                    signers=signers,
+                    identities=identities,
+                )
+            else:
+                from polisyos.runtime.http.services.acquisition_action_service import (
+                    AcquisitionActionService,
+                )
+
+                job_id = AcquisitionActionService._job_id(closure, request)
+                assert job_id == retained_mandate.action_job_id
+                assert slot["resource_digest"] == resource_digest
+                assert (slot["tenant_id"], slot["cell_id"], slot["run_id"], slot["route_id"]) == (
+                    closure.tenant_id,
+                    closure.cell_id,
+                    closure.run_id,
+                    closure.route_id,
+                )
+                if retained_mandate.human_decision_record_ref is not None:
+                    slot["human_decision_record_ref"] = _read_retained_native_human_decision(
+                        client=client,
+                        served=served,
+                        trust=trust,
+                        closure=closure,
+                        checkpoint=retained_mandate,
+                        resource_digest=resource_digest,
+                    )
+        if retained_mandate is None:
+            trust.raw["acquisition_authority"]["mandates"].append(slot)
+        if slot.get("human_decision_record_ref") is None:
+            with TestClient(served.app_factory()) as client:
+                control = client.app.state.runtime_container.control_service
+                stop_embedded_control_worker(control)
+                _source, human_ref = _approve_served_acquisition_request(
+                    client,
+                    request,
+                    resource_digest,
+                    closure=closure,
+                    trust=trust,
+                    signers=signers,
+                    identities=identities,
+                    cas_root=served.cas_root,
+                )
+                slot["human_decision_record_ref"] = human_ref
         with TestClient(served.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
@@ -1023,7 +1217,430 @@ def _run_signed_native_leaf_action(
                 "head": outcome.head,
                 "progress": job.progress,
                 "closure": closure,
+                "authorization": authorization,
             }
+
+
+def assert_paid_native_leaf_admission_and_restart(
+    *,
+    served: Any,
+    state: dict[str, Any],
+    trust: Any,
+    signers: Any,
+    identities: Any,
+    institution_key_root: Path,
+    institution_root: Path,
+    route_id: str,
+    original_action: dict[str, Any],
+    transport_calls: list[Any],
+    idempotency_key: str = "native-leaf-a-after-epoch-appointment",
+) -> Any:
+    """Admit the actual paid purchase under a new demo grant, then retry it.
+
+    Fresh CI callers may first create one purchase. A retained-case caller must
+    supply its existing selected terminal and original job; this body neither
+    initializes a source nor performs a provider purchase.
+    """
+    from types import SimpleNamespace
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        replay_native_derivation_input_collection,
+    )
+    from tests._helpers.control_worker import stop_embedded_control_worker
+
+    claims = served.claims
+    with (
+        _live_native_fixture_bridge(served=served, state=state) as current_bridge,
+        tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id),
+    ):
+        if state["appointments"]:
+            _native_epoch_scenario_for_paid_attempt(
+                state=state,
+                bridge=current_bridge,
+                institution_store=served.store,
+                closure=original_action["closure"],
+            )
+        else:
+            _appoint_exact_native_epoch_policy(
+                state=state,
+                bridge=current_bridge,
+                institution_store=served.store,
+                closure=original_action["closure"],
+                root=institution_root,
+            )
+    before_admission = tuple(transport_calls)
+    from polisyos.fabric.data_plane import resolve_live_transport_trace
+
+    paid_attempt = state["paid_attempt"]
+    trace_before = resolve_live_transport_trace(paid_attempt.evidence.raw_evidence_ref)
+    assert trace_before == paid_attempt.evidence.transport_trace
+    assert trace_before.call_count == paid_attempt.evidence.authorization.budget.call_budget == 1
+    journal_path = Path(paid_attempt.evidence.request_ref.journal_path)
+    journal_before = journal_path.read_bytes()
+
+    # Admission is a distinct action with a new exact mandate, DS9 record,
+    # PA2 decision and job. It reopens the paid owner bytes, never fetches.
+    pending = _run_signed_native_leaf_action(
+        served=served,
+        trust=trust,
+        signers=signers,
+        identities=identities,
+        institution_key_root=institution_key_root,
+        route_id=route_id,
+        idempotency_key=idempotency_key,
+        retained_mandate=state.get("retained_admission_checkpoint"),
+    )
+    terminal = pending["terminal"]
+    assert terminal.terminal_outcome == "inputs_pending"
+    assert terminal.reentry_receipt_ref is None
+    assert terminal.native_input_collection_ref is not None
+    assert tuple(transport_calls) == before_admission
+    assert pending["job_id"] != original_action["job_id"]
+    assert terminal.decision_ref != original_action["terminal"].decision_ref
+    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        collection = replay_native_derivation_input_collection(
+            served.store, terminal.native_input_collection_ref
+        ).collection
+    assert collection.input_closure_status == "partial"
+    assert {row.source_node_id for row in collection.source_inputs} == {"input-a"}
+    assert {row.source_node_id for row in collection.pending_actions} == {"input-b"}
+    from decimal import Decimal
+
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        _stored, replayed, _selection = catalog_read_api.replay_selected_scoped_measurement_facts(
+            served.store, collection.source_inputs[0].occurrence_ref
+        )
+    assert replayed.canonical_value == Decimal("-0.03")
+
+    expected = state["paid_reference_snapshot"]
+    prior = pending["closure"].prior_paid_input_admission
+    assert prior is not None
+    assert prior.original_action_job_id == expected["original_action_job_id"]
+    assert prior.original_action_job_id == original_action["job_id"]
+    for name, reference in expected.items():
+        if name != "original_action_job_id":
+            assert artifact_ref_identity_key(getattr(prior, name)) == artifact_ref_identity_key(
+                reference
+            ), name
+    assert str(prior.terminal_ref.artifact_id) == original_action["head"].receipt_ref
+    assert (
+        prior.terminal_ref.manifest_profile_sha256
+        == original_action["head"].receipt_manifest_profile_sha256
+    )
+    assert pending["closure"].current_projection_hash != route_id
+
+    # Retry through a fresh live app with the same exact action credential.
+    # This is the original current grant's idempotent request, not a renewal.
+    with TestClient(served.app_factory()) as client:
+        control = client.app.state.runtime_container.control_service
+        stop_embedded_control_worker(control)
+        retried, _resource_digest = trust.post(
+            client,
+            f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{route_id}/execute",
+            pending["request"].model_dump(mode="json"),
+            route="/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+            extra_headers={"Authorization": pending["authorization"]},
+        )
+        assert retried.status_code in {200, 202}, retried.text
+        assert retried.json()["job_id"] == pending["job_id"]
+        job = control._control_store.get_job(pending["job_id"])
+        assert job is not None and job.state == "completed"
+        assert job.progress == pending["progress"]
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            outcome = control.acquisition_route_sink.current_action_outcome(
+                tenant_id=claims.tenant_id,
+                cell_id=claims.cell_id,
+                run_id=served.control_run_id,
+                source_job_id=served.job_id,
+                route_id=route_id,
+            )
+        assert outcome is not None and outcome.head == pending["head"]
+        assert outcome.latest_receipt == terminal
+        assert outcome.executing_phase is not None
+        assert outcome.executing_phase.schema_version == "AcquisitionRoutePhaseReceipt@1.4"
+        assert outcome.executing_phase.prior_paid_input_admission == prior
+        response = client.get(
+            f"/api/v1/runs/{served.core_run_id}",
+            headers={
+                "Authorization": trust.authorization_header("acquisition-operator"),
+                "X-Tenant-ID": claims.tenant_id,
+            },
+        )
+        assert response.status_code == 200, response.text
+        generic_projection = response.json()["run"]["generic_cycle_simulation"]
+        assert generic_projection["n4_source_status"] == "resolved"
+        assert generic_projection.get("acquisition_history_limitation_code") is None
+        history = generic_projection["acquisition_history"]
+        pending_rows = [row for row in history if row["terminal_outcome"] == "inputs_pending"]
+        assert len(pending_rows) == 1
+        assert pending_rows[0]["model_goal_status"] == "inputs_pending"
+        assert artifact_ref_identity_key(
+            ArtifactRef.model_validate(pending_rows[0]["native_input_collection_ref"])
+        ) == artifact_ref_identity_key(terminal.native_input_collection_ref)
+        assert generic_projection["publication_authority"] is False
+        assert generic_projection["currentness_status"] == "not_established"
+    assert tuple(transport_calls) == before_admission
+    assert journal_path.read_bytes() == journal_before
+    assert resolve_live_transport_trace(paid_attempt.evidence.raw_evidence_ref) == trace_before
+    assert served.semantic_kernel_entries == []
+    return SimpleNamespace(
+        action=pending,
+        paid_attempt=paid_attempt,
+        transport_trace=trace_before,
+        journal_path=journal_path,
+        journal_bytes=journal_before,
+        provider_calls=before_admission,
+        generic_projection=generic_projection,
+    )
+
+
+def assert_native_paid_negative_projection_is_profile_bound(
+    *, bridge: Any, closure: Any, store: Any, output_root: Path
+) -> None:
+    """Keep a real selected negative unestablished and fail on its missing profile."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core import artifacts
+
+    assert bridge.artifact_store.root.resolve() == store.root.resolve()
+    assert bridge.project_growth_outcome(closure) == ("not_established", None)
+    negative_ref = closure.prior_paid_input_admission.negative_receipt_ref
+    selected_manifest = store._manifest_path_for_ref(
+        negative_ref.artifact_id, negative_ref.manifest_profile_sha256
+    )
+    _negative_blob, default_manifest = store._paths(negative_ref.artifact_id)
+    manifests = {selected_manifest}
+    default_ref = artifacts.artifact_ref_for_manifest(store.get_manifest(negative_ref.artifact_id))
+    if artifact_ref_identity_key(default_ref) == artifact_ref_identity_key(negative_ref):
+        manifests.add(default_manifest)
+    withheld_root = output_root / "withheld-original-negative-profile"
+    withheld_root.mkdir()
+    withheld = []
+    try:
+        for index, manifest_path in enumerate(sorted(manifests)):
+            retained_path = withheld_root / f"{index}-{manifest_path.name}"
+            manifest_path.replace(retained_path)
+            withheld.append((manifest_path, retained_path))
+        with pytest.raises(
+            (
+                ValueError,
+                artifacts.ArtifactUnavailableError,
+                CanonicalProfileRefusalError,
+            )
+        ):
+            bridge.project_growth_outcome(closure)
+    finally:
+        for manifest_path, retained_path in reversed(withheld):
+            retained_path.replace(manifest_path)
+    assert bridge.project_growth_outcome(closure) == ("not_established", None)
+
+
+def assert_retained_native_paid_input_admission(
+    *,
+    base: Path,
+    output_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    transport_calls: list[Any],
+    semantic_kernel_entries: list[Any],
+    continuation_selection: Any | None = None,
+) -> dict[str, Any]:
+    """Reuse a retained real purchase with new explicit fixture institutions.
+
+    The caller must forbid fresh provider transport, reservation and N4/N5 at
+    their original effect boundaries. No source initializer or old permission
+    is restored here; retained signers are loaded by the canonical key loader.
+    """
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.fabric.data_plane import resolve_live_transport_trace
+    from polisyos.runtime.http import deployment_security as security
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
+    from tests._helpers.acquisition_served_history import _existing_key_config, _ExternalTrust
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests._helpers.native_derivation_retained import (
+        bind_retained_native_source_app,
+        load_retained_native_admission_checkpoint,
+        load_retained_native_source_fixture,
+    )
+
+    trust_root = output_root / "current-demo-trust"
+    trust_root.mkdir(parents=True)
+    trust = _ExternalTrust(trust_root)
+    try:
+        signers, identities = _existing_key_config(base / "trust", trust)
+
+        def deployment():
+            return security.build_deployment_security(
+                security.DeploymentSecurityConfig.from_mapping(trust.raw)
+            )
+
+        claims = deployment().identity_provider.extract_user_claims(
+            trust.tokens["acquisition-operator"]
+        )
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            case = load_retained_native_source_fixture(
+                base, binding_id="configured-native-two-leaf"
+            )
+        assert (case.tenant_id, case.cell_id) == (claims.tenant_id, claims.cell_id)
+        if continuation_selection is not None:
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                checkpoint = load_retained_native_admission_checkpoint(
+                    case, continuation_selection, institution_key_root=base / "trust"
+                )
+            from types import SimpleNamespace
+
+            case.state["appointments"].append(SimpleNamespace(config=checkpoint.epoch_config))
+            case.state["retained_admission_checkpoint"] = checkpoint
+        case.claims = claims
+        case.semantic_kernel_entries = semantic_kernel_entries
+        bind_retained_native_source_app(case, deployment_security_factory=deployment)
+        monkeypatch.setenv("POLISYOS_RUNTIME_EXECUTION_PROFILE", "development")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(case.control_database))
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", str(base / "runtime-cache"))
+        monkeypatch.setenv("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER", "1")
+        monkeypatch.setattr(
+            surface_owner,
+            "build_production_world_bank_wdi_execution_port",
+            _native_fixture_port_factory(case.state),
+        )
+        trace_before = resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref)
+        journal_path = Path(case.attempt.evidence.request_ref.journal_path)
+        journal_before = journal_path.read_bytes()
+        selected_before = {
+            artifact_ref_identity_key(ref): case.store.get_bytes(ref)
+            for ref in (case.compiled_ref, case.source_ref, case.attempt_ref, case.terminal_ref)
+        }
+        initial_calls = tuple(transport_calls)
+        sibling = None
+        sibling_refusal = None
+        route_path = (
+            f"/api/v1/runs/{case.control_run_id}/acquisition-routes/{case.terminal.route_id}"
+        )
+        headers = {
+            "Authorization": trust.authorization_header("acquisition-operator"),
+            "X-Tenant-ID": claims.tenant_id,
+        }
+        with TestClient(case.app_factory()) as client:
+            container = client.app.state.runtime_container
+            control = container.control_service
+            stop_embedded_control_worker(control)
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                    run_id=case.control_run_id,
+                    source_job_id=case.job_id,
+                    route_id=case.terminal.route_id,
+                )
+            assert outcome is not None and outcome.latest_receipt == case.terminal
+            assert outcome.head.receipt_ref == str(case.terminal_ref.artifact_id)
+            response = client.get(route_path, headers=headers)
+            assert response.status_code == 200, response.text
+            route = response.json()
+            assert route["schema_version"] == "AcquisitionRouteProjection@1.2"
+            assert route["route_status"] == "paid_input_admission_only"
+            assert route["world_growth"] == "not_established"
+            assert route.get("admitted_observation_delta") is None
+            assert route["qualification_status"] == "pending_epoch_activation"
+            assert artifact_ref_identity_key(
+                ArtifactRef.model_validate(route["prior_paid_input_admission"]["attempt_ref"])
+            ) == artifact_ref_identity_key(case.attempt_ref)
+            if continuation_selection is None:
+                listed = client.get(
+                    f"/api/v1/runs/{case.control_run_id}/acquisition-routes", headers=headers
+                )
+                assert listed.status_code == 200, listed.text
+                siblings = tuple(
+                    row for row in listed.json()["routes"] if row.get("source_node_id") == "input-b"
+                )
+                assert len(siblings) == 1
+                sibling = siblings[0]
+                assert sibling["schema_version"] == "NativeDerivationLeafRouteProjection@1.0"
+                assert sibling["route_status"] == "inputs_pending"
+                assert sibling["reason_codes"] == ["native_leaf_owner_cost_profile_not_established"]
+            original_response = client.get(f"/api/v1/runs/{case.core_run_id}", headers=headers)
+            assert original_response.status_code == 200, original_response.text
+            original_projection = original_response.json()["run"]["generic_cycle_simulation"]
+            assert original_projection["n4_source_status"] == "resolved"
+            assert original_projection.get("acquisition_history_limitation_code") is None
+            assert any(
+                row["terminal_outcome"] == "quarantined_no_growth"
+                for row in original_projection["acquisition_history"]
+            )
+            loop = container.acquisition_action_service._route_loop(
+                tenant_id=claims.tenant_id, cell_id=claims.cell_id
+            )
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                closure = loop.resolve_current_route(
+                    run_id=case.control_run_id, route_id=case.terminal.route_id
+                )
+                if continuation_selection is None:
+                    with pytest.raises(AcquisitionRouteClosureError) as denied:
+                        loop.resolve_current_route(
+                            run_id=case.control_run_id, route_id=sibling["route_id"]
+                        )
+                    port = container.acquisition_action_service._production_execution_port
+                    assert_native_paid_negative_projection_is_profile_bound(
+                        bridge=port._world_growth_bridge,
+                        closure=closure,
+                        store=case.store,
+                        output_root=output_root,
+                    )
+                    sibling_refusal = denied.value.code
+                    assert sibling_refusal == "native_leaf_owner_cost_profile_not_established"
+            original_action = {
+                "job_id": outcome.head.job_id,
+                "head": outcome.head,
+                "terminal": outcome.latest_receipt,
+                "closure": closure,
+            }
+        assert tuple(transport_calls) == initial_calls
+        assert journal_path.read_bytes() == journal_before
+        assert resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref) == trace_before
+        for ref in (case.compiled_ref, case.source_ref, case.attempt_ref, case.terminal_ref):
+            assert case.store.get_bytes(ref) == selected_before[artifact_ref_identity_key(ref)]
+
+        admitted = assert_paid_native_leaf_admission_and_restart(
+            served=case,
+            state=case.state,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+            institution_key_root=base / "trust",
+            institution_root=output_root / "new-current-native-institution",
+            route_id=case.terminal.route_id,
+            original_action=original_action,
+            transport_calls=transport_calls,
+            idempotency_key="retained-native-a-new-current-admission",
+        )
+        assert tuple(transport_calls) == initial_calls
+        assert journal_path.read_bytes() == journal_before
+        assert resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref) == trace_before
+        assert (
+            admitted.generic_projection["n5_observations"] == original_projection["n5_observations"]
+        )
+        return {
+            "original_action_job_id": original_action["job_id"],
+            "admission_job_id": admitted.action["job_id"],
+            "original_terminal_ref": case.terminal_ref.model_dump(mode="json"),
+            "attempt_ref": case.attempt_ref.model_dump(mode="json"),
+            "collection_ref": admitted.action["terminal"].native_input_collection_ref.model_dump(
+                mode="json"
+            ),
+            "new_provider_calls": len(transport_calls) - len(initial_calls),
+            "sibling_status": sibling["route_status"] if sibling is not None else None,
+            "sibling_refusal": sibling_refusal,
+            "prior_prechecks_reused": continuation_selection is not None,
+        }
+    finally:
+        trust.close()
 
 
 @pytest.mark.integration
@@ -1038,9 +1655,6 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http import deployment_security as security
     from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
-    from polisyos.runtime.quality.acquisition_world_growth import (
-        replay_native_derivation_input_collection,
-    )
     from tests._helpers.acquisition_production import intercepted_wdi_transport
     from tests._helpers.acquisition_served_history import _ExternalTrust, _key_config
     from tests._helpers.control_worker import stop_embedded_control_worker
@@ -1145,71 +1759,32 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
             trust=trust,
             signers=signers,
             identities=identities,
-            trust_root=trust_root,
+            institution_key_root=trust_root,
             route_id=leaf_a.route_id,
             idempotency_key="native-leaf-a-before-epoch-appointment",
         )
         assert quarantined["terminal"].terminal_outcome == "quarantined_no_growth"
         assert len(transport_calls) == 1
-        with (
-            _live_native_fixture_bridge(served=served, state=state) as current_bridge,
-            tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id),
-        ):
-            _appoint_exact_native_epoch_policy(
-                state=state,
-                bridge=current_bridge,
-                institution_store=served.store,
-                closure=quarantined["closure"],
-                root=tmp_path / "native-institution",
-            )
-        before_admission = tuple(transport_calls)
-        from polisyos.fabric.data_plane import resolve_live_transport_trace
-
-        paid_attempt = state["paid_attempt"]
-        trace_before = resolve_live_transport_trace(paid_attempt.evidence.raw_evidence_ref)
-        assert trace_before == paid_attempt.evidence.transport_trace
-        assert (
-            trace_before.call_count == paid_attempt.evidence.authorization.budget.call_budget == 1
-        )
-        journal_path = Path(paid_attempt.evidence.request_ref.journal_path)
-        journal_before = journal_path.read_bytes()
-
-        # Admission is a distinct action with a new exact mandate, DS9 record,
-        # PA2 decision and job. It reopens the paid owner bytes, never fetches.
-        pending = _run_signed_native_leaf_action(
+        admitted = assert_paid_native_leaf_admission_and_restart(
             served=served,
+            state=state,
             trust=trust,
             signers=signers,
             identities=identities,
-            trust_root=trust_root,
+            institution_key_root=trust_root,
+            institution_root=tmp_path / "native-institution",
             route_id=leaf_a.route_id,
-            idempotency_key="native-leaf-a-after-epoch-appointment",
+            original_action=quarantined,
+            transport_calls=transport_calls,
         )
+        pending = admitted.action
         terminal = pending["terminal"]
-        assert terminal.terminal_outcome == "inputs_pending"
-        assert terminal.reentry_receipt_ref is None
-        assert terminal.native_input_collection_ref is not None
-        assert tuple(transport_calls) == before_admission
-        assert pending["job_id"] != quarantined["job_id"]
-        assert terminal.decision_ref != quarantined["terminal"].decision_ref
-        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-            collection = replay_native_derivation_input_collection(
-                served.store, terminal.native_input_collection_ref
-            ).collection
-        assert collection.input_closure_status == "partial"
-        assert {row.source_node_id for row in collection.source_inputs} == {"input-a"}
-        assert {row.source_node_id for row in collection.pending_actions} == {"input-b"}
-        from decimal import Decimal
-
-        from polisyos.data_forge.read_api import catalog as catalog_read_api
-
-        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-            _stored, replayed, _selection = (
-                catalog_read_api.replay_selected_scoped_measurement_facts(
-                    served.store, collection.source_inputs[0].occurrence_ref
-                )
-            )
-        assert replayed.canonical_value == Decimal("-0.03")
+        paid_attempt = admitted.paid_attempt
+        before_admission = admitted.provider_calls
+        trace_before = admitted.transport_trace
+        journal_path = admitted.journal_path
+        journal_before = admitted.journal_bytes
+        from polisyos.fabric.data_plane import resolve_live_transport_trace
 
         # A fresh app reads the exact selected partial terminal and model-goal
         # status. No pending sibling mandate, fetch, or numerical result appears.

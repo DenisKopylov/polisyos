@@ -7,6 +7,7 @@ import type {
   AcquisitionRouteProjection,
 } from "@/features/runs/api/acquisitionRouteValidators";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
+import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
@@ -97,7 +98,7 @@ function timelineFacts({
       phase: "refusal_with_path",
       raw: route as Readonly<Record<string, unknown>>,
       scope: "run_route",
-      status: route.route_status,
+      status: route.route_status ?? "not_established",
     },
   ];
   if (decision) {
@@ -197,6 +198,9 @@ export function AcquisitionExecutionTimeline(
 ) {
   const { t } = useI18n();
   const facts = timelineFacts(props);
+  const routePresentation = presentRunAcquisitionRoute(props.route);
+  const historicalCostBasis =
+    routePresentation.costMeaning === "historical_prior_paid_basis";
   return (
     <Card
       className="min-w-0 space-y-4"
@@ -243,11 +247,21 @@ export function AcquisitionExecutionTimeline(
             {fact.phase === "refusal_with_path" ? (
               <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
                 <div>
-                  <dt>{t("pages.cycleBoard.acquisition.action.cost")}</dt>
+                  <dt>
+                    {historicalCostBasis
+                      ? t(
+                          "pages.cycleBoard.acquisition.route.historicalCostBasis",
+                        )
+                      : t("pages.cycleBoard.acquisition.action.cost")}
+                  </dt>
                   <dd>
+                    {historicalCostBasis ? "USD " : ""}
                     {String(
                       props.route.cost_basis.total_amount ?? "not_established",
                     )}
+                    {historicalCostBasis
+                      ? ` · ${t("pages.cycleBoard.acquisition.route.historicalNotOffer")}`
+                      : ""}
                   </dd>
                 </div>
                 <div>

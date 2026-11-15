@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         NativeDerivationInputsPending,
+        NativePaidInputAdmissionSelection,
         VerifiedAcquisitionRouteClosure,
         VerifiedCandidateExperimentOrigin,
     )
@@ -533,11 +534,28 @@ class WorldBankWDIAcquisitionExecutionPort:
             return None
         return bridge.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
 
+    def select_prior_paid_native_input_admission(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> NativePaidInputAdmissionSelection | None:
+        """Read the installed native owner's unique independently replayed purchase."""
+        bridge = self._world_growth_bridge
+        return None if bridge is None else bridge.select_prior_paid_native_input_admission(closure)
+
     def _require_native_quote_or_paid_attempt(
         self, closure: VerifiedAcquisitionRouteClosure, *, allow_paid: bool = True
     ) -> None:
         """An expired quote never authorizes a fresh transport call or spend."""
         if closure.native_derivation_leaf_scope is None:
+            return
+        bridge = self._world_growth_bridge
+        if closure.prior_paid_input_admission is not None:
+            if not allow_paid:
+                raise LiveAcquisitionExecutionError(
+                    "native_paid_input_admission_fresh_io_forbidden"
+                )
+            if bridge is None:
+                raise LiveAcquisitionExecutionError("native_paid_input_admission_owner_missing")
+            bridge.require_prior_paid_native_input_admission(closure)
             return
         from datetime import UTC, datetime
 
@@ -548,7 +566,6 @@ class WorldBankWDIAcquisitionExecutionPort:
         profile = load_native_derivation_leaf_cost_profile(
             self._artifact_store, closure.owner_declared_profile_ref
         )
-        bridge = self._world_growth_bridge
         adopted = False
         if bridge is not None:
             rows = tuple(

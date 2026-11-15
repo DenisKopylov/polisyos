@@ -9,11 +9,13 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-from polisyos.core import artifacts
+from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts, contracts, security
 from polisyos.core.artifacts import artifact_ref_identity_key
 from polisyos.core.artifacts.store import CASManifestInventorySnapshot
 from polisyos.data_forge.read_api import catalog
@@ -27,13 +29,19 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoopReceipt,
+    AcquisitionRoutePhaseReceipt,
     NativeDerivationLeafProviderSelection,
 )
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthAttempt,
     AcquisitionWorldGrowthConfig,
+    AcquisitionWorldGrowthDeferral,
     NativeDerivationPortSelection,
     NativeDerivationRouteConfiguration,
+)
+from polisyos.runtime.quality.epoch_deployment import (
+    EpochDeploymentConfig,
+    EpochTrustedIssuerConfig,
 )
 from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationProfileV1,
@@ -86,14 +94,21 @@ def load_retained_native_source_fixture(
         tenant_id, cell_id = owner["tenant_id"], owner["cell_id"]
         terminal_rows = tuple(
             connection.execute(
-                "SELECT receipt_ref, receipt_manifest_profile_sha256 FROM "
+                "SELECT receipt_ref, receipt_manifest_profile_sha256, action_generation, "
+                "route_id, job_id FROM "
                 "runtime_acquisition_action_heads WHERE source_job_id=? "
                 "AND receipt_phase='terminal' ORDER BY action_generation, head_generation",
                 (source_job_id,),
             )
         )
-        if len(terminal_rows) != 1:
-            raise ValueError("retained_native_fixture_terminal_not_unique")
+        executing_rows = tuple(
+            connection.execute(
+                "SELECT receipt_ref, receipt_manifest_profile_sha256, action_generation, "
+                "route_id, job_id FROM runtime_acquisition_action_heads "
+                "WHERE source_job_id=? AND receipt_phase='executing'",
+                (source_job_id,),
+            )
+        )
 
     store = artifacts.FileSystemCAS(base / "cas").for_tenant(tenant_id, cell_id)
     compiled_ref = artifacts.ArtifactRef.model_validate(
@@ -110,15 +125,44 @@ def load_retained_native_source_fixture(
     )
     if profile != handoff.profile or (handoff.job_id, handoff.run_id) != (source_job_id, run_id):
         raise ValueError("retained_native_fixture_original_profile_mismatch")
-    terminal_ref = artifacts.ArtifactRef(
-        artifact_id=artifacts.ArtifactID.model_validate(terminal_rows[0]["receipt_ref"]),
-        kind="runtime_quality.acquisition_route_loop_receipt",
-        media_type="application/json",
-        manifest_profile_sha256=terminal_rows[0]["receipt_manifest_profile_sha256"],
-    )
-    terminal = AcquisitionRouteLoopReceipt.model_validate(
-        artifacts.load_core_json_artifact(store, terminal_ref)
-    )
+    original_purchases = []
+    for row in terminal_rows:
+        candidate_ref = artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(row["receipt_ref"]),
+            kind="runtime_quality.acquisition_route_loop_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=row["receipt_manifest_profile_sha256"],
+        )
+        candidate = AcquisitionRouteLoopReceipt.model_validate(
+            artifacts.load_core_json_artifact(store, candidate_ref)
+        )
+        if candidate.terminal_outcome != "quarantined_no_growth":
+            continue
+        phases = tuple(
+            phase
+            for phase in executing_rows
+            if (phase["action_generation"], phase["route_id"], phase["job_id"])
+            == (row["action_generation"], row["route_id"], row["job_id"])
+        )
+        if len(phases) != 1:
+            raise ValueError("retained_native_fixture_executing_phase_not_unique")
+        phase_ref = artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(phases[0]["receipt_ref"]),
+            kind="runtime_quality.acquisition_route_phase_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=phases[0]["receipt_manifest_profile_sha256"],
+        )
+        phase = AcquisitionRoutePhaseReceipt.model_validate(
+            artifacts.load_core_json_artifact(store, phase_ref)
+        )
+        if (
+            phase.owner_declared_profile_ref is not None
+            and phase.prior_paid_input_admission is None
+        ):
+            original_purchases.append((candidate_ref, candidate))
+    if len(original_purchases) != 1:
+        raise ValueError("retained_native_fixture_original_purchase_not_unique")
+    terminal_ref, terminal = original_purchases[0]
     if (
         terminal.terminal_outcome != "quarantined_no_growth"
         or terminal.source_job_id != source_job_id
@@ -180,6 +224,32 @@ def load_retained_native_source_fixture(
         or attempt.action_phase_ref not in terminal.owner_receipt_refs
     ):
         raise ValueError("retained_native_fixture_paid_attempt_scope_mismatch")
+    deferrals = tuple(
+        (
+            ref,
+            AcquisitionWorldGrowthDeferral.model_validate(
+                artifacts.load_core_json_artifact(store, ref)
+            ),
+        )
+        for ref in _selected_profiles(store, "runtime_quality.acquisition_world_growth_deferral")
+        if str(ref.artifact_id) in terminal.owner_receipt_refs
+    )
+    if len(deferrals) != 1 or deferrals[0][1].attempt_ref != str(attempt_ref.artifact_id):
+        raise ValueError("retained_native_fixture_deferral_not_unique")
+    deferral_ref, deferral = deferrals[0]
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+    pointer_roots = {
+        pointer.parent
+        for pointer in (base / "cas/runtime/acquisition/world-growth").rglob("*.attempt.json")
+        if AcquisitionWorldGrowthBridge._attempt_pointer_ref(pointer, require_selected=True)
+        == attempt_ref
+    }
+    if len(pointer_roots) != 1:
+        raise ValueError("retained_native_fixture_attempt_path_not_unique")
+    epoch_history_root = next(iter(pointer_roots)) / "epochs"
+    if not epoch_history_root.is_dir():
+        raise ValueError("retained_native_fixture_epoch_history_missing")
     authority = catalog.CanonicalAcquisitionAuthority.from_provision(
         repo_root=base / "knowledge",
         baseline_path=default_substrate_catalog_paths(base / "knowledge").l1_dcat_path,
@@ -224,6 +294,9 @@ def load_retained_native_source_fixture(
         terminal_ref=terminal_ref,
         attempt=attempt,
         attempt_ref=attempt_ref,
+        deferral=deferral,
+        deferral_ref=deferral_ref,
+        epoch_history_root=epoch_history_root,
         configuration=configuration,
         state={
             "holder": {
@@ -232,6 +305,190 @@ def load_retained_native_source_fixture(
             },
             "appointments": [],
         },
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class RetainedNativeAdmissionSelection:
+    """Locate existing fixture acts; these inputs grant no Runtime operation."""
+
+    epoch_admission_evidence_ref: artifacts.ArtifactRef
+    epoch_public_key_path: Path
+    delegation_contract_ref: artifacts.ArtifactRef
+    current_mandate_evidence_ref: artifacts.ArtifactRef
+    human_decision_record_ref: artifacts.ArtifactRef | None = None
+
+
+def _verify_retained_selected_signature(
+    store: Any,
+    ref: artifacts.ArtifactRef,
+    verifier: artifacts.Ed25519Verifier,
+) -> None:
+    """Verify a legacy ID sidecar only for its exact selected manifest and blob."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("retained_native_continuation_signature_profile_missing")
+    selected_manifest = store.get_manifest_bytes(ref)
+    signature = store.get_signature(ref)
+    if signature is None:
+        # The existing institutional fixture producer signed the default ID.
+        # Its sidecar proves this selected view only when the signed bytes agree.
+        if store.get_manifest_bytes(ref.artifact_id) != selected_manifest:
+            raise ValueError("retained_native_continuation_signature_profile_mismatch")
+        signature = store.get_signature(ref.artifact_id)
+    if signature is None:
+        raise ValueError("retained_native_continuation_mandate_signature_missing")
+    verified = verifier.verify(
+        ref.artifact_id,
+        store.get_bytes(ref),
+        selected_manifest,
+        signature,
+        strict_identity=True,
+    )
+    if verified.status is not artifacts.SignatureVerificationStatus.VALID:
+        raise ValueError("retained_native_continuation_mandate_signature_invalid")
+
+
+def load_retained_native_admission_checkpoint(
+    fixture: SimpleNamespace,
+    selection: RetainedNativeAdmissionSelection,
+    *,
+    institution_key_root: Path,
+) -> SimpleNamespace:
+    """Reopen signed current fixture acts without issuing or renewing any act.
+
+    The current live Runtime must still recheck its permission, DS9, PA2,
+    source, meaning and epoch fences. Paths configure verifiers only; no
+    private key is loaded and no signed body or validity interval is changed.
+    """
+    from polisyos.runtime.quality import agent_action_authority as authority
+
+    store = fixture.store
+
+    def selected(ref: artifacts.ArtifactRef, kind: str) -> artifacts.ArtifactRef:
+        actual = tuple(
+            value
+            for value in _selected_profiles(store, kind)
+            if artifact_ref_identity_key(value) == artifact_ref_identity_key(ref)
+        )
+        if len(actual) != 1 or ref.manifest_profile_sha256 is None:
+            raise ValueError("retained_native_continuation_selected_profile_missing")
+        return actual[0]
+
+    admission_ref = selected(
+        selection.epoch_admission_evidence_ref, "core.chronology.signed_artifact_evidence_record"
+    )
+    evidence = FileSystemSignedArtifactEvidenceRepository(store).read_exact(
+        evidence_record_ref=admission_ref
+    )
+    epoch_identity = "fixture-native-epoch-owner"
+    epoch_verifier = artifacts.Ed25519Verifier(strict_identity=True)
+    epoch_verifier.load_trusted_key_file(selection.epoch_public_key_path, identity=epoch_identity)
+    if not security.verify_signed_evidence(evidence, verifier=epoch_verifier):
+        raise ValueError("retained_native_continuation_epoch_signature_invalid")
+    admission = security.parse_canonical_statement(
+        evidence.blob_bytes, contracts.chronology.PredicatePolicyAdmissionStatement
+    )
+    prepared = contracts.epoch.load_verified_epoch_statement(
+        store=store,
+        ref=fixture.deferral.negative_receipt.prepared_epoch_ref,
+        expected_kind="epoch.prepared",
+    )
+    manifest_ref = artifacts.ArtifactRef.model_validate(prepared["stamp"]["semantic_manifest_ref"])
+    manifest = contracts.epoch.load_verified_epoch_statement(
+        store=store, ref=manifest_ref, expected_kind="epoch.semantic_manifest"
+    )
+    if (
+        admission.key.scope_ref != fixture.attempt.selection.epoch_scope_identity.scope_identity_ref
+        or admission.key.authority_purpose != fixture.attempt.selection.authority_purpose
+        or admission.key.requested_cutoff_ref != manifest["epoch_ref"]
+        or admission.requested_query_context_ref != prepared["query"]["requested_query_context_ref"]
+    ):
+        raise ValueError("retained_native_continuation_epoch_scope_mismatch")
+    epoch_config = EpochDeploymentConfig(
+        evidence_cas_root=store.root,
+        native_epoch_history_root=fixture.epoch_history_root,
+        trusted_issuers=(
+            EpochTrustedIssuerConfig(
+                identity=epoch_identity,
+                public_key_path=selection.epoch_public_key_path,
+                roles=("predicate_policy_admission",),
+            ),
+        ),
+        predicate_policy_admission_refs=(admission_ref,),
+    )
+    contract_ref = selected(
+        selection.delegation_contract_ref, "runtime_quality.agent_action_delegation_contract"
+    )
+    current_ref = selected(
+        selection.current_mandate_evidence_ref, "runtime_quality.current_mandate_owner"
+    )
+    contract = authority.DelegationContract.model_validate(
+        artifacts.load_core_json_artifact(store, contract_ref)
+    )
+    current = authority.CurrentMandateOwnerEvidence.model_validate(
+        artifacts.load_core_json_artifact(store, current_ref)
+    )
+    for ref, identity, name in (
+        (contract_ref, contract.mandate_owner_ref, "owner"),
+        (current_ref, current.evidence_signer_identity, "current"),
+    ):
+        verifier = artifacts.Ed25519Verifier(strict_identity=True)
+        verifier.load_trusted_key_file(institution_key_root / f"{name}.pub", identity=identity)
+        _verify_retained_selected_signature(store, ref, verifier)
+    contexts = tuple(
+        store.get_manifest(ref).same_input_closure for ref in (contract_ref, current_ref)
+    )
+    if (
+        any(context is None for context in contexts)
+        or len({(row.tenant_id, row.cell_id, row.run_id, row.job_id) for row in contexts}) != 1
+        or (contexts[0].tenant_id, contexts[0].cell_id, contexts[0].run_id)
+        != (fixture.tenant_id, fixture.cell_id, fixture.control_run_id)
+        or contract.mandate_owner_ref != current.mandate_owner_ref
+        or contract.rule_version_ref != current.delegation_rule_version_ref
+        or len(contract.action_envelopes) != 1
+    ):
+        raise ValueError("retained_native_continuation_mandate_scope_mismatch")
+    envelope = contract.action_envelopes[0]
+    now = datetime.now(UTC)
+    if (
+        not current.current
+        or current.revoked_at is not None
+        or not (current.effective_from <= now < current.effective_until)
+        or not (envelope.valid_from <= now < envelope.valid_until)
+        or envelope.required_tenant_id != fixture.tenant_id
+    ):
+        raise ValueError("retained_native_continuation_mandate_not_current")
+    information = _selected_profiles(store, "test.acquisition.disconfirming")
+    if len(information) != 1:
+        raise ValueError("retained_native_continuation_information_not_unique")
+    slot = {
+        "tenant_id": fixture.tenant_id,
+        "cell_id": fixture.cell_id,
+        "run_id": fixture.control_run_id,
+        "route_id": fixture.terminal.route_id,
+        "resource_digest": envelope.required_resource_digest,
+        "delegation_contract_ref": str(contract_ref.artifact_id),
+        "mandate_owner_ref": contract.mandate_owner_ref,
+        "delegation_public_key_path": str(institution_key_root / "owner.pub"),
+        "current_mandate_evidence_ref": str(current_ref.artifact_id),
+        "current_mandate_signer_identity": current.evidence_signer_identity,
+        "current_mandate_public_key_path": str(institution_key_root / "current.pub"),
+        "verifier_provenance_ref": "fixture://appointment-registry",
+        "decision_information_refs": [information[0].model_dump(mode="json")],
+        "decision_disconfirming_refs": [information[0].model_dump(mode="json")],
+    }
+    return SimpleNamespace(
+        epoch_config=epoch_config,
+        mandate_slot=slot,
+        action_job_id=contexts[0].job_id,
+        human_decision_record_ref=(
+            selected(
+                selection.human_decision_record_ref,
+                "runtime_quality.agent_action_human_decision",
+            )
+            if selection.human_decision_record_ref is not None
+            else None
+        ),
     )
 
 

@@ -1287,6 +1287,9 @@ export type NativeDerivationLeafRouteProjection =
 export type NativeModelInputTargetProjection =
   RuntimeApiComponents["schemas"]["NativeModelInputTargetProjection"];
 
+export type NativePaidInputAdmissionSelection =
+  RuntimeApiComponents["schemas"]["NativePaidInputAdmissionSelection"];
+
 export type NaturalLanguageRunRequest =
   RuntimeApiComponents["schemas"]["NaturalLanguageRunRequest"];
 

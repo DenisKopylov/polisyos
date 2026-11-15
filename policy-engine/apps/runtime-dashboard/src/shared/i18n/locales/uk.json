@@ -687,8 +687,28 @@
           "requirement": "Typed requirement",
           "strategy": "Рекомендована strategy",
           "status": "Статус route",
+          "statusNotEstablished": "не встановлено",
           "voi": "VOI",
           "costedPlan": "Costed plan, підтверджений owner",
+          "historicalCostBasis": "Історична основа вартості",
+          "historicalNotOffer": "Історична оцінка · не поточна пропозиція",
+          "historicalCostDisclosure": "Ця оцінка належить раніше вибраному маршруту. Це не нова ціна і не загальна вартість; інші витрати не встановлені.",
+          "historicalEstimate": "Оцінка попереднього маршруту",
+          "costBasisRecord": "Запис основи вартості",
+          "priorPaidInput": {
+            "title": "Раніше оплачений вхід · лише допуск",
+            "disclosure": "Цей маршрут посилається на завершену раніше платну дію провайдера. Він запитує окремий поточний розгляд для повторного допуску саме цього входу; нову покупку в провайдера не запитує. Сам маршрут не надає поточних повноважень на дію, не стверджує наявність результату N5 і не дозволяє публікацію.",
+            "originalAction": "Початкове платне завдання дії",
+            "refs": {
+              "attempt": "Спроба провайдера",
+              "executingPhase": "Квитанція фази виконання",
+              "terminal": "Фінальна квитанція маршруту",
+              "deferral": "Квитанція відкладення",
+              "negativeReceipt": "Негативна квитанція епохи",
+              "preparedEpoch": "Підготовлена епоха",
+              "ownerProfile": "Профіль вартості від owner"
+            }
+          },
           "worldGrowth": "Зміна моделі",
           "growthStatus": {
             "notEstablished": "Оновлення не встановлено",
@@ -707,6 +727,7 @@
           "appointmentWouldEstablish": "Призначення встановило б",
           "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
           "requestReview": "Запросити accountable review",
+          "requestAdmissionReview": "Запросити поточний розгляд допуску",
           "costNotEstablished": "owner_backed_cost:not_established",
           "exportRoute": "Експортувати MACHINE packet acquisition route",
           "exportReview": "Експортувати MACHINE packet accountable review",

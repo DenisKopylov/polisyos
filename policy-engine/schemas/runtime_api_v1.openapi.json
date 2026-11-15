@@ -636,6 +636,42 @@
       "AcquisitionRouteProjection": {
         "additionalProperties": false,
         "description": "Read-only current route with independent execution and authority postures.",
+        "oneOf": [
+          {
+            "properties": {
+              "prior_paid_input_admission": {
+                "type": "null"
+              },
+              "route_status": {
+                "enum": [
+                  null,
+                  "costed_actionable"
+                ]
+              },
+              "schema_version": {
+                "const": "AcquisitionRouteProjection@1.1"
+              }
+            }
+          },
+          {
+            "properties": {
+              "prior_paid_input_admission": {
+                "type": "object"
+              },
+              "route_status": {
+                "const": "paid_input_admission_only"
+              },
+              "schema_version": {
+                "const": "AcquisitionRouteProjection@1.2"
+              }
+            },
+            "required": [
+              "schema_version",
+              "route_status",
+              "prior_paid_input_admission"
+            ]
+          }
+        ],
         "properties": {
           "admitted_observation_delta": {
             "anyOf": [
@@ -705,6 +741,16 @@
             "title": "Planner Report Hash",
             "type": "string"
           },
+          "prior_paid_input_admission": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NativePaidInputAdmissionSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "qualification_predicate": {
             "default": "not_established",
             "enum": [
@@ -752,7 +798,10 @@
           "route_status": {
             "anyOf": [
               {
-                "const": "costed_actionable",
+                "enum": [
+                  "costed_actionable",
+                  "paid_input_admission_only"
+                ],
                 "type": "string"
               },
               {
@@ -766,8 +815,11 @@
             "type": "string"
           },
           "schema_version": {
-            "const": "AcquisitionRouteProjection@1.1",
             "default": "AcquisitionRouteProjection@1.1",
+            "enum": [
+              "AcquisitionRouteProjection@1.1",
+              "AcquisitionRouteProjection@1.2"
+            ],
             "title": "Schema Version",
             "type": "string"
           },
@@ -31105,6 +31157,231 @@
           "reason_codes"
         ],
         "title": "NativeModelInputTargetProjection",
+        "type": "object"
+      },
+      "NativePaidInputAdmissionSelection": {
+        "additionalProperties": false,
+        "description": "Select one historical purchase for a separately authorized admission.\n\nThe native owner must replay these selected receipts and all their source\nbindings. This transport neither establishes a fresh price nor grants an\naction, provider call, or semantic admission.",
+        "properties": {
+          "attempt_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "runtime_quality.acquisition_world_growth_attempt"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "deferral_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "runtime_quality.acquisition_world_growth_deferral"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "executing_phase_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "runtime_quality.acquisition_route_phase_receipt"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "negative_receipt_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "epoch.production_receipt"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/vnd.polisyos.epoch-production-receipt+json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "original_action_job_id": {
+            "minLength": 1,
+            "title": "Original Action Job Id",
+            "type": "string"
+          },
+          "owner_declared_profile_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "runtime.quality.native_derivation_leaf_cost_profile"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "prepared_epoch_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "epoch.prepared"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/vnd.polisyos.epoch+json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "schema_version": {
+            "const": "NativePaidInputAdmissionSelection@1.0",
+            "default": "NativePaidInputAdmissionSelection@1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "terminal_ref": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "runtime_quality.acquisition_route_loop_receipt"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "original_action_job_id",
+          "attempt_ref",
+          "executing_phase_ref",
+          "terminal_ref",
+          "deferral_ref",
+          "negative_receipt_ref",
+          "prepared_epoch_ref",
+          "owner_declared_profile_ref"
+        ],
+        "title": "NativePaidInputAdmissionSelection",
         "type": "object"
       },
       "NaturalLanguageRunRequest": {

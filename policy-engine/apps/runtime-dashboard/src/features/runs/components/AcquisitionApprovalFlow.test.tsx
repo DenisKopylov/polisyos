@@ -7,6 +7,7 @@ import type {
   AcquisitionDecisionRequestResponseCurrent,
   AcquisitionExecutionResponseCurrent,
   AcquisitionRouteProjection,
+  PaidInputAdmissionAcquisitionRouteV12,
   PendingAcquisitionRouteV11,
 } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
@@ -153,6 +154,62 @@ function runRoute(
   };
 }
 
+function paidInputAdmissionRoute(): PaidInputAdmissionAcquisitionRouteV12 {
+  const ref = (
+    suffix: string,
+    kind: string,
+    mediaType = "application/json",
+  ) => ({
+    artifact_id: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+    kind,
+    media_type: mediaType,
+    manifest_profile_sha256: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+  });
+  const selection = {
+    schema_version: "NativePaidInputAdmissionSelection@1.0" as const,
+    original_action_job_id: "prior-paid-action-1",
+    attempt_ref: ref("a", "runtime_quality.acquisition_world_growth_attempt"),
+    executing_phase_ref: ref(
+      "b",
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    terminal_ref: ref("c", "runtime_quality.acquisition_route_loop_receipt"),
+    deferral_ref: ref("d", "runtime_quality.acquisition_world_growth_deferral"),
+    negative_receipt_ref: ref(
+      "e",
+      "epoch.production_receipt",
+      "application/vnd.polisyos.epoch-production-receipt+json",
+    ),
+    prepared_epoch_ref: ref(
+      "f",
+      "epoch.prepared",
+      "application/vnd.polisyos.epoch+json",
+    ),
+    owner_declared_profile_ref: ref(
+      "6",
+      "runtime.quality.native_derivation_leaf_cost_profile",
+    ),
+  };
+  const costBasisHash = digest("c");
+  const standard = runRoute();
+  return {
+    ...standard,
+    cost_basis: {
+      currency: "USD",
+      owner_declared_profile_ref: selection.owner_declared_profile_ref,
+      record_content_hash: costBasisHash,
+      record_ref: "sha256:historical-cost-basis",
+      schema_version: "AcquisitionCostBasisRecord@1.1",
+      total_amount: 1250,
+    },
+    prior_paid_input_admission: selection,
+    replay_pins: { ...standard.replay_pins, cost_basis_hash: costBasisHash },
+    route_projection_hash: digest("q"),
+    route_status: "paid_input_admission_only",
+    schema_version: "AcquisitionRouteProjection@1.2",
+  };
+}
+
 function requestedDecision(): AcquisitionDecisionRequestResponseCurrent {
   return {
     authority_decision_ref: digest("e"),
@@ -202,7 +259,10 @@ function flowTree(
   );
 }
 
-function renderFlow(route = runRoute(), epochSemantics?: EpochSemantics) {
+function renderFlow(
+  route: AcquisitionRouteProjection = runRoute(),
+  epochSemantics?: EpochSemantics,
+) {
   mocks.useAcquisitionRoute.mockReturnValue({
     data: routeCapture(route),
     refetch: mocks.refetchRoute,
@@ -325,6 +385,77 @@ describe("AcquisitionApprovalFlow", () => {
     expect(
       screen.getByTestId("acquisition-execution-timeline"),
     ).toHaveTextContent("requested");
+  });
+
+  it.each(["omitted", "null"] as const)(
+    "does not offer review when the legacy route status is %s",
+    (status) => {
+      const route = { ...runRoute() } as unknown as Record<string, unknown>;
+      if (status === "omitted") {
+        delete route.route_status;
+      } else {
+        route.route_status = null;
+      }
+
+      renderFlow(route as unknown as AcquisitionRouteProjection);
+
+      expect(
+        screen.queryByRole("button", { name: "Request accountable review" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("acquisition-route-detail")).toHaveTextContent(
+        "not established",
+      );
+      expect(screen.getByTestId("acquisition-route-detail")).toHaveTextContent(
+        "1250",
+      );
+      expect(mocks.requestDecision).not.toHaveBeenCalled();
+      expect(mocks.execute).not.toHaveBeenCalled();
+    },
+  );
+
+  it("re-admits a prior paid input through current review and the hash-bound DS9 action", async () => {
+    const route = paidInputAdmissionRoute();
+    mocks.refetchRoute.mockResolvedValue({ data: routeCapture(route) });
+    renderFlow(route);
+    const user = userEvent.setup();
+
+    const review = screen.getByRole("button", {
+      name: "Request current admission review",
+    });
+    expect(review).toBeEnabled();
+    expect(screen.getByTestId("prior-paid-input-admission")).toHaveTextContent(
+      "prior-paid-action-1",
+    );
+    expect(screen.getByTestId("prior-paid-input-admission")).toHaveTextContent(
+      "does not itself grant current action authority",
+    );
+    await user.click(review);
+
+    await waitFor(() => expect(mocks.requestDecision).toHaveBeenCalledTimes(1));
+    const decisionBody = mocks.requestDecision.mock.calls[0]?.[2];
+    expect(decisionBody).toMatchObject({
+      idempotency_key: route.route_projection_hash,
+      route_projection_hash: route.route_projection_hash,
+    });
+    expect(decisionBody).not.toHaveProperty("prior_paid_input_admission");
+    expect(decisionBody).not.toHaveProperty("action_mode");
+    expect(mocks.execute).not.toHaveBeenCalled();
+    expect(mocks.useHumanDecisionGate).toHaveBeenLastCalledWith(
+      route.run_id,
+      expect.stringContaining("source_kind=agent_action_authority"),
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Approve through DS9" }),
+    );
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledTimes(1));
+    const executionBody = mocks.execute.mock.calls[0]?.[2];
+    expect(executionBody).toMatchObject({
+      human_decision_record_ref: digest("h"),
+      idempotency_key: `${route.route_projection_hash}:${digest("h")}`,
+      route_projection_hash: route.route_projection_hash,
+    });
+    expect(executionBody).not.toHaveProperty("prior_paid_input_admission");
   });
 
   it("fails DS15-OFFLINE-AUTHORITY before any decision or execution fetch", async () => {

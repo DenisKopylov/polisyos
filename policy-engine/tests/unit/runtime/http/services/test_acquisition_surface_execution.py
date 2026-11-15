@@ -60,6 +60,7 @@ def _route_closure() -> SimpleNamespace:
         cell_id="cell-a",
         run_id="run-acquisition",
         route_id="sha256:" + "1" * 64,
+        prior_paid_input_admission=None,
         design_problem_basis=SimpleNamespace(
             jurisdiction_time=SimpleNamespace(region="UKR", data_time="2024")
         ),

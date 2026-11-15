@@ -687,8 +687,28 @@
           "requirement": "Typed requirement",
           "strategy": "Recommended strategy",
           "status": "Route status",
+          "statusNotEstablished": "not established",
           "voi": "VOI",
           "costedPlan": "Owner-backed costed plan",
+          "historicalCostBasis": "Historical cost basis",
+          "historicalNotOffer": "Historical estimate · not a current offer",
+          "historicalCostDisclosure": "This estimate belongs to the previously selected route. It is not a fresh price or a total cost; other costs remain not established.",
+          "historicalEstimate": "Prior route estimate",
+          "costBasisRecord": "Cost basis record",
+          "priorPaidInput": {
+            "title": "Prior paid input · admission only",
+            "disclosure": "This route identifies a previously completed paid provider attempt. It requests a separate current review to re-admit that exact input; it does not request a new provider purchase. This route does not itself grant current action authority, claim an N5 result, or permit publication.",
+            "originalAction": "Original paid action job",
+            "refs": {
+              "attempt": "Provider attempt",
+              "executingPhase": "Executing phase receipt",
+              "terminal": "Terminal route receipt",
+              "deferral": "Deferral receipt",
+              "negativeReceipt": "Negative epoch receipt",
+              "preparedEpoch": "Prepared epoch",
+              "ownerProfile": "Owner-declared cost profile"
+            }
+          },
           "worldGrowth": "World growth",
           "growthStatus": {
             "notEstablished": "Update not established",
@@ -707,6 +727,7 @@
           "appointmentWouldEstablish": "Appointment would establish",
           "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
           "requestReview": "Request accountable review",
+          "requestAdmissionReview": "Request current admission review",
           "costNotEstablished": "owner_backed_cost:not_established",
           "exportRoute": "Export acquisition route MACHINE packet",
           "exportReview": "Export accountable review MACHINE packet",

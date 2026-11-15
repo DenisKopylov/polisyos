@@ -227,6 +227,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoopReceipt,
     AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
+    NativePaidInputAdmissionSelection,
     VerifiedCandidateExperimentOrigin,
     parse_acquisition_route_loop_receipt,
 )
@@ -2095,6 +2096,9 @@ if TYPE_CHECKING:
         AcquisitionActionService,
         CandidateExperimentRouteMutationRequest,
     )
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
     from polisyos.runtime.http.services.adapters.core_run import (
         TerminalCoreRunSource,
         _TerminalReadBudget,
@@ -2430,6 +2434,14 @@ def _native_acquisition_receipt_selected_inputs(
                 receipt.native_leaf_provider_selection.supplier_ref, role="native_leaf_supplier"
             )
         )
+    if (
+        type(receipt) is AcquisitionRoutePhaseReceipt
+        and receipt.prior_paid_input_admission is not None
+    ):
+        refs.extend(
+            input_ref_from_artifact_ref(ref, role=role)
+            for role, ref in receipt.prior_paid_input_admission.lineage_inputs()
+        )
     return refs
 
 
@@ -2478,9 +2490,34 @@ def _replay_native_acquisition_receipt_profile(
     )
     if cost is None or cost.record_content_hash != receipt.cost_basis_hash:
         raise ValueError("native_leaf_action_profile_cost_mismatch")
+    paid = (
+        receipt.prior_paid_input_admission
+        if type(receipt) is AcquisitionRoutePhaseReceipt
+        else None
+    )
+    if paid is not None:
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            verify_native_paid_input_admission_selection,
+        )
+
+        if control_store is None:
+            raise ValueError("native_paid_input_admission_history_owner_missing")
+        verify_native_paid_input_admission_selection(
+            artifact_store,
+            event_log,
+            control_store=control_store,
+            selection=paid,
+            scope=scope,
+            provider=provider,
+            route_id=receipt.route_id,
+            compiled_ref=receipt.compiled_ref,
+            planner_report_hash=receipt.planner_report_hash,
+            cost_basis_hash=receipt.cost_basis_hash,
+        )
     if (
         type(receipt) is AcquisitionRoutePhaseReceipt
         and receipt.receipt_phase in {"requested", "executing"}
+        and paid is None
         and not profile.effective_at <= receipt.generated_at < profile.expires_at
     ):
         raise ValueError("native_leaf_action_profile_not_effective_at_admission")
@@ -3661,6 +3698,12 @@ class AcquisitionRouteLoopAuthoritySink:
         if type(left) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt} and type(
             right
         ) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+            if (
+                type(left) is AcquisitionRoutePhaseReceipt
+                and type(right) is AcquisitionRoutePhaseReceipt
+                and left.prior_paid_input_admission != right.prior_paid_input_admission
+            ):
+                return False
             lp = left.owner_declared_profile_ref
             rp = right.owner_declared_profile_ref
             lv = left.native_leaf_provider_selection
@@ -4046,12 +4089,16 @@ class AcquisitionRouteLoopAuthoritySink:
         suffix = f"outcome_selected_{digest[:24]}"
         selection = AcquisitionRoutePhaseReceipt(
             schema_version=(
-                "AcquisitionRoutePhaseReceipt@1.3"
-                if executing.owner_declared_profile_ref is not None
+                "AcquisitionRoutePhaseReceipt@1.4"
+                if executing.prior_paid_input_admission is not None
                 else (
-                    "AcquisitionRoutePhaseReceipt@1.2"
-                    if candidate_receipt_ref
-                    else "AcquisitionRoutePhaseReceipt@1.1"
+                    "AcquisitionRoutePhaseReceipt@1.3"
+                    if executing.owner_declared_profile_ref is not None
+                    else (
+                        "AcquisitionRoutePhaseReceipt@1.2"
+                        if candidate_receipt_ref
+                        else "AcquisitionRoutePhaseReceipt@1.1"
+                    )
                 )
             ),
             receipt_id=f"{executing.job_id}.outcome-selected.{digest[:24]}",
@@ -4074,6 +4121,7 @@ class AcquisitionRouteLoopAuthoritySink:
             candidate_receipt_ref=candidate_receipt_ref,
             owner_declared_profile_ref=executing.owner_declared_profile_ref,
             native_leaf_provider_selection=executing.native_leaf_provider_selection,
+            prior_paid_input_admission=executing.prior_paid_input_admission,
             generated_at=datetime.now(UTC),
         )
         event_id = _acquisition_route_event_id(executing, suffix)
@@ -10091,6 +10139,19 @@ class ControlPlaneService(
         self, *, closure: VerifiedAcquisitionRouteClosure, action_job_id: str
     ) -> ArtifactRef | None:
         """Ask the actual installed native owner for already-spent exact evidence."""
+        port = self._native_world_bank_execution_owner()
+        if port is None:
+            return None
+        return port.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
+
+    def native_derivation_prior_paid_input_admission(
+        self, *, closure: VerifiedAcquisitionRouteClosure
+    ) -> NativePaidInputAdmissionSelection | None:
+        """Select historical paid facts only through the actual installed owner."""
+        port = self._native_world_bank_execution_owner()
+        return None if port is None else port.select_prior_paid_native_input_admission(closure)
+
+    def _native_world_bank_execution_owner(self) -> WorldBankWDIAcquisitionExecutionPort | None:
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionActionService,
         )
@@ -10107,7 +10168,7 @@ class ControlPlaneService(
             or owner._execution_port is not port
         ):
             return None
-        return port.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
+        return port
 
     def _native_derivation_selected_planning_sources(
         self,

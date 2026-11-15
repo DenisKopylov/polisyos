@@ -2616,6 +2616,7 @@ export interface components {
             planner_record_id: string;
             /** Planner Report Hash */
             planner_report_hash: string;
+            prior_paid_input_admission?: components["schemas"]["NativePaidInputAdmissionSelection"] | null;
             /**
              * Qualification Predicate
              * @default not_established
@@ -2642,15 +2643,15 @@ export interface components {
             /** Route Projection Hash */
             route_projection_hash: string;
             /** Route Status */
-            route_status?: "costed_actionable" | null;
+            route_status?: ("costed_actionable" | "paid_input_admission_only") | null;
             /** Run Id */
             run_id: string;
             /**
              * Schema Version
              * @default AcquisitionRouteProjection@1.1
-             * @constant
+             * @enum {string}
              */
-            schema_version: "AcquisitionRouteProjection@1.1";
+            schema_version: "AcquisitionRouteProjection@1.1" | "AcquisitionRouteProjection@1.2";
             /** Tenant Id */
             tenant_id: string;
             /**
@@ -2659,7 +2660,19 @@ export interface components {
              * @enum {string}
              */
             world_growth: "not_established" | "no_growth" | "admitted_delta";
-        };
+        } & ({
+            prior_paid_input_admission?: null;
+            /** @enum {unknown} */
+            route_status?: null | "costed_actionable";
+            /** @constant */
+            schema_version?: "AcquisitionRouteProjection@1.1";
+        } | {
+            prior_paid_input_admission: Record<string, never>;
+            /** @constant */
+            route_status: "paid_input_admission_only";
+            /** @constant */
+            schema_version: "AcquisitionRouteProjection@1.2";
+        });
         /**
          * AcquisitionRouteReplayPins
          * @description Server-projected pins callers may only echo for optimistic concurrency.
@@ -14615,6 +14628,80 @@ export interface components {
             source_currentness: "not_established";
             /** Tenant Id */
             tenant_id: string;
+        };
+        /**
+         * NativePaidInputAdmissionSelection
+         * @description Select one historical purchase for a separately authorized admission.
+         *
+         *     The native owner must replay these selected receipts and all their source
+         *     bindings. This transport neither establishes a fresh price nor grants an
+         *     action, provider call, or semantic admission.
+         */
+        NativePaidInputAdmissionSelection: {
+            attempt_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "runtime_quality.acquisition_world_growth_attempt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            };
+            deferral_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "runtime_quality.acquisition_world_growth_deferral";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            };
+            executing_phase_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            };
+            negative_receipt_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "epoch.production_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/vnd.polisyos.epoch-production-receipt+json";
+                artifact_id: unknown;
+            };
+            /** Original Action Job Id */
+            original_action_job_id: string;
+            owner_declared_profile_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "runtime.quality.native_derivation_leaf_cost_profile";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            };
+            prepared_epoch_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "epoch.prepared";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/vnd.polisyos.epoch+json";
+                artifact_id: unknown;
+            };
+            /**
+             * Schema Version
+             * @default NativePaidInputAdmissionSelection@1.0
+             * @constant
+             */
+            schema_version: "NativePaidInputAdmissionSelection@1.0";
+            terminal_ref: components["schemas"]["ArtifactRef-Output"] & {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_loop_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            };
         };
         /**
          * NaturalLanguageRunRequest

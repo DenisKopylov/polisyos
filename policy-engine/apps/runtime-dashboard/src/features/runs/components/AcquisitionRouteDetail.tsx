@@ -85,6 +85,25 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
       "pages.cycleBoard.acquisition.route.growthStatus.admittedDelta",
     ),
   }[visible.worldGrowth];
+  const priorPaidInput = visible.priorPaidInputAdmission;
+  const priorPaidInputRefs = priorPaidInput
+    ? [
+        { name: "attempt", ref: priorPaidInput.attempt_ref },
+        { name: "executingPhase", ref: priorPaidInput.executing_phase_ref },
+        { name: "terminal", ref: priorPaidInput.terminal_ref },
+        { name: "deferral", ref: priorPaidInput.deferral_ref },
+        { name: "negativeReceipt", ref: priorPaidInput.negative_receipt_ref },
+        { name: "preparedEpoch", ref: priorPaidInput.prepared_epoch_ref },
+        {
+          name: "ownerProfile",
+          ref: priorPaidInput.owner_declared_profile_ref,
+        },
+      ]
+    : [];
+  const historicalCostAmount =
+    typeof visible.cost.total_amount === "number"
+      ? `${String(visible.cost.currency ?? "USD")} ${visible.cost.total_amount}`
+      : "not_established";
   return (
     <Card
       className="space-y-4 p-4"
@@ -95,7 +114,9 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-muted-foreground text-xs">
-            {t("pages.cycleBoard.acquisition.route.runEyebrow")}
+            {visible.acquisitionMode === "paid_input_admission_only"
+              ? t("pages.cycleBoard.acquisition.route.priorPaidInput.title")
+              : t("pages.cycleBoard.acquisition.route.runEyebrow")}
           </p>
           <h2 className="font-semibold">{props.route.planner_record_id}</h2>
         </div>
@@ -123,7 +144,10 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
           <dt className="font-semibold">
             {t("pages.cycleBoard.acquisition.route.status")}
           </dt>
-          <dd>{props.route.route_status}</dd>
+          <dd>
+            {props.route.route_status ??
+              t("pages.cycleBoard.acquisition.route.statusNotEstablished")}
+          </dd>
         </div>
         <div>
           <dt className="font-semibold">
@@ -140,14 +164,89 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
           <dd>{visible.voiAvailability}</dd>
         </div>
       </dl>
+      {priorPaidInput ? (
+        <section
+          aria-label={t(
+            "pages.cycleBoard.acquisition.route.priorPaidInput.title",
+          )}
+          className="border-warning/40 space-y-2 rounded-md border p-4"
+          data-testid="prior-paid-input-admission"
+          role="status"
+        >
+          <h3 className="font-semibold">
+            {t("pages.cycleBoard.acquisition.route.priorPaidInput.title")}
+          </h3>
+          <p className="text-sm">
+            {t("pages.cycleBoard.acquisition.route.priorPaidInput.disclosure")}
+          </p>
+          <dl className="grid gap-2 text-sm md:grid-cols-2">
+            <div>
+              <dt className="font-semibold">
+                {t(
+                  "pages.cycleBoard.acquisition.route.priorPaidInput.originalAction",
+                )}
+              </dt>
+              <dd className="font-mono break-all">
+                {priorPaidInput.original_action_job_id}
+              </dd>
+            </div>
+            {priorPaidInputRefs.map(({ name, ref }) => (
+              <div key={name}>
+                <dt className="font-semibold">
+                  {t(
+                    `pages.cycleBoard.acquisition.route.priorPaidInput.refs.${name}`,
+                  )}
+                </dt>
+                <dd className="font-mono break-all">{ref.artifact_id}</dd>
+                <dd className="text-muted-foreground text-xs break-all">
+                  {ref.kind} · {ref.manifest_profile_sha256}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
       <section className="space-y-2">
         <h3 className="font-semibold">
-          {t("pages.cycleBoard.acquisition.route.costedPlan")}
+          {visible.costMeaning === "historical_prior_paid_basis"
+            ? t("pages.cycleBoard.acquisition.route.historicalCostBasis")
+            : t("pages.cycleBoard.acquisition.route.costedPlan")}
         </h3>
-        <Badge kind="outline">{visible.costAvailability}</Badge>
-        <pre className="overflow-x-auto text-xs whitespace-pre-wrap">
-          {JSON.stringify(visible.cost, null, 2)}
-        </pre>
+        {visible.costMeaning === "historical_prior_paid_basis" ? (
+          <>
+            <Badge kind="warn">
+              {t("pages.cycleBoard.acquisition.route.historicalNotOffer")}
+            </Badge>
+            <p className="text-sm">
+              {t("pages.cycleBoard.acquisition.route.historicalCostDisclosure")}
+            </p>
+            <dl className="grid gap-2 text-sm md:grid-cols-2">
+              <div>
+                <dt className="font-semibold">
+                  {t("pages.cycleBoard.acquisition.route.historicalEstimate")}
+                </dt>
+                <dd>{historicalCostAmount}</dd>
+              </div>
+              <div>
+                <dt className="font-semibold">
+                  {t("pages.cycleBoard.acquisition.route.costBasisRecord")}
+                </dt>
+                <dd className="font-mono break-all">
+                  {String(visible.cost.record_ref ?? "not_established")}
+                </dd>
+              </div>
+            </dl>
+          </>
+        ) : (
+          <>
+            <Badge kind="outline">
+              {visible.costEstablished ? "available" : "not_established"}
+            </Badge>
+            <pre className="overflow-x-auto text-xs whitespace-pre-wrap">
+              {JSON.stringify(visible.cost, null, 2)}
+            </pre>
+          </>
+        )}
       </section>
       {visible.actionEligible ? props.action : null}
     </Card>

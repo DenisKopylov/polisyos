@@ -30,6 +30,7 @@ from polisyos.runtime.quality import acquisition_executor
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     N7DerivationBasis,
+    NativeDerivationLeafCostProfileScope,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
@@ -37,6 +38,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRoutePhaseReceipt,
     NativeDerivationInputsPending,
     NativeDerivationLeafProviderSelection,
+    NativePaidInputAdmissionSelection,
     VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
 )
@@ -85,7 +87,6 @@ if TYPE_CHECKING:
         CandidateExperimentEvaluationPreflight,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
-    from polisyos.runtime.quality.acquisition_planner import NativeDerivationLeafCostProfileScope
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
         _VerifiedCurrentCandidateExperimentReentryAction,
@@ -1209,7 +1210,7 @@ def verify_acquisition_admission_negative(
 def _native_admission_owner_profiles(
     artifact_store: artifacts.ArtifactStore,
     artifact_id: str,
-    kind: str,
+    kind: str | frozenset[str],
 ) -> tuple[artifacts.ArtifactRef, ...]:
     """Select a complete same-subject denominator without consulting its default view."""
     inventory_reader = getattr(artifact_store, "inventory_snapshot", None)
@@ -1230,7 +1231,7 @@ def _native_admission_owner_profiles(
             or entry.blob_sha256 != artifact_id
         ):
             raise ValueError("acquisition_negative_profile_inventory_subject_mismatch")
-        if entry.manifest.kind == kind:
+        if entry.manifest.kind in ({kind} if isinstance(kind, str) else kind):
             ref = artifacts.artifact_ref_for_manifest(entry.manifest)
             selected[artifacts.artifact_ref_identity_key(ref)] = ref
     return tuple(selected.values())
@@ -1356,6 +1357,168 @@ def resolve_native_admission_deferral_outcome(
     if len(outcomes) > 1:
         raise ValueError("acquisition_negative_owner_outcome_ambiguous")
     return next(iter(outcomes.values()), None)
+
+
+def verify_native_paid_input_admission_selection(
+    artifact_store: artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    *,
+    control_store: ControlPlaneStore,
+    selection: NativePaidInputAdmissionSelection,
+    scope: NativeDerivationLeafCostProfileScope,
+    provider: NativeDerivationLeafProviderSelection,
+    route_id: str,
+    compiled_ref: str,
+    planner_report_hash: str,
+    cost_basis_hash: str,
+) -> AcquisitionWorldGrowthAttempt:
+    """Replay a past purchase without granting a current admission or price.
+
+    The caller independently selects the current source/leaf/provider. The
+    existing action-history owner reopens the original terminal and executing
+    phase from their actual SQL generation, CAS profiles, and producer events.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        _read_verified_acquisition_action_phase,
+    )
+    from polisyos.runtime.quality.acquisition_planner import (
+        load_native_derivation_leaf_cost_profile,
+    )
+
+    if (
+        type(selection) is not NativePaidInputAdmissionSelection
+        or type(scope) is not NativeDerivationLeafCostProfileScope
+        or type(provider) is not NativeDerivationLeafProviderSelection
+        or control_store is None
+    ):
+        raise ValueError("native_paid_input_admission_history_owner_missing")
+    profile = load_native_derivation_leaf_cost_profile(
+        artifact_store, selection.owner_declared_profile_ref
+    )
+    if profile.scope != scope or (
+        provider.source_node_id != scope.source_node_id
+        or artifacts.artifact_ref_identity_key(provider.supplier_ref)
+        != artifacts.artifact_ref_identity_key(scope.selected_supplier_ref)
+    ):
+        raise ValueError("native_paid_input_admission_source_scope_mismatch")
+    heads = control_store.list_acquisition_action_heads_for_source(
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        run_id=scope.run_id,
+        source_job_id=scope.source_job_id,
+    )
+    matches = tuple(
+        head
+        for head in heads
+        if head.job_id == selection.original_action_job_id and head.route_id == route_id
+    )
+    if len(matches) != 1:
+        raise ValueError("native_paid_input_admission_original_head_not_unique")
+    head = matches[0]
+    if (
+        head.receipt_phase != "terminal"
+        or head.receipt_ref != str(selection.terminal_ref.artifact_id)
+        or head.receipt_manifest_profile_sha256 != selection.terminal_ref.manifest_profile_sha256
+    ):
+        raise ValueError("native_paid_input_admission_original_terminal_mismatch")
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=artifact_store, event_log=event_log, control_store=control_store
+    )
+    original = sink.verify_action_head(head)
+    phase = original.executing_phase
+    terminal = original.latest_receipt
+    if (
+        type(phase) is not AcquisitionRoutePhaseReceipt
+        or phase.prior_paid_input_admission is not None
+        or type(terminal) is not AcquisitionRouteLoopReceipt
+        or terminal.terminal_outcome != "quarantined_no_growth"
+        or original.executing_phase_ref != str(selection.executing_phase_ref.artifact_id)
+        or phase.job_id != selection.original_action_job_id
+        or phase.native_leaf_provider_selection != provider
+        or phase.owner_declared_profile_ref != selection.owner_declared_profile_ref
+        or (
+            phase.tenant_id,
+            phase.cell_id,
+            phase.run_id,
+            phase.source_job_id,
+            phase.route_id,
+            phase.compiled_ref,
+            phase.planner_report_hash,
+            phase.cost_basis_hash,
+        )
+        != (
+            scope.tenant_id,
+            scope.cell_id,
+            scope.run_id,
+            scope.source_job_id,
+            route_id,
+            compiled_ref,
+            planner_report_hash,
+            cost_basis_hash,
+        )
+    ):
+        raise ValueError("native_paid_input_admission_original_action_mismatch")
+    selected_phase = _read_verified_acquisition_action_phase(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        control_store=control_store,
+        receipt_ref=str(selection.executing_phase_ref.artifact_id),
+        selected_ref=selection.executing_phase_ref,
+    )
+    if selected_phase.receipt != phase:
+        raise ValueError("native_paid_input_admission_executing_profile_mismatch")
+    selected_deferral = resolve_native_admission_deferral_outcome(
+        artifact_store,
+        event_log,
+        owner_receipt_refs=terminal.owner_receipt_refs,
+        executing=phase,
+        executing_ref=original.executing_phase_ref,
+    )
+    if selected_deferral != selection.deferral_ref:
+        raise ValueError("native_paid_input_admission_deferral_mismatch")
+    deferral = AcquisitionWorldGrowthDeferral.model_validate(
+        _read_native_admission_owner(
+            artifact_store,
+            event_log,
+            selection.deferral_ref,
+            _DEFERRAL_KIND,
+            executing=phase,
+            phase="admission_deferred",
+        )
+    )
+    attempt = AcquisitionWorldGrowthAttempt.model_validate(
+        _read_native_admission_owner(
+            artifact_store,
+            event_log,
+            selection.attempt_ref,
+            _ATTEMPT_KIND,
+            executing=phase,
+            phase="admission_pending",
+        )
+    )
+    if (
+        deferral.attempt_ref != str(selection.attempt_ref.artifact_id)
+        or attempt.action_phase_ref != str(selection.executing_phase_ref.artifact_id)
+        or deferral.negative_receipt.receipt_ref != selection.negative_receipt_ref
+        or deferral.negative_receipt.prepared_epoch_ref != selection.prepared_epoch_ref
+        or attempt.selection.key != (scope.tenant_id, scope.cell_id, scope.run_id, route_id)
+    ):
+        raise ValueError("native_paid_input_admission_paid_evidence_mismatch")
+    verify_acquisition_admission_negative(
+        artifact_store, attempt, deferral.negative_receipt, expected_provider=provider
+    )
+    if (
+        control_store.list_acquisition_action_heads_for_source(
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            run_id=scope.run_id,
+            source_job_id=scope.source_job_id,
+        )
+        != heads
+    ):
+        raise ValueError("native_paid_input_admission_source_history_changed")
+    return attempt
 
 
 class _EpochMembership(Protocol):
@@ -2105,7 +2268,8 @@ def _replay_native_derivation_action_collection(
         or (
             type(receipt) is AcquisitionRoutePhaseReceipt
             and (
-                receipt.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+                receipt.schema_version
+                not in {"AcquisitionRoutePhaseReceipt@1.3", "AcquisitionRoutePhaseReceipt@1.4"}
                 or receipt.receipt_phase != "world_committed_reentry_pending"
             )
         )
@@ -2369,7 +2533,8 @@ def replay_native_derived_world_selection(
     phase_ref = checkpoint.pending_action_phase_ref
     phase = AcquisitionRoutePhaseReceipt.model_validate(load_core_json_artifact(store, phase_ref))
     if (
-        phase.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+        phase.schema_version
+        not in {"AcquisitionRoutePhaseReceipt@1.3", "AcquisitionRoutePhaseReceipt@1.4"}
         or phase.receipt_phase != "world_committed_reentry_pending"
         or (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id, phase.job_id)
         != (
@@ -3565,7 +3730,7 @@ class AcquisitionWorldGrowthBridge:
         if not re.fullmatch(_SHA, action_phase_ref):
             raise ValueError("acquisition_action_phase_ref_invalid")
         if closure.native_derivation_leaf_scope is not None:
-            # Native @1.3 owns selected quote/supplier manifest edges and SQL
+            # Native phases own selected quote/supplier manifest edges and SQL
             # profiles. Reuse the action owner's complete current-head proof;
             # the legacy empty-input @1.0 profile is not its contract.
             reader = self.action_head_sink
@@ -3586,11 +3751,17 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("native_derivation_action_phase_head_missing")
             phase = snapshot.executing_phase
             if (
-                phase.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+                phase.schema_version
+                != (
+                    "AcquisitionRoutePhaseReceipt@1.4"
+                    if closure.prior_paid_input_admission is not None
+                    else "AcquisitionRoutePhaseReceipt@1.3"
+                )
                 or phase.owner_declared_profile_ref is None
                 or _native_derivation_ref_key(phase.owner_declared_profile_ref)
                 != _native_derivation_ref_key(closure.owner_declared_profile_ref)
                 or phase.native_leaf_provider_selection != closure.native_derivation_leaf_provider
+                or phase.prior_paid_input_admission != closure.prior_paid_input_admission
             ):
                 raise ValueError("native_derivation_action_phase_selection_mismatch")
         else:
@@ -5334,6 +5505,192 @@ class AcquisitionWorldGrowthBridge:
                 owner_refs = (*owner_refs, action_phase_ref)
             return tuple(dict.fromkeys(owner_refs))
 
+    def _prior_paid_native_input_admissions(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[tuple[NativePaidInputAdmissionSelection, AcquisitionWorldGrowthAttempt], ...]:
+        """Select a unique original purchase from the complete verified history.
+
+        Later admission actions are not purchases. An ambiguous or corrupt paid
+        history refuses selection instead of making another provider call.
+        """
+        scope = closure.native_derivation_leaf_scope
+        provider = closure.native_derivation_leaf_provider
+        if (
+            type(closure) is not VerifiedAcquisitionRouteClosure
+            or scope is None
+            or provider is None
+            or self.action_head_sink is None
+            or self.control_store is None
+            or self.selection(closure) is None
+        ):
+            return ()
+        subject = {
+            "tenant_id": closure.tenant_id,
+            "cell_id": closure.cell_id,
+            "run_id": closure.run_id,
+            "source_job_id": closure.source_job_id,
+        }
+        heads = self.control_store.list_acquisition_action_heads_for_source(**subject)
+        outcomes = self.action_head_sink.action_outcomes(**subject, route_id=closure.route_id)
+        candidates: dict[
+            tuple[str, str, str, str | None],
+            tuple[NativePaidInputAdmissionSelection, AcquisitionWorldGrowthAttempt],
+        ] = {}
+        for outcome in outcomes:
+            phase = outcome.executing_phase
+            terminal = outcome.latest_receipt
+            if (
+                type(phase) is not AcquisitionRoutePhaseReceipt
+                or phase.prior_paid_input_admission is not None
+                or type(terminal) is not AcquisitionRouteLoopReceipt
+                or terminal.terminal_outcome != "quarantined_no_growth"
+                or phase.owner_declared_profile_ref != closure.owner_declared_profile_ref
+                or phase.native_leaf_provider_selection != provider
+            ):
+                continue
+            if outcome.executing_phase_ref is None:
+                raise ValueError("native_paid_input_admission_executing_phase_missing")
+            deferral_ref = resolve_native_admission_deferral_outcome(
+                self.artifact_store,
+                self.event_log,
+                owner_receipt_refs=terminal.owner_receipt_refs,
+                executing=phase,
+                executing_ref=outcome.executing_phase_ref,
+            )
+            if deferral_ref is None:
+                raise ValueError("native_paid_input_admission_negative_owner_missing")
+            deferral = AcquisitionWorldGrowthDeferral.model_validate(
+                self._read(deferral_ref, _DEFERRAL_KIND)
+            )
+            attempts = _native_admission_owner_profiles(
+                self.artifact_store, deferral.attempt_ref, _ATTEMPT_KIND
+            )
+            if len(attempts) != 1:
+                raise ValueError("native_paid_input_admission_attempt_not_unique")
+            attempt = AcquisitionWorldGrowthAttempt.model_validate(
+                self._read(attempts[0], _ATTEMPT_KIND)
+            )
+            if attempt.action_phase_ref != outcome.executing_phase_ref:
+                # Deferral@1.1 may bind a later admission's phase while keeping
+                # the original purchase. That later phase is not a new debit.
+                continue
+            phases = _native_admission_owner_profiles(
+                self.artifact_store,
+                outcome.executing_phase_ref,
+                "runtime_quality.acquisition_route_phase_receipt",
+            )
+            if len(phases) != 1 or outcome.head.receipt_manifest_profile_sha256 is None:
+                raise ValueError("native_paid_input_admission_phase_profile_not_unique")
+            terminal_ref = artifacts.ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(outcome.head.receipt_ref),
+                kind="runtime_quality.acquisition_route_loop_receipt",
+                media_type="application/json",
+                manifest_profile_sha256=outcome.head.receipt_manifest_profile_sha256,
+            )
+            selected = NativePaidInputAdmissionSelection(
+                original_action_job_id=phase.job_id,
+                attempt_ref=attempts[0],
+                executing_phase_ref=phases[0],
+                terminal_ref=terminal_ref,
+                deferral_ref=deferral_ref,
+                negative_receipt_ref=deferral.negative_receipt.receipt_ref,
+                prepared_epoch_ref=deferral.negative_receipt.prepared_epoch_ref,
+                owner_declared_profile_ref=phase.owner_declared_profile_ref,
+            )
+            verified_attempt = self._verify_prior_paid_native_input_admission(
+                closure, selection=selected
+            )
+            key = artifacts.artifact_ref_identity_key(selected.attempt_ref)
+            if key in candidates and candidates[key][0] != selected:
+                raise ValueError("native_paid_input_admission_original_selection_ambiguous")
+            candidates[key] = (selected, verified_attempt)
+        if self.control_store.list_acquisition_action_heads_for_source(**subject) != heads:
+            raise ValueError("native_paid_input_admission_source_history_changed")
+        if len(candidates) > 1:
+            raise ValueError("native_paid_input_admission_purchase_ambiguous")
+        return tuple(candidates.values())
+
+    def select_prior_paid_native_input_admission(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> NativePaidInputAdmissionSelection | None:
+        """Project the unique owner-replayed purchase, never a fresh action grant."""
+        rows = self._prior_paid_native_input_admissions(closure)
+        return rows[0][0] if rows else None
+
+    def require_prior_paid_native_input_admission(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionWorldGrowthAttempt:
+        """Recheck exact paid provenance and current native source before use."""
+        rows = self._prior_paid_native_input_admissions(closure)
+        if len(rows) != 1 or rows[0][0] != closure.prior_paid_input_admission:
+            raise ValueError("native_paid_input_admission_selection_changed")
+        return rows[0][1]
+
+    def _verify_prior_paid_native_input_admission(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        selection: NativePaidInputAdmissionSelection,
+    ) -> AcquisitionWorldGrowthAttempt:
+        selected = selection
+        scope = closure.native_derivation_leaf_scope
+        provider = closure.native_derivation_leaf_provider
+        if selected is None or scope is None or provider is None or self.control_store is None:
+            raise ValueError("native_paid_input_admission_selection_missing")
+        attempt = verify_native_paid_input_admission_selection(
+            self.artifact_store,
+            self.event_log,
+            control_store=self.control_store,
+            selection=selected,
+            scope=scope,
+            provider=provider,
+            route_id=closure.route_id,
+            compiled_ref=closure.compiled_ref,
+            planner_report_hash=agent_action_content_hash(closure.planner_report),
+            cost_basis_hash=closure.cost_basis_hash,
+        )
+        if attempt.selection != self.selection(closure):
+            raise ValueError("native_paid_input_admission_current_route_mismatch")
+        # The mutable pointer is not purchase authority. It must independently
+        # retain this exact selected owner receipt before the existing deferred
+        # admission branch is allowed to consume it.
+        pointer = self._growth_pointer(attempt.selection, create=False).with_suffix(".attempt.json")
+        retained = self._attempt_pointer_ref(pointer, require_selected=True)
+        if retained != selected.attempt_ref:
+            raise ValueError("native_paid_input_admission_attempt_pointer_mismatch")
+        self._verify_paid_native_attempt_current_source(closure, attempt)
+        return attempt
+
+    def _verify_paid_native_attempt_current_source(
+        self, closure: VerifiedAcquisitionRouteClosure, attempt: AcquisitionWorldGrowthAttempt
+    ) -> None:
+        scope = closure.native_derivation_leaf_scope
+        provider = closure.native_derivation_leaf_provider
+        evidence = attempt.evidence
+        if (
+            scope is None
+            or provider is None
+            or attempt.target_variable != scope.missing_distribution
+            or evidence.raw_artifact_ref is None
+            or evidence.raw_artifact_ref.manifest_profile_sha256 is None
+            or evidence.evidence_bundle_ref.manifest_profile_sha256 is None
+            or evidence.data_snapshot_ref.manifest_profile_sha256 is None
+            or evidence.authorization.connector_id != provider.connector_id
+        ):
+            raise ValueError("native_paid_attempt_selected_carriers_required")
+        self.authority.resolve_live_source_execution(
+            provider.authority_entry_id, evidence, self.artifact_store
+        )
+        for ref in (
+            evidence.raw_artifact_ref,
+            evidence.evidence_bundle_ref,
+            evidence.data_snapshot_ref,
+        ):
+            _native_derivation_ref_key(ref)
+            if not self.artifact_store.verify(ref).ok:
+                raise ValueError("native_paid_attempt_carrier_unverified")
+
     def read_paid_native_action_attempt(
         self, closure: VerifiedAcquisitionRouteClosure, *, action_job_id: str
     ) -> artifacts.ArtifactRef | None:
@@ -5396,27 +5753,7 @@ class AcquisitionWorldGrowthBridge:
             or attempt.target_variable != scope.missing_distribution
         ):
             raise ValueError("native_paid_attempt_action_binding_mismatch")
-        evidence = attempt.evidence
-        if (
-            evidence.raw_artifact_ref is None
-            or evidence.raw_artifact_ref.manifest_profile_sha256 is None
-            or evidence.evidence_bundle_ref.manifest_profile_sha256 is None
-            or evidence.data_snapshot_ref.manifest_profile_sha256 is None
-            or evidence.authorization.connector_id != provider.connector_id
-        ):
-            raise ValueError("native_paid_attempt_selected_carriers_required")
-        self.authority.resolve_live_source_execution(
-            provider.authority_entry_id, evidence, self.artifact_store
-        )
-        # Verify all selected immutable carriers before retaining this paid fact.
-        for ref in (
-            evidence.raw_artifact_ref,
-            evidence.evidence_bundle_ref,
-            evidence.data_snapshot_ref,
-        ):
-            _native_derivation_ref_key(ref)
-            if not self.artifact_store.verify(ref).ok:
-                raise ValueError("native_paid_attempt_carrier_unverified")
+        self._verify_paid_native_attempt_current_source(closure, attempt)
         if (
             self.action_head_sink.current_action_outcome(
                 tenant_id=closure.tenant_id,
@@ -6265,9 +6602,28 @@ class AcquisitionWorldGrowthBridge:
                 "cost_basis_hash",
                 "decision_ref",
             )
+            native = closure.native_derivation_leaf_scope is not None
+            if native and (
+                phase.schema_version
+                not in {
+                    "AcquisitionRoutePhaseReceipt@1.3",
+                    "AcquisitionRoutePhaseReceipt@1.4",
+                }
+                or selection.schema_version != phase.schema_version
+                or phase.owner_declared_profile_ref != closure.owner_declared_profile_ref
+                or phase.native_leaf_provider_selection != closure.native_derivation_leaf_provider
+                or selection.owner_declared_profile_ref != phase.owner_declared_profile_ref
+                or selection.native_leaf_provider_selection != phase.native_leaf_provider_selection
+                or selection.prior_paid_input_admission != phase.prior_paid_input_admission
+                or (
+                    phase.prior_paid_input_admission is not None
+                    and phase.prior_paid_input_admission != closure.prior_paid_input_admission
+                )
+            ):
+                raise ValueError("acquisition_action_selection_binding_mismatch")
             if (
                 selection.receipt_phase != "outcome_selected"
-                or selection.schema_version != "AcquisitionRoutePhaseReceipt@1.1"
+                or (not native and selection.schema_version != "AcquisitionRoutePhaseReceipt@1.1")
                 or selection.predecessor_receipt_ref != phase_ref
                 or len(selection.owner_receipt_refs) != 1
                 or any(
@@ -6276,18 +6632,63 @@ class AcquisitionWorldGrowthBridge:
             ):
                 raise ValueError("acquisition_action_selection_binding_mismatch")
             outcome_ref = selection.owner_receipt_refs[0]
-            outcome_kind = self.artifact_store.get_manifest(outcome_ref).kind
+            outcome_selector: str | artifacts.ArtifactRef = outcome_ref
+            if native:
+                deferred = resolve_native_admission_deferral_outcome(
+                    self.artifact_store,
+                    self.event_log,
+                    owner_receipt_refs=(outcome_ref,),
+                    executing=phase,
+                    executing_ref=phase_ref,
+                )
+                if deferred is not None:
+                    latest = snapshot.latest_receipt
+                    if not (
+                        (
+                            isinstance(latest, AcquisitionRouteLoopReceipt)
+                            and latest.terminal_outcome == "quarantined_no_growth"
+                        )
+                        or (
+                            isinstance(latest, AcquisitionRoutePhaseReceipt)
+                            and latest.receipt_phase == "outcome_selected"
+                        )
+                    ):
+                        raise ValueError("acquisition_action_terminal_outcome_binding_mismatch")
+                    # A verified refusal proves custody of the paid input. It
+                    # establishes neither activated membership nor zero growth.
+                    if self._current_action_outcome_snapshot(closure, selected) != snapshot:
+                        return "not_established", None
+                    return "not_established", None
+                profiles = _native_admission_owner_profiles(
+                    self.artifact_store,
+                    outcome_ref,
+                    frozenset({_GROWTH_KIND, _NO_GROWTH_KIND}),
+                )
+                if len(profiles) != 1:
+                    raise ValueError("acquisition_action_selection_outcome_profile_not_unique")
+                outcome_selector = profiles[0]
+                outcome_kind = outcome_selector.kind
+            else:
+                outcome_kind = self.artifact_store.get_manifest(outcome_ref).kind
             required_kind = self._required_outcome_kind(snapshot.latest_receipt)
+            if (
+                native
+                and isinstance(snapshot.latest_receipt, AcquisitionRouteLoopReceipt)
+                and snapshot.latest_receipt.terminal_outcome == "inputs_pending"
+            ):
+                # Goal completeness is independent of a verified source
+                # membership increase or a verified zero-delta repeat.
+                required_kind = None
             if required_kind is not None and outcome_kind != required_kind:
                 raise ValueError("acquisition_action_terminal_outcome_binding_mismatch")
             if outcome_kind == _GROWTH_KIND:
-                growth, _admitted = self._verified_growth(closure, outcome_ref)
+                growth, _admitted = self._verified_growth(closure, outcome_selector)
                 if growth.action_phase_ref != phase_ref:
                     raise ValueError("acquisition_action_outcome_scope_mismatch")
                 status: Literal["not_established", "no_growth", "admitted_delta"] = "admitted_delta"
             elif outcome_kind == _NO_GROWTH_KIND:
                 no_growth, growth, _admitted = self._verified_no_growth(
-                    closure, outcome_ref, require_route_pointer=False
+                    closure, outcome_selector, require_route_pointer=False
                 )
                 if no_growth.action_phase_ref != phase_ref:
                     raise ValueError("acquisition_action_outcome_scope_mismatch")
@@ -6305,12 +6706,36 @@ class AcquisitionWorldGrowthBridge:
         status, growth = self.project_growth_outcome(closure)
         return growth if status != "not_established" else None
 
+    def _native_growth_owner_selector(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        ref: str | artifacts.ArtifactRef,
+        kind: str,
+    ) -> str | artifacts.ArtifactRef:
+        """Keep native growth reads on one exact profile without a default lookup."""
+        if closure.native_derivation_leaf_scope is None:
+            return ref
+        if isinstance(ref, artifacts.ArtifactRef):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                or set(type(ref).model_fields) - set(artifacts.ArtifactRef.model_fields)
+            ):
+                raise ValueError("acquisition_growth_owner_profile_invalid")
+            return ref
+        profiles = _native_admission_owner_profiles(self.artifact_store, ref, kind)
+        if len(profiles) != 1:
+            raise ValueError("acquisition_growth_owner_profile_not_unique")
+        return profiles[0]
+
     def _verified_growth(
-        self, closure: VerifiedAcquisitionRouteClosure, ref: str
+        self, closure: VerifiedAcquisitionRouteClosure, ref: str | artifacts.ArtifactRef
     ) -> tuple[
         AcquisitionWorldGrowthReceipt,
         data_forge_read_api.catalog.OverlayAdmissionReceipt,
     ]:
+        ref = self._native_growth_owner_selector(closure, ref, _GROWTH_KIND)
         growth = AcquisitionWorldGrowthReceipt.model_validate(self._read(ref, _GROWTH_KIND))
         if self.selection(closure) != growth.selection:
             raise ValueError("acquisition_world_growth_case_mismatch")
@@ -6345,7 +6770,7 @@ class AcquisitionWorldGrowthBridge:
     def _verified_no_growth(
         self,
         closure: VerifiedAcquisitionRouteClosure,
-        ref: str,
+        ref: str | artifacts.ArtifactRef,
         *,
         require_route_pointer: bool = True,
     ) -> tuple[
@@ -6357,10 +6782,11 @@ class AcquisitionWorldGrowthBridge:
         selected = self.selection(closure)
         if selected is None:
             raise ValueError("acquisition_world_growth_selection_missing")
+        ref = self._native_growth_owner_selector(closure, ref, _NO_GROWTH_KIND)
         pointer = self._growth_pointer(selected, create=False)
         if require_route_pointer:
             pointer_kind, pointer_ref = self._read_outcome_pointer(pointer)
-            if pointer_kind != _NO_GROWTH_KIND or pointer_ref != ref:
+            if pointer_kind != _NO_GROWTH_KIND or pointer_ref != self._attempt_pointer_id(ref):
                 raise ValueError("acquisition_no_growth_pointer_binding_mismatch")
         receipt = AcquisitionWorldGrowthNoGrowthReceipt.model_validate(
             self._read(ref, _NO_GROWTH_KIND)
@@ -6988,6 +7414,9 @@ class AcquisitionWorldGrowthBridge:
             # A past quote removed from the current list remains a historical
             # pricing fact only for the exact durable already-paid action.
             # Current native provider/route/rights remain independently required.
+            if closure.prior_paid_input_admission is not None:
+                self.require_prior_paid_native_input_admission(closure)
+                return rows[0]
             if self.action_head_sink is None:
                 raise ValueError("native_derivation_action_cost_profile_not_adopted")
             snapshot = self.action_head_sink.current_action_outcome(
@@ -7355,7 +7784,10 @@ class AcquisitionWorldGrowthBridge:
             or snapshot.head.job_id != current.job_id
             or snapshot.head.receipt_manifest_profile_sha256 is None
             or type(snapshot.latest_receipt) is not AcquisitionRoutePhaseReceipt
-            or snapshot.latest_receipt.schema_version != "AcquisitionRoutePhaseReceipt@1.3"
+            or snapshot.latest_receipt.schema_version
+            not in {"AcquisitionRoutePhaseReceipt@1.3", "AcquisitionRoutePhaseReceipt@1.4"}
+            or snapshot.latest_receipt.prior_paid_input_admission
+            != closure.prior_paid_input_admission
             or snapshot.latest_receipt.receipt_phase != "world_committed_reentry_pending"
         ):
             raise ValueError("native_derivation_pending_action_not_current")

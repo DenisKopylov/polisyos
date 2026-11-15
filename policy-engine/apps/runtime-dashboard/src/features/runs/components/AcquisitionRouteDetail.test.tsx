@@ -4,12 +4,15 @@ import type { StructuralRouteProjection } from "@polisyos/runtime-api-client";
 import type {
   AdmittedDeltaAcquisitionRouteV11,
   NoGrowthAcquisitionRouteV11,
+  PaidInputAdmissionAcquisitionRouteV12,
   PendingAcquisitionRouteV11,
 } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@polisyos/atlas-ui";
 
 import { AcquisitionRouteDetail } from "./AcquisitionRouteDetail";
+
+const digest = (suffix: string) => `sha256:${suffix.repeat(64).slice(0, 64)}`;
 
 function runRoute(): PendingAcquisitionRouteV11 {
   return {
@@ -70,6 +73,64 @@ function admittedDeltaRoute(): AdmittedDeltaAcquisitionRouteV11 {
     qualification_reason: "native_owner_readback",
     qualification_status: "activated",
     world_growth: "admitted_delta",
+  };
+}
+
+function paidInputAdmissionRoute(): PaidInputAdmissionAcquisitionRouteV12 {
+  const ref = (
+    suffix: string,
+    kind: string,
+    mediaType = "application/json",
+  ) => ({
+    artifact_id: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+    kind,
+    media_type: mediaType,
+    manifest_profile_sha256: `sha256:${suffix.repeat(64).slice(0, 64)}`,
+  });
+  const selection = {
+    schema_version: "NativePaidInputAdmissionSelection@1.0" as const,
+    original_action_job_id: "prior-paid-action-1",
+    attempt_ref: ref("a", "runtime_quality.acquisition_world_growth_attempt"),
+    executing_phase_ref: ref(
+      "b",
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    terminal_ref: ref("c", "runtime_quality.acquisition_route_loop_receipt"),
+    deferral_ref: ref("d", "runtime_quality.acquisition_world_growth_deferral"),
+    negative_receipt_ref: ref(
+      "e",
+      "epoch.production_receipt",
+      "application/vnd.polisyos.epoch-production-receipt+json",
+    ),
+    prepared_epoch_ref: ref(
+      "f",
+      "epoch.prepared",
+      "application/vnd.polisyos.epoch+json",
+    ),
+    owner_declared_profile_ref: ref(
+      "6",
+      "runtime.quality.native_derivation_leaf_cost_profile",
+    ),
+  };
+  const costBasisHash = digest("c");
+  return {
+    ...runRoute(),
+    cost_basis: {
+      currency: "USD",
+      owner_declared_profile_ref: selection.owner_declared_profile_ref,
+      record_content_hash: costBasisHash,
+      record_ref: "sha256:historical-cost-basis",
+      schema_version: "AcquisitionCostBasisRecord@1.1",
+      total_amount: 1250,
+    },
+    prior_paid_input_admission: selection,
+    replay_pins: {
+      ...runRoute().replay_pins,
+      cost_basis_hash: costBasisHash,
+    },
+    route_projection_hash: digest("q"),
+    route_status: "paid_input_admission_only",
+    schema_version: "AcquisitionRouteProjection@1.2",
   };
 }
 
@@ -154,6 +215,41 @@ describe("AcquisitionRouteDetail", () => {
     expect(detail).toHaveTextContent("costed_actionable");
     expect(
       within(detail).getByRole("button", { name: "Review acquisition" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the exact prior paid input as admission-only with historical cost context", () => {
+    render(
+      <LocaleProvider>
+        <AcquisitionRouteDetail
+          action={<Button>Request current admission review</Button>}
+          kind="run"
+          route={paidInputAdmissionRoute()}
+        />
+      </LocaleProvider>,
+    );
+
+    const detail = screen.getByTestId("acquisition-route-detail");
+    const admission = screen.getByTestId("prior-paid-input-admission");
+    expect(admission).toHaveTextContent("prior-paid-action-1");
+    expect(admission).toHaveTextContent("sha256:" + "a".repeat(64));
+    expect(admission).toHaveTextContent("sha256:" + "c".repeat(64));
+    expect(admission).toHaveTextContent("admission only");
+    expect(admission).toHaveTextContent(
+      "does not itself grant current action authority",
+    );
+    expect(admission).toHaveTextContent("claim an N5 result");
+    expect(admission).toHaveTextContent("or permit publication");
+    expect(detail).toHaveTextContent("Historical cost basis");
+    expect(detail).toHaveTextContent(
+      "Historical estimate · not a current offer",
+    );
+    expect(detail).toHaveTextContent("USD 1250");
+    expect(detail).not.toHaveTextContent("USD 0");
+    expect(
+      within(detail).getByRole("button", {
+        name: "Request current admission review",
+      }),
     ).toBeInTheDocument();
   });
 

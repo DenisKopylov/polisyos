@@ -4,7 +4,10 @@ import type {
   StructuralRouteProjection,
 } from "@polisyos/runtime-api-client";
 
-import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
+import type {
+  AcquisitionRouteProjection,
+  PaidInputAdmissionAcquisitionRouteV12,
+} from "@/features/runs/api/acquisitionRouteValidators";
 
 export type AcquisitionGrowthPacket = Readonly<{
   absence_reason?: null;
@@ -204,10 +207,15 @@ export function presentAcquisitionGrowth(
 }
 
 export type VisibleRunAcquisitionRoute = Readonly<{
+  acquisitionMode: "costed_actionable" | "paid_input_admission_only";
   actionEligible: boolean;
   authorityBadge: AcquisitionRouteProjection["authority_badge"];
   cost: Readonly<Record<string, unknown>>;
-  costAvailability: "available";
+  costEstablished: boolean;
+  costMeaning: "current_route_estimate" | "historical_prior_paid_basis";
+  priorPaidInputAdmission:
+    | PaidInputAdmissionAcquisitionRouteV12["prior_paid_input_admission"]
+    | null;
   qualification: Readonly<{
     code: AcquisitionRouteProjection["qualification_reason"];
     epochState: AcquisitionRouteProjection["qualification_status"];
@@ -219,17 +227,72 @@ export type VisibleRunAcquisitionRoute = Readonly<{
   voiAvailability: "not_established";
 }>;
 
+function hasBoundCostBasis(route: AcquisitionRouteProjection) {
+  const cost = route.cost_basis;
+  if (
+    !isRecord(cost) ||
+    typeof cost.total_amount !== "number" ||
+    cost.total_amount <= 0 ||
+    cost.record_content_hash !== route.replay_pins.cost_basis_hash
+  ) {
+    return false;
+  }
+
+  if (route.schema_version === "AcquisitionRouteProjection@1.2") {
+    const selectedProfile =
+      route.prior_paid_input_admission.owner_declared_profile_ref;
+    const costProfile = cost.owner_declared_profile_ref;
+    return (
+      route.route_status === "paid_input_admission_only" &&
+      cost.schema_version === "AcquisitionCostBasisRecord@1.1" &&
+      cost.currency === "USD" &&
+      isRecord(costProfile) &&
+      costProfile.artifact_id === selectedProfile.artifact_id &&
+      costProfile.kind === selectedProfile.kind &&
+      costProfile.media_type === selectedProfile.media_type &&
+      costProfile.manifest_profile_sha256 ===
+        selectedProfile.manifest_profile_sha256
+    );
+  }
+
+  return cost.schema_version === "AcquisitionCostBasisRecord@1.0";
+}
+
+function isPaidInputAdmissionRoute(
+  route: AcquisitionRouteProjection,
+): route is PaidInputAdmissionAcquisitionRouteV12 {
+  return (
+    route.schema_version === "AcquisitionRouteProjection@1.2" &&
+    route.route_status === "paid_input_admission_only"
+  );
+}
+
 export function presentRunAcquisitionRoute(
   route: AcquisitionRouteProjection,
 ): VisibleRunAcquisitionRoute {
+  const paidInputAdmission = isPaidInputAdmissionRoute(route);
+  const costEstablished = hasBoundCostBasis(route);
+  const routeStatusAllowsReview = paidInputAdmission
+    ? route.route_status === "paid_input_admission_only"
+    : route.route_status === "costed_actionable";
+
   return Object.freeze({
+    acquisitionMode: paidInputAdmission
+      ? "paid_input_admission_only"
+      : "costed_actionable",
     actionEligible:
-      route.route_status === "costed_actionable" &&
+      routeStatusAllowsReview &&
       route.authority_capability === "ready" &&
       route.execution_capability === "ready",
     authorityBadge: route.authority_badge,
     cost: Object.freeze({ ...route.cost_basis }),
-    costAvailability: "available",
+    costEstablished,
+    costMeaning: paidInputAdmission
+      ? "historical_prior_paid_basis"
+      : "current_route_estimate",
+    priorPaidInputAdmission: paidInputAdmission
+      ? route.prior_paid_input_admission
+      : null,
     qualification: Object.freeze({
       code: route.qualification_reason,
       epochState: route.qualification_status,

@@ -37,12 +37,65 @@ const acquisitionRouteBaseSchema = z
   })
   .strict();
 
+const selectedPaidInputArtifactRef = (
+  kind: string,
+  mediaType = "application/json",
+) =>
+  z
+    .object({
+      artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+      kind: z.literal(kind),
+      media_type: z.literal(mediaType),
+      manifest_profile_sha256: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    })
+    .strict();
+
+const nativePaidInputAdmissionSelectionSchema = z
+  .object({
+    schema_version: z.literal("NativePaidInputAdmissionSelection@1.0"),
+    original_action_job_id: z.string().min(1),
+    attempt_ref: selectedPaidInputArtifactRef(
+      "runtime_quality.acquisition_world_growth_attempt",
+    ),
+    executing_phase_ref: selectedPaidInputArtifactRef(
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    terminal_ref: selectedPaidInputArtifactRef(
+      "runtime_quality.acquisition_route_loop_receipt",
+    ),
+    deferral_ref: selectedPaidInputArtifactRef(
+      "runtime_quality.acquisition_world_growth_deferral",
+    ),
+    negative_receipt_ref: selectedPaidInputArtifactRef(
+      "epoch.production_receipt",
+      "application/vnd.polisyos.epoch-production-receipt+json",
+    ),
+    prepared_epoch_ref: selectedPaidInputArtifactRef(
+      "epoch.prepared",
+      "application/vnd.polisyos.epoch+json",
+    ),
+    owner_declared_profile_ref: selectedPaidInputArtifactRef(
+      "runtime.quality.native_derivation_leaf_cost_profile",
+    ),
+  })
+  .strict();
+
 const acquisitionRouteV10BaseSchema = acquisitionRouteBaseSchema.extend({
   schema_version: z.literal("AcquisitionRouteProjection@1.0"),
 });
 const acquisitionRouteV11BaseSchema = acquisitionRouteBaseSchema.extend({
   schema_version: z.literal("AcquisitionRouteProjection@1.1"),
+  route_status: z.literal("costed_actionable").nullable().optional(),
+  prior_paid_input_admission: z.null().optional(),
 });
+
+const acquisitionRouteV12BaseSchema = acquisitionRouteBaseSchema
+  .extend({
+    schema_version: z.literal("AcquisitionRouteProjection@1.2"),
+    route_status: z.literal("paid_input_admission_only"),
+    prior_paid_input_admission: nativePaidInputAdmissionSelectionSchema,
+  })
+  .strict();
 
 // v1.0 preserves the old pending default. The presenter treats it as unknown;
 // the old field did not prove a measured zero. v1.1 requires the explicit tri-state.
@@ -87,16 +140,85 @@ const acquisitionRouteV11GrowthSchema = acquisitionRouteV11BaseSchema.extend({
   world_growth: z.literal("admitted_delta"),
 });
 
+const acquisitionRouteV12PendingSchema = acquisitionRouteV12BaseSchema.extend({
+  admitted_observation_delta: z.null(),
+  authority_badge: z.literal("behavioral_fixture_not_production"),
+  qualification_predicate: z.literal("not_established"),
+  qualification_reason: z.literal("policy_admission_missing"),
+  qualification_status: z.literal("pending_epoch_activation"),
+  world_growth: z.literal("not_established"),
+});
+const acquisitionRouteV12NoGrowthSchema = acquisitionRouteV12BaseSchema.extend({
+  admitted_observation_delta: z.literal(0),
+  authority_badge: z.literal("native_owner_verified"),
+  qualification_predicate: z.literal("independently_reconciled"),
+  qualification_reason: z.literal("native_owner_readback"),
+  qualification_status: z.literal("activated"),
+  world_growth: z.literal("no_growth"),
+});
+const acquisitionRouteV12GrowthSchema = acquisitionRouteV12BaseSchema.extend({
+  admitted_observation_delta: z.number().int().positive(),
+  authority_badge: z.literal("native_owner_verified"),
+  qualification_predicate: z.literal("independently_reconciled"),
+  qualification_reason: z.literal("native_owner_readback"),
+  qualification_status: z.literal("activated"),
+  world_growth: z.literal("admitted_delta"),
+});
+
 // This nongenerated adapter owns the versioned route wire shape until the
 // canonical client is regenerated. Native qualification never supplies the
 // independently owned action-authority capability.
-export const acquisitionRouteProjectionSchema = z.union([
-  acquisitionRouteV10PendingSchema,
-  acquisitionRouteV10ActiveSchema,
-  acquisitionRouteV11PendingSchema,
-  acquisitionRouteV11NoGrowthSchema,
-  acquisitionRouteV11GrowthSchema,
-]);
+export const acquisitionRouteProjectionSchema = z
+  .union([
+    acquisitionRouteV10PendingSchema,
+    acquisitionRouteV10ActiveSchema,
+    acquisitionRouteV11PendingSchema,
+    acquisitionRouteV11NoGrowthSchema,
+    acquisitionRouteV11GrowthSchema,
+    acquisitionRouteV12PendingSchema,
+    acquisitionRouteV12NoGrowthSchema,
+    acquisitionRouteV12GrowthSchema,
+  ])
+  .superRefine((route, context) => {
+    if (route.schema_version !== "AcquisitionRouteProjection@1.2") return;
+
+    const costBasis = route.cost_basis;
+    const selection = route.prior_paid_input_admission;
+    const selectedProfile = selection.owner_declared_profile_ref;
+    const costProfile = selectedPaidInputArtifactRef(
+      "runtime.quality.native_derivation_leaf_cost_profile",
+    ).safeParse(costBasis.owner_declared_profile_ref);
+
+    if (
+      costBasis.schema_version !== "AcquisitionCostBasisRecord@1.1" ||
+      costBasis.currency !== "USD" ||
+      typeof costBasis.total_amount !== "number" ||
+      costBasis.total_amount <= 0 ||
+      costBasis.record_content_hash !== route.replay_pins.cost_basis_hash
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "paid-input admission requires its bound historical cost basis",
+        path: ["cost_basis"],
+      });
+    }
+
+    if (
+      !costProfile.success ||
+      costProfile.data.artifact_id !== selectedProfile.artifact_id ||
+      costProfile.data.kind !== selectedProfile.kind ||
+      costProfile.data.media_type !== selectedProfile.media_type ||
+      costProfile.data.manifest_profile_sha256 !==
+        selectedProfile.manifest_profile_sha256
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "paid-input admission profile is not bound to its cost basis",
+        path: ["cost_basis", "owner_declared_profile_ref"],
+      });
+    }
+  });
 
 export type AcquisitionRouteProjection = z.infer<
   typeof acquisitionRouteProjectionSchema
@@ -126,6 +248,14 @@ export type AdmittedDeltaAcquisitionRouteV11 = Extract<
     schema_version: "AcquisitionRouteProjection@1.1";
     qualification_status: "activated";
     world_growth: "admitted_delta";
+  }
+>;
+
+export type PaidInputAdmissionAcquisitionRouteV12 = Extract<
+  AcquisitionRouteProjection,
+  {
+    schema_version: "AcquisitionRouteProjection@1.2";
+    route_status: "paid_input_admission_only";
   }
 >;
 

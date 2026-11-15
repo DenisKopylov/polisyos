@@ -24,6 +24,7 @@ import {
 import { AcquisitionRouteDetail } from "@/features/runs/components/AcquisitionRouteDetail";
 import { HumanDecisionGate } from "@/features/runs/components/HumanDecisionGate";
 import { buildHumanDecisionMutation } from "@/features/runs/domain/humanDecisionPresentation";
+import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
@@ -39,17 +40,6 @@ type AcquisitionApprovalFlowProps = Readonly<{
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function ownerBackedCostIsEstablished(route: AcquisitionRouteProjection) {
-  const cost = route.cost_basis;
-  return (
-    isRecord(cost) &&
-    cost.schema_version === "AcquisitionCostBasisRecord@1.0" &&
-    typeof cost.total_amount === "number" &&
-    cost.total_amount > 0 &&
-    cost.record_content_hash === route.replay_pins.cost_basis_hash
-  );
 }
 
 function mutationForRoute(
@@ -148,7 +138,8 @@ export function AcquisitionApprovalFlow({
   const timelineFocus = useRef<HTMLDivElement>(null);
   const jobQuery = useControlJobStatus(execution?.job_id);
   const routeDetail = routeQuery.data?.packet ?? route;
-  const costEstablished = ownerBackedCostIsEstablished(routeDetail);
+  const routePresentation = presentRunAcquisitionRoute(routeDetail);
+  const costEstablished = routePresentation.costEstablished;
 
   async function freshBoundRoute() {
     const result = await routeQuery.refetch();
@@ -210,10 +201,17 @@ export function AcquisitionApprovalFlow({
     setPending(true);
     try {
       requireOnline();
-      if (!ownerBackedCostIsEstablished(route)) {
+      const currentPresentation = presentRunAcquisitionRoute(route);
+      if (!currentPresentation.costEstablished) {
         throw new TypeError("DS15-COST-NOT-ESTABLISHED");
       }
+      if (!currentPresentation.actionEligible) {
+        throw new TypeError("DS15-ROUTE-NOT-ELIGIBLE");
+      }
       const fresh = await freshBoundRoute();
+      if (!presentRunAcquisitionRoute(fresh).actionEligible) {
+        throw new TypeError("DS15-ROUTE-NOT-ELIGIBLE");
+      }
       const response = await requestAcquisitionDecision(
         fresh.run_id,
         fresh.route_id,
@@ -284,13 +282,22 @@ export function AcquisitionApprovalFlow({
           <div className="space-y-2">
             <Button
               disabled={
-                !canMutate || !costEstablished || pending || Boolean(execution)
+                !canMutate ||
+                !costEstablished ||
+                !routePresentation.actionEligible ||
+                pending ||
+                Boolean(execution)
               }
               onClick={() => void prepareDecision()}
               type="button"
               variant="primary"
             >
-              {t("pages.cycleBoard.acquisition.action.requestReview")}
+              {t(
+                routePresentation.acquisitionMode ===
+                  "paid_input_admission_only"
+                  ? "pages.cycleBoard.acquisition.action.requestAdmissionReview"
+                  : "pages.cycleBoard.acquisition.action.requestReview",
+              )}
             </Button>
             {!costEstablished ? (
               <p

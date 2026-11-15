@@ -6,11 +6,11 @@ import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Annotated, Literal, Protocol
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core import canon
+from polisyos.core import canon, contracts
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
@@ -293,6 +293,98 @@ class NativeDerivationLeafProviderSelection(BaseModel):
         return self
 
 
+_NATIVE_PAID_INPUT_REF_KINDS: dict[str, str] = {
+    "attempt_ref": "runtime_quality.acquisition_world_growth_attempt",
+    "executing_phase_ref": "runtime_quality.acquisition_route_phase_receipt",
+    "terminal_ref": "runtime_quality.acquisition_route_loop_receipt",
+    "deferral_ref": "runtime_quality.acquisition_world_growth_deferral",
+    "negative_receipt_ref": "epoch.production_receipt",
+    "prepared_epoch_ref": "epoch.prepared",
+    "owner_declared_profile_ref": "runtime.quality.native_derivation_leaf_cost_profile",
+}
+
+
+def _native_paid_ref_media_type(kind: str) -> str:
+    if kind in {"epoch.production_receipt", "epoch.prepared"}:
+        codec = contracts.epoch.acquisition_artifact_codec(kind)
+        if codec is None:
+            raise ValueError("native_paid_input_admission_epoch_codec_missing")
+        return codec.media_type
+    return "application/json"
+
+
+def _native_paid_selection_json_schema(schema: dict[str, Any]) -> None:
+    """Keep public selected-reference shape as strict as this model's validator."""
+    for name, kind in _NATIVE_PAID_INPUT_REF_KINDS.items():
+        schema["properties"][name] = {
+            "allOf": [
+                schema["properties"][name],
+                {
+                    "type": "object",
+                    "required": [
+                        "artifact_id",
+                        "kind",
+                        "media_type",
+                        "manifest_profile_sha256",
+                    ],
+                    "properties": {
+                        "kind": {"const": kind},
+                        "media_type": {"const": _native_paid_ref_media_type(kind)},
+                        "manifest_profile_sha256": {
+                            "type": "string",
+                            "pattern": r"^sha256:[0-9a-f]{64}$",
+                        },
+                    },
+                },
+            ]
+        }
+
+
+class NativePaidInputAdmissionSelection(BaseModel):
+    """Select one historical purchase for a separately authorized admission.
+
+    The native owner must replay these selected receipts and all their source
+    bindings. This transport neither establishes a fresh price nor grants an
+    action, provider call, or semantic admission.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid", frozen=True, json_schema_extra=_native_paid_selection_json_schema
+    )
+
+    schema_version: Literal["NativePaidInputAdmissionSelection@1.0"] = (
+        "NativePaidInputAdmissionSelection@1.0"
+    )
+    original_action_job_id: str = Field(min_length=1)
+    attempt_ref: ArtifactRef
+    executing_phase_ref: ArtifactRef
+    terminal_ref: ArtifactRef
+    deferral_ref: ArtifactRef
+    negative_receipt_ref: ArtifactRef
+    prepared_epoch_ref: ArtifactRef
+    owner_declared_profile_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_native_profiles(self) -> NativePaidInputAdmissionSelection:
+        for name, kind in _NATIVE_PAID_INPUT_REF_KINDS.items():
+            ref = getattr(self, name)
+            if (
+                ref.kind != kind
+                or ref.media_type != _native_paid_ref_media_type(kind)
+                or ref.manifest_profile_sha256 is None
+                or set(type(ref).model_fields) - set(ArtifactRef.model_fields)
+            ):
+                raise ValueError("native_paid_input_admission_profile_invalid")
+        return self
+
+    def lineage_inputs(self) -> tuple[tuple[str, ArtifactRef], ...]:
+        """Return the exact historical inputs carried by a new phase."""
+        return tuple(
+            (f"native_prior_paid_{name}", getattr(self, name))
+            for name in _NATIVE_PAID_INPUT_REF_KINDS
+        )
+
+
 class AcquisitionRoutePhaseReceipt(BaseModel):
     """Immutable phase fact for one exact acquisition action generation."""
 
@@ -303,6 +395,7 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         "AcquisitionRoutePhaseReceipt@1.1",
         "AcquisitionRoutePhaseReceipt@1.2",
         "AcquisitionRoutePhaseReceipt@1.3",
+        "AcquisitionRoutePhaseReceipt@1.4",
     ] = "AcquisitionRoutePhaseReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
@@ -339,6 +432,9 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     native_leaf_provider_selection: NativeDerivationLeafProviderSelection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    prior_paid_input_admission: NativePaidInputAdmissionSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     generated_at: AwareDatetime
 
     @model_validator(mode="after")
@@ -362,7 +458,18 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
             raise ValueError("requested_phase_cannot_have_predecessor")
         if self.receipt_phase != "requested" and self.predecessor_receipt_ref is None:
             raise ValueError("acquisition_route_phase_predecessor_missing")
-        if self.schema_version == "AcquisitionRoutePhaseReceipt@1.3":
+        paid = self.prior_paid_input_admission
+        if (self.schema_version == "AcquisitionRoutePhaseReceipt@1.4") != (paid is not None):
+            raise ValueError("native_paid_input_admission_phase_version_mismatch")
+        if paid is not None and (
+            self.owner_declared_profile_ref != paid.owner_declared_profile_ref
+            or self.job_id == paid.original_action_job_id
+        ):
+            raise ValueError("native_paid_input_admission_phase_identity_mismatch")
+        if self.schema_version in {
+            "AcquisitionRoutePhaseReceipt@1.3",
+            "AcquisitionRoutePhaseReceipt@1.4",
+        }:
             _require_native_leaf_cost_profile_ref(self.owner_declared_profile_ref)
             if (
                 self.native_leaf_provider_selection is None
@@ -1174,6 +1281,9 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     native_derivation_leaf_provider: NativeDerivationLeafProviderSelection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    prior_paid_input_admission: NativePaidInputAdmissionSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     # Transport only. The actual action fold replayed these selected receipts;
     # the production mutation bridge re-resolves that owner before using them.
@@ -1190,7 +1300,11 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
         scope = self.native_derivation_leaf_scope
         provider = self.native_derivation_leaf_provider
         if scope is None:
-            if self.owner_declared_profile_ref is not None or provider is not None:
+            if (
+                self.owner_declared_profile_ref is not None
+                or provider is not None
+                or self.prior_paid_input_admission is not None
+            ):
                 raise ValueError("native_leaf_route_scope_missing")
             return self
         selected = _require_native_leaf_cost_profile_ref(self.owner_declared_profile_ref)
@@ -1211,7 +1325,26 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
             != artifact_ref_identity_key(scope.selected_supplier_ref)
         ):
             raise ValueError("native_leaf_provider_scope_mismatch")
+        if self.prior_paid_input_admission is not None and (
+            self.prior_paid_input_admission.owner_declared_profile_ref != selected
+        ):
+            raise ValueError("native_paid_input_admission_route_profile_mismatch")
         return self
+
+    @property
+    def current_projection_hash(self) -> str:
+        """Bind a new admission's mode and exact prior purchase independently."""
+        if self.prior_paid_input_admission is None:
+            return self.route_id
+        return _content_hash(
+            {
+                "route_id": self.route_id,
+                "action_mode": "paid_input_admission_only",
+                "prior_paid_input_admission": self.prior_paid_input_admission.model_dump(
+                    mode="json"
+                ),
+            }
+        )
 
     @field_validator("candidate_terminal_history")
     @classmethod
@@ -3195,6 +3328,70 @@ class AcquisitionRouteLoop:
         ref = receipt.owner_declared_profile_ref
         return _require_native_leaf_cost_profile_ref(ref) if ref is not None else None
 
+    def _native_historical_cost_profile_refs(
+        self, origin: _VerifiedAcquisitionOrigin
+    ) -> tuple[ArtifactRef, ...]:
+        """Collect historical quote candidates from the full verified source heads.
+
+        A receipt only selects a past quote here. The native owner must prove a
+        completed purchase before that quote can support admission-only use.
+        """
+        if self._action_outcome_reader is None:
+            return ()
+        subject = {
+            "tenant_id": self._tenant_id,
+            "cell_id": self._cell_id,
+            "run_id": origin.job.run_id,
+            "source_job_id": origin.job.job_id,
+        }
+        heads = self._control_store.list_acquisition_action_heads_for_source(**subject)
+        refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        for route_id in sorted({head.route_id for head in heads}):
+            try:
+                outcomes = self._action_outcome_reader.action_outcomes(**subject, route_id=route_id)
+            except (AttributeError, OSError, TypeError, ValueError) as exc:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
+                raise AcquisitionRouteClosureError(
+                    "native_paid_input_history_not_verified"
+                ) from exc
+            for outcome in outcomes:
+                receipt = outcome.latest_receipt
+                phase = outcome.executing_phase
+                if (
+                    type(receipt) is not AcquisitionRouteLoopReceipt
+                    or receipt.terminal_outcome != "quarantined_no_growth"
+                    or type(phase) is not AcquisitionRoutePhaseReceipt
+                    or phase.prior_paid_input_admission is not None
+                    or phase.owner_declared_profile_ref is None
+                ):
+                    continue
+                ref = _require_native_leaf_cost_profile_ref(phase.owner_declared_profile_ref)
+                refs[artifact_ref_identity_key(ref)] = ref
+        if self._control_store.list_acquisition_action_heads_for_source(**subject) != heads:
+            raise AcquisitionRouteClosureError("native_paid_input_source_history_changed")
+        return tuple(refs[key] for key in sorted(refs))
+
+    def _native_prior_paid_input_admission(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> NativePaidInputAdmissionSelection | None:
+        """Ask the installed native owner for independently replayed paid facts."""
+        service = getattr(self._core_source_resolver, "__self__", None)
+        getter = getattr(service, "native_derivation_prior_paid_input_admission", None)
+        if not callable(getter):
+            return None
+        try:
+            selected = getter(closure=closure)
+        except (OSError, TypeError, ValueError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
+            raise AcquisitionRouteClosureError("native_paid_input_history_not_verified") from exc
+        if selected is not None and type(selected) is not NativePaidInputAdmissionSelection:
+            raise AcquisitionRouteClosureError("native_paid_input_owner_selection_untyped")
+        return selected
+
     def _native_leaf_paid_action_attempt(
         self, closure: VerifiedAcquisitionRouteClosure, *, action_job_id: str
     ) -> ArtifactRef | None:
@@ -3269,11 +3466,18 @@ class AcquisitionRouteLoop:
             )
         bundle = _n7_load_derivation_bundle(self._artifact_store, bundle_ref)
         configured_profile_refs = self._native_leaf_cost_profile_refs(origin)
+        historical_profiles = self._native_historical_cost_profile_refs(origin)
         recorded_profile_ref = self._native_action_recorded_profile_ref(
             origin, action_job_id=action_job_id
         )
-        historical_only_key = None
+        configured_keys = {artifact_ref_identity_key(ref) for ref in configured_profile_refs}
+        historical_keys = {artifact_ref_identity_key(ref) for ref in historical_profiles}
         profile_refs = list(configured_profile_refs)
+        for historical_ref in historical_profiles:
+            if artifact_ref_identity_key(historical_ref) not in {
+                artifact_ref_identity_key(ref) for ref in profile_refs
+            }:
+                profile_refs.append(historical_ref)
         if recorded_profile_ref is not None and artifact_ref_identity_key(
             recorded_profile_ref
         ) not in {artifact_ref_identity_key(ref) for ref in profile_refs}:
@@ -3281,7 +3485,7 @@ class AcquisitionRouteLoop:
             # exact quote can still locate paid facts, but is never current
             # permission and requires the native owner proof below.
             profile_refs.append(recorded_profile_ref)
-            historical_only_key = artifact_ref_identity_key(recorded_profile_ref)
+            historical_keys.add(artifact_ref_identity_key(recorded_profile_ref))
         profiles = tuple(
             (ref, load_native_derivation_leaf_cost_profile(self._artifact_store, ref))
             for ref in profile_refs
@@ -3341,11 +3545,12 @@ class AcquisitionRouteLoop:
                     and (
                         artifact_ref_identity_key(ref) == recorded_profile_key
                         if recorded_profile_key is not None
-                        else profile.effective_at <= now < profile.expires_at
+                        else (
+                            profile.effective_at <= now < profile.expires_at
+                            or artifact_ref_identity_key(ref) in historical_keys
+                        )
                     )
                 )
-                if len(matches) > 1:
-                    raise AcquisitionRouteClosureError("native_leaf_cost_profile_ambiguous")
                 provider_matches = tuple(
                     row
                     for row in provider_selections
@@ -3358,10 +3563,11 @@ class AcquisitionRouteLoop:
                     raise AcquisitionRouteClosureError(
                         "native_leaf_provider_configuration_ambiguous"
                     )
-                if matches and provider_matches:
-                    (profile_ref, _profile) = matches[0]
+                current_choices: list[VerifiedAcquisitionRouteClosure] = []
+                paid_choices: list[VerifiedAcquisitionRouteClosure] = []
+                for profile_ref, _profile in matches if provider_matches else ():
                     current_quote = (
-                        artifact_ref_identity_key(profile_ref) != historical_only_key
+                        artifact_ref_identity_key(profile_ref) in configured_keys
                         and _profile.effective_at <= now < _profile.expires_at
                     )
                     cost_time = now if current_quote else _profile.effective_at
@@ -3385,15 +3591,33 @@ class AcquisitionRouteLoop:
                         owner_declared_profile_ref=profile_ref,
                         native_cost_time=cost_time,
                     )
-                    if (
-                        current_quote
-                        or self._native_leaf_paid_action_attempt(
+                    prior = self._native_prior_paid_input_admission(costed)
+                    if prior is not None:
+                        if action_job_id != prior.original_action_job_id:
+                            costed = costed.model_copy(update={"prior_paid_input_admission": prior})
+                        paid_choices.append(costed)
+                    elif current_quote:
+                        current_choices.append(costed)
+                    elif (
+                        action_job_id is not None
+                        and self._native_leaf_paid_action_attempt(
                             costed, action_job_id=action_job_id
                         )
                         is not None
                     ):
-                        resolved.append(costed)
-                        continue
+                        # Preserve an already executing original action's paid
+                        # recovery before a terminal admission selection exists.
+                        paid_choices.append(costed)
+                if len(paid_choices) > 1:
+                    raise AcquisitionRouteClosureError("native_paid_input_purchase_ambiguous")
+                if paid_choices:
+                    resolved.append(paid_choices[0])
+                    continue
+                if len(current_choices) > 1:
+                    raise AcquisitionRouteClosureError("native_leaf_cost_profile_ambiguous")
+                if current_choices:
+                    resolved.append(current_choices[0])
+                    continue
                 selected_identity = {
                     "tenant_id": self._tenant_id,
                     "cell_id": self._cell_id,

@@ -35,6 +35,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     NativeDerivationInputsPending,
     NativeDerivationLeafRouteAvailability,
     NativeModelInputTargetAvailability,
+    NativePaidInputAdmissionSelection,
     VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
     persist_world_commit_and_reenter,
@@ -552,9 +553,37 @@ class CandidateExperimentRouteProjection(BaseModel):
 class AcquisitionRouteProjection(BaseModel):
     """Read-only current route with independent execution and authority postures."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        json_schema_extra={
+            "oneOf": [
+                {
+                    "properties": {
+                        "schema_version": {"const": "AcquisitionRouteProjection@1.1"},
+                        "route_status": {"enum": [None, "costed_actionable"]},
+                        "prior_paid_input_admission": {"type": "null"},
+                    }
+                },
+                {
+                    "required": [
+                        "schema_version",
+                        "route_status",
+                        "prior_paid_input_admission",
+                    ],
+                    "properties": {
+                        "schema_version": {"const": "AcquisitionRouteProjection@1.2"},
+                        "route_status": {"const": "paid_input_admission_only"},
+                        "prior_paid_input_admission": {"type": "object"},
+                    },
+                },
+            ]
+        },
+    )
 
-    schema_version: Literal["AcquisitionRouteProjection@1.1"] = "AcquisitionRouteProjection@1.1"
+    schema_version: Literal["AcquisitionRouteProjection@1.1", "AcquisitionRouteProjection@1.2"] = (
+        "AcquisitionRouteProjection@1.1"
+    )
     tenant_id: str
     cell_id: str
     run_id: str
@@ -565,7 +594,10 @@ class AcquisitionRouteProjection(BaseModel):
     recommended_strategy: str
     cost_basis: dict[str, object]
     replay_pins: AcquisitionRouteReplayPins
-    route_status: Literal["costed_actionable"] | None = Field(
+    route_status: Literal["costed_actionable", "paid_input_admission_only"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    prior_paid_input_admission: NativePaidInputAdmissionSelection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     authority_capability: Literal["ready", "producer_missing"]
@@ -593,6 +625,11 @@ class AcquisitionRouteProjection(BaseModel):
 
     @model_validator(mode="after")
     def _growth_outcome_matches_evidence(self) -> AcquisitionRouteProjection:
+        paid = self.prior_paid_input_admission
+        if (self.schema_version == "AcquisitionRouteProjection@1.2") != (paid is not None) or (
+            self.route_status == "paid_input_admission_only"
+        ) != (paid is not None):
+            raise ValueError("native_paid_input_admission_projection_version_mismatch")
         pending = (
             self.qualification_status == "pending_epoch_activation"
             and self.qualification_predicate == "not_established"
@@ -5090,16 +5127,27 @@ class AcquisitionActionService:
             ),
         )
         return AcquisitionRouteProjection(
+            schema_version=(
+                "AcquisitionRouteProjection@1.2"
+                if closure.prior_paid_input_admission is not None
+                else "AcquisitionRouteProjection@1.1"
+            ),
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
             run_id=closure.run_id,
             route_id=closure.route_id,
-            route_projection_hash=closure.route_id,
+            route_projection_hash=closure.current_projection_hash,
             planner_report_hash=agent_action_content_hash(closure.planner_report),
             planner_record_id=closure.planner_record.acquisition_id,
             recommended_strategy=closure.planner_record.recommended_strategy.value,
             cost_basis=closure.cost_basis_record.model_dump(mode="json"),
             replay_pins=self._pins(closure),
+            route_status=(
+                "paid_input_admission_only"
+                if closure.prior_paid_input_admission is not None
+                else None
+            ),
+            prior_paid_input_admission=closure.prior_paid_input_admission,
             authority_capability=(
                 "ready"
                 if execution_ready
@@ -5165,7 +5213,7 @@ class AcquisitionActionService:
         )
         if (
             closure.route_id != route_id
-            or request.route_projection_hash != closure.route_id
+            or request.route_projection_hash != closure.current_projection_hash
             or request.planner_report_hash != agent_action_content_hash(closure.planner_report)
             or request.replay_pins != self._pins(closure)
         ):
@@ -5202,7 +5250,18 @@ class AcquisitionActionService:
                     "symbol": "AcquisitionExecutionPort.execute",
                 }
             ],
-            cost_model={"cost_basis_hash": closure.cost_basis_hash},
+            cost_model={
+                "cost_basis_hash": closure.cost_basis_hash,
+                **(
+                    {
+                        "action_mode": "paid_input_admission_only",
+                        "provider_spend_usd": 0,
+                        "other_costs": "not_established",
+                    }
+                    if closure.prior_paid_input_admission is not None
+                    else {}
+                ),
+            },
             authority_transform={"kind": "preserves"},
             failure_modes=[
                 "authority_refused",
@@ -5220,6 +5279,11 @@ class AcquisitionActionService:
                 "planner_report_hash": request.planner_report_hash,
                 "replay_pins": request.replay_pins.model_dump(mode="json"),
                 "idempotency_key": request.idempotency_key,
+                **(
+                    {"route_projection_hash": closure.current_projection_hash}
+                    if closure.prior_paid_input_admission is not None
+                    else {}
+                ),
             }
         )
         invocation = OperationInvocationRecord(
@@ -5236,6 +5300,17 @@ class AcquisitionActionService:
                 "planner_report_hash": request.planner_report_hash,
                 "cost_basis_hash": closure.cost_basis_hash,
                 "compiled_ref": closure.compiled_ref,
+                **(
+                    {
+                        "action_mode": "paid_input_admission_only",
+                        "current_projection_hash": closure.current_projection_hash,
+                        "prior_paid_input_admission": (
+                            closure.prior_paid_input_admission.model_dump(mode="json")
+                        ),
+                    }
+                    if closure.prior_paid_input_admission is not None
+                    else {}
+                ),
             },
             internal_trace={"phase": "deferred_acquisition_reservation"},
             tool_calls=[],
@@ -5278,6 +5353,8 @@ class AcquisitionActionService:
             f"{request.planner_report_hash}\0{request.idempotency_key}\0"
             f"{request.human_decision_record_ref or ''}"
         ).encode()
+        if request.route_projection_hash != route_id:
+            payload += b"\0current-projection\0" + request.route_projection_hash.encode()
         return f"acquisition-{hashlib.sha256(payload).hexdigest()}"
 
     def _action_generation(self, closure: VerifiedAcquisitionRouteClosure, job_id: str) -> int:
@@ -5324,12 +5401,16 @@ class AcquisitionActionService:
         }[receipt_phase]
         return AcquisitionRoutePhaseReceipt(
             schema_version=(
-                "AcquisitionRoutePhaseReceipt@1.3"
-                if closure.owner_declared_profile_ref is not None
+                "AcquisitionRoutePhaseReceipt@1.4"
+                if closure.prior_paid_input_admission is not None
                 else (
-                    "AcquisitionRoutePhaseReceipt@1.2"
-                    if receipt_phase == "candidate_input_reentry_pending"
-                    else "AcquisitionRoutePhaseReceipt@1.0"
+                    "AcquisitionRoutePhaseReceipt@1.3"
+                    if closure.owner_declared_profile_ref is not None
+                    else (
+                        "AcquisitionRoutePhaseReceipt@1.2"
+                        if receipt_phase == "candidate_input_reentry_pending"
+                        else "AcquisitionRoutePhaseReceipt@1.0"
+                    )
                 )
             ),
             receipt_id=f"{job_id}.{receipt_phase}",
@@ -5352,6 +5433,7 @@ class AcquisitionActionService:
             candidate_receipt_ref=candidate_receipt_ref,
             owner_declared_profile_ref=closure.owner_declared_profile_ref,
             native_leaf_provider_selection=closure.native_derivation_leaf_provider,
+            prior_paid_input_admission=closure.prior_paid_input_admission,
             generated_at=datetime.now(UTC),
         )
 

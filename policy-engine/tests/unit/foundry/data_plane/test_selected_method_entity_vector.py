@@ -32,6 +32,7 @@ from polisyos.foundry.data_plane.entity_axis import (
     build_selected_source_entity_axis,
 )
 from polisyos.foundry.data_plane.selected_method_entity_vector import (
+    prepare_selected_method_entity_vector,
     reconcile_selected_method_entity_vector,
 )
 from polisyos.foundry.data_plane.selected_tensors import (
@@ -168,6 +169,32 @@ def test_selected_method_vector_replays_ids_values_and_fresh_axis(tmp_path: Path
     assert reconciled.values.tolist() == [10.0, 20.0]
     with pytest.raises(ValueError):
         reconciled.values.setflags(write=True)
+
+
+def test_vector_preparation_and_replay_share_exact_typed_alignment(tmp_path: Path) -> None:
+    case = _case(tmp_path, ["b", 1, "1", 2], [40, 10, 30, 20])
+    store, port, source, axis, _, _, _ = case
+    prepared = prepare_selected_method_entity_vector(
+        store,
+        port=port,
+        binding_port_id=port.port_id,
+        binding_slot_id=port.slot_id,
+        source=source,
+        axis_ref=axis.ref,
+        limits=_limits(),
+    )
+
+    assert [(member.kind, member.value) for member in axis.axis.members] == [
+        ("integer", 1),
+        ("integer", 2),
+        ("string", "1"),
+        ("string", "b"),
+    ]
+    assert prepared.values.tolist() == [10, 20, 30, 40]
+    assert _reconcile(case).identity == prepared.identity
+    assert _reconcile(case).values.tobytes() == prepared.values.tobytes()
+    with pytest.raises(ValueError):
+        prepared.values.setflags(write=True)
 
 
 def test_selected_method_vector_keeps_integer_and_string_ids_distinct(

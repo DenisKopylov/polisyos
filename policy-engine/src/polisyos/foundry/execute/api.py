@@ -99,6 +99,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshot,
     StateSnapshotRef,
     WelfareBoundReportRef,
+    selected_method_input_tensor_identity,
 )
 from polisyos.core.registry import (
     RegistryBundleContent,
@@ -1704,15 +1705,16 @@ def _reconcile_selected_method_dispatch_inputs(
             }
             if not local_aliases:
                 raise ValueError("execution_source_method_input_dependency_mismatch")
+            value_sha256, value_shape, value_dtype = selected_method_input_tensor_identity(record)
             for local_name in local_aliases:
                 captured = [
                     item for item in dispatch.input_slot_values if item.slot_id == local_name
                 ]
                 if len(captured) != 1 or (
                     captured[0].status != "captured"
-                    or captured[0].value_sha256 != record.value_sha256
-                    or captured[0].runtime_shape != record.shape
-                    or captured[0].runtime_dtype != np.dtype(record.dtype).str
+                    or captured[0].value_sha256 != value_sha256
+                    or captured[0].runtime_shape != value_shape
+                    or captured[0].runtime_dtype != np.dtype(value_dtype).str
                 ):
                     raise ValueError("execution_source_method_input_argument_identity_mismatch")
     return tuple(bundle.occurrences)

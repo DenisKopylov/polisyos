@@ -25,10 +25,12 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.ir.kernel import MoneyUnit
+from polisyos.ir.kernel import GenericUnit, MoneyUnit, UnitSpecType
+
+from .entity_axis import SelectedEntityVectorSourceDescriptor
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import CoreJSONArtifactStore
+    from polisyos.core.artifacts import CoreJSONArtifactProfileReader, CoreJSONArtifactStore
     from polisyos.core.contracts.model_input_requirements import ModelInputPort
 
 _SELECTED_PROFILE_SHA256 = r"^sha256:[0-9a-f]{64}$"
@@ -81,6 +83,42 @@ class ScopedCorrespondenceBasisRef(SelectedVariableBindingRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class SelectedEntityVectorSourceMeaningRef(SelectedVariableBindingRef):
+    """Exact candidate declaration of meaning and scope for selected JSON arrays."""
+
+    kind: Literal["catalog.selected_entity_vector_source_meaning"] = (
+        "catalog.selected_entity_vector_source_meaning"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class EntityVectorCorrespondenceBasisRef(SelectedVariableBindingRef):
+    """Exact same-definition comparison basis for a candidate vector port."""
+
+    kind: Literal["catalog.entity_vector_correspondence_basis"] = (
+        "catalog.entity_vector_correspondence_basis"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+EntityVectorCandidateLimitation = Literal[
+    "source_meaning_consumer_asserted",
+    "source_scope_consumer_asserted",
+    "external_empirical_origin_not_established",
+    "empirical_correctness_not_established",
+    "source_currentness_not_established",
+    "source_representativeness_not_established",
+]
+ENTITY_VECTOR_CANDIDATE_LIMITATIONS: tuple[EntityVectorCandidateLimitation, ...] = (
+    "source_meaning_consumer_asserted",
+    "source_scope_consumer_asserted",
+    "external_empirical_origin_not_established",
+    "empirical_correctness_not_established",
+    "source_currentness_not_established",
+    "source_representativeness_not_established",
+)
+
+
 class MeasurementAxis(StrEnum):
     """Typed measurement axes checked by the selected binding profile."""
 
@@ -131,6 +169,102 @@ class ModelInputScope(BaseModel):
     def _period_is_ordered(self) -> ModelInputScope:
         if self.period_end < self.period_start:
             raise ValueError("model_input_scope_period_inverted")
+        return self
+
+
+class SelectedEntityVectorSourceMeaning(BaseModel):
+    """Declare candidate meaning and scope for generic parallel JSON arrays.
+
+    The pointers select only a member array and a value array. Neither their
+    names nor their layout decode a source schema, period, or empirical meaning.
+    Meaning and scope remain consumer assertions even after exact replay.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    ARTIFACT_KIND: ClassVar[str] = "catalog.selected_entity_vector_source_meaning"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.SelectedEntityVectorSourceMeaning"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "1.0": "polisyos.catalog.selected_entity_vector_source_meaning.v1"
+    }
+
+    schema_version: Literal["polisyos.catalog.selected_entity_vector_source_meaning.v1"] = (
+        "polisyos.catalog.selected_entity_vector_source_meaning.v1"
+    )
+    source_layout: Literal["candidate_parallel_arrays.v1"] = "candidate_parallel_arrays.v1"
+    source_descriptor: SelectedEntityVectorSourceDescriptor
+    source_definition_ref: VariableSemanticDefinitionRef
+    source_representation_ref: VariableRepresentationRef
+    source_registry_bundle_ref: SelectedVariableBindingRef
+    source_scope: ModelInputScope
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+    source_meaning_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    source_scope_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    independent_origin: Literal["not_established"] = "not_established"
+    empirical_correctness: Literal["not_established"] = "not_established"
+    source_currentness: Literal["not_established"] = "not_established"
+    limitation_codes: tuple[EntityVectorCandidateLimitation, ...] = (
+        ENTITY_VECTOR_CANDIDATE_LIMITATIONS
+    )
+
+    @model_validator(mode="after")
+    def _candidate_source_is_selected(self) -> SelectedEntityVectorSourceMeaning:
+        if (
+            self.source_registry_bundle_ref.kind != "core.registry_bundle"
+            or self.source_registry_bundle_ref.media_type != "application/json"
+        ):
+            raise ValueError("entity_vector_source_registry_kind_mismatch")
+        if self.limitation_codes != ENTITY_VECTOR_CANDIDATE_LIMITATIONS:
+            raise ValueError("entity_vector_source_mandatory_limitations_required")
+        return self
+
+
+class EntityVectorCorrespondenceBasis(BaseModel):
+    """Selected declaration and model subjects for a bounded vector comparison.
+
+    Scope is the model owner's independently resolved step scope, not a period
+    inferred from a pointer and not a replacement for the port's full envelope.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    ARTIFACT_KIND: ClassVar[str] = "catalog.entity_vector_correspondence_basis"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.EntityVectorCorrespondenceBasis"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "1.0": "polisyos.catalog.entity_vector_correspondence_basis.v1"
+    }
+
+    schema_version: Literal["polisyos.catalog.entity_vector_correspondence_basis.v1"] = (
+        "polisyos.catalog.entity_vector_correspondence_basis.v1"
+    )
+    profile_id: Literal["entity_vector_to_model.same_definition.v1"] = (
+        "entity_vector_to_model.same_definition.v1"
+    )
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1, strict=True)
+    target_definition_ref: VariableSemanticDefinitionRef
+    target_representation_ref: VariableRepresentationRef
+    binding_profile_ref: MeasurementBindingProfileRef
+    scope: ModelInputScope
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+
+    @model_validator(mode="after")
+    def _selected_interface_is_typed(self) -> EntityVectorCorrespondenceBasis:
+        if (
+            self.model_interface_ref.kind != "runtime.quality.program_graph_input_interface"
+            or self.model_interface_ref.media_type != "application/json"
+            or self.model_port_id != self.model_port_id.strip()
+        ):
+            raise ValueError("entity_vector_correspondence_interface_invalid")
         return self
 
 
@@ -774,6 +908,73 @@ def scoped_correspondence_basis_manifest_inputs(
     )
 
 
+def selected_entity_vector_source_meaning_manifest_inputs(
+    value: SelectedEntityVectorSourceMeaning,
+) -> tuple[InputRef, ...]:
+    """Return every exact dependency of a candidate vector source declaration."""
+    return tuple(
+        input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in (
+            (value.source_descriptor.source_view_ref, "selected_source_view"),
+            (value.source_definition_ref, "source_definition"),
+            (value.source_representation_ref, "source_representation"),
+            (value.source_registry_bundle_ref, "source_registry_bundle"),
+        )
+    )
+
+
+def entity_vector_correspondence_basis_manifest_inputs(
+    value: EntityVectorCorrespondenceBasis,
+) -> tuple[InputRef, ...]:
+    """Return exact declaration and model-subject edges for vector comparison."""
+    return tuple(
+        input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in (
+            (value.source_meaning_ref, "selected_source_meaning"),
+            (value.model_interface_ref, "selected_model_interface"),
+            (value.target_definition_ref, "model_port_definition"),
+            (value.target_representation_ref, "model_port_representation"),
+            (value.binding_profile_ref, "selected_binding_profile"),
+        )
+    )
+
+
+def load_selected_entity_vector_source_meaning(
+    store: CoreJSONArtifactProfileReader,
+    ref: SelectedEntityVectorSourceMeaningRef,
+) -> SelectedEntityVectorSourceMeaning:
+    """Reopen a candidate declaration and require its exact selected edge set.
+
+    This verifies declaration bytes and lineage, not the selected JSON array
+    layout, membership, values, empirical meaning, or current source use.
+    """
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    selected = SelectedEntityVectorSourceMeaningRef.model_validate(ref.model_dump(mode="python"))
+    value = validate_core_model_json_artifact(SelectedEntityVectorSourceMeaning, store, selected)
+    if tuple(store.get_manifest(selected).inputs) != (
+        selected_entity_vector_source_meaning_manifest_inputs(value)
+    ):
+        raise ValueError("entity_vector_source_meaning_lineage_mismatch")
+    return value
+
+
+def load_entity_vector_correspondence_basis(
+    store: CoreJSONArtifactProfileReader,
+    ref: EntityVectorCorrespondenceBasisRef,
+) -> EntityVectorCorrespondenceBasis:
+    """Reopen the exact comparison basis without granting use admission."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    selected = EntityVectorCorrespondenceBasisRef.model_validate(ref.model_dump(mode="python"))
+    value = validate_core_model_json_artifact(EntityVectorCorrespondenceBasis, store, selected)
+    if tuple(store.get_manifest(selected).inputs) != (
+        entity_vector_correspondence_basis_manifest_inputs(value)
+    ):
+        raise ValueError("entity_vector_correspondence_lineage_mismatch")
+    return value
+
+
 def _declared_source_condition_from_passport(
     passport: Mapping[str, object],
 ) -> tuple[tuple[str, str], ...]:
@@ -1242,10 +1443,8 @@ def evaluate_scoped_correspondence_basis(
         or model_port.scope != basis.scope
     ):
         refusals.append("basis_model_port_selection_mismatch")
-    if (
-        artifact_ref_identity_key(source_definition_ref)
-        != artifact_ref_identity_key(target_definition_ref)
-        or source_definition != target_definition
+    if not _same_selected_definition(
+        source_definition_ref, source_definition, target_definition_ref, target_definition
     ):
         refusals.append("same_definition_profile_requires_exact_definition")
     if (
@@ -1292,10 +1491,7 @@ def evaluate_scoped_correspondence_basis(
             "target_representation_population_scope_mismatch",
         ),
     ):
-        if (
-            representation.population_ref is not None
-            and representation.population_ref != scope.population_ref
-        ):
+        if not _representation_population_matches_scope(representation, scope):
             refusals.append(refusal_code)
     # Identity reads one already-produced value. Its provider may describe that
     # value as a mean, total, or another estimand; passthrough does not recompute
@@ -1330,7 +1526,7 @@ def evaluate_scoped_correspondence_basis(
     if source_selection.is_proxy or source_selection.observation_class != "observed":
         refusals.append("source_measurement_not_exact_observed")
 
-    compared, optional_unknown, axis_refusals = _compare_axes(
+    compared, optional_unknown, axis_refusals = compare_measurement_representation_axes(
         source_representation,
         target_representation,
         profile,
@@ -1358,6 +1554,145 @@ def evaluate_scoped_correspondence_basis(
                 else ()
             ),
         ),
+    )
+
+
+def evaluate_entity_vector_correspondence_basis(
+    *,
+    basis: EntityVectorCorrespondenceBasis,
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef,
+    source_meaning: SelectedEntityVectorSourceMeaning,
+    source_definition_ref: VariableSemanticDefinitionRef,
+    source_definition: VariableSemanticDefinition,
+    source_representation_ref: VariableRepresentationRef,
+    source_representation: VariableRepresentation,
+    source_registry_bundle_ref: SelectedVariableBindingRef,
+    source_unit: UnitSpecType | None,
+    target_unit: UnitSpecType | None,
+    target_definition_ref: VariableSemanticDefinitionRef,
+    target_definition: VariableSemanticDefinition,
+    target_representation_ref: VariableRepresentationRef,
+    target_representation: VariableRepresentation,
+    binding_profile_ref: MeasurementBindingProfileRef,
+    profile: MeasurementBindingProfile,
+    model_interface_ref: SelectedVariableBindingRef,
+    model_port: ModelInputPort,
+    expected_scope: ModelInputScope,
+) -> ScopedCorrespondenceEvaluation:
+    """Compare owner-loaded candidate declarations for one exact vector step.
+
+    Callers must reopen the selected artifacts, their lineage, definition
+    evidence and actual source/target unit registries. The expected scope must
+    come from the original model obligation resolver. This pure predicate
+    compares those declarations; physical membership/alignment and JSON array
+    replay remain with the physical consumer. Meaning, scope and empirical
+    correctness are not promoted by a successful comparison.
+    """
+    refusals: list[str] = []
+    try:
+        SelectedEntityVectorSourceMeaning.model_validate(source_meaning.model_dump(mode="python"))
+        EntityVectorCorrespondenceBasis.model_validate(basis.model_dump(mode="python"))
+    except (TypeError, ValueError):
+        refusals.append("entity_vector_candidate_declaration_invalid")
+    for left, right in (
+        (basis.source_meaning_ref, source_meaning_ref),
+        (source_meaning.source_definition_ref, source_definition_ref),
+        (source_meaning.source_representation_ref, source_representation_ref),
+        (source_meaning.source_registry_bundle_ref, source_registry_bundle_ref),
+        (basis.target_definition_ref, target_definition_ref),
+        (basis.target_representation_ref, target_representation_ref),
+        (basis.binding_profile_ref, binding_profile_ref),
+        (basis.model_interface_ref, model_interface_ref),
+        (model_port.semantic_definition_ref, target_definition_ref),
+        (model_port.representation_ref, target_representation_ref),
+        (model_port.binding_profile_ref, binding_profile_ref),
+    ):
+        if artifact_ref_identity_key(left) != artifact_ref_identity_key(right):
+            refusals.append("entity_vector_basis_selected_ref_mismatch")
+    if (
+        basis.model_port_id != model_port.port_id
+        or model_port.carrier != "method_input"
+        or model_port.entity_axis_ref is None
+        or model_port.physical_encoding is None
+        or len(model_port.physical_encoding.shape) != 1
+    ):
+        refusals.append("entity_vector_model_port_mismatch")
+    if basis.scope != expected_scope or source_meaning.source_scope != expected_scope:
+        refusals.append("entity_vector_source_or_model_scope_mismatch")
+    envelope = model_port.scope
+    if (
+        expected_scope.population_ref != envelope.population_ref
+        or expected_scope.geography_ref != envelope.geography_ref
+        or expected_scope.jurisdiction_ref != envelope.jurisdiction_ref
+        or expected_scope.time_role != envelope.time_role
+        or expected_scope.period_basis != envelope.period_basis
+        or expected_scope.period_start < envelope.period_start
+        or expected_scope.period_end > envelope.period_end
+    ):
+        refusals.append("entity_vector_scope_outside_port_envelope")
+    if (
+        expected_scope.period_basis != "calendar_year"
+        or expected_scope.period_start != date(expected_scope.period_start.year, 1, 1)
+        or expected_scope.period_end != date(expected_scope.period_start.year, 12, 31)
+    ):
+        refusals.append("entity_vector_calendar_year_scope_required")
+    if not _same_selected_definition(
+        source_definition_ref, source_definition, target_definition_ref, target_definition
+    ):
+        refusals.append("same_definition_profile_requires_exact_definition")
+    if (
+        source_representation.semantic_definition_ref != source_definition_ref
+        or target_representation.semantic_definition_ref != target_definition_ref
+    ):
+        refusals.append("representation_definition_ref_mismatch")
+    for representation, scope, refusal_code in (
+        (
+            source_representation,
+            source_meaning.source_scope,
+            "source_representation_population_scope_mismatch",
+        ),
+        (
+            target_representation,
+            expected_scope,
+            "target_representation_population_scope_mismatch",
+        ),
+    ):
+        if not _representation_population_matches_scope(representation, scope):
+            refusals.append(refusal_code)
+    if (
+        source_representation.unit_id != model_port.unit_id
+        or target_representation.unit_id != model_port.unit_id
+        or type(source_unit) is not GenericUnit
+        or type(target_unit) is not GenericUnit
+        or source_unit != target_unit
+        or source_unit.label != "amount"
+        or source_representation.money_unit is not None
+        or target_representation.money_unit is not None
+    ):
+        refusals.append("entity_vector_generic_amount_unit_required")
+    if source_representation.scale_to_unit != Decimal(
+        1
+    ) or target_representation.scale_to_unit != Decimal(1):
+        refusals.append("entity_vector_identity_scale_required")
+    compared, optional_unknown, axis_refusals = compare_measurement_representation_axes(
+        source_representation, target_representation, profile
+    )
+    refusals.extend(axis_refusals)
+    if refusals:
+        return ScopedCorrespondenceEvaluation(
+            status="refused",
+            semantic_correspondence="not_established",
+            recomputed_axes=compared,
+            optional_unknown_axes=optional_unknown,
+            limitation_codes=ENTITY_VECTOR_CANDIDATE_LIMITATIONS,
+            refusal_codes=tuple(dict.fromkeys(refusals)),
+        )
+    return ScopedCorrespondenceEvaluation(
+        status="candidate",
+        semantic_correspondence="recomputed",
+        recomputed_axes=compared,
+        optional_unknown_axes=optional_unknown,
+        limitation_codes=ENTITY_VECTOR_CANDIDATE_LIMITATIONS,
     )
 
 
@@ -1460,11 +1795,36 @@ def _same_artifact_without_profile(left: ArtifactRef, right: ArtifactRef) -> boo
     )
 
 
-def _compare_axes(
+def _same_selected_definition(
+    source_ref: VariableSemanticDefinitionRef,
+    source: VariableSemanticDefinition,
+    target_ref: VariableSemanticDefinitionRef,
+    target: VariableSemanticDefinition,
+) -> bool:
+    return artifact_ref_identity_key(source_ref) == artifact_ref_identity_key(target_ref) and (
+        source == target
+    )
+
+
+def _representation_population_matches_scope(
+    representation: VariableRepresentation, scope: ModelInputScope
+) -> bool:
+    return representation.population_ref is None or (
+        representation.population_ref == scope.population_ref
+    )
+
+
+def compare_measurement_representation_axes(
     source: VariableRepresentation,
     target: VariableRepresentation,
     profile: MeasurementBindingProfile,
 ) -> tuple[tuple[MeasurementAxis, ...], tuple[MeasurementAxis, ...], tuple[str, ...]]:
+    """Compare declared meaning, time and unit axes under one selected policy.
+
+    Unknown required axes refuse; unknown optional axes remain limitations.
+    Neither equality nor a complete required-axis set establishes empirical
+    meaning or current source validity.
+    """
     required = set(profile.required_axes)
     if (
         source.measure_form in {"ratio", "rate"}
@@ -1517,6 +1877,10 @@ def _representation_axis_value(
 
 
 __all__ = [
+    "ENTITY_VECTOR_CANDIDATE_LIMITATIONS",
+    "EntityVectorCandidateLimitation",
+    "EntityVectorCorrespondenceBasis",
+    "EntityVectorCorrespondenceBasisRef",
     "FixedUnitTransformWitness",
     "MeasurementAxis",
     "MeasurementBindingProfile",
@@ -1529,16 +1893,24 @@ __all__ = [
     "ScopedMeasurementOccurrence",
     "ScopedMeasurementOccurrenceRef",
     "ScopedSourceSelection",
+    "SelectedEntityVectorSourceMeaning",
+    "SelectedEntityVectorSourceMeaningRef",
     "SelectedVariableBindingRef",
     "VariableRepresentation",
     "VariableRepresentationRef",
     "VariableSemanticDefinition",
     "VariableSemanticDefinitionRef",
+    "compare_measurement_representation_axes",
+    "entity_vector_correspondence_basis_manifest_inputs",
+    "evaluate_entity_vector_correspondence_basis",
     "evaluate_scoped_correspondence_basis",
+    "load_entity_vector_correspondence_basis",
+    "load_selected_entity_vector_source_meaning",
     "load_variable_representation",
     "replay_scoped_measurement_occurrence",
     "scoped_correspondence_basis_manifest_inputs",
     "scoped_measurement_occurrence_manifest_inputs",
     "scoped_source_selection_from_passport_mapping",
+    "selected_entity_vector_source_meaning_manifest_inputs",
     "variable_representation_manifest_inputs",
 ]

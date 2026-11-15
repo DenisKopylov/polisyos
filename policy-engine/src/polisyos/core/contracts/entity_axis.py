@@ -92,6 +92,9 @@ class SelectedEntityAxis(BaseModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.SelectedEntityAxis"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "2.0"
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "2.0": _AXIS_SCHEMA_VERSION,
+    }
     ARTIFACT_SCHEMA: ClassVar[SchemaInfo] = SchemaInfo(
         name=ARTIFACT_SCHEMA_NAME,
         version=ARTIFACT_SCHEMA_VERSION,

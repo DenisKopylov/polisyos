@@ -2089,6 +2089,32 @@ class FoundrySelectedMethodVectorInput(BaseModel):
         return self
 
 
+def selected_method_input_tensor_identity(
+    record: FoundrySelectedMethodInput | FoundrySelectedMethodVectorInput,
+) -> tuple[str, tuple[int, ...], str]:
+    """Return one existing selected tensor identity without changing its wire law.
+
+    Args:
+        record: Exact scalar or vector transport record from its owning reader.
+
+    Returns:
+        The selected tensor digest, concrete shape and dtype name. Vector
+        alignment digests use a different law and are deliberately not returned.
+
+    Raises:
+        ValueError: If the supplied record is not a supported exact transport type.
+    """
+    if type(record) is FoundrySelectedMethodInput:
+        return record.value_sha256, record.shape, record.dtype
+    if type(record) is FoundrySelectedMethodVectorInput:
+        return (
+            record.tensor_value_sha256,
+            record.alignment_identity.shape,
+            record.alignment_identity.dtype,
+        )
+    raise ValueError("foundry_selected_method_input_record_type_unsupported")
+
+
 class FoundrySelectedMethodInputAtStep(BaseModel):
     """One selected method input value for one exact temporal port scope."""
 

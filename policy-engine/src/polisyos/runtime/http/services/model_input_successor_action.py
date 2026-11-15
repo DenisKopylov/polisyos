@@ -2123,7 +2123,11 @@ def resolve_model_input_use_evaluation_history(
                     "past_method_abi_completeness_not_established",
                     "past_method_provider_completeness_not_established",
                 )
-                if basis.comparison_profile == "generic_program_graph_mapped_numpy_methods_v3"
+                if basis.comparison_profile
+                in {
+                    "generic_program_graph_mapped_numpy_methods_v3",
+                    "generic_program_graph_paired_numpy_methods_v4",
+                }
                 else ()
             ),
         ),

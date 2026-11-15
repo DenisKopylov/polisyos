@@ -52,6 +52,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
     JointSimulationRequest,
     NCMConditionalComparatorProfile,
+    ProgramGraphPairedComparatorProfileV4,
 )
 from polisyos.runtime.quality.model_input_successor_selection import (
     MODEL_INPUT_SUCCESSOR_SELECTION_KIND,
@@ -270,11 +271,44 @@ class GenericCycleN5ProgramGraphRequestProfileV4(GenericCycleN5RequestProfileV1)
         return self
 
 
+class GenericCycleN5PairedProgramGraphRequestProfileV5(GenericCycleN5ProgramGraphRequestProfileV4):
+    """Select a real paired graph contrast, preserving the unpaired V4 profile."""
+
+    schema_version: Literal["policyos.runtime.generic_cycle_n5_request_profile.v5"] = (
+        "policyos.runtime.generic_cycle_n5_request_profile.v5"
+    )
+    program_graph_comparator_profile: ProgramGraphPairedComparatorProfileV4 = Field(
+        default_factory=ProgramGraphPairedComparatorProfileV4
+    )
+
+    @model_validator(mode="after")
+    def _complete_pair_capacity(self) -> GenericCycleN5PairedProgramGraphRequestProfileV5:
+        if (
+            self.invocation_quota_policy.total_units - self.invocation_quota_policy.protected_units
+            < 2 * self.replications
+        ):
+            raise ValueError("generic_cycle_paired_program_graph_quota_below_complete_pair")
+        return self
+
+
+def _is_generic_program_graph_n5_profile(
+    profile: object,
+) -> TypeGuard[
+    GenericCycleN5ProgramGraphRequestProfileV4 | GenericCycleN5PairedProgramGraphRequestProfileV5
+]:
+    """Accept the two explicit server profiles without aliasing their semantics."""
+    return type(profile) in {
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
+    }
+
+
 type _GenericCycleN5RequestProfile = (
     GenericCycleN5RequestProfileV1
     | GenericCycleN5RequestProfileV2
     | GenericCycleN5RequestProfileV3
     | GenericCycleN5ProgramGraphRequestProfileV4
+    | GenericCycleN5PairedProgramGraphRequestProfileV5
 )
 
 
@@ -353,7 +387,7 @@ class GenericCycleSimulationProfileV1(_StrictModel):
             for ref, kind in typed_refs
         ):
             raise ValueError("generic_cycle_simulation_profile_ref_kind_invalid")
-        if isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+        if _is_generic_program_graph_n5_profile(self.n5):
             if (
                 self.profile_selection_kind != "problem"
                 or self.selected_ncm_ref is not None
@@ -433,7 +467,7 @@ def _profile_ncm_views_match_world(
 def _profile_world_views_match(
     profile: GenericCycleSimulationProfileV1, world: WorldModelRecord
 ) -> bool:
-    if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+    if _is_generic_program_graph_n5_profile(profile.n5):
         views = world_model_artifact_views(world)
         # The server profile selects one graph via its compile report. CAS
         # admission verifies that exact view, including the registry and model.
@@ -618,7 +652,7 @@ class GenericCycleSimulationContextHandoffV1(_StrictModel):
         ):
             raise ValueError("generic_cycle_simulation_child_handoff_family_missing")
         if (
-            isinstance(self.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            _is_generic_program_graph_n5_profile(self.profile.n5)
             and self.n4_child_profile_family_ref is not None
         ):
             raise ValueError("generic_cycle_program_graph_child_family_unsupported")
@@ -665,7 +699,7 @@ class GenericCycleNativeWorldContextHandoffV1(_StrictModel):
         if (
             self.source_job_id == self.job_id
             or self.profile.profile_selection_kind != "problem"
-            or not isinstance(self.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or not _is_generic_program_graph_n5_profile(self.profile.n5)
             or self.context.authority_purpose != self.authority_purpose
         ):
             raise ValueError("generic_native_world_handoff_subject_invalid")
@@ -931,7 +965,7 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
             )
             or not _is_selected_json_ref(self.original_generic_input_ref, _N5_INPUT_KIND)
             or self.native_current_profile_selection_ref is None
-            or not isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or not _is_generic_program_graph_n5_profile(self.n5)
             or self.child_selection is not None
             or self.n4_child_profile_family_ref is not None
             or self.n4_child_profile_set_ref is not None
@@ -988,7 +1022,7 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
         ):
             raise ValueError("generic_cycle_simulation_parent_input_has_child_binding")
         if (
-            isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            _is_generic_program_graph_n5_profile(self.n5)
             and self.n4_child_profile_family_ref is not None
         ):
             raise ValueError("generic_cycle_program_graph_child_family_unsupported")
@@ -1983,7 +2017,7 @@ class GenericCycleSimulationAdmissionOwner:
             registry = load_substrate_registry(self._store, profile.substrate_registry_ref)
             if registry != profile.context_inputs.substrate_registry:
                 raise ValueError("generic_cycle_simulation_registry_content_mismatch")
-            if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+            if _is_generic_program_graph_n5_profile(profile.n5):
                 self._read_selected_program_graph(profile.n5, world)
             else:
                 for ncm_ref in _profile_ncm_plan_refs(profile):
@@ -2130,8 +2164,9 @@ class GenericCycleSimulationAdmissionOwner:
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_simulation_child_profile_outside_family"
                 )
-        elif offer.profile.profile_selection_kind == "problem" and not isinstance(
-            offer.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4
+        elif (
+            offer.profile.profile_selection_kind == "problem"
+            and not _is_generic_program_graph_n5_profile(offer.profile.n5)
         ):
             child_profiles = self._configured_child_profiles()
             if child_profiles:
@@ -2494,7 +2529,7 @@ class GenericCycleSimulationAdmissionOwner:
         if (
             profile.content_hash != expected_profile_content_hash
             or profile.profile_selection_ref != expected_profile_selection_ref
-            or not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or not _is_generic_program_graph_n5_profile(profile.n5)
             or artifact_ref_identity_key(profile.n5.compile_report_ref)
             != artifact_ref_identity_key(expected_compile_report_ref)
         ):
@@ -2550,7 +2585,7 @@ class GenericCycleSimulationAdmissionOwner:
         from polisyos.core.registry import load_registry_bundle_content
         from polisyos.ir import RegistryBundle
 
-        if not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+        if not _is_generic_program_graph_n5_profile(profile.n5):
             raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_profile_required")
         if not self.context_matches_profile(context, profile, problem):
             raise CycleSubstrateContextOwnerError(
@@ -3124,7 +3159,7 @@ class GenericCycleSimulationAdmissionOwner:
         )
 
         selected_input = self.resolve_n5_input(input_ref, expected=input_record)
-        if type(selected_input.n5) is not GenericCycleN5ProgramGraphRequestProfileV4:
+        if not _is_generic_program_graph_n5_profile(selected_input.n5):
             return None
         source_ref = world_model_artifact_views(
             self._effective_input_profile(selected_input).context_inputs.world_model_record
@@ -3221,7 +3256,7 @@ class GenericCycleSimulationAdmissionOwner:
             current_method_input_bindings_ref
         )
         if (
-            type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            not _is_generic_program_graph_n5_profile(input_record.n5)
             or len(request.engine_plan) != 1
             or not _is_selected_json_ref(
                 current_method_input_bindings_ref, "foundry.input_bindings"
@@ -3363,7 +3398,7 @@ class GenericCycleSimulationAdmissionOwner:
                 input_record.job_id,
             )
             or selected.action_job_id == input_record.job_id
-            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or not _is_generic_program_graph_n5_profile(input_record.n5)
             or input_record.n4_child_profile_family_ref is not None
             or input_record.profile.profile_selection_kind != "problem"
         ):
@@ -3553,7 +3588,7 @@ class GenericCycleSimulationAdmissionOwner:
                 model_input_obligation_set_ref, _MODEL_INPUT_OBLIGATION_SET_KIND
             )
             or not is_typed_binding
-            or not isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or not _is_generic_program_graph_n5_profile(input_record.n5)
             or status != "simulation_blocked"
             or result_ref is not None
             or limitation_code != "n5_model_input_obligations_required"
@@ -3563,7 +3598,7 @@ class GenericCycleSimulationAdmissionOwner:
             )
         if (
             status == "joint_simulated"
-            and isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            and _is_generic_program_graph_n5_profile(input_record.n5)
             and (
                 not is_typed_binding
                 or result_ref is None
@@ -3578,7 +3613,7 @@ class GenericCycleSimulationAdmissionOwner:
             or not is_typed_binding
             or semantic_successor_ref is not None
             or model_input_obligation_set_ref is not None
-            or not isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or not _is_generic_program_graph_n5_profile(input_record.n5)
         ):
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_initial_method_selection_invalid"
@@ -3867,9 +3902,7 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_execution_content_mismatch"
             )
-        program_graph_profile = isinstance(
-            input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4
-        )
+        program_graph_profile = _is_generic_program_graph_n5_profile(input_record.n5)
         if (is_successor and not program_graph_profile) or (
             program_graph_profile
             and record.status == "joint_simulated"
@@ -4034,7 +4067,7 @@ class GenericCycleSimulationAdmissionOwner:
         obligation_set_ref = record.model_input_obligation_set_ref
         if (
             obligation_set_ref is None
-            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or not _is_generic_program_graph_n5_profile(input_record.n5)
             or type(record.request_binding) is not GenericCycleSimulationN5RequestBindingV2
             or record.status != "simulation_blocked"
             or record.result_ref is not None
@@ -5204,7 +5237,7 @@ class GenericCycleSimulationAdmissionOwner:
             )
         ):
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
-        if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+        if _is_generic_program_graph_n5_profile(profile.n5):
             selected = self._read_selected_program_graph(profile.n5, world_record)
             self._require_selected_program_graph_atom(selected, atoms)
             state_paths = {slot.slot_id: slot.state_path for slot in world_record.policy_slot_map}
@@ -5413,6 +5446,11 @@ class GenericCycleSimulationAdmissionOwner:
             comparator_profile=(
                 input_record.n5.comparator_profile.model_copy(deep=True)
                 if input_record.n5.comparator_profile is not None
+                else None
+            ),
+            program_graph_comparator_profile=(
+                input_record.n5.program_graph_comparator_profile.model_copy(deep=True)
+                if type(input_record.n5) is GenericCycleN5PairedProgramGraphRequestProfileV5
                 else None
             ),
             budget_ref=input_record.n5.budget_ref,
@@ -5647,7 +5685,7 @@ class GenericCycleSimulationAdmissionOwner:
             input_ref_from_artifact_ref(profile.world_model_record_ref, role="world_model_record"),
             input_ref_from_artifact_ref(profile.substrate_registry_ref, role="substrate_registry"),
         ]
-        if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+        if _is_generic_program_graph_n5_profile(profile.n5):
             input_refs.append(
                 input_ref_from_artifact_ref(
                     profile.n5.compile_report_ref, role="selected_program_compile_report"

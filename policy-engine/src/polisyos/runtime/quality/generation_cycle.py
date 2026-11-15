@@ -246,6 +246,7 @@ from polisyos.runtime.quality.evaluation_safety import (
     evaluation_safety_consumer_admission_is_verified,
 )
 from polisyos.runtime.quality.generic_simulation_admission import (
+    GenericCycleNativeWorldContextHandoffV1,
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationChildSelectionV1,
     GenericCycleSimulationContextHandoffV1,
@@ -5339,7 +5340,9 @@ class _N4CandidateScenarioProposalOnlyError(Exception):
 def _resolve_n4_program_graph_link_context(
     *,
     problem: DesignProblem,
-    handoff: GenericCycleSimulationContextHandoffV1 | None,
+    handoff: GenericCycleSimulationContextHandoffV1
+    | GenericCycleNativeWorldContextHandoffV1
+    | None,
     owner: GenericCycleSimulationAdmissionOwner | None,
     scope: VerifiedNLJobScope | None,
     context_owner: CycleSubstrateContextArtifactOwner | None,
@@ -5347,14 +5350,38 @@ def _resolve_n4_program_graph_link_context(
     child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
 ) -> N4SelectedProgramGraphLinkContext | None:
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
         GenericCycleN5ProgramGraphRequestProfileV4,
     )
 
-    if (
-        handoff is None
-        or type(handoff.profile.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
-    ):
+    if handoff is None or type(handoff.profile.n5) not in {
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
+    }:
         return None
+    if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+        if type(owner) is not GenericCycleSimulationAdmissionOwner or child_selection is not None:
+            raise GenerationCycleError("n4_native_program_graph_owner_not_established")
+        from polisyos.runtime.quality.design_generation import (
+            N4SelectedProgramGraphLinkageV2,
+            N4SelectedProgramGraphLinkContext,
+        )
+        from polisyos.runtime.quality.native_generic_context import (
+            resolve_native_selected_program_graph_linkage,
+        )
+
+        selected = resolve_native_selected_program_graph_linkage(
+            owner,
+            handoff=handoff,
+            problem=problem,
+            context_owner=context_owner,
+            repo_root=repo_root,
+        )
+        return N4SelectedProgramGraphLinkContext(
+            linkage=N4SelectedProgramGraphLinkageV2.from_native_selected_owner(selected),
+            registry_content=selected.registry_bundle_content,
+            compiled_singleton=selected.compiled_singleton,
+        )
     if (
         type(owner) is not GenericCycleSimulationAdmissionOwner
         or scope is None
@@ -5682,6 +5709,7 @@ def _bind_selected_n5_invocation_policy(
     """
     from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
         GenericCycleN5ProgramGraphRequestProfileV4,
         GenericCycleN5RequestProfileV1,
         GenericCycleN5RequestProfileV2,
@@ -5694,6 +5722,7 @@ def _bind_selected_n5_invocation_policy(
         GenericCycleN5RequestProfileV2,
         GenericCycleN5RequestProfileV3,
         GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
     }:
         raise ProducerBudgetSourceError("n5_invocation_selected_profile_untyped")
     # Revalidate even an in-memory model copy before reading its policy.
@@ -5702,6 +5731,7 @@ def _bind_selected_n5_invocation_policy(
         CandidateScenarioN5Config,
         GenericCycleN5RequestProfileV3,
         GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
     }:
         policy = selected.invocation_quota_policy
         purpose = selected.invocation_purpose or "standard"
@@ -5742,6 +5772,7 @@ def _bind_scoped_n5_invocation_policy(
         )
     from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
         GenericCycleN5ProgramGraphRequestProfileV4,
         GenericCycleN5RequestProfileV3,
     )
@@ -5751,6 +5782,7 @@ def _bind_scoped_n5_invocation_policy(
         CandidateScenarioN5Config,
         GenericCycleN5RequestProfileV3,
         GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
     }:
         raise ProducerBudgetSourceError("n5_invocation_selected_profile_not_established")
     selected = type(n5_profile).model_validate(n5_profile.model_dump(mode="python"))
@@ -6416,10 +6448,14 @@ class JointSimulationPort:
         )
         if selected_program_profile:
             from polisyos.runtime.quality.generic_simulation_admission import (
+                GenericCycleN5PairedProgramGraphRequestProfileV5,
                 GenericCycleN5ProgramGraphRequestProfileV4,
             )
 
-            if type(selected_n5_profile) is not GenericCycleN5ProgramGraphRequestProfileV4:
+            if type(selected_n5_profile) not in {
+                GenericCycleN5ProgramGraphRequestProfileV4,
+                GenericCycleN5PairedProgramGraphRequestProfileV5,
+            }:
                 code = "n5_program_compilation_owner_not_established"
                 return produced(
                     candidate_id=candidate_id,
@@ -6670,6 +6706,9 @@ class JointSimulationPort:
                             "program_graph_input_preflight_selection_mismatch",
                             "program_graph_semantic_horizon_intake_not_established",
                             "program_graph_semantic_horizon_profile_unsupported",
+                            "program_graph_paired_input_not_established",
+                            "program_graph_paired_preparation_not_established",
+                            "program_graph_paired_observation_not_established",
                         }:
                             code = exc.code
                         else:
@@ -7655,6 +7694,7 @@ class JointSimulationPort:
         if not atoms or any(not isinstance(atom, InterventionAtomBinding) for atom in atoms):
             raise WorldModelRecordError("generic_cycle_simulation_n5_atom_untyped")
         from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
             GenericCycleN5ProgramGraphRequestProfileV4,
             GenericCycleN5RequestProfileV3,
         )
@@ -7676,7 +7716,10 @@ class JointSimulationPort:
         world_record = self._context_world_model_record(candidate=candidate, problem=problem)
         profile_world = persisted.profile.context_inputs.world_model_record
         profile_views = world_model_artifact_views(profile_world)
-        program_graph_selected = type(persisted.n5) is GenericCycleN5ProgramGraphRequestProfileV4
+        program_graph_selected = type(persisted.n5) in {
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
+        }
         selected_ncm_ref = persisted.profile.selected_ncm_ref
         if (
             world_record != profile_world
@@ -7710,7 +7753,10 @@ class JointSimulationPort:
             variable_map=variable_map,
             atoms=atoms if program_graph_selected else None,
         )
-        if type(persisted.n5) is GenericCycleN5ProgramGraphRequestProfileV4 and (
+        if type(persisted.n5) in {
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
+        } and (
             len(plans) != 1
             or plans[0].program_compilation_ref is None
             or artifact_ref_identity_key(plans[0].program_compilation_ref)
@@ -7734,6 +7780,11 @@ class JointSimulationPort:
             comparator_profile=(
                 persisted.n5.comparator_profile.model_copy(deep=True)
                 if persisted.n5.comparator_profile is not None
+                else None
+            ),
+            program_graph_comparator_profile=(
+                persisted.n5.program_graph_comparator_profile.model_copy(deep=True)
+                if type(persisted.n5) is GenericCycleN5PairedProgramGraphRequestProfileV5
                 else None
             ),
             budget_ref=persisted.n5.budget_ref,
@@ -7797,6 +7848,7 @@ class JointSimulationPort:
             ProgramGraphRef,
         )
         from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
             GenericCycleN5ProgramGraphRequestProfileV4,
         )
         from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
@@ -7811,7 +7863,11 @@ class JointSimulationPort:
             or store is not self._artifact_store
             or type(graph_ref) is not ProgramGraphRef
             or type(exec_plan_ref) is not ExecPlanRef
-            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or type(input_record.n5)
+            not in {
+                GenericCycleN5ProgramGraphRequestProfileV4,
+                GenericCycleN5PairedProgramGraphRequestProfileV5,
+            }
             or selected_plan.program_compilation_ref != input_record.n5.compile_report_ref
             or request.horizon != input_record.n5.horizon
             or request.world_model_record.content_hash
@@ -11824,6 +11880,13 @@ class GenerationCycleController:
                 self._source_issues.append("source_store_unavailable")
             else:
                 self._source_repository = GenerationSourceRepository(store)
+                if (
+                    type(self._generic_cycle_simulation_handoff)
+                    is GenericCycleNativeWorldContextHandoffV1
+                ):
+                    self._source_repository.bind_native_world_history_owner(
+                        self._generic_cycle_simulation_admission_owner
+                    )
         except OSError, ValueError:
             self._source_repository = None
             self._source_custody_limitation = GenerationSourceCustodyLimitation()
@@ -15882,6 +15945,25 @@ class GenerationCycleController:
         owner = self._generic_cycle_simulation_admission_owner
         context_owner = self._candidate_cycle_context_artifact_owner
         scope = self._candidate_cycle_verified_nl_job_scope
+        if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+            if (
+                type(problem) is not DesignProblem
+                or type(owner) is not GenericCycleSimulationAdmissionOwner
+                or self._generic_cycle_simulation_child_selection is not None
+            ):
+                raise GenerationCycleError("generation_cycle_native_current_binding_missing")
+            upstream = self._generic_cycle_simulation_upstream_currentness_resolver
+            if upstream is None or upstream() is not True:
+                raise GenerationCycleError("generation_cycle_native_upstream_not_current")
+            resolved = owner.resolve_native_world_handoff(
+                handoff=handoff,
+                problem=problem,
+                context_owner=context_owner,
+                repo_root=self._repo_root,
+            )
+            if resolved != handoff or upstream() is not True:
+                raise GenerationCycleError("generation_cycle_native_handoff_not_current")
+            return True
         if (
             type(handoff) is not GenericCycleSimulationContextHandoffV1
             or type(problem) is not DesignProblem

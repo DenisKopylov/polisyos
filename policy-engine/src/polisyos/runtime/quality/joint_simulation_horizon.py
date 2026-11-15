@@ -101,6 +101,7 @@ from polisyos.scientist.orchestration.engine import (
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
+    from polisyos.runtime.quality.n5_candidate_content import GenericProgramGraphN5ContentRun
 
 JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
 JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
@@ -515,6 +516,25 @@ class NCMConditionalComparatorProfile(_StrictModel):
         return value
 
 
+class ProgramGraphPairedComparatorProfileV4(_StrictModel):
+    """Request an actual same-seed empty-actuation ProgramGraph comparator.
+
+    Actuation is separate from the selected semantic input invocation. Every
+    input and world-model method remains present in both physical units.
+    """
+
+    schema_version: Literal["policyos.runtime.program_graph_paired_comparator_profile.v4"] = (
+        "policyos.runtime.program_graph_paired_comparator_profile.v4"
+    )
+    estimand: Literal["same_seed_compiled_intervention_difference.v4"] = (
+        "same_seed_compiled_intervention_difference.v4"
+    )
+    baseline_scope: Literal["empty_compiled_intervention_subset"] = (
+        "empty_compiled_intervention_subset"
+    )
+    input_basis: Literal["same_selected_semantic_inputs"] = "same_selected_semantic_inputs"
+
+
 class JointSimulationRequest(_StrictModel):
     """Controller input matching the GY-N0 seam contract."""
 
@@ -528,6 +548,9 @@ class JointSimulationRequest(_StrictModel):
     evidence_state: dict[str, float] | None = None
     comparator_refs: tuple[str, ...] = ()
     comparator_profile: NCMConditionalComparatorProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    program_graph_comparator_profile: ProgramGraphPairedComparatorProfileV4 | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     coupling_graph: CouplingGraph | None = None
@@ -599,6 +622,16 @@ class JointSimulationRequest(_StrictModel):
             or self.coupling_graph is not None
         ):
             raise ValueError("joint_simulation_candidate_diagnostic_scope_invalid")
+        return self
+
+    @model_validator(mode="after")
+    def _paired_program_graph_scope(self) -> JointSimulationRequest:
+        if self.program_graph_comparator_profile is not None and (
+            self.comparator_profile is not None
+            or self.evidence_state is not None
+            or not any(plan.engine_kind == "program_graph" for plan in self.engine_plan)
+        ):
+            raise ValueError("program_graph_paired_comparator_scope_invalid")
         return self
 
 
@@ -920,6 +953,82 @@ class SemanticProgramGraphReplication(_StrictModel):
         if any(ref.manifest_profile_sha256 is None for ref in self.step_result_refs):
             raise ValueError("semantic_program_graph_step_result_unselected")
         return self
+
+
+class ProgramGraphPairedBaselineSampleV4(_StrictModel):
+    """The actual empty-actuation source chain for one paired replication."""
+
+    replication_seed: StrictInt
+    physical_spec_ref: str = Field(pattern=r"^[0-9a-f]{64}$")
+    physical_work_event_id: str = Field(min_length=1)
+    actuation_selection_ref: ArtifactRef
+    step_result_refs: tuple[SimulationResultRef, ...] = Field(min_length=1, max_length=64)
+    outcomes_by_step: tuple[dict[str, float], ...] = Field(min_length=1, max_length=64)
+
+    @model_validator(mode="after")
+    def _selected_baseline(self) -> ProgramGraphPairedBaselineSampleV4:
+        ref = self.actuation_selection_ref
+        if (
+            ref.kind != "foundry.program_graph_actuation_selection"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or any(ref.manifest_profile_sha256 is None for ref in self.step_result_refs)
+            or len(self.step_result_refs) != len(self.outcomes_by_step)
+            or any(
+                not values or any(not math.isfinite(value) for value in values.values())
+                for values in self.outcomes_by_step
+            )
+        ):
+            raise ValueError("program_graph_paired_baseline_source_invalid")
+        return self
+
+
+class ProgramGraphPairedComparatorV4(_StrictModel):
+    """Candidate contrast retaining the complete simulated baseline denominator."""
+
+    schema_version: Literal["policyos.runtime.program_graph_paired_comparator.v4"] = (
+        "policyos.runtime.program_graph_paired_comparator.v4"
+    )
+    authority_purpose: Literal["candidate_simulation_contrast_only"] = (
+        "candidate_simulation_contrast_only"
+    )
+    estimand: Literal["same_seed_compiled_intervention_difference.v4"] = (
+        "same_seed_compiled_intervention_difference.v4"
+    )
+    baseline_scope: Literal["empty_compiled_intervention_subset"] = (
+        "empty_compiled_intervention_subset"
+    )
+    selected_outcomes: tuple[str, ...] = Field(min_length=1)
+    steps: tuple[int, ...] = Field(min_length=1, max_length=64)
+    samples: tuple[ProgramGraphPairedBaselineSampleV4, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _complete_denominator(self) -> ProgramGraphPairedComparatorV4:
+        if (
+            len(set(self.selected_outcomes)) != len(self.selected_outcomes)
+            or tuple(sorted(set(self.steps))) != self.steps
+            or self.steps[0] < 0
+            or len({item.replication_seed for item in self.samples}) != len(self.samples)
+            or any(
+                len(item.step_result_refs) != len(self.steps)
+                or any(
+                    set(values) != set(self.selected_outcomes) for values in item.outcomes_by_step
+                )
+                for item in self.samples
+            )
+        ):
+            raise ValueError("program_graph_paired_baseline_denominator_invalid")
+        return self
+
+
+@dataclass(frozen=True, slots=True)
+class _SemanticProgramGraphPhysicalUnit:
+    """One actual Foundry chain, before projecting a role or an effect."""
+
+    replication_seed: int
+    step_result_refs: tuple[SimulationResultRef, ...]
+    outcomes_by_step: tuple[dict[str, float], ...]
+    engine_states: tuple[dict[str, Any], ...]
 
 
 class SimulationTrajectory(_StrictModel):
@@ -1392,7 +1501,126 @@ def _physical_run_ref(
         "runtime_refs": runtime_refs,
         "atoms": [atom.model_dump(mode="json") for atom in subset],
     }
+    if request.program_graph_comparator_profile is not None:
+        payload["program_graph_comparator_profile"] = (
+            request.program_graph_comparator_profile.model_dump(mode="json")
+        )
     return gy_content_hash(payload)
+
+
+def _planned_physical_units(
+    request: JointSimulationRequest, plan: EnginePlan, decision: EngineDecision
+) -> tuple[tuple[str, int], ...]:
+    """Derive the complete unique physical denominator before executing a role."""
+    specs = {
+        _physical_spec_digest(_physical_run_ref(request, plan, decision, subset))
+        for _role, subset in _atom_subsets(request.intervention_atoms)
+    }
+    if (
+        request.comparator_profile is not None
+        or request.program_graph_comparator_profile is not None
+    ):
+        specs.add(_physical_spec_digest(_physical_run_ref(request, plan, decision, ())))
+    return tuple(sorted((spec, seed) for spec in specs for seed in _replication_seeds(request)))
+
+
+@dataclass(frozen=True, slots=True)
+class _PairedProgramGraphUnitSelection:
+    """Operation-local selection emitted and resolved by the Foundry owner."""
+
+    atom_indices: tuple[int, ...]
+    physical_spec_ref: str
+    actuation_selection_ref: ArtifactRef
+    selected_intervention_ids: tuple[str, ...]
+    active_apply_node_ids: tuple[str, ...]
+    inactive_apply_node_ids: tuple[str, ...]
+
+
+def _paired_program_graph_subsets(
+    request: JointSimulationRequest,
+) -> tuple[tuple[tuple[int, ...], tuple[InterventionAtomBinding, ...]], ...]:
+    """Name physical roles by their request positions, not provenance hashes."""
+    by_ids: dict[tuple[str, ...], tuple[tuple[int, ...], tuple[InterventionAtomBinding, ...]]] = {
+        (): ((), ())
+    }
+    indices = {atom.intervention_id: index for index, atom in enumerate(request.intervention_atoms)}
+    if len(indices) != len(request.intervention_atoms):
+        raise JointSimulationControllerError("program_graph_paired_atom_inventory_invalid")
+    for _role, subset in _atom_subsets(request.intervention_atoms):
+        key = tuple(sorted(atom.intervention_id for atom in subset))
+        by_ids.setdefault(key, (tuple(sorted(indices[item] for item in key)), tuple(subset)))
+    return tuple(sorted(by_ids.values(), key=lambda item: item[0]))
+
+
+def _prepare_paired_program_graph_unit_selections(
+    request: JointSimulationRequest, plan: EnginePlan, decision: EngineDecision
+) -> tuple[_PairedProgramGraphUnitSelection, ...]:
+    """Persist exact physical selectors through the single canonical binder."""
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.foundry.execute import (
+        create_program_graph_actuation_selection,
+        resolve_program_graph_actuation,
+    )
+
+    if (
+        type(request.program_graph_comparator_profile) is not ProgramGraphPairedComparatorProfileV4
+        or decision.engine_kind != "program_graph"
+        or plan.program_graph_ref is None
+        or plan.exec_plan_ref is None
+        or plan.program_semantic_input_bindings_ref is None
+    ):
+        raise JointSimulationControllerError("program_graph_paired_input_not_established")
+    selections = []
+    for indices, subset in _paired_program_graph_subsets(request):
+        selected_ids = tuple(sorted(atom.intervention_id for atom in subset))
+        ref = create_program_graph_actuation_selection(
+            plan.program_store,
+            program_ref=plan.program_graph_ref,
+            exec_plan_ref=plan.exec_plan_ref,
+            selected_intervention_ids=selected_ids,
+        )
+        resolved = resolve_program_graph_actuation(
+            plan.program_store,
+            program_ref=plan.program_graph_ref,
+            exec_plan_ref=plan.exec_plan_ref,
+            actuation_selection_ref=ref,
+        )
+        if (
+            resolved.selection_ref is None
+            or artifact_ref_identity_key(resolved.selection_ref) != artifact_ref_identity_key(ref)
+            or resolved.selected_intervention_ids != selected_ids
+        ):
+            raise JointSimulationControllerError(
+                "program_graph_paired_actuation_selection_mismatch"
+            )
+        selections.append(
+            _PairedProgramGraphUnitSelection(
+                atom_indices=indices,
+                physical_spec_ref=_physical_spec_digest(
+                    _physical_run_ref(request, plan, decision, subset)
+                ),
+                actuation_selection_ref=ref,
+                selected_intervention_ids=selected_ids,
+                active_apply_node_ids=resolved.active_apply_node_ids,
+                inactive_apply_node_ids=resolved.inactive_apply_node_ids,
+            )
+        )
+    return tuple(selections)
+
+
+def _semantic_unit_execute_request(
+    selected: _SelectedSemanticProgramGraphInput, actuation_selection_ref: ArtifactRef | None
+) -> ExecuteRequest:
+    """Keep the semantic invocation fixed while selecting explicit actuation."""
+    if actuation_selection_ref is None:
+        return selected.request
+    return ExecuteRequest.model_validate(
+        {
+            **selected.request.model_dump(mode="python"),
+            "schema_version": "1.1",
+            "actuation_selection_ref": actuation_selection_ref,
+        }
+    )
 
 
 def _physical_plan_identity(plan: EnginePlan) -> dict[str, Any]:
@@ -1839,6 +2067,7 @@ class _PhysicalRunOutput(list[SimulationTrajectory]):
         self.observations = tuple(observations)
         self.budget_observations = tuple(budget_observations)
         self.comparator_record: dict[str, Any] | None = None
+        self.program_graph_comparator: ProgramGraphPairedComparatorV4 | None = None
 
 
 class _PhysicalWorkInterruptedError(JointSimulationControllerError):
@@ -1859,6 +2088,7 @@ class _PhysicalWorkInterruptedError(JointSimulationControllerError):
         self.budget_observations = tuple(budget_observations)
         self.budget_refusal_basis = budget_refusal_basis
         self.comparator_record: dict[str, Any] | None = None
+        self.program_graph_comparator: ProgramGraphPairedComparatorV4 | None = None
         self.projection_error_code: str | None = None
         self.projection_error_context: dict[str, str] | None = None
         self.completed_physical_value: Any = None
@@ -2023,7 +2253,7 @@ def _run_cached_replicates(
     comparator_once: Callable[[int], Mapping[str, float]] | None = None,
     comparator_samples: list[dict[str, Any]] | None = None,
     diagnostic_replay_scope: object | None = None,
-) -> list[SimulationTrajectory]:
+) -> _PhysicalRunOutput:
     """Admit each physical seed once; role projections do not create new work.
 
     The budget read is current at the actual call boundary. The work unit is a
@@ -2056,6 +2286,37 @@ def _run_cached_replicates(
     budget_bases: dict[str, ProducerBudgetObservation] = {}
     invocation_id = uuid4().hex
     seeds = _replication_seeds(request)
+    if request.program_graph_comparator_profile is not None:
+        required_units = len(_planned_physical_units(request, plan, decision))
+        try:
+            _require_nl_physical_budget_scope(
+                physical_n5_budget_scope, producer_budget_observer, require_selected_quota=True
+            )
+            if type(producer_budget_observer) is not ProducerBudgetObserver:
+                raise ProducerBudgetSourceError("n5_invocation_quota_owner_not_established")
+            capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(
+                producer_budget_observer
+            )
+            if (
+                capacity.status != "available"
+                or capacity.predicate_basis != "independently_reconciled"
+                or capacity.standard_remaining_units is None
+                or capacity.standard_remaining_units < required_units
+            ):
+                raise ProducerBudgetSourceError("n5_paired_invocation_capacity_not_established")
+        except ProducerBudgetSourceError as exc:
+            raise _PhysicalWorkInterruptedError(
+                str(exc),
+                output,
+                observations,
+                (),
+                budget_refusal_basis={
+                    "status": "not_established",
+                    "required_physical_units": required_units,
+                    "work_unit": "physical_simulation_invocation",
+                    "price_origin": "unknown",
+                },
+            ) from exc
 
     def physical_call(
         seed: int, physical_ref: str, operation: Callable[[], Any]
@@ -3644,7 +3905,9 @@ class JointSimulationHorizonController:
             )
             if numeric_limitations:
                 diagnostics["intervention_numeric_limitations"] = numeric_limitations
-            if decision.engine_kind == "program_graph":
+            if decision.engine_kind == "program_graph" and (
+                request.program_graph_comparator_profile is None
+            ):
                 diagnostics["intervention_semantics_limitation"] = (
                     "program_parameter_override_atom_semantics_not_established"
                 )
@@ -3677,6 +3940,15 @@ class JointSimulationHorizonController:
                             diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
                             diagnostics["effect_basis_status"] = "established"
                             diagnostics["comparator_refs_status"] = "selected_manifest_required"
+                        if produced.program_graph_comparator is not None:
+                            diagnostics["program_graph_paired_comparator"] = (
+                                produced.program_graph_comparator.model_dump(mode="json")
+                            )
+                            diagnostics["effect_basis"] = (
+                                "same_seed_compiled_intervention_difference.v4"
+                            )
+                            diagnostics["effect_basis_status"] = "established"
+                            diagnostics["comparator_refs_status"] = "selected_manifest_required"
                 except _PhysicalWorkInterruptedError as exc:
                     # A recorded work interruption must not turn an actual
                     # access denial into an ordinary partial numerical result.
@@ -3697,6 +3969,10 @@ class JointSimulationHorizonController:
                     }
                     if exc.comparator_record is not None:
                         diagnostics["ncm_conditional_comparator"] = exc.comparator_record
+                    if exc.program_graph_comparator is not None:
+                        diagnostics["program_graph_paired_comparator"] = (
+                            exc.program_graph_comparator.model_dump(mode="json")
+                        )
                         diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
                         diagnostics["comparator_refs_status"] = "selected_manifest_required"
                     if exc.projection_error_code is not None:
@@ -4080,6 +4356,7 @@ class JointSimulationHorizonController:
                 graph_limitation = (
                     "program_parameter_override_atom_semantics_not_established"
                     if selected.decision.engine_kind == "program_graph"
+                    and request.program_graph_comparator_profile is None
                     else None
                 )
                 if result.diagnostics.get(
@@ -4118,9 +4395,22 @@ class JointSimulationHorizonController:
                     raise ValueError("selected_comparator_physical_spec_mismatch")
             elif comparator is not None:
                 raise ValueError("unexpected_selected_comparator")
+            paired_comparator = _read_program_graph_paired_comparator(result)
+            if request.program_graph_comparator_profile is not None:
+                if (
+                    paired_comparator is None
+                    or selected.decision.engine_kind != "program_graph"
+                    or verify_semantic_program_graph_result_sources(
+                        selected.plan.program_store, result, expected_request=request
+                    )
+                    is None
+                ):
+                    raise ValueError("selected_program_graph_paired_comparator_not_established")
+            elif paired_comparator is not None:
+                raise ValueError("unexpected_selected_program_graph_comparator")
             for trajectory in result.trajectories:
                 for point in trajectory.points:
-                    if comparator is not None:
+                    if comparator is not None or paired_comparator is not None:
                         # The embedded verifier checked every aligned seed against
                         # the actual model comparator; a scalar baseline is not used.
                         continue
@@ -4477,6 +4767,88 @@ class JointSimulationHorizonController:
                 return signature.fqn
         return None
 
+    def _execute_semantic_program_graph_unit(
+        self,
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+        decision: EngineDecision,
+        semantic_input: _SelectedSemanticProgramGraphInput,
+        *,
+        subset: tuple[InterventionAtomBinding, ...],
+        replication_seed: int,
+        content_scope: GenericProgramGraphN5ContentRun | None,
+        actuation: _PairedProgramGraphUnitSelection | None = None,
+    ) -> _SemanticProgramGraphPhysicalUnit:
+        """Execute one canonical Foundry chain without inventing an effect."""
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+        from polisyos.foundry.execute import execute_semantic_horizon_step
+
+        physical = _physical_spec_digest(_physical_run_ref(request, plan, decision, subset))
+        observer = (
+            content_scope.observer_for_unit(physical, replication_seed, actuation=actuation)
+            if content_scope is not None
+            else None
+        )
+        foundry_request = _semantic_unit_execute_request(
+            semantic_input, None if actuation is None else actuation.actuation_selection_ref
+        )
+        refs: list[SimulationResultRef] = []
+        values: list[dict[str, float]] = []
+        states: list[dict[str, Any]] = []
+        for index, _step in enumerate(semantic_input.invocation.steps):
+            context = SemanticHorizonStepContext(
+                obligation_set_ref=semantic_input.obligation_set_ref,
+                steps=semantic_input.invocation.steps,
+                step_index=index,
+                replication_seed=replication_seed,
+                previous_result_ref=refs[-1] if refs else None,
+            )
+            executed = execute_semantic_horizon_step(
+                plan.program_store,
+                foundry_request,
+                expected_invocation=semantic_input.invocation,
+                step=context,
+                observer=observer,
+            )
+            ref = executed.simulation_result_ref
+            if not executed.ok or ref is None:
+                raise JointSimulationControllerError("semantic_program_graph_foundry_step_refused")
+            result = validate_core_model_json_artifact(SimulationResult, plan.program_store, ref)
+            if result.state_snapshot_ref is None:
+                raise JointSimulationControllerError("semantic_program_graph_poststate_missing")
+            state = load_state_snapshot(plan.program_store, snapshot_ref=result.state_snapshot_ref)
+            aggregation_basis: dict[str, Any] = {}
+            values.append(
+                _program_graph_outcomes(state, request.selected_outcomes, plan, aggregation_basis)
+            )
+            states.append(
+                {
+                    "simulation_result_ref": ref.model_dump(mode="json"),
+                    "semantic_input_notes": list(result.notes),
+                    **(
+                        {
+                            "actuation_selection_ref": actuation.actuation_selection_ref.model_dump(
+                                mode="json"
+                            )
+                        }
+                        if actuation is not None
+                        else {}
+                    ),
+                    **(
+                        {"outcome_aggregation_basis": aggregation_basis}
+                        if aggregation_basis
+                        else {}
+                    ),
+                }
+            )
+            refs.append(ref)
+        return _SemanticProgramGraphPhysicalUnit(
+            replication_seed=replication_seed,
+            step_result_refs=tuple(refs),
+            outcomes_by_step=tuple(values),
+            engine_states=tuple(states),
+        )
+
     def _run_semantic_program_graph_horizon(
         self,
         request: JointSimulationRequest,
@@ -4484,8 +4856,6 @@ class JointSimulationHorizonController:
         decision: EngineDecision,
         semantic_input: _SelectedSemanticProgramGraphInput,
     ) -> list[SimulationTrajectory]:
-        from polisyos.core.artifacts import validate_core_model_json_artifact
-        from polisyos.foundry.execute import execute_semantic_horizon_step
         from polisyos.runtime.quality.n5_candidate_content import (
             GenericProgramGraphN5ContentRun,
             active_candidate_n5_content_run,
@@ -4494,106 +4864,146 @@ class JointSimulationHorizonController:
         method_fqn = decision.method_fqn
         if method_fqn is None:
             raise JointSimulationControllerError("semantic_program_graph_method_missing")
+        paired = request.program_graph_comparator_profile is not None
         content_scope = active_candidate_n5_content_run(self)
         if type(content_scope) is GenericProgramGraphN5ContentRun:
             try:
+                # The V4 quantity prepares EVERY selected physical unit here,
+                # before the quota owner can reserve even the baseline.
                 content_scope.prepare_program_graph(plan, decision, semantic_input)
-            except (OSError, RuntimeError, TypeError, ValueError, AttributeError):
-                # Unsupported observation never becomes a reuse witness. The
-                # actual candidate numerical execution remains available.
+            except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+                if paired:
+                    raise JointSimulationControllerError(
+                        "program_graph_paired_preparation_not_established",
+                        context={"reason": str(exc)},
+                    ) from exc
+                # Retain the historical unpaired candidate behavior.
                 content_scope = None
         else:
             content_scope = None
+        if paired and content_scope is None:
+            raise JointSimulationControllerError("program_graph_paired_observation_not_established")
+        actuation_by_physical = (
+            {item.physical_spec_ref: item for item in content_scope.paired_unit_selections}
+            if paired
+            else {}
+        )
+        if paired and set(actuation_by_physical) != {
+            physical for physical, _seed in _planned_physical_units(request, plan, decision)
+        }:
+            raise JointSimulationControllerError(
+                "program_graph_paired_preparation_denominator_invalid"
+            )
+        baseline_by_seed: dict[int, _SemanticProgramGraphPhysicalUnit] = {}
+        comparator_samples: list[dict[str, Any]] = []
+
+        def execute_unit(
+            subset: tuple[InterventionAtomBinding, ...], replication_seed: int
+        ) -> _SemanticProgramGraphPhysicalUnit:
+            physical = _physical_spec_digest(_physical_run_ref(request, plan, decision, subset))
+            return self._execute_semantic_program_graph_unit(
+                request,
+                plan,
+                decision,
+                semantic_input,
+                subset=subset,
+                replication_seed=replication_seed,
+                content_scope=content_scope,
+                actuation=actuation_by_physical.get(physical),
+            )
+
+        def comparator_once(replication_seed: int) -> dict[str, float]:
+            unit = execute_unit((), replication_seed)
+            baseline_by_seed[replication_seed] = unit
+            return unit.outcomes_by_step[-1]
 
         def run_once(
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            refs: list[SimulationResultRef] = []
-            points: list[TrajectoryPoint] = []
-            observer = (
-                content_scope.observer_for_unit(
-                    _physical_spec_digest(_physical_run_ref(request, plan, decision, subset)),
-                    replication_seed,
-                )
-                if content_scope is not None
-                else None
-            )
-            for index, step in enumerate(semantic_input.invocation.steps):
-                context = SemanticHorizonStepContext(
-                    obligation_set_ref=semantic_input.obligation_set_ref,
-                    steps=semantic_input.invocation.steps,
-                    step_index=index,
-                    replication_seed=replication_seed,
-                    previous_result_ref=refs[-1] if refs else None,
-                )
-                executed = execute_semantic_horizon_step(
-                    plan.program_store,
-                    semantic_input.request,
-                    expected_invocation=semantic_input.invocation,
-                    step=context,
-                    observer=observer,
-                )
-                ref = executed.simulation_result_ref
-                if not executed.ok or ref is None:
-                    raise JointSimulationControllerError(
-                        "semantic_program_graph_foundry_step_refused"
-                    )
-                result = validate_core_model_json_artifact(
-                    SimulationResult, plan.program_store, ref
-                )
-                if result.state_snapshot_ref is None:
-                    raise JointSimulationControllerError("semantic_program_graph_poststate_missing")
-                state = load_state_snapshot(
-                    plan.program_store, snapshot_ref=result.state_snapshot_ref
-                )
-                aggregation_basis: dict[str, Any] = {}
-                outcomes = _program_graph_outcomes(
-                    state, request.selected_outcomes, plan, aggregation_basis
-                )
-                points.append(
-                    TrajectoryPoint(
-                        step=step,
-                        outcomes=outcomes,
-                        effect={
-                            outcome: _effect_for_outcome(request, outcome, value)
-                            for outcome, value in outcomes.items()
-                        },
-                        engine_state={
-                            "simulation_result_ref": ref.model_dump(mode="json"),
-                            "semantic_input_notes": list(result.notes),
-                            **(
-                                {"outcome_aggregation_basis": aggregation_basis}
-                                if aggregation_basis
-                                else {}
+            unit = execute_unit(subset, replication_seed)
+            baseline = baseline_by_seed.get(replication_seed)
+            if paired and baseline is None:
+                raise JointSimulationControllerError("program_graph_paired_baseline_missing")
+            points = tuple(
+                TrajectoryPoint(
+                    step=step,
+                    outcomes=outcomes,
+                    effect={
+                        outcome: _effect_for_outcome(
+                            request,
+                            outcome,
+                            value,
+                            simulated_baseline=(
+                                baseline.outcomes_by_step[index][outcome]
+                                if baseline is not None
+                                else None
                             ),
-                        },
-                    )
+                        )
+                        for outcome, value in outcomes.items()
+                    },
+                    engine_state=unit.engine_states[index],
                 )
-                refs.append(ref)
+                for index, (step, outcomes) in enumerate(
+                    zip(semantic_input.invocation.steps, unit.outcomes_by_step, strict=True)
+                )
+            )
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
                 engine_kind=decision.engine_kind,
                 method_fqn=method_fqn,
                 objective_ref=plan.objective_ref,
-                points=tuple(points),
+                points=points,
                 semantic_program_graph_replications=(
                     SemanticProgramGraphReplication(
-                        replication_seed=replication_seed, step_result_refs=tuple(refs)
+                        replication_seed=replication_seed, step_result_refs=unit.step_result_refs
                     ),
                 ),
             )
 
-        return _run_cached_replicates(
-            request,
-            plan,
-            decision,
-            run_once,
-            producer_budget_observer=self._producer_budget_observer,
-            physical_n5_budget_scope=self._physical_n5_budget_scope,
-        )
+        def comparator_record() -> ProgramGraphPairedComparatorV4 | None:
+            if not comparator_samples:
+                return None
+            physical = _physical_spec_digest(_physical_run_ref(request, plan, decision, ()))
+            selection = actuation_by_physical[physical]
+            return ProgramGraphPairedComparatorV4(
+                selected_outcomes=request.selected_outcomes,
+                steps=request.horizon.steps(),
+                samples=tuple(
+                    ProgramGraphPairedBaselineSampleV4(
+                        replication_seed=sample["seed"],
+                        physical_spec_ref=physical,
+                        physical_work_event_id=sample["physical_work_event_id"],
+                        actuation_selection_ref=selection.actuation_selection_ref,
+                        step_result_refs=baseline_by_seed[sample["seed"]].step_result_refs,
+                        outcomes_by_step=baseline_by_seed[sample["seed"]].outcomes_by_step,
+                    )
+                    for sample in comparator_samples
+                ),
+            )
+
+        try:
+            produced = _run_cached_replicates(
+                request,
+                plan,
+                decision,
+                run_once,
+                producer_budget_observer=self._producer_budget_observer,
+                physical_n5_budget_scope=self._physical_n5_budget_scope,
+                comparator_once=comparator_once if paired else None,
+                comparator_samples=comparator_samples if paired else None,
+            )
+        except _PhysicalWorkInterruptedError as exc:
+            if paired:
+                exc.program_graph_comparator = comparator_record()
+            raise
+        if paired:
+            produced.program_graph_comparator = comparator_record()
+            if produced.program_graph_comparator is None:
+                raise JointSimulationControllerError("program_graph_paired_baseline_missing")
+        return produced
 
     def _run_program_graph_horizon(
         self,
@@ -6709,12 +7119,46 @@ def _require_program_graph_input_preflight(
 SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX = "semantic_program_graph_step."
 
 
+def _read_program_graph_paired_comparator(
+    result: JointSimulationResult,
+) -> ProgramGraphPairedComparatorV4 | None:
+    """Decode actual baseline sources without implying present-use authority."""
+    raw = result.diagnostics.get("program_graph_paired_comparator")
+    if raw is None:
+        return None
+    if type(raw) is not dict:
+        raise ValueError("program_graph_paired_comparator_invalid")
+    selected = ProgramGraphPairedComparatorV4.model_validate_json(json.dumps(raw, allow_nan=False))
+    events = {item.event_id: item for item in result.physical_work_observations}
+    seeds = tuple(result.diagnostics.get("replication_seeds", ()))
+    actual_seeds = tuple(item.replication_seed for item in selected.samples)
+    interrupted = "physical_work_interruption" in result.diagnostics
+    if (
+        result.receipt.engine_kind != "program_graph"
+        or selected.steps != result.horizon.steps()
+        or selected.selected_outcomes != result.outcome_variables
+        or len(events) != len(result.physical_work_observations)
+        or (not interrupted and actual_seeds != seeds)
+        or (interrupted and actual_seeds != seeds[: len(actual_seeds)])
+        or any(
+            item.physical_work_event_id not in events
+            or events[item.physical_work_event_id].status != "completed"
+            or events[item.physical_work_event_id].physical_spec_ref != item.physical_spec_ref
+            or events[item.physical_work_event_id].effective_seed != item.replication_seed
+            for item in selected.samples
+        )
+    ):
+        raise ValueError("program_graph_paired_baseline_work_mismatch")
+    return selected
+
+
 def _semantic_program_graph_replications(
     result: JointSimulationResult,
 ) -> dict[str, tuple[SemanticProgramGraphReplication, ...]]:
     groups: dict[str, tuple[SemanticProgramGraphReplication, ...]] = {}
+    comparator = _read_program_graph_paired_comparator(result)
     if result.diagnostics.get("semantic_program_graph_bindings_ref") is None:
-        if any(
+        if comparator is not None or any(
             trajectory.semantic_program_graph_replications for trajectory in result.trajectories
         ):
             raise ValueError("semantic_program_graph_bindings_ref_missing")
@@ -6726,6 +7170,18 @@ def _semantic_program_graph_replications(
         not in result.promotion_ready_value_packet.get("authority_blockers", ())
     ):
         raise ValueError("semantic_program_graph_result_scope_invalid")
+    if comparator is not None:
+        baseline_groups: dict[str, list[SemanticProgramGraphReplication]] = {}
+        for sample in comparator.samples:
+            baseline_groups.setdefault(sample.physical_spec_ref, []).append(
+                SemanticProgramGraphReplication(
+                    replication_seed=sample.replication_seed,
+                    step_result_refs=sample.step_result_refs,
+                )
+            )
+        if len(baseline_groups) != 1:
+            raise ValueError("program_graph_paired_baseline_denominator_invalid")
+        groups.update({key: tuple(value) for key, value in baseline_groups.items()})
     for trajectory in result.trajectories:
         physical_ref = _physical_spec_digest(trajectory.diagnostics.get("physical_run_ref"))
         replications = trajectory.semantic_program_graph_replications
@@ -6768,6 +7224,7 @@ def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[
         "GenericProgramGraphContentObservation@1.0",
         "GenericProgramGraphContentObservation@2.0",
         "GenericProgramGraphContentObservation@3.0",
+        "GenericProgramGraphContentObservation@4.0",
     }:
         from polisyos.runtime.quality.n5_candidate_content import (
             _read_generic_program_graph_observation_wire,
@@ -6807,6 +7264,10 @@ def verify_semantic_program_graph_result_sources(
     )
     if expected_request is None:
         raise ValueError("semantic_program_graph_expected_request_required")
+    comparator = _read_program_graph_paired_comparator(result)
+    paired = expected_request.program_graph_comparator_profile is not None
+    if paired != (comparator is not None):
+        raise ValueError("program_graph_paired_comparator_request_mismatch")
     selected = JointSimulationHorizonController()._select_engine(expected_request)
     plan = selected.plan
     if (
@@ -6822,6 +7283,34 @@ def verify_semantic_program_graph_result_sources(
         raise ValueError("semantic_program_graph_result_store_unavailable")
     steps = result.horizon.steps()
     projected: dict[str, dict[tuple[int, int], tuple[dict[str, float], dict[str, float]]]] = {}
+    expected_actuation_ids = (
+        {
+            _physical_spec_digest(
+                _physical_run_ref(expected_request, plan, selected.decision, subset)
+            ): tuple(sorted(atom.intervention_id for atom in subset))
+            for _indices, subset in _paired_program_graph_subsets(expected_request)
+        }
+        if paired
+        else {}
+    )
+    baseline_physical = (
+        _physical_spec_digest(_physical_run_ref(expected_request, plan, selected.decision, ()))
+        if paired
+        else None
+    )
+    baseline_samples = (
+        {sample.replication_seed: sample for sample in comparator.samples}
+        if comparator is not None
+        else {}
+    )
+    if paired and (
+        set(groups) - set(expected_actuation_ids)
+        or (
+            "physical_work_interruption" not in result.diagnostics
+            and set(groups) != set(expected_actuation_ids)
+        )
+    ):
+        raise ValueError("program_graph_paired_physical_denominator_mismatch")
     limitation_codes: set[str] = set()
     for physical_ref, replications in groups.items():
         by_sample = projected.setdefault(physical_ref, {})
@@ -6853,14 +7342,51 @@ def verify_semantic_program_graph_result_sources(
                     raise ValueError("semantic_program_graph_result_foundry_scope_mismatch")
                 state = load_state_snapshot(core_store, snapshot_ref=poststate_ref)
                 outcomes = _program_graph_outcomes(state, expected_request.selected_outcomes, plan)
-                effects = {
-                    key: _effect_for_outcome(expected_request, key, value)
-                    for key, value in outcomes.items()
-                }
+                if paired:
+                    from polisyos.foundry.execute import resolve_program_graph_actuation
+
+                    actuation_ref = basis.actuation_selection_ref
+                    if actuation_ref is None:
+                        raise ValueError("program_graph_paired_actuation_selection_missing")
+                    actuation = resolve_program_graph_actuation(
+                        core_store,
+                        program_ref=plan.program_graph_ref,
+                        exec_plan_ref=plan.exec_plan_ref,
+                        actuation_selection_ref=actuation_ref,
+                    )
+                    if actuation.selected_intervention_ids != expected_actuation_ids[physical_ref]:
+                        raise ValueError("program_graph_paired_actuation_selection_mismatch")
+                    if physical_ref == baseline_physical:
+                        sample = baseline_samples.get(replication.replication_seed)
+                        if (
+                            sample is None
+                            or artifact_ref_identity_key(sample.actuation_selection_ref)
+                            != artifact_ref_identity_key(actuation_ref)
+                            or sample.step_result_refs != replication.step_result_refs
+                            or sample.outcomes_by_step[index] != outcomes
+                        ):
+                            raise ValueError("program_graph_paired_baseline_projection_mismatch")
                 by_sample[(step.effective_step, replication.replication_seed)] = (
                     outcomes,
-                    effects,
+                    {},
                 )
+    for by_sample in projected.values():
+        for key, (outcomes, _effects) in tuple(by_sample.items()):
+            baseline = (
+                projected[baseline_physical][key][0] if baseline_physical is not None else None
+            )
+            by_sample[key] = (
+                outcomes,
+                {
+                    outcome: _effect_for_outcome(
+                        expected_request,
+                        outcome,
+                        value,
+                        simulated_baseline=None if baseline is None else baseline[outcome],
+                    )
+                    for outcome, value in outcomes.items()
+                },
+            )
     for trajectory in result.trajectories:
         physical_ref = _physical_spec_digest(trajectory.diagnostics.get("physical_run_ref"))
         if tuple(point.step for point in trajectory.points) != steps:
@@ -6896,6 +7422,22 @@ def verify_semantic_program_graph_result_sources(
                     sample.effects,
                 ):
                     raise ValueError("semantic_program_graph_result_projection_mismatch")
+            for field, values in (("outcomes", point.outcomes), ("effects", point.effect)):
+                source_index = 0 if field == "outcomes" else 1
+                expected_values = {
+                    outcome: _finite_mean(
+                        [
+                            projected[physical_ref][(point.step, sample.seed)][source_index][
+                                outcome
+                            ]
+                            for sample in sampling.samples
+                        ],
+                        exact=True,
+                    )
+                    for outcome in expected_request.selected_outcomes
+                }
+                if values != expected_values:
+                    raise ValueError("semantic_program_graph_result_aggregate_mismatch")
 
     return tuple(sorted(limitation_codes))
 
@@ -7177,9 +7719,16 @@ def _effect_for_outcome(
     request: JointSimulationRequest,
     outcome: str,
     value: float,
+    *,
+    simulated_baseline: float | None = None,
 ) -> float:
     """Compute an effect only against the request's explicit comparator."""
-
+    if request.program_graph_comparator_profile is not None:
+        if simulated_baseline is None or not math.isfinite(simulated_baseline):
+            raise JointSimulationControllerError("program_graph_paired_baseline_missing", outcome)
+        return float(value) - float(simulated_baseline)
+    if simulated_baseline is not None:
+        raise JointSimulationControllerError("program_graph_paired_baseline_unrequested", outcome)
     return float(value) - _baseline_value(request, outcome)
 
 

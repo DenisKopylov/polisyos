@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.core.artifacts import ensure_ir_artifact_store
+from polisyos.core.artifacts import ensure_ir_artifact_store, validate_core_model_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -27,6 +28,8 @@ from polisyos.core.contracts.variable_binding import (
     MeasurementBindingProfile,
     MeasurementBindingProfileRef,
     ModelInputScope,
+    VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
 )
 from polisyos.core.registry import build_registry_bundle
 from polisyos.foundry.compile.api import compile as compile_foundry
@@ -118,6 +121,7 @@ def prepare_selected_method_input_case(
     opening_balance_usd: int | None = 10_000_000_000,
     model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
     | None = None,
+    model_input_definition_refs: Mapping[str, VariableSemanticDefinitionRef] | None = None,
 ) -> tuple[ProgramGraphTaxSubsidyInputCase, dict[str, Any]]:
     """Compile real method instances and explicit scalar period-flow ports.
 
@@ -136,6 +140,9 @@ def prepare_selected_method_input_case(
     ``money_unit`` explicitly sets the selected model's USD valuation basis
     and the port representation before compilation. The omitted default keeps
     the existing registry and 2024-current representation bytes unchanged.
+    ``model_input_definition_refs`` supplies the exact selected meaning for
+    each declared input slot before its representation, model and graph are
+    compiled. The omitted path retains the existing synthetic definitions.
     """
     if opening_balance_usd is not None and type(opening_balance_usd) is not int:
         raise ValueError("selected_method_fixture_opening_stock_invalid")
@@ -170,6 +177,15 @@ def prepare_selected_method_input_case(
     else:
         instance_slots = (method_input_slot,) * method_instances
     unique_input_slots = tuple(dict.fromkeys(instance_slots))
+    if model_input_definition_refs is not None:
+        if not isinstance(model_input_definition_refs, Mapping) or set(
+            model_input_definition_refs
+        ) != set(unique_input_slots):
+            raise ValueError("selected_method_fixture_definition_slot_scope_mismatch")
+        for definition_ref in model_input_definition_refs.values():
+            if type(definition_ref) is not VariableSemanticDefinitionRef:
+                raise TypeError("selected_method_fixture_definition_ref_untyped")
+            validate_core_model_json_artifact(VariableSemanticDefinition, store, definition_ref)
     if (
         type(method_instances) is not int
         or method_instances < 1
@@ -331,12 +347,15 @@ def prepare_selected_method_input_case(
     ports = []
     metadata_by_slot: dict[str, dict[str, Any]] = {}
     for index, slot_id in enumerate(unique_input_slots):
-        target_ref, _ = _definition(
-            store,
-            "aggregate-period-flow"
-            if len(unique_input_slots) == 1
-            else f"aggregate-period-flow-{index}",
-        )
+        if model_input_definition_refs is None:
+            target_ref, _ = _definition(
+                store,
+                "aggregate-period-flow"
+                if len(unique_input_slots) == 1
+                else f"aggregate-period-flow-{index}",
+            )
+        else:
+            target_ref = model_input_definition_refs[slot_id]
         representation_ref, representation = _representation(
             store, target_ref, population="population:government", money=money
         )

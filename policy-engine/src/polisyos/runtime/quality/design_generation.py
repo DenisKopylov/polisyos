@@ -25,7 +25,7 @@ from contextlib import ExitStack
 from dataclasses import dataclass, field, is_dataclass, replace
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -313,13 +313,14 @@ class N4SelectedProgramGraphLinkageV1(_StrictModel):
     ) -> N4SelectedProgramGraphLinkageV1:
         """Bind the minimal selected V4 identity tuple returned by its owner."""
         from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
             GenericCycleN5ProgramGraphRequestProfileV4,
             GenericCycleSimulationProfileV1,
         )
 
-        if (
-            type(profile) is not GenericCycleSimulationProfileV1
-            or type(profile.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        if type(profile) is not GenericCycleSimulationProfileV1 or type(profile.n5) not in (
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
         ):
             raise ValueError("n4_selected_program_graph_profile_untyped")
         if type(profile_ref) is not ArtifactRef or type(registry_bundle_ref) is not ArtifactRef:
@@ -378,18 +379,95 @@ class N4SelectedProgramGraphLinkageV1(_StrictModel):
         return self
 
 
+class N4SelectedProgramGraphLinkageV2(N4SelectedProgramGraphLinkageV1):
+    """Bind an action-owned Native context separately from original configuration.
+
+    ``profile_selection_ref`` is the current problem key. The original profile
+    bytes and their original selection key remain unchanged configuration
+    evidence; the selected checkpoint and context job identify the new world.
+    This linkage is candidate evidence and never grants an acquisition lease.
+    """
+
+    schema_version: Literal["policyos.runtime.n4_selected_program_graph_linkage.v2"] = (
+        "policyos.runtime.n4_selected_program_graph_linkage.v2"
+    )
+    original_profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_job_ref: ArtifactRef
+    context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    native_world_checkpoint_ref: ArtifactRef
+    original_generic_input_ref: ArtifactRef
+
+    @classmethod
+    def from_native_selected_owner(cls, selection: object) -> N4SelectedProgramGraphLinkageV2:
+        """Bind the exact Native owner result without adopting its projected profile."""
+        from polisyos.runtime.quality.native_generic_context import (
+            NativeSelectedProgramGraphLinkage,
+        )
+
+        if type(selection) is not NativeSelectedProgramGraphLinkage:
+            raise TypeError("n4_native_selected_program_graph_owner_untyped")
+        original = N4SelectedProgramGraphLinkageV1.from_selected_owner(
+            profile_ref=selection.profile_ref,
+            profile=selection.profile,
+            registry_bundle_ref=selection.registry_bundle_ref,
+        )
+        payload = {
+            **original.model_dump(mode="json", exclude={"content_hash"}),
+            "schema_version": "policyos.runtime.n4_selected_program_graph_linkage.v2",
+            "profile_selection_ref": selection.current_profile_selection_ref,
+            "original_profile_selection_ref": selection.profile.profile_selection_ref,
+            "context_job_ref": selection.context_job_ref.model_dump(mode="json"),
+            "context_content_hash": selection.context.content_hash,
+            "native_world_checkpoint_ref": selection.native_world_checkpoint_ref.model_dump(
+                mode="json"
+            ),
+            "original_generic_input_ref": selection.original_generic_input_ref.model_dump(
+                mode="json"
+            ),
+        }
+        return cls.model_validate({**payload, "content_hash": gy_content_hash(payload)})
+
+    @model_validator(mode="after")
+    def _verify_native_owner_refs(self) -> N4SelectedProgramGraphLinkageV2:
+        for ref, kind in (
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (
+                self.native_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            ),
+            (self.original_generic_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+        ):
+            if (
+                type(ref) is not ArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("n4_native_selected_program_graph_linkage_ref_invalid")
+        return self
+
+
+type N4SelectedProgramGraphLinkage = Annotated[
+    N4SelectedProgramGraphLinkageV1 | N4SelectedProgramGraphLinkageV2,
+    Field(discriminator="schema_version"),
+]
+
+
 @dataclass(frozen=True)
 class N4SelectedProgramGraphLinkContext:
     """Process-local exact linker input reopened by the V4 selected owner."""
 
-    linkage: N4SelectedProgramGraphLinkageV1
+    linkage: N4SelectedProgramGraphLinkage
     registry_content: RegistryBundleContent
     compiled_singleton: bool = False
 
     def __post_init__(self) -> None:
         from polisyos.core.registry import RegistryBundleContent
 
-        if type(self.linkage) is not N4SelectedProgramGraphLinkageV1:
+        if type(self.linkage) not in (
+            N4SelectedProgramGraphLinkageV1,
+            N4SelectedProgramGraphLinkageV2,
+        ):
             raise TypeError("n4_selected_program_graph_linkage_untyped")
         if type(self.registry_content) is not RegistryBundleContent:
             raise TypeError("n4_selected_program_graph_registry_content_untyped")
@@ -1189,7 +1267,7 @@ class DesignGenerationOrganRun:
     cycle_substrate_context: CycleSubstrateContext | None = None
     credal_reference: CredalReference | None = None
     candidate_sources: tuple[GenerationCandidateSource, ...] = ()
-    selected_program_graph_linkage: N4SelectedProgramGraphLinkageV1 | None = None
+    selected_program_graph_linkage: N4SelectedProgramGraphLinkage | None = None
 
 
 class GenerationCandidateSource(_StrictModel):
@@ -3498,9 +3576,13 @@ def _selected_program_graph_link_registries(
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
-    linkage = N4SelectedProgramGraphLinkageV1.model_validate(
-        linkage_context.linkage.model_dump(mode="python")
-    )
+    linkage_type = type(linkage_context.linkage)
+    linkage = linkage_type.model_validate(linkage_context.linkage.model_dump(mode="python"))
+    if (
+        type(linkage) is N4SelectedProgramGraphLinkageV2
+        and linkage.context_content_hash != context.content_hash
+    ):
+        raise DesignGenerationError("n4_native_selected_program_graph_context_mismatch")
     registry_content = linkage_context.registry_content
     views = world_model_artifact_views(context.world_model_record)
     if (
@@ -4745,7 +4827,7 @@ def _shadow_candidate_from_grounding(
     resolved_world_model_record_ref: str,
     world_record: object | None,
     linked_intervention: LinkedIntervention | None = None,
-    selected_program_graph_linkage: N4SelectedProgramGraphLinkageV1 | None = None,
+    selected_program_graph_linkage: N4SelectedProgramGraphLinkage | None = None,
 ) -> ShadowGeneratedCandidate:
     selected_atom_id = _selected_atom_id_from_cg1(cg1)
     selected_atom = _selected_atom_payload(cg1, selected_atom_id)

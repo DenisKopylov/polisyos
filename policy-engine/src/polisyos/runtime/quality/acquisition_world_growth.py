@@ -1303,7 +1303,7 @@ def _acquired_world_context_binding(
         != handoff
         or controller._cycle_substrate_context != handoff.context
         or (
-            controller._generic_cycle_simulation_currentness_resolver
+            controller._generic_cycle_simulation_upstream_currentness_resolver
             if native
             else controller._candidate_simulation_currentness_resolver
         )
@@ -2068,6 +2068,7 @@ def replay_native_derived_world_selection(
         load_native_derivation_leaf_cost_profile,
     )
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5PairedProgramGraphRequestProfileV5,
         GenericCycleN5ProgramGraphRequestProfileV4,
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationN5ExecutionV4,
@@ -2180,7 +2181,11 @@ def replay_native_derived_world_selection(
         or execution.result_ref is not None
         or _native_derivation_ref_key(execution.input_ref)
         != _native_derivation_ref_key(source.n5_input_ref)
-        or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or type(input_record.n5)
+        not in (
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
+        )
         or input_record.profile.profile_selection_kind != "problem"
         or input_record.n4_child_profile_family_ref is not None
     ):

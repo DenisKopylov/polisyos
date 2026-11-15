@@ -44,6 +44,7 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
   objects to the execution-input owner. These contracts and matching predicates
   do not establish external SQL rights or authority.
 - **Execution source identity** - `foundry.py` carries the opt-in `FoundryExecutionInputBasis` and schema 1.4 `SimulationResult` source status. It binds one actual single-step Foundry request and selected source graph; it has no risk, unit, time-validity, refinement, or authority semantics. Feedback composition remains explicitly uncomposed.
+- **Candidate Foundry actuation selection** - `foundry.py` defines `ProgramGraphActuationSelection` and its selected ref. The persisted selection binds exact graph, plan, and LoweredIR refs; a selected empty ID tuple is the explicit baseline, while an omitted or `None` request ref keeps legacy all-applies behavior. Request schema 1.1 and single-step execution basis schema 1.4 carry the exact selection; it is candidate-only, and feedback selection is unsupported.
 - **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.
 - **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.
 - **Chronology proof contracts** - `chronology.py` defines the policy-free full-prefix wire
@@ -71,6 +72,12 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 The stable lazy facade exports `ProgramEdge` and `ProgramOp` from the same
 Foundry graph-contract owner as `ProgramGraph` and `ProgramNode`. These are
 the original DTO classes; their persisted representation is unchanged.
+
+It also exports `ProgramGraphActuationSelection` and its ref from
+[`foundry.py`](foundry.py). The frozen artifact stores sorted intervention IDs
+against content-selected graph, plan, and LoweredIR inputs; the resolver and
+executor must validate the full row/mask/apply binding before dispatch. It
+grants candidate-simulation scope only.
 
 `MethodExecutionCandidateOutcome.from_json_payload()` is the typed intake for an
 already decoded, bounded JSON candidate summary. It reuses Core's strict JSON
@@ -131,7 +138,7 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 ## Current State
 
 - Last updated: 2026-08-24
-- `FoundryExecutionInputBasis` is an identity-only artifact emitted by selected-profile opt-in. `SimulationResult` schema 1.4 distinguishes `single_step_basis` from `feedback_uncomposed`; the latter has no single-step basis. Neither label establishes risk meaning, refinement, unit, valid time, currentness, or authority.
+- `FoundryExecutionInputBasis` is an identity-only artifact emitted by selected-profile opt-in. Its model schema 1.4 binds the request schema 1.1 actuation selection by exact ref for single-step use; the selection is candidate-only and does not compose with feedback. `SimulationResult` schema 1.4 distinguishes `single_step_basis` from `feedback_uncomposed`; the latter has no single-step basis. Neither label establishes risk meaning, refinement, unit, valid time, currentness, or authority.
 - The fixed `full_prefix_canon_json_0_2_0_sha256_256_v1` contract carries only commitment
   integrity. Family policy and authority remain outside the common header and verifier.
 - `FullPrefixVerificationStatement` is compact audit data, not a self-validating receipt;
@@ -157,7 +164,7 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 
 ## Owned artifact-schema descriptors for source-bound Foundry inputs
 
-The typed source reader compares each selected manifest's `artifact_schema` with the exact descriptor owned by the model producer. The descriptor travels as `ARTIFACT_SCHEMA_NAME` and `ARTIFACT_SCHEMA_VERSION` on these existing model owners; it is not a new central schema registry. The current source-bound quantity uses: `DataSnapshot` 0.2.0 or owner-bound 0.3.0; `ProgramGraph` and `ExecPlan` 0.2.0; `FoundryExecutionInputBasis` 1.0; `SimulationResult` 1.4 for a captured single-step basis (legacy 1.3 remains distinct); `FoundryInputBindings`, `FeedbackConfig`, and `ParameterOverrideBundle` 1.0; `StateDelta` and `Metrics` 0.1.0; `TrinityBundle` 1.0; and `PolicyCandidateSchema` 1.0.
+The typed source reader compares each selected manifest's `artifact_schema` with the exact descriptor owned by the model producer. The descriptor travels as `ARTIFACT_SCHEMA_NAME` and `ARTIFACT_SCHEMA_VERSION` on these existing model owners; it is not a new central schema registry. The current source-bound quantity uses: `DataSnapshot` 0.2.0 or owner-bound 0.3.0; `ProgramGraph` and `ExecPlan` 0.2.0; `FoundryExecutionInputBasis` 1.0; `ProgramGraphActuationSelection` 1.0; `SimulationResult` 1.4 for a captured single-step basis (legacy 1.3 remains distinct); `FoundryInputBindings`, `FeedbackConfig`, and `ParameterOverrideBundle` 1.0; `StateDelta` and `Metrics` 0.1.0; `TrinityBundle` 1.0; and `PolicyCandidateSchema` 1.0. The Foundry basis model's schema 1.4 is distinct from its artifact-manifest schema 1.0.
 
 These values identify serialization contracts. They do not establish risk meaning, units, a refinement relation, valid time/currentness, issuer authority, or historical supersession. Missing schema on a legacy ID-only reference remains unqualified; no old profile is inferred or backfilled. `ProgramGraph.schema_version` (0.2) is its model field and remains distinct from the artifact-manifest version (0.2.0).
 

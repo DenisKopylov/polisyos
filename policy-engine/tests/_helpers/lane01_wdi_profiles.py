@@ -238,6 +238,10 @@ def build_fixture_wdi_authority_bundle(
 
     entry_facts: list[tuple[CandidateWDIProfile, str, str, str]] = []
     with duckdb.connect(str(baseline)) as con:
+        if baseline_path is not None:
+            from polisyos.data_forge.domains.catalog.batch import graph_builder
+
+            graph_builder._init_schema(con)
         for profile in profiles:
             catalog_metric_id = (
                 profile.construct
@@ -409,6 +413,7 @@ def build_fixture_wdi_authority_bundle(
                 )
             )
             receipt_index += 1
+    provisions.sort(key=lambda row: (row["entry_id"], row["attempt_id"]))
     _write_provision(
         repo_root,
         baseline=baseline,

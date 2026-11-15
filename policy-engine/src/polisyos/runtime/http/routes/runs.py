@@ -5575,6 +5575,8 @@ def _generic_cycle_simulation_projection(
                                     manifest=result_manifest,
                                     result=resolved_result,
                                     authority_purpose="cycle_input_candidate_only",
+                                    store=store,
+                                    request=result_request,
                                 )
                             )
                         except ValidationError:
@@ -6560,6 +6562,8 @@ def _model_input_use_n5_successor_projection(
                 manifest=result_manifest,
                 result=resolved.result,
                 authority_purpose="cycle_input_candidate_only",
+                store=store,
+                request=resolved.request,
             )
         )
     except ArtifactOwnershipError:

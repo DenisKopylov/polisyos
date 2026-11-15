@@ -122,6 +122,10 @@ from polisyos.foundry.execute._internal.precision import (
     METHOD_PATCH_PRECISION_REFUSAL,
     MethodPatchArithmeticPrecisionError,
 )
+from polisyos.foundry.execute.actuation import (
+    ProgramGraphActuationResolution,
+    resolve_program_graph_actuation,
+)
 from polisyos.foundry.execute.executor import (
     ApplyArtifacts,
     ExecuteArtifacts,
@@ -512,6 +516,8 @@ def execution_input_basis_sources(
         ("compile_registry_bundle", basis.compile_registry_ref),
         ("runtime_registry_bundle", basis.runtime_registry_ref),
     ]
+    if basis.actuation_selection_ref is not None:
+        sources.append(("actuation_selection", basis.actuation_selection_ref))
     if basis.registered_sql_admission_ref is not None:
         sources.append(("registered_sql_admission", basis.registered_sql_admission_ref))
     step = basis.semantic_horizon_step
@@ -820,6 +826,10 @@ def _admit_execution_source(
     if basis.schema_version != basis_schema.version:
         raise ValueError("execution_source_basis_schema_mismatch")
     semantic_step = basis.semantic_horizon_step
+    if basis.actuation_selection_ref is not None and read_session is not None:
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_actuation_bounded_replay_not_established"
+        )
     if semantic_step is not None and (not allow_semantic_horizon_step or read_session is not None):
         raise ExecutionSourceAdmissionRefusal("execution_source_semantic_horizon_consumer_required")
 
@@ -931,6 +941,27 @@ def _admit_execution_source(
     ):
         raise ExecutionSourceAdmissionRefusal(
             "execution_source_method_dataflow_bounded_replay_not_established"
+        )
+    actuation = None
+    selection_edges = [
+        edge for edge in simulation_manifest.inputs if edge.role == "actuation_selection"
+    ]
+    if basis.actuation_selection_ref is None:
+        if selection_edges:
+            raise ValueError("execution_source_unrequested_actuation_selection")
+    else:
+        _require_execution_edge_ref(
+            store,
+            simulation_result_ref,
+            "actuation_selection",
+            basis.actuation_selection_ref,
+            expected_kind=basis.actuation_selection_ref.kind,
+        )
+        actuation = resolve_program_graph_actuation(
+            store,
+            program_ref=basis.program_graph_ref,
+            exec_plan_ref=basis.exec_plan_ref,
+            actuation_selection_ref=basis.actuation_selection_ref,
         )
     if _execution_ref_key(graph.ir_ref) != _execution_ref_key(basis.trinity_bundle_ref):
         raise ValueError("execution_source_basis_trinity_differs_from_program_graph")
@@ -1294,6 +1325,23 @@ def _admit_execution_source(
     metrics = _read_typed_model(Metrics, store, metrics_ref, read_session=read_session)
     if metrics.values.get("step") != basis.effective_step:
         raise ValueError("execution_source_metrics_step_differs_from_basis")
+    if actuation is not None:
+        assert basis.actuation_selection_ref is not None
+        for parent_ref in (metrics_ref, state_delta_ref):
+            _require_execution_edge_ref(
+                store,
+                parent_ref,
+                "actuation_selection",
+                basis.actuation_selection_ref,
+                expected_kind=basis.actuation_selection_ref.kind,
+            )
+        _reconcile_program_graph_actuation_execution(
+            store,
+            simulation_result_ref=simulation_result_ref,
+            basis=basis,
+            graph=graph,
+            actuation=actuation,
+        )
     model_state_profile = _is_model_state_snapshot_manifest(
         _selected_manifest(store, basis.base_state_snapshot_ref, read_session=read_session)
     )
@@ -1357,6 +1405,60 @@ def _load_execution_method_bundle(
             expected_kind=expected.kind,
         )
     return bundle_ref, bundle
+
+
+def _reconcile_program_graph_actuation_execution(
+    store: ArtifactStore,
+    *,
+    simulation_result_ref: SimulationResultRef,
+    basis: FoundryExecutionInputBasis,
+    graph: ProgramGraph,
+    actuation: ProgramGraphActuationResolution,
+) -> None:
+    """Join the complete persisted execute/skip census without a current ABI."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.ir.governance import ScheduleSpec, schedule_range
+
+    bundle_ref, bundle = _load_execution_method_bundle(
+        store, simulation_result_ref=simulation_result_ref, basis=basis
+    )
+    if basis.actuation_selection_ref is None:
+        raise ValueError("execution_source_actuation_selection_missing")
+    _require_execution_edge_ref(
+        store,
+        bundle_ref,
+        "actuation_selection",
+        basis.actuation_selection_ref,
+        expected_kind=basis.actuation_selection_ref.kind,
+    )
+    invocations = {row.invocation_id for row in bundle.occurrences}
+    if len(invocations) != 1 or len(bundle.occurrences) != len(actuation.node_execution):
+        raise ValueError("execution_source_actuation_occurrence_census_mismatch")
+    expected_status = dict(actuation.node_execution)
+    # The existing schedule skip remains separate from policy selection.
+    for group in actuation.binding_groups:
+        if expected_status[group.apply_node_id] == "skip":
+            continue
+        payload = load_core_json_artifact(
+            store,
+            ArtifactRef.model_validate(group.effective_params_ref.model_dump(mode="json")),
+        )
+        start, end = schedule_range(ScheduleSpec.model_validate(payload.get("schedule", {})))
+        if basis.effective_step < start or basis.effective_step > end:
+            expected_status[group.apply_node_id] = "skip"
+    nodes = {node.node_id: node for node in graph.nodes}
+    for index, ((node_id, _), row) in enumerate(
+        zip(actuation.node_execution, bundle.occurrences, strict=True)
+    ):
+        wanted = "skipped" if expected_status[node_id] == "skip" else "succeeded"
+        if (
+            row.plan_index != index
+            or row.node_id != node_id
+            or row.node_kind != nodes[node_id].node_kind
+            or row.status != wanted
+            or "execution_ended_before_occurrence" in row.limitations
+        ):
+            raise ValueError("execution_source_actuation_occurrence_status_mismatch")
 
 
 def _reconcile_method_output_transfers(
@@ -1971,13 +2073,16 @@ def _build_execution_input_basis(
     }
     basis = FoundryExecutionInputBasis(
         schema_version=(
-            "1.2"
+            "1.4"
+            if request.actuation_selection_ref is not None
+            else "1.2"
             if semantic_horizon_step is not None
             else "1.1"
             if bindings.registered_sql_admission_ref is not None
             else "1.0"
         ),
         registered_sql_admission_ref=bindings.registered_sql_admission_ref,
+        actuation_selection_ref=request.actuation_selection_ref,
         request=request,
         request_fields_set=tuple(sorted(request.model_fields_set)),
         request_exec_config_fields_set=tuple(sorted(request.exec_config.model_fields_set)),
@@ -2165,6 +2270,8 @@ def _execute(
     derived_tenant_context: ArtifactTenantContextInfo | None = None,
     program_graph_observer: ProgramGraphExecutionObserver | None = None,
 ) -> ExecuteResult:
+    # Recompute the new profile at actual intake, including model_copy callers.
+    request.validate_actuation_profile()
     if derived_tenant_context is not None:
         if type(derived_tenant_context) is not ArtifactTenantContextInfo:
             raise TypeError("foundry_derived_tenant_context_untyped")
@@ -2329,6 +2436,7 @@ def _execute(
             capture_env=posture.capture_env,
             parameter_overrides=parameter_overrides,
             parameter_override_bundle_ref=request.parameter_override_bundle_ref,
+            actuation_selection_ref=request.actuation_selection_ref,
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
             execution_input_basis_ref=execution_input_basis_ref,
@@ -2446,6 +2554,10 @@ def _execute(
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
+    if request.actuation_selection_ref is not None:
+        sim_inputs.append(
+            input_ref_from_artifact_ref(request.actuation_selection_ref, role="actuation_selection")
+        )
     if exec_artifacts.method_execution_bundle_ref is not None:
         sim_inputs.append(
             input_ref_from_artifact_ref(

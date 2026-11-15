@@ -154,6 +154,7 @@ class MethodExecutionCapture:
     sidecar_refs_used: int = 0
     method_execution_bundle_ref: MethodExecutionBundleRef | None = None
     artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy"
+    actuation_selection_ref: ArtifactRef | None = None
 
     def begin_invocation(self) -> str:
         """Allocate a stable invocation id unique within this captured run."""

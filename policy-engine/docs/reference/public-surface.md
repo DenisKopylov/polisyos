@@ -378,7 +378,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 947 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 949 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.derivations` | `src/polisyos/core/derivations.py` | `eager_exports` | 72 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
@@ -820,7 +820,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (947)</summary>
+<details><summary>Entrypoint exports (949)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -1761,6 +1761,8 @@ MethodOutputScalarValueIdentity
 ModelInputStepCoverage
 ModelInputStepSelectionResolution
 ModelInputStepSubject
+ProgramGraphActuationSelection
+ProgramGraphActuationSelectionRef
 RegisteredDerivedInputProfile
 RunModelInputInitialObservation
 RunModelInputInitialObservationsProjection
@@ -5625,7 +5627,7 @@ world
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 30 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 48 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 51 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 235 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
@@ -5956,7 +5958,7 @@ selected_tensor_value_sha256
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (48)</summary>
+<details><summary>Entrypoint exports (51)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -6007,6 +6009,9 @@ load_stored_selected_method_input_occurrences
 ProgramGraphMethodExecutionObserver
 recompute_current_use_method_input_revalidation
 verify_current_use_method_input_revalidation
+ProgramGraphActuationResolution
+create_program_graph_actuation_selection
+resolve_program_graph_actuation
 ```
 
 </details>

@@ -1,8 +1,8 @@
-"""Real current-job method reseal and its hosted initial Generic observation.
+"""Real current-job method reseal and its hosted paired Generic observation.
 
 The served Control/N4/input writers and registered source/WMR producers are
 real. The preflight target stops before physical work. The explicit recorded
-host target performs one initial numerical observation and reads its seed;
+host target executes the actual empty/treatment pair and reads its seed;
 neither target grants protected-use or publication authority.
 """
 
@@ -39,7 +39,7 @@ from polisyos.runtime.quality.data_state_substrate import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generic_simulation_admission import (
-    GenericCycleN5ProgramGraphRequestProfileV4,
+    GenericCycleN5PairedProgramGraphRequestProfileV5,
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationN5InputV1,
     GenericCycleSimulationProfileV1,
@@ -303,7 +303,7 @@ def _run_current_job_real_method_world(
                         ),
                         world_model_record=built.world_model.record,
                     ),
-                    n5=GenericCycleN5ProgramGraphRequestProfileV4(
+                    n5=GenericCycleN5PairedProgramGraphRequestProfileV5(
                         budget_ref="budget://test/current-derived-method",
                         horizon=HorizonSpec(start=0, end=0, step=1),
                         baseline_state={"government.balance": 10_000_000_000.0},
@@ -423,6 +423,12 @@ def _run_current_job_real_method_world(
                         None if job is None else job.state,
                         None if job is None else job.error_message,
                     )
+                    source = control.resolve_completed_control_job_core_run_source(
+                        job,
+                        expected_control_run_id=job.run_id,
+                        tenant_id=served.TENANT,
+                        cell_id=served.CELL,
+                    )
                     _assert_initial_observation_fresh_reader(
                         control,
                         monkeypatch=monkeypatch,
@@ -430,6 +436,9 @@ def _run_current_job_real_method_world(
                         sqlite_path=tmp_path / "control.sqlite3",
                         job_id=job_id,
                         run_id=str(job.run_id),
+                        core_run_id=source.run_id,
+                        client=client,
+                        authorization=trust.authorization_header("acquisition-operator"),
                     )
     finally:
         if case is not None:
@@ -444,9 +453,21 @@ def _assert_initial_observation_fresh_reader(
     sqlite_path: Path,
     job_id: str,
     run_id: str,
+    core_run_id: str,
+    client: Any,
+    authorization: str,
 ) -> None:
     """Reopen real completed output and test removal without another N5 call."""
-    from polisyos.foundry.execute import admit_semantic_horizon_step_chain, load_state_snapshot
+    from fractions import Fraction
+
+    import numpy as np
+
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.execute import (
+        admit_semantic_horizon_step_chain,
+        load_state_snapshot,
+        resolve_program_graph_actuation,
+    )
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.runtime.quality import model_input_requirements, model_input_routing
     from polisyos.runtime.quality.acquisition_evaluation import (
@@ -456,6 +477,14 @@ def _assert_initial_observation_fresh_reader(
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.generic_simulation_admission import (
         parse_generic_cycle_simulation_n5_execution,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        _read_program_graph_paired_comparator,
+        _semantic_program_graph_replications,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        GenericProgramGraphContentObservationV4,
+        _read_generic_program_graph_observation_wire,
     )
     from polisyos.scientist.orchestration.engine import (
         BudgetMiddleware,
@@ -540,21 +569,169 @@ def _assert_initial_observation_fresh_reader(
         row.status == "completed" and row.purpose == "standard"
         for row in before.invocation_reservations.values()
     )
-    steps = {
-        tuple(
-            artifacts.artifact_ref_identity_key(ref) for ref in replication.step_result_refs
-        ): replication.step_result_refs
-        for trajectory in result.trajectories
-        for replication in trajectory.semantic_program_graph_replications
-    }
-    assert len(steps) == 2
-    for chain in steps.values():
-        (admission,) = admit_semantic_horizon_step_chain(fresh_store, chain)
-        state = load_state_snapshot(
-            fresh_store,
-            snapshot_ref=admission.simulation_result.state_snapshot_ref,
+    assert basis.comparison_profile == "generic_program_graph_paired_numpy_methods_v4"
+    observation = _read_generic_program_graph_observation_wire(
+        result.diagnostics["candidate_n5_execution_content_observation"]
+    )
+    assert type(observation) is GenericProgramGraphContentObservationV4
+    comparator = _read_program_graph_paired_comparator(result)
+    assert comparator is not None and len(comparator.samples) == 1
+    (baseline,) = comparator.samples
+    groups = _semantic_program_graph_replications(result)
+    assert len(groups) == 2  # Empty actuation and T; individual/joint share T.
+    assert len(observation.steps) == 2
+    assert sorted(len(step.mechanism_calls) for step in observation.steps) == [0, 1]
+    assert all(len(step.calls) == 1 for step in observation.steps)
+    (mechanism_call,) = tuple(call for step in observation.steps for call in step.mechanism_calls)
+    assert mechanism_call.state_matches_base is False
+    assert mechanism_call.state_ref is not None
+    before_policy = load_state_snapshot(fresh_store, snapshot_ref=mechanism_call.state_ref)
+    assert float(before_policy.government_balance) == 4_000_000_000.0
+
+    # Independent coupled-account law: TaxSubsidy credits each actual income
+    # by rate*income and debits government by their SUM. The method's flow is
+    # the SAME exogenous background in both physical units, never an effect.
+    incomes = (2**26, 2**27)
+    rate = Fraction(1, 8)
+    background_flow = -6_000_000_000
+    cost = sum(Fraction(value) * rate for value in incomes)
+    expected_baseline = Fraction(10_000_000_000 + background_flow)
+    expected_treatment = expected_baseline - cost
+    expected_income_mean = Fraction(sum(incomes), len(incomes))
+    assert cost == 25_165_824
+    assert expected_baseline == 4_000_000_000
+    assert expected_treatment == 3_974_834_176
+    assert expected_income_mean == 100_663_296
+    assert expected_income_mean * (1 + rate) == 113_246_208
+    assert baseline.outcomes_by_step == ({"government.balance": float(expected_baseline)},)
+    assert execution.request_binding is not None
+    treatment_ids = tuple(
+        sorted(
+            atom.intervention_id for atom in execution.request_binding.request.intervention_atoms
         )
-        assert float(state.government_balance) == 4_000_000_000.0
+    )
+    observed_balances = {}
+    for physical, replications in groups.items():
+        assert len(replications) == 1
+        (admission,) = admit_semantic_horizon_step_chain(
+            fresh_store, replications[0].step_result_refs
+        )
+        source = admission.basis
+        assert source is not None and source.actuation_selection_ref is not None
+        actuation = resolve_program_graph_actuation(
+            fresh_store,
+            program_ref=source.program_graph_ref,
+            exec_plan_ref=source.exec_plan_ref,
+            actuation_selection_ref=source.actuation_selection_ref,
+        )
+        is_baseline = physical == baseline.physical_spec_ref
+        assert actuation.selected_intervention_ids == (() if is_baseline else treatment_ids)
+        state = load_state_snapshot(
+            fresh_store, snapshot_ref=admission.simulation_result.state_snapshot_ref
+        )
+        expected_stock = expected_baseline if is_baseline else expected_treatment
+        assert float(state.government_balance) == float(expected_stock)
+        expected_incomes = np.asarray(
+            [float(Fraction(value) * (1 if is_baseline else 1 + rate)) for value in incomes],
+            dtype=np.float32,
+        )
+        np.testing.assert_array_equal(np.asarray(state.agents.income), expected_incomes)
+        observed_balances[is_baseline] = float(state.government_balance)
+    assert observed_balances[False] - observed_balances[True] == -float(cost)
+    for trajectory in result.trajectories:
+        assert trajectory.points[0].outcomes["government.balance"] == float(expected_treatment)
+        assert trajectory.points[0].effect["government.balance"] == -float(cost)
+        assert trajectory.points[0].replication_sampling.effects_standard_error == {
+            "government.balance": None
+        }
+
+    headers = {
+        "Authorization": authorization,
+        "X-Tenant-ID": served.TENANT,
+    }
+
+    def read_run_details() -> dict[str, Any]:
+        response = client.get(f"/api/v1/runs/{core_run_id}", headers=headers)
+        assert response.status_code == 200, response.text
+        return response.json()["run"]
+
+    surfaced = read_run_details()
+    initial_projection = surfaced["model_input_initial_observations"]
+    assert initial_projection["source_job_id"] == job_id
+    assert initial_projection["core_run_id"] == core_run_id
+    assert initial_projection["actual_run_id"] == run_id
+    assert initial_projection["inventory_status"] == "complete"
+    assert initial_projection["inventory_truncated"] is False
+    assert initial_projection["limitation_codes"] == []
+    assert len(initial_projection["observations"]) == 1
+    (initial_row,) = initial_projection["observations"]
+    assert initial_row["execution_job_id"] == job_id
+    assert initial_row["actual_run_id"] == selected.run_id
+    assert initial_row["source_run_id"] == selected.source_run_id
+    assert initial_row["frontier_ref"] == frontier.frontier_ref
+    assert initial_row["frontier_revision"] == 1
+    for field_name, expected_ref in (
+        ("basis_ref", frontier.basis_ref),
+        ("decision_ref", frontier.selection_decision_ref),
+        ("input_ref", selected.input_ref),
+        ("execution_ref", selected.execution_ref),
+        ("result_ref", selected.result_ref),
+        ("current_method_input_bindings_ref", selected.current_method_input_bindings_ref),
+        ("model_input_obligation_set_ref", selected.model_input_obligation_set_ref),
+        ("context_job_ref", selected.context_job_ref),
+        ("n4_source_ref", selected.n4_source_ref),
+        ("profile_ref", selected.profile_ref),
+    ):
+        assert initial_row[field_name] == expected_ref.model_dump(mode="json")
+    assert initial_row["candidate_content_hash"] == selected.candidate_content_hash
+    assert initial_row["observation_content_hash"] == selected.observation_content_hash
+    assert initial_row["authority_purpose"] == "candidate_evaluation_retention_only"
+    assert initial_row["historical_replay_status"] == "reconciled"
+    assert initial_row["currentness_status"] == "not_established"
+    assert initial_row["observed_admission"] is False
+    assert initial_row["publication_authority"] is False
+    assert initial_row["limitations"] == list(basis.limitations)
+    assert initial_row["closure_residuals"] == list(basis.closure_residuals)
+
+    # Reuse the existing candidate-only N5 result-body consumer: its treated
+    # absolute outcome plus paired effect preserve the same numerical witness.
+    generic_projection = surfaced["generic_cycle_simulation"]
+    surfaced_rows = [
+        row
+        for row in generic_projection["n5_observations"]
+        if row.get("simulation_result_ref") == selected.result_ref.model_dump(mode="json")
+    ]
+    assert len(surfaced_rows) == 1
+    result_body = surfaced_rows[0]["simulation_result_body"]
+    assert result_body["selected_outcomes"] == ["government.balance"]
+    joint = [row for row in result_body["trajectories"] if row["run_level"] == "joint"]
+    assert len(joint) == 1
+    point = joint[0]["points"][0]
+    assert point["outcomes"]["government.balance"] == float(expected_treatment)
+    assert point["effects"]["government.balance"] == -float(cost)
+    assert point["outcomes"]["government.balance"] - point["effects"][
+        "government.balance"
+    ] == float(expected_baseline)
+    persisted_request = execution.request_binding.request
+    selected_registry_ref = world_model_artifact_views(
+        persisted_request.world_model_record
+    ).registry_bundle_ref
+    registry_content = load_registry_bundle_content(fresh_store, selected_registry_ref)
+    (persisted_plan,) = persisted_request.engine_plan
+    selected_unit_slots = tuple(
+        slot
+        for slot in registry_content.slot_registry.slots.values()
+        if slot.state_path
+        == persisted_plan.variable_map.get("government.balance", "government.balance")
+    )
+    assert len(selected_unit_slots) == 1
+    (selected_unit_slot,) = selected_unit_slots
+    assert selected_unit_slot.unit is not None
+    assert registry_content.units_registry is not None
+    assert selected_unit_slot.unit.unit_id in registry_content.units_registry.units
+    assert result_body["outcome_units_status"] == "resolved"
+    assert result_body["outcome_units"] == {"government.balance": selected_unit_slot.unit.unit_id}
+    assert result_body["outcome_unit_registry_ref"] == selected_registry_ref.model_dump(mode="json")
     with pytest.raises(ValueError, match=r"^generic_initial_history_completion_not_established$"):
         read_generic_model_input_initial_evaluation_history(
             **{**arguments, "expected_tenant_id": "foreign-tenant"}
@@ -579,15 +756,42 @@ def _assert_initial_observation_fresh_reader(
     try:
         with pytest.raises(ValueError):
             read_generic_model_input_initial_evaluation_history(**arguments)
+        removed_projection = read_run_details()["model_input_initial_observations"]
+        assert removed_projection["inventory_status"] == "limited"
+        assert removed_projection["inventory_truncated"] is False
+        assert removed_projection["limitation_codes"] == ["initial_observation_history_unavailable"]
+        assert removed_projection["observations"] == []
     finally:
         removed.replace(physical)
     assert read_generic_model_input_initial_evaluation_history(**arguments) == (basis, decision)
+    restored_projection = read_run_details()["model_input_initial_observations"]
+    assert restored_projection["inventory_status"] == "complete"
+    assert restored_projection["observations"] == initial_projection["observations"]
+    actuation_path = fresh_root._paths(baseline.actuation_selection_ref.artifact_id)[0]
+    actuation_removed = actuation_path.with_suffix(".removed-for-paired-reader-control")
+    assert actuation_path.is_file() and not actuation_removed.exists()
+    actuation_path.replace(actuation_removed)
+    try:
+        with pytest.raises((ValueError, FileNotFoundError)):
+            read_generic_model_input_initial_evaluation_history(**arguments)
+        removed_selector_projection = read_run_details()["model_input_initial_observations"]
+        assert removed_selector_projection["inventory_status"] == "limited"
+        assert removed_selector_projection["limitation_codes"] == [
+            "initial_observation_history_unavailable"
+        ]
+        assert removed_selector_projection["observations"] == []
+    finally:
+        actuation_removed.replace(actuation_path)
+    assert read_generic_model_input_initial_evaluation_history(**arguments) == (basis, decision)
+    restored_selector_projection = read_run_details()["model_input_initial_observations"]
+    assert restored_selector_projection["inventory_status"] == "complete"
+    assert restored_selector_projection["observations"] == initial_projection["observations"]
     assert fresh_budget._ledger.snapshot() == before
     assert attempted == []
 
 
 @pytest.mark.integration
-def test_current_method_initial_n5_and_seed_inside_host(
+def test_current_method_paired_initial_n5_and_seed_inside_host(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: ControlledCandidateGateway,
@@ -596,7 +800,7 @@ def test_current_method_initial_n5_and_seed_inside_host(
     """Run one genuine initial Generic N5 and read its candidate-only seed cold."""
     import sys
 
-    node = f"{__file__}::test_current_method_initial_n5_and_seed_inside_host"
+    node = f"{__file__}::test_current_method_paired_initial_n5_and_seed_inside_host"
     if node not in request.config.invocation_params.args:
         pytest.skip("requires explicit source-recorded host invocation")
     session = vars(sys).get("_polisyos_loaded_host_v1")

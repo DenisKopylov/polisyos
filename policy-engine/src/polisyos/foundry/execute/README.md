@@ -11,6 +11,7 @@ facade; `_internal/` contains the shared graph, patch and snapshot owners.
 | `execute(store, request)` | Resolve an `ExecuteRequest`, run the compiled plan, apply its delta and persist a `SimulationResult` plus derived artifacts. |
 | `admit_execution_source()` / `admit_execution_source_bounded()` | Reopen a saved result and reconcile its selected execution-input basis. Admission of source facts is separate from current permission or publication authority. |
 | `execute_semantic_horizon_step()` | Run one explicitly selected semantic horizon step through the existing predecessor/input reconciliation. |
+| `create_program_graph_actuation_selection()` / `resolve_program_graph_actuation()` | Persist or replay a candidate-only whole-binding selection against the exact compiled graph, plan and lowered rows. |
 | `prepare_program_graph_method_calls()` | Prepare supported, held NumPy method calls without running their numerical kernels; actual execution uses the same preparation owner. |
 | `prepare_program_graph_mechanism_calls()` | Prepare supported mechanism calls through their actual factory and override path. |
 | `load_stored_selected_method_input_occurrences()` | Read stored method-input occurrences against their original graph and execution records. |
@@ -41,6 +42,26 @@ field. The NumPy encoder preserves declared float64 without enabling JAX x64.
 Shapes, units, Decimal error bounds and the actual registered ABI remain part
 of admission; scalar broadcast is not inferred.
 
+## Candidate policy actuation
+
+[`actuation.py`](actuation.py) persists and replays a candidate selection;
+the compiler-owned [binding resolver](../compile/actuation.py) reconciles each
+LoweredIR row with its compiled mask/apply pair. Foundry reopens the selected
+graph, plan, complete lowered-row inventory and parameter payloads, then checks
+the exact source edges, row-to-mask/apply identity, selectors and ordered I/O.
+Rows sharing a `binding_id` remain distinct; partial intervention groups refuse.
+
+An absent `ExecuteRequest.actuation_selection_ref` (`None`) preserves legacy
+all-applies behavior. A persisted selection with
+`selected_intervention_ids=()` means an explicit empty baseline. During a
+selected execution, only inactive `apply_mechanism` nodes are skipped; policy
+selection does not disable the world-model method nodes or other graph work.
+Method execution capture is required and keeps inactive apply nodes in the
+planned occurrence denominator. The request uses schema 1.1; a returned
+`FoundryExecutionInputBasis` uses schema 1.4 and binds the same selected ref.
+Actuation selection with feedback execution is not supported. The artifact is
+for candidate simulation only and grants no policy or execution authority.
+
 Patch-emitting methods also require explicit state outputs and the registered
 patch-target contract. An empty output list permits no state writes. The
 period-flow accounting consumer uses the declared period total without an
@@ -70,6 +91,11 @@ must be qualified through the actual caller before being claimed complete.
 Old artifacts are read under their own profiles and are not rewritten using
 current method definitions. Keep current grants, expiry, quota and selected-use
 checks with their Runtime owners.
+
+Runtime's paired comparator profile V4 and paired request profile V5 are
+authored and their unit checks pass, but hosted N5 remains unrun. This Foundry
+candidate seam does not close the paired Runtime lane; see the [E02 work plan](../../../../../E02-WORK-PLAN.md)
+for its current verification boundary.
 
 See [retained-artifact recovery](../../../../docs/runbooks/retained-artifact-recovery.md)
 for missing payload/profile evidence and the [E02 work plan](../../../../../E02-WORK-PLAN.md)

@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.runtime.quality.acquisition_planner import (
     N7DerivationDagBudgetProfile,
@@ -96,14 +96,149 @@ def _selected_policy():
     )
 
 
+def _declared_native_fiscal_definitions(store: Any) -> dict[str, Any]:
+    """Persist explicit controlled meanings before model/profile compilation."""
+    from polisyos.core.artifacts import PutOptions, input_ref_from_artifact_ref
+    from polisyos.core.contracts.variable_binding import (
+        VariableSemanticDefinition,
+        VariableSemanticDefinitionRef,
+    )
+    from tests.unit.core.contracts.test_semantic_derived_binding import _put_contract, _selected
+
+    def declared(stable_id: str, meaning: str) -> VariableSemanticDefinitionRef:
+        evidence = _selected(
+            store,
+            store.put_bytes(
+                (
+                    f"Controlled fixture definition: {stable_id}\n{meaning}\n"
+                    "Definition data only; no observed value, empirical truth, currentness "
+                    "or acquisition right is established."
+                ).encode(),
+                PutOptions(kind="fixture.semantic_definition", media_type="text/plain"),
+                return_selected_profile=True,
+            ),
+        )
+        value = VariableSemanticDefinition(
+            namespace="fixture.native_fiscal",
+            stable_id=stable_id,
+            revision="1",
+            meaning=meaning,
+            definition_evidence_refs=(evidence,),
+        )
+        return VariableSemanticDefinitionRef.model_validate(
+            _put_contract(
+                store,
+                value,
+                inputs=(input_ref_from_artifact_ref(evidence, role="definition_evidence"),),
+            ).model_dump(mode="python")
+        )
+
+    definitions = {
+        "fiscal_flow": declared(
+            "government_cash_surplus_deficit_period_total",
+            "Signed government cash surplus or deficit over the selected calendar year, "
+            "as a period flow in current United States dollars. The model accumulates "
+            "these period balances from its origin; this does not denote cash assets "
+            "or establish empirical financing effects.",
+        ),
+        "gdp": declared(
+            "gross_domestic_product_current_usd_period_total",
+            "Gross domestic product produced within the selected jurisdiction over a "
+            "calendar year, valued at current market prices in United States dollars "
+            "for that same year.",
+        ),
+    }
+    definitions["fiscal_share"] = declared(
+        "government_cash_surplus_deficit_share_of_gdp",
+        "Signed quotient of the government cash surplus/deficit period total "
+        f"({definitions['fiscal_flow'].artifact_id}) and gross domestic product period total "
+        f"({definitions['gdp'].artifact_id}) for the same jurisdiction and calendar year.",
+    )
+    return definitions
+
+
+def _declared_native_fiscal_representations(
+    store: Any, definitions: dict[str, Any], money: Any
+) -> dict[str, Any]:
+    """Keep percentage meaning separate from its canonical ratio coordinate."""
+    from tests.unit.core.contracts.test_semantic_derived_binding import _representation
+
+    return {
+        "fiscal_share": _representation(
+            store,
+            definitions["fiscal_share"],
+            population="population:government",
+            money=money,
+            numerator_ref=definitions["fiscal_flow"],
+            denominator_ref=definitions["gdp"],
+        )[0],
+        "gdp": _representation(
+            store, definitions["gdp"], population="population:economy", money=money
+        )[0],
+    }
+
+
+def _prepare_declared_native_fiscal_case(path: Path, *, store: Any) -> tuple[Any, dict[str, Any]]:
+    """Compile the selected fiscal target after declaring all source meanings."""
+    from polisyos.ir.kernel import MoneyUnit
+
+    definitions = _declared_native_fiscal_definitions(store)
+    money = MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
+    representations = _declared_native_fiscal_representations(store, definitions, money)
+    case, metadata = prepare_selected_method_input_case(
+        path,
+        method_class=PeriodFlowToStock,
+        mapped=True,
+        method_input_slot="ledger.flow",
+        snapshot_id=world_fixture.SNAPSHOT_ID,
+        policy_spec=_selected_policy(),
+        income_values=(2**26, 2**27),
+        store=store,
+        opening_balance_usd=10_000_000_000,
+        money_unit=money,
+        model_input_definition_refs={"ledger.flow": definitions["fiscal_flow"]},
+    )
+    metadata["native_definition_refs"] = definitions
+    metadata["native_representation_refs"] = representations
+    return case, metadata
+
+
 def _install_two_role_wdi_declarations(
-    *, store: Any, case: Any, metadata: dict[str, Any], root: Path
+    *,
+    store: Any,
+    case: Any,
+    metadata: dict[str, Any],
+    root: Path,
+    catalog_baseline_path: Path | None = None,
 ) -> tuple[Any, ArtifactRef, tuple[dict[str, Any], ...], dict[str, Any]]:
     """Persist the exact selected profile and two distinct fixture declarations."""
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.core.contracts.semantic_composition_binding import (
+        RegisteredDerivationRoleBasis,
+        RegisteredSemanticBasis,
+    )
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
-    setup = prepare_registered_method_input_profile(case, metadata)
+    definitions = metadata["native_definition_refs"]
+    representations = metadata["native_representation_refs"]
+    port = metadata["port"]
+    if artifact_ref_identity_key(port.semantic_definition_ref) != artifact_ref_identity_key(
+        definitions["fiscal_flow"]
+    ):
+        raise ValueError("native_fixture_fiscal_target_definition_not_compiled")
+    source_bases = tuple(
+        RegisteredDerivationRoleBasis(
+            role=role,
+            basis=RegisteredSemanticBasis(
+                semantic_definition_ref=definitions[key],
+                representation_ref=representations[key],
+                binding_profile_ref=port.binding_profile_ref,
+            ),
+        )
+        for role, key in (("rate_input", "fiscal_share"), ("scale_input", "gdp"))
+    )
+    setup = prepare_registered_method_input_profile(case, metadata, source_bases=source_bases)
+    metadata["native_source_bases"] = source_bases
     metadata["native_registered_setup"] = setup
     profiles: list[CandidateWDIProfile] = []
     bindings: dict[str, FixtureWDIRoleBinding] = {}
@@ -132,6 +267,12 @@ def _install_two_role_wdi_declarations(
             transform_ref = "fabric://units/fixed-multiplicative/v1"
             fixture_value = -3.0
             valid_min, valid_max = -1.0, 1.0
+            title = "Controlled cash surplus/deficit (% of GDP)"
+            description = (
+                "Annual government cash balance as a percent of the same-year GDP "
+                "denominator. Controlled synthetic fixture values; empirical source "
+                "truth is not established."
+            )
         else:
             indicator_id = "NY.GDP.MKTP.CD"
             raw_unit = canonical_unit = "usd"
@@ -139,12 +280,18 @@ def _install_two_role_wdi_declarations(
             transform_ref = "fabric://units/usd-identity/v1"
             fixture_value = 200_000_000_000.0
             valid_min, valid_max = 0.0, 300_000_000_000.0
+            title = "Controlled GDP (current US$)"
+            description = (
+                "Annual gross domestic product in current US dollars for the same "
+                "jurisdiction and calendar year. Controlled synthetic fixture values; "
+                "empirical source truth is not established."
+            )
         profiles.append(
             CandidateWDIProfile(
                 construct=f"test.native.{role}",
                 indicator_id=indicator_id,
-                source_title=f"Controlled candidate input {role}",
-                source_description="Synthetic fixture declaration; no empirical source truth asserted.",
+                source_title=title,
+                source_description=description,
                 target_slot=alias,
                 raw_unit=raw_unit,
                 canonical_unit=canonical_unit,
@@ -182,7 +329,7 @@ def _install_two_role_wdi_declarations(
         root,
         tuple(profiles),
         role_bindings=bindings,
-        baseline_path=default_substrate_catalog_paths(root).l1_dcat_path,
+        baseline_path=catalog_baseline_path,
     )
     metadata["native_authority"] = authority
     metadata["native_profiles"] = tuple(profiles)
@@ -251,23 +398,19 @@ def configured_native_source_case(
     holder["fetch_calls"] = fetch_calls
 
     def prepare_case(path: Path, **kwargs: Any):
-        case, metadata = prepare_selected_method_input_case(
-            path,
-            method_class=PeriodFlowToStock,
-            mapped=True,
-            method_input_slot="ledger.flow",
-            snapshot_id=world_fixture.SNAPSHOT_ID,
-            policy_spec=_selected_policy(),
-            income_values=(2**26, 2**27),
-            store=kwargs["store"],
-            opening_balance_usd=10_000_000_000,
-        )
+        case, metadata = _prepare_declared_native_fiscal_case(path, store=kwargs["store"])
         holder["metadata"] = metadata
         return case
 
     def prepare_catalog(*, store: Any, case: Any, root: Path, **kwargs: Any) -> None:
+        from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
         setup, profile_ref, rows, oracle = _install_two_role_wdi_declarations(
-            store=store, case=case, metadata=holder["metadata"], root=root
+            store=store,
+            case=case,
+            metadata=holder["metadata"],
+            root=root,
+            catalog_baseline_path=default_substrate_catalog_paths(root).l1_dcat_path,
         )
         holder.update(setup=setup, profile_ref=profile_ref, rows=rows, oracle=oracle)
         if catalog_ready is not None:
@@ -375,6 +518,98 @@ def configured_native_source_case(
         yield served_case, holder
 
 
+def test_fiscal_source_prerequisites_bind_units_and_meanings_before_app(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Close both actual source-role prerequisites without an app, fetch or N5."""
+    from polisyos.core.artifacts import (
+        FileSystemCAS,
+        artifact_ref_identity_key,
+        ensure_ir_artifact_store,
+    )
+    from polisyos.core.contracts.model_input_requirements import load_model_input_port_declaration
+    from polisyos.core.contracts.variable_binding import load_variable_representation
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.ir.trinity import load_trinity_bundle_artifact
+
+    calls: list[object] = []
+
+    def forbidden_fetch(*args: Any, **kwargs: Any) -> None:
+        calls.append((args, kwargs))
+        raise AssertionError("native_source_prerequisites_attempted_provider_fetch")
+
+    monkeypatch.setattr(WorldBankConnector, "fetch", forbidden_fetch)
+    store = FileSystemCAS(tmp_path / "cas")
+    case, metadata = _prepare_declared_native_fiscal_case(tmp_path / "graph", store=store)
+    try:
+        port = metadata["port"]
+        definitions = metadata["native_definition_refs"]
+        declaration = load_model_input_port_declaration(
+            store, case.model_input_port_declaration_ref
+        )
+        assert declaration.ports == (port,)
+        assert artifact_ref_identity_key(port.semantic_definition_ref) == artifact_ref_identity_key(
+            definitions["fiscal_flow"]
+        )
+        trinity = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), case.trinity_ref)
+        assert artifact_ref_identity_key(trinity.model_spec.model_input_port_declaration_ref) == (
+            artifact_ref_identity_key(case.model_input_port_declaration_ref)
+        )
+        setup, _profile_ref, rows, oracle = _install_two_role_wdi_declarations(
+            store=store, case=case, metadata=metadata, root=tmp_path / "catalog-owner"
+        )
+        bases = {item.role: item.basis for item in setup.profile.inputs}
+        assert (
+            bases[setup.profile.ratio_role].semantic_definition_ref == definitions["fiscal_share"]
+        )
+        assert bases[setup.profile.denominator_role].semantic_definition_ref == definitions["gdp"]
+        ratio = load_variable_representation(
+            store, bases[setup.profile.ratio_role].representation_ref
+        )
+        denominator = load_variable_representation(
+            store, bases[setup.profile.denominator_role].representation_ref
+        )
+        assert ratio.numerator_ref == port.semantic_definition_ref
+        assert ratio.denominator_ref == definitions["gdp"]
+        assert ratio.unit_id == "ratio" and denominator.unit_id == "usd"
+        assert denominator.quantity_kind == "flow" and denominator.time_support == "period_total"
+        assert denominator.money_unit == metadata["money"]
+        for row in rows:
+            selected = catalog.load_acquisition_supplier_declaration(store, row["ref"])
+            resolved = metadata["native_authority"].resolve(selected.entry.entry_id)
+            expected_coordinate = "percent" if row["role"] == setup.profile.ratio_role else "usd"
+            assert resolved.upstream_catalog_projection["catalog_unit"] == expected_coordinate
+            assert resolved.field_binding.raw_unit == expected_coordinate
+            assert resolved.field_binding.canonical_unit == (
+                "ratio" if row["role"] == setup.profile.ratio_role else "usd"
+            )
+            source_representation = (
+                ratio if row["role"] == setup.profile.ratio_role else denominator
+            )
+            role_scope = port.scope.model_copy(
+                update={"population_ref": source_representation.population_ref}
+            )
+            assert (
+                catalog.acquisition_supplier_declaration_scope_refusal(
+                    store, row["ref"], scope=role_scope
+                )
+                is None
+            )
+            assert selected.semantic_authority == "not_established"
+            assert selected.acquisition_permission == "not_established"
+            assert selected.source_currentness == "not_established"
+        assert oracle["ratio_raw_percent"] == -3.0
+        assert oracle["ratio_canonical"] == -0.03
+        assert oracle["denominator_usd"] == 200_000_000_000.0
+        assert calls == []
+        assert not store.manifest_inventory_snapshot(
+            kind="catalog.scoped_measurement_occurrence"
+        ).entries
+    finally:
+        case.close()
+
+
 @pytest.mark.integration
 def test_configured_native_source_exposes_two_unpriced_leaf_routes(
     tmp_path: Path,
@@ -382,6 +617,12 @@ def test_configured_native_source_exposes_two_unpriced_leaf_routes(
     controlled_candidate_gateway: Any,
 ) -> None:
     """Use actual source/N4 and N7 producers while stopping before fetch/N5."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        NativeDerivationLeafRouteProjection,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
+
     with configured_native_source_case(tmp_path, monkeypatch, controlled_candidate_gateway) as (
         served_case,
         holder,
@@ -396,19 +637,57 @@ def test_configured_native_source_exposes_two_unpriced_leaf_routes(
             for row in routes
             if row["schema_version"] == "NativeDerivationLeafRouteProjection@1.0"
         )
-        assert len(projections) == 2
+        assert len(routes) == len(projections) == 2
+        typed_projections = tuple(
+            NativeDerivationLeafRouteProjection.model_validate(row) for row in projections
+        )
+        for row in projections:
+            assert set(row) == set(NativeDerivationLeafRouteProjection.model_fields)
+        assert len({row.route_id for row in typed_projections}) == 2
+        assert len({row.requirement_gap_id for row in typed_projections}) == 2
+        assert len({row.planner_record_id for row in typed_projections}) == 2
+        assert (
+            len({artifact_ref_identity_key(row.derivation_bundle_ref) for row in typed_projections})
+            == 1
+        )
+        assert all(
+            (row.tenant_id, row.cell_id, row.run_id)
+            == (
+                served_case.claims.tenant_id,
+                served_case.claims.cell_id,
+                served_case.control_run_id,
+            )
+            for row in typed_projections
+        )
         expected_by_node = {row["provider"].source_node_id: row["ref"] for row in holder["rows"]}
         assert {row["source_node_id"] for row in projections} == set(expected_by_node)
         assert all(row["selected_supplier_ref"] for row in projections)
         for projection in projections:
-            assert (
+            assert artifact_ref_identity_key(
                 ArtifactRef.model_validate(projection["selected_supplier_ref"])
-                == expected_by_node[projection["source_node_id"]]
-            )
-        assert all(row["publication_authority"] is False for row in projections)
-        assert all(row["action_authority"] == "not_established" for row in projections)
-        assert all(row["route_status"] == "inputs_pending" for row in projections)
+            ) == artifact_ref_identity_key(expected_by_node[projection["source_node_id"]])
+        assert all(row.route_status == "inputs_pending" for row in typed_projections)
+        assert all(
+            row.reason_codes == ("native_leaf_owner_cost_profile_not_established",)
+            for row in typed_projections
+        )
         assert all("cost_basis" not in row and "replay_pins" not in row for row in projections)
+        action_service = served_case.client.app.state.runtime_container.acquisition_action_service
+        with tenant_scope(
+            None,
+            tenant_id=served_case.claims.tenant_id,
+            cell_id=served_case.claims.cell_id,
+        ):
+            loop = action_service._route_loop(
+                tenant_id=served_case.claims.tenant_id,
+                cell_id=served_case.claims.cell_id,
+            )
+            for row in typed_projections:
+                with pytest.raises(AcquisitionRouteClosureError) as refused:
+                    loop.resolve_current_route(
+                        run_id=served_case.control_run_id, route_id=row.route_id
+                    )
+                assert refused.value.code == "native_leaf_owner_cost_profile_not_established"
         assert holder["fetch_calls"] == []
         assert holder["oracle"] == {
             "ratio_raw_percent": -3.0,
@@ -897,9 +1176,9 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
             )
             assert len(pending_rows) == 1
             assert pending_rows[0]["model_goal_status"] == "inputs_pending"
-            assert ArtifactRef.model_validate(pending_rows[0]["native_input_collection_ref"]) == (
-                terminal.native_input_collection_ref
-            )
+            assert artifact_ref_identity_key(
+                ArtifactRef.model_validate(pending_rows[0]["native_input_collection_ref"])
+            ) == artifact_ref_identity_key(terminal.native_input_collection_ref)
             assert projection["n5_observations"] == []
 
             # The already approved A action is not a grant for the distinct B

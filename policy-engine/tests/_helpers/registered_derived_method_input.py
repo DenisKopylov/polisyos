@@ -30,7 +30,10 @@ from polisyos.core.contracts.semantic_composition_binding import (
 )
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.core.contracts.variable_binding import (
+    MeasurementAxis,
+    MeasurementBindingProfile,
     SelectedVariableBindingRef,
+    VariableSemanticDefinition,
     load_variable_representation,
 )
 from polisyos.core.derivations import (
@@ -79,6 +82,7 @@ def materialize_registered_method_input_case(
     denominator_value: Decimal = Decimal("200000000000"),
     binding_id: str = "registered-period-flow",
     source_year: int = 2024,
+    source_bases: tuple[RegisteredDerivationRoleBasis, ...] | None = None,
 ) -> DerivedModelInputMaterialization:
     """Replay real native rows through the registered v3 materializer.
 
@@ -99,6 +103,7 @@ def materialize_registered_method_input_case(
         denominator_value=denominator_value,
         binding_id=binding_id,
         source_year=source_year,
+        source_bases=source_bases,
     )
     batch = materialize_registered_derived_model_inputs(
         case.store,
@@ -139,6 +144,7 @@ def prepare_registered_method_input_profile(
     metadata: dict[str, Any],
     *,
     port: ModelInputPort | None = None,
+    source_bases: tuple[RegisteredDerivationRoleBasis, ...] | None = None,
 ) -> RegisteredMethodInputProfileSetup:
     """Persist pure registration requirements without preflight or activation.
 
@@ -157,28 +163,108 @@ def prepare_registered_method_input_profile(
     if money is None:
         raise ValueError("registered_method_fixture_money_unit_required")
     ratio_role, denominator_role = "rate_input", "scale_input"
-    ratio_definition, _ = _definition(store, "registered-source-ratio")
-    denominator_definition, _ = _definition(store, "registered-source-total")
-    source_definitions = {
-        ratio_role: ratio_definition,
-        denominator_role: denominator_definition,
-    }
-    source_representations = {
-        ratio_role: _representation(
-            store,
-            ratio_definition,
-            population=port.scope.population_ref,
-            money=money,
-            numerator_ref=port.semantic_definition_ref,
-            denominator_ref=denominator_definition,
-        )[0],
-        denominator_role: _representation(
-            store, denominator_definition, population="population:economy", money=money
-        )[0],
-    }
+    source_representations_by_role: dict[str, Any] = {}
+    if source_bases is None:
+        ratio_definition, _ = _definition(store, "registered-source-ratio")
+        denominator_definition, _ = _definition(store, "registered-source-total")
+        source_definitions = {
+            ratio_role: ratio_definition,
+            denominator_role: denominator_definition,
+        }
+        source_representations = {
+            ratio_role: _representation(
+                store,
+                ratio_definition,
+                population=port.scope.population_ref,
+                money=money,
+                numerator_ref=port.semantic_definition_ref,
+                denominator_ref=denominator_definition,
+            )[0],
+            denominator_role: _representation(
+                store, denominator_definition, population="population:economy", money=money
+            )[0],
+        }
+        for role in (ratio_role, denominator_role):
+            source_representations_by_role[role] = load_variable_representation(
+                store, source_representations[role]
+            )
+        source_binding_profiles = dict.fromkeys(
+            (ratio_role, denominator_role), port.binding_profile_ref
+        )
+    else:
+        if type(source_bases) is not tuple or any(
+            type(item) is not RegisteredDerivationRoleBasis for item in source_bases
+        ):
+            raise ValueError("registered_method_fixture_source_basis_role_set_invalid")
+        if tuple(item.role for item in source_bases) != (ratio_role, denominator_role):
+            raise ValueError("registered_method_fixture_source_basis_role_set_invalid")
+        source_definitions = {}
+        source_representations = {}
+        source_binding_profiles = {}
+        binding_profiles: dict[str, MeasurementBindingProfile] = {}
+        for item in source_bases:
+            basis = item.basis
+            definition = validate_core_model_json_artifact(
+                VariableSemanticDefinition, store, basis.semantic_definition_ref
+            )
+            representation = load_variable_representation(store, basis.representation_ref)
+            binding_profile = validate_core_model_json_artifact(
+                MeasurementBindingProfile, store, basis.binding_profile_ref
+            )
+            if artifact_ref_identity_key(
+                representation.semantic_definition_ref
+            ) != artifact_ref_identity_key(basis.semantic_definition_ref):
+                raise ValueError("registered_method_fixture_source_basis_definition_mismatch")
+            source_definitions[item.role] = basis.semantic_definition_ref
+            source_representations[item.role] = basis.representation_ref
+            source_binding_profiles[item.role] = basis.binding_profile_ref
+            source_representations_by_role[item.role] = representation
+            binding_profiles[item.role] = binding_profile
+
+        ratio_representation = source_representations_by_role[ratio_role]
+        denominator_representation = source_representations_by_role[denominator_role]
+        target_representation = load_variable_representation(store, port.representation_ref)
+        for role, representation in source_representations_by_role.items():
+            profile = binding_profiles[role]
+            if (
+                profile.schema_version != "polisyos.catalog.measurement_binding_profile.v3"
+                or MeasurementAxis.MONEY_UNIT not in profile.required_axes
+                or any(
+                    getattr(representation, axis.value) is None for axis in profile.required_axes
+                )
+                or representation.quantity_kind != "flow"
+                or representation.time_support != "period_total"
+                or representation.temporal_granularity != "annual"
+                or representation.aggregation != "identity"
+                or representation.scale_to_unit != Decimal(1)
+                or not representation.grain
+                or representation.grain != target_representation.grain
+                or representation.money_unit != money
+                or representation.unit_id is None
+                or representation.population_ref is None
+            ):
+                raise ValueError("registered_method_fixture_source_basis_relation_mismatch")
+        if (
+            ratio_representation.measure_form != "ratio"
+            or ratio_representation.unit_id != "ratio"
+            or ratio_representation.numerator_ref is None
+            or artifact_ref_identity_key(ratio_representation.numerator_ref)
+            != artifact_ref_identity_key(port.semantic_definition_ref)
+            or ratio_representation.denominator_ref is None
+            or artifact_ref_identity_key(ratio_representation.denominator_ref)
+            != artifact_ref_identity_key(source_definitions[denominator_role])
+            or ratio_representation.population_ref != port.scope.population_ref
+            or denominator_representation.measure_form != "absolute"
+            or denominator_representation.unit_id != target_representation.unit_id
+            or denominator_representation.numerator_ref is not None
+            or denominator_representation.denominator_ref is not None
+        ):
+            raise ValueError("registered_method_fixture_source_basis_relation_mismatch")
     aliases = {ratio_role: "provider.share_series", denominator_role: "provider.total_series"}
-    units = {ratio_role: "ratio", denominator_role: port.unit_id}
-    profile_for_source = port.binding_profile_ref
+    units = {
+        role: source_representations_by_role[role].unit_id
+        for role in (ratio_role, denominator_role)
+    }
     family = TransformFamily.model_validate(
         {
             "family_id": "registered.flow_from_share",
@@ -225,7 +311,7 @@ def prepare_registered_method_input_profile(
                 basis=RegisteredSemanticBasis(
                     semantic_definition_ref=source_definitions[role],
                     representation_ref=source_representations[role],
-                    binding_profile_ref=profile_for_source,
+                    binding_profile_ref=source_binding_profiles[role],
                 ),
             )
             for role in (ratio_role, denominator_role)
@@ -247,10 +333,8 @@ def prepare_registered_method_input_profile(
             "valid_min": -1 if role == ratio_role else 0,
             "valid_max": 1 if role == ratio_role else 300_000_000_000,
             "source_measure_scope": {
-                "population": port.scope.population_ref
-                if role == ratio_role
-                else "population:economy",
-                "temporal_granularity": "annual",
+                "population": source_representations_by_role[role].population_ref,
+                "temporal_granularity": source_representations_by_role[role].temporal_granularity,
                 "jurisdiction_ref": port.scope.jurisdiction_ref,
                 "time_period_basis": "calendar_year",
                 "source_geography_id": "UA",
@@ -276,6 +360,7 @@ def prepare_registered_method_input_request(
     denominator_value: Decimal = Decimal("200000000000"),
     binding_id: str = "registered-period-flow",
     source_year: int = 2024,
+    source_bases: tuple[RegisteredDerivationRoleBasis, ...] | None = None,
 ) -> RegisteredDerivedModelInputRequest:
     """Prepare real selected native role inputs for one exact obligation member.
 
@@ -294,7 +379,9 @@ def prepare_registered_method_input_request(
     if obligation is None or obligation.port != metadata["port"]:
         raise ValueError("registered_method_fixture_obligation_member_required")
     obligation_ref = model_input_obligation_ref
-    setup = prepare_registered_method_input_profile(case, metadata, port=obligation.port)
+    setup = prepare_registered_method_input_profile(
+        case, metadata, port=obligation.port, source_bases=source_bases
+    )
     profile, profile_ref = setup.profile, setup.profile_ref
     ratio_role, denominator_role = profile.ratio_role, profile.denominator_role
     aliases, specs = setup.role_aliases, setup.source_specs

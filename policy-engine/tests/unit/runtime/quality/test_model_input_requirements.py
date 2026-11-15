@@ -1600,6 +1600,7 @@ def test_method_input_dependency_closure_supports_distinct_methods(
 
 def test_method_output_transfer_is_internal_to_preflight_dag(tmp_path: Path) -> None:
     from polisyos.core.canon import CanonSpec
+    from polisyos.core.compiler.report import CompileReport
     from polisyos.core.contracts.execution_plan import (
         ExecutionPlan,
         ExecutionPlanRef,
@@ -1640,7 +1641,9 @@ def test_method_output_transfer_is_internal_to_preflight_dag(tmp_path: Path) -> 
         tmp_path,
         method_class=PeriodFlowToStock,
     )
+    method_registry = MethodRegistry.get_instance()
     try:
+        method_registry.register(pure_method, override=True)
         signature = pure_method.signature
         method_plan = ExecutionPlan(
             schema_version="1.2",
@@ -1701,7 +1704,16 @@ def test_method_output_transfer_is_internal_to_preflight_dag(tmp_path: Path) -> 
                 return_selected_profile=True,
             ),
         )
-        assert compiled.ok and compiled.exec_plan_ref is not None
+        if not compiled.ok or compiled.exec_plan_ref is None:
+            compile_report = validate_core_model_json_artifact(
+                CompileReport,
+                case.store,
+                compiled.compile_report_ref,
+            )
+            pytest.fail(
+                "selected method-output plan did not compile: "
+                f"report_ref={compiled.compile_report_ref!r}, notes={compile_report.notes!r}"
+            )
         (graph_ref,) = (item.ref for item in compiled.derived_refs if item.role == "program_graph")
         selected_case = replace(
             case,
@@ -1801,7 +1813,7 @@ def test_method_output_transfer_is_internal_to_preflight_dag(tmp_path: Path) -> 
         assert selected_set.obligation_refs == (obligation_ref,)
     finally:
         case.close()
-        MethodRegistry.get_instance().unregister(pure_method.signature.fqn)
+        method_registry.unregister(pure_method.signature.fqn)
 
 
 def test_selected_graph_cannot_be_substituted_by_equal_bytes(tmp_path: Path) -> None:

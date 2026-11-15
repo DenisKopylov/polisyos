@@ -1,0 +1,21 @@
+id = "e02-program-graph-paired-actuation"
+title = "Bind candidate simulation to explicit program-graph policy selections"
+type = "added"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Persist exact LoweredIR/mask/apply selections for an empty baseline and whole-intervention treatment while preserving world-method execution. Runtime's versioned paired profile records absolute outcomes and effects, preflights the complete physical-work quota, and exposes selected-registry outcome units through the existing candidate result body. Native source linkage retains the original profile separately from its current invocation and rejects absent history ownership."
+compatibility = "Absent actuation selection retains legacy execution. Explicit selection uses ExecuteRequest 1.1 and execution basis 1.4. Older request, basis and unpaired numerical readers remain supported; no historical artifact is rewritten. Optional API unit fields are omitted on legacy projections."
+change_class = "compatible"
+surface_classification = "public_experimental: Core actuation selection contracts and Foundry selection resolver; compatible additive Runtime candidate result unit fields; internal: paired numerical execution and Native source linkage"
+public_surface_inventory_reviewed = true
+migration = "Regenerate public inventory, Runtime OpenAPI and both TypeScript client families from the composed source. Preserve distinct Core and Control run identifiers. Feedback execution with an actuation selection is unsupported and refuses before dispatch."
+limitations = "Candidate only. Real Foundry baseline/treatment and independent component controls are verified; hosted N5-to-frontier/API and paid Native continuation remain separately qualified. Model-declared units do not establish empirical truth, production verifier appointment, publication authority, G acceptance or LANE-01 completion."
+evidence = [
+  "tests/unit/core/contracts/test_program_graph_actuation_selection.py",
+  "tests/unit/foundry/compile/test_actuation.py",
+  "tests/unit/foundry/runtime/test_program_graph_actuation.py",
+  "tests/unit/runtime/quality/test_generic_program_graph_paired.py",
+  "tests/unit/runtime/http/services/test_generic_n5_outcome_units.py",
+  "tests/integration/runtime_quality/test_derived_method_model_input_use_served.py",
+  "tests/integration/runtime_quality/test_native_derivation_acquisition_served.py",
+]

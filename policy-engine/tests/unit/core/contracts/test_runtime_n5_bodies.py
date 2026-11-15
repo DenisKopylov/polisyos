@@ -291,8 +291,47 @@ def test_generic_n5_result_body_schema_and_purpose_remain_stable() -> None:
     )
     assert tuple(serialized) == expected_wire_fields
     assert tuple(RunGenericCycleSimulationN5ResultBody.model_json_schema()["properties"]) == (
-        expected_wire_fields
+        *expected_wire_fields,
+        "outcome_units",
+        "outcome_units_status",
+        "outcome_unit_registry_ref",
+        "outcome_units_limitation_code",
     )
+
+
+def test_generic_outcome_units_require_a_selected_registry_and_complete_scope() -> None:
+    """A displayed unit must come from one selected registry and cover all outcomes."""
+    registry_ref = _artifact_ref("core.registry_bundle", "f")
+    payload = {
+        **_result_body_payload(candidate=False),
+        "outcome_units": {"government.balance": "uah"},
+        "outcome_units_status": "resolved",
+        "outcome_unit_registry_ref": registry_ref,
+    }
+    body = RunGenericCycleSimulationN5ResultBody.model_validate(payload)
+    assert body.outcome_units == {"government.balance": "uah"}
+    assert body.outcome_unit_registry_ref == registry_ref
+    assert body.outcome_units_status == "resolved"
+
+    limited = RunGenericCycleSimulationN5ResultBody.model_validate(
+        {
+            **_result_body_payload(candidate=False),
+            "outcome_units_status": "not_established",
+            "outcome_units_limitation_code": "generic_n5_outcome_unit_units_registry_missing",
+        }
+    )
+    assert limited.outcome_units is None
+    assert limited.outcome_unit_registry_ref is None
+
+    for changes in (
+        {"outcome_units": {}},
+        {"outcome_units": {"foreign.outcome": "uah"}},
+        {"outcome_units": {"government.balance": " "}},
+        {"outcome_unit_registry_ref": None},
+        {"outcome_units_limitation_code": "not_limited"},
+    ):
+        with pytest.raises(ValidationError):
+            RunGenericCycleSimulationN5ResultBody.model_validate({**payload, **changes})
 
 
 def test_configured_units_require_the_exact_declared_outcome_denominator() -> None:

@@ -481,7 +481,9 @@ def test_method_output_map_requires_a_real_declared_model_before_dispatch(tmp_pa
         prepare_program_graph_tax_subsidy_input_case,
     )
 
-    case = prepare_program_graph_tax_subsidy_input_case(tmp_path)
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path, opening_balance_usd=10_000_000_000
+    )
     assert case.model_input_port_declaration_ref is None
     registry = MethodRegistry.get_instance()
     registry.register(_UndeclaredReader, override=True)

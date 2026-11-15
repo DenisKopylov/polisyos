@@ -19538,6 +19538,15 @@ export interface components {
              */
             currentness_status: "not_established";
             horizon: components["schemas"]["RunGenericCycleSimulationN5Horizon"];
+            outcome_unit_registry_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Outcome Units */
+            outcome_units?: {
+                [key: string]: string;
+            } | null;
+            /** Outcome Units Limitation Code */
+            outcome_units_limitation_code?: string | null;
+            /** Outcome Units Status */
+            outcome_units_status?: ("resolved" | "not_established") | null;
             /**
              * Publication Authority
              * @default false

@@ -49,6 +49,7 @@ from .overlay import (
     AcquisitionDatasetRegistration,
     MetricFieldBinding,
     ObservationProvenanceClass,
+    _resolve_fixed_unit_transform,
     build_metric_field_binding,
 )
 from .variable_alignment import score_variable_pair
@@ -2846,13 +2847,47 @@ class CanonicalAcquisitionAuthority:
         ) = values
         if str(execution_tier) not in {"fetchable", "transport_ready"}:
             raise AcquisitionAuthorityError("catalog_execution_tier_not_executable")
-        catalog_unit = derive_catalog_unit_from_text(f"{title or ''} {description or ''}")
+        placeholder = build_metric_field_binding(
+            dataset_id=entry.landing_dataset_id,
+            distribution_id=entry.landing_distribution_id,
+            raw_field=entry.raw_field,
+            canonical_variable=entry.target_variable,
+            raw_unit=entry.raw_unit,
+            canonical_unit=entry.canonical_unit,
+            unit_transform=entry.unit_transform,
+            unit_transform_ref=entry.unit_transform_ref,
+            alignment_method=entry.alignment_method,
+            alignment_confidence=entry.alignment_confidence,
+            is_proxy=entry.is_proxy,
+            proxy_penalty=entry.proxy_penalty,
+            evidence_refs=entry.evidence_refs,
+            aggregation_method=entry.aggregation_method,
+            valid_min=entry.valid_min,
+            valid_max=entry.valid_max,
+        )
+        fixed_unit_evidence = (
+            None
+            if entry.unit_transform == "identity"
+            else _resolve_fixed_unit_transform(placeholder)
+        )
+        coordinate_only = (
+            fixed_unit_evidence is not None
+            and normalize_acquisition_unit(fixed_unit_evidence.raw_unit) == "percent"
+            and normalize_acquisition_unit(fixed_unit_evidence.canonical_unit) == "ratio"
+        )
+        catalog_unit = derive_catalog_unit_from_text(
+            f"{title or ''} {description or ''}",
+            coordinate_only=coordinate_only,
+        )
         if catalog_unit is None:
             raise AcquisitionAuthorityError("catalog_unit_unresolved")
-        if normalize_acquisition_unit(entry.raw_unit) != catalog_unit:
+        expected_catalog_coordinate = (
+            fixed_unit_evidence.raw_unit if coordinate_only else entry.raw_unit
+        )
+        if normalize_acquisition_unit(expected_catalog_coordinate) != catalog_unit:
             raise AcquisitionAuthorityError(
                 "catalog_unit_mismatch",
-                f"{entry.raw_unit}:{catalog_unit}",
+                f"{expected_catalog_coordinate}:{catalog_unit}",
             )
         if entry.unit_transform == "identity" and (
             normalize_acquisition_unit(entry.canonical_unit) != catalog_unit
@@ -2922,24 +2957,6 @@ class CanonicalAcquisitionAuthority:
             "is_proxy": is_proxy,
             "proxy_penalty": proxy_penalty,
         }
-        placeholder = build_metric_field_binding(
-            dataset_id=entry.landing_dataset_id,
-            distribution_id=entry.landing_distribution_id,
-            raw_field=entry.raw_field,
-            canonical_variable=entry.target_variable,
-            raw_unit=entry.raw_unit,
-            canonical_unit=entry.canonical_unit,
-            unit_transform=entry.unit_transform,
-            unit_transform_ref=entry.unit_transform_ref,
-            alignment_method=entry.alignment_method,
-            alignment_confidence=entry.alignment_confidence,
-            is_proxy=entry.is_proxy,
-            proxy_penalty=entry.proxy_penalty,
-            evidence_refs=entry.evidence_refs,
-            aggregation_method=entry.aggregation_method,
-            valid_min=entry.valid_min,
-            valid_max=entry.valid_max,
-        )
         registration = AcquisitionDatasetRegistration(
             catalog_dataset_id=entry.landing_dataset_id,
             source=str(source),
@@ -3171,19 +3188,37 @@ def normalize_acquisition_unit(value: str) -> str:
     return aliases.get(text, text.replace(" ", "_"))
 
 
-def derive_catalog_unit_from_text(value: str) -> str | None:
-    """Derive a source unit from catalog-owned title and description text.
+def derive_catalog_unit_from_text(
+    value: str,
+    *,
+    coordinate_only: bool = False,
+) -> str | None:
+    """Derive a source unit or physical coordinate from catalog text.
 
-    This deliberately recognizes unit families, not indicator IDs. Ambiguous or
-    absent units fail closed so a registry row cannot mint its own unit authority.
+    The default mode preserves the legacy semantic-unit projection. Coordinate
+    mode recognizes only physical percentage tokens and is used after the fixed
+    unit owner validates a registered ``percent`` to ``ratio`` transform. It
+    does not establish denominator or population meaning. Ambiguous or absent
+    units fail closed so a registry row cannot mint its own unit authority.
     """
 
     text = " ".join(value.casefold().replace("\u00a0", " ").split())
     candidates: set[str] = set()
-    if ("%" in text or "percent" in text) and "gdp" in text:
-        candidates.add("percent_gdp")
-    if re.search(r"(?:%|percent(?:age)?)\s+of\s+(?:the\s+)?(?:total\s+)?labou?r\s+force\b", text):
-        candidates.add("percent")
+    if coordinate_only:
+        if re.search(r"\bpercentile\b", text) or re.search(
+            r"(?:%|\bpercent(?:age)?\b)[\s-]*points?\b", text
+        ):
+            return None
+        if "%" in text or re.search(r"\bpercent(?:age)?\b", text):
+            candidates.add("percent")
+    else:
+        if ("%" in text or "percent" in text) and "gdp" in text:
+            candidates.add("percent_gdp")
+        if re.search(
+            r"(?:%|percent(?:age)?)\s+of\s+(?:the\s+)?(?:total\s+)?labou?r\s+force\b",
+            text,
+        ):
+            candidates.add("percent")
     if any(
         token in text
         for token in (

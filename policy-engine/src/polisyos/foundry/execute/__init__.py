@@ -58,6 +58,18 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ProgramGraphActuationResolution": (
+        "polisyos.foundry.execute.actuation",
+        "ProgramGraphActuationResolution",
+    ),
+    "create_program_graph_actuation_selection": (
+        "polisyos.foundry.execute.actuation",
+        "create_program_graph_actuation_selection",
+    ),
+    "resolve_program_graph_actuation": (
+        "polisyos.foundry.execute.actuation",
+        "resolve_program_graph_actuation",
+    ),
     "load_stored_selected_method_input_occurrences": (
         "polisyos.foundry.execute.api",
         "load_stored_selected_method_input_occurrences",
@@ -289,4 +301,19 @@ if TYPE_CHECKING:
     from .model_input_requirements import (
         recompute_current_use_method_input_revalidation,
         verify_current_use_method_input_revalidation,
+    )
+
+__all__.extend(
+    [
+        "ProgramGraphActuationResolution",
+        "create_program_graph_actuation_selection",
+        "resolve_program_graph_actuation",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .actuation import (
+        ProgramGraphActuationResolution,
+        create_program_graph_actuation_selection,
+        resolve_program_graph_actuation,
     )

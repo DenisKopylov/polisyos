@@ -8,6 +8,7 @@ changes the configured profile map, fetches data, or invokes a numerical kernel.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.core import artifacts
@@ -16,6 +17,7 @@ from polisyos.pdc import gy_content_hash
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.core.registry import RegistryBundleContent
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
         NativeDerivedWorldSelection,
@@ -31,6 +33,52 @@ if TYPE_CHECKING:
         GenericCycleSimulationN5InputV1,
         GenericCycleSimulationProfileV1,
     )
+
+
+@dataclass(frozen=True)
+class NativeSelectedProgramGraphLinkage:
+    """Expose original configuration and separately replayed Native graph inputs."""
+
+    handoff: GenericCycleNativeWorldContextHandoffV1
+    compile_report_ref: artifacts.ArtifactRef
+    registry_bundle_ref: artifacts.ArtifactRef
+    registry_bundle_content: RegistryBundleContent
+    compiled_singleton: bool
+
+    @property
+    def profile(self) -> GenericCycleSimulationProfileV1:
+        """Return unchanged original configuration, never a projected artifact."""
+        return self.handoff.profile
+
+    @property
+    def profile_ref(self) -> artifacts.ArtifactRef:
+        """Return the exact original selected configuration view."""
+        return self.handoff.profile_ref
+
+    @property
+    def context(self) -> CycleSubstrateContext:
+        """Return the action-owned context, including its candidate limitations."""
+        return self.handoff.context
+
+    @property
+    def context_job_ref(self) -> artifacts.ArtifactRef:
+        """Return the actual acquisition-job context selector."""
+        return self.handoff.context_job_ref
+
+    @property
+    def native_world_checkpoint_ref(self) -> artifacts.ArtifactRef:
+        """Return the selected checkpoint independently replayed by this owner."""
+        return self.handoff.native_world_checkpoint_ref
+
+    @property
+    def original_generic_input_ref(self) -> artifacts.ArtifactRef:
+        """Return the genuine blocked Generic input from the original cycle."""
+        return self.handoff.original_generic_input_ref
+
+    @property
+    def current_profile_selection_ref(self) -> str:
+        """Return the current problem key independently of original configuration."""
+        return self.handoff.current_profile_selection_ref
 
 
 def _error(code: str) -> Exception:
@@ -332,6 +380,113 @@ def resolve_native_world_handoff(
     return handoff
 
 
+def _selected_graph_for_handoff(
+    owner: GenericCycleSimulationAdmissionOwner,
+    *,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    selection: NativeDerivedWorldSelection,
+    problem: DesignProblem,
+) -> NativeSelectedProgramGraphLinkage:
+    """Reuse the complete compiler law after separately proving Native context."""
+    effective = _effective_profile(selection, handoff.current_profile_selection_ref)
+    # The ordinary graph owner checks its own context/profile law. Native's
+    # actual context has additional candidate denials; it was independently
+    # reproduced above and must not weaken the ordinary equality predicate.
+    graph_context = owner.context_for_profile(effective, problem)
+    selected = owner._load_selected_program_graph_linkage(
+        profile_ref=handoff.profile_ref,
+        profile=effective,
+        context=graph_context,
+        problem=problem,
+    )
+    return NativeSelectedProgramGraphLinkage(
+        handoff=handoff,
+        compile_report_ref=selected.compile_report_ref,
+        registry_bundle_ref=selected.registry_bundle_ref,
+        registry_bundle_content=selected.registry_bundle_content,
+        compiled_singleton=selected.compiled_singleton,
+    )
+
+
+def resolve_native_selected_program_graph_linkage(
+    owner: GenericCycleSimulationAdmissionOwner,
+    *,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    problem: DesignProblem,
+    context_owner: CycleSubstrateContextArtifactOwner | None = None,
+    repo_root: Path | None = None,
+) -> NativeSelectedProgramGraphLinkage:
+    """Reopen the unchanged graph under the current Native action's own lease."""
+    handoff = resolve_native_world_handoff(
+        owner,
+        handoff=handoff,
+        problem=problem,
+        context_owner=context_owner,
+        repo_root=repo_root,
+    )
+    selection = _recorded_selection(owner, handoff.native_world_checkpoint_ref)
+    return _selected_graph_for_handoff(owner, handoff=handoff, selection=selection, problem=problem)
+
+
+def resolve_native_selected_program_graph_linkage_historical(
+    owner: GenericCycleSimulationAdmissionOwner,
+    *,
+    checkpoint_ref: artifacts.ArtifactRef,
+    context_job_ref: artifacts.ArtifactRef,
+    profile_ref: artifacts.ArtifactRef,
+    expected_context: CycleSubstrateContext,
+    problem: DesignProblem,
+    job_id: str,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> NativeSelectedProgramGraphLinkage:
+    """Reproduce recorded Native inputs from actual action history, without rights."""
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+    )
+
+    selection = _recorded_selection(owner, checkpoint_ref)
+    context_record = CycleSubstrateContextArtifactOwner(
+        store=owner.store
+    ).resolve_historical_job_artifact(
+        context_job_ref,
+        problem=problem,
+        expected_job_id=job_id,
+        expected_run_id=run_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    context = context_record.context
+    if (
+        not _same_ref(profile_ref, selection.original_profile_ref)
+        or context != expected_context
+        or context != _context(selection, problem)
+    ):
+        raise _error("generic_native_world_historical_context_mismatch")
+    handoff = GenericCycleNativeWorldContextHandoffV1(
+        context=context,
+        context_job_ref=context_job_ref,
+        profile=selection.original_profile,
+        profile_ref=profile_ref,
+        native_world_checkpoint_ref=checkpoint_ref,
+        original_generic_input_ref=selection.original_generic_input_ref,
+        current_profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_job_id=selection.checkpoint.source_job_id,
+        job_id=job_id,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    if not _handoff_matches_selection(handoff, selection):
+        raise _error("generic_native_world_historical_scope_mismatch")
+    return _selected_graph_for_handoff(owner, handoff=handoff, selection=selection, problem=problem)
+
+
 def _selection_for_input(
     owner: GenericCycleSimulationAdmissionOwner,
     input_record: GenericCycleSimulationN5InputV1,
@@ -381,11 +536,18 @@ def effective_native_input_profile(
     remain in the input, and this projection is reproducible from its separate
     selected checkpoint. No other numerical or operational setting changes.
     """
+    selection = _selection_for_input(owner, input_record)
+    return _effective_profile(selection, input_record.native_current_profile_selection_ref)
+
+
+def _effective_profile(
+    selection: NativeDerivedWorldSelection, current_profile_selection_ref: str
+) -> GenericCycleSimulationProfileV1:
+    """Own the one reproducible world/key projection for Native builders."""
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
     )
 
-    selection = _selection_for_input(owner, input_record)
     profile = selection.original_profile
     effective = profile.model_copy(
         update={
@@ -393,7 +555,7 @@ def effective_native_input_profile(
             "context_inputs": profile.context_inputs.model_copy(
                 update={"world_model_record": selection.world_model_record}
             ),
-            "profile_selection_ref": input_record.native_current_profile_selection_ref,
+            "profile_selection_ref": current_profile_selection_ref,
         },
         deep=True,
     )
@@ -434,7 +596,7 @@ def persist_native_n5_input(
     handoff = resolve_native_world_handoff(
         owner, handoff=handoff, problem=problem, context_owner=None, repo_root=None
     )
-    source = GenerationSourceRepository(owner.store).load(
+    source = GenerationSourceRepository(owner.store, native_world_owner=owner).load(
         source_ref,
         run_id=source_run_id,
         expected_job_id=handoff.job_id,
@@ -517,7 +679,7 @@ def replay_native_n5_input_sources(
     )
 
     selection = _selection_for_input(owner, input_record)
-    source = GenerationSourceRepository(owner.store).load(
+    source = GenerationSourceRepository(owner.store, native_world_owner=owner).load(
         input_record.n4_source_ref,
         run_id=input_record.source_run_id,
         expected_job_id=input_record.job_id,

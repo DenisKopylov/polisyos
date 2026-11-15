@@ -2220,8 +2220,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 947,
-          "known_export_count": 947,
+          "export_count": 949,
+          "known_export_count": 949,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -3161,6 +3161,8 @@
             "ModelInputStepCoverage",
             "ModelInputStepSelectionResolution",
             "ModelInputStepSubject",
+            "ProgramGraphActuationSelection",
+            "ProgramGraphActuationSelectionRef",
             "RegisteredDerivedInputProfile",
             "RunModelInputInitialObservation",
             "RunModelInputInitialObservationsProjection",
@@ -3195,8 +3197,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 101877,
-                "sha256": "7ba4a5f9704e5de2c70cb0e18aaf2430d267342a10dcd00261d8d3e248f7277f"
+                "bytes": 102134,
+                "sha256": "1c1c2ebbe36d3a47bd202a7676b015b608e02d685e64e4842368688fc47ee270"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -11955,6 +11957,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/foundry/compile/actuation.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/foundry/compile/api.py",
                 "operation": "is_file",
                 "status": "present",
@@ -12598,8 +12606,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 48,
-          "known_export_count": 48,
+          "export_count": 51,
+          "known_export_count": 51,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -12648,7 +12656,10 @@
             "load_stored_selected_method_input_occurrences",
             "ProgramGraphMethodExecutionObserver",
             "recompute_current_use_method_input_revalidation",
-            "verify_current_use_method_input_revalidation"
+            "verify_current_use_method_input_revalidation",
+            "ProgramGraphActuationResolution",
+            "create_program_graph_actuation_selection",
+            "resolve_program_graph_actuation"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -12674,14 +12685,20 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 9761,
-                "sha256": "9b6700ba880a7842a3d3a08724e62434e1b8e58456708e416d3d42889f2b3bbd"
+                "bytes": 10545,
+                "sha256": "1081c4040ce6bfc5d3edaf0455117b99191fd28de0431e0c2c7fe02b4b09f88a"
               },
               {
                 "path": "src/polisyos/foundry/execute",
                 "operation": "is_dir",
                 "status": "present",
                 "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/execute/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
               },
               {
                 "path": "src/polisyos/foundry/execute/__init__.py",
@@ -12692,6 +12709,12 @@
               {
                 "path": "src/polisyos/foundry/execute/_internal",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/execute/actuation.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               },
@@ -22105,8 +22128,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 68547,
-                "sha256": "30cee62a1f53d6fcf96f5a1f555230e9b6abf4e0aa2d627c878762946d238f53"
+                "bytes": 68533,
+                "sha256": "d96bd138854ed479d0971950dab10c4a8526c3d74329d488ab8bd84e07d2ff80"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

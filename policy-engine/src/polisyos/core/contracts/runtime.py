@@ -4720,6 +4720,56 @@ class RunGenericCycleSimulationN5ResultBody(_RunN5FiniteResultBody):
         "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
     )
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    outcome_units: dict[StrictStr, StrictStr] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    outcome_units_status: Literal["resolved", "not_established"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    outcome_unit_registry_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    outcome_units_limitation_code: StrictStr | None = Field(
+        default=None,
+        min_length=1,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def _bind_selected_outcome_units(self) -> RunGenericCycleSimulationN5ResultBody:
+        if self.outcome_units_status is None:
+            if (
+                self.outcome_units is not None
+                or self.outcome_unit_registry_ref is not None
+                or self.outcome_units_limitation_code is not None
+            ):
+                raise ValueError("run_generic_n5_outcome_unit_status_missing")
+            return self
+        if self.outcome_units_status == "resolved":
+            ref = self.outcome_unit_registry_ref
+            units = self.outcome_units
+            if (
+                units is None
+                or set(units) != set(self.selected_outcomes)
+                or any(not outcome.strip() or not unit.strip() for outcome, unit in units.items())
+                or ref is None
+                or ref.kind != "core.registry_bundle"
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                or self.outcome_units_limitation_code is not None
+            ):
+                raise ValueError("run_generic_n5_outcome_units_selected_binding_invalid")
+            return self
+        if (
+            self.outcome_units is not None
+            or self.outcome_unit_registry_ref is not None
+            or self.outcome_units_limitation_code is None
+        ):
+            raise ValueError("run_generic_n5_outcome_units_limitation_invalid")
+        return self
 
 
 class RunCandidateSimulationN5ResultBody(_RunN5FiniteResultBody):

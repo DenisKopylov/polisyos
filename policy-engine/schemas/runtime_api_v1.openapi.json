@@ -44085,6 +44085,57 @@
           "horizon": {
             "$ref": "#/components/schemas/RunGenericCycleSimulationN5Horizon"
           },
+          "outcome_unit_registry_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_units": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Units"
+          },
+          "outcome_units_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Units Limitation Code"
+          },
+          "outcome_units_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Units Status"
+          },
           "publication_authority": {
             "const": false,
             "default": false,

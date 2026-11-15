@@ -103,11 +103,13 @@ if TYPE_CHECKING:
         JointSimulationHorizonController,
         JointSimulationRequest,
         JointSimulationResult,
+        _PairedProgramGraphUnitSelection,
     )
     from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
     from polisyos.runtime.quality.n5_candidate_content import (
         GenericProgramGraphContentObservationV2,
         GenericProgramGraphContentObservationV3,
+        GenericProgramGraphContentObservationV4,
     )
     from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
     from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
@@ -574,9 +576,10 @@ class GenericModelInputInitialEvaluationBasis(_Record):
     authority_purpose: Literal["candidate_evaluation_retention_only"] = (
         "candidate_evaluation_retention_only"
     )
-    comparison_profile: Literal["generic_program_graph_mapped_numpy_methods_v3"] = (
-        "generic_program_graph_mapped_numpy_methods_v3"
-    )
+    comparison_profile: Literal[
+        "generic_program_graph_mapped_numpy_methods_v3",
+        "generic_program_graph_paired_numpy_methods_v4",
+    ] = "generic_program_graph_mapped_numpy_methods_v3"
     basis_role: Literal["evaluated"] = "evaluated"
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
@@ -710,6 +713,7 @@ class GenericModelInputEvaluationBasisV1(_Record):
         "generic_program_graph_declared_numerical_v1",
         "generic_program_graph_declared_numerical_v2",
         "generic_program_graph_mapped_numpy_methods_v3",
+        "generic_program_graph_paired_numpy_methods_v4",
     ] = "generic_program_graph_declared_numerical_v1"
     basis_role: Literal["prospective", "evaluated", "blocked"]
     tenant_id: str = Field(min_length=1)
@@ -908,6 +912,8 @@ class PreparedGenericModelInputNumericalBasis:
     source_image: N5ProductionImage
     prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = ()
     numerical_intent_profile: str = "generic_program_graph_declared_numerical_v2"
+    prepared_paired_calls: tuple[tuple[tuple[int, ...], int, str, int, bytes], ...] = ()
+    prepared_paired_method_calls: tuple[tuple[tuple[int, ...], int, int, str, int, bytes], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -919,6 +925,9 @@ class _GenericModelInputNumericalQuantity:
     source_image: N5ProductionImage
     prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = ()
     numerical_intent_profile: str = "generic_program_graph_declared_numerical_v2"
+    prepared_paired_calls: tuple[tuple[tuple[int, ...], int, str, int, bytes], ...] = ()
+    prepared_paired_method_calls: tuple[tuple[tuple[int, ...], int, int, str, int, bytes], ...] = ()
+    paired_unit_selections: tuple[_PairedProgramGraphUnitSelection, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -936,8 +945,13 @@ class _GenericModelInputNumericalIntake:
 
 GENERIC_NUMERICAL_INTENT_PROFILE = "generic_program_graph_declared_numerical_v2"
 GENERIC_METHOD_NUMERICAL_INTENT_PROFILE = "generic_program_graph_mapped_numpy_methods_v3"
+GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE = "generic_program_graph_paired_numpy_methods_v4"
 _GENERIC_NUMERICAL_INTENT_PROFILES = frozenset(
-    {GENERIC_NUMERICAL_INTENT_PROFILE, GENERIC_METHOD_NUMERICAL_INTENT_PROFILE}
+    {
+        GENERIC_NUMERICAL_INTENT_PROFILE,
+        GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
+        GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE,
+    }
 )
 _GENERIC_FIELD_ROLES = frozenset(
     {"numerical", "operational", "output_label", "resolved", "not_consumed"}
@@ -953,6 +967,7 @@ _GENERIC_REQUEST_FIELD_ROLES = (
     ("evidence_state", "numerical"),
     ("comparator_refs", "output_label"),
     ("comparator_profile", "numerical"),
+    ("program_graph_comparator_profile", "not_consumed"),
     ("coupling_graph", "numerical"),
     ("budget_ref", "operational"),
     ("seed", "numerical"),
@@ -1057,6 +1072,373 @@ _GENERIC_LOWERED_IR_FIELD_ROLES = (
 )
 
 
+_GENERIC_PAIRED_ATOM_FIELD_ROLES = (
+    ("atom_id", "output_label"),
+    ("schema_version", "resolved"),
+    ("problem_frame_ref", "resolved"),
+    ("policy_spec_ref", "resolved"),
+    ("intervention_id", "resolved"),
+    ("operator_kind", "resolved"),
+    ("target_selector", "resolved"),
+    ("target_world_slots", "numerical"),
+    ("read_slots", "numerical"),
+    ("direct_effect_bundle", "resolved"),
+    ("causal_do_expr", "resolved"),
+    ("intended_downstream_estimand", "resolved"),
+    ("causal_path_or_identification_plan_ref", "resolved"),
+    ("world_model_record_ref", "resolved"),
+    ("measurement_expectations", "output_label"),
+    ("measurement_expectations_authority", "resolved"),
+    ("normalized_from", "resolved"),
+    ("content_hash", "resolved"),
+    ("producer_ref", "resolved"),
+    ("provenance_refs", "resolved"),
+    ("status", "resolved"),
+)
+_GENERIC_PAIRED_DIRECT_EFFECT_FIELD_ROLES = (
+    ("params", "numerical"),
+    ("schedule", "numerical"),
+    ("priority", "numerical"),
+    ("mechanism_id", "numerical"),
+    ("mechanism_config_overrides", "numerical"),
+    ("transform_refs", "resolved"),
+    ("coerce_refs", "resolved"),
+    ("lex_provision_ref", "resolved"),
+    ("enabled", "numerical"),
+    ("identification_mode", "numerical"),
+    ("strategic_response_expected", "numerical"),
+    ("transmission_channels", "numerical"),
+    ("notes", "output_label"),
+)
+_GENERIC_PAIRED_WORLD_FIELDS = (
+    "world_model_record_id",
+    "schema_version",
+    "authority_status",
+    "created_at",
+    "producer_ref",
+    "content_hash",
+    "region_or_jurisdiction",
+    "population_scope",
+    "policy_domain",
+    "valid_time_scope",
+    "tx_time_scope",
+    "resolution",
+    "branch_mode",
+    "fabric_world_ref",
+    "data_forge_binding_ref",
+    "simulation_model_ref",
+    "foundry_binding_ref",
+    "skg_causal_prior_ref",
+    "substrate_registry_ref",
+    "policy_slot_map",
+    "limitations",
+    "deployment_update_refs",
+    "artifact_views",
+)
+
+
+_GENERIC_PAIRED_WORLD_NESTED_FIELDS = {
+    "fabric_world_ref": (
+        "snapshot_root",
+        "snapshot_id",
+        "branch",
+        "as_of_valid_time",
+        "as_of_tx_time",
+        "world_query_policy",
+        "provenance_manifest_ref",
+        "content_query_digest",
+        "content_query_row_count",
+    ),
+    "data_forge_binding_ref": (
+        "snapshot_id",
+        "release_id",
+        "role",
+        "read_api_identity",
+        "snapshot_ref",
+        "merkle_root",
+        "data_hash",
+        "claim_requirement_bindings",
+        "quality_gate_refs",
+        "lineage_refs",
+        "provenance_manifest_ref",
+        "binding_path",
+    ),
+    "simulation_model_ref": (
+        "model_spec_ref",
+        "model_spec_hash",
+        "model_id",
+        "data_snapshot_ref",
+        "registry_bundle_ref",
+        "mechanism_refs",
+        "gcm_refs",
+        "ncm_refs",
+        "program_graph_refs",
+        "assumptions",
+        "fidelity_level",
+        "calibration_ref",
+        "calibrated",
+    ),
+    "foundry_binding_ref": (
+        "input_bindings_ref",
+        "bound_state_snapshot_ref",
+        "mapping_rules_ref",
+        "state_slot_digest",
+    ),
+    "skg_causal_prior_ref": (
+        "skg_snapshot_ref",
+        "skg_version_id",
+        "source_data_snapshot_id",
+        "edge_prior_refs",
+        "transport_score_refs",
+        "query_trace_refs",
+    ),
+    "substrate_registry_ref": (
+        "substrate_version_id",
+        "content_hash",
+        "registry_artifact_ref",
+        "resolved_entries",
+    ),
+    "limitations": (
+        "unavailable_data",
+        "transport_limits",
+        "calibration_envelope_status",
+        "unresolved_conflicts",
+        "admissibility_blockers",
+    ),
+    "deployment_update_refs": (
+        "phase",
+        "feedback_refs",
+        "reissue_refs",
+        "refute_refs",
+        "incident_refs",
+        "posterior_update_refs",
+    ),
+    "artifact_views": (
+        "data_snapshot_ref",
+        "registry_bundle_ref",
+        "model_spec_ref",
+        "input_bindings_ref",
+        "bound_state_snapshot_ref",
+        "input_binding_report_ref",
+        "substrate_registry_ref",
+        "program_graph_refs",
+        "ncm_refs",
+    ),
+}
+
+
+def _generic_paired_atom_numerical_values(atom: object) -> dict[str, object]:
+    """Retain intended actuation values after a complete nested role census.
+
+    Current source/meaning admission belongs to the Generic/N4 owners. This
+    projection neither admits those refs nor turns their labels into numbers.
+    The initial profile supports the existing typed node-intervention form;
+    unsupported transform/coercion profiles refuse instead of dropping refs.
+    """
+    from polisyos.ir.analytics.interventions import InterventionContext, NodeIntervention
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+
+    if not isinstance(atom, InterventionAtomBinding):
+        raise ValueError("generic_paired_atom_type_not_established")
+    values = _generic_numerical_fields(atom, _GENERIC_PAIRED_ATOM_FIELD_ROLES, scope="paired_atom")
+    values["operator_kind"] = _generic_numerical_fields(
+        atom.operator_kind,
+        (("trinity_kind", "numerical"), ("proof_kernel_type", "numerical")),
+        scope="paired_operator",
+    )
+    values["target_selector"] = _generic_numerical_fields(
+        atom.target_selector,
+        (
+            ("trinity_target", "numerical"),
+            ("target_population_type", "numerical"),
+            ("target_sector_ids", "numerical"),
+            ("target_region_ids", "numerical"),
+            ("selector_content_ref", "resolved"),
+        ),
+        scope="paired_target",
+    )
+    values["direct_effect_bundle"] = _generic_numerical_fields(
+        atom.direct_effect_bundle,
+        _GENERIC_PAIRED_DIRECT_EFFECT_FIELD_ROLES,
+        scope="paired_direct_effect",
+    )
+    if atom.direct_effect_bundle.transform_refs or atom.direct_effect_bundle.coerce_refs:
+        raise ValueError("generic_paired_transform_profile_not_established")
+    do_values = _generic_numerical_fields(
+        atom.causal_do_expr,
+        (
+            ("intervention_type", "numerical"),
+            ("assignments", "resolved"),
+            ("expression_payload", "resolved"),
+            ("write_variables", "numerical"),
+            ("selection_context_ref", "resolved"),
+            ("context", "resolved"),
+        ),
+        scope="paired_do",
+    )
+    causal = atom.to_causal_intervention()
+    if type(causal) is not NodeIntervention:
+        raise ValueError("generic_paired_do_profile_not_established")
+    assignments = tuple(
+        _generic_numerical_fields(
+            item,
+            (("variable", "numerical"), ("value", "numerical"), ("value_expr", "numerical")),
+            scope="paired_assignment",
+        )
+        for item in atom.causal_do_expr.assignments
+    )
+    if exact_n5_content_bytes(assignments) != exact_n5_content_bytes(
+        tuple(item.model_dump(mode="python") for item in causal.assignments)
+    ):
+        raise ValueError("generic_paired_do_projection_mismatch")
+    do_values["assignments"] = assignments
+    context = InterventionContext.model_validate(atom.causal_do_expr.context)
+    _generic_numerical_fields(
+        context,
+        tuple(
+            (name, "resolved")
+            for name in (
+                "source_domain",
+                "target_domain",
+                "selection_diagram_ref",
+                "interaction_complex_ref",
+                "interference_certificate_ref",
+                "available_data_refs",
+                "assumptions",
+            )
+        ),
+        scope="paired_context",
+    )
+    values["causal_do_expr"] = do_values
+    values["intended_downstream_estimand"] = _generic_numerical_fields(
+        atom.intended_downstream_estimand,
+        tuple(
+            (name, "numerical")
+            for name in (
+                "target_kind",
+                "outcome_variables",
+                "conditioning_set",
+                "source_population",
+                "target_population",
+                "functional",
+                "metric_id",
+                "unit_id",
+            )
+        ),
+        scope="paired_estimand",
+    )
+    _generic_numerical_fields(
+        atom.causal_path_or_identification_plan_ref,
+        tuple(
+            (name, "resolved")
+            for name in (
+                "plan_ref",
+                "intervention_type",
+                "backend",
+                "status",
+                "theorem_family",
+                "conditions",
+                "reductions",
+                "notes",
+            )
+        ),
+        scope="paired_identification",
+    )
+    if atom.normalized_from is not None:
+        _generic_numerical_fields(
+            atom.normalized_from,
+            tuple(
+                (name, "resolved")
+                for name in (
+                    "original_kind",
+                    "original_target_world_slots",
+                    "normalized_kind",
+                    "normalized_target_world_slots",
+                    "grounding_relation",
+                    "grounding_relation_certificate_id",
+                    "grounding_relation_content_hash",
+                )
+            ),
+            scope="paired_normalization",
+        )
+    return values
+
+
+def _generic_request_numerical_values(request: JointSimulationRequest) -> dict[str, object]:
+    """Discriminate V4 values without altering historical unpaired projections."""
+    paired = request.program_graph_comparator_profile is not None
+    roles = tuple(
+        (
+            name,
+            "resolved"
+            if paired and name in {"world_model_record", "intervention_atoms", "baseline_state"}
+            else "numerical"
+            if paired and name == "program_graph_comparator_profile"
+            else role,
+        )
+        for name, role in _GENERIC_REQUEST_FIELD_ROLES
+    )
+    values = _generic_numerical_fields(request, roles, scope="request")
+    if not paired:
+        return values
+    _generic_numerical_fields(
+        request.world_model_record,
+        tuple((name, "resolved") for name in _GENERIC_PAIRED_WORLD_FIELDS),
+        scope="paired_world",
+    )
+    for field, declared in _GENERIC_PAIRED_WORLD_NESTED_FIELDS.items():
+        child = getattr(request.world_model_record, field)
+        if child is not None:
+            _generic_numerical_fields(
+                child,
+                tuple((name, "resolved") for name in declared),
+                scope="paired_world_" + field,
+            )
+    for entry in request.world_model_record.substrate_registry_ref.resolved_entries:
+        _generic_numerical_fields(
+            entry,
+            tuple(
+                (name, "resolved")
+                for name in (
+                    "source_id",
+                    "family_id",
+                    "layer",
+                    "coverage_score",
+                    "trust_tier",
+                    "trust_cap",
+                    "identification_mode",
+                    "schema_regime_id",
+                    "data_version",
+                    "snapshot_id",
+                    "source_snapshot_id",
+                    "entry_content_hash",
+                )
+            ),
+            scope="paired_world_substrate_entry",
+        )
+    values["world_slot_mapping"] = tuple(
+        _generic_numerical_fields(
+            slot,
+            tuple(
+                (name, "numerical")
+                for name in (
+                    "slot_id",
+                    "state_path",
+                    "unit",
+                    "entity_scope",
+                    "temporal_granularity",
+                )
+            ),
+            scope="paired_world_slot",
+        )
+        for slot in request.world_model_record.policy_slot_map
+    )
+    values["intervention_atoms"] = tuple(
+        _generic_paired_atom_numerical_values(atom) for atom in request.intervention_atoms
+    )
+    return values
+
+
 def _generic_numerical_fields(
     value: BaseModel, roles: tuple[tuple[str, str], ...], *, scope: str
 ) -> dict[str, object]:
@@ -1067,6 +1449,11 @@ def _generic_numerical_fields(
         allowed_roles=_GENERIC_FIELD_ROLES,
         error_prefix=f"generic_model_input_{scope}_field_role",
     )
+    if (
+        census.get("program_graph_comparator_profile") == "not_consumed"
+        and getattr(value, "program_graph_comparator_profile", None) is not None
+    ):
+        raise ValueError("generic_model_input_paired_profile_requires_v4")
     return {name: getattr(value, name) for name in sorted(census) if census[name] == "numerical"}
 
 
@@ -1198,6 +1585,8 @@ def prepare_generic_model_input_numerical_basis(
         source_image=quantity.source_image,
         prepared_method_calls=quantity.prepared_method_calls,
         numerical_intent_profile=quantity.numerical_intent_profile,
+        prepared_paired_calls=quantity.prepared_paired_calls,
+        prepared_paired_method_calls=quantity.prepared_paired_method_calls,
     )
 
 
@@ -1419,6 +1808,7 @@ def _prepare_generic_method_calls(
     intake: _GenericModelInputNumericalIntake,
     request: JointSimulationRequest,
     preflight: ProgramGraphInputPreflight,
+    actuation_selection_ref: ArtifactRef | None = None,
 ) -> tuple[tuple[int, int, str, int, bytes], ...]:
     """Use the actual Foundry adapter for every supported independent NumPy call."""
     from polisyos.core.contracts import SemanticHorizonStepContext
@@ -1446,6 +1836,7 @@ def _prepare_generic_method_calls(
                 step_index=0,
                 replication_seed=seed,
             ),
+            actuation_selection_ref=actuation_selection_ref,
         )
         if not prepared:
             raise ValueError("generic_method_call_census_not_established")
@@ -1484,6 +1875,7 @@ def _prepare_generic_model_input_numerical_intake(
         EnginePlan,
         JointSimulationHorizonController,
         JointSimulationRequest,
+        _paired_program_graph_subsets,
         _require_program_graph_input_preflight,
         _select_program_graph_input_preflight,
     )
@@ -1498,9 +1890,7 @@ def _prepare_generic_model_input_numerical_intake(
     (plan,) = request.engine_plan
     if type(plan) is not EnginePlan:
         raise ValueError("generic_model_input_plan_census_not_established")
-    request_values = _generic_numerical_fields(
-        request, _GENERIC_REQUEST_FIELD_ROLES, scope="request"
-    )
+    request_values = _generic_request_numerical_values(request)
     plan_values = _generic_numerical_fields(plan, _GENERIC_PLAN_FIELD_ROLES, scope="plan")
     selected = controller._select_engine(request)
     if (
@@ -1550,6 +1940,8 @@ def _prepare_generic_model_input_numerical_intake(
         method_values = _selected_method_input_numerical_values(resolution)
     elif historical_method_facts is not None:
         raise ValueError("generic_method_history_profile_mismatch")
+    if request.program_graph_comparator_profile is not None and method_values is None:
+        raise ValueError("generic_paired_method_input_profile_not_established")
     state_ref = bindings.bound_state_snapshot_ref
     if not _candidate_selected_ref(state_ref, "foundry.state_snapshot"):
         raise ValueError("generic_model_input_state_not_selected")
@@ -1608,8 +2000,19 @@ def _prepare_generic_model_input_numerical_intake(
         numerical_values={
             "profile": GENERIC_NUMERICAL_INTENT_PROFILE
             if method_values is None
+            else GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE
+            if request.program_graph_comparator_profile is not None
             else GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
             **({"selected_method_inputs": method_values} if method_values is not None else {}),
+            **(
+                {
+                    "actuation_unit_subsets": tuple(
+                        indices for indices, _subset in _paired_program_graph_subsets(request)
+                    )
+                }
+                if request.program_graph_comparator_profile is not None
+                else {}
+            ),
             "request": request_values,
             "plan": plan_values,
             "decision": selected.decision,
@@ -1634,10 +2037,21 @@ def _generic_model_input_numerical_intent(
     prepared_calls: tuple[tuple[int, str, int, bytes], ...],
     configuration: PreparedJointSimulationConfiguration,
     prepared_method_calls: tuple[tuple[int, int, str, int, bytes], ...] = (),
+    prepared_paired_calls: tuple[tuple[tuple[int, ...], int, str, int, bytes], ...] = (),
+    prepared_paired_method_calls: tuple[
+        tuple[tuple[int, ...], int, int, str, int, bytes], ...
+    ] = (),
 ) -> bytes:
     """Encode the same immutable numerical facets for live and recorded replay."""
-    intent = exact_n5_content_bytes(
-        {
+    if intake.numerical_values["profile"] == GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE:
+        values = {
+            **intake.numerical_values,
+            "configuration": configuration,
+            "prepared_paired_calls": prepared_paired_calls,
+            "prepared_paired_method_calls": prepared_paired_method_calls,
+        }
+    else:
+        values = {
             **intake.numerical_values,
             "prepared_calls": prepared_calls,
             "configuration": configuration,
@@ -1647,7 +2061,7 @@ def _generic_model_input_numerical_intent(
                 else {}
             ),
         }
-    )
+    intent = exact_n5_content_bytes(values)
     if len(intent) > 1024 * 1024:
         raise ValueError("generic_model_input_intent_limit_exceeded")
     return intent
@@ -1694,26 +2108,66 @@ def _prepare_generic_model_input_numerical_quantity(
         store=store, request=request, preflight=preflight, controller=controller
     )
     prepared_method_calls = ()
-    if intake.method_input_bindings_ref is not None:
-        prepared_method_calls = _prepare_generic_method_calls(
-            store=store, intake=intake, request=request, preflight=preflight
+    paired_calls = ()
+    paired_method_calls = ()
+    paired_units = ()
+    if request.program_graph_comparator_profile is not None:
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            _prepare_paired_program_graph_unit_selections,
         )
-    prepared_calls = tuple(
-        (index, node_id, step, snapshot_foundry_mechanism_call(call))
-        for index, node_id, step, call in prepare_program_graph_mechanism_calls(
-            store,
-            program_ref=intake.program_graph_ref,
-            exec_plan_ref=intake.exec_plan_ref,
-            base_state=intake.state,
-            mechanism_registry=intake.registry.mechanism_registry,
-            steps=request.horizon.steps(),
+
+        (plan,) = request.engine_plan
+        decision = controller._select_engine(request).decision
+        paired_units = _prepare_paired_program_graph_unit_selections(request, plan, decision)
+        selected_calls = []
+        selected_method_calls = []
+        for unit in paired_units:
+            method_calls = _prepare_generic_method_calls(
+                store=store,
+                intake=intake,
+                request=request,
+                preflight=preflight,
+                actuation_selection_ref=unit.actuation_selection_ref,
+            )
+            selected_method_calls.extend((unit.atom_indices, *call) for call in method_calls)
+            selected_calls.extend(
+                (unit.atom_indices, index, node_id, step, snapshot_foundry_mechanism_call(call))
+                for index, node_id, step, call in prepare_program_graph_mechanism_calls(
+                    store,
+                    program_ref=intake.program_graph_ref,
+                    exec_plan_ref=intake.exec_plan_ref,
+                    base_state=intake.state,
+                    mechanism_registry=intake.registry.mechanism_registry,
+                    steps=request.horizon.steps(),
+                    actuation_selection_ref=unit.actuation_selection_ref,
+                )
+            )
+        paired_calls = tuple(sorted(selected_calls))
+        paired_method_calls = tuple(sorted(selected_method_calls))
+        prepared_calls = ()
+    else:
+        if intake.method_input_bindings_ref is not None:
+            prepared_method_calls = _prepare_generic_method_calls(
+                store=store, intake=intake, request=request, preflight=preflight
+            )
+        prepared_calls = tuple(
+            (index, node_id, step, snapshot_foundry_mechanism_call(call))
+            for index, node_id, step, call in prepare_program_graph_mechanism_calls(
+                store,
+                program_ref=intake.program_graph_ref,
+                exec_plan_ref=intake.exec_plan_ref,
+                base_state=intake.state,
+                mechanism_registry=intake.registry.mechanism_registry,
+                steps=request.horizon.steps(),
+            )
         )
-    )
     intent = _generic_model_input_numerical_intent(
         intake,
         prepared_calls=prepared_calls,
         configuration=configuration,
         prepared_method_calls=prepared_method_calls,
+        prepared_paired_calls=paired_calls,
+        prepared_paired_method_calls=paired_method_calls,
     )
     profile = _native_profile(configuration, numerical_callable=execute_semantic_horizon_step)
     image = capture_n5_production_image(
@@ -1729,6 +2183,9 @@ def _prepare_generic_model_input_numerical_quantity(
         source_image=image,
         prepared_method_calls=prepared_method_calls,
         numerical_intent_profile=intake.numerical_values["profile"],
+        prepared_paired_calls=paired_calls,
+        prepared_paired_method_calls=paired_method_calls,
+        paired_unit_selections=paired_units,
     )
 
 
@@ -1768,7 +2225,11 @@ def _read_generic_model_input_original_evaluation(
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
     successor: GenericN5SemanticSuccessorRequest,
-) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
+) -> (
+    GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+    | GenericProgramGraphContentObservationV4
+):
     """Verify the immutable V5, original observation and selected Foundry chains."""
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
@@ -1840,7 +2301,11 @@ def _verify_generic_model_input_original_evaluation(
     semantic_successor_ref: ArtifactRef,
     evaluation: GenericModelInputSelectedEvaluation,
     prepared: PreparedGenericModelInputNumericalBasis,
-) -> GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3:
+) -> (
+    GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+    | GenericProgramGraphContentObservationV4
+):
     """Require original integrity and exact current call/provider bytes for reuse."""
     from polisyos.runtime.quality.n5_execution_profile import (
         reconcile_recorded_n5_profile_current_bytes,
@@ -2426,7 +2891,9 @@ def reconcile_generic_model_input_evaluation_completion(
 
 
 def _recorded_generic_model_input_calls(
-    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
+    observation: GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+    | GenericProgramGraphContentObservationV4,
 ) -> tuple[tuple[int, str, int, bytes], ...]:
     """Read the original complete call census, without loading old or present code."""
     from polisyos.runtime.quality.n5_execution_basis import _require_v2_wire
@@ -2456,7 +2923,9 @@ def _recorded_generic_model_input_calls(
 
 
 def _recorded_generic_model_input_method_calls(
-    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
+    observation: GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+    | GenericProgramGraphContentObservationV4,
 ) -> tuple[tuple[int, int, str, int, bytes], ...]:
     """Reuse actual recorded method-call facts without consulting today's ABI."""
     from polisyos.runtime.quality.n5_candidate_content import _read_recorded_generic_method_call
@@ -2477,12 +2946,57 @@ def _recorded_generic_model_input_method_calls(
     return tuple((*key, content) for key, content in sorted(selected.items()))
 
 
+def _recorded_generic_paired_calls(
+    observation: GenericProgramGraphContentObservationV4,
+) -> tuple[
+    tuple[tuple[tuple[int, ...], int, str, int, bytes], ...],
+    tuple[tuple[tuple[int, ...], int, int, str, int, bytes], ...],
+]:
+    """Normalize actual per-unit calls after the immutable owner joins them."""
+    from polisyos.runtime.quality.n5_candidate_content import _read_recorded_generic_method_call
+    from polisyos.runtime.quality.n5_execution_basis import _require_v2_wire
+
+    mechanisms = {}
+    methods = {}
+    for step in observation.steps:
+        for call in step.mechanism_calls:
+            if call.callable_receiver_hex is None:
+                raise ValueError("generic_paired_recorded_mechanism_not_established")
+            content = bytes.fromhex(call.callable_receiver_hex)
+            _require_v2_wire(content.decode("utf-8"))
+            key = (step.atom_indices, call.plan_index, call.node_id, step.step)
+            if key in mechanisms and mechanisms[key] != content:
+                raise ValueError("generic_paired_recorded_mechanism_disagreement")
+            mechanisms[key] = content
+        for call in step.calls:
+            _read_recorded_generic_method_call(call)
+            content = bytes.fromhex(call.call_content_hex)
+            key = (
+                step.atom_indices,
+                step.replication_seed,
+                call.plan_index,
+                call.node_id,
+                step.step,
+            )
+            if key in methods:
+                raise ValueError("generic_paired_recorded_method_duplicate")
+            methods[key] = content
+    if not methods:
+        raise ValueError("generic_paired_recorded_method_not_established")
+    return (
+        tuple((*key, content) for key, content in sorted(mechanisms.items())),
+        tuple((*key, content) for key, content in sorted(methods.items())),
+    )
+
+
 def _replay_generic_observed_numerical_values(
     *,
     store: CoreJSONArtifactStore,
     request: JointSimulationRequest,
     preflight: ProgramGraphInputPreflight,
-    observation: GenericProgramGraphContentObservationV2 | GenericProgramGraphContentObservationV3,
+    observation: GenericProgramGraphContentObservationV2
+    | GenericProgramGraphContentObservationV3
+    | GenericProgramGraphContentObservationV4,
 ) -> tuple[_GenericModelInputNumericalIntake, bytes]:
     """Reconstruct recorded physical facets using the common immutable engine.
 
@@ -2508,7 +3022,10 @@ def _replay_generic_observed_numerical_values(
     ):
         raise ValueError("generic_model_input_history_recorded_profile_binding_mismatch")
     historical_method_facts = None
-    if observation.numerical_intent_profile == GENERIC_METHOD_NUMERICAL_INTENT_PROFILE:
+    if observation.numerical_intent_profile in {
+        GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
+        GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE,
+    }:
         from polisyos.foundry.data_plane import replay_selected_method_input_facts
 
         (selected_plan,) = request.engine_plan
@@ -2527,12 +3044,22 @@ def _replay_generic_observed_numerical_values(
         controller=controller,
         historical_method_facts=historical_method_facts,
     )
-    intent = _generic_model_input_numerical_intent(
-        intake,
-        prepared_calls=_recorded_generic_model_input_calls(observation),
-        prepared_method_calls=_recorded_generic_model_input_method_calls(observation),
-        configuration=configuration,
-    )
+    if observation.numerical_intent_profile == GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE:
+        paired_calls, paired_methods = _recorded_generic_paired_calls(observation)
+        intent = _generic_model_input_numerical_intent(
+            intake,
+            prepared_calls=(),
+            prepared_paired_calls=paired_calls,
+            prepared_paired_method_calls=paired_methods,
+            configuration=configuration,
+        )
+    else:
+        intent = _generic_model_input_numerical_intent(
+            intake,
+            prepared_calls=_recorded_generic_model_input_calls(observation),
+            prepared_method_calls=_recorded_generic_model_input_method_calls(observation),
+            configuration=configuration,
+        )
     return intake, intent
 
 
@@ -2633,6 +3160,7 @@ def issue_generic_model_input_initial_evaluation_basis(
     )
     from polisyos.runtime.quality.n5_candidate_content import (
         GenericProgramGraphContentObservationV3,
+        GenericProgramGraphContentObservationV4,
         read_generic_program_graph_n5_content_observation,
     )
 
@@ -2671,7 +3199,17 @@ def issue_generic_model_input_initial_evaluation_basis(
         expected_request=resolved.request,
         store=replay_store,
     )
-    if type(observation) is not GenericProgramGraphContentObservationV3:
+    expected_profile = (
+        GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE
+        if resolved.request.program_graph_comparator_profile is not None
+        else GENERIC_METHOD_NUMERICAL_INTENT_PROFILE
+    )
+    expected_observation_type = (
+        GenericProgramGraphContentObservationV4
+        if expected_profile == GENERIC_PAIRED_NUMERICAL_INTENT_PROFILE
+        else GenericProgramGraphContentObservationV3
+    )
+    if type(observation) is not expected_observation_type:
         raise ValueError("generic_initial_evaluation_observation_profile_invalid")
     if tuple(
         sorted(
@@ -2688,7 +3226,7 @@ def issue_generic_model_input_initial_evaluation_basis(
     )
     intent_hash = "sha256:" + hashlib.sha256(intent).hexdigest()
     if (
-        intake.numerical_values["profile"] != GENERIC_METHOD_NUMERICAL_INTENT_PROFILE
+        intake.numerical_values["profile"] != expected_profile
         or observation.numerical_intent_sha256 != intent_hash
     ):
         raise ValueError("generic_initial_evaluation_recorded_intent_mismatch")
@@ -2716,7 +3254,7 @@ def issue_generic_model_input_initial_evaluation_basis(
     payload = {
         "schema_version": "GenericModelInputEvaluationBasis@1.1",
         "authority_purpose": "candidate_evaluation_retention_only",
-        "comparison_profile": GENERIC_METHOD_NUMERICAL_INTENT_PROFILE,
+        "comparison_profile": expected_profile,
         "basis_role": "evaluated",
         "tenant_id": source.tenant_id,
         "cell_id": source.cell_id,

@@ -398,6 +398,8 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "ExecPlanRef",
         "FoundryExecutionInputBasis",
         "FoundryExecutionInputBasisRef",
+        "ProgramGraphActuationSelection",
+        "ProgramGraphActuationSelectionRef",
         "FeedbackConfig",
         "FeedbackConfigRef",
         "FeedbackExecutionContext",
@@ -2943,6 +2945,8 @@ __all__.extend(
         "ModelInputStepCoverage",
         "ModelInputStepSelectionResolution",
         "ModelInputStepSubject",
+        "ProgramGraphActuationSelection",
+        "ProgramGraphActuationSelectionRef",
         "RegisteredDerivedInputProfile",
         "RunModelInputInitialObservation",
         "RunModelInputInitialObservationsProjection",
@@ -2960,6 +2964,8 @@ if TYPE_CHECKING:
         MethodOutputConsumptionRecord,
         MethodOutputPayloadV11,
         MethodOutputScalarValueIdentity,
+        ProgramGraphActuationSelection,
+        ProgramGraphActuationSelectionRef,
     )
     from .model_input_step_coverage import (
         ModelInputStepCoverage,

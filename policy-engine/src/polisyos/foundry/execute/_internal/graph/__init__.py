@@ -53,6 +53,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonicalResourceLimits, CanonSpec, CanonViolation
 from polisyos.core.contracts import (
     MethodInputPortSource,
+    ProgramGraphActuationSelectionRef,
     ProgramGraphInputInvocation,
     RegistrySlotInputPortSource,
 )
@@ -3457,7 +3458,11 @@ def persist_method_execution_capture(
         or len(capture.limitations) > _MAX_METHOD_CAPTURE_LIMITATIONS
     ):
         raise ValueError("method_execution_capture_resource_limit_exceeded")
-    manifest_edge_count = 3 + int(capture.environment_manifest_ref is not None)
+    manifest_edge_count = (
+        3
+        + int(capture.environment_manifest_ref is not None)
+        + int(capture.actuation_selection_ref is not None)
+    )
     for occurrence in capture.occurrences:
         manifest_edge_count += sum(
             output.output_ref is not None for output in occurrence.output_slots
@@ -3487,6 +3492,10 @@ def persist_method_execution_capture(
             role="method_metric_binding_set",
         ),
     ]
+    if capture.actuation_selection_ref is not None:
+        inputs.append(
+            artifact_input_ref(capture.actuation_selection_ref, role="actuation_selection")
+        )
     if capture.environment_manifest_ref is not None:
         inputs.append(
             artifact_input_ref(capture.environment_manifest_ref, role="environment_manifest")
@@ -3657,6 +3666,7 @@ def execute_program_graph(
     capture_env: bool = False,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
     parameter_override_bundle_ref: ArtifactRef | None = None,
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = None,
     observed_range_bundle_ref: ArtifactRef | None = None,
     welfare_bound_mode: str = "ex_ante",
     persist_welfare_bound_reports: bool = True,
@@ -3695,6 +3705,21 @@ def execute_program_graph(
     program_graph = load_model(store, program_ref, ProgramGraph)
     _validate_program_graph_method_input_profile(program_graph)
     exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+    actuation = None
+    if actuation_selection_ref is not None:
+        from polisyos.foundry.execute.actuation import resolve_program_graph_actuation
+
+        if parameter_overrides or parameter_override_bundle_ref is not None:
+            raise ValueError("program_graph_actuation_parameter_override_profile_not_established")
+        actuation = resolve_program_graph_actuation(
+            store,
+            program_ref=program_ref,
+            exec_plan_ref=exec_plan_ref,
+            actuation_selection_ref=actuation_selection_ref,
+        )
+    inactive_apply_node_ids = frozenset(
+        () if actuation is None else actuation.inactive_apply_node_ids
+    )
     closed_world_inputs = _resolve_closed_world_method_inputs(
         store,
         program_ref=program_ref,
@@ -3740,6 +3765,7 @@ def execute_program_graph(
             steps=(step,),
             parameter_overrides=parameter_overrides,
             parameter_override_bundle_ref=parameter_override_bundle_ref,
+            actuation_selection_ref=actuation_selection_ref,
         )
         _require_preparable_method_inputs(
             mixed_inventory,
@@ -3846,6 +3872,24 @@ def execute_program_graph(
                 capture,
                 reason="method_execution_node_identity_exceeds_capture_limit",
             )
+    if actuation_selection_ref is not None and capture is None:
+        raise ValueError("program_graph_actuation_execution_capture_required")
+    if capture is not None and (
+        capture.actuation_selection_ref is not None or actuation_selection_ref is not None
+    ):
+        previous_selection = (
+            None
+            if capture.actuation_selection_ref is None
+            else artifact_ref_identity_key(capture.actuation_selection_ref)
+        )
+        actual_selection = (
+            None
+            if actuation_selection_ref is None
+            else artifact_ref_identity_key(actuation_selection_ref)
+        )
+        if capture.invocation_count and previous_selection != actual_selection:
+            raise ValueError("program_graph_actuation_capture_selection_mismatch")
+        capture.actuation_selection_ref = actuation_selection_ref
     selected_profile = return_selected_profile or capture is not None
     if selected_profile:
         require_return_selected_profile_writer(store, "put_bytes")
@@ -3990,6 +4034,7 @@ def execute_program_graph(
         store,
         step,
         parameter_overrides=parameter_overrides,
+        inactive_node_ids=inactive_apply_node_ids,
     )
     visible_state = base_state
     patch_records: dict[str, list[dict[str, Any]]] = {}
@@ -4163,6 +4208,12 @@ def execute_program_graph(
         abort_error: MethodExecutionAbortError | None = None
         abort_cause: Exception | None = None
         try:
+            if node_id in inactive_apply_node_ids:
+                # Keep the full planned/captured denominator while preventing
+                # construction, provider lookup and numerical emission.
+                skipped_nodes += 1
+                occurrence_status = "skipped"
+                continue
             barrier_target = mask_barrier_targets.get(node_id, node_id)
             node_key = (
                 _treasury_node_key(root_key, treasury, node_id) if treasury is not None else key
@@ -4845,6 +4896,10 @@ def execute_program_graph(
         inputs.append(
             input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
         )
+    if actuation_selection_ref is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(actuation_selection_ref, role="actuation_selection")
+        )
     for op in ops:
         if op.value_ref is not None:
             inputs.append(input_ref_from_artifact_ref(op.value_ref, role="patch_value"))
@@ -5314,6 +5369,7 @@ class _ProgramGraphCallInventory:
     active_mechanisms: Mapping[tuple[int, str], dict[str, Any]]
     mechanism_writes: Mapping[tuple[int, str], tuple[str, ...]]
     treasury: TreasuryPlan | None
+    inactive_apply_node_ids: frozenset[str]
 
 
 def _program_graph_call_inventory(
@@ -5327,8 +5383,22 @@ def _program_graph_call_inventory(
     steps: tuple[int, ...],
     parameter_overrides: Mapping[str, Mapping[str, Any]] | None = None,
     parameter_override_bundle_ref: ArtifactRef | None = None,
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = None,
 ) -> _ProgramGraphCallInventory:
     """Validate the actual ordered mixed profile without running an upstream node."""
+    inactive_apply_node_ids: frozenset[str] = frozenset()
+    if actuation_selection_ref is not None:
+        from polisyos.foundry.execute.actuation import resolve_program_graph_actuation
+
+        if parameter_overrides or parameter_override_bundle_ref is not None:
+            raise ValueError("program_graph_actuation_parameter_override_profile_not_established")
+        selection = resolve_program_graph_actuation(
+            store,
+            program_ref=program_ref,
+            exec_plan_ref=exec_plan_ref,
+            actuation_selection_ref=actuation_selection_ref,
+        )
+        inactive_apply_node_ids = frozenset(selection.inactive_apply_node_ids)
     nodes = {node.node_id: node for node in graph.nodes}
     order = tuple(plan.order or [node.node_id for node in graph.nodes])
     has_methods = any(node.node_kind == "method" for node in graph.nodes)
@@ -5389,6 +5459,8 @@ def _program_graph_call_inventory(
                 or node.params_ref is None
             ):
                 raise ValueError("program_graph_call_preparation_node_unsupported")
+            if node_id in inactive_apply_node_ids:
+                continue
             payload = _load_node_payload(store, node=node, parameter_overrides=None)
             start, end = schedule_range(ScheduleSpec.model_validate(payload.get("schedule", {})))
             if step < start or step > end:
@@ -5408,7 +5480,15 @@ def _program_graph_call_inventory(
                 ):
                     raise ValueError("program_graph_mixed_mechanism_writes_not_established")
                 writes[(step, node_id)] = tuple(spec.writes_slots)
-    if mixed and len(active) != 1:
+    if (
+        mixed
+        and len(active) != 1
+        and not (
+            actuation_selection_ref is not None
+            and not active
+            and all(node.node_id in inactive_apply_node_ids for node in mechanism_nodes)
+        )
+    ):
         raise ValueError("program_graph_mixed_active_mechanism_required")
     return _ProgramGraphCallInventory(
         nodes=MappingProxyType(nodes),
@@ -5417,6 +5497,7 @@ def _program_graph_call_inventory(
         active_mechanisms=MappingProxyType(active),
         mechanism_writes=MappingProxyType(writes),
         treasury=treasury,
+        inactive_apply_node_ids=inactive_apply_node_ids,
     )
 
 
@@ -5487,6 +5568,7 @@ def prepare_program_graph_method_calls(
     parameter_override_bundle_ref: ArtifactRef | None = None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
     model_state_context: ModelStatePatchContext | None = None,
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = None,
 ) -> tuple[PreparedProgramGraphMethodCall, ...]:
     """Prepare the actual bounded selected-method route without executing it.
 
@@ -5511,6 +5593,7 @@ def prepare_program_graph_method_calls(
         semantic_horizon_step: Exact one-step semantic context, when applicable.
         model_state_context: Canonically admitted opening state/layout when the
             snapshot contains persistent scalar model state.
+        actuation_selection_ref: Exact whole-policy selection shared with dispatch.
 
     Returns:
         Ordered held-call observations; none is an execution witness by itself.
@@ -5590,6 +5673,7 @@ def prepare_program_graph_method_calls(
         mechanism_registry=selected.registry.mechanism_registry,
         steps=steps,
         parameter_override_bundle_ref=parameter_override_bundle_ref,
+        actuation_selection_ref=actuation_selection_ref,
     )
     if not inventory.order:
         raise ValueError("program_graph_method_call_preparation_census_not_established")
@@ -5658,6 +5742,7 @@ def prepare_program_graph_mechanism_calls(
     base_state: Any,
     mechanism_registry: MechanismTypeRegistry,
     steps: tuple[int, ...],
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = None,
 ) -> tuple[tuple[int, str, int, Callable[..., object]], ...]:
     """Prepare the graph's scheduled bound calls without running its nodes.
 
@@ -5673,6 +5758,7 @@ def prepare_program_graph_mechanism_calls(
         base_state: Owner-prepared opening GlobalState.
         mechanism_registry: Owner-prepared selected mechanism registry.
         steps: Exact finite requested horizon steps.
+        actuation_selection_ref: Exact whole-policy selection shared with dispatch.
 
     Returns:
         Ordered tuples of plan index, node ID, step, and the actual bound method.
@@ -5714,6 +5800,7 @@ def prepare_program_graph_mechanism_calls(
         plan=plan,
         mechanism_registry=mechanism_registry,
         steps=steps,
+        actuation_selection_ref=actuation_selection_ref,
     )
     n_agents = getattr(base_state.agents, "size", None)
     if n_agents is None:
@@ -5723,7 +5810,9 @@ def prepare_program_graph_mechanism_calls(
         n_firms = int(base_state.firms.capital.shape[0])
     calls: list[tuple[int, str, int, Callable[..., object]]] = []
     for step in steps:
-        tax_rate_value = _resolve_income_tax_rate(graph, store, step)
+        tax_rate_value = _resolve_income_tax_rate(
+            graph, store, step, inactive_node_ids=inventory.inactive_apply_node_ids
+        )
         for plan_index, node_id in enumerate(inventory.order):
             node = inventory.nodes[node_id]
             payload = inventory.active_mechanisms.get((step, node_id))
@@ -5996,8 +6085,12 @@ def _resolve_income_tax_rate(
     store: CoreJSONArtifactStore,
     step: int,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
+    *,
+    inactive_node_ids: frozenset[str] = frozenset(),
 ) -> jnp.ndarray | None:
     for node in program_graph.nodes:
+        if node.node_id in inactive_node_ids:
+            continue
         if node.mechanism_type != "income_tax" or node.params_ref is None:
             continue
         payload = _load_node_payload(

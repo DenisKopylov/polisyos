@@ -61,9 +61,13 @@ if TYPE_CHECKING:
         CandidateSummary,
         GenerationSourcePreservationReceipt,
     )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
 
 SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
+NATIVE_SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v2"
 SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
 CREDAL_SOURCE_ATTEMPT_SCHEMA = "policyos.runtime.quality.candidate_credal_source_attempt.v1"
@@ -790,7 +794,10 @@ def generation_source_synthetic(
 class GenerationSourceHandoff(_StrictModel):
     """One immutable, source-bound N4 organ result, never an authority receipt."""
 
-    schema_version: Literal["policyos.runtime.generation_source_handoff.v1"] = SOURCE_SCHEMA
+    schema_version: Literal[
+        "policyos.runtime.generation_source_handoff.v1",
+        "policyos.runtime.generation_source_handoff.v2",
+    ] = SOURCE_SCHEMA
     authority_purpose: Literal["candidate_source_custody"] = "candidate_source_custody"
     synthetic: bool | None
     execution_scope: ExecutionScope
@@ -802,7 +809,7 @@ class GenerationSourceHandoff(_StrictModel):
     cycle_substrate_context: CycleSubstrateContext | None
     credal_reference_payload: dict[str, Any] | None
     candidate_sources: tuple[n4.GenerationCandidateSource, ...]
-    selected_program_graph_linkage: n4.N4SelectedProgramGraphLinkageV1 | None = Field(
+    selected_program_graph_linkage: n4.N4SelectedProgramGraphLinkage | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )
@@ -820,6 +827,15 @@ class GenerationSourceHandoff(_StrictModel):
             )
         if self.content_hash != _source_content_hash(payload):
             raise ValueError("generation_source_content_hash_mismatch")
+        native = type(self.selected_program_graph_linkage) is n4.N4SelectedProgramGraphLinkageV2
+        if native != (self.schema_version == NATIVE_SOURCE_SCHEMA):
+            raise ValueError("generation_source_native_linkage_version_mismatch")
+        if native and (
+            self.cycle_substrate_context is None
+            or self.selected_program_graph_linkage.context_content_hash
+            != self.cycle_substrate_context.content_hash
+        ):
+            raise ValueError("generation_source_native_context_binding_mismatch")
         source_payload = {key: value for key, value in payload.items() if key != "synthetic"}
         expected_synthetic = (
             True
@@ -990,6 +1006,36 @@ class GenerationSourceHandoff(_StrictModel):
             )
             for item in self.generation_result.candidates
         )
+
+
+def _native_generation_source_inputs(
+    source: GenerationSourceHandoff,
+    *,
+    context_job_ref: ArtifactRef | None,
+    profile_ref: ArtifactRef | None,
+    n4_child_profile_family_ref: ArtifactRef | None,
+) -> tuple[InputRef, ...]:
+    """Bind Native-only source edges without changing the historical V1 profile."""
+    linkage = source.selected_program_graph_linkage
+    if type(linkage) is not n4.N4SelectedProgramGraphLinkageV2:
+        return ()
+    if (
+        type(context_job_ref) is not ArtifactRef
+        or type(profile_ref) is not ArtifactRef
+        or artifact_ref_identity_key(context_job_ref)
+        != artifact_ref_identity_key(linkage.context_job_ref)
+        or artifact_ref_identity_key(profile_ref) != artifact_ref_identity_key(linkage.profile_ref)
+        or n4_child_profile_family_ref is not None
+    ):
+        raise ValueError("generation_source_native_owner_inputs_mismatch")
+    return (
+        input_ref_from_artifact_ref(
+            linkage.native_world_checkpoint_ref, role="native_world_checkpoint"
+        ),
+        input_ref_from_artifact_ref(
+            linkage.original_generic_input_ref, role="original_generic_input"
+        ),
+    )
 
 
 class CandidateCredalSourceAttemptV1(_StrictModel):
@@ -1582,8 +1628,33 @@ class GenerationSourceResolution(_StrictModel):
 class GenerationSourceRepository:
     """Preserve and replay typed organ sources through the existing Core artifact store."""
 
-    def __init__(self, store: artifacts.VerifiableArtifactReader) -> None:
+    def __init__(
+        self,
+        store: artifacts.VerifiableArtifactReader,
+        *,
+        native_world_owner: GenericCycleSimulationAdmissionOwner | None = None,
+    ) -> None:
         self.store = store
+        self._native_world_owner: GenericCycleSimulationAdmissionOwner | None = None
+        if native_world_owner is not None:
+            self.bind_native_world_history_owner(native_world_owner)
+
+    def bind_native_world_history_owner(self, owner: GenericCycleSimulationAdmissionOwner) -> None:
+        """Attach the actual action-history reader, without granting current rights."""
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+
+        if (
+            type(owner) is not GenericCycleSimulationAdmissionOwner
+            or owner.store is not self.store
+            or owner._native_action_control_store is None
+            or owner._native_action_event_log is None
+        ):
+            raise ValueError("generation_source_native_history_owner_unavailable")
+        if self._native_world_owner is not None and self._native_world_owner is not owner:
+            raise ValueError("generation_source_native_history_owner_already_bound")
+        self._native_world_owner = owner
 
     def _writer(self) -> artifacts.ArtifactStore:
         """Require the real supplied owner to expose the complete writer port."""
@@ -1640,6 +1711,7 @@ class GenerationSourceRepository:
         try:
             from polisyos.core.artifacts import load_core_json_artifact
             from polisyos.runtime.quality.generic_simulation_admission import (
+                GenericCycleN5PairedProgramGraphRequestProfileV5,
                 GenericCycleN5ProgramGraphRequestProfileV4,
                 GenericCycleSimulationAdmissionOwner,
                 GenericCycleSimulationProfileV1,
@@ -1650,33 +1722,69 @@ class GenerationSourceRepository:
             )
             if (
                 profile.content_hash != linkage.profile_content_hash
-                or profile.profile_selection_ref != linkage.profile_selection_ref
-                or not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+                or profile.profile_selection_ref
+                != (
+                    linkage.original_profile_selection_ref
+                    if type(linkage) is n4.N4SelectedProgramGraphLinkageV2
+                    else linkage.profile_selection_ref
+                )
+                or type(profile.n5)
+                not in (
+                    GenericCycleN5ProgramGraphRequestProfileV4,
+                    GenericCycleN5PairedProgramGraphRequestProfileV5,
+                )
             ):
                 raise ValueError(
                     "generation_source_selected_program_graph_profile_binding_mismatch"
                 )
-            # This owner path is read-only here. The exact profile and selected
-            # refs are reopened from Core; it does not claim currentness or a
-            # new lease for the historical source.
-            owner = GenericCycleSimulationAdmissionOwner(
-                profiles=(profile,),
-                store=cast("artifacts.ArtifactStore", self.store),
-            )
-            selected = owner.resolve_selected_program_graph_linkage_historical(
-                profile_ref=profile_ref,
-                expected_profile_content_hash=linkage.profile_content_hash,
-                expected_profile_selection_ref=linkage.profile_selection_ref,
-                expected_compile_report_ref=linkage.compile_report_ref,
-                expected_registry_bundle_ref=linkage.registry_bundle_ref,
-                context_job_ref=context_job_ref,
-                expected_context=source.cycle_substrate_context,
-                problem=source.problem,
-                job_id=str(job_id),
-                run_id=profile_run_id,
-                tenant_id=str(tenant_id),
-                cell_id=str(cell_id),
-            )
+            if type(linkage) is n4.N4SelectedProgramGraphLinkageV2:
+                if self._native_world_owner is None:
+                    raise ValueError("generation_source_native_history_owner_unavailable")
+                if artifact_ref_identity_key(context_job_ref) != artifact_ref_identity_key(
+                    linkage.context_job_ref
+                ):
+                    raise ValueError("generation_source_native_context_job_mismatch")
+                from polisyos.runtime.quality.native_generic_context import (
+                    resolve_native_selected_program_graph_linkage_historical,
+                )
+
+                selected = resolve_native_selected_program_graph_linkage_historical(
+                    self._native_world_owner,
+                    checkpoint_ref=linkage.native_world_checkpoint_ref,
+                    context_job_ref=context_job_ref,
+                    profile_ref=profile_ref,
+                    expected_context=source.cycle_substrate_context,
+                    problem=source.problem,
+                    job_id=str(job_id),
+                    run_id=profile_run_id,
+                    tenant_id=str(tenant_id),
+                    cell_id=str(cell_id),
+                )
+                reproduced = n4.N4SelectedProgramGraphLinkageV2.from_native_selected_owner(selected)
+                if reproduced != linkage:
+                    raise ValueError("generation_source_native_owner_linkage_mismatch")
+            else:
+                # This owner path is read-only here. The exact profile and selected
+                # refs are reopened from Core; it does not claim currentness or a
+                # new lease for the historical source.
+                owner = GenericCycleSimulationAdmissionOwner(
+                    profiles=(profile,),
+                    store=cast("artifacts.ArtifactStore", self.store),
+                )
+                selected = owner.resolve_selected_program_graph_linkage_historical(
+                    profile_ref=profile_ref,
+                    expected_profile_content_hash=linkage.profile_content_hash,
+                    expected_profile_selection_ref=linkage.profile_selection_ref,
+                    expected_compile_report_ref=linkage.compile_report_ref,
+                    expected_registry_bundle_ref=linkage.registry_bundle_ref,
+                    context_job_ref=context_job_ref,
+                    expected_context=source.cycle_substrate_context,
+                    problem=source.problem,
+                    job_id=str(job_id),
+                    run_id=profile_run_id,
+                    tenant_id=str(tenant_id),
+                    cell_id=str(cell_id),
+                )
             selected_context = n4.N4SelectedProgramGraphLinkContext(
                 linkage=linkage,
                 registry_content=selected.registry_bundle_content,
@@ -4671,6 +4779,8 @@ class GenerationSourceRepository:
             "execution_scope": execution_scope,
             **_organ_source_payload(organ),
         }
+        if type(organ.selected_program_graph_linkage) is n4.N4SelectedProgramGraphLinkageV2:
+            payload["schema_version"] = NATIVE_SOURCE_SCHEMA
         draft = GenerationSourceHandoff.model_construct(
             **payload,
             synthetic=generation_source_synthetic(
@@ -4710,6 +4820,12 @@ class GenerationSourceRepository:
                         role="n4_child_profile_family",
                     ),
                 )
+        generic_source_inputs += _native_generation_source_inputs(
+            artifact,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
         if job_id is None:
             options = _source_write_options()
         else:
@@ -4717,8 +4833,8 @@ class GenerationSourceRepository:
                 raise ValueError("generation_source_job_scope_incomplete")
             options = _candidate_simulation_write_options(
                 kind=SOURCE_KIND,
-                schema_name=SOURCE_SCHEMA,
-                schema_version="1.0",
+                schema_name=artifact.schema_version,
+                schema_version="2.0" if artifact.schema_version == NATIVE_SOURCE_SCHEMA else "1.0",
                 job_id=job_id,
                 run_id=expected_run_id or run_id,
                 tenant_id=tenant_id,
@@ -4830,6 +4946,12 @@ class GenerationSourceRepository:
                         role="n4_child_profile_family",
                     ),
                 )
+        generic_source_inputs += _native_generation_source_inputs(
+            artifact,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
         if expected_job_id is None:
             owner_options = _source_write_options()
         else:
@@ -4837,8 +4959,8 @@ class GenerationSourceRepository:
                 raise ValueError("generation_source_expected_job_scope_incomplete")
             owner_options = _candidate_simulation_write_options(
                 kind=SOURCE_KIND,
-                schema_name=SOURCE_SCHEMA,
-                schema_version="1.0",
+                schema_name=artifact.schema_version,
+                schema_version="2.0" if artifact.schema_version == NATIVE_SOURCE_SCHEMA else "1.0",
                 job_id=expected_job_id,
                 run_id=expected_run_id or run_id,
                 tenant_id=expected_tenant_id,

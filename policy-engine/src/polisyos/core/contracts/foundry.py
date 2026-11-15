@@ -52,6 +52,16 @@ class FoundryExecutionInputBasisRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ProgramGraphActuationSelectionRef(ArtifactRef):
+    """Selected CAS reference for one candidate-only ProgramGraph actuation set."""
+
+    kind: Literal["foundry.program_graph_actuation_selection"] = (
+        "foundry.program_graph_actuation_selection"
+    )
+    media_type: Literal["application/json"] = "application/json"
+    manifest_profile_sha256: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 class ProgramGraphRef(ArtifactRef):
     """Artifact reference for the compiled program graph a Foundry run will execute."""
 
@@ -1673,6 +1683,57 @@ class ProgramGraph(BaseModel):
         return self.model_dump(mode="json")
 
 
+class ProgramGraphActuationSelection(BaseModel):
+    """Persist one candidate-only intervention selection against exact compiler inputs.
+
+    Group membership and complete lowered-IR inventory are recomputed by the
+    Foundry resolver. This record contains selected identities only and grants
+    no execution or policy authority.
+    """
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ProgramGraphActuationSelection"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.program_graph_actuation_selection"]] = (
+        "foundry.program_graph_actuation_selection"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    authority_purpose: Literal["candidate_simulation_actuation_only"] = (
+        "candidate_simulation_actuation_only"
+    )
+    program_graph_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    lowered_ir_ref: LoweredIRRef
+    selected_intervention_ids: tuple[StrictStr, ...] = Field(max_length=256)
+
+    @model_validator(mode="after")
+    def _validate_selected_actuation(self) -> ProgramGraphActuationSelection:
+        expected_refs = (
+            (self.program_graph_ref, "foundry.program_graph"),
+            (self.exec_plan_ref, "foundry.exec_plan"),
+            (self.lowered_ir_ref, "foundry.lowered_ir"),
+        )
+        if any(
+            ref.kind != expected_kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, expected_kind in expected_refs
+        ):
+            raise ValueError("program_graph_actuation_selection_source_ref_invalid")
+        selected_ids = self.selected_intervention_ids
+        if any(
+            not identifier or identifier != identifier.strip() or len(identifier) > 256
+            for identifier in selected_ids
+        ):
+            raise ValueError("program_graph_actuation_selection_id_invalid")
+        if selected_ids != tuple(sorted(set(selected_ids))):
+            raise ValueError("program_graph_actuation_selection_ids_not_sorted_unique")
+        return self
+
+
 class LoweredMechanism(BaseModel):
     """Lowered mechanism public type."""
 
@@ -3145,6 +3206,9 @@ class ExecuteRequest(BaseModel):
 
     exec_plan_ref: ExecPlanRef
     input_bindings_ref: FoundryInputBindingsRef
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     registry_bundle_ref: ArtifactRef | None = None
     feedback_config_ref: FeedbackConfigRef | None = None
@@ -3157,6 +3221,22 @@ class ExecuteRequest(BaseModel):
     )
     notes: list[str] = Field(default_factory=list)
     return_selected_profile: bool = False
+
+    @model_validator(mode="after")
+    def _validate_actuation_selection_version(self) -> ExecuteRequest:
+        self.validate_actuation_profile()
+        return self
+
+    def validate_actuation_profile(self) -> None:
+        """Revalidate the candidate actuation request profile before execution.
+
+        This check is callable at the execution intake boundary because callers
+        can create unvalidated copies of an already validated request.
+        """
+        if self.actuation_selection_ref is not None and self.feedback_config_ref is not None:
+            raise ValueError("program_graph_actuation_feedback_profile_not_established")
+        if (self.actuation_selection_ref is not None) != (self.schema_version == "1.1"):
+            raise ValueError("execute_request_actuation_selection_schema_version_mismatch")
 
 
 class SemanticHorizonStepContext(BaseModel):
@@ -3251,11 +3331,12 @@ class FoundryExecutionInputBasis(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryExecutionInputBasis"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3", "1.4")
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
         "1.2": ("semantic_horizon_step",),
         "1.3": ("feedback_execution_context",),
+        "1.4": ("actuation_selection_ref",),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.execution_input_basis"]] = (
         "foundry.execution_input_basis"
@@ -3264,7 +3345,7 @@ class FoundryExecutionInputBasis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3", "1.4"] = "1.0"
     authority_purpose: Literal["execution_input_identity_only"] = "execution_input_identity_only"
     execution_mode: Literal["single_step", "feedback"] = "single_step"
     request: ExecuteRequest
@@ -3279,6 +3360,9 @@ class FoundryExecutionInputBasis(BaseModel):
     input_bindings_ref: FoundryInputBindingsRef
     data_snapshot_ref: ArtifactRef
     registered_sql_admission_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    actuation_selection_ref: ProgramGraphActuationSelectionRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     bound_state_snapshot_ref: StateSnapshotRef
@@ -3310,6 +3394,29 @@ class FoundryExecutionInputBasis(BaseModel):
 
     @model_validator(mode="after")
     def _validate_registered_sql_transport(self) -> FoundryExecutionInputBasis:
+        if self.schema_version in {"1.0", "1.1", "1.2", "1.3"} and (
+            self.actuation_selection_ref is not None
+            or self.request.actuation_selection_ref is not None
+        ):
+            raise ValueError("execution_input_basis_actuation_selection_version_mismatch")
+        if self.schema_version == "1.4":
+            selected = self.actuation_selection_ref
+            requested = self.request.actuation_selection_ref
+            if (
+                self.execution_mode != "single_step"
+                or self.feedback_execution_context is not None
+                or self.request.feedback_config_ref is not None
+                or self.request.schema_version != "1.1"
+                or selected is None
+                or requested is None
+                or artifact_ref_identity_key(selected) != artifact_ref_identity_key(requested)
+            ):
+                raise ValueError("execution_input_basis_v1_4_actuation_selection_mismatch")
+            if (
+                self.registered_sql_admission_ref is not None
+                and self.semantic_horizon_step is not None
+            ):
+                raise ValueError("execution_input_basis_sql_horizon_compound_not_supported")
         if self.schema_version in {"1.0", "1.1", "1.2"} and (
             (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1")
         ):

@@ -135,7 +135,7 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
     await page.keyboard.press("ControlOrMeta+A");
     await page.keyboard.type("generated legal norm");
     await expect(panel.getByRole("status")).toContainText(
-      "Candidate search returned 1 results",
+      "Candidate search returned 1 result; complete;",
     );
 
     await page.keyboard.press("Shift+Tab");

@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
+import { RuntimeApiRequestError } from "@/api/http";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 import {
   evidenceArtifactRefKey,
@@ -1926,6 +1927,72 @@ describe("run detail surfaces", () => {
     );
     expect(await screen.findByTestId("lineage-graph")).toHaveTextContent("2");
     expect(screen.getByText("pages.runs.missingArtifacts")).toBeInTheDocument();
+  });
+
+  it("keeps workflow available and exposes a typed lineage authority limitation", async () => {
+    useRunLineageMock.mockReturnValue({
+      data: undefined,
+      error: new RuntimeApiRequestError(
+        {
+          type: "https://polisyos.dev/problems/conflict",
+          title: "Authority surface admission blocked",
+          status: 409,
+          status_code: 409,
+          detail:
+            "Run lineage blocked or downgraded by composed authority surface admission",
+          code: "authority_surface_admission_blocked",
+          extensions: {
+            authority_surface_decision: {
+              surface: "lineage",
+              purpose: "runtime_closeout_authority",
+              status: "downgraded",
+              reason: "authority_purpose_forbidden",
+            },
+          },
+        },
+        409,
+        "Failed to load lineage for run-1",
+      ),
+      isError: true,
+      isLoading: false,
+      isPending: false,
+    });
+
+    renderRoute("/runs/run-1/workflow", "/runs/:runId/:tab", <WorkflowTab />);
+
+    expect(await screen.findByTestId("workflow-dag-panel")).toHaveTextContent(
+      "run-1",
+    );
+    const limitation = screen.getByTestId("lineage-admission-limitation");
+    expect(limitation).toHaveAttribute("role", "status");
+    expect(limitation).toHaveTextContent("authority_surface_admission_blocked");
+    expect(limitation).toHaveTextContent("downgraded");
+    expect(limitation).toHaveTextContent("authority_purpose_forbidden");
+    expect(screen.queryByTestId("lineage-graph")).not.toBeInTheDocument();
+  });
+
+  it("keeps unrelated lineage errors visible without hiding the workflow", async () => {
+    useRunLineageMock.mockReturnValue({
+      data: undefined,
+      error: new Error("lineage transport failed"),
+      isError: true,
+      isLoading: false,
+      isPending: false,
+    });
+
+    renderRoute("/runs/run-1/workflow", "/runs/:runId/:tab", <WorkflowTab />);
+
+    expect(await screen.findByTestId("workflow-dag-panel")).toHaveTextContent(
+      "run-1",
+    );
+    expect(screen.getByTestId("lineage-load-error")).toHaveAttribute(
+      "role",
+      "alert",
+    );
+    expect(screen.getByTestId("lineage-load-error")).toHaveTextContent(
+      "lineage transport failed",
+    );
+    expect(screen.queryByTestId("lineage-graph")).not.toBeInTheDocument();
   });
 
   it("renders CausalTab as an editable draft atlas when no DAG artifact exists", async () => {

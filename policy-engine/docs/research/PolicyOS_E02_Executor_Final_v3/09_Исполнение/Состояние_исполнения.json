@@ -9316,11 +9316,14 @@
           }
         },
         "latest_author_checkpoint": {
-          "commit": "9d7116eff4c046786a0fd121dde90e0e107f781d",
-          "tree": "e1b54ea8400c029528186aaa4a0f5dd4fa5ed3f0",
-          "remote_readback_at_update": "9d7116eff4c046786a0fd121dde90e0e107f781d",
+          "commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "remote_readback_at_update": "30a4c860b1da62802878dae78767b0f6870ff435",
           "branch": "codex/e02-lane01-verify-20261108",
-          "scope": "40-path released checkpoint plus ordinary main precision merge; later Runtime and growth changes remain visible author WIP"
+          "changed_files": 93,
+          "commit_files_readback": "93/93 exact",
+          "hooks": "normal pre-commit + app/node/tools pre-push typecheck PASS",
+          "scope": "released implementation, tests and generated companions saved; main code remains72dfc8f3b; LANE/G closure open"
         },
         "latest_growth_checks": {
           "core_v3_and_legacy": {
@@ -9554,7 +9557,34 @@
           "actuation_census": "one group per exact LoweredMechanism row; legitimate repeated binding IDs preserved; whole-row intervention membership; full mask/apply/params/ordered IO/selector/direct-edge joins",
           "native_parallel": "versioned N4/world source linkage, existing durable recovery and independent per-leaf admission; no expired authority reuse",
           "generated_input_repair": "21,556-byte identity document absent under sparse working tree materialized from exact own HEAD; first trust generation UNRUN retained, corrected generation PASS",
-          "remaining": "original 11 packets/66 requirements/64 contracts; ordinary A/B/C routes, Native paid reentry, temporal/vector/feedback consumers, P07/P08/Gate B and DA06/07/08 remain scoped as recorded"
+          "remaining": "original 11 packets/66 requirements/64 contracts; ordinary A/B/C routes, Native paid reentry, temporal/vector/feedback consumers, P07/P08/Gate B and DA06/07/08 remain scoped as recorded",
+          "author_source_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "author_source_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "resumed_by_user_on": "2026-11-15"
+        },
+        "resume_20261115": {
+          "status": "ACTIVE_BY_USER_REQUEST",
+          "published_checkpoint": "ba7126665cd30ef5e04bb547c7da00ad7e2c2426",
+          "published_tree": "78181adf822b4ecef7dac698b5e003dfd9cac2bb",
+          "delivered_paths": 47,
+          "hosted_pair": "RESOURCE_ABORT wall900.204s/peak3326836736B; baselineCOMPLETED/TFAILED with2 charged standard units; durable Foundry1.4 baseline only, no complete joint result/initial frontier;57pins+initial1960origins stable; final whole-import observer absent",
+          "API_unit_checks": "57 PASS then5 affected service PASS; independent review GO; dashboard307 then309 affected tests PASS; full hosted consumer remains unverified",
+          "author_base_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
+          "author_base_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
+          "preflight": "2 actual preflight PASS; legacy guard joins the passing actuation cohort",
+          "core_actuation": "5 original component PASS then4 affected PASS; 25 distinct cheap actuation cases across R1/R2/R3 and actual Foundry pair1/1 PASS with fresh reader/removal; hosted N5 remains UNRUN",
+          "native": "Fresh app/same-store restartPASS31.544s1.72GB; maintainedpaidA/partialgoal/restart/Bdenial readyUNRUN; fullNativeGen/N5/recoverybridge stillmissing",
+          "implementation_owners": "Core/compiler/Foundry selector released; Runtime paired V4 components16/16 PASS and released; Native current N4/source released; units/API consumer and independent UI repair active",
+          "main_CI": "Fast/Standard fail; inventory/singular companions fixed; actual optional lineage409 coupling repaired with3 prefetch and40 render PASS; browserUNRUN; import gates/test economics remain explicit",
+          "authority": "G acceptance and formal closure unchanged; original11/66/64 and repeated bindings preserved",
+          "released_continuation_commit": "b6bf2762475a85c1be8caf9c14f9c5886969128a",
+          "released_continuation_tree": "4d29ddfa9ab5c68e272b2052dd673bd119c5f74a",
+          "released_continuation_paths": 32,
+          "historical_reader": "Distinct N4 provenance vs compiled-policy roles; exact Core invocation and graph/Trinity edges, including predecessors. Actual producer/readonly4B/hash+9refusals PASS24.938s1041793024B, independentGO. Originalhost fulladmit/emptyselector/4B/Set13 resolved; RESOURCE_ABORT90s during redundantfacts, NPYtailUNRUN; ledgerunchanged; instrumentprofilecost noted.",
+          "temporal": "Core contextidentity21/21PASS; original2020/2021producer1/1PASS35.794s1.04GB; no semantic/schema/authority/fixturechange",
+          "acquisition_surface": "Core4/route3/dashboard309PASS in distinctcommands; canonicalhistory, numericbodypreserved onmissinghistory; actualN4replay; generatedcompanionscomplete",
+          "next": "publishmergedsource/readback; provider-only3GiB300sCPU1 noN5 plus paidNative3GiB300sCPU1; sourcefreeze independentstores aggregate6GiB/diskfloor3/growth2; no blind900sN5replay",
+          "commit_hooks": "FirstattemptRESOURCE_ABORT2GiB +fourTSformatterchanges; inspectedformatonly; ordinaryretry3GiB PASS28.541s2411626496B, no bypass"
         }
       },
       "day_stop_20261113": {

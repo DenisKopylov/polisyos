@@ -44,6 +44,13 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
 - `candidate_source_reentry_history.py` verifies persisted candidate history
   without acquiring a current lease or rerunning N5. Current-route admission
   remains with the acquisition route owner.
+- `native_source_reentry_history.py` extends the same CAS, diagnostic-event and
+  Control action-head transaction for Native prepared input, completed N5 and
+  completed continuation cuts. Original profile evidence and current Native
+  selection stay distinct. A recorded member grants no permission: recovery
+  reopens current action ownership and the selected source/result. A claimed
+  operation without its complete selected output remains unresolved instead of
+  repeating LLM, numerical or continuation work.
 - `model_input_routing.py` derives the query-scoped metadata view and persists
   per-use decisions bound to report, query envelope, registry revision and rule.
   `model_input_successor_selection.py` links explicit v2 selections to that

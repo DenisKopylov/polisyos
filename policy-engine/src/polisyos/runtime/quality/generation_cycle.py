@@ -142,6 +142,9 @@ if TYPE_CHECKING:
         ProgramGraphInputPreflight,
         SelectedProgramGraphInputBasis,
     )
+    from polisyos.runtime.quality.native_source_reentry_history import (
+        NativeSourceReentryCoordinator,
+    )
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
@@ -12475,6 +12478,7 @@ class GenerationCycleController:
         source_control_service: object | None = None,
         action_route_id: str | None = None,
         native_input_collection_ref: CASArtifactRef | None = None,
+        native_reentry_coordinator: NativeSourceReentryCoordinator | None = None,
     ) -> AcquisitionOverlayReentryReceipt:
         """Run one new N6 cycle over an exact already-active owner overlay.
 
@@ -12715,6 +12719,24 @@ class GenerationCycleController:
         if len(activation_events) != 1 or len(production_events) != 1:
             raise GenerationCycleError("acquisition_reentry_post_epoch_trace_missing")
 
+        if type(self._generic_cycle_simulation_handoff) is GenericCycleNativeWorldContextHandoffV1:
+            from polisyos.runtime.quality.native_source_reentry_history import (
+                NativeSourceReentryCoordinator,
+            )
+
+            if (
+                type(native_reentry_coordinator) is not NativeSourceReentryCoordinator
+                or native_reentry_coordinator.bridge._source_control_service
+                is not source_control_service
+                or native_reentry_coordinator.handoff != self._generic_cycle_simulation_handoff
+                or native_input_collection_ref is None
+                or artifact_ref_identity_key(native_reentry_coordinator.collection_ref)
+                != artifact_ref_identity_key(native_input_collection_ref)
+            ):
+                raise GenerationCycleError("native_reentry_current_owner_required")
+            native_reentry_coordinator._current()
+        elif native_reentry_coordinator is not None:
+            raise GenerationCycleError("native_reentry_profile_mismatch")
         existing_port = self._value_port
         value_port_kwargs: dict[str, Any] = {}
         if isinstance(existing_port, FoundryValuePort):
@@ -12852,16 +12874,39 @@ class GenerationCycleController:
         self._restore_source_run(original_run)
         if original_run.source_custody_limitation is not None:
             self._source_custody_limitation = original_run.source_custody_limitation
-        new_cycle, summaries = await self._run_cycle(
-            problem,
-            cycle_index=next_cycle_index,
-            budget_state=budget_state,
-            previous_cycle=source_cycle,
-            value_port_override=reentry_value_port,
-            stable_design_problem_ref=original_run.design_problem_ref,
-            candidate_scenario_origin_source_ref=origin_source_ref,
-            candidate_scenario_proposal_reissue=proposal_reissue,
+        native_progress = (
+            native_reentry_coordinator.progress()
+            if native_reentry_coordinator is not None
+            else None
         )
+        if native_progress is not None and native_progress.cycle_completed is not None:
+            self._ensure_selected_candidate_source_profile(problem)
+            self._restore_native_prepared_generation(
+                {
+                    "problem": problem,
+                    "cycle_index": next_cycle_index,
+                    "native_reentry_coordinator": native_reentry_coordinator,
+                    "native_reentry_progress": native_progress,
+                }
+            )
+            _, completed_cycle = native_progress.cycle_completed
+            validate_acquisition_overlay_continuation(original_run, completed_cycle.receipt)
+            native_reentry_coordinator._current()
+            return completed_cycle.receipt
+        else:
+            new_cycle, summaries = await self._run_cycle(
+                problem,
+                cycle_index=next_cycle_index,
+                budget_state=budget_state,
+                previous_cycle=source_cycle,
+                value_port_override=None
+                if native_reentry_coordinator is not None
+                else reentry_value_port,
+                stable_design_problem_ref=original_run.design_problem_ref,
+                candidate_scenario_origin_source_ref=origin_source_ref,
+                candidate_scenario_proposal_reissue=proposal_reissue,
+                native_reentry_coordinator=native_reentry_coordinator,
+            )
         # Re-entry creates a new actual cycle. Resolve its current requirement
         # through the maintained compiler/planner, as the ordinary run loop does;
         # the historic route report must never stand in for this current gap.
@@ -12963,6 +13008,14 @@ class GenerationCycleController:
         validate_acquisition_overlay_continuation(original_run, receipt)
         if post_loop_currentness is not None and post_loop_currentness != attempt_currentness:
             raise GenerationCycleError("acquisition_reentry_n9_currentness_readback_mismatch")
+        if (
+            native_reentry_coordinator is not None
+            and new_cycle.simulation.status == "joint_simulated"
+        ):
+            native_n5 = native_reentry_coordinator._read("n5_completed")
+            if native_n5 is None:
+                raise GenerationCycleError("native_reentry_n5_completion_not_established")
+            native_reentry_coordinator.complete_cycle(native_n5[0], receipt)
         return receipt
 
     async def reenter_after_candidate_acquisition_source(
@@ -13702,7 +13755,13 @@ class GenerationCycleController:
             Callable[[SimulationPortObservation, SchedulingDecision, int], None] | None
         ) = None,
         candidate_reentry_n5_resume: CandidateSourceReentryN5Checkpoint | None = None,
+        native_reentry_coordinator: NativeSourceReentryCoordinator | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
+        native_progress = (
+            native_reentry_coordinator.progress()
+            if native_reentry_coordinator is not None
+            else None
+        )
         partial_slot = _GenerationCycleN5PartialSlot()
         state: dict[str, Any] = {
             "_generation_cycle_n5_partial_slot": partial_slot,
@@ -13716,6 +13775,8 @@ class GenerationCycleController:
             "candidate_scenario_proposal_reissue": candidate_scenario_proposal_reissue,
             "candidate_reentry_n5_checkpoint": candidate_reentry_n5_checkpoint,
             "candidate_reentry_n5_resume": candidate_reentry_n5_resume,
+            "native_reentry_coordinator": native_reentry_coordinator,
+            "native_reentry_progress": native_progress,
         }
         try:
             finished = await self._engine.run_async(state)
@@ -17867,6 +17928,99 @@ class GenerationCycleController:
             require_source_profile=True,
         )
 
+    def _remember_generic_n4_source(
+        self,
+        *,
+        source_ref: CASArtifactRef,
+        cycle_index: int,
+        generic_handoff: GenericCycleSimulationContextHandoffV1
+        | GenericCycleNativeWorldContextHandoffV1
+        | None,
+    ) -> None:
+        """Retain the exact source selector belonging to this actual occurrence."""
+        self._generic_n4_source_refs_by_cycle[cycle_index] = source_ref
+        self._source_handoff_selected_refs.append(source_ref)
+        self._source_handoff_read_refs.append(source_ref)
+        self._source_handoff_refs.append(str(source_ref.artifact_id))
+        if generic_handoff is not None:
+            from polisyos.runtime.quality.generation_source import (
+                _GenerationSourceReadExpectations,
+            )
+
+            if self._source_read_expectations_by_ref is None:
+                self._source_read_expectations_by_ref = {}
+            # Capture the verified handoff belonging to this write,
+            # not a later cycle's mutable current selection.
+            self._source_read_expectations_by_ref[artifact_ref_identity_key(source_ref)] = (
+                _GenerationSourceReadExpectations(
+                    expected_job_id=generic_handoff.job_id,
+                    expected_run_id=generic_handoff.run_id,
+                    expected_tenant_id=generic_handoff.tenant_id,
+                    expected_cell_id=generic_handoff.cell_id,
+                    context_job_ref=generic_handoff.context_job_ref.model_copy(deep=True),
+                    profile_ref=generic_handoff.profile_ref.model_copy(deep=True),
+                    n4_child_profile_family_ref=(
+                        generic_handoff.n4_child_profile_family_ref.model_copy(deep=True)
+                        if generic_handoff.n4_child_profile_family_ref is not None
+                        else None
+                    ),
+                )
+            )
+
+    def _restore_native_prepared_generation(self, state: dict[str, Any]) -> dict[str, Any]:
+        """Reopen selected N4/CGF inputs without a second generation or settlement."""
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.native_source_reentry_history import (
+            NativeSourceReentryCoordinator,
+            NativeSourceReentryProgress,
+        )
+
+        coordinator = state.get("native_reentry_coordinator")
+        progress = state.get("native_reentry_progress")
+        if (
+            type(coordinator) is not NativeSourceReentryCoordinator
+            or type(progress) is not NativeSourceReentryProgress
+            or progress.prepared is None
+        ):
+            raise GenerationCycleError("native_reentry_prepared_checkpoint_required")
+        _, prepared = progress.prepared
+        if (
+            prepared.subject.cycle_index != int(state["cycle_index"])
+            or prepared.subject.source_run_id != self._source_run_id
+            or prepared.subject.design_problem_ref != cycle_job_design_problem_ref(state["problem"])
+        ):
+            raise GenerationCycleError("native_reentry_prepared_cycle_mismatch")
+        source = coordinator._verify_prepared(prepared)
+        result = source.generation_result
+        candidates = tuple(result.candidates)
+        selected = tuple(
+            item
+            for item in candidates
+            if _candidate_id(item) == prepared.candidate_id
+            and _candidate_content_hash(item) == prepared.candidate_content_hash
+        )
+        if len(selected) != 1:
+            raise GenerationCycleError("native_reentry_prepared_candidate_mismatch")
+        self._remember_generic_n4_source(
+            source_ref=prepared.n4_source_ref,
+            cycle_index=int(state["cycle_index"]),
+            generic_handoff=self._generic_cycle_simulation_handoff,
+        )
+        self._source_expected_identities.extend(
+            (_problem_ref(state["problem"]), _candidate_id(item), _candidate_content_hash(item))
+            for item in candidates
+        )
+        if source.synthetic is True:
+            self._source_synthetic = True
+        return {
+            **state,
+            "generation_result": result,
+            "generation_channel": "n4_owner",
+            "candidates": candidates,
+            "rankings": _ranking_by_candidate(result),
+            "selected_candidate": selected[0],
+        }
+
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
         from polisyos.runtime.quality.design_generation import (
             DesignGenerationOrganRun,
@@ -17877,6 +18031,9 @@ class GenerationCycleController:
         if not isinstance(problem, DesignProblem):
             raise GenerationCycleError("generation_cycle_design_problem_untyped")
         self._ensure_selected_candidate_source_profile(problem)
+        native_progress = state.get("native_reentry_progress")
+        if native_progress is not None and native_progress.prepared is not None:
+            return self._restore_native_prepared_generation(state)
         from polisyos.runtime.quality.design_generation import (
             N4CandidateScenarioProposalRun,
         )
@@ -17985,34 +18142,11 @@ class GenerationCycleController:
                         execution_scope=self._authority_scope,
                         **source_scope,
                     )
-                    self._generic_n4_source_refs_by_cycle[int(state["cycle_index"])] = source_ref
-                    self._source_handoff_selected_refs.append(source_ref)
-                    self._source_handoff_read_refs.append(source_ref)
-                    self._source_handoff_refs.append(str(source_ref.artifact_id))
-                    if generic_handoff is not None:
-                        from polisyos.runtime.quality.generation_source import (
-                            _GenerationSourceReadExpectations,
-                        )
-
-                        if self._source_read_expectations_by_ref is None:
-                            self._source_read_expectations_by_ref = {}
-                        # Capture the verified handoff belonging to this write,
-                        # not a later cycle's mutable current selection.
-                        self._source_read_expectations_by_ref[
-                            artifact_ref_identity_key(source_ref)
-                        ] = _GenerationSourceReadExpectations(
-                            expected_job_id=generic_handoff.job_id,
-                            expected_run_id=generic_handoff.run_id,
-                            expected_tenant_id=generic_handoff.tenant_id,
-                            expected_cell_id=generic_handoff.cell_id,
-                            context_job_ref=generic_handoff.context_job_ref.model_copy(deep=True),
-                            profile_ref=generic_handoff.profile_ref.model_copy(deep=True),
-                            n4_child_profile_family_ref=(
-                                generic_handoff.n4_child_profile_family_ref.model_copy(deep=True)
-                                if generic_handoff.n4_child_profile_family_ref is not None
-                                else None
-                            ),
-                        )
+                    self._remember_generic_n4_source(
+                        source_ref=source_ref,
+                        cycle_index=int(state["cycle_index"]),
+                        generic_handoff=generic_handoff,
+                    )
                 except (OSError, ValueError, TypeError) as exc:
                     self._source_issues.append(f"source_persistence_refused:{type(exc).__name__}")
             else:
@@ -18552,6 +18686,16 @@ class GenerationCycleController:
         )
 
     def _ground_node(self, state: dict[str, Any]) -> dict[str, Any]:
+        native_progress = state.get("native_reentry_progress")
+        if native_progress is not None and native_progress.prepared is not None:
+            _, prepared = native_progress.prepared
+            groundings = {item.candidate_id: item for item in prepared.grounding_observations}
+            return {
+                **state,
+                "grounding_by_candidate": groundings,
+                "selected_grounding": groundings[prepared.candidate_id],
+                "candidate_summaries": prepared.candidate_summaries,
+            }
         problem = state["problem"]
         cycle_index = int(state["cycle_index"])
         grounding_by_candidate: dict[str, CandidateGroundingObservation] = {}
@@ -18673,6 +18817,8 @@ class GenerationCycleController:
         result = self._joint_value_node_impl(state)
         attempted: set[tuple[str, str, int]] = set()
         while True:
+            if state.get("native_reentry_coordinator") is not None:
+                break
             candidate = result["selected_candidate"]
             cycle_index = int(result["cycle_index"])
             identity = (_candidate_id(candidate), _candidate_content_hash(candidate), cycle_index)
@@ -19213,7 +19359,22 @@ class GenerationCycleController:
         self._n7_candidate_bindings[(candidate_id, candidate_hash)] = candidate
         completed_n5 = state.get("candidate_reentry_n5_resume")
         resumed_simulation = None
-        if completed_n5 is None:
+        native_progress = state.get("native_reentry_progress")
+        if native_progress is not None and native_progress.prepared is not None:
+            _, prepared = native_progress.prepared
+            if (
+                prepared.candidate_id != candidate_id
+                or prepared.candidate_content_hash != candidate_hash
+                or prepared.subject.cycle_index != cycle_index
+            ):
+                raise GenerationCycleError("native_reentry_prepared_candidate_mismatch")
+            schedule = prepared.schedule
+            if native_progress.n5_completed is not None:
+                _, native_n5 = native_progress.n5_completed
+                resumed_simulation = native_n5.simulation.model_copy(
+                    update={"world_model_record": self._cycle_substrate_context.world_model_record}
+                )
+        elif completed_n5 is None:
             proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
             schedule = self._schedule_candidate_for_execution(
                 candidate_id=candidate_id,
@@ -19316,12 +19477,58 @@ class GenerationCycleController:
                 "execution_schedule": schedule,
             }
         if self._generic_cycle_simulation_handoff is not None:
-            simulation = self._run_generic_cycle_simulation_n5(
-                candidate=candidate,
-                problem=problem,
-                cycle_index=cycle_index,
-            )
-            simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
+            coordinator = state.get("native_reentry_coordinator")
+            if coordinator is None:
+                simulation = self._run_generic_cycle_simulation_n5(
+                    candidate=candidate, problem=problem, cycle_index=cycle_index
+                )
+                simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
+            else:
+                from polisyos.runtime.quality.native_source_reentry_history import (
+                    NativeSourceReentryCoordinator,
+                )
+
+                if type(coordinator) is not NativeSourceReentryCoordinator:
+                    raise GenerationCycleError("native_reentry_current_owner_required")
+                prepared_pair = native_progress.prepared if native_progress is not None else None
+                if resumed_simulation is None:
+                    input_ref, input_record = self._prepare_generic_cycle_simulation_n5_input(
+                        candidate=candidate,
+                        problem=problem,
+                        cycle_index=cycle_index,
+                        existing_input_ref=(
+                            prepared_pair[1].n5_input_ref if prepared_pair is not None else None
+                        ),
+                    )
+                    if prepared_pair is None:
+                        prepared_ref = coordinator.prepare(
+                            n4_source_ref=input_record.n4_source_ref,
+                            input_ref=input_ref,
+                            candidate_id=candidate_id,
+                            candidate_hash=candidate_hash,
+                            grounding=tuple(state["grounding_by_candidate"].values()),
+                            summaries=tuple(state["candidate_summaries"]),
+                            schedule=schedule,
+                        )
+                    else:
+                        prepared_ref = prepared_pair[0]
+                    coordinator.claim("n5_claimed", prepared_ref)
+                    simulation = self._run_generic_cycle_simulation_n5(
+                        candidate=candidate,
+                        problem=problem,
+                        cycle_index=cycle_index,
+                        prepared_input_ref=input_ref,
+                    )
+                    simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
+                    if simulation.status == "joint_simulated":
+                        n5_ref = coordinator.complete_n5(prepared_ref, simulation)
+                        coordinator.claim("tail_claimed", n5_ref)
+                        state["native_reentry_completed_n5_ref"] = n5_ref
+                else:
+                    simulation = self._bind_cycle_context_job_ref_to_simulation(resumed_simulation)
+                    n5_ref = native_progress.n5_completed[0]
+                    coordinator.claim("tail_claimed", n5_ref)
+                    state["native_reentry_completed_n5_ref"] = n5_ref
             value_override = state.get("value_port_override")
             value_port = value_override or self._value_port
             if (
@@ -19399,14 +19606,15 @@ class GenerationCycleController:
             "execution_schedule": schedule,
         }
 
-    def _run_generic_cycle_simulation_n5(
+    def _prepare_generic_cycle_simulation_n5_input(
         self,
         *,
         candidate: object,
         problem: DesignProblem,
         cycle_index: int,
-    ) -> SimulationPortObservation:
-        """Run N5 only from the exact persisted generic profile and N4 source."""
+        existing_input_ref: CASArtifactRef | None = None,
+    ) -> tuple[CASArtifactRef, GenericCycleSimulationN5InputV1]:
+        """Prepare one actual selected input, without dispatch or projected values."""
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import (
             cycle_job_design_problem_ref,
@@ -19440,96 +19648,84 @@ class GenerationCycleController:
             else "generic_cycle_simulation_n5_owner_or_handoff_missing"
         )
         if canonical_port_issue is not None:
-            return self._generic_cycle_simulation_refusal(
-                candidate=candidate, code=canonical_port_issue
-            )
+            raise GenerationCycleError(canonical_port_issue)
         if (
             self._source_repository is None
             or self._source_run_id is None
             or self._artifact_store is None
             or type(candidate) is not ShadowGeneratedCandidate
         ):
-            return self._generic_cycle_simulation_refusal(
-                candidate=candidate,
-                code="generic_cycle_simulation_source_not_established",
-            )
+            raise GenerationCycleError("generic_cycle_simulation_source_not_established")
         source_ref = self._generic_n4_source_refs_by_cycle.get(cycle_index)
         if source_ref is None:
-            return self._generic_cycle_simulation_refusal(
-                candidate=candidate,
-                code="generic_cycle_simulation_n4_source_not_persisted",
-            )
+            raise GenerationCycleError("generic_cycle_simulation_n4_source_not_persisted")
         currentness = self._generic_cycle_simulation_currentness_resolver
         if currentness is None or currentness() is not True:
-            return self._generic_cycle_simulation_refusal(
-                candidate=candidate,
-                code="generic_cycle_simulation_worker_lease_not_current",
-            )
+            raise GenerationCycleError("generic_cycle_simulation_worker_lease_not_current")
         child_selection = self._generic_cycle_simulation_child_selection
         child_set_ref = self._generic_n4_child_profile_set_ref
-        try:
-            current_selection_ref = owner.profile_selection_ref_for_handoff(
-                handoff=handoff,
-                problem=problem,
-                child_selection=child_selection,
+        current_selection_ref = owner.profile_selection_ref_for_handoff(
+            handoff=handoff,
+            problem=problem,
+            child_selection=child_selection,
+        )
+        if (
+            current_selection_ref
+            != (
+                handoff.current_profile_selection_ref
+                if native
+                else handoff.profile.profile_selection_ref
             )
-            if (
-                current_selection_ref
-                != (
-                    handoff.current_profile_selection_ref
-                    if native
-                    else handoff.profile.profile_selection_ref
-                )
-                or handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)
-                or (handoff.profile.profile_selection_kind == "n4_candidate_child")
-                != (child_set_ref is not None)
-            ):
-                raise ValueError("generic_cycle_simulation_profile_problem_mismatch")
-            selection_ref = handoff.profile.profile_selection_ref
-            if not native:
-                owner.resolve_profile(
-                    handoff.profile_ref,
-                    expected_profile=handoff.profile,
-                    job_id=handoff.job_id,
-                    run_id=handoff.run_id,
-                    tenant_id=handoff.tenant_id,
-                    cell_id=handoff.cell_id,
-                )
-            source = GenerationSourceRepository(
-                self._artifact_store, native_world_owner=owner if native else None
-            ).load(
-                source_ref,
-                run_id=self._source_run_id,
-                expected_job_id=handoff.job_id,
-                expected_run_id=handoff.run_id,
-                expected_tenant_id=handoff.tenant_id,
-                expected_cell_id=handoff.cell_id,
-                context_job_ref=handoff.context_job_ref,
-                profile_ref=handoff.profile_ref,
-                n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+            or handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)
+            or (handoff.profile.profile_selection_kind == "n4_candidate_child")
+            != (child_set_ref is not None)
+        ):
+            raise ValueError("generic_cycle_simulation_profile_problem_mismatch")
+        if not native:
+            owner.resolve_profile(
+                handoff.profile_ref,
+                expected_profile=handoff.profile,
+                job_id=handoff.job_id,
+                run_id=handoff.run_id,
+                tenant_id=handoff.tenant_id,
+                cell_id=handoff.cell_id,
             )
-            if (
-                source.problem != problem
-                or source.cycle_index != cycle_index
-                or source.cycle_substrate_context is None
-                or source.cycle_substrate_context.content_hash != handoff.context.content_hash
-            ):
-                raise ValueError("generic_cycle_simulation_n4_source_binding_mismatch")
-            matching = tuple(
-                item
-                for item in source.generation_result.candidates
-                if _candidate_id(item) == _candidate_id(candidate)
-                and _candidate_content_hash(item) == _candidate_content_hash(candidate)
-            )
-            if matching != (candidate,):
-                raise ValueError("generic_cycle_simulation_n4_candidate_not_in_source")
-            if self._artifact_store is None or owner.store is not self._artifact_store:
-                raise ValueError("generic_cycle_simulation_store_owner_mismatch")
-            if currentness() is not True:
-                raise ValueError("generic_cycle_simulation_worker_lease_not_current")
-            outcome = _value_outcome_variable(candidate, problem)
-            if not outcome or outcome not in handoff.profile.n5.baseline_state:
-                raise ValueError("generic_cycle_simulation_n5_outcome_not_configured")
+        source = GenerationSourceRepository(
+            self._artifact_store, native_world_owner=owner if native else None
+        ).load(
+            source_ref,
+            run_id=self._source_run_id,
+            expected_job_id=handoff.job_id,
+            expected_run_id=handoff.run_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+        )
+        if (
+            source.problem != problem
+            or source.cycle_index != cycle_index
+            or source.cycle_substrate_context is None
+            or source.cycle_substrate_context.content_hash != handoff.context.content_hash
+        ):
+            raise ValueError("generic_cycle_simulation_n4_source_binding_mismatch")
+        matching = tuple(
+            item
+            for item in source.generation_result.candidates
+            if _candidate_id(item) == _candidate_id(candidate)
+            and _candidate_content_hash(item) == _candidate_content_hash(candidate)
+        )
+        if matching != (candidate,):
+            raise ValueError("generic_cycle_simulation_n4_candidate_not_in_source")
+        if self._artifact_store is None or owner.store is not self._artifact_store:
+            raise ValueError("generic_cycle_simulation_store_owner_mismatch")
+        if currentness() is not True:
+            raise ValueError("generic_cycle_simulation_worker_lease_not_current")
+        outcome = _value_outcome_variable(candidate, problem)
+        if not outcome or outcome not in handoff.profile.n5.baseline_state:
+            raise ValueError("generic_cycle_simulation_n5_outcome_not_configured")
+        if existing_input_ref is None:
             input_ref = owner.persist_n5_input(
                 handoff=handoff,
                 source_ref=source_ref,
@@ -19543,15 +19739,72 @@ class GenerationCycleController:
                 outcome_variable=outcome,
                 child_selection=child_selection,
             )
-            from polisyos.runtime.quality.generic_simulation_admission import (
-                GenericCycleSimulationN5InputV1,
-            )
+        else:
+            input_ref = existing_input_ref
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationN5InputV1,
+        )
 
-            input_record = GenericCycleSimulationN5InputV1.model_validate(
-                load_core_json_artifact(self._artifact_store, input_ref)
+        input_record = GenericCycleSimulationN5InputV1.model_validate(
+            load_core_json_artifact(self._artifact_store, input_ref)
+        )
+        if currentness() is not True:
+            raise ValueError("generic_cycle_simulation_worker_lease_not_current")
+        if existing_input_ref is not None:
+            if (
+                (
+                    input_record.job_id,
+                    input_record.run_id,
+                    input_record.tenant_id,
+                    input_record.cell_id,
+                )
+                != (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+                or input_record.source_run_id != self._source_run_id
+                or input_record.cycle_index != cycle_index
+                or input_record.candidate_id != candidate.candidate_id
+                or input_record.candidate_atom_hash != candidate.atom.content_hash
+                or input_record.outcome_variable != outcome
+                or input_record.profile.model_dump(mode="json")
+                != handoff.profile.model_dump(mode="json")
+                or artifact_ref_identity_key(input_record.n4_source_ref)
+                != artifact_ref_identity_key(source_ref)
+                or artifact_ref_identity_key(input_record.context_job_ref)
+                != artifact_ref_identity_key(handoff.context_job_ref)
+                or artifact_ref_identity_key(input_record.profile_ref)
+                != artifact_ref_identity_key(handoff.profile_ref)
+            ):
+                raise GenerationCycleError("generic_cycle_simulation_n5_job_binding_mismatch")
+            owner.resolve_n5_input(input_ref, expected=input_record)
+            owner._resolve_current_input_profile(input_record)
+        return input_ref, input_record
+
+    def _run_generic_cycle_simulation_n5(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        cycle_index: int,
+        prepared_input_ref: CASArtifactRef | None = None,
+    ) -> SimulationPortObservation:
+        """Run N5 only from the canonical actual selected Generic input."""
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        owner = self._generic_cycle_simulation_admission_owner
+        handoff = self._generic_cycle_simulation_handoff
+        try:
+            input_ref, input_record = self._prepare_generic_cycle_simulation_n5_input(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                existing_input_ref=prepared_input_ref,
             )
-            if currentness() is not True:
-                raise ValueError("generic_cycle_simulation_worker_lease_not_current")
+            source_ref = input_record.n4_source_ref
+            child_selection = input_record.child_selection
+            child_set_ref = input_record.n4_child_profile_set_ref
+            currentness = self._generic_cycle_simulation_currentness_resolver
+            selection_ref = input_record.profile.profile_selection_ref
+            outcome = input_record.outcome_variable
             effective_profile = owner._effective_input_profile(input_record)
             simulation = self._simulation_port(
                 candidate=candidate,

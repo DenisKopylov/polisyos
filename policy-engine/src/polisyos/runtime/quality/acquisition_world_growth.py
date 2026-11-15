@@ -6722,13 +6722,12 @@ class AcquisitionWorldGrowthBridge:
                 self._write_pointer(pointer, refs[0])
                 return refs[0]
             fence = pointer.with_suffix(".started")
-            if fence.exists():
+            started = fence.exists()
+            if started and (not native_collections or fence.read_text() != growth_refs[0]):
                 raise ValueError("acquisition_reentry_outcome_not_established")
             payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
             models = payload.get("llm_models")
             model = str(models[0]) if isinstance(models, list) and models else None
-            if model is None:
-                raise ValueError("acquisition_reentry_model_unconfigured")
             passport = acquisition_executor.AdmissionPassport.model_validate(
                 contracts.epoch.load_verified_epoch_statement(
                     store=self.artifact_store,
@@ -6766,6 +6765,8 @@ class AcquisitionWorldGrowthBridge:
                 None,
             )
             controller_kwargs: dict[str, object] = {}
+            native_reentry_coordinator = None
+            native_progress = None
             if native_collections:
                 context, handoff, context_owner, currentness_resolver = (
                     self._native_derivation_context_handoff(
@@ -6783,6 +6784,17 @@ class AcquisitionWorldGrowthBridge:
                 if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
                     if native_context is not None:
                         raise ValueError("native_derivation_ncm_port_substitution_refused")
+                    from polisyos.runtime.quality.native_source_reentry_history import (
+                        NativeSourceReentryCoordinator,
+                    )
+
+                    native_reentry_coordinator = NativeSourceReentryCoordinator(
+                        bridge=self,
+                        closure=closure,
+                        handoff=handoff,
+                        collection_ref=native_collections[0],
+                    )
+                    native_progress = native_reentry_coordinator.progress()
                     controller_kwargs = {
                         "cycle_substrate_context": context,
                         "generic_cycle_simulation_admission_owner": (
@@ -6845,6 +6857,10 @@ class AcquisitionWorldGrowthBridge:
                         currentness_resolver=currentness_resolver,
                     )
                     controller_kwargs["simulation_port"] = native_context.port
+            if started and (native_progress is None or native_progress.prepared is None):
+                raise ValueError("acquisition_reentry_outcome_not_established")
+            if model is None and (native_progress is None or native_progress.prepared is None):
+                raise ValueError("acquisition_reentry_model_unconfigured")
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
                 model_id=model,
@@ -6868,10 +6884,11 @@ class AcquisitionWorldGrowthBridge:
             else:
                 context_binding = nullcontext()
             with context_binding:
-                with fence.open("x") as stream:
-                    stream.write(growth_refs[0])
-                    stream.flush()
-                    os.fsync(stream.fileno())
+                if not started:
+                    with fence.open("x") as stream:
+                        stream.write(growth_refs[0])
+                        stream.flush()
+                        os.fsync(stream.fileno())
                 receipt = async_tools.run_coro_sync(
                     controller.reenter_after_active_acquisition_overlay(
                         original_run=closure.generation_run,
@@ -6886,6 +6903,7 @@ class AcquisitionWorldGrowthBridge:
                             {
                                 "action_route_id": closure.route_id,
                                 "native_input_collection_ref": native_collections[0],
+                                "native_reentry_coordinator": native_reentry_coordinator,
                             }
                             if native_collections
                             else {}

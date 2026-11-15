@@ -381,6 +381,7 @@ def _n5_checkpoint_event(
     event_id: str,
     event_time: datetime,
     execution_profile: str,
+    phase: str = _N5_CHECKPOINT_PHASE,
 ) -> DiagnosticEvent:
     from polisyos.runtime.quality.diagnostic_events import (
         DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -395,13 +396,13 @@ def _n5_checkpoint_event(
         event_type=_N5_CHECKPOINT_EVENT_TYPE,
         event_time=event_time,
         event_subject=(
-            f"run/{head.run_id}/job/{head.job_id}/phase/{_N5_CHECKPOINT_PHASE}"
+            f"run/{head.run_id}/job/{head.job_id}/phase/{phase}"
             f"/selected-manifest/{ref.manifest_profile_sha256}"
         ),
         schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
         schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
         trace_id=f"trace-{head.job_id}",
-        span_id=f"span-{_N5_CHECKPOINT_PHASE}",
+        span_id=f"span-{phase}",
         parent_span_id=None,
         run_id=head.run_id,
         job_id=head.job_id,
@@ -410,7 +411,7 @@ def _n5_checkpoint_event(
         producer_component=_PRODUCER,
         producer_version="1.0",
         execution_profile=execution_profile,
-        phase=_N5_CHECKPOINT_PHASE,
+        phase=phase,
         state_before=head.receipt_phase,
         state_after=head.receipt_phase,
         payload_ref=ref_id,

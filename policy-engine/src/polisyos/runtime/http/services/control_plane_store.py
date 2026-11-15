@@ -9644,18 +9644,112 @@ class ControlPlaneStore:
         ):
             raise ValueError("candidate_experiment_n5_checkpoint_event_binding_invalid")
 
+        return self._append_current_action_checkpoint(
+            pending_head=pending_head,
+            event=event,
+            reason_prefix="candidate_experiment_n5_checkpoint",
+        )
+
+    def append_native_source_reentry_checkpoint(
+        self,
+        *,
+        pending_head: AcquisitionActionHeadRecord,
+        prepared_event: _PreparedDiagnosticEvent,
+    ) -> ControlDiagnosticEventRecord:
+        """Select one Native continuation member under its exact live action head.
+
+        The Native artifact owner verifies the selected CAS body before this
+        transaction. A diagnostic member does not advance or renew the action.
+        """
+        if type(pending_head) is not AcquisitionActionHeadRecord or (
+            pending_head.receipt_phase != "world_committed_reentry_pending"
+            or not _is_sha256_ref(pending_head.receipt_manifest_profile_sha256)
+        ):
+            raise ValueError("native_source_reentry_checkpoint_pending_head_invalid")
+        if type(prepared_event) is not _PreparedDiagnosticEvent:
+            raise TypeError("native_source_reentry_checkpoint_prepared_event_untyped")
+        event, payload = prepared_event.publication_values()
+        if (
+            payload is not None
+            or prepared_event.inline_payload
+            or event.event_type != "polisyos.runtime.diagnostic.producer_execution.v1"
+            or event.phase
+            not in {
+                "native_source_reentry_prepared",
+                "native_source_reentry_n5_claimed",
+                "native_source_reentry_n5_completed",
+                "native_source_reentry_tail_claimed",
+                "native_source_reentry_cycle_completed",
+            }
+            or (event.tenant_id, event.cell_id, event.run_id, event.job_id)
+            != (
+                pending_head.tenant_id,
+                pending_head.cell_id,
+                pending_head.run_id,
+                pending_head.job_id,
+            )
+            or not _is_sha256_ref(event.payload_ref)
+            or event.artifact_refs != (event.payload_ref,)
+            or pending_head.receipt_ref not in event.input_refs
+        ):
+            raise ValueError("native_source_reentry_checkpoint_event_binding_invalid")
+        return self._append_current_action_checkpoint(
+            pending_head=pending_head,
+            event=event,
+            reason_prefix="native_source_reentry_checkpoint",
+        )
+
+    def _append_current_action_checkpoint(
+        self,
+        *,
+        pending_head: AcquisitionActionHeadRecord,
+        event: DiagnosticEvent,
+        reason_prefix: Literal[
+            "candidate_experiment_n5_checkpoint", "native_source_reentry_checkpoint"
+        ],
+    ) -> ControlDiagnosticEventRecord:
+        """Commit a verified member while its current admission and head agree."""
+        expected_scope = (
+            pending_head.tenant_id,
+            pending_head.cell_id,
+            pending_head.run_id,
+            pending_head.job_id,
+        )
+        subject_prefix = (
+            f"run/{pending_head.run_id}/job/{pending_head.job_id}/phase/{event.phase}"
+            "/selected-manifest/"
+        )
+        if reason_prefix == "native_source_reentry_checkpoint" and (
+            event.event_source != "polisyos.runtime.acquisition_world_growth"
+            or event.producer_component != "polisyos.runtime.acquisition_world_growth"
+            or event.producer_version != "1.0"
+            or not event.event_subject.startswith(subject_prefix)
+            or not _is_sha256_ref(event.event_subject.removeprefix(subject_prefix))
+            or event.trace_id != f"trace-{pending_head.job_id}"
+            or event.span_id != f"span-{event.phase}"
+            or event.parent_span_id is not None
+            or event.state_before != pending_head.receipt_phase
+            or event.state_after != pending_head.receipt_phase
+            or event.blocking_status is not None
+            or event.redaction_policy_ref is not None
+            or event.duplicate_of is not None
+            or event.dedupe_key is not None
+        ):
+            raise ValueError(f"{reason_prefix}_event_binding_invalid")
         with self._job_transaction():
             admission = self.current_execution_job_admission()
             job, scope = admission.job, admission.scope
             if (
                 job.kind != "acquisition"
+                or (
+                    reason_prefix == "native_source_reentry_checkpoint"
+                    and event.execution_profile != job.effective_execution_profile
+                )
                 or scope.status != "established"
                 or not scope.actor_authenticated
                 or (scope.tenant_id, scope.cell_id, job.run_id, job.job_id) != expected_scope
             ):
-                raise ControlJobExecutionAdmissionError(
-                    "candidate_experiment_n5_checkpoint_job_scope_mismatch"
-                )
+                raise ControlJobExecutionAdmissionError(f"{reason_prefix}_job_scope_mismatch")
             current = self.get_acquisition_action_head(
                 tenant_id=pending_head.tenant_id,
                 cell_id=pending_head.cell_id,
@@ -9665,7 +9759,16 @@ class ControlPlaneStore:
                 action_generation=pending_head.action_generation,
             )
             if current != pending_head:
-                raise ValueError("candidate_experiment_n5_checkpoint_pending_head_changed")
+                raise ValueError(f"{reason_prefix}_pending_head_changed")
+            if (
+                reason_prefix == "native_source_reentry_checkpoint"
+                and event.phase
+                in {"native_source_reentry_n5_claimed", "native_source_reentry_tail_claimed"}
+                and self.list_diagnostic_events(event_id=event.event_id, limit=1)
+            ):
+                # Claim selection, unlike completed-result readback, is create-only.
+                # The absence test and append share this lease/head SQL transaction.
+                raise ValueError("native_source_reentry_checkpoint_claim_already_selected")
             record = self.append_diagnostic_event(event=event, payload_ref=event.payload_ref)
             if record.event != event:
                 raise DiagnosticEventContractError(

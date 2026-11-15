@@ -83,15 +83,20 @@ supply their results or grant authority.
 
 Selected single-step results carry `execution_source_status="single_step_basis"`.
 Historical profileless results remain an explicit `legacy_profileless` read
-mode. Feedback results can remain `feedback_uncomposed`; semantic selected
-bindings with feedback currently refuse with
-`foundry_input_bindings_semantic_feedback_not_established`. A feedback trace or
-prepared call must not be described as a composed selected-input result.
+mode. Direct selected-scalar bindings 1.4 support candidate feedback execution:
+the returned SimulationResult 1.5 and execution basis 1.3 bind the original
+request, final injected state, actual final graph invocation, mapped outputs,
+selected argument identities and delta. Fresh readers reconcile those facts
+under the matching numerical/backend profile, including JAX x64 configuration.
+A nonconverged solve does not emit a successful SimulationResult. Existing
+uncomposed feedback stays explicitly `feedback_uncomposed`; unsupported selected
+profiles still refuse with `foundry_input_bindings_semantic_feedback_not_established`.
+A feedback trace or prepared call alone is not a composed selected-input result.
 
 Snapshot 2.4 has a real scalar model-state graph/API route. Scalar temporal
 bindings 1.5 also reach actual step execution and cold-chain reading. Their
-Runtime/N5 composition, vector method inputs and selected-feedback composition
-remain separate; the corresponding unsupported gates stay closed.
+Runtime/N5 composition, vector method inputs, temporal selected-feedback and
+model-state feedback remain separate; their unsupported gates stay closed.
 Old artifacts are read under their own profiles and are not rewritten using
 current method definitions. Keep current grants, expiry, quota and selected-use
 checks with their Runtime owners.

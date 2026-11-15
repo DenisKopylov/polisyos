@@ -16,7 +16,7 @@ from typing import ClassVar
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts import validate_core_model_json_artifact
+from polisyos.core.artifacts import input_ref_from_artifact_ref, validate_core_model_json_artifact
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -25,12 +25,21 @@ from polisyos.core.contracts.foundry import (
     FeedbackConfigRef,
     FeedbackConvergenceCertificate,
     FeedbackIterationRecord,
-    FeedbackSolveResult,
+    FeedbackResultRef,
     FeedbackSolverConfig,
+    FeedbackSolveResult,
     FeedbackTrace,
+    FeedbackTraceRef,
+    FoundryExecutionInputBasis,
+    FoundryExecutionInputBasisRef,
     FoundryInputBindings,
+    FoundryInputBindingsRef,
+    SimulationResult,
+    SimulationResultRef,
+    StateDelta,
 )
 from polisyos.foundry.data_plane.bindings import load_input_bindings
+from polisyos.foundry.execute.api import admit_execution_source
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import (
@@ -46,6 +55,7 @@ from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.types.units import Units
 from tests._helpers.derived_selected_method_input import materialize_selected_method_input_case
 from tests._helpers.selected_method_input import prepare_selected_method_input_case
+from tests.unit.foundry.data_plane.test_selected_method_input_bindings import _removed_blob
 
 
 class _RetainedPeriodFlowMap:
@@ -196,14 +206,17 @@ def _without_selected_method_values(case, materialized):
                 name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
                 version="1.2",
             ),
-            inputs=[
-                edge for edge in manifest.inputs if not edge.role.startswith("method_input.")
-            ],
+            inputs=[edge for edge in manifest.inputs if not edge.role.startswith("method_input.")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    return replace(materialized, input_bindings_ref=artifact)
+    return replace(
+        materialized,
+        input_bindings_ref=FoundryInputBindingsRef.model_validate(
+            artifact.model_dump(mode="python")
+        ),
+    )
 
 
 def _fresh_reader(case, simulation_result_ref):
@@ -229,7 +242,11 @@ store = FileSystemCAS(sys.argv[1])
 result_ref = SimulationResultRef.model_validate_json(sys.argv[2])
 result = validate_core_model_json_artifact(SimulationResult, store, result_ref)
 admitted = admit_execution_source(store, result_ref)
-assert admitted.mode == "single_step_basis"
+assert admitted.mode == "feedback_basis"
+assert result.schema_version == "1.5" and result.execution_source_status == "feedback_basis"
+assert admitted.basis.schema_version == "1.3" and admitted.basis.execution_mode == "feedback"
+context = admitted.basis.feedback_execution_context
+assert context is not None
 assert result.feedback_result_ref is not None
 feedback = validate_core_model_json_artifact(
     FeedbackSolveResult, store, result.feedback_result_ref
@@ -274,23 +291,34 @@ for occurrence in occurrences:
     args = {item.slot_id: item for item in occurrence.dispatch.input_slot_values}
     assert args["period_flow"].value_sha256 == selected.value_sha256
 final_invocation_id = feedback.final_diagnostics["final_graph_invocation_id"]
+assert context.final_graph_invocation_id == final_invocation_id
+final_records = [item for item in map_evaluations if item.phase == "final_materialization"]
+assert len(final_records) == 1
+final_record = final_records[0]
+assert final_record.evaluation_id == context.final_map_evaluation_id
+assert final_record.graph_invocation_id == final_invocation_id
+assert tuple(feedback.final_state.values) == tuple(final_record.mapped_values)
+assert final_record.candidate_values != final_record.mapped_values
 assert list(occurrences_by_invocation).count(final_invocation_id) == 1
 final_args = {
     item.slot_id: item
     for item in occurrences_by_invocation[final_invocation_id].dispatch.input_slot_values
 }
 final_state_input = final_args["government.balance"]
-final_input_value = np.asarray(feedback.final_state.values[0],
+final_input_value = np.asarray(final_record.candidate_values[0],
     dtype=np.dtype(final_state_input.runtime_dtype))
 final_input_hash = hashlib.sha256()
 final_input_hash.update(final_input_value.dtype.str.encode("ascii"))
 final_input_hash.update(json.dumps(final_input_value.shape, separators=(",", ":")).encode("ascii"))
 final_input_hash.update(final_input_value.tobytes(order="C"))
 assert final_state_input.value_sha256 == final_input_hash.hexdigest()
+assert abs(final_record.mapped_values[0] -
+    (0.5 * float(final_input_value) + float(selected_value.item()))) < 1e-6
 state = load_state_snapshot(store, snapshot_ref=admitted.simulation_result.state_snapshot_ref)
 print(json.dumps({"stock": float(state.government_balance),
     "solution": feedback.final_state.values[0], "forcing": float(selected_value.item()),
-    "calls": len(occurrences), "status": feedback.status}))
+    "calls": len(occurrences), "status": feedback.status,
+    "candidate": float(final_input_value), "mapped": final_record.mapped_values[0]}))
 """
     completed = subprocess.run(
         [
@@ -332,6 +360,18 @@ def test_feedback_solver_consumes_selected_period_flow_and_fresh_reader(
         )
         feedback_ref = _feedback_config_ref(case.store)
         executed = _execute(case, materialized, feedback_ref)
+        (tmp_path / "feedback-cold-reader-handoff.json").write_text(
+            json.dumps(
+                {
+                    "cas_root": str(case.store_root),
+                    "input_bindings_ref": materialized.input_bindings_ref.model_dump(mode="json"),
+                    "execute_result": executed.model_dump(mode="json"),
+                    "expected_flow": expected_flow,
+                    "expected_stock": expected_stock,
+                },
+                sort_keys=True,
+            )
+        )
         assert executed.ok and executed.simulation_result_ref is not None
         assert executed.method_execution_bundle_ref is not None
         feedback_ref_out = next(
@@ -357,12 +397,283 @@ def test_feedback_solver_consumes_selected_period_flow_and_fresh_reader(
         fresh = _fresh_reader(case, executed.simulation_result_ref)
         assert fresh["status"] == "converged"
         assert fresh["forcing"] == pytest.approx(float(forcing.item()))
-        assert fresh["solution"] == pytest.approx(expected_stock, abs=1e-5)
-        assert fresh["stock"] == pytest.approx(expected_stock, abs=1e-5)
+        config = validate_core_model_json_artifact(FeedbackConfig, case.store, feedback_ref)
+        _assert_feedback_fixture_solution(fresh, config=config, expected_stock=expected_stock)
         assert fresh["calls"] >= 2
+        assert fresh["candidate"] != fresh["mapped"]
+        if expected_flow == 1.0:
+            _assert_feedback_source_controls(case, executed.simulation_result_ref, selected)
     finally:
         registry.register(PeriodFlowToStock, override=True)
         case.close()
+
+
+def _assert_feedback_fixture_solution(fresh, *, config, expected_stock):
+    """Bound this declared contraction's error from its actual solver profile."""
+    contraction = 0.5
+    candidate, mapped = fresh["candidate"], fresh["mapped"]
+    assert fresh["stock"] == fresh["solution"] == mapped
+    roundoff = (
+        8.0
+        * np.finfo(np.float64).eps
+        * max(1.0, abs(candidate), abs(mapped), abs(expected_stock), abs(fresh["forcing"]))
+    )
+    assert abs(mapped - (contraction * candidate + fresh["forcing"])) <= roundoff
+    # The fixture declares one variable with scale=weight=1. Both stopping
+    # inequalities apply independently to its final persisted residual.
+    (variable,) = config.variables
+    assert variable.scale == variable.weight == 1.0
+    state_norm = max(1.0, abs(mapped))
+    residual = abs(mapped - candidate)
+    assert residual <= config.solver.atol + config.solver.rtol * state_norm
+    assert residual <= config.solver.xtol + config.solver.rtol * state_norm
+    tolerance = min(config.solver.atol, config.solver.xtol) + config.solver.rtol * state_norm
+    # For y=F(x) and a q-contraction, |y-x*| <= q/(1-q) * |F(x)-x|.
+    # Use the declared tolerance as the bound, not the observed solution error.
+    error_bound = contraction / (1.0 - contraction) * tolerance + roundoff
+    assert abs(mapped - expected_stock) <= error_bound
+
+
+def _assert_feedback_source_controls(case, result_ref, selected):
+    """Exercise each source falsifier once without repeating a producer or solve."""
+    admitted = admit_execution_source(case.store, result_ref)
+    assert admitted.basis is not None and admitted.basis.feedback_execution_context is not None
+    context = admitted.basis.feedback_execution_context
+    for removed_ref in (context.feedback_trace_ref, selected.npy_value_ref):
+        with (
+            _removed_blob(case.store, removed_ref),
+            pytest.raises((ValueError, FileNotFoundError)),
+        ):
+            admit_execution_source(case.store, result_ref)
+        assert admit_execution_source(case.store, result_ref).mode == ("feedback_basis")
+    for changes in (
+        {"final_graph_invocation_id": "foreign-final-invocation"},
+        {"final_map_evaluation_id": "foreign-final-evaluation"},
+        {"final_injected_state_snapshot_ref": admitted.basis.base_state_snapshot_ref},
+        {"execution_link_status": "not_established", "final_graph_invocation_id": None},
+    ):
+        malformed = _reissue_feedback_context(case, admitted, changes)
+        with pytest.raises(ValueError):
+            admit_execution_source(case.store, malformed)
+    foreign_config = _feedback_config_ref(case.store, max_iter=1)
+    malformed = _reissue_feedback_context(
+        case,
+        admitted,
+        {},
+        request_changes={"feedback_config_ref": foreign_config},
+    )
+    with pytest.raises(ValueError):
+        admit_execution_source(case.store, malformed)
+    malformed = _reissue_feedback_delta_base(case, admitted)
+    with pytest.raises(ValueError, match="feedback_execution_final_delta_base_mismatch"):
+        admit_execution_source(case.store, malformed)
+    malformed = _reissue_feedback_mapped_claim(case, admitted)
+    with pytest.raises(ValueError, match="execution_source_feedback_final_state_mismatch"):
+        admit_execution_source(case.store, malformed)
+
+
+def _reissue_feedback_context(case, admitted, changes, *, request_changes=None):
+    """Keep the actual outputs while corrupting one declared context join."""
+    basis = admitted.basis
+    basis_ref = admitted.basis_ref
+    assert basis is not None and basis_ref is not None
+    context = basis.feedback_execution_context
+    assert context is not None
+    changed = basis.model_copy(
+        update={
+            "feedback_execution_context": context.model_copy(update=changes),
+            "request": basis.request.model_copy(update=request_changes or {}),
+        }
+    )
+    changed_ref = case.store.put_json(
+        changed,
+        PutOptions(
+            kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+            media_type=FoundryExecutionInputBasis.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME, version="1.3"),
+            inputs=list(case.store.get_manifest(basis_ref).inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    result = admitted.simulation_result.model_copy(
+        update={"execution_input_basis_ref": changed_ref}
+    )
+    inputs = [
+        input_ref_from_artifact_ref(changed_ref, role=edge.role)
+        if edge.role == "execution_input_basis"
+        else edge
+        for edge in case.store.get_manifest(admitted.simulation_result_ref).inputs
+    ]
+    ref = case.store.put_json(
+        result.to_artifact_payload(),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=SimulationResult.ARTIFACT_SCHEMA_NAME, version="1.5"),
+            inputs=inputs,
+        ),
+        return_selected_profile=True,
+    )
+    return SimulationResultRef.model_validate(ref.model_dump(mode="python"))
+
+
+def _reissue_feedback_delta_base(case, admitted):
+    """Keep actual operations but claim the logical instead of injected base."""
+    assert admitted.basis is not None
+    original = next(
+        edge
+        for edge in case.store.get_manifest(admitted.simulation_result_ref).inputs
+        if edge.role == "state_delta"
+    )
+    from polisyos.core.artifacts import ArtifactRef
+
+    delta_ref = ArtifactRef(
+        artifact_id=original.artifact_id,
+        kind=StateDelta.ARTIFACT_KIND,
+        media_type=StateDelta.ARTIFACT_MEDIA_TYPE,
+        manifest_profile_sha256=original.manifest_profile_sha256,
+    )
+    delta = validate_core_model_json_artifact(StateDelta, case.store, delta_ref)
+    changed = delta.model_copy(update={"base_ref": admitted.basis.base_state_snapshot_ref})
+    delta_manifest = case.store.get_manifest(delta_ref)
+    changed_ref = case.store.put_json(
+        changed,
+        PutOptions(
+            kind=delta_manifest.kind,
+            media_type=delta_manifest.media_type,
+            schema=delta_manifest.artifact_schema,
+            inputs=list(delta_manifest.inputs),
+        ),
+        return_selected_profile=True,
+    )
+    manifest = case.store.get_manifest(admitted.simulation_result_ref)
+    ref = case.store.put_json(
+        admitted.simulation_result.to_artifact_payload(),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[
+                input_ref_from_artifact_ref(changed_ref, role=edge.role)
+                if edge.role == "state_delta"
+                else edge
+                for edge in manifest.inputs
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    return SimulationResultRef.model_validate(ref.model_dump(mode="python"))
+
+
+def _reissue_feedback_mapped_claim(case, admitted):
+    """Forge a perfect residual while retaining actual outputs and captured calls."""
+    from polisyos.foundry.execute.api import _execution_input_basis_inventory
+
+    basis = admitted.basis
+    assert basis is not None and basis.feedback_execution_context is not None
+    context = basis.feedback_execution_context
+    feedback = validate_core_model_json_artifact(
+        FeedbackSolveResult, case.store, context.feedback_result_ref
+    )
+    trace = validate_core_model_json_artifact(FeedbackTrace, case.store, context.feedback_trace_ref)
+    (final,) = tuple(row for row in trace.map_evaluations if row.phase == "final_materialization")
+    assert tuple(final.candidate_values) != tuple(final.mapped_values)
+    claimed = tuple(final.candidate_values)
+    altered_trace = trace.model_copy(
+        update={
+            "map_evaluations": tuple(
+                row.model_copy(update={"mapped_values": claimed})
+                if row.evaluation_id == final.evaluation_id
+                else row
+                for row in trace.map_evaluations
+            )
+        }
+    )
+    trace_manifest = case.store.get_manifest(context.feedback_trace_ref)
+    trace_ref = case.store.put_json(
+        altered_trace,
+        PutOptions(
+            kind=trace_manifest.kind,
+            media_type=trace_manifest.media_type,
+            schema=trace_manifest.artifact_schema,
+            inputs=list(trace_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    trace_ref = FeedbackTraceRef.model_validate(trace_ref.model_dump(mode="python"))
+    altered_feedback = feedback.model_copy(
+        update={
+            "trace_ref": trace_ref,
+            "final_state": feedback.final_state.model_copy(update={"values": list(claimed)}),
+        }
+    )
+    feedback_manifest = case.store.get_manifest(context.feedback_result_ref)
+    feedback_ref = case.store.put_json(
+        altered_feedback,
+        PutOptions(
+            kind=feedback_manifest.kind,
+            media_type=feedback_manifest.media_type,
+            schema=feedback_manifest.artifact_schema,
+            inputs=[
+                input_ref_from_artifact_ref(trace_ref, role=edge.role)
+                if edge.role == "artifact.feedback_trace_ref"
+                else edge
+                for edge in feedback_manifest.inputs
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    feedback_ref = FeedbackResultRef.model_validate(feedback_ref.model_dump(mode="python"))
+    changed_basis = basis.model_copy(
+        update={
+            "feedback_execution_context": context.model_copy(
+                update={"feedback_result_ref": feedback_ref, "feedback_trace_ref": trace_ref}
+            )
+        }
+    )
+    basis_ref = case.store.put_json(
+        changed_basis,
+        PutOptions(
+            kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+            media_type=FoundryExecutionInputBasis.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME, version="1.3"),
+            inputs=_execution_input_basis_inventory(case.store, changed_basis),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    result = admitted.simulation_result.model_copy(
+        update={
+            "execution_input_basis_ref": FoundryExecutionInputBasisRef.model_validate(
+                basis_ref.model_dump(mode="python")
+            ),
+            "feedback_result_ref": feedback_ref,
+        }
+    )
+    manifest = case.store.get_manifest(admitted.simulation_result_ref)
+    replacements = {
+        "execution_input_basis": basis_ref,
+        "artifact.feedback_result_ref": feedback_ref,
+    }
+    ref = case.store.put_json(
+        result.to_artifact_payload(),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[
+                input_ref_from_artifact_ref(replacements[edge.role], role=edge.role)
+                if edge.role in replacements
+                else edge
+                for edge in manifest.inputs
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    return SimulationResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def test_feedback_nonconvergence_preserves_candidate_without_simulation_result(tmp_path):
@@ -402,6 +713,8 @@ def test_feedback_nonconvergence_preserves_candidate_without_simulation_result(t
 
 
 def test_feedback_refuses_declared_flow_port_without_selected_value(tmp_path, monkeypatch):
+    from polisyos.foundry.execute import api as execute_api
+
     registry = MethodRegistry.get_instance()
     case, metadata = prepare_selected_method_input_case(
         tmp_path, method_class=_RetainedPeriodFlowMap
@@ -419,7 +732,12 @@ def test_feedback_refuses_declared_flow_port_without_selected_value(tmp_path, mo
         feedback_ref = _feedback_config_ref(case.store)
         unbound = _without_selected_method_values(case, materialized)
         monkeypatch.setattr(MethodDispatcher, "dispatch", forbidden_dispatch)
-        with pytest.raises(ValueError, match="method_input_unbound"):
+        monkeypatch.setattr(execute_api, "solve_fixed_point", forbidden_dispatch)
+        # With no selected records, the valid legacy semantic profile is 1.2.
+        # Its unsupported-feedback fence precedes both solver and graph dispatch.
+        with pytest.raises(
+            ValueError, match="^foundry_input_bindings_semantic_feedback_not_established$"
+        ):
             _execute(case, unbound, feedback_ref)
         assert calls == []
     finally:

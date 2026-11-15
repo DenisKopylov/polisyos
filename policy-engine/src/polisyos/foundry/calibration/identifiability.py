@@ -1410,7 +1410,7 @@ def _build_execute_summary_evaluator(
         )
     else:
         raise ValueError(
-            "execute-backed identifiability does not replay feedback_uncomposed source "
+            f"execute-backed identifiability does not replay {source_context.mode} source "
             f"{simulation_result_ref.artifact_id}"
         )
     if base_request.parameter_override_bundle_ref is not None:
@@ -1825,10 +1825,15 @@ def _response_context(
     if not center or len(set(center)) != len(center):
         raise ValueError("response parameter axis must be nonempty and unique")
     source_context = admit_execution_source(store, source_ref)
-    if source_context.mode == "feedback_uncomposed":
+    if source_context.mode in {"feedback_uncomposed", "feedback_basis"}:
+        reason = (
+            "its source basis is not composed"
+            if source_context.mode == "feedback_uncomposed"
+            else "feedback response replay is not composed"
+        )
         raise ValueError(
-            "state response cannot replay feedback_uncomposed source "
-            f"{source_ref.artifact_id}; its source basis is not composed"
+            f"state response cannot replay {source_context.mode} source "
+            f"{source_ref.artifact_id}; {reason}"
         )
     source = source_context.simulation_result
     manifest = source_context.simulation_manifest

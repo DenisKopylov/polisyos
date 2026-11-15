@@ -71,7 +71,12 @@ def _basis_payload(*, schema_version: str, feedback: bool) -> dict[str, object]:
     def registry_members(marker: str) -> dict[str, object]:
         return {
             key: _ref_payload(marker, f"foundry.{key}")
-            for key in ("slot_registry", "merge_registry", "constraint_registry", "mechanism_registry")
+            for key in (
+                "slot_registry",
+                "merge_registry",
+                "constraint_registry",
+                "mechanism_registry",
+            )
         }
 
     request: dict[str, object] = {
@@ -237,7 +242,9 @@ def test_feedback_execution_context_requires_truthful_graph_link_status() -> Non
 
     malformed = _feedback_context_payload(captured=False)
     malformed["final_graph_invocation_id"] = "invented-invocation"
-    with pytest.raises(ValidationError, match="feedback_execution_context_invocation_status_mismatch"):
+    with pytest.raises(
+        ValidationError, match="feedback_execution_context_invocation_status_mismatch"
+    ):
         FeedbackExecutionContext.model_validate(malformed)
 
 
@@ -247,9 +254,10 @@ def test_feedback_basis_v1_3_is_typed_without_changing_prior_basis_wire_shapes()
     )
     assert basis.execution_mode == "feedback"
     assert basis.feedback_execution_context is not None
-    assert basis.model_dump(mode="json")["feedback_execution_context"][
-        "final_map_evaluation_id"
-    ] == "map-eval-final"
+    assert (
+        basis.model_dump(mode="json")["feedback_execution_context"]["final_map_evaluation_id"]
+        == "map-eval-final"
+    )
 
     prior = FoundryExecutionInputBasis.model_validate(
         _basis_payload(schema_version="1.0", feedback=False)
@@ -259,7 +267,9 @@ def test_feedback_basis_v1_3_is_typed_without_changing_prior_basis_wire_shapes()
     assert prior_wire["execution_mode"] == "single_step"
 
     invalid = _basis_payload(schema_version="1.3", feedback=False)
-    with pytest.raises(ValidationError, match="execution_input_basis_v1_3_requires_feedback_context"):
+    with pytest.raises(
+        ValidationError, match="execution_input_basis_v1_3_requires_feedback_context"
+    ):
         FoundryExecutionInputBasis.model_validate(invalid)
 
 
@@ -273,10 +283,65 @@ def test_simulation_result_v1_5_requires_both_feedback_basis_and_solve_result() 
 
     missing_basis = dict(payload)
     missing_basis["execution_input_basis_ref"] = None
-    with pytest.raises(ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"):
+    with pytest.raises(
+        ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"
+    ):
         SimulationResult.model_validate(missing_basis)
 
     wrong_version = dict(payload)
     wrong_version["schema_version"] = "1.4"
-    with pytest.raises(ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"):
+    with pytest.raises(
+        ValidationError, match="feedback_basis_status_requires_schema_1_5_basis_and_result"
+    ):
         SimulationResult.model_validate(wrong_version)
+
+
+@pytest.mark.parametrize("version", ["1.3", "1.4", "1.5"])
+def test_simulation_result_supported_versions_reopen_through_typed_cas(tmp_path, version) -> None:
+    """Exercise schema-reader registration, not execution-source admission."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+
+    payload = _simulation_result_payload(
+        None if version == "1.3" else _basis_ref_payload(),
+        schema_version=version,
+        execution_source_status=(
+            "not_recorded"
+            if version == "1.3"
+            else "feedback_basis"
+            if version == "1.5"
+            else "single_step_basis"
+        ),
+    )
+    if version == "1.5":
+        payload["feedback_result_ref"] = _ref_payload("6", "foundry.feedback_result")
+    result = SimulationResult.model_validate(payload)
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_json(
+        result.to_artifact_payload(),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=SimulationResult.ARTIFACT_SCHEMA_NAME, version=version),
+        ),
+        return_selected_profile=True,
+    )
+    reader = store.open_existing_read_only(tmp_path / "cas")
+    assert validate_core_model_json_artifact(SimulationResult, reader, ref) == result
+    unsupported = store.put_json(
+        result.to_artifact_payload(),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=SimulationResult.ARTIFACT_SCHEMA_NAME, version="9.9"),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        validate_core_model_json_artifact(SimulationResult, reader, unsupported)
+    assert SimulationResult.ARTIFACT_SCHEMA_VERSION == "1.4"

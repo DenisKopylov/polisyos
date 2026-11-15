@@ -1,0 +1,16 @@
+id = "2026-11-15-foundry-selected-feedback"
+title = "Bind selected scalar feedback results to their actual execution source"
+type = "added"
+component = "core-foundry"
+owner = "team-policyos-runtime"
+summary = "Compose direct selected-scalar feedback with execution basis 1.3 and SimulationResult 1.5, preserving final injected state, invocation, captured input, mapped output and delta joins for fresh readers."
+change_class = "schema-openapi-abi"
+surface_classification = "public_experimental: candidate Foundry feedback source admission"
+compatibility = "Default result writing remains 1.4 and legacy readers retain their own profiles. The typed CAS reader accepts declared result versions 1.3, 1.4 and 1.5 and rejects unsupported versions. Uncomposed feedback remains explicitly limited."
+migration = "Readers use the recorded numerical/backend profile, including x64 configuration. Selected scalar profile 1.4 is supported; temporal, vector, model-state and hosted N5 feedback are not enabled by this change."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/execute/README.md"]
+runbook_docs = ["docs/runbooks/retained-artifact-recovery.md"]
+evidence = ["tests/unit/foundry/runtime/test_execute_feedback_selected_method_input.py", "tests/unit/core/contracts/test_foundry_execution_input_basis_ref.py", "tests/unit/foundry/calibration/test_identifiability_response_basis.py"]
+limitations = "Candidate numerical source reconciliation grants no publication or protected-use authority. Nonconvergence does not emit a successful SimulationResult. Calibration single-step replay does not silently accept a composed feedback result. G acceptance remains separate."

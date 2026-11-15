@@ -403,6 +403,18 @@ def acquisition_artifact_codec(
         return AcquisitionArtifactCodec(
             "application/json", "selected_core_json", None, schema_name, "1.0"
         )
+    if kind == "fabric.source_metric_unit_declaration":
+        if media_type not in (None, "application/json"):
+            return None
+        # Fabric embeds both source contracts in its candidate declaration.
+        # This codec verifies retained bytes, not unit meaning or current use.
+        return AcquisitionArtifactCodec(
+            "application/json",
+            "producer_json",
+            CanonInfo.from_spec(CanonSpec(forbid_floats=False, exclude_none=False)),
+            "polisyos.fabric.SourceMetricUnitDeclaration",
+            "1.1",
+        )
     if kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS:
         return AcquisitionArtifactCodec(
             epoch_media, "epoch_frame", external_epoch_statement_canon_info()
@@ -1594,6 +1606,11 @@ def _known_epoch_statement_manifest_schema(
             SchemaInfo(name="polisyos.catalog.VariableRepresentation", version="1.0"),
             SchemaInfo(name="polisyos.catalog.VariableRepresentation", version="2.0"),
         )
+    if expected_kind == "fabric.source_metric_unit_declaration":
+        return (
+            SchemaInfo(name="polisyos.fabric.SourceMetricUnitDeclaration", version="1.0"),
+            SchemaInfo(name="polisyos.fabric.SourceMetricUnitDeclaration", version="1.1"),
+        )
     if expected_kind == "fabric.data_snapshot":
         return (
             SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
@@ -1646,6 +1663,7 @@ def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInput
     if expected_kind in {
         "fabric.quality_report",
         "fabric.retrieval_summary",
+        "fabric.source_metric_unit_declaration",
     }:
         return _ExactManifestInputClosure(())
     if expected_kind in {

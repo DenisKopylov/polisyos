@@ -2980,6 +2980,13 @@ _OWNER_SNAPSHOT_REFERENCE_ROLES: dict[str, dict[tuple[str, ...], str]] = {
             "rows",
             "*",
             "observed_passport_json",
+            "source_authority_entry",
+            "source_unit_declaration_ref",
+        ): "fabric.source_metric_unit_declaration",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
             "semantic_boundary_candidate_ref",
         ): "epoch.acquisition_semantic_boundary_candidate",
         ("rows", "*", "observed_passport_json", "prepared_semantic_epoch_ref"): "epoch.prepared",

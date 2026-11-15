@@ -104,3 +104,161 @@ def test_live_passport_source_role_survives_owner_snapshot_and_refuses_wrong_kin
             )
     finally:
         overlay.close()
+
+
+def test_catalog_passport_reference_schema_has_complete_roles() -> None:
+    """Even an unset optional ref participates in the complete schema denominator."""
+    prefix = ("rows", "*", "observed_passport_json")
+    roles = semantic_epoch._OWNER_SNAPSHOT_REFERENCE_ROLES["catalog_acquisition"]
+    embedded = {path[len(prefix) :] for path in roles if path[: len(prefix)] == prefix}
+    assert semantic_epoch._model_artifact_ref_paths(AdmissionPassport) == embedded
+    assert roles[(*prefix, "source_authority_entry", "source_unit_declaration_ref")] == (
+        "fabric.source_metric_unit_declaration"
+    )
+
+
+@pytest.mark.parametrize("version", ["1.0", "1.1"])
+def test_source_unit_producer_bytes_reopen_through_the_epoch_codec(
+    tmp_path: Path, version: str
+) -> None:
+    """A real candidate declaration is readable without becoming unit authority."""
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts import ArtifactIntegrityError
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.fabric.connectors.contracts import (
+        SourceMetricUnitDeclaration,
+        load_source_metric_unit_declaration,
+    )
+    from polisyos.fabric.connectors.contracts.source_units import _declaration_json_payload
+    from tests.unit.fabric.connectors.contracts.test_source_units import _create
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    current_ref = _create(store)
+    current = load_source_metric_unit_declaration(store, current_ref)
+    ref = artifacts.ArtifactRef.model_validate(current_ref.model_dump(mode="json"))
+    if version == "1.0":
+        # A retained legacy fixture uses the same owner model/serialization,
+        # without relabeling the current 1.1 producer's original artifact.
+        payload = current.model_dump(mode="json")
+        payload.update(
+            schema_version="fabric.source_metric_unit.v1",
+            source_contract_content_hash=current.source_contract.content_hash,
+        )
+        payload.pop("source_contract_hash_profile")
+        legacy = SourceMetricUnitDeclaration.model_validate(payload)
+        ref = store.put_json(
+            _declaration_json_payload(legacy),
+            artifacts.ArtifactWriteOptions(
+                kind=ref.kind,
+                media_type=ref.media_type,
+                schema=artifacts.SchemaInfo(name=current.ARTIFACT_SCHEMA_NAME, version="1.0"),
+            ),
+            CanonSpec(forbid_floats=False, exclude_none=False),
+            return_selected_profile=True,
+        )
+        load_source_metric_unit_declaration(store, ref)
+    manifest = store.get_manifest(ref)
+    assert manifest.artifact_schema.version == version and manifest.inputs == []
+    codec = semantic_epoch._require_owner_reference_role(ref, expected_kind=ref.kind)
+    assert codec.payload_format == "producer_json" and codec.canon == manifest.canon
+    reader = artifacts.FileSystemCAS.open_existing_read_only(store.root)
+    decoded = semantic_epoch._load_selected_acquisition_mapping(reader, ref, expected_kind=ref.kind)
+    assert to_canonical_bytes(
+        decoded, CanonSpec(forbid_floats=False, exclude_none=False)
+    ) == store.get_bytes(ref)
+    assert SourceMetricUnitDeclaration.model_validate(decoded).model_dump(mode="json") == (
+        load_source_metric_unit_declaration(store, ref).model_dump(mode="json")
+    )
+    assert decoded["semantic_authority"] == decoded["acquisition_permission"] == "not_established"
+    assert decoded["source_currentness"] == "not_established"
+    wrong_kind = ref.model_copy(update={"kind": "fabric.data_snapshot"})
+    wrong_media = ref.model_copy(update={"media_type": "application/octet-stream"})
+    for wrong in (wrong_kind, wrong_media):
+        with pytest.raises(ValueError, match=r"^owner artifact role mismatch$"):
+            semantic_epoch._require_owner_reference_role(wrong, expected_kind=ref.kind)
+    with pytest.raises(
+        ValueError, match=r"^selected acquisition artifact selector is not established$"
+    ):
+        semantic_epoch._load_selected_acquisition_mapping(
+            reader, ref.model_copy(update={"manifest_profile_sha256": None}), expected_kind=ref.kind
+        )
+    selected_path = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+    held = selected_path.with_name(selected_path.name + ".held")
+    selected_path.rename(held)
+    try:
+        with pytest.raises(FileNotFoundError):
+            semantic_epoch._load_selected_acquisition_mapping(reader, ref, expected_kind=ref.kind)
+    finally:
+        held.rename(selected_path)
+    assert (
+        semantic_epoch._load_selected_acquisition_mapping(reader, ref, expected_kind=ref.kind)
+        == decoded
+    )
+    blob, _ = store._paths(ref.artifact_id)
+    held_blob = blob.with_name(blob.name + ".held")
+    blob.rename(held_blob)
+    try:
+        blob.write_bytes(b'{"corrupt":true}')
+        with pytest.raises(ArtifactIntegrityError, match=r"^Blob sha256 mismatch for "):
+            semantic_epoch._load_selected_acquisition_mapping(reader, ref, expected_kind=ref.kind)
+    finally:
+        blob.unlink()
+        held_blob.rename(blob)
+    assert (
+        semantic_epoch._load_selected_acquisition_mapping(reader, ref, expected_kind=ref.kind)
+        == decoded
+    )
+
+
+@pytest.mark.parametrize("mutation", ["schema_name", "schema_version", "canon", "inputs"])
+def test_source_unit_codec_refuses_a_foreign_selected_manifest(
+    tmp_path: Path, mutation: str
+) -> None:
+    """The new kind does not relax selected profile/schema/direct-edge checks."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core import artifacts
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes
+    from tests.unit.fabric.connectors.contracts.test_source_units import _create
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    original = _create(store)
+    manifest = store.get_manifest(original)
+    payload = from_canonical_bytes(store.get_bytes(original))
+    spec = CanonSpec(forbid_floats=False, exclude_none=(mutation == "canon"))
+    schema = artifacts.SchemaInfo(
+        name="foreign.SourceMetricUnitDeclaration"
+        if mutation == "schema_name"
+        else manifest.artifact_schema.name,
+        version="9.0" if mutation == "schema_version" else manifest.artifact_schema.version,
+    )
+    extra_ref = store.put_json(
+        {"test_owned_input": True},
+        artifacts.ArtifactWriteOptions(
+            kind="test.epoch_codec_extra_input", media_type="application/json"
+        ),
+        return_selected_profile=True,
+    )
+    foreign = store.put_json(
+        payload,
+        artifacts.ArtifactWriteOptions(
+            kind=original.kind,
+            media_type=original.media_type,
+            schema=schema,
+            producer=manifest.producer,
+            inputs=[artifacts.input_ref_from_artifact_ref(extra_ref, role="unexpected")]
+            if mutation == "inputs"
+            else None,
+        ),
+        spec,
+        return_selected_profile=True,
+    )
+    assert artifacts.artifact_ref_identity_key(foreign) != artifacts.artifact_ref_identity_key(
+        original
+    )
+    if mutation != "canon":
+        assert foreign.artifact_id == original.artifact_id
+    with pytest.raises(CanonicalProfileRefusalError) as failure:
+        semantic_epoch._load_selected_acquisition_mapping(
+            store, foreign, expected_kind=original.kind
+        )
+    assert failure.value.code == "canon_profile_typed_artifact_profile_mismatch"

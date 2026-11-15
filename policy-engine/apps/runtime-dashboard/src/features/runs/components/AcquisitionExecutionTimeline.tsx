@@ -6,6 +6,7 @@ import type {
   AcquisitionExecutionResponseCurrent,
   AcquisitionRouteProjection,
 } from "@/features/runs/api/acquisitionRouteValidators";
+import type { HumanDecisionSubmissionResult } from "@/features/runs/api/useHumanDecisions";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
 import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -17,6 +18,7 @@ export type AcquisitionExecutionTimelineProps = Readonly<{
   execution?: AcquisitionExecutionResponseCurrent | null;
   growthHistory?: AcquisitionGrowthPayload["n13b_history"] | null;
   humanDecision?: HumanDecisionCreateReceipt | null;
+  humanDecisionSubmissionKind?: HumanDecisionSubmissionResult["kind"] | null;
   job?: ControlJobResponse | null;
   route: AcquisitionRouteProjection;
 }>;
@@ -90,6 +92,7 @@ function timelineFacts({
   execution,
   growthHistory,
   humanDecision,
+  humanDecisionSubmissionKind,
   job,
   route,
 }: AcquisitionExecutionTimelineProps): readonly TimelineFact[] {
@@ -113,15 +116,17 @@ function timelineFacts({
   }
   if (humanDecision) {
     assertSameCase(route, humanDecision);
+    const custodyExpired = humanDecisionSubmissionKind === "recovered_expired";
     facts.push({
-      phase:
-        decisionAction(humanDecision) === "approve"
+      phase: custodyExpired
+        ? "custody_expired"
+        : decisionAction(humanDecision) === "approve"
           ? "approved"
           : "decision_recorded",
       raw: humanDecision as Readonly<Record<string, unknown>>,
       receiptRef: humanDecision.record_ref,
       scope: "run_route",
-      status: decisionAction(humanDecision),
+      status: custodyExpired ? "custodyExpired" : decisionAction(humanDecision),
     });
   }
   if (execution) {
@@ -198,6 +203,10 @@ export function AcquisitionExecutionTimeline(
 ) {
   const { t } = useI18n();
   const facts = timelineFacts(props);
+  const factStatus = (status: string) =>
+    status === "custodyExpired"
+      ? t("pages.runs.report.humanDecision.submission.custodyExpiredTimeline")
+      : status;
   const routePresentation = presentRunAcquisitionRoute(props.route);
   const historicalCostBasis =
     routePresentation.costMeaning === "historical_prior_paid_basis";
@@ -241,7 +250,7 @@ export function AcquisitionExecutionTimeline(
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 [&>*]:max-w-full [&>*]:min-w-0 [&>*]:break-all">
               <strong>{fact.phase}</strong>
               <Badge kind={fact.scope === "run_route" ? "outline" : "warn"}>
-                {fact.status}
+                {factStatus(fact.status)}
               </Badge>
             </div>
             {fact.phase === "refusal_with_path" ? (
@@ -308,7 +317,7 @@ export function AcquisitionExecutionTimeline(
                     : undefined
                 }
               >
-                {fact.status}
+                {factStatus(fact.status)}
               </p>
             ) : null}
             {fact.receiptRef ? (

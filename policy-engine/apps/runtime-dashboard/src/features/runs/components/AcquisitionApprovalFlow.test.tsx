@@ -22,6 +22,8 @@ const mocks = vi.hoisted(() => ({
   download: vi.fn(),
   execute: vi.fn(),
   fetchEvidence: vi.fn(),
+  recoverPending: vi.fn(),
+  recoveryPosture: vi.fn(),
   refetchGrowth: vi.fn(),
   refetchRoute: vi.fn(),
   requestDecision: vi.fn(),
@@ -49,9 +51,24 @@ vi.mock("@/features/runs/api/useAcquisitionRoutes", () => ({
 }));
 
 vi.mock("@/features/runs/api/useHumanDecisions", () => ({
+  HumanDecisionRecoveryAttemptError: class HumanDecisionRecoveryAttemptError extends Error {
+    readonly code: string;
+    readonly status: number;
+
+    constructor(code: string, status: number, message = code) {
+      super(message);
+      this.name = "HumanDecisionRecoveryAttemptError";
+      this.code = code;
+      this.status = status;
+    }
+  },
   fetchHumanDecisionEvidence: (...args: unknown[]) =>
     mocks.fetchEvidence(...args),
-  useCreateHumanDecision: () => ({ mutateAsync: mocks.createDecision }),
+  useCreateHumanDecision: () => ({
+    mutateAsync: mocks.createDecision,
+    recoverPending: mocks.recoverPending,
+    recoveryPosture: mocks.recoveryPosture(),
+  }),
   useHumanDecisionGate: (...args: unknown[]) =>
     mocks.useHumanDecisionGate(...args),
   withoutHumanDecisionOwnedQuery: () => "",
@@ -60,7 +77,10 @@ vi.mock("@/features/runs/api/useHumanDecisions", () => ({
 vi.mock("@/features/runs/domain/humanDecisionPresentation", () => ({
   buildHumanDecisionMutation: () => ({
     action: "approve",
+    action_kind: "data_request",
     decision_mode: "ordinary",
+    source_kind: "agent_action_authority",
+    source_ref: requestedDecision().authority_decision_ref,
   }),
 }));
 
@@ -233,6 +253,47 @@ function acceptedExecution(): AcquisitionExecutionResponseCurrent {
   };
 }
 
+function recoveredHumanDecisionResult(
+  kind: "recovered_committed" | "recovered_expired" = "recovered_committed",
+) {
+  const receipt = {
+    durable_event_id: "human-event-1",
+    record: { action: "approve" },
+    record_digest: digest("h"),
+    record_ref: digest("h"),
+    reservation_id: "reservation-1",
+    reservation_version: 1,
+    run_id: "run-1",
+  };
+  return {
+    kind,
+    receipt,
+    recovery: {
+      authority_purpose: "historical_human_decision_custody_only",
+      binding_rule: "policyos.runtime.human_decision_submission_binding.v2",
+      binding_sha256: digest("b"),
+      cell_id: null,
+      durable_event_id: "human-event-1",
+      operational_authority: false,
+      record_digest: digest("h"),
+      record_ref: {
+        artifact_id: digest("h"),
+        kind: "runtime_quality.agent_action_human_decision",
+        manifest_profile_sha256: digest("p"),
+        media_type: "application/json",
+      },
+      record_valid_until: "2030-01-01T00:00:00Z",
+      reservation_id: "reservation-1",
+      reservation_state: kind === "recovered_expired" ? "expired" : "committed",
+      reservation_version: 1,
+      run_id: "run-1",
+      schema_version: "policyos.runtime.human_decision_recovery.v1",
+      status: "committed",
+      tenant_id: "tenant-1",
+    },
+  };
+}
+
 function routeCapture(route: AcquisitionRouteProjection = runRoute()) {
   return { packet: route, rawPacketBytes: new TextEncoder().encode("{}") };
 }
@@ -278,14 +339,18 @@ describe("AcquisitionApprovalFlow", () => {
     mocks.refetchGrowth.mockResolvedValue({ data: undefined });
     mocks.requestDecision.mockResolvedValue(requestedDecision());
     mocks.createDecision.mockResolvedValue({
-      durable_event_id: "human-event-1",
-      record: { action: "approve" },
-      record_digest: digest("h"),
-      record_ref: digest("h"),
-      reservation_id: "reservation-1",
-      reservation_version: 1,
-      run_id: "run-1",
+      kind: "created",
+      receipt: {
+        durable_event_id: "human-event-1",
+        record: { action: "approve" },
+        record_digest: digest("h"),
+        record_ref: digest("h"),
+        reservation_id: "reservation-1",
+        reservation_version: 1,
+        run_id: "run-1",
+      },
     });
+    mocks.recoveryPosture.mockReturnValue(null);
     mocks.execute.mockResolvedValue(acceptedExecution());
     mocks.useControlJobStatus.mockReturnValue({ data: undefined });
     mocks.useHumanDecisionGate.mockReturnValue({
@@ -302,6 +367,7 @@ describe("AcquisitionApprovalFlow", () => {
       packet: {
         continuation: { source_kind: "agent_action_authority" },
         exposure: { exposure_session_ref: digest("x") },
+        run_id: "run-1",
         source_kind: "agent_action_authority",
         source_ref: requestedDecision().authority_decision_ref,
       },
@@ -385,6 +451,151 @@ describe("AcquisitionApprovalFlow", () => {
     expect(
       screen.getByTestId("acquisition-execution-timeline"),
     ).toHaveTextContent("requested");
+  });
+
+  it("recovers a pending decision without resubmitting before current gate checks", async () => {
+    const pending = {
+      binding_rule: "policyos.runtime.human_decision_submission_binding.v2",
+      binding_sha256: digest("b"),
+      reservation_id: "reservation-1",
+      reservation_version: 1,
+      status: "pending",
+    };
+    mocks.createDecision.mockResolvedValueOnce({
+      kind: "recovery_pending",
+      recovery: pending,
+    });
+    mocks.recoveryPosture.mockReturnValue({
+      kind: "recovery_pending",
+      recovery: pending,
+    });
+    mocks.recoverPending.mockImplementation(async () => {
+      mocks.recoveryPosture.mockReturnValue(null);
+      return recoveredHumanDecisionResult();
+    });
+    renderFlow();
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "Request accountable review" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Approve through DS9" }),
+    );
+
+    expect(mocks.createDecision).toHaveBeenCalledTimes(1);
+    expect(mocks.execute).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("human-decision-submission-status"),
+    ).toHaveTextContent("The original submission remains pending.");
+    await user.click(
+      screen.getByRole("button", { name: "Check this submission" }),
+    );
+
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledTimes(1));
+    expect(mocks.createDecision).toHaveBeenCalledTimes(1);
+    expect(mocks.recoverPending).toHaveBeenCalledTimes(1);
+    expect(mocks.revalidateGate).toHaveBeenCalledTimes(2);
+    expect(mocks.execute.mock.calls[0]?.[2]).toMatchObject({
+      human_decision_record_ref: digest("h"),
+    });
+  });
+
+  it("never executes an expired recovered record", async () => {
+    mocks.createDecision.mockResolvedValueOnce(
+      recoveredHumanDecisionResult("recovered_expired"),
+    );
+    renderFlow();
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "Request accountable review" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Approve through DS9" }),
+    );
+
+    expect(mocks.execute).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("human-decision-submission-status"),
+    ).toHaveTextContent(
+      "The committed record was recovered, but its validity has expired.",
+    );
+    const timeline = within(
+      screen.getByTestId("acquisition-execution-timeline"),
+    );
+    expect(timeline.getByText("custody_expired")).toBeInTheDocument();
+    expect(
+      timeline.getAllByText(
+        "Expired historical custody only; no current approval.",
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(mocks.clearGate).toHaveBeenCalled();
+  });
+
+  it("does not carry a pending approval recovery into another run", async () => {
+    const pending = {
+      binding_rule: "policyos.runtime.human_decision_submission_binding.v2",
+      binding_sha256: digest("b"),
+      reservation_id: "reservation-1",
+      reservation_version: 1,
+      status: "pending",
+    };
+    let resolveRecovery:
+      | ((result: ReturnType<typeof recoveredHumanDecisionResult>) => void)
+      | undefined;
+    mocks.createDecision.mockResolvedValueOnce({
+      kind: "recovery_pending",
+      recovery: pending,
+    });
+    mocks.recoveryPosture.mockReturnValue({
+      kind: "recovery_pending",
+      recovery: pending,
+    });
+    mocks.recoverPending.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRecovery = resolve;
+        }),
+    );
+    const firstRun = runRoute();
+    const { rerender } = renderFlow(firstRun);
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "Request accountable review" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Approve through DS9" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Check this submission" }),
+    );
+    await waitFor(() => expect(mocks.recoverPending).toHaveBeenCalledTimes(1));
+
+    mocks.recoveryPosture.mockReturnValue(null);
+    rerender(flowTree(runRoute({ run_id: "run-2" })));
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("human-decision-submission-status"),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Request accountable review" }),
+    ).toBeDisabled();
+    resolveRecovery?.(recoveredHumanDecisionResult());
+
+    await waitFor(() => expect(mocks.execute).not.toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Request accountable review" }),
+      ).toBeEnabled(),
+    );
+    expect(mocks.createDecision).toHaveBeenCalledTimes(1);
+    expect(mocks.createDecision.mock.calls[0]?.[0].runId).toBe("run-1");
+    expect(
+      screen.queryByTestId("human-decision-submission-status"),
+    ).not.toBeInTheDocument();
   });
 
   it.each(["omitted", "null"] as const)(

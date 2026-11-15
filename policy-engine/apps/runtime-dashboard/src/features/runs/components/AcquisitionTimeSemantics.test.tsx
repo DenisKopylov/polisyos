@@ -316,7 +316,11 @@ describe("acquisition decision-root time semantics", () => {
       isError: false,
       isLoading: false,
     });
-    useCreateHumanDecisionMock.mockReturnValue({ mutateAsync: vi.fn() });
+    useCreateHumanDecisionMock.mockReturnValue({
+      mutateAsync: vi.fn(),
+      recoverPending: vi.fn(),
+      recoveryPosture: null,
+    });
     useHumanDecisionGateMock.mockReturnValue({
       clear: vi.fn(),
       data: null,

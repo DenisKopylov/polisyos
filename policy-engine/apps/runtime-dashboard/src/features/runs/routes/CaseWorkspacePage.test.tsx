@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 
 import {
   availableRunPaperCaseFixture,
@@ -61,7 +61,19 @@ vi.mock("@/shared/i18n/LocaleProvider", async (importOriginal) => ({
 
 import CaseWorkspacePage from "./CaseWorkspacePage";
 
-function renderCase(entry = "/runs/run-1/case?paper_projection_hash=pin") {
+function RunSwitcher() {
+  const navigate = useNavigate();
+  return (
+    <button onClick={() => navigate("/runs/run-2/case")} type="button">
+      Open run two
+    </button>
+  );
+}
+
+function renderCase(
+  entry = "/runs/run-1/case?paper_projection_hash=pin",
+  switchRuns = false,
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -69,7 +81,15 @@ function renderCase(entry = "/runs/run-1/case?paper_projection_hash=pin") {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[entry]}>
         <Routes>
-          <Route path="/runs/:runId/case" element={<CaseWorkspacePage />} />
+          <Route
+            element={
+              <>
+                {switchRuns ? <RunSwitcher /> : null}
+                <CaseWorkspacePage />
+              </>
+            }
+            path="/runs/:runId/case"
+          />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -160,6 +180,131 @@ describe("CaseWorkspacePage", () => {
     renderCase(entry);
     await waitFor(() => expect(reads).toBe(1));
     expect(writes).toBe(0);
+  });
+
+  it("keeps a nonreceipt in recovery-only mode and surfaces pending custody", async () => {
+    useCaseInspectionMock.mockReturnValue({
+      data: {
+        packet: runPaperPacketFixture(),
+        rawPacketBytes: new TextEncoder().encode("{}"),
+      },
+      isError: false,
+      isLoading: false,
+    });
+    useAuthzDecisionMock.mockReturnValue({
+      kind: "verified",
+      can: (permission: string) =>
+        ["runs.review", "runs.human_decisions.create"].includes(permission),
+    });
+    const submissionBodies: unknown[] = [];
+    const recoveryBodies: unknown[] = [];
+    const exposureHeaders: string[] = [];
+    let createCalls = 0;
+    let recoveryCalls = 0;
+    server.use(
+      http.get("*/api/v1/runs/:runId/human-decision-gate", () =>
+        HttpResponse.json(availableHumanDecisionGate()),
+      ),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
+      ),
+      http.post("*/api/v1/runs/:runId/human-decisions", async ({ request }) => {
+        createCalls += 1;
+        submissionBodies.push(await request.json());
+        exposureHeaders.push(
+          request.headers.get("X-PolicyOS-Human-Decision-Exposure") ?? "",
+        );
+        return new HttpResponse(
+          JSON.stringify({
+            code: "human_decision_custody_nonreceipt",
+            detail: "The durable record receipt was not returned.",
+            status: 503,
+            title: "Human-decision custody receipt unavailable",
+          }),
+          {
+            headers: { "Content-Type": "application/problem+json" },
+            status: 503,
+          },
+        );
+      }),
+      http.post(
+        "*/api/v1/runs/:runId/human-decisions/recovery",
+        async ({ request }) => {
+          recoveryCalls += 1;
+          recoveryBodies.push(await request.json());
+          exposureHeaders.push(
+            request.headers.get("X-PolicyOS-Human-Decision-Exposure") ?? "",
+          );
+          return HttpResponse.json({
+            authority_purpose: "historical_human_decision_custody_only",
+            binding_rule:
+              "policyos.runtime.human_decision_submission_binding.v2",
+            binding_sha256: `sha256:${"2".repeat(64)}`,
+            cell_id: null,
+            operational_authority: false,
+            reservation_id: "reservation-pending",
+            reservation_version: 1,
+            run_id: "run-1",
+            schema_version: "policyos.runtime.human_decision_recovery.v1",
+            status: "pending",
+            tenant_id: "tenant-fixture",
+          });
+        },
+      ),
+    );
+
+    renderCase(
+      `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(humanDecisionSourceRef)}&action_kind=data_request`,
+      true,
+    );
+    const user = userEvent.setup();
+    await user.type(
+      await screen.findByLabelText(
+        "pages.runs.report.humanDecision.gate.accountability",
+      ),
+      "I accept accountability.",
+    );
+    await user.type(
+      screen.getByLabelText("pages.runs.report.humanDecision.gate.dissent"),
+      "I considered dissenting evidence.",
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "pages.runs.report.humanDecision.gate.action.approve",
+      }),
+    );
+
+    expect(
+      await screen.findByTestId("human-decision-submission-status"),
+    ).toHaveTextContent(
+      "pages.runs.report.humanDecision.submission.recoveryPending",
+    );
+    expect(
+      screen.getByTestId("human-decision-submission-status"),
+    ).toHaveTextContent("reservation-pending");
+    await user.click(
+      screen.getByRole("button", {
+        name: "pages.runs.report.humanDecision.submission.checkStatus",
+      }),
+    );
+
+    await waitFor(() => expect(recoveryCalls).toBe(2));
+    expect(createCalls).toBe(1);
+    expect(recoveryBodies).toHaveLength(2);
+    expect(recoveryBodies[0]).toEqual(submissionBodies[0]);
+    expect(recoveryBodies[1]).toEqual(submissionBodies[0]);
+    expect(exposureHeaders[1]).toBe(exposureHeaders[0]);
+    expect(exposureHeaders[2]).toBe(exposureHeaders[0]);
+
+    await user.click(screen.getByRole("button", { name: "Open run two" }));
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("human-decision-submission-status"),
+      ).not.toBeInTheDocument(),
+    );
+    expect(createCalls).toBe(1);
+    expect(recoveryCalls).toBe(2);
   });
 
   it("keeps one run-bound acquisition route in the same case workspace", () => {

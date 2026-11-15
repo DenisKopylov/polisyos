@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
@@ -5,6 +6,8 @@ import { useAcquisitionRoutes } from "@/features/runs/api/useAcquisitionRoutes";
 import { useCaseInspection } from "@/features/runs/api/useCaseInspection";
 import {
   fetchHumanDecisionEvidence,
+  HumanDecisionRecoveryAttemptError,
+  type HumanDecisionSubmissionResult,
   useCreateHumanDecision,
   useHumanDecisionGate,
   useHumanDecisionReviewEffectiveness,
@@ -370,9 +373,84 @@ function HumanDecisionWorkspace({
   const location = useLocation();
   const gateQuery = useHumanDecisionGate(runId, location.search);
   const createDecision = useCreateHumanDecision(runId);
+  const [submissionResult, setSubmissionResult] =
+    useState<HumanDecisionSubmissionResult | null>(null);
+  const [recoveryErrorCode, setRecoveryErrorCode] = useState<string | null>(
+    null,
+  );
+  const [recoveryChecking, setRecoveryChecking] = useState(false);
   const capturedGate = gateQuery.data;
+
+  async function checkSavedSubmission() {
+    setRecoveryChecking(true);
+    try {
+      const result = await createDecision.recoverPending();
+      setSubmissionResult(result);
+      setRecoveryErrorCode(null);
+    } catch (error) {
+      setRecoveryErrorCode(
+        error &&
+          typeof error === "object" &&
+          "code" in error &&
+          typeof error.code === "string"
+          ? error.code
+          : "human_decision_recovery_unavailable",
+      );
+    } finally {
+      setRecoveryChecking(false);
+    }
+  }
+
+  const recoveryCanBeChecked =
+    createDecision.recoveryPosture !== null ||
+    submissionResult?.kind === "recovery_pending" ||
+    submissionResult?.kind === "recovery_not_established" ||
+    recoveryErrorCode !== null;
+  const submissionStatusKey = recoveryErrorCode
+    ? "recoveryUnavailable"
+    : submissionResult?.kind === "created"
+      ? "created"
+      : submissionResult?.kind === "recovered_committed"
+        ? "recoveredCommitted"
+        : submissionResult?.kind === "recovery_pending"
+          ? "recoveryPending"
+          : submissionResult?.kind === "recovery_not_established"
+            ? "recoveryNotEstablished"
+            : submissionResult?.kind === "recovered_expired"
+              ? "recoveredExpired"
+              : null;
   return (
     <div className="space-y-4" data-testid="human-decision-workspace">
+      {submissionStatusKey ? (
+        <Card
+          className="space-y-2"
+          data-testid="human-decision-submission-status"
+          role={recoveryCanBeChecked ? "alert" : "status"}
+        >
+          <p>
+            {t(
+              `pages.runs.report.humanDecision.submission.${submissionStatusKey}`,
+            )}
+          </p>
+          {submissionResult?.kind === "recovery_pending" ? (
+            <code>{submissionResult.recovery.reservation_id}</code>
+          ) : null}
+          {submissionResult?.kind === "recovery_not_established" ? (
+            <code>{submissionResult.recovery.reason_code}</code>
+          ) : null}
+          {recoveryErrorCode ? <code>{recoveryErrorCode}</code> : null}
+          {recoveryCanBeChecked ? (
+            <Button
+              disabled={recoveryChecking}
+              onClick={() => void checkSavedSubmission()}
+              type="button"
+              variant="secondary"
+            >
+              {t("pages.runs.report.humanDecision.submission.checkStatus")}
+            </Button>
+          ) : null}
+        </Card>
+      ) : null}
       <div data-testid="case-workspace-time-semantics">
         <TimeSemanticsLabel />
       </div>
@@ -440,12 +518,23 @@ function HumanDecisionWorkspace({
               throw new TypeError("DS9-EXPOSURE-SESSION-MISSING");
             }
             const body = buildHumanDecisionMutation(fresh.packet, input);
-            await createDecision.mutateAsync({
-              body,
-              exposureSessionRef,
-              runId,
-            });
-            gateQuery.clear();
+            try {
+              const result = await createDecision.mutateAsync({
+                body,
+                exposureSessionRef,
+                runId,
+              });
+              setSubmissionResult(result);
+              setRecoveryErrorCode(null);
+              gateQuery.clear();
+            } catch (error) {
+              if (error instanceof HumanDecisionRecoveryAttemptError) {
+                setRecoveryErrorCode(error.code);
+                gateQuery.clear();
+                return;
+              }
+              throw error;
+            }
           }}
         />
       ) : null}
@@ -495,11 +584,13 @@ function AuthorizedCaseWorkspace({
       {acquisitionRoute ? (
         <AcquisitionApprovalFlow
           canMutate={canCreateHumanDecision}
+          key={acquisitionRoute.run_id}
           route={acquisitionRoute}
         />
       ) : (
         <HumanDecisionWorkspace
           canCreateHumanDecision={canCreateHumanDecision}
+          key={runId}
           runId={runId}
         />
       )}

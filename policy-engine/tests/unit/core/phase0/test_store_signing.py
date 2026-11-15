@@ -84,6 +84,125 @@ def test_verify_signature_valid(tmp_path: Path) -> None:
     assert result.ok
 
 
+def test_verify_signature_reuses_default_id_signature_for_equal_selected_manifest(
+    tmp_path: Path,
+) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    ref = store.put_bytes(
+        b"same content, selected manifest view",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    assert store.get_manifest_bytes(ref) == store.get_manifest_bytes(ref.artifact_id)
+
+    store.sign_artifact(ref.artifact_id, signer, signer_identity="test")
+
+    assert store.has_signature(ref.artifact_id)
+    assert not store.has_signature(ref)
+    result = store.verify_signature(ref, verifier)
+
+    assert result.status == SignatureVerificationStatus.VALID
+    assert result.ok
+
+
+def test_verify_signature_does_not_reuse_default_signature_for_different_profile(
+    tmp_path: Path,
+) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    payload = b"same blob, distinct manifest profiles"
+    default_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.default", media_type="application/octet-stream"),
+    )
+    selected_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.selected", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest_bytes(default_ref.artifact_id) != store.get_manifest_bytes(
+        selected_ref
+    )
+    store.sign_artifact(default_ref.artifact_id, signer, signer_identity="test")
+
+    assert store.verify_signature(default_ref.artifact_id, verifier).status == (
+        SignatureVerificationStatus.VALID
+    )
+    selected_result = store.verify_signature(selected_ref, verifier)
+
+    assert selected_result.status == SignatureVerificationStatus.UNSIGNED
+
+
+def test_verify_signature_prefers_bad_present_selected_signature_to_default(
+    tmp_path: Path,
+) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    ref = store.put_bytes(
+        b"selected signature takes precedence",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    default_signature = store.sign_artifact(ref.artifact_id, signer, signer_identity="test")
+    bad_selected_signature = default_signature.model_copy(
+        update={"signature_hex": "0" * len(default_signature.signature_hex)}
+    )
+    store.put_signature(ref, bad_selected_signature)
+
+    assert store.has_signature(ref.artifact_id)
+    assert store.has_signature(ref)
+    assert store.verify_signature(ref.artifact_id, verifier).status == (
+        SignatureVerificationStatus.VALID
+    )
+    selected_result = store.verify_signature(ref, verifier)
+
+    assert selected_result.status == SignatureVerificationStatus.INVALID
+
+
+def test_verify_signature_default_fallback_requires_default_view_ownership(
+    tmp_path: Path,
+) -> None:
+    base_store = FileSystemCAS(tmp_path)
+    default_owner = base_store.for_tenant("tenant-a")
+    selected_reader = base_store.for_tenant("tenant-b")
+    keypair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(keypair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(keypair.public_key, key_id=keypair.key_id)
+    ref = default_owner.put_bytes(
+        b"selected tenant has no default-view access",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    default_owner.sign_artifact(ref.artifact_id, signer, signer_identity="test")
+
+    selected_reader._ownership_index.record_blob_reader(
+        ref.artifact_id,
+        tenant_id="tenant-b",
+        writer="selected signature fallback test",
+    )
+    selected_reader._ownership_index.record_view_owner(
+        ref.artifact_id,
+        ref.manifest_profile_sha256,
+        tenant_id="tenant-b",
+        writer="selected signature fallback test",
+    )
+
+    selected_snapshot = selected_reader._load_verified_snapshot(ref)
+    assert selected_snapshot.data == b"selected tenant has no default-view access"
+    assert (
+        selected_snapshot.manifest_bytes
+        == default_owner.get_manifest_bytes(ref.artifact_id)
+    )
+    result = selected_reader.verify_signature(ref, verifier)
+
+    assert result.status == SignatureVerificationStatus.ERROR
+    assert result.message is not None
+    assert "not owned by tenant" in result.message
+
+
 @pytest.mark.parametrize(
     "artifact_id",
     [

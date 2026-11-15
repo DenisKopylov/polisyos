@@ -7762,7 +7762,9 @@ export const lineageExportResponseSchema = z.object({
   payload: z.record(z.string(), z.unknown()),
 });
 
-const humanDecisionDigestSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/);
+export const humanDecisionDigestSchema = z
+  .string()
+  .regex(/^sha256:[0-9a-f]{64}$/);
 const humanDecisionSourceKindSchema = z.enum([
   "agent_action_authority",
   "production_approval",

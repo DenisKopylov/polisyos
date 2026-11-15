@@ -1474,12 +1474,16 @@ def assert_retained_native_paid_input_admission(
     transport_calls: list[Any],
     semantic_kernel_entries: list[Any],
     continuation_selection: Any | None = None,
+    idempotency_key: str = "retained-native-a-new-current-admission",
+    skip_qualified_historical_removal_checks: bool = False,
 ) -> dict[str, Any]:
     """Reuse a retained real purchase with new explicit fixture institutions.
 
     The caller must forbid fresh provider transport, reservation and N4/N5 at
     their original effect boundaries. No source initializer or old permission
     is restored here; retained signers are loaded by the canonical key loader.
+    The opt-in skip omits only the already-qualified negative-profile removal
+    probe. Current route, source, sibling, authority and restart checks remain.
     """
     from fastapi.testclient import TestClient
 
@@ -1613,13 +1617,14 @@ def assert_retained_native_paid_input_admission(
                         loop.resolve_current_route(
                             run_id=case.control_run_id, route_id=sibling["route_id"]
                         )
-                    port = container.acquisition_action_service._production_execution_port
-                    assert_native_paid_negative_projection_is_profile_bound(
-                        bridge=port._world_growth_bridge,
-                        closure=closure,
-                        store=case.store,
-                        output_root=output_root,
-                    )
+                    if not skip_qualified_historical_removal_checks:
+                        port = container.acquisition_action_service._production_execution_port
+                        assert_native_paid_negative_projection_is_profile_bound(
+                            bridge=port._world_growth_bridge,
+                            closure=closure,
+                            store=case.store,
+                            output_root=output_root,
+                        )
                     sibling_refusal = denied.value.code
                     assert sibling_refusal == "native_leaf_owner_cost_profile_not_established"
             original_action = {
@@ -1645,7 +1650,7 @@ def assert_retained_native_paid_input_admission(
             route_id=case.terminal.route_id,
             original_action=original_action,
             transport_calls=transport_calls,
-            idempotency_key="retained-native-a-new-current-admission",
+            idempotency_key=idempotency_key,
         )
         assert tuple(transport_calls) == initial_calls
         assert journal_path.read_bytes() == journal_before

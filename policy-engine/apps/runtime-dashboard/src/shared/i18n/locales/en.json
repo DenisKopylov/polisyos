@@ -1305,6 +1305,16 @@
           "unavailableTitle": "Human decision unavailable",
           "unavailableBody": "The live gate could not be resolved. No action is available.",
           "notEstablished": "not established",
+          "submission": {
+            "created": "The human-decision record was created. The record itself does not grant current action authority.",
+            "recoveredCommitted": "The original submission is confirmed committed and its selected record was read back. This custody record alone does not grant current action authority.",
+            "recoveryPending": "The original submission remains pending. No protected action was run or new submission sent. You can check this submission again while this page remains open.",
+            "recoveryNotEstablished": "Custody of the original submission is not established. No action was run and the request was not resubmitted. Reason:",
+            "recoveredExpired": "The committed record was recovered, but its validity has expired. No protected action was run.",
+            "custodyExpiredTimeline": "Expired historical custody only; no current approval.",
+            "recoveryUnavailable": "The recovery check could not be completed. The original submission is held only in this open page; this control retries recovery only.",
+            "checkStatus": "Check this submission"
+          },
           "gate": {
             "eyebrow": "Human decision integrity",
             "title": "Pre-action delegation gate",

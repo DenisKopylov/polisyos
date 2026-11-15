@@ -23,8 +23,16 @@ vi.mock("@/features/runs/api/useAcquisitionRoutes", () => ({
   useAcquisitionRoute: () => mocks.useAcquisitionRoute(),
 }));
 vi.mock("@/features/runs/api/useHumanDecisions", () => ({
+  HumanDecisionRecoveryAttemptError: class HumanDecisionRecoveryAttemptError extends Error {
+    readonly code = "human_decision_recovery_unavailable";
+    readonly status = 0;
+  },
   fetchHumanDecisionEvidence: vi.fn(),
-  useCreateHumanDecision: () => ({ mutateAsync: vi.fn() }),
+  useCreateHumanDecision: () => ({
+    mutateAsync: vi.fn(),
+    recoverPending: vi.fn(),
+    recoveryPosture: null,
+  }),
   useHumanDecisionGate: (...args: unknown[]) =>
     mocks.useHumanDecisionGate(...args),
   withoutHumanDecisionOwnedQuery: () => "",

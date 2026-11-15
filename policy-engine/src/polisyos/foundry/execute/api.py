@@ -68,6 +68,7 @@ from polisyos.core.contracts.foundry import (
     FeedbackConfig,
     FeedbackConvergenceCertificate,
     FeedbackConvergenceCertificateRef,
+    FeedbackExecutionContext,
     FeedbackFixedPointCandidate,
     FeedbackIterationRecord,
     FeedbackJacobianDiagnostics,
@@ -96,6 +97,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
     StateDelta,
+    StateDeltaRef,
     StateSnapshot,
     StateSnapshotRef,
     WelfareBoundReportRef,
@@ -159,6 +161,10 @@ from polisyos.foundry.feedback import (
     snapshot_from_vector,
     solve_fixed_point,
 )
+from polisyos.foundry.feedback.reconciliation import (
+    FeedbackExecutionReconciliation,
+    reconcile_feedback_execution,
+)
 from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     MissingRuntimeMechanismSupportError,
 )
@@ -202,7 +208,11 @@ class _FeedbackFinalMaterialization:
 
 
 ExecutionSourceMode = Literal[
-    "legacy_profileless", "single_step_basis", "feedback_uncomposed", "semantic_horizon_step"
+    "legacy_profileless",
+    "single_step_basis",
+    "feedback_uncomposed",
+    "feedback_basis",
+    "semantic_horizon_step",
 ]
 
 
@@ -553,6 +563,23 @@ def execution_input_basis_sources(
         sources.append(("observed_range_bundle", basis.observed_range_bundle_ref))
     if basis.request.feedback_config_ref is not None:
         sources.append(("feedback_config", basis.request.feedback_config_ref))
+    feedback = basis.feedback_execution_context
+    if feedback is not None:
+        sources.extend(
+            (
+                ("feedback_final_injected_state", feedback.final_injected_state_snapshot_ref),
+                ("feedback_result", feedback.feedback_result_ref),
+                ("feedback_trace", feedback.feedback_trace_ref),
+            )
+        )
+        if feedback.final_parameter_override_bundle_ref is not None:
+            sources.append(
+                ("feedback_final_override", feedback.final_parameter_override_bundle_ref)
+            )
+        if feedback.final_method_execution_bundle_ref is not None:
+            sources.append(
+                ("feedback_final_method_bundle", feedback.final_method_execution_bundle_ref)
+            )
     return sources
 
 
@@ -799,7 +826,17 @@ def _admit_execution_source(
             source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
         )
 
-    if (
+    feedback_basis = (
+        simulation_result.schema_version == SimulationResult.FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION
+        and simulation_result.execution_source_status == "feedback_basis"
+        and simulation_result.execution_input_basis_ref is not None
+        and simulation_result.feedback_result_ref is not None
+    )
+    if feedback_basis and read_session is not None:
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_feedback_bounded_replay_not_established"
+        )
+    if not feedback_basis and (
         simulation_result.schema_version != SimulationResult.ARTIFACT_SCHEMA_VERSION
         or simulation_result.execution_source_status != "single_step_basis"
         or simulation_result.execution_input_basis_ref is None
@@ -834,6 +871,14 @@ def _admit_execution_source(
     )
     if basis.schema_version != basis_schema.version:
         raise ValueError("execution_source_basis_schema_mismatch")
+    if feedback_basis != (basis.feedback_execution_context is not None):
+        raise ValueError("execution_source_feedback_basis_profile_mismatch")
+    if feedback_basis and (
+        basis.schema_version != "1.3"
+        or basis.execution_mode != "feedback"
+        or basis.semantic_horizon_step is not None
+    ):
+        raise ValueError("execution_source_feedback_basis_profile_mismatch")
     semantic_step = basis.semantic_horizon_step
     if basis.actuation_selection_ref is not None and read_session is not None:
         raise ExecutionSourceAdmissionRefusal(
@@ -1193,7 +1238,7 @@ def _admit_execution_source(
             basis.request.feedback_config_ref,
             read_session=read_session,
         )
-        if feedback_config.mode != "off":
+        if feedback_config.mode != ("fixed_point" if feedback_basis else "off"):
             raise ValueError("execution_source_feedback_basis_uncomposed")
 
     configured = FoundryExecConfig.model_construct(
@@ -1318,19 +1363,26 @@ def _admit_execution_source(
         read_session=read_session,
     )
     state_delta = _read_typed_model(StateDelta, store, state_delta_ref, read_session=read_session)
+    feedback_context = basis.feedback_execution_context
+    delta_base_ref = (
+        feedback_context.final_injected_state_snapshot_ref
+        if feedback_context is not None
+        else basis.base_state_snapshot_ref
+    )
     if state_delta.base_ref is None or _execution_ref_key(
         state_delta.base_ref
-    ) != _execution_ref_key(basis.base_state_snapshot_ref):
+    ) != _execution_ref_key(delta_base_ref):
         raise ValueError("execution_source_state_delta_base_differs_from_basis")
-    for parent_ref in (metrics_ref, state_delta_ref):
-        _require_execution_edge_ref(
-            store,
-            parent_ref,
-            "execution_input_basis",
-            basis_ref,
-            expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
-            read_session=read_session,
-        )
+    if not feedback_basis:
+        for parent_ref in (metrics_ref, state_delta_ref):
+            _require_execution_edge_ref(
+                store,
+                parent_ref,
+                "execution_input_basis",
+                basis_ref,
+                expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+                read_session=read_session,
+            )
     metrics = _read_typed_model(Metrics, store, metrics_ref, read_session=read_session)
     if metrics.values.get("step") != basis.effective_step:
         raise ValueError("execution_source_metrics_step_differs_from_basis")
@@ -1358,7 +1410,7 @@ def _admit_execution_source(
         raise ExecutionSourceAdmissionRefusal(
             "execution_source_model_state_bounded_replay_not_established"
         )
-    if semantic_step is not None or model_state_profile:
+    if semantic_step is not None or model_state_profile or feedback_basis:
         _verify_semantic_horizon_poststate(store, basis, simulation_result, state_delta_ref)
 
     expected_inventory = _execution_input_basis_inventory(store, basis, read_session=read_session)
@@ -1371,8 +1423,25 @@ def _admit_execution_source(
         for edge in expected_inventory
     ):
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
+    if feedback_basis:
+        feedback_limits = _reconcile_feedback_execution_source(
+            store,
+            simulation_result_ref=simulation_result_ref,
+            simulation_result=simulation_result,
+            basis_ref=basis_ref,
+            basis=basis,
+        )
+        semantic_input_limitation_codes = tuple(
+            sorted({*(semantic_input_limitation_codes or ()), *feedback_limits})
+        )
     return ExecutionSourceAdmission(
-        mode="single_step_basis" if semantic_step is None else "semantic_horizon_step",
+        mode=(
+            "feedback_basis"
+            if feedback_basis
+            else "single_step_basis"
+            if semantic_step is None
+            else "semantic_horizon_step"
+        ),
         simulation_result_ref=simulation_result_ref,
         simulation_result=simulation_result,
         simulation_manifest=simulation_manifest,
@@ -1383,6 +1452,200 @@ def _admit_execution_source(
         semantic_input_limitation_codes=semantic_input_limitation_codes,
         source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
     )
+
+
+def _feedback_reconciliation_limitations(
+    reconciliation: FeedbackExecutionReconciliation,
+) -> tuple[str, ...]:
+    """Keep identity and tolerance admission separate from empirical authority."""
+    if reconciliation.graph_invocation_status != "recomputed":
+        raise ValueError("execution_source_feedback_final_graph_not_established")
+    if reconciliation.fixed_point_tolerance_status == "recomputed" and (
+        reconciliation.fixed_point_tolerance_satisfied is not True
+        or reconciliation.solver_convergence_claim_matches is not True
+    ):
+        raise ValueError("execution_source_feedback_final_tolerance_mismatch")
+    return tuple(f"feedback_{code}" for code in reconciliation.limitations)
+
+
+def _reconcile_feedback_execution_source(
+    store: _ProfiledExecutionReader,
+    *,
+    simulation_result_ref: SimulationResultRef,
+    simulation_result: SimulationResult,
+    basis_ref: FoundryExecutionInputBasisRef,
+    basis: FoundryExecutionInputBasis,
+) -> tuple[str, ...]:
+    """Reopen the actual final feedback call without recursive source admission."""
+    from polisyos.foundry.execute._internal.snapshots import state_snapshot_value_projection
+
+    context = basis.feedback_execution_context
+    config_ref = basis.request.feedback_config_ref
+    if (
+        context is None
+        or config_ref is None
+        or basis.schema_version != "1.3"
+        or basis.execution_mode != "feedback"
+        or basis.semantic_horizon_step is not None
+        or simulation_result.execution_source_status != "feedback_basis"
+        or simulation_result.schema_version != "1.5"
+    ):
+        raise ValueError("execution_source_feedback_basis_profile_mismatch")
+    for parent_ref, role, expected in (
+        (simulation_result_ref, "artifact.feedback_result_ref", context.feedback_result_ref),
+        (simulation_result_ref, "input.feedback_config_ref", config_ref),
+        (
+            simulation_result_ref,
+            "input.feedback_base_state_snapshot_ref",
+            context.final_injected_state_snapshot_ref,
+        ),
+        (context.feedback_result_ref, "artifact.feedback_trace_ref", context.feedback_trace_ref),
+        (context.feedback_result_ref, "metrics", simulation_result.metrics_ref),
+        (context.feedback_trace_ref, "input.feedback_base_state", basis.base_state_snapshot_ref),
+        (context.feedback_trace_ref, "input.feedback_config_ref", config_ref),
+        (
+            context.final_injected_state_snapshot_ref,
+            "input.bound_state_snapshot_ref",
+            basis.base_state_snapshot_ref,
+        ),
+        (context.final_injected_state_snapshot_ref, "input.feedback_config_ref", config_ref),
+    ):
+        _require_execution_edge_ref(store, parent_ref, role, expected, expected_kind=expected.kind)
+    core_store = resolve_verifiable_core_json_profile_reader(store)
+    if core_store is None:
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    config = _read_typed_model(FeedbackConfig, store, config_ref, read_session=None)
+    result = _read_typed_model(
+        FeedbackSolveResult, store, context.feedback_result_ref, read_session=None
+    )
+    trace = _read_typed_model(FeedbackTrace, store, context.feedback_trace_ref, read_session=None)
+    if config.mode != "fixed_point" or not result.converged or result.status != "converged":
+        raise ValueError("execution_source_feedback_solve_not_converged")
+    bundle_ref, bundle = _load_execution_method_bundle(
+        store, simulation_result_ref=simulation_result_ref, basis=basis
+    )
+    _require_execution_edge_ref(
+        store,
+        context.feedback_trace_ref,
+        "artifact.method_execution_bundle_ref",
+        bundle_ref,
+        expected_kind=MethodExecutionBundle.ARTIFACT_KIND,
+    )
+    delta_ref = _selected_ref_from_edge(
+        store, simulation_result_ref, "state_delta", expected_kind=StateDelta.ARTIFACT_KIND
+    )
+    delta = _read_typed_model(StateDelta, store, delta_ref, read_session=None)
+    for output_ref in (simulation_result.metrics_ref, delta_ref):
+        for role, expected in (
+            ("program_graph", basis.program_graph_ref),
+            ("exec_plan", basis.exec_plan_ref),
+        ):
+            _require_execution_edge_ref(
+                store, output_ref, role, expected, expected_kind=expected.kind
+            )
+        override_ref = context.final_parameter_override_bundle_ref
+        if override_ref is not None:
+            _require_execution_edge_ref(
+                store,
+                output_ref,
+                "parameter_override_bundle",
+                override_ref,
+                expected_kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            )
+        elif any(
+            edge.role == "parameter_override_bundle"
+            for edge in _selected_manifest(store, output_ref).inputs
+        ):
+            raise ValueError("execution_source_feedback_unrequested_final_override")
+    reconciliation = reconcile_feedback_execution(
+        simulation_result=simulation_result,
+        execution_input_basis=basis,
+        execution_input_basis_ref=basis_ref,
+        feedback_config=config,
+        feedback_config_ref=config_ref,
+        feedback_result=result,
+        feedback_result_ref=context.feedback_result_ref,
+        feedback_trace=trace,
+        feedback_trace_ref=context.feedback_trace_ref,
+        state_delta=delta,
+        state_delta_ref=StateDeltaRef.model_validate(delta_ref.model_dump(mode="python")),
+        method_execution_bundle=bundle,
+        method_execution_bundle_ref=MethodExecutionBundleRef.model_validate(
+            bundle_ref.model_dump(mode="python")
+        ),
+    )
+    final_records = tuple(
+        record
+        for record in trace.map_evaluations or ()
+        if record.phase == "final_materialization"
+        and record.evaluation_id == context.final_map_evaluation_id
+    )
+    # The shared reconciler has already required one completed final record.
+    (final_record,) = final_records
+    prepared = prepare_feedback_config(config, initial_state=result.initial_state)
+    candidate = snapshot_from_vector(
+        prepared, np.asarray(final_record.candidate_values, dtype=float)
+    )
+    logical_state, model_context = _load_execution_base_state(
+        core_store,
+        snapshot_ref=basis.base_state_snapshot_ref,
+        registry_bundle_ref=basis.runtime_registry_ref,
+    )
+    if model_context is not None:
+        raise ValueError("foundry_model_state_feedback_basis_not_established")
+    expected_initial = _build_initial_feedback_state(logical_state, config)
+    if expected_initial.model_dump(exclude={"notes"}) != result.initial_state.model_dump(
+        exclude={"notes"}
+    ):
+        raise ValueError("execution_source_feedback_initial_state_mismatch")
+    if simulation_result.state_snapshot_ref is None:
+        raise ValueError("execution_source_feedback_final_state_missing")
+    actual_poststate = load_state_snapshot(
+        core_store, snapshot_ref=simulation_result.state_snapshot_ref
+    )
+    metrics = _read_typed_model(Metrics, store, simulation_result.metrics_ref, read_session=None)
+    actual_feedback_state = extract_feedback_state(
+        actual_poststate, config=config, metrics=metrics.values
+    )
+    if actual_feedback_state.model_dump(exclude={"notes"}) != result.final_state.model_dump(
+        exclude={"notes"}
+    ):
+        raise ValueError("execution_source_feedback_final_state_mismatch")
+    expected_injected, feedback_overrides = inject_feedback_state(
+        logical_state, config=config, snapshot=candidate
+    )
+    actual_injected = load_state_snapshot(
+        core_store, snapshot_ref=context.final_injected_state_snapshot_ref
+    )
+    if state_snapshot_value_projection(actual_injected) != state_snapshot_value_projection(
+        expected_injected
+    ):
+        raise ValueError("execution_source_feedback_injected_state_mismatch")
+    expected_overrides = _merge_parameter_overrides(basis.parameter_overrides, feedback_overrides)
+    override_ref = context.final_parameter_override_bundle_ref
+    if override_ref is None:
+        if expected_overrides:
+            raise ValueError("execution_source_feedback_final_override_missing")
+    else:
+        for parent_ref in (simulation_result_ref, context.final_injected_state_snapshot_ref):
+            _require_execution_edge_ref(
+                store,
+                parent_ref,
+                "feedback.parameter_override_bundle",
+                override_ref,
+                expected_kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            )
+        actual_overrides = _read_typed_model(
+            ParameterOverrideBundle, store, override_ref, read_session=None
+        )
+        if actual_overrides.overrides != (expected_overrides or {}):
+            raise ValueError("execution_source_feedback_final_override_mismatch")
+    limitations = _feedback_reconciliation_limitations(reconciliation)
+    if any(
+        f"semantic_input_limitation:{code}" not in simulation_result.notes for code in limitations
+    ):
+        raise ValueError("execution_source_feedback_limitations_missing")
+    return limitations
 
 
 def _load_execution_method_bundle(
@@ -1651,6 +1914,7 @@ def _reconcile_selected_method_dispatch_inputs(
         store, bundle_ref=bundle_ref, bundle=bundle, basis=basis, graph=graph
     )
     nodes = {node.node_id: node for node in graph.nodes}
+    feedback = basis.feedback_execution_context
     for record in records:
         obligation = load_model_input_obligation(store, record.model_input_obligation_ref)
         if any(
@@ -1683,6 +1947,7 @@ def _reconcile_selected_method_dispatch_inputs(
                 and item.method_abi_digest == dependency.method_abi_digest
                 and item.dispatch is not None
                 and item.dispatch.step == basis.effective_step
+                and (feedback is None or item.invocation_id == feedback.final_graph_invocation_id)
             ]
             if len(matches) != 1:
                 raise ValueError("execution_source_method_input_dispatch_not_established")
@@ -1746,6 +2011,14 @@ def load_stored_selected_method_input_occurrences(
         expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
     )
     basis = _read_typed_model(FoundryExecutionInputBasis, store, basis_ref, read_session=None)
+    if basis.feedback_execution_context is not None:
+        _reconcile_feedback_execution_source(
+            store,
+            simulation_result_ref=result_ref,
+            simulation_result=result,
+            basis_ref=basis_ref,
+            basis=basis,
+        )
     if (
         _execution_ref_key(basis.input_bindings_ref) != _execution_ref_key(input_bindings_ref)
         or _execution_ref_key(basis.request.input_bindings_ref)
@@ -1876,6 +2149,12 @@ def _verify_semantic_horizon_poststate(
     poststate_ref = result.state_snapshot_ref
     if core_store is None or poststate_ref is None:
         raise ValueError("semantic_horizon_poststate_unavailable")
+    feedback = basis.feedback_execution_context
+    base_state_ref = (
+        feedback.final_injected_state_snapshot_ref
+        if feedback is not None
+        else basis.base_state_snapshot_ref
+    )
     poststate = _load_model(core_store, poststate_ref, StateSnapshot)
     _require_execution_edge_ref(
         store, poststate_ref, "state_delta", delta_ref, expected_kind=StateDelta.ARTIFACT_KIND
@@ -1884,12 +2163,12 @@ def _verify_semantic_horizon_poststate(
         store,
         poststate_ref,
         "base_state",
-        basis.base_state_snapshot_ref,
+        base_state_ref,
         expected_kind="foundry.state_snapshot",
     )
     base, model_state_context = _load_execution_base_state(
         core_store,
-        snapshot_ref=basis.base_state_snapshot_ref,
+        snapshot_ref=base_state_ref,
         registry_bundle_ref=basis.runtime_registry_ref,
     )
     registry = (
@@ -2071,6 +2350,7 @@ def _build_execution_input_basis(
     current_step: int,
     parameter_overrides: dict[str, dict[str, object]] | None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    feedback_execution_context: FeedbackExecutionContext | None = None,
 ) -> FoundryExecutionInputBasisRef:
     """Persist a selected source basis from the same objects used by the executor."""
     bindings = resolved_state.bindings
@@ -2119,7 +2399,9 @@ def _build_execution_input_basis(
     }
     basis = FoundryExecutionInputBasis(
         schema_version=(
-            "1.4"
+            "1.3"
+            if feedback_execution_context is not None
+            else "1.4"
             if request.actuation_selection_ref is not None
             else "1.2"
             if semantic_horizon_step is not None
@@ -2127,6 +2409,7 @@ def _build_execution_input_basis(
             if bindings.registered_sql_admission_ref is not None
             else "1.0"
         ),
+        execution_mode="feedback" if feedback_execution_context is not None else "single_step",
         registered_sql_admission_ref=bindings.registered_sql_admission_ref,
         actuation_selection_ref=request.actuation_selection_ref,
         request=request,
@@ -2161,6 +2444,7 @@ def _build_execution_input_basis(
         effective_jit=posture.jit,
         effective_capture_env=posture.capture_env,
         semantic_horizon_step=semantic_horizon_step,
+        feedback_execution_context=feedback_execution_context,
     )
     # The same owner now enumerates writer and fresh-reader sources. Preserve
     # the writer's historical exact order and multiplicity in the manifest.
@@ -2661,6 +2945,11 @@ def _resolve_state_snapshot(
     if (
         bindings.resolved_binding_manifest_ref is not None
         and request.feedback_config_ref is not None
+        and not (
+            bindings.schema_version == "1.4"
+            and bindings.selected_method_inputs is not None
+            and request.return_selected_profile
+        )
     ):
         raise ValueError("foundry_input_bindings_semantic_feedback_not_established")
     # The one-step method profile retains its once-at-graph replay. Temporal
@@ -2744,6 +3033,17 @@ def _execute_with_feedback(
     method_execution_capture: MethodExecutionCapture | None = None,
     derived_tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ExecuteResult:
+    compose_selected_inputs = (
+        request.return_selected_profile
+        and resolved_state.bindings.schema_version == "1.4"
+        and bool(resolved_state.bindings.selected_method_inputs)
+    )
+    if compose_selected_inputs and method_execution_capture is None:
+        raise ValueError("foundry_feedback_selected_method_capture_required")
+    if compose_selected_inputs:
+        if request.feedback_config_ref is None:
+            raise ValueError("foundry_feedback_selected_config_required")
+        _selected_manifest(store, request.feedback_config_ref)
     initial_feedback_state = _build_initial_feedback_state(base_state, feedback_config)
     prepared = prepare_feedback_config(
         feedback_config,
@@ -2830,6 +3130,7 @@ def _execute_with_feedback(
                 store,
                 method_execution_capture,
             ),
+            selected_profile=compose_selected_inputs,
         )
 
     try:
@@ -2924,12 +3225,14 @@ def _execute_with_feedback(
         map_evaluations=map_evaluation_recorder.records,
         evaluation_scope="solver_prefix",
         base_state_ref=resolved_state.state_snapshot_ref,
+        selected_profile=compose_selected_inputs,
     )
     feedback_jacobian_ref = _persist_feedback_jacobian(
         store,
         outcome=outcome,
         request=request,
         trace_ref=solver_prefix_trace_ref,
+        selected_profile=compose_selected_inputs,
     )
     feedback_certificate_ref = _persist_feedback_convergence_certificate(
         store,
@@ -2938,6 +3241,7 @@ def _execute_with_feedback(
         prepared=prepared,
         trace_ref=solver_prefix_trace_ref,
         jacobian_ref=feedback_jacobian_ref,
+        selected_profile=compose_selected_inputs,
     )
     feedback_artifacts = [
         DerivedArtifact(role="feedback_trace_solver_prefix", ref=solver_prefix_trace_ref),
@@ -2979,6 +3283,7 @@ def _execute_with_feedback(
                 trace_ref=solver_prefix_trace_ref,
                 jacobian_ref=feedback_jacobian_ref,
                 convergence_certificate_ref=feedback_certificate_ref,
+                selected_profile=compose_selected_inputs,
             )
             feedback_artifacts.append(
                 DerivedArtifact(
@@ -3003,6 +3308,7 @@ def _execute_with_feedback(
                 store,
                 method_execution_capture,
             ),
+            selected_profile=compose_selected_inputs,
         )
         feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
         feedback_result_ref = _persist_feedback_result(
@@ -3059,6 +3365,7 @@ def _execute_with_feedback(
         request=request,
         merged_overrides=merged_final_overrides,
         feedback_notes=feedback_config.notes,
+        selected_profile=compose_selected_inputs,
     )
 
     feedback_base_inputs = [
@@ -3126,6 +3433,7 @@ def _execute_with_feedback(
             input_bindings_ref=request.input_bindings_ref,
             method_execution_capture=method_execution_capture,
             finalize_method_execution_capture=True,
+            method_input_state_source_ref=resolved_state.state_snapshot_ref,
         )
         derived_refs = _build_standard_derived_refs(exec_artifacts)
         welfare_bound_failure_notes = _evaluate_welfare_bound_requirement(
@@ -3191,6 +3499,7 @@ def _execute_with_feedback(
                 store,
                 method_execution_capture,
             ),
+            selected_profile=compose_selected_inputs,
         )
         aborted = _method_execution_abort_result(
             store,
@@ -3222,6 +3531,7 @@ def _execute_with_feedback(
                 store,
                 method_execution_capture,
             ),
+            selected_profile=compose_selected_inputs,
         )
         feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
         feedback_result_ref = _persist_feedback_result(
@@ -3282,6 +3592,7 @@ def _execute_with_feedback(
                     store,
                     method_execution_capture,
                 ),
+                selected_profile=compose_selected_inputs,
             )
         except BaseException as persist_error:
             exc.add_note(
@@ -3308,6 +3619,7 @@ def _execute_with_feedback(
         base_state_ref=resolved_state.state_snapshot_ref,
         solver_prefix_trace_ref=solver_prefix_trace_ref,
         method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
+        selected_profile=compose_selected_inputs,
     )
     feedback_artifacts.append(DerivedArtifact(role="feedback_trace", ref=completed_trace_ref))
 
@@ -3361,9 +3673,39 @@ def _execute_with_feedback(
         f"feedback_status:{outcome.status}",
         *multiplicity_notes,
     ]
+    execution_input_basis_ref = None
+    if compose_selected_inputs:
+        if exec_artifacts.method_execution_bundle_ref is None or final_graph_invocation_id is None:
+            raise ValueError("foundry_feedback_final_graph_capture_not_established")
+        feedback_notes.extend(
+            note for note in exec_artifacts.semantic_input_notes if note not in feedback_notes
+        )
+        final_record = map_evaluation_recorder.records[-1]
+        context = FeedbackExecutionContext(
+            final_injected_state_snapshot_ref=feedback_base_state_snapshot_ref,
+            final_parameter_override_bundle_ref=final_override_bundle_ref,
+            final_method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
+            feedback_result_ref=feedback_result_ref,
+            feedback_trace_ref=completed_trace_ref,
+            final_map_evaluation_id=final_record.evaluation_id,
+            final_graph_invocation_id=final_graph_invocation_id,
+            execution_link_status="captured",
+        )
+        execution_input_basis_ref = _build_execution_input_basis(
+            store,
+            request=request,
+            resolved_state=resolved_state,
+            exec_plan=exec_plan,
+            posture=posture,
+            current_step=current_step,
+            parameter_overrides=parameter_overrides,
+            feedback_execution_context=context,
+        )
     sim_result = SimulationResult(
         schema_version=(
-            SimulationResult.ARTIFACT_SCHEMA_VERSION
+            SimulationResult.FEEDBACK_BASIS_ARTIFACT_SCHEMA_VERSION
+            if execution_input_basis_ref is not None
+            else SimulationResult.ARTIFACT_SCHEMA_VERSION
             if request.return_selected_profile
             else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
         ),
@@ -3378,9 +3720,13 @@ def _execute_with_feedback(
             if request.return_selected_profile
             else StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id)
         ),
-        execution_input_basis_ref=None,
+        execution_input_basis_ref=execution_input_basis_ref,
         execution_source_status=(
-            "feedback_uncomposed" if request.return_selected_profile else "not_recorded"
+            "feedback_basis"
+            if execution_input_basis_ref is not None
+            else "feedback_uncomposed"
+            if request.return_selected_profile
+            else "not_recorded"
         ),
         environment_ref=exec_artifacts.environment_ref,
         environment_fingerprint=(
@@ -3390,6 +3736,42 @@ def _execute_with_feedback(
         welfare_bound_refs=_extract_welfare_bound_refs(derived_refs),
         notes=feedback_notes,
     )
+    if execution_input_basis_ref is not None:
+        assert request.feedback_config_ref is not None
+        assert exec_artifacts.method_execution_bundle_ref is not None
+        basis = _load_model(store, execution_input_basis_ref, FoundryExecutionInputBasis)
+        reconciliation = reconcile_feedback_execution(
+            simulation_result=sim_result,
+            execution_input_basis=basis,
+            execution_input_basis_ref=execution_input_basis_ref,
+            feedback_config=feedback_config,
+            feedback_config_ref=request.feedback_config_ref,
+            feedback_result=_load_model(store, feedback_result_ref, FeedbackSolveResult),
+            feedback_result_ref=feedback_result_ref,
+            feedback_trace=_load_model(store, completed_trace_ref, FeedbackTrace),
+            feedback_trace_ref=completed_trace_ref,
+            state_delta=_load_model(store, exec_artifacts.state_delta_ref, StateDelta),
+            state_delta_ref=StateDeltaRef.model_validate(
+                exec_artifacts.state_delta_ref.model_dump(mode="python")
+            ),
+            method_execution_bundle=_load_model(
+                store, exec_artifacts.method_execution_bundle_ref, MethodExecutionBundle
+            ),
+            method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
+        )
+        try:
+            limitations = _feedback_reconciliation_limitations(reconciliation)
+        except ValueError as exc:
+            return ExecuteResult(
+                schema_version="1.1",
+                ok=False,
+                simulation_result_ref=None,
+                method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
+                derived_refs=derived_refs,
+                notes=[*feedback_notes, f"feedback_final_reconciliation_refused:{exc}"],
+            )
+        feedback_notes.extend(f"semantic_input_limitation:{code}" for code in limitations)
+        sim_result = sim_result.model_copy(update={"notes": list(feedback_notes)})
     sim_inputs = [
         input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
         input_ref_from_artifact_ref(exec_artifacts.metrics_ref, role="metrics"),
@@ -3407,6 +3789,10 @@ def _execute_with_feedback(
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
+    if execution_input_basis_ref is not None:
+        sim_inputs.append(
+            input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
+        )
     if exec_artifacts.method_execution_bundle_ref is not None:
         sim_inputs.append(
             input_ref_from_artifact_ref(
@@ -3644,6 +4030,7 @@ def _persist_parameter_override_bundle(
     request: ExecuteRequest,
     merged_overrides: dict[str, dict[str, object]] | None,
     feedback_notes: list[str],
+    selected_profile: bool = False,
 ) -> ParameterOverrideBundleRef | None:
     if not merged_overrides:
         return request.parameter_override_bundle_ref
@@ -3684,8 +4071,13 @@ def _persist_parameter_override_bundle(
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=selected_profile,
     )
-    return ParameterOverrideBundleRef(artifact_id=ref.artifact_id)
+    return (
+        ParameterOverrideBundleRef.model_validate(ref.model_dump(mode="python"))
+        if selected_profile
+        else ParameterOverrideBundleRef(artifact_id=ref.artifact_id)
+    )
 
 
 def _build_standard_derived_refs(
@@ -3778,6 +4170,7 @@ def _persist_feedback_trace(
     base_state_ref: StateSnapshotRef,
     solver_prefix_trace_ref: FeedbackTraceRef | None = None,
     method_execution_bundle_ref: MethodExecutionBundleRef | None = None,
+    selected_profile: bool = False,
 ) -> FeedbackTraceRef:
     if evaluation_scope == "complete":
         linked_invocation_ids = {
@@ -3878,8 +4271,13 @@ def _persist_feedback_trace(
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=selected_profile,
     )
-    return FeedbackTraceRef(artifact_id=ref.artifact_id)
+    return (
+        FeedbackTraceRef.model_validate(ref.model_dump(mode="python"))
+        if selected_profile
+        else FeedbackTraceRef(artifact_id=ref.artifact_id)
+    )
 
 
 def _persist_feedback_jacobian(
@@ -3888,6 +4286,7 @@ def _persist_feedback_jacobian(
     outcome: SolveOutcome,
     request: ExecuteRequest,
     trace_ref: FeedbackTraceRef,
+    selected_profile: bool = False,
 ) -> FeedbackJacobianDiagnosticsRef | None:
     if outcome.jacobian is None:
         return None
@@ -3926,8 +4325,13 @@ def _persist_feedback_jacobian(
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=selected_profile,
     )
-    return FeedbackJacobianDiagnosticsRef(artifact_id=ref.artifact_id)
+    return (
+        FeedbackJacobianDiagnosticsRef.model_validate(ref.model_dump(mode="python"))
+        if selected_profile
+        else FeedbackJacobianDiagnosticsRef(artifact_id=ref.artifact_id)
+    )
 
 
 def _feedback_convergence_status(
@@ -3967,6 +4371,7 @@ def _persist_feedback_convergence_certificate(
     prepared: PreparedFeedbackConfig,
     trace_ref: FeedbackTraceRef,
     jacobian_ref: FeedbackJacobianDiagnosticsRef | None,
+    selected_profile: bool = False,
 ) -> FeedbackConvergenceCertificateRef:
     final_record = outcome.trace[-1] if outcome.trace else None
     diagnostics = _sanitize_diagnostics(outcome.final_diagnostics)
@@ -4024,8 +4429,13 @@ def _persist_feedback_convergence_certificate(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=selected_profile,
     )
-    return FeedbackConvergenceCertificateRef(artifact_id=ref.artifact_id)
+    return (
+        FeedbackConvergenceCertificateRef.model_validate(ref.model_dump(mode="python"))
+        if selected_profile
+        else FeedbackConvergenceCertificateRef(artifact_id=ref.artifact_id)
+    )
 
 
 def _persist_equilibrium_multiplicity_report(
@@ -4036,6 +4446,7 @@ def _persist_equilibrium_multiplicity_report(
     trace_ref: FeedbackTraceRef,
     jacobian_ref: FeedbackJacobianDiagnosticsRef | None,
     convergence_certificate_ref: FeedbackConvergenceCertificateRef,
+    selected_profile: bool = False,
 ) -> EquilibriumMultiplicityReportRef:
     inputs = [
         input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
@@ -4071,8 +4482,13 @@ def _persist_equilibrium_multiplicity_report(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=selected_profile,
     )
-    return EquilibriumMultiplicityReportRef(artifact_id=ref.artifact_id)
+    return (
+        EquilibriumMultiplicityReportRef.model_validate(ref.model_dump(mode="python"))
+        if selected_profile
+        else EquilibriumMultiplicityReportRef(artifact_id=ref.artifact_id)
+    )
 
 
 def _persist_feedback_result(

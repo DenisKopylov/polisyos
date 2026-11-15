@@ -1,5 +1,5 @@
 import { onlineManager } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { AcquisitionRouteMutationRequest } from "@polisyos/runtime-api-client";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -17,13 +17,21 @@ import {
 } from "@/features/runs/api/useAcquisitionRoutes";
 import {
   fetchHumanDecisionEvidence,
+  HumanDecisionRecoveryAttemptError,
+  type HumanDecisionCreateReceipt,
+  type HumanDecisionMutationRequest,
+  type HumanDecisionReplaySelector,
+  type HumanDecisionSubmissionResult,
   useCreateHumanDecision,
   useHumanDecisionGate,
   withoutHumanDecisionOwnedQuery,
 } from "@/features/runs/api/useHumanDecisions";
 import { AcquisitionRouteDetail } from "@/features/runs/components/AcquisitionRouteDetail";
 import { HumanDecisionGate } from "@/features/runs/components/HumanDecisionGate";
-import { buildHumanDecisionMutation } from "@/features/runs/domain/humanDecisionPresentation";
+import {
+  buildHumanDecisionMutation,
+  type HumanDecisionFormInput,
+} from "@/features/runs/domain/humanDecisionPresentation";
 import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
@@ -36,6 +44,14 @@ import { downloadAcquisitionRoutePacket } from "./acquisitionRouteExport";
 type AcquisitionApprovalFlowProps = Readonly<{
   canMutate: boolean;
   route: AcquisitionRouteProjection;
+}>;
+
+type HumanDecisionRecoveryContext = Readonly<{
+  body: HumanDecisionMutationRequest;
+  continuation: HumanDecisionReplaySelector;
+  exposureSessionRef: string;
+  input: HumanDecisionFormInput;
+  runId: string;
 }>;
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
@@ -123,15 +139,20 @@ export function AcquisitionApprovalFlow({
   const createDecision = useCreateHumanDecision(route.run_id);
   const [decision, setDecision] =
     useState<AcquisitionDecisionRequestResponseCurrent | null>(null);
-  const [humanDecision, setHumanDecision] = useState<Awaited<
-    ReturnType<typeof createDecision.mutateAsync>
-  > | null>(null);
+  const [humanDecision, setHumanDecision] =
+    useState<HumanDecisionCreateReceipt | null>(null);
+  const [submissionResult, setSubmissionResult] =
+    useState<HumanDecisionSubmissionResult | null>(null);
   const [execution, setExecution] =
     useState<AcquisitionExecutionResponseCurrent | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const actionInFlight = useRef(false);
   const executionStarted = useRef(false);
+  const recoveryContext = useRef<HumanDecisionRecoveryContext | null>(null);
+  const activeRunId = useRef(route.run_id);
+  activeRunId.current = route.run_id;
+  const componentMounted = useRef(false);
   const reviewSurface = useRef<HTMLDivElement>(null);
   const reviewWasVisible = useRef(false);
   const refreshedJob = useRef<string | null>(null);
@@ -141,10 +162,157 @@ export function AcquisitionApprovalFlow({
   const routePresentation = presentRunAcquisitionRoute(routeDetail);
   const costEstablished = routePresentation.costEstablished;
 
-  async function freshBoundRoute() {
+  useLayoutEffect(() => {
+    componentMounted.current = true;
+    return () => {
+      componentMounted.current = false;
+      recoveryContext.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    recoveryContext.current = null;
+    setDecision(null);
+    setHumanDecision(null);
+    setSubmissionResult(null);
+    setExecution(null);
+    setErrorCode(null);
+    if (!actionInFlight.current) setPending(false);
+  }, [route.run_id]);
+
+  function assertCurrentRun(expectedRunId: string) {
+    if (
+      !componentMounted.current ||
+      activeRunId.current !== expectedRunId ||
+      route.run_id !== expectedRunId
+    ) {
+      throw new TypeError("DS15-SAME-CASE-MISMATCH");
+    }
+  }
+
+  const recoveryStatusKey =
+    submissionResult?.kind === "created"
+      ? "created"
+      : submissionResult?.kind === "recovered_committed"
+        ? "recoveredCommitted"
+        : submissionResult?.kind === "recovery_pending"
+          ? "recoveryPending"
+          : submissionResult?.kind === "recovery_not_established"
+            ? "recoveryNotEstablished"
+            : submissionResult?.kind === "recovered_expired"
+              ? "recoveredExpired"
+              : createDecision.recoveryPosture?.kind === "recovery_unavailable"
+                ? "recoveryUnavailable"
+                : null;
+
+  async function finishHumanDecisionSubmission(
+    result: HumanDecisionSubmissionResult,
+    context: HumanDecisionRecoveryContext,
+  ) {
+    assertCurrentRun(context.runId);
+    if (
+      context.runId !== route.run_id ||
+      ("receipt" in result && result.receipt.run_id !== context.runId)
+    ) {
+      throw new TypeError("DS15-SAME-CASE-MISMATCH");
+    }
+    setSubmissionResult(result);
+    setErrorCode(null);
+    if (
+      result.kind === "recovery_pending" ||
+      result.kind === "recovery_not_established"
+    ) {
+      recoveryContext.current = context;
+      gateQuery.clear();
+      return;
+    }
+
+    const receipt = result.receipt;
+    setHumanDecision(receipt);
+    gateQuery.clear();
+    if (result.kind === "recovered_expired") {
+      recoveryContext.current = null;
+      return;
+    }
+
+    if (result.kind === "recovered_committed") {
+      try {
+        const fresh = await gateQuery.revalidate(context.continuation);
+        assertCurrentRun(context.runId);
+        if (fresh.packet.run_id !== context.runId) {
+          throw new TypeError("DS15-SAME-CASE-MISMATCH");
+        }
+        const currentBody = buildHumanDecisionMutation(
+          fresh.packet,
+          context.input,
+        );
+        if (
+          fresh.packet.exposure.exposure_session_ref !==
+            context.exposureSessionRef ||
+          !jsonValuesEqual(currentBody, context.body)
+        ) {
+          throw new TypeError("DS9-RECOVERED-DECISION-GATE-CHANGED");
+        }
+        if (context.input.action === "approve") {
+          const sourceRef = fresh.packet.source_ref;
+          if (
+            fresh.packet.source_kind !== "agent_action_authority" ||
+            !sourceRef ||
+            sourceRef !== context.body.source_ref
+          ) {
+            throw new TypeError("DS15-AUTHORITY-DECISION-REF-MISSING");
+          }
+          assertCurrentRun(context.runId);
+          await executeFresh(sourceRef, receipt.record_ref, context.runId);
+        }
+      } finally {
+        recoveryContext.current = null;
+      }
+      return;
+    }
+
+    recoveryContext.current = null;
+    if (context.input.action === "approve") {
+      const sourceRef = context.body.source_ref;
+      if (context.body.source_kind !== "agent_action_authority" || !sourceRef) {
+        throw new TypeError("DS15-AUTHORITY-DECISION-REF-MISSING");
+      }
+      assertCurrentRun(context.runId);
+      await executeFresh(sourceRef, receipt.record_ref, context.runId);
+    }
+  }
+
+  async function checkSavedHumanDecision() {
+    if (actionInFlight.current) return;
+    const context = recoveryContext.current;
+    if (!context) {
+      setErrorCode("human_decision_recovery_not_pending");
+      return;
+    }
+    assertCurrentRun(context.runId);
+    actionInFlight.current = true;
+    setErrorCode(null);
+    setPending(true);
+    try {
+      const result = await createDecision.recoverPending();
+      assertCurrentRun(context.runId);
+      await finishHumanDecisionSubmission(result, context);
+    } catch (error) {
+      if (componentMounted.current && activeRunId.current === context.runId) {
+        setErrorCode(surfacedError(error));
+      }
+    } finally {
+      actionInFlight.current = false;
+      if (componentMounted.current) setPending(false);
+    }
+  }
+
+  async function freshBoundRoute(expectedRunId = route.run_id) {
+    assertCurrentRun(expectedRunId);
     const result = await routeQuery.refetch();
     const fresh = result.data?.packet;
-    if (!fresh || !sameRoute(route, fresh)) {
+    assertCurrentRun(expectedRunId);
+    if (!fresh || fresh.run_id !== expectedRunId || !sameRoute(route, fresh)) {
       throw new TypeError("DS15-STALE-DECISION-REPLAY");
     }
     return fresh;
@@ -153,12 +321,19 @@ export function AcquisitionApprovalFlow({
   async function executeFresh(
     authorityDecisionRef: string,
     humanDecisionRecordRef?: string,
+    expectedRunId = route.run_id,
   ) {
     if (executionStarted.current || execution) return;
     executionStarted.current = true;
     try {
+      assertCurrentRun(expectedRunId);
       requireOnline();
-      const fresh = await freshBoundRoute();
+      const fresh = await freshBoundRoute(expectedRunId);
+      assertCurrentRun(expectedRunId);
+      if (fresh.run_id !== expectedRunId) {
+        throw new TypeError("DS15-SAME-CASE-MISMATCH");
+      }
+      assertCurrentRun(expectedRunId);
       const receipt = await executeAcquisitionRoute(
         fresh.run_id,
         fresh.route_id,
@@ -171,6 +346,7 @@ export function AcquisitionApprovalFlow({
       ) {
         throw new TypeError("DS15-SAME-CASE-MISMATCH");
       }
+      assertCurrentRun(expectedRunId);
       setExecution(receipt);
     } catch (error) {
       executionStarted.current = false;
@@ -196,6 +372,7 @@ export function AcquisitionApprovalFlow({
 
   async function prepareDecision() {
     if (actionInFlight.current) return;
+    assertCurrentRun(route.run_id);
     actionInFlight.current = true;
     setErrorCode(null);
     setPending(true);
@@ -208,7 +385,8 @@ export function AcquisitionApprovalFlow({
       if (!currentPresentation.actionEligible) {
         throw new TypeError("DS15-ROUTE-NOT-ELIGIBLE");
       }
-      const fresh = await freshBoundRoute();
+      const fresh = await freshBoundRoute(route.run_id);
+      assertCurrentRun(route.run_id);
       if (!presentRunAcquisitionRoute(fresh).actionEligible) {
         throw new TypeError("DS15-ROUTE-NOT-ELIGIBLE");
       }
@@ -223,6 +401,7 @@ export function AcquisitionApprovalFlow({
       ) {
         throw new TypeError("DS15-SAME-CASE-MISMATCH");
       }
+      assertCurrentRun(route.run_id);
       setDecision(response);
       if (response.outcome === "decision_available") {
         await executeFresh(response.authority_decision_ref);
@@ -230,10 +409,12 @@ export function AcquisitionApprovalFlow({
         openDecisionSelector(response.authority_decision_ref);
       }
     } catch (error) {
-      setErrorCode(surfacedError(error));
+      if (componentMounted.current && activeRunId.current === route.run_id) {
+        setErrorCode(surfacedError(error));
+      }
     } finally {
       actionInFlight.current = false;
-      setPending(false);
+      if (componentMounted.current) setPending(false);
     }
   }
 
@@ -286,6 +467,7 @@ export function AcquisitionApprovalFlow({
                 !costEstablished ||
                 !routePresentation.actionEligible ||
                 pending ||
+                actionInFlight.current ||
                 Boolean(execution)
               }
               onClick={() => void prepareDecision()}
@@ -344,7 +526,7 @@ export function AcquisitionApprovalFlow({
             {t("pages.cycleBoard.acquisition.action.exportReview")}
           </Button>
           <HumanDecisionGate
-            canMutate={canMutate}
+            canMutate={canMutate && !actionInFlight.current}
             captured={capturedGate}
             onOpenEvidence={async (artifactDigest) => {
               const current = gateQuery.data?.packet;
@@ -380,7 +562,12 @@ export function AcquisitionApprovalFlow({
                     "DS9-SUBMISSION-REVALIDATION-SELECTOR-MISSING",
                   );
                 }
+                assertCurrentRun(route.run_id);
                 const freshGate = await gateQuery.revalidate(continuation);
+                assertCurrentRun(route.run_id);
+                if (freshGate.packet.run_id !== route.run_id) {
+                  throw new TypeError("DS15-SAME-CASE-MISMATCH");
+                }
                 const exposureSessionRef =
                   freshGate.packet.exposure.exposure_session_ref;
                 if (!exposureSessionRef) {
@@ -390,32 +577,46 @@ export function AcquisitionApprovalFlow({
                   freshGate.packet,
                   input,
                 );
-                const receipt = await createDecision.mutateAsync({
+                const context: HumanDecisionRecoveryContext = Object.freeze({
+                  body,
+                  continuation,
+                  exposureSessionRef,
+                  input,
+                  runId: route.run_id,
+                });
+                recoveryContext.current = context;
+                const result = await createDecision.mutateAsync({
                   body,
                   exposureSessionRef,
                   runId: route.run_id,
                 });
-                if (receipt.run_id !== route.run_id) {
+                assertCurrentRun(route.run_id);
+                if (
+                  (result.kind === "created" ||
+                    result.kind === "recovered_committed" ||
+                    result.kind === "recovered_expired") &&
+                  result.receipt.run_id !== route.run_id
+                ) {
                   throw new TypeError("DS15-SAME-CASE-MISMATCH");
                 }
-                setHumanDecision(receipt);
-                if (input.action === "approve") {
-                  const sourceRef = freshGate.packet.source_ref;
-                  if (
-                    freshGate.packet.source_kind !== "agent_action_authority" ||
-                    !sourceRef
-                  ) {
-                    throw new TypeError("DS15-AUTHORITY-DECISION-REF-MISSING");
-                  }
-                  await executeFresh(sourceRef, receipt.record_ref);
-                }
-                gateQuery.clear();
+                await finishHumanDecisionSubmission(result, context);
               } catch (error) {
-                setErrorCode(surfacedError(error));
+                const isCurrentRun =
+                  componentMounted.current &&
+                  activeRunId.current === route.run_id;
+                if (isCurrentRun) setErrorCode(surfacedError(error));
+                if (
+                  isCurrentRun &&
+                  error instanceof HumanDecisionRecoveryAttemptError
+                ) {
+                  gateQuery.clear();
+                } else if (isCurrentRun && !createDecision.recoveryPosture) {
+                  recoveryContext.current = null;
+                }
                 throw error;
               } finally {
                 actionInFlight.current = false;
-                setPending(false);
+                if (componentMounted.current) setPending(false);
               }
             }}
           />
@@ -429,6 +630,38 @@ export function AcquisitionApprovalFlow({
       ) : null}
       {gateQuery.hasSelector && gateQuery.isError ? (
         <p role="alert">DS15-ACCOUNTABLE-REVIEW-UNAVAILABLE</p>
+      ) : null}
+      {recoveryStatusKey ? (
+        <Card
+          className="space-y-2"
+          data-testid="human-decision-submission-status"
+          role="status"
+        >
+          <p>
+            {t(
+              `pages.runs.report.humanDecision.submission.${recoveryStatusKey}`,
+            )}
+          </p>
+          {submissionResult?.kind === "recovery_pending" ? (
+            <code>{submissionResult.recovery.reservation_id}</code>
+          ) : null}
+          {submissionResult?.kind === "recovery_not_established" ? (
+            <code>{submissionResult.recovery.reason_code}</code>
+          ) : null}
+          {createDecision.recoveryPosture?.kind === "recovery_unavailable" ? (
+            <code>{createDecision.recoveryPosture.code}</code>
+          ) : null}
+          {createDecision.recoveryPosture !== null ? (
+            <Button
+              disabled={pending}
+              onClick={() => void checkSavedHumanDecision()}
+              type="button"
+              variant="secondary"
+            >
+              {t("pages.runs.report.humanDecision.submission.checkStatus")}
+            </Button>
+          ) : null}
+        </Card>
       ) : null}
       {errorCode ? (
         <p className="font-mono text-sm" role="alert">
@@ -446,6 +679,7 @@ export function AcquisitionApprovalFlow({
           execution={execution}
           growthHistory={growthQuery.data?.payload.n13b_history}
           humanDecision={humanDecision}
+          humanDecisionSubmissionKind={submissionResult?.kind}
           job={jobQuery.data}
           route={routeDetail}
         />

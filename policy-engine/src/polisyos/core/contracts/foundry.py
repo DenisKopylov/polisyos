@@ -3766,6 +3766,7 @@ class SimulationResult(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.SimulationResult"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.4"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.3", "1.4", "1.5")
     ARTIFACT_KIND: ClassVar[Literal["foundry.simulation_result"]] = "foundry.simulation_result"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 

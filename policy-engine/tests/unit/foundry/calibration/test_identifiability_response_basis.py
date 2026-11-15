@@ -736,6 +736,69 @@ def test_feedback_selected_source_is_typed_uncomposed_refusal(tmp_path, monkeypa
         )
 
 
+def test_composed_feedback_source_is_not_downgraded_to_legacy_response_replay(
+    tmp_path, monkeypatch
+):
+    """A genuine new feedback basis stays outside unsupported sensitivity replay."""
+    from polisyos.foundry.calibration.identifiability import (
+        _build_execute_summary_evaluator,
+        _response_context,
+    )
+    from polisyos.foundry.execute import admit_execution_source
+    from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from tests._helpers.derived_selected_method_input import materialize_selected_method_input_case
+    from tests._helpers.selected_method_input import prepare_selected_method_input_case
+    from tests.unit.foundry.runtime.test_execute_feedback_selected_method_input import (
+        _execute,
+        _feedback_config_ref,
+        _RetainedPeriodFlowMap,
+    )
+
+    case, metadata = prepare_selected_method_input_case(
+        tmp_path, method_class=_RetainedPeriodFlowMap
+    )
+    try:
+        materialized = materialize_selected_method_input_case(
+            case, metadata, ratio_value=Decimal("0.000000000005")
+        )
+        executed = _execute(case, materialized, _feedback_config_ref(case.store))
+        assert executed.ok and executed.simulation_result_ref is not None
+        source = executed.simulation_result_ref
+        admitted = admit_execution_source(case.store, source)
+        assert admitted.mode == "feedback_basis" and admitted.basis is not None
+
+        def no_replay(*args, **kwargs):
+            pytest.fail("composed feedback was downgraded into unsupported response replay")
+
+        monkeypatch.setattr("polisyos.foundry.execute.api.execute", no_replay)
+        reason = f"feedback_basis source {source.artifact_id}"
+        with pytest.raises(ValueError, match=reason):
+            _build_execute_summary_evaluator(
+                case.store,
+                simulation_result_ref=source,
+                simulation_result=admitted.simulation_result,
+            )
+        with pytest.raises(ValueError, match=reason):
+            _response_context(
+                case.store,
+                source,
+                {"balance": "government.balance"},
+                {"fixture.parameter": 0.5},
+                ("balance",),
+                IdentifiabilityDiagnosticConfig(
+                    simulation_reps=1,
+                    bootstrap_reps=0,
+                    profile_grid_size=0,
+                    seed=41,
+                    finite_diff_rel_step=0.01,
+                ),
+            )
+    finally:
+        MethodRegistry.get_instance().register(PeriodFlowToStock, override=True)
+        case.close()
+
+
 def test_metric_name_collision_does_not_bind_counter_to_response_unit(tmp_path):
     """A key collision is insufficient to join an execution counter to a state response."""
     store, simulation_ref, parameter = _native_fixture(tmp_path)

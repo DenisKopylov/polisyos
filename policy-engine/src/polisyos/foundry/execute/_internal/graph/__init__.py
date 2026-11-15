@@ -511,9 +511,9 @@ def _resolve_planned_method_identities(
     order: list[str], node_map: dict[str, Any]
 ) -> tuple[dict[str, type[Any]], dict[str, _MethodExecutionIdentity]]:
     """Load exact planned method classes and retain honest source identity limits."""
-    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods import get_registry, resolve_selected_method
 
-    registry = MethodRegistry.get_instance()
+    registry = get_registry()
     classes: dict[str, type[Any]] = {}
     identities: dict[str, _MethodExecutionIdentity] = {}
     for node_id in dict.fromkeys(order):
@@ -530,10 +530,10 @@ def _resolve_planned_method_identities(
             "limitation": "method_identity_unavailable",
         }
         try:
-            method_class = registry.get(node.method_fqn)
+            method_class = resolve_selected_method(
+                node.method_fqn, version=node.method_version, registry=registry
+            )
             signature = method_class.signature
-            if signature.fqn != node.method_fqn:
-                raise ValueError("loaded_method_fqn_differs_from_selected_fqn")
             if node.method_version is not None and signature.version != node.method_version:
                 raise ValueError("loaded_method_version_differs_from_selected_version")
             if (
@@ -1130,7 +1130,7 @@ def _resolve_closed_world_method_inputs(
         program_graph_declares_model_input_ports,
         resolve_program_graph_input_declaration,
     )
-    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods import get_registry, resolve_selected_method
     from polisyos.foundry.methods.types.checker import validate_registered_method_input
 
     if not program_graph_declares_model_input_ports(store, program_ref):
@@ -1219,7 +1219,7 @@ def _resolve_closed_world_method_inputs(
         raise ValueError("method_input_port_slot_ambiguous")
     consumed: set[str] = set()
     method_fqns: set[str] = set()
-    method_registry = MethodRegistry.get_instance()
+    method_registry = get_registry()
     source_resolution = None
     if program_graph.schema_version == "0.3":
         from polisyos.foundry.compile.method_dataflow import (
@@ -1236,12 +1236,14 @@ def _resolve_closed_world_method_inputs(
     for node in program_graph.nodes:
         if node.node_kind != "method":
             continue
-        if not node.method_fqn or (
-            node.method_fqn in method_fqns and getattr(node, "input_ports", None) is None
-        ):
+        if not node.method_fqn:
             raise ValueError("method_input_method_instance_profile_unsupported")
-        method_fqns.add(node.method_fqn)
-        method_class = method_registry.get(node.method_fqn, version=node.method_version)
+        method_class = resolve_selected_method(
+            node.method_fqn, version=node.method_version, registry=method_registry
+        )
+        if method_class.signature.fqn in method_fqns and getattr(node, "input_ports", None) is None:
+            raise ValueError("method_input_method_instance_profile_unsupported")
+        method_fqns.add(method_class.signature.fqn)
         input_sources = (
             source_resolution.input_sources[node.node_id]
             if source_resolution is not None
@@ -4352,13 +4354,14 @@ def execute_program_graph(
                         node_id=node_id,
                         code="missing_method_fqn",
                     )
+                from polisyos.foundry.methods import get_registry, resolve_selected_method
                 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-                from polisyos.foundry.methods.registry import MethodRegistry
 
-                registry = MethodRegistry.get_instance()
-                method_class = method_classes.get(node_id) or registry.get(
+                registry = get_registry()
+                method_class = method_classes.get(node_id) or resolve_selected_method(
                     method_fqn,
                     version=node.method_version,
+                    registry=registry,
                 )
                 signature = method_class.signature
                 patch_target_operations = _validated_method_patch_operations(
@@ -5602,8 +5605,8 @@ def prepare_program_graph_method_calls(
         ValueError: If this bounded profile or its exact input basis is missing.
     """
     from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.foundry.methods import get_registry, resolve_selected_method
     from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-    from polisyos.foundry.methods.registry import MethodRegistry
 
     if (
         type(steps) is not tuple
@@ -5689,7 +5692,7 @@ def prepare_program_graph_method_calls(
     effective_seed = seed if seed is not None else ((plan.random_seed or 0) if treasury else 0)
     root_key = key = jax.random.PRNGKey(effective_seed)
     calls: list[PreparedProgramGraphMethodCall] = []
-    method_registry = MethodRegistry.get_instance()
+    method_registry = get_registry()
     dispatcher = MethodDispatcher.get_instance()
     for plan_index, node_id in enumerate(inventory.order):
         node = inventory.nodes[node_id]
@@ -5697,7 +5700,9 @@ def prepare_program_graph_method_calls(
             continue
         if not node.method_fqn:
             raise ValueError("program_graph_method_call_preparation_node_not_established")
-        method_class = method_registry.get(node.method_fqn, version=node.method_version)
+        method_class = resolve_selected_method(
+            node.method_fqn, version=node.method_version, registry=method_registry
+        )
         _validated_method_patch_operations(
             store,
             node=node,

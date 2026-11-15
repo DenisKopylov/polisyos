@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
-from typing import Any, ClassVar, Literal, Protocol, overload
+from typing import Any, ClassVar, Final, Literal, Protocol, overload
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
@@ -24,6 +24,7 @@ from .contract import CONTRACT_ID_PATTERN, ConnectorSchemaContract
 from .schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 
 SOURCE_CONTRACT_SCHEMA_VERSION = "fabric.source_contract.v2"
+SOURCE_CONTRACT_FIELD_SET_HASH_PROFILE: Final = "fabric.source_contract.field_sets.v1"
 
 SourceStatus = Literal["draft", "active", "deprecated", "sunset"]
 SourceTrustTier = Literal[
@@ -637,6 +638,32 @@ class SourceContract(BaseModel):
             "content_hash": self.content_hash,
             "contract": payload,
         }
+
+    def to_canonical_snapshot_record(
+        self,
+        *,
+        hash_profile: Literal["fabric.source_contract.field_sets.v1"],
+    ) -> dict[str, Any]:
+        """Return an explicitly versioned snapshot with stable field-set order.
+
+        The legacy hash and snapshot APIs retain their original wire identity.
+        This profile sorts only declared FieldSpec set fields; it preserves all
+        other snapshot fields and the existing created-at exclusion.
+        """
+        if hash_profile != SOURCE_CONTRACT_FIELD_SET_HASH_PROFILE:
+            raise ValueError("source_contract_hash_profile_unsupported")
+        record = self.to_snapshot_record()
+        payload = record["contract"]
+        for field in payload["schema"]["fields"]:
+            for key in ("tags", "allowed_values"):
+                if field[key] is not None:
+                    field[key] = sorted(field[key])
+        record["hash_profile"] = hash_profile
+        digest = compute_content_hash(
+            to_canonical_bytes(payload, spec=CanonSpec(forbid_floats=False))
+        )
+        record["content_hash"] = f"sha256:{digest}"
+        return record
 
 
 class SourceProgressContract(BaseModel):

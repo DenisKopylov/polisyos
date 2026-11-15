@@ -81,6 +81,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     normalize_schema_id_part,
 )
 from polisyos.fabric.connectors.contracts.source_contract import (
+    SOURCE_CONTRACT_FIELD_SET_HASH_PROFILE,
     SOURCE_CONTRACT_SCHEMA_VERSION,
     DecisionRole,
     FieldRedaction,
@@ -106,6 +107,12 @@ from polisyos.fabric.connectors.contracts.source_contract import (
     source_contracts_compatibility_evidence,
     source_contracts_snapshot_payload,
 )
+from polisyos.fabric.connectors.contracts.source_units import (
+    SourceMetricUnitDeclaration,
+    SourceMetricUnitDeclarationRef,
+    create_source_metric_unit_declaration,
+    load_source_metric_unit_declaration,
+)
 from polisyos.fabric.connectors.contracts.validation_middleware import (
     ContractValidatingProxy,
     FetchResultContractValidation,
@@ -113,6 +120,7 @@ from polisyos.fabric.connectors.contracts.validation_middleware import (
 )
 
 __all__ = [
+    "SOURCE_CONTRACT_FIELD_SET_HASH_PROFILE",
     "SOURCE_CONTRACT_SCHEMA_VERSION",
     "Additivity",
     # Evolution
@@ -178,18 +186,22 @@ __all__ = [
     "SourceDeprecationPolicy",
     "SourceFieldAccessPolicy",
     "SourceMetricDefinition",
+    "SourceMetricUnitDeclaration",
+    "SourceMetricUnitDeclarationRef",
     "TenantScope",
     "TimeGranularity",
     "TypeCoercionError",
     "actual_version_bump",
     "build_contract_registry",
     "coerce_dataframe_to_schema",
+    "create_source_metric_unit_declaration",
     "default_source_field_access_policies",
     "evaluate_contract_governance",
     "format_impacted_surfaces",
     "impacted_downstream_surfaces",
     "infer_schema",
     "load_source_contracts",
+    "load_source_metric_unit_declaration",
     "make_field_id",
     "make_schema_id",
     "normalize_schema_id_part",

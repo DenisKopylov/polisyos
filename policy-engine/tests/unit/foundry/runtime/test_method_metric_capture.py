@@ -77,7 +77,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
 from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.registry import MethodRegistry, registry_scope
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
@@ -540,16 +540,18 @@ def test_method_input_state_requires_exact_graph_id_to_abi_slot_join() -> None:
 
 
 @pytest.mark.parametrize(
-    ("scenario_unit", "expected_availability"),
+    ("scenario_unit", "expected_availability", "isolated_registry"),
     [
-        (Unit("value", "amount"), "available"),
-        (Unit("ratio", "ratio"), "unavailable"),
+        (Unit("value", "amount"), "available", False),
+        (Unit("ratio", "ratio"), "unavailable", False),
+        (Unit("value", "amount"), "available", True),
     ],
 )
 def test_method_metric_compiler_requires_complete_registered_input_unit_set(
     monkeypatch,
     scenario_unit: Unit,
     expected_availability: str,
+    isolated_registry: bool,
 ) -> None:
     profile = "sha256:" + "a" * 64
 
@@ -617,16 +619,36 @@ def test_method_metric_compiler_requires_complete_registered_input_unit_set(
             )
 
     store = _BindingSetStore()
-    method_registry = MethodRegistry.get_instance()
-    method_registry.register(ExAnteSimulationEstimator, override=True)
-    signature = method_registry.get_signature(graph_node.method_fqn)
-    assert signature is not None
+    default_registry = MethodRegistry._create_fresh()
+    monkeypatch.setattr(MethodRegistry, "_instance", default_registry)
+    method_registry = MethodRegistry._create_fresh() if isolated_registry else default_registry
+    signature = ExAnteSimulationEstimator.signature
     changed_inputs = frozenset(
         replace(slot, unit=scenario_unit) if slot.name == "scenario" else slot
         for slot in signature.input_slots
     )
-    mismatched_signature = replace(signature, input_slots=changed_inputs)
-    monkeypatch.setattr(method_registry, "get_signature", lambda _fqn: mismatched_signature)
+
+    class SelectedMethod:
+        metadata = ExAnteSimulationEstimator.metadata
+        pure_step = staticmethod(ExAnteSimulationEstimator.pure_step)
+
+    SelectedMethod.signature = replace(signature, input_slots=changed_inputs)
+    method_registry.register(SelectedMethod)
+    if isolated_registry:
+
+        class AmbientMethod(SelectedMethod):
+            pass
+
+        AmbientMethod.signature = replace(
+            signature,
+            input_slots=frozenset(
+                replace(slot, unit=Unit("ratio", "ratio")) if slot.name == "scenario" else slot
+                for slot in signature.input_slots
+            ),
+        )
+        default_registry.register(AmbientMethod)
+        assert AmbientMethod.signature.abi_digest() != SelectedMethod.signature.abi_digest()
+    default_before = tuple(default_registry.snapshot().entries())
     monkeypatch.setattr(
         trinity_compiler_module,
         "load_registry_bundle",
@@ -641,18 +663,22 @@ def test_method_metric_compiler_requires_complete_registered_input_unit_set(
         lambda _store, selected: selected,
     )
 
-    trinity_compiler_module._compile_method_metric_binding_set(
-        store,
-        request=request,
-        bundle=bundle,
-        program_graph=program_graph,
-        program_graph_ref=program_graph_ref,
-        registry_bundle_ref=registry_bundle_ref,
-        registry_content=registry_content,
-    )
+    with registry_scope(method_registry):
+        trinity_compiler_module._compile_method_metric_binding_set(
+            store,
+            request=request,
+            bundle=bundle,
+            program_graph=program_graph,
+            program_graph_ref=program_graph_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            registry_content=registry_content,
+        )
 
     assert store.payload is not None
     assert store.payload.bindings[0].availability == expected_availability
+    assert store.payload.bindings[0].method_abi_digest == SelectedMethod.signature.abi_digest()
+    if isolated_registry:
+        assert tuple(default_registry.snapshot().entries()) == default_before
     if expected_availability == "unavailable":
         assert "registered_method_input_unit_set_mismatch" in store.payload.bindings[0].limitation
 

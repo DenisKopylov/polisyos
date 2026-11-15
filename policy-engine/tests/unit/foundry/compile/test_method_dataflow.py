@@ -341,3 +341,46 @@ def test_method_output_binding_rejects_registry_version_mismatch() -> None:
             registry=MethodRegistry.get_instance(),
             allow_method_output=True,
         )
+
+
+def test_method_output_binding_selects_bare_name_with_exact_version() -> None:
+    from polisyos.foundry.compile.method_dataflow import resolve_method_output_input_bindings
+
+    producer, consumer = _pair()
+    _register(
+        replace(
+            producer,
+            version="2.0.0",
+            input_slots=frozenset(
+                {SlotSpec("different_seed", SlotType.SCALAR, Unit("currency", "USD"))}
+            ),
+        )
+    )
+    plan = _plan(producer, consumer)
+    plan.method_dag[0].method_fqn = producer.fqn.rsplit("@", 1)[0]
+    resolved = resolve_method_output_input_bindings(
+        plan,
+        registry=MethodRegistry.get_instance(),
+        allow_method_output=True,
+    )
+    assert resolved.bindings[0].producer_method_fqn == producer.fqn
+    assert resolved.bindings[0].producer_method_version == "1.0.0"
+    assert resolved.registry_inputs["producer.node"] == ("seed",)
+
+
+def test_compiler_selects_exact_bare_version_and_rejects_conflicting_fields() -> None:
+    from polisyos.foundry.compile._graph import _method_plan_graph_nodes
+
+    producer, _consumer = _pair()
+    _register(replace(producer, version="2.0.0"))
+    node = _node(producer, node_id="exact.compiler")
+    node.method_fqn = producer.fqn.rsplit("@", 1)[0]
+    plan = ExecutionPlan(plan_id="exact-version-compiler", schema_version="1.1", method_dag=[node])
+    nodes, _edges = _method_plan_graph_nodes(plan, set(), existing_nodes=[])
+    assert nodes[0].method_fqn == producer.fqn
+    assert nodes[0].method_version == "1.0.0"
+
+    node.method_fqn = producer.fqn
+    node.method_version = "2.0.0"
+    with pytest.raises(ValueError, match="execution_plan_method_version_mismatch"):
+        _method_plan_graph_nodes(plan, set(), existing_nodes=[])

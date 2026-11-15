@@ -409,3 +409,26 @@ typed historical-rule-unavailable refusal. Their original
 selected bytes remain intact: a new `/3` derivation is required rather than
 silently reinterpreting them under the new arithmetic or schema rule. Generic
 source inspection is unaffected, and replay never promotes candidate assurance.
+
+## Metric-scoped declared units
+
+`contracts.source_units` extends existing SourceContract v2 metric definitions
+with a selected `SourceMetricUnitDeclaration`. The producer resolves an actual
+ConnectorSchemaContract registry version and binds the full DataSchema hash,
+source-contract hash, source profile, dataset, metric, raw-to-normalized field
+mapping and row indicator. A long-form field such as WDI `value` keeps its
+global unit unset; two indicators can declare different physical units.
+
+The connector and contracts facades expose the candidate-only producer and
+immutable reader. These public experimental declarations establish physical
+unit consistency only. Consumers must separately verify adoption, rights,
+meaning, denominator, population, time, provenance and current use.
+
+Source-unit manifest 1.1 explicitly selects the SourceContract-owned
+`fabric.source_contract.field_sets.v1` snapshot hash profile.
+`SourceContract.to_canonical_snapshot_record` sorts only declared FieldSpec
+`tags` and `allowed_values`; the legacy `content_hash` and `to_snapshot_record`
+retain their original identities. The 1.0 unit reader retains its original hash
+profile and exposes a legacy replay limitation instead of restamping old bytes.
+Legacy nonempty-set artifacts may refuse if their original hash cannot be
+reproduced; there is no automatic migration or reinterpretation.

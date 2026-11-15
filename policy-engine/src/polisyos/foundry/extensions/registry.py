@@ -10,6 +10,7 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from polisyos.core.components import (
     ComponentDiscoveryManifest,
@@ -17,11 +18,14 @@ from polisyos.core.components import (
     ComponentRegistry,
     DuplicateComponentIdPolicy,
 )
+from polisyos.foundry.methods.base import FoundryMethod
 from polisyos.foundry.methods.components.bridge import (
+    _BOOTSTRAP_LOCK,
     ComponentsBridgeError,
     bootstrap_method_registry_from_components,
 )
 from polisyos.foundry.methods.selection.registry import (
+    MethodEntry,
     MethodRegistry,
     RegistrySnapshot,
     get_registry,
@@ -52,6 +56,155 @@ class FoundryExtensionRegistryReport:
 
 class UnboundFoundryDiscoveryInputError(RuntimeError):
     """Refuse registry mutation when an ambient discovery input is not content-bound."""
+
+
+def _selected_method_fqn(name: str, version: str | None) -> str:
+    if type(name) is not str or not name or (version is not None and type(version) is not str):
+        raise ValueError("selected_method_identity_invalid")
+    if "@" in name:
+        base, selected_version = name.rsplit("@", 1)
+        if not base or not selected_version:
+            raise ValueError("selected_method_identity_invalid")
+        if version is not None and version != selected_version:
+            raise ValueError("selected_method_version_conflict")
+        return name
+    if not version:
+        raise ValueError("selected_method_version_missing")
+    return f"{name}@{version}"
+
+
+def _selected_method_entry(fqn: str, registry: MethodRegistry) -> MethodEntry | None:
+    entry = registry.get_entry(fqn)
+    if entry is not None:
+        return entry
+    default_registry = MethodRegistry.get_instance()
+    if registry is not default_registry or get_registry() is not default_registry:
+        return None
+
+    from . import discovery
+
+    # Discover against an isolated active registry without holding the
+    # destination lock across imports. Only the selected component is then
+    # admitted through the canonical bridge against a fresh locked snapshot.
+    with registry_scope():
+        index, report = discovery.build_foundry_method_components_index(
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+        )
+    manifest = report.manifest
+    canonical_target = discovery._DEFAULT_BUILTIN_LOADER[0]
+    if (
+        report.errors
+        or manifest is None
+        or not manifest.is_bound
+        or manifest.builtin_loaders != (canonical_target,)
+        or manifest.entry_point_groups
+        or manifest.entry_points
+        or manifest.dev_scan_enabled
+        or manifest.dev_scan_roots
+        or manifest.dev_scan_files
+    ):
+        refusal = UnboundFoundryDiscoveryInputError("selected_method_builtin_discovery_not_bound")
+        for error in report.errors:
+            refusal.add_note(f"{error.source}:{error.item or '<unknown>'}: {error.message}")
+        raise refusal
+    selected = index.get(fqn)
+    if selected is None:
+        return None
+    if str(selected.metadata.component_id) != fqn or fqn not in {
+        row.component_id for row in manifest.components
+    }:
+        raise UnboundFoundryDiscoveryInputError(
+            "selected_method_builtin_manifest_membership_mismatch"
+        )
+    selected_index = ComponentRegistry()
+    selected_index.register(selected)
+
+    # Match the canonical bridge's admission-lock -> destination-lock order.
+    # Recheck after discovery because another admission may have supplied the
+    # exact entry while imports were in progress.
+    with _BOOTSTRAP_LOCK, registry.snapshot_scope() as before:
+        entry = registry.get_entry(fqn)
+        if entry is not None:
+            return entry
+        bridge = bootstrap_method_registry_from_components(
+            selected_index,
+            registry,
+            allow_dev_overrides=False,
+            mutate_registry_default_policy=False,
+        )
+        if bridge.errors or bridge.duplicates or bridge.registered != [fqn]:
+            raise UnboundFoundryDiscoveryInputError(
+                "selected_method_builtin_registry_admission_failed"
+            )
+        after = registry.snapshot()
+        before_entries = {row.fqn: row for row in before.entries()}
+        after_entries = {row.fqn: row for row in after.entries()}
+        if set(after_entries) != {*before_entries, fqn} or any(
+            after_entries[name] != value for name, value in before_entries.items()
+        ):
+            raise UnboundFoundryDiscoveryInputError(
+                "selected_method_builtin_registry_footprint_mismatch"
+            )
+        return registry.get_entry(fqn)
+
+
+def resolve_selected_method_entry(
+    name: str,
+    *,
+    version: str | None = None,
+    registry: MethodRegistry | None = None,
+) -> MethodEntry | None:
+    """Resolve one exact selected signature, admitting only a bound builtin miss.
+
+    Args:
+        name: Fully qualified method name, with or without its version suffix.
+        version: Selected version; required when ``name`` has no suffix.
+        registry: Explicit configured registry. Non-default registries remain
+            lookup-only and are never populated from builtin discovery.
+
+    Returns:
+        The selected entry, or None for an unknown method or version.
+
+    Raises:
+        ValueError: If the selection has no version or its two versions conflict.
+        UnboundFoundryDiscoveryInputError: If a cold builtin's complete discovery
+            or its admission into the destination registry is not established.
+    """
+    fqn = _selected_method_fqn(name, version)
+    selected_registry = registry if registry is not None else get_registry()
+    return _selected_method_entry(fqn, selected_registry)
+
+
+def resolve_selected_method(
+    name: str,
+    *,
+    version: str | None = None,
+    registry: MethodRegistry | None = None,
+) -> type[FoundryMethod[Any, Any]]:
+    """Load the exact selected method class without a newest-version fallback.
+
+    Args:
+        name: Fully qualified method name, optionally including its version.
+        version: Selected version when it is not included in the name.
+        registry: Explicit registry; isolated registries remain lookup-only.
+
+    Returns:
+        The actual class of the exact selected registered method.
+
+    Raises:
+        ValueError: If the version is missing or conflicts with the name.
+        MethodNotFoundError: If that exact method/version is unavailable.
+        UnboundFoundryDiscoveryInputError: If a cold builtin cannot be admitted.
+    """
+    from polisyos.foundry.methods.exceptions import MethodNotFoundError
+
+    fqn = _selected_method_fqn(name, version)
+    selected_registry = registry if registry is not None else get_registry()
+    if _selected_method_entry(fqn, selected_registry) is None:
+        raise MethodNotFoundError(fqn)
+    return selected_registry.get(fqn)
 
 
 def bootstrap_foundry_method_registry(
@@ -267,6 +420,8 @@ __all__ = sorted(
         "get_registry",
         "get_registry_audit_log",
         "register_foundry_method_plugin",
+        "resolve_selected_method",
+        "resolve_selected_method_entry",
         "registry_scope",
     ]
 )

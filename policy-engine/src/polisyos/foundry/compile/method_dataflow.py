@@ -19,13 +19,13 @@ from polisyos.core.contracts.method_input import (
     RegistrySlotInputPortSource,
 )
 from polisyos.core.registry.loader import RegistryBundleContent
+from polisyos.foundry.methods import MethodRegistry, resolve_selected_method_entry
 from polisyos.foundry.methods.base import (
     ComputeBackend,
     MethodKind,
     MethodSignature,
     SideEffectProfile,
 )
-from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import (
     check_slot_compatibility,
     validate_registered_method_input,
@@ -115,13 +115,17 @@ def resolve_method_output_input_bindings(
 
     resolved_nodes: dict[str, _MethodNode] = {}
     for node in nodes:
-        entry = registry.get_entry(node.method_fqn)
+        try:
+            entry = resolve_selected_method_entry(
+                node.method_fqn, version=node.method_version, registry=registry
+            )
+        except ValueError as exc:
+            raise ValueError("method_dataflow_registered_signature_identity_mismatch") from exc
         if entry is None:
             raise ValueError("method_dataflow_registered_signature_missing")
         signature = entry.signature
         if (
-            signature.fqn != node.method_fqn
-            or node.method_version != signature.version
+            node.method_version != signature.version
             or signature.kind is not MethodKind.PURE
             or node.backend != signature.execution_backend.value
         ):
@@ -252,15 +256,16 @@ def resolve_program_graph_method_input_sources(
     for node in method_nodes:
         if node.method_fqn is None or node.method_version is None:
             raise ValueError("method_dataflow_graph_method_identity_missing")
-        entry = registry.get_entry(node.method_fqn)
+        try:
+            entry = resolve_selected_method_entry(
+                node.method_fqn, version=node.method_version, registry=registry
+            )
+        except ValueError as exc:
+            raise ValueError("method_dataflow_registered_signature_identity_mismatch") from exc
         if entry is None:
             raise ValueError("method_dataflow_registered_signature_missing")
         signature = entry.signature
-        if (
-            signature.fqn != node.method_fqn
-            or signature.version != node.method_version
-            or signature.kind is not MethodKind.PURE
-        ):
+        if signature.version != node.method_version or signature.kind is not MethodKind.PURE:
             raise ValueError("method_dataflow_registered_signature_identity_mismatch")
         if graph.schema_version == "0.3":
             if node.input_ports is None:
@@ -409,7 +414,13 @@ def _resolve_output_bindings(
                 raise ValueError("method_dataflow_producer_output_slot_missing")
             if consumer_slot is None:
                 raise ValueError("method_dataflow_consumer_input_slot_missing")
-            if require_selected_registry and registry.get_entry(producer.method_fqn) is None:
+            if (
+                require_selected_registry
+                and resolve_selected_method_entry(
+                    producer.method_fqn, version=producer.method_version, registry=registry
+                )
+                is None
+            ):
                 raise ValueError("method_dataflow_registered_signature_missing")
             _validate_transfer_profile(producer, consumer)
             compatibility = check_slot_compatibility(

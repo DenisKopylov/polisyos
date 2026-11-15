@@ -603,6 +603,14 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.selection.resolution",
         "resolve_method_version",
     ),
+    "resolve_selected_method": (
+        "polisyos.foundry.extensions.registry",
+        "resolve_selected_method",
+    ),
+    "resolve_selected_method_entry": (
+        "polisyos.foundry.extensions.registry",
+        "resolve_selected_method_entry",
+    ),
     "resolve_version": (
         "polisyos.foundry.methods.selection.resolution",
         "resolve_version",

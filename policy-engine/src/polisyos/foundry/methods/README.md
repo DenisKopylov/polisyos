@@ -53,6 +53,14 @@ typed discovery, versioning, dispatch, and evidence.
 
 ## Public API
 
+The experimental `resolve_selected_method_entry` and `resolve_selected_method`
+facade functions resolve an explicitly selected method/version through the
+canonical extension owner. A cold default registry may admit that exact builtin
+from bound discovery; isolated or caller-owned registries retain their existing
+lookup-only behavior. Neither function grants source authority or imports
+unselected external plugins. Compilation uses the signature entry; execution
+and input preflight use the actual class, with the same selected identity.
+
 | Entrypoint                         | Description                                                               |
 | ---------------------------------- | ------------------------------------------------------------------------- |
 | `FoundryMethod`                    | Base protocol for typed methods.                                          |

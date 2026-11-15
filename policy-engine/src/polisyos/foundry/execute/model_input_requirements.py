@@ -367,13 +367,13 @@ def _recompute_program_graph_inputs(
             from polisyos.foundry.compile.method_dataflow import (
                 resolve_program_graph_method_input_sources,
             )
-            from polisyos.foundry.methods.selection.registry import MethodRegistry
+            from polisyos.foundry.methods import get_registry
         except ImportError as exc:
             raise ValueError("model_input_method_dataflow_not_verified") from exc
 
         method_input_sources = resolve_program_graph_method_input_sources(
             graph,
-            registry=MethodRegistry.get_instance(),
+            registry=get_registry(),
             registry_content=registry,
             order=plan.order,
             allow_method_output=True,
@@ -849,24 +849,22 @@ def _graph_input_dependencies(
         if node.node_kind == "method":
             if op is not None or node.mechanism_type is not None or not node.method_fqn:
                 raise ValueError("model_input_graph_method_unresolved")
-            if node.method_fqn in method_fqns and not mapped_method_inputs:
-                raise ValueError("model_input_graph_method_instance_duplicate")
-            method_fqns.add(node.method_fqn)
             if node.method_version is None:
                 raise ValueError("model_input_method_version_unselected")
             try:
-                from polisyos.foundry.methods.registry import MethodRegistry
+                from polisyos.foundry.methods import resolve_selected_method
 
-                method_class = MethodRegistry.get_instance().get(
-                    node.method_fqn, version=node.method_version
-                )
+                method_class = resolve_selected_method(node.method_fqn, version=node.method_version)
             except Exception as exc:
                 raise ValueError("model_input_method_registry_unresolved") from exc
             from polisyos.foundry.methods.types import validate_registered_method_input
 
             signature = method_class.signature
-            if signature.fqn != node.method_fqn or signature.version != node.method_version:
+            if signature.version != node.method_version:
                 raise ValueError("model_input_method_registry_mismatch")
+            if signature.fqn in method_fqns and not mapped_method_inputs:
+                raise ValueError("model_input_graph_method_instance_duplicate")
+            method_fqns.add(signature.fqn)
             method_abi_digest = signature.abi_digest()
             signature_inputs = {slot.name: slot for slot in signature.input_slots}
             internal_input_names: set[str] = set()

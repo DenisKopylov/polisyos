@@ -18,8 +18,8 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.contracts.method_input import MethodInputPortSource
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
+from polisyos.foundry.methods import get_registry, resolve_selected_method_entry
 from polisyos.foundry.methods.base import MethodKind, SideEffectProfile
-from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.kernel.slots import SlotRegistry
 
 from .method_dataflow import MethodDataflowResolution, resolve_method_output_input_bindings
@@ -101,7 +101,7 @@ def build_program_graph(
             raise ValueError("execution_plan_method_input_plan_missing")
         method_dataflow = resolve_method_output_input_bindings(
             method_plan,
-            registry=MethodRegistry.get_instance(),
+            registry=get_registry(),
             registry_content=registry_content,
             allow_method_output=True,
         )
@@ -197,7 +197,7 @@ def _method_plan_graph_nodes(
     if existing_node_ids.intersection(method_ids):
         raise ValueError("execution_plan_method_node_id_collides_with_compiled_graph")
     method_id_set = set(method_ids)
-    registry = MethodRegistry.get_instance()
+    registry = get_registry()
     program_nodes: list[ProgramNode] = []
     dependencies: set[tuple[str, str]] = set()
     return_slots_by_node: dict[str, set[str]] = {}
@@ -205,9 +205,14 @@ def _method_plan_graph_nodes(
     for source in plan.method_dag:
         if source.incompatibilities or source.deprecations:
             raise ValueError("execution_plan_method_status_fields_unsupported")
-        entry = registry.get_entry(source.method_fqn)
+        try:
+            entry = resolve_selected_method_entry(
+                source.method_fqn, version=source.method_version, registry=registry
+            )
+        except ValueError as exc:
+            raise ValueError("execution_plan_method_version_mismatch") from exc
         signature = entry.signature if entry is not None else None
-        if signature is None or signature.fqn != source.method_fqn:
+        if signature is None:
             raise ValueError("execution_plan_method_exact_signature_unavailable")
         if signature.kind is not MethodKind.PURE:
             raise ValueError("execution_plan_method_kind_unsupported")
@@ -260,8 +265,8 @@ def _method_plan_graph_nodes(
             ProgramNode(
                 node_id=source.node_id,
                 node_kind="method",
-                method_fqn=source.method_fqn,
-                method_version=source.method_version,
+                method_fqn=signature.fqn,
+                method_version=signature.version,
                 method_params=dict(source.params),
                 inputs=program_inputs,
                 # Method return names stay in writes_slots and are captured by the selected

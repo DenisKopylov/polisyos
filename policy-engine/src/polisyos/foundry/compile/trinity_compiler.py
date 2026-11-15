@@ -57,8 +57,12 @@ from polisyos.foundry.compile.randomization import (
     TREASURY_SALTS_PROFILE,
     build_treasury_plan,
 )
+from polisyos.foundry.methods import (
+    get_registry,
+    resolve_selected_method,
+    resolve_selected_method_entry,
+)
 from polisyos.foundry.methods.base import SlotType
-from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.selection.cost_model import CostBudget, CostModel
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
 from polisyos.ir import build_slot_layout
@@ -623,7 +627,7 @@ def _compile_method_metric_binding_set(
     if metric_registry is None or units_registry is None:
         raise ValueError("method_metric_registry_payload_missing")
 
-    method_registry = MethodRegistry.get_instance()
+    method_registry = get_registry()
     default_law_id, default_law_version, default_law_digest = (
         registered_method_metric_law_metadata()
     )
@@ -637,8 +641,14 @@ def _compile_method_metric_binding_set(
         node = nodes_by_id.get(selection.node_id)
         if node is None or node.node_kind != "method" or not node.method_fqn:
             raise ValueError("method_metric_selected_node_not_method")
-        signature = method_registry.get_signature(node.method_fqn)
-        if signature is None or signature.fqn != node.method_fqn:
+        try:
+            entry = resolve_selected_method_entry(
+                node.method_fqn, version=node.method_version, registry=method_registry
+            )
+        except ValueError as exc:
+            raise ValueError("method_metric_method_version_mismatch") from exc
+        signature = entry.signature if entry is not None else None
+        if signature is None:
             raise ValueError("method_metric_exact_method_signature_unavailable")
         if node.method_version is not None and node.method_version != signature.version:
             raise ValueError("method_metric_method_version_mismatch")
@@ -731,7 +741,9 @@ def _compile_method_metric_binding_set(
         if adapter.operation == "unsupported":
             limitations.append(adapter.limitation or "unit_relation_not_registered")
         try:
-            method_class = method_registry.get(signature.fqn, version=signature.version)
+            method_class = resolve_selected_method(
+                signature.fqn, version=signature.version, registry=method_registry
+            )
             build_source = inspect.getsource(method_class).encode("utf-8")
             method_build_digest = "sha256:" + hashlib.sha256(build_source).hexdigest()
             method_build_digest_scope = "class_source_only"

@@ -42,7 +42,13 @@ from polisyos.core.contracts import (
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
-from polisyos.fabric.connectors import verify_selected_cache_payload_ref
+from polisyos.fabric.connectors import (
+    ContractRegistry,
+    SourceMetricUnitDeclaration,
+    SourceMetricUnitDeclarationRef,
+    load_source_metric_unit_declaration,
+    verify_selected_cache_payload_ref,
+)
 from polisyos.fabric.data_plane import parse_datetime_utc
 
 from .overlay import (
@@ -109,6 +115,7 @@ _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION = (
     "polisyos.data_forge.model_input_source_query_envelope.v1"
 )
 _ACQUISITION_SUPPLIER_DECLARATION_KIND = "catalog.acquisition_supplier_declaration"
+_SOURCE_UNIT_PROVISION_KIND = "catalog.acquisition_authority_provision"
 _ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_NAME = "polisyos.data_forge.AcquisitionSupplierDeclaration"
 _ACQUISITION_SUPPLIER_DECLARATION_SCHEMA_VERSION = "1.0"
 _ACQUISITION_SUPPLIER_DECLARATION_PAYLOAD_SCHEMA_VERSION = (
@@ -315,9 +322,14 @@ class AcquisitionAuthorityProvision(_StrictModel):
         pattern=_SHA256_PATTERN,
     )
     live_harness_receipts: tuple[LiveHarnessReceiptProvisionEntry, ...] = ()
+    source_unit_declaration_refs: tuple[SourceMetricUnitDeclarationRef, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
     authority_purpose: Literal[
         "resolve_baseline_and_local_rights_trust_only",
         "resolve_acquisition_owners_and_live_harness_receipts",
+        "resolve_acquisition_owners_and_source_unit_declarations",
+        "resolve_acquisition_owners_live_harness_and_source_unit_declarations",
     ] = "resolve_baseline_and_local_rights_trust_only"
     may_not_use_for: tuple[Literal["acquisition_registry_self_authorization"]] = (
         "acquisition_registry_self_authorization",
@@ -330,8 +342,17 @@ class AcquisitionAuthorityProvision(_StrictModel):
         )
         if receipt_keys != tuple(sorted(set(receipt_keys))):
             raise ValueError("live harness receipt provisions must be unique and sorted")
+        unit_keys = tuple(
+            artifacts.artifact_ref_identity_key(ref) for ref in self.source_unit_declaration_refs
+        )
+        if unit_keys != tuple(sorted(set(unit_keys))):
+            raise ValueError("source unit declaration provisions must be unique and sorted")
         expected_purpose = (
-            "resolve_acquisition_owners_and_live_harness_receipts"
+            "resolve_acquisition_owners_live_harness_and_source_unit_declarations"
+            if self.live_harness_receipts and self.source_unit_declaration_refs
+            else "resolve_acquisition_owners_and_source_unit_declarations"
+            if self.source_unit_declaration_refs
+            else "resolve_acquisition_owners_and_live_harness_receipts"
             if self.live_harness_receipts
             else "resolve_baseline_and_local_rights_trust_only"
         )
@@ -357,6 +378,8 @@ class AcquisitionAuthorityProvision(_StrictModel):
         # no authority-bearing content.
         if not self.live_harness_receipts:
             payload.pop("live_harness_receipts")
+        if not self.source_unit_declaration_refs:
+            payload.pop("source_unit_declaration_refs", None)
         return payload
 
 
@@ -543,6 +566,9 @@ class AcquisitionAuthorityEntry(_StrictModel):
     source_representation_ref: VariableRepresentationRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    source_unit_declaration_ref: SourceMetricUnitDeclarationRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
     country_codes: tuple[str, ...] = Field(min_length=1)
@@ -551,6 +577,8 @@ class AcquisitionAuthorityEntry(_StrictModel):
 
     @model_validator(mode="after")
     def _entry_is_narrow_and_content_bound(self) -> Self:
+        if self.source_unit_declaration_ref is not None and self.source_lane != "live_fetch":
+            raise ValueError("source unit declarations require the live source owner")
         if (self.source_semantic_definition_ref is None) != (
             self.source_representation_ref is None
         ):
@@ -607,10 +635,15 @@ class AcquisitionAuthorityEntry(_StrictModel):
     def schema_projection(self) -> dict[str, object]:
         """Return the C1 schema projection that must travel with a request."""
 
-        return {
+        projection: dict[str, object] = {
             "schema_contract_ref": self.schema_contract_ref,
             "columns": [column.model_dump(mode="json") for column in self.schema_columns],
         }
+        if self.source_unit_declaration_ref is not None:
+            projection["source_unit_declaration_ref"] = self.source_unit_declaration_ref.model_dump(
+                mode="json"
+            )
+        return projection
 
 
 class AcquisitionAuthorityRegistry(_StrictModel):
@@ -935,6 +968,15 @@ class AcquisitionSupplierDeclaration(_StrictModel):
     baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     upstream_catalog_projection_sha256: str = Field(pattern=_SHA256_PATTERN)
     l5_owner_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    source_unit_provision_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    source_unit_profile_id: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
+    source_unit_request_dataset_id: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
     semantic_refs_status: Literal["declared", "not_established"]
     source_scope_status: Literal["declared", "not_established"]
     semantic_authority: Literal["not_established"] = "not_established"
@@ -955,6 +997,22 @@ class AcquisitionSupplierDeclaration(_StrictModel):
     def _declaration_limitations_and_statuses_are_exact(
         self,
     ) -> AcquisitionSupplierDeclaration:
+        unit_ref = self.source_unit_provision_ref
+        if any(
+            (value is None) != (self.entry.source_unit_declaration_ref is None)
+            for value in (
+                unit_ref,
+                self.source_unit_profile_id,
+                self.source_unit_request_dataset_id,
+            )
+        ):
+            raise ValueError("supplier_declaration_unit_provision_required")
+        if unit_ref is not None and (
+            unit_ref.kind != _SOURCE_UNIT_PROVISION_KIND
+            or unit_ref.media_type != "application/octet-stream"
+            or unit_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("supplier_declaration_unit_provision_ref_invalid")
         semantic_refs_status = (
             "declared"
             if self.entry.source_semantic_definition_ref is not None
@@ -1366,6 +1424,8 @@ def build_authority_entry(**values: object) -> AcquisitionAuthorityEntry:
 
 
 def build_acquisition_authority_provision(
+    *,
+    source_unit_reader: artifacts.CoreJSONArtifactProfileReader | None = None,
     **values: object,
 ) -> AcquisitionAuthorityProvision:
     """Build the separately persisted resolver provision without a pinned id."""
@@ -1385,6 +1445,27 @@ def build_acquisition_authority_provision(
             normalized.setdefault(
                 "authority_purpose",
                 "resolve_acquisition_owners_and_live_harness_receipts",
+            )
+    unit_values = normalized.get("source_unit_declaration_refs")
+    if unit_values is not None:
+        if not isinstance(unit_values, Sequence) or isinstance(unit_values, (str, bytes)):
+            raise ValueError("source unit declaration provisions must be a sequence")
+        unit_refs = tuple(
+            SourceMetricUnitDeclarationRef.model_validate(item) for item in unit_values
+        )
+        if unit_refs and source_unit_reader is None:
+            raise ValueError("source unit adoption requires its actual selected bytes")
+        if source_unit_reader is not None:
+            for ref in unit_refs:
+                load_source_metric_unit_declaration(source_unit_reader, ref)
+        normalized["source_unit_declaration_refs"] = tuple(
+            sorted(unit_refs, key=artifacts.artifact_ref_identity_key)
+        )
+        if unit_refs and "authority_purpose" not in values:
+            normalized["authority_purpose"] = (
+                "resolve_acquisition_owners_live_harness_and_source_unit_declarations"
+                if normalized.get("live_harness_receipts")
+                else "resolve_acquisition_owners_and_source_unit_declarations"
             )
     provisional = AcquisitionAuthorityProvision.model_construct(
         provision_id="acquisition-authority-provision:sha256:" + "0" * 64,
@@ -1554,6 +1635,8 @@ class CanonicalAcquisitionAuthority:
         provision: AcquisitionAuthorityProvision,
         provision_content_sha256: str,
         _construction_token: object,
+        source_unit_reader: artifacts.CoreJSONArtifactProfileReader | None = None,
+        source_unit_contract_registry: ContractRegistry | None = None,
     ) -> None:
         if _construction_token is not _PROVISION_CONSTRUCTION_TOKEN:
             raise TypeError("use CanonicalAcquisitionAuthority.from_provision")
@@ -1570,6 +1653,8 @@ class CanonicalAcquisitionAuthority:
         self._model_input_activation_scope: _ModelInputActivationScope | None = None
         self._registry_snapshot_cache: tuple[str, AcquisitionAuthorityRegistry] | None = None
         self._semantic_definition_index_cache: _AuthoritySemanticDefinitionIndex | None = None
+        self._source_unit_reader = source_unit_reader
+        self._source_unit_contract_registry = source_unit_contract_registry
 
     @classmethod
     def from_provision(
@@ -1578,6 +1663,8 @@ class CanonicalAcquisitionAuthority:
         repo_root: Path,
         baseline_path: Path,
         l5_measurement_registry_path: Path | None = None,
+        source_unit_reader: artifacts.CoreJSONArtifactProfileReader | None = None,
+        source_unit_contract_registry: ContractRegistry | None = None,
     ) -> CanonicalAcquisitionAuthority:
         """Load the canonical provision receipt; callers cannot choose its anchors."""
 
@@ -1602,6 +1689,8 @@ class CanonicalAcquisitionAuthority:
             provision=provision,
             provision_content_sha256=provision_content_sha256,
             _construction_token=_PROVISION_CONSTRUCTION_TOKEN,
+            source_unit_reader=source_unit_reader,
+            source_unit_contract_registry=source_unit_contract_registry,
         )
 
     def _for_model_input_activation(
@@ -1687,6 +1776,8 @@ class CanonicalAcquisitionAuthority:
             repo_root=self.repo_root,
             baseline_path=self.baseline_path,
             l5_measurement_registry_path=self.l5_path,
+            source_unit_reader=self._source_unit_reader,
+            source_unit_contract_registry=self._source_unit_contract_registry,
         )
         if scoped.provision_content_sha256 != self.provision_content_sha256:
             raise AcquisitionAuthorityError("acquisition_authority_provision_drift")
@@ -2676,6 +2767,23 @@ class CanonicalAcquisitionAuthority:
             for row in normalized_rows
         ):
             raise AcquisitionAuthorityError("live_normalized_scope_drift")
+        if resolved.entry.source_unit_declaration_ref is not None:
+            declaration = self._resolve_source_unit_declaration(
+                resolved.entry,
+                connector_id=resolved.registration.connector_id,
+                profile_id=resolved.registration.source_profile_id,
+                request_dataset_id=resolved.registration.request_dataset_id,
+            )
+            try:
+                declaration.validate_raw_metric_rows(raw_rows)
+                reported = declaration.reported_units(normalized_rows)
+            except ValueError as exc:
+                raise AcquisitionAuthorityError(
+                    "source_unit_result_scope_mismatch", str(exc)
+                ) from exc
+            expected = normalize_acquisition_unit(declaration.declared_unit.unit_id)
+            if any(normalize_acquisition_unit(value) != expected for value in reported):
+                raise AcquisitionAuthorityError("source_unit_reported_unit_mismatch")
 
     @staticmethod
     def _reopen_artifact(
@@ -2875,10 +2983,20 @@ class CanonicalAcquisitionAuthority:
             and normalize_acquisition_unit(fixed_unit_evidence.raw_unit) == "percent"
             and normalize_acquisition_unit(fixed_unit_evidence.canonical_unit) == "ratio"
         )
-        catalog_unit = derive_catalog_unit_from_text(
-            f"{title or ''} {description or ''}",
-            coordinate_only=coordinate_only,
-        )
+        unit_declaration = None
+        if entry.source_unit_declaration_ref is None:
+            catalog_unit = derive_catalog_unit_from_text(
+                f"{title or ''} {description or ''}",
+                coordinate_only=coordinate_only,
+            )
+        else:
+            unit_declaration = self._resolve_source_unit_declaration(
+                entry,
+                connector_id=str(connector_id),
+                profile_id=str(profile_id),
+                request_dataset_id=str(request_dataset_id),
+            )
+            catalog_unit = normalize_acquisition_unit(unit_declaration.declared_unit.unit_id)
         if catalog_unit is None:
             raise AcquisitionAuthorityError("catalog_unit_unresolved")
         expected_catalog_coordinate = (
@@ -2957,6 +3075,23 @@ class CanonicalAcquisitionAuthority:
             "is_proxy": is_proxy,
             "proxy_penalty": proxy_penalty,
         }
+        if unit_declaration is not None:
+            projection["source_unit_declaration"] = {
+                "ref": entry.source_unit_declaration_ref.model_dump(mode="json"),
+                "authority_purpose": unit_declaration.authority_purpose,
+                "source_contract_content_hash": unit_declaration.source_contract_content_hash,
+                "source_contract_hash_profile": (
+                    unit_declaration.source_contract_hash_profile
+                    or "legacy_source_contract_v2_json"
+                ),
+                "hash_replay_limitations": list(unit_declaration.hash_replay_limitation_codes),
+                "connector_contract_content_hash": unit_declaration.connector_contract_content_hash,
+                "schema_content_hash": unit_declaration.schema_content_hash,
+                "predicate_provenance": "recomputed",
+                "unit_truth": "declared",
+                "semantic_authority": "not_established",
+                "source_currentness": "not_established",
+            }
         registration = AcquisitionDatasetRegistration(
             catalog_dataset_id=entry.landing_dataset_id,
             source=str(source),
@@ -2993,6 +3128,44 @@ class CanonicalAcquisitionAuthority:
             fabric_data_plane.content_sha256(license_projection),
             registration,
         )
+
+    def _resolve_source_unit_declaration(
+        self,
+        entry: AcquisitionAuthorityEntry,
+        *,
+        connector_id: str,
+        profile_id: str,
+        request_dataset_id: str,
+    ) -> SourceMetricUnitDeclaration:
+        """Reopen a currently adopted declaration through the original owners."""
+        self._require_provision_unchanged()
+        ref = entry.source_unit_declaration_ref
+        if ref is None or artifacts.artifact_ref_identity_key(ref) not in {
+            artifacts.artifact_ref_identity_key(item)
+            for item in self.provision.source_unit_declaration_refs
+        }:
+            raise AcquisitionAuthorityError("source_unit_declaration_not_adopted")
+        if self._source_unit_reader is None or self._source_unit_contract_registry is None:
+            raise AcquisitionAuthorityError("source_unit_declaration_owner_unavailable")
+        try:
+            declaration = load_source_metric_unit_declaration(self._source_unit_reader, ref)
+        except (FileNotFoundError, TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError("source_unit_declaration_unavailable") from exc
+        current = self._source_unit_contract_registry.resolve(connector_id, request_dataset_id)
+        if (
+            current is None
+            or current.content_hash != declaration.connector_contract_content_hash
+            or current.schema.identity_key != declaration.connector_contract.schema.identity_key
+        ):
+            raise AcquisitionAuthorityError("source_unit_current_schema_drift")
+        _require_source_unit_scope(
+            entry,
+            declaration,
+            connector_id=connector_id,
+            profile_id=profile_id,
+            request_dataset_id=request_dataset_id,
+        )
+        return declaration
 
     def _resolve_local_source(
         self,
@@ -3186,6 +3359,32 @@ def normalize_acquisition_unit(value: str) -> str:
         "price index": "index",
     }
     return aliases.get(text, text.replace(" ", "_"))
+
+
+def _require_source_unit_scope(
+    entry: AcquisitionAuthorityEntry,
+    declaration: SourceMetricUnitDeclaration,
+    *,
+    connector_id: str,
+    profile_id: str,
+    request_dataset_id: str,
+) -> None:
+    """Join the declared physical coordinate to this exact Catalog edge."""
+    schema = declaration.connector_contract.schema
+    if (
+        declaration.catalog_dataset_id != entry.source_catalog_dataset_id
+        or declaration.catalog_distribution_id != entry.source_catalog_distribution_id
+        or declaration.catalog_metric_id != entry.upstream_metric_id
+        or declaration.request_dataset_id != request_dataset_id
+        or request_dataset_id != entry.catalog_raw_variable
+        or declaration.connector_contract.connector_id != connector_id
+        or declaration.source_contract.source.profile_id != profile_id
+        or declaration.normalized_field != entry.raw_field
+        or entry.schema_contract_ref != f"fabric://{schema.schema_id}@{schema.version}"
+        or normalize_acquisition_unit(entry.raw_unit)
+        != normalize_acquisition_unit(declaration.declared_unit.unit_id)
+    ):
+        raise AcquisitionAuthorityError("source_unit_declaration_scope_mismatch")
 
 
 def derive_catalog_unit_from_text(
@@ -3502,6 +3701,10 @@ def _acquisition_supplier_declaration_manifest_inputs(
         )
     if declaration.entry.source_representation_ref is not None:
         refs.append(("source_representation", declaration.entry.source_representation_ref))
+    if declaration.entry.source_unit_declaration_ref is not None:
+        refs.append(("source_unit_declaration", declaration.entry.source_unit_declaration_ref))
+    if declaration.source_unit_provision_ref is not None:
+        refs.append(("source_unit_provision", declaration.source_unit_provision_ref))
     return [artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in refs]
 
 
@@ -3593,7 +3796,91 @@ def load_acquisition_supplier_declaration(
     if tuple(manifest.inputs) != tuple(expected_inputs):
         raise AcquisitionAuthorityError("supplier_declaration_manifest_inputs_mismatch")
     _reopen_acquisition_supplier_source_artifacts(store, declaration.entry)
+    _replay_supplier_unit_adoption(store, declaration)
     return declaration
+
+
+def _replay_supplier_unit_adoption(
+    store: artifacts.ArtifactReader,
+    declaration: AcquisitionSupplierDeclaration,
+) -> None:
+    """Read the original unit adoption receipt; never consult current permission."""
+    ref = declaration.source_unit_provision_ref
+    unit_ref = declaration.entry.source_unit_declaration_ref
+    if ref is None or unit_ref is None:
+        return
+    if (
+        declaration.source_unit_profile_id is None
+        or declaration.source_unit_request_dataset_id is None
+    ):
+        raise AcquisitionAuthorityError("source_unit_original_registration_missing")
+    if not artifacts.matches_runtime_protocol(store, artifacts.CoreJSONArtifactProfileReader):
+        raise AcquisitionAuthorityError("source_unit_profile_reader_unavailable")
+    manifest = store.get_manifest(ref)
+    actual_ref = artifacts.ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+    )
+    raw = store.get_bytes(ref)
+    if (
+        artifacts.artifact_ref_identity_key(actual_ref) != artifacts.artifact_ref_identity_key(ref)
+        or "sha256:" + hashlib.sha256(raw).hexdigest()
+        != declaration.authority_provision_content_sha256
+    ):
+        raise AcquisitionAuthorityError("source_unit_original_provision_identity_mismatch")
+    provision = AcquisitionAuthorityProvision.model_validate(json.loads(raw))
+    if provision.provision_id != declaration.authority_provision_id or (
+        artifacts.artifact_ref_identity_key(unit_ref)
+        not in {
+            artifacts.artifact_ref_identity_key(item)
+            for item in provision.source_unit_declaration_refs
+        }
+    ):
+        raise AcquisitionAuthorityError("source_unit_original_adoption_mismatch")
+    expected_inputs = [
+        artifacts.input_ref_from_artifact_ref(item, role="adopted_source_unit")
+        for item in provision.source_unit_declaration_refs
+    ]
+    if manifest.inputs != expected_inputs:
+        raise AcquisitionAuthorityError("source_unit_original_provision_lineage_mismatch")
+    selected = load_source_metric_unit_declaration(store, unit_ref)
+    _require_source_unit_scope(
+        declaration.entry,
+        selected,
+        connector_id=declaration.connector_id,
+        profile_id=declaration.source_unit_profile_id,
+        request_dataset_id=declaration.source_unit_request_dataset_id,
+    )
+
+
+def _persist_source_unit_provision_snapshot(
+    store: artifacts.CoreJSONArtifactStore,
+    authority: CanonicalAcquisitionAuthority,
+    resolved: ResolvedAcquisitionAuthority,
+) -> artifacts.ArtifactRef | None:
+    if resolved.entry.source_unit_declaration_ref is None:
+        return None
+    authority._require_provision_unchanged()
+    raw = (authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION).read_bytes()
+    if "sha256:" + hashlib.sha256(raw).hexdigest() != resolved.authority_provision_content_sha256:
+        raise AcquisitionAuthorityError("source_unit_provision_changed_before_snapshot")
+    return store.put_bytes(
+        raw,
+        artifacts.PutOptions(
+            kind=_SOURCE_UNIT_PROVISION_KIND,
+            media_type="application/octet-stream",
+            inputs=[
+                artifacts.input_ref_from_artifact_ref(ref, role="adopted_source_unit")
+                for ref in authority.provision.source_unit_declaration_refs
+            ],
+            producer=artifacts.ProducerInfo(
+                component="polisyos.data_forge.acquisition_authority", version="1.0"
+            ),
+        ),
+        return_selected_profile=True,
+    )
 
 
 def persist_acquisition_supplier_declaration(
@@ -3641,6 +3928,19 @@ def persist_acquisition_supplier_declaration(
         baseline_content_sha256=resolved.baseline_content_sha256,
         upstream_catalog_projection_sha256=resolved.upstream_catalog_projection_sha256,
         l5_owner_content_sha256=resolved.l5_trust.owner_content_sha256,
+        source_unit_provision_ref=_persist_source_unit_provision_snapshot(
+            store, authority, resolved
+        ),
+        source_unit_profile_id=(
+            resolved.registration.source_profile_id
+            if entry.source_unit_declaration_ref is not None
+            else None
+        ),
+        source_unit_request_dataset_id=(
+            resolved.registration.request_dataset_id
+            if entry.source_unit_declaration_ref is not None
+            else None
+        ),
         semantic_refs_status=(
             "declared"
             if entry.source_semantic_definition_ref is not None

@@ -183,3 +183,27 @@ normalization codec for historical candidate-value replay. Live source authority
 and replay share that implementation; the wrapper itself grants no authority,
 currentness, independence or publication permission. The catalog read facade
 also exposes the existing canonical observation derivation owner.
+
+## Adopted source-unit declarations
+
+Catalog acquisition can select an optional Fabric metric-scoped unit declaration
+through `AcquisitionAuthorityEntry.source_unit_declaration_ref`. Current resolution
+requires that exact selected ref in the existing authority provision, reopens
+the actual declaration and current connector registry selection, and reconciles
+the Catalog dataset/distribution/metric, source profile, raw field and normalized
+row indicator. Live result replay checks explicit row unit labels when present;
+a missing row label does not become observed unit truth. A present invalid ref
+refuses without falling back to title parsing. The absent extension preserves
+the legacy parser and wire representation.
+
+Candidate supplier declarations retain the original provision bytes as a selected
+CAS parent alongside the unit declaration. Their historical reader checks those
+original bytes and adoption identity without requiring the provision to remain
+current. Historical replay establishes neither current permission nor variable
+meaning, measurement admission or source currentness. Current rights and source
+checks remain part of fresh acquisition resolution.
+
+The unit audit projection records the exact SourceContract hash profile and any
+legacy replay limitation. New manifest-1.1 declarations bind the versioned
+canonical field-set profile; a retained 1.0 declaration stays on its original
+hash law. Neither profile changes adoption, rights or semantic authority.

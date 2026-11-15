@@ -58,6 +58,13 @@ from polisyos.fabric.connectors.capabilities import (
     requires_capability,
     validate_protocol_compliance,
 )
+from polisyos.fabric.connectors.contracts import (
+    ContractRegistry,
+    SourceMetricUnitDeclaration,
+    SourceMetricUnitDeclarationRef,
+    create_source_metric_unit_declaration,
+    load_source_metric_unit_declaration,
+)
 
 # Discovery System (Phase 2.2)
 from polisyos.fabric.connectors.discovery import (
@@ -232,6 +239,7 @@ __all__ = [
     "ConnectorPreferences",
     # === Registry Architecture (Phase 2.2) ===
     "ConnectorRegistry",
+    "ContractRegistry",
     # === Supporting Types ===
     "DataChunk",
     "DataVersion",
@@ -285,6 +293,8 @@ __all__ = [
     "SourceConnector",
     "SourceConnectorInstance",
     "SourceConnectorValue",
+    "SourceMetricUnitDeclaration",
+    "SourceMetricUnitDeclarationRef",
     "SourceProfile",
     "SourceProfileRegistry",
     "StaticDataPolicy",
@@ -301,6 +311,7 @@ __all__ = [
     "check_capability_at_runtime",
     "coerce_fetch_result_against_schema",
     "contract_for_family",
+    "create_source_metric_unit_declaration",
     "describe_capabilities",
     "discover_connectors",
     "discover_connectors_from_modules",
@@ -309,6 +320,7 @@ __all__ = [
     "get_missing_capabilities",
     "get_registry",
     "is_retryable_error",
+    "load_source_metric_unit_declaration",
     "make_schema_hash_provider",
     "normalize_worldbank_records",
     "requires_any_capability",

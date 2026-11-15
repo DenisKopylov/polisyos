@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import date
 from decimal import Decimal
@@ -42,6 +43,7 @@ from polisyos.core.contracts.variable_binding import (
 )
 from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority as authority_module
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+    DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     AcquisitionAuthorityEntry,
     AcquisitionAuthorityError,
@@ -50,9 +52,19 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
     AuthoritySchemaColumn,
     CanonicalAcquisitionAuthority,
     _AuthoritySemanticDefinitionIndex,
+    build_acquisition_authority_provision,
     build_authority_entry,
     build_authority_registry,
 )
+from polisyos.fabric.connectors.contracts import (
+    SchemaType,
+    SourceContract,
+    SourceContractSemantics,
+    SourceMetricDefinition,
+    build_contract_registry,
+    create_source_metric_unit_declaration,
+)
+from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_CONTRACT
 from polisyos.fabric.data_plane import content_sha256
 from tests._helpers.acquisition_production import (
     _baseline,
@@ -359,6 +371,77 @@ def _p07_metadata_entry(
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
     raw_field = metadata["raw_field"]
     logical_type = metadata["logical_type"]
+    if metadata.get("schema_contract_ref") == "fabric://worldbank.wdi.generic@2.0.0":
+        logical_types = {
+            SchemaType.STRING: "string",
+            SchemaType.CATEGORY: "string",
+            SchemaType.INT8: "integer",
+            SchemaType.INT16: "integer",
+            SchemaType.INT32: "integer",
+            SchemaType.INT64: "integer",
+            SchemaType.UINT8: "integer",
+            SchemaType.UINT16: "integer",
+            SchemaType.UINT32: "integer",
+            SchemaType.UINT64: "integer",
+            SchemaType.FLOAT16: "number",
+            SchemaType.FLOAT32: "number",
+            SchemaType.FLOAT64: "number",
+            SchemaType.DECIMAL: "number",
+            SchemaType.BOOLEAN: "boolean",
+            SchemaType.DATE: "date",
+            SchemaType.DATETIME: "datetime",
+            SchemaType.TIMESTAMP_TZ: "datetime",
+            SchemaType.TIME: "time",
+            SchemaType.DURATION: "duration",
+            SchemaType.ARRAY: "array",
+            SchemaType.JSON: "json",
+            SchemaType.BINARY: "binary",
+        }
+        schema_columns = tuple(
+            sorted(
+                (
+                    AuthoritySchemaColumn(
+                        name=field.name,
+                        logical_types=tuple(
+                            sorted(
+                                {"null", logical_types[field.data_type]}
+                                if field.nullable
+                                else {logical_types[field.data_type]}
+                            )
+                        ),
+                        nullable=field.nullable,
+                    )
+                    for field in WDI_GENERIC_CONTRACT.schema.fields
+                ),
+                key=lambda column: column.name,
+            )
+        )
+        assert logical_types[WDI_GENERIC_CONTRACT.schema.get_field(raw_field).data_type] == (
+            logical_type
+        )
+    else:
+        schema_columns = tuple(
+            sorted(
+                (
+                    AuthoritySchemaColumn(
+                        name="country_code",
+                        logical_types=("string",),
+                        nullable=False,
+                    ),
+                    AuthoritySchemaColumn(
+                        name="year",
+                        logical_types=("integer",),
+                        nullable=False,
+                    ),
+                    AuthoritySchemaColumn(
+                        name=raw_field,
+                        logical_types=(logical_type,),
+                        nullable=False,
+                    ),
+                ),
+                key=lambda column: column.name,
+            )
+        )
     values.update(
         {
             "target_variable": metadata["target_variable"],
@@ -378,29 +461,11 @@ def _p07_metadata_entry(
             "is_proxy": False,
             "proxy_penalty": 0.0,
             "evidence_refs": ("fixture://p07/metadata-only",),
-            "schema_contract_ref": f"fixture://p07/{metadata['slug']}@1.0.0",
-            "schema_columns": tuple(
-                sorted(
-                    (
-                        AuthoritySchemaColumn(
-                            name="country_code",
-                            logical_types=("string",),
-                            nullable=False,
-                        ),
-                        AuthoritySchemaColumn(
-                            name="year",
-                            logical_types=("integer",),
-                            nullable=False,
-                        ),
-                        AuthoritySchemaColumn(
-                            name=raw_field,
-                            logical_types=(logical_type,),
-                            nullable=False,
-                        ),
-                    ),
-                    key=lambda column: column.name,
-                )
+            "schema_contract_ref": metadata.get(
+                "schema_contract_ref",
+                f"fixture://p07/{metadata['slug']}@1.0.0",
             ),
+            "schema_columns": schema_columns,
             "l5_family_id": "p07_metadata_only",
             "source_provenance_class": None,
             "source_measure_scope": AcquisitionSourceMeasureScope(
@@ -446,8 +511,11 @@ def _p07_metadata_entry(
                 "metric_id": "health_annual_outpatient_visits",
                 "request_dataset_id": "annual_outpatient_visits_count",
                 "source_locator": "fixture://p07/health/annual-visits-metadata-only",
-                "raw_field": "annual_outpatient_visits_count",
-                "logical_type": "integer",
+                "raw_field": "value",
+                "logical_type": "number",
+                "schema_contract_ref": "fabric://worldbank.wdi.generic@2.0.0",
+                "connector_id": "worldbank.wdi",
+                "profile_id": "worldbank_wdi",
                 "title": "Annual outpatient visit count",
                 "description": "Test-owned metadata only; contains no source observations.",
                 "expected_resolution_error": "catalog_unit_unresolved",
@@ -565,6 +633,7 @@ def test_indexed_semantic_lookup_preserves_held_out_domain_candidates_and_fresh_
             "description",
         )
     }
+    source_row.update({key: case[key] for key in ("connector_id", "profile_id") if key in case})
     authority = _p07_fixture_authority(
         tmp_path / "catalog-owner",
         (selected, wrong_meaning, same_wording_other_definition),
@@ -640,6 +709,64 @@ def test_indexed_semantic_lookup_preserves_held_out_domain_candidates_and_fresh_
         with pytest.raises(AcquisitionAuthorityError) as resolution_error:
             authority.resolve(selected.entry_id)
         assert resolution_error.value.code == case["expected_resolution_error"]
+        if case["namespace"] == "public.health":
+            adopted_authority, adopted_entry, unit_ref = _adopt_p07_test_source_unit(
+                authority,
+                (selected, wrong_meaning, same_wording_other_definition),
+                selected,
+                store,
+            )
+            assert adopted_entry.source_unit_declaration_ref == unit_ref
+            assert adopted_entry.source_semantic_definition_ref == definition_ref
+            assert wrong_meaning.source_semantic_definition_ref != definition_ref
+            assert wrong_meaning.raw_unit == adopted_entry.raw_unit == "count"
+
+            adopted_reader = FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+            adopted_candidate = adopted_authority.discover_model_input_source_descriptor(
+                adopted_reader,
+                model_input_interface_ref=interface_ref,
+                port_id=port_id,
+                include_query_envelope=True,
+            )
+            assert adopted_candidate.authority_entry_id == adopted_entry.entry_id
+            assert adopted_candidate.source_semantic_definition_ref == definition_ref
+            assert adopted_candidate.semantic_correspondence == "not_established"
+            assert adopted_candidate.query_envelope is not None
+            assert {row.entry_id for row in adopted_candidate.query_envelope.rows} == {
+                adopted_entry.entry_id
+            }
+
+            resolved = adopted_authority.resolve(adopted_entry.entry_id)
+            assert resolved.entry.source_unit_declaration_ref == unit_ref
+            assert resolved.field_binding.raw_unit == "count"
+            assert resolved.upstream_catalog_projection is not None
+            unit_projection = resolved.upstream_catalog_projection["source_unit_declaration"]
+            assert unit_projection["ref"] == unit_ref.model_dump(mode="json")
+            assert unit_projection["unit_truth"] == "declared"
+            assert unit_projection["semantic_authority"] == "not_established"
+            assert unit_projection["source_currentness"] == "not_established"
+
+            from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+            supplier_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+                store,
+                adopted_authority,
+                entry_id=adopted_entry.entry_id,
+            )
+            fresh_reader = FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+            historical = catalog_read_api.load_acquisition_supplier_declaration(
+                fresh_reader,
+                supplier_ref,
+            )
+            assert historical.entry.entry_id == adopted_entry.entry_id
+            assert historical.entry.source_unit_declaration_ref == unit_ref
+            assert historical.semantic_authority == "not_established"
+            assert historical.acquisition_permission == "not_established"
+            assert historical.source_unit_provision_ref is not None
+            provision_bytes = fresh_reader.get_bytes(historical.source_unit_provision_ref)
+            assert "sha256:" + hashlib.sha256(provision_bytes).hexdigest() == (
+                historical.authority_provision_content_sha256
+            )
     else:
         from polisyos.data_forge.read_api import catalog as catalog_read_api
 
@@ -696,6 +823,81 @@ def _replace_authority_registry(
     registry_path.write_text(registry.model_dump_json(), encoding="utf-8")
 
 
+def _adopt_p07_test_source_unit(
+    authority: CanonicalAcquisitionAuthority,
+    entries: tuple[AcquisitionAuthorityEntry, ...],
+    selected: AcquisitionAuthorityEntry,
+    store: FileSystemCAS,
+) -> tuple[
+    CanonicalAcquisitionAuthority,
+    AcquisitionAuthorityEntry,
+    ArtifactRef,
+]:
+    """Adopt a test-owned count declaration through actual Fabric/Catalog owners."""
+    contracts = build_contract_registry((WDI_GENERIC_CONTRACT,))
+    source = SourceContract.from_connector_schema_contract(
+        WDI_GENERIC_CONTRACT,
+        profile_id="worldbank_wdi",
+    )
+    source = source.model_copy(
+        update={
+            "semantics": SourceContractSemantics(
+                domain=source.semantics.domain,
+                metric_definitions=(
+                    SourceMetricDefinition(
+                        metric_id=selected.catalog_raw_variable,
+                        unit="count",
+                        canonical_field="value",
+                    ),
+                ),
+            )
+        }
+    )
+    unit_ref = create_source_metric_unit_declaration(
+        store,
+        source_contract=source,
+        contract_registry=contracts,
+        connector_contract_id=WDI_GENERIC_CONTRACT.contract_id,
+        connector_contract_version=str(WDI_GENERIC_CONTRACT.schema_version),
+        catalog_dataset_id=selected.source_catalog_dataset_id,
+        catalog_distribution_id=selected.source_catalog_distribution_id,
+        catalog_metric_id=selected.upstream_metric_id,
+        request_dataset_id=selected.catalog_raw_variable,
+        source_metric_id=selected.catalog_raw_variable,
+        raw_field="value",
+        normalized_field="value",
+        metric_selector_field="indicator_id",
+        reported_unit_field="unit",
+    )
+    adopted = build_authority_entry(
+        **{
+            **selected.model_dump(mode="python", exclude={"entry_id"}),
+            "source_unit_declaration_ref": unit_ref,
+        }
+    )
+    adopted_entries = tuple(
+        adopted if entry.entry_id == selected.entry_id else entry for entry in entries
+    )
+    _replace_authority_registry(authority, adopted_entries)
+
+    provision_values = authority.provision.identity_payload()
+    provision_values.pop("authority_purpose")
+    provision = build_acquisition_authority_provision(
+        **provision_values,
+        source_unit_declaration_refs=(unit_ref,),
+        source_unit_reader=store,
+    )
+    provision_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
+    provision_path.write_text(provision.model_dump_json(), encoding="utf-8")
+    current = CanonicalAcquisitionAuthority.from_provision(
+        repo_root=authority.repo_root,
+        baseline_path=authority.baseline_path,
+        source_unit_reader=store,
+        source_unit_contract_registry=contracts,
+    )
+    return current, adopted, unit_ref
+
+
 def _p07_fixture_authority(
     repo_root: Path,
     entries: tuple[AcquisitionAuthorityEntry, ...],
@@ -706,6 +908,8 @@ def _p07_fixture_authority(
     con = duckdb.connect(str(baseline))
     try:
         for row in source_rows:
+            connector_id = row.get("connector_id", "test.fixture")
+            profile_id = row.get("profile_id", "p07_metadata_only")
             con.execute(
                 """
                 INSERT INTO ds_datasets (
@@ -735,8 +939,8 @@ def _p07_fixture_authority(
                 [
                     row["distribution_id"],
                     row["dataset_id"],
-                    "test.fixture",
-                    "p07_metadata_only",
+                    connector_id,
+                    profile_id,
                     row["source_locator"],
                     True,
                     True,
@@ -755,8 +959,8 @@ def _p07_fixture_authority(
                     row["metric_id"],
                     row["dataset_id"],
                     row["distribution_id"],
-                    "test.fixture",
-                    "p07_metadata_only",
+                    connector_id,
+                    profile_id,
                     row["request_dataset_id"],
                     0.9,
                     0.9,

@@ -4899,7 +4899,7 @@ write_participation_requirement_bundle
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 55 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 55 |
-| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 136 |
+| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 141 |
 | `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 58 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | conditional (41/59) |
 | `polisyos.fabric.docs` | `src/polisyos/fabric/docs/__init__.py` | `eager_exports` | 17 |
@@ -5049,7 +5049,7 @@ world
 - Facade: `eager_exports`
 - Summary: Data Fabric Connectors - Protocol Foundation & Registry Architecture.
 
-<details><summary>Entrypoint exports (136)</summary>
+<details><summary>Entrypoint exports (141)</summary>
 
 ```text
 API_PROTOCOL_CONNECTOR_CONTRACT
@@ -5097,6 +5097,7 @@ ConnectorMetadataSpec
 ConnectorNotFoundError
 ConnectorPreferences
 ConnectorRegistry
+ContractRegistry
 DataChunk
 DataVersion
 DatasetCapabilitySnapshot
@@ -5147,6 +5148,8 @@ SmartExpiryPolicy
 SourceConnector
 SourceConnectorInstance
 SourceConnectorValue
+SourceMetricUnitDeclaration
+SourceMetricUnitDeclarationRef
 SourceProfile
 SourceProfileRegistry
 StaticDataPolicy
@@ -5163,6 +5166,7 @@ capabilities_summary
 check_capability_at_runtime
 coerce_fetch_result_against_schema
 contract_for_family
+create_source_metric_unit_declaration
 describe_capabilities
 discover_connectors
 discover_connectors_from_modules
@@ -5171,6 +5175,7 @@ get_discovery_errors
 get_missing_capabilities
 get_registry
 is_retryable_error
+load_source_metric_unit_declaration
 make_schema_hash_provider
 normalize_worldbank_records
 requires_any_capability
@@ -5628,7 +5633,7 @@ world
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 30 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 51 |
-| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 235 |
+| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 237 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 230 |
@@ -6022,7 +6027,7 @@ resolve_program_graph_actuation
 - Facade: `lazy_facade`
 - Summary: Stable lazy facade for Foundry Methods.
 
-<details><summary>Entrypoint exports (235)</summary>
+<details><summary>Entrypoint exports (237)</summary>
 
 ```text
 ADVISOR_EXECUTION_CONTEXT_PARAM
@@ -6241,6 +6246,8 @@ reset_global_cache
 resolve_by_specifier
 resolve_method_version
 resolve_runtime_fidelity
+resolve_selected_method
+resolve_selected_method_entry
 resolve_version
 run_cross_method_consensus
 runtime_envelope_from_results

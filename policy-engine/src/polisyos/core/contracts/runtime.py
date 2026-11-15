@@ -5543,6 +5543,19 @@ class RunGenericCycleSimulationProjection(BaseModel):
     candidate_evaluation_attempts_limitation_code: (
         Literal["candidate_attempt_context_history_not_established"] | None
     ) = Field(default=None, exclude_if=lambda value: value is None)
+    acquisition_history: (
+        tuple[
+            RunCandidateSimulationAcquisitionHistoryEntry
+            | RunCandidateSimulationAcquisitionHistoryEntryV3
+            | RunCandidateSimulationAcquisitionHistoryEntryV4
+            | RunCandidateSimulationAcquisitionHistoryEntryV5,
+            ...,
+        ]
+        | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
+    acquisition_history_limitation_code: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda value: value is None
+    )
     n6_cycle_history_status: Literal["resolved", "not_established"] | None = None
     n6_cycle_history_limitation_code: Literal["n6_cycle_history_not_emitted"] | None = None
     n6_cycle_history: tuple[RunGenericCycleSimulationN6CycleHistoryEntry, ...] = ()
@@ -5552,6 +5565,8 @@ class RunGenericCycleSimulationProjection(BaseModel):
     def _verify_generic_projection(self) -> RunGenericCycleSimulationProjection:
         if self.artifact_status != "resolved" and self.candidate_evaluation_attempts:
             raise ValueError("candidate_attempt_source_not_resolved")
+        if self.acquisition_history is not None and self.artifact_status != "resolved":
+            raise ValueError("run_generic_projection_acquisition_history_source_not_resolved")
         has_credal_attempt_projection = (
             self.credal_source_attempt_ref is not None
             or self.credal_source_status is not None

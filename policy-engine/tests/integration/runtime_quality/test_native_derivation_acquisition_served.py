@@ -1000,7 +1000,10 @@ def _read_retained_native_human_decision(
     assert reference is not None and reference.manifest_profile_sha256 is not None
     response = client.get(
         f"/api/v1/runs/{served.control_run_id}/human-decisions",
-        params={"record_ref": str(reference.artifact_id)},
+        params={
+            "record_ref": str(reference.artifact_id),
+            "manifest_profile_sha256": reference.manifest_profile_sha256,
+        },
         headers={
             "Authorization": trust.authorization_header("acquisition-operator"),
             "X-Tenant-ID": served.claims.tenant_id,
@@ -1074,6 +1077,7 @@ def _run_signed_native_leaf_action(
     route_id: str,
     idempotency_key: str,
     retained_mandate: Any | None = None,
+    human_decision_submission_root: Path | None = None,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
     from fastapi.testclient import TestClient
@@ -1085,6 +1089,7 @@ def _run_signed_native_leaf_action(
     from tests._helpers.acquisition_served_history import (
         _appoint_served_acquisition_mandate,
         _approve_served_acquisition_request,
+        _recover_served_human_decision,
     )
     from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
@@ -1127,6 +1132,16 @@ def _run_signed_native_leaf_action(
             )
             assert refused.status_code == 200, refused.text
             if retained_mandate is None:
+                if human_decision_submission_root is not None:
+                    from polisyos.runtime.http.services.acquisition_action_service import (
+                        AcquisitionActionService,
+                    )
+
+                    expected_job_id = AcquisitionActionService._job_id(closure, request)
+                    if (human_decision_submission_root / f"{expected_job_id}.json").exists():
+                        raise ValueError(
+                            "saved_human_decision_requires_existing_mandate_checkpoint"
+                        )
                 slot, job_id = _appoint_served_acquisition_mandate(
                     control,
                     closure,
@@ -1165,16 +1180,27 @@ def _run_signed_native_leaf_action(
             with TestClient(served.app_factory()) as client:
                 control = client.app.state.runtime_container.control_service
                 stop_embedded_control_worker(control)
-                _source, human_ref = _approve_served_acquisition_request(
-                    client,
-                    request,
-                    resource_digest,
-                    closure=closure,
-                    trust=trust,
-                    signers=signers,
-                    identities=identities,
-                    cas_root=served.cas_root,
+                submission_checkpoint = (
+                    human_decision_submission_root / f"{job_id}.json"
+                    if human_decision_submission_root is not None
+                    else None
                 )
+                if submission_checkpoint is not None and submission_checkpoint.exists():
+                    human_ref = _recover_served_human_decision(
+                        client, submission_checkpoint=submission_checkpoint, trust=trust
+                    )
+                else:
+                    _source, human_ref = _approve_served_acquisition_request(
+                        client,
+                        request,
+                        resource_digest,
+                        closure=closure,
+                        trust=trust,
+                        signers=signers,
+                        identities=identities,
+                        cas_root=served.cas_root,
+                        submission_checkpoint=submission_checkpoint,
+                    )
                 slot["human_decision_record_ref"] = human_ref
         with TestClient(served.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
@@ -1292,6 +1318,7 @@ def assert_paid_native_leaf_admission_and_restart(
         route_id=route_id,
         idempotency_key=idempotency_key,
         retained_mandate=state.get("retained_admission_checkpoint"),
+        human_decision_submission_root=institution_root / "human-decision-submissions",
     )
     terminal = pending["terminal"]
     assert terminal.terminal_outcome == "inputs_pending"
@@ -1762,6 +1789,7 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
             institution_key_root=trust_root,
             route_id=leaf_a.route_id,
             idempotency_key="native-leaf-a-before-epoch-appointment",
+            human_decision_submission_root=tmp_path / "human-decision-submissions",
         )
         assert quarantined["terminal"].terminal_outcome == "quarantined_no_growth"
         assert len(transport_calls) == 1
@@ -2031,3 +2059,165 @@ def test_native_fixture_bridge_uses_live_current_app_for_same_selected_artifact(
             assert second.artifact_store.get_bytes(selected) == b"selected fixture lifecycle bytes"
     assert effect_calls == []
     assert "ports" not in state
+
+
+def assert_retained_native_human_decision_recovery(
+    *,
+    base: Path,
+    output_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    submission_body: dict[str, Any],
+    exposure_session_ref: str,
+    expected_record_ref: ArtifactRef,
+    foreign_exposure_session_ref: str,
+) -> dict[str, Any]:
+    """Read a legacy receipt publicly using its original logical submission.
+
+    The caller supplies the original submission selectors, not a SQL lookup to
+    the recovery endpoint. The selected expected record is an independent test
+    oracle. No old mandate, epoch appointment or protected-action permission is
+    installed. Provider, source-initializer, create-record and N4/N5 boundaries
+    must be forbidden by the caller's admitted driver.
+    """
+    from fastapi.testclient import TestClient
+
+    from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import deployment_security as security
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from tests._helpers.acquisition_served_history import _existing_key_config, _ExternalTrust
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests._helpers.native_derivation_retained import (
+        bind_retained_native_source_app,
+        load_retained_native_source_fixture,
+    )
+
+    trust_root = output_root / "current-read-demo-trust"
+    trust_root.mkdir(parents=True)
+    trust = _ExternalTrust(trust_root)
+    try:
+        _existing_key_config(base / "trust", trust)
+
+        def deployment():
+            return security.build_deployment_security(
+                security.DeploymentSecurityConfig.from_mapping(trust.raw)
+            )
+
+        claims = deployment().identity_provider.extract_user_claims(
+            trust.tokens["human-reviewer-1"]
+        )
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            case = load_retained_native_source_fixture(
+                base, binding_id="configured-native-two-leaf"
+            )
+        case.claims = claims
+        bind_retained_native_source_app(case, deployment_security_factory=deployment)
+        monkeypatch.setenv("POLISYOS_RUNTIME_EXECUTION_PROFILE", "development")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(case.control_database))
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", str(base / "runtime-cache"))
+        monkeypatch.setattr(
+            surface_owner,
+            "build_production_world_bank_wdi_execution_port",
+            _native_fixture_port_factory(case.state),
+        )
+        path = f"/api/v1/runs/{case.control_run_id}/human-decisions/recovery"
+        exposure = {"X-PolicyOS-Human-Decision-Exposure": exposure_session_ref}
+
+        def recover(client, body, *, subject="human-reviewer-1", headers=exposure):
+            return client.post(
+                path,
+                json=body,
+                headers={
+                    "Authorization": trust.authorization_header(subject),
+                    "X-Tenant-ID": claims.tenant_id,
+                    **headers,
+                },
+            )
+
+        with TestClient(case.app_factory()) as client:
+            stop_embedded_control_worker(client.app.state.runtime_container.control_service)
+            response = recover(client, submission_body)
+            assert response.status_code == 200, response.text
+            receipt = response.json()
+            assert receipt["status"] == "committed", receipt
+            assert receipt["binding_rule"] == "legacy_record_v2"
+            assert receipt["operational_authority"] is False
+            assert artifact_ref_identity_key(
+                ArtifactRef.model_validate(receipt["record_ref"])
+            ) == artifact_ref_identity_key(expected_record_ref)
+            known = client.get(
+                f"/api/v1/runs/{case.control_run_id}/human-decisions",
+                params={
+                    "record_ref": str(expected_record_ref.artifact_id),
+                    "manifest_profile_sha256": expected_record_ref.manifest_profile_sha256,
+                },
+                headers={
+                    "Authorization": trust.authorization_header("human-reviewer-1"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert known.status_code == 200, known.text
+            assert known.json()["reservation_id"] == receipt["reservation_id"]
+            foreign = recover(client, submission_body, subject="acquisition-operator")
+            assert foreign.status_code == 403, foreign.text
+            different = recover(
+                client,
+                {**submission_body, "accountability_statement": "A different submitted decision."},
+            )
+            assert (
+                different.status_code == 200 and different.json()["status"] == "not_established"
+            ), different.text
+            wrong_exposure = recover(
+                client,
+                submission_body,
+                headers={"X-PolicyOS-Human-Decision-Exposure": foreign_exposure_session_ref},
+            )
+            assert (
+                wrong_exposure.status_code == 200
+                and wrong_exposure.json()["status"] == "not_established"
+            ), wrong_exposure.text
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                store = case.store
+                selected_path = store._manifest_path_for_ref(
+                    expected_record_ref.artifact_id, expected_record_ref.manifest_profile_sha256
+                )
+                default_path = store._paths(expected_record_ref.artifact_id)[1]
+                paths = {selected_path}
+                if (
+                    artifacts.artifact_ref_for_manifest(
+                        store.get_manifest(expected_record_ref.artifact_id)
+                    )
+                    == expected_record_ref
+                ):
+                    paths.add(default_path)
+            held = []
+            try:
+                for index, manifest_path in enumerate(sorted(paths)):
+                    saved = output_root / f"withheld-receipt-{index}-{manifest_path.name}"
+                    manifest_path.replace(saved)
+                    held.append((manifest_path, saved))
+                missing = recover(client, submission_body)
+                assert (
+                    missing.status_code == 200 and missing.json()["status"] == "not_established"
+                ), missing.text
+            finally:
+                for manifest_path, saved in reversed(held):
+                    saved.replace(manifest_path)
+            restored = recover(client, submission_body)
+            assert restored.status_code == 200 and restored.json() == receipt, restored.text
+        with TestClient(case.app_factory()) as client:
+            stop_embedded_control_worker(client.app.state.runtime_container.control_service)
+            restarted = recover(client, submission_body)
+            assert restarted.status_code == 200 and restarted.json() == receipt, restarted.text
+        return {
+            "receipt": receipt,
+            "known_record_get": 200,
+            "foreign_subject": 403,
+            "different_command": "not_established",
+            "different_exposure": "not_established",
+            "removed_profile": "not_established",
+            "restored_and_fresh_app": "same_receipt",
+        }
+    finally:
+        trust.close()

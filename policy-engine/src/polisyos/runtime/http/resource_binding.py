@@ -70,6 +70,8 @@ _RESOLVED_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
 _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
 _LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
 _HUMAN_DECISION_CREATE_CONTEXT_KIND = "runtime.human_decision.create.v1"
+_HUMAN_DECISION_RECOVERY_CONTEXT_KIND = "runtime.human_decision.recovery.v1"
+_HUMAN_DECISION_RECORD_CONTEXT_KIND = "runtime.human_decision.record.v1"
 _CONTROL_JOB_CANCELLATION_CONTEXT_KIND = "runtime.control_job.cancellation.v1"
 _METHOD_METRIC_RUN_CONTEXT_KIND = "runtime.run.method_metric_context.v1"
 
@@ -176,6 +178,7 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
     ("runtime.run.public_verification_record", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.human_decision_recovery", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision_gate", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision_record", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision_evidence", "run_id"): _ResolverKind.RUN,
@@ -413,15 +416,16 @@ def _human_decision_create_selectors(
     return canonical_selectors
 
 
-def human_decision_create_from_bound_resource(
+def _human_decision_submission_from_bound_resource(
     bound: BoundAuthorizationResource,
     *,
     run_id: str,
+    context_kind: str,
 ) -> Mapping[str, Any]:
-    """Resolve and recompute the full sealed mutation selectors and header context."""
+    """Recompute one sealed submission without changing its operation purpose."""
     if (
         type(bound) is not BoundAuthorizationResource
-        or bound.resolved_context_kind != _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        or bound.resolved_context_kind != context_kind
         or not isinstance(bound.resolved_context, bytes)
     ):
         raise forbidden(
@@ -437,7 +441,7 @@ def human_decision_create_from_bound_resource(
         ) from exc
     if (
         not isinstance(context, Mapping)
-        or context.get("context_version") != _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        or context.get("context_version") != context_kind
         or set(context)
         not in (
             {"context_version", "body", "exposure_session_ref"},
@@ -472,6 +476,124 @@ def human_decision_create_from_bound_resource(
             expected_control_run_id=run_id,
         )
     return context
+
+
+def human_decision_create_from_bound_resource(
+    bound: BoundAuthorizationResource, *, run_id: str
+) -> Mapping[str, Any]:
+    """Resolve the exact sealed create command and exposure header."""
+    return _human_decision_submission_from_bound_resource(
+        bound, run_id=run_id, context_kind=_HUMAN_DECISION_CREATE_CONTEXT_KIND
+    )
+
+
+def human_decision_recovery_from_bound_resource(
+    bound: BoundAuthorizationResource, *, run_id: str
+) -> Mapping[str, Any]:
+    """Resolve a read-only recovery submission, distinct from create authority."""
+    return _human_decision_submission_from_bound_resource(
+        bound, run_id=run_id, context_kind=_HUMAN_DECISION_RECOVERY_CONTEXT_KIND
+    )
+
+
+def human_decision_recovery_owner_from_bound_request(
+    request: Request, *, ctx: RuntimeApiContext, run_id: str
+) -> tuple[Mapping[str, Any], Any]:
+    """Reopen the same run owner selected before recovery authorization."""
+    bound = getattr(getattr(request, "state", object()), "authz_bound_resource", None)
+    context = human_decision_recovery_from_bound_resource(bound, run_id=run_id)
+    return context, _human_decision_create_control_alias_run_from_context(
+        context, request=request, ctx=ctx, scope=_require_access_scope(request), run_id=run_id
+    )
+
+
+def _human_decision_record_selector(
+    record_ref: str, manifest_profile_sha256: str | None
+) -> str | artifacts.ArtifactRef:
+    """Preserve an explicitly selected record profile at the read boundary."""
+    from polisyos.runtime.http.services.human_decision_contracts import (
+        HUMAN_DECISION_RECORD_ARTIFACT_KIND,
+    )
+
+    artifact_id = artifacts.ArtifactID.model_validate(record_ref)
+    if manifest_profile_sha256 is None:
+        return str(artifact_id)
+    return artifacts.ArtifactRef(
+        artifact_id=artifact_id,
+        kind=HUMAN_DECISION_RECORD_ARTIFACT_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=manifest_profile_sha256,
+    )
+
+
+def human_decision_record_owner_from_bound_request(
+    request: Request,
+    *,
+    ctx: RuntimeApiContext,
+    run_id: str,
+    record_ref: str,
+    manifest_profile_sha256: str | None,
+) -> tuple[IndexedRunRecord | None, str | artifacts.ArtifactRef]:
+    """Reopen the authorized run owner and exact historical record selection."""
+    bound = getattr(getattr(request, "state", object()), "authz_bound_resource", None)
+    if (
+        type(bound) is not BoundAuthorizationResource
+        or bound.requirement.resource_binding.resource_kind != "runtime.run.human_decision_record"
+    ):
+        raise forbidden(
+            "The human-decision record authorization context is absent",
+            code="authorization_binding_context_missing",
+        )
+    selected = _human_decision_record_selector(record_ref, manifest_profile_sha256)
+    expected_selectors = tuple(
+        sorted(
+            (
+                ("run_id", _canonical_json(run_id)),
+                ("record_ref", _canonical_json(record_ref)),
+                *(
+                    (("manifest_profile_sha256", _canonical_json(manifest_profile_sha256)),)
+                    if manifest_profile_sha256 is not None
+                    else ()
+                ),
+            )
+        )
+    )
+    if bound.canonical_selectors != expected_selectors:
+        raise forbidden(
+            "The human-decision record selection changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    if (
+        manifest_profile_sha256 is None
+        and bound.resolved_context_kind is None
+        and bound.resolved_context is None
+    ):
+        return None, selected
+    context = get_bound_resource_context(request, expected_kind=_HUMAN_DECISION_RECORD_CONTEXT_KIND)
+    serialized = (
+        selected.model_dump(mode="json")
+        if isinstance(selected, artifacts.ArtifactRef)
+        else selected
+    )
+    if (
+        set(context)
+        not in (
+            {"context_version", "record_ref"},
+            {"context_version", "record_ref", "owned_run_binding"},
+        )
+        or context.get("context_version") != _HUMAN_DECISION_RECORD_CONTEXT_KIND
+        or context.get("record_ref") != serialized
+    ):
+        raise forbidden(
+            "The human-decision record selection changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    return (
+        _human_decision_create_control_alias_run_from_context(
+            context, request=request, ctx=ctx, scope=_require_access_scope(request), run_id=run_id
+        ),
+        selected,
+    )
 
 
 def human_decision_create_from_bound_request(request: Request) -> Mapping[str, Any]:
@@ -1151,7 +1273,11 @@ def _bind_owned_existing_path(
             indexed_run = _resolve_method_execution_indexed_run(ctx, request, scope, value)
             resource_id = indexed_run.run_id
             tenant_id = indexed_run.details.tenant_id
-        elif spec.resource_kind == "runtime.run.human_decision":
+        elif spec.resource_kind in {
+            "runtime.run.human_decision",
+            "runtime.run.human_decision_recovery",
+            "runtime.run.human_decision_record",
+        }:
             resource_id, tenant_id, owned_run_binding = _resolve_owned_run_for_binding(
                 request,
                 ctx,
@@ -1274,7 +1400,49 @@ def _bind_owned_existing_path(
         )
         resolved_context_kind = production_approval_context_kind()
         resolved_context = resolved.context_bytes
-    elif spec.resource_kind == "runtime.run.human_decision":
+    elif spec.resource_kind == "runtime.run.human_decision_record":
+        profile_values = request.query_params.getlist("manifest_profile_sha256")
+        if len(profile_values) > 1:
+            raise bad_request(
+                "The selected human-decision profile must occur at most once",
+                code="authorization_binding_query_selector_invalid",
+            )
+        profile = _query_identifier(request, "manifest_profile_sha256") if profile_values else None
+        try:
+            selected = _human_decision_record_selector(
+                _query_identifier(request, "record_ref"), profile
+            )
+        except (TypeError, ValueError) as exc:
+            raise bad_request(
+                "The selected human-decision record is invalid",
+                code="authorization_binding_query_selector_invalid",
+            ) from exc
+        if profile is not None:
+            selectors = tuple(
+                sorted((*selectors, ("manifest_profile_sha256", _canonical_json(profile))))
+            )
+        if owned_run_binding is not None or profile is not None:
+            resolved_context_kind = _HUMAN_DECISION_RECORD_CONTEXT_KIND
+            resolved_context = canon.to_canonical_bytes(
+                {
+                    "context_version": resolved_context_kind,
+                    "record_ref": (
+                        selected.model_dump(mode="json")
+                        if isinstance(selected, artifacts.ArtifactRef)
+                        else selected
+                    ),
+                    **(
+                        {"owned_run_binding": owned_run_binding.as_context()}
+                        if owned_run_binding is not None
+                        else {}
+                    ),
+                },
+                _RESOLVED_CONTEXT_CANON,
+            )
+    elif spec.resource_kind in {
+        "runtime.run.human_decision",
+        "runtime.run.human_decision_recovery",
+    }:
         exposure_session_ref = request.headers.get(
             "X-PolicyOS-Human-Decision-Exposure",
             "",
@@ -1309,10 +1477,14 @@ def _bind_owned_existing_path(
         selectors = _human_decision_create_selectors(
             body=body, exposure_session_ref=exposure_session_ref, selectors=selectors
         )
-        resolved_context_kind = _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        resolved_context_kind = (
+            _HUMAN_DECISION_CREATE_CONTEXT_KIND
+            if spec.resource_kind == "runtime.run.human_decision"
+            else _HUMAN_DECISION_RECOVERY_CONTEXT_KIND
+        )
         resolved_context = canon.to_canonical_bytes(
             {
-                "context_version": _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+                "context_version": resolved_context_kind,
                 "body": dict(body),
                 "exposure_session_ref": exposure_session_ref,
                 **(
@@ -2817,6 +2989,9 @@ __all__ = [
     "human_decision_create_from_bound_request",
     "human_decision_create_from_bound_resource",
     "human_decision_create_owner_from_bound_request",
+    "human_decision_record_owner_from_bound_request",
+    "human_decision_recovery_from_bound_resource",
+    "human_decision_recovery_owner_from_bound_request",
     "lineage_batch_from_bound_request",
     "production_approval_inputs_from_bound_request",
     "production_approval_scorecard_from_bound_request",

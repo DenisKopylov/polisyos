@@ -7394,6 +7394,10 @@ class HumanDecisionAuthoritySink:
             views.append((selected_ref, actual_manifest))
         return tuple(views)
 
+    def human_decision_record_views(self) -> tuple[tuple[ArtifactRef, ArtifactManifest], ...]:
+        """Return the complete selected-record denominator without changing custody."""
+        return self._human_decision_record_manifest_views()
+
     def hold_write_fence(
         self,
         *,
@@ -7824,38 +7828,62 @@ class HumanDecisionAuthoritySink:
             raise ValueError("human-decision diagnostic event binding changed")
         return report
 
-    def has_artifact(self, artifact_ref: str) -> bool:
+    def has_artifact(self, artifact_ref: str | ArtifactRef) -> bool:
         """Return whether an exact content ref is present."""
 
-        return bool(self._artifact_store.has(artifacts.ArtifactID.model_validate(artifact_ref)))
+        return bool(
+            self._artifact_store.has(
+                artifact_ref
+                if isinstance(artifact_ref, ArtifactRef)
+                else artifacts.ArtifactID.model_validate(artifact_ref)
+            )
+        )
 
-    def get_artifact_bytes(self, artifact_ref: str) -> bytes:
+    def get_artifact_bytes(self, artifact_ref: str | ArtifactRef) -> bytes:
         """Return exact CAS bytes for verification and model readback."""
 
-        return self._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(artifact_ref))
+        return self._artifact_store.get_bytes(
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else artifacts.ArtifactID.model_validate(artifact_ref)
+        )
 
-    def get_artifact_json(self, artifact_ref: str) -> Any:  # noqa: ANN401
+    def get_artifact_json(self, artifact_ref: str | ArtifactRef) -> Any:  # noqa: ANN401
         """Decode one exact Core JSON view through the shared profile guard."""
-        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        artifact_id = (
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else artifacts.ArtifactID.model_validate(artifact_ref)
+        )
         return read_core_json_artifact(self._artifact_store, artifact_id).value
 
-    def get_artifact_manifest(self, artifact_ref: str) -> ArtifactManifest:
+    def get_artifact_manifest(self, artifact_ref: str | ArtifactRef) -> ArtifactManifest:
         """Return the exact CAS manifest for schema admission."""
 
-        return self._artifact_store.get_manifest(artifacts.ArtifactID.model_validate(artifact_ref))
+        return self._artifact_store.get_manifest(
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else artifacts.ArtifactID.model_validate(artifact_ref)
+        )
 
-    def get_artifact_manifest_bytes(self, artifact_ref: str) -> bytes:
+    def get_artifact_manifest_bytes(self, artifact_ref: str | ArtifactRef) -> bytes:
         """Return manifest bytes bound by detached signatures."""
 
         return self._signed_artifact_store().get_manifest_bytes(
-            artifacts.ArtifactID.model_validate(artifact_ref)
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else artifacts.ArtifactID.model_validate(artifact_ref)
         )
 
-    def get_artifact_signature(self, artifact_ref: str) -> artifacts.DetachedSignature | None:
+    def get_artifact_signature(
+        self, artifact_ref: str | ArtifactRef
+    ) -> artifacts.DetachedSignature | None:
         """Return an existing detached signature without synthesizing one."""
 
         return self._signed_artifact_store().get_signature(
-            artifacts.ArtifactID.model_validate(artifact_ref)
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else artifacts.ArtifactID.model_validate(artifact_ref)
         )
 
     def sign_artifact(
@@ -7884,39 +7912,9 @@ class HumanDecisionAuthoritySink:
         *,
         strict_identity: bool = True,
     ) -> artifacts.SignatureVerificationResult:
-        """Verify the selected view; reuse a default signature only for identical manifest bytes."""
-        store = self._signed_artifact_store()
-        verification = store.verify_signature(
-            artifact_ref,
-            verifier,
-            strict_identity=strict_identity,
-        )
-        if (
-            verification.status != artifacts.SignatureVerificationStatus.UNSIGNED
-            or not isinstance(artifact_ref, ArtifactRef)
-            or artifact_ref.manifest_profile_sha256 is None
-            or type(verifier) is not artifacts.Ed25519Verifier
-        ):
-            return verification
-
-        try:
-            selected_manifest_bytes = store.get_manifest_bytes(artifact_ref)
-            default_manifest_bytes = store.get_manifest_bytes(artifact_ref.artifact_id)
-            if selected_manifest_bytes != default_manifest_bytes:
-                return verification
-            default_signature = store.get_signature(artifact_ref.artifact_id)
-            if type(default_signature) is not artifacts.DetachedSignature:
-                return verification
-            selected_payload_bytes = self._artifact_store.get_bytes(artifact_ref)
-        except Exception:
-            return verification
-
-        return verifier.verify(
-            artifact_ref.artifact_id,
-            selected_payload_bytes,
-            selected_manifest_bytes,
-            default_signature,
-            strict_identity=strict_identity,
+        """Delegate exact-view verification to the canonical Core signature owner."""
+        return self._signed_artifact_store().verify_signature(
+            artifact_ref, verifier, strict_identity=strict_identity
         )
 
     def _signed_artifact_store(self) -> _HumanDecisionSignedArtifactStore:

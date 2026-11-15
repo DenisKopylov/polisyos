@@ -1874,6 +1874,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/human-decisions/recovery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recover Run Human Decision Receipt
+     * @description Poll historical custody using the original submission, without issuing again.
+     */
+    post: operations["recover_run_human_decision_receipt"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/human-decisions/review-effectiveness": {
     parameters: {
       query?: never;
@@ -13041,6 +13061,153 @@ export interface components {
        * @default null
        */
       verifier_epoch?: string | null;
+    };
+    /**
+     * HumanDecisionRecoveryCommitted
+     * @description An exact signed record/event and immutable commit generation were joined.
+     */
+    HumanDecisionRecoveryCommitted: {
+      /**
+       * Authority Purpose
+       * @default historical_human_decision_custody_only
+       * @constant
+       */
+      authority_purpose: "historical_human_decision_custody_only";
+      /**
+       * Binding Rule
+       * @enum {string}
+       */
+      binding_rule:
+        | "policyos.runtime.human_decision_submission_binding.v2"
+        | "legacy_record_v2";
+      /** Binding Sha256 */
+      binding_sha256: string;
+      /** Cell Id */
+      cell_id?: string | null;
+      /** Durable Event Id */
+      durable_event_id: string;
+      /**
+       * Operational Authority
+       * @default false
+       * @constant
+       */
+      operational_authority: false;
+      /** Record Digest */
+      record_digest: string;
+      record_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Record Valid Until
+       * Format: date-time
+       */
+      record_valid_until: string;
+      /** Reservation Id */
+      reservation_id: string;
+      /**
+       * Reservation State
+       * @enum {string}
+       */
+      reservation_state: "committed" | "expired";
+      /** Reservation Version */
+      reservation_version: number;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.human_decision_recovery.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.human_decision_recovery.v1";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      status: "committed";
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
+     * HumanDecisionRecoveryNotEstablished
+     * @description The requested historical receipt cannot presently be established.
+     */
+    HumanDecisionRecoveryNotEstablished: {
+      /**
+       * Authority Purpose
+       * @default historical_human_decision_custody_only
+       * @constant
+       */
+      authority_purpose: "historical_human_decision_custody_only";
+      /** Cell Id */
+      cell_id?: string | null;
+      /**
+       * Operational Authority
+       * @default false
+       * @constant
+       */
+      operational_authority: false;
+      /** Reason Code */
+      reason_code: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.human_decision_recovery.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.human_decision_recovery.v1";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      status: "not_established";
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
+     * HumanDecisionRecoveryPending
+     * @description The exact actor/submission has a live reservation without a receipt.
+     */
+    HumanDecisionRecoveryPending: {
+      /**
+       * Authority Purpose
+       * @default historical_human_decision_custody_only
+       * @constant
+       */
+      authority_purpose: "historical_human_decision_custody_only";
+      /**
+       * Binding Rule
+       * @default policyos.runtime.human_decision_submission_binding.v2
+       * @constant
+       */
+      binding_rule: "policyos.runtime.human_decision_submission_binding.v2";
+      /** Binding Sha256 */
+      binding_sha256: string;
+      /** Cell Id */
+      cell_id?: string | null;
+      /**
+       * Operational Authority
+       * @default false
+       * @constant
+       */
+      operational_authority: false;
+      /** Reservation Id */
+      reservation_id: string;
+      /** Reservation Version */
+      reservation_version: number;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.human_decision_recovery.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.human_decision_recovery.v1";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      status: "pending";
+      /** Tenant Id */
+      tenant_id: string;
     };
     /**
      * HumanDecisionRequestSurface
@@ -35117,6 +35284,7 @@ export interface operations {
     parameters: {
       query: {
         record_ref: string;
+        manifest_profile_sha256?: string | null;
       };
       header?: never;
       path: {
@@ -35225,6 +35393,112 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["HumanDecisionCreateResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  recover_run_human_decision_receipt: {
+    parameters: {
+      query?: never;
+      header: {
+        "X-PolicyOS-Human-Decision-Exposure": string;
+      };
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["HumanDecisionMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "authority_purpose": "historical_human_decision_custody_only",
+           *       "operational_authority": false,
+           *       "reason_code": "DS9-RECOVERY-RECEIPT-NOT-ESTABLISHED",
+           *       "run_id": "run-example",
+           *       "schema_version": "policyos.runtime.human_decision_recovery.v1",
+           *       "status": "not_established",
+           *       "tenant_id": "tenant-example"
+           *     }
+           */
+          "application/json":
+            | components["schemas"]["HumanDecisionRecoveryPending"]
+            | components["schemas"]["HumanDecisionRecoveryCommitted"]
+            | components["schemas"]["HumanDecisionRecoveryNotEstablished"];
         };
       };
       /** @description Malformed request payload or parameters. */

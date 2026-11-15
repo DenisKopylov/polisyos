@@ -32,6 +32,8 @@ from polisyos.runtime.http.errors import conflict, forbidden, service_unavailabl
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     human_decision_create_owner_from_bound_request,
+    human_decision_record_owner_from_bound_request,
+    human_decision_recovery_owner_from_bound_request,
 )
 from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionCreateCommand,
@@ -42,6 +44,8 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionMode,
     HumanDecisionPA2GateInput,
     HumanDecisionProductionGateInput,
+    HumanDecisionRecoveryNotEstablished,
+    HumanDecisionRecoveryResponse,
     HumanDecisionReviewEffectivenessResponse,
     HumanDecisionSourceKind,
     HumanDecisionWriteContext,
@@ -131,6 +135,16 @@ _GATE_AUTHZ = require_action_permission(
         allow_empty_body=True,
     ),
 )
+_RECOVERY_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.human_decision_recovery",
+        path_parameter="run_id",
+        allow_empty_body=False,
+    ),
+)
+
 _RECORD_AUTHZ = require_action_permission(
     RuntimePermission.RUNS_REVIEW,
     ResourceBindingSpec(
@@ -335,6 +349,41 @@ def _gate_input(
     )
 
 
+def _submission_command(
+    body: HumanDecisionMutationRequest,
+    *,
+    tenant_id: str,
+    run_id: str,
+    exposure_session_ref: str,
+) -> HumanDecisionCreateCommand:
+    """Derive both operation commands from the same strict consumed DTO."""
+    gate_input = _gate_input(
+        source_kind=body.source_kind,
+        tenant_id=tenant_id,
+        run_id=run_id,
+        source_ref=body.source_ref,
+        production_packet_ref=body.production_packet_ref,
+        decision_request_ref=body.decision_request_ref,
+        decision_request_digest=body.decision_request_digest,
+        basis_ref=body.basis_ref,
+        principal_binding_ref=body.principal_binding_ref,
+        reviewer_separation_ref=body.reviewer_separation_ref,
+        presentation_contract_ref=body.presentation_contract_ref,
+        exposure_session_ref=exposure_session_ref,
+        basis_digest=body.basis_digest,
+        action_kind=body.action_kind,
+    )
+    return HumanDecisionCreateCommand(
+        gate_input=gate_input,
+        decision_action=body.action,
+        decision_mode=body.decision_mode,
+        accountability_statement=body.accountability_statement,
+        dissent_statement=body.dissent_statement,
+        override_reason=body.override_reason,
+        blocking_reason=body.blocking_reason,
+    )
+
+
 def _raise_unavailable(exc: HumanDecisionUnavailableError) -> NoReturn:
     reason = exc.gate.reasons[0] if exc.gate.reasons else None
     raise conflict(
@@ -535,30 +584,11 @@ if router is not None:
                 "Human-decision body changed after authorization",
                 code="authorization_binding_context_mismatch",
             )
-        gate_input = _gate_input(
-            source_kind=body.source_kind,
+        command = _submission_command(
+            body,
             tenant_id=tenant_id,
             run_id=run_id,
-            source_ref=body.source_ref,
-            production_packet_ref=body.production_packet_ref,
-            decision_request_ref=body.decision_request_ref,
-            decision_request_digest=body.decision_request_digest,
-            basis_ref=body.basis_ref,
-            principal_binding_ref=body.principal_binding_ref,
-            reviewer_separation_ref=body.reviewer_separation_ref,
-            presentation_contract_ref=body.presentation_contract_ref,
             exposure_session_ref=bound_exposure_session_ref,
-            basis_digest=body.basis_digest,
-            action_kind=body.action_kind,
-        )
-        command = HumanDecisionCreateCommand(
-            gate_input=gate_input,
-            decision_action=body.action,
-            decision_mode=body.decision_mode,
-            accountability_statement=body.accountability_statement,
-            dissent_statement=body.dissent_statement,
-            override_reason=body.override_reason,
-            blocking_reason=body.blocking_reason,
         )
         scope = require_access_scope(request)
         request_id = ensure_request_id(request)
@@ -610,6 +640,89 @@ if router is not None:
             reservation_version=receipt.reservation_version,
         )
 
+    @router.post(
+        "/{run_id}/human-decisions/recovery",
+        response_model=HumanDecisionRecoveryResponse,
+        operation_id="recover_run_human_decision_receipt",
+        dependencies=[Depends(_RECOVERY_AUTHZ)],
+        responses={
+            200: {
+                "content": {
+                    "application/json": {
+                        "example": HumanDecisionRecoveryNotEstablished(
+                            tenant_id="tenant-example",
+                            run_id="run-example",
+                            reason_code="DS9-RECOVERY-RECEIPT-NOT-ESTABLISHED",
+                        ).model_dump(mode="json")
+                    }
+                }
+            }
+        },
+    )
+    def recover_run_human_decision_receipt(
+        run_id: str,
+        body: HumanDecisionMutationRequest,
+        exposure_session_ref: Annotated[
+            str, Header(alias="X-PolicyOS-Human-Decision-Exposure", pattern=_SHA256_PATTERN)
+        ],
+        request: Request,
+        ctx: _RuntimeContextDependency,
+        service: _HumanDecisionServiceDependency,
+    ) -> HumanDecisionRecoveryResponse:
+        """Poll historical custody using the original submission, without issuing again."""
+        bound_context, run = human_decision_recovery_owner_from_bound_request(
+            request, ctx=ctx, run_id=run_id
+        )
+        if run is None:
+            run = _require_run(request, ctx=ctx, run_id=run_id)
+        else:
+            enforce_run_tenant_access(request, ctx=ctx, run=run)
+        tenant_id = _run_tenant_id(run)
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id,
+            kind="runtime.run.human_decision_recovery",
+            artifact_id=run_id,
+        )
+        proof = _action_proof(request, _RECOVERY_AUTHZ)
+        frozen_body = bound_context.get("body")
+        if (
+            type(proof) is not BoundActionPermissionVerification
+            or not isinstance(frozen_body, dict)
+            or HumanDecisionMutationRequest.model_validate(frozen_body) != body
+            or bound_context.get("exposure_session_ref") != exposure_session_ref
+        ):
+            raise forbidden(
+                "Recovery submission changed after authorization",
+                code="authorization_binding_context_mismatch",
+            )
+        try:
+            result = service.recover_record(
+                _submission_command(
+                    body,
+                    tenant_id=tenant_id,
+                    run_id=run_id,
+                    exposure_session_ref=exposure_session_ref,
+                ),
+                bound_permission=proof,
+                cell_id=run.details.cell_id,
+            )
+        except HumanDecisionOperationalResolutionError as exc:
+            if exc.code in {"DS9-RECOVERY-SUBJECT-MISMATCH", "DS9-DECISION-PERMISSION-UNVERIFIED"}:
+                raise forbidden(
+                    "Recovery is not bound to this authenticated principal", code=exc.code
+                ) from exc
+            raise conflict(
+                "Human-decision recovery could not be established", code=exc.code
+            ) from exc
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=tenant_id,
+            outcome=f"human_decision_recovery_{result.status}",
+        )
+        return result
+
     @router.get(
         "/{run_id}/human-decisions",
         response_model=HumanDecisionRecord,
@@ -622,8 +735,19 @@ if router is not None:
         record_ref: Annotated[str, Query(pattern=_SHA256_PATTERN)],
         ctx: _RuntimeContextDependency,
         service: _HumanDecisionServiceDependency,
+        manifest_profile_sha256: Annotated[str | None, Query(pattern=_SHA256_PATTERN)] = None,
     ) -> HumanDecisionRecord:
-        run = _require_run(request, ctx=ctx, run_id=run_id)
+        run, selected_ref = human_decision_record_owner_from_bound_request(
+            request,
+            ctx=ctx,
+            run_id=run_id,
+            record_ref=record_ref,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        if run is None:
+            run = _require_run(request, ctx=ctx, run_id=run_id)
+        else:
+            enforce_run_tenant_access(request, ctx=ctx, run=run)
         tenant_id = _run_tenant_id(run)
         set_authz_resource(
             request,
@@ -634,7 +758,7 @@ if router is not None:
         _ = _action_proof(request, _RECORD_AUTHZ)
         try:
             record = service.read_record(
-                record_ref,
+                selected_ref,
                 tenant_id=tenant_id,
                 run_id=run_id,
             )

@@ -14,6 +14,7 @@ from typing import Annotated, Literal, Self
 from pydantic import AwareDatetime, Field, model_validator
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactRef  # noqa: TC001 - public Pydantic field
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
@@ -698,6 +699,76 @@ class HumanDecisionCreateResponse(Layer2ReadinessModel):
         # outer ref/digest is the CAS address of those bytes; making a payload
         # contain its own content hash would be an impossible fixed point.
         return self
+
+
+class _HumanDecisionRecoveryBase(Layer2ReadinessModel):
+    """Historical custody observation; never a protected-action permission."""
+
+    schema_version: Literal["policyos.runtime.human_decision_recovery.v1"] = (
+        "policyos.runtime.human_decision_recovery.v1"
+    )
+    tenant_id: str = Field(min_length=1, max_length=200)
+    cell_id: str | None = Field(default=None, min_length=1, max_length=200)
+    run_id: str = Field(min_length=1, max_length=200)
+    operational_authority: Literal[False] = False
+    authority_purpose: Literal["historical_human_decision_custody_only"] = (
+        "historical_human_decision_custody_only"
+    )
+
+
+class HumanDecisionRecoveryPending(_HumanDecisionRecoveryBase):
+    """The exact actor/submission has a live reservation without a receipt."""
+
+    status: Literal["pending"] = "pending"
+    reservation_id: str = Field(min_length=1, max_length=200)
+    reservation_version: int = Field(ge=1)
+    binding_sha256: str = Field(pattern=_SHA256_PATTERN)
+    binding_rule: Literal["policyos.runtime.human_decision_submission_binding.v2"] = (
+        "policyos.runtime.human_decision_submission_binding.v2"
+    )
+
+
+class HumanDecisionRecoveryNotEstablished(_HumanDecisionRecoveryBase):
+    """The requested historical receipt cannot presently be established."""
+
+    status: Literal["not_established"] = "not_established"
+    reason_code: str = Field(min_length=1, max_length=200)
+
+
+class HumanDecisionRecoveryCommitted(_HumanDecisionRecoveryBase):
+    """An exact signed record/event and immutable commit generation were joined."""
+
+    status: Literal["committed"] = "committed"
+    record_ref: ArtifactRef
+    record_digest: str = Field(pattern=_SHA256_PATTERN)
+    durable_event_id: str = Field(min_length=1, max_length=300)
+    reservation_id: str = Field(min_length=1, max_length=200)
+    reservation_version: int = Field(ge=1)
+    binding_sha256: str = Field(pattern=_SHA256_PATTERN)
+    binding_rule: Literal[
+        "policyos.runtime.human_decision_submission_binding.v2", "legacy_record_v2"
+    ]
+    reservation_state: Literal["committed", "expired"]
+    record_valid_until: AwareDatetime
+
+    @model_validator(mode="after")
+    def _exact_selected_record(self) -> Self:
+        if (
+            self.record_ref.kind != HUMAN_DECISION_RECORD_ARTIFACT_KIND
+            or self.record_ref.media_type != "application/json"
+            or self.record_ref.manifest_profile_sha256 is None
+            or str(self.record_ref.artifact_id) != self.record_digest
+        ):
+            raise ValueError("recovery receipt requires its exact selected human-decision record")
+        return self
+
+
+HumanDecisionRecoveryResponse = Annotated[
+    HumanDecisionRecoveryPending
+    | HumanDecisionRecoveryCommitted
+    | HumanDecisionRecoveryNotEstablished,
+    Field(discriminator="status"),
+]
 
 
 class HumanDecisionReviewEffectivenessResponse(Layer2ReadinessModel):

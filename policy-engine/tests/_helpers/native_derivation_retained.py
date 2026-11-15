@@ -324,26 +324,10 @@ def _verify_retained_selected_signature(
     ref: artifacts.ArtifactRef,
     verifier: artifacts.Ed25519Verifier,
 ) -> None:
-    """Verify a legacy ID sidecar only for its exact selected manifest and blob."""
+    """Require a selected fixture reference and delegate signature custody to Core."""
     if ref.manifest_profile_sha256 is None:
         raise ValueError("retained_native_continuation_signature_profile_missing")
-    selected_manifest = store.get_manifest_bytes(ref)
-    signature = store.get_signature(ref)
-    if signature is None:
-        # The existing institutional fixture producer signed the default ID.
-        # Its sidecar proves this selected view only when the signed bytes agree.
-        if store.get_manifest_bytes(ref.artifact_id) != selected_manifest:
-            raise ValueError("retained_native_continuation_signature_profile_mismatch")
-        signature = store.get_signature(ref.artifact_id)
-    if signature is None:
-        raise ValueError("retained_native_continuation_mandate_signature_missing")
-    verified = verifier.verify(
-        ref.artifact_id,
-        store.get_bytes(ref),
-        selected_manifest,
-        signature,
-        strict_identity=True,
-    )
+    verified = store.verify_signature(ref, verifier, strict_identity=True)
     if verified.status is not artifacts.SignatureVerificationStatus.VALID:
         raise ValueError("retained_native_continuation_mandate_signature_invalid")
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 import sys
 import time
 import uuid
@@ -1108,6 +1109,7 @@ def _approve_served_acquisition_request(
     signers: dict[str, artifacts.Ed25519Signer],
     identities: dict[str, str],
     cas_root: Path,
+    submission_checkpoint: Path | None = None,
 ) -> tuple[authority.AgentActionAuthorityDecision, str]:
     """Obtain real DS9 approval after the exact PA2 source decision refuses."""
     from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
@@ -1156,16 +1158,113 @@ def _approve_served_acquisition_request(
         accountability_statement="I accept this bounded acquisition.",
         dissent_statement="The measurement limitations remain material and were reviewed.",
     )
+    record_ref = _submit_served_human_decision(
+        client,
+        run_id=run_id,
+        body=body,
+        exposure_session_ref=gate.exposure_session_ref,
+        trust=trust,
+        submission_checkpoint=submission_checkpoint,
+    )
+    return source, record_ref
+
+
+def _submit_served_human_decision(
+    client: TestClient,
+    *,
+    run_id: str,
+    body: dict[str, Any],
+    exposure_session_ref: str,
+    trust: _ExternalTrust,
+    submission_checkpoint: Path | None = None,
+    recovery_timeout_seconds: float = 5.0,
+) -> str:
+    """Save an opted-in submission before writing, then recover a lost receipt.
+
+    The recovery branch polls the read-only custody endpoint with the original
+    body and exposure. It never repeats the create request. Existing callers
+    without a checkpoint retain their exact create/201 expectation.
+    """
+    if submission_checkpoint is not None:
+        if not 0 < recovery_timeout_seconds <= 30:
+            raise ValueError("served_human_decision_recovery_timeout_out_of_bounds")
+        snapshot = json.dumps(
+            {
+                "run_id": run_id,
+                "body": body,
+                "exposure_session_ref": exposure_session_ref,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        submission_checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        with submission_checkpoint.open("x", encoding="utf-8") as stream:
+            stream.write(snapshot + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
     response, _ = trust.post(
         client,
         f"/api/v1/runs/{run_id}/human-decisions",
         body,
         route="/api/v1/runs/{run_id}/human-decisions",
         subject="human-reviewer-1",
-        extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
+        extra_headers={"X-PolicyOS-Human-Decision-Exposure": exposure_session_ref},
     )
-    assert response.status_code == 201, response.text
-    return source, response.json()["record_ref"]
+    if response.status_code == 201:
+        return response.json()["record_ref"]
+    assert submission_checkpoint is not None, response.text
+    assert (
+        response.status_code == 503
+        and response.json().get("code") == "human_decision_custody_nonreceipt"
+    ), response.text
+    return _recover_served_human_decision(
+        client,
+        submission_checkpoint=submission_checkpoint,
+        trust=trust,
+        timeout_seconds=recovery_timeout_seconds,
+    )
+
+
+def _recover_served_human_decision(
+    client: TestClient,
+    *,
+    submission_checkpoint: Path,
+    trust: _ExternalTrust,
+    timeout_seconds: float = 5.0,
+) -> str:
+    """Recover only the saved submission, including from another fresh app."""
+    from pydantic import TypeAdapter
+
+    from polisyos.runtime.http.services.human_decision_contracts import (
+        HumanDecisionRecoveryResponse,
+    )
+
+    if not 0 < timeout_seconds <= 30:
+        raise ValueError("served_human_decision_recovery_timeout_out_of_bounds")
+    snapshot = json.loads(submission_checkpoint.read_text(encoding="utf-8"))
+    assert set(snapshot) == {"run_id", "body", "exposure_session_ref"}
+    adapter = TypeAdapter(HumanDecisionRecoveryResponse)
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        response = client.post(
+            f"/api/v1/runs/{snapshot['run_id']}/human-decisions/recovery",
+            json=snapshot["body"],
+            headers={
+                "Authorization": trust.authorization_header("human-reviewer-1"),
+                "X-Tenant-ID": TENANT,
+                "X-PolicyOS-Human-Decision-Exposure": snapshot["exposure_session_ref"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        receipt = adapter.validate_python(response.json())
+        assert receipt.run_id == snapshot["run_id"]
+        assert receipt.tenant_id == TENANT
+        if receipt.status == "committed":
+            return str(receipt.record_ref.artifact_id)
+        assert receipt.status == "pending", receipt
+        assert time.monotonic() < deadline, receipt
+        time.sleep(0.05)
 
 
 def _seed_observer_mode(

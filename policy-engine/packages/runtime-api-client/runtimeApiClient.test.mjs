@@ -18,6 +18,40 @@ function createClient(calls, payload = { ok: true }) {
   });
 }
 
+test("human-decision record GET preserves selected profile and legacy omission", async () => {
+  const runId = "control/run with space";
+  const recordRef = `sha256:${"a".repeat(64)}`;
+  const profile = `sha256:${"b".repeat(64)}`;
+  // Transport only: receiving a record never establishes current authority.
+  const payload = { run_id: runId, decision_action_exercised: "approve" };
+  for (const selectedProfile of [profile, undefined]) {
+    const calls = [];
+    const client = createClient(calls, payload);
+    assert.deepEqual(
+      await client.getRunHumanDecisionRecord({
+        run_id: runId,
+        record_ref: recordRef,
+        manifest_profile_sha256: selectedProfile,
+      }),
+      payload,
+    );
+    assert.equal(calls.length, 1);
+    const url = new URL(calls[0].url);
+    assert.equal(
+      url.pathname,
+      `/api/v1/runs/${encodeURIComponent(runId)}/human-decisions`,
+    );
+    assert.equal(url.searchParams.get("record_ref"), recordRef);
+    assert.equal(
+      url.searchParams.get("manifest_profile_sha256"),
+      selectedProfile ?? null,
+    );
+    assert.equal(url.searchParams.size, selectedProfile === undefined ? 1 : 2);
+    assert.equal(calls[0].init.method, "GET");
+    assert.equal(calls[0].init.body, undefined);
+  }
+});
+
 test("candidate acquisition experiment GET preserves unknown authority and replay pins", async () => {
   // Transport fixture only; these refs do not establish a verified source permit.
   const payload = {

@@ -788,7 +788,6 @@ def _native_fixture_port_factory(state: dict[str, Any]):
             artifact_store=control_service._artifact_store,
             world_growth_bridge=bridge,
         )
-        state["ports"].append(port)
         return port
 
     return build
@@ -831,7 +830,30 @@ def _adopt_native_growth_routes(served: Any, holder: dict[str, Any], closures: t
     served.service.bind_native_derivation_route_configuration(configuration)
 
 
-def _appoint_exact_native_epoch_policy(*, state: dict[str, Any], closure: Any, root: Path) -> None:
+@contextmanager
+def _live_native_fixture_bridge(*, served: Any, state: dict[str, Any]) -> Iterator[Any]:
+    """Use a fresh current app owner only while its dependency guards are live."""
+    from fastapi.testclient import TestClient
+
+    from tests._helpers.control_worker import stop_embedded_control_worker
+
+    with TestClient(served.app_factory()) as client:
+        control = client.app.state.runtime_container.control_service
+        stop_embedded_control_worker(control)
+        port = _native_fixture_port_factory(state)(control_service=control)
+        bridge = port._world_growth_bridge
+        assert bridge is not None
+        yield bridge
+
+
+def _appoint_exact_native_epoch_policy(
+    *,
+    state: dict[str, Any],
+    bridge: Any,
+    institution_store: Any,
+    closure: Any,
+    root: Path,
+) -> None:
     """Supply independent test-root admission for the actual persisted prepared epoch."""
     from types import SimpleNamespace
 
@@ -840,7 +862,7 @@ def _appoint_exact_native_epoch_policy(*, state: dict[str, Any], closure: Any, r
     from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
     from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
 
-    bridge = state["ports"][-1]._world_growth_bridge
+    assert institution_store.root.resolve() == bridge.artifact_store.root.resolve()
     _ref, deferral, attempt = bridge._load_deferral(closure)
     state["paid_attempt"] = attempt
     assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
@@ -858,12 +880,12 @@ def _appoint_exact_native_epoch_policy(*, state: dict[str, Any], closure: Any, r
     selected = bridge.selection(closure)
     assert selected is not None
     _overlay_path, history_root = bridge._paths(selected, create=False)
-    history = FileSemanticEpochHistoryRepository(root=history_root, artifacts=bridge.artifact_store)
+    history = FileSemanticEpochHistoryRepository(root=history_root, artifacts=institution_store)
     appointments = state["appointments"]
     previous = appointments[-1] if appointments else None
     native = sign_native_epoch_scenario(
         SimpleNamespace(
-            store=bridge.artifact_store,
+            store=institution_store,
             prepared=prepared,
             query=prepared.query,
             history=history,
@@ -1029,7 +1051,7 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
     trust_root.mkdir()
     trust = _ExternalTrust(trust_root)
     signers, identities = _key_config(trust_root, trust)
-    state: dict[str, Any] = {"appointments": [], "ports": []}
+    state: dict[str, Any] = {"appointments": []}
 
     def deployment():
         return security.build_deployment_security(
@@ -1129,9 +1151,16 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
         )
         assert quarantined["terminal"].terminal_outcome == "quarantined_no_growth"
         assert len(transport_calls) == 1
-        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        with (
+            _live_native_fixture_bridge(served=served, state=state) as current_bridge,
+            tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id),
+        ):
             _appoint_exact_native_epoch_policy(
-                state=state, closure=quarantined["closure"], root=tmp_path / "native-institution"
+                state=state,
+                bridge=current_bridge,
+                institution_store=served.store,
+                closure=quarantined["closure"],
+                root=tmp_path / "native-institution",
             )
         before_admission = tuple(transport_calls)
         from polisyos.fabric.data_plane import resolve_live_transport_trace
@@ -1353,3 +1382,77 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
         assert served.semantic_kernel_entries == []
     finally:
         trust.close()
+
+
+def test_native_fixture_bridge_uses_live_current_app_for_same_selected_artifact(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Closed app owners refuse while a fresh owner reopens the exact same CAS bytes."""
+    from types import SimpleNamespace
+
+    from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tests._helpers.acquisition_production import _resolver, bind_fixture_l1_catalog_source
+
+    effect_calls: list[str] = []
+
+    def forbidden(*_args: Any, **_kwargs: Any) -> None:
+        effect_calls.append("provider_or_n5")
+        raise AssertionError("native_fixture_lifecycle_attempted_provider_or_n5")
+
+    monkeypatch.setattr(WorldBankConnector, "fetch", forbidden)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", forbidden)
+    monkeypatch.setenv("POLISYOS_RUNTIME_EXECUTION_PROFILE", "development")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(tmp_path / "control.sqlite3"))
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+    authority, _entry = _resolver(tmp_path / "knowledge")
+    bind_fixture_l1_catalog_source(authority.repo_root, authority.baseline_path)
+    cas_root = tmp_path / "cas"
+    runs_root = cas_root / "runs"
+    state = {"holder": {"metadata": {"native_authority": authority}}, "appointments": []}
+
+    def app_factory() -> Any:
+        return create_runtime_api_app(
+            cas_root=cas_root,
+            core_runs_root=runs_root,
+            container_overrides=RuntimeContainerOverrides(
+                runtime_api_context=build_runtime_api_context(
+                    cas_root=cas_root, core_runs_root=runs_root
+                )
+            ),
+            allow_fixture_identity=True,
+            repo_root=authority.repo_root,
+        )
+
+    served = SimpleNamespace(app_factory=app_factory)
+    claims = build_fixture_identity_claims()
+    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        with _live_native_fixture_bridge(served=served, state=state) as first:
+            selected = first.artifact_store.put_bytes(
+                b"selected fixture lifecycle bytes",
+                artifacts.ArtifactWriteOptions(
+                    kind="tests.native_fixture_lifecycle", media_type="application/octet-stream"
+                ),
+                return_selected_profile=True,
+            )
+            assert selected.manifest_profile_sha256 is not None
+            assert first.artifact_store.get_bytes(selected) == b"selected fixture lifecycle bytes"
+        with pytest.raises(RuntimeDependencyUnavailableError):
+            first.artifact_store.get_bytes(selected)
+        with _live_native_fixture_bridge(served=served, state=state) as second:
+            assert second is not first
+            assert second.artifact_store is not first.artifact_store
+            assert second.artifact_store.root.resolve() == first.artifact_store.root.resolve()
+            assert second.artifact_store.get_bytes(selected) == b"selected fixture lifecycle bytes"
+    assert effect_calls == []
+    assert "ports" not in state

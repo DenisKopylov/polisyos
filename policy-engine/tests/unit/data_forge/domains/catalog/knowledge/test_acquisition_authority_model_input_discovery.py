@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+import duckdb
 import pytest
 from pydantic import BaseModel, ValidationError
 
@@ -45,13 +47,21 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
     AcquisitionAuthorityError,
     AcquisitionAuthorityRegistry,
     AcquisitionSourceMeasureScope,
+    AuthoritySchemaColumn,
     CanonicalAcquisitionAuthority,
     _AuthoritySemanticDefinitionIndex,
     build_authority_entry,
     build_authority_registry,
 )
 from polisyos.fabric.data_plane import content_sha256
-from tests._helpers.acquisition_production import _entry, _resolver
+from tests._helpers.acquisition_production import (
+    _baseline,
+    _entry,
+    _resolver,
+    _sha,
+    _write_l5,
+    _write_provision,
+)
 
 
 def _put_selected_model_json(
@@ -102,11 +112,30 @@ def _model_inputs(
     *,
     unit_id: str = "usd",
     source_quantity_kind: str = "stock",
+    target_quantity_kind: str = "stock",
     definition_namespace: str = "test.fiscal",
+    definition_stable_id: str = "balance",
     definition_revision: str = "r1",
     definition_meaning: str = (
         "Government fiscal balance measured for a bounded population and period."
     ),
+    representation_id_prefix: str = "test.fiscal.balance",
+    profile_id: str = "test.fiscal.balance",
+    port_id: str = "fiscal-balance-input",
+    slot_id: str = "fiscal_balance",
+    state_path: str = "government.balance",
+    population_ref: str = "population:whole-country",
+    geography_ref: str = "UKR",
+    jurisdiction_ref: str = "UKR",
+    period_start: date = date(2024, 1, 1),
+    period_end: date = date(2024, 12, 31),
+    period_basis: str = "calendar_year",
+    time_support: str = "period_average",
+    temporal_granularity: str = "annual",
+    measure_form: str = "absolute",
+    aggregation: str = "mean",
+    grain: tuple[str, ...] = ("country", "period"),
+    physical_shape: tuple[int, ...] = (1,),
     source_methodology_ref: SelectedVariableBindingRef | None = None,
     target_methodology_ref: SelectedVariableBindingRef | None = None,
     compare_methodology: bool = False,
@@ -124,7 +153,7 @@ def _model_inputs(
     evidence_ref = SelectedVariableBindingRef.model_validate(evidence_ref.model_dump(mode="json"))
     definition = VariableSemanticDefinition(
         namespace=definition_namespace,
-        stable_id="balance",
+        stable_id=definition_stable_id,
         revision=definition_revision,
         meaning=definition_meaning,
         definition_evidence_refs=(evidence_ref,),
@@ -135,18 +164,18 @@ def _model_inputs(
         source_methodology_ref is not None or target_methodology_ref is not None
     )
     representation = VariableRepresentation(
-        representation_id="test.fiscal.balance.source",
+        representation_id=f"{representation_id_prefix}.source",
         revision="r1",
         semantic_definition_ref=definition_ref,
         quantity_kind=source_quantity_kind,
-        measure_form="absolute",
+        measure_form=measure_form,
         unit_id=unit_id,
         scale_to_unit=Decimal("1"),
-        time_support="period_average",
-        temporal_granularity="annual",
-        aggregation="mean",
-        grain=("country", "period"),
-        population_ref="population:whole-country",
+        time_support=time_support,
+        temporal_granularity=temporal_granularity,
+        aggregation=aggregation,
+        grain=grain,
+        population_ref=population_ref,
         **(
             {
                 "schema_version": "polisyos.catalog.variable_representation.v2",
@@ -174,8 +203,8 @@ def _model_inputs(
 
     model_representation = representation.model_copy(
         update={
-            "representation_id": "test.fiscal.balance.model",
-            "quantity_kind": "stock",
+            "representation_id": f"{representation_id_prefix}.model",
+            "quantity_kind": target_quantity_kind,
             **({"methodology_ref": target_methodology_ref} if uses_v2_representation else {}),
         }
     )
@@ -196,7 +225,7 @@ def _model_inputs(
     )
 
     profile = MeasurementBindingProfile(
-        profile_id="test.fiscal.balance",
+        profile_id=profile_id,
         revision="r1",
         required_axes=(
             MeasurementAxis.QUANTITY_KIND,
@@ -248,25 +277,25 @@ def _model_inputs(
         registry_bundle_ref=registry_bundle,
         ports=(
             ModelInputPort(
-                port_id="fiscal-balance-input",
-                slot_id="fiscal_balance",
-                state_path="government.balance",
+                port_id=port_id,
+                slot_id=slot_id,
+                state_path=state_path,
                 unit_id=unit_id,
                 purpose="simulation_input",
                 semantic_definition_ref=definition_ref,
                 representation_ref=model_representation_ref,
                 binding_profile_ref=profile_ref,
                 scope=ModelInputScope(
-                    population_ref="population:whole-country",
-                    geography_ref="UKR",
-                    jurisdiction_ref="UKR",
-                    period_start=date(2024, 1, 1),
-                    period_end=date(2024, 12, 31),
+                    population_ref=population_ref,
+                    geography_ref=geography_ref,
+                    jurisdiction_ref=jurisdiction_ref,
+                    period_start=period_start,
+                    period_end=period_end,
                     time_role="observation_time",
-                    period_basis="calendar_year",
+                    period_basis=period_basis,
                 ),
                 physical_encoding=ModelInputPhysicalEncoding(
-                    shape=(1,),
+                    shape=physical_shape,
                     dtype="float64",
                     max_absolute_error=Decimal("0.001"),
                 ),
@@ -282,20 +311,34 @@ def _authority_entry(
     representation_ref: VariableRepresentationRef,
     *,
     suffix: str = "first",
+    dataset_prefix: str = "fiscal_balance",
+    unit_id: str = "usd",
+    population: str = "population:whole-country",
+    temporal_granularity: str = "annual",
+    jurisdiction_ref: str | None = None,
+    geography_ref: str | None = None,
+    time_period_basis: str | None = None,
     temporal_start: str | None = None,
     temporal_end: str | None = None,
 ) -> AcquisitionAuthorityEntry:
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    source_scope = {
+        "population": population,
+        "temporal_granularity": temporal_granularity,
+    }
+    if jurisdiction_ref is not None:
+        source_scope["jurisdiction_ref"] = jurisdiction_ref
+    if geography_ref is not None:
+        source_scope["geography_ref"] = geography_ref
+    if time_period_basis is not None:
+        source_scope["time_period_basis"] = time_period_basis
     values.update(
         {
-            "landing_dataset_id": f"acquisition.test.fiscal_balance.{suffix}",
-            "landing_distribution_id": f"acquisition.test.fiscal_balance.{suffix}.json",
-            "raw_unit": "usd",
-            "canonical_unit": "usd",
-            "source_measure_scope": AcquisitionSourceMeasureScope(
-                population="population:whole-country",
-                temporal_granularity="annual",
-            ),
+            "raw_unit": unit_id,
+            "canonical_unit": unit_id,
+            "landing_dataset_id": f"acquisition.test.{dataset_prefix}.{suffix}",
+            "landing_distribution_id": (f"acquisition.test.{dataset_prefix}.{suffix}.json"),
+            "source_measure_scope": AcquisitionSourceMeasureScope(**source_scope),
             "source_semantic_definition_ref": definition_ref,
             "source_representation_ref": representation_ref,
         }
@@ -305,6 +348,317 @@ def _authority_entry(
     if temporal_end is not None:
         values["temporal_end"] = temporal_end
     return build_authority_entry(**values)
+
+
+def _p07_metadata_entry(
+    definition_ref: VariableSemanticDefinitionRef,
+    representation_ref: VariableRepresentationRef,
+    metadata: dict[str, str],
+) -> AcquisitionAuthorityEntry:
+    """Bind a synthetic source descriptor to its own typed Catalog metadata."""
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    raw_field = metadata["raw_field"]
+    logical_type = metadata["logical_type"]
+    values.update(
+        {
+            "target_variable": metadata["target_variable"],
+            "landing_dataset_id": f"acquisition.test.p07.{metadata['slug']}",
+            "landing_distribution_id": f"acquisition.test.p07.{metadata['slug']}.json",
+            "source_catalog_dataset_id": metadata["dataset_id"],
+            "source_catalog_distribution_id": metadata["distribution_id"],
+            "upstream_metric_id": metadata["metric_id"],
+            "catalog_raw_variable": metadata["request_dataset_id"],
+            "raw_field": raw_field,
+            "raw_unit": metadata["unit_id"],
+            "canonical_unit": metadata["unit_id"],
+            "unit_transform": "identity",
+            "unit_transform_ref": f"fabric://units/{metadata['unit_id']}-identity/v1",
+            "alignment_method": "meta_analytic",
+            "alignment_confidence": 0.8,
+            "is_proxy": False,
+            "proxy_penalty": 0.0,
+            "evidence_refs": ("fixture://p07/metadata-only",),
+            "schema_contract_ref": f"fixture://p07/{metadata['slug']}@1.0.0",
+            "schema_columns": tuple(
+                sorted(
+                    (
+                        AuthoritySchemaColumn(
+                            name="country_code",
+                            logical_types=("string",),
+                            nullable=False,
+                        ),
+                        AuthoritySchemaColumn(
+                            name="year",
+                            logical_types=("integer",),
+                            nullable=False,
+                        ),
+                        AuthoritySchemaColumn(
+                            name=raw_field,
+                            logical_types=(logical_type,),
+                            nullable=False,
+                        ),
+                    ),
+                    key=lambda column: column.name,
+                )
+            ),
+            "l5_family_id": "p07_metadata_only",
+            "source_provenance_class": None,
+            "source_measure_scope": AcquisitionSourceMeasureScope(
+                population=metadata["population_ref"],
+                temporal_granularity="annual",
+                jurisdiction_ref="UKR",
+                time_period_basis="calendar_year",
+                source_geography_id="UKR",
+                geography_ref="UKR",
+            ),
+            "source_semantic_definition_ref": definition_ref,
+            "source_representation_ref": representation_ref,
+            "title": metadata["title"],
+            "description": metadata["description"],
+            "country_codes": ("UKR",),
+            "temporal_start": "2020",
+            "temporal_end": "2024",
+        }
+    )
+    return build_authority_entry(**values)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        pytest.param(
+            {
+                "namespace": "public.health",
+                "stable_id": "annual_visits",
+                "meaning": "Annual count of outpatient visits in the declared population.",
+                "unit_id": "count",
+                "quantity_kind": "count",
+                "state_path": "public.health.annual_visits",
+                "population_ref": "population:residents",
+                "port_id": "health-visits-input",
+                "slot_id": "annual_visits",
+                "time_support": "period_total",
+                "aggregation": "sum",
+                "slug": "health-annual-visits",
+                "target_variable": "health.annual_outpatient_visits",
+                "dataset_id": "fixture-health-annual-visits",
+                "distribution_id": "fixture-health-annual-visits-metadata",
+                "metric_id": "health_annual_outpatient_visits",
+                "request_dataset_id": "annual_outpatient_visits_count",
+                "source_locator": "fixture://p07/health/annual-visits-metadata-only",
+                "raw_field": "annual_outpatient_visits_count",
+                "logical_type": "integer",
+                "title": "Annual outpatient visit count",
+                "description": "Test-owned metadata only; contains no source observations.",
+                "expected_resolution_error": "catalog_unit_unresolved",
+            },
+            id="health-count",
+        ),
+        pytest.param(
+            {
+                "namespace": "public.transport",
+                "stable_id": "annual_fare_revenue",
+                "meaning": "Annual fare revenue collected by the declared transit system.",
+                "unit_id": "usd",
+                "quantity_kind": "flow",
+                "state_path": "transport.accumulated_fare_revenue",
+                "population_ref": "population:transit-riders",
+                "port_id": "transport-fare-revenue-input",
+                "slot_id": "annual_fare_revenue",
+                "time_support": "period_total",
+                "aggregation": "sum",
+                "slug": "transport-annual-fare-revenue",
+                "target_variable": "transport.annual_fare_revenue",
+                "dataset_id": "fixture-transport-annual-fare-revenue",
+                "distribution_id": "fixture-transport-annual-fare-revenue-metadata",
+                "metric_id": "transport_annual_fare_revenue",
+                "request_dataset_id": "annual_fare_revenue_current_usd",
+                "source_locator": "fixture://p07/transport/annual-fare-revenue-metadata-only",
+                "raw_field": "annual_fare_revenue_current_usd",
+                "logical_type": "number",
+                "title": "Annual transit fare revenue (current USD)",
+                "description": "Test-owned metadata only; contains no source observations.",
+                "expected_resolution_error": "",
+            },
+            id="transport-usd-flow",
+        ),
+    ],
+)
+def test_indexed_semantic_lookup_preserves_held_out_domain_candidates_and_fresh_reader(
+    tmp_path: Path,
+    case: dict[str, str],
+) -> None:
+    """Exact Catalog indexing narrows candidates without granting semantic authority."""
+    store = FileSystemCAS(tmp_path / "cas")
+    domain_namespace = case["namespace"]
+    stable_id = case["stable_id"]
+    unit_id = case["unit_id"]
+    population_ref = case["population_ref"]
+    port_id = case["port_id"]
+    quantity_kind = case["quantity_kind"]
+    model_inputs: dict[str, object] = {
+        "unit_id": unit_id,
+        "source_quantity_kind": quantity_kind,
+        "target_quantity_kind": quantity_kind,
+        "definition_namespace": domain_namespace,
+        "definition_stable_id": stable_id,
+        "definition_meaning": case["meaning"],
+        "representation_id_prefix": f"{domain_namespace}.{stable_id}",
+        "profile_id": f"{domain_namespace}.{stable_id}",
+        "port_id": port_id,
+        "slot_id": case["slot_id"],
+        "state_path": case["state_path"],
+        "population_ref": population_ref,
+        "period_basis": "calendar_year",
+        "time_support": case["time_support"],
+        "temporal_granularity": "annual",
+        "measure_form": "count" if quantity_kind == "count" else "absolute",
+        "aggregation": case["aggregation"],
+        "grain": ("population", "period"),
+        "physical_shape": (),
+    }
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(store, **model_inputs)
+    # A same-label row with a different definition is not an exact candidate.
+    # Local source labels are unrelated to the selected definition: lookup is
+    # by exact selected reference, not a label or prose similarity.
+    wrong_meaning_inputs = {
+        **model_inputs,
+        "definition_revision": "r2",
+        "definition_meaning": f"{case['meaning']} This is a distinct, non-equivalent definition.",
+        "representation_id_prefix": f"{domain_namespace}.{stable_id}.wrong-meaning",
+        "profile_id": f"{domain_namespace}.{stable_id}.wrong-meaning",
+    }
+    same_label_wrong_meaning_ref, same_label_wrong_meaning_representation, _, _ = _model_inputs(
+        store,
+        **wrong_meaning_inputs,
+    )
+    same_wording_other_definition_inputs = {
+        **model_inputs,
+        "definition_stable_id": f"{stable_id}_alternate_label",
+        "representation_id_prefix": f"{domain_namespace}.{stable_id}.alternate-label",
+        "profile_id": f"{domain_namespace}.{stable_id}.alternate-label",
+    }
+    same_wording_other_definition_ref, same_wording_other_definition_representation, _, _ = (
+        _model_inputs(store, **same_wording_other_definition_inputs)
+    )
+
+    selected = _p07_metadata_entry(definition_ref, representation_ref, case)
+    wrong_meaning = _p07_metadata_entry(
+        same_label_wrong_meaning_ref,
+        same_label_wrong_meaning_representation,
+        {**case, "slug": f"{case['slug']}-wrong-meaning"},
+    )
+    same_wording_other_definition = _p07_metadata_entry(
+        same_wording_other_definition_ref,
+        same_wording_other_definition_representation,
+        {**case, "slug": f"{case['slug']}-other-definition"},
+    )
+    source_row = {
+        key: case[key]
+        for key in (
+            "dataset_id",
+            "distribution_id",
+            "metric_id",
+            "request_dataset_id",
+            "source_locator",
+            "title",
+            "description",
+        )
+    }
+    authority = _p07_fixture_authority(
+        tmp_path / "catalog-owner",
+        (selected, wrong_meaning, same_wording_other_definition),
+        (source_row,),
+    )
+    for ordered_entries in (
+        (wrong_meaning, same_wording_other_definition, selected),
+        (selected, same_wording_other_definition, wrong_meaning),
+    ):
+        _replace_authority_registry(authority, ordered_entries)
+        candidate = authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id=port_id,
+            include_query_envelope=True,
+        )
+        assert candidate.authority_entry_id == selected.entry_id
+        assert candidate.source_semantic_definition_ref == definition_ref
+        assert candidate.semantic_correspondence == "not_established"
+        assert candidate.may_not_use_for == (
+            "measurement_admission",
+            "fetch_permission",
+            "claim_evidence",
+            "source_currentness",
+        )
+        assert candidate.query_envelope is not None
+        assert {row.entry_id for row in candidate.query_envelope.rows} == {selected.entry_id}
+
+    registry = authority._load_registry()
+    indexed = authority._source_entries_for_semantic_definition(
+        registry,
+        artifact_ref_identity_key(definition_ref),
+    )
+    target_key = artifact_ref_identity_key(definition_ref)
+    exhaustive_ids: set[str] = set()
+    for entry in registry.entries:
+        source_definition_ref = entry.source_semantic_definition_ref
+        source_representation_ref = entry.source_representation_ref
+        assert source_definition_ref is not None
+        assert source_representation_ref is not None
+        loaded_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition,
+            store,
+            source_definition_ref,
+        )
+        loaded_representation = load_variable_representation(store, source_representation_ref)
+        assert loaded_representation.semantic_definition_ref == source_definition_ref
+        assert tuple(store.get_manifest(source_representation_ref).inputs) == (
+            *variable_representation_manifest_inputs(loaded_representation),
+        )
+        if artifact_ref_identity_key(source_definition_ref) == target_key:
+            exhaustive_ids.add(entry.entry_id)
+        else:
+            assert loaded_definition != validate_core_model_json_artifact(
+                VariableSemanticDefinition, store, definition_ref
+            )
+    assert exhaustive_ids == {selected.entry_id}
+    assert {entry.entry_id for entry in indexed} == exhaustive_ids
+    assert indexed == (selected,)
+    assert authority._semantic_definition_index_cache is not None
+    assert authority._semantic_definition_index_cache.is_complete
+    assert authority._semantic_definition_index_cache.eligible_entry_count == 3
+
+    fresh_store = FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    fresh_candidate = authority.discover_model_input_source_descriptor(
+        fresh_store,
+        model_input_interface_ref=interface_ref,
+        port_id=port_id,
+        include_query_envelope=True,
+    )
+    assert fresh_candidate == candidate
+    if case["expected_resolution_error"]:
+        with pytest.raises(AcquisitionAuthorityError) as resolution_error:
+            authority.resolve(selected.entry_id)
+        assert resolution_error.value.code == case["expected_resolution_error"]
+    else:
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+        resolved = authority.resolve(selected.entry_id)
+        assert resolved.entry.target_variable == case["target_variable"]
+        assert resolved.upstream_catalog_projection is not None
+        assert resolved.upstream_catalog_projection["catalog_unit"] == unit_id
+        declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+            store,
+            authority,
+            entry_id=selected.entry_id,
+        )
+        declaration = catalog_read_api.load_acquisition_supplier_declaration(
+            FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            declaration_ref,
+        )
+        assert declaration.entry.entry_id == selected.entry_id
+        assert declaration.semantic_authority == "not_established"
+        assert declaration.acquisition_permission == "not_established"
 
 
 def _supplier_declaration_entry(
@@ -340,6 +694,127 @@ def _replace_authority_registry(
     )
     registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
     registry_path.write_text(registry.model_dump_json(), encoding="utf-8")
+
+
+def _p07_fixture_authority(
+    repo_root: Path,
+    entries: tuple[AcquisitionAuthorityEntry, ...],
+    source_rows: tuple[dict[str, object], ...],
+) -> CanonicalAcquisitionAuthority:
+    """Build test-owned Catalog/L5 metadata and provision only after bytes are final."""
+    baseline = _baseline(repo_root)
+    con = duckdb.connect(str(baseline))
+    try:
+        for row in source_rows:
+            con.execute(
+                """
+                INSERT INTO ds_datasets (
+                    id, source, agency, title, description, access_license,
+                    execution_tier, polisyos_metrics, preferred_distribution_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    row["dataset_id"],
+                    "test_fixture",
+                    "PolicyOS P07 test fixture",
+                    row["title"],
+                    row["description"],
+                    "CC-BY-4.0",
+                    "transport_ready",
+                    [row["metric_id"]],
+                    row["distribution_id"],
+                ],
+            )
+            con.execute(
+                """
+                INSERT INTO ds_distributions (
+                    id, dataset_id, connector_type, profile_id, source_locator,
+                    parser_supported, machine_readable, quality_score
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    row["distribution_id"],
+                    row["dataset_id"],
+                    "test.fixture",
+                    "p07_metadata_only",
+                    row["source_locator"],
+                    True,
+                    True,
+                    0.9,
+                ],
+            )
+            con.execute(
+                """
+                INSERT INTO ds_metric_bindings (
+                    metric_id, dataset_id, distribution_id, connector_id, profile_id,
+                    request_dataset_id, confidence, metric_inference_confidence,
+                    default_filters, execution_tier, source
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    row["metric_id"],
+                    row["dataset_id"],
+                    row["distribution_id"],
+                    "test.fixture",
+                    "p07_metadata_only",
+                    row["request_dataset_id"],
+                    0.9,
+                    0.9,
+                    "{}",
+                    "transport_ready",
+                    "test_fixture",
+                ],
+            )
+            con.execute(
+                """
+                INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    row["dataset_id"],
+                    row["request_dataset_id"],
+                    row["metric_id"],
+                    "meta_analytic",
+                    0.9,
+                    "Synthetic metadata-only P07 alignment; no source observations.",
+                    False,
+                    0.0,
+                ],
+            )
+    finally:
+        con.close()
+
+    l5_path = _write_l5(repo_root)
+    l5_payload = json.loads(l5_path.read_text(encoding="utf-8"))
+    l5_payload["coverage_rules"]["p07_metadata_only"] = 0.95
+    l5_path.write_text(
+        json.dumps(l5_payload, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    registry = build_authority_registry(
+        baseline_content_sha256=_sha(baseline),
+        l5_measurement_registry_sha256=_sha(l5_path),
+        entries=entries,
+    )
+    registry_path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry_path.write_text(
+        json.dumps(
+            registry.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    _write_provision(
+        repo_root,
+        baseline=baseline,
+        l5_path=l5_path,
+        baseline_owner_ref="repo://catalog/catalog.duckdb",
+    )
+    return CanonicalAcquisitionAuthority.from_provision(
+        repo_root=repo_root,
+        baseline_path=baseline,
+    )
 
 
 def test_catalog_discovers_one_exact_model_input_source_descriptor(

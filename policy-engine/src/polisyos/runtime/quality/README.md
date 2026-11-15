@@ -77,6 +77,9 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   the new N4 source retain separate identities. Resolution rechecks the actual
   Control owner and current selected world; it does not edit the configured
   profile map, manufacture an ordinary NL-worker scope or invoke a kernel.
+  Generic request/seal/N8 transport uses that current effective world while
+  retaining the original configured profile/ref/key in stored history. A selected
+  history reader retains recorded backends, without live action mutation rights.
 - `acquisition_evaluation.py` owns a versioned Generic ProgramGraph candidate
   basis and use-decision family. Its preparation replays each selected semantic
   input through the existing Generic and Foundry owners, retains the stable
@@ -492,6 +495,11 @@ Boundary notes:
   may be resumed by a separately authorized action after exact policy appointment,
   using the original evidence without another fetch. Admission and re-entry fences
   retain unknown outcomes; an unacknowledged effect is not permission to retry it.
+  Selected negative deferral 1.1 binds the current admission phase separately
+  from the original paid transport; unbound/1.0 history remains readable. The
+  action sink reopens its selected attempt, phase and actual epoch-negative
+  evidence. An unresolved epoch resolver is an execution failure, not a verified
+  quarantine or a measured no-growth receipt.
 - `semantic_epoch_qualification.py` is the internal native epoch policy owner.
   Its factory composes the existing `EpochDeployment` with independently checked
   signed policy selection, exact member/manifest binding, ancestry denominator,

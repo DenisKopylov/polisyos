@@ -1081,11 +1081,281 @@ class AcquisitionWorldGrowthReceipt(_Strict):
 class AcquisitionWorldGrowthDeferral(_Strict):
     """Known native negative over the exact durable live attempt, not retry authority."""
 
-    schema_version: Literal["AcquisitionWorldGrowthDeferral@1.0"] = (
-        "AcquisitionWorldGrowthDeferral@1.0"
-    )
+    schema_version: Literal[
+        "AcquisitionWorldGrowthDeferral@1.0", "AcquisitionWorldGrowthDeferral@1.1"
+    ] = "AcquisitionWorldGrowthDeferral@1.0"
     attempt_ref: str = Field(pattern=_SHA)
     negative_receipt: PersistedSemanticEpochProductionReceipt
+    action_phase_ref: str | None = Field(
+        default=None, pattern=_SHA, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _action_scope_version(self) -> Self:
+        if (self.schema_version == "AcquisitionWorldGrowthDeferral@1.1") != (
+            self.action_phase_ref is not None
+        ):
+            raise ValueError("acquisition_deferral_action_scope_version_mismatch")
+        return self
+
+
+def verify_acquisition_admission_negative(
+    artifact_store: artifacts.ArtifactStore,
+    attempt: AcquisitionWorldGrowthAttempt,
+    negative: PersistedSemanticEpochProductionReceipt,
+    *,
+    expected_provider: NativeDerivationLeafProviderSelection | None = None,
+) -> PersistedSemanticEpochProductionReceipt:
+    """Replay the native epoch refusal against its exact paid source evidence.
+
+    This historical comparison establishes neither current source permission
+    nor a positive native-membership or zero-growth fact.
+    """
+    statement = contracts.epoch.load_verified_epoch_statement(
+        store=artifact_store,
+        ref=negative.receipt_ref,
+        expected_kind="epoch.production_receipt",
+        expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
+    )
+    verified = PersistedSemanticEpochProductionReceipt.model_validate(
+        {
+            **statement,
+            "receipt_ref": negative.receipt_ref,
+            "receipt_content_hash": negative.receipt_content_hash,
+        }
+    )
+    if (
+        verified != negative
+        or verified.production_mode != "acquisition_finalization"
+        or verified.status not in {"not_established", "contested"}
+        or verified.prepared_epoch_ref is None
+        or verified.admitted_boundary_evidence_ref is None
+    ):
+        raise ValueError("acquisition_deferred_admission_negative_unverified")
+    prepared_statement = contracts.epoch.load_verified_epoch_statement(
+        store=artifact_store,
+        ref=verified.prepared_epoch_ref,
+        expected_kind="epoch.prepared",
+    )
+    prepared = PreparedSemanticEpoch.model_validate(
+        {
+            **prepared_statement,
+            "prepared_epoch_ref": verified.prepared_epoch_ref,
+            "prepared_content_hash": contracts.epoch.epoch_semantic_content_hash(
+                domain="polisyos.epoch.prepared.v1", value=prepared_statement
+            ),
+        }
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        contracts.epoch.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=verified.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+    )
+    passport = acquisition_executor.AdmissionPassport.model_validate(
+        contracts.epoch.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=admitted.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    selected = attempt.selection
+    query = build_epoch_resolution_query_from_evidence(
+        artifact_store=artifact_store,
+        scope_identity=selected.epoch_scope_identity,
+        authority_purpose=selected.authority_purpose,
+        valid_effect_coordinate_evidence_ref=selected.valid_effect_coordinate_evidence_ref,
+        visibility_knowledge_cutoff_evidence_ref=selected.visibility_knowledge_cutoff_evidence_ref,
+        purpose_admission_cutoff_evidence_ref=selected.purpose_admission_cutoff_evidence_ref,
+    )
+    if (
+        prepared.query != query
+        or verified.requested_query_context_ref != query.requested_query_context_ref
+        or admitted.epoch_id != selected.epoch_id
+        or admitted.prepared_epoch_ref != prepared.prepared_epoch_ref
+        or admitted.prepared_epoch_content_hash != prepared.prepared_content_hash
+        or admitted.semantic_epoch_stamp != prepared.stamp
+        or admitted.semantic_candidate_ref != passport.semantic_boundary_candidate_ref
+        or passport.live_source_execution != attempt.evidence
+        or passport.variable_id != attempt.target_variable
+        or passport.epoch_id != selected.epoch_id
+        or passport.prepared_semantic_epoch_ref != prepared.prepared_epoch_ref
+        or passport.semantic_epoch_stamp != prepared.stamp
+        or passport.semantic_boundary_candidate_ref not in prepared.boundary_candidate_refs
+    ):
+        raise ValueError("acquisition_deferred_admission_native_binding_mismatch")
+    if expected_provider is not None and (
+        type(expected_provider) is not NativeDerivationLeafProviderSelection
+        or passport.authority_entry_id != expected_provider.authority_entry_id
+        or passport.live_source_execution.authorization.connector_id
+        != expected_provider.connector_id
+    ):
+        raise ValueError("acquisition_deferred_admission_provider_mismatch")
+    required_refs = {
+        str(attempt.evidence.raw_artifact_id),
+        str(attempt.evidence.evidence_bundle_ref.artifact_id),
+        str(attempt.evidence.data_snapshot_ref.artifact_id),
+        str(attempt.evidence.normalized_data_artifact_id),
+    }
+    if not required_refs.issubset(attempt.owner_receipt_refs):
+        raise ValueError("acquisition_deferred_admission_evidence_incomplete")
+    for ref in attempt.owner_receipt_refs:
+        if not artifact_store.verify(ref).ok:
+            raise ValueError("acquisition_deferred_admission_evidence_unreadable")
+    return verified
+
+
+def _native_admission_owner_profiles(
+    artifact_store: artifacts.ArtifactStore,
+    artifact_id: str,
+    kind: str,
+) -> tuple[artifacts.ArtifactRef, ...]:
+    """Select a complete same-subject denominator without consulting its default view."""
+    inventory_reader = getattr(artifact_store, "inventory_snapshot", None)
+    if not callable(inventory_reader):
+        raise ValueError("acquisition_negative_profile_inventory_unavailable")
+    snapshot = inventory_reader(artifact_id=artifacts.ArtifactID.model_validate(artifact_id))
+    if (
+        type(snapshot) is not artifacts.CASInventorySnapshot
+        or snapshot.verdict != "pass"
+        or not snapshot.entries
+    ):
+        raise ValueError("acquisition_negative_profile_inventory_unverified")
+    selected: dict[tuple[str, str, str, str | None], artifacts.ArtifactRef] = {}
+    for entry in snapshot.entries:
+        if (
+            type(entry) is not artifacts.CASInventoryEntry
+            or str(entry.manifest.artifact_id) != artifact_id
+            or entry.blob_sha256 != artifact_id
+        ):
+            raise ValueError("acquisition_negative_profile_inventory_subject_mismatch")
+        if entry.manifest.kind == kind:
+            ref = artifacts.artifact_ref_for_manifest(entry.manifest)
+            selected[artifacts.artifact_ref_identity_key(ref)] = ref
+    return tuple(selected.values())
+
+
+def _read_native_admission_owner(
+    artifact_store: artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    ref: artifacts.ArtifactRef,
+    kind: str,
+    *,
+    executing: AcquisitionRoutePhaseReceipt,
+    phase: str,
+) -> dict[str, Any]:
+    """Reconcile the native producer's selected profile and immutable action scope."""
+    value = AcquisitionWorldGrowthBridge.read_verified_artifact(
+        artifact_store, event_log, ref, kind
+    )
+    manifest = artifact_store.get_manifest(ref)
+    closure = manifest.same_input_closure
+    if (
+        closure is None
+        or closure.status != "closed"
+        or closure.closure_sha256 != executing.route_id
+        or (closure.tenant_id, closure.cell_id, closure.run_id, closure.job_id)
+        != (
+            executing.tenant_id,
+            executing.cell_id,
+            executing.run_id,
+            executing.source_job_id,
+        )
+        or closure.evidence_input_refs != (executing.compiled_ref,)
+    ):
+        raise ValueError("acquisition_negative_owner_scope_mismatch")
+    report = reconcile_authority_ref(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        cas_ref=ref,
+        expected_tenant_id=executing.tenant_id,
+        expected_cell_id=executing.cell_id,
+        expected_run_id=executing.run_id,
+        expected_job_id=executing.source_job_id,
+    )
+    rows = event_log.list_events(event_id=report.durable_event_id, limit=2)
+    if (
+        report.durable_event_id is None
+        or len(rows) != 1
+        or rows[0].event.event_source != "polisyos.runtime.acquisition_world_growth"
+        or rows[0].event.producer_component != "polisyos.runtime.acquisition_world_growth"
+        or rows[0].event.phase != phase
+        or rows[0].event.state_after != phase
+        or rows[0].event.artifact_refs != (str(ref.artifact_id),)
+    ):
+        raise ValueError("acquisition_negative_owner_event_mismatch")
+    return value
+
+
+def resolve_native_admission_deferral_outcome(
+    artifact_store: artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    *,
+    owner_receipt_refs: tuple[str, ...],
+    executing: AcquisitionRoutePhaseReceipt,
+    executing_ref: str,
+) -> artifacts.ArtifactRef | None:
+    """Replay one genuine epoch-negative outcome without a membership claim.
+
+    Historical selection reopens the actual producer's deferral, paid attempt,
+    prepared epoch, boundary and passport. It does not repeat transport or
+    establish current action permission.
+    """
+    if type(executing) is not AcquisitionRoutePhaseReceipt or (
+        executing.receipt_phase != "executing"
+        or executing.owner_declared_profile_ref is None
+        or executing.native_leaf_provider_selection is None
+        or re.fullmatch(_SHA, executing_ref) is None
+    ):
+        raise ValueError("acquisition_negative_executing_scope_invalid")
+    outcomes: dict[tuple[str, str, str, str | None], artifacts.ArtifactRef] = {}
+    for receipt_id in dict.fromkeys(owner_receipt_refs):
+        for ref in _native_admission_owner_profiles(artifact_store, receipt_id, _DEFERRAL_KIND):
+            deferral = AcquisitionWorldGrowthDeferral.model_validate(
+                _read_native_admission_owner(
+                    artifact_store,
+                    event_log,
+                    ref,
+                    _DEFERRAL_KIND,
+                    executing=executing,
+                    phase="admission_deferred",
+                )
+            )
+            attempts = _native_admission_owner_profiles(
+                artifact_store, deferral.attempt_ref, _ATTEMPT_KIND
+            )
+            if len(attempts) != 1:
+                raise ValueError("acquisition_negative_paid_attempt_not_unique")
+            attempt = AcquisitionWorldGrowthAttempt.model_validate(
+                _read_native_admission_owner(
+                    artifact_store,
+                    event_log,
+                    attempts[0],
+                    _ATTEMPT_KIND,
+                    executing=executing,
+                    phase="admission_pending",
+                )
+            )
+            if (
+                deferral.action_phase_ref or attempt.action_phase_ref
+            ) != executing_ref or attempt.selection.key != (
+                executing.tenant_id,
+                executing.cell_id,
+                executing.run_id,
+                executing.route_id,
+            ):
+                raise ValueError("acquisition_negative_paid_attempt_phase_mismatch")
+            verify_acquisition_admission_negative(
+                artifact_store,
+                attempt,
+                deferral.negative_receipt,
+                expected_provider=executing.native_leaf_provider_selection,
+            )
+            outcomes[artifacts.artifact_ref_identity_key(ref)] = ref
+    if len(outcomes) > 1:
+        raise ValueError("acquisition_negative_owner_outcome_ambiguous")
+    return next(iter(outcomes.values()), None)
 
 
 class _EpochMembership(Protocol):
@@ -4888,16 +5158,29 @@ class AcquisitionWorldGrowthBridge:
         if isinstance(activation, PersistedSemanticEpochProductionReceipt):
             negative = self._verified_negative(attempt, activation)
             deferral = AcquisitionWorldGrowthDeferral(
-                attempt_ref=attempt_ref, negative_receipt=negative
+                schema_version=(
+                    "AcquisitionWorldGrowthDeferral@1.1"
+                    if action_phase_ref is not None
+                    else "AcquisitionWorldGrowthDeferral@1.0"
+                ),
+                attempt_ref=attempt_ref,
+                negative_receipt=negative,
+                action_phase_ref=action_phase_ref,
             )
+            native = closure.native_derivation_leaf_scope is not None
             ref = self._persist(
                 closure,
                 deferral.model_dump(mode="json"),
                 _DEFERRAL_KIND,
                 "AcquisitionWorldGrowthDeferral",
                 "admission_deferred",
+                return_selected_profile=native,
             )
-            self._write_pointer(self._growth_pointer(selected).with_suffix(".deferred.json"), ref)
+            self._write_pointer(
+                self._growth_pointer(selected).with_suffix(".deferred.json"),
+                self._attempt_pointer_id(ref),
+                selected_ref=ref if isinstance(ref, artifacts.ArtifactRef) else None,
+            )
             return negative
         if not isinstance(activation, acquisition_executor.ActivatedSemanticEpochAdmissionReceipt):
             return None
@@ -5215,6 +5498,34 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("acquisition_deferred_admission_outcome_not_established")
             return attempt.owner_receipt_refs, result
 
+    def deferred_admission_owner_refs(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        negative: PersistedSemanticEpochProductionReceipt,
+        action_phase_ref: str,
+    ) -> tuple[str, ...]:
+        """Return only the persisted negative owned by this executing action."""
+        ref, deferral, attempt = self._load_deferral(closure)
+        phase = self._validate_action_phase(closure, attempt.selection, action_phase_ref)
+        if (
+            phase.receipt_phase != "executing"
+            or (deferral.action_phase_ref or attempt.action_phase_ref) != action_phase_ref
+            or deferral.negative_receipt != negative
+        ):
+            raise ValueError("acquisition_deferral_action_binding_mismatch")
+        return tuple(
+            dict.fromkeys(
+                (
+                    *attempt.owner_receipt_refs,
+                    deferral.attempt_ref,
+                    ref,
+                    str(negative.receipt_ref.artifact_id),
+                    action_phase_ref,
+                )
+            )
+        )
+
     def _load_deferral(
         self, closure: VerifiedAcquisitionRouteClosure
     ) -> tuple[str, AcquisitionWorldGrowthDeferral, AcquisitionWorldGrowthAttempt]:
@@ -5226,8 +5537,15 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_deferred_admission_already_delivered")
         if pointer.with_suffix(".admission.started").exists():
             raise ValueError("acquisition_deferred_admission_outcome_not_established")
-        ref = json.loads(pointer.with_suffix(".deferred.json").read_text())["receipt_ref"]
-        deferral = AcquisitionWorldGrowthDeferral.model_validate(self._read(ref, _DEFERRAL_KIND))
+        deferral_selector = self._attempt_pointer_ref(
+            pointer.with_suffix(".deferred.json"),
+            require_selected=closure.native_derivation_leaf_scope is not None,
+            expected_kind=_DEFERRAL_KIND,
+        )
+        ref = self._attempt_pointer_id(deferral_selector)
+        deferral = AcquisitionWorldGrowthDeferral.model_validate(
+            self._read(deferral_selector, _DEFERRAL_KIND)
+        )
         attempt_selector = self._attempt_pointer_ref(
             pointer.with_suffix(".attempt.json"),
             require_selected=closure.native_derivation_leaf_scope is not None,
@@ -5239,7 +5557,7 @@ class AcquisitionWorldGrowthBridge:
         )
         if attempt.selection != selected:
             raise ValueError("acquisition_world_growth_case_mismatch")
-        for owner_ref in (ref, attempt_selector):
+        for owner_ref in (deferral_selector, attempt_selector):
             reconcile_authority_ref(
                 artifact_store=self.artifact_store,
                 event_log=self.event_log,
@@ -5257,92 +5575,7 @@ class AcquisitionWorldGrowthBridge:
         attempt: AcquisitionWorldGrowthAttempt,
         negative: PersistedSemanticEpochProductionReceipt,
     ) -> PersistedSemanticEpochProductionReceipt:
-        statement = contracts.epoch.load_verified_epoch_statement(
-            store=self.artifact_store,
-            ref=negative.receipt_ref,
-            expected_kind="epoch.production_receipt",
-            expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
-        )
-        verified = PersistedSemanticEpochProductionReceipt.model_validate(
-            {
-                **statement,
-                "receipt_ref": negative.receipt_ref,
-                "receipt_content_hash": negative.receipt_content_hash,
-            }
-        )
-        if (
-            verified != negative
-            or verified.production_mode != "acquisition_finalization"
-            or verified.status not in {"not_established", "contested"}
-            or verified.prepared_epoch_ref is None
-            or verified.admitted_boundary_evidence_ref is None
-        ):
-            raise ValueError("acquisition_deferred_admission_negative_unverified")
-        prepared_statement = contracts.epoch.load_verified_epoch_statement(
-            store=self.artifact_store,
-            ref=verified.prepared_epoch_ref,
-            expected_kind="epoch.prepared",
-        )
-        prepared = PreparedSemanticEpoch.model_validate(
-            {
-                **prepared_statement,
-                "prepared_epoch_ref": verified.prepared_epoch_ref,
-                "prepared_content_hash": contracts.epoch.epoch_semantic_content_hash(
-                    domain="polisyos.epoch.prepared.v1", value=prepared_statement
-                ),
-            }
-        )
-        admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(
-            contracts.epoch.load_verified_epoch_statement(
-                store=self.artifact_store,
-                ref=verified.admitted_boundary_evidence_ref,
-                expected_kind="epoch.admitted_acquisition_boundary_evidence",
-            )
-        )
-        passport = acquisition_executor.AdmissionPassport.model_validate(
-            contracts.epoch.load_verified_epoch_statement(
-                store=self.artifact_store,
-                ref=admitted.passport_ref,
-                expected_kind="epoch.acquisition_passport_snapshot",
-            )
-        )
-        selected = attempt.selection
-        query = build_epoch_resolution_query_from_evidence(
-            artifact_store=self.artifact_store,
-            scope_identity=selected.epoch_scope_identity,
-            authority_purpose=selected.authority_purpose,
-            valid_effect_coordinate_evidence_ref=selected.valid_effect_coordinate_evidence_ref,
-            visibility_knowledge_cutoff_evidence_ref=selected.visibility_knowledge_cutoff_evidence_ref,
-            purpose_admission_cutoff_evidence_ref=selected.purpose_admission_cutoff_evidence_ref,
-        )
-        if (
-            prepared.query != query
-            or verified.requested_query_context_ref != query.requested_query_context_ref
-            or admitted.epoch_id != selected.epoch_id
-            or admitted.prepared_epoch_ref != prepared.prepared_epoch_ref
-            or admitted.prepared_epoch_content_hash != prepared.prepared_content_hash
-            or admitted.semantic_epoch_stamp != prepared.stamp
-            or admitted.semantic_candidate_ref != passport.semantic_boundary_candidate_ref
-            or passport.live_source_execution != attempt.evidence
-            or passport.variable_id != attempt.target_variable
-            or passport.epoch_id != selected.epoch_id
-            or passport.prepared_semantic_epoch_ref != prepared.prepared_epoch_ref
-            or passport.semantic_epoch_stamp != prepared.stamp
-            or passport.semantic_boundary_candidate_ref not in prepared.boundary_candidate_refs
-        ):
-            raise ValueError("acquisition_deferred_admission_native_binding_mismatch")
-        required_refs = {
-            str(attempt.evidence.raw_artifact_id),
-            str(attempt.evidence.evidence_bundle_ref.artifact_id),
-            str(attempt.evidence.data_snapshot_ref.artifact_id),
-            str(attempt.evidence.normalized_data_artifact_id),
-        }
-        if not required_refs.issubset(attempt.owner_receipt_refs):
-            raise ValueError("acquisition_deferred_admission_evidence_incomplete")
-        for ref in attempt.owner_receipt_refs:
-            if not self.artifact_store.verify(ref).ok:
-                raise ValueError("acquisition_deferred_admission_evidence_unreadable")
-        return verified
+        return verify_acquisition_admission_negative(self.artifact_store, attempt, negative)
 
     def _finish_admission(
         self,
@@ -5678,8 +5911,15 @@ class AcquisitionWorldGrowthBridge:
                 )
                 attempt_ref = self._attempt_pointer_id(attempt_selector)
                 deferral_ref = fence_value["deferral_ref"]
+                deferral_selector = self._attempt_pointer_ref(
+                    self._growth_pointer(selected, create=False).with_suffix(".deferred.json"),
+                    require_selected=closure.native_derivation_leaf_scope is not None,
+                    expected_kind=_DEFERRAL_KIND,
+                )
+                if self._attempt_pointer_id(deferral_selector) != deferral_ref:
+                    raise ValueError("acquisition_deferred_action_fence_scope_mismatch")
                 deferral = AcquisitionWorldGrowthDeferral.model_validate(
-                    self._read(deferral_ref, _DEFERRAL_KIND)
+                    self._read(deferral_selector, _DEFERRAL_KIND)
                 )
                 if deferral.attempt_ref != attempt_ref:
                     raise ValueError("acquisition_deferred_admission_attempt_mismatch")
@@ -5837,9 +6077,14 @@ class AcquisitionWorldGrowthBridge:
 
     @staticmethod
     def _attempt_pointer_ref(
-        pointer: Path, *, require_selected: bool = False
+        pointer: Path,
+        *,
+        require_selected: bool = False,
+        expected_kind: str = _ATTEMPT_KIND,
     ) -> str | artifacts.ArtifactRef:
-        """Read the retained attempt view without substituting a CAS default."""
+        """Read a retained attempt or deferral without substituting a CAS default."""
+        if expected_kind not in {_ATTEMPT_KIND, _DEFERRAL_KIND}:
+            raise ValueError("acquisition_selected_pointer_kind_invalid")
         value = json.loads(pointer.read_text())
         if (
             not isinstance(value, dict)
@@ -5854,7 +6099,7 @@ class AcquisitionWorldGrowthBridge:
             return value["receipt_ref"]
         ref = artifacts.ArtifactRef.model_validate(value["selected_ref"])
         if (
-            ref.kind != _ATTEMPT_KIND
+            ref.kind != expected_kind
             or ref.media_type != "application/json"
             or ref.manifest_profile_sha256 is None
             or str(ref.artifact_id) != value["receipt_ref"]
@@ -5878,7 +6123,7 @@ class AcquisitionWorldGrowthBridge:
         if selected_ref is not None:
             if (
                 receipt_kind is not None
-                or selected_ref.kind != _ATTEMPT_KIND
+                or selected_ref.kind not in {_ATTEMPT_KIND, _DEFERRAL_KIND}
                 or selected_ref.media_type != "application/json"
                 or selected_ref.manifest_profile_sha256 is None
                 or str(selected_ref.artifact_id) != ref
@@ -6222,7 +6467,7 @@ class AcquisitionWorldGrowthBridge:
         schema_versions = {
             _ATTEMPT_KIND: ("1.0", "1.1"),
             _GROWTH_KIND: ("1.0", "1.1"),
-            _DEFERRAL_KIND: ("1.0",),
+            _DEFERRAL_KIND: ("1.0", "1.1"),
             _NO_GROWTH_KIND: ("1.0", "1.1"),
             _REENTRY_KIND: ("2.0",),
             _CANDIDATE_ACTION_KIND: ("1.1",),
@@ -6275,7 +6520,7 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_world_growth_receipt_unverified")
         value = load_core_json_artifact(artifact_store, selected_ref, raw_payload_bytes=payload)
         if (
-            kind in (_GROWTH_KIND, _NO_GROWTH_KIND)
+            kind in (_GROWTH_KIND, _NO_GROWTH_KIND, _DEFERRAL_KIND)
             and schema is not None
             and value.get("schema_version") != f"{schema_names[kind]}@{schema.version}"
         ):

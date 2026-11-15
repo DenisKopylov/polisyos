@@ -807,9 +807,12 @@ class WorldBankWDIAcquisitionExecutionPort:
                     owner_receipt_refs=owner_receipt_refs,
                     action_phase_ref=action_phase_ref,
                 )
-            except SemanticEpochAdmissionResolutionError:
-                # Resolution absence cannot promote fetched data into admitted membership.
-                growth = None
+            except SemanticEpochAdmissionResolutionError as exc:
+                # Unresolved admission is an execution failure, not evidence of
+                # a completed negative epoch decision or verified quarantine.
+                raise LiveAcquisitionExecutionError(
+                    "semantic_epoch_admission_resolution_failed", f"{exc.code}: {exc.detail}"
+                ) from exc
         return self._admission_result(
             closure, owner_receipt_refs, growth, action_phase_ref=action_phase_ref
         )
@@ -1173,7 +1176,18 @@ class WorldBankWDIAcquisitionExecutionPort:
         )
 
         if isinstance(growth, PersistedSemanticEpochProductionReceipt):
-            owner_receipt_refs = (*owner_receipt_refs, str(growth.receipt_ref.artifact_id))
+            if action_phase_ref is not None:
+                bridge = self._world_growth_bridge
+                if bridge is None:
+                    self._raise_reentry_not_admitted()
+                owner_receipt_refs = (
+                    *owner_receipt_refs,
+                    *bridge.deferred_admission_owner_refs(
+                        closure, negative=growth, action_phase_ref=action_phase_ref
+                    ),
+                )
+            else:
+                owner_receipt_refs = (*owner_receipt_refs, str(growth.receipt_ref.artifact_id))
             growth = None
         if growth is not None:
             bridge = self._world_growth_bridge

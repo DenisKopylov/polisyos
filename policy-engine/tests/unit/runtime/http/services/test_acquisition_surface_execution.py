@@ -22,7 +22,10 @@ from polisyos.runtime.http.services.acquisition_surface_execution import (
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import acquisition_planner
-from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
+from polisyos.runtime.quality.acquisition_executor import (
+    LiveAcquisitionExecutionError,
+    SemanticEpochAdmissionResolutionError,
+)
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionStrategy,
     NativeDerivationLeafCostProfile,
@@ -45,6 +48,8 @@ from tests._helpers.acquisition_production import (
     _family_receipt,
     _resolver,
     _write_family_receipt,
+    bind_fixture_l1_catalog_source,
+    intercepted_wdi_transport,
 )
 
 
@@ -442,3 +447,44 @@ def test_native_quote_expiry_during_binding_resolution_blocks_lease_and_fetch(
     lease_root = runtime_root / "runtime/acquisition/worldbank-wdi/attempt-leases"
     expected_lease_state = () if failure_mode == "quote_expiry" else None
     assert _lease_state(lease_root) == expected_lease_state
+
+
+@pytest.mark.parametrize("failure_code", ["resolver_unavailable", "basis_mismatch"])
+def test_unresolved_epoch_admission_is_a_failure_after_one_durable_fetch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure_code: str
+) -> None:
+    """Resolver failure cannot become a quarantine verdict or a second fetch."""
+    port, binding, runtime_root, bridge = _port_fixture(tmp_path, with_bridge=True)
+    assert bridge is not None
+    bind_fixture_l1_catalog_source(port._authority.repo_root, port._authority.baseline_path)
+    transport_calls = intercepted_wdi_transport(monkeypatch)
+    failure = SemanticEpochAdmissionResolutionError(failure_code, "selected owner unavailable")
+    observed_evidence = []
+
+    def unresolved_admission(**kwargs):
+        evidence = kwargs["evidence"]
+        for ref in (
+            evidence.raw_artifact_id,
+            evidence.evidence_bundle_ref,
+            evidence.data_snapshot_ref,
+            evidence.normalized_data_artifact_id,
+        ):
+            assert port._artifact_store.verify(ref).ok
+        observed_evidence.append(evidence)
+        raise failure
+
+    monkeypatch.setattr(bridge, "admit", unresolved_admission)
+    closure = SimpleNamespace(**vars(_route_closure()), native_derivation_leaf_scope=None)
+    with pytest.raises(LiveAcquisitionExecutionError) as raised:
+        port.execute(closure)
+    assert raised.value.code == "semantic_epoch_admission_resolution_failed"
+    assert raised.value.detail == f"{failure.code}: {failure.detail}"
+    assert raised.value.__cause__ is failure
+    assert len(observed_evidence) == len(transport_calls) == 1
+    assert port._lease_path(binding).with_suffix(".claim").exists()
+    before = _lease_state(runtime_root / "runtime/acquisition/worldbank-wdi/attempt-leases")
+    with pytest.raises(AcquisitionActionServiceError) as refused:
+        port.execute(closure)
+    assert refused.value.code == "acquisition_live_attempt_exhausted"
+    assert len(transport_calls) == 1
+    assert _lease_state(runtime_root / "runtime/acquisition/worldbank-wdi/attempt-leases") == before

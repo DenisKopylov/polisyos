@@ -713,13 +713,20 @@ def _prepare_native_epoch_owner_inputs(
 
     from polisyos.core import canon
     from tests._helpers.acquisition_epoch_production import production_admission_inputs
+    from tests._helpers.acquisition_production import bind_fixture_l1_catalog_source
 
     scope = hashlib.sha256(canon.to_canonical_bytes([claims.tenant_id, claims.cell_id])).hexdigest()
     owner_root = store.root / "runtime/acquisition/world-growth" / scope
+    authority = holder["metadata"]["native_authority"]
+    bind_fixture_l1_catalog_source(
+        authority.repo_root,
+        authority.baseline_path,
+        adopt_existing_regular_baseline=True,
+    )
     holder["native_epoch_args"] = production_admission_inputs(
         owner_root,
         store=store,
-        authority=holder["metadata"]["native_authority"],
+        authority=authority,
         overlay_path=owner_root / "overlay.duckdb",
         epoch_history_root=owner_root / "epochs",
         scope_payload={
@@ -965,9 +972,8 @@ def _run_signed_native_leaf_action(
             assert accepted.status_code in {200, 202}, accepted.text
             assert observed_digest == resource_digest
             assert accepted.json()["job_id"] == job_id
-        with TestClient(served.app_factory()) as client:
-            control = client.app.state.runtime_container.control_service
-            stop_embedded_control_worker(control)
+            # Dispatch before closing this stopped-worker app. A fresh app
+            # would start an embedded worker against the already queued job.
             assert (
                 dispatch_one_control_job(
                     store=control._control_store,

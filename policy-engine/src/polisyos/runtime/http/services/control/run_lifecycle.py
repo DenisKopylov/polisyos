@@ -3773,6 +3773,7 @@ class AcquisitionRouteLoopAuthoritySink:
         from polisyos.runtime.quality.acquisition_world_growth import (
             AcquisitionWorldGrowthNoGrowthReceipt,
             AcquisitionWorldGrowthReceipt,
+            resolve_native_admission_deferral_outcome,
         )
 
         kinds = {
@@ -3795,6 +3796,17 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("acquisition_candidate_owner_profile_invalid")
         matches: list[str] = []
+        negative_outcome = None
+        if executing.owner_declared_profile_ref is not None:
+            negative_outcome = resolve_native_admission_deferral_outcome(
+                self._artifact_store,
+                self._event_log,
+                owner_receipt_refs=owner_receipt_refs,
+                executing=executing,
+                executing_ref=executing_ref,
+            )
+            if negative_outcome is not None:
+                matches.append(str(negative_outcome.artifact_id))
         for ref in owner_receipt_refs:
             if (
                 not ref.startswith("sha256:")
@@ -3802,6 +3814,10 @@ class AcquisitionRouteLoopAuthoritySink:
                 or any(character not in "0123456789abcdef" for character in ref[7:])
             ):
                 raise ValueError("acquisition_action_owner_receipt_ref_invalid")
+            if negative_outcome is not None and str(negative_outcome.artifact_id) == ref:
+                # The historical native owner selected this exact profile from
+                # a complete inventory; the CAS default is not its selector.
+                continue
             artifact_id = artifacts.ArtifactID.model_validate(ref)
             selector = (
                 candidate_receipt_ref

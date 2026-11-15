@@ -661,11 +661,14 @@ def bind_fixture_l1_catalog_source(
     baseline_path: Path,
     *,
     include_n7_dataset_bundle: bool = False,
+    adopt_existing_regular_baseline: bool = False,
 ) -> None:
     """Bind a clean fixture root; leave partial or invalid owners for native refusal.
 
     The optional N7 bundle is a controlled fixture declaration for the route
     witness, not evidence of production custody or source currentness.
+    Explicit adoption may declare an existing regular L1 file only when it is
+    the supplied physical baseline. Existing conflicting owners stay untouched.
     """
     from polisyos.runtime.quality.substrate_registry import (
         DEFAULT_L1_DCAT_PATH,
@@ -728,21 +731,31 @@ def bind_fixture_l1_catalog_source(
             return
 
     l1_present = l1_path.exists() or l1_path.is_symlink()
+    adopted_regular_l1 = False
     if l1_present:
         if not l1_path.is_symlink():
-            return
-        try:
-            existing_l1 = l1_path.resolve(strict=True)
-        except OSError:
-            return
-        if existing_l1 != baseline:
-            return
+            if not adopt_existing_regular_baseline or not l1_path.is_file():
+                return
+            try:
+                adopted_regular_l1 = l1_path.samefile(baseline)
+            except OSError:
+                return
+            if not adopted_regular_l1:
+                return
+        else:
+            try:
+                existing_l1 = l1_path.resolve(strict=True)
+            except OSError:
+                return
+            if existing_l1 != baseline:
+                return
 
-    if manifest_present or l1_present:
+    if manifest_present or (l1_present and not adopted_regular_l1):
         return
 
-    l1_path.parent.mkdir(parents=True, exist_ok=True)
-    l1_path.symlink_to(baseline)
+    if not l1_present:
+        l1_path.parent.mkdir(parents=True, exist_ok=True)
+        l1_path.symlink_to(baseline)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(
         json.dumps(expected_manifest, sort_keys=True, separators=(",", ":")),

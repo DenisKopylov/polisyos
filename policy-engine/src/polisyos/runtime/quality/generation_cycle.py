@@ -5870,7 +5870,9 @@ class JointSimulationPort:
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
         | None = None,
-        generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
+        generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1
+        | GenericCycleNativeWorldContextHandoffV1
+        | None = None,
         generic_cycle_simulation_child_selection: GenericCycleSimulationChildSelectionV1
         | None = None,
         generic_n4_child_profile_set_ref: CASArtifactRef | None = None,
@@ -6651,14 +6653,7 @@ class JointSimulationPort:
                                 raise WorldModelRecordError(
                                     "generic_initial_method_input_owner_unavailable"
                                 )
-                            owner.resolve_profile(
-                                admitted_input.profile_ref,
-                                expected_profile=admitted_input.profile,
-                                job_id=admitted_input.job_id,
-                                run_id=admitted_input.run_id,
-                                tenant_id=admitted_input.tenant_id,
-                                cell_id=admitted_input.cell_id,
-                            )
+                            owner._resolve_current_input_profile(admitted_input)
                             return initial_method_input.preflight
                         return self._preflight_selected_program_graph_inputs(
                             request=selected_request,
@@ -7007,7 +7002,9 @@ class JointSimulationPort:
             request_binding=request_binding,
             status=status,
             world_model_record_content_hash=(
-                input_record.profile.context_inputs.world_model_record.content_hash
+                owner._effective_input_profile(
+                    input_record
+                ).context_inputs.world_model_record.content_hash
             ),
             limitation_code=limitation,
             model_input_obligation_set_ref=obligation_set_ref,
@@ -7606,7 +7603,11 @@ class JointSimulationPort:
         handoff = self._generic_cycle_simulation_handoff
         if type(owner) is not GenericCycleSimulationAdmissionOwner:
             raise WorldModelRecordError("generic_cycle_simulation_admission_owner_missing")
-        if type(handoff) is not GenericCycleSimulationContextHandoffV1:
+        native = type(handoff) is GenericCycleNativeWorldContextHandoffV1
+        if type(handoff) not in {
+            GenericCycleSimulationContextHandoffV1,
+            GenericCycleNativeWorldContextHandoffV1,
+        }:
             raise WorldModelRecordError("generic_cycle_simulation_handoff_missing")
         if type(input_record) is not GenericCycleSimulationN5InputV1:
             raise WorldModelRecordError("generic_cycle_simulation_n5_input_untyped")
@@ -7629,7 +7630,11 @@ class JointSimulationPort:
             or persisted.n4_child_profile_set_ref != self._generic_n4_child_profile_set_ref
             or persisted.child_selection != self._generic_cycle_simulation_child_selection
             or persisted.design_problem_ref != cycle_job_design_problem_ref(problem)
-            or persisted.profile.profile_selection_ref
+            or (
+                persisted.native_current_profile_selection_ref
+                if native
+                else persisted.profile.profile_selection_ref
+            )
             != owner.profile_selection_ref_for_handoff(
                 handoff=handoff,
                 problem=problem,
@@ -7639,26 +7644,48 @@ class JointSimulationPort:
             != (persisted.n4_child_profile_set_ref is not None)
         ):
             raise WorldModelRecordError("generic_cycle_simulation_n5_job_binding_mismatch")
-        owner.resolve_profile(
-            handoff.profile_ref,
-            expected_profile=handoff.profile,
-            job_id=handoff.job_id,
-            run_id=handoff.run_id,
-            tenant_id=handoff.tenant_id,
-            cell_id=handoff.cell_id,
-        )
+        if native:
+            if (
+                persisted.native_world_checkpoint_ref is None
+                or persisted.original_generic_input_ref is None
+                or artifact_ref_identity_key(persisted.native_world_checkpoint_ref)
+                != artifact_ref_identity_key(handoff.native_world_checkpoint_ref)
+                or artifact_ref_identity_key(persisted.original_generic_input_ref)
+                != artifact_ref_identity_key(handoff.original_generic_input_ref)
+                or persisted.child_selection is not None
+                or persisted.n4_child_profile_family_ref is not None
+                or persisted.n4_child_profile_set_ref is not None
+            ):
+                raise WorldModelRecordError("generic_cycle_simulation_n5_job_binding_mismatch")
+        else:
+            if persisted.native_world_checkpoint_ref is not None:
+                raise WorldModelRecordError("generic_cycle_simulation_n5_job_binding_mismatch")
+            owner.resolve_profile(
+                handoff.profile_ref,
+                expected_profile=handoff.profile,
+                job_id=handoff.job_id,
+                run_id=handoff.run_id,
+                tenant_id=handoff.tenant_id,
+                cell_id=handoff.cell_id,
+            )
+        effective_profile = owner._effective_input_profile(persisted)
         context = revalidate_cycle_substrate_context(self._cycle_substrate_context)
         if (
             context.content_hash != handoff.context.content_hash
             or context.design_problem_ref != cycle_job_design_problem_ref(problem)
-            or not owner.context_matches_profile(context, persisted.profile, problem)
+            or (
+                not native
+                and not owner.context_matches_profile(context, persisted.profile, problem)
+            )
         ):
             raise WorldModelRecordError("generic_cycle_simulation_n5_context_binding_mismatch")
         if type(candidate) is not ShadowGeneratedCandidate:
             raise WorldModelRecordError("generic_cycle_simulation_n4_candidate_untyped")
         if self._artifact_store is None:
             raise WorldModelRecordError("n5_runtime_store_not_established")
-        source = GenerationSourceRepository(self._artifact_store).load(
+        source = GenerationSourceRepository(
+            self._artifact_store, native_world_owner=owner if native else None
+        ).load(
             persisted.n4_source_ref,
             run_id=persisted.source_run_id,
             expected_run_id=persisted.run_id,
@@ -7714,18 +7741,18 @@ class JointSimulationPort:
                 )
             atoms = tuple(item.derived_n5_atom for item in materializations)
         world_record = self._context_world_model_record(candidate=candidate, problem=problem)
-        profile_world = persisted.profile.context_inputs.world_model_record
+        profile_world = effective_profile.context_inputs.world_model_record
         profile_views = world_model_artifact_views(profile_world)
         program_graph_selected = type(persisted.n5) in {
             GenericCycleN5ProgramGraphRequestProfileV4,
             GenericCycleN5PairedProgramGraphRequestProfileV5,
         }
-        selected_ncm_ref = persisted.profile.selected_ncm_ref
+        selected_ncm_ref = effective_profile.selected_ncm_ref
         if (
             world_record != profile_world
             or profile_views.substrate_registry_ref is None
             or artifact_ref_identity_key(profile_views.substrate_registry_ref)
-            != artifact_ref_identity_key(persisted.profile.substrate_registry_ref)
+            != artifact_ref_identity_key(effective_profile.substrate_registry_ref)
             or (
                 not program_graph_selected
                 and (
@@ -7747,7 +7774,7 @@ class JointSimulationPort:
             raw_hint=None,
         )
         plans = owner.build_engine_plans(
-            profile=persisted.profile,
+            profile=effective_profile,
             world_record=world_record,
             outcome=outcome,
             variable_map=variable_map,
@@ -7858,6 +7885,12 @@ class JointSimulationPort:
         graph_ref = selected_plan.program_graph_ref
         exec_plan_ref = selected_plan.exec_plan_ref
         candidate_hash = _candidate_content_hash(candidate)
+        effective_profile = input_record.profile
+        if input_record.native_world_checkpoint_ref is not None:
+            owner = self._generic_cycle_simulation_admission_owner
+            if type(owner) is not GenericCycleSimulationAdmissionOwner or owner.store is not store:
+                raise WorldModelRecordError("n5_selected_program_input_invocation_not_established")
+            effective_profile = owner._effective_input_profile(input_record)
         if (
             store is None
             or store is not self._artifact_store
@@ -7871,7 +7904,7 @@ class JointSimulationPort:
             or selected_plan.program_compilation_ref != input_record.n5.compile_report_ref
             or request.horizon != input_record.n5.horizon
             or request.world_model_record.content_hash
-            != input_record.profile.context_inputs.world_model_record.content_hash
+            != effective_profile.context_inputs.world_model_record.content_hash
             or _candidate_id(candidate) != input_record.candidate_id
             or candidate_hash != input_record.candidate_atom_hash
             or selected_plan.program_parameter_overrides_by_atom
@@ -9936,7 +9969,10 @@ def _conditional_simulation_value_observation(
     artifact_store: ArtifactStore | None,
     generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
     cycle_index: int | None = None,
-    generic_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
+    generic_handoff: GenericCycleSimulationContextHandoffV1
+    | GenericCycleNativeWorldContextHandoffV1
+    | None = None,
+    generic_admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
     generic_child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
     generic_verified_scope: object | None = None,
     generic_source_run_id: str | None = None,
@@ -10036,6 +10072,7 @@ def _conditional_simulation_value_observation(
         cycle_index=cycle_index,
         handoff=generic_handoff,
         child_selection=generic_child_selection,
+        admission_owner=generic_admission_owner,
         verified_scope=generic_verified_scope,
         source_run_id=generic_source_run_id,
     )
@@ -10395,7 +10432,7 @@ def _generic_n5_canonical_port_issue(
     port: object,
     *,
     owner: GenericCycleSimulationAdmissionOwner,
-    handoff: GenericCycleSimulationContextHandoffV1,
+    handoff: GenericCycleSimulationContextHandoffV1 | GenericCycleNativeWorldContextHandoffV1,
     child_selection: GenericCycleSimulationChildSelectionV1 | None,
     child_set_ref: CASArtifactRef | None,
     artifact_store: ArtifactStore | None,
@@ -10467,10 +10504,13 @@ def _replay_generic_n5_observation(
     world_model_record_content_hash: str,
     artifact_store: ArtifactStore,
     cycle_index: int | None,
-    handoff: GenericCycleSimulationContextHandoffV1 | None,
+    handoff: GenericCycleSimulationContextHandoffV1
+    | GenericCycleNativeWorldContextHandoffV1
+    | None,
     child_selection: GenericCycleSimulationChildSelectionV1 | None,
     verified_scope: object | None,
     source_run_id: str | None,
+    admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
 ) -> tuple[str | None, GenericN5ResolvedResult | None]:
     """Replay the exact generic N5 owner join for a candidate observation."""
     from pydantic import ValidationError
@@ -10501,6 +10541,7 @@ def _replay_generic_n5_observation(
     source_ref, context_ref, profile_ref, input_ref, execution_ref, selection_ref = generic_refs
     if any(item is None for index, item in enumerate(generic_refs) if index != 4):
         return "generic_cycle_simulation_projection_incomplete", None
+    source_store = artifact_store
     if type(artifact_store) is not SelectedProfileVerificationReader:
         artifact_store = SelectedProfileVerificationReader(artifact_store)
     try:
@@ -10516,25 +10557,58 @@ def _replay_generic_n5_observation(
             GenericN5ExecutionJoinExpectation,
         )
 
-        owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=artifact_store)
         input_record = GenericCycleSimulationN5InputV1.model_validate(
             load_core_json_artifact(artifact_store, input_ref)
         )
         if cycle_index is None:
             return "n5_execution_request_provenance_not_established", None
-        established_scope = (
-            type(verified_scope) is VerifiedNLJobScope
-            and verified_scope._was_issued_by_verified_nl_execution_owner
-            and type(handoff) is GenericCycleSimulationContextHandoffV1
-            and source_run_id is not None
-        )
+        native = input_record.native_world_checkpoint_ref is not None
+        if native:
+            if (
+                type(handoff) is not GenericCycleNativeWorldContextHandoffV1
+                or type(admission_owner) is not GenericCycleSimulationAdmissionOwner
+                or admission_owner.store is not source_store
+                or source_run_id is None
+            ):
+                return "n5_execution_request_provenance_not_established", None
+            if (
+                child_selection is not None
+                or simulation.generic_n4_child_profile_family_ref is not None
+                or simulation.generic_n4_child_profile_set_ref is not None
+                or input_record.original_generic_input_ref is None
+                or artifact_ref_identity_key(input_record.native_world_checkpoint_ref)
+                != artifact_ref_identity_key(handoff.native_world_checkpoint_ref)
+                or artifact_ref_identity_key(input_record.original_generic_input_ref)
+                != artifact_ref_identity_key(handoff.original_generic_input_ref)
+                or input_record.native_current_profile_selection_ref
+                != handoff.current_profile_selection_ref
+            ):
+                return "generic_cycle_simulation_projection_binding_mismatch", None
+            # Current N8 use is separately fenced by the real Native action
+            # owner. The following selected replay receives recorded history
+            # only; it cannot acquire that owner's live execution rights.
+            admission_owner.resolve_native_world_handoff(handoff=handoff, problem=problem)
+            owner = admission_owner._selected_verification_replay_owner()
+            established_scope = True
+            bound_scope = input_record
+        else:
+            if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+                return "generic_cycle_simulation_projection_binding_mismatch", None
+            owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=artifact_store)
+            established_scope = (
+                type(verified_scope) is VerifiedNLJobScope
+                and verified_scope._was_issued_by_verified_nl_execution_owner
+                and type(handoff) is GenericCycleSimulationContextHandoffV1
+                and source_run_id is not None
+            )
+            bound_scope = verified_scope if established_scope else input_record
         if established_scope and (
             (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
             != (
-                verified_scope.job_id,
-                verified_scope.run_id,
-                verified_scope.tenant_id,
-                verified_scope.cell_id,
+                bound_scope.job_id,
+                bound_scope.run_id,
+                bound_scope.tenant_id,
+                bound_scope.cell_id,
             )
             or context_ref != handoff.context_job_ref
             or profile_ref != handoff.profile_ref
@@ -10566,11 +10640,11 @@ def _replay_generic_n5_observation(
                 candidate_id=_candidate_id(candidate),
                 candidate_atom_hash=_candidate_content_hash(candidate),
                 world_model_record_content_hash=world_model_record_content_hash,
-                job_id=verified_scope.job_id if established_scope else input_record.job_id,
-                run_id=verified_scope.run_id if established_scope else input_record.run_id,
+                job_id=bound_scope.job_id,
+                run_id=bound_scope.run_id,
                 source_run_id=source_run_id if established_scope else input_record.source_run_id,
-                tenant_id=verified_scope.tenant_id if established_scope else input_record.tenant_id,
-                cell_id=verified_scope.cell_id if established_scope else input_record.cell_id,
+                tenant_id=bound_scope.tenant_id,
+                cell_id=bound_scope.cell_id,
             ),
         )
     except (FileNotFoundError, TimeoutError, ConnectionError, RuntimeDependencyError):
@@ -10968,7 +11042,10 @@ class _DefaultSimulationBoundFoundryValuePort:
     observation_family: str | None = None
     runtime_budget_ms: float | None = None
     generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None
-    generic_handoff: GenericCycleSimulationContextHandoffV1 | None = None
+    generic_handoff: (
+        GenericCycleSimulationContextHandoffV1 | GenericCycleNativeWorldContextHandoffV1 | None
+    ) = None
+    generic_admission_owner: GenericCycleSimulationAdmissionOwner | None = None
     generic_child_selection: GenericCycleSimulationChildSelectionV1 | None = None
     generic_verified_scope: object | None = None
     generic_source_run_id: str | None = None
@@ -11002,6 +11079,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             ),
             cycle_index=cycle_index,
             generic_handoff=self.generic_handoff,
+            generic_admission_owner=self.generic_admission_owner,
             generic_child_selection=self.generic_child_selection,
             generic_verified_scope=self.generic_verified_scope,
             generic_source_run_id=self.generic_source_run_id,
@@ -11483,7 +11561,9 @@ class GenerationCycleController:
         ) = None,
         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
         | None = None,
-        generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
+        generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1
+        | GenericCycleNativeWorldContextHandoffV1
+        | None = None,
         generic_cycle_simulation_child_selection: GenericCycleSimulationChildSelectionV1
         | None = None,
         generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
@@ -11620,6 +11700,7 @@ class GenerationCycleController:
                 generic_cycle_simulation_currentness_resolver
             ),
             generic_handoff=generic_cycle_simulation_handoff,
+            generic_admission_owner=generic_cycle_simulation_admission_owner,
             generic_child_selection=generic_cycle_simulation_child_selection,
             generic_verified_scope=candidate_cycle_verified_nl_job_scope,
         )
@@ -12025,6 +12106,7 @@ class GenerationCycleController:
             self._generic_cycle_simulation_current_problem = problem
             owner = self._generic_cycle_simulation_admission_owner
             handoff = self._generic_cycle_simulation_handoff
+            native = type(handoff) is GenericCycleNativeWorldContextHandoffV1
             try:
                 selected_ref = owner.profile_selection_ref_for_handoff(
                     handoff=handoff,
@@ -12037,7 +12119,12 @@ class GenerationCycleController:
                 ) from exc
             if (
                 handoff.context.design_problem_ref != design_problem_ref
-                or selected_ref != handoff.profile.profile_selection_ref
+                or selected_ref
+                != (
+                    handoff.current_profile_selection_ref
+                    if native
+                    else handoff.profile.profile_selection_ref
+                )
                 or self._generic_cycle_simulation_currentness_resolver is None
                 or self._generic_cycle_simulation_currentness_resolver() is not True
             ):
@@ -12045,14 +12132,15 @@ class GenerationCycleController:
                     "generation_cycle_generic_handoff_not_current_for_problem"
                 )
             try:
-                owner.resolve_profile(
-                    handoff.profile_ref,
-                    expected_profile=handoff.profile,
-                    job_id=handoff.job_id,
-                    run_id=handoff.run_id,
-                    tenant_id=handoff.tenant_id,
-                    cell_id=handoff.cell_id,
-                )
+                if not native:
+                    owner.resolve_profile(
+                        handoff.profile_ref,
+                        expected_profile=handoff.profile,
+                        job_id=handoff.job_id,
+                        run_id=handoff.run_id,
+                        tenant_id=handoff.tenant_id,
+                        cell_id=handoff.cell_id,
+                    )
             except (OSError, TypeError, ValueError) as exc:
                 raise GenerationCycleError(
                     "generation_cycle_generic_profile_not_established", str(exc)
@@ -19330,6 +19418,7 @@ class GenerationCycleController:
 
         owner = self._generic_cycle_simulation_admission_owner
         handoff = self._generic_cycle_simulation_handoff
+        native = type(handoff) is GenericCycleNativeWorldContextHandoffV1
         canonical_port_issue = (
             _generic_n5_canonical_port_issue(
                 self._simulation_port,
@@ -19346,7 +19435,8 @@ class GenerationCycleController:
                 ),
             )
             if type(owner) is GenericCycleSimulationAdmissionOwner
-            and type(handoff) is GenericCycleSimulationContextHandoffV1
+            and type(handoff)
+            in {GenericCycleSimulationContextHandoffV1, GenericCycleNativeWorldContextHandoffV1}
             else "generic_cycle_simulation_n5_owner_or_handoff_missing"
         )
         if canonical_port_issue is not None:
@@ -19378,27 +19468,36 @@ class GenerationCycleController:
         child_selection = self._generic_cycle_simulation_child_selection
         child_set_ref = self._generic_n4_child_profile_set_ref
         try:
-            selection_ref = owner.profile_selection_ref_for_handoff(
+            current_selection_ref = owner.profile_selection_ref_for_handoff(
                 handoff=handoff,
                 problem=problem,
                 child_selection=child_selection,
             )
             if (
-                selection_ref != handoff.profile.profile_selection_ref
+                current_selection_ref
+                != (
+                    handoff.current_profile_selection_ref
+                    if native
+                    else handoff.profile.profile_selection_ref
+                )
                 or handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)
                 or (handoff.profile.profile_selection_kind == "n4_candidate_child")
                 != (child_set_ref is not None)
             ):
                 raise ValueError("generic_cycle_simulation_profile_problem_mismatch")
-            owner.resolve_profile(
-                handoff.profile_ref,
-                expected_profile=handoff.profile,
-                job_id=handoff.job_id,
-                run_id=handoff.run_id,
-                tenant_id=handoff.tenant_id,
-                cell_id=handoff.cell_id,
-            )
-            source = GenerationSourceRepository(self._artifact_store).load(
+            selection_ref = handoff.profile.profile_selection_ref
+            if not native:
+                owner.resolve_profile(
+                    handoff.profile_ref,
+                    expected_profile=handoff.profile,
+                    job_id=handoff.job_id,
+                    run_id=handoff.run_id,
+                    tenant_id=handoff.tenant_id,
+                    cell_id=handoff.cell_id,
+                )
+            source = GenerationSourceRepository(
+                self._artifact_store, native_world_owner=owner if native else None
+            ).load(
                 source_ref,
                 run_id=self._source_run_id,
                 expected_job_id=handoff.job_id,
@@ -19453,6 +19552,7 @@ class GenerationCycleController:
             )
             if currentness() is not True:
                 raise ValueError("generic_cycle_simulation_worker_lease_not_current")
+            effective_profile = owner._effective_input_profile(input_record)
             simulation = self._simulation_port(
                 candidate=candidate,
                 problem=problem,
@@ -19502,7 +19602,7 @@ class GenerationCycleController:
                 "candidate_id": candidate.candidate_id,
                 "candidate_atom_hash": candidate.atom.content_hash,
                 "world_model_record_content_hash": (
-                    handoff.profile.context_inputs.world_model_record.content_hash
+                    effective_profile.context_inputs.world_model_record.content_hash
                 ),
                 "outcome_variable": outcome,
                 "job_id": handoff.job_id,

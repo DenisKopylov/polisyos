@@ -1520,6 +1520,44 @@ class GenericCycleSimulationAdmissionOwner:
             repo_root=repo_root,
         )
 
+    def _selected_verification_replay_owner(self) -> GenericCycleSimulationAdmissionOwner:
+        """Preserve recorded Native history in the existing selected-read boundary.
+
+        The replay owner receives no live action service or current-use grant.
+        Its diagnostic reader uses the same actual history backend and the
+        selected CAS reader, so the existing Native history bind stays exact.
+        """
+        from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+
+        control = self._native_action_control_store
+        event_log = self._native_action_event_log
+        if (control is None) != (event_log is None) or (
+            event_log is not None
+            and (
+                type(event_log) is not RuntimeDiagnosticEventLog
+                or event_log.artifact_store is not self._store
+                or event_log._store is not control
+            )
+        ):
+            raise CycleSubstrateContextOwnerError("generic_native_world_history_owner_mismatch")
+        if (
+            type(self._store) is artifacts.SelectedProfileVerificationReader
+            and self._native_world_action_owner is None
+        ):
+            return self
+        reader = (
+            self._store
+            if type(self._store) is artifacts.SelectedProfileVerificationReader
+            else artifacts.SelectedProfileVerificationReader(self._store)
+        )
+        replay = GenericCycleSimulationAdmissionOwner(profiles=self.profiles, store=reader)
+        if control is not None and event_log is not None:
+            replay.bind_native_world_history(
+                control_store=control,
+                event_log=RuntimeDiagnosticEventLog(store=control, artifact_store=reader),
+            )
+        return replay
+
     def _effective_input_profile(
         self, input_record: GenericCycleSimulationN5InputV1
     ) -> GenericCycleSimulationProfileV1:
@@ -2314,11 +2352,18 @@ class GenericCycleSimulationAdmissionOwner:
     def profile_selection_ref_for_handoff(
         self,
         *,
-        handoff: GenericCycleSimulationContextHandoffV1,
+        handoff: GenericCycleSimulationContextHandoffV1 | GenericCycleNativeWorldContextHandoffV1,
         problem: DesignProblem,
         child_selection: GenericCycleSimulationChildSelectionV1 | None,
     ) -> str:
-        """Return a profile key only from a parent key or a typed child lineage."""
+        """Return the current problem key from its exact typed context owner."""
+        if type(handoff) is GenericCycleNativeWorldContextHandoffV1:
+            if child_selection is not None:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_native_world_child_profile_unsupported"
+                )
+            self.resolve_native_world_handoff(handoff=handoff, problem=problem)
+            return handoff.current_profile_selection_ref
         if (
             type(handoff) is not GenericCycleSimulationContextHandoffV1
             or type(problem) is not DesignProblem
@@ -4192,10 +4237,7 @@ class GenericCycleSimulationAdmissionOwner:
         if type(self._store) is not artifacts.SelectedProfileVerificationReader:
             # Use one selected-read boundary for all consumers of this owner,
             # including N8; retain the producer's actual store and profile set.
-            replay_owner = GenericCycleSimulationAdmissionOwner(
-                profiles=self.profiles,
-                store=artifacts.SelectedProfileVerificationReader(self._store),
-            )
+            replay_owner = self._selected_verification_replay_owner()
             return replay_owner._resolve_n5_execution_join_with_runtime_result(
                 ref, expected=expected
             )

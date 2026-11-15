@@ -9564,16 +9564,16 @@
         },
         "resume_20261115": {
           "status": "ACTIVE_BY_USER_REQUEST",
-          "published_checkpoint": "ba7126665cd30ef5e04bb547c7da00ad7e2c2426",
-          "published_tree": "78181adf822b4ecef7dac698b5e003dfd9cac2bb",
-          "delivered_paths": 47,
+          "published_checkpoint": "013e8f69f4714c4ce65c56a03d7014e9b81de992",
+          "published_tree": "f4c5e976df586466f0df3369dbf20cb4b7f01d51",
+          "delivered_paths": 40,
           "hosted_pair": "RESOURCE_ABORT wall900.204s/peak3326836736B; baselineCOMPLETED/TFAILED with2 charged standard units; durable Foundry1.4 baseline only, no complete joint result/initial frontier;57pins+initial1960origins stable; final whole-import observer absent",
           "API_unit_checks": "57 PASS then5 affected service PASS; independent review GO; dashboard307 then309 affected tests PASS; full hosted consumer remains unverified",
           "author_base_commit": "30a4c860b1da62802878dae78767b0f6870ff435",
           "author_base_tree": "7988a5946c6e357eeebf1733a987bdf7b9a9f2c8",
           "preflight": "2 actual preflight PASS; legacy guard joins the passing actuation cohort",
           "core_actuation": "5 original component PASS then4 affected PASS; 25 distinct cheap actuation cases across R1/R2/R3 and actual Foundry pair1/1 PASS with fresh reader/removal; hosted N5 remains UNRUN",
-          "native": "Fresh app/same-store restartPASS31.544s1.72GB; maintainedpaidA/partialgoal/restart/Bdenial readyUNRUN; fullNativeGen/N5/recoverybridge stillmissing",
+          "native": "R2worker/appfixture race beforefetch repaired; R3actual1transport retained, underlyingmissingCatalogmanifest exposedwithno effects. Helper7PASS+manifestoptin; unresolvedresolvernowtypedexecutionfailure. ExistingnegativeDeferral1.1 owner/sinkcomponentverified, originalpaid/currentadmission phasesseparate; fullpartial/restart/Bdeniednext. No freshpaidrepeat yet.",
           "implementation_owners": "Core/compiler/Foundry selector released; Runtime paired V4 components16/16 PASS and released; Native current N4/source released; units/API consumer and independent UI repair active",
           "main_CI": "Fast/Standard fail; inventory/singular companions fixed; actual optional lineage409 coupling repaired with3 prefetch and40 render PASS; browserUNRUN; import gates/test economics remain explicit",
           "authority": "G acceptance and formal closure unchanged; original11/66/64 and repeated bindings preserved",
@@ -9583,8 +9583,13 @@
           "historical_reader": "Distinct N4 provenance vs compiled-policy roles; exact Core invocation and graph/Trinity edges, including predecessors. Actual producer/readonly4B/hash+9refusals PASS24.938s1041793024B, independentGO. Originalhost fulladmit/emptyselector/4B/Set13 resolved; RESOURCE_ABORT90s during redundantfacts, NPYtailUNRUN; ledgerunchanged; instrumentprofilecost noted.",
           "temporal": "Core contextidentity21/21PASS; original2020/2021producer1/1PASS35.794s1.04GB; no semantic/schema/authority/fixturechange",
           "acquisition_surface": "Core4/route3/dashboard309PASS in distinctcommands; canonicalhistory, numericbodypreserved onmissinghistory; actualN4replay; generatedcompanionscomplete",
-          "next": "publishmergedsource/readback; provider-only3GiB300sCPU1 noN5 plus paidNative3GiB300sCPU1; sourcefreeze independentstores aggregate6GiB/diskfloor3/growth2; no blind900sN5replay",
-          "commit_hooks": "FirstattemptRESOURCE_ABORT2GiB +fourTSformatterchanges; inspectedformatonly; ordinaryretry3GiB PASS28.541s2411626496B, no bypass"
+          "next": "coherentcodecheckpoint+publicinventory/readback; actualservedNativepartial/restart/Bdenied underfreshcase noN5; completeNativegeneration/checkpoint/full2leaf/materialization; diagnoseoldTfailurebeforefullpairedretry; P07typedsourceunitbridge/indexscale/P08/GateB. Preserve11/66/64andlateDA06/07/08/Gacceptance.",
+          "commit_hooks": "FirstattemptRESOURCE_ABORT2GiB +fourTSformatterchanges; inspectedformatonly; ordinaryretry3GiB PASS28.541s2411626496B, no bypass",
+          "delivery_base_commit": "ba7126665cd30ef5e04bb547c7da00ad7e2c2426",
+          "current_components": "Native explicit request/seal/N8 original/current identities and history-onlyclone reviewedGO;9PASS onrecordedb382;4affectedPASS oncurrent9ea17.690s1451835392B/1646stableloaded. Nativeactualnegativeowner1PASS22.356s1629339648B/1766stableloaded, realpolicy_admission_missing+selected/default/phase/provider/lateraction/removal/ambiguity/legacycontrols. FullservedNative stillUNRUN.",
+          "performance": "Providerhost1PASS127.554s1410809856B, sixsnapshots+call<1s. Plainprepare1PASS22.797s821051392B, prepare19.1286s,4sameoriginalfacts/5compositions and8601manifestcalls. Inclusivecostsnotadditive. Unsafememowithdrawn:childcurrentaccess+invocationsemanticsmustremainfresh. Bindingsbyteexact0139ea;nooptimizationdelivered. OriginalTFAILED82.7sbeforeouterstop,causeunknown.",
+          "compatibility": "P08legacy/semantic/noSQL24PASS16.090s994787328B/1137stableloaded/zeroN5. SQLV25expensiveandcombinedsemanticSQLdeferredactualfinalfreeze. UI351PASS;type-onlyfixemitsidenticalJS;normalprepushPASS.",
+          "P07": "3focusedPASS17.190s1657454592B; coherenttest-ownedtransportCatalogmetadata+provision resolves/persistedcandidate/readOnlyconsumer; healthcountrealcandidateexactcatalog_unit_unresolved. InternaltypedsourceUnitbridge missing, FabricDataSchema/FieldSpec.unit reusable. Nohealthkeyword/USDalias/noempiricalauthority; fullmodule+scaleGateBremain. Wholemodule29PASS26.478s1667350528B/1743actualstableloaded/zeroN5, fulloutputp07-composed-origin-r1-20261115; sourceOriginexplicitbeforepytest."
         }
       },
       "day_stop_20261113": {

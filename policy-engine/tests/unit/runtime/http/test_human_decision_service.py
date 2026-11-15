@@ -158,7 +158,7 @@ def _bound_read_permission(
     )
 
 
-def _bound_mutation_permission(permission: Any, command: Any) -> Any:
+def _bound_mutation_permission(permission: Any, command: Any, *, recovery: bool = False) -> Any:
     """Give legacy signed-owner fixtures the real binder's full mutation context."""
     import hashlib
 
@@ -167,11 +167,15 @@ def _bound_mutation_permission(permission: Any, command: Any) -> Any:
     from polisyos.core import canon
     from polisyos.runtime.http.resource_binding import (
         _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+        _HUMAN_DECISION_RECOVERY_CONTEXT_KIND,
         _RESOLVED_CONTEXT_CANON,
         _build_bound_resource,
         _human_decision_create_selectors,
     )
 
+    context_kind = (
+        _HUMAN_DECISION_RECOVERY_CONTEXT_KIND if recovery else _HUMAN_DECISION_CREATE_CONTEXT_KIND
+    )
     gate = command.gate_input
     body = gate.model_dump(mode="json", exclude={"tenant_id", "run_id", "exposure_session_ref"})
     fields = command.model_dump(mode="json", exclude={"gate_input", "decision_action"})
@@ -190,10 +194,10 @@ def _bound_mutation_permission(permission: Any, command: Any) -> Any:
             exposure_session_ref=exposure_ref,
             selectors=(("run_id", json.dumps(gate.run_id)),),
         ),
-        resolved_context_kind=_HUMAN_DECISION_CREATE_CONTEXT_KIND,
+        resolved_context_kind=context_kind,
         resolved_context=canon.to_canonical_bytes(
             {
-                "context_version": _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+                "context_version": context_kind,
                 "body": body,
                 "exposure_session_ref": exposure_ref,
             },

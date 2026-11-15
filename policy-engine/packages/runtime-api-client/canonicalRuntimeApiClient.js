@@ -812,6 +812,7 @@ export class RuntimeApiClient {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decisions`;
     const query = this.buildQuery({
       record_ref: params?.record_ref,
+      manifest_profile_sha256: params?.manifest_profile_sha256,
     });
     return this.request("GET", path, query, undefined, undefined);
   }

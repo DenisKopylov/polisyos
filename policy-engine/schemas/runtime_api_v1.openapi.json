@@ -25738,6 +25738,281 @@
         "title": "HumanDecisionRecord",
         "type": "object"
       },
+      "HumanDecisionRecoveryCommitted": {
+        "additionalProperties": false,
+        "description": "An exact signed record/event and immutable commit generation were joined.",
+        "properties": {
+          "authority_purpose": {
+            "const": "historical_human_decision_custody_only",
+            "default": "historical_human_decision_custody_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "binding_rule": {
+            "enum": [
+              "policyos.runtime.human_decision_submission_binding.v2",
+              "legacy_record_v2"
+            ],
+            "title": "Binding Rule",
+            "type": "string"
+          },
+          "binding_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Binding Sha256",
+            "type": "string"
+          },
+          "cell_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "durable_event_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Durable Event Id",
+            "type": "string"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "record_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Record Digest",
+            "type": "string"
+          },
+          "record_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "record_valid_until": {
+            "format": "date-time",
+            "title": "Record Valid Until",
+            "type": "string"
+          },
+          "reservation_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "reservation_state": {
+            "enum": [
+              "committed",
+              "expired"
+            ],
+            "title": "Reservation State",
+            "type": "string"
+          },
+          "reservation_version": {
+            "minimum": 1.0,
+            "title": "Reservation Version",
+            "type": "integer"
+          },
+          "run_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.human_decision_recovery.v1",
+            "default": "policyos.runtime.human_decision_recovery.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "committed",
+            "default": "committed",
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "run_id",
+          "record_ref",
+          "record_digest",
+          "durable_event_id",
+          "reservation_id",
+          "reservation_version",
+          "binding_sha256",
+          "binding_rule",
+          "reservation_state",
+          "record_valid_until"
+        ],
+        "title": "HumanDecisionRecoveryCommitted",
+        "type": "object"
+      },
+      "HumanDecisionRecoveryNotEstablished": {
+        "additionalProperties": false,
+        "description": "The requested historical receipt cannot presently be established.",
+        "properties": {
+          "authority_purpose": {
+            "const": "historical_human_decision_custody_only",
+            "default": "historical_human_decision_custody_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "cell_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "reason_code": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "run_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.human_decision_recovery.v1",
+            "default": "policyos.runtime.human_decision_recovery.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "run_id",
+          "reason_code"
+        ],
+        "title": "HumanDecisionRecoveryNotEstablished",
+        "type": "object"
+      },
+      "HumanDecisionRecoveryPending": {
+        "additionalProperties": false,
+        "description": "The exact actor/submission has a live reservation without a receipt.",
+        "properties": {
+          "authority_purpose": {
+            "const": "historical_human_decision_custody_only",
+            "default": "historical_human_decision_custody_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "binding_rule": {
+            "const": "policyos.runtime.human_decision_submission_binding.v2",
+            "default": "policyos.runtime.human_decision_submission_binding.v2",
+            "title": "Binding Rule",
+            "type": "string"
+          },
+          "binding_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Binding Sha256",
+            "type": "string"
+          },
+          "cell_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "reservation_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "reservation_version": {
+            "minimum": 1.0,
+            "title": "Reservation Version",
+            "type": "integer"
+          },
+          "run_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.human_decision_recovery.v1",
+            "default": "policyos.runtime.human_decision_recovery.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "pending",
+            "default": "pending",
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "run_id",
+          "reservation_id",
+          "reservation_version",
+          "binding_sha256"
+        ],
+        "title": "HumanDecisionRecoveryPending",
+        "type": "object"
+      },
       "HumanDecisionRequestSurface": {
         "additionalProperties": false,
         "description": "Signed request fields required to understand the offered action.",
@@ -91803,6 +92078,23 @@
               "title": "Record Ref",
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manifest Profile Sha256"
+            }
           }
         ],
         "responses": {
@@ -92732,6 +93024,280 @@
           "source": "owned_existing_path"
         },
         "x-polisyos-step-up-class": "human_decision"
+      }
+    },
+    "/api/v1/runs/{run_id}/human-decisions/recovery": {
+      "post": {
+        "description": "Poll historical custody using the original submission, without issuing again.",
+        "operationId": "recover_run_human_decision_receipt",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-PolicyOS-Human-Decision-Exposure",
+            "required": true,
+            "schema": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "X-Policyos-Human-Decision-Exposure",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanDecisionMutationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "authority_purpose": "historical_human_decision_custody_only",
+                  "operational_authority": false,
+                  "reason_code": "DS9-RECOVERY-RECEIPT-NOT-ESTABLISHED",
+                  "run_id": "run-example",
+                  "schema_version": "policyos.runtime.human_decision_recovery.v1",
+                  "status": "not_established",
+                  "tenant_id": "tenant-example"
+                },
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "committed": "#/components/schemas/HumanDecisionRecoveryCommitted",
+                      "not_established": "#/components/schemas/HumanDecisionRecoveryNotEstablished",
+                      "pending": "#/components/schemas/HumanDecisionRecoveryPending"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/HumanDecisionRecoveryPending"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HumanDecisionRecoveryCommitted"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HumanDecisionRecoveryNotEstablished"
+                    }
+                  ],
+                  "title": "Response Recover Run Human Decision Receipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/recovery",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Recover Run Human Decision Receipt",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.human_decision_recovery",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/runs/{run_id}/human-decisions/review-effectiveness": {

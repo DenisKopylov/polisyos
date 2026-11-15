@@ -33,7 +33,7 @@ def test_legacy_signature_recovers_only_the_original_selected_manifest(tmp_path:
     before = {str(path): path.read_bytes() for path in store.base.rglob("*") if path.is_file()}
 
     _verify_retained_selected_signature(store, original, verifier)
-    with pytest.raises(ValueError, match="retained_native_continuation_signature_profile_mismatch"):
+    with pytest.raises(ValueError, match="retained_native_continuation_mandate_signature_invalid"):
         _verify_retained_selected_signature(store, other_view, verifier)
 
     assert {

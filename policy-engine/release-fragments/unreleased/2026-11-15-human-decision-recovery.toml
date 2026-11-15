@@ -1,0 +1,16 @@
+id = "2026-11-15-human-decision-recovery"
+title = "Recover committed human-decision custody after a lost acknowledgement"
+type = "added"
+component = "runtime-http"
+owner = "team-policyos-runtime"
+summary = "Add a read-authorized recovery POST using the original submission and exposure, without repeating decision creation. Return strict pending, committed or not_established custody projections and preserve the selected manifest profile on record GET."
+change_class = "schema-openapi-abi"
+surface_classification = "public_experimental: additive human-decision custody recovery and selected-profile record reads"
+compatibility = "Existing create payloads and record GET callers remain compatible. Full-command binding v2 is used for new reservations; signed legacy committed records can be reconciled, while unresolved legacy pending state cannot establish custody. Historical expiry and operational authorization are unchanged."
+migration = "Regenerate Runtime OpenAPI, SDK and dashboard types together. Recovery is a read operation and never grants authority or extends approval. Consumers must revalidate the current gate before any later protected action."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["docs/runbooks/retained-artifact-recovery.md"]
+evidence = ["tests/unit/runtime/http/test_human_decision_recovery.py", "tests/unit/runtime/http/test_human_decision_recovery_production.py", "tests/unit/runtime/http/test_human_decision_record_binding.py", "tests/unit/helpers/test_acquisition_served_history_recovery.py"]
+limitations = "Custody recovery does not establish current operational authority. Legacy cold HTTP recovery is qualified on its retained history; that reconstructed submission does not prove the original client saved its request before losing acknowledgement. Full Native admission and N5 completion remain separate checks."

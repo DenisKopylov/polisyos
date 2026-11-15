@@ -1051,6 +1051,15 @@ export type HumanDecisionProductionReplaySelector =
 export type HumanDecisionRecord =
   RuntimeApiComponents["schemas"]["HumanDecisionRecord"];
 
+export type HumanDecisionRecoveryCommitted =
+  RuntimeApiComponents["schemas"]["HumanDecisionRecoveryCommitted"];
+
+export type HumanDecisionRecoveryNotEstablished =
+  RuntimeApiComponents["schemas"]["HumanDecisionRecoveryNotEstablished"];
+
+export type HumanDecisionRecoveryPending =
+  RuntimeApiComponents["schemas"]["HumanDecisionRecoveryPending"];
+
 export type HumanDecisionRequestSurface =
   RuntimeApiComponents["schemas"]["HumanDecisionRequestSurface"];
 
@@ -3745,10 +3754,12 @@ export class RuntimeApiClient {
   async getRunHumanDecisionRecord(params: {
     run_id: string;
     record_ref: string;
+    manifest_profile_sha256?: string | null;
   }): Promise<HumanDecisionRecord> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decisions`;
     const query = this.buildQuery({
       record_ref: params.record_ref,
+      manifest_profile_sha256: params.manifest_profile_sha256,
     });
     return this.request<HumanDecisionRecord>(
       "GET",

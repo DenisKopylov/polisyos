@@ -61,6 +61,10 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionPrincipalBinding,
     HumanDecisionProductionGateInput,
     HumanDecisionProductionReplaySelector,
+    HumanDecisionRecoveryCommitted,
+    HumanDecisionRecoveryNotEstablished,
+    HumanDecisionRecoveryPending,
+    HumanDecisionRecoveryResponse,
     HumanDecisionRequestSurface,
     HumanDecisionResolverPolicy,
     HumanDecisionSubmissionSurface,
@@ -377,6 +381,8 @@ class _ReservationRecord(Protocol):
     record_ref: str | None
     record_sha256: str | None
     durable_event_id: str | None
+    committed_at: datetime | None
+    lease_expires_at: datetime
 
 
 class _ReservationResult(Protocol):
@@ -806,6 +812,10 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
         reservation_version: int,
     ) -> _ReservationRecord | None: ...
 
+    def human_decision_record_views(
+        self,
+    ) -> tuple[tuple[artifacts.ArtifactRef, artifacts.ArtifactManifest], ...]: ...
+
     def hold_write_fence(
         self,
         *,
@@ -849,7 +859,7 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
 
     def reconcile_authority_artifact(
         self,
-        artifact_ref: str,
+        artifact_ref: str | artifacts.ArtifactRef,
         *,
         expected_tenant_id: str | None,
         expected_cell_id: str | None,
@@ -857,14 +867,18 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
         expected_job_id: str | None,
     ) -> _AuthorityReconciliation: ...
 
-    def has_artifact(self, artifact_ref: str) -> bool: ...
+    def has_artifact(self, artifact_ref: str | artifacts.ArtifactRef) -> bool: ...
 
-    def get_artifact_bytes(self, artifact_ref: str) -> bytes: ...
-    def get_artifact_json(self, artifact_ref: str) -> Any: ...  # noqa: ANN401
+    def get_artifact_bytes(self, artifact_ref: str | artifacts.ArtifactRef) -> bytes: ...
+    def get_artifact_json(self, artifact_ref: str | artifacts.ArtifactRef) -> Any: ...  # noqa: ANN401
 
-    def get_artifact_manifest(self, artifact_ref: str) -> artifacts.ArtifactManifest: ...
+    def get_artifact_manifest(
+        self, artifact_ref: str | artifacts.ArtifactRef
+    ) -> artifacts.ArtifactManifest: ...
 
-    def get_artifact_signature(self, artifact_ref: str) -> object | None: ...
+    def get_artifact_signature(
+        self, artifact_ref: str | artifacts.ArtifactRef
+    ) -> object | None: ...
 
     def sign_artifact(
         self,
@@ -876,7 +890,7 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
 
     def verify_artifact_signature(
         self,
-        artifact_ref: str,
+        artifact_ref: str | artifacts.ArtifactRef,
         verifier: object,
         *,
         strict_identity: bool = True,
@@ -887,6 +901,41 @@ class _ResolutionIssueError(ValueError):
     def __init__(self, reason: HumanDecisionGateReason) -> None:
         self.reason = reason
         super().__init__(reason.code)
+
+
+_SUBMISSION_BINDING_V2 = "policyos.runtime.human_decision_submission_binding.v2"
+
+
+def _human_decision_actor(principal: HumanDecisionPrincipalBinding) -> HumanDecisionCanonicalActor:
+    """Reproduce the existing signed-principal actor without caller identity fields."""
+    return HumanDecisionCanonicalActor(
+        issuer=principal.principal_issuer,
+        audience=principal.principal_audience,
+        subject=principal.principal_subject,
+        tenant_id=principal.tenant_id,
+        actor_ref=principal.actor_ref,
+        signing_key_id=principal.actor_key_id,
+        signed_roles=principal.decision_roles,
+    )
+
+
+def _submission_binding_v2(
+    command: HumanDecisionCreateCommand,
+    actor: HumanDecisionCanonicalActor,
+    *,
+    reservation_id: str,
+    cell_id: str | None,
+) -> str:
+    """Bind the entire submission while retaining unique event identities."""
+    return _sha256_ref(
+        {
+            "rule_version": _SUBMISSION_BINDING_V2,
+            "command": command.model_dump(mode="json"),
+            "actor": actor.model_dump(mode="json"),
+            "cell_id": cell_id,
+            "reservation_id": reservation_id,
+        }
+    )
 
 
 class HumanDecisionService:
@@ -1719,23 +1768,13 @@ class HumanDecisionService:
             raise HumanDecisionPersistenceError(
                 "human-decision governed action key changed after gate resolution"
             )
-        binding_sha256 = _sha256_ref(
-            {
-                "tenant_id": command.gate_input.tenant_id,
-                "run_id": command.gate_input.run_id,
-                "source_ref": (
-                    command.gate_input.source_ref
-                    if isinstance(command.gate_input, HumanDecisionPA2GateInput)
-                    else production_basis_ref
-                ),
-                "decision_request_digest": resolved.projection.decision_request_digest,
-                "basis_digest": command.gate_input.basis_digest,
-                "decision_action": command.decision_action,
-                "decision_mode": command.decision_mode,
-                "decision_attempt_id": attempt_id,
-            }
-        )
         reservation_id = f"human-decision-reservation-{uuid.uuid4().hex}"
+        binding_sha256 = _submission_binding_v2(
+            command,
+            _human_decision_actor(principal),
+            reservation_id=reservation_id,
+            cell_id=write_context.cell_id,
+        )
         reserved = self._sink.reserve_action(
             tenant_id=command.gate_input.tenant_id,
             governed_action_key=governed_action_key,
@@ -1960,12 +1999,21 @@ class HumanDecisionService:
         return receipt
 
     def read_record(
+        self, record_ref: str | artifacts.ArtifactRef, *, tenant_id: str, run_id: str
+    ) -> HumanDecisionRecord:
+        """Read historical content only after exact custody verification."""
+        return cast(
+            "HumanDecisionRecord",
+            self._read_record_custody(record_ref, tenant_id=tenant_id, run_id=run_id).model,
+        )
+
+    def _read_record_custody(
         self,
-        record_ref: str,
+        record_ref: str | artifacts.ArtifactRef,
         *,
         tenant_id: str,
         run_id: str,
-    ) -> HumanDecisionRecord:
+    ) -> _ResolvedSignedArtifact:
         """Read historical or current content only after exact custody verification."""
 
         try:
@@ -1989,7 +2037,349 @@ class HumanDecisionService:
             or record.custody_key_id != resolved.key_id
         ):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-SOURCE-INVALID")
-        return record
+        return resolved
+
+    def _recovery_submission_context(
+        self,
+        command: HumanDecisionCreateCommand,
+        *,
+        bound_permission: BoundActionPermissionVerification,
+        cell_id: str | None,
+    ) -> tuple[HumanDecisionPrincipalBinding, HumanDecisionRequest, str, str, str]:
+        """Verify historical identity/selectors without replaying a live grant."""
+        from polisyos.runtime.http.resource_binding import (
+            human_decision_recovery_from_bound_resource,
+        )
+
+        gate = command.gate_input
+        verification = self._require_bound_route_permission(
+            bound_permission,
+            tenant_id=gate.tenant_id,
+            run_id=gate.run_id,
+            route_permission="runs.review",
+            resource_kind="runtime.run.human_decision_recovery",
+            require_creation_permission=False,
+        )
+        context = human_decision_recovery_from_bound_resource(
+            bound_permission.bound_resource, run_id=gate.run_id
+        )
+        self._assert_bound_submission(command, context)
+        if gate.principal_binding_ref is None or gate.exposure_session_ref is None:
+            raise ValueError("DS9-RECOVERY-SUBMISSION-INCOMPLETE")
+        principal = cast(
+            "HumanDecisionPrincipalBinding",
+            self._read_signed_model(
+                gate.principal_binding_ref,
+                expected_kind=HUMAN_DECISION_PRINCIPAL_BINDING_ARTIFACT_KIND,
+                expected_schema_name="polisyos.runtime.HumanDecisionPrincipalBinding",
+                expected_schema_version=HUMAN_DECISION_PRINCIPAL_BINDING_MANIFEST_VERSION,
+                model_type=HumanDecisionPrincipalBinding,
+                expected_tenant_id=gate.tenant_id,
+                expected_run_id=gate.run_id,
+            ).model,
+        )
+        if (
+            principal.principal_subject != verification.subject
+            or principal.tenant_id != verification.tenant_id
+            or principal.principal_audience != self._resolver_policy.principal_audience
+        ):
+            raise HumanDecisionOperationalResolutionError("DS9-RECOVERY-SUBJECT-MISMATCH")
+        if isinstance(gate, HumanDecisionPA2GateInput):
+            source_id = gate.source_ref
+            source = cast(
+                "AgentActionAuthorityDecision",
+                self._read_signed_model(
+                    source_id,
+                    expected_kind=_SOURCE_ARTIFACT_KIND,
+                    expected_schema_name=_SOURCE_SCHEMA_NAME,
+                    expected_schema_version=_SOURCE_SCHEMA_VERSION,
+                    model_type=self._agent_action_decision_type(),
+                    expected_tenant_id=gate.tenant_id,
+                    expected_run_id=gate.run_id,
+                ).model,
+            )
+            if (
+                source.outcome != "refused"
+                or source.human_decision_request is None
+                or source.contract_ref is None
+            ):
+                raise ValueError("DS9-RECOVERY-SOURCE-INVALID")
+            basis_id = source.contract_ref
+            contract = cast(
+                "DelegationContract",
+                self._read_signed_model(
+                    basis_id,
+                    expected_kind=_CONTRACT_ARTIFACT_KIND,
+                    expected_schema_name=_CONTRACT_SCHEMA_NAME,
+                    expected_schema_version=_CONTRACT_SCHEMA_VERSION,
+                    model_type=DelegationContract,
+                    expected_tenant_id=gate.tenant_id,
+                    expected_run_id=None,
+                ).model,
+            )
+            envelope = next(
+                (row for row in contract.action_envelopes if row.envelope_id == source.envelope_id),
+                None,
+            )
+            if envelope is None or gate.action_kind != source.action_kind:
+                raise ValueError("DS9-RECOVERY-SOURCE-INVALID")
+            request = source.human_decision_request
+            governed_key = _pa2_governed_action_key(
+                source=source,
+                contract=contract,
+                envelope=envelope,
+                tenant_id=gate.tenant_id,
+                run_id=gate.run_id,
+            )
+        else:
+            refs = (gate.source_ref, gate.basis_ref, gate.basis_digest)
+            if (
+                any(ref is None for ref in refs)
+                or len(set(refs)) != 1
+                or gate.production_packet_ref is not None
+            ):
+                raise ValueError("DS9-RECOVERY-SOURCE-INVALID")
+            source_id = basis_id = cast("str", gate.basis_ref)
+            basis = cast(
+                "ProductionHumanDecisionBasis",
+                self._read_signed_model(
+                    basis_id,
+                    expected_kind=PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+                    expected_schema_name=_PRODUCTION_BASIS_SCHEMA_NAME,
+                    expected_schema_version=PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
+                    model_type=ProductionHumanDecisionBasis,
+                    expected_tenant_id=gate.tenant_id,
+                    expected_run_id=gate.run_id,
+                ).model,
+            )
+            request, governed_key = basis.decision_request, basis.governed_action_key
+        request_digest = _sha256_ref(request.model_dump(mode="json"))
+        if (
+            (
+                gate.decision_request_ref is not None
+                and gate.decision_request_ref != request.request_ref
+            )
+            or (
+                gate.decision_request_digest is not None
+                and gate.decision_request_digest != request_digest
+            )
+            or (gate.basis_ref is not None and gate.basis_ref != basis_id)
+            or (gate.basis_digest is not None and gate.basis_digest != basis_id)
+        ):
+            raise ValueError("DS9-RECOVERY-SUBMISSION-MISMATCH")
+        source_manifest = self._sink.get_artifact_manifest(source_id)
+        closure = source_manifest.same_input_closure
+        if closure is None or closure.cell_id != cell_id:
+            raise ValueError("DS9-RECOVERY-SCOPE-MISMATCH")
+        session = cast(
+            "HumanDecisionExposureSession",
+            self._read_signed_model(
+                gate.exposure_session_ref,
+                expected_kind=HUMAN_DECISION_EXPOSURE_SESSION_ARTIFACT_KIND,
+                expected_schema_name="polisyos.runtime.HumanDecisionExposureSession",
+                expected_schema_version=HUMAN_DECISION_EXPOSURE_SESSION_MANIFEST_VERSION,
+                model_type=HumanDecisionExposureSession,
+                expected_tenant_id=gate.tenant_id,
+                expected_run_id=gate.run_id,
+            ).model,
+        )
+        if (
+            session.principal_binding_ref != gate.principal_binding_ref
+            or session.principal_subject != principal.principal_subject
+            or session.actor_ref != principal.actor_ref
+            or session.decision_request_ref != request.request_ref
+            or session.decision_request_digest != request_digest
+            or session.basis_digest != basis_id
+            or session.presentation_contract_ref != gate.presentation_contract_ref
+        ):
+            raise ValueError("DS9-RECOVERY-EXPOSURE-MISMATCH")
+        return principal, request, source_id, basis_id, governed_key
+
+    def recover_record(
+        self,
+        command: HumanDecisionCreateCommand,
+        *,
+        bound_permission: BoundActionPermissionVerification,
+        cell_id: str | None,
+    ) -> HumanDecisionRecoveryResponse:
+        """Observe one submitted decision's custody; never reserve, reconcile or reissue.
+
+        Expired committed generations remain historical receipts. A pending
+        legacy generation cannot establish its actor/submission and is limited.
+        """
+        gate = command.gate_input
+        scope = {"tenant_id": gate.tenant_id, "cell_id": cell_id, "run_id": gate.run_id}
+
+        def unavailable(code: str) -> HumanDecisionRecoveryNotEstablished:
+            return HumanDecisionRecoveryNotEstablished(**scope, reason_code=code)
+
+        try:
+            principal, request, source_id, basis_id, governed_key = (
+                self._recovery_submission_context(
+                    command, bound_permission=bound_permission, cell_id=cell_id
+                )
+            )
+        except HumanDecisionOperationalResolutionError:
+            raise
+        except (_ResolutionIssueError, ValueError, OSError, RuntimeError) as exc:
+            return unavailable(
+                exc.reason.code
+                if isinstance(exc, _ResolutionIssueError)
+                else "DS9-RECOVERY-SUBMISSION-NOT-ESTABLISHED"
+            )
+        actor = _human_decision_actor(principal)
+        expected_fields = command.model_dump(mode="json", exclude={"gate_input", "decision_action"})
+        try:
+            matches = []
+            for selected_ref, manifest in self._sink.human_decision_record_views():
+                record = HumanDecisionRecord.model_validate(
+                    self._sink.get_artifact_json(selected_ref)
+                )
+                if (record.tenant_id, record.run_id, record.source_kind, record.source_ref) != (
+                    gate.tenant_id,
+                    gate.run_id,
+                    gate.source_kind,
+                    source_id,
+                ):
+                    continue
+                if (
+                    record.governed_action_key != governed_key
+                    or record.canonical_actor != actor
+                    or record.decision_action_exercised != command.decision_action
+                    or any(
+                        getattr(record, name) != value for name, value in expected_fields.items()
+                    )
+                    or record.human_decision_request_ref != request.request_ref
+                    or record.decision_request_digest
+                    != _sha256_ref(request.model_dump(mode="json"))
+                    or record.basis_ref != basis_id
+                    or record.basis_digest != basis_id
+                    or any(
+                        getattr(record, name) != getattr(gate, name)
+                        for name in (
+                            "principal_binding_ref",
+                            "reviewer_separation_ref",
+                            "presentation_contract_ref",
+                            "exposure_session_ref",
+                        )
+                    )
+                ):
+                    continue
+                if (
+                    manifest.same_input_closure is None
+                    or manifest.same_input_closure.cell_id != cell_id
+                ):
+                    return unavailable("DS9-RECOVERY-SCOPE-MISMATCH")
+                reservation = self._sink.get_reservation_generation(
+                    tenant_id=gate.tenant_id,
+                    governed_action_key=governed_key,
+                    reservation_version=cast("int", record.reservation_version),
+                )
+                if (
+                    reservation is None
+                    or reservation.state not in {"committed", "expired"}
+                    or reservation.committed_at is None
+                ):
+                    continue
+                resolved = self._read_record_custody(
+                    selected_ref, tenant_id=gate.tenant_id, run_id=gate.run_id
+                )
+                if resolved.model != record or (
+                    reservation.reservation_id != record.reservation_id
+                    or reservation.binding_sha256 != record.binding_sha256
+                    or reservation.record_ref != str(selected_ref.artifact_id)
+                    or reservation.record_sha256 != str(selected_ref.artifact_id)
+                    or reservation.durable_event_id != resolved.durable_event_id
+                    or reservation.record_valid_until != record.valid_until
+                ):
+                    return unavailable("DS9-RECOVERY-COMMIT-MISMATCH")
+                expected_v2 = _submission_binding_v2(
+                    command, actor, reservation_id=reservation.reservation_id, cell_id=cell_id
+                )
+                legacy = _sha256_ref(
+                    {
+                        "tenant_id": gate.tenant_id,
+                        "run_id": gate.run_id,
+                        "source_ref": source_id,
+                        "decision_request_digest": _sha256_ref(request.model_dump(mode="json")),
+                        "basis_digest": gate.basis_digest,
+                        "decision_action": command.decision_action,
+                        "decision_mode": command.decision_mode,
+                        "decision_attempt_id": record.decision_attempt_id,
+                    }
+                )
+                if reservation.binding_sha256 == expected_v2:
+                    binding_rule = _SUBMISSION_BINDING_V2
+                elif reservation.binding_sha256 == legacy:
+                    binding_rule = "legacy_record_v2"
+                else:
+                    return unavailable("DS9-RECOVERY-BINDING-MISMATCH")
+                if reservation != self._sink.get_reservation_generation(
+                    tenant_id=gate.tenant_id,
+                    governed_action_key=governed_key,
+                    reservation_version=reservation.reservation_version,
+                ) or manifest != self._sink.get_artifact_manifest(selected_ref):
+                    return unavailable("DS9-RECOVERY-READBACK-CHANGED")
+                if record != HumanDecisionRecord.model_validate(
+                    self._sink.get_artifact_json(selected_ref)
+                ):
+                    return unavailable("DS9-RECOVERY-READBACK-CHANGED")
+                matches.append(
+                    (selected_ref, record, reservation, resolved.durable_event_id, binding_rule)
+                )
+            if len(matches) > 1:
+                return unavailable("DS9-RECOVERY-AMBIGUOUS")
+            if matches:
+                ref, record, row, event_id, rule = matches[0]
+                return HumanDecisionRecoveryCommitted(
+                    **scope,
+                    record_ref=ref,
+                    record_digest=str(ref.artifact_id),
+                    durable_event_id=cast("str", event_id),
+                    reservation_id=row.reservation_id,
+                    reservation_version=row.reservation_version,
+                    binding_sha256=row.binding_sha256,
+                    binding_rule=rule,
+                    reservation_state=row.state,
+                    record_valid_until=record.valid_until,
+                )
+            latest = self._sink.get_reservation(
+                tenant_id=gate.tenant_id, governed_action_key=governed_key
+            )
+            if (
+                latest is not None
+                and latest.state == "reserved"
+                and latest.lease_expires_at > self._now()
+                and all(
+                    getattr(latest, name) is None
+                    for name in ("record_ref", "record_sha256", "durable_event_id", "committed_at")
+                )
+                and latest.binding_sha256
+                == _submission_binding_v2(
+                    command, actor, reservation_id=latest.reservation_id, cell_id=cell_id
+                )
+            ):
+                if latest != self._sink.get_reservation_generation(
+                    tenant_id=gate.tenant_id,
+                    governed_action_key=governed_key,
+                    reservation_version=latest.reservation_version,
+                ):
+                    return unavailable("DS9-RECOVERY-READBACK-CHANGED")
+                return HumanDecisionRecoveryPending(
+                    **scope,
+                    reservation_id=latest.reservation_id,
+                    reservation_version=latest.reservation_version,
+                    binding_sha256=latest.binding_sha256,
+                )
+            return unavailable("DS9-RECOVERY-RECEIPT-NOT-ESTABLISHED")
+        except (
+            _ResolutionIssueError,
+            HumanDecisionOperationalResolutionError,
+            ValueError,
+            OSError,
+            RuntimeError,
+        ):
+            return unavailable("DS9-RECOVERY-CUSTODY-NOT-ESTABLISHED")
 
     def resolve_production_approval_inputs(
         self,
@@ -3480,7 +3870,7 @@ class HumanDecisionService:
 
     def _read_signed_model(
         self,
-        ref: str,
+        ref: str | artifacts.ArtifactRef,
         *,
         expected_kind: str,
         expected_schema_name: str,
@@ -3511,7 +3901,7 @@ class HumanDecisionService:
 
     def _read_signed_model_checked(
         self,
-        ref: str,
+        ref: str | artifacts.ArtifactRef,
         *,
         expected_kind: str,
         expected_schema_name: str,
@@ -3651,7 +4041,7 @@ class HumanDecisionService:
             ) from exc
         return _ResolvedSignedArtifact(
             model=model,
-            ref=ref,
+            ref=str(ref.artifact_id) if isinstance(ref, artifacts.ArtifactRef) else ref,
             signer_identity=signer_identity,
             key_id=key_id,
             durable_event_id=report.durable_event_id,
@@ -3763,6 +4153,13 @@ class HumanDecisionService:
             raise HumanDecisionOperationalResolutionError(
                 "DS9-DECISION-PERMISSION-UNVERIFIED"
             ) from exc
+        self._assert_bound_submission(command, context)
+
+    def _assert_bound_submission(
+        self, command: HumanDecisionCreateCommand, context: Mapping[str, Any]
+    ) -> None:
+        """Compare every consumed command field to its pre-OPA immutable body."""
+        gate = command.gate_input
         body = context["body"]
         # Derive from the typed consumed command, not a second body-field list.
         expected = gate.model_dump(
@@ -3787,6 +4184,7 @@ class HumanDecisionService:
         path_selector_parameters: tuple[str, ...] = (),
         query_selector_parameters: tuple[str, ...] = (),
         allow_empty_body: bool = False,
+        require_creation_permission: bool = True,
     ) -> ActionPermissionVerification:
         """Consume only the exact sealed route/resource proof for an authority effect."""
         from polisyos.runtime.http.authorization import (
@@ -3811,16 +4209,22 @@ class HumanDecisionService:
             name: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
             for name, value in expected_selectors.items()
         }
-        if resource_kind == "runtime.run.human_decision":
+        if resource_kind in {"runtime.run.human_decision", "runtime.run.human_decision_recovery"}:
             from polisyos.runtime.http.errors import RuntimeHTTPError
             from polisyos.runtime.http.resource_binding import (
                 human_decision_create_from_bound_resource,
+                human_decision_recovery_from_bound_resource,
             )
 
             try:
                 # This owner reader recomputes exact full selectors, including
                 # absent fields and exposure hash, from the sealed mutation.
-                human_decision_create_from_bound_resource(bound, run_id=run_id)
+                reader = (
+                    human_decision_create_from_bound_resource
+                    if resource_kind == "runtime.run.human_decision"
+                    else human_decision_recovery_from_bound_resource
+                )
+                reader(bound, run_id=run_id)
             except RuntimeHTTPError as exc:
                 raise HumanDecisionOperationalResolutionError(
                     "DS9-DECISION-PERMISSION-UNVERIFIED"
@@ -3845,7 +4249,10 @@ class HumanDecisionService:
         ):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-PERMISSION-UNVERIFIED")
         granted = {item.value for item in verification.granted_permissions}
-        if not {route_permission, self._resolver_policy.required_permission}.issubset(granted):
+        required_permissions = {route_permission}
+        if require_creation_permission:
+            required_permissions.add(self._resolver_policy.required_permission)
+        if not required_permissions.issubset(granted):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-PERMISSION-UNVERIFIED")
         return verification
 
@@ -4364,15 +4771,7 @@ class HumanDecisionService:
             presentation_contract_digest=command.gate_input.presentation_contract_ref,
             exposure_session_ref=command.gate_input.exposure_session_ref,
             exposure_session_digest=command.gate_input.exposure_session_ref,
-            canonical_actor=HumanDecisionCanonicalActor(
-                issuer=principal.principal_issuer,
-                audience=principal.principal_audience,
-                subject=principal.principal_subject,
-                tenant_id=principal.tenant_id,
-                actor_ref=principal.actor_ref,
-                signing_key_id=principal.actor_key_id,
-                signed_roles=principal.decision_roles,
-            ),
+            canonical_actor=_human_decision_actor(principal),
             decision_mode=command.decision_mode,
             dissent_statement=command.dissent_statement,
             override_reason=command.override_reason,

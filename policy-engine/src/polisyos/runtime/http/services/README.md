@@ -289,6 +289,17 @@ for supported carriers, compatibility, and verification requirements.
   owns signed-input reconciliation, append-only record custody, reservation
   recovery, and operational revalidation. They reuse the access-audit trail and
   control-plane artifact/event path; they do not establish a second log.
+  The read-authorized `POST /runs/{run_id}/human-decisions/recovery` accepts
+  the original submission and exposure after a lost create acknowledgement;
+  it never creates another decision or reservation. Its strict
+  `pending`/`committed`/`not_established` response is historical custody only
+  (`operational_authority=false`). Committed recovery joins the signed selected
+  record, durable event and exact reservation generation, including expired
+  history; an unresolved legacy pending submission stays not established.
+  The existing record GET accepts `manifest_profile_sha256` alongside
+  `record_ref` and preserves the authorized Control-to-Core run binding.
+  Any subsequent action still needs fresh operational authorization; recovering
+  an expired record never extends its validity or reissues approval.
 - [`acquisition_surface_contracts.py`](acquisition_surface_contracts.py) owns
   the strict DS15 DTOs and sole `GapClass` enum;
   [`acquisition_surface_projection.py`](acquisition_surface_projection.py)

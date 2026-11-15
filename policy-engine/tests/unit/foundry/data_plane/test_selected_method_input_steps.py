@@ -40,7 +40,10 @@ from polisyos.runtime.quality.model_input_step_materialization import (
 from tests._helpers.temporal_registered_method_inputs import (
     prepare_temporal_registered_method_inputs,
 )
-from tests.unit.foundry.data_plane.test_selected_method_input_bindings import _removed_blob
+from tests.unit.foundry.data_plane.test_selected_method_input_bindings import (
+    _ProfileReaderWithoutVerifier,
+    _removed_blob,
+)
 
 
 @pytest.fixture(scope="module")
@@ -126,6 +129,13 @@ def test_scalar_step_bindings_replay_partial_and_complete_actual_native_values(_
     )
     partial_built = _build(case, partial)
     fresh = FileSystemCAS.open_existing_read_only(case.store.root)
+    reader_without_verifier = _ProfileReaderWithoutVerifier(fresh)
+    with pytest.raises(ValueError, match=r"^foundry_selected_method_input_reader_not_established$"):
+        replay_selected_method_input_step_facts(
+            reader_without_verifier,
+            input_bindings_ref=partial_built.input_bindings_ref,
+            expected_invocation=invocation,
+        )
     partial_facts = replay_selected_method_input_step_facts(
         fresh,
         input_bindings_ref=partial_built.input_bindings_ref,

@@ -102,6 +102,271 @@ def test_five_remaining_narrowings_have_one_canonical_form() -> None:
     }
 
 
+def test_foundry_uses_public_shared_calibration_and_keeps_other_edges_closed() -> None:
+    config = lint_imports.read_policy(POLICY_PATH)
+    boundaries = _read_toml(BOUNDARIES_PATH)
+    boundary_rows = boundaries.get("package")
+    assert isinstance(boundary_rows, list)
+    foundry_boundary = next(
+        item
+        for item in boundary_rows
+        if isinstance(item, dict) and item.get("module") == "polisyos.foundry"
+    )
+    calibration_boundary = next(
+        item
+        for item in boundary_rows
+        if isinstance(item, dict) and item.get("module") == "polisyos.calibration"
+    )
+    assert isinstance(foundry_boundary, dict)
+    assert isinstance(calibration_boundary, dict)
+
+    foundry_allowed = foundry_boundary.get("allowed_dependencies")
+    foundry_forbidden = foundry_boundary.get("forbidden_dependencies")
+    calibration_allowed = calibration_boundary.get("allowed_dependencies")
+    assert isinstance(foundry_allowed, list)
+    assert isinstance(foundry_forbidden, list)
+    assert isinstance(calibration_allowed, list)
+    assert "polisyos.calibration" in foundry_allowed
+    assert "polisyos.calibration" not in foundry_forbidden
+    assert {"polisyos.scientist", "polisyos.runtime", "polisyos.lex"} <= set(foundry_forbidden)
+    assert set(calibration_allowed) == {
+        "polisyos.core",
+        "polisyos.ir",
+        "polisyos.common",
+    }
+    assert config.internal_allow["calibration"] == {"calibration", "core", "ir", "common"}
+    assert "calibration" in config.internal_allow["foundry"]
+    assert not {"scientist", "runtime", "lex"}.intersection(config.internal_allow["foundry"])
+
+    foundry_contract = _read_toml(REPO_ROOT / "architecture/packages/foundry.toml")
+    foundry_contract_boundaries = foundry_contract.get("boundaries")
+    assert isinstance(foundry_contract_boundaries, dict)
+    assert foundry_contract_boundaries.get("allowed_dependencies") == foundry_allowed
+    assert foundry_contract_boundaries.get("forbidden_dependencies") == foundry_forbidden
+
+    calibration_contract = _read_toml(REPO_ROOT / "architecture/packages/calibration.toml")
+    calibration_contract_boundaries = calibration_contract.get("boundaries")
+    assert isinstance(calibration_contract_boundaries, dict)
+    assert calibration_contract_boundaries.get("allowed_dependencies") == calibration_allowed
+    calibration_public_surface = calibration_contract.get("public_surface")
+    assert isinstance(calibration_public_surface, dict)
+    public_entrypoints = calibration_public_surface.get("supported_entrypoints")
+    assert public_entrypoints == ["polisyos.calibration"]
+
+    advanced_path = SOURCE_ROOT / "foundry/methods/catalog/econometrics/advanced.py"
+    advanced_tree = ast.parse(
+        advanced_path.read_text(encoding="utf-8"), filename=str(advanced_path)
+    )
+    public_calibration_imports = [
+        (node.module, tuple(alias.name for alias in node.names))
+        for node in ast.walk(advanced_tree)
+        if isinstance(node, ast.ImportFrom) and node.module == "polisyos.calibration"
+    ]
+    assert public_calibration_imports == [
+        (
+            "polisyos.calibration",
+            (
+                "evaluate_continuous",
+                "load_continuous_evaluation",
+                "persist_continuous_evaluation",
+            ),
+        )
+    ]
+
+    import_contract_data = _read_toml(REPO_ROOT / "architecture/imports/contracts.toml")
+    importlinter = import_contract_data.get("importlinter")
+    assert isinstance(importlinter, dict)
+    import_contracts = importlinter.get("contracts")
+    assert isinstance(import_contracts, list)
+    layer_contract = next(
+        item
+        for item in import_contracts
+        if isinstance(item, dict) and item.get("name") == "Layered architecture"
+    )
+    foundry_contract_rule = next(
+        item
+        for item in import_contracts
+        if isinstance(item, dict) and item.get("name") == "Foundry remains domain neutral"
+    )
+    assert isinstance(layer_contract, dict)
+    assert isinstance(foundry_contract_rule, dict)
+    layers = layer_contract.get("layers")
+    assert isinstance(layers, list)
+    layer_positions = {
+        module.strip(): index for index, layer in enumerate(layers) for module in layer.split("|")
+    }
+    assert layer_positions["polisyos.foundry"] < layer_positions["polisyos.calibration"]
+    assert layer_positions["polisyos.calibration"] < layer_positions["polisyos.core"]
+
+    forbidden_modules = foundry_contract_rule.get("forbidden_modules")
+    assert isinstance(forbidden_modules, list)
+    assert "polisyos.calibration" not in forbidden_modules
+    assert {"polisyos.scientist", "polisyos.runtime", "polisyos.lex"} <= set(forbidden_modules)
+    assert foundry_contract_rule.get("allow_indirect_imports", False) is not True
+
+    direct_facade_contract = next(
+        item
+        for item in import_contracts
+        if isinstance(item, dict)
+        and item.get("name") == "Foundry imports calibration through its public facade"
+    )
+    assert direct_facade_contract == {
+        "name": "Foundry imports calibration through its public facade",
+        "type": "forbidden",
+        "source_modules": ["polisyos.foundry"],
+        "forbidden_modules": ["polisyos.calibration.**"],
+        "allow_indirect_imports": True,
+    }
+
+
+def test_calibration_facade_and_boundary_checks_use_real_import_edges(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from tools.quality.validation import architecture_report_only_contracts
+
+    repo_root = tmp_path / "architecture-fixture"
+    policy_path = repo_root / "architecture/imports/policy.toml"
+    boundary_path = repo_root / "architecture/packages/boundaries.toml"
+    public_path = repo_root / "architecture/public_surface/contract.toml"
+    source_root = repo_root / "src/polisyos"
+
+    fixture_files = {
+        policy_path: """\
+[policy]
+version = "2"
+contract_role = "enforced_direction_matrix"
+package_boundaries = "../packages/boundaries.toml"
+internal_prefix = "polisyos"
+src_root = "../../src"
+
+[roots]
+known = ["foundry", "calibration", "scientist", "core"]
+
+[internal.allow]
+foundry = ["foundry", "calibration", "core"]
+calibration = ["calibration", "core"]
+scientist = ["scientist", "core"]
+core = ["core"]
+""",
+        boundary_path: """\
+[package_boundaries]
+version = 2
+contract_role = "ownership_and_narrowing_register"
+
+[[package]]
+module = "polisyos.foundry"
+owner = "team-foundry"
+allowed_dependencies = ["polisyos.foundry", "polisyos.calibration", "polisyos.core"]
+forbidden_dependencies = ["polisyos.scientist"]
+
+[[package]]
+module = "polisyos.calibration"
+owner = "team-scientist"
+allowed_dependencies = ["polisyos.calibration", "polisyos.core"]
+forbidden_dependencies = []
+
+[[package]]
+module = "polisyos.scientist"
+owner = "team-scientist"
+allowed_dependencies = ["polisyos.scientist", "polisyos.core"]
+forbidden_dependencies = []
+
+[[package]]
+module = "polisyos.core"
+owner = "team-core"
+allowed_dependencies = ["polisyos.core"]
+forbidden_dependencies = []
+""",
+        public_path: """\
+[[package]]
+module = "polisyos.foundry"
+supported_entrypoints = ["polisyos.foundry"]
+
+[[package]]
+module = "polisyos.calibration"
+supported_entrypoints = ["polisyos.calibration"]
+
+[[package]]
+module = "polisyos.scientist"
+supported_entrypoints = ["polisyos.scientist"]
+
+[[package]]
+module = "polisyos.core"
+supported_entrypoints = ["polisyos.core"]
+""",
+        source_root / "foundry/__init__.py": "",
+        source_root / "foundry/consumer.py": (
+            "from polisyos.calibration import evaluate_continuous\n"
+        ),
+        source_root / "calibration/__init__.py": (
+            "from polisyos.calibration.diagnostics.continuous import evaluate_continuous\n"
+        ),
+        source_root / "calibration/diagnostics/__init__.py": "",
+        source_root / "calibration/diagnostics/continuous.py": (
+            "def evaluate_continuous():\n    return None\n"
+        ),
+        source_root / "scientist/__init__.py": "",
+        source_root / "core/__init__.py": "",
+    }
+    for path, content in fixture_files.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    def run_import_policy() -> int:
+        return lint_imports.main(
+            [
+                "--policy",
+                str(policy_path),
+                "--exceptions",
+                str(repo_root / "architecture/imports/exceptions.toml"),
+                "--cache-dir",
+                str(tmp_path / "import-cache"),
+            ]
+        )
+
+    # A real Foundry consumer imports the supported facade; the facade itself
+    # resolves its private implementation. Both architecture collectors accept
+    # this path, and the direction-matrix linter accepts the package edge.
+    hidden_edges = architecture_report_only_contracts._collect_hidden_import_edges(repo_root)
+    forbidden_edges = architecture_report_only_contracts._collect_forbidden_package_edges(repo_root)
+    assert not any(key.startswith("polisyos.foundry.consumer->") for key in hidden_edges)
+    assert not any(key.startswith("polisyos.foundry.consumer->") for key in forbidden_edges)
+    assert run_import_policy() == 0
+    capsys.readouterr()
+
+    # Directly reaching into the implementation is rejected by the real AST
+    # edge collector, while the facade's own same-package import remains valid.
+    (source_root / "foundry/consumer.py").write_text(
+        "from polisyos.calibration.diagnostics.continuous import evaluate_continuous\n",
+        encoding="utf-8",
+    )
+    hidden_edges = architecture_report_only_contracts._collect_hidden_import_edges(repo_root)
+    assert "polisyos.foundry.consumer->polisyos.calibration.diagnostics.continuous" in (
+        hidden_edges
+    )
+    (source_root / "foundry/consumer.py").write_text(
+        "from polisyos.calibration import evaluate_continuous\n",
+        encoding="utf-8",
+    )
+
+    # Upper-layer imports are rejected by the package-boundary collector and
+    # the enforced direction matrix.
+    (source_root / "foundry/upper.py").write_text("import polisyos.scientist\n", encoding="utf-8")
+    forbidden_edges = architecture_report_only_contracts._collect_forbidden_package_edges(repo_root)
+    assert "polisyos.foundry.upper->polisyos.scientist" in forbidden_edges
+    assert run_import_policy() != 0
+    capsys.readouterr()
+    (source_root / "foundry/upper.py").unlink()
+
+    # Calibration is a lower peer and cannot depend back on Foundry.
+    (source_root / "calibration/consumer.py").write_text(
+        "import polisyos.foundry\n", encoding="utf-8"
+    )
+    assert run_import_policy() != 0
+    assert "calibration -> foundry" in capsys.readouterr().out
+
+
 def test_runtime_corpus_edge_is_replaced_by_live_projection_denominator(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

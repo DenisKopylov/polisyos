@@ -750,8 +750,10 @@ def _native_fixture_port_factory(state: dict[str, Any]):
             authority.registry_path.read_bytes()
         )
         appointments = state["appointments"]
+        configuration = holder.get("configuration", AcquisitionWorldGrowthConfig())
+        control_service.bind_native_derivation_route_configuration(configuration)
         bridge = AcquisitionWorldGrowthBridge(
-            config=holder.get("configuration", AcquisitionWorldGrowthConfig()),
+            config=configuration,
             repo_root=authority.repo_root,
             runtime_root=Path(control_service._cas_root),
             authority=authority,
@@ -1073,6 +1075,35 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
                 _adopt_native_growth_routes(served, holder, closures)
             assert transport_calls == []
             assert served.semantic_kernel_entries == []
+            initial_response = served.client.get(
+                f"/api/v1/runs/{served.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert initial_response.status_code == 200, initial_response.text
+            initial_generic = initial_response.json()["run"]["generic_cycle_simulation"]
+            initial_n5_lineage = tuple(
+                {
+                    name: row[name]
+                    for name in (
+                        "node_ref",
+                        "cycle_index",
+                        "candidate_id",
+                        "status",
+                        "n5_input_ref",
+                        "n5_execution_ref",
+                        "simulation_result_ref",
+                    )
+                }
+                for row in initial_generic["n5_observations"]
+            )
+            assert initial_n5_lineage
+            assert all(
+                row["status"] == "simulation_blocked" and row["simulation_result_ref"] is None
+                for row in initial_n5_lineage
+            )
             leaf_a = next(
                 closure
                 for closure in closures
@@ -1168,8 +1199,8 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
                 },
             )
             assert response.status_code == 200, response.text
-            projection = response.json()["run"]["candidate_simulation"]
-            assert projection["acquisition_history_limitation_code"] is None
+            projection = response.json()["run"]["generic_cycle_simulation"]
+            assert projection.get("acquisition_history_limitation_code") is None
             history = projection["acquisition_history"]
             pending_rows = tuple(
                 row for row in history if row["terminal_outcome"] == "inputs_pending"
@@ -1179,7 +1210,96 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
             assert artifact_ref_identity_key(
                 ArtifactRef.model_validate(pending_rows[0]["native_input_collection_ref"])
             ) == artifact_ref_identity_key(terminal.native_input_collection_ref)
-            assert projection["n5_observations"] == []
+            assert (
+                tuple(
+                    {name: row[name] for name in initial_n5_lineage[index]}
+                    for index, row in enumerate(projection["n5_observations"])
+                )
+                == initial_n5_lineage
+            )
+            assert projection["publication_authority"] is False
+            assert projection["currentness_status"] == "not_established"
+
+            # Removing the selected collection limits only action history. The
+            # original blocked numerical observation remains exact and readable.
+            collection_blob, _manifest = served.store._paths(
+                terminal.native_input_collection_ref.artifact_id
+            )
+            withheld_collection = tmp_path / "withheld-native-input-collection"
+            collection_blob.replace(withheld_collection)
+            try:
+                limited_response = client.get(
+                    f"/api/v1/runs/{served.core_run_id}",
+                    headers={
+                        "Authorization": trust.authorization_header("acquisition-operator"),
+                        "X-Tenant-ID": claims.tenant_id,
+                    },
+                )
+                assert limited_response.status_code == 200, limited_response.text
+                limited_projection = limited_response.json()["run"]["generic_cycle_simulation"]
+                assert limited_projection.get("acquisition_history") is None
+                assert limited_projection["acquisition_history_limitation_code"] == (
+                    "acquisition_action_history_integrity_not_established"
+                )
+                assert (
+                    tuple(
+                        {name: row[name] for name in initial_n5_lineage[index]}
+                        for index, row in enumerate(limited_projection["n5_observations"])
+                    )
+                    == initial_n5_lineage
+                )
+                assert tuple(transport_calls) == before_admission
+                assert served.semantic_kernel_entries == []
+            finally:
+                withheld_collection.replace(collection_blob)
+            restored_response = client.get(
+                f"/api/v1/runs/{served.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert restored_response.status_code == 200, restored_response.text
+            assert (
+                restored_response.json()["run"]["generic_cycle_simulation"]["acquisition_history"]
+                == history
+            )
+
+            # A present compiled source ref is not a replay. Withhold the
+            # exact N4 body while keeping the compiled selection untouched.
+            root_source_ref = served.compiled.n4_recursive_source_ref
+            assert root_source_ref is not None
+            source_blob, _source_manifest = served.store._paths(root_source_ref.artifact_id)
+            withheld_source = tmp_path / "withheld-native-generic-n4-source"
+            source_blob.replace(withheld_source)
+            try:
+                missing_source_response = client.get(
+                    f"/api/v1/runs/{served.core_run_id}",
+                    headers={
+                        "Authorization": trust.authorization_header("acquisition-operator"),
+                        "X-Tenant-ID": claims.tenant_id,
+                    },
+                )
+                assert missing_source_response.status_code == 200, missing_source_response.text
+                missing_source = missing_source_response.json()["run"]["generic_cycle_simulation"]
+                assert missing_source["n4_source_status"] == "not_established"
+                assert missing_source.get("acquisition_history") is None
+                assert missing_source["acquisition_history_limitation_code"] is not None
+                assert tuple(transport_calls) == before_admission
+                assert served.semantic_kernel_entries == []
+            finally:
+                withheld_source.replace(source_blob)
+            restored_source_response = client.get(
+                f"/api/v1/runs/{served.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert restored_source_response.status_code == 200, restored_source_response.text
+            restored_source = restored_source_response.json()["run"]["generic_cycle_simulation"]
+            assert restored_source["n4_source_status"] == "resolved"
+            assert restored_source["acquisition_history"] == history
 
             # The already approved A action is not a grant for the distinct B
             # route, even though its own quote and provider are configured.

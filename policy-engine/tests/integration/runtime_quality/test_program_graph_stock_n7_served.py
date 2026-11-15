@@ -291,7 +291,16 @@ def served_blocked_generic_source_case(
         generation_owner, "build_design_problem_from_nl_request", bind_actual_compiler_output
     )
 
+    initial_context_claimed = False
+
     def app_factory() -> Any:
+        nonlocal initial_context_claimed
+        app_context = (
+            build_runtime_api_context(cas_root=cas_root, core_runs_root=runs_root)
+            if initial_context_claimed
+            else runtime_context
+        )
+        initial_context_claimed = True
         selected_security = (
             deployment_security_factory()
             if deployment_security_factory is not None
@@ -300,7 +309,7 @@ def served_blocked_generic_source_case(
         return create_runtime_api_app(
             cas_root=cas_root,
             core_runs_root=runs_root,
-            container_overrides=RuntimeContainerOverrides(runtime_api_context=runtime_context),
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=app_context),
             allow_fixture_identity=not external_security,
             deployment_security=selected_security,
             enable_security_middlewares=external_security,
@@ -741,3 +750,55 @@ def test_stock_n7_routing_reopens_actual_n4_and_n5_from_fresh_get(
         controlled_candidate_gateway,
     ) as served:
         _assert_stock_n7_routing_reopens_actual_n4_and_n5_from_fresh_get(served, tmp_path)
+
+
+def test_stock_source_app_restart_uses_fresh_context_for_same_persisted_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: ControlledCandidateGateway,
+) -> None:
+    """Reopen the same source after the first app closes its dependency guards."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    provider_calls: list[str] = []
+
+    async def reject_provider_fetch(_connector: Any, _handle: Any, request: Any) -> None:
+        provider_calls.append(request.dataset_id)
+        raise AssertionError("source_app_restart_attempted_provider_fetch")
+
+    monkeypatch.setattr(WorldBankConnector, "fetch", reject_provider_fetch)
+    with served_blocked_generic_source_case(
+        tmp_path, monkeypatch, controlled_candidate_gateway
+    ) as served:
+        first_context = served.client.app.state.runtime_container.runtime_api_context
+        selected_compiled = artifact_ref_identity_key(served.compiled_ref)
+        selected_source = artifact_ref_identity_key(served.compiled.n4_recursive_source_ref)
+        assert served.semantic_kernel_entries == []
+
+    with TestClient(served.app_factory()) as reader:
+        container = reader.app.state.runtime_container
+        stop_embedded_control_worker(container.control_service)
+        fresh_context = container.runtime_api_context
+        assert fresh_context is not first_context
+        assert fresh_context.store is not first_context.store
+        assert fresh_context.cas_root == first_context.cas_root == served.cas_root
+        assert fresh_context.core_runs_root == first_context.core_runs_root == served.runs_root
+        response = reader.get(f"/api/v1/runs/{served.core_run_id}")
+        assert response.status_code == 200, response.text
+        projection = response.json()["run"]["generic_cycle_simulation"]
+        assert projection["artifact_status"] == "resolved"
+        assert (
+            artifact_ref_identity_key(ArtifactRef.model_validate(projection["source_ref"]))
+            == selected_compiled
+        )
+        assert (
+            artifact_ref_identity_key(ArtifactRef.model_validate(projection["n4_source_ref"]))
+            == selected_source
+        )
+        job = container.control_service._control_store.get_job(served.job_id)
+        assert job is not None and job.state == "completed"
+    assert provider_calls == []
+    assert served.semantic_kernel_entries == []

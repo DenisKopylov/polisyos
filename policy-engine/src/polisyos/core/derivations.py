@@ -2529,6 +2529,26 @@ class DerivationContext(_StrictModel):
         return self
 
 
+def _same_derivation_context(left: DerivationContext, right: DerivationContext) -> bool:
+    """Compare selected identities and every remaining serialized context value.
+
+    Live producers may retain typed reference subclasses while artifact readers
+    reopen base references. Their nominal Python types do not change selected
+    artifact identity. Non-reference fields remain part of the comparison,
+    including future serialized context fields.
+    """
+    ref_fields = {"context_ref", "scope_ref", "registry_bundle_ref"}
+    for name in ref_fields:
+        left_ref, right_ref = getattr(left, name), getattr(right, name)
+        if (None if left_ref is None else _ref_key(left_ref)) != (
+            None if right_ref is None else _ref_key(right_ref)
+        ):
+            return False
+    return left.model_dump(mode="python", exclude=ref_fields) == right.model_dump(
+        mode="python", exclude=ref_fields
+    )
+
+
 class CandidateSourceSeries(_StrictModel):
     """Custodied candidate values without an empirical authority assertion."""
 
@@ -3023,7 +3043,14 @@ def _normalize_input(
             )
         if (
             series.units_profile != context.units_profile
-            or series.registry_bundle_ref != context.registry_bundle_ref
+            or (
+                None if series.registry_bundle_ref is None else _ref_key(series.registry_bundle_ref)
+            )
+            != (
+                None
+                if context.registry_bundle_ref is None
+                else _ref_key(context.registry_bundle_ref)
+            )
             or series.builtin_units_sha256 != context.builtin_units_sha256
         ):
             raise DerivationRefusalError(
@@ -3080,10 +3107,9 @@ def _normalize_input(
         else:
             resolution = replay.resolve(selection.certificate_ref)
             certificate, series = resolution.certificate, resolution.series
-        if (
-            _ref_key(certificate.derived_artifact_ref) != _ref_key(selection.artifact_ref)
-            or series.context != context
-        ):
+        if _ref_key(certificate.derived_artifact_ref) != _ref_key(
+            selection.artifact_ref
+        ) or not _same_derivation_context(series.context, context):
             raise DerivationRefusalError(
                 DerivationRefusalCode.CERTIFICATE_DRIFT, f"{role}: certified output/context differs"
             )

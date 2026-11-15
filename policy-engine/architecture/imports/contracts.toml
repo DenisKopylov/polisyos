@@ -14,8 +14,10 @@ name = "Layered architecture"
 type = "layers"
 layers = [
   "polisyos.runtime",
-  "polisyos.scientist | polisyos.berl | polisyos.calibration | polisyos.ddm",
+  "polisyos.scientist | polisyos.berl | polisyos.ddm",
   "polisyos.scholar | polisyos.foundry | polisyos.lex | polisyos.data_forge | polisyos.fabric",
+  # Shared calibration diagnostics are below Foundry and above Core/IR.
+  "polisyos.calibration",
   "polisyos.core",
   "polisyos.ir",
   "polisyos.common",
@@ -139,9 +141,15 @@ forbidden_modules = [
   "polisyos.ukraine_data",
   "polisyos.runtime",
   "polisyos.berl",
-  "polisyos.calibration",
   "polisyos.ddm",
 ]
+
+[[importlinter.contracts]]
+name = "Foundry imports calibration through its public facade"
+type = "forbidden"
+source_modules = ["polisyos.foundry"]
+forbidden_modules = ["polisyos.calibration.**"]
+allow_indirect_imports = true
 
 [[importlinter.contracts]]
 name = "Lex does not import domain-private siblings"

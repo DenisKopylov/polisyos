@@ -45,6 +45,7 @@ from polisyos.core.artifacts import (
     CanonInfo,
     CoreJSONArtifactBoundedMemberReader,
     CoreJsonArtifactBoundedRead,
+    CoreJSONArtifactProfileReader,
     CoreJSONArtifactStore,
     CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
@@ -128,7 +129,12 @@ from polisyos.core.derivations import (
 )
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.data_forge import read_api
-from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
+from polisyos.foundry._artifact_capabilities import (
+    _VerifiableCoreJSONArtifactProfileReader,
+    resolve_core_json_profile_reader,
+    resolve_core_json_profile_store,
+    resolve_verifiable_core_json_profile_reader,
+)
 from polisyos.foundry.contracts.state import FeedbackState, GlobalState
 from polisyos.foundry.data_plane.selected_tensors import (
     encode_selected_tensor,
@@ -2475,7 +2481,7 @@ def build_input_bindings(
 
 
 def load_input_bindings(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> FoundryInputBindings:
     """Load a persisted `FoundryInputBindings` boundary artifact from CAS.
@@ -2781,7 +2787,7 @@ def _require_acquired_observation_binding_basis(
 
 
 def _prepare_semantic_input_bindings(
-    store: CoreJSONArtifactStore,
+    store: _VerifiableCoreJSONArtifactProfileReader,
     *,
     data_snapshot_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef,
@@ -2851,7 +2857,7 @@ def _prepare_semantic_input_bindings(
 
 
 def _prepare_semantic_input_binding_facts(
-    store: CoreJSONArtifactStore,
+    store: _VerifiableCoreJSONArtifactProfileReader,
     *,
     data_snapshot_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef,
@@ -3915,7 +3921,7 @@ def _verify_registered_composition_input(
 
 
 def _verify_historical_selected_method_invocation(
-    store: CoreJSONArtifactStore,
+    store: _VerifiableCoreJSONArtifactProfileReader,
     *,
     historical_execution_ref: ArtifactRef,
     input_bindings_ref: ArtifactRef,
@@ -3945,12 +3951,37 @@ def _verify_historical_selected_method_invocation(
         raise ValueError("foundry_selected_method_input_historical_basis_required")
     basis = validate_core_model_json_artifact(FoundryExecutionInputBasis, store, basis_ref)
     bindings = load_input_bindings(store, input_bindings_ref)
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    if manifest_ref is None:
+        raise ValueError("foundry_selected_method_input_historical_binding_ref_required")
+    manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    selected_set, _ = load_model_input_obligation_set(
+        store, manifest.model_input_obligation_set_ref
+    )
+    # Core owns the selected context source and its exact provenance roles.
+    # That source may be an N4 handoff rather than the compiled policy candidate.
+    if selected_set.invocation.model_dump(mode="json") != invocation.model_dump(mode="json"):
+        raise ValueError("foundry_selected_method_input_historical_invocation_mismatch")
     if (effective_step is not None and effective_step != basis.effective_step) or (
         execute_request is not None and execute_request != basis.request
     ):
         raise ValueError("foundry_selected_method_input_historical_execution_mismatch")
     opening_ref = bindings.bound_state_snapshot_ref
-    if bindings.schema_version == "1.5":
+    stored_step = basis.semantic_horizon_step
+    semantic_single_step = bindings.schema_version == "1.4" and stored_step is not None
+    if (
+        semantic_single_step
+        and stored_step is not None
+        and (
+            basis.execution_mode != "single_step"
+            or invocation.steps != (basis.effective_step,)
+            or stored_step.step_index != 0
+            or stored_step.previous_result_ref is not None
+            or stored_step.effective_seed != basis.effective_seed
+        )
+    ):
+        raise ValueError("foundry_selected_method_input_historical_horizon_mismatch")
+    if bindings.schema_version == "1.5" or semantic_single_step:
         opening_ref = _historical_selected_method_step_opening_ref(
             store,
             basis=basis,
@@ -3982,7 +4013,6 @@ def _verify_historical_selected_method_invocation(
         (bindings.bound_state_snapshot_ref, basis.bound_state_snapshot_ref),
         (opening_ref, basis.base_state_snapshot_ref),
         (invocation.parameter_override_bundle_ref, basis.parameter_override_bundle_ref),
-        (invocation.context.candidate_source_ref, basis.candidate_ref),
     ):
         if (None if expected is None else artifact_ref_identity_key(expected)) != (
             None if actual is None else artifact_ref_identity_key(actual)
@@ -4002,7 +4032,7 @@ def _verify_historical_selected_method_invocation(
 
 
 def _historical_selected_method_step_opening_ref(
-    store: CoreJSONArtifactStore,
+    store: _VerifiableCoreJSONArtifactProfileReader,
     *,
     basis: FoundryExecutionInputBasis,
     basis_ref: ArtifactRef,
@@ -4055,6 +4085,11 @@ def _historical_selected_method_step_opening_ref(
         )
     ):
         raise ValueError("foundry_selected_method_input_historical_horizon_mismatch")
+    _require_selected_binding_edges(
+        store.get_manifest(basis_ref),
+        {"basis.source.semantic_obligation_set": step.obligation_set_ref},
+        reason="foundry_selected_method_input_historical_horizon_lineage_mismatch",
+    )
     previous_ref = step.previous_result_ref
     if previous_ref is None:
         if step.step_index != 0:
@@ -4097,7 +4132,7 @@ def _historical_selected_method_step_opening_ref(
         (previous_basis.bound_state_snapshot_ref, bindings.bound_state_snapshot_ref),
         (previous_basis.data_snapshot_ref, bindings.data_snapshot_ref),
         (previous_basis.parameter_override_bundle_ref, invocation.parameter_override_bundle_ref),
-        (previous_basis.candidate_ref, invocation.context.candidate_source_ref),
+        (previous_basis.candidate_ref, basis.candidate_ref),
     ):
         if (None if actual is None else artifact_ref_identity_key(actual)) != (
             None if expected is None else artifact_ref_identity_key(expected)
@@ -4112,7 +4147,9 @@ def _historical_selected_method_step_opening_ref(
 
 
 def _verify_selected_method_invocation_facts(
-    store: CoreJSONArtifactStore, *, invocation: ProgramGraphInputInvocation
+    store: _VerifiableCoreJSONArtifactProfileReader,
+    *,
+    invocation: ProgramGraphInputInvocation,
 ) -> None:
     """Join the immutable model declaration and period without current ABI use."""
     from polisyos.core.contracts import (
@@ -4152,7 +4189,7 @@ def _verify_selected_method_invocation_facts(
 
 
 def reconcile_selected_method_input_bindings(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     *,
     input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
     execute_request: ExecuteRequest | None = None,
@@ -4230,15 +4267,18 @@ def reconcile_selected_method_input_bindings(
 
 
 def _load_selected_method_input_binding(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> tuple[
-    CoreJSONArtifactStore,
+    _VerifiableCoreJSONArtifactProfileReader,
     FoundryInputBindings,
     ResolvedInputBindingManifestRef,
     tuple[FoundrySelectedMethodInput, ...],
 ]:
-    core_store = resolve_core_json_profile_store(store)
+    # Both the 1.4 and 1.5 semantic paths verify declarations/evidence while
+    # replaying the selected source graph. Keep the verifier requirement in
+    # this resolver so a profile-only delegate fails with the typed refusal.
+    core_store = resolve_verifiable_core_json_profile_reader(store)
     if core_store is None:
         raise ValueError("foundry_selected_method_input_reader_not_established")
     if input_bindings_ref.manifest_profile_sha256 is None:
@@ -4252,7 +4292,7 @@ def _load_selected_method_input_binding(
 
 
 def replay_selected_method_input_facts(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     *,
     input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
     expected_invocation: ProgramGraphInputInvocation,
@@ -4292,7 +4332,7 @@ def replay_selected_method_input_facts(
 
 
 def _replay_selected_method_input_values(
-    core_store: CoreJSONArtifactStore,
+    core_store: CoreJSONArtifactProfileReader,
     bindings: FoundryInputBindings,
     records: tuple[FoundrySelectedMethodInput, ...],
     prepared: InputBindingsPreparation,
@@ -4326,7 +4366,7 @@ def _replay_selected_method_input_values(
 
 
 def _replay_selected_method_input_tensor(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     record: FoundrySelectedMethodInput,
     expected: _PreparedSelectedMethodInput,
 ) -> np.ndarray:
@@ -4380,14 +4420,15 @@ def _selected_method_fact_notes(prepared: InputBindingsPreparation) -> tuple[str
 
 
 def _load_selected_method_step_input_binding(
-    store: ArtifactStore, input_bindings_ref: FoundryInputBindingsRef | ArtifactRef
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
+    input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> tuple[
-    CoreJSONArtifactStore,
+    _VerifiableCoreJSONArtifactProfileReader,
     FoundryInputBindings,
     ResolvedInputBindingManifestRef,
     tuple[FoundrySelectedMethodInputAtStep, ...],
 ]:
-    core_store = resolve_core_json_profile_store(store)
+    core_store = resolve_verifiable_core_json_profile_reader(store)
     if core_store is None:
         raise ValueError("foundry_selected_method_input_reader_not_established")
     if input_bindings_ref.manifest_profile_sha256 is None:
@@ -4406,7 +4447,7 @@ def _load_selected_method_step_input_binding(
 
 
 def _replay_selected_method_step_input_values(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     bindings: FoundryInputBindings,
     records: tuple[FoundrySelectedMethodInputAtStep, ...],
     prepared: InputBindingsPreparation,
@@ -4446,7 +4487,7 @@ def _replay_selected_method_step_input_values(
 
 
 def replay_selected_method_input_step_facts(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     *,
     input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
     expected_invocation: ProgramGraphInputInvocation,
@@ -4485,7 +4526,7 @@ def replay_selected_method_input_step_facts(
 
 
 def _reconcile_selected_method_input_steps(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     *,
     input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
     execute_request: ExecuteRequest | None,
@@ -4558,7 +4599,7 @@ def _reconcile_selected_method_input_steps(
 
 
 def reconcile_semantic_input_bindings(
-    store: ArtifactStore,
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
     bindings: FoundryInputBindings,
     *,
     execute_request: ExecuteRequest | None = None,
@@ -4579,7 +4620,7 @@ def reconcile_semantic_input_bindings(
             and snapshot_schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
         )
         if bindings.data_snapshot_ref.manifest_profile_sha256 is not None:
-            core_store = resolve_core_json_profile_store(store)
+            core_store = resolve_core_json_profile_reader(store)
             if core_store is None:
                 if semantic_schema:
                     raise ValueError("foundry_input_bindings_semantic_manifest_required")
@@ -4596,7 +4637,7 @@ def reconcile_semantic_input_bindings(
             # Legacy unselected snapshots still need the same derived-payload
             # discriminator check as preparation. Plain legacy payloads retain
             # their existing behavior; no semantic authority is inferred.
-            core_store = resolve_core_json_profile_store(store)
+            core_store = resolve_core_json_profile_reader(store)
             if core_store is not None:
                 snapshot = validate_core_model_json_artifact(
                     DataSnapshot, core_store, bindings.data_snapshot_ref
@@ -4608,7 +4649,7 @@ def reconcile_semantic_input_bindings(
         return ()
     if bindings.registered_sql_admission_ref is not None:
         raise ValueError("foundry_input_bindings_semantic_sql_replay_not_established")
-    core_store = resolve_core_json_profile_store(store)
+    core_store = resolve_verifiable_core_json_profile_reader(store)
     if core_store is None:
         raise ValueError("foundry_input_bindings_semantic_reader_not_established")
     prepared = _prepare_semantic_input_bindings(
@@ -4641,6 +4682,7 @@ def reconcile_semantic_input_bindings(
         input_ref_from_artifact_ref(bindings.registry_bundle_ref, role="input.registry_bundle_ref"),
         input_ref_from_artifact_ref(state.state_ref, role="state_blob"),
     ]
+    verifier = core_store.verify
     if (
         state.schema_version != "2.2"
         or manifest.artifact_schema
@@ -4657,7 +4699,7 @@ def reconcile_semantic_input_bindings(
         or state.state_ref.artifact_id.hex != checksum
         or state.lineage_inputs != expected_inputs
         or manifest.inputs != expected_inputs
-        or not core_store.verify(state.state_ref).ok
+        or not verifier(state.state_ref).ok
     ):
         raise ValueError("foundry_input_bindings_semantic_state_replay_mismatch")
     return (

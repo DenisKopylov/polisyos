@@ -630,6 +630,8 @@ def evaluate_registered_derived_input_correspondence(
     For schemas 1.1/2.1, callers must supply the step scope recomputed from the
     selected temporal coverage; this predicate does not reopen the origin set.
     """
+    from polisyos.core.derivations import _same_derivation_context
+
     refusals: list[str] = []
     port = obligation.port
     target_scope = port.scope
@@ -861,7 +863,7 @@ def evaluate_registered_derived_input_correspondence(
         or recipe.output_basis.unit != target_representation.unit_id
         or series.variable_id != recipe.output_variable_id
         or series.recipe_id != recipe.recipe_id
-        or series.context != recipe.context
+        or not _same_derivation_context(series.context, recipe.context)
         or series.observation_class != "derived"
         or series.evidence_status != "not_established"
         or series.effective_score is not None

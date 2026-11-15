@@ -43,6 +43,7 @@ allowed_dependencies = [
   "polisyos.common",
   "polisyos.ir",
   "polisyos.core",
+  "polisyos.calibration",
   "polisyos.fabric",
   "polisyos.data_forge.read_api",
 ]
@@ -54,7 +55,6 @@ forbidden_dependencies = [
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
   "polisyos.berl",
-  "polisyos.calibration",
   "polisyos.ddm",
 ]
 import_boundary_report = "architecture/imports/reports.toml"

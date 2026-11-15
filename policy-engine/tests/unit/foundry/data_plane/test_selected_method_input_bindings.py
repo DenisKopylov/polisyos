@@ -12,7 +12,14 @@ from io import BytesIO
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.protocol import CoreJSONArtifactProfileReader
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import FoundryInputBindings
 from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
@@ -22,6 +29,11 @@ from polisyos.core.contracts.variable_binding import (
     variable_representation_manifest_inputs,
 )
 from polisyos.core.registry import load_registry_bundle_content
+from polisyos.foundry._artifact_capabilities import (
+    resolve_core_json_profile_reader,
+    resolve_core_json_profile_store,
+    resolve_verifiable_core_json_profile_reader,
+)
 from polisyos.foundry.data_plane.bindings import (
     SelectedMethodInputFacts,
     SelectedMethodInputResolution,
@@ -47,6 +59,43 @@ def _independent_value_sha256(value):
     digest.update(json.dumps(array.shape, separators=(",", ":")).encode("ascii"))
     digest.update(array.tobytes(order="C"))
     return digest.hexdigest()
+
+
+def _cas_file_content_identity(root):
+    """Return exact relative paths and hashes for every retained CAS file."""
+    return tuple(
+        (path.relative_to(root).as_posix(), hashlib.sha256(path.read_bytes()).hexdigest())
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    )
+
+
+class _ProfileReaderWithoutVerifier:
+    """Delegate actual Core profile reads without verifier or writer methods."""
+
+    __slots__ = ("__reader",)
+
+    def __init__(self, reader: CoreJSONArtifactProfileReader) -> None:
+        self.__reader = reader
+
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+        return self.__reader.has(artifact_id)
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+        return self.__reader.get_bytes(artifact_id)
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+        return self.__reader.get_manifest(artifact_id)
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        return self.__reader.get_raw_manifest_bytes(
+            artifact_id, manifest_profile_sha256=manifest_profile_sha256
+        )
 
 
 def _blob_path(store, ref):
@@ -118,12 +167,14 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
     try:
         materialized = materialize_selected_method_input_case(case, metadata)
         fresh = FileSystemCAS(case.store_root)
+        reader = FileSystemCAS.open_existing_read_only(case.store_root)
+        read_only_identity_before = _cas_file_content_identity(case.store_root)
         resolution = reconcile_selected_method_input_bindings(
-            fresh, input_bindings_ref=materialized.input_bindings_ref, effective_step=0
+            reader, input_bindings_ref=materialized.input_bindings_ref, effective_step=0
         )
         assert resolution.bindings.schema_version == "1.4"
         assert resolution.bindings.bound_state_snapshot_ref == case.bound_state_snapshot_ref
-        assert resolve_bound_state_snapshot_ref(fresh, materialized.input_bindings_ref) == (
+        assert resolve_bound_state_snapshot_ref(reader, materialized.input_bindings_ref) == (
             case.bound_state_snapshot_ref
         )
         (record,) = resolution.records
@@ -139,7 +190,7 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
         with pytest.raises(TypeError):
             resolution.values["extra"] = value
         again = reconcile_selected_method_input_bindings(
-            fresh, input_bindings_ref=materialized.input_bindings_ref
+            reader, input_bindings_ref=materialized.input_bindings_ref
         )
         assert again.values["period_flow"] is not value
         assert not np.shares_memory(again.values["period_flow"], value)
@@ -151,6 +202,40 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             resolution.notes
         )
         assert "semantic_input_limitation:method_nominal_abi_not_checked" not in resolution.notes
+        with pytest.raises(ValueError, match=r"^foundry_selected_method_input_profile_required$"):
+            reconcile_selected_method_input_bindings(
+                reader,
+                input_bindings_ref=materialized.input_bindings_ref.model_copy(
+                    update={"manifest_profile_sha256": None}
+                ),
+            )
+        manifest = load_resolved_input_binding_manifest(
+            reader, materialized.resolved_binding_manifest_ref
+        )
+        selected_set, _ = load_model_input_obligation_set(
+            reader, manifest.model_input_obligation_set_ref
+        )
+        reader_without_verifier = _ProfileReaderWithoutVerifier(reader)
+        assert resolve_core_json_profile_reader(reader_without_verifier) is reader_without_verifier
+        assert resolve_verifiable_core_json_profile_reader(reader_without_verifier) is None
+        assert resolve_core_json_profile_store(reader_without_verifier) is None
+        with pytest.raises(
+            ValueError, match=r"^foundry_selected_method_input_reader_not_established$"
+        ):
+            replay_selected_method_input_facts(
+                reader_without_verifier,
+                input_bindings_ref=materialized.input_bindings_ref,
+                expected_invocation=selected_set.invocation,
+            )
+        with pytest.raises(
+            ValueError, match=r"^foundry_input_bindings_semantic_invocation_mismatch$"
+        ):
+            replay_selected_method_input_facts(
+                reader,
+                input_bindings_ref=materialized.input_bindings_ref,
+                expected_invocation=selected_set.invocation.model_copy(update={"steps": (1,)}),
+            )
+        assert _cas_file_content_identity(case.store_root) == read_only_identity_before
         # This immutable physical-port check also runs in historical replay,
         # where a current MethodRegistry preflight must not be consulted.
         representation = load_variable_representation(fresh, metadata["representation_ref"])
@@ -182,10 +267,10 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             )
 
         manifest = load_resolved_input_binding_manifest(
-            fresh, materialized.resolved_binding_manifest_ref
+            reader, materialized.resolved_binding_manifest_ref
         )
         selected_set, _ = load_model_input_obligation_set(
-            fresh, manifest.model_input_obligation_set_ref
+            reader, manifest.model_input_obligation_set_ref
         )
         invocation = selected_set.invocation
         # B is a distinct selected binding artifact, not an execution. Its
@@ -211,9 +296,9 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
         registry.register(ChangedABI, override=True)
         try:
             with pytest.raises(ValueError):
-                reconcile_selected_method_input_bindings(fresh, input_bindings_ref=retained_ref)
+                reconcile_selected_method_input_bindings(reader, input_bindings_ref=retained_ref)
             retained_facts = replay_selected_method_input_facts(
-                fresh, input_bindings_ref=retained_ref, expected_invocation=invocation
+                reader, input_bindings_ref=retained_ref, expected_invocation=invocation
             )
             assert type(retained_facts) is SelectedMethodInputFacts
             assert not isinstance(retained_facts, SelectedMethodInputResolution)
@@ -231,13 +316,14 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             ValueError, match=r"^foundry_input_bindings_semantic_invocation_mismatch$"
         ):
             replay_selected_method_input_facts(
-                fresh,
+                reader,
                 input_bindings_ref=retained_ref,
                 expected_invocation=invocation.model_copy(update={"steps": (1,)}),
             )
 
         # No embedded certificate, canonical_value label, or physical-state
         # fallback can replace the separately selected source and NPY bytes.
+        read_only_identity_before = _cas_file_content_identity(case.store_root)
         for removed in (
             record.npy_value_ref,
             metadata["recipe_ref"],
@@ -247,11 +333,11 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             with _removed_blob(fresh, removed):
                 with pytest.raises((FileNotFoundError, ValueError)):
                     reconcile_selected_method_input_bindings(
-                        fresh, input_bindings_ref=materialized.input_bindings_ref
+                        reader, input_bindings_ref=materialized.input_bindings_ref
                     )
                 with pytest.raises((FileNotFoundError, ValueError)):
                     replay_selected_method_input_facts(
-                        fresh, input_bindings_ref=retained_ref, expected_invocation=invocation
+                        reader, input_bindings_ref=retained_ref, expected_invocation=invocation
                     )
         replacement = BytesIO()
         np.save(replacement, np.asarray(0, dtype=np.float64))
@@ -260,10 +346,11 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             pytest.raises(ValueError),
         ):
             reconcile_selected_method_input_bindings(
-                fresh, input_bindings_ref=materialized.input_bindings_ref
+                reader, input_bindings_ref=materialized.input_bindings_ref
             )
+        assert _cas_file_content_identity(case.store_root) == read_only_identity_before
 
-        original = load_input_bindings(fresh, materialized.input_bindings_ref)
+        original = load_input_bindings(reader, materialized.input_bindings_ref)
         for update in (
             {"canonical_value": Decimal("0")},
             {"value_sha256": "0" * 64},
@@ -276,9 +363,9 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
             with pytest.raises(
                 ValueError, match=r"^foundry_selected_method_input_record_source_mismatch$"
             ):
-                reconcile_selected_method_input_bindings(fresh, input_bindings_ref=forged_ref)
+                reconcile_selected_method_input_bindings(reader, input_bindings_ref=forged_ref)
 
-        value_inputs = fresh.get_manifest(record.npy_value_ref).inputs
+        value_inputs = reader.get_manifest(record.npy_value_ref).inputs
         for wrong in (
             np.asarray([[-6_000_000_000.0]]),
             np.asarray(-6_000_000_000.0, dtype=np.float32),
@@ -297,7 +384,7 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
                 record.model_copy(update={"npy_value_ref": wrong_ref}),
             )
             with pytest.raises(ValueError, match="shape or dtype"):
-                reconcile_selected_method_input_bindings(fresh, input_bindings_ref=forged_ref)
+                reconcile_selected_method_input_bindings(reader, input_bindings_ref=forged_ref)
         no_source_ref = put_tensor(
             fresh,
             np.asarray(-6_000_000_000.0, dtype=np.float64),
@@ -314,11 +401,11 @@ def test_selected_method_values_replay_sources_and_keep_exact_prestate(tmp_path)
         with pytest.raises(
             ValueError, match=r"^foundry_selected_method_input_value_lineage_mismatch$"
         ):
-            reconcile_selected_method_input_bindings(fresh, input_bindings_ref=forged_ref)
+            reconcile_selected_method_input_bindings(reader, input_bindings_ref=forged_ref)
         assert (
             float(
                 reconcile_selected_method_input_bindings(
-                    fresh, input_bindings_ref=materialized.input_bindings_ref
+                    reader, input_bindings_ref=materialized.input_bindings_ref
                 ).values["period_flow"]
             )
             == -6_000_000_000.0

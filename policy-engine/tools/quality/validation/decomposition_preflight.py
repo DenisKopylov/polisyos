@@ -13815,6 +13815,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         source_path: str,
         source_value_observation_sites: set[tuple[int, int]] | None = None,
         source_value_target_names: frozenset[str] | None = None,
+        resolve_import_name_guards: bool = False,
     ) -> None:
         self.module = module
         self.source_path = source_path
@@ -13879,6 +13880,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.scope_kind = "module"
         self.scope_prefix = ""
         self.class_context: str | None = None
+        self.resolve_import_name_guards = resolve_import_name_guards
+        if resolve_import_name_guards:
+            self._write_binding_knowledge(
+                "__name__", _BindingKnowledge(source_value=_dynamic_string_binding(module))
+            )
 
     def set_future_annotations(self, tree: ast.Module) -> None:
         self.future_annotations = _future_annotations_enabled(tree)
@@ -14939,6 +14945,8 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         for alias in node.names:
             if alias.name == "*":
                 self.type_checking_bindings.clear()
+                if self.resolve_import_name_guards:
+                    self._invalidate_import_name()
                 continue
             candidate = f"{base}.{alias.name}" if base else alias.name
             self._record_candidate(candidate)
@@ -14953,12 +14961,71 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 resolved_base = _nearest_known_module(base, self.module_names) if base else None
                 self.import_bindings[bound_name] = {(resolved_base or base, alias.name)}
 
+    def _import_name_guard_branch(self, node: ast.AST) -> bool | None:
+        """Resolve a main guard only while its string binding remains established."""
+        if not self.resolve_import_name_guards:
+            return None
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            branch = self._import_name_guard_branch(node.operand)
+            return None if branch is None else not branch
+        if not (
+            isinstance(node, ast.Compare)
+            and len(node.ops) == len(node.comparators) == 1
+            and isinstance(node.ops[0], (ast.Eq, ast.NotEq))
+        ):
+            return None
+        left, right = node.left, node.comparators[0]
+        if isinstance(left, ast.Constant) and isinstance(right, ast.Name):
+            left, right = right, left
+        if not (
+            isinstance(left, ast.Name)
+            and left.id == "__name__"
+            and isinstance(right, ast.Constant)
+            and right.value == "__main__"
+        ):
+            return None
+        value = self._source_value_for_expression(left)
+        if value.kind != "string" or value.name is None:
+            return None
+        equal = value.name == "__main__"
+        return equal if isinstance(node.ops[0], ast.Eq) else not equal
+
+    def _invalidate_import_name(self) -> None:
+        """Retain uncertainty when the current module namespace can escape."""
+        shadowed = self.function_local_names_stack[-1] if self.function_local_names_stack else set()
+        self._apply_global_effect(
+            "__name__", (_BindingKnowledge(possible_unknown=True), None), shadowed_names=shadowed
+        )
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if not self.resolve_import_name_guards or not isinstance(node.ctx, ast.Load):
+            return
+        builtin = self._known_builtin_symbol(node)
+        imports = self._binding_knowledge(node.id).targets_for("import")
+        if (
+            node.id == "__builtins__"
+            or builtin in {"globals", "locals", "vars", "exec", "eval", "__import__"}
+            or any(
+                (target.module == "sys" and target.symbol in {None, "modules"})
+                or (target.module == "builtins" and target.symbol is None)
+                for target in imports
+            )
+        ):
+            self._invalidate_import_name()
+
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        if self.resolve_import_name_guards and node.attr in {"modules", "__dict__"}:
+            self._invalidate_import_name()
+        self.visit(node.value)
+
     def visit_If(self, node: ast.If) -> None:
         self.visit(node.test)
         runtime_branch = _type_checking_runtime_branch(
             node.test,
             bindings=self.type_checking_bindings,
         )
+        if runtime_branch is None:
+            runtime_branch = self._import_name_guard_branch(node.test)
         if runtime_branch is False:
             for statement in node.orelse:
                 self.visit(statement)
@@ -15040,7 +15107,6 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             self.visit(default)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        saved_bindings = self._snapshot_bindings()
         saved_scope_kind = self.scope_kind
         saved_scope_prefix = self.scope_prefix
         saved_class_context = self.class_context
@@ -15063,6 +15129,9 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     metaclass_knowledge = self._knowledge_for_expression(keyword.value)
                 self._record_callable(keyword.value)
             self.visit(keyword.value)
+        # Decorators, bases, and class keywords run in the enclosing scope. Keep
+        # their effects when the separate class-body namespace is discarded.
+        saved_bindings = self._snapshot_bindings()
         qualified_name = f"{self.scope_prefix}.{node.name}" if self.scope_prefix else node.name
         class_target = (self.module, qualified_name)
         if unknown_base:
@@ -17399,6 +17468,7 @@ def _collect_runtime_import_edges(
                     module, set()
                 ),
                 source_value_target_names=source_value_target_names,
+                resolve_import_name_guards=not include_unentered_source_functions,
             )
             for module in trees
         }
@@ -17787,7 +17857,9 @@ def collect_import_graph(
             "Module-eager graph includes module/class bodies and source-resolved calls within "
             "the AST binding collector's supported forms; targetless reflective/callback "
             "dispatch remains separately not_established. TYPE_CHECKING and deferred function "
-            "bodies are omitted."
+            "bodies are omitted. Main guards use the import FQN until an explicit binding or "
+            "reached namespace access makes it unknown. Mutations by opaque external import "
+            "hooks or code in other modules are outside this collector's established scope."
             if runtime_only
             else (
                 "Phase 3A uses a deterministic AST import graph collector because pydeps/import-linter "

@@ -21242,6 +21242,17 @@ export interface components {
      * @description Persisted generic simulation lineage exposed as candidate-only history.
      */
     RunGenericCycleSimulationProjection: {
+      /** Acquisition History */
+      acquisition_history?:
+        | (
+            | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"]
+            | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"]
+            | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"]
+            | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"]
+          )[]
+        | null;
+      /** Acquisition History Limitation Code */
+      acquisition_history_limitation_code?: string | null;
       /**
        * Artifact Status
        * @enum {string}

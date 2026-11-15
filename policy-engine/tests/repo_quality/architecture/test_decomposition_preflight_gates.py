@@ -529,6 +529,318 @@ def _write_current_full_scc_registry(path: Path) -> str:
     return registry_text
 
 
+@pytest.mark.parametrize(
+    ("source", "expected_cli_edge", "expected_import_edge"),
+    [
+        (
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n"
+            "else:\n"
+            "    from polisyos.scientist import import_edge\n",
+            False,
+            True,
+        ),
+        (
+            'if "__main__" != __name__:\n'
+            "    from polisyos.scientist import import_edge\n"
+            "else:\n"
+            "    from polisyos.scientist import cli_edge\n",
+            False,
+            True,
+        ),
+        (
+            'if not (__name__ == "__main__"):\n'
+            "    from polisyos.scientist import import_edge\n"
+            "else:\n"
+            "    from polisyos.scientist import cli_edge\n",
+            False,
+            True,
+        ),
+        (
+            "def unused():\n"
+            '    globals()["__name__"] = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            False,
+            False,
+        ),
+        (
+            "class Entry:\n"
+            '    __name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            False,
+            False,
+        ),
+        (
+            '__name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "if choice:\n"
+            '    __name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n"
+            "else:\n"
+            "    from polisyos.scientist import import_edge\n",
+            True,
+            True,
+        ),
+        (
+            "def change():\n"
+            "    global __name__\n"
+            '    __name__ = "__main__"\n'
+            "change()\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "def call(__name__):\n"
+            '    if __name__ == "__main__":\n'
+            "        from polisyos.scientist import cli_edge\n"
+            "call(unknown)\n",
+            True,
+            False,
+        ),
+        (
+            "namespace = globals()\n"
+            'namespace["__name__"] = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "def mutate():\n"
+            '    globals()["__name__"] = "__main__"\n'
+            "mutate()\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "from builtins import globals as namespace\n"
+            'namespace()["__name__"] = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "import sys\n"
+            'sys.modules[__name__].__name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "from polisyos.scientist.star import *\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+        (
+            "import importlib\n"
+            'modules = importlib.import_module("sys").modules\n'
+            'modules[__name__].__name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import cli_edge\n",
+            True,
+            False,
+        ),
+    ],
+)
+def test_runtime_import_graph_distinguishes_import_context_and_name_rebinding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+    expected_cli_edge: bool,
+    expected_import_edge: bool,
+) -> None:
+    _write_runtime_import_fixture(
+        tmp_path,
+        {
+            "polisyos/scientist/a.py": source,
+            "polisyos/scientist/cli_edge.py": "pass\n",
+            "polisyos/scientist/import_edge.py": "pass\n",
+            "polisyos/scientist/star.py": '__all__ = ["__name__"]\n__name__ = "__main__"\n',
+        },
+        monkeypatch,
+    )
+    graph = preflight.collect_import_graph(runtime_only=True)
+    edges = {(row["source"], row["target"]) for row in graph["edges"]}
+    source_module = "polisyos.scientist.a"
+    assert ((source_module, "polisyos.scientist.cli_edge") in edges) is expected_cli_edge
+    assert ((source_module, "polisyos.scientist.import_edge") in edges) is expected_import_edge
+
+
+def test_main_guard_preserves_eager_cycle_and_unresolved_dispatch_controls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "class Entry:\n"
+        "    def boot(self):\n"
+        "        from polisyos.scientist import b\n"
+        "def make():\n"
+        "    return unknown_factory()\n"
+        'if __name__ == "__main__":\n'
+        "    from polisyos.scientist import b\n"
+        "    make().boot()\n"
+    )
+    _write_runtime_import_fixture(
+        tmp_path,
+        {
+            "polisyos/scientist/a.py": source,
+            "polisyos/scientist/b.py": "from polisyos.scientist.a import Entry\n",
+        },
+        monkeypatch,
+    )
+    registry = tmp_path / "architecture/imports/lazy.toml"
+    monkeypatch.setattr(preflight, "LAZY_IMPORTS_PATH", registry)
+    registry_text = _write_current_full_scc_registry(registry)
+    assert validate_import_cycles() == []
+
+    source_path = tmp_path / "src/polisyos/scientist/a.py"
+    imported = source.replace('__name__ == "__main__"', '__name__ != "__main__"')
+    source_path.write_text(imported, encoding="utf-8")
+    findings = validate_import_cycles()
+    assert any("module-eager cycle" in finding.message for finding in findings)
+    assert any(
+        finding.message == "module-time source-known dispatch is not established"
+        and "make().boot()" in finding.detail
+        for finding in findings
+    )
+    assert registry.read_text(encoding="utf-8") == registry_text
+
+
+@pytest.mark.parametrize(
+    ("source", "effect"),
+    [
+        (
+            "def change():\n"
+            "    global __name__\n"
+            '    __name__ = "__main__"\n'
+            "    return object\n"
+            "class Entry(change()):\n"
+            "    pass\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import b\n",
+            '    __name__ = "__main__"\n',
+        ),
+        (
+            "def change():\n"
+            "    global __name__\n"
+            '    __name__ = "__main__"\n'
+            "    return lambda cls: cls\n"
+            "@change()\n"
+            "class Entry:\n"
+            "    pass\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import b\n",
+            '    __name__ = "__main__"\n',
+        ),
+        (
+            "def change():\n"
+            "    global __name__\n"
+            '    __name__ = "__main__"\n'
+            "    return type\n"
+            "class Entry(metaclass=change()):\n"
+            "    pass\n"
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import b\n",
+            '    __name__ = "__main__"\n',
+        ),
+        (
+            "from typing import TYPE_CHECKING\n"
+            "def change():\n"
+            "    global TYPE_CHECKING\n"
+            "    TYPE_CHECKING = True\n"
+            "    return object\n"
+            "class Entry(change()):\n"
+            "    pass\n"
+            "if TYPE_CHECKING:\n"
+            "    from polisyos.scientist import b\n",
+            "    TYPE_CHECKING = True\n",
+        ),
+        (
+            "def import_b():\n"
+            "    from polisyos.scientist import b\n"
+            "def safe():\n"
+            "    pass\n"
+            "target = safe\n"
+            "def change():\n"
+            "    global target\n"
+            "    target = import_b\n"
+            "    return object\n"
+            "class Entry(change()):\n"
+            "    pass\n"
+            "target()\n",
+            "    target = import_b\n",
+        ),
+        (
+            "class Entry:\n"
+            "    global __name__\n"
+            '    __name__ = "__main__"\n'
+            'if __name__ == "__main__":\n'
+            "    from polisyos.scientist import b\n",
+            '    __name__ = "__main__"\n',
+        ),
+    ],
+)
+def test_import_cycle_gate_keeps_class_definition_time_global_effects(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+    effect: str,
+) -> None:
+    _write_runtime_import_fixture(
+        tmp_path,
+        {
+            "polisyos/scientist/a.py": source,
+            "polisyos/scientist/b.py": "from polisyos.scientist.a import Entry\n",
+        },
+        monkeypatch,
+    )
+    registry = tmp_path / "architecture/imports/lazy.toml"
+    monkeypatch.setattr(preflight, "LAZY_IMPORTS_PATH", registry)
+    registry_text = _write_current_full_scc_registry(registry)
+    initial_full_cycles = preflight.collect_import_graph()["cycles"]
+
+    assert any(
+        finding.message == "registered deferred-cycle signature contains a module-eager cycle"
+        for finding in validate_import_cycles()
+    )
+
+    source_path = tmp_path / "src/polisyos/scientist/a.py"
+    source_path.write_text(source.replace(effect, "    pass\n", 1), encoding="utf-8")
+    assert preflight.collect_import_graph()["cycles"] == initial_full_cycles
+    assert registry.read_text(encoding="utf-8") == registry_text
+    assert validate_import_cycles() == []
+
+
+def test_main_guard_keeps_complete_ast_call_observations() -> None:
+    module = "polisyos.scientist.a"
+    source = 'def main():\n    return 1\nif __name__ == "__main__":\n    main()\n'
+    tree = ast.parse(source)
+    path = REPO_ROOT / "src/polisyos/scientist/a.py"
+
+    observations, missing = preflight.collect_source_value_call_observations(
+        {module: tree}, {module: path}
+    )
+
+    assert missing == []
+    assert [(row["module"], row["line"]) for row in observations] == [(module, 4)]
+
+
 def test_import_cycle_gate_rejects_guard_removal_even_when_markers_remain(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -4167,6 +4479,27 @@ def _dynamic_import_fixture(
     monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
     return registry_path
+
+
+def test_dynamic_import_gate_refuses_unregistered_import_in_import_branch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "from importlib import import_module\n"
+        'if __name__ != "__main__":\n'
+        '    import_module("unregistered.module")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+
+    findings = validate_dynamic_imports()
+
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "unregistered.module" in finding.detail
+        for finding in findings
+    )
 
 
 def test_dynamic_imports_gate_derives_targets_from_immutable_finite_mapping(

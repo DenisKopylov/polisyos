@@ -234,6 +234,7 @@ if TYPE_CHECKING:
         GenerationCycleContextHistoryProjection,
         GenerationCycleRun,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceHandoff
     from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveGenerationCyclePartialRunV2,
@@ -1493,9 +1494,18 @@ def _candidate_acquisition_history_projection(
             if route_receipt.terminal_outcome == "quarantined_no_growth":
                 observed_origin_source_ref = None
                 if compiled.n4_recursive_source_ref is not None:
-                    observed_origin_source_ref = ArtifactRef.model_validate(
+                    selected_origin = ArtifactRef.model_validate(
                         compiled.n4_recursive_source_ref.model_dump(mode="json")
                     )
+                    if selected_origin.kind == "runtime.quality.n4_candidate_scenario_source":
+                        observed_origin_source_ref = selected_origin
+                    elif (
+                        compiled.generic_cycle_simulation_handoff is None
+                        or selected_origin.kind != "runtime.generation_source_handoff"
+                    ):
+                        raise ValueError("acquisition_history_origin_source_kind_unsupported")
+                    # A Generic N4 source stays in the parent projection. The
+                    # candidate-only origin field cannot represent its kind.
                 history_entries.append(
                     RunCandidateSimulationAcquisitionHistoryEntry(
                         route_receipt_ref=route_receipt_ref,
@@ -2779,7 +2789,7 @@ def _candidate_simulation_projection(
             compiled=compiled,
             compiled_ref=ref,
             recursive_run=recursive_run,
-            store=store,
+            store=owner_store,
             control_service=control_service,
             core_run_id=run_id,
             control_job_id=control_job_id,
@@ -4482,6 +4492,8 @@ def _generic_cycle_simulation_projection(
     root_artifacts: tuple[Any, ...],
     store: Any,
     control_service: Any | None = None,
+    _n4_source_replays: dict[tuple[str, str, str, str | None], GenerationSourceHandoff | None]
+    | None = None,
 ) -> RunGenericCycleSimulationProjection | None:
     """Replay persisted generic N4-family, N5, and conditional N8 lineage."""
     from polisyos.runtime.http.services.control.generation_cycle import (
@@ -4832,14 +4844,8 @@ def _generic_cycle_simulation_projection(
             source_ref=ref,
             source_content_hash=compiled.content_hash,
             n4_source_ref=compiled.n4_recursive_source_ref,
-            n4_source_status=(
-                "resolved" if compiled.n4_recursive_source_ref is not None else "not_established"
-            ),
-            n4_source_limitation_code=(
-                None
-                if compiled.n4_recursive_source_ref is not None
-                else "n4_recursive_source_reference_not_established"
-            ),
+            n4_source_status="not_established",
+            n4_source_limitation_code="generic_n4_source_not_replayed",
             parent_context_job_ref=(
                 compiled.generic_cycle_simulation_handoff.context_job_ref
                 if compiled.generic_cycle_simulation_handoff is not None
@@ -5052,10 +5058,26 @@ def _generic_cycle_simulation_projection(
                 )
                 for row in family.children
             )
-    except CanonicalProfileRefusalError:
-        raise
-    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+    except (
+        CanonicalProfileRefusalError,
+        OSError,
+        RuntimeDependencyError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        if isinstance(exc, CanonicalProfileRefusalError) and exc.code not in {
+            "canon_profile_raw_manifest_unavailable",
+            "canon_profile_typed_manifest_unavailable",
+            "canon_profile_payload_unavailable",
+        }:
+            raise
         _raise_generic_read_access_refusal(exc)
+        if _n4_source_replays is not None and not (
+            type(exc) is ValueError
+            and str(exc) == "generation_source_native_history_owner_unavailable"
+        ):
+            _n4_source_replays[artifact_ref_identity_key(source_ref)] = None
         return RunGenericCycleSimulationProjection(
             schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
@@ -5077,6 +5099,9 @@ def _generic_cycle_simulation_projection(
             limitation_code="generic_n4_child_profile_set_reference_not_established",
             **n6_history_fields,
         )
+
+    if _n4_source_replays is not None:
+        _n4_source_replays[artifact_ref_identity_key(source_ref)] = source
 
     observations: list[RunGenericCycleSimulationN5Observation] = []
     n5_limitation: str | None = None
@@ -5891,6 +5916,165 @@ def _generic_cycle_simulation_projection(
         recursive_cycle_checkpoint=checkpoint,
         limitation_code=n5_limitation,
         **n6_history_fields,
+    )
+
+
+def _generic_acquisition_history_projection(
+    projection: RunGenericCycleSimulationProjection,
+    *,
+    run_id: str,
+    tenant_id: str | None,
+    cell_id: str | None,
+    store: Any,
+    control_service: Any | None,
+    _n4_source_replays: Mapping[tuple[str, str, str, str | None], GenerationSourceHandoff | None]
+    | None = None,
+) -> RunGenericCycleSimulationProjection:
+    """Reuse canonical source facts for action history and public N4 status.
+
+    Run-detail authorization and tenant access precede this read-only bridge.
+    The per-call source readout comes only from the existing projection owner;
+    an earlier path that never replayed N4 must ask that same source owner here.
+    An unavailable source/history never removes verified numerical fields.
+    """
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceHandoff,
+        GenerationSourceRepository,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationContextHandoffV1,
+    )
+
+    values = {name: getattr(projection, name) for name in type(projection).model_fields}
+    history = None
+    limitation = "acquisition_n4_source_not_established"
+    if projection.artifact_status == "resolved":
+        values.update(
+            n4_source_status="not_established",
+            n4_source_limitation_code="generic_n4_source_reference_not_established",
+        )
+        try:
+            selected_ref = projection.source_ref
+            if (
+                projection.run_id != run_id
+                or selected_ref is None
+                or selected_ref.kind != "runtime.compiled_recursive_generation_cycle"
+                or selected_ref.media_type != "application/json"
+                or selected_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("generic_acquisition_history_compiled_selection_missing")
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                read_core_json_artifact(
+                    SelectedProfileVerificationReader(store), selected_ref
+                ).value
+            )
+            if compiled.content_hash != projection.source_content_hash:
+                raise ValueError("generic_acquisition_history_compiled_content_mismatch")
+            handoff = compiled.generic_cycle_simulation_handoff
+            source_ref = compiled.n4_recursive_source_ref
+            if (
+                type(handoff)
+                not in {
+                    GenericCycleSimulationContextHandoffV1,
+                    GenericCycleNativeWorldContextHandoffV1,
+                }
+                or source_ref is None
+                or source_ref.manifest_profile_sha256 is None
+                or source_ref.kind != "runtime.generation_source_handoff"
+                or projection.n4_source_ref is None
+                or artifact_ref_identity_key(source_ref)
+                != artifact_ref_identity_key(projection.n4_source_ref)
+                or compiled.n4_recursive_source_job_id != handoff.job_id
+                or compiled.n4_recursive_source_run_id != handoff.run_id
+                or (compiled.n4_recursive_source_tenant_id, compiled.n4_recursive_source_cell_id)
+                != (tenant_id, cell_id)
+                or (handoff.tenant_id, handoff.cell_id) != (tenant_id, cell_id)
+                or compiled.n4_recursive_source_context_job_ref != handoff.context_job_ref
+                or compiled.n4_recursive_source_profile_config_ref != handoff.profile.profile_id
+                or compiled.n4_recursive_source_profile_selection_ref
+                != (
+                    handoff.current_profile_selection_ref
+                    if type(handoff) is GenericCycleNativeWorldContextHandoffV1
+                    else handoff.profile.profile_selection_ref
+                )
+                or projection.parent_context_job_ref is None
+                or artifact_ref_identity_key(projection.parent_context_job_ref)
+                != artifact_ref_identity_key(handoff.context_job_ref)
+                or projection.parent_profile_ref is None
+                or artifact_ref_identity_key(projection.parent_profile_ref)
+                != artifact_ref_identity_key(handoff.profile_ref)
+                or projection.parent_profile_id != handoff.profile.profile_id
+            ):
+                raise ValueError("generic_acquisition_history_n4_scope_mismatch")
+            source_key = artifact_ref_identity_key(source_ref)
+            already_replayed = _n4_source_replays is not None and source_key in _n4_source_replays
+            source = _n4_source_replays[source_key] if already_replayed else None
+            if not already_replayed:
+                native_owner = getattr(
+                    control_service, "_generic_cycle_simulation_admission_owner", None
+                )
+                if not (
+                    type(native_owner) is GenericCycleSimulationAdmissionOwner
+                    and native_owner.store is store
+                    and native_owner._native_action_control_store is not None
+                    and native_owner._native_action_event_log is not None
+                ):
+                    native_owner = None
+                source = GenerationSourceRepository(store, native_world_owner=native_owner).load(
+                    source_ref,
+                    run_id=handoff.run_id,
+                    expected_run_id=handoff.run_id,
+                    expected_job_id=handoff.job_id,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                    context_job_ref=handoff.context_job_ref,
+                    profile_ref=handoff.profile_ref,
+                    n4_child_profile_family_ref=(
+                        None
+                        if type(handoff) is GenericCycleNativeWorldContextHandoffV1
+                        else handoff.n4_child_profile_family_ref
+                    ),
+                )
+            if source is not None:
+                if (
+                    type(source) is not GenerationSourceHandoff
+                    or source.problem != compiled.design_problem
+                    or source.cycle_index != 0
+                    or source.cycle_substrate_context != handoff.context
+                ):
+                    raise ValueError("generic_acquisition_history_n4_source_mismatch")
+                values.update(n4_source_status="resolved", n4_source_limitation_code=None)
+                rows, limitation, _current = _candidate_acquisition_history_projection(
+                    compiled=compiled,
+                    compiled_ref=selected_ref,
+                    recursive_run=compiled.recursive_run,
+                    store=store,
+                    control_service=control_service,
+                    core_run_id=run_id,
+                    control_job_id=compiled.n4_recursive_source_job_id,
+                    source_status="resolved",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                if rows or limitation is None:
+                    history = rows
+        except CanonicalProfileRefusalError as exc:
+            _raise_generic_read_access_refusal(exc)
+            limitation = "acquisition_action_history_integrity_not_established"
+        except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+            _raise_generic_read_access_refusal(exc)
+            limitation = "acquisition_action_history_integrity_not_established"
+    return RunGenericCycleSimulationProjection.model_validate(
+        {
+            **values,
+            "acquisition_history": history,
+            "acquisition_history_limitation_code": limitation,
+        }
     )
 
 
@@ -7987,6 +8171,9 @@ if router is not None:
             )
             if candidate_simulation is not None:
                 updates["candidate_simulation"] = candidate_simulation
+            n4_source_replays: dict[
+                tuple[str, str, str, str | None], GenerationSourceHandoff | None
+            ] = {}
             generic_cycle_simulation = _generic_cycle_simulation_projection(
                 run_id=run.details.run_id,
                 tenant_id=run.details.tenant_id,
@@ -7994,9 +8181,18 @@ if router is not None:
                 root_artifacts=tuple(run.details.root_artifacts),
                 store=ctx.store,
                 control_service=control_service,
+                _n4_source_replays=n4_source_replays,
             )
             if generic_cycle_simulation is not None:
-                updates["generic_cycle_simulation"] = generic_cycle_simulation
+                updates["generic_cycle_simulation"] = _generic_acquisition_history_projection(
+                    generic_cycle_simulation,
+                    run_id=run.details.run_id,
+                    tenant_id=run.details.tenant_id,
+                    cell_id=run.details.cell_id,
+                    store=ctx.store,
+                    control_service=control_service,
+                    _n4_source_replays=n4_source_replays,
+                )
             if (
                 review_scope.tenant_id == run.details.tenant_id
                 and review_scope.cell_id == run.details.cell_id

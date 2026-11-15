@@ -1747,6 +1747,106 @@ describe("OverviewTab", () => {
     expect(panel).not.toHaveTextContent("publication_ready");
   });
 
+  it("shows Generic N5 selected registry units beside values and preserves limited status", () => {
+    const resolvedRun = parsedRunWithGenericCycleSimulation("run-1");
+    const resolvedProjection = resolvedRun.generic_cycle_simulation as Record<
+      string,
+      unknown
+    >;
+    const resolvedObservation = (
+      resolvedProjection.n5_observations as Record<string, unknown>[]
+    )[0]!;
+    Object.assign(
+      resolvedObservation.simulation_result_body as Record<string, unknown>,
+      {
+        outcome_units: { "outcome-a": "credits" },
+        outcome_units_status: "resolved",
+        outcome_unit_registry_ref: {
+          artifact_id: "sha256:" + "9".repeat(64),
+          kind: "core.registry_bundle",
+          media_type: "application/json",
+          manifest_profile_sha256: "sha256:" + "8".repeat(64),
+        },
+      },
+    );
+    overviewState.run = resolvedRun;
+
+    const resolvedView = renderWithProviders(<OverviewTab />);
+
+    const body = screen.getByTestId("overview-generic-cycle-n5-result-body");
+    expect(body).toHaveTextContent(
+      "Outcome unit: outcome-a = credits (selected_registry)",
+    );
+    expect(body).toHaveTextContent("Outcome outcome-a: 0.75 credits");
+    expect(body).toHaveTextContent("sha256:" + "9".repeat(64));
+
+    resolvedView.unmount();
+    const limitedRun = parsedRunWithGenericCycleSimulation("run-1");
+    const limitedProjection = limitedRun.generic_cycle_simulation as Record<
+      string,
+      unknown
+    >;
+    const limitedObservation = (
+      limitedProjection.n5_observations as Record<string, unknown>[]
+    )[0]!;
+    Object.assign(
+      limitedObservation.simulation_result_body as Record<string, unknown>,
+      {
+        outcome_units: null,
+        outcome_units_status: "not_established",
+        outcome_unit_registry_ref: null,
+        outcome_units_limitation_code:
+          "generic_n5_outcome_unit_units_registry_missing",
+      },
+    );
+    overviewState.run = limitedRun;
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-outcome-units-limitation"),
+    ).toHaveTextContent("generic_n5_outcome_unit_units_registry_missing");
+  });
+
+  it("renders Generic acquisition rows through the candidate history view with partial limits", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    Object.assign(run.generic_cycle_simulation as Record<string, unknown>, {
+      acquisition_history: [retainedAcquisitionHistoryFixture()],
+      acquisition_history_limitation_code:
+        "acquisition_action_history_terminal_projection_unavailable",
+    });
+    overviewState.run = run;
+
+    const genericView = renderWithProviders(<OverviewTab />);
+
+    const history = screen.getByTestId("overview-generic-acquisition-history");
+    expect(history).toHaveTextContent(
+      "Persisted candidate history only. Currentness and publication authority are not established.",
+    );
+    expect(history).toHaveTextContent(
+      "Some candidate acquisition history is unavailable in this view.",
+    );
+    expect(history).toHaveTextContent(
+      "Original evaluation: run run-original, job job-original, cycle 1",
+    );
+    expect(history).toHaveTextContent("Currentness: not_established");
+    expect(history).not.toHaveTextContent("observed_admission: true");
+    genericView.unmount();
+
+    const unavailableRun = parsedRunWithGenericCycleSimulation();
+    Object.assign(
+      unavailableRun.generic_cycle_simulation as Record<string, unknown>,
+      {
+        acquisition_history: null,
+        acquisition_history_limitation_code:
+          "acquisition_action_history_incomplete",
+      },
+    );
+    overviewState.run = unavailableRun;
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-generic-acquisition-history-limitation"),
+    ).toHaveTextContent("acquisition_action_history_incomplete");
+  });
+
   it.each(["v4", "v5"] as const)(
     "renders the parent joint candidate with %s numerical qualification",
     (n5Version) => {

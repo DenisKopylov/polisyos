@@ -33,6 +33,7 @@ legacy_layout_status = "resolved"
 [boundaries]
 public_facade = "polisyos.calibration"
 allowed_dependencies = [
+  "polisyos.core",
   "polisyos.common",
   "polisyos.ir",
 ]

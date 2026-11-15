@@ -2502,6 +2502,57 @@ describe("runtime API validators", () => {
     ).toHaveLength(1);
   });
 
+  it("keeps Generic acquisition history optional and permits an explicit partial history", () => {
+    const legacyPayload = runDetailsPayload("projection only");
+    const legacyProjection = genericCycleSimulationProjection(
+      "run-projection-mask",
+    );
+    mutableRecord(legacyPayload.run).generic_cycle_simulation =
+      legacyProjection;
+    const legacyParsed = runDetailsSchema.parse(legacyPayload);
+    expect(legacyParsed.run.generic_cycle_simulation).not.toHaveProperty(
+      "acquisition_history",
+    );
+    expect(legacyParsed.run.generic_cycle_simulation).not.toHaveProperty(
+      "acquisition_history_limitation_code",
+    );
+
+    const partialPayload = runDetailsPayload("projection only");
+    const partialProjection = mutableRecord(
+      genericCycleSimulationProjection("run-projection-mask"),
+    );
+    partialProjection.acquisition_history = [
+      retainedAcquisitionHistoryFixture(),
+    ];
+    partialProjection.acquisition_history_limitation_code =
+      "acquisition_action_history_terminal_projection_unavailable";
+    mutableRecord(partialPayload.run).generic_cycle_simulation =
+      partialProjection;
+    const partialParsed = runDetailsSchema.parse(partialPayload);
+    expect(partialParsed.run.generic_cycle_simulation).toMatchObject({
+      acquisition_history: [
+        {
+          currentness_status: "not_established",
+          publication_authority: false,
+        },
+      ],
+      acquisition_history_limitation_code:
+        "acquisition_action_history_terminal_projection_unavailable",
+    });
+
+    const unavailablePayload = runDetailsPayload("projection only");
+    const unavailableProjection = genericCycleRefusalProjection(
+      "run-projection-mask",
+    );
+    Object.assign(unavailableProjection, {
+      acquisition_history: [],
+      acquisition_history_limitation_code: null,
+    });
+    mutableRecord(unavailablePayload.run).generic_cycle_simulation =
+      unavailableProjection;
+    expect(runDetailsSchema.safeParse(unavailablePayload).success).toBe(false);
+  });
+
   it("binds the surfaced N5 body to kind, media, schema, profile, and basis", () => {
     const controls = [
       (body: Record<string, unknown>) => {
@@ -2541,6 +2592,81 @@ describe("runtime API validators", () => {
       mutableRecord(payload.run).generic_cycle_simulation = projection;
       expect(runDetailsSchema.safeParse(payload).success).toBe(false);
     }
+  });
+
+  it("validates optional Generic N5 units against the selected outcome set", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = mutableRecord(
+      genericCycleSimulationProjection("run-projection-units"),
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    const body = mutableRecord(observation.simulation_result_body);
+    const registryRef = {
+      artifact_id: "sha256:" + "9".repeat(64),
+      kind: "core.registry_bundle",
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "8".repeat(64),
+    };
+    Object.assign(body, {
+      outcome_units: { "outcome-a": "credits" },
+      outcome_units_status: "resolved",
+      outcome_unit_registry_ref: registryRef,
+    });
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+    const parsed = runDetailsSchema.parse(payload);
+    const parsedBody =
+      parsed.run.generic_cycle_simulation?.n5_observations?.[0]
+        ?.simulation_result_body;
+    expect(parsedBody).toMatchObject({
+      outcome_units: { "outcome-a": "credits" },
+      outcome_units_status: "resolved",
+      outcome_unit_registry_ref: registryRef,
+    });
+
+    const invalidRelations = [
+      { outcome_units: { "outcome-b": "credits" } },
+      { outcome_units: { "outcome-a": " " } },
+      { outcome_unit_registry_ref: null },
+      { outcome_units_limitation_code: "unrelated_limitation" },
+      { outcome_units_status: null },
+    ];
+    for (const invalid of invalidRelations) {
+      const invalidPayload = structuredClone(payload) as Record<
+        string,
+        unknown
+      >;
+      const invalidProjection = mutableRecord(
+        mutableRecord(invalidPayload.run).generic_cycle_simulation,
+      );
+      const invalidObservation = firstMutableRecord(
+        invalidProjection.n5_observations,
+        "n5_observations",
+      );
+      Object.assign(
+        mutableRecord(invalidObservation.simulation_result_body),
+        invalid,
+      );
+      expect(runDetailsSchema.safeParse(invalidPayload).success).toBe(false);
+    }
+
+    const limitedPayload = structuredClone(payload) as Record<string, unknown>;
+    const limitedProjection = mutableRecord(
+      mutableRecord(limitedPayload.run).generic_cycle_simulation,
+    );
+    const limitedObservation = firstMutableRecord(
+      limitedProjection.n5_observations,
+      "n5_observations",
+    );
+    Object.assign(mutableRecord(limitedObservation.simulation_result_body), {
+      outcome_units: null,
+      outcome_units_status: "not_established",
+      outcome_unit_registry_ref: null,
+      outcome_units_limitation_code: "generic_n5_outcome_unit_source_missing",
+    });
+    expect(runDetailsSchema.safeParse(limitedPayload).success).toBe(true);
   });
 
   it("requires a body or explicit body-specific refusal for every persisted result reference", () => {

@@ -465,6 +465,11 @@ type CandidateNumericalBody = NonNullable<
     RunDetailsView["candidate_simulation"]
   >["n5_observations"][number]["result_body"]
 >;
+type GenericNumericalBody = NonNullable<
+  NonNullable<
+    RunDetailsView["generic_cycle_simulation"]
+  >["n5_observations"][number]["simulation_result_body"]
+>;
 
 type N5NumericalBody = Pick<
   CandidateNumericalBody,
@@ -474,6 +479,15 @@ type N5NumericalBody = Pick<
     Pick<
       CandidateNumericalBody,
       "outcome_units" | "unit_provenance" | "model_declaration_ref"
+    >
+  > &
+  Partial<
+    Pick<
+      GenericNumericalBody,
+      | "outcome_units"
+      | "outcome_units_status"
+      | "outcome_unit_registry_ref"
+      | "outcome_units_limitation_code"
     >
   >;
 
@@ -509,11 +523,39 @@ function N5NumericalResultBody({
             })}
           </p>
         ))
+      ) : body.outcome_units_status === "resolved" ? (
+        Object.entries(body.outcome_units ?? {}).map(([name, unit]) => (
+          <p key={name} data-testid={testIdPrefix + "-outcome-unit"}>
+            {t("pages.runs.genericCycleSimulation.outcomeUnit", {
+              name,
+              unit,
+              provenance: "selected_registry",
+            })}
+          </p>
+        ))
       ) : (
         <p>
           {t("pages.runs.genericCycleSimulation.outcomeUnitsNotEstablished")}
         </p>
       )}
+      {body.outcome_units_status === "not_established" ? (
+        <p data-testid={testIdPrefix + "-outcome-units-limitation"}>
+          {body.outcome_units_limitation_code}
+        </p>
+      ) : null}
+      {body.outcome_units_status === "resolved" &&
+      body.outcome_unit_registry_ref ? (
+        <Link
+          className="text-accent text-xs break-all underline"
+          to={buildArtifactHref(body.outcome_unit_registry_ref.artifact_id, {
+            tab: "content",
+            artifactRef: body.outcome_unit_registry_ref,
+          })}
+          data-testid={testIdPrefix + "-outcome-unit-registry-ref"}
+        >
+          {body.outcome_unit_registry_ref.artifact_id}
+        </Link>
+      ) : null}
       {body.model_declaration_ref ? (
         <Link
           className="text-accent text-xs break-all underline"
@@ -559,7 +601,13 @@ function N5NumericalResultBody({
                 <p key={"outcome:" + name}>
                   {t("pages.runs.genericCycleSimulation.outcome", {
                     name,
-                    value: formatNumber(value),
+                    value:
+                      formatNumber(value) +
+                      (body.unit_provenance !== "declared_candidate_model" &&
+                      body.outcome_units_status === "resolved" &&
+                      body.outcome_units?.[name]
+                        ? " " + body.outcome_units[name]
+                        : ""),
                   })}
                 </p>
               ))}
@@ -785,102 +833,36 @@ function CandidateSourceCurrentView({
   );
 }
 
-function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
+function AcquisitionHistorySection({
+  rows,
+  limitation,
+  projectionKnown,
+  artifactStatus,
+  testIdPrefix = "overview-acquisition",
+}: {
+  rows: readonly unknown[];
+  limitation?: string | null;
+  projectionKnown: boolean;
+  artifactStatus: "resolved" | "not_established";
+  testIdPrefix?: string;
+}) {
   const { t } = useI18n();
-  const projection = run.candidate_simulation;
-  const values = projection?.n5_observations ?? [];
-  const compiledProjection =
-    projection?.schema_version ===
-    "policyos.runtime.run_candidate_simulation_projection.v1"
-      ? projection
-      : null;
-  const failedProjection =
-    projection?.schema_version ===
-    "policyos.runtime.run_failed_candidate_simulation_projection.v1"
-      ? projection
-      : null;
-  const checkpoint = compiledProjection?.recursive_cycle_checkpoint ?? null;
-  const failedBranches = checkpoint?.failed_branches ?? [];
-  const acquisitionHistory = compiledProjection?.acquisition_history ?? [];
-  const acquisitionHistoryLimitation =
-    compiledProjection?.acquisition_history_limitation_code;
-  const checkpointKnown = checkpoint !== null;
-  if (projection == null) {
-    return null;
-  }
-  const projectionKnown = projection.run_id === run.run_id;
+  const acquisitionHistory = rows;
+  const acquisitionHistoryLimitation = limitation;
   return (
-    <Card className="space-y-4" data-testid="overview-candidate-simulation">
-      <h4>{t("pages.runs.candidateSimulation.title")}</h4>
-      <p className="text-muted text-sm">
-        {t("pages.runs.candidateSimulation.authority")}
-      </p>
-      {projectionKnown && failedProjection ? (
-        <div
-          className="space-y-1"
-          data-testid="overview-candidate-cycle-incomplete"
-        >
-          {failedProjection.artifact_status === "resolved" ? (
-            <p>{t("pages.runs.candidateSimulation.retainedAfterFailure")}</p>
-          ) : null}
-          <p>{t("pages.runs.candidateSimulation.cycleIncomplete")}</p>
-          {failedProjection.failed_stage != null ? (
-            <p>
-              {t("pages.runs.candidateSimulation.failedStage", {
-                stage: t(
-                  failedProjection.failed_stage === "value_projection"
-                    ? "pages.runs.candidateSimulation.valueProjectionStage"
-                    : "pages.runs.candidateSimulation.revisionStage",
-                ),
-              })}
-            </p>
-          ) : null}
-          <Link
-            className="text-accent text-sm underline"
-            to={`/runs/${encodeURIComponent(run.run_id)}/debug`}
-          >
-            {t("panels.nodeDebug.errorDetails")}
-          </Link>
-        </div>
-      ) : null}
-      {!projectionKnown || projection.artifact_status !== "resolved" ? (
-        <p data-testid="overview-simulation-refused">
-          {typeof projection.limitation_code === "string"
-            ? projection.limitation_code
-            : t("pages.runs.candidateSimulation.refused")}
-        </p>
-      ) : null}
-      {projectionKnown && typeof projection.limitation_code === "string" ? (
-        <p data-testid="overview-simulation-limitation">
-          {projection.limitation_code}
-        </p>
-      ) : null}
-      {projectionKnown &&
-      compiledProjection?.candidate_source_current_projection ? (
-        <CandidateSourceCurrentView
-          view={compiledProjection.candidate_source_current_projection}
-        />
-      ) : null}
-      {projectionKnown && compiledProjection?.artifact_status === "resolved" ? (
-        <CandidateEvaluationAttemptHistory
-          rows={compiledProjection.candidate_evaluation_attempts}
-          limitation={
-            compiledProjection.candidate_evaluation_attempts_limitation_code
-          }
-        />
-      ) : null}
+    <>
       {acquisitionHistory.length > 0 ||
       typeof acquisitionHistoryLimitation === "string" ? (
         <div
           className="space-y-2 border-t pt-3"
-          data-testid="overview-acquisition-history"
+          data-testid={testIdPrefix + "-history"}
         >
           <h5>{t("pages.runs.candidateSimulation.acquisitionHistoryTitle")}</h5>
           <p className="text-muted text-sm">
             {t("pages.runs.candidateSimulation.acquisitionHistoryAuthority")}
           </p>
           {typeof acquisitionHistoryLimitation === "string" ? (
-            <p data-testid="overview-acquisition-history-limitation">
+            <p data-testid={testIdPrefix + "-history-limitation"}>
               {acquisitionHistoryLimitation ===
               "acquisition_action_history_terminal_projection_unavailable"
                 ? t("pages.runs.candidateSimulation.acquisitionHistoryPartial")
@@ -899,13 +881,13 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 );
               if (
                 !projectionKnown ||
-                projection.artifact_status !== "resolved" ||
+                artifactStatus !== "resolved" ||
                 !parsed.success
               ) {
                 return (
                   <p
                     key={index}
-                    data-testid="overview-acquisition-history-refused"
+                    data-testid={testIdPrefix + "-history-refused"}
                   >
                     {t(
                       "pages.runs.candidateSimulation.acquisitionHistoryRefused",
@@ -918,7 +900,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 <div
                   key={index}
                   className="space-y-1 border-t pt-2"
-                  data-testid="overview-acquisition-history-candidate-v5"
+                  data-testid={testIdPrefix + "-history-candidate-v5"}
                 >
                   <p>
                     {t("pages.runs.candidateSimulation.acquisitionRoute", {
@@ -1030,13 +1012,13 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 );
               if (
                 !projectionKnown ||
-                projection.artifact_status !== "resolved" ||
+                artifactStatus !== "resolved" ||
                 !parsed.success
               ) {
                 return (
                   <p
                     key={index}
-                    data-testid="overview-acquisition-history-refused"
+                    data-testid={testIdPrefix + "-history-refused"}
                   >
                     {t(
                       "pages.runs.candidateSimulation.acquisitionHistoryRefused",
@@ -1049,7 +1031,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 <div
                   key={index}
                   className="space-y-1 border-t pt-2"
-                  data-testid="overview-acquisition-history-candidate"
+                  data-testid={testIdPrefix + "-history-candidate"}
                 >
                   <p>
                     {t("pages.runs.candidateSimulation.acquisitionRoute", {
@@ -1109,13 +1091,13 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 );
               if (
                 !projectionKnown ||
-                projection.artifact_status !== "resolved" ||
+                artifactStatus !== "resolved" ||
                 !parsed.success
               ) {
                 return (
                   <p
                     key={index}
-                    data-testid="overview-acquisition-history-refused"
+                    data-testid={testIdPrefix + "-history-refused"}
                   >
                     {t(
                       "pages.runs.candidateSimulation.acquisitionHistoryRefused",
@@ -1131,7 +1113,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 <div
                   key={index}
                   className="space-y-1 border-t pt-2"
-                  data-testid="overview-acquisition-history-retained"
+                  data-testid={testIdPrefix + "-history-retained"}
                 >
                   <p>
                     {t("pages.runs.candidateSimulation.acquisitionRoute", {
@@ -1199,7 +1181,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                         artifactRef: retained.current_continuation_ref,
                       },
                     )}
-                    data-testid="overview-acquisition-source-reaction-link"
+                    data-testid={testIdPrefix + "-source-reaction-link"}
                     className="text-accent text-xs font-semibold break-all underline"
                   >
                     {t(
@@ -1220,7 +1202,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                   {numerical?.result_body_status === "resolved" &&
                   numerical.result_body ? (
                     <>
-                      <p data-testid="overview-acquisition-numerical-provenance">
+                      <p data-testid={testIdPrefix + "-numerical-provenance"}>
                         {t(
                           "pages.runs.candidateSimulation.acquisitionNumericalProvenance",
                           {
@@ -1231,13 +1213,13 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                       </p>
                       <N5NumericalResultBody
                         body={numerical.result_body}
-                        testIdPrefix="overview-acquisition-retained-n5"
+                        testIdPrefix={testIdPrefix + "-retained-n5"}
                       />
                     </>
                   ) : null}
                   {cheap ? (
                     <div
-                      data-testid="overview-acquisition-current-cheap-consequences"
+                      data-testid={testIdPrefix + "-current-cheap-consequences"}
                       className="space-y-1"
                     >
                       <p>
@@ -1340,7 +1322,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                         continuation == null);
             const commonKnown =
               projectionKnown &&
-              projection.artifact_status === "resolved" &&
+              artifactStatus === "resolved" &&
               row !== null &&
               isArtifactRef(
                 row.route_receipt_ref,
@@ -1424,10 +1406,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
               (!reentryKnown && !quarantineKnown)
             ) {
               return (
-                <p
-                  key={index}
-                  data-testid="overview-acquisition-history-refused"
-                >
+                <p key={index} data-testid={testIdPrefix + "-history-refused"}>
                   {t(
                     "pages.runs.candidateSimulation.acquisitionHistoryRefused",
                   )}
@@ -1459,7 +1438,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                   })}
                 </p>
                 {legacyLimited ? (
-                  <p data-testid="overview-acquisition-history-limited">
+                  <p data-testid={testIdPrefix + "-history-limited"}>
                     {t(
                       "pages.runs.candidateSimulation.acquisitionHistoryLimited",
                     )}
@@ -1535,7 +1514,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                       ),
                     )}
                     {selectedContinuation ? (
-                      <div data-testid="overview-acquisition-selected-simulation">
+                      <div data-testid={testIdPrefix + "-selected-simulation"}>
                         <p>
                           {t(
                             "pages.runs.candidateSimulation.acquisitionSelectedSimulation",
@@ -1555,7 +1534,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                       </div>
                     ) : null}
                     {basisRevision ? (
-                      <div data-testid="overview-acquisition-model-revision">
+                      <div data-testid={testIdPrefix + "-model-revision"}>
                         <p>
                           {outcomeRevision
                             ? t(
@@ -1595,7 +1574,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                     {numerical?.result_body_status === "resolved" &&
                     numerical.result_body ? (
                       <>
-                        <p data-testid="overview-acquisition-numerical-provenance">
+                        <p data-testid={testIdPrefix + "-numerical-provenance"}>
                           {t(
                             "pages.runs.candidateSimulation.acquisitionNumericalProvenance",
                             {
@@ -1608,7 +1587,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                         </p>
                         <N5NumericalResultBody
                           body={numerical.result_body}
-                          testIdPrefix="overview-acquisition-selected-n5"
+                          testIdPrefix={testIdPrefix + "-selected-n5"}
                         />
                       </>
                     ) : null}
@@ -1642,6 +1621,100 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           })}
         </div>
       ) : null}
+    </>
+  );
+}
+
+function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
+  const { t } = useI18n();
+  const projection = run.candidate_simulation;
+  const values = projection?.n5_observations ?? [];
+  const compiledProjection =
+    projection?.schema_version ===
+    "policyos.runtime.run_candidate_simulation_projection.v1"
+      ? projection
+      : null;
+  const failedProjection =
+    projection?.schema_version ===
+    "policyos.runtime.run_failed_candidate_simulation_projection.v1"
+      ? projection
+      : null;
+  const checkpoint = compiledProjection?.recursive_cycle_checkpoint ?? null;
+  const failedBranches = checkpoint?.failed_branches ?? [];
+  const acquisitionHistory = compiledProjection?.acquisition_history ?? [];
+  const acquisitionHistoryLimitation =
+    compiledProjection?.acquisition_history_limitation_code;
+  const checkpointKnown = checkpoint !== null;
+  if (projection == null) {
+    return null;
+  }
+  const projectionKnown = projection.run_id === run.run_id;
+  return (
+    <Card className="space-y-4" data-testid="overview-candidate-simulation">
+      <h4>{t("pages.runs.candidateSimulation.title")}</h4>
+      <p className="text-muted text-sm">
+        {t("pages.runs.candidateSimulation.authority")}
+      </p>
+      {projectionKnown && failedProjection ? (
+        <div
+          className="space-y-1"
+          data-testid="overview-candidate-cycle-incomplete"
+        >
+          {failedProjection.artifact_status === "resolved" ? (
+            <p>{t("pages.runs.candidateSimulation.retainedAfterFailure")}</p>
+          ) : null}
+          <p>{t("pages.runs.candidateSimulation.cycleIncomplete")}</p>
+          {failedProjection.failed_stage != null ? (
+            <p>
+              {t("pages.runs.candidateSimulation.failedStage", {
+                stage: t(
+                  failedProjection.failed_stage === "value_projection"
+                    ? "pages.runs.candidateSimulation.valueProjectionStage"
+                    : "pages.runs.candidateSimulation.revisionStage",
+                ),
+              })}
+            </p>
+          ) : null}
+          <Link
+            className="text-accent text-sm underline"
+            to={`/runs/${encodeURIComponent(run.run_id)}/debug`}
+          >
+            {t("panels.nodeDebug.errorDetails")}
+          </Link>
+        </div>
+      ) : null}
+      {!projectionKnown || projection.artifact_status !== "resolved" ? (
+        <p data-testid="overview-simulation-refused">
+          {typeof projection.limitation_code === "string"
+            ? projection.limitation_code
+            : t("pages.runs.candidateSimulation.refused")}
+        </p>
+      ) : null}
+      {projectionKnown && typeof projection.limitation_code === "string" ? (
+        <p data-testid="overview-simulation-limitation">
+          {projection.limitation_code}
+        </p>
+      ) : null}
+      {projectionKnown &&
+      compiledProjection?.candidate_source_current_projection ? (
+        <CandidateSourceCurrentView
+          view={compiledProjection.candidate_source_current_projection}
+        />
+      ) : null}
+      {projectionKnown && compiledProjection?.artifact_status === "resolved" ? (
+        <CandidateEvaluationAttemptHistory
+          rows={compiledProjection.candidate_evaluation_attempts}
+          limitation={
+            compiledProjection.candidate_evaluation_attempts_limitation_code
+          }
+        />
+      ) : null}
+      <AcquisitionHistorySection
+        rows={acquisitionHistory}
+        limitation={acquisitionHistoryLimitation}
+        projectionKnown={projectionKnown}
+        artifactStatus={projection.artifact_status}
+      />
       {values.map((value, index) => {
         const observation = asRecord(value);
         if (
@@ -1863,6 +1936,13 @@ function GenericCycleSimulationPanel({
           </p>
         ) : null}
       </div>
+      <AcquisitionHistorySection
+        rows={projection.acquisition_history ?? []}
+        limitation={projection.acquisition_history_limitation_code}
+        projectionKnown={true}
+        artifactStatus={projection.artifact_status}
+        testIdPrefix="overview-generic-acquisition"
+      />
       {projection.n6_cycle_history_status ? (
         <div
           className="space-y-2 border-t pt-3"

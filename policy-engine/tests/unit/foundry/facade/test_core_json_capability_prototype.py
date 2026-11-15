@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts import validate_core_model_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact_bytes, validate_core_model_json_artifact
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -19,7 +19,11 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
+from polisyos.foundry._artifact_capabilities import (
+    resolve_core_json_profile_reader,
+    resolve_core_json_profile_store,
+    resolve_verifiable_core_json_profile_reader,
+)
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -94,9 +98,40 @@ def _compile_request(store: FileSystemCAS) -> CompileRequest:
     )
 
 
+def test_readonly_profile_reader_is_admitted_without_writer_capability(tmp_path) -> None:
+    owner = FileSystemCAS(tmp_path / "readonly-profile-cas")
+    request = _compile_request(owner)
+    reader = FileSystemCAS.open_existing_read_only(owner.root)
+
+    assert resolve_core_json_profile_reader(reader) is reader
+    assert resolve_verifiable_core_json_profile_reader(reader) is reader
+    assert resolve_core_json_profile_store(reader) is None
+    assert read_core_json_artifact_bytes(reader, request.policy_ref) == owner.get_bytes(
+        request.policy_ref
+    )
+    exact_adapter = CoreToIRArtifactStoreAdapter(store=owner)
+    assert resolve_core_json_profile_reader(exact_adapter) is owner
+
+    class _AdapterSubclass(CoreToIRArtifactStoreAdapter):
+        pass
+
+    subclass = _AdapterSubclass(store=owner)
+    assert resolve_core_json_profile_reader(subclass) is subclass
+
+    missing_raw_reader = _BaseStoreWithoutRawManifestReader(owner)
+    assert resolve_core_json_profile_reader(missing_raw_reader) is None
+    assert resolve_verifiable_core_json_profile_reader(missing_raw_reader) is None
+
+
 def test_foundry_compile_and_execute_use_guarded_owner_profile_reads(tmp_path, monkeypatch) -> None:
     owner = FileSystemCAS(tmp_path / "guarded-foundry-cas")
     request = _compile_request(owner)
+    read_only_store = FileSystemCAS.open_existing_read_only(owner.root)
+    assert resolve_core_json_profile_reader(read_only_store) is read_only_store
+    assert resolve_core_json_profile_store(read_only_store) is None
+    assert read_core_json_artifact_bytes(read_only_store, request.policy_ref) == owner.get_bytes(
+        request.policy_ref
+    )
     guard = BlockingDependencyGuard(
         dependency_name="foundry-core-json-prototype",
         timeout_seconds=2.0,
@@ -110,6 +145,7 @@ def test_foundry_compile_and_execute_use_guarded_owner_profile_reads(tmp_path, m
         adapted_guarded_store = CoreToIRArtifactStoreAdapter(store=guarded_store)
         assert adapted_guarded_store.store is guarded_store
         assert resolve_core_json_profile_store(adapted_guarded_store) is guarded_store
+        assert resolve_core_json_profile_reader(adapted_guarded_store) is guarded_store
         result = compile_foundry(adapted_guarded_store, request)
         assert result.ok is True
         assert result.exec_plan_ref is not None
@@ -163,6 +199,7 @@ def test_foundry_compile_and_execute_use_guarded_owner_profile_reads(tmp_path, m
 
         subclass_store = _CoreToIRArtifactStoreAdapterSubclass(store=guarded_store)
         assert resolve_core_json_profile_store(subclass_store) is subclass_store
+        assert resolve_core_json_profile_reader(subclass_store) is subclass_store
         subclass_compile = compile_foundry(subclass_store, request)
         assert subclass_compile.ok is True
         assert subclass_compile.exec_plan_ref is not None
@@ -178,6 +215,7 @@ def test_foundry_compile_and_execute_use_guarded_owner_profile_reads(tmp_path, m
         base_store = _BaseStoreWithoutRawManifestReader(owner)
         nonconforming_subclass = _CoreToIRArtifactStoreAdapterSubclass(store=base_store)
         assert resolve_core_json_profile_store(nonconforming_subclass) is nonconforming_subclass
+        assert resolve_core_json_profile_reader(nonconforming_subclass) is nonconforming_subclass
         subclass_failure = compile_foundry(nonconforming_subclass, request)
         assert subclass_failure.ok is False
         assert subclass_failure.exec_plan_ref is None
@@ -197,6 +235,7 @@ def test_foundry_compile_and_execute_use_guarded_owner_profile_reads(tmp_path, m
         ):
             execute_foundry(nonconforming_subclass, subclass_execute_request)
         assert resolve_core_json_profile_store(base_store) is None
+        assert resolve_core_json_profile_reader(base_store) is None
         with pytest.raises(
             CanonicalProfileRefusalError,
             match="canon_profile_raw_manifest_unavailable",

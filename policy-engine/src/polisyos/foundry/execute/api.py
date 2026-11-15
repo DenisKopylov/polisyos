@@ -41,7 +41,11 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactProfileReader,
+    CoreJSONArtifactStore,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
@@ -101,7 +105,11 @@ from polisyos.core.registry import (
     load_registry_bundle_content,
     load_registry_bundle_payload,
 )
-from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
+from polisyos.foundry._artifact_capabilities import (
+    _VerifiableCoreJSONArtifactProfileReader,
+    resolve_core_json_profile_store,
+    resolve_verifiable_core_json_profile_reader,
+)
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
@@ -159,6 +167,7 @@ from polisyos.ir import TrinityBundle
 from polisyos.ir.trinity import load_trinity_bundle_artifact
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
+type _ProfiledExecutionReader = ArtifactStore | _VerifiableCoreJSONArtifactProfileReader
 
 
 @dataclass(frozen=True)
@@ -380,7 +389,7 @@ def _require_selected_manifest_identity(manifest: ArtifactManifest, ref: Artifac
 
 def _read_typed_model(
     model: type[_ModelT],
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     ref: ArtifactRef,
     *,
     read_session: _BoundedExecutionSourceReadSession | None,
@@ -404,7 +413,7 @@ def _read_registry_bundle_payload(
 
 
 def _selected_manifest(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     ref: ArtifactRef,
     *,
     read_session: _BoundedExecutionSourceReadSession | None = None,
@@ -423,7 +432,7 @@ def _selected_manifest(
 
 
 def _selected_ref_from_edge(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     parent_ref: ArtifactRef,
     role: str,
     *,
@@ -581,7 +590,7 @@ def _execution_ref_key(
 
 
 def _require_execution_edge_ref(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     parent_ref: ArtifactRef,
     role: str,
     expected_ref: ArtifactRef | UncertaintyEnvelopeRef,
@@ -1377,7 +1386,7 @@ def _admit_execution_source(
 
 
 def _load_execution_method_bundle(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     *,
     simulation_result_ref: SimulationResultRef,
     basis: FoundryExecutionInputBasis,
@@ -1462,7 +1471,7 @@ def _reconcile_program_graph_actuation_execution(
 
 
 def _reconcile_method_output_transfers(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     *,
     bundle_ref: ArtifactRef,
     bundle: MethodExecutionBundle,
@@ -1625,7 +1634,7 @@ def _reconcile_method_output_transfers(
 
 
 def _reconcile_selected_method_dispatch_inputs(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     *,
     simulation_result_ref: SimulationResultRef,
     basis: FoundryExecutionInputBasis,
@@ -1709,7 +1718,7 @@ def _reconcile_selected_method_dispatch_inputs(
 
 
 def load_stored_selected_method_input_occurrences(
-    store: ArtifactStore,
+    store: _ProfiledExecutionReader,
     *,
     historical_execution_ref: ArtifactRef,
     input_bindings_ref: ArtifactRef,
@@ -1756,7 +1765,25 @@ def load_stored_selected_method_input_occurrences(
     if _execution_ref_key(plan.program_ref) != _execution_ref_key(basis.program_graph_ref):
         raise ValueError("execution_source_method_input_capture_origin_mismatch")
     graph = _read_typed_model(ProgramGraph, store, basis.program_graph_ref, read_session=None)
-    core_store = resolve_core_json_profile_store(store)
+    if _execution_ref_key(graph.ir_ref) != _execution_ref_key(basis.trinity_bundle_ref):
+        raise ValueError("execution_source_basis_trinity_differs_from_program_graph")
+    for parent, role, expected, expected_kind in (
+        (basis.program_graph_ref, "ir", basis.trinity_bundle_ref, basis.trinity_bundle_ref.kind),
+        (
+            basis.program_graph_ref,
+            "registry_bundle",
+            basis.compile_registry_ref,
+            "core.registry_bundle",
+        ),
+        (
+            basis.trinity_bundle_ref,
+            "policy_candidate",
+            basis.candidate_ref,
+            "scientist.policy_design.candidate",
+        ),
+    ):
+        _require_execution_edge_ref(store, parent, role, expected, expected_kind=expected_kind)
+    core_store = resolve_verifiable_core_json_profile_reader(store)
     if core_store is None:
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
     bindings = load_input_bindings(core_store, input_bindings_ref)
@@ -1802,7 +1829,7 @@ def _is_model_state_snapshot_manifest(manifest: ArtifactManifest) -> bool:
 
 
 def _load_execution_base_state(
-    store: CoreJSONArtifactStore,
+    store: CoreJSONArtifactProfileReader,
     *,
     snapshot_ref: StateSnapshotRef,
     registry_bundle_ref: ArtifactRef,
@@ -1826,7 +1853,7 @@ def _verify_semantic_horizon_poststate(
 ) -> None:
     from polisyos.foundry.execute._internal.snapshots import _flatten_state
 
-    core_store = resolve_core_json_profile_store(store)
+    core_store = resolve_verifiable_core_json_profile_reader(store)
     poststate_ref = result.state_snapshot_ref
     if core_store is None or poststate_ref is None:
         raise ValueError("semantic_horizon_poststate_unavailable")

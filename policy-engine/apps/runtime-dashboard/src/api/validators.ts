@@ -3461,8 +3461,66 @@ const runGenericCycleSimulationN5ResultBodySchema =
         "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
       ),
       authority_purpose: z.literal("cycle_input_candidate_only"),
+      outcome_units: z
+        .record(z.string().min(1), z.string().min(1))
+        .nullable()
+        .optional(),
+      outcome_units_status: z
+        .enum(["resolved", "not_established"])
+        .nullable()
+        .optional(),
+      outcome_unit_registry_ref: coreArtifactRefSchema.nullable().optional(),
+      outcome_units_limitation_code: z.string().min(1).nullable().optional(),
     })
-    .superRefine(validateN5NumericalResultBody);
+    .superRefine((body, context) => {
+      validateN5NumericalResultBody(body, context);
+      if (body.outcome_units_status == null) {
+        if (
+          body.outcome_units != null ||
+          body.outcome_unit_registry_ref != null ||
+          body.outcome_units_limitation_code != null
+        ) {
+          context.addIssue({
+            code: "custom",
+            message: "generic_n5_outcome_unit_status_missing",
+          });
+        }
+        return;
+      }
+      if (body.outcome_units_status === "resolved") {
+        const ref = body.outcome_unit_registry_ref;
+        const units = body.outcome_units;
+        if (
+          units == null ||
+          Object.keys(units).length !== body.selected_outcomes.length ||
+          body.selected_outcomes.some((outcome) => !units[outcome]?.trim()) ||
+          Object.keys(units).some(
+            (outcome) =>
+              !outcome.trim() || !body.selected_outcomes.includes(outcome),
+          ) ||
+          ref?.kind !== "core.registry_bundle" ||
+          ref.media_type !== "application/json" ||
+          ref.manifest_profile_sha256 == null ||
+          body.outcome_units_limitation_code != null
+        ) {
+          context.addIssue({
+            code: "custom",
+            message: "generic_n5_outcome_units_selected_binding_invalid",
+          });
+        }
+        return;
+      }
+      if (
+        body.outcome_units != null ||
+        body.outcome_unit_registry_ref != null ||
+        !body.outcome_units_limitation_code?.trim()
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "generic_n5_outcome_units_limitation_invalid",
+        });
+      }
+    });
 
 const runModelInputUseActionSelectorSchema = z
   .object({
@@ -4793,6 +4851,18 @@ const runGenericCycleSimulationProjectionFields = {
     .enum(["resolved", "not_established"])
     .nullable()
     .optional(),
+  acquisition_history: z
+    .array(
+      z.union([
+        runCandidateSimulationAcquisitionHistoryEntryV5Schema,
+        runCandidateSimulationAcquisitionHistoryEntryV4Schema,
+        runCandidateSimulationAcquisitionHistoryEntryV3Schema,
+        runCandidateSimulationAcquisitionHistoryEntrySchema,
+      ]),
+    )
+    .nullable()
+    .optional(),
+  acquisition_history_limitation_code: z.string().min(1).nullable().optional(),
   parent_context_job_ref: runGenericCycleSimulationArtifactRefSchema
     .nullable()
     .optional(),
@@ -4901,6 +4971,16 @@ export const runGenericCycleSimulationProjectionSchema = z
       .strict(),
   ])
   .superRefine((projection, context) => {
+    if (
+      projection.acquisition_history != null &&
+      projection.artifact_status !== "resolved"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["acquisition_history"],
+        message: "generic_projection_acquisition_history_source_not_resolved",
+      });
+    }
     if (
       projection.artifact_status !== "resolved" &&
       (projection.candidate_evaluation_attempts?.length ?? 0) > 0

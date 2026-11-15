@@ -44471,6 +44471,45 @@
         "additionalProperties": false,
         "description": "Persisted generic simulation lineage exposed as candidate-only history.",
         "properties": {
+          "acquisition_history": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntry"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV3"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV4"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV5"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acquisition History"
+          },
+          "acquisition_history_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acquisition History Limitation Code"
+          },
           "artifact_status": {
             "enum": [
               "resolved",

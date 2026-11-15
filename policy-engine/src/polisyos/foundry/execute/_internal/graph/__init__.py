@@ -1137,7 +1137,7 @@ def _resolve_closed_world_method_inputs(
         if program_graph.schema_version == "0.3":
             raise ValueError("mapped_method_input_declared_model_required")
         if input_bindings_ref is not None and (
-            load_input_bindings(store, input_bindings_ref).schema_version == "1.4"
+            load_input_bindings(store, input_bindings_ref).schema_version in {"1.4", "1.5"}
         ):
             raise ValueError("method_input_declared_model_required")
         return None
@@ -1174,7 +1174,7 @@ def _resolve_closed_world_method_inputs(
     records = tuple(getattr(bindings, "selected_method_inputs", None) or ())
     values: Mapping[str, np.ndarray] = MappingProxyType({})
     notes: tuple[str, ...] = ()
-    if bindings.schema_version == "1.4":
+    if bindings.schema_version in {"1.4", "1.5"}:
         from polisyos.foundry.data_plane.bindings import (
             reconcile_selected_method_input_bindings,
         )

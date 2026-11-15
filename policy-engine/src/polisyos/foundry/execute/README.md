@@ -30,11 +30,14 @@ A model that declares input ports uses a closed input map. Each actual ABI input
 must resolve to its selected registered source; missing, extra, foreign or
 state-shadowing values refuse before the method runs. Graph 0.3 maps ABI-local
 names to registered source slots, so different instances need not share a
-variable name. The supported mapped runtime source is `registry_slot`;
-`method_output` transfer still refuses until its persisted producer/consumer
-bridge is composed.
+variable name. Mapped inputs support `registry_slot` and persisted `method_output` sources.
+Output transfer binds the exact producer call, retained output and consumer
+argument; missing or foreign output evidence refuses.
 
-Foundry input-bindings profile 1.4 carries the selected scalar method values.
+Foundry input-bindings profile 1.4 carries selected scalar method values.
+Profile 1.5 carries step-qualified scalar values for an explicit semantic
+horizon. Execution requires complete horizon coverage and selects the exact
+effective step; historical reading joins its actual predecessor snapshot.
 The consumer reopens their semantic manifest, source/derivation chain and NPY
 bytes, then records the actual argument identity in the method-execution
 bundle. A selected value is an argument, not an implicit new `GlobalState`
@@ -85,15 +88,17 @@ bindings with feedback currently refuse with
 `foundry_input_bindings_semantic_feedback_not_established`. A feedback trace or
 prepared call must not be described as a composed selected-input result.
 
-Snapshot 2.4 and bindings 1.5 have versioned contracts and bounded component
-readers, but their persistent-state, temporal/vector and feedback orchestration
-must be qualified through the actual caller before being claimed complete.
+Snapshot 2.4 has a real scalar model-state graph/API route. Scalar temporal
+bindings 1.5 also reach actual step execution and cold-chain reading. Their
+Runtime/N5 composition, vector method inputs and selected-feedback composition
+remain separate; the corresponding unsupported gates stay closed.
 Old artifacts are read under their own profiles and are not rewritten using
 current method definitions. Keep current grants, expiry, quota and selected-use
 checks with their Runtime owners.
 
 Runtime's paired comparator profile V4 and paired request profile V5 are
-authored and their unit checks pass, but hosted N5 remains unrun. This Foundry
+authored and their unit checks pass; the hosted pair has not yet produced a
+qualified complete result/frontier. This Foundry
 candidate seam does not close the paired Runtime lane; see the [E02 work plan](../../../../../E02-WORK-PLAN.md)
 for its current verification boundary.
 

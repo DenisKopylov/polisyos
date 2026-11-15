@@ -4005,7 +4005,19 @@ def _verify_historical_selected_method_invocation(
             snapshot_ref=opening_ref,
             registry_bundle_ref=invocation.registry_bundle_ref,
         )
-        if int(np.asarray(opening_state.step).item()) != basis.effective_step:
+        if (
+            bindings.schema_version == "1.5"
+            and stored_step is not None
+            and stored_step.previous_result_ref is not None
+        ):
+            # The exact predecessor was joined above. Its wrapper records the
+            # previous logical execution step; GlobalState.step is a state
+            # value, not an implicit clock advanced by the horizon executor.
+            opening_snapshot = validate_core_model_json_artifact(StateSnapshot, store, opening_ref)
+            expected_opening_step = stored_step.steps[stored_step.step_index - 1]
+            if opening_snapshot.step != expected_opening_step:
+                raise ValueError("foundry_selected_method_input_historical_prestate_step_mismatch")
+        elif int(np.asarray(opening_state.step).item()) != basis.effective_step:
             raise ValueError("foundry_selected_method_input_historical_prestate_step_mismatch")
     elif (
         invocation.steps != (basis.effective_step,)

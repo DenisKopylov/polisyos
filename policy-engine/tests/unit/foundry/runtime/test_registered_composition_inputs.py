@@ -23,7 +23,7 @@ from polisyos.core.derivations import (
     resolve_certified_composition,
 )
 from polisyos.foundry.data_plane.bindings import load_input_bindings
-from polisyos.foundry.execute.api import admit_execution_source
+from polisyos.foundry.execute.api import ExecutionSourceAdmissionRefusal, admit_execution_source
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.runtime.quality.model_input_routing import materialize_registered_derived_model_inputs
@@ -38,6 +38,18 @@ from tests.unit.foundry.runtime.test_selected_method_inputs import (
     _fresh_process_read,
     _independent_value_sha256,
 )
+
+
+def _assert_selected_recipe_missing(store, result_ref, recipe_ref):
+    reason = "DataSnapshot owner-lineage child ref is unverified"
+    with pytest.raises(ExecutionSourceAdmissionRefusal, match=f"^{reason}$") as missing:
+        admit_execution_source(store, result_ref)
+    assert missing.value.reason == reason
+    owner_refusal = missing.value.__cause__
+    assert type(owner_refusal) is ValueError and str(owner_refusal) == reason
+    missing_blob = owner_refusal.__cause__
+    assert isinstance(missing_blob, FileNotFoundError)
+    assert str(recipe_ref.artifact_id).removeprefix("sha256:") in str(missing_blob)
 
 
 def test_registered_candidate_sources_reach_actual_method_and_cold_reader(tmp_path):
@@ -119,10 +131,9 @@ def test_registered_candidate_sources_reach_actual_method_and_cold_reader(tmp_pa
                 ).series
                 == resolved.series
             )
-            with pytest.raises(
-                ValueError, match=r"^foundry_input_bindings_composition_recipe_unavailable$"
-            ):
-                admit_execution_source(fresh, executed.simulation_result_ref)
+            _assert_selected_recipe_missing(
+                fresh, executed.simulation_result_ref, metadata["recipe_ref"]
+            )
         for ref in (
             metadata["role_occurrences"][0].occurrence_ref,
             correspondence.roles[1].source_series_ref,
@@ -266,13 +277,10 @@ def test_two_distinct_registered_inputs_materialize_one_complete_manifest(tmp_pa
         assert fresh["occurrences"] == 2
         assert fresh["value_sha256_by_slot"] == expected_hashes
         fresh_store = FileSystemCAS(case.store_root)
-        with (
-            _removed_blob(fresh_store, manifest.derivations[1].recipe_ref),
-            pytest.raises(
-                ValueError, match=r"^foundry_input_bindings_composition_recipe_unavailable$"
-            ),
-        ):
-            admit_execution_source(fresh_store, executed.simulation_result_ref)
+        with _removed_blob(fresh_store, manifest.derivations[1].recipe_ref):
+            _assert_selected_recipe_missing(
+                fresh_store, executed.simulation_result_ref, manifest.derivations[1].recipe_ref
+            )
         assert admit_execution_source(fresh_store, executed.simulation_result_ref).basis is not None
     finally:
         case.close()

@@ -583,10 +583,11 @@ def _assert_initial_observation_fresh_reader(
     assert sorted(len(step.mechanism_calls) for step in observation.steps) == [0, 1]
     assert all(len(step.calls) == 1 for step in observation.steps)
     (mechanism_call,) = tuple(call for step in observation.steps for call in step.mechanism_calls)
-    assert mechanism_call.state_matches_base is False
+    assert mechanism_call.state_matches_base is True
     assert mechanism_call.state_ref is not None
     before_policy = load_state_snapshot(fresh_store, snapshot_ref=mechanism_call.state_ref)
-    assert float(before_policy.government_balance) == 4_000_000_000.0
+    # The world-method patch and subsidy meet at the shared merge barrier.
+    assert float(before_policy.government_balance) == 10_000_000_000.0
 
     # Independent coupled-account law: TaxSubsidy credits each actual income
     # by rate*income and debits government by their SUM. The method's flow is

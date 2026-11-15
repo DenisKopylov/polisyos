@@ -1,15 +1,17 @@
-"""Bounded real-CAS semantic corpus milestone for Catalog's exact-ref index.
+"""Opt-in real-CAS semantic corpus profiles for Catalog's exact-ref index.
 
-This is a 1,000-record milestone, not the full 100k/300k §6 scale suite or an
-operational performance gate. Every definition and representation is a real,
-typed, content-addressed test artifact. Synthetic fixture evidence establishes
-only that these declared records can be reopened and validated; it establishes
-no empirical meaning, source authority, currentness, or permission.
+The ordinary profile covers 1,000 records. A separate explicit opt-in profile
+covers 30,000 records; neither establishes the full 100k/300k §6 scale suite
+or an operational performance gate. Every definition and representation is a
+real, typed, content-addressed test artifact. Synthetic fixture evidence
+establishes only that these declared records can be reopened and validated; it
+establishes no empirical meaning, source authority, currentness, or permission.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import statistics
 import time
 from collections import Counter
@@ -43,6 +45,7 @@ from polisyos.core.contracts.variable_binding import (
 )
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     AcquisitionAuthorityEntry,
+    AcquisitionAuthorityRegistry,
     AcquisitionSourceMeasureScope,
     AuthoritySchemaColumn,
     _AuthoritySemanticDefinitionIndex,
@@ -52,6 +55,8 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
 from tests._helpers.acquisition_production import _entry, _resolver
 
 _RECORDS = 1_000
+_LARGE_PROFILE_RECORDS = 30_000
+_PROFILE_ENV = "POLICYOS_P07_SEMANTIC_CORPUS_PROFILE"
 _TRUTH_KEYS = 16
 _ALTERNATIVES_PER_TRUTH_KEY = 4
 _NEAR_MISS_REVISIONS = 16
@@ -255,12 +260,14 @@ def _source_entry_key(entry: AcquisitionAuthorityEntry) -> tuple[str, str, str, 
     return _definition_identity(ref)
 
 
-def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
+def _run_semantic_corpus_profile(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     record_property: Callable[[str, object], None],
+    *,
+    corpus_records: int,
 ) -> None:
-    """Measure the 1k real-record milestone; do not imply §6 100k/300k completion."""
+    """Measure one real-record profile; do not imply §6 100k/300k completion."""
     store = FileSystemCAS(tmp_path / "cas")
     evidence_bytes = b"test-owned synthetic semantic fixture; no empirical or authority claim\n"
     evidence_ref = store.put_bytes(
@@ -336,7 +343,7 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
             )
         )
 
-    while len(record_specs) < _RECORDS:
+    while len(record_specs) < corpus_records:
         index = len(record_specs)
         domain = _DOMAINS[index % len(_DOMAINS)]
         if index < _TRUTH_KEYS + _NEAR_MISS_REVISIONS + 4:
@@ -353,7 +360,7 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
             )
         )
 
-    assert len(record_specs) == _RECORDS
+    assert len(record_specs) == corpus_records
     definition_refs: list[VariableSemanticDefinitionRef] = []
     representation_refs: list[VariableRepresentationRef] = []
     expected_specs: list[tuple[str, str, str, str, str]] = []
@@ -584,16 +591,21 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
     )
     authority.registry_path.write_text(built_registry.model_dump_json(), encoding="utf-8")
     registry = authority._load_registry()
-    assert len(definition_refs) == _RECORDS
-    assert len({_definition_identity(ref) for ref in definition_refs}) == _RECORDS
+    assert len(definition_refs) == corpus_records
+    assert len({_definition_identity(ref) for ref in definition_refs}) == corpus_records
+    expected_registry_rows = corpus_records + (_TRUTH_KEYS * (_ALTERNATIVES_PER_TRUTH_KEY - 1)) + 1
+    assert len(registry.entries) == expected_registry_rows
     shared_labels = [spec for spec in expected_specs if spec[1] == "shared_local_label"]
     assert len({spec[0] for spec in shared_labels}) == 4
-    assert len(entries) == _RECORDS + (_TRUTH_KEYS * (_ALTERNATIVES_PER_TRUTH_KEY - 1)) + 1
+    assert len(entries) == expected_registry_rows
 
     # The independent oracle scans every typed Catalog row by explicit ref
     # fields; it does not call or reuse the index builder/key function.
-    def exhaustive(key: tuple[str, str, str, str | None]) -> tuple[AcquisitionAuthorityEntry, ...]:
-        return tuple(entry for entry in registry.entries if _source_entry_key(entry) == key)
+    def exhaustive(
+        key: tuple[str, str, str, str | None],
+        snapshot: AcquisitionAuthorityRegistry = registry,
+    ) -> tuple[AcquisitionAuthorityEntry, ...]:
+        return tuple(entry for entry in snapshot.entries if _source_entry_key(entry) == key)
 
     query_refs = tuple(definition_refs[:_TRUTH_KEYS])
     spec_by_ref = {
@@ -608,6 +620,19 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
     index = authority._semantic_definition_index_cache
     assert index is not None and index.is_complete
     assert index.registry_content_sha256 == registry.content_sha256
+    exhaustive_buckets: dict[tuple[str, str, str, str | None], list[AcquisitionAuthorityEntry]] = {}
+    for entry in registry.entries:
+        key = _source_entry_key(entry)
+        if key is not None:
+            exhaustive_buckets.setdefault(key, []).append(entry)
+    expected_buckets = {
+        key: tuple(sorted(bucket, key=lambda entry: entry.entry_id))
+        for key, bucket in exhaustive_buckets.items()
+    }
+    assert index.entries_by_definition == expected_buckets
+    assert index.eligible_entry_count == sum(len(bucket) for bucket in expected_buckets.values())
+    assert index.indexed_entry_count == index.eligible_entry_count
+    assert index.indexed_entry_count == len(registry.entries)
     assert indexed_first == exhaustive(_definition_identity(query_refs[0]))
     reversed_registry = build_authority_registry(
         baseline_content_sha256=authority.provision.baseline_content_sha256,
@@ -767,6 +792,33 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
         _ALTERNATIVES_PER_TRUTH_KEY
     )
 
+    # Removing a source from the live registry must invalidate the newer cache
+    # and remove that row from the exact bucket. The old immutable snapshot
+    # remains queryable against its own content identity.
+    removed_entry = updated_source
+    removed_registry_payload = build_authority_registry(
+        baseline_content_sha256=authority.provision.baseline_content_sha256,
+        l5_measurement_registry_sha256=authority.provision.l5_measurement_registry_content_sha256,
+        entries=tuple(
+            entry for entry in updated_registry.entries if entry.entry_id != removed_entry.entry_id
+        ),
+    )
+    authority.registry_path.write_text(
+        removed_registry_payload.model_dump_json(),
+        encoding="utf-8",
+    )
+    removed_registry = authority._load_registry()
+    removed_candidates = authority._source_entries_for_semantic_definition(
+        removed_registry,
+        first_key,
+    )
+    removal_index = authority._semantic_definition_index_cache
+    assert removal_index is not None and removal_index.is_complete
+    assert removal_index.registry_content_sha256 == removed_registry.content_sha256
+    assert removed_candidates == exhaustive(_definition_identity(query_refs[0]), removed_registry)
+    assert removed_entry.entry_id not in {entry.entry_id for entry in removed_candidates}
+    assert len(removed_candidates) == _ALTERNATIVES_PER_TRUTH_KEY
+
     # A stale snapshot is rebuilt; an actually incomplete builder response uses
     # the live exhaustive fallback rather than returning a false empty bucket.
     stale = _AuthoritySemanticDefinitionIndex(
@@ -799,9 +851,10 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
     )
 
     file_count, logical_bytes, allocated_bytes = _allocated_tree_bytes(tmp_path)
-    assert allocated_bytes is None or allocated_bytes <= _MAX_SCRATCH_BYTES
+    max_scratch_bytes = _MAX_SCRATCH_BYTES if corpus_records == _RECORDS else 2 * 1024 * 1024 * 1024
+    assert allocated_bytes is None or allocated_bytes <= max_scratch_bytes
     report = {
-        "scope": "genuine_1k_typed_definition_revision_records_only",
+        "scope": f"genuine_{corpus_records // 1000}k_typed_definition_revision_records_only",
         "full_spec_100k_300k_acceptance": "not_established",
         "seed": _SEED,
         "unique_definition_revision_records": len(definition_refs),
@@ -815,7 +868,9 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
         "source_alternatives_per_truth_key": _ALTERNATIVES_PER_TRUTH_KEY,
         "same_namespace_revision_near_misses": _NEAR_MISS_REVISIONS,
         "same_local_id_in_distinct_namespaces": 4,
-        "nonfiscal_query_domains": ["public.health", "public.transport"],
+        "nonfiscal_query_domains": sorted(
+            {spec_by_ref[_definition_identity(ref)][0] for ref in query_refs}
+        ),
         "namespace_collision_exact_queries": len(namespace_collision_refs),
         "namespace_collision_distinct_namespaces": len(collision_namespaces),
         "same_label_different_meaning_records": _NEAR_MISS_REVISIONS,
@@ -824,7 +879,10 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
         "unregistered_unknown_probe_records": 1,
         "declared_ratio_relation_edges": 2,
         "concurrency_workers": 1,
-        "concurrent_index_updates": "not_run_in_1k_milestone",
+        "concurrent_index_updates": "not_run",
+        "independent_oracle_registry_rows": len(registry.entries),
+        "independent_oracle_definition_key_count": len(expected_buckets),
+        "timed_indexed_vs_exhaustive_query_key_count": len(query_refs),
         "index_build_seconds": index_build_seconds,
         "warmups_per_query_operation": _WARMUPS,
         "samples_per_query_operation": _SAMPLES,
@@ -846,16 +904,49 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
         "query_owner_api_reads": query_read_counts,
         "query_payload_bytes_returned_by_get_bytes": query_payload_bytes_returned,
         "read_measurement_scope": "actual FileSystemCAS get_bytes/get_manifest method calls; not OS/device I/O",
-        "index_equivalent_to_independent_exact_scan": True,
+        "index_equivalent_to_independent_full_registry_exact_map": True,
         "update_visible_for_new_registry_snapshot": True,
+        "removed_source_disappears_from_new_registry_snapshot": True,
         "stale_snapshot_rebuilt": True,
         "incomplete_index_used_exhaustive_fallback": True,
         "scratch_file_count": file_count,
         "scratch_logical_bytes": logical_bytes,
         "scratch_allocated_bytes": allocated_bytes,
-        "scratch_budget_bytes": _MAX_SCRATCH_BYTES,
+        "scratch_budget_bytes": max_scratch_bytes,
         "timing_status": "descriptive_local_measurement_no_SLA_claim",
         "semantic_status": "test_owned_typed_records_fixture_evidence_only",
     }
     record_property("p07_semantic_corpus_scale", json.dumps(report, sort_keys=True))
     print("P07_SEMANTIC_CORPUS_SCALE " + json.dumps(report, sort_keys=True))
+
+
+def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Keep the ordinary bounded 1k profile available to focused checks."""
+    _run_semantic_corpus_profile(
+        tmp_path,
+        monkeypatch,
+        record_property,
+        corpus_records=_RECORDS,
+    )
+
+
+@pytest.mark.skipif(
+    os.environ.get(_PROFILE_ENV) != "30k",
+    reason=f"set {_PROFILE_ENV}=30k to admit the bounded 30k profile explicitly",
+)
+def test_genuine_semantic_corpus_30k_index_matches_exhaustive_and_rebuilds(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Run the separately admitted 30k profile; this does not qualify 300k."""
+    _run_semantic_corpus_profile(
+        tmp_path,
+        monkeypatch,
+        record_property,
+        corpus_records=_LARGE_PROFILE_RECORDS,
+    )

@@ -1031,7 +1031,7 @@ def _admit_execution_source(
         )
     semantic_input_limitation_codes: tuple[str, ...] | None = None
     if read_session is None:
-        if bindings.schema_version == "1.4":
+        if bindings.schema_version in {"1.4", "1.5"}:
             from polisyos.foundry.data_plane.bindings import (
                 reconcile_selected_method_input_bindings,
             )
@@ -1666,7 +1666,8 @@ def _reconcile_selected_method_dispatch_inputs(
         if not dependencies or obligation.port.slot_id != record.slot_id:
             raise ValueError("execution_source_method_input_dependency_mismatch")
         for dependency in dependencies:
-            if dependency.first_required_step != basis.effective_step:
+            required_steps = dependency.required_steps or (dependency.first_required_step,)
+            if basis.effective_step not in required_steps:
                 raise ValueError("execution_source_method_input_dependency_step_mismatch")
             node = nodes.get(dependency.node_id)
             if node is None or node.node_kind != "method" or record.slot_id not in node.inputs:
@@ -1681,7 +1682,7 @@ def _reconcile_selected_method_dispatch_inputs(
                 and item.method_version == node.method_version
                 and item.method_abi_digest == dependency.method_abi_digest
                 and item.dispatch is not None
-                and item.dispatch.step == dependency.first_required_step
+                and item.dispatch.step == basis.effective_step
             ]
             if len(matches) != 1:
                 raise ValueError("execution_source_method_input_dispatch_not_established")
@@ -1787,14 +1788,32 @@ def load_stored_selected_method_input_occurrences(
     if core_store is None:
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
     bindings = load_input_bindings(core_store, input_bindings_ref)
-    if bindings.schema_version != "1.4" or bindings.selected_method_inputs is None:
+    if bindings.schema_version == "1.4" and bindings.selected_method_inputs is not None:
+        records = bindings.selected_method_inputs
+    elif bindings.schema_version == "1.5":
+        from polisyos.foundry.data_plane.bindings import (
+            _load_selected_method_step_input_binding,
+        )
+
+        _, _, _, step_records = _load_selected_method_step_input_binding(
+            core_store, input_bindings_ref
+        )
+        step = basis.semantic_horizon_step
+        if step is None or step.effective_step != basis.effective_step:
+            raise ValueError("execution_source_method_input_horizon_not_established")
+        records = tuple(
+            row.input for row in step_records if row.step_scope.step == basis.effective_step
+        )
+        if not records:
+            raise ValueError("execution_source_method_input_dispatch_not_established")
+    else:
         raise ValueError("execution_source_method_input_profile_required")
     return _reconcile_selected_method_dispatch_inputs(
         store,
         simulation_result_ref=result_ref,
         basis=basis,
         graph=graph,
-        records=bindings.selected_method_inputs,
+        records=records,
     )
 
 
@@ -2349,7 +2368,7 @@ def _execute(
     )
     if declaration is not None and resolved_state.bindings.resolved_binding_manifest_ref is None:
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
-    if declaration is None and resolved_state.bindings.schema_version == "1.4":
+    if declaration is None and resolved_state.bindings.schema_version in {"1.4", "1.5"}:
         raise ValueError("method_input_declared_model_required")
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
     base_state, model_state_context = _load_execution_base_state(
@@ -2644,19 +2663,33 @@ def _resolve_state_snapshot(
         and request.feedback_config_ref is not None
     ):
         raise ValueError("foundry_input_bindings_semantic_feedback_not_established")
-    # The new method-input profile is replayed once at the actual graph seam.
-    # Earlier profiles retain their established state/horizon reconciliation.
-    semantic_notes = (
-        ()
-        if bindings.schema_version == "1.4"
-        else reconcile_semantic_input_bindings(
+    # The one-step method profile retains its once-at-graph replay. Temporal
+    # inputs also require complete scope coverage before a physical graph call.
+    if bindings.schema_version == "1.5":
+        from polisyos.foundry.data_plane.bindings import (
+            reconcile_selected_method_input_bindings,
+        )
+
+        semantic_notes = reconcile_selected_method_input_bindings(
+            store,
+            input_bindings_ref=bindings_ref,
+            execute_request=request,
+            expected_invocation=expected_invocation,
+            effective_step=(
+                None if semantic_horizon_step is None else semantic_horizon_step.effective_step
+            ),
+            semantic_horizon_step=semantic_horizon_step,
+        ).notes
+    elif bindings.schema_version == "1.4":
+        semantic_notes = ()
+    else:
+        semantic_notes = reconcile_semantic_input_bindings(
             store,
             bindings,
             execute_request=request,
             semantic_horizon_step=semantic_horizon_step,
             expected_invocation=expected_invocation,
         )
-    )
     _ensure_readable(store, bindings.data_snapshot_ref)
     _ensure_readable(store, bindings.bound_state_snapshot_ref)
     base_ref = bindings.bound_state_snapshot_ref

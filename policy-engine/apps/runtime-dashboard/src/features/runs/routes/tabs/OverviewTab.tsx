@@ -476,15 +476,14 @@ type N5NumericalBody = Pick<
   "horizon" | "trajectories"
 > &
   Partial<
-    Pick<
-      CandidateNumericalBody,
-      "outcome_units" | "unit_provenance" | "model_declaration_ref"
-    >
-  > &
-  Partial<
+    Pick<CandidateNumericalBody, "unit_provenance" | "model_declaration_ref">
+  > & {
+    outcome_units?:
+      | CandidateNumericalBody["outcome_units"]
+      | GenericNumericalBody["outcome_units"];
+  } & Partial<
     Pick<
       GenericNumericalBody,
-      | "outcome_units"
       | "outcome_units_status"
       | "outcome_unit_registry_ref"
       | "outcome_units_limitation_code"

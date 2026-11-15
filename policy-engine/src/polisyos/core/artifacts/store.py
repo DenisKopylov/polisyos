@@ -6367,7 +6367,7 @@ class FileSystemCAS:
         snapshot: _VerifiedArtifactSnapshot,
     ) -> DetachedSignature | None:
         """Read a signature bound to the exact already-verified selected snapshot."""
-        aid, profile_sha256, _ref = _artifact_reference(artifact_ref)
+        aid, profile_sha256, ref = _artifact_reference(artifact_ref)
         self._ownership_index.require_no_pending_transaction(
             aid,
             manifest_profile_sha256=profile_sha256,
@@ -6381,7 +6381,12 @@ class FileSystemCAS:
                 max_bytes=1024 * 1024,
             )
         except FileNotFoundError:
-            return None
+            if not isinstance(ref, ArtifactRef) or profile_sha256 is None:
+                return None
+            default_snapshot = self._load_verified_snapshot(aid)
+            if default_snapshot.manifest_bytes != snapshot.manifest_bytes:
+                return None
+            return self._load_signature_for_snapshot(aid, default_snapshot)
         signature = DetachedSignature.model_validate_json(signature_bytes)
         if (
             signature.artifact_id != str(aid)

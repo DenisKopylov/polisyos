@@ -80,6 +80,113 @@ from tests._helpers.program_graph_tax_subsidy_input import (
 _SUBSIDY_NODE_ID = "fixture_subsidy"
 
 
+def test_registered_override_writes_do_not_invent_additive_prestate(tmp_path: Path) -> None:
+    from polisyos.core.contracts.foundry import ExecPlan
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.execute.model_input_requirements import _graph_input_dependencies
+    from tests.unit.foundry.runtime.test_program_graph_mixed_calls import _joint_case
+
+    case, _metadata = _joint_case(tmp_path)
+    try:
+        graph = validate_core_model_json_artifact(ProgramGraph, case.store, case.program_graph_ref)
+        plan = validate_core_model_json_artifact(ExecPlan, case.store, case.exec_plan_ref)
+        registry = load_registry_bundle_content(case.store, case.registry_bundle_ref)
+        dependencies, graph_slots = _graph_input_dependencies(
+            case.store,
+            nodes={node.node_id: node for node in graph.nodes},
+            order={node_id: index for index, node_id in enumerate(plan.order)},
+            registry=registry,
+            steps=(0,),
+            overrides={},
+            method_input_slots=frozenset({"period_flow"}),
+        )
+        assert {"agents.employer_id", "agents.is_employed", "firms.labor_count"} <= graph_slots
+        assert "firms.labor_count" not in dependencies
+        for slot_id in ("agents.employer_id", "agents.is_employed"):
+            assert [(item.node_id, item.kind) for item in dependencies[slot_id]] == [
+                ("fixture_labor", "mechanism_read")
+            ]
+        assert {(item.node_id, item.kind) for item in dependencies["agents.income"]} == {
+            ("fixture_labor", "mechanism_read"),
+            ("fixture_labor", "additive_prestate"),
+            ("fixture_subsidy", "mechanism_read"),
+            ("fixture_subsidy", "additive_prestate"),
+        }
+        slots = registry.slot_registry.slots
+        mismatched_slot = slots["agents.employer_id"].model_copy(
+            update={"merge_rule": slots["agents.income"].merge_rule}
+        )
+        mismatched_registry = replace(
+            registry,
+            slot_registry=registry.slot_registry.model_copy(
+                update={"slots": slots | {"agents.employer_id": mismatched_slot}}
+            ),
+        )
+        unsupported_registry = replace(
+            registry,
+            merge_registry=registry.merge_registry.model_copy(
+                update={
+                    "rules": registry.merge_registry.rules
+                    | {
+                        "override": registry.merge_registry.rules["priority"].model_copy(
+                            update={"rule_id": "override"}
+                        )
+                    }
+                }
+            ),
+        )
+        for wrong_registry, reason in (
+            (mismatched_registry, "model_input_additive_prestate_unresolved"),
+            (unsupported_registry, "model_input_mechanism_write_merge_unsupported"),
+        ):
+            with pytest.raises(ValueError, match=f"^{reason}$"):
+                _graph_input_dependencies(
+                    case.store,
+                    nodes={node.node_id: node for node in graph.nodes},
+                    order={node_id: index for index, node_id in enumerate(plan.order)},
+                    registry=wrong_registry,
+                    steps=(0,),
+                    overrides={},
+                    method_input_slots=frozenset({"period_flow"}),
+                )
+        preflight = _preflight(case, _interface(case), _context(case), steps=(0,))
+        assert set(preflight.supplied_initial_slots) == {
+            "agents.income",
+            "government.balance",
+            "agents.skill_level",
+            "agents.is_employed",
+            "agents.employer_id",
+            "firms.wage_offer",
+        }
+        selected = verify_program_graph_input_preflight(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=preflight.invocation,
+        )
+        assert selected.supplied_initial_slots == preflight.supplied_initial_slots
+        (obligation_ref,) = selected.obligation_refs
+        obligation = load_model_input_obligation(case.store, obligation_ref)
+        assert obligation.port.slot_id == "period_flow"
+        assert {item.kind for item in obligation.dependencies} == {"method_read"}
+    finally:
+        case.close()
+
+
+def test_registered_override_read_still_requires_an_explicit_source(tmp_path: Path) -> None:
+    from tests.unit.foundry.runtime.test_program_graph_mixed_calls import _joint_case
+
+    case, _metadata = _joint_case(tmp_path, missing_initial_slot="agents.employer_id")
+    try:
+        # The canonical state contains the no-employer default, but its presence
+        # is not proof that this required read was supplied by the selected source.
+        state = load_state_snapshot(case.store, snapshot_ref=case.bound_state_snapshot_ref)
+        assert state.agents.employer_id.tolist() == [-1] * 64
+        with pytest.raises(ValueError, match=r"^model_input_graph_dependency_unexplained$"):
+            _preflight(case, _interface(case), _context(case), steps=(0,))
+    finally:
+        case.close()
+
+
 def _persist_graph_with_ir(store: FileSystemCAS, ir_ref: ArtifactRef) -> ArtifactRef:
     graph = ProgramGraph(ir_ref=ir_ref)
     return store.put_json(

@@ -1054,8 +1054,15 @@ def _graph_input_dependencies(
         )
         start, end = schedule_range(ScheduleSpec.model_validate(payload.get("schedule")))
         first_step = next((step for step in steps if start <= step <= end), None)
+        additive_slots = []
         for slot_id in mechanism.writes_slots:
-            _require_additive_prestate(registry, slot_id, mechanism.default_merge.get(slot_id))
+            merge_kind = _registered_write_merge_kind(
+                registry, slot_id, mechanism.default_merge.get(slot_id)
+            )
+            if merge_kind == MergeRuleKind.SUM:
+                additive_slots.append(slot_id)
+            elif merge_kind != MergeRuleKind.OVERRIDE:
+                raise ValueError("model_input_mechanism_write_merge_unsupported")
         graph_slots.update(mechanism.reads_slots)
         graph_slots.update(mechanism.writes_slots)
         if first_step is not None:
@@ -1065,7 +1072,7 @@ def _graph_input_dependencies(
                         node_id=node_id, kind="mechanism_read", first_required_step=first_step
                     )
                 )
-            for slot_id in mechanism.writes_slots:
+            for slot_id in additive_slots:
                 dependencies.setdefault(slot_id, []).append(
                     ProgramGraphInputDependency(
                         node_id=node_id, kind="additive_prestate", first_required_step=first_step
@@ -1169,9 +1176,18 @@ def _require_structural_selector(payload: object) -> None:
 def _require_additive_prestate(
     registry: RegistryBundleContent, slot_id: str, declared_merge_id: str | None
 ) -> None:
+    if _registered_write_merge_kind(registry, slot_id, declared_merge_id) != MergeRuleKind.SUM:
+        raise ValueError("model_input_additive_prestate_unresolved")
+
+
+def _registered_write_merge_kind(
+    registry: RegistryBundleContent, slot_id: str, declared_merge_id: str | None
+) -> MergeRuleKind:
+    """Resolve a write's actual selected merge rule before classifying prestate."""
     slot = registry.slot_registry.slots.get(slot_id)
     if slot is None or slot.merge_rule.rule_id != declared_merge_id:
         raise ValueError("model_input_additive_prestate_unresolved")
     merge_rule = registry.merge_registry.rules.get(slot.merge_rule.rule_id)
-    if merge_rule is None or merge_rule.kind != MergeRuleKind.SUM:
+    if merge_rule is None:
         raise ValueError("model_input_additive_prestate_unresolved")
+    return merge_rule.kind

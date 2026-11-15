@@ -1398,9 +1398,10 @@ class InputBindingsPreparation:
     """Computed candidate state before any input-binding artifacts are written.
 
     The tuple fields identify the exact effective binding operations. The state
-    is a freshly materialized numerical value, not an authority or retention
-    receipt. A caller may inspect it; ``build_input_bindings`` always resolves
-    its own source and constructs a new preparation before writing.
+    is a canonical numerical value, not an authority or retention receipt. A
+    method-only selection reuses its exactly replayed predecessor. A caller may
+    inspect it; ``build_input_bindings`` always resolves its own source and
+    constructs a new preparation before writing.
     """
 
     snapshot: DataSnapshot
@@ -3165,25 +3166,33 @@ def _prepare_semantic_input_binding_facts(
         )
     if rules is not None and rules != compiled_rules:
         raise ValueError("foundry_input_bindings_semantic_rules_mismatch")
-    prepared = _prepare_input_binding_values(
-        store,
-        snapshot=snapshot,
-        slot_registry=slots,
-        binding_payload=payload,
-        rules=compiled_rules,
-        selected_tensor_policies=policies,
-        registry_bundle_ref=registry_bundle_ref,
-    )
     if method_inputs:
-        prepared = replace(
-            prepared,
+        # Retained source rules and values were replayed above against this
+        # exact predecessor. Side inputs do not rewrite its state; in
+        # particular, discrete retained facts are not semantic float inputs.
+        _validate_rules(compiled_rules, slots, selected_tensor_policies=policies)
+        prepared = InputBindingsPreparation(
+            snapshot=snapshot,
+            effective_rules=tuple(compiled_rules),
             materialized_state=_load_input_binding_state(
                 store,
                 snapshot_ref=predecessor.bound_state_snapshot_ref,
                 registry_bundle_ref=registry_bundle_ref,
             ),
+            applied_binding_ids=tuple(rule.binding_id for rule in compiled_rules),
+            warnings=(),
             selected_method_inputs=tuple(sorted(method_inputs, key=lambda item: item.binding_id)),
             reused_bound_state_snapshot_ref=predecessor.bound_state_snapshot_ref,
+        )
+    else:
+        prepared = _prepare_input_binding_values(
+            store,
+            snapshot=snapshot,
+            slot_registry=slots,
+            binding_payload=payload,
+            rules=compiled_rules,
+            selected_tensor_policies=policies,
+            registry_bundle_ref=registry_bundle_ref,
         )
     step = int(np.asarray(prepared.materialized_state.step).item())
     execution_step = step if semantic_horizon_step is None else semantic_horizon_step.effective_step
@@ -4714,7 +4723,7 @@ def reconcile_explicit_initial_binding_slots(
     input_bindings_ref: FoundryInputBindingsRef,
     expected_state_paths: Mapping[str, str],
 ) -> tuple[str, ...]:
-    """Reconcile decimal inputs from an exact initial-state source.
+    """Reconcile exact decimal, boolean and integer initial-state sources.
 
     A selected method-only predecessor must first replay its own immutable
     selection and the original initial-state rules. This does not establish
@@ -4830,7 +4839,7 @@ def _replay_explicit_initial_bindings(
         actual = np.asarray(get_state_path(state, path))
         policy = _SelectedBindingTensorPolicy(actual.shape, actual.dtype.name, Decimal(0))
         try:
-            expected = _materialize_selected_binding_tensor(
+            expected = _materialize_explicit_initial_binding_tensor(
                 raw,
                 rule=rule,
                 slot=slot,
@@ -4845,6 +4854,50 @@ def _replay_explicit_initial_bindings(
             raise ValueError(f"explicit_initial_binding_state_mismatch:{slot_id}")
         supplied.append(_ExplicitInitialBinding(rule, raw, policy))
     return tuple(supplied)
+
+
+def _materialize_explicit_initial_binding_tensor(
+    value: object,
+    *,
+    rule: FoundryInputBindingRule,
+    slot: SlotSpec,
+    target_tensor: object,
+    policy: _SelectedBindingTensorPolicy,
+) -> np.ndarray:
+    """Replay literal discrete prestate without broadening semantic float inputs."""
+    if slot.value_type == SlotValueType.DECIMAL:
+        return _materialize_selected_binding_tensor(
+            value, rule=rule, slot=slot, target_tensor=target_tensor, policy=policy
+        )
+    source = np.asarray(value, dtype=object)
+    target = np.asarray(target_tensor)
+    if source.shape != policy.shape or target.shape != policy.shape:
+        raise ValueError("explicit_initial_binding_shape_mismatch")
+    if (
+        target.dtype.name != policy.dtype
+        or (slot.dtype is not None and slot.dtype != target.dtype.name)
+        or not policy.max_absolute_error.is_finite()
+        or policy.max_absolute_error != 0
+        or policy.fixed_unit_multiplier is not None
+    ):
+        raise ValueError("explicit_initial_binding_target_encoding_mismatch")
+    if [(item.op, item.params) for item in rule.transforms] not in ([], [("identity", {})]):
+        raise ValueError("explicit_initial_binding_transform_mismatch")
+    if slot.value_type == SlotValueType.BOOL and target.dtype.kind == "b":
+        if any(not isinstance(item, bool | np.bool_) for item in source.flat):
+            raise ValueError("explicit_initial_binding_source_not_boolean")
+    elif slot.value_type == SlotValueType.INT and target.dtype.kind == "i":
+        if any(
+            not isinstance(item, int | np.integer) or isinstance(item, bool | np.bool_)
+            for item in source.flat
+        ):
+            raise ValueError("explicit_initial_binding_source_not_integer")
+        bounds = np.iinfo(target.dtype)
+        if any(item < bounds.min or item > bounds.max for item in source.flat):
+            raise ValueError("explicit_initial_binding_integer_out_of_range")
+    else:
+        raise ValueError("explicit_initial_binding_target_encoding_mismatch")
+    return np.asarray(source, dtype=target.dtype)
 
 
 def _replay_method_predecessor_initial_bindings(

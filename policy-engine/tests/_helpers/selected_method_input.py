@@ -33,7 +33,10 @@ from polisyos.core.contracts.variable_binding import (
 )
 from polisyos.core.registry import build_registry_bundle
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.data_plane.bindings import build_input_bindings
+from polisyos.foundry.data_plane.bindings import (
+    build_input_bindings,
+    reconcile_explicit_initial_binding_slots,
+)
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
@@ -119,6 +122,7 @@ def prepare_selected_method_input_case(
     persistent_stock_value: float | None = 10_000_000_000.0,
     store: FileSystemCAS | None = None,
     opening_balance_usd: int | None = 10_000_000_000,
+    explicit_initial_slot_values: Mapping[str, Any] | None = None,
     model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
     | None = None,
     model_input_definition_refs: Mapping[str, VariableSemanticDefinitionRef] | None = None,
@@ -143,12 +147,25 @@ def prepare_selected_method_input_case(
     ``model_input_definition_refs`` supplies the exact selected meaning for
     each declared input slot before its representation, model and graph are
     compiled. The omitted path retains the existing synthetic definitions.
+    ``explicit_initial_slot_values`` adds literal registered physical-slot
+    values and required source rules before the original snapshot is compiled.
+    Exact canonical replay rejects coercion, rounding and implicit broadcasting;
+    these synthetic values do not establish empirical source authority.
     """
     if opening_balance_usd is not None and type(opening_balance_usd) is not int:
         raise ValueError("selected_method_fixture_opening_stock_invalid")
     if money_unit is not None and type(money_unit) is not MoneyUnit:
         raise ValueError("selected_method_fixture_money_unit_invalid")
     if persistent_stock_slot is not None and opening_balance_usd != 10_000_000_000:
+        raise ValueError("selected_method_fixture_prestate_profile_unsupported")
+    if explicit_initial_slot_values is not None and not isinstance(
+        explicit_initial_slot_values, Mapping
+    ):
+        raise ValueError("selected_method_fixture_explicit_initial_values_invalid")
+    explicit_values = dict(explicit_initial_slot_values or {})
+    if any(type(slot_id) is not str or not slot_id for slot_id in explicit_values):
+        raise ValueError("selected_method_fixture_explicit_initial_values_invalid")
+    if persistent_stock_slot is not None and explicit_values:
         raise ValueError("selected_method_fixture_prestate_profile_unsupported")
     if model_input_port_declaration_builder is not None and not declared:
         raise ValueError("selected_method_fixture_declared_extra_ports_required")
@@ -242,13 +259,38 @@ def prepare_selected_method_input_case(
         units_registry=units_registry,
         return_selected_profile=True,
     )
+    explicit_rules = []
+    explicit_paths = {}
     if persistent_stock_slot is None:
         source_payload: dict[str, Any] = {"agents": {"income": list(income_values)}}
         if opening_balance_usd is not None:
             source_payload["government_balance"] = opening_balance_usd
+        for index, (slot_id, value) in enumerate(sorted(explicit_values.items())):
+            slot = slots.get(slot_id)
+            if slot is None or not slot.state_path:
+                raise ValueError("selected_method_fixture_explicit_initial_slot_invalid")
+            path = slot.state_path.split(".")
+            target = source_payload
+            for field in path[:-1]:
+                child = target.setdefault(field, {})
+                if not isinstance(child, dict):
+                    raise ValueError("selected_method_fixture_explicit_initial_source_overlap")
+                target = child
+            if path[-1] in target:
+                raise ValueError("selected_method_fixture_explicit_initial_source_overlap")
+            target[path[-1]] = value
+            explicit_paths[slot_id] = slot.state_path
+            explicit_rules.append(
+                FoundryInputBindingRule(
+                    binding_id=f"explicit-initial-{index}",
+                    source_path=slot.state_path,
+                    target_slot_id=slot_id,
+                )
+            )
         source_ref = store.put_json(
             source_payload,
             PutOptions(kind="tests.selected_method_prestate", media_type="application/json"),
+            **({"canon_spec": CanonSpec(forbid_floats=False)} if explicit_values else {}),
             return_selected_profile=True,
         )
     else:
@@ -318,6 +360,7 @@ def prepare_selected_method_input_case(
                 source_path="agents.income",
                 target_slot_id="agents.income",
             ),
+            *explicit_rules,
         ],
         **(
             {"notes": [f"world_model_record_snapshot_id:{snapshot_id}"]}
@@ -326,6 +369,14 @@ def prepare_selected_method_input_case(
         ),
         return_selected_profile=True,
     )
+    if explicit_paths and set(
+        reconcile_explicit_initial_binding_slots(
+            store,
+            input_bindings_ref=initial.input_bindings_ref,
+            expected_state_paths=explicit_paths,
+        )
+    ) != set(explicit_paths):
+        raise ValueError("selected_method_fixture_explicit_initial_values_not_exact")
     money = money_unit or MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
     profile = MeasurementBindingProfile(
         schema_version="polisyos.catalog.measurement_binding_profile.v3",

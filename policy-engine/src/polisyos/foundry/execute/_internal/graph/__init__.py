@@ -5426,7 +5426,7 @@ def _program_graph_call_inventory(
     if mixed:
         if parameter_overrides or parameter_override_bundle_ref is not None:
             raise ValueError("program_graph_mixed_parameter_override_profile_not_established")
-        if len(steps) != 1 or len(mechanism_nodes) != 1 or mechanism_nodes[0].node_kind != "op":
+        if len(steps) != 1 or any(node.node_kind != "op" for node in mechanism_nodes):
             raise ValueError("program_graph_mixed_call_profile_not_established")
         treasury = _execution_treasury(store, program_ref, exec_plan_ref, graph, plan)
         # emit_patches returns its own key. Only explicit per-node Treasury keys
@@ -5485,7 +5485,7 @@ def _program_graph_call_inventory(
                 writes[(step, node_id)] = tuple(spec.writes_slots)
     if (
         mixed
-        and len(active) != 1
+        and not active
         and not (
             actuation_selection_ref is not None
             and not active

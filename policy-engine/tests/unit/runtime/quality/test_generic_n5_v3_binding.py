@@ -2288,7 +2288,11 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         _BlockingDependencyWaitTimeoutError,
         build_runtime_cas_guard,
     )
-    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+        _JointSimulationProduction,
+    )
     from polisyos.runtime.quality.generic_simulation_admission import (
         _N5_EXECUTION_KIND,
         _GenericN5ExecutionReadbackTimeoutError,
@@ -2324,12 +2328,15 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
     verify = owner._verify_json_artifact
     remaining = 0
     failure = "wait"
+    lose_write_ack = False
     damaged = []
 
     def track_write(value, options, **kwargs):
         ref = put(value, options, **kwargs)
         if options.kind == _N5_EXECUTION_KIND:
             writes.append(ref)
+            if lose_write_ack:
+                raise OSError("controlled_unknown_write_ack")
         return ref
 
     def fail_selected_read(ref, *, expected_kind):
@@ -2341,6 +2348,11 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
             remaining -= 1
             if failure == "wait":
                 raise wait
+            if failure == "wrapped_wait":
+                # Controlled wrapper, not a diagnosis of the historical R5 failure.
+                raise GenerationCycleError(
+                    "joint_simulation_semantic_sources_unavailable"
+                ) from wait
             if failure == "wrong_code":
                 noncanonical = _BlockingDependencyWaitTimeoutError(
                     "content_addressed_storage", diagnostic=wait.diagnostic()
@@ -2432,6 +2444,21 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
             "verification_status": "not_established",
         }
         assert refusal.diagnostics["readback_error_code"] == "content_addressed_storage_timeout"
+        post_failure = refusal.diagnostics["post_production_failure"]
+        assert post_failure["phase"] == "execution_readback"
+        assert post_failure["unverified_locators"] == {
+            "input_ref": {
+                "ref": case["input_ref"].model_dump(mode="json"),
+                "verification_status": "not_established",
+            },
+            "execution_ref": {
+                "ref": writes[0].model_dump(mode="json"),
+                "verification_status": "not_established",
+            },
+        }
+        assert post_failure["cause_chain"][1]["structured_cause_code"] == (
+            "content_addressed_storage_timeout"
+        )
         cause = refusal.diagnostics["readback_error_context"]
         assert cause["dependency"] == "content_addressed_storage"
         assert cause["timeout_seconds"] == "1.5"
@@ -2439,6 +2466,7 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         assert "slow_read" in cause["operation"]
 
         for selected_failure, exception in [
+            ("wrapped_wait", GenerationCycleError),
             ("wrong_code", _BlockingDependencyWaitTimeoutError),
             ("fake", RuntimeError),
             ("profile", ArtifactOwnershipError),
@@ -2454,8 +2482,213 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
                     persist()
                 assert not isinstance(rejected.value, _GenericN5ExecutionReadbackTimeoutError)
                 assert len(writes) == 1 and verify_reads == [writes[0]]
+                code = str(
+                    getattr(rejected.value, "code", None) or "generic_cycle_simulation_n5_refused"
+                )
+                forwarded = controller._generic_cycle_simulation_refusal(
+                    candidate=case["candidate"], code=code, candidate_local_exception=rejected.value
+                )
+                assert forwarded.status == "simulation_blocked"
+                assert forwarded.generic_n5_execution_ref is forwarded.simulation_result_ref is None
+                failure_record = forwarded.diagnostics["post_production_failure"]
+                assert failure_record["phase"] == "execution_readback"
+                assert failure_record["unverified_locators"]["execution_ref"]["ref"] == (
+                    writes[0].model_dump(mode="json")
+                )
+                if selected_failure == "wrapped_wait":
+                    assert forwarded.authority_blockers == (
+                        "joint_simulation_semantic_sources_unavailable",
+                    )
+                    assert failure_record["cause_chain"][0]["code"] == (
+                        "joint_simulation_semantic_sources_unavailable"
+                    )
+                    assert failure_record["cause_chain"][1]["structured_cause_code"] == (
+                        "content_addressed_storage_timeout"
+                    )
+                else:
+                    assert not any(
+                        "structured_cause_code" in row for row in failure_record["cause_chain"]
+                    )
             finally:
                 for path, body in damaged:
                     path.write_bytes(body)
                 damaged.clear()
+        failure = "wait"
+        remaining = 0
+        port = _generic_facade_port(case)
+        production = _JointSimulationProduction(
+            observation=SimulationPortObservation(
+                candidate_id=case["candidate"].candidate_id,
+                status="simulation_blocked",
+                authority_blockers=("test_no_numerical_run",),
+                diagnostics={"reason": "test_no_numerical_run"},
+            ),
+            admitted_input=case["input_record"],
+            admitted_input_ref=case["input_ref"],
+            result=None,
+            request_binding=binding,
+        )
+        monkeypatch.setattr(port, "_produce", lambda **_kwargs: production)
+        outer = GenerationCycleController(
+            cycle_substrate_context=case["context"],
+            artifact_store=store,
+            simulation_port=port,
+            generic_cycle_simulation_admission_owner=owner,
+            generic_cycle_simulation_handoff=case["handoff"],
+            generic_cycle_simulation_currentness_resolver=lambda: True,
+            authority_scope="contract_testing",
+            repo_root=case["prepared"].source_root,
+        )
+        outer._source_run_id = case["source_run_id"]
+        monkeypatch.setattr(
+            outer,
+            "_prepare_generic_cycle_simulation_n5_input",
+            lambda **_kwargs: (case["input_ref"], case["input_record"]),
+        )
+        for inner in (
+            ArtifactOwnershipError("controlled_owner_denial"),
+            ValueError("controlled_corrupt_payload"),
+        ):
+            writes.clear()
+            wrapped = GenerationCycleError("joint_simulation_semantic_sources_unavailable")
+            wrapped.__cause__ = inner
+
+            def refuse_join(*_args, error=wrapped, **_kwargs):
+                raise error
+
+            monkeypatch.setattr(owner, "resolve_n5_execution_join", refuse_join)
+            observed = outer._run_generic_cycle_simulation_n5(
+                candidate=case["candidate"],
+                problem=case["problem"],
+                cycle_index=0,
+            )
+            assert len(writes) == 1
+            assert observed.status == "simulation_blocked"
+            assert observed.generic_n5_execution_ref is observed.simulation_result_ref is None
+            assert observed.authority_blockers == ("joint_simulation_semantic_sources_unavailable",)
+            diagnostic = observed.diagnostics["post_production_failure"]
+            assert diagnostic["phase"] == "outer_join_validation"
+            assert diagnostic["unverified_locators"]["execution_ref"]["ref"] == writes[
+                0
+            ].model_dump(mode="json")
+            assert (
+                diagnostic["cause_chain"][1]["exception_type"]
+                == type(inner).__module__ + "." + type(inner).__qualname__
+            )
+            assert not any("structured_cause_code" in row for row in diagnostic["cause_chain"])
+        # A failed writer acknowledgment cannot disclose a ref inferred from
+        # the test's underlying CAS. The port knows only the admitted input.
+        writes.clear()
+        lose_write_ack = True
+        unknown = outer._run_generic_cycle_simulation_n5(
+            candidate=case["candidate"], problem=case["problem"], cycle_index=0
+        )
+        assert len(writes) == 1
+        assert unknown.status == "simulation_blocked"
+        assert unknown.generic_n5_execution_ref is unknown.simulation_result_ref is None
+        unknown_failure = unknown.diagnostics["post_production_failure"]
+        assert unknown_failure["phase"] == "execution_seal"
+        assert set(unknown_failure["unverified_locators"]) == {"input_ref"}
+        lose_write_ack = False
+
+        from polisyos.runtime.quality import generation_cycle as boundary_owner
+
+        fresh = GenerationCycleError("joint_simulation_semantic_sources_unavailable")
+        fresh.__cause__ = ArtifactOwnershipError("controlled_owner_denial")
+        monkeypatch.setattr(
+            owner,
+            "resolve_n5_execution_join",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(fresh),
+        )
+        with monkeypatch.context() as removed:
+            removed.setattr(
+                boundary_owner,
+                "_retain_generic_n5_post_production_failure",
+                lambda *_args, **_kwargs: None,
+            )
+            without_capture = outer._run_generic_cycle_simulation_n5(
+                candidate=case["candidate"], problem=case["problem"], cycle_index=0
+            )
+            assert without_capture.status == "simulation_blocked"
+            assert "post_production_failure" not in without_capture.diagnostics
+        restored = outer._run_generic_cycle_simulation_n5(
+            candidate=case["candidate"], problem=case["problem"], cycle_index=0
+        )
+        assert restored.diagnostics["post_production_failure"]["phase"] == "outer_join_validation"
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            _retain_generic_n5_post_production_failure,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationControllerError
+
+        class HostileCauseError(JointSimulationControllerError):
+            def __getattribute__(self, name):
+                if name in {"code", "context"}:
+                    raise RuntimeError("diagnostic metadata must not replace refusal")
+                return super().__getattribute__(name)
+
+        malformed = JointSimulationControllerError("ncm_outcome_non_finite", context={"outcome": 1})
+        for inner in (HostileCauseError("controlled_original_refusal"), malformed):
+            _retain_generic_n5_post_production_failure(
+                inner, phase="outer_join_validation", input_ref=case["input_ref"]
+            )
+            retained = controller._generic_cycle_simulation_refusal(
+                candidate=case["candidate"],
+                code="controlled_original_refusal",
+                candidate_local_exception=inner,
+            )
+            assert retained.status == "simulation_blocked"
+            assert retained.authority_blockers == ("controlled_original_refusal",)
+            assert retained.generic_n5_execution_ref is retained.simulation_result_ref is None
+            retained_failure = retained.diagnostics["post_production_failure"]
+            assert retained_failure["unverified_locators"]["input_ref"]["ref"] == case[
+                "input_ref"
+            ].model_dump(mode="json")
+            assert (
+                retained_failure["cause_chain"][0]["structured_cause_status"] == "not_established"
+            )
+        # Malformed copied refs and extra-field subclasses are not usable
+        # diagnostic locators, and cannot replace the deciding ownership error.
+        malformed_ref = case["input_ref"].model_copy(update={"manifest_profile_sha256": object()})
+
+        class ExtraArtifactRef(ArtifactRef):
+            extra_payload: object
+
+        extra_ref = ExtraArtifactRef(
+            **case["input_ref"].model_dump(mode="python"), extra_payload=object()
+        )
+        for invalid_ref in (malformed_ref, extra_ref):
+            original = ArtifactOwnershipError("controlled_owner_denial")
+            _retain_generic_n5_post_production_failure(
+                original, phase="execution_readback", execution_ref=invalid_ref
+            )
+            declined = controller._generic_cycle_simulation_refusal(
+                candidate=case["candidate"],
+                code="controlled_owner_denial",
+                candidate_local_exception=original,
+            )
+            assert declined.status == "simulation_blocked"
+            assert declined.authority_blockers == ("controlled_owner_denial",)
+            context = declined.diagnostics["post_production_failure"]
+            assert context["unverified_locators"] == {}
+            assert context["unavailable_locator_fields"] == ["execution_ref"]
+            assert context["cause_chain"][0]["exception_type"].endswith("ArtifactOwnershipError")
+        from polisyos.common.exception_metadata import _exception_instance_dict
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            _GenericN5PostProductionFailure,
+        )
+
+        grafted = ArtifactOwnershipError("controlled_owner_denial")
+        _exception_instance_dict(grafted)["_generic_n5_post_production_failure"] = (
+            _GenericN5PostProductionFailure(phase="outer_join_validation", result_ref=malformed_ref)
+        )
+        rendered = controller._generic_cycle_simulation_refusal(
+            candidate=case["candidate"],
+            code="controlled_owner_denial",
+            candidate_local_exception=grafted,
+        )
+        assert rendered.status == "simulation_blocked"
+        assert rendered.diagnostics["post_production_failure"]["unverified_locators"] == {}
+        assert rendered.diagnostics["post_production_failure"]["unavailable_locator_fields"] == [
+            "result_ref"
+        ]
         assert numerical_calls == []

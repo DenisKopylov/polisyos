@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.common.exception_metadata import _exception_instance_dict
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import (
     ArtifactRef,
@@ -115,13 +116,75 @@ class _GenericN5VerifiedMismatchError(CycleSubstrateContextOwnerError):
     """An independently compared N5 owner binding is demonstrably unequal."""
 
 
+@dataclass(frozen=True, slots=True)
+class _GenericN5PostProductionFailure:
+    """Keep known selected locators without establishing their usable linkage."""
+
+    phase: str
+    input_ref: ArtifactRef | None = None
+    result_ref: ArtifactRef | None = None
+    execution_ref: ArtifactRef | None = None
+    unavailable_locator_fields: tuple[str, ...] = ()
+
+
+def _copy_generic_n5_locator(ref: object) -> ArtifactRef | None:
+    """Best-effort copy of a canonical ref; diagnostic failure never escapes."""
+    if type(ref) is not ArtifactRef:
+        return None
+    try:
+        selected = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+        return selected if selected.manifest_profile_sha256 is not None else None
+    except Exception:
+        return None
+
+
+def _retain_generic_n5_post_production_failure(
+    error: Exception,
+    *,
+    phase: str,
+    input_ref: ArtifactRef | None = None,
+    result_ref: ArtifactRef | None = None,
+    execution_ref: ArtifactRef | None = None,
+) -> None:
+    """Attach actual returned refs without replacing the original exception.
+
+    No locator is inferred from a failed write, exception text or CAS search.
+    Nested boundaries preserve the first failing phase and enrich only missing
+    locators. The original exception type, code, cause and refusal stay intact.
+    """
+    metadata = _exception_instance_dict(error)
+    if metadata is None:
+        return
+    previous = metadata.get("_generic_n5_post_production_failure")
+    if type(previous) is not _GenericN5PostProductionFailure:
+        previous = None
+
+    unavailable = set(previous.unavailable_locator_fields if previous is not None else ())
+    refs = {}
+    for name, supplied in (
+        ("input_ref", input_ref),
+        ("result_ref", result_ref),
+        ("execution_ref", execution_ref),
+    ):
+        held = getattr(previous, name) if previous is not None else None
+        ref = _copy_generic_n5_locator(held if held is not None else supplied)
+        if ref is None and (held is not None or supplied is not None):
+            unavailable.add(name)
+        refs[name] = ref
+    metadata["_generic_n5_post_production_failure"] = _GenericN5PostProductionFailure(
+        phase=previous.phase if previous is not None else phase,
+        **refs,
+        unavailable_locator_fields=tuple(sorted(unavailable)),
+    )
+
+
 class _GenericN5ExecutionReadbackTimeoutError(CycleSubstrateContextOwnerError):
     """Keep a committed locator without claiming that readback established it."""
 
     def __init__(self, ref: ArtifactRef, wait_error: Exception) -> None:
         super().__init__("content_addressed_storage_timeout")
         self.code = "content_addressed_storage_timeout"
-        self.unverified_execution_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+        self.unverified_execution_ref = _copy_generic_n5_locator(ref)
         self.wait_error = wait_error
 
 
@@ -3757,9 +3820,19 @@ class GenericCycleSimulationAdmissionOwner:
             canon_spec=canon_spec,
             return_selected_profile=True,
         )
-        self._readback_written_n5_execution(
-            ref, record=record, options=options, semantic_successor_ref=semantic_successor_ref
-        )
+        try:
+            self._readback_written_n5_execution(
+                ref, record=record, options=options, semantic_successor_ref=semantic_successor_ref
+            )
+        except Exception as exc:
+            _retain_generic_n5_post_production_failure(
+                exc,
+                phase="execution_readback",
+                input_ref=input_ref,
+                result_ref=result_ref,
+                execution_ref=ref,
+            )
+            raise
         return ref
 
     def _readback_written_n5_execution(

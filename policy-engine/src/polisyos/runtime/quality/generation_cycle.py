@@ -147,6 +147,9 @@ if TYPE_CHECKING:
     )
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
+from polisyos.common.exception_metadata import (
+    _bounded_exception_cause_nodes,
+)
 from polisyos.pdc import (
     ArtifactRef,
     CounterexampleRecord,
@@ -257,7 +260,10 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationN5RequestBindingV1,
     GenericCycleSimulationN5RequestBindingV2,
     GenericN5ExecutionJoinOutcome,
+    _copy_generic_n5_locator,
     _GenericN5ExecutionReadbackTimeoutError,
+    _GenericN5PostProductionFailure,
+    _retain_generic_n5_post_production_failure,
 )
 
 if TYPE_CHECKING:
@@ -795,6 +801,65 @@ ValuePortStatus = Literal[
 ]
 PromotionPortStatus = Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
 TerminalStatus = Literal["completed", "blocked"]
+
+
+def _generic_n5_post_production_diagnostics(error: Exception) -> dict[str, object]:
+    """Project bounded real causes and separately unverified known locators."""
+    from polisyos.foundry.coupling import PairedMonteCarloNumericalError
+    from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+
+    nodes, termination = _bounded_exception_cause_nodes(error)
+    failures = []
+    causes = []
+    for node in nodes:
+        metadata = _exception_instance_dict(node.error)
+        failure = None if metadata is None else metadata.get("_generic_n5_post_production_failure")
+        if type(failure) is _GenericN5PostProductionFailure:
+            failures.append(failure)
+        row: dict[str, object] = {"exception_type": node.exception_type, "code": node.code}
+        if type(node.error) in {
+            _BlockingDependencyWaitTimeoutError,
+            PairedMonteCarloNumericalError,
+            JointSimulationControllerError,
+        }:
+            try:
+                code, context = _safe_work_cause(node.error)
+            except Exception:
+                # Diagnostic projection cannot replace the deciding refusal.
+                # Common's stored type/code and locators remain available.
+                row["structured_cause_status"] = "not_established"
+            else:
+                if code is not None:
+                    row["structured_cause_code"] = code
+                    row["structured_cause_context"] = context
+        else:
+            row["structured_cause_status"] = "not_established"
+        causes.append(row)
+    if not failures:
+        return {}
+    locators = {}
+    unavailable = {name for item in failures for name in item.unavailable_locator_fields}
+    for name in ("input_ref", "result_ref", "execution_ref"):
+        held = next(
+            (getattr(item, name) for item in failures if getattr(item, name) is not None), None
+        )
+        ref = _copy_generic_n5_locator(held)
+        if ref is not None:
+            locators[name] = {
+                "ref": ref.model_dump(mode="json"),
+                "verification_status": "not_established",
+            }
+        elif held is not None:
+            unavailable.add(name)
+    return {
+        "post_production_failure": {
+            "phase": failures[-1].phase,
+            "cause_chain": causes,
+            "cause_chain_termination": termination,
+            "unverified_locators": locators,
+            "unavailable_locator_fields": sorted(unavailable),
+        }
+    }
 
 
 class GenerationCycleError(ValueError):
@@ -1819,6 +1884,7 @@ def persist_joint_simulation_result(
             "joint_simulation_result_persist_failed",
             "N5 producer did not return JointSimulationResult",
         )
+    artifact_ref: CASArtifactRef | None = None
     try:
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
         artifact_schema_version = next(
@@ -1861,13 +1927,17 @@ def persist_joint_simulation_result(
         )
         _record_n5_artifact_owner(store, artifact_ref, tenant_context)
         return artifact_ref
-    except GenerationCycleError:
+    except GenerationCycleError as exc:
+        _retain_generic_n5_post_production_failure(
+            exc, phase="result_persistence", result_ref=artifact_ref
+        )
         raise
     except Exception as exc:
-        raise GenerationCycleError(
-            "joint_simulation_result_persist_failed",
-            str(exc),
-        ) from exc
+        error = GenerationCycleError("joint_simulation_result_persist_failed", str(exc))
+        _retain_generic_n5_post_production_failure(
+            error, phase="result_persistence", result_ref=artifact_ref
+        )
+        raise error from exc
 
 
 def _joint_simulation_result_integrity_error(message: str, exc: Exception | None = None) -> None:
@@ -6017,11 +6087,20 @@ class JointSimulationPort:
         )
         if production.admitted_input is None:
             return production.observation
-        return self._finalize_generic_production(
-            production,
-            candidate=candidate,
-            currentness_resolver=generic_cycle_simulation_currentness_resolver,
-        )
+        try:
+            return self._finalize_generic_production(
+                production,
+                candidate=candidate,
+                currentness_resolver=generic_cycle_simulation_currentness_resolver,
+            )
+        except Exception as exc:
+            _retain_generic_n5_post_production_failure(
+                exc,
+                phase="execution_seal",
+                input_ref=production.admitted_input_ref,
+                result_ref=production.observation.simulation_result_ref,
+            )
+            raise
 
     def run_semantic_successor(
         self,
@@ -6152,8 +6231,19 @@ class JointSimulationPort:
         initial_method_input: GenericN5InitialMethodInputRequest | None = None
 
         def produced(**fields: object) -> _JointSimulationProduction:
+            try:
+                observation = SimulationPortObservation.model_validate(fields)
+            except Exception as exc:
+                if result is not None:
+                    _retain_generic_n5_post_production_failure(
+                        exc,
+                        phase="result_observation_validation",
+                        input_ref=admitted_input_ref,
+                        result_ref=fields.get("simulation_result_ref"),
+                    )
+                raise
             return _JointSimulationProduction(
-                observation=SimulationPortObservation.model_validate(fields),
+                observation=observation,
                 result=result,
                 request_binding=generic_request_binding,
                 admitted_input=admitted_input,
@@ -6885,6 +6975,7 @@ class JointSimulationPort:
                     "port": "N5",
                     "reason": "joint_simulation_result_persistence_failed",
                     "persistence_error": str(exc),
+                    **_generic_n5_post_production_diagnostics(exc),
                     "world_model_record_id": request.world_model_record.world_model_record_id,
                     "world_model_record_content_hash": request.world_model_record.content_hash,
                 },
@@ -7036,7 +7127,17 @@ class JointSimulationPort:
             generic_n5_execution_ref=execution_ref,
             generic_profile_selection_ref=input_record.profile.profile_selection_ref,
         )
-        return SimulationPortObservation.model_validate(fields)
+        try:
+            return SimulationPortObservation.model_validate(fields)
+        except Exception as exc:
+            _retain_generic_n5_post_production_failure(
+                exc,
+                phase="sealed_observation_validation",
+                input_ref=input_ref,
+                result_ref=observation.simulation_result_ref,
+                execution_ref=execution_ref,
+            )
+            raise
 
     def _request_with_bound_program_state(
         self,
@@ -19794,6 +19895,8 @@ class GenerationCycleController:
 
         owner = self._generic_cycle_simulation_admission_owner
         handoff = self._generic_cycle_simulation_handoff
+        simulation: SimulationPortObservation | None = None
+        input_ref: CASArtifactRef | None = None
         try:
             input_ref, input_record = self._prepare_generic_cycle_simulation_n5_input(
                 candidate=candidate,
@@ -19934,6 +20037,14 @@ class GenerationCycleController:
             WorldModelRecordError,
             GenerationCycleError,
         ) as exc:
+            if simulation is not None:
+                _retain_generic_n5_post_production_failure(
+                    exc,
+                    phase="outer_join_validation",
+                    input_ref=input_ref,
+                    result_ref=simulation.simulation_result_ref,
+                    execution_ref=simulation.generic_n5_execution_ref,
+                )
             code = str(getattr(exc, "code", None) or "generic_cycle_simulation_n5_refused")
             return self._generic_cycle_simulation_refusal(
                 candidate=candidate,
@@ -19963,19 +20074,25 @@ class GenerationCycleController:
             detail=detail,
             candidate_local_exception=candidate_local_exception,
         )
-        readback_diagnostics: dict[str, object] = {}
+        readback_diagnostics: dict[str, object] = (
+            _generic_n5_post_production_diagnostics(candidate_local_exception)
+            if candidate_local_exception is not None
+            else {}
+        )
         if type(candidate_local_exception) is _GenericN5ExecutionReadbackTimeoutError:
-            error_code, error_context = _safe_work_cause(candidate_local_exception.wait_error)
-            readback_diagnostics = {
-                "unverified_committed_execution_locator": {
-                    "ref": candidate_local_exception.unverified_execution_ref.model_dump(
-                        mode="json"
-                    ),
+            try:
+                error_code, error_context = _safe_work_cause(candidate_local_exception.wait_error)
+            except Exception:
+                error_code, error_context = None, None
+            readback_diagnostics.update(
+                {"readback_error_code": error_code, "readback_error_context": error_context}
+            )
+            locator = _copy_generic_n5_locator(candidate_local_exception.unverified_execution_ref)
+            if locator is not None:
+                readback_diagnostics["unverified_committed_execution_locator"] = {
+                    "ref": locator.model_dump(mode="json"),
                     "verification_status": "not_established",
-                },
-                "readback_error_code": error_code,
-                "readback_error_context": error_context,
-            }
+                }
         return refusal.model_copy(
             update={
                 "diagnostics": {

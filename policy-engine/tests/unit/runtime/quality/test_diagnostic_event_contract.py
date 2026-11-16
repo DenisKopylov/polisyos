@@ -525,3 +525,40 @@ def test_unlabelled_diagnostic_event_keeps_generic_reference_matching() -> None:
 
     assert "authority_ref_not_cas" not in blocking_codes(scorecard)
     assert "hds_event_reconciliation_failed" not in blocking_codes(scorecard)
+
+
+@pytest.mark.parametrize(
+    "event_type",
+    [
+        "polisyos.runtime.generic.initial_evaluation.v1",
+        "polisyos.runtime.generic.initial_reconciliation.v1",
+    ],
+)
+def test_generic_initial_custody_events_use_exact_registered_owner(event_type: str) -> None:
+    """Actual registry admits custody events, never missing owner or payload evidence."""
+    registry = load_diagnostic_event_type_registry()
+    event = _event(
+        event_type=event_type,
+        event_source="polisyos.runtime.acquisition_evaluation",
+        producer_component="polisyos.runtime.acquisition_evaluation",
+        producer_version="1.0",
+        phase="acquisition_evaluation",
+    )
+    assert validate_diagnostic_event(event, registry=registry) == event
+    for changes, code in (
+        ({"event_source": "polisyos.runtime.unrelated"}, "diagnostic_event_source_not_allowed"),
+        ({"producer_component": ""}, "diagnostic_event_producer_missing"),
+        ({"phase": ""}, "diagnostic_event_phase_missing"),
+        ({"payload_ref": None}, "authority_cas_missing"),
+        ({"event_type": event_type + ".unknown"}, "unknown_diagnostic_event_type"),
+    ):
+        with pytest.raises(DiagnosticEventContractError) as refused:
+            validate_diagnostic_event(event.model_copy(update=changes), registry=registry)
+        assert refused.value.code == code
+    removed = registry.model_copy(
+        update={"event_types": {k: v for k, v in registry.event_types.items() if k != event_type}}
+    )
+    with pytest.raises(DiagnosticEventContractError) as absent:
+        validate_diagnostic_event(event, registry=removed)
+    assert absent.value.code == "unknown_diagnostic_event_type"
+    assert validate_diagnostic_event(event, registry=registry) == event

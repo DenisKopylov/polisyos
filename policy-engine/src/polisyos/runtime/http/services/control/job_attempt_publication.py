@@ -4,14 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Mapping
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.common.exception_metadata import _exception_instance_dict
+from polisyos.common.exception_metadata import (
+    _EXCEPTION_CAUSE_MAX_DEPTH,
+    _bounded_exception_cause_nodes,
+    _exception_instance_dict,
+)
 from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
@@ -46,52 +49,7 @@ _ORIGINAL_ERROR_ATTRIBUTE = "_original_error"
 _ORIGINAL_ERROR_PROGRESS_ISSUER = object()
 _ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE = "_progress_issuer"
 _ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE = "_progress_owner_binding"
-_RECOVERY_CAUSE_MAX_DEPTH = 6
-_SAFE_EXCEPTION_CODE = re.compile(r"[A-Za-z_][A-Za-z0-9_.:-]{0,127}\Z")
-_SAFE_EXCEPTION_TYPE = re.compile(r"[A-Za-z_][A-Za-z0-9_.<>]{0,255}\Z")
-_TYPE_MODULE_DESCRIPTOR = type.__dict__["__module__"]
-_TYPE_QUALNAME_DESCRIPTOR = type.__dict__["__qualname__"]
-_BASE_EXCEPTION_CAUSE_DESCRIPTOR = BaseException.__dict__["__cause__"]
-_BASE_EXCEPTION_CONTEXT_DESCRIPTOR = BaseException.__dict__["__context__"]
-_BASE_EXCEPTION_SUPPRESS_CONTEXT_DESCRIPTOR = BaseException.__dict__["__suppress_context__"]
-
-
-def _safe_exception_type(error: BaseException) -> str:
-    """Return a bounded type label without consulting exception message hooks."""
-    error_type = type(error)
-    try:
-        module = _TYPE_MODULE_DESCRIPTOR.__get__(error_type, type)
-        qualname = _TYPE_QUALNAME_DESCRIPTOR.__get__(error_type, type)
-    except Exception:
-        return "not_established"
-    if type(module) is not str or type(qualname) is not str:
-        return "not_established"
-    label = f"{module}.{qualname}"
-    return label if _SAFE_EXCEPTION_TYPE.fullmatch(label) else "not_established"
-
-
-def _safe_exception_code(error: BaseException) -> str:
-    """Read only a validated code stored directly on the exception instance."""
-    metadata = _exception_instance_dict(error)
-    code = metadata.get("code") if metadata is not None else None
-    return code if type(code) is str and _SAFE_EXCEPTION_CODE.fullmatch(code) else "not_established"
-
-
-def _next_exception_cause(error: BaseException) -> tuple[BaseException | None, str]:
-    """Read base exception storage without consulting subclass descriptors."""
-    try:
-        cause = _BASE_EXCEPTION_CAUSE_DESCRIPTOR.__get__(error, BaseException)
-        if isinstance(cause, BaseException):
-            return cause, "cause"
-        suppressed = _BASE_EXCEPTION_SUPPRESS_CONTEXT_DESCRIPTOR.__get__(error, BaseException)
-        context = _BASE_EXCEPTION_CONTEXT_DESCRIPTOR.__get__(error, BaseException)
-    except Exception:
-        return None, "access_not_established"
-    if not suppressed and isinstance(context, BaseException):
-        return context, "context"
-    if suppressed:
-        return None, "context_suppressed"
-    return None, "no_linked_cause"
+_RECOVERY_CAUSE_MAX_DEPTH = _EXCEPTION_CAUSE_MAX_DEPTH
 
 
 def _acquisition_recovery_cause_diagnostic(error: Exception) -> dict[str, object]:
@@ -103,38 +61,21 @@ def _acquisition_recovery_cause_diagnostic(error: Exception) -> dict[str, object
     """
     from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
 
+    cause_nodes, termination = _bounded_exception_cause_nodes(error)
     nodes: list[dict[str, object]] = []
-    seen: set[int] = set()
-    current: BaseException | None = error
-    termination = "depth_limited"
-    for _ in range(_RECOVERY_CAUSE_MAX_DEPTH):
-        if current is None:
-            termination = "no_linked_cause"
-            break
-        identity = id(current)
-        if identity in seen:
-            termination = "cycle_detected"
-            break
-        seen.add(identity)
+    for cause_node in cause_nodes:
         node: dict[str, object] = {
-            "exception_type": _safe_exception_type(current),
-            "code": _safe_exception_code(current),
+            "exception_type": cause_node.exception_type,
+            "code": cause_node.code,
         }
-        if type(current) is _BlockingDependencyWaitTimeoutError:
+        if type(cause_node.error) is _BlockingDependencyWaitTimeoutError:
             from polisyos.runtime.quality.joint_simulation_horizon import _safe_work_cause
 
-            safe_code, safe_context = _safe_work_cause(current)
+            safe_code, safe_context = _safe_work_cause(cause_node.error)
             if safe_code is not None and safe_context is not None:
                 node["code"] = safe_code
                 node["blocking_wait"] = safe_context
         nodes.append(node)
-        current, termination = _next_exception_cause(current)
-        if current is None:
-            break
-    else:
-        termination = (
-            "cycle_detected" if current is not None and id(current) in seen else "depth_limited"
-        )
     return {
         "classification": "diagnostic_only",
         "termination": termination,
@@ -1462,6 +1403,12 @@ class ControlJobAttemptPublicationMixin:
             if type(exc) is AcquisitionRouteRecoveryRequired
             else None
         )
+        recovery_nodes = (
+            cast("list[dict[str, object]]", recovery_cause["nodes"])
+            if recovery_cause is not None
+            else []
+        )
+        recovery_root = recovery_nodes[0] if recovery_nodes else None
         if retained_candidate_progress is not None:
             progress = retained_candidate_progress
         elif recovery_cause is not None:
@@ -1472,8 +1419,14 @@ class ControlJobAttemptPublicationMixin:
                 "job_id": job.job_id,
                 "attempt": job.attempt,
                 "failure": {
-                    "exception_type": _safe_exception_type(exc),
-                    "code": _safe_exception_code(exc),
+                    "exception_type": (
+                        recovery_root["exception_type"]
+                        if recovery_root is not None
+                        else "not_established"
+                    ),
+                    "code": (
+                        recovery_root["code"] if recovery_root is not None else "not_established"
+                    ),
                     "phase": "job_execution",
                     "recovery_cause": recovery_cause,
                 },

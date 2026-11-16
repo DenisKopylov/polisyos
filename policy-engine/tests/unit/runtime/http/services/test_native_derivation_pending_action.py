@@ -209,7 +209,9 @@ def test_native_leaf_admission_skips_scalar_dispatch_but_legacy_dispatches(
     assert scalar_calls == [(bridge, legacy_closure)]
 
 
-def test_inputs_pending_terminal_completes_action_without_consuming_model_movement() -> None:
+def test_inputs_pending_terminal_completes_action_without_consuming_model_movement(
+    tmp_path,
+) -> None:
     collection_ref = _ref("runtime_quality.native_derivation_input_checkpoint", "c")
     profile_ref = _ref("runtime.quality.native_derivation_leaf_cost_profile", "d")
     provider = NativeDerivationLeafProviderSelection(
@@ -277,11 +279,36 @@ def test_inputs_pending_terminal_completes_action_without_consuming_model_moveme
 
     assert progress["state"] == "completed"
     assert progress["model_goal_status"] == "inputs_pending"
-    assert progress["native_input_collection_ref"] == collection_ref
-    assert progress["owner_declared_profile_ref"] == profile_ref
+    assert ArtifactRef.model_validate(progress["native_input_collection_ref"]) == collection_ref
+    assert ArtifactRef.model_validate(progress["owner_declared_profile_ref"]) == profile_ref
     assert terminal.schema_version == "AcquisitionRouteLoopReceipt@1.2"
     assert terminal.native_leaf_provider_selection == provider
     assert movement_calls == []
+
+    # Exercise the real JSON/transaction boundary rather than accepting a
+    # constructor-only progress result. Source adequacy remains the sink's job.
+    from tests.unit.runtime.http.test_control_plane_store_action_head_history import (
+        _create_pending_action_job,
+        _make_store,
+    )
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _lease_job
+
+    store = _make_store(tmp_path)
+    queued = _create_pending_action_job(store, job_id=head.job_id)
+    worker, attempt = _lease_job(store, queued, "native-pending-completion")
+    with store.job_execution_fence(job_id=queued.job_id, worker_id=worker, attempt=attempt):
+        store.complete_job(job_id=queued.job_id, run_id=queued.run_id, progress=progress)
+    completed = store.get_job(queued.job_id)
+    assert completed is not None and completed.state == "completed"
+    assert completed.progress["model_goal_status"] == "inputs_pending"
+    assert completed.progress["terminal_receipt_ref"] == head.receipt_ref
+    assert (
+        ArtifactRef.model_validate(completed.progress["native_input_collection_ref"])
+        == collection_ref
+    )
+    assert (
+        ArtifactRef.model_validate(completed.progress["owner_declared_profile_ref"]) == profile_ref
+    )
 
 
 def test_inputs_pending_terminal_readback_must_match_current_head() -> None:

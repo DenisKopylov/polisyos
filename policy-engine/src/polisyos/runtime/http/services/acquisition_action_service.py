@@ -56,6 +56,7 @@ from polisyos.runtime.quality.agent_action_authority import (
     PersistedAgentActionDecision,
     agent_action_authority_scope,
     agent_action_content_hash,
+    agent_action_permission_hash,
     produce_agent_action_authority_decision,
     reserve_agent_external_action,
 )
@@ -175,6 +176,36 @@ class AcquisitionRouteReplayPins(BaseModel):
     cost_basis_hash: str = Field(pattern=_SHA256_PATTERN)
 
 
+class AcquisitionCustodyRecoveryRequest(BaseModel):
+    """Locate an exact failed attempt/head; this is never an action grant."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    failed_attempt: int = Field(ge=1, strict=True)
+    head_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra={
+            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+            "properties": {
+                "kind": {"const": "runtime_quality.acquisition_route_phase_receipt"},
+                "media_type": {"const": "application/json"},
+                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+            },
+        }
+    )
+
+    @model_validator(mode="after")
+    def _selected_phase_profile(self) -> AcquisitionCustodyRecoveryRequest:
+        ref = self.head_ref
+        if (
+            ref.kind != "runtime_quality.acquisition_route_phase_receipt"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or set(type(ref).model_fields) != set(artifacts.ArtifactRef.model_fields)
+        ):
+            raise ValueError("acquisition_custody_recovery_profile_required")
+        return self
+
+
 class AcquisitionRouteMutationRequest(BaseModel):
     """Strict caller fields; route facts, status, authority, and epochs are forbidden."""
 
@@ -185,6 +216,9 @@ class AcquisitionRouteMutationRequest(BaseModel):
     replay_pins: AcquisitionRouteReplayPins
     idempotency_key: str = Field(min_length=1, max_length=200)
     human_decision_record_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    custody_recovery: AcquisitionCustodyRecoveryRequest | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class CandidateExperimentRouteReplayPins(BaseModel):
@@ -600,6 +634,9 @@ class AcquisitionRouteProjection(BaseModel):
     prior_paid_input_admission: NativePaidInputAdmissionSelection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    custody_recovery: AcquisitionCustodyRecoveryRequest | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     authority_capability: Literal["ready", "producer_missing"]
     execution_capability: Literal["ready", "producer_missing"]
     qualification_status: Literal["pending_epoch_activation", "activated"] = (
@@ -779,6 +816,7 @@ class AcquisitionExecutionResponse(BaseModel):
         "authorization_refreshed",
         "executing",
         "outcome_selected",
+        "world_committed_reentry_pending",
         "candidate_input_reentry_pending",
         "terminal",
     ] = "requested"
@@ -797,7 +835,16 @@ class AcquisitionExecutionResponse(BaseModel):
             != (
                 "runtime_quality.acquisition_route_loop_receipt"
                 if self.receipt_phase == "terminal"
-                else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+                else (
+                    "runtime_quality.acquisition_route_phase_receipt"
+                    if self.receipt_phase == "world_committed_reentry_pending"
+                    or (
+                        self.receipt_phase == "outcome_selected"
+                        and self.selected_receipt_ref.kind
+                        == "runtime_quality.acquisition_route_phase_receipt"
+                    )
+                    else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+                )
             )
         ):
             raise ValueError("acquisition_execution_selected_receipt_invalid")
@@ -971,6 +1018,15 @@ class AcquisitionAuthorityGatewayProvider(Protocol):
         *,
         origin: VerifiedCandidateExperimentOrigin,
         request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory: ...
+
+    def load_acquisition_decision_history(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        request: AcquisitionRouteMutationRequest,
         job_id: str,
         decision_ref: str,
     ) -> AuthenticatedAgentActionDecisionHistory: ...
@@ -1177,6 +1233,8 @@ class AcquisitionActionService:
     ) -> AcquisitionDecisionRequestResponse:
         """Persist the PA2 decision/request without consuming or invoking the effect."""
 
+        if request.custody_recovery is not None:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_execute_only")
         admission = self._validated_mutation(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -1235,6 +1293,16 @@ class AcquisitionActionService:
     ) -> AcquisitionExecutionResponse:
         """Reserve a durable allow, persist requested phase, and enqueue without effect."""
 
+        if request.custody_recovery is not None:
+            return self._request_native_custody_recovery(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                bound_permission=bound_permission,
+                principal=principal,
+            )
         admission = self._validated_mutation(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -1315,6 +1383,286 @@ class AcquisitionActionService:
             authority_decision_ref=decision_ref,
         )
 
+    def _native_custody_recovery_descriptor(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionCustodyRecoveryRequest | None:
+        """Expose a failed-attempt/head locator; it supplies no permission."""
+        if closure.native_derivation_leaf_scope is None:
+            return None
+        heads = self.control_service._control_store.list_acquisition_action_heads(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        if not heads:
+            return None
+        head = heads[-1]
+        job = self.control_service._control_store.get_job(head.job_id)
+        if (
+            job is None
+            or job.state != "failed"
+            or job.attempt < 1
+            or head.receipt_phase not in {"outcome_selected", "world_committed_reentry_pending"}
+            or head.receipt_manifest_profile_sha256 is None
+        ):
+            return None
+        selected = artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID(head.receipt_ref),
+            kind="runtime_quality.acquisition_route_phase_receipt",
+            media_type="application/json",
+            manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+        )
+        if (
+            self._native_custody_selected_head(
+                closure=closure,
+                job_id=job.job_id,
+                selected=selected,
+            )
+            != head
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_head_changed")
+        return AcquisitionCustodyRecoveryRequest(failed_attempt=job.attempt, head_ref=selected)
+
+    def _native_custody_selected_head(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        job_id: str,
+        selected: artifacts.ArtifactRef,
+    ) -> AcquisitionActionHeadRecord:
+        """Reopen an exact Native phase in the canonical route-current chain."""
+        from .control_plane_store import AcquisitionActionHeadRecord
+
+        sink = self.control_service.acquisition_route_sink
+        outcome = sink.current_action_outcome(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        if (
+            closure.native_derivation_leaf_scope is None
+            or outcome is None
+            or outcome.head.job_id != job_id
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_head_not_current")
+        matches = tuple(
+            p for p in outcome.phase_chain if p.receipt_ref == str(selected.artifact_id)
+        )
+        if len(matches) != 1:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_ancestor_missing")
+        phase = matches[0].receipt
+        if (
+            type(phase) is not AcquisitionRoutePhaseReceipt
+            or phase.receipt_phase not in {"outcome_selected", "world_committed_reentry_pending"}
+            or phase.owner_declared_profile_ref != closure.owner_declared_profile_ref
+            or phase.native_leaf_provider_selection != closure.native_derivation_leaf_provider
+            or phase.compiled_ref != closure.compiled_ref
+            or phase.planner_report_hash != agent_action_content_hash(closure.planner_report)
+            or phase.cost_basis_hash != closure.cost_basis_hash
+            or phase.job_id != job_id
+            or not phase.owner_receipt_refs
+            or selected.kind != "runtime_quality.acquisition_route_phase_receipt"
+            or selected.media_type != "application/json"
+            or selected.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionActionServiceError(
+                "acquisition_custody_recovery_native_phase_required"
+            )
+        head = self.control_service._control_store.get_acquisition_action_head_by_receipt(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+            action_generation=outcome.head.action_generation,
+            receipt_ref=str(selected.artifact_id),
+        )
+        if (
+            type(head) is not AcquisitionActionHeadRecord
+            or head.job_id != job_id
+            or head.receipt_manifest_profile_sha256 != selected.manifest_profile_sha256
+            or AcquisitionRoutePhaseReceipt.model_validate(
+                require_declared_profile(
+                    read_core_json_artifact(self.control_service._artifact_store, selected)
+                )
+            )
+            != phase
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_profile_mismatch")
+        return head
+
+    def _request_native_custody_recovery(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: AcquisitionRouteMutationRequest,
+        bound_permission: BoundActionPermissionVerification,
+        principal: RuntimePrincipal | None,
+    ) -> AcquisitionExecutionResponse:
+        """Request one existing failed attempt's custody, without a new action allow."""
+        from .acquisition_admission_bundle import require_acquisition_bound_permission
+
+        selected = request.custody_recovery
+        if (
+            selected is None
+            or principal is None
+            or principal.authenticated is not True
+            or (principal.tenant_id, principal.cell_id) != (tenant_id, cell_id)
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_actor_refused")
+        resource_digest = require_acquisition_bound_permission(bound_permission, request)
+        permission_sha256 = agent_action_permission_hash(bound_permission)
+        proof = bound_permission.verification
+        if (
+            proof.subject != principal.subject
+            or proof.tenant_id != tenant_id
+            or frozenset(proof.roles) != principal.roles
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_actor_refused")
+        original_request = request.model_copy(update={"custody_recovery": None})
+        job_id = self._job_id_for_request(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=original_request,
+        )
+        control = self.control_service
+        store = control._control_store
+        job = store.get_job(job_id)
+        if (
+            job is None
+            or job.kind != "acquisition"
+            or job.run_id != run_id
+            or job.payload_ref is None
+        ):
+            raise AcquisitionActionServiceError(
+                "acquisition_custody_recovery_existing_job_required"
+            )
+        scope, _ = store._reconcile_control_job_creation_envelope(job)
+        if (
+            scope.status != "established"
+            or not scope.actor_authenticated
+            or scope.actor_subject != principal.subject
+            or job.submitted_by != principal.subject
+            or (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id)
+            or frozenset(scope.actor_roles) != principal.roles
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_actor_refused")
+        stored = control._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+        payload = ControlPlaneService._job_payload_without_telemetry(stored)
+        if (
+            AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
+            != original_request
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_request_changed")
+        admission = self._validated_mutation(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=original_request,
+        )
+        closure = admission.closure
+        decision_ref = str(payload.get("decision_ref") or "")
+        operation, invocation, intent = self._action_tuple(closure, original_request)
+        if payload != {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "route_id": route_id,
+            "decision_ref": decision_ref,
+            "request": original_request.model_dump(mode="json"),
+            "operation": operation.model_dump(mode="json"),
+            "invocation": invocation.model_dump(mode="json"),
+            "intent": intent.model_dump(mode="json"),
+        }:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_payload_changed")
+        provider = self._require_authority_provider()
+        read_history = getattr(provider, "load_acquisition_decision_history", None)
+        if not callable(read_history):
+            raise AcquisitionActionServiceError(
+                "acquisition_custody_recovery_history_owner_missing"
+            )
+        history = read_history(
+            closure=closure,
+            request=original_request,
+            job_id=job_id,
+            decision_ref=decision_ref,
+        )
+        if type(history) is not AuthenticatedAgentActionDecisionHistory:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_history_unverified")
+        permission = history.decision.permission_snapshot
+        if (
+            history.current_authority != "not_revalidated"
+            or history.decision_ref != decision_ref
+            or decision_ref != f"sha256:{history.payload_sha256}"
+            or not history.durable_event_id
+            or not history.signer_identity
+            or history.decision.outcome != "allowed"
+            or permission is None
+            or permission.subject != principal.subject
+            or permission.tenant_id != tenant_id
+            or frozenset(permission.roles) != principal.roles
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_history_unverified")
+        head = self._native_custody_selected_head(
+            closure=closure,
+            job_id=job_id,
+            selected=selected.head_ref,
+        )
+        try:
+            recovered = control.recover_native_acquisition_custody_job(
+                expected_job=job,
+                failed_attempt=selected.failed_attempt,
+                head=head,
+                execution_scope=scope,
+                request_sha256=agent_action_content_hash(request),
+                permission_sha256=permission_sha256,
+                resource_digest=resource_digest,
+            )
+        except (RuntimeError, ValueError) as exc:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_conflict") from exc
+        current = control.acquisition_route_sink.current_action_outcome(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=closure.source_job_id,
+            route_id=route_id,
+        )
+        if current is None or current.head.job_id != job_id:
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_head_changed")
+        completed = recovered.state == "completed" and current.head.receipt_phase == "terminal"
+        phase = "terminal" if completed else head.receipt_phase
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=route_id,
+            job_id=job_id,
+            authority_decision_ref=decision_ref,
+            status="completed" if completed else "accepted",
+            receipt_phase=phase,
+            selected_receipt_ref=(
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID(current.head.receipt_ref),
+                    kind="runtime_quality.acquisition_route_loop_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=current.head.receipt_manifest_profile_sha256,
+                )
+                if completed
+                else selected.head_ref
+            ),
+        )
+
     def handle_job(
         self,
         job: ControlJobRecord,
@@ -1344,6 +1692,27 @@ class AcquisitionActionService:
         ):
             raise AcquisitionActionServiceError("acquisition_job_payload_owner_scope_mismatch")
         request = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
+        if request.custody_recovery is not None:
+            raise AcquisitionActionServiceError(
+                "acquisition_custody_recovery_creation_payload_invalid"
+            )
+        custody = self.control_service._control_store.current_native_acquisition_custody_recovery()
+        if custody is not None:
+            recorded_request = request.model_copy(
+                update={
+                    "custody_recovery": AcquisitionCustodyRecoveryRequest(
+                        failed_attempt=custody.failed_attempt,
+                        head_ref=artifacts.ArtifactRef.model_validate(
+                            custody.event.payload["head_ref"]
+                        ),
+                    ),
+                }
+            )
+            if (
+                agent_action_content_hash(recorded_request)
+                != custody.event.payload["request_sha256"]
+            ):
+                raise AcquisitionActionServiceError("acquisition_custody_recovery_request_changed")
         admission = self._validated_mutation(
             tenant_id=execution_scope.tenant_id,
             cell_id=execution_scope.cell_id,
@@ -1375,6 +1744,18 @@ class AcquisitionActionService:
         head = sink.get_head(seed)
         if head is None:
             raise AcquisitionActionServiceError("acquisition_requested_head_missing")
+        if custody is not None:
+            self._native_custody_selected_head(
+                closure=closure,
+                job_id=job.job_id,
+                selected=artifacts.ArtifactRef.model_validate(custody.event.payload["head_ref"]),
+            )
+            if head.receipt_phase not in {
+                "outcome_selected",
+                "world_committed_reentry_pending",
+                "terminal",
+            }:
+                raise AcquisitionActionServiceError("acquisition_custody_recovery_effect_refused")
         port = self._require_execution_port()
         if head.receipt_phase == "terminal":
             self._consume_movement(head.receipt_ref)
@@ -1391,7 +1772,19 @@ class AcquisitionActionService:
                 if completed is not None:
                     self._consume_movement(completed.receipt_ref)
                     return self._terminal_progress(completed)
-            pending = self._read_phase_receipt(head.receipt_ref)
+            if custody is not None and head.receipt_manifest_profile_sha256 is None:
+                raise AcquisitionActionServiceError("acquisition_custody_recovery_profile_required")
+            pending_ref = (
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID(head.receipt_ref),
+                    kind="runtime_quality.acquisition_route_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+                )
+                if custody is not None
+                else head.receipt_ref
+            )
+            pending = self._read_phase_receipt(pending_ref)
             terminal = resume_world_committed_reentry(
                 sink=sink,
                 pending_receipt=pending,
@@ -1441,6 +1834,10 @@ class AcquisitionActionService:
                 or current_phase.cost_basis_hash != closure.cost_basis_hash
             ):
                 raise AcquisitionActionServiceError("acquisition_executing_head_unverified")
+            if custody is not None and current.selection_phase_ref is None:
+                raise AcquisitionActionServiceError(
+                    "acquisition_custody_recovery_owned_outcome_missing"
+                )
             result = self._production_execution_port.recover_owned_result(
                 closure, action_phase_ref=action_phase_ref
             )
@@ -5148,6 +5545,7 @@ class AcquisitionActionService:
                 else None
             ),
             prior_paid_input_admission=closure.prior_paid_input_admission,
+            custody_recovery=self._native_custody_recovery_descriptor(closure),
             authority_capability=(
                 "ready"
                 if execution_ready
@@ -5479,7 +5877,16 @@ class AcquisitionActionService:
             generated_at=datetime.now(UTC),
         )
 
-    def _read_phase_receipt(self, ref: str) -> AcquisitionRoutePhaseReceipt:
+    def _read_phase_receipt(
+        self,
+        ref: str | artifacts.ArtifactRef,
+    ) -> AcquisitionRoutePhaseReceipt:
+        if isinstance(ref, artifacts.ArtifactRef) and (
+            ref.manifest_profile_sha256 is None
+            or ref.kind != "runtime_quality.acquisition_route_phase_receipt"
+            or ref.media_type != "application/json"
+        ):
+            raise AcquisitionActionServiceError("acquisition_phase_profile_required")
         try:
             return AcquisitionRoutePhaseReceipt.model_validate(
                 require_declared_profile(
@@ -5522,8 +5929,8 @@ class AcquisitionActionService:
                 "receipt_phase": "terminal",
                 "terminal_receipt_ref": head.receipt_ref,
                 "model_goal_status": "inputs_pending",
-                "native_input_collection_ref": collection,
-                "owner_declared_profile_ref": profile,
+                "native_input_collection_ref": collection.model_dump(mode="json"),
+                "owner_declared_profile_ref": profile.model_dump(mode="json"),
             }
         return {
             "state": "completed",

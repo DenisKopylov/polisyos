@@ -88,7 +88,9 @@ _MUTATION_AUTHZ = require_action_permission(
             "replay_pins",
             "idempotency_key",
             "human_decision_record_ref",
+            "custody_recovery",
         ),
+        omit_absent_selector_fields=("custody_recovery",),
         required_selector_fields=(
             "route_projection_hash",
             "planner_report_hash",

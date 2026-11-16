@@ -8,7 +8,6 @@ institutional evidence.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from hashlib import sha256
 from types import MappingProxyType
@@ -34,6 +33,7 @@ from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
     _digest_payload,
+    _selectors_from_body,
 )
 from polisyos.runtime.http.services.control.artifacts import (
     write_runtime_authority_artifact,
@@ -494,6 +494,28 @@ def _recompute_resource_digest(
     elif type(request) is not request_model:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     expected_selectors = None if request is None else _request_selectors(request)
+    omitted = ("custody_recovery",) if action_kind == ACQUISITION_ACTION_KIND else ()
+    legacy_fields = tuple(name for name in request_fields if name not in omitted)
+    legacy_binding = (
+        bool(omitted)
+        and (
+            request is None
+            or (
+                type(request) is AcquisitionRouteMutationRequest
+                and request.custody_recovery is None
+            )
+        )
+        and binding.selector_fields == legacy_fields
+        and not binding.omit_absent_selector_fields
+    )
+    binding_fields_match = legacy_binding or (
+        binding.selector_fields == request_fields and binding.omit_absent_selector_fields == omitted
+    )
+    effective_fields = (
+        tuple(name for name, _value in expected_selectors)
+        if expected_selectors is not None
+        else legacy_fields
+    )
     if (
         type(resource) is not BoundAuthorizationResource
         or resource.requirement is not requirement
@@ -501,10 +523,10 @@ def _recompute_resource_digest(
         or requirement.permission is not permission
         or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
         or binding.resource_kind != resource_kind
-        or binding.selector_fields != request_fields
+        or not binding_fields_match
         or binding.required_selector_fields != required_request_fields
         or binding.required_selector_alternatives
-        or selector_names != tuple(sorted(request_fields))
+        or selector_names != tuple(sorted(effective_fields))
         or (expected_selectors is not None and resource.canonical_selectors != expected_selectors)
         or resource.authority is not BindingAuthority.REQUEST_BOUND
         or resource.tenant_id is not None
@@ -528,6 +550,16 @@ def _recompute_resource_digest(
     if resource.resource_digest != digest:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_digest_mismatch")
     return digest
+
+
+def require_acquisition_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: AcquisitionRouteMutationRequest,
+) -> str:
+    """Recompute the exact current request seal without supplying PA2 authority."""
+    return _recompute_resource_digest(
+        bound_permission, action_kind=ACQUISITION_ACTION_KIND, request=request
+    )
 
 
 def require_candidate_experiment_bound_permission(
@@ -667,22 +699,12 @@ def _request_resource_digest(
 
 def _request_selectors(request: _ActionRequest) -> tuple[tuple[str, str], ...]:
     body = request.model_dump(mode="json")
-    return tuple(
-        sorted(
-            (
-                field,
-                '{"present":false}'
-                if body[field] is None
-                else json.dumps(
-                    body[field],
-                    ensure_ascii=True,
-                    allow_nan=False,
-                    separators=(",", ":"),
-                    sort_keys=True,
-                ),
-            )
-            for field in type(request).model_fields
-        )
+    return _selectors_from_body(
+        body,
+        tuple(type(request).model_fields),
+        omit_absent=("custody_recovery",)
+        if type(request) is AcquisitionRouteMutationRequest
+        else (),
     )
 
 

@@ -10408,6 +10408,33 @@ class ControlPlaneService(
             return ()
         return matches[0].owner_declared_cost_profile_refs
 
+    def recover_native_acquisition_custody_job(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        failed_attempt: int,
+        head: AcquisitionActionHeadRecord,
+        execution_scope: ControlJobExecutionScope,
+        request_sha256: str,
+        permission_sha256: str,
+        resource_digest: str,
+    ) -> ControlJobRecord:
+        """Queue custody of an existing acquisition, retaining its original admission.
+
+        The action owner has reopened the exact request, signed decision and
+        selected Native phase. The store performs the atomic failed-attempt,
+        route-head and creation-scope comparison; no payload is re-created.
+        """
+        return self._control_store.request_native_acquisition_custody_recovery(
+            expected_job=expected_job,
+            failed_attempt=failed_attempt,
+            head=head,
+            execution_scope=execution_scope,
+            request_sha256=request_sha256,
+            permission_sha256=permission_sha256,
+            resource_digest=resource_digest,
+        )
+
     def enqueue_acquisition_job(
         self,
         *,

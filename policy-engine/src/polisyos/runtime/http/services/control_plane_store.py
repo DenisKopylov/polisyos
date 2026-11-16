@@ -81,6 +81,8 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 )
 
 
+_NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
+
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
 _CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND = (
     "runtime.evidence.acquisition.candidate_experiment.execute"
@@ -1433,6 +1435,22 @@ class AcquisitionActionHeadRecord:
     evaluation_frontier_before_ref: str | None = None
     evaluation_frontier_ref: str | None = None
     receipt_manifest_profile_sha256: str | None = None
+
+
+@dataclass(frozen=True)
+class NativeAcquisitionCustodyRecoveryRecord:
+    """One explicit custody request, attributed to its immutable failed attempt.
+
+    This is a restriction on a new worker lease, never an execution grant for
+    activation, materialization or simulation.
+    """
+
+    event: _ControlJobLifecycleSourceEventRecord
+    failed_attempt: int
+    recovery_attempt: int
+    head: AcquisitionActionHeadRecord
+    payload_ref: str
+    execution_scope: ControlJobExecutionScope
 
 
 @dataclass(frozen=True)
@@ -6195,6 +6213,15 @@ class ControlPlaneStore:
                 "acquisition_evaluation_frontier_source_scope_mismatch"
             )
 
+    def _lock_acquisition_route_source(self, source_job_id: str) -> None:
+        """Serialize route publications with their existing source owner row."""
+        if self.backend == "postgres":
+            row = self._fetchone(
+                "SELECT job_id FROM control_jobs WHERE job_id = ? FOR UPDATE", (source_job_id,)
+            )
+            if row is None:
+                raise ValueError("acquisition_action_source_job_missing")
+
     def get_acquisition_action_head(
         self,
         *,
@@ -6501,6 +6528,7 @@ class ControlPlaneStore:
                 )
             else:
                 committed_frontier = None
+            self._lock_acquisition_route_source(source_job_id)
             current = self.get_acquisition_action_head(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
@@ -8747,6 +8775,354 @@ class ControlPlaneStore:
         )
         return [self._row_to_dead_letter_record(row) for row in rows]
 
+    def _native_acquisition_custody_recovery_records(
+        self, job_id: str
+    ) -> tuple[NativeAcquisitionCustodyRecoveryRecord, ...]:
+        """Replay the complete existing event denominator for one custody subject."""
+        rows = self._fetchall(
+            "SELECT event_id, job_id, event_type, payload_json, created_at "
+            "FROM control_job_events WHERE job_id = ? AND event_type = ? ORDER BY event_id",
+            (job_id, _NATIVE_CUSTODY_RECOVERY_EVENT),
+        )
+        records = []
+        seen: set[int] = set()
+        for row in rows:
+            event = self._control_job_lifecycle_event_record_from_row(
+                row, expected_job_id=job_id, expected_event_type=_NATIVE_CUSTODY_RECOVERY_EVENT
+            )
+            value = event.payload
+            failed_attempt = value.get("failed_attempt")
+            recovery_attempt = value.get("recovery_attempt")
+            head_value = value.get("head")
+            if (
+                value.get("schema_version") != "native_acquisition_custody_recovery.v1"
+                or value.get("authority_purpose") != "historical_custody_only"
+                or value.get("state") != "pending"
+                or value.get("job_id") != job_id
+                or type(failed_attempt) is not int
+                or failed_attempt < 1
+                or failed_attempt in seen
+                or type(recovery_attempt) is not int
+                or recovery_attempt != failed_attempt + 1
+                or not isinstance(head_value, dict)
+                or not _is_sha256_ref(value.get("payload_ref"))
+                or not all(
+                    _is_sha256_ref(value.get(name))
+                    for name in ("request_sha256", "permission_sha256", "resource_digest")
+                )
+            ):
+                raise ValueError("native_custody_recovery_event_invalid")
+            head = self._row_to_acquisition_action_head(head_value)
+            selected = ArtifactRef.model_validate(value.get("head_ref"))
+            if (
+                head.job_id != job_id
+                or head.receipt_phase not in {"outcome_selected", "world_committed_reentry_pending"}
+                or selected.kind != "runtime_quality.acquisition_route_phase_receipt"
+                or selected.media_type != "application/json"
+                or selected.manifest_profile_sha256 is None
+                or str(selected.artifact_id) != head.receipt_ref
+                or selected.manifest_profile_sha256 != head.receipt_manifest_profile_sha256
+                or head.receipt_sha256 != head.receipt_ref
+                or self.get_acquisition_action_head_by_receipt(
+                    tenant_id=head.tenant_id,
+                    cell_id=head.cell_id,
+                    run_id=head.run_id,
+                    source_job_id=head.source_job_id,
+                    route_id=head.route_id,
+                    action_generation=head.action_generation,
+                    receipt_ref=head.receipt_ref,
+                )
+                != head
+            ):
+                raise ValueError("native_custody_recovery_head_invalid")
+            scope = _control_job_execution_scope_from_event(value)
+            failed = value.get("failed_event")
+            prior_job = value.get("failed_job")
+            dlq = value.get("dead_letter")
+            if (
+                scope.status != "established"
+                or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
+                or not isinstance(failed, dict)
+                or not isinstance(prior_job, dict)
+                or not isinstance(dlq, dict)
+                or prior_job.get("job_id") != job_id
+                or prior_job.get("state") != "failed"
+                or prior_job.get("attempt") != failed_attempt
+                or prior_job.get("payload_ref") != value["payload_ref"]
+                or prior_job.get("submitted_by") != scope.actor_subject
+                or dlq.get("job_id") != job_id
+                or dlq.get("attempt") != failed_attempt
+            ):
+                raise ValueError("native_custody_recovery_failed_subject_invalid")
+            source_row = self._fetchone(
+                "SELECT event_id, job_id, event_type, payload_json, created_at "
+                "FROM control_job_events WHERE job_id = ? AND event_id = ?",
+                (job_id, failed.get("event_id")),
+            )
+            if source_row is None:
+                raise ValueError("native_custody_recovery_failure_missing")
+            source = self._control_job_lifecycle_event_record_from_row(
+                source_row, expected_job_id=job_id, expected_event_type="job_failed"
+            )
+            if (
+                source.event_id >= event.event_id
+                or source.payload.get("attempt") != failed_attempt
+                or failed
+                != {
+                    "event_id": source.event_id,
+                    "payload_sha256": source.payload_sha256,
+                    "payload": source.payload,
+                    "created_at": source.created_at.isoformat(),
+                }
+            ):
+                raise ValueError("native_custody_recovery_failure_changed")
+            outbox = self.get_outbox_topic_event(
+                topic="control.job.custody_recovery_requested",
+                event_key=f"{job_id}:custody_recovery:{failed_attempt}",
+                job_id=job_id,
+            )
+            if (
+                outbox is None
+                or outbox.run_id != head.run_id
+                or not _json_values_equal_strict(outbox.payload, value)
+            ):
+                raise ValueError("native_custody_recovery_event_outbox_mismatch")
+            records.append(
+                NativeAcquisitionCustodyRecoveryRecord(
+                    event=event,
+                    failed_attempt=failed_attempt,
+                    recovery_attempt=recovery_attempt,
+                    head=head,
+                    payload_ref=value["payload_ref"],
+                    execution_scope=scope,
+                )
+            )
+            seen.add(failed_attempt)
+        return tuple(records)
+
+    def request_native_acquisition_custody_recovery(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        failed_attempt: int,
+        head: AcquisitionActionHeadRecord,
+        execution_scope: ControlJobExecutionScope,
+        request_sha256: str,
+        permission_sha256: str,
+        resource_digest: str,
+    ) -> ControlJobRecord:
+        """Atomically queue an explicitly requested recovery of one failed custody attempt.
+
+        The caller first verifies the selected Native phase and current request
+        permission. This owner locks the job, compares the route-current head,
+        preserves the failure/DLQ snapshots in an append-only event, and only
+        then changes the aggregate queue projection. The creation payload stays
+        unchanged and the ordinary lease owner supplies the next attempt.
+        """
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError(
+                "native_custody_recovery_requires_request_owner"
+            )
+        if (
+            type(expected_job) is not ControlJobRecord
+            or type(head) is not AcquisitionActionHeadRecord
+            or type(execution_scope) is not ControlJobExecutionScope
+            or type(failed_attempt) is not int
+            or failed_attempt < 1
+            or expected_job.kind != "acquisition"
+            or expected_job.run_id != head.run_id
+            or expected_job.job_id != head.job_id
+            or expected_job.payload_ref is None
+            or head.receipt_phase not in {"outcome_selected", "world_committed_reentry_pending"}
+            or not _is_sha256_ref(head.receipt_manifest_profile_sha256)
+            or not all(
+                _is_sha256_ref(v) for v in (request_sha256, permission_sha256, resource_digest)
+            )
+        ):
+            raise ValueError("native_custody_recovery_subject_invalid")
+        with self._job_transaction():
+            self._lock_job_state(expected_job.job_id)
+            job = self.get_job(expected_job.job_id)
+            if job is None or (
+                job.kind,
+                job.run_id,
+                job.payload_ref,
+                job.submitted_by,
+                job.created_at,
+            ) != (
+                expected_job.kind,
+                expected_job.run_id,
+                expected_job.payload_ref,
+                expected_job.submitted_by,
+                expected_job.created_at,
+            ):
+                raise ValueError("native_custody_recovery_job_changed")
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            if (
+                scope.status != "established"
+                or scope != execution_scope
+                or scope.actor_subject != job.submitted_by
+                or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
+            ):
+                raise ValueError("native_custody_recovery_scope_refused")
+            previous = tuple(
+                r
+                for r in self._native_acquisition_custody_recovery_records(job.job_id)
+                if r.failed_attempt == failed_attempt
+            )
+            if previous:
+                record = previous[0]
+                if (
+                    record.head != head
+                    or record.execution_scope != scope
+                    or record.event.payload["request_sha256"] != request_sha256
+                    or record.event.payload["resource_digest"] != resource_digest
+                    or job.state not in {"pending", "running", "completed"}
+                    or job.attempt < failed_attempt
+                ):
+                    raise ValueError("native_custody_recovery_request_stale")
+                return job
+            if (
+                job.state != "failed"
+                or job.attempt != failed_attempt
+                or job.lease_owner is not None
+                or job.lease_expires_at is not None
+                or job.finished_at is None
+            ):
+                raise ValueError("native_custody_recovery_failed_attempt_changed")
+            self._lock_acquisition_route_source(head.source_job_id)
+            heads = self.list_acquisition_action_heads(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+            )
+            if not heads or heads[-1] != head:
+                raise ValueError("native_custody_recovery_route_head_changed")
+            failure = self.get_job_terminal_source_event_record(job.job_id)
+            if (
+                failure.event_type != "job_failed"
+                or failure.payload.get("attempt") != failed_attempt
+            ):
+                raise ValueError("native_custody_recovery_failure_not_established")
+            failed_row = self._fetchone(
+                "SELECT * FROM control_jobs WHERE job_id = ?", (job.job_id,)
+            )
+            dlq_row = self._fetchone(
+                "SELECT * FROM control_dead_letter_jobs WHERE job_id = ?", (job.job_id,)
+            )
+            progress_row = self._fetchone(
+                "SELECT * FROM control_job_progress WHERE job_id = ?", (job.job_id,)
+            )
+            if dlq_row is None or dict(dlq_row)["attempt"] != failed_attempt:
+                raise ValueError("native_custody_recovery_dead_letter_missing")
+            head_value = dict(vars(head))
+            head_value["created_at"] = _iso(head.created_at)
+            value = {
+                "schema_version": "native_acquisition_custody_recovery.v1",
+                "authority_purpose": "historical_custody_only",
+                "state": "pending",
+                "job_id": job.job_id,
+                "failed_attempt": failed_attempt,
+                "recovery_attempt": failed_attempt + 1,
+                "payload_ref": job.payload_ref,
+                "head": head_value,
+                "head_ref": ArtifactRef(
+                    artifact_id=ArtifactID(head.receipt_ref),
+                    kind="runtime_quality.acquisition_route_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+                ).model_dump(mode="json"),
+                "execution_scope": {
+                    "schema_version": _CONTROL_EXECUTION_SCOPE_SCHEMA_VERSION,
+                    "status": scope.status,
+                    "tenant_id": scope.tenant_id,
+                    "cell_id": scope.cell_id,
+                    "actor_subject": scope.actor_subject,
+                    "actor_authenticated": scope.actor_authenticated,
+                    "actor_roles": list(scope.actor_roles),
+                },
+                "request_sha256": request_sha256,
+                "permission_sha256": permission_sha256,
+                "resource_digest": resource_digest,
+                "failed_job": dict(failed_row),
+                "dead_letter": dict(dlq_row),
+                "failed_progress": dict(progress_row) if progress_row is not None else None,
+                "failed_event": {
+                    "event_id": failure.event_id,
+                    "payload_sha256": failure.payload_sha256,
+                    "payload": failure.payload,
+                    "created_at": failure.created_at.isoformat(),
+                },
+            }
+            self.append_event(
+                job_id=job.job_id, event_type=_NATIVE_CUSTODY_RECOVERY_EVENT, payload=value
+            )
+            self.acknowledge_dead_letter_job(job_id=job.job_id, acknowledged_by=scope.actor_subject)
+            changed = self._execute(
+                "UPDATE control_jobs SET state = 'pending', finished_at = NULL, error_message = NULL, "
+                "lease_owner = NULL, lease_expires_at = NULL WHERE job_id = ? AND state = 'failed' "
+                "AND attempt = ? AND payload_ref = ?",
+                (job.job_id, failed_attempt, job.payload_ref),
+            )
+            if changed != 1:
+                raise ValueError("native_custody_recovery_job_changed")
+            self._upsert_progress_unchecked(
+                job_id=job.job_id,
+                progress={
+                    "state": "pending",
+                    "phase": "acquisition_custody_recovery",
+                    "authority_purpose": "historical_custody_only",
+                    "failed_attempt": failed_attempt,
+                },
+            )
+            self.enqueue_outbox_event(
+                topic="control.job.custody_recovery_requested",
+                job_id=job.job_id,
+                run_id=job.run_id,
+                event_key=f"{job.job_id}:custody_recovery:{failed_attempt}",
+                payload=value,
+                require_matching_payload=True,
+            )
+            recovered = self.get_job(job.job_id)
+            if recovered is None:
+                raise RuntimeError("native_custody_recovery_job_missing")
+            return recovered
+
+    def current_native_acquisition_custody_recovery(
+        self,
+    ) -> NativeAcquisitionCustodyRecoveryRecord | None:
+        """Replay the custody restriction for the actual running lease, fail closed."""
+        job = self.current_execution_job_record()
+        records = self._native_acquisition_custody_recovery_records(job.job_id)
+        failures = self._fetchall(
+            "SELECT event_id, job_id, event_type, payload_json, created_at FROM control_job_events "
+            "WHERE job_id = ? AND event_type = 'job_failed' ORDER BY event_id DESC LIMIT 1",
+            (job.job_id,),
+        )
+        if not failures:
+            if records:
+                raise ValueError("native_custody_recovery_failure_missing")
+            return None
+        failure = self._control_job_lifecycle_event_record_from_row(
+            failures[0], expected_job_id=job.job_id, expected_event_type="job_failed"
+        )
+        matching = tuple(r for r in records if r.failed_attempt == failure.payload.get("attempt"))
+        if len(matching) != 1:
+            raise ValueError("native_custody_recovery_request_missing")
+        record = matching[0]
+        scope, _ = self._reconcile_control_job_creation_envelope(job)
+        if (
+            job.kind != "acquisition"
+            or job.attempt < record.recovery_attempt
+            or job.payload_ref != record.payload_ref
+            or scope != record.execution_scope
+            or record.event.payload["failed_event"]["event_id"] != failure.event_id
+        ):
+            raise ValueError("native_custody_recovery_lease_mismatch")
+        return record
+
     def acknowledge_dead_letter_job(self, *, job_id: str, acknowledged_by: str) -> None:
         """Mark a dead-lettered job as operator-acknowledged."""
         now = _utc_now()
@@ -9080,6 +9456,7 @@ class ControlPlaneStore:
         run_id: str | None = None,
         event_key: str | None = None,
         require_new: bool = False,
+        require_matching_payload: bool = False,
     ) -> ControlOutboxRecord:
         """Insert a keyed outbox event, optionally refusing any prior winner."""
         if require_new and not event_key:
@@ -9103,12 +9480,20 @@ class ControlPlaneStore:
             if existing is not None:
                 if require_new:
                     raise ControlJobLeaseLostError("control_job_outbox_already_exists")
-                if topic == _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC and (
+                if (require_matching_payload or topic == _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC) and (
                     existing.job_id != job_id
                     or existing.run_id != run_id
-                    or existing.payload != payload
+                    or (
+                        not _json_values_equal_strict(existing.payload, payload)
+                        if require_matching_payload
+                        else existing.payload != payload
+                    )
                 ):
-                    raise ValueError("completed_hte_validity_outbox_immutable_conflict")
+                    raise ValueError(
+                        "control_job_outbox_immutable_conflict"
+                        if require_matching_payload
+                        else "completed_hte_validity_outbox_immutable_conflict"
+                    )
                 if topic in {
                     "control.search.hte_completed",
                     _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
@@ -10341,6 +10726,25 @@ class ControlPlaneStore:
     ) -> None:
         topic = _job_event_topic(event_type)
         event_key = None if event_type == "job_progress" else f"{record.job_id}:{event_type}"
+        recovery_scoped = False
+        if record.kind == "acquisition" and event_type in {"job_running", "job_failed"}:
+            failures = self._fetchall(
+                "SELECT event_id, job_id, event_type, payload_json, created_at "
+                "FROM control_job_events WHERE job_id = ? AND event_type = 'job_failed'",
+                (record.job_id,),
+            )
+            recovery_scoped = any(
+                type(event.payload.get("attempt")) is int
+                and 0 < event.payload["attempt"] < record.attempt
+                for row in failures
+                for event in (
+                    self._control_job_lifecycle_event_record_from_row(
+                        row, expected_job_id=record.job_id, expected_event_type="job_failed"
+                    ),
+                )
+            )
+        if recovery_scoped:
+            event_key = f"{record.job_id}:{event_type}:attempt:{record.attempt}"
         outbox_payload = {
             **_control_job_outbox_identity_envelope(record),
             **payload,
@@ -10352,6 +10756,7 @@ class ControlPlaneStore:
             run_id=record.run_id,
             payload=outbox_payload,
             **({"require_new": True} if event_type == "job_cancelled" else {}),
+            **({"require_matching_payload": True} if recovery_scoped else {}),
         )
 
     def _lease_next_sqlite(self, *, worker_id: str, lease_seconds: int) -> ControlJobRecord | None:

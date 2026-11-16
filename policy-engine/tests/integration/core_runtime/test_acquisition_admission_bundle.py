@@ -37,6 +37,7 @@ from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
+    _selectors_from_body,
 )
 from polisyos.runtime.http.routes.acquisitions import _MUTATION_AUTHZ
 from polisyos.runtime.http.services.acquisition_action_service import (
@@ -122,14 +123,10 @@ def _request_composite_selectors(
     """Derive frozen selectors from the production mutation DTO body."""
 
     body = request.model_dump(mode="json")
-    return tuple(
-        sorted(
-            (
-                field,
-                '{"present":false}' if body[field] is None else _canonical_selector(body[field]),
-            )
-            for field in selector_fields
-        )
+    return _selectors_from_body(
+        body,
+        selector_fields,
+        omit_absent=_MUTATION_AUTHZ.requirement.resource_binding.omit_absent_selector_fields,
     )
 
 
@@ -592,7 +589,9 @@ def test_incomplete_request_composite_denominator_is_rejected_before_write(
         ),
         write_context=_write_context(),
     )
-    incomplete_selector_fields = ACQUISITION_SELECTOR_FIELDS[:-1]
+    incomplete_selector_fields = tuple(
+        name for name in ACQUISITION_SELECTOR_FIELDS if name != "human_decision_record_ref"
+    )
     incomplete_selectors = _request_composite_selectors(
         ACQUISITION_REQUEST,
         selector_fields=incomplete_selector_fields,
@@ -603,6 +602,7 @@ def test_incomplete_request_composite_denominator_is_rejected_before_write(
             source=ResourceBindingSource.REQUEST_COMPOSITE,
             resource_kind="runtime.evidence.acquisition",
             selector_fields=incomplete_selector_fields,
+            omit_absent_selector_fields=("custody_recovery",),
             required_selector_fields=ACQUISITION_REQUIRED_SELECTOR_FIELDS,
         ),
     )

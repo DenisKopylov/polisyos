@@ -1,20 +1,28 @@
 import { retainedAcquisitionHistoryFixture } from "@/test/fixtures/retainedAcquisitionHistory";
 import { failedCandidateSimulationFixture } from "@/test/fixtures/failedCandidateSimulation";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "../../../../api/validators";
 import actualPartialCapacityRunDetails from "@/api/__fixtures__/partial-capacity-run-details.json";
+import actualModelInputUseCurrentC from "@/api/__fixtures__/model-input-use-current-c.json";
+import actualModelInputUseRetainedB from "@/api/__fixtures__/model-input-use-retained-b.json";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import { predictiveCalibrationResponseFixture } from "@/test/fixtures/predictiveCalibrationResponse";
 import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
+import {
+  runModelInputUseN5SuccessorResponseSchema,
+  type RunModelInputUseActionsProjection,
+  type RunModelInputUseN5SuccessorResponse,
+} from "@/api/validators";
 
 const overviewState = vi.hoisted(() => ({
   artifactContentMock: vi.fn(),
   evidenceContextMock: vi.fn(),
   governanceDebugMock: vi.fn(),
+  modelInputUseResultGetMock: vi.fn(),
   predictiveCalibrationQueryMock: vi.fn(),
   timelineMock: vi.fn(),
   predictiveCalibrationQuery: {
@@ -42,6 +50,12 @@ vi.mock("react-router-dom", async (importOriginal) => {
     useParams: () => ({ runId: overviewState.routeRunId }),
   };
 });
+vi.mock("@/api/client", () => ({
+  runtimeApiClient: {
+    GET: (...args: unknown[]) =>
+      overviewState.modelInputUseResultGetMock(...args),
+  },
+}));
 vi.mock("@/api/hooks/useGovernanceDebug", () => ({
   useSuspenseGovernanceDebug: (...args: unknown[]) =>
     overviewState.governanceDebugMock(...args),
@@ -127,6 +141,122 @@ function parsedRun(
     temporal_scope: null,
   });
   return { ...run };
+}
+
+function actualV2ModelInputUseProjection(value: unknown) {
+  const projection =
+    runModelInputUseN5SuccessorResponseSchema.parse(value).result;
+  if (
+    projection.schema_version !==
+    "policyos.runtime.run_model_input_use_n5_successor_projection.v2"
+  ) {
+    throw new Error("Expected a captured V2 model-input use projection");
+  }
+  return projection;
+}
+
+function capturedModelInputUseActionHistory() {
+  const currentResponse = runModelInputUseN5SuccessorResponseSchema.parse(
+    actualModelInputUseCurrentC,
+  );
+  const retainedResponse = runModelInputUseN5SuccessorResponseSchema.parse(
+    actualModelInputUseRetainedB,
+  );
+  const current = actualV2ModelInputUseProjection(actualModelInputUseCurrentC);
+  const retained = actualV2ModelInputUseProjection(
+    actualModelInputUseRetainedB,
+  );
+  const sourceJobId = current.blocked_source?.source_job_id;
+  if (!sourceJobId) {
+    throw new Error("Captured model-input use projection has no source job");
+  }
+  const responsesByActionId = new Map([
+    [current.action_job_id, currentResponse],
+    [retained.action_job_id, retainedResponse],
+  ]);
+  const actions = [current, retained]
+    .map((result) => {
+      if (result.action_status === "not_established") {
+        throw new Error(
+          `Captured action ${result.action_job_id} has no established job state`,
+        );
+      }
+      return {
+        action_job_id: result.action_job_id,
+        job_state: result.action_status,
+      };
+    })
+    .sort((left, right) =>
+      left.action_job_id < right.action_job_id
+        ? -1
+        : left.action_job_id > right.action_job_id
+          ? 1
+          : 0,
+    );
+
+  return {
+    current,
+    retained,
+    responsesByActionId,
+    inventory: {
+      run_id: current.run_id,
+      source_job_id: sourceJobId,
+      scope: "discovery_only" as const,
+      actions,
+      // Two captured detail responses do not establish complete run discovery.
+      inventory_status: "limited" as const,
+      inventory_truncated: false,
+      limitation_codes: ["action_binding_not_established"],
+    } satisfies RunModelInputUseActionsProjection,
+  };
+}
+
+function modelInputUseActionSelector(actionJobId: string) {
+  const button = screen
+    .getAllByTestId("model-input-use-action-selector")
+    .find((item) => item.getAttribute("data-action-job-id") === actionJobId);
+  if (!button) {
+    throw new Error(`Missing discovered action selector ${actionJobId}`);
+  }
+  return button;
+}
+
+function installModelInputUseResponses(
+  responsesByActionId: Map<string, RunModelInputUseN5SuccessorResponse>,
+) {
+  overviewState.modelInputUseResultGetMock.mockImplementation(
+    async (...args: unknown[]) => {
+      const [path, options] = args as [
+        string,
+        { params?: { path?: { job_id?: string } } },
+      ];
+      const actionJobId =
+        path === "/api/v1/runs/{run_id}/model-input-use/{job_id}/n5-result"
+          ? options.params?.path?.job_id
+          : undefined;
+      const data = actionJobId
+        ? responsesByActionId.get(actionJobId)
+        : undefined;
+      return data
+        ? {
+            data,
+            error: undefined,
+            response: new Response(null, { status: 200 }),
+          }
+        : {
+            data: undefined,
+            error: {},
+            response: new Response(null, { status: 404 }),
+          };
+    },
+  );
+}
+
+function modelInputUseResultGetCalls() {
+  return overviewState.modelInputUseResultGetMock.mock.calls.filter(
+    ([path]) =>
+      path === "/api/v1/runs/{run_id}/model-input-use/{job_id}/n5-result",
+  );
 }
 
 function sameCandidateAcquisitionHistoryProjection() {
@@ -884,6 +1014,7 @@ describe("OverviewTab", () => {
       error: undefined,
       mutate: vi.fn(),
     };
+    overviewState.modelInputUseResultGetMock.mockReset();
     overviewState.run = parsedRun();
   });
 
@@ -906,6 +1037,172 @@ describe("OverviewTab", () => {
     expect(screen.getByTestId("model-input-use-source-job")).toHaveTextContent(
       "control-run-owner-id",
     );
+  });
+
+  it("shows captured selected C and superseded retained B results in mounted Overview", async () => {
+    const { current, retained, responsesByActionId, inventory } =
+      capturedModelInputUseActionHistory();
+    const run = parsedRun(undefined, inventory);
+    run.run_id = current.run_id;
+    overviewState.run = run;
+    overviewState.routeRunId = current.run_id;
+    installModelInputUseResponses(responsesByActionId);
+
+    renderWithProviders(<OverviewTab />);
+    expect(modelInputUseResultGetCalls()).toHaveLength(0);
+
+    fireEvent.click(modelInputUseActionSelector(current.action_job_id));
+    const currentRow = await screen.findByTestId("model-input-use-result-row");
+    expect(currentRow).toHaveAttribute("data-frontier-selection", "selected");
+    expect(
+      within(currentRow).getByTestId("model-input-use-evaluation-provenance"),
+    ).toHaveTextContent("new_execution");
+    expect(
+      within(currentRow).getByTestId("model-input-use-frontier-selection"),
+    ).toHaveTextContent("selection: selected");
+    expect(
+      within(currentRow).getByTestId("model-input-use-currentness"),
+    ).toHaveTextContent("not established");
+    expect(
+      within(currentRow).getByTestId("model-input-use-units-not-supplied"),
+    ).toHaveTextContent("Output units are not supplied by this result.");
+    expect(
+      within(currentRow).getByTestId("model-input-use-limitations"),
+    ).toHaveTextContent("source_currentness_not_established");
+    expect(
+      within(currentRow).getByTestId("model-input-use-limitations"),
+    ).toHaveTextContent(
+      "producer_observed_intermediate_state_not_independently_recomputed",
+    );
+    expect(
+      within(currentRow).getByTestId("model-input-use-scope"),
+    ).toHaveTextContent("Candidate-only N5 evidence");
+
+    fireEvent.click(
+      within(currentRow).getByText("Action and result references"),
+    );
+    const currentRefs = within(currentRow).getByTestId(
+      "model-input-use-references",
+    );
+    expect(currentRefs).toHaveTextContent(
+      current.current_use_decision_ref!.artifact_id,
+    );
+    expect(currentRefs).toHaveTextContent(
+      current.current_basis_ref!.artifact_id,
+    );
+    expect(currentRefs).toHaveTextContent(
+      current.selected_basis_ref!.artifact_id,
+    );
+    expect(currentRefs).toHaveTextContent(
+      current.original_result_ref!.artifact_id,
+    );
+    fireEvent.click(
+      within(currentRow).getByText("Saved N5 result body (candidate-only)"),
+    );
+    const currentBody = await within(currentRow).findByTestId(
+      "model-input-use-result-body",
+    );
+    expect(currentBody).toHaveTextContent("government.balance");
+    expect(currentBody).toHaveTextContent("602.5");
+    expect(currentBody).toHaveTextContent("565");
+    expect(currentBody).toHaveTextContent(
+      '"candidate_status": "candidate_unverified"',
+    );
+    expect(currentBody).toHaveTextContent('"publication_authority": false');
+    expect(currentBody).not.toHaveTextContent('"publication_authority": true');
+
+    fireEvent.click(modelInputUseActionSelector(retained.action_job_id));
+    await waitFor(() =>
+      expect(screen.getByTestId("model-input-use-result-row")).toHaveAttribute(
+        "data-frontier-selection",
+        "superseded",
+      ),
+    );
+    const retainedRow = screen.getByTestId("model-input-use-result-row");
+    expect(
+      within(retainedRow).getByTestId("model-input-use-evaluation-provenance"),
+    ).toHaveTextContent("retained_prior");
+    expect(
+      within(retainedRow).getByTestId("model-input-use-frontier-selection"),
+    ).toHaveTextContent("selection: superseded");
+    expect(
+      within(retainedRow).getByTestId("model-input-use-currentness"),
+    ).toHaveTextContent("not established");
+    expect(
+      within(retainedRow).getByTestId("model-input-use-limitations"),
+    ).toHaveTextContent("external_empirical_origin_not_established");
+    fireEvent.click(
+      within(retainedRow).getByText("Action and result references"),
+    );
+    const retainedRefs = within(retainedRow).getByTestId(
+      "model-input-use-references",
+    );
+    expect(retained.original_action_job_id).not.toBe(retained.action_job_id);
+    expect(retainedRefs).toHaveTextContent(retained.original_action_job_id!);
+    expect(retainedRefs).toHaveTextContent(
+      retained.current_use_decision_ref!.artifact_id,
+    );
+    expect(retainedRefs).toHaveTextContent(
+      retained.original_result_ref!.artifact_id,
+    );
+    fireEvent.click(
+      within(retainedRow).getByText("Saved N5 result body (candidate-only)"),
+    );
+    const retainedBody = await within(retainedRow).findByTestId(
+      "model-input-use-result-body",
+    );
+    expect(retainedBody).toHaveTextContent("government.balance");
+    expect(retainedBody).toHaveTextContent("640");
+    expect(retainedBody).toHaveTextContent("602.5");
+    expect(retainedBody).toHaveTextContent('"publication_authority": false');
+    expect(retainedBody).not.toHaveTextContent('"publication_authority": true');
+    expect(modelInputUseResultGetCalls()).toHaveLength(2);
+    expect(modelInputUseResultGetCalls()[0]?.[1]).toMatchObject({
+      params: {
+        path: { run_id: current.run_id, job_id: current.action_job_id },
+      },
+    });
+    expect(modelInputUseResultGetCalls()[1]?.[1]).toMatchObject({
+      params: {
+        path: { run_id: retained.run_id, job_id: retained.action_job_id },
+      },
+    });
+  });
+
+  it("degrades the mounted Overview result when the exact action result is unavailable", async () => {
+    const { current, retained, responsesByActionId, inventory } =
+      capturedModelInputUseActionHistory();
+    const run = parsedRun(undefined, inventory);
+    run.run_id = current.run_id;
+    overviewState.run = run;
+    overviewState.routeRunId = current.run_id;
+    installModelInputUseResponses(
+      new Map([
+        [
+          retained.action_job_id,
+          responsesByActionId.get(retained.action_job_id)!,
+        ],
+      ]),
+    );
+
+    renderWithProviders(<OverviewTab />);
+    fireEvent.click(modelInputUseActionSelector(current.action_job_id));
+
+    expect(
+      await screen.findByTestId("model-input-use-result-unavailable"),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId("model-input-use-result-row"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("model-input-use-result-body"),
+    ).not.toBeInTheDocument();
+    expect(modelInputUseResultGetCalls()).toHaveLength(1);
+    expect(modelInputUseResultGetCalls()[0]?.[1]).toMatchObject({
+      params: {
+        path: { run_id: current.run_id, job_id: current.action_job_id },
+      },
+    });
   });
 
   it("renders the actual retained partial capacity response as candidate-only", () => {

@@ -696,3 +696,133 @@ def test_selected_result_bindings_reject_constructed_or_mutated_values(
                 expected_atom_ids=values["atom_ids"],
                 expected_selected_outcomes=values["selected_outcomes"],
             )
+
+
+def test_initial_reconciliation_dto_cannot_emit_an_owned_custody_claim(
+    tmp_path: Path,
+) -> None:
+    """Exercise CAS/event/schema only; synthetic fields are NOT source or unit proof."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputInitialEvaluationDecision,
+        GenericModelInputInitialReconciliation,
+        _generic_initial_reconciliation_emission,
+        _GenericInitialReconciliationSource,
+        _require_verified_generic_initial_reconciliation,
+        _VerifiedGenericInitialReconciliation,
+    )
+    from tests.unit.runtime.http.test_control_plane_store_generic_initial import (
+        _artifact_ref,
+        _create_job,
+        _initial_frontier_bundle,
+    )
+
+    with (
+        tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID),
+        closing(
+            ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "initial-control.sqlite3")
+        ) as database,
+    ):
+        store = artifacts.FileSystemCAS(tmp_path / "initial-frontier-artifacts")
+        events = RuntimeDiagnosticEventLog(store=database, artifact_store=store)
+        job = _create_job(
+            database,
+            job_id="component-source",
+            run_id="component-run",
+            tenant_id=TENANT_ID,
+            cell_id=CELL_ID,
+        )
+        _, selected, basis, decision, initial = _initial_frontier_bundle(
+            tmp_path,
+            job,
+            tenant_id=TENANT_ID,
+            cell_id=CELL_ID,
+        )
+        basis_ref = persist_acquisition_evaluation_artifact(
+            store=store, event_log=events, record=basis
+        )
+        decision_payload = decision.model_dump(mode="json", exclude={"content_hash"})
+        decision_payload["current_basis_ref"] = basis_ref.model_dump(mode="json")
+        decision = GenericModelInputInitialEvaluationDecision.model_validate(
+            {**decision_payload, "content_hash": exact_n5_content_hash(decision_payload)}
+        )
+        decision_ref = persist_acquisition_evaluation_artifact(
+            store=store, event_log=events, record=decision
+        )
+        payload = {
+            "tenant_id": TENANT_ID,
+            "cell_id": CELL_ID,
+            "run_id": job.run_id,
+            "source_job_id": job.job_id,
+            "source_attempt": 1,
+            "source_creation_event_id": 1,
+            "source_creation_payload_sha256": "sha256:" + "1" * 64,
+            "source_terminal_event_id": 2,
+            "source_terminal_payload_sha256": "sha256:" + "2" * 64,
+            "source_completion_outbox_event_id": "component-completion",
+            "source_completion_outbox_payload_sha256": "sha256:" + "2" * 64,
+            "source_core_run_id": "component-core",
+            "source_core_manifest_ref": _artifact_ref(tmp_path, "core", "core.run_manifest"),
+            "source_compiled_ref": _artifact_ref(
+                tmp_path, "compiled", "runtime.compiled_recursive_generation_cycle"
+            ),
+            "source_compiled_content_hash": "sha256:" + "3" * 64,
+            "source_original_reason": "component_not_runtime_source_proof",
+            "design_problem_ref": basis.design_problem_ref,
+            "candidate_id": basis.candidate_id,
+            "cycle_index": 0,
+            "initial_observation": selected,
+            "basis_ref": basis_ref,
+            "decision_ref": decision_ref,
+            "settlement_owner": ("synthetic", "not", "verified"),
+            "physical_units": (("4" * 64, "5" * 64, "6" * 64),),
+            "reconciled_at": "2026-11-16T00:00:00+00:00",
+            "limitations": (*basis.limitations, "original_failure_attribution_not_established"),
+        }
+        canonical = GenericModelInputInitialReconciliation.model_construct(
+            **payload, content_hash="sha256:" + "0" * 64
+        ).model_dump(mode="json", exclude={"content_hash"})
+        receipt = GenericModelInputInitialReconciliation.model_validate(
+            {**canonical, "content_hash": exact_n5_content_hash(canonical)}
+        )
+
+        def cas_bytes():
+            root = tmp_path / "initial-frontier-artifacts"
+            return {
+                str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in root.rglob("*")
+                if p.is_file()
+            }
+
+        before_cas = cas_bytes()
+        before_events = events.list_events(job_id=job.job_id)
+        changed = receipt.model_dump(mode="json", exclude={"content_hash"})
+        changed["source_core_run_id"] = "foreign-core"
+        foreign = GenericModelInputInitialReconciliation.model_validate(
+            {**changed, "content_hash": exact_n5_content_hash(changed)}
+        )
+        for naked in (receipt, foreign):
+            with pytest.raises(ValueError, match="emission_scope_missing"):
+                persist_acquisition_evaluation_artifact(store=store, event_log=events, record=naked)
+        for fake_source in (object(), object.__new__(_GenericInitialReconciliationSource)):
+            with (
+                pytest.raises(ValueError, match="source_unowned"),
+                _generic_initial_reconciliation_emission(
+                    source=fake_source,
+                    record=receipt,
+                    store=store,
+                    event_log=events,
+                ),
+            ):
+                pytest.fail("a caller-constructed source must not appoint a custodian")
+        assert cas_bytes() == before_cas
+        assert events.list_events(job_id=job.job_id) == before_events
+        assert (
+            receipt.original_failure_attribution == receipt.currentness_status == "not_established"
+        )
+        assert receipt.observed_admission is receipt.publication_authority is False
+        # A valid DTO/hash or empty private identity cannot commit a frontier.
+        for forged in (receipt, object(), _VerifiedGenericInitialReconciliation()):
+            with pytest.raises(ValueError, match="owner_proof_missing"):
+                _require_verified_generic_initial_reconciliation(
+                    forged, control_store=database, initial=initial, prepared_event=object()
+                )

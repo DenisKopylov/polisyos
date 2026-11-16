@@ -8754,6 +8754,16 @@ class RunModelInputInitialObservation(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     subject_kind: Literal["initial_observation"] = "initial_observation"
+    observation_origin: Literal["ordinary_completion", "historical_reconciliation"] = Field(
+        default="ordinary_completion",
+        exclude_if=lambda value: value == "ordinary_completion",
+        # The wire omits ordinary origins; a schema default would require them in clients.
+        json_schema_extra=lambda schema: schema.pop("default", None),
+    )
+    reconciliation_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     execution_job_id: StrictStr = Field(min_length=1, max_length=128)
     actual_run_id: StrictStr = Field(min_length=1, max_length=128)
     source_run_id: StrictStr = Field(min_length=1, max_length=128)
@@ -8785,6 +8795,19 @@ class RunModelInputInitialObservation(BaseModel):
     @model_validator(mode="after")
     def validate_initial_observation(self) -> RunModelInputInitialObservation:
         """Keep each selected record tied to profiled owner artifacts and fixed purpose."""
+        reconciliation_ref = self.reconciliation_ref
+        if self.observation_origin == "ordinary_completion":
+            if reconciliation_ref is not None:
+                raise ValueError("model_input_initial_observation_reconciliation_ref_forbidden")
+        elif (
+            type(reconciliation_ref) is not ArtifactRef
+            or reconciliation_ref.kind
+            != "runtime_quality.generic_model_input_initial_reconciliation"
+            or reconciliation_ref.media_type != "application/json"
+            or not reconciliation_ref.manifest_profile_sha256
+        ):
+            raise ValueError("model_input_initial_observation_reconciliation_ref_invalid")
+
         expected_kinds = (
             (self.basis_ref, "runtime_quality.acquisition_evaluation_basis"),
             (self.decision_ref, "runtime_quality.acquisition_evaluation_decision"),

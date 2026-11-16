@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.common.exception_metadata import _exception_instance_dict
+from polisyos.common import exception_metadata
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import (
     ArtifactRef,
@@ -152,7 +152,7 @@ def _retain_generic_n5_post_production_failure(
     Nested boundaries preserve the first failing phase and enrich only missing
     locators. The original exception type, code, cause and refusal stay intact.
     """
-    metadata = _exception_instance_dict(error)
+    metadata = exception_metadata._exception_instance_dict(error)
     if metadata is None:
         return
     previous = metadata.get("_generic_n5_post_production_failure")

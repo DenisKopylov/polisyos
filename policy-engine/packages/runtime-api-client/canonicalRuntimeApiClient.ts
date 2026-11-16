@@ -18,6 +18,12 @@ export type AccessRef = RuntimeApiComponents["schemas"]["AccessRef"];
 export type AcquisitionBacklogProjection =
   RuntimeApiComponents["schemas"]["AcquisitionBacklogProjection"];
 
+export type AcquisitionCustodyRecoveryRequestInput =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest-Input"];
+
+export type AcquisitionCustodyRecoveryRequestOutput =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest-Output"];
+
 export type AcquisitionDecisionRequestResponse =
   RuntimeApiComponents["schemas"]["AcquisitionDecisionRequestResponse"];
 

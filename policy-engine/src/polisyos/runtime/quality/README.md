@@ -106,6 +106,14 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   state values; budget controls, selected source views and occurrence labels
   remain separate admission or evidence facts. The prior v1 profile remains
   readable, but does not establish retention under v2.
+  Explicit internal custody can reconcile an already paid initial observation
+  after its original completed job retained a blocked projection. A distinct
+  reconciliation receipt and atomic origin-selector event bind the old
+  creation/terminal/Core/compiled/N4 owners and existing physical-unit ledger;
+  the original completion, failed projection and ledger are unchanged. Historical
+  replay requires that exact new origin, preserves the source limitations and
+  original-failure attribution as not established, and never grants another
+  worker, current-use or publication permission. GET remains read-only.
 - `n5_candidate_content.py` records the actual selected graph's bounded physical
   units, nodes, calls and producer-observed before-call state snapshots. The
   original intermediate state is not independently reconstructed from patches,

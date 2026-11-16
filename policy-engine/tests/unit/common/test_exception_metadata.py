@@ -6,11 +6,25 @@ from typing import Any
 
 import pytest
 
+from polisyos.common import exception_metadata as common_exception_metadata
 from polisyos.common.exception_metadata import (
     _EXCEPTION_CAUSE_MAX_DEPTH,
     _bounded_exception_cause_nodes,
     _exception_instance_dict,
 )
+
+
+def test_exception_metadata_lazy_facade_preserves_canonical_module_identity() -> None:
+    """The package facade resolves to the canonical exception metadata module."""
+    import importlib
+
+    import polisyos.common as common_package
+
+    canonical_module = importlib.import_module("polisyos.common.exception_metadata")
+
+    assert "exception_metadata" in common_package.__all__
+    assert common_exception_metadata is canonical_module
+    assert common_exception_metadata._exception_instance_dict is _exception_instance_dict
 
 
 def test_exception_instance_dict_uses_base_descriptor_without_subclass_hooks() -> None:

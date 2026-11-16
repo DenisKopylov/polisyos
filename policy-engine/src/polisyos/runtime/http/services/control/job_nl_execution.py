@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_plane_store import (
         GenericModelInputInitialFrontierCAS,
     )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        GenericModelInputInitialReconciliationOutcome,
+    )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
     from polisyos.runtime.quality.generation_cycle import _GenerationCycleN5Completion
 
@@ -30,6 +33,29 @@ if TYPE_CHECKING:
 
 class ControlNLJobExecutionMixin:
     """Run admitted NL compilation and terminate handled candidate outcomes."""
+
+    def reconcile_completed_generic_initial_observation(
+        self,
+        *,
+        source_job_id: str,
+        execution_ref: ArtifactRef,
+    ) -> GenericModelInputInitialReconciliationOutcome:
+        """Perform explicit trusted internal candidate-history custody only.
+
+        No HTTP mutation or GET side effect invokes this entry. The actual
+        configured service and current tenant/cell scope must reconcile old
+        completion, source and settlement facts; no producer/worker/current-use
+        permission is created. Existing RunDetails exposes the distinct origin.
+        """
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _reconcile_completed_generic_initial_observation,
+        )
+
+        return _reconcile_completed_generic_initial_observation(
+            self,
+            source_job_id=source_job_id,
+            execution_ref=execution_ref,
+        )
 
     def _persist_current_nl_owner_projection(self, context: _ControlNLJobContext) -> None:
         """Persist the current NL worker owner before any branch can terminate."""

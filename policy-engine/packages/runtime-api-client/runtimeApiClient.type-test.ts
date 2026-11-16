@@ -1,4 +1,5 @@
 import type {
+  AcquisitionRouteMutationRequest,
   ArtifactID,
   ArtifactMissingGovernedProjectionPacket,
   AvailableGovernedProjectionPacket,
@@ -10,6 +11,7 @@ import type {
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
   RunBoundDesignRecordBinding,
+  RunModelInputInitialObservation,
   RunPaperDesignRecordBinding,
   RuntimeApiClient,
 } from "./canonicalRuntimeApiClient.js";
@@ -289,3 +291,48 @@ type CandidateExperimentResultWitnesses = [
 ];
 
 export type { CandidateExperimentResultWitnesses };
+
+declare const acquisitionRouteMutationFields: Omit<
+  AcquisitionRouteMutationRequest,
+  "custody_recovery"
+>;
+
+const legacyAcquisitionRouteMutation: AcquisitionRouteMutationRequest = {
+  ...acquisitionRouteMutationFields,
+};
+const recoveredAcquisitionRouteMutation: AcquisitionRouteMutationRequest = {
+  ...acquisitionRouteMutationFields,
+  custody_recovery: {
+    failed_attempt: 3,
+    head_ref: {
+      artifact_id: `sha256:${"a".repeat(64)}`,
+      kind: "runtime_quality.acquisition_route_phase_receipt",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+    },
+  },
+};
+
+declare const initialObservationFields: Omit<
+  RunModelInputInitialObservation,
+  "observation_origin" | "reconciliation_ref"
+>;
+
+const legacyInitialObservation: RunModelInputInitialObservation = {
+  ...initialObservationFields,
+};
+const historicalInitialObservation: RunModelInputInitialObservation = {
+  ...initialObservationFields,
+  observation_origin: "historical_reconciliation",
+  reconciliation_ref: {
+    artifact_id: `sha256:${"c".repeat(64)}`,
+    kind: "runtime_quality.generic_model_input_initial_reconciliation",
+    media_type: "application/json",
+    manifest_profile_sha256: `sha256:${"d".repeat(64)}`,
+  },
+};
+
+void legacyAcquisitionRouteMutation;
+void recoveredAcquisitionRouteMutation;
+void legacyInitialObservation;
+void historicalInitialObservation;

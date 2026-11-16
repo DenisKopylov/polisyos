@@ -6,6 +6,9 @@ producer-to-RunDetails path is verified separately by its integration owner.
 
 from __future__ import annotations
 
+import hashlib
+from typing import Literal
+
 import pytest
 from pydantic import ValidationError
 
@@ -17,6 +20,7 @@ from polisyos.core.contracts.runtime import (
 )
 
 _PROFILE = "sha256:" + "f" * 64
+_RECONCILIATION_KIND = "runtime_quality.generic_model_input_initial_reconciliation"
 _CLOSURE_RESIDUALS = (
     "arbitrary_code_read_set_completeness_not_established",
     "same_process_transient_slot_cell_registry_mutations_not_established",
@@ -82,6 +86,118 @@ def test_initial_observation_keeps_control_and_core_run_ids_distinct() -> None:
     assert projection.observations[0].publication_authority is False
     assert projection.observations[0].currentness_status == "not_established"
     assert projection.observations[0].closure_residuals == _CLOSURE_RESIDUALS
+
+
+def test_ordinary_completion_preserves_legacy_initial_observation_wire_bytes() -> None:
+    observation = _observation()
+    wire = observation.model_dump_json()
+
+    assert len(wire.encode()) == 4105
+    assert hashlib.sha256(wire.encode()).hexdigest() == (
+        "a5c6ee5eacf18f1f234817cfeb3837fe2e13638d551e00aece466c86fc7fd65b"
+    )
+    assert "observation_origin" not in observation.model_dump(mode="json")
+    assert "reconciliation_ref" not in observation.model_dump(mode="json")
+    assert RunModelInputInitialObservation.model_validate_json(wire) == observation
+
+
+@pytest.mark.parametrize("mode", ["validation", "serialization"])
+def test_initial_observation_schema_preserves_legacy_origin_omission(
+    mode: Literal["validation", "serialization"],
+) -> None:
+    schema = RunModelInputInitialObservation.model_json_schema(mode=mode)
+    origin = schema["properties"]["observation_origin"]
+
+    # A schema default makes generated response types require this omitted field.
+    assert "default" not in origin
+    assert "observation_origin" not in schema["required"]
+    assert origin["enum"] == ["ordinary_completion", "historical_reconciliation"]
+    assert _observation().observation_origin == "ordinary_completion"
+
+
+def test_historical_reconciliation_remains_candidate_only_and_serializes_selected_ref() -> None:
+    payload = _observation().model_dump(mode="python")
+    payload.update(
+        observation_origin="historical_reconciliation",
+        reconciliation_ref=_artifact_ref(_RECONCILIATION_KIND, "e"),
+    )
+
+    observation = RunModelInputInitialObservation.model_validate(payload)
+    wire = observation.model_dump(mode="json")
+
+    assert observation.observation_origin == "historical_reconciliation"
+    assert wire["observation_origin"] == "historical_reconciliation"
+    assert set(wire["reconciliation_ref"]) == {
+        "artifact_id",
+        "kind",
+        "media_type",
+        "manifest_profile_sha256",
+    }
+    assert wire["reconciliation_ref"]["kind"] == _RECONCILIATION_KIND
+    assert observation.currentness_status == "not_established"
+    assert observation.observed_admission is False
+    assert observation.publication_authority is False
+
+
+@pytest.mark.parametrize(
+    "invalid_case",
+    [
+        "missing_ref",
+        "null_ref",
+        "ordinary_with_ref",
+        "wrong_origin",
+        "wrong_kind",
+        "wrong_media_type",
+        "missing_profile",
+        "null_profile",
+        "malformed_profile",
+        "extra_ref_field",
+        "ref_subclass_field",
+    ],
+)
+def test_initial_observation_rejects_invalid_reconciliation_ref(invalid_case: str) -> None:
+    payload = _observation().model_dump(mode="python")
+    reconciliation_ref = {
+        "artifact_id": "sha256:" + "e" * 64,
+        "kind": _RECONCILIATION_KIND,
+        "media_type": "application/json",
+        "manifest_profile_sha256": _PROFILE,
+    }
+    payload["observation_origin"] = "historical_reconciliation"
+    payload["reconciliation_ref"] = reconciliation_ref
+
+    if invalid_case == "missing_ref":
+        payload.pop("reconciliation_ref")
+    elif invalid_case == "null_ref":
+        payload["reconciliation_ref"] = None
+    elif invalid_case == "ordinary_with_ref":
+        payload["observation_origin"] = "ordinary_completion"
+    elif invalid_case == "wrong_origin":
+        payload["observation_origin"] = "unspecified"
+    elif invalid_case == "wrong_kind":
+        reconciliation_ref["kind"] = "polisyos.pdc.generic_model_input_initial_reconciliation"
+    elif invalid_case == "wrong_media_type":
+        reconciliation_ref["media_type"] = "application/octet-stream"
+    elif invalid_case == "missing_profile":
+        reconciliation_ref.pop("manifest_profile_sha256")
+    elif invalid_case == "null_profile":
+        reconciliation_ref["manifest_profile_sha256"] = None
+    elif invalid_case == "malformed_profile":
+        reconciliation_ref["manifest_profile_sha256"] = "not-a-selected-profile"
+    elif invalid_case == "extra_ref_field":
+        reconciliation_ref["selection_note"] = "untyped extra field"
+    elif invalid_case == "ref_subclass_field":
+
+        class ExtendedArtifactRef(ArtifactRef):
+            selection_note: str
+
+        payload["reconciliation_ref"] = ExtendedArtifactRef(
+            **reconciliation_ref,
+            selection_note="subclass-only field",
+        )
+
+    with pytest.raises(ValidationError):
+        RunModelInputInitialObservation.model_validate(payload)
 
 
 @pytest.mark.parametrize(

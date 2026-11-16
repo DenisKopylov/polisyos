@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from . import (
         async_tools,
         config,
+        exception_metadata,
         jax_env,
         logger,
         migrations,
@@ -31,6 +32,7 @@ if TYPE_CHECKING:
 __all__ = [
     "async_tools",
     "config",
+    "exception_metadata",
     "jax_env",
     "logger",
     "migrations",

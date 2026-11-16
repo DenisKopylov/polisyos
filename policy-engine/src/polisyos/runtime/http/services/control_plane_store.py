@@ -5947,6 +5947,202 @@ class ControlPlaneStore:
             raise ValueError("generic_model_input_frontier_conflict")
         return committed_record
 
+    def commit_generic_initial_reconciliation(
+        self,
+        *,
+        proof: object,
+        prepared_event: _PreparedDiagnosticEvent,
+        initial: GenericModelInputInitialFrontierCAS,
+    ) -> GenericModelInputEvaluationFrontierRecord:
+        """Append one verified historical observation without rewriting its completion.
+
+        The acquisition-evaluation owner first replays the actual source and
+        physical-work evidence. This owner independently reconciles the locked
+        completed job, immutable creation/completion copies and exact selector,
+        then publishes only a diagnostic origin event and frontier revision one.
+        No worker lease or current-use permission is created here.
+        """
+        from polisyos.runtime.http.services.adapters.core_run import (
+            derive_control_job_core_run_id,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            GenericModelInputInitialReconciliation,
+            _generic_initial_reconciliation_selector_event_id,
+            _require_verified_generic_initial_reconciliation,
+        )
+        from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError(
+                "generic_initial_reconciliation_requires_historical_owner"
+            )
+        publication = _require_verified_generic_initial_reconciliation(
+            proof, control_store=self, initial=initial, prepared_event=prepared_event
+        )
+        _validate_generic_model_input_initial_frontier_cas(
+            initial, job_id=publication.source_job_id
+        )
+        selected = _generic_model_input_frontier_record(
+            key=initial.key,
+            revision=1,
+            value=_generic_model_input_initial_frontier_value(initial),
+        )
+        event, payload = prepared_event.publication_values()
+        selected_refs = (
+            publication.source_core_manifest_ref,
+            publication.source_compiled_ref,
+            publication.reconciliation_ref,
+        )
+        if (
+            (initial.key.tenant_id, initial.key.cell_id, initial.basis.run_id)
+            != (publication.tenant_id, publication.cell_id, publication.run_id)
+            or type(publication.source_attempt) is not int
+            or publication.source_attempt < 1
+            or any(
+                type(ref) is not ArtifactRef
+                or not _is_sha256_ref(str(ref.artifact_id))
+                or not _is_sha256_ref(ref.manifest_profile_sha256)
+                for ref in selected_refs
+            )
+            or publication.source_compiled_ref.kind != "runtime.compiled_recursive_generation_cycle"
+            or publication.source_compiled_ref.media_type != "application/json"
+            or publication.reconciliation_ref.kind
+            != GenericModelInputInitialReconciliation.ARTIFACT_KIND
+            or publication.reconciliation_ref.media_type != "application/json"
+            or not _is_sha256_ref(publication.reconciliation_content_hash)
+            or publication.frontier_ref != selected.frontier_ref
+            or publication.event_id
+            != _generic_initial_reconciliation_selector_event_id(selected.frontier_ref)
+            or event.event_id != publication.event_id
+            or event.event_source != "polisyos.runtime.acquisition_evaluation"
+            or event.producer_component != "polisyos.runtime.acquisition_evaluation"
+            or event.producer_version != "1.0"
+            or event.event_type != "polisyos.runtime.generic.initial_reconciliation.v1"
+            or event.phase != "generic_initial_reconciliation"
+            or event.event_subject
+            != f"run/{publication.run_id}/candidate/{initial.key.candidate_id}"
+            or (event.job_id, event.run_id, event.tenant_id, event.cell_id)
+            != (
+                publication.source_job_id,
+                publication.run_id,
+                publication.tenant_id,
+                publication.cell_id,
+            )
+            or event.artifact_refs != (str(publication.reconciliation_ref.artifact_id),)
+            or not _json_values_equal_strict(
+                payload,
+                {
+                    "frontier_ref": selected.frontier_ref,
+                    "reconciliation_ref": publication.reconciliation_ref.model_dump(mode="json"),
+                },
+            )
+        ):
+            raise ValueError("generic_initial_reconciliation_publication_mismatch")
+        with self._job_transaction():
+            self._lock_job_state(publication.source_job_id)
+            job = self.get_job(publication.source_job_id)
+            if (
+                job is None
+                or job.kind != "natural_language_run"
+                or job.state != "completed"
+                or job.run_id != publication.run_id
+                or job.attempt != publication.source_attempt
+                or job.lease_owner is not None
+                or job.lease_expires_at is not None
+                or job.finished_at is None
+            ):
+                raise ValueError("generic_initial_reconciliation_completion_changed")
+            scope = self.historical_completed_job_execution_scope(
+                job_id=job.job_id, expected_run_id=publication.run_id
+            )
+            creation = self._get_job_created_source_event_record(job.job_id)
+            terminal = self.get_job_terminal_source_event_record(job.job_id)
+            outbox = self.get_job_completed_outbox_event(job.job_id)
+            if (
+                scope.actor_authenticated is not True
+                or (scope.tenant_id, scope.cell_id) != (publication.tenant_id, publication.cell_id)
+                or creation.event_id != publication.source_creation_event_id
+                or creation.payload_sha256 != publication.source_creation_payload_sha256
+                or terminal.event_type != "job_completed"
+                or terminal.event_id != publication.source_terminal_event_id
+                or terminal.payload_sha256 != publication.source_terminal_payload_sha256
+                or type(terminal.payload.get("attempt")) is not int
+                or terminal.payload.get("attempt") != job.attempt
+                or terminal.payload.get("state") != "completed"
+                or outbox is None
+                or outbox.event_id != publication.source_completion_outbox_event_id
+                or exact_n5_content_hash(outbox.payload)
+                != publication.source_completion_outbox_payload_sha256
+                or outbox.run_id != job.run_id
+                or any(
+                    not _json_values_equal_strict(outbox.payload.get(key), value)
+                    for key, value in terminal.payload.items()
+                )
+                or not _json_values_equal_strict(outbox.payload.get("progress"), job.progress)
+                or event.execution_profile != job.effective_execution_profile
+            ):
+                raise ValueError("generic_initial_reconciliation_source_changed")
+            expected_core_run = derive_control_job_core_run_id(
+                job_id=job.job_id, control_run_id=publication.run_id, attempt=job.attempt
+            )
+            if (
+                publication.source_core_run_id != expected_core_run
+                or job.progress.get("core_run_id") != expected_core_run
+                or type(job.progress.get("core_run_attempt")) is not int
+                or job.progress.get("core_run_attempt") != job.attempt
+                or not _json_values_equal_strict(
+                    job.progress.get("core_manifest_artifact_ref"),
+                    publication.source_core_manifest_ref.model_dump(mode="json"),
+                )
+                or job.progress.get("manifest_ref")
+                != str(publication.source_core_manifest_ref.artifact_id)
+                or not _json_values_equal_strict(
+                    job.progress.get("compiled_recursive_generation_cycle_artifact_ref"),
+                    publication.source_compiled_ref.model_dump(mode="json"),
+                )
+                or job.progress.get("compiled_recursive_generation_cycle_ref")
+                != str(publication.source_compiled_ref.artifact_id)
+            ):
+                raise ValueError("generic_initial_reconciliation_compiled_source_changed")
+            ordinary = job.progress.get("generic_model_input_initial_observations", [])
+            if type(ordinary) is not list or any(
+                _json_values_equal_strict(row, _generic_model_input_initial_projection(initial))
+                for row in ordinary
+            ):
+                raise ValueError("generic_initial_reconciliation_origin_ambiguous")
+            prior = self.list_diagnostic_events(event_id=event.event_id, limit=2)
+            if prior:
+                if (
+                    len(prior) != 1
+                    or prior[0].event != event
+                    or prior[0].payload_ref != prepared_event.payload_ref
+                    or prior[0].payload_sha256 != prepared_event.payload_sha256
+                    or (
+                        prepared_event.inline_payload
+                        and not _json_values_equal_strict(prior[0].payload_inline, payload)
+                    )
+                ):
+                    raise ValueError("generic_initial_reconciliation_selector_conflict")
+                existing = self.get_generic_model_input_frontier_by_ref(selected.frontier_ref)
+                if existing != selected:
+                    raise ValueError("generic_initial_reconciliation_frontier_conflict")
+                return existing
+            self._lock_generic_model_input_frontier_in_transaction(
+                key=initial.key, expected_revision=0, expected_frontier_ref=None
+            )
+            self.append_diagnostic_event(
+                event=event,
+                payload_ref=prepared_event.payload_ref,
+                payload_inline=payload if prepared_event.inline_payload else None,
+                payload_sha256=prepared_event.payload_sha256,
+            )
+            return self._replace_generic_model_input_frontier_in_transaction(
+                key=initial.key,
+                revision=0,
+                current_ref=None,
+                replacement=_generic_model_input_initial_frontier_value(initial),
+            )
+
     def _commit_generic_initial_frontier_in_transaction(
         self,
         cas: GenericModelInputInitialFrontierCAS,

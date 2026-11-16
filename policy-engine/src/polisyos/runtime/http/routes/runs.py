@@ -6251,7 +6251,7 @@ def _model_input_initial_observations_for_indexed_run(
     )
     from polisyos.runtime.quality.acquisition_evaluation import (
         GenericModelInputInitialEvaluation,
-        read_generic_model_input_initial_evaluation_history,
+        _read_generic_model_input_initial_evaluation_history_with_origin,
     )
 
     details = run.details
@@ -6335,16 +6335,19 @@ def _model_input_initial_observations_for_indexed_run(
                 or type(record.selected_evaluation) is not GenericModelInputInitialEvaluation
             ):
                 raise ValueError("initial_observation_frontier_subject_invalid")
-            basis, decision = read_generic_model_input_initial_evaluation_history(
-                store=store,
-                event_log=control_service._diagnostic_event_log,
-                control_store=database,
-                frontier_ref=record.frontier_ref,
-                expected_tenant_id=tenant_id,
-                expected_cell_id=cell_id,
-                expected_run_id=source_job.run_id,
-                expected_source_job_id=source_job_id,
-                settlement_store=control_service.llm_producer_settlement_store,
+            basis, decision, reconciliation_ref, verified_limitations = (
+                _read_generic_model_input_initial_evaluation_history_with_origin(
+                    store=store,
+                    event_log=control_service._diagnostic_event_log,
+                    control_store=database,
+                    frontier_ref=record.frontier_ref,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                    expected_run_id=source_job.run_id,
+                    expected_source_job_id=source_job_id,
+                    settlement_store=control_service.llm_producer_settlement_store,
+                    core_runs_root=control_service._core_runs_root,
+                )
             )
             selected = basis.initial_observation
             if (
@@ -6366,6 +6369,10 @@ def _model_input_initial_observations_for_indexed_run(
                     source_run_id=selected.source_run_id,
                     frontier_ref=record.frontier_ref,
                     frontier_revision=record.revision,
+                    observation_origin="ordinary_completion"
+                    if reconciliation_ref is None
+                    else "historical_reconciliation",
+                    reconciliation_ref=reconciliation_ref,
                     basis_ref=record.basis_ref,
                     decision_ref=record.selection_decision_ref,
                     candidate_content_hash=selected.candidate_content_hash,
@@ -6384,7 +6391,7 @@ def _model_input_initial_observations_for_indexed_run(
                     currentness_status="not_established",
                     observed_admission=basis.observed_admission,
                     publication_authority=basis.publication_authority,
-                    limitations=basis.limitations,
+                    limitations=verified_limitations,
                     closure_residuals=basis.closure_residuals,
                 )
             )

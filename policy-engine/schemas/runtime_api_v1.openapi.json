@@ -153,6 +153,82 @@
         "title": "AcquisitionBacklogProjection",
         "type": "object"
       },
+      "AcquisitionCustodyRecoveryRequest-Input": {
+        "additionalProperties": false,
+        "description": "Locate an exact failed attempt/head; this is never an action grant.",
+        "properties": {
+          "failed_attempt": {
+            "minimum": 1.0,
+            "title": "Failed Attempt",
+            "type": "integer"
+          },
+          "head_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          }
+        },
+        "required": [
+          "failed_attempt",
+          "head_ref"
+        ],
+        "title": "AcquisitionCustodyRecoveryRequest",
+        "type": "object"
+      },
+      "AcquisitionCustodyRecoveryRequest-Output": {
+        "additionalProperties": false,
+        "description": "Locate an exact failed attempt/head; this is never an action grant.",
+        "properties": {
+          "failed_attempt": {
+            "minimum": 1.0,
+            "title": "Failed Attempt",
+            "type": "integer"
+          },
+          "head_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          }
+        },
+        "required": [
+          "failed_attempt",
+          "head_ref"
+        ],
+        "title": "AcquisitionCustodyRecoveryRequest",
+        "type": "object"
+      },
       "AcquisitionDecisionRequestResponse": {
         "additionalProperties": false,
         "description": "Persisted authority result without an external effect.",
@@ -227,6 +303,7 @@
               "authorization_refreshed",
               "executing",
               "outcome_selected",
+              "world_committed_reentry_pending",
               "candidate_input_reentry_pending",
               "terminal"
             ],
@@ -592,6 +669,16 @@
         "additionalProperties": false,
         "description": "Strict caller fields; route facts, status, authority, and epochs are forbidden.",
         "properties": {
+          "custody_recovery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "human_decision_record_ref": {
             "anyOf": [
               {
@@ -710,6 +797,16 @@
             "additionalProperties": true,
             "title": "Cost Basis",
             "type": "object"
+          },
+          "custody_recovery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "execution_capability": {
             "enum": [
@@ -45667,6 +45764,14 @@
             "title": "Observation Content Hash",
             "type": "string"
           },
+          "observation_origin": {
+            "enum": [
+              "ordinary_completion",
+              "historical_reconciliation"
+            ],
+            "title": "Observation Origin",
+            "type": "string"
+          },
           "observed_admission": {
             "const": false,
             "default": false,
@@ -45681,6 +45786,16 @@
             "default": false,
             "title": "Publication Authority",
             "type": "boolean"
+          },
+          "reconciliation_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "recorded_predicate_provenance": {
             "const": "recomputed",
@@ -87029,7 +87144,8 @@
             "planner_report_hash",
             "replay_pins",
             "idempotency_key",
-            "human_decision_record_ref"
+            "human_decision_record_ref",
+            "custody_recovery"
           ],
           "source": "request_composite"
         },
@@ -87300,7 +87416,8 @@
             "planner_report_hash",
             "replay_pins",
             "idempotency_key",
-            "human_decision_record_ref"
+            "human_decision_record_ref",
+            "custody_recovery"
           ],
           "source": "request_composite"
         },

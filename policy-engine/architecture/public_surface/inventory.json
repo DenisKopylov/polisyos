@@ -185,11 +185,12 @@
         "polisyos.common.numeric_reductions"
       ],
       "major_subsystem": false,
-      "export_count": 9,
-      "known_export_count": 9,
+      "export_count": 10,
+      "known_export_count": 10,
       "exports": [
         "async_tools",
         "config",
+        "exception_metadata",
         "jax_env",
         "logger",
         "migrations",
@@ -207,11 +208,12 @@
         {
           "module": "polisyos.common",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 9,
-          "known_export_count": 9,
+          "export_count": 10,
+          "known_export_count": 10,
           "exports": [
             "async_tools",
             "config",
+            "exception_metadata",
             "jax_env",
             "logger",
             "migrations",
@@ -244,8 +246,8 @@
                 "path": "src/polisyos/common/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1412,
-                "sha256": "7366be1858e35622c6ca211d9d344d4c3897dc065212450584fc772ebeb0536b"
+                "bytes": 1466,
+                "sha256": "d329ceeaa88635bc316d077e44d58785c5b270f2ed8530e9abc33e8ab2c4a546"
               },
               {
                 "path": "src/polisyos/common",

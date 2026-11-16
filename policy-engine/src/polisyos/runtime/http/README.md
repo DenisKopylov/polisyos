@@ -502,3 +502,14 @@ complete row, creation identity, cancellation progress, source event and outbox
 before a new request is compared. A malformed or inconsistent persisted receipt
 remains an internal error even when a different client request would otherwise
 conflict; it is never reclassified as409 from plausible progress fields.
+
+
+Initial Generic observations recovered by the explicit trusted internal
+`ControlPlaneService.reconcile_completed_generic_initial_observation` custodian
+entry are exposed by the existing RunDetails projection with
+`observation_origin=historical_reconciliation` and a full selected
+`reconciliation_ref`. The reader reopens that exact owner event/receipt and the
+original immutable completed source; missing ordinary selection is not a fallback
+admission. The entry is not an HTTP mutation route, GET has no custody side
+effects, and recovered history retains candidate-only, currentness-not-established
+semantics rather than relabeling the original run as successful.

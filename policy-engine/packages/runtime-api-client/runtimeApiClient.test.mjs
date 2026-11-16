@@ -18,6 +18,215 @@ function createClient(calls, payload = { ok: true }) {
   });
 }
 
+test("acquisition execute POST preserves legacy omission and exact custody recovery head", async () => {
+  const runId = "run/with space";
+  const routeId = "route/with space";
+  const legacyBody = {
+    route_projection_hash: `sha256:${"a".repeat(64)}`,
+    planner_report_hash: `sha256:${"b".repeat(64)}`,
+    replay_pins: {
+      source_job_id: "source-job-transport",
+      compiled_ref: `sha256:${"c".repeat(64)}`,
+      compiled_content_hash: `sha256:${"d".repeat(64)}`,
+      terminal_event_id: "terminal-event-transport",
+      design_problem_ref: `sha256:${"e".repeat(64)}`,
+      cost_basis_hash: `sha256:${"f".repeat(64)}`,
+    },
+    idempotency_key: "execute-legacy-transport",
+  };
+  const custodyRecovery = {
+    failed_attempt: 3,
+    head_ref: {
+      artifact_id: `sha256:${"1".repeat(64)}`,
+      kind: "runtime_quality.acquisition_route_phase_receipt",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"2".repeat(64)}`,
+    },
+  };
+  const recoveryBody = {
+    ...legacyBody,
+    idempotency_key: "execute-recovery-transport",
+    custody_recovery: custodyRecovery,
+  };
+  const bodies = [legacyBody, recoveryBody];
+  const calls = [];
+
+  // Transport fixture only; preserving a recovery selector grants no action authority.
+  for (const body of bodies) {
+    const client = createClient(calls, { transport_only: true });
+    assert.deepEqual(
+      await client.executeRunAcquisitionRoute({
+        run_id: runId,
+        route_id: routeId,
+        body,
+      }),
+      { transport_only: true },
+    );
+  }
+
+  assert.equal(calls.length, bodies.length);
+  for (const [index, call] of calls.entries()) {
+    assert.equal(
+      call.url,
+      "https://runtime.test/api/v1/runs/run%2Fwith%20space" +
+        "/acquisition-routes/route%2Fwith%20space/execute",
+    );
+    assert.equal(call.init.method, "POST");
+    assert.deepEqual(JSON.parse(call.init.body), bodies[index]);
+  }
+  const legacyForwarded = JSON.parse(calls[0].init.body);
+  const recoveryForwarded = JSON.parse(calls[1].init.body);
+  assert.equal(Object.hasOwn(legacyForwarded, "custody_recovery"), false);
+  assert.deepEqual(recoveryForwarded.custody_recovery, custodyRecovery);
+  assert.deepEqual(
+    Object.keys(recoveryForwarded.custody_recovery.head_ref).sort(),
+    ["artifact_id", "kind", "manifest_profile_sha256", "media_type"],
+  );
+});
+
+test("run details GET preserves legacy omission and historical reconciliation candidate status", async () => {
+  const runId = "run/with space";
+  const profile = `sha256:${"f".repeat(64)}`;
+  const selectedRef = (kind, fill) => ({
+    artifact_id: `sha256:${fill.repeat(64)}`,
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: profile,
+  });
+  const legacyObservation = {
+    subject_kind: "initial_observation",
+    execution_job_id: "control-job-source",
+    actual_run_id: "control-run-17",
+    source_run_id: "source-run-11",
+    frontier_ref: `sha256:${"1".repeat(64)}`,
+    frontier_revision: 1,
+    basis_ref: selectedRef("runtime_quality.acquisition_evaluation_basis", "2"),
+    decision_ref: selectedRef(
+      "runtime_quality.acquisition_evaluation_decision",
+      "3",
+    ),
+    candidate_content_hash: `sha256:${"4".repeat(64)}`,
+    observation_content_hash: `sha256:${"5".repeat(64)}`,
+    input_ref: selectedRef(
+      "runtime.quality.generic_cycle_simulation_n5_input",
+      "6",
+    ),
+    execution_ref: selectedRef(
+      "runtime.quality.generic_cycle_simulation_n5_execution",
+      "7",
+    ),
+    result_ref: selectedRef("polisyos.runtime.joint_simulation_result", "8"),
+    current_method_input_bindings_ref: selectedRef(
+      "foundry.input_bindings",
+      "9",
+    ),
+    model_input_obligation_set_ref: selectedRef(
+      "runtime.quality.model_input_obligation_set",
+      "a",
+    ),
+    context_job_ref: selectedRef(
+      "runtime.quality.cycle_substrate_context_job",
+      "b",
+    ),
+    n4_source_ref: selectedRef("runtime.generation_source_handoff", "c"),
+    profile_ref: selectedRef(
+      "runtime.quality.generic_cycle_simulation_profile",
+      "d",
+    ),
+    authority_purpose: "candidate_evaluation_retention_only",
+    recorded_predicate_provenance: "recomputed",
+    historical_replay_status: "reconciled",
+    currentness_status: "not_established",
+    observed_admission: false,
+    publication_authority: false,
+    limitations: ["initial observation remains candidate-only"],
+    closure_residuals: ["current admission is not established"],
+  };
+  const historicalObservation = {
+    ...legacyObservation,
+    observation_origin: "historical_reconciliation",
+    reconciliation_ref: selectedRef(
+      "runtime_quality.generic_model_input_initial_reconciliation",
+      "e",
+    ),
+  };
+  const runBase = {
+    run_id: runId,
+    source_kind: "core_run",
+    status: "completed",
+    decision_review_required: false,
+    has_trace: false,
+    has_workflow_report: false,
+  };
+  const projectionBase = {
+    scope: "exact_source_job",
+    source_job_id: "control-job-source",
+    core_run_id: "core-run-29",
+    actual_run_id: "control-run-17",
+    inventory_status: "complete",
+    inventory_truncated: false,
+    limitation_codes: [],
+  };
+  const payloads = [
+    {
+      meta: { request_id: "legacy-run-details" },
+      run: {
+        ...runBase,
+        model_input_initial_observations: {
+          ...projectionBase,
+          observations: [legacyObservation],
+        },
+      },
+    },
+    {
+      meta: { request_id: "historical-run-details" },
+      run: {
+        ...runBase,
+        model_input_initial_observations: {
+          ...projectionBase,
+          observations: [historicalObservation],
+        },
+      },
+    },
+  ];
+  const calls = [];
+
+  for (const payload of payloads) {
+    const client = createClient(calls, payload);
+    assert.deepEqual(await client.getRunDetails({ run_id: runId }), payload);
+  }
+
+  assert.equal(calls.length, payloads.length);
+  for (const call of calls) {
+    assert.equal(
+      call.url,
+      "https://runtime.test/api/v1/runs/run%2Fwith%20space",
+    );
+    assert.equal(call.init.method, "GET");
+    assert.equal(call.init.body, undefined);
+  }
+  const legacyForwarded =
+    payloads[0].run.model_input_initial_observations.observations[0];
+  const historicalForwarded =
+    payloads[1].run.model_input_initial_observations.observations[0];
+  assert.equal(Object.hasOwn(legacyForwarded, "observation_origin"), false);
+  assert.equal(Object.hasOwn(legacyForwarded, "reconciliation_ref"), false);
+  assert.equal(
+    historicalForwarded.observation_origin,
+    "historical_reconciliation",
+  );
+  assert.deepEqual(
+    historicalForwarded.reconciliation_ref,
+    selectedRef(
+      "runtime_quality.generic_model_input_initial_reconciliation",
+      "e",
+    ),
+  );
+  assert.equal(historicalForwarded.currentness_status, "not_established");
+  assert.equal(historicalForwarded.observed_admission, false);
+  assert.equal(historicalForwarded.publication_authority, false);
+});
+
 test("human-decision record GET preserves selected profile and legacy omission", async () => {
   const runId = "control/run with space";
   const recordRef = `sha256:${"a".repeat(64)}`;

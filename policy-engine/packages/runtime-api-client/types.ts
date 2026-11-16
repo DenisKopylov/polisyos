@@ -2393,6 +2393,24 @@ export interface components {
             voi_owner_ref: string;
         };
         /**
+         * AcquisitionCustodyRecoveryRequest
+         * @description Locate an exact failed attempt/head; this is never an action grant.
+         */
+        "AcquisitionCustodyRecoveryRequest-Input": {
+            /** Failed Attempt */
+            failed_attempt: number;
+            head_ref: components["schemas"]["ArtifactRef-Input"];
+        };
+        /**
+         * AcquisitionCustodyRecoveryRequest
+         * @description Locate an exact failed attempt/head; this is never an action grant.
+         */
+        "AcquisitionCustodyRecoveryRequest-Output": {
+            /** Failed Attempt */
+            failed_attempt: number;
+            head_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
          * AcquisitionDecisionRequestResponse
          * @description Persisted authority result without an external effect.
          */
@@ -2436,7 +2454,7 @@ export interface components {
              * @default requested
              * @enum {string}
              */
-            receipt_phase: "requested" | "authorization_refreshed" | "executing" | "outcome_selected" | "candidate_input_reentry_pending" | "terminal";
+            receipt_phase: "requested" | "authorization_refreshed" | "executing" | "outcome_selected" | "world_committed_reentry_pending" | "candidate_input_reentry_pending" | "terminal";
             /** Route Id */
             route_id: string;
             /** Run Id */
@@ -2583,6 +2601,7 @@ export interface components {
          * @description Strict caller fields; route facts, status, authority, and epochs are forbidden.
          */
         AcquisitionRouteMutationRequest: {
+            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest-Input"] | null;
             /** Human Decision Record Ref */
             human_decision_record_ref?: string | null;
             /** Idempotency Key */
@@ -2617,6 +2636,7 @@ export interface components {
             cost_basis: {
                 [key: string]: unknown;
             };
+            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest-Output"] | null;
             /**
              * Execution Capability
              * @enum {string}
@@ -20130,6 +20150,11 @@ export interface components {
             /** Observation Content Hash */
             observation_content_hash: string;
             /**
+             * Observation Origin
+             * @enum {string}
+             */
+            observation_origin?: "ordinary_completion" | "historical_reconciliation";
+            /**
              * Observed Admission
              * @default false
              * @constant
@@ -20142,6 +20167,7 @@ export interface components {
              * @constant
              */
             publication_authority: false;
+            reconciliation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /**
              * Recorded Predicate Provenance
              * @default recomputed

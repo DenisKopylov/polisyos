@@ -86,7 +86,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
-| `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
+| `polisyos.common` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 135 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 544 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
@@ -122,7 +122,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 9 |
+| `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 10 |
 | `polisyos.common.serialization` | `src/polisyos/common/serialization/__init__.py` | `eager_exports` | 15 |
 | `polisyos.common.text` | `src/polisyos/common/text.py` | `eager_exports` | 1 |
 | `polisyos.common.config` | `src/polisyos/common/config/__init__.py` | `eager_exports` | 8 |
@@ -139,11 +139,12 @@ publish recommendation, rollout, closeout, or policy-design authority.
 - Facade: `lazy_facade`
 - Summary: Expose side-effect-sensitive common helpers behind a lazy package facade.
 
-<details><summary>Entrypoint exports (9)</summary>
+<details><summary>Entrypoint exports (10)</summary>
 
 ```text
 async_tools
 config
+exception_metadata
 jax_env
 logger
 migrations
@@ -342,11 +343,12 @@ finite_binary64_midpoint
 
 </details>
 
-<details><summary>Supported exports (9)</summary>
+<details><summary>Supported exports (10)</summary>
 
 ```text
 async_tools
 config
+exception_metadata
 jax_env
 logger
 migrations

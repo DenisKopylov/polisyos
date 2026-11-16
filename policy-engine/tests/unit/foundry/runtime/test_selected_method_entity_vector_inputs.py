@@ -1,4 +1,4 @@
-"""Candidate entity-vector steps through real method dispatch and stored replay."""
+"""Candidate vector replay keeps unavailable metric laws distinct from numeric outputs."""
 
 from __future__ import annotations
 
@@ -7,13 +7,20 @@ import os
 import stat
 import subprocess
 import sys
+from contextlib import contextmanager
+from errno import ENOENT
 from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    CoreJsonReadBoundsRefusalError,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts._layout import CASPathLayout
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
@@ -36,6 +43,7 @@ from polisyos.foundry.data_plane.bindings import (
     build_input_bindings,
     replay_selected_method_input_step_facts,
 )
+from polisyos.foundry.data_plane.entity_axis import EntityAxisRefusal
 from polisyos.foundry.execute import api as execute_api
 from polisyos.foundry.execute._internal.models import put_tensor
 from tests._helpers.selected_method_entity_vector import (
@@ -239,7 +247,8 @@ def test_selected_entity_vector_steps_refuse_grafts_and_incomplete_coverage_befo
         case.close()
 
 
-def _fresh_read_vector_chain(case, result_refs):
+def _run_fresh_vector_chain(case, result_refs):
+    """Run the actual numeric consumer, retaining precise child refusal information."""
     product_root = Path(__file__).resolve().parents[4]
     environment = dict(os.environ)
     environment["PYTHONPATH"] = str(product_root / "src")
@@ -249,6 +258,19 @@ import json
 import sys
 from io import BytesIO
 from pathlib import Path
+
+def report_refusal(error_type, error, traceback):
+    chain = []
+    cause = error
+    while cause is not None:
+        chain.append({'type': type(cause).__name__, 'module': type(cause).__module__,
+                      'message': str(cause), 'filename': getattr(cause, 'filename', None),
+                      'errno': getattr(cause, 'errno', None)})
+        cause = cause.__cause__
+    print('SELECTED_VECTOR_READER_REFUSAL=' + json.dumps(chain, sort_keys=True), file=sys.stderr)
+    sys.__excepthook__(error_type, error, traceback)
+
+sys.excepthook = report_refusal
 import numpy as np
 from polisyos.core.artifacts import validate_core_model_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -259,6 +281,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry.data_plane.bindings import load_input_bindings
 from polisyos.foundry.data_plane.selected_tensors import selected_tensor_value_sha256
 from polisyos.foundry.execute import api as execute_api
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.catalog.distributional.advanced import GeneralizedGiniEstimator
 
 def forbidden(*args, **kwargs):
     raise AssertionError('cold reader invoked physical execution')
@@ -266,6 +290,9 @@ def forbidden(*args, **kwargs):
 execute_api.execute = forbidden
 execute_api.execute_semantic_horizon_step = forbidden
 execute_api.execute_program_graph = forbidden
+execute_api._execute = forbidden
+MethodDispatcher.dispatch = forbidden
+GeneralizedGiniEstimator.pure_step = staticmethod(forbidden)
 assert Path(execute_api.__file__).resolve().is_relative_to(Path(sys.argv[3]).resolve())
 store = FileSystemCAS.open_existing_read_only(Path(sys.argv[1]))
 refs = tuple(SimulationResultRef.model_validate(item) for item in json.loads(sys.argv[2]))
@@ -307,7 +334,7 @@ for index, (ref, admission) in enumerate(zip(refs, admissions, strict=True)):
                  'output_ref': output.output_ref.model_dump(mode='json')})
 print(json.dumps(rows, sort_keys=True))
 """
-    result = subprocess.run(
+    return subprocess.run(
         [
             sys.executable,
             "-B",
@@ -324,8 +351,70 @@ print(json.dumps(rows, sort_keys=True))
         timeout=90,
         check=False,
     )
+
+
+def _fresh_read_vector_chain(case, result_refs):
+    result = _run_fresh_vector_chain(case, result_refs)
     assert result.returncode == 0, (result.stdout, result.stderr)
     return json.loads(result.stdout)
+
+
+@contextmanager
+def _missing_vector_blob(case, ref):
+    blob, _ = CASPathLayout(Path(case.store_root)).paths(ref.artifact_id)
+    saved = blob.read_bytes()
+    original_mode = stat.S_IMODE(blob.stat().st_mode)
+    print(f"SELECTED_VECTOR_DEPENDENCY_REMOVAL={json.dumps(ref.model_dump(mode='json'))}")
+    blob.unlink()
+    try:
+        yield blob
+    finally:
+        blob.write_bytes(saved)
+        os.chmod(blob, original_mode)
+
+
+def _check_vector_dependency_removal(
+    case, result_refs, *, selected_ref, output_ref, axis_ref, cold
+):
+    """Source admission requires inputs/axis; unavailable output is a numeric dependency."""
+    with _missing_vector_blob(case, selected_ref) as blob:
+        reader = FileSystemCAS.open_existing_read_only(case.store_root)
+        with pytest.raises(FileNotFoundError) as refused:
+            execute_api.admit_semantic_horizon_step_chain(reader, result_refs)
+        assert type(refused.value) is FileNotFoundError
+        assert refused.value.errno == ENOENT and refused.value.filename == str(blob)
+
+    with _missing_vector_blob(case, axis_ref) as blob:
+        reader = FileSystemCAS.open_existing_read_only(case.store_root)
+        with pytest.raises(
+            EntityAxisRefusal, match="^entity_axis_artifact_bounds_refused$"
+        ) as refused:
+            execute_api.admit_semantic_horizon_step_chain(reader, result_refs)
+        assert type(refused.value) is EntityAxisRefusal
+        bounds_refusal = refused.value.__cause__
+        assert type(bounds_refusal) is CoreJsonReadBoundsRefusalError
+        assert str(bounds_refusal) == "selected_artifact_not_found"
+        missing = bounds_refusal.__cause__
+        assert type(missing) is FileNotFoundError
+        assert missing.errno == ENOENT and missing.filename == str(blob)
+
+    with _missing_vector_blob(case, output_ref) as blob:
+        reader = FileSystemCAS.open_existing_read_only(case.store_root)
+        assert len(execute_api.admit_semantic_horizon_step_chain(reader, result_refs)) == 2
+        result = _run_fresh_vector_chain(case, result_refs)
+        assert result.returncode == 1 and result.stdout == "", (result.stdout, result.stderr)
+        prefix = "SELECTED_VECTOR_READER_REFUSAL="
+        reports = [
+            line.removeprefix(prefix)
+            for line in result.stderr.splitlines()
+            if line.startswith(prefix)
+        ]
+        assert len(reports) == 1, result.stderr
+        (failure,) = json.loads(reports[0])
+        assert failure["module"] == "builtins" and failure["type"] == "FileNotFoundError"
+        assert failure["errno"] == ENOENT and failure["filename"] == str(blob)
+        print(f"SELECTED_VECTOR_NUMERIC_REFUSAL={json.dumps(failure, sort_keys=True)}")
+    assert _fresh_read_vector_chain(case, result_refs) == cold
 
 
 def test_selected_entity_vector_steps_reach_gini_and_a_fresh_read_only_consumer(
@@ -381,23 +470,13 @@ def test_selected_entity_vector_steps_reach_gini_and_a_fresh_read_only_consumer(
         )
         assert len({row["digest"] for row in cold}) == 2
 
-        selected_ref = facts.records[1].input.npy_value_ref
-        output_ref = ArtifactRef.model_validate(cold[0]["output_ref"])
-        axis_ref = facts.records[0].input.entity_axis_ref
-        for removed_ref in (selected_ref, output_ref, axis_ref):
-            blob, _ = case.store._paths(removed_ref.artifact_id)
-            saved = blob.read_bytes()
-            original_mode = stat.S_IMODE(blob.stat().st_mode)
-            blob.unlink()
-            try:
-                reader = FileSystemCAS.open_existing_read_only(case.store_root)
-                with pytest.raises(
-                    FileNotFoundError, match=str(removed_ref.artifact_id).removeprefix("sha256:")
-                ):
-                    execute_api.admit_semantic_horizon_step_chain(reader, tuple(result_refs))
-            finally:
-                blob.write_bytes(saved)
-                os.chmod(blob, original_mode)
-        assert _fresh_read_vector_chain(case, tuple(result_refs)) == cold
+        _check_vector_dependency_removal(
+            case,
+            tuple(result_refs),
+            selected_ref=facts.records[1].input.npy_value_ref,
+            output_ref=ArtifactRef.model_validate(cold[0]["output_ref"]),
+            axis_ref=facts.records[0].input.entity_axis_ref,
+            cold=cold,
+        )
     finally:
         case.close()

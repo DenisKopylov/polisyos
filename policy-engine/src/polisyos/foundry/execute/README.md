@@ -45,6 +45,50 @@ field. The NumPy encoder preserves declared float64 without enabling JAX x64.
 Shapes, units, Decimal error bounds and the actual registered ABI remain part
 of admission; scalar broadcast is not inferred.
 
+### Direct entity-vector method inputs
+
+Resolved input manifest 4.0 carries step-qualified entity-vector selections;
+Foundry input-bindings 1.5 persists their selected NPY values as method
+arguments. Each selection retains its original model-input obligation and step
+predecessor, model interface and port, selected source view, candidate meaning
+and correspondence declarations, and typed entity-axis identity. Fresh
+consumers reopen and replay those inputs before reconciling the stored argument
+bytes against the aligned source values.
+
+The source meaning and correspondence basis are candidate declarations. Source
+meaning and `source_scope` remain `consumer_asserted`; source currentness,
+empirical correctness and independent origin remain `not_established`. The
+source layout is generic parallel JSON arrays: selected pointers identify
+member IDs and numeric values without decoding a domain schema or time axis.
+Entity IDs retain their string or integer type on a fixed canonical axis.
+
+The direct vector port is bounded to a one-dimensional, `GLOBAL`, pathless
+`DECIMAL` slot with a generic `amount` unit. Unit conversion is not applied and
+the unit does not declare USD. Correspondence scales must be 1. The persisted
+NumPy dtype follows the declared encoding; the current `generalized_gini@1.0`
+fixture uses `float64`. The
+selected-vector record keeps `tensor_value_sha256` for the actual NPY argument
+separate from the axis-alignment digest. Core's
+`selected_method_input_tensor_identity` accessor returns that tensor identity,
+not the alignment digest. Foundry input-bindings 1.5 step rows must use one input
+kind; mixed scalar/vector selections are unsupported. Vector preparation
+requires the exact original pre-state and snapshot, with no pre-seeded selected
+state. Scalar broadcast is not inferred.
+
+The numerical fixture reuses `generalized_gini@1.0` with `nu=2`; it exercises
+the generic bridge rather than a method-specific path. The existing
+`MetricSpec` path `generalized_gini` captures the numeric value in
+`MethodOutputPayload` 1.0, while the metric remains unavailable because its
+registered metric law is missing. Output capture does not establish metric
+meaning or authority.
+
+The existing Foundry execute facade and stored-input readers are the consumer
+surface; retained bindings, NPY values, execution bundles and argument hashes
+support artifact and argument audits. No HTTP vector route is introduced. This
+profile does not enable Runtime current-use/N5 vector admission,
+selected-feedback vectors, feedback model-state inputs or new institutional
+authority.
+
 ## Candidate policy actuation
 
 [`actuation.py`](actuation.py) persists and replays a candidate selection;
@@ -94,9 +138,10 @@ profiles still refuse with `foundry_input_bindings_semantic_feedback_not_establi
 A feedback trace or prepared call alone is not a composed selected-input result.
 
 Snapshot 2.4 has a real scalar model-state graph/API route. Scalar temporal
-bindings 1.5 also reach actual step execution and cold-chain reading. Their
-Runtime/N5 composition, vector method inputs, temporal selected-feedback and
-model-state feedback remain separate; their unsupported gates stay closed.
+bindings 1.5 also reach actual step execution and cold-chain reading. Direct
+entity-vector inputs use the bounded candidate path above; Runtime/N5
+composition, temporal scalar-feedback, selected-feedback vectors and
+model-state feedback remain separate and disabled.
 Old artifacts are read under their own profiles and are not rewritten using
 current method definitions. Keep current grants, expiry, quota and selected-use
 checks with their Runtime owners.

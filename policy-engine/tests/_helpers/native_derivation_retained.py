@@ -15,7 +15,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts, contracts, security
+from polisyos.core import artifacts, contracts, security
 from polisyos.core.artifacts import artifact_ref_identity_key
 from polisyos.core.artifacts.store import CASManifestInventorySnapshot
 from polisyos.data_forge.read_api import catalog
@@ -61,6 +61,22 @@ def _selected_profiles(store: Any, kind: str) -> tuple[artifacts.ArtifactRef, ..
             raise ValueError("retained_native_fixture_inventory_profile_invalid")
         selected[artifact_ref_identity_key(ref)] = ref
     return tuple(selected[key] for key in sorted(selected))
+
+
+def _selected_retained_ref(
+    store: Any, ref: artifacts.ArtifactRef, kind: str
+) -> artifacts.ArtifactRef:
+    """Reopen one full selector through the complete canonical view inventory."""
+    if type(ref) is not artifacts.ArtifactRef or ref.manifest_profile_sha256 is None:
+        raise ValueError("retained_native_continuation_selected_profile_missing")
+    actual = tuple(
+        value
+        for value in _selected_profiles(store, kind)
+        if artifact_ref_identity_key(value) == artifact_ref_identity_key(ref)
+    )
+    if len(actual) != 1:
+        raise ValueError("retained_native_continuation_selected_profile_missing")
+    return actual[0]
 
 
 def load_retained_native_source_fixture(
@@ -309,6 +325,14 @@ def load_retained_native_source_fixture(
 
 
 @dataclass(frozen=True, slots=True)
+class RetainedNativeEpochPolicySelection:
+    """Locate an existing signed policy input; this is no current action grant."""
+
+    epoch_admission_evidence_ref: artifacts.ArtifactRef
+    epoch_public_key_path: Path
+
+
+@dataclass(frozen=True, slots=True)
 class RetainedNativeAdmissionSelection:
     """Locate existing fixture acts; these inputs grant no Runtime operation."""
 
@@ -332,6 +356,80 @@ def _verify_retained_selected_signature(
         raise ValueError("retained_native_continuation_mandate_signature_invalid")
 
 
+def load_retained_native_epoch_policy(
+    fixture: SimpleNamespace,
+    selection: RetainedNativeEpochPolicySelection,
+) -> EpochDeploymentConfig:
+    """Read an unchanged signed policy with public trust and no signing operation.
+
+    The actual native policy owner reconciles signature trust role, selected
+    evidence, policy bytes and relation against the independently reopened
+    prepared epoch/query. This does not renew a mandate or authorize a use.
+    """
+    from polisyos.runtime.quality.semantic_epoch_qualification import (
+        SemanticEpochNativePolicyOwner,
+        build_semantic_epoch_native_deployment,
+    )
+
+    store = fixture.store
+    admission_ref = _selected_retained_ref(
+        store,
+        selection.epoch_admission_evidence_ref,
+        "core.chronology.signed_artifact_evidence_record",
+    )
+    prepared = contracts.epoch.load_verified_epoch_statement(
+        store=store,
+        ref=fixture.deferral.negative_receipt.prepared_epoch_ref,
+        expected_kind="epoch.prepared",
+    )
+    manifest_ref = artifacts.ArtifactRef.model_validate(prepared["stamp"]["semantic_manifest_ref"])
+    manifest = contracts.epoch.load_verified_epoch_statement(
+        store=store, ref=manifest_ref, expected_kind="epoch.semantic_manifest"
+    )
+    query = contracts.chronology.NativeChronologyQuery(
+        domain=contracts.chronology.ChronologyProofDomain(
+            format=contracts.chronology.FULL_PREFIX_FORMAT,
+            profile=contracts.chronology.FULL_PREFIX_PROFILE,
+            proof_domain="semantic_epoch",
+            family="epoch",
+            scope_ref=fixture.attempt.selection.epoch_scope_identity.scope_identity_ref,
+            authority_purpose=fixture.attempt.selection.authority_purpose,
+        ),
+        requested_cutoff_ref=manifest["epoch_ref"],
+        requested_query_context_ref=prepared["query"]["requested_query_context_ref"],
+    )
+    config = EpochDeploymentConfig(
+        evidence_cas_root=store.root,
+        native_epoch_history_root=fixture.epoch_history_root,
+        trusted_issuers=(
+            EpochTrustedIssuerConfig(
+                identity="fixture-native-epoch-owner",
+                public_key_path=selection.epoch_public_key_path,
+                roles=("predicate_policy_admission",),
+            ),
+        ),
+        predicate_policy_admission_refs=(admission_ref,),
+    )
+    deployment = build_semantic_epoch_native_deployment(config)
+    with deployment.composition_scope(runtime_artifact_store=store):
+        owner = deployment._state().chronology_policy_owner
+        if type(owner) is not SemanticEpochNativePolicyOwner:
+            raise ValueError("retained_native_epoch_policy_owner_not_established")
+        admission, policy, _relation, record, evidence = owner._resolve(query)
+        provenance = policy.statement.owner_provenance_ref
+        if (
+            evidence.persisted.evidence_record_ref != admission_ref
+            or record.signing_profile_ref != provenance
+            or record.signer_provenance_ref != provenance
+            or admission.policy_content_hash
+            != contracts.chronology._predicate_policy_content_hash(policy.statement)
+            or policy.statement.owner_provenance_content_hash
+            != security.raw_content_hash(deployment._repository().read_raw(artifact_ref=provenance))
+        ):
+            raise ValueError("retained_native_epoch_policy_provenance_mismatch")
+    return config
+
+
 def load_retained_native_admission_checkpoint(
     fixture: SimpleNamespace,
     selection: RetainedNativeAdmissionSelection,
@@ -348,63 +446,20 @@ def load_retained_native_admission_checkpoint(
 
     store = fixture.store
 
-    def selected(ref: artifacts.ArtifactRef, kind: str) -> artifacts.ArtifactRef:
-        actual = tuple(
-            value
-            for value in _selected_profiles(store, kind)
-            if artifact_ref_identity_key(value) == artifact_ref_identity_key(ref)
-        )
-        if len(actual) != 1 or ref.manifest_profile_sha256 is None:
-            raise ValueError("retained_native_continuation_selected_profile_missing")
-        return actual[0]
-
-    admission_ref = selected(
-        selection.epoch_admission_evidence_ref, "core.chronology.signed_artifact_evidence_record"
-    )
-    evidence = FileSystemSignedArtifactEvidenceRepository(store).read_exact(
-        evidence_record_ref=admission_ref
-    )
-    epoch_identity = "fixture-native-epoch-owner"
-    epoch_verifier = artifacts.Ed25519Verifier(strict_identity=True)
-    epoch_verifier.load_trusted_key_file(selection.epoch_public_key_path, identity=epoch_identity)
-    if not security.verify_signed_evidence(evidence, verifier=epoch_verifier):
-        raise ValueError("retained_native_continuation_epoch_signature_invalid")
-    admission = security.parse_canonical_statement(
-        evidence.blob_bytes, contracts.chronology.PredicatePolicyAdmissionStatement
-    )
-    prepared = contracts.epoch.load_verified_epoch_statement(
-        store=store,
-        ref=fixture.deferral.negative_receipt.prepared_epoch_ref,
-        expected_kind="epoch.prepared",
-    )
-    manifest_ref = artifacts.ArtifactRef.model_validate(prepared["stamp"]["semantic_manifest_ref"])
-    manifest = contracts.epoch.load_verified_epoch_statement(
-        store=store, ref=manifest_ref, expected_kind="epoch.semantic_manifest"
-    )
-    if (
-        admission.key.scope_ref != fixture.attempt.selection.epoch_scope_identity.scope_identity_ref
-        or admission.key.authority_purpose != fixture.attempt.selection.authority_purpose
-        or admission.key.requested_cutoff_ref != manifest["epoch_ref"]
-        or admission.requested_query_context_ref != prepared["query"]["requested_query_context_ref"]
-    ):
-        raise ValueError("retained_native_continuation_epoch_scope_mismatch")
-    epoch_config = EpochDeploymentConfig(
-        evidence_cas_root=store.root,
-        native_epoch_history_root=fixture.epoch_history_root,
-        trusted_issuers=(
-            EpochTrustedIssuerConfig(
-                identity=epoch_identity,
-                public_key_path=selection.epoch_public_key_path,
-                roles=("predicate_policy_admission",),
-            ),
+    epoch_config = load_retained_native_epoch_policy(
+        fixture,
+        RetainedNativeEpochPolicySelection(
+            epoch_admission_evidence_ref=selection.epoch_admission_evidence_ref,
+            epoch_public_key_path=selection.epoch_public_key_path,
         ),
-        predicate_policy_admission_refs=(admission_ref,),
     )
-    contract_ref = selected(
-        selection.delegation_contract_ref, "runtime_quality.agent_action_delegation_contract"
+    contract_ref = _selected_retained_ref(
+        store,
+        selection.delegation_contract_ref,
+        "runtime_quality.agent_action_delegation_contract",
     )
-    current_ref = selected(
-        selection.current_mandate_evidence_ref, "runtime_quality.current_mandate_owner"
+    current_ref = _selected_retained_ref(
+        store, selection.current_mandate_evidence_ref, "runtime_quality.current_mandate_owner"
     )
     contract = authority.DelegationContract.model_validate(
         artifacts.load_core_json_artifact(store, contract_ref)
@@ -466,7 +521,8 @@ def load_retained_native_admission_checkpoint(
         mandate_slot=slot,
         action_job_id=contexts[0].job_id,
         human_decision_record_ref=(
-            selected(
+            _selected_retained_ref(
+                store,
                 selection.human_decision_record_ref,
                 "runtime_quality.agent_action_human_decision",
             )

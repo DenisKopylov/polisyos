@@ -24,7 +24,52 @@ gate story.
 - Partial mutation failures do not leave half-written state behind.
 - Merge conflict and resume semantics are explicit and regression-covered.
 - Reliability scenarios, operational signals, and runtime benchmarks remain green together.
-- Phase 1 closure is blocked automatically if broad handlers or live `model_copy(deep=True)` hot paths reappear on the ratcheted slice.
+- The gate blocks on broad handlers in its selected critical files, missing required JUnit evidence, or missing required reliability and benchmark evidence.
+- The full Scientist `model_copy(deep=True)` syntax inventory is a nonblocking diagnostic. It does not classify live hot paths or prove copy necessity, runtime cost, or performance.
+
+## Required State and Mutation Evidence
+
+The gate requires every case in `branch_state_tranche` from
+`tools/ci/check_scientist_phase1_gate.py`; these five named JUnit cases are the
+blocking state and mutation coverage. It also requires all three
+`machine_readable_status` and all fourteen `error_semantics_tranche` case names
+declared by that same source of truth.
+
+| Mechanism | Required test | Production source exercised |
+| --- | --- | --- |
+| Calibration config nested-model ownership | `test_apply_to_config_uses_branch_local_nested_model_clones` in `tests/unit/scientist/methods/autotune/test_calibration_autotune.py` | `src/polisyos/scientist/methods/autotune/calibration.py` |
+| Declared-output policy translation branching | `test_policy_translation_uses_branch_state_for_declared_outputs` in `tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py` | `src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py` |
+| Declared-output translator-compliance branching | `test_translator_compliance_uses_branch_state_for_declared_outputs` in `tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py` | `src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py` |
+| Workflow runner snapshot isolation | `test_workflow_runners_use_branch_local_snapshot_state` in `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py` | `src/polisyos/scientist/orchestration/workflows/builder.py` |
+| Budget ledger copy-on-write mutation | `test_ledger_mutation_uses_copy_on_write_budget_state` in `tests/unit/scientist/orchestration/engine/test_budget_middleware.py` | `src/polisyos/scientist/orchestration/engine/budget.py` |
+
+The scorecard also requires these seven benchmark operation families, whose
+records come from `tests/performance/test_scientist_runtime_paths.py`:
+
+| Operation | Accepted benchmark test name(s), at least one per operation |
+| --- | --- |
+| Node-chain latency | `test_scientist_node_chain_latency` |
+| Checkpoint I/O | `test_scientist_checkpoint_io_hot_path`, `test_scientist_async_checkpoint_io_hot_path` |
+| State serialization | `test_scientist_state_serialization_hot_path` |
+| State branching/copy | `test_scientist_state_branch_hot_path` |
+| Fan-out merge | `test_scientist_fan_out_merge_hot_path` |
+| Failure-index search | `test_scientist_failure_index_search_hot_path` |
+| Pareto search | `test_scientist_search_pareto_hot_path` |
+
+The gate checks the supplied JUnit names against their required cases and requires
+at least one supplied benchmark name for each operation in the scorecard mapping.
+It does not establish which source/backend produced the reports or compare
+benchmark timings to a numeric threshold. The CI command below runs the selected
+test and benchmark suites; its successful execution remains a separate input to
+the gate.
+
+The diagnostic `deep_copy_scan` enumerates visible `src/polisyos/scientist/**/*.py`
+files except `src/polisyos/scientist/orchestration/engine/state_branching.py` and
+`src/polisyos/scientist/remediation_status.py`, and reports literal copy calls,
+unresolved syntax candidates, and any unreadable or unparseable members. The
+measurement receipt carries the discovered denominator and scan completeness.
+An incomplete diagnostic remains unresolved and does not change the acceptance
+verdict. A zero-finding result is not evidence that a runtime hot path is absent.
 
 ## Required Evidence
 
@@ -59,7 +104,8 @@ gate story.
 | Resume enforces repair-or-fail checkpoint reconciliation                                                  | `tests/unit/scientist/orchestration/engine/test_checkpoint.py::{test_resolve_latest_checkpoint_repairs_history_when_head_is_newer,test_resolve_latest_checkpoint_rejects_head_history_conflict,test_resolve_latest_checkpoint_rejects_divergent_latest_history_entries,test_resolve_latest_checkpoint_rejects_head_artifact_metadata_mismatch}`                                                                                                                   |
 | Distributed resume/merge/checkpoint path is explicit and regression-covered                               | `tests/integration/scientist/test_checkpoint_resume.py`, `tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract`, `tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py::test_temporal_runner_executes_remote_checkpoint_merge_activity`, `tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py::test_ray_runner_executes_remote_checkpoint_merge_task`             |
 | Workflow entrypoints, translation nodes, and calibration meta overrides use bounded branch-local mutation | `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_workflow_runners_use_branch_local_snapshot_state`, `tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py::{test_policy_translation_uses_branch_state_for_declared_outputs,test_translator_compliance_uses_branch_state_for_declared_outputs}`, `tests/unit/scientist/autotune/test_calibration_autotune.py::test_apply_to_config_uses_branch_local_nested_model_clones` |
-| Live `model_copy(deep=True)` hot paths remain removed from Scientist source                               | enforced by `tools/ci/check_scientist_phase1_gate.py`                                                                                                                                                                                                                                                                                                                                                                                   |
+| Budget ledger updates retain copy-on-write state ownership                                                | `tests/unit/scientist/orchestration/engine/test_budget_middleware.py::test_ledger_mutation_uses_copy_on_write_budget_state`                                                                                                                                                                                                                                                                                                               |
+| Full Scientist explicit deep-copy syntax inventory                                                       | Reported as a nonblocking diagnostic by `tools/ci/check_scientist_phase1_gate.py`; it does not classify hotness, necessity, or cost                                                                                                                                                                                                                                                                                                       |
 
 ## Gate Command
 

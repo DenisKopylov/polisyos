@@ -43,10 +43,12 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationN5InputV1,
     GenericCycleSimulationProfileV1,
+    GenericN5ExecutionJoinExpectation,
     GenericN5InitialMethodInputRequest,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
+    JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationRequest,
     _require_program_graph_input_preflight,
@@ -446,6 +448,43 @@ def _run_current_job_real_method_world(
             case.close()
 
 
+def _selected_method_result_expectation(
+    store: artifacts.CoreJSONArtifactStore,
+    *,
+    input_ref: artifacts.ArtifactRef,
+    result_ref: artifacts.ArtifactRef,
+) -> GenericN5ExecutionJoinExpectation:
+    """Supply the existing Generic owner with the selected source's exact joins."""
+    source = GenericCycleSimulationN5InputV1.model_validate(
+        artifacts.load_core_json_artifact(store, input_ref)
+    )
+    return GenericN5ExecutionJoinExpectation(
+        input_ref=input_ref,
+        result_ref=result_ref,
+        status="joint_simulated",
+        model_input_obligation_set_ref=None,
+        n4_source_ref=source.n4_source_ref,
+        context_job_ref=source.context_job_ref,
+        profile_ref=source.profile_ref,
+        child_family_ref=source.n4_child_profile_family_ref,
+        child_set_ref=source.n4_child_profile_set_ref,
+        profile_selection_ref=source.profile.profile_selection_ref,
+        profile=source.profile,
+        child_selection=source.child_selection,
+        design_problem_ref=source.design_problem_ref,
+        outcome_variable=source.outcome_variable,
+        cycle_index=source.cycle_index,
+        candidate_id=source.candidate_id,
+        candidate_atom_hash=source.candidate_atom_hash,
+        world_model_record_content_hash=source.profile.context_inputs.world_model_record.content_hash,
+        job_id=source.job_id,
+        run_id=source.run_id,
+        source_run_id=source.source_run_id,
+        tenant_id=source.tenant_id,
+        cell_id=source.cell_id,
+    )
+
+
 def _assert_initial_observation_fresh_reader(
     control: Any,
     *,
@@ -475,7 +514,6 @@ def _assert_initial_observation_fresh_reader(
         read_generic_model_input_initial_evaluation_history,
     )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.generic_simulation_admission import (
         parse_generic_cycle_simulation_n5_execution,
     )
@@ -558,11 +596,33 @@ def _assert_initial_observation_fresh_reader(
     assert artifacts.artifact_ref_identity_key(execution.current_method_input_bindings_ref) == (
         artifacts.artifact_ref_identity_key(selected.current_method_input_bindings_ref)
     )
-    result = load_joint_simulation_result(
-        selected.result_ref,
-        store=fresh_store,
-        expected_world_model_record_content_hash=execution.world_model_record_content_hash,
+    expected = _selected_method_result_expectation(
+        fresh_store, input_ref=selected.input_ref, result_ref=selected.result_ref
     )
+    result_owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=fresh_store)
+    joined, resolved = result_owner.resolve_n5_execution_join_with_result(
+        selected.execution_ref, expected=expected
+    )
+    assert joined.status == "resolved" and resolved is not None, joined.code
+    assert joined.execution == execution
+    result = resolved.result
+    assert result.world_model_record_content_hash == execution.world_model_record_content_hash
+    assert resolved.request.world_model_record_ref == result.world_model_record_ref
+    wrong_profile = selected.result_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    refused, refused_result = result_owner.resolve_n5_execution_join_with_result(
+        selected.execution_ref, expected=expected.model_copy(update={"result_ref": wrong_profile})
+    )
+    assert refused.status == "mismatch" and refused_result is None
+    assert refused.code == "generic_n5_execution_cycle_join_mismatch"
+    wrong_request = resolved.request.model_copy(update={"seed": resolved.request.seed + 1})
+    with pytest.raises(JointSimulationControllerError) as wrong_binding:
+        JointSimulationHorizonController().validate_selected_result(
+            request=wrong_request, result=result
+        )
+    assert wrong_binding.value.code == "selected_plan_execution_binding_missing"
+    assert str(wrong_binding.value.__cause__) == "result_request_binding_mismatch"
     work = result.physical_work_observations
     assert len(work) == 2  # One baseline and one intervention, one actual replication.
     assert len(before.invocation_reservations) == len(work)

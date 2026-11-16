@@ -89,6 +89,36 @@ pairwise, and joint run set. That path is owned by
 `polisyos.runtime.quality.joint_simulation_horizon`; its trajectories are also
 model predictions and remain subject to separate grounding checks.
 
+## Registered SQL semantic input (FoundryInputBindings 1.3)
+
+A registered SQL materialization can contribute a selected admission binding to
+Foundry's initial-state input. The binding is tied to the owner's captured
+materialization and the selected snapshot; Foundry reconciles the resolved
+semantic binding against that state and the effective execution request before
+admitting the source-bound result. This is a bounded candidate-input path, not a
+claim that the observed database values are current or authoritative.
+
+For `FoundryInputBindings` schema `1.3`, source admission replays semantic bindings through Core's
+canonical readers and validators. The read-only semantic view is supplied by an
+optional `semantic_input_reader()` factory on the existing bounded execution
+reader. The base reader contract retains its three methods for selected
+manifest, edge manifest, and typed-model reads. A legacy reader without the
+optional factory remains compatible with that base protocol; when schema `1.3`
+semantic replay is requested, the missing view causes refusal rather than an
+unbounded fallback. Semantic reads charge the same aggregate source-byte budget
+as the other selected reads, with the JSON and NPZ per-artifact caps still
+applied.
+
+This description is limited to the combined `FoundryInputBindings` schema `1.3` path and makes
+no claim about semantic replay coverage for schemas `1.4` or `1.5`. A successful
+candidate simulation does not grant protected C105 current-use permission or
+publication authority. The [E02 work plan](../../../../E02-WORK-PLAN.md)
+records an R5 PASS with wrong-source/path,
+source/capture/profile/role-removal, strict-limit, and oversized-input controls,
+plus a separate retained Foundry execution and fresh
+canonical result-reader PASS. These checks qualify bounded candidate behavior,
+not C105 permission or final lane acceptance.
+
 ## Minimal flow
 
 ```python

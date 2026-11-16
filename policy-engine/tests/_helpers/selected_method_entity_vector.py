@@ -37,6 +37,9 @@ from polisyos.core.contracts.variable_binding import (
     SelectedVariableBindingRef,
     VariableRepresentation,
     VariableRepresentationRef,
+    VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
+    variable_representation_manifest_inputs,
 )
 from polisyos.core.registry import build_registry_bundle
 from polisyos.foundry.compile.api import compile as compile_foundry
@@ -91,7 +94,25 @@ class SelectedMethodEntityVectorCase:
     obligation_set_ref: ArtifactRef
 
 
-def prepare_selected_method_entity_vector_case(tmp_path: Path) -> SelectedMethodEntityVectorCase:
+@dataclass(frozen=True)
+class SelectedMethodEntityVectorFixtureData:
+    """Test-owned semantics and annual values for a synthetic vector domain."""
+
+    namespace: str
+    stable_id: str
+    meaning: str
+    population_ref: str
+    geography_ref: str
+    jurisdiction_ref: str
+    member_ids: tuple[str, ...]
+    annual_values: tuple[tuple[int, ...], tuple[int, ...]]
+
+
+def prepare_selected_method_entity_vector_case(
+    tmp_path: Path,
+    *,
+    fixture_data: SelectedMethodEntityVectorFixtureData | None = None,
+) -> SelectedMethodEntityVectorCase:
     """Compile genuine GenericUnit vector ports and the existing Gini method.
 
     The shared JSON view has a fixed typed membership. Meaning and each annual
@@ -101,10 +122,16 @@ def prepare_selected_method_entity_vector_case(tmp_path: Path) -> SelectedMethod
     while its unregistered metric law remains explicitly unavailable.
     """
     store = FileSystemCAS(tmp_path / "cas")
+    members = fixture_data.member_ids if fixture_data is not None else ("b", 1, "1", 2)
+    annual_values = (
+        fixture_data.annual_values
+        if fixture_data is not None
+        else ((40, 10, 30, 20), (40, 20, 20, 20))
+    )
     source_view_ref = store.put_json(
         {
-            "members": ["b", 1, "1", 2],
-            "years": {"2020": [40, 10, 30, 20], "2021": [40, 20, 20, 20]},
+            "members": list(members),
+            "years": {"2020": list(annual_values[0]), "2021": list(annual_values[1])},
         },
         PutOptions(kind="tests.candidate_entity_vector_view", media_type="application/json"),
         return_selected_profile=True,
@@ -195,7 +222,35 @@ def prepare_selected_method_entity_vector_case(tmp_path: Path) -> SelectedMethod
         ],
         return_selected_profile=True,
     )
-    definition_ref, _ = _definition(store, "candidate_entity_amount")
+    if fixture_data is None:
+        definition_ref, _ = _definition(store, "candidate_entity_amount")
+    else:
+        definition_evidence_ref = store.put_bytes(
+            f"Synthetic test-only definition: {fixture_data.meaning}".encode(),
+            PutOptions(kind="tests.synthetic_definition_evidence", media_type="text/plain"),
+            return_selected_profile=True,
+        )
+        definition_evidence = SelectedVariableBindingRef.model_validate(
+            definition_evidence_ref.model_dump(mode="json")
+        )
+        definition = VariableSemanticDefinition(
+            namespace=fixture_data.namespace,
+            stable_id=fixture_data.stable_id,
+            revision="1",
+            meaning=fixture_data.meaning,
+            definition_evidence_refs=(definition_evidence,),
+        )
+        definition_ref = VariableSemanticDefinitionRef.model_validate(
+            _put_contract(
+                store,
+                definition,
+                inputs=(
+                    input_ref_from_artifact_ref(
+                        definition_evidence_ref, role="definition_evidence"
+                    ),
+                ),
+            ).model_dump(mode="python")
+        )
     representation = VariableRepresentation(
         representation_id="candidate.entity_amount",
         revision="1",
@@ -208,10 +263,15 @@ def prepare_selected_method_entity_vector_case(tmp_path: Path) -> SelectedMethod
         temporal_granularity="annual",
         aggregation="identity",
         grain=("entity",),
-        population_ref="population:selected-view",
+        population_ref=(
+            fixture_data.population_ref if fixture_data is not None else "population:selected-view"
+        ),
+    )
+    representation_inputs = (
+        variable_representation_manifest_inputs(representation) if fixture_data is not None else ()
     )
     representation_ref = VariableRepresentationRef.model_validate(
-        _put_contract(store, representation).model_dump(mode="python")
+        _put_contract(store, representation, inputs=representation_inputs).model_dump(mode="python")
     )
     profile = MeasurementBindingProfile(
         profile_id="candidate.entity_amount",
@@ -240,9 +300,19 @@ def prepare_selected_method_entity_vector_case(tmp_path: Path) -> SelectedMethod
             _put_contract(store, profile).model_dump(mode="python")
         ),
         scope=ModelInputScope(
-            population_ref="population:selected-view",
-            geography_ref="geography:fixture",
-            jurisdiction_ref="jurisdiction:fixture",
+            population_ref=(
+                fixture_data.population_ref
+                if fixture_data is not None
+                else "population:selected-view"
+            ),
+            geography_ref=(
+                fixture_data.geography_ref if fixture_data is not None else "geography:fixture"
+            ),
+            jurisdiction_ref=(
+                fixture_data.jurisdiction_ref
+                if fixture_data is not None
+                else "jurisdiction:fixture"
+            ),
             period_start=date(2020, 1, 1),
             period_end=date(2021, 12, 31),
             time_role="observation_time",

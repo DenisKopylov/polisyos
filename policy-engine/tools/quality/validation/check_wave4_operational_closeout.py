@@ -15,7 +15,11 @@ from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
-from polisyos.runtime.quality.attestation import REQUIRED_TRUST_BOUNDARY_IDS  # noqa: E402
+from polisyos.runtime.quality.attestation import (  # noqa: E402
+    evaluate_trust_boundary_attestation,
+    iter_required_production_attestation_boundaries,
+    load_trust_boundary_registry,
+)
 from polisyos.runtime.quality.diagnostic_slos import DIAGNOSTIC_SLO_METRIC_IDS  # noqa: E402
 
 SCHEMA_VERSION = "policyos.honest_diagnostics.wave4_closeout.v1"
@@ -520,40 +524,28 @@ def _assurance_and_slo_findings(quality: Mapping[str, Any]) -> list[dict[str, An
 
 def _attestation_findings(quality: Mapping[str, Any]) -> list[dict[str, Any]]:
     records = quality.get("attestation_records")
-    if not isinstance(records, Sequence) or isinstance(records, str):
+    if not isinstance(records, Sequence) or isinstance(records, str | bytes | bytearray):
         return [_finding("attestation_records_missing", "Attestation records are missing.")]
-    by_boundary = {
-        str(record.get("trust_boundary_id")): record
-        for record in records
-        if isinstance(record, Mapping)
-    }
+    try:
+        registry = load_trust_boundary_registry()
+        boundaries = iter_required_production_attestation_boundaries(registry)
+    except (OSError, TypeError, ValueError):
+        return [
+            _finding("trust_boundary_registry_invalid", "Trust-boundary registry is unavailable.")
+        ]
     findings: list[dict[str, Any]] = []
-    for boundary_id in sorted(REQUIRED_TRUST_BOUNDARY_IDS):
-        record = by_boundary.get(boundary_id)
-        if record is None:
+    for boundary in boundaries:
+        try:
+            result = evaluate_trust_boundary_attestation(
+                boundary_id=boundary.boundary_id, attestations=records, registry=registry
+            )
+        except (TypeError, ValueError):
             findings.append(
-                _finding("attestation_required_boundary_missing", f"Missing {boundary_id}.")
+                _finding("attestation_invalid", f"Invalid attestation for {boundary.boundary_id}.")
             )
             continue
-        if record.get("signature_ref") in {None, ""}:
-            findings.append(_finding("attestation_signature_missing", f"{boundary_id} unsigned."))
-        if record.get("evidence_ref") in {None, ""}:
-            findings.append(
-                _finding("attestation_evidence_missing", f"{boundary_id} lacks evidence.")
-            )
-        if record.get("consumer_verification") != "verified":
-            findings.append(_finding("attestation_not_verified", f"{boundary_id} is not verified."))
-        if record.get("tamper_check_status") != "pass":
-            findings.append(
-                _finding("attestation_tamper_check_failed", f"{boundary_id} tamper check failed.")
-            )
-        if _contains_synthetic_attestation_ref(record):
-            findings.append(
-                _finding(
-                    "attestation_synthetic_ref",
-                    f"{boundary_id} contains synthetic attestation refs.",
-                )
-            )
+        if not result.production_closeout_satisfied:
+            findings.append(_finding(result.failure_code, result.message))
     return findings
 
 
@@ -725,14 +717,6 @@ def _runtime_refs(bundle_dir: Path) -> dict[str, str]:
         if isinstance(params_refs, Mapping):
             refs.update({str(key): str(value) for key, value in params_refs.items()})
     return refs
-
-
-def _contains_synthetic_attestation_ref(value: Any) -> bool:
-    if isinstance(value, Mapping):
-        return any(_contains_synthetic_attestation_ref(item) for item in value.values())
-    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        return any(_contains_synthetic_attestation_ref(item) for item in value)
-    return isinstance(value, str) and value.startswith("attestation://")
 
 
 def _without_authority(value: Any) -> Any:

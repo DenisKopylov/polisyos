@@ -10,6 +10,7 @@ from polisyos.runtime.quality.attestation import (
     AttestationViolation,
     TrustBoundaryRegistryError,
     build_required_production_attestations,
+    build_verified_attestation_record,
     deserialize_attestation_record,
     evaluate_trust_boundary_attestation,
     iter_required_production_attestation_boundaries,
@@ -45,15 +46,22 @@ def _material(key: str, ref: str) -> dict[str, str]:
 
 
 def _valid_attestation_payload() -> dict[str, object]:
+    boundary = load_trust_boundary_registry(REGISTRY_PATH).require("runtime_worker")
+    materials = [
+        _material(key, "cas://sha256/" + "1" * 64) for key in boundary.expected_material_kinds
+    ]
+    products = [
+        _material(key, "cas://sha256/" + "2" * 64) for key in boundary.expected_product_kinds
+    ]
     return {
         "schema_version": "polisyos.runtime.attestation.v1",
         "attestation_id": "att-runtime-worker-1",
         "trust_boundary_id": "runtime_worker",
         "generated_at": "2026-05-15T08:30:00+00:00",
-        "expected_materials": [_material("run_request", "cas://sha256/" + "1" * 64)],
-        "observed_materials": [_material("run_request", "cas://sha256/" + "1" * 64)],
-        "expected_products": [_material("runtime_quality_refs", "cas://sha256/" + "2" * 64)],
-        "observed_products": [_material("runtime_quality_refs", "cas://sha256/" + "2" * 64)],
+        "expected_materials": deepcopy(materials),
+        "observed_materials": deepcopy(materials),
+        "expected_products": deepcopy(products),
+        "observed_products": deepcopy(products),
         "functionary": {
             "functionary_id": "runtime-worker@prod-cell-a",
             "role": "runtime_worker",
@@ -177,7 +185,7 @@ def test_required_boundary_without_attestation_is_diagnostic_readable_only() -> 
         result.assert_production_closeout_satisfied()
 
 
-def test_verified_attestation_satisfies_required_production_boundary() -> None:
+def test_legacy_verification_declaration_cannot_appoint_its_verifier() -> None:
     registry = load_trust_boundary_registry(REGISTRY_PATH)
     record = deserialize_attestation_record(_valid_attestation_payload())
 
@@ -187,10 +195,11 @@ def test_verified_attestation_satisfies_required_production_boundary() -> None:
         registry=registry,
     )
 
-    assert result.status == "verified"
+    assert result.status == "not_established"
     assert result.diagnostic_readable is True
-    assert result.production_closeout_satisfied is True
-    result.assert_production_closeout_satisfied()
+    assert result.production_closeout_satisfied is False
+    with pytest.raises(AttestationViolation, match="attestation_verifier_not_appointed"):
+        result.assert_production_closeout_satisfied()
 
 
 def test_tampered_attestation_blocks_production_closeout() -> None:
@@ -230,13 +239,8 @@ def test_attestation_without_evidence_or_signature_blocks_production_closeout() 
 
 def test_synthetic_attestation_refs_block_production_closeout() -> None:
     registry = load_trust_boundary_registry(REGISTRY_PATH)
-    generated = build_required_production_attestations(
-        material_refs={},
-        product_refs={},
-        registry=registry,
-    )
-    runtime_worker = next(
-        record for record in generated if record.trust_boundary_id == "runtime_worker"
+    runtime_worker = build_verified_attestation_record(
+        boundary_id="runtime_worker", material_refs={}, product_refs={}, registry=registry
     )
 
     result = evaluate_trust_boundary_attestation(

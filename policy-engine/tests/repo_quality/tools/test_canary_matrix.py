@@ -4,6 +4,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from tools.ops_runners.runtime import (
     canary_matrix,
     local_production_canary,
@@ -100,6 +102,10 @@ def test_canary_matrix_every_lane_declares_required_evidence_files_and_missing_l
         assert common_files <= files
         assert lane["coverage"]["status"] == lane["status"]
         assert lane["coverage"]["missing_or_deferred_reason"]
+        assert all(
+            lane["runner"]["env"][name] == canary_matrix.REQUIRED_ENV_VALUE
+            for name in canary_matrix.RUNTIME_REQUIRED_ENV
+        )
 
     dashboard_lane = next(lane for lane in lanes if lane["ui"] == "dashboard_smoke")
     assert "dashboard.json" in dashboard_lane["required_evidence_files"]
@@ -339,6 +345,13 @@ def _lane_by_id(lane_id: str) -> dict[str, object]:
     return dict(lanes[lane_id])
 
 
+def _configure_runtime_runner_inputs(monkeypatch, tmp_path: Path) -> None:
+    grants_path = tmp_path / "service-principal-grants.json"
+    grants_path.write_text('{"principals": []}\n', encoding="utf-8")
+    monkeypatch.setenv("POLISYOS_RUNTIME_CANARY_BEARER_TOKEN", "test-canary-bearer")
+    monkeypatch.setenv("POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH", str(grants_path))
+
+
 def _run_one_ready_lane_with_missing_evidence(
     tmp_path: Path,
     monkeypatch,
@@ -347,6 +360,8 @@ def _run_one_ready_lane_with_missing_evidence(
     missing_file: str,
     scorecard_status: str = "pass",
 ) -> dict[str, object]:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
+
     def fake_run(command, **_kwargs):
         argv = list(command)
         lane_id = next(value for value in argv if value.startswith("--matrix-lane-id=")).split(
@@ -380,6 +395,7 @@ def _run_one_ready_lane_with_missing_evidence(
 def test_real_canary_matrix_runs_deterministic_subset_and_writes_lane_summaries(
     tmp_path, monkeypatch
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
     calls: list[list[str]] = []
 
@@ -434,6 +450,7 @@ def test_real_canary_matrix_runs_deterministic_subset_and_writes_lane_summaries(
 
 
 def test_real_canary_matrix_fails_lane_when_scorecard_fails(tmp_path, monkeypatch) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
 
     def fake_run(command, **_kwargs):
@@ -479,6 +496,7 @@ def test_real_canary_matrix_rejects_bundle_scorecard_runtime_scorecard_conflict(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
 
     def fake_run(command, **_kwargs):
@@ -535,6 +553,7 @@ def test_real_canary_matrix_rejects_warn_scorecard_outside_ci_smoke(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
 
     def fake_run(command, **_kwargs):
@@ -594,6 +613,7 @@ def test_real_canary_matrix_rejects_warn_scorecard_for_deterministic_closeout(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
 
     def fake_run(command, **_kwargs):
@@ -635,6 +655,7 @@ def test_real_canary_matrix_fails_lane_when_required_evidence_is_missing(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     output = tmp_path / "matrix_result.json"
 
     def fake_run(command, **_kwargs):
@@ -675,6 +696,209 @@ def test_real_canary_matrix_fails_lane_when_required_evidence_is_missing(
         "quality_evidence/provider_model_quality_ledger.json"
         in (failure["missing_required_evidence"])
     )
+
+
+@pytest.mark.parametrize(
+    ("env_name", "value"),
+    [
+        ("POLISYOS_RUNTIME_CANARY_BEARER_TOKEN", None),
+        ("POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH", None),
+        ("POLISYOS_RUNTIME_CANARY_BEARER_TOKEN", " \t\n "),
+        ("POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH", "\n \t"),
+    ],
+    ids=["missing-bearer", "missing-grants-path", "blank-bearer", "blank-grants-path"],
+)
+def test_runtime_runner_preflight_blocks_missing_required_environment(
+    tmp_path,
+    monkeypatch,
+    capsys,
+    env_name: str,
+    value: str | None,
+) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
+    if value is None:
+        monkeypatch.delenv(env_name, raising=False)
+    else:
+        monkeypatch.setenv(env_name, value)
+
+    lane_id = "profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only"
+    output = tmp_path / "blocked_result.json"
+    calls: list[list[str]] = []
+
+    def fake_run(command, **_kwargs):
+        argv = list(command)
+        calls.append(argv)
+        bundle_dir = tmp_path / "bundles" / lane_id
+        _write_fake_lane_bundle(bundle_dir)
+        return subprocess.CompletedProcess(
+            argv,
+            0,
+            stdout=f"Evidence bundle: {bundle_dir}\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(run_canary_matrix, "_run_lane_command", fake_run)
+
+    assert (
+        run_canary_matrix.main(
+            [
+                "--lane-id",
+                lane_id,
+                "--output-root",
+                str(tmp_path / "evidence"),
+                "--run-root",
+                str(tmp_path / "runs"),
+                "--json-output",
+                str(output),
+            ]
+        )
+        == 2
+    )
+
+    console = capsys.readouterr().out
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    result = payload["lanes"][0]
+    failure = result["failure_envelope"]
+    assert calls == []
+    assert result["status"] == "blocked"
+    assert result["exit_code"] is None
+    assert failure["code"] == "canary_runner_required_environment_missing"
+    assert failure["phase"] == "setup"
+    assert failure["missing"] == [env_name]
+    assert failure["next_action"]
+    assert payload["summary"]["executed"] == 0
+    assert payload["summary"]["blocked"] == 1
+    assert payload["summary"]["failure_envelope"]["code"] == "canary_matrix_has_failures"
+    assert f"failure={failure['code']}@setup" in console
+    assert "test-canary-bearer" not in console
+    assert "test-canary-bearer" not in output.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("env_name", "value"),
+    [
+        (
+            "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN",
+            "sentinel\nvalue",
+        ),
+        (
+            "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH",
+            "\rsentinel",
+        ),
+    ],
+    ids=["bearer-line-feed", "grants-path-carriage-return"],
+)
+def test_runtime_runner_preflight_blocks_line_breaks_without_revealing_values(
+    tmp_path,
+    monkeypatch,
+    capsys,
+    env_name: str,
+    value: str,
+) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
+    monkeypatch.setenv(env_name, value)
+
+    lane_id = "profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only"
+    output = tmp_path / "malformed_result.json"
+    calls: list[list[str]] = []
+
+    def fake_run(command, **_kwargs):
+        argv = list(command)
+        calls.append(argv)
+        bundle_dir = tmp_path / "bundles" / lane_id
+        _write_fake_lane_bundle(bundle_dir)
+        return subprocess.CompletedProcess(
+            argv,
+            0,
+            stdout=f"Evidence bundle: {bundle_dir}\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(run_canary_matrix, "_run_lane_command", fake_run)
+
+    assert (
+        run_canary_matrix.main(
+            [
+                "--lane-id",
+                lane_id,
+                "--output-root",
+                str(tmp_path / "evidence"),
+                "--run-root",
+                str(tmp_path / "runs"),
+                "--json-output",
+                str(output),
+            ]
+        )
+        == 2
+    )
+
+    console = capsys.readouterr().out
+    serialized = output.read_text(encoding="utf-8")
+    payload = json.loads(serialized)
+    result = payload["lanes"][0]
+    failure = result["failure_envelope"]
+    assert calls == []
+    assert result["status"] == "blocked"
+    assert failure["code"] == "canary_runner_required_environment_malformed"
+    assert failure["phase"] == "setup"
+    assert failure["invalid"] == [env_name]
+    assert failure["missing"] == []
+    assert payload["summary"]["executed"] == 0
+    assert payload["summary"]["failure_envelope"]["code"] == "canary_matrix_has_failures"
+    assert f"failure={failure['code']}@setup" in console
+    assert value not in console
+    assert value not in serialized
+
+
+def test_unrelated_runner_without_required_environment_contract_remains_runnable(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.delenv("POLISYOS_RUNTIME_CANARY_BEARER_TOKEN", raising=False)
+    monkeypatch.delenv("POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH", raising=False)
+    lane = {
+        "lane_id": "unrelated-runner",
+        "status": "ready",
+        "ci_safe": False,
+        "closeout_required": False,
+        "provider": "simulated",
+        "scenario": "public_golden",
+        "required_evidence_files": [],
+        "runner": {
+            "kind": "python_module",
+            "module": "tools.example.unrelated_runner",
+            "argv": [],
+            "env": {"EXAMPLE_RUNNER_OPTION": "configured"},
+        },
+    }
+    calls: list[list[str]] = []
+
+    def fake_run(command, **_kwargs):
+        argv = list(command)
+        calls.append(argv)
+        bundle_dir = tmp_path / "bundles" / lane["lane_id"]
+        _write_fake_lane_bundle(bundle_dir)
+        return subprocess.CompletedProcess(
+            argv,
+            0,
+            stdout=f"Evidence bundle: {bundle_dir}\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(run_canary_matrix, "_run_lane_command", fake_run)
+
+    results = run_canary_matrix.run_matrix(
+        lanes=[lane],
+        output_root=tmp_path / "evidence",
+        run_root=tmp_path / "runs",
+        allow_live_provider=False,
+        cwd=REPO_ROOT,
+        timeout_s=30,
+    )
+
+    assert len(calls) == 1
+    assert results[0]["status"] == "passed"
+    assert results[0]["failure_envelope"] is None
 
 
 def test_real_canary_matrix_fails_missing_provider_ledger_evidence(
@@ -864,6 +1088,7 @@ def test_canary_matrix_workflow_wires_ci_and_quarantined_nightly_jobs() -> None:
 
 
 def test_live_provider_lane_requires_credentials_and_explicit_flag(tmp_path, monkeypatch) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     lane_id = (
         "profile-production__provider-live_gonka_proxy__data-canonical_production"
         "__scenario-public_golden__ui-api_only"
@@ -923,6 +1148,7 @@ def test_deterministic_only_lane_runs_cloud_live_lane_with_credentials(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     lane_id = (
         "profile-research__provider-live_gonka_proxy__data-canonical_production"
         "__scenario-public_golden__ui-api_only"
@@ -974,6 +1200,7 @@ def test_deterministic_only_lane_blocks_cloud_live_lane_without_credentials(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _configure_runtime_runner_inputs(monkeypatch, tmp_path)
     lane_id = (
         "profile-research__provider-live_gonka_proxy__data-canonical_production"
         "__scenario-public_golden__ui-api_only"

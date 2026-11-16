@@ -13,13 +13,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1676`.
-- Public/root-or-package facade types: `692`.
+- Public/root-or-package facade types: `694`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 545 |
+| `polisyos.ir` | 547 |
 | `polisyos.ir.analytics` | 321 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1028 | 345 | 45 |
+| `analytics` | 1028 | 347 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -10942,9 +10942,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.interventions.InterventionContext` { #polisyos-ir-analytics-interventions-interventioncontext }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:InterventionContext`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.registry.refs.InteractionComplexRef`, `polisyos.ir.registry.refs.InterferenceCertificateRef`
@@ -11146,9 +11146,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.interventions.NodeIntervention` { #polisyos-ir-analytics-interventions-nodeintervention }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NodeIntervention`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.interventions.VariableAssignment`

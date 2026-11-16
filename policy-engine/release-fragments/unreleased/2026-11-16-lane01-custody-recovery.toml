@@ -93,3 +93,17 @@ release_note = "Expose the existing Gateway configuration and guarded reuse scop
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/scientist/README.md"]
 runbook_docs = []
+
+[[compatibility_change]]
+id = "lane01-trust-boundary-diagnostic-attestation"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: Runtime trust-boundary attestation body and manifest 1.1"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "2 minor releases"
+release_note = "Fresh observations are diagnostic declarations, not verifier evidence. Protected scorecard and operational-closeout attestation gates deny unappointed verification even when producer flags or signature locators look positive."
+migration = "Use the diagnostic builder for new observations. Historical body/manifest 1.0 is selected and replayed through its exact existing authority chain before fresh identity generation; refs, bytes and events are preserved. Unknown or mixed versions and ambiguous profiles refuse."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

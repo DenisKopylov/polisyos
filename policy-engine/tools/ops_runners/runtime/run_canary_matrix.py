@@ -258,15 +258,63 @@ def _lane_env(lane: dict[str, Any]) -> dict[str, str]:
     for key, value in runner_env.items():
         key_text = str(key)
         value_text = str(value)
-        if value_text == "<required>":
+        if value_text == canary_matrix.REQUIRED_ENV_VALUE:
             inherited = os.environ.get(key_text)
-            if inherited:
+            if inherited is not None:
                 env[key_text] = inherited
             else:
                 env.pop(key_text, None)
             continue
         env[key_text] = value_text
     return env
+
+
+def _required_runner_env(lane: dict[str, Any]) -> list[str]:
+    runner = lane.get("runner")
+    runner_env = runner.get("env") if isinstance(runner, dict) else {}
+    if not isinstance(runner_env, dict):
+        return []
+    return sorted(
+        str(key) for key, value in runner_env.items() if value == canary_matrix.REQUIRED_ENV_VALUE
+    )
+
+
+def _runner_preflight_failure(
+    lane: dict[str, Any],
+    *,
+    env: dict[str, str],
+) -> dict[str, Any] | None:
+    missing: list[str] = []
+    invalid: list[str] = []
+    for name in _required_runner_env(lane):
+        value = env.get(name, "")
+        if not value.strip():
+            missing.append(name)
+        elif "\r" in value or "\n" in value:
+            # This checks transport form only; runtime authentication remains authoritative.
+            invalid.append(name)
+    if not missing and not invalid:
+        return None
+    malformed = bool(invalid)
+    return {
+        "type": "canary_runner_prerequisite_unavailable",
+        "code": (
+            "canary_runner_required_environment_malformed"
+            if malformed
+            else "canary_runner_required_environment_missing"
+        ),
+        "readiness_state": "not_ready",
+        "phase": "setup",
+        "retryable": True,
+        "lane_id": lane["lane_id"],
+        "message": "Canary runner required environment inputs are missing or malformed.",
+        "missing": missing,
+        "invalid": invalid,
+        "next_action": (
+            "Configure the listed runner environment inputs as non-empty single-line values "
+            "using the approved deployment configuration, then rerun the canary."
+        ),
+    }
 
 
 def _command_for_lane(
@@ -509,6 +557,7 @@ def run_matrix(
         if lane.get("status") != "ready" and setup_error is not None:
             results.append(_blocked_result(lane, failure=setup_error))
             continue
+        lane_env: dict[str, str]
         if _is_live_provider_lane(lane):
             lane_env = _lane_env(lane)
             if not allow_live_provider or not live_provider_credentials_present(lane_env):
@@ -555,11 +604,18 @@ def run_matrix(
                 )
             )
             continue
+        else:
+            lane_env = _lane_env(lane)
+
+        preflight_failure = _runner_preflight_failure(lane, env=lane_env)
+        if preflight_failure is not None:
+            results.append(_blocked_result(lane, failure=preflight_failure))
+            continue
 
         command = _command_for_lane(lane, output_root=output_root, run_root=run_root)
         completed = _run_lane_command(
             command,
-            env=_lane_env(lane),
+            env=lane_env,
             cwd=cwd,
             timeout_s=timeout_s,
         )
@@ -728,10 +784,19 @@ def main(argv: list[str] | None = None) -> int:
         f"{summary['skipped']} skipped"
     )
     for result in results:
+        failure = result.get("failure_envelope")
+        diagnostic = ""
+        if isinstance(failure, dict) and isinstance(failure.get("code"), str):
+            code = failure["code"]
+            phase = failure.get("phase")
+            diagnostic = f" failure={code}"
+            if isinstance(phase, str) and phase:
+                diagnostic += f"@{phase}"
         print(
             f"{result['lane_id']} [{result['status']}] "
             f"bundle={result['bundle_path'] or 'none'} "
             f"scorecard={result['scorecard_status']}"
+            f"{diagnostic}"
         )
     return 0 if summary["failure_envelope"] is None else 2
 

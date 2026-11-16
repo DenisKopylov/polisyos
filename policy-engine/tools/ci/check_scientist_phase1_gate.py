@@ -31,13 +31,18 @@ from polisyos.scientist.validation.reliability_scorecard import (  # noqa: E402
 
 ASSESSMENT_ID = "scientist_phase1_gate"
 MEASUREMENT_SCOPE = (
-    "Partial coverage: supplied JUnit pass names and benchmark names, plus Python AST "
+    "Blocking evidence is limited to the named JUnit cases in PHASE1_TEST_CASES, "
+    "the named reliability scenarios/operational signals/benchmark operations, and "
     "bare or unqualified Exception/BaseException handler syntax (including tuples) "
-    "excluding structurally verified same-primary cleanup/reraise paths, and explicit "
-    ".model_copy(deep=True) syntax. Cleanup recognition checks source control flow, "
-    "not the behavior of opaque runtime callables. Unmeasured: execution "
-    "provenance of those reports, benchmark performance, runtime receiver types, call "
-    "reachability/hotness, copy necessity/cost, opaque aliases and dynamic arguments, "
+    "in the selected critical "
+    "handler files (excluding structurally verified same-primary cleanup/reraise "
+    "paths). The explicit .model_copy(deep=True) syntax census over visible Scientist "
+    "Python files is a nonblocking diagnostic; it does not classify live hot paths "
+    "or prove copy necessity/cost. "
+    "Benchmark evidence checks supplied names, not timings or thresholds. Cleanup "
+    "recognition checks source control flow, not opaque callable behavior. Unmeasured: "
+    "JUnit/benchmark execution provenance, benchmark performance, runtime receiver "
+    "types, call reachability/hotness, opaque aliases and dynamic arguments, "
     "qualified/aliased exception types, and allowlisted/excluded source."
 )
 PHASE1_TEST_CASES: dict[str, tuple[str, ...]] = {
@@ -301,9 +306,13 @@ def _scan_for_broad_handlers(repo_root: Path, targets: Sequence[str]) -> list[st
 
 
 class _DeepCopyScan(TypedDict):
+    verdict_role: Literal["non_blocking_diagnostic"]
     findings: list[str]
     unresolved_by_construction: list[dict[str, str | int]]
+    scan_errors: list[dict[str, str]]
     source_files: list[str]
+    enumeration_complete: bool
+    analysis_complete: bool
     excluded_paths: list[str]
     unmeasured: str
 
@@ -311,16 +320,41 @@ class _DeepCopyScan(TypedDict):
 def _scan_for_explicit_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> _DeepCopyScan:
     findings: list[str] = []
     unresolved: list[dict[str, str | int]] = []
+    scan_errors: list[dict[str, str]] = []
     source_files: list[str] = []
     source_root = repo_root / "src/polisyos/scientist"
-    if not measured_is_dir(source_root):
-        raise ValueError(f"source root is unavailable: {source_root}")
-    for source_path in sorted(source_root.rglob("*.py")):
+    enumeration_complete = True
+    try:
+        if not measured_is_dir(source_root):
+            raise FileNotFoundError(f"source root is unavailable: {source_root}")
+        source_paths = sorted(source_root.rglob("*.py"))
+    except OSError as exc:
+        enumeration_complete = False
+        scan_errors.append(
+            {
+                "path": "src/polisyos/scientist",
+                "error_class": type(exc).__name__,
+                "message": str(exc),
+            }
+        )
+        source_paths = []
+
+    for source_path in source_paths:
         relative_path = str(source_path.relative_to(repo_root))
         if relative_path in allowlist:
             continue
         source_files.append(relative_path)
-        tree = ast.parse(measured_read_text(source_path), filename=str(source_path))
+        try:
+            tree = ast.parse(measured_read_text(source_path), filename=str(source_path))
+        except (OSError, UnicodeError, SyntaxError) as exc:
+            scan_errors.append(
+                {
+                    "path": relative_path,
+                    "error_class": type(exc).__name__,
+                    "message": str(exc),
+                }
+            )
+            continue
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
@@ -349,12 +383,22 @@ def _scan_for_explicit_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> 
                         else "callable_target_unknown",
                     }
                 )
-    if not source_files:
-        raise ValueError(f"no non-allowlisted Python source files: {source_root}")
+    if enumeration_complete and not source_files:
+        scan_errors.append(
+            {
+                "path": "src/polisyos/scientist",
+                "error_class": "EmptySelection",
+                "message": "no non-allowlisted Python source files were enumerated",
+            }
+        )
     return {
+        "verdict_role": "non_blocking_diagnostic",
         "findings": sorted(findings),
         "unresolved_by_construction": unresolved,
+        "scan_errors": scan_errors,
         "source_files": source_files,
+        "enumeration_complete": enumeration_complete,
+        "analysis_complete": enumeration_complete and not scan_errors,
         "excluded_paths": sorted(allowlist),
         "unmeasured": MEASUREMENT_SCOPE,
     }
@@ -388,8 +432,6 @@ def _build_payload(
     deep_copy_findings = deep_copy_scan["findings"]
     ratchet_results = {
         "critical_broad_exception_targets_clean": not broad_handler_findings,
-        "no_explicit_model_copy_deep_true": not deep_copy_findings,
-        "no_unresolved_deep_copy_candidates": not deep_copy_scan["unresolved_by_construction"],
     }
 
     notes = [
@@ -401,11 +443,6 @@ def _build_payload(
         ],
         *[f"reliability:{note}" for note in reliability.notes],
         *[f"broad_exception:{item}" for item in broad_handler_findings],
-        *[f"deep_copy:{item}" for item in deep_copy_findings],
-        *[
-            f"unresolved_by_construction:{item}"
-            for item in deep_copy_scan["unresolved_by_construction"]
-        ],
     ]
     passes_all = (
         reliability.passes_all and all(test_results.values()) and all(ratchet_results.values())
@@ -467,8 +504,30 @@ def _measurement_receipt(
     receipt["denominator"] = {
         "broad_exception_targets": list(broad_exception_targets),
         "deep_copy_source_files": source_files,
-        "deep_copy_enumeration_completed": isinstance(scan, dict),
+        "deep_copy_enumeration_completed": (
+            isinstance(scan, dict) and scan.get("enumeration_complete") is True
+        ),
+        "deep_copy_analysis_completed": (
+            isinstance(scan, dict) and scan.get("analysis_complete") is True
+        ),
     }
+    receipt["deep_copy_inventory_diagnostic"] = (
+        {
+            "verdict_role": scan.get("verdict_role"),
+            "findings": scan.get("findings", []),
+            "unresolved_by_construction": scan.get("unresolved_by_construction", []),
+            "scan_errors": scan.get("scan_errors", []),
+            "analysis_complete": scan.get("analysis_complete") is True,
+        }
+        if isinstance(scan, dict)
+        else {
+            "verdict_role": "non_blocking_diagnostic",
+            "findings": [],
+            "unresolved_by_construction": [],
+            "scan_errors": [],
+            "analysis_complete": False,
+        }
+    )
     receipt["unresolved_by_construction"].extend(
         [
             "supplied_report_provenance: JUnit/benchmark names do not establish which "
@@ -477,12 +536,18 @@ def _measurement_receipt(
             "unqualified broad exception syntax are classified.",
             "opaque_cleanup_effects: source flow does not establish termination or "
             "exception-object effects of called cleanup, note or type implementations.",
-            "runtime_copy_contract: receiver types, call reachability/hotness, copy "
-            "necessity/cost, aliases and excluded paths are not decided by syntax.",
+            "runtime_copy_contract: the nonblocking syntax inventory does not decide "
+            "receiver types, call reachability/hotness, copy necessity/cost, aliases "
+            "or excluded paths.",
             "filesystem_visibility: selected glob members do not establish absence "
             "in inaccessible or unselected source trees.",
         ]
     )
+    if isinstance(scan, dict) and scan.get("analysis_complete") is not True:
+        receipt["unresolved_by_construction"].append(
+            "deep_copy_diagnostic_incomplete: the nonblocking AST inventory had "
+            "unreadable or unparseable source; see deep_copy_scan.scan_errors."
+        )
     if not complete:
         receipt["unresolved_by_construction"].append(
             "input_scan_incomplete: failed reads/parses prevent a complete source/evidence verdict."
@@ -510,9 +575,9 @@ def _phase1_result(payload: dict[str, object]) -> ToolResult:
     missing = list(notes) if isinstance(notes, list) else []
     status = "ok" if payload.get("passes_all") else "failed"
     summary = (
-        "Scientist Phase 1 supplied-evidence and source-syntax checks passed. "
+        "Scientist Phase 1 required-evidence and critical broad-handler checks passed. "
         if status == "ok"
-        else "Scientist Phase 1 supplied-evidence or source-syntax checks FAILED. "
+        else "Scientist Phase 1 required-evidence or critical broad-handler checks FAILED. "
     ) + MEASUREMENT_SCOPE
     messages = tuple(
         ToolMessage(

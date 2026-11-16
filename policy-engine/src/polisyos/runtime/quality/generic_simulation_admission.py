@@ -4179,8 +4179,8 @@ class GenericCycleSimulationAdmissionOwner:
                     raise CycleSubstrateContextOwnerError(
                         "generic_cycle_simulation_n5_execution_result_missing"
                     )
-                from polisyos.runtime.quality.generation_cycle import (
-                    load_joint_simulation_result,
+                from polisyos.runtime.quality.joint_simulation_horizon import (
+                    JointSimulationHorizonController,
                 )
 
                 result_request = expected_request if is_successor or is_initial_method else request
@@ -4196,7 +4196,7 @@ class GenericCycleSimulationAdmissionOwner:
                             "generic_cycle_program_graph_runtime_replay_unavailable",
                             str(failures),
                         )
-                result = load_joint_simulation_result(
+                result = JointSimulationHorizonController()._load_selected_result(
                     record.result_ref,
                     store=self._store,
                     expected_world_model_record_content_hash=(

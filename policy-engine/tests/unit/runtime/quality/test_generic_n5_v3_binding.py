@@ -2280,17 +2280,21 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Use actual source/CAS codecs; no numerical controller or new permit runs."""
+    import sys
     import time
 
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import ArtifactIntegrityError, load_core_json_artifact
     from polisyos.core.artifacts.ownership import ArtifactOwnershipError
     from polisyos.runtime.http.resilience import (
         _BlockingDependencyWaitTimeoutError,
         build_runtime_cas_guard,
     )
+    from polisyos.runtime.quality import generic_simulation_admission as admission_module
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         GenerationCycleError,
+        _JointSimulationBindingMismatchError,
         _JointSimulationProduction,
     )
     from polisyos.runtime.quality.generic_simulation_admission import (
@@ -2298,6 +2302,7 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         _GenericN5ExecutionReadbackTimeoutError,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
     from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
 
     numerical_calls = []
@@ -2309,6 +2314,13 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
     monkeypatch.setattr(JointSimulationHorizonController, "run", no_numerical_work)
     case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
     store, owner = case["store"], case["owner"]
+    monkeypatch.setattr(GatewayLLMClient, "generate", no_numerical_work)
+    monkeypatch.setattr(GatewayLLMClient, "generate_stream", no_numerical_work)
+    monkeypatch.setattr(
+        GenericCycleSimulationAdmissionOwner,
+        "prepare_initial_method_input_request",
+        no_numerical_work,
+    )
     guard = build_runtime_cas_guard()
     assert guard._timeout_seconds == 1.5
 
@@ -2343,6 +2355,10 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         nonlocal remaining
         if expected_kind != _N5_EXECUTION_KIND:
             return verify(ref, expected_kind=expected_kind)
+        # Count starts of the two COMPLETE pure-readback attempts. Nested
+        # consumer verifications still execute, but are not new proof attempts.
+        if sys._getframe(1).f_code is not owner._readback_written_n5_execution.__code__:
+            return verify(ref, expected_kind=expected_kind)
         verify_reads.append(ref)
         if remaining:
             remaining -= 1
@@ -2353,6 +2369,60 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
                 raise GenerationCycleError(
                     "joint_simulation_semantic_sources_unavailable"
                 ) from wait
+            if failure == "source_refusal_wait":
+                raise GenerationCycleError(
+                    "joint_simulation_semantic_sources_unavailable",
+                    source_refusal_code="artifact_profile_mismatch",
+                ) from wait
+            if failure == "missing_source_field":
+                malformed_wrapper = GenerationCycleError(
+                    "joint_simulation_semantic_sources_unavailable"
+                )
+                del malformed_wrapper.__dict__["source_refusal_code"]
+                raise malformed_wrapper from wait
+            if failure == "semantic_wait":
+                raise GenerationCycleError("joint_simulation_result_integrity_invalid") from wait
+            if failure == "arbitrary_wait":
+                raise ValueError("controlled_semantic_refusal") from wait
+            if failure == "context_only":
+                contextual = GenerationCycleError("joint_simulation_semantic_sources_unavailable")
+                contextual.__context__ = wait
+                raise contextual
+            if failure == "binding_wait":
+                raise _JointSimulationBindingMismatchError(
+                    "joint_simulation_semantic_sources_unavailable"
+                ) from wait
+            if failure == "cycle":
+                cyclic = GenerationCycleError("joint_simulation_semantic_sources_unavailable")
+                cyclic.__cause__ = cyclic
+                raise cyclic
+            if failure == "deep":
+                chained = wait
+                for _ in range(7):
+                    parent = GenerationCycleError("joint_simulation_semantic_sources_unavailable")
+                    parent.__cause__ = chained
+                    chained = parent
+                raise chained
+            if failure == "subclass_wait":
+
+                class UntrustedWaitError(_BlockingDependencyWaitTimeoutError):
+                    pass
+
+                raise UntrustedWaitError("content_addressed_storage", diagnostic=wait.diagnostic())
+            if failure == "ownership_wait":
+                raise ArtifactOwnershipError("controlled_owner_denial") from wait
+            if failure == "integrity_wait":
+                raise ArtifactIntegrityError("controlled_integrity_refusal") from wait
+            if failure == "codec_wait":
+                raise CanonicalProfileRefusalError("canon_profile_absent") from wait
+            if failure == "absent_wait":
+                raise FileNotFoundError("controlled_absence") from wait
+            if failure == "wrapped_ownership_wait":
+                denial = ArtifactOwnershipError("controlled_owner_denial")
+                denial.__cause__ = wait
+                raise GenerationCycleError(
+                    "joint_simulation_semantic_sources_unavailable"
+                ) from denial
             if failure == "wrong_code":
                 noncanonical = _BlockingDependencyWaitTimeoutError(
                     "content_addressed_storage", diagnostic=wait.diagnostic()
@@ -2411,6 +2481,41 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         assert type(record) is GenericCycleSimulationN5ExecutionV3
         assert record.input_ref == case["input_ref"]
 
+        # The actual nested availability family must exercise the same full
+        # readback and preserve its write-once bound, not a per-CAS retry layer.
+        failure = "wrapped_wait"
+        writes.clear()
+        verify_reads.clear()
+        remaining = 1
+        wrapped_ref = persist()
+        assert writes == [wrapped_ref] and verify_reads == [wrapped_ref, wrapped_ref]
+        assert (
+            parse_generic_cycle_simulation_n5_execution(
+                load_core_json_artifact(store, wrapped_ref)
+            ).input_ref
+            == case["input_ref"]
+        )
+
+        # Removing this recognizer restores the genuine wrapper refusal.
+        matcher = admission_module._written_n5_readback_wait_timeout
+        with monkeypatch.context() as removal:
+            removal.setattr(
+                admission_module, "_written_n5_readback_wait_timeout", lambda _error: None
+            )
+            writes.clear()
+            verify_reads.clear()
+            remaining = 1
+            with pytest.raises(GenerationCycleError) as removed:
+                persist()
+            assert removed.value.__cause__ is wait
+            assert len(writes) == 1 and verify_reads == [writes[0]]
+        assert admission_module._written_n5_readback_wait_timeout is matcher
+        writes.clear()
+        verify_reads.clear()
+        remaining = 1
+        restored_ref = persist()
+        assert writes == [restored_ref] and verify_reads == [restored_ref, restored_ref]
+        failure = "wait"
         writes.clear()
         verify_reads.clear()
         remaining = 2
@@ -2465,8 +2570,55 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         assert cause["underlying_work_outcome"] == "not_established"
         assert "slow_read" in cause["operation"]
 
+        failure = "wrapped_wait"
+        writes.clear()
+        verify_reads.clear()
+        remaining = 2
+        with pytest.raises(_GenericN5ExecutionReadbackTimeoutError) as wrapped_exhausted:
+            persist()
+        assert len(writes) == 1 and verify_reads == [writes[0], writes[0]]
+        assert wrapped_exhausted.value.unverified_execution_ref == writes[0]
+        assert wrapped_exhausted.value.wait_error is wait
+        assert type(wrapped_exhausted.value.__cause__) is GenerationCycleError
+        assert wrapped_exhausted.value.__cause__.__cause__ is wait
+        wrapped_refusal = controller._generic_cycle_simulation_refusal(
+            candidate=case["candidate"],
+            code=wrapped_exhausted.value.code,
+            candidate_local_exception=wrapped_exhausted.value,
+        )
+        assert (
+            wrapped_refusal.generic_n5_execution_ref
+            is wrapped_refusal.simulation_result_ref
+            is None
+        )
+        wrapped_failure = wrapped_refusal.diagnostics["post_production_failure"]
+        assert wrapped_failure["unverified_locators"]["execution_ref"]["ref"] == writes[
+            0
+        ].model_dump(mode="json")
+        assert (
+            wrapped_failure["cause_chain"][1]["code"]
+            == "joint_simulation_semantic_sources_unavailable"
+        )
+        assert (
+            wrapped_failure["cause_chain"][2]["structured_cause_code"]
+            == "content_addressed_storage_timeout"
+        )
+
         for selected_failure, exception in [
-            ("wrapped_wait", GenerationCycleError),
+            ("semantic_wait", GenerationCycleError),
+            ("source_refusal_wait", GenerationCycleError),
+            ("missing_source_field", GenerationCycleError),
+            ("binding_wait", _JointSimulationBindingMismatchError),
+            ("cycle", GenerationCycleError),
+            ("deep", GenerationCycleError),
+            ("subclass_wait", _BlockingDependencyWaitTimeoutError),
+            ("arbitrary_wait", ValueError),
+            ("context_only", GenerationCycleError),
+            ("ownership_wait", ArtifactOwnershipError),
+            ("wrapped_ownership_wait", GenerationCycleError),
+            ("integrity_wait", ArtifactIntegrityError),
+            ("codec_wait", CanonicalProfileRefusalError),
+            ("absent_wait", FileNotFoundError),
             ("wrong_code", _BlockingDependencyWaitTimeoutError),
             ("fake", RuntimeError),
             ("profile", ArtifactOwnershipError),
@@ -2495,19 +2647,23 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
                 assert failure_record["unverified_locators"]["execution_ref"]["ref"] == (
                     writes[0].model_dump(mode="json")
                 )
-                if selected_failure == "wrapped_wait":
-                    assert forwarded.authority_blockers == (
-                        "joint_simulation_semantic_sources_unavailable",
-                    )
-                    assert failure_record["cause_chain"][0]["code"] == (
-                        "joint_simulation_semantic_sources_unavailable"
-                    )
-                    assert failure_record["cause_chain"][1]["structured_cause_code"] == (
-                        "content_addressed_storage_timeout"
-                    )
-                else:
+                if selected_failure in {
+                    "wrong_code",
+                    "fake",
+                    "profile",
+                    "foreign",
+                    "corrupt",
+                    "cycle",
+                    "deep",
+                    "subclass_wait",
+                }:
                     assert not any(
                         "structured_cause_code" in row for row in failure_record["cause_chain"]
+                    )
+                else:
+                    assert any(
+                        row.get("structured_cause_code") == "content_addressed_storage_timeout"
+                        for row in failure_record["cause_chain"]
                     )
             finally:
                 for path, body in damaged:

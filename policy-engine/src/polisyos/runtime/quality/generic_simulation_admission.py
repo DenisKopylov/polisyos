@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import LoweredIR, ProgramGraph
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.ir import ModelSpec, RegistryBundle, TrinityBundle
+    from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
     from polisyos.runtime.quality.generation_cycle import (
         JointSimulationPort,
         JointSimulationResult,
@@ -186,6 +187,51 @@ class _GenericN5ExecutionReadbackTimeoutError(CycleSubstrateContextOwnerError):
         self.code = "content_addressed_storage_timeout"
         self.unverified_execution_ref = _copy_generic_n5_locator(ref)
         self.wait_error = wait_error
+
+
+def _written_n5_readback_wait_timeout(
+    error: Exception,
+) -> _BlockingDependencyWaitTimeoutError | None:
+    """Recognize only actual CAS waits through explicit availability causes.
+
+    This predicate belongs to the existing complete, pure readback boundary.
+    A code string, implicit context, semantic refusal, or unknown chain cannot
+    authorize another attempt. Late work is never consumed as a verified read.
+    """
+    from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+    nodes, termination = exception_metadata._bounded_exception_cause_nodes(error)
+    if termination not in {"no_linked_cause", "context_suppressed"}:
+        return None
+    for index, node in enumerate(nodes):
+        current = node.error
+        if type(current) is _BlockingDependencyWaitTimeoutError:
+            metadata = exception_metadata._exception_instance_dict(current)
+            if (
+                metadata is None
+                or metadata.get("dependency") != "content_addressed_storage"
+                or node.code != "content_addressed_storage_timeout"
+                or any(type(tail.error) is not TimeoutError for tail in nodes[index + 1 :])
+            ):
+                return None
+            return current
+        wrapper_metadata = exception_metadata._exception_instance_dict(current)
+        if (
+            type(current) is not GenerationCycleError
+            or wrapper_metadata is None
+            or "source_refusal_code" not in wrapper_metadata
+            or wrapper_metadata["source_refusal_code"] is not None
+            or node.code
+            not in {
+                "joint_simulation_result_unavailable",
+                "joint_simulation_semantic_sources_unavailable",
+            }
+            or index + 1 == len(nodes)
+            or BaseException.__cause__.__get__(current, type(current)) is not nodes[index + 1].error
+        ):
+            return None
+    return None
 
 
 class GenericCycleN5RequestProfileV1(_StrictModel):
@@ -3850,7 +3896,6 @@ class GenericCycleSimulationAdmissionOwner:
         manifest, byte, typed-record and source/result verifiers afresh.
         """
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
 
         if not _is_selected_json_ref(ref, _N5_EXECUTION_KIND):
             raise _GenericN5VerifiedMismatchError(
@@ -3871,15 +3916,12 @@ class GenericCycleSimulationAdmissionOwner:
                     ref, expected=record, expected_semantic_successor_ref=semantic_successor_ref
                 )
                 return
-            except _BlockingDependencyWaitTimeoutError as exc:
-                if (
-                    type(exc) is not _BlockingDependencyWaitTimeoutError
-                    or exc.dependency != "content_addressed_storage"
-                    or exc.code != "content_addressed_storage_timeout"
-                ):
+            except Exception as exc:
+                wait_error = _written_n5_readback_wait_timeout(exc)
+                if wait_error is None:
                     raise
                 if attempt:
-                    raise _GenericN5ExecutionReadbackTimeoutError(ref, exc) from exc
+                    raise _GenericN5ExecutionReadbackTimeoutError(ref, wait_error) from exc
 
     def recover_semantic_successor_execution(
         self,

@@ -294,9 +294,11 @@ def test_semantic_binding_requires_exact_manifest_role_and_wire_version(
         load_input_bindings(store, persist(schema_version="1.0", correct_edge=True))
 
 
-def test_semantic_registered_sql_replay_stays_not_established(tmp_path: Path) -> None:
+def test_semantic_registered_sql_requires_its_selected_obligation_set(tmp_path: Path) -> None:
+    """A typed combined binding cannot substitute for its missing semantic source."""
     store = FileSystemCAS(tmp_path / "cas")
-    manifest_ref = persist_resolved_input_binding_manifest(store, _manifest())
+    manifest = _manifest()
+    manifest_ref = persist_resolved_input_binding_manifest(store, manifest)
     bindings = FoundryInputBindings.model_validate(
         _binding_fields()
         | {
@@ -307,12 +309,17 @@ def test_semantic_registered_sql_replay_stays_not_established(tmp_path: Path) ->
             "resolved_binding_manifest_ref": manifest_ref,
         }
     )
+    # The read-only view consumes existing CAS leases. Establish that ordinary
+    # filesystem infrastructure before measuring its immutable missing-source read.
+    with pytest.raises(FileNotFoundError):
+        store.get_raw_manifest_bytes(manifest.model_input_obligation_set_ref)
     existing_files = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
 
-    with pytest.raises(
-        ValueError, match=r"^foundry_input_bindings_semantic_sql_replay_not_established$"
-    ):
-        reconcile_semantic_input_bindings(store, bindings)
+    with pytest.raises(FileNotFoundError) as missing:
+        reconcile_semantic_input_bindings(
+            FileSystemCAS.open_existing_read_only(store.root), bindings
+        )
+    assert manifest.model_input_obligation_set_ref.artifact_id.hex in str(missing.value)
 
     remaining_files = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
     assert remaining_files == existing_files

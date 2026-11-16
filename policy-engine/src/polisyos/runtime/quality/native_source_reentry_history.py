@@ -28,12 +28,18 @@ from polisyos.scientist import SchedulingDecision
 if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
-    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        NativeDerivedWorldSelection,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleRun
     from polisyos.runtime.quality.generation_source import GenerationSourceHandoff
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleNativeWorldContextHandoffV1,
         GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+        GenericN5ResolvedResult,
     )
 
 _CANON = canon.CanonSpec(forbid_floats=False)
@@ -199,9 +205,17 @@ def _phase(member: Member) -> str:
 
 
 def _event_id(subject: NativeSourceReentrySubject, member: Member) -> str:
+    return _event_id_for_selection(
+        subject.pending_action_ref, subject.native_world_checkpoint_ref, member
+    )
+
+
+def _event_id_for_selection(
+    pending_ref: artifacts.ArtifactRef, world_ref: artifacts.ArtifactRef, member: Member
+) -> str:
     identity = {
-        "pending": subject.pending_action_ref.model_dump(mode="json"),
-        "world": subject.native_world_checkpoint_ref.model_dump(mode="json"),
+        "pending": pending_ref.model_dump(mode="json"),
+        "world": world_ref.model_dump(mode="json"),
         "member": member,
     }
     digest = hashlib.sha256(canon.to_canonical_bytes(identity)).hexdigest()
@@ -331,6 +345,479 @@ def read_native_source_reentry_member(
     ):
         raise ValueError("native_reentry_checkpoint_selected_profile_mismatch")
     return ref, value
+
+
+def _verify_native_source_reentry_prepared(
+    *,
+    store: artifacts.ArtifactStore,
+    owner: GenericCycleSimulationAdmissionOwner,
+    value: NativeSourceReentryPrepared,
+) -> GenerationSourceHandoff:
+    """Reopen the recorded Native source, candidate census and selected input."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+    )
+
+    record = GenericCycleSimulationN5InputV1.model_validate(
+        artifacts.load_core_json_artifact(store, value.n5_input_ref)
+    )
+    owner.resolve_n5_input(value.n5_input_ref, expected=record)
+    source, candidate, _, _ = owner._replay_n5_input_sources(record)
+    subject = value.subject
+    if (
+        record.schema_version != "policyos.runtime.generic_cycle_simulation_n5_input.v2"
+        or record.source_run_id != subject.source_run_id
+        or record.cycle_index != subject.cycle_index
+        or record.design_problem_ref != subject.design_problem_ref
+        or artifacts.artifact_ref_identity_key(record.n4_source_ref)
+        != artifacts.artifact_ref_identity_key(value.n4_source_ref)
+        or artifacts.artifact_ref_identity_key(record.context_job_ref)
+        != artifacts.artifact_ref_identity_key(subject.context_job_ref)
+        or record.candidate_id != value.candidate_id
+        or record.candidate_atom_hash != value.candidate_content_hash
+        or value.schedule.candidate_id != value.candidate_id
+        or record.native_world_checkpoint_ref is None
+        or artifacts.artifact_ref_identity_key(record.native_world_checkpoint_ref)
+        != artifacts.artifact_ref_identity_key(subject.native_world_checkpoint_ref)
+        or record.original_generic_input_ref is None
+        or artifacts.artifact_ref_identity_key(record.original_generic_input_ref)
+        != artifacts.artifact_ref_identity_key(subject.original_generic_input_ref)
+        or artifacts.artifact_ref_identity_key(record.profile_ref)
+        != artifacts.artifact_ref_identity_key(subject.original_profile_ref)
+        or record.profile.profile_selection_ref != subject.original_profile_selection_ref
+        or record.native_current_profile_selection_ref != subject.current_profile_selection_ref
+        or (record.tenant_id, record.cell_id, record.run_id, record.job_id)
+        != (subject.tenant_id, subject.cell_id, subject.run_id, subject.action_job_id)
+    ):
+        raise ValueError("native_reentry_prepared_source_mismatch")
+    candidates = tuple(source.generation_result.candidates)
+    identities = {(item.candidate_id, item.atom.content_hash) for item in candidates}
+    grounding = {item.candidate_id: item for item in value.grounding_observations}
+    summaries = {(item.candidate_id, item.content_hash) for item in value.candidate_summaries}
+    if (
+        len(identities) != len(candidates)
+        or summaries != identities
+        or len(value.candidate_summaries) != len(candidates)
+        or set(grounding) != {item.candidate_id for item in candidates}
+        or len(grounding) != len(value.grounding_observations)
+        or any(item.cycle_index != subject.cycle_index for item in value.candidate_summaries)
+        or (candidate.candidate_id, candidate.atom.content_hash) not in identities
+    ):
+        raise ValueError("native_reentry_prepared_census_mismatch")
+    return source
+
+
+def _verify_native_source_reentry_n5(
+    *,
+    store: artifacts.ArtifactStore,
+    owner: GenericCycleSimulationAdmissionOwner,
+    world_model_record_content_hash: str,
+    prepared: NativeSourceReentryPrepared,
+    value: NativeSourceReentryN5Completed,
+) -> GenericN5ResolvedResult:
+    """Verify one stored Generic result and its complete physical-work observation."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        GenericN5ExecutionJoinExpectation,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        read_generic_program_graph_n5_content_observation,
+    )
+
+    record = GenericCycleSimulationN5InputV1.model_validate(
+        artifacts.load_core_json_artifact(store, prepared.n5_input_ref)
+    )
+    simulation = value.simulation
+    if (
+        simulation.status != "joint_simulated"
+        or simulation.candidate_id != prepared.candidate_id
+        or any(
+            left is None
+            or artifacts.artifact_ref_identity_key(left)
+            != artifacts.artifact_ref_identity_key(right)
+            for left, right in (
+                (simulation.generic_n5_input_ref, prepared.n5_input_ref),
+                (simulation.generic_n5_execution_ref, value.n5_execution_ref),
+                (simulation.simulation_result_ref, value.n5_result_ref),
+                (simulation.generic_n4_source_ref, prepared.n4_source_ref),
+                (simulation.generic_context_job_ref, record.context_job_ref),
+                (simulation.cycle_substrate_context_job_ref, record.context_job_ref),
+                (simulation.generic_profile_ref, record.profile_ref),
+            )
+        )
+        or simulation.generic_profile_selection_ref != record.profile.profile_selection_ref
+        or simulation.generic_n4_child_profile_family_ref is not None
+        or simulation.generic_n4_child_profile_set_ref is not None
+        or simulation.model_input_obligation_set_ref is not None
+    ):
+        raise ValueError("native_reentry_n5_selection_mismatch")
+    join, result = owner.resolve_n5_execution_join_with_result(
+        value.n5_execution_ref,
+        expected=GenericN5ExecutionJoinExpectation(
+            input_ref=prepared.n5_input_ref,
+            result_ref=value.n5_result_ref,
+            status="joint_simulated",
+            model_input_obligation_set_ref=None,
+            n4_source_ref=prepared.n4_source_ref,
+            context_job_ref=record.context_job_ref,
+            profile_ref=record.profile_ref,
+            child_family_ref=None,
+            child_set_ref=None,
+            profile_selection_ref=record.profile.profile_selection_ref,
+            profile=record.profile,
+            design_problem_ref=record.design_problem_ref,
+            outcome_variable=record.outcome_variable,
+            cycle_index=record.cycle_index,
+            candidate_id=record.candidate_id,
+            candidate_atom_hash=record.candidate_atom_hash,
+            world_model_record_content_hash=world_model_record_content_hash,
+            job_id=record.job_id,
+            run_id=record.run_id,
+            source_run_id=record.source_run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+        ),
+    )
+    if join.status != "resolved" or result is None:
+        raise ValueError("native_reentry_n5_owner_not_established")
+    from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
+
+    status, blockers = _joint_simulation_port_outcome(result.result, request=result.request)
+    blockers = tuple(dict.fromkeys((*blockers, "simulation_only_k_sim_not_world_evidence")))
+    world = result.request.world_model_record
+    expected_diagnostics = {
+        "engine_decisions": [
+            item.model_dump(mode="json") for item in result.result.engine_decisions
+        ],
+        "trajectory_count": len(result.result.trajectories),
+        "interaction_count": len(result.result.interaction_terms),
+        "simulation_result_ref": str(value.n5_result_ref.artifact_id),
+        "world_model_record_id": world.world_model_record_id,
+        "world_model_record_content_hash": world.content_hash,
+        "program_binding_failures": {},
+    }
+    if (
+        status != "joint_simulated"
+        or simulation.simulation_ref != result.result.receipt.payload_hash
+        or simulation.uncertainty_kind != result.result.uncertainty_kind
+        or simulation.authority_blockers != blockers
+        or simulation.diagnostics != expected_diagnostics
+        or simulation.k_world_ref_before != world.content_hash
+        or simulation.k_world_ref_after != world.content_hash
+    ):
+        raise ValueError("native_reentry_n5_observation_mismatch")
+    observation = read_generic_program_graph_n5_content_observation(
+        result.result,
+        input_ref=prepared.n5_input_ref,
+        expected_request=result.request,
+        current_method_input_bindings_ref=(
+            result.initial_method_input.current_method_input_bindings_ref
+            if result.initial_method_input is not None
+            else None
+        ),
+        store=store,
+    )
+    if (
+        observation.completion.status != "recomputed"
+        or result.result.diagnostics.get("physical_work_capture_status") != "observed"
+        or not result.result.physical_work_observations
+        or any(item.status != "completed" for item in result.result.physical_work_observations)
+        or "physical_work_interruption" in result.result.diagnostics
+    ):
+        raise ValueError("native_reentry_n5_physical_completion_not_established")
+
+    return result
+
+
+def _verify_native_source_reentry_cycle(
+    *,
+    source_generation_run: GenerationCycleRun,
+    prepared: NativeSourceReentryPrepared,
+    n5_ref: artifacts.ArtifactRef,
+    n5: NativeSourceReentryN5Completed,
+    value: NativeSourceReentryCycleCompleted,
+) -> None:
+    """Reconcile the selected returned cycle with its source and numerical cut."""
+    from polisyos.runtime.quality.generation_cycle import (
+        validate_acquisition_overlay_continuation,
+    )
+
+    receipt = value.receipt
+    validate_acquisition_overlay_continuation(source_generation_run, receipt)
+    cycle = receipt.new_cycle
+    if (
+        artifacts.artifact_ref_identity_key(value.n5_completed_ref)
+        != artifacts.artifact_ref_identity_key(n5_ref)
+        or cycle.cycle_index != value.subject.cycle_index
+        or cycle.design_problem_ref != value.subject.stable_design_problem_ref
+        or cycle.selected_candidate_ref != prepared.candidate_id
+        or cycle.selected_candidate_content_hash != prepared.candidate_content_hash
+        or cycle.simulation.model_dump(mode="json") != n5.simulation.model_dump(mode="json")
+        or {(item.candidate_id, item.content_hash) for item in receipt.candidate_summaries}
+        != {(item.candidate_id, item.content_hash) for item in prepared.candidate_summaries}
+        or len(receipt.candidate_summaries) != len(prepared.candidate_summaries)
+        or any(
+            item.cycle_index != value.subject.cycle_index for item in receipt.candidate_summaries
+        )
+        or cycle.candidate_ids != tuple(item.candidate_id for item in prepared.candidate_summaries)
+        or cycle.grounding.model_dump(mode="json")
+        != next(
+            item.model_dump(mode="json")
+            for item in prepared.grounding_observations
+            if item.candidate_id == prepared.candidate_id
+        )
+    ):
+        raise ValueError("native_reentry_cycle_selection_mismatch")
+
+
+def _verify_native_source_reentry_progress(
+    *,
+    store: artifacts.ArtifactStore,
+    owner: GenericCycleSimulationAdmissionOwner,
+    source_generation_run: GenerationCycleRun,
+    world_model_record_content_hash: str,
+    prepared: tuple[artifacts.ArtifactRef, _Member] | None,
+    n5: tuple[artifacts.ArtifactRef, _Member] | None,
+    cycle: tuple[artifacts.ArtifactRef, _Member] | None,
+    n5_claim: tuple[artifacts.ArtifactRef, _Member] | None,
+    tail_claim: tuple[artifacts.ArtifactRef, _Member] | None,
+) -> tuple[NativeSourceReentryProgress, GenericN5ResolvedResult | None]:
+    """Apply the same selected-member and semantic closure law to both readers."""
+    if prepared is None:
+        if any(item is not None for item in (n5, cycle, n5_claim, tail_claim)):
+            raise ValueError("native_reentry_prepared_checkpoint_missing")
+        return NativeSourceReentryProgress(), None
+    prepared_ref, value = prepared
+    if type(value) is not NativeSourceReentryPrepared:
+        raise TypeError("native_reentry_prepared_checkpoint_untyped")
+    _verify_native_source_reentry_prepared(store=store, owner=owner, value=value)
+    if any(
+        item is not None and type(item[1]) is not NativeSourceReentryClaim
+        for item in (n5_claim, tail_claim)
+    ):
+        raise TypeError("native_reentry_claim_untyped")
+    if n5_claim is not None and artifacts.artifact_ref_identity_key(
+        n5_claim[1].predecessor_ref
+    ) != artifacts.artifact_ref_identity_key(prepared_ref):
+        raise ValueError("native_reentry_claim_predecessor_mismatch")
+    if n5 is None:
+        if n5_claim is not None or cycle is not None or tail_claim is not None:
+            raise ValueError("native_reentry_n5_completion_not_established")
+        return NativeSourceReentryProgress(prepared=(prepared_ref, value)), None
+    n5_ref, completed = n5
+    if type(completed) is not NativeSourceReentryN5Completed or n5_claim is None:
+        raise ValueError("native_reentry_n5_claim_missing")
+    if artifacts.artifact_ref_identity_key(
+        completed.prepared_ref
+    ) != artifacts.artifact_ref_identity_key(prepared_ref):
+        raise ValueError("native_reentry_n5_predecessor_mismatch")
+    resolved_result = _verify_native_source_reentry_n5(
+        store=store,
+        owner=owner,
+        world_model_record_content_hash=world_model_record_content_hash,
+        prepared=value,
+        value=completed,
+    )
+    if tail_claim is not None and artifacts.artifact_ref_identity_key(
+        tail_claim[1].predecessor_ref
+    ) != artifacts.artifact_ref_identity_key(n5_ref):
+        raise ValueError("native_reentry_claim_predecessor_mismatch")
+    if cycle is None:
+        if tail_claim is not None:
+            raise ValueError("native_reentry_cycle_completion_not_established")
+        return NativeSourceReentryProgress(
+            prepared=(prepared_ref, value), n5_completed=(n5_ref, completed), n5_claimed=True
+        ), resolved_result
+    cycle_ref, finished = cycle
+    if type(finished) is not NativeSourceReentryCycleCompleted or tail_claim is None:
+        raise ValueError("native_reentry_tail_claim_missing")
+    _verify_native_source_reentry_cycle(
+        source_generation_run=source_generation_run,
+        prepared=value,
+        n5_ref=n5_ref,
+        n5=completed,
+        value=finished,
+    )
+    return NativeSourceReentryProgress(
+        prepared=(prepared_ref, value),
+        n5_completed=(n5_ref, completed),
+        cycle_completed=(cycle_ref, finished),
+        n5_claimed=True,
+        tail_claimed=True,
+    ), resolved_result
+
+
+@dataclass(frozen=True, slots=True)
+class NativeSourceReentryHistory:
+    """Verified recorded cuts and result, without a current-use capability."""
+
+    progress: NativeSourceReentryProgress
+    input_record: GenericCycleSimulationN5InputV1
+    selection: NativeDerivedWorldSelection
+    result: GenericN5ResolvedResult
+
+
+def read_native_source_reentry_history(
+    *,
+    store: artifacts.ArtifactStore,
+    events: RuntimeDiagnosticEventLog,
+    owner: GenericCycleSimulationAdmissionOwner,
+    input_ref: artifacts.ArtifactRef,
+    source_generation_run: GenerationCycleRun,
+    receipt: AcquisitionOverlayReentryReceipt,
+    expected_action_job_id: str,
+    expected_action_generation: int,
+    expected_source_job_id: str,
+    expected_route_id: str,
+    expected_run_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+) -> NativeSourceReentryHistory:
+    """Reopen one completed Native continuation as historical candidate evidence.
+
+    The stored event selects the full manifest profile, and the recorded Native
+    world owner reconstructs the immutable input scope. Current action/lease
+    permission remains exclusively in ``NativeSourceReentryCoordinator``.
+    """
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+    )
+    from polisyos.runtime.quality.native_generic_context import _selection_for_input
+
+    if (
+        type(owner) is not GenericCycleSimulationAdmissionOwner
+        or owner.store is not store
+        or type(events) is not RuntimeDiagnosticEventLog
+        or events.artifact_store is not store
+        or owner._native_action_control_store is not events._store
+        or owner._native_action_event_log is not events
+    ):
+        raise TypeError("native_reentry_history_owner_required")
+    if (
+        input_ref.kind != "runtime.quality.generic_cycle_simulation_n5_input"
+        or input_ref.media_type != "application/json"
+        or input_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_reentry_history_input_unselected")
+    record = GenericCycleSimulationN5InputV1.model_validate(
+        artifacts.load_core_json_artifact(store, input_ref)
+    )
+    selection = _selection_for_input(owner, record)
+    phase, checkpoint = selection.pending_action_phase, selection.checkpoint
+    if (
+        (record.job_id, record.run_id, record.tenant_id, record.cell_id)
+        != (expected_action_job_id, expected_run_id, expected_tenant_id, expected_cell_id)
+        or (checkpoint.source_job_id, checkpoint.route_id, phase.action_generation)
+        != (expected_source_job_id, expected_route_id, expected_action_generation)
+        or record.source_run_id != source_generation_run.run_id
+        or receipt.source_run_id != source_generation_run.run_id
+        or record.cycle_index != receipt.new_cycle.cycle_index
+        or record.cycle_index != receipt.source_cycle_index + 1
+        or len(checkpoint.collection_refs) != 1
+    ):
+        raise ValueError("native_reentry_history_source_scope_mismatch")
+    # Only the canonical selected event locates the prepared subject. Untrusted
+    # body values never choose a default manifest or establish current rights.
+    rows = events.list_events(
+        event_id=_event_id_for_selection(
+            selection.pending_action_phase_ref, selection.checkpoint_ref, "prepared"
+        ),
+        limit=2,
+    )
+    if len(rows) != 1:
+        raise ValueError("native_reentry_prepared_checkpoint_missing")
+    event = rows[0].event
+    prefix = (
+        f"run/{expected_run_id}/job/{expected_action_job_id}"
+        "/phase/native_source_reentry_prepared/selected-manifest/"
+    )
+    if event.payload_ref is None or not event.event_subject.startswith(prefix):
+        raise ValueError("native_reentry_checkpoint_event_mismatch")
+    seed_ref = artifacts.ArtifactRef(
+        artifact_id=event.payload_ref,
+        kind=_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=event.event_subject.removeprefix(prefix),
+    )
+    seed = NativeSourceReentryPrepared.model_validate_json(
+        json.dumps(artifacts.load_core_json_artifact(store, seed_ref))
+    )
+    action_job = events._store.get_job(expected_action_job_id)
+    if (
+        action_job is None
+        or action_job.kind != "acquisition"
+        or action_job.run_id != expected_run_id
+        or seed.subject.originating_attempt > action_job.attempt
+        or seed.subject.execution_profile != action_job.effective_execution_profile
+    ):
+        raise ValueError("native_reentry_history_action_job_mismatch")
+    expected_subject = NativeSourceReentrySubject(
+        pending_action_ref=selection.pending_action_phase_ref,
+        native_world_checkpoint_ref=selection.checkpoint_ref,
+        native_input_collection_ref=checkpoint.collection_refs[0],
+        original_generic_input_ref=selection.original_generic_input_ref,
+        original_profile_ref=selection.original_profile_ref,
+        context_job_ref=record.context_job_ref,
+        original_profile_selection_ref=selection.original_profile.profile_selection_ref,
+        current_profile_selection_ref=record.native_current_profile_selection_ref,
+        originating_attempt=action_job.attempt,
+        execution_profile=action_job.effective_execution_profile,
+        tenant_id=expected_tenant_id,
+        cell_id=expected_cell_id,
+        run_id=expected_run_id,
+        source_job_id=expected_source_job_id,
+        action_job_id=expected_action_job_id,
+        action_generation=expected_action_generation,
+        route_id=expected_route_id,
+        source_run_id=source_generation_run.run_id,
+        stable_design_problem_ref=source_generation_run.design_problem_ref,
+        design_problem_ref=record.design_problem_ref,
+        cycle_index=record.cycle_index,
+    )
+    if not _same_subject(seed.subject, expected_subject) or artifacts.artifact_ref_identity_key(
+        seed.n5_input_ref
+    ) != artifacts.artifact_ref_identity_key(input_ref):
+        raise ValueError("native_reentry_history_subject_mismatch")
+    selected = {
+        member: read_native_source_reentry_member(
+            store=store, events=events, subject=expected_subject, member=member
+        )
+        for member in ("prepared", "n5_completed", "cycle_completed", "n5_claimed", "tail_claimed")
+    }
+    prepared = selected["prepared"]
+    if prepared is None or artifacts.artifact_ref_identity_key(
+        prepared[0]
+    ) != artifacts.artifact_ref_identity_key(seed_ref):
+        raise ValueError("native_reentry_history_prepared_selection_mismatch")
+    progress, resolved = _verify_native_source_reentry_progress(
+        store=store,
+        owner=owner,
+        source_generation_run=source_generation_run,
+        world_model_record_content_hash=selection.world_model_record.content_hash,
+        prepared=prepared,
+        n5=selected["n5_completed"],
+        cycle=selected["cycle_completed"],
+        n5_claim=selected["n5_claimed"],
+        tail_claim=selected["tail_claimed"],
+    )
+    if (
+        progress.cycle_completed is None
+        or progress.n5_completed is None
+        or resolved is None
+        or progress.cycle_completed[1].receipt != receipt
+    ):
+        raise ValueError("native_reentry_history_completion_not_established")
+    if any(
+        read_native_source_reentry_member(
+            store=store, events=events, subject=expected_subject, member=member
+        )
+        != value
+        for member, value in selected.items()
+    ):
+        raise ValueError("native_reentry_history_selection_changed")
+    return NativeSourceReentryHistory(progress, record, selection, resolved)
 
 
 class NativeSourceReentryCoordinator:
@@ -500,116 +987,30 @@ class NativeSourceReentryCoordinator:
         return ref
 
     def _verify_prepared(self, value: NativeSourceReentryPrepared) -> GenerationSourceHandoff:
-        from polisyos.runtime.quality.generic_simulation_admission import (
-            GenericCycleSimulationN5InputV1,
+        return _verify_native_source_reentry_prepared(
+            store=self.bridge.artifact_store, owner=self.owner, value=value
         )
-
-        store = self.bridge.artifact_store
-        record = GenericCycleSimulationN5InputV1.model_validate(
-            artifacts.load_core_json_artifact(store, value.n5_input_ref)
-        )
-        self.owner.resolve_n5_input(value.n5_input_ref, expected=record)
-        source, candidate, _, _ = self.owner._replay_n5_input_sources(record)
-        subject = value.subject
-        if (
-            record.schema_version != "policyos.runtime.generic_cycle_simulation_n5_input.v2"
-            or record.source_run_id != subject.source_run_id
-            or record.cycle_index != subject.cycle_index
-            or record.design_problem_ref != subject.design_problem_ref
-            or artifacts.artifact_ref_identity_key(record.n4_source_ref)
-            != artifacts.artifact_ref_identity_key(value.n4_source_ref)
-            or artifacts.artifact_ref_identity_key(record.context_job_ref)
-            != artifacts.artifact_ref_identity_key(subject.context_job_ref)
-            or record.candidate_id != value.candidate_id
-            or record.candidate_atom_hash != value.candidate_content_hash
-            or value.schedule.candidate_id != value.candidate_id
-            or record.native_world_checkpoint_ref is None
-            or artifacts.artifact_ref_identity_key(record.native_world_checkpoint_ref)
-            != artifacts.artifact_ref_identity_key(subject.native_world_checkpoint_ref)
-            or record.original_generic_input_ref is None
-            or artifacts.artifact_ref_identity_key(record.original_generic_input_ref)
-            != artifacts.artifact_ref_identity_key(subject.original_generic_input_ref)
-            or artifacts.artifact_ref_identity_key(record.profile_ref)
-            != artifacts.artifact_ref_identity_key(subject.original_profile_ref)
-            or record.profile.profile_selection_ref != subject.original_profile_selection_ref
-            or record.native_current_profile_selection_ref != subject.current_profile_selection_ref
-            or (record.tenant_id, record.cell_id, record.run_id, record.job_id)
-            != (subject.tenant_id, subject.cell_id, subject.run_id, subject.action_job_id)
-        ):
-            raise ValueError("native_reentry_prepared_source_mismatch")
-        candidates = tuple(source.generation_result.candidates)
-        identities = {(item.candidate_id, item.atom.content_hash) for item in candidates}
-        grounding = {item.candidate_id: item for item in value.grounding_observations}
-        summaries = {(item.candidate_id, item.content_hash) for item in value.candidate_summaries}
-        if (
-            len(identities) != len(candidates)
-            or summaries != identities
-            or len(value.candidate_summaries) != len(candidates)
-            or set(grounding) != {item.candidate_id for item in candidates}
-            or len(grounding) != len(value.grounding_observations)
-            or any(item.cycle_index != subject.cycle_index for item in value.candidate_summaries)
-            or (candidate.candidate_id, candidate.atom.content_hash) not in identities
-        ):
-            raise ValueError("native_reentry_prepared_census_mismatch")
-        return source
 
     def progress(self) -> NativeSourceReentryProgress:
-        """Reopen selected cuts and reject unfinished claimed nondeterministic work."""
+        """Reopen selected cuts under the separate current action admission."""
         prepared = self._read("prepared")
         n5 = self._read("n5_completed")
         cycle = self._read("cycle_completed")
         n5_claim = self._read("n5_claimed")
         tail_claim = self._read("tail_claimed")
-        if prepared is None:
-            if any(item is not None for item in (n5, cycle, n5_claim, tail_claim)):
-                raise ValueError("native_reentry_prepared_checkpoint_missing")
-            return NativeSourceReentryProgress()
-        prepared_ref, value = prepared
-        if type(value) is not NativeSourceReentryPrepared:
-            raise TypeError("native_reentry_prepared_checkpoint_untyped")
-        self._verify_prepared(value)
-        if any(
-            item is not None and type(item[1]) is not NativeSourceReentryClaim
-            for item in (n5_claim, tail_claim)
-        ):
-            raise TypeError("native_reentry_claim_untyped")
-        if n5_claim is not None and artifacts.artifact_ref_identity_key(
-            n5_claim[1].predecessor_ref
-        ) != artifacts.artifact_ref_identity_key(prepared_ref):
-            raise ValueError("native_reentry_claim_predecessor_mismatch")
-        if n5 is None:
-            if n5_claim is not None or cycle is not None or tail_claim is not None:
-                raise ValueError("native_reentry_n5_completion_not_established")
-            return NativeSourceReentryProgress(prepared=(prepared_ref, value))
-        n5_ref, completed = n5
-        if type(completed) is not NativeSourceReentryN5Completed or n5_claim is None:
-            raise ValueError("native_reentry_n5_claim_missing")
-        if artifacts.artifact_ref_identity_key(
-            completed.prepared_ref
-        ) != artifacts.artifact_ref_identity_key(prepared_ref):
-            raise ValueError("native_reentry_n5_predecessor_mismatch")
-        self._verify_n5(value, completed)
-        if tail_claim is not None and artifacts.artifact_ref_identity_key(
-            tail_claim[1].predecessor_ref
-        ) != artifacts.artifact_ref_identity_key(n5_ref):
-            raise ValueError("native_reentry_claim_predecessor_mismatch")
-        if cycle is None:
-            if tail_claim is not None:
-                raise ValueError("native_reentry_cycle_completion_not_established")
-            return NativeSourceReentryProgress(
-                prepared=(prepared_ref, value), n5_completed=(n5_ref, completed), n5_claimed=True
-            )
-        cycle_ref, finished = cycle
-        if type(finished) is not NativeSourceReentryCycleCompleted or tail_claim is None:
-            raise ValueError("native_reentry_tail_claim_missing")
-        self._verify_cycle(value, n5_ref, completed, finished)
-        return NativeSourceReentryProgress(
-            prepared=(prepared_ref, value),
-            n5_completed=(n5_ref, completed),
-            cycle_completed=(cycle_ref, finished),
-            n5_claimed=True,
-            tail_claimed=True,
+        progress, _result = _verify_native_source_reentry_progress(
+            store=self.bridge.artifact_store,
+            owner=self.owner,
+            source_generation_run=self.closure.generation_run,
+            world_model_record_content_hash=self.handoff.context.world_model_record_content_hash,
+            prepared=prepared,
+            n5=n5,
+            cycle=cycle,
+            n5_claim=n5_claim,
+            tail_claim=tail_claim,
         )
+        self._current()
+        return progress
 
     def prepare(
         self,
@@ -684,115 +1085,13 @@ class NativeSourceReentryCoordinator:
     def _verify_n5(
         self, prepared: NativeSourceReentryPrepared, value: NativeSourceReentryN5Completed
     ) -> None:
-        from polisyos.runtime.quality.generic_simulation_admission import (
-            GenericCycleSimulationN5InputV1,
-            GenericN5ExecutionJoinExpectation,
-        )
-        from polisyos.runtime.quality.n5_candidate_content import (
-            read_generic_program_graph_n5_content_observation,
-        )
-
-        record = GenericCycleSimulationN5InputV1.model_validate(
-            artifacts.load_core_json_artifact(self.bridge.artifact_store, prepared.n5_input_ref)
-        )
-        simulation = value.simulation
-        if (
-            simulation.status != "joint_simulated"
-            or simulation.candidate_id != prepared.candidate_id
-            or any(
-                left is None
-                or artifacts.artifact_ref_identity_key(left)
-                != artifacts.artifact_ref_identity_key(right)
-                for left, right in (
-                    (simulation.generic_n5_input_ref, prepared.n5_input_ref),
-                    (simulation.generic_n5_execution_ref, value.n5_execution_ref),
-                    (simulation.simulation_result_ref, value.n5_result_ref),
-                    (simulation.generic_n4_source_ref, prepared.n4_source_ref),
-                    (simulation.generic_context_job_ref, record.context_job_ref),
-                    (simulation.cycle_substrate_context_job_ref, record.context_job_ref),
-                    (simulation.generic_profile_ref, record.profile_ref),
-                )
-            )
-            or simulation.generic_profile_selection_ref != record.profile.profile_selection_ref
-            or simulation.generic_n4_child_profile_family_ref is not None
-            or simulation.generic_n4_child_profile_set_ref is not None
-            or simulation.model_input_obligation_set_ref is not None
-        ):
-            raise ValueError("native_reentry_n5_selection_mismatch")
-        join, result = self.owner.resolve_n5_execution_join_with_result(
-            value.n5_execution_ref,
-            expected=GenericN5ExecutionJoinExpectation(
-                input_ref=prepared.n5_input_ref,
-                result_ref=value.n5_result_ref,
-                status="joint_simulated",
-                model_input_obligation_set_ref=None,
-                n4_source_ref=prepared.n4_source_ref,
-                context_job_ref=record.context_job_ref,
-                profile_ref=record.profile_ref,
-                child_family_ref=None,
-                child_set_ref=None,
-                profile_selection_ref=record.profile.profile_selection_ref,
-                profile=record.profile,
-                design_problem_ref=record.design_problem_ref,
-                outcome_variable=record.outcome_variable,
-                cycle_index=record.cycle_index,
-                candidate_id=record.candidate_id,
-                candidate_atom_hash=record.candidate_atom_hash,
-                world_model_record_content_hash=self.handoff.context.world_model_record_content_hash,
-                job_id=record.job_id,
-                run_id=record.run_id,
-                source_run_id=record.source_run_id,
-                tenant_id=record.tenant_id,
-                cell_id=record.cell_id,
-            ),
-        )
-        if join.status != "resolved" or result is None:
-            raise ValueError("native_reentry_n5_owner_not_established")
-        from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
-
-        status, blockers = _joint_simulation_port_outcome(result.result, request=result.request)
-        blockers = tuple(dict.fromkeys((*blockers, "simulation_only_k_sim_not_world_evidence")))
-        world = result.request.world_model_record
-        expected_diagnostics = {
-            "engine_decisions": [
-                item.model_dump(mode="json") for item in result.result.engine_decisions
-            ],
-            "trajectory_count": len(result.result.trajectories),
-            "interaction_count": len(result.result.interaction_terms),
-            "simulation_result_ref": str(value.n5_result_ref.artifact_id),
-            "world_model_record_id": world.world_model_record_id,
-            "world_model_record_content_hash": world.content_hash,
-            "program_binding_failures": {},
-        }
-        if (
-            status != "joint_simulated"
-            or simulation.simulation_ref != result.result.receipt.payload_hash
-            or simulation.uncertainty_kind != result.result.uncertainty_kind
-            or simulation.authority_blockers != blockers
-            or simulation.diagnostics != expected_diagnostics
-            or simulation.k_world_ref_before != world.content_hash
-            or simulation.k_world_ref_after != world.content_hash
-        ):
-            raise ValueError("native_reentry_n5_observation_mismatch")
-        observation = read_generic_program_graph_n5_content_observation(
-            result.result,
-            input_ref=prepared.n5_input_ref,
-            expected_request=result.request,
-            current_method_input_bindings_ref=(
-                result.initial_method_input.current_method_input_bindings_ref
-                if result.initial_method_input is not None
-                else None
-            ),
+        _verify_native_source_reentry_n5(
             store=self.bridge.artifact_store,
+            owner=self.owner,
+            world_model_record_content_hash=self.handoff.context.world_model_record_content_hash,
+            prepared=prepared,
+            value=value,
         )
-        if (
-            observation.completion.status != "recomputed"
-            or result.result.diagnostics.get("physical_work_capture_status") != "observed"
-            or not result.result.physical_work_observations
-            or any(item.status != "completed" for item in result.result.physical_work_observations)
-            or "physical_work_interruption" in result.result.diagnostics
-        ):
-            raise ValueError("native_reentry_n5_physical_completion_not_established")
 
     def _verify_cycle(
         self,
@@ -801,38 +1100,13 @@ class NativeSourceReentryCoordinator:
         n5: NativeSourceReentryN5Completed,
         value: NativeSourceReentryCycleCompleted,
     ) -> None:
-        from polisyos.runtime.quality.generation_cycle import (
-            validate_acquisition_overlay_continuation,
+        _verify_native_source_reentry_cycle(
+            source_generation_run=self.closure.generation_run,
+            prepared=prepared,
+            n5_ref=n5_ref,
+            n5=n5,
+            value=value,
         )
-
-        receipt = value.receipt
-        validate_acquisition_overlay_continuation(self.closure.generation_run, receipt)
-        cycle = receipt.new_cycle
-        if (
-            artifacts.artifact_ref_identity_key(value.n5_completed_ref)
-            != artifacts.artifact_ref_identity_key(n5_ref)
-            or cycle.cycle_index != value.subject.cycle_index
-            or cycle.design_problem_ref != value.subject.stable_design_problem_ref
-            or cycle.selected_candidate_ref != prepared.candidate_id
-            or cycle.selected_candidate_content_hash != prepared.candidate_content_hash
-            or cycle.simulation.model_dump(mode="json") != n5.simulation.model_dump(mode="json")
-            or {(item.candidate_id, item.content_hash) for item in receipt.candidate_summaries}
-            != {(item.candidate_id, item.content_hash) for item in prepared.candidate_summaries}
-            or len(receipt.candidate_summaries) != len(prepared.candidate_summaries)
-            or any(
-                item.cycle_index != value.subject.cycle_index
-                for item in receipt.candidate_summaries
-            )
-            or cycle.candidate_ids
-            != tuple(item.candidate_id for item in prepared.candidate_summaries)
-            or cycle.grounding.model_dump(mode="json")
-            != next(
-                item.model_dump(mode="json")
-                for item in prepared.grounding_observations
-                if item.candidate_id == prepared.candidate_id
-            )
-        ):
-            raise ValueError("native_reentry_cycle_selection_mismatch")
 
     def complete_cycle(
         self,

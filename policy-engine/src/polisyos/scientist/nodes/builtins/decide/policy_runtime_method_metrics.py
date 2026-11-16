@@ -14,16 +14,23 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsIndex, cast
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, model_validator
 
 from polisyos.core.artifacts import (
+    ArtifactBoundedManifestRead,
+    ArtifactBoundedManifestReadError,
     ArtifactID,
+    ArtifactReadBoundsError,
+    ArtifactStoreReadUsage,
     CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedMemberAttempt,
     CoreJSONArtifactBoundedMemberReader,
     CoreJsonArtifactBoundedRead,
     CoreJSONArtifactStore,
+    CoreJsonManifestBoundedRead,
     CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
     ProducerInfo,
     PutOptions,
     SchemaInfo,
+    VerificationReport,
     artifact_manifest_profile_sha256,
     input_ref_from_artifact_ref,
     read_core_input_manifest_profile_bounded,
@@ -2126,12 +2133,378 @@ def _core_observed_source_bytes(receipt: object, *, budget: _ProjectionReadBudge
     return observed
 
 
+class _BudgetedSemanticMemberAttempt:
+    """Retain the genuine Core member/usage while charging its completed transfer."""
+
+    def __init__(
+        self,
+        attempt: CoreJSONArtifactBoundedMemberAttempt,
+        owner: _BoundedSemanticInputView,
+    ) -> None:
+        self._attempt = attempt
+        self._owner = owner
+        self._accounted = False
+
+    @property
+    def usage(self) -> ArtifactStoreReadUsage:
+        return self._attempt.usage
+
+    def _account(self, *, refused: bool) -> None:
+        if not self._accounted:
+            self._accounted = True
+            self._owner.account_usage(self.usage, refused=refused)
+
+    def __enter__(self) -> Any:
+        try:
+            return self._attempt.__enter__()
+        except BaseException:
+            self._account(refused=True)
+            raise
+
+    def __exit__(self, *args: Any) -> bool | None:
+        refused = args[0] is not None
+        try:
+            return self._attempt.__exit__(*args)
+        except BaseException:
+            refused = True
+            raise
+        finally:
+            self._account(refused=refused)
+
+
+class _BoundedSemanticInputView:
+    """Supply Core's read-only surface using genuine receipts and one shared budget.
+
+    No writer or original unbounded read is exposed. Every read, including
+    repeated validation/verification reads, reaches the configured bounded
+    owner and is charged. The view exists only for one source-admission replay.
+
+    This supported profile limits every semantic/registry JSON artifact to
+    4 MiB, depth 32, 100,000 lexical elements and a 512 KiB manifest; state NPZ
+    members are limited to 16 MiB. These local limits also compose with the
+    shared aggregate budget and do not guarantee replay of larger artifacts.
+    """
+
+    def __init__(self, reader: _BoundedExecutionSourceReader) -> None:
+        self._reader = reader
+        self._state_blobs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+
+    @property
+    def observed_source_bytes(self) -> int:
+        return self._reader._read_budget.observed_bytes
+
+    def account_usage(self, usage: object, *, refused: bool) -> int:
+        count = _core_observed_source_bytes(usage, budget=self._reader._read_budget)
+        if refused:
+            self._reader._account_refusal(count)
+        else:
+            self._reader._account_read(count)
+        return count
+
+    def _account_manifest_refusal(self, exc: Exception, *, limit: int) -> None:
+        count = self.account_usage(getattr(exc, "usage", None), refused=True)
+        if (
+            isinstance(exc, ArtifactBoundedManifestReadError)
+            and isinstance(exc.original_exception, ArtifactReadBoundsError)
+            and exc.original_exception.member == "manifest"
+            and exc.original_exception.max_bytes == limit
+            and limit == self._reader._read_budget.remaining_bytes + count
+        ):
+            self._reader._raise_budget_refusal(observed_bytes=count, cause=exc)
+
+    def _manifest_cap(self, requested: int) -> int:
+        if type(requested) is not int or requested < 1:
+            raise ValueError("semantic_bounded_manifest_limit_invalid")
+        remaining = self._reader._read_budget.remaining_bytes
+        if remaining < 1:
+            self._reader._raise_budget_refusal(observed_bytes=0)
+        return min(requested, 512 * 1024, remaining)
+
+    @staticmethod
+    def _selector(value: ArtifactID | ArtifactRef | str) -> ArtifactID | ArtifactRef:
+        if isinstance(value, ArtifactRef):
+            return _core_artifact_ref(value)
+        if isinstance(value, ArtifactID):
+            return value
+        if type(value) is str:
+            return ArtifactID.model_validate(value)
+        raise TypeError("semantic_bounded_selector_invalid")
+
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
+    ) -> ArtifactBoundedManifestRead:
+        limit = self._manifest_cap(max_manifest_bytes)
+        try:
+            result = self._reader._store.read_raw_manifest_bytes_bounded(
+                self._selector(artifact_id),
+                max_manifest_bytes=limit,
+                manifest_profile_sha256=manifest_profile_sha256,
+            )
+        except Exception as exc:
+            self._account_manifest_refusal(exc, limit=limit)
+            raise
+        self.account_usage(result.usage, refused=False)
+        return result
+
+    def read_raw_manifest_bytes_bounded_for_input(
+        self, input_ref: InputRef, *, max_manifest_bytes: int
+    ) -> ArtifactBoundedManifestRead:
+        limit = self._manifest_cap(max_manifest_bytes)
+        try:
+            result = self._reader._store.read_raw_manifest_bytes_bounded_for_input(
+                input_ref, max_manifest_bytes=limit
+            )
+        except Exception as exc:
+            self._account_manifest_refusal(exc, limit=limit)
+            raise
+        self.account_usage(result.usage, refused=False)
+        return result
+
+    def _manifest(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+        max_manifest_bytes: int = 512 * 1024,
+    ) -> CoreJsonManifestBoundedRead:
+        selector = self._selector(artifact_id)
+        default_ref = (
+            selector
+            if isinstance(selector, ArtifactRef) and selector.manifest_profile_sha256 is None
+            else None
+        )
+        # Canonical lineage replay compares the owner's default view with its
+        # exact selected edge. Core supports that bounded lookup by ArtifactID;
+        # an absent-profile ArtifactRef is not a selected-ref proof.
+        bounded = read_core_manifest_profile_bounded(
+            self,
+            default_ref.artifact_id if default_ref is not None else selector,
+            max_manifest_bytes=self._manifest_cap(max_manifest_bytes),
+            manifest_profile_sha256=manifest_profile_sha256,
+            allow_profile_absent=True,
+        )
+        if default_ref is not None and (
+            bounded.manifest.kind != default_ref.kind
+            or bounded.manifest.media_type != default_ref.media_type
+        ):
+            raise ValueError("semantic_bounded_default_manifest_identity_mismatch")
+        return bounded
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+        return self._manifest(artifact_id).manifest
+
+    def get_manifest_by_profile(
+        self, artifact_id: ArtifactID | str, manifest_profile_sha256: str
+    ) -> ArtifactManifest:
+        return self._manifest(artifact_id, manifest_profile_sha256=manifest_profile_sha256).manifest
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        return self._manifest(
+            artifact_id, manifest_profile_sha256=manifest_profile_sha256
+        ).raw_manifest_bytes
+
+    def get_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        return self.read_raw_manifest_bytes_bounded(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        ).raw_manifest_bytes
+
+    def get_raw_manifest_bytes_bounded_for_input(
+        self, input_ref: InputRef, *, max_manifest_bytes: int
+    ) -> bytes:
+        return self.read_raw_manifest_bytes_bounded_for_input(
+            input_ref, max_manifest_bytes=max_manifest_bytes
+        ).raw_manifest_bytes
+
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+        try:
+            selected = self._manifest(artifact_id)
+        except FileNotFoundError:
+            return False
+        except CoreJsonReadBoundsRefusalError as exc:
+            if exc.code == "selected_artifact_not_found" and isinstance(
+                exc.__cause__, FileNotFoundError
+            ):
+                return False
+            raise
+        # A manifest without its payload is not an available artifact. Keep
+        # missing/corrupt payloads as failures, as the read-only CAS owner does.
+        self.get_bytes(selected.effective_ref)
+        return True
+
+    def open_member_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> _BudgetedSemanticMemberAttempt:
+        if type(max_member_bytes) is not int or max_member_bytes < 1:
+            raise ValueError("semantic_bounded_member_limit_invalid")
+        if artifact_id.media_type != "application/json" and (
+            artifact_id.kind != "foundry.state_blob"
+            or artifact_id.media_type != "application/x-npz"
+            or artifact_ref_identity_key(artifact_id) not in self._state_blobs
+        ):
+            raise ValueError("semantic_bounded_state_blob_parent_required")
+        selected = self._manifest(artifact_id, max_manifest_bytes=max_manifest_bytes)
+        actual_hash = hashlib.sha256(selected.raw_manifest_bytes).hexdigest()
+        if expected_manifest_sha256 != actual_hash:
+            raise ValueError("semantic_bounded_manifest_digest_mismatch")
+        manifest_limit = len(selected.raw_manifest_bytes)
+        remaining = self._reader._read_budget.remaining_bytes
+        profile_limit = (
+            4 * 1024 * 1024
+            if artifact_id.media_type == "application/json"
+            else MAX_METHOD_METRIC_SOURCE_BYTES
+        )
+        payload_limit = min(max_member_bytes, profile_limit, remaining - manifest_limit)
+        if payload_limit < 1:
+            self._reader._raise_budget_refusal(observed_bytes=0)
+        if selected.manifest.byte_size > payload_limit and payload_limit < min(
+            max_member_bytes, profile_limit
+        ):
+            self._reader._raise_budget_refusal(observed_bytes=0)
+        try:
+            attempt = self._reader._store.open_member_bounded(
+                _core_artifact_ref(artifact_id),
+                member,
+                max_manifest_bytes=manifest_limit,
+                expected_manifest_sha256=expected_manifest_sha256,
+                max_member_bytes=payload_limit,
+            )
+        except Exception as exc:
+            self.account_usage(getattr(exc, "usage", None), refused=True)
+            raise
+        return _BudgetedSemanticMemberAttempt(attempt, self)
+
+    def open_member(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int | None = None,
+        expected_manifest_sha256: str | None = None,
+    ) -> _BudgetedSemanticMemberAttempt:
+        manifest_limit = 512 * 1024 if max_manifest_bytes is None else max_manifest_bytes
+        selected = self._manifest(artifact_id, max_manifest_bytes=manifest_limit)
+        actual_hash = hashlib.sha256(selected.raw_manifest_bytes).hexdigest()
+        if expected_manifest_sha256 is not None and expected_manifest_sha256 != actual_hash:
+            raise ValueError("semantic_bounded_manifest_digest_mismatch")
+        return self.open_member_bounded(
+            selected.effective_ref,
+            member,
+            max_manifest_bytes=manifest_limit,
+            expected_manifest_sha256=actual_hash,
+            max_member_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        )
+
+    def _json(self, selected: CoreJsonManifestBoundedRead) -> CoreJsonArtifactBoundedRead:
+        ref = selected.effective_ref
+        bounded = read_core_json_artifact_bounded(
+            self,
+            ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=4 * 1024 * 1024,
+                max_depth=32,
+                max_elements=100_000,
+                max_manifest_bytes=512 * 1024,
+            ),
+            manifest_read=selected,
+        )
+        if ref.kind == "foundry.state_snapshot":
+            from polisyos.core.contracts.foundry import StateSnapshot
+
+            value = validate_core_model_bounded_read(StateSnapshot, bounded)
+            child = self._reader._state_blob_from_parent(ref, bounded.manifest, value)
+            self._state_blobs[artifact_ref_identity_key(child)] = child
+        return bounded
+
+    def _binary(self, ref: ArtifactRef) -> bytes:
+        child = self._state_blobs.get(artifact_ref_identity_key(ref))
+        if child is None:
+            raise ValueError("semantic_bounded_state_blob_parent_required")
+        selected = self._manifest(ref)
+        manifest = selected.manifest
+        if (
+            manifest.kind != "foundry.state_blob"
+            or manifest.media_type != "application/x-npz"
+            or manifest.artifact_schema is not None
+            or manifest.canon is not None
+        ):
+            raise ValueError("semantic_bounded_state_blob_profile_invalid")
+        attempt = self.open_member_bounded(
+            child,
+            "blob",
+            max_manifest_bytes=512 * 1024,
+            expected_manifest_sha256=hashlib.sha256(selected.raw_manifest_bytes).hexdigest(),
+            max_member_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        )
+        payload = bytearray()
+        with attempt as member:
+            while part := member.read(64 * 1024):
+                payload.extend(part)
+        receipt = member.receipt
+        digest = hashlib.sha256(payload).hexdigest()
+        if (
+            member.payload_integrity_verified is not True
+            or receipt.sha256 != manifest.integrity.sha256
+            or receipt.byte_size != manifest.byte_size
+            or member.member_size_bytes != manifest.byte_size
+            or len(payload) != manifest.byte_size
+            or digest != manifest.integrity.sha256
+            or digest != ref.artifact_id.hex
+        ):
+            raise ValueError("semantic_bounded_state_blob_integrity_not_established")
+        return bytes(payload)
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+        selected = self._manifest(artifact_id)
+        ref = selected.effective_ref
+        if ref.media_type == "application/json":
+            return self._json(selected).raw_payload_bytes
+        if ref.kind == "foundry.state_blob" and ref.media_type == "application/x-npz":
+            return self._binary(ref)
+        raise ValueError("semantic_bounded_artifact_profile_not_established")
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+        selected = self._manifest(artifact_id)
+        ref = selected.effective_ref
+        payload = self.get_bytes(ref)
+        actual = hashlib.sha256(payload).hexdigest()
+        return VerificationReport(
+            ok=actual == ref.artifact_id.hex,
+            artifact_id=str(ref.artifact_id),
+            expected_sha256_hex=ref.artifact_id.hex,
+            actual_sha256_hex=actual,
+            byte_size=len(payload),
+        )
+
+
 class _BoundedExecutionSourceReader:
     """Route Foundry's complete source-admission walk through the shared budget."""
 
     def __init__(
         self,
-        store: _MethodMetricProjectionArtifactStore,
+        store: _MethodMetricProjectionArtifactReader,
         read_budget: _ProjectionReadBudget,
     ) -> None:
         self._store = store
@@ -2140,6 +2513,10 @@ class _BoundedExecutionSourceReader:
         self._pending_state_blob_bindings: dict[
             tuple[tuple[str, str, str, str | None], str, str, str | None], ArtifactRef
         ] = {}
+
+    def semantic_input_reader(self) -> _BoundedSemanticInputView:
+        """Give canonical Foundry replay a bounded, operation-local read-only view."""
+        return _BoundedSemanticInputView(self)
 
     def read_selected_manifest(
         self,
@@ -2185,8 +2562,34 @@ class _BoundedExecutionSourceReader:
         """Resolve one strict snapshot parent before allowing its binary child edge."""
         from polisyos.core.contracts.foundry import StateSnapshot
 
+        typed_manifest, value, manifest_bytes, payload_bytes = self.read_typed_model(
+            StateSnapshot,
+            ref,
+        )
+        if typed_manifest != manifest or not isinstance(value, StateSnapshot):
+            raise _InvalidProjectionError("state_snapshot_selected_payload_identity_mismatch")
+        state_ref = self._state_blob_from_parent(ref, manifest, value)
+        expected_edge = input_ref_from_artifact_ref(state_ref, role="state_blob")
+        self._pending_state_blob_bindings[
+            (
+                artifact_ref_identity_key(ref),
+                str(expected_edge.artifact_id),
+                expected_edge.role,
+                expected_edge.manifest_profile_sha256,
+            )
+        ] = state_ref
+        return manifest_bytes + payload_bytes
+
+    @staticmethod
+    def _state_blob_from_parent(
+        ref: ArtifactRef, manifest: ArtifactManifest, value: Any
+    ) -> ArtifactRef:
+        """Reconcile the existing snapshot schema and exact binary child edge."""
+        from polisyos.core.contracts.foundry import StateSnapshot
+
         if (
-            ref.manifest_profile_sha256 is None
+            not isinstance(value, StateSnapshot)
+            or ref.manifest_profile_sha256 is None
             or ref.kind != "foundry.state_snapshot"
             or ref.media_type != "application/json"
             or manifest.kind != "foundry.state_snapshot"
@@ -2194,12 +2597,6 @@ class _BoundedExecutionSourceReader:
         ):
             raise _InvalidProjectionError("state_snapshot_selected_identity_invalid")
 
-        typed_manifest, value, manifest_bytes, payload_bytes = self.read_typed_model(
-            StateSnapshot,
-            ref,
-        )
-        if typed_manifest != manifest or not isinstance(value, StateSnapshot):
-            raise _InvalidProjectionError("state_snapshot_selected_payload_identity_mismatch")
         expected_schema_version = StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION.get(
             value.schema_version
         )
@@ -2226,15 +2623,7 @@ class _BoundedExecutionSourceReader:
         ):
             raise _InvalidProjectionError("state_snapshot_blob_parent_edge_mismatch")
 
-        self._pending_state_blob_bindings[
-            (
-                artifact_ref_identity_key(ref),
-                str(expected_edge.artifact_id),
-                expected_edge.role,
-                expected_edge.manifest_profile_sha256,
-            )
-        ] = value.state_ref
-        return manifest_bytes + payload_bytes
+        return value.state_ref
 
     def read_edge_manifest(
         self,

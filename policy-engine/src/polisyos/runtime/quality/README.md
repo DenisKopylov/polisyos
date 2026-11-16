@@ -1981,3 +1981,14 @@ problem's authority scope. Matching source/request DTOs alone do not establish
 that join. This reconciles observed candidate context; it does not verify external
 producer authenticity. Persisted content/provenance and protected claims remain
 with the existing downstream compiler/planner and action/retention owners.
+
+
+### Native completed-history reader
+
+`read_native_source_reentry_history` shares the coordinator's prepared,
+completed-N5 and completed-cycle verifiers. It reconstructs the selected
+historical subject from persisted events and exact CAS profiles and checks the
+actual physical-work ledger. The reader receives no current action handle;
+current lease and action admission remain with the coordinator. Original
+source/profile identity and current world/profile selection are separate, and
+none of these historical joins establishes empirical truth or current rights.

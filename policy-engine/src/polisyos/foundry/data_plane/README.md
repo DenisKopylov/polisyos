@@ -36,3 +36,31 @@ outside this bounded route; N5 retention and authority need their own admission.
 The generic state-patch owner remains separate. Helpers do not schedule a method
 or issue publication permission. See the [graph owner](../execute/_internal/graph/README.md)
 for capture and [execution API](../execute/api.py) for result modes.
+
+## Registered SQL semantic input composition
+
+Foundry input-bindings payload schema 1.3 composes the selected registered SQL
+admission with the existing resolved semantic-input manifest. The bounded route
+requires the exact same selected snapshot, a one-step invocation, a schema 1.0
+manifest with measurements and no derivations, and only `initial_state` ports
+carried by `state_path`. Foundry reopens the selected SQL occurrence and source
+edges while reconciling the bound state; it does not infer a method-input or
+temporal transport. SQL method-inputs and step-qualified inputs remain on
+their separate Foundry input-binding schema versions 1.4 and 1.5, respectively.
+
+This composition preserves candidate-only meaning: it does not establish SQL
+currentness, external source rights or publication authority. Existing
+FoundryInputBindings payload versions remain readable under their own schemas;
+the combined SQL-and-manifest path emits version 1.3 without rewriting prior
+artifacts.
+
+The bounded execution-source reader supports this same initial-state SQL 1.3
+replay through its existing aggregate transfer budget. Its read-only view
+charges selected manifests, JSON payloads and parent-bound state blobs through
+Core receipts, including repeated transfers. The supported view caps every
+semantic/registry JSON artifact at 4 MiB, depth 32 and 100,000 elements, with
+512 KiB manifests, and state NPZ members at 16 MiB; the aggregate limit also
+applies. Larger profiles refuse instead of reading through an unbounded
+fallback. Legacy three-method bounded readers retain their structural API;
+this new SQL replay requires the optional semantic-reader capability. These
+checks do not replace C105's current-use permission check or grant authority.

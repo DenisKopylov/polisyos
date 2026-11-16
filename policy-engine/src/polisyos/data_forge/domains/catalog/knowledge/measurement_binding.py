@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     CoreJSONArtifactStore,
     CoreJsonReadLimits,
+    InputRef,
     PutOptions,
     SchemaInfo,
     artifact_manifest_profile_sha256,
@@ -28,9 +30,11 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.contracts import (
     ENTITY_VECTOR_CANDIDATE_LIMITATIONS,
+    DataSnapshotOwnerBound,
     EntityAxisMemberId,
     EntityVectorCorrespondenceBasis,
     EntityVectorCorrespondenceBasisRef,
+    FabricBridgeDataSnapshotLineage,
     FixedUnitTransformWitness,
     FoundryInputBindings,
     MeasurementAxis,
@@ -39,8 +43,13 @@ from polisyos.core.contracts import (
     MeasurementCorrespondenceResult,
     ModelInputObligationSet,
     ModelInputPort,
+    ModelInputScope,
     ModelInputStepSelectionResolution,
     ModelInputStepSubject,
+    RegisteredSQLAdmissionBinding,
+    RegisteredSQLCapture,
+    RegisteredSQLMeasurementOccurrence,
+    RegisteredSQLMeasurementSourceSelection,
     ResolvedEntityVectorInput,
     ResolvedEntityVectorInputAtStep,
     ResolvedInputBindingManifest,
@@ -58,6 +67,7 @@ from polisyos.core.contracts import (
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
+    data_snapshot_manifest_inputs_match,
     entity_axis_member_sort_key,
     entity_vector_correspondence_basis_manifest_inputs,
     epoch,
@@ -66,9 +76,12 @@ from polisyos.core.contracts import (
     load_entity_vector_correspondence_basis,
     load_program_graph_input_interface,
     load_resolved_input_binding_manifest,
+    load_scoped_measurement_occurrence,
     load_selected_entity_vector_source_meaning,
     load_variable_representation,
     persist_resolved_input_binding_manifest,
+    registered_sql_capture_input_refs,
+    replay_registered_sql_measurement_occurrence,
     replay_scoped_measurement_occurrence,
     resolve_model_input_step_subjects,
     scoped_correspondence_basis_manifest_inputs,
@@ -104,6 +117,13 @@ class _AssessmentRefusalError(ValueError):
 
 
 _AssessmentRefusal = _AssessmentRefusalError
+
+_REGISTERED_SQL_MEASUREMENT_READ_LIMITS = CoreJsonReadLimits(
+    max_bytes=4 * 1024 * 1024,
+    max_depth=32,
+    max_elements=100_000,
+    max_manifest_bytes=512 * 1024,
+)
 
 
 def materialize_activated_measurement_occurrence(
@@ -178,7 +198,11 @@ def materialize_activated_measurement_occurrence(
 def replay_selected_scoped_measurement_facts(
     store: CoreJSONArtifactStore,
     occurrence_ref: ScopedMeasurementOccurrenceRef,
-) -> tuple[ScopedMeasurementOccurrence, ScopedMeasurementOccurrence, ScopedSourceSelection]:
+) -> tuple[
+    ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    ScopedSourceSelection | RegisteredSQLMeasurementSourceSelection,
+]:
     """Reopen and replay selected CAS facts without claiming activation currentness.
 
     This read path verifies the stored occurrence, its exact manifest inputs,
@@ -200,13 +224,31 @@ def replay_selected_scoped_measurement_facts(
     """
     try:
         selected_occurrence_ref = _selected_exact_ref(store, occurrence_ref)
-        occurrence = validate_core_model_json_artifact(
-            ScopedMeasurementOccurrence, store, selected_occurrence_ref
-        )
+        occurrence = load_scoped_measurement_occurrence(store, selected_occurrence_ref)
         if tuple(store.get_manifest(selected_occurrence_ref).inputs) != (
             scoped_measurement_occurrence_manifest_inputs(occurrence)
         ):
             raise _AssessmentRefusal("occurrence_lineage_mismatch")
+
+        if isinstance(occurrence, RegisteredSQLMeasurementOccurrence):
+            source = occurrence.source_selection
+            _binding, _snapshot, _capture, payload = _read_registered_sql_measurement_source(
+                store,
+                registered_sql_admission_ref=source.registered_sql_admission_ref,
+                read_limits=_REGISTERED_SQL_MEASUREMENT_READ_LIMITS,
+            )
+            materialization = _binding.materialization
+            if any(
+                artifact_ref_identity_key(left) != artifact_ref_identity_key(right)
+                for left, right in (
+                    (source.snapshot_ref, materialization.snapshot_ref),
+                    (source.capture_ref, materialization.producer_capture_ref),
+                    (source.payload_ref, materialization.payload_ref),
+                )
+            ):
+                raise _AssessmentRefusal("registered_sql_measurement_source_mismatch")
+            replayed = _replay_registered_sql_cell(payload, source=source, capture=_capture)
+            return occurrence, replayed, source
 
         receipt_mapping = epoch.load_verified_epoch_statement(
             store=store,
@@ -298,6 +340,328 @@ def replay_selected_scoped_measurement_facts(
         raise _AssessmentRefusal("selected_occurrence_source_replay_failed") from exc
 
 
+def _read_registered_sql_measurement_source(
+    store: CoreJSONArtifactStore,
+    *,
+    registered_sql_admission_ref: ArtifactRef,
+    read_limits: CoreJsonReadLimits,
+) -> tuple[RegisteredSQLAdmissionBinding, DataSnapshotOwnerBound, RegisteredSQLCapture, object]:
+    """Read exact stored SQL facts, without performing a query or current admission."""
+    if type(read_limits) is not CoreJsonReadLimits:
+        raise _AssessmentRefusal("registered_sql_measurement_read_limits_required")
+    limits = CoreJsonReadLimits(
+        max_bytes=min(read_limits.max_bytes, _REGISTERED_SQL_MEASUREMENT_READ_LIMITS.max_bytes),
+        max_depth=min(read_limits.max_depth, _REGISTERED_SQL_MEASUREMENT_READ_LIMITS.max_depth),
+        max_elements=min(
+            read_limits.max_elements, _REGISTERED_SQL_MEASUREMENT_READ_LIMITS.max_elements
+        ),
+        max_manifest_bytes=min(
+            read_limits.max_manifest_bytes,
+            _REGISTERED_SQL_MEASUREMENT_READ_LIMITS.max_manifest_bytes,
+        ),
+    )
+    if registered_sql_admission_ref.manifest_profile_sha256 is None:
+        raise _AssessmentRefusal("source_profile_required")
+    selected = _selected_exact_ref(store, registered_sql_admission_ref)
+    binding = validate_core_model_json_artifact(RegisteredSQLAdmissionBinding, store, selected)
+    materialization = binding.materialization
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshotOwnerBound, store, materialization.snapshot_ref
+    )
+    capture = validate_core_model_json_artifact(
+        RegisteredSQLCapture, store, materialization.producer_capture_ref
+    )
+    if not isinstance(snapshot.source_lineage, FabricBridgeDataSnapshotLineage):
+        raise _AssessmentRefusal("registered_sql_measurement_snapshot_owner_mismatch")
+    if any(
+        artifact_ref_identity_key(left) != artifact_ref_identity_key(right)
+        for left, right in (
+            (capture.snapshot_ref, materialization.snapshot_ref),
+            (capture.payload_ref, materialization.payload_ref),
+            (capture.schema_ref, materialization.schema_ref),
+            (capture.quality_ref, materialization.quality_ref),
+            (capture.request_ref, materialization.request_ref),
+            (capture.view_ref, materialization.registration.effective_view_contract_ref),
+            (capture.use_ref, materialization.registration.use_contract_ref),
+            (snapshot.data_ref, materialization.payload_ref),
+            (snapshot.source_lineage.data_view_request_ref, materialization.request_ref),
+        )
+    ) or (
+        snapshot.data_schema_ref is None
+        or snapshot.quality_report_ref is None
+        or artifact_ref_identity_key(snapshot.data_schema_ref)
+        != artifact_ref_identity_key(materialization.schema_ref)
+        or artifact_ref_identity_key(snapshot.quality_report_ref)
+        != artifact_ref_identity_key(materialization.quality_ref)
+    ):
+        raise _AssessmentRefusal("registered_sql_measurement_source_mismatch")
+    snapshot_manifest = store.get_manifest(materialization.snapshot_ref)
+    if not data_snapshot_manifest_inputs_match(
+        snapshot,
+        snapshot_manifest.inputs,
+        schema_version=snapshot_manifest.artifact_schema.version
+        if snapshot_manifest.artifact_schema
+        else None,
+    ):
+        raise _AssessmentRefusal("registered_sql_measurement_snapshot_lineage_mismatch")
+    capture_inputs = registered_sql_capture_input_refs(
+        snapshot, materialization.snapshot_ref, materialization.registration
+    )
+    admission_inputs = [
+        *capture_inputs,
+        input_ref_from_artifact_ref(materialization.producer_capture_ref, role="source.capture"),
+    ]
+
+    def edge_key(edge: InputRef) -> tuple[str, str, str | None]:
+        return (str(edge.artifact_id), edge.role, edge.manifest_profile_sha256)
+
+    if Counter(
+        map(edge_key, store.get_manifest(materialization.producer_capture_ref).inputs)
+    ) != Counter(map(edge_key, capture_inputs)) or Counter(
+        map(edge_key, store.get_manifest(selected).inputs)
+    ) != Counter(map(edge_key, admission_inputs)):
+        raise _AssessmentRefusal("registered_sql_measurement_transport_lineage_mismatch")
+    for ref in (
+        selected,
+        materialization.producer_capture_ref,
+        materialization.snapshot_ref,
+        materialization.schema_ref,
+        materialization.quality_ref,
+        materialization.registration.effective_view_contract_ref,
+        materialization.registration.use_contract_ref,
+    ):
+        if ref.manifest_profile_sha256 is None or not store.verify(ref).ok:
+            raise _AssessmentRefusal("registered_sql_measurement_source_unverified")
+    payload_ref = _selected_exact_ref(store, materialization.payload_ref)
+    read = read_core_json_artifact_bounded(store, payload_ref, limits=limits)
+    if artifact_ref_identity_key(read.effective_ref) != artifact_ref_identity_key(payload_ref):
+        raise _AssessmentRefusal("registered_sql_measurement_payload_profile_mismatch")
+    return binding, snapshot, capture, read.value
+
+
+def _replay_registered_sql_cell(
+    payload: object,
+    *,
+    source: RegisteredSQLMeasurementSourceSelection,
+    capture: RegisteredSQLCapture,
+) -> RegisteredSQLMeasurementOccurrence:
+    """Apply the same captured-column and exact-cell law to production and replay."""
+    if source.source_path.split(".")[1] not in capture.columns:
+        raise _AssessmentRefusal("registered_sql_measurement_column_not_captured")
+    return replay_registered_sql_measurement_occurrence(payload, source_selection=source)
+
+
+def materialize_registered_sql_measurement_occurrence(
+    store: CoreJSONArtifactStore,
+    *,
+    registered_sql_admission_ref: ArtifactRef,
+    source_path: str,
+    source_definition_ref: VariableSemanticDefinitionRef,
+    source_representation_ref: VariableRepresentationRef,
+    source_scope: ModelInputScope,
+    declared_release: str,
+    read_limits: CoreJsonReadLimits,
+) -> ScopedMeasurementOccurrenceRef:
+    """Persist a candidate declaration over one actual captured SQL cell.
+
+    Snapshot, capture and payload identities are derived from the exact stored
+    SQL admission. The declaration does not establish empirical meaning,
+    release truth, source currentness, or current-use authority.
+    Production and replay both cap each selected payload at 4 MiB, depth 32,
+    100,000 lexical nodes, and a 512 KiB manifest. Stricter caller bounds apply;
+    a payload outside this profile refuses before any occurrence is persisted.
+
+    Args:
+        store: Existing Core CAS containing the actual SQL capture and model facts.
+        registered_sql_admission_ref: Selected immutable SQL transport binding.
+        source_path: Explicit zero-based row and column, such as ``0.amount``.
+        source_definition_ref: Selected consumer-declared source definition.
+        source_representation_ref: Selected consumer-declared representation.
+        source_scope: Explicit consumer-declared population, geography and time scope.
+        declared_release: Consumer-declared release identifier, without issuer authority.
+        read_limits: Explicit selected JSON payload and manifest resource bounds.
+
+    Returns:
+        The persisted candidate occurrence bound to its actual capture and cell.
+    """
+    binding, _snapshot, capture, payload = _read_registered_sql_measurement_source(
+        store,
+        registered_sql_admission_ref=registered_sql_admission_ref,
+        read_limits=read_limits,
+    )
+    definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, source_definition_ref
+    )
+    representation = load_variable_representation(store, source_representation_ref)
+    _reopen_definition_evidence(store, definition)
+    if (
+        artifact_ref_identity_key(representation.semantic_definition_ref)
+        != artifact_ref_identity_key(source_definition_ref)
+        or representation.unit_id is None
+    ):
+        raise _AssessmentRefusal("registered_sql_measurement_representation_mismatch")
+    source = RegisteredSQLMeasurementSourceSelection(
+        registered_sql_admission_ref=SelectedVariableBindingRef.model_validate(
+            _selected_exact_ref(store, registered_sql_admission_ref).model_dump(mode="python")
+        ),
+        capture_ref=SelectedVariableBindingRef.model_validate(
+            binding.materialization.producer_capture_ref.model_dump(mode="python")
+        ),
+        snapshot_ref=SelectedVariableBindingRef.model_validate(
+            binding.materialization.snapshot_ref.model_dump(mode="python")
+        ),
+        payload_ref=SelectedVariableBindingRef.model_validate(
+            binding.materialization.payload_ref.model_dump(mode="python")
+        ),
+        source_path=source_path,
+        declared_source_definition_ref=source_definition_ref,
+        declared_source_representation_ref=source_representation_ref,
+        declared_release=declared_release,
+        source_scope=source_scope,
+        canonical_variable=f"{definition.namespace}.{definition.stable_id}",
+        canonical_unit=representation.unit_id,
+    )
+    occurrence = _replay_registered_sql_cell(payload, source=source, capture=capture)
+    return _persist_occurrence(store, occurrence)
+
+
+def assess_selected_measurement_to_model_candidate(
+    store: CoreJSONArtifactStore,
+    *,
+    occurrence_ref: ScopedMeasurementOccurrenceRef,
+    source_definition_ref: VariableSemanticDefinitionRef,
+    source_representation_ref: VariableRepresentationRef,
+    model_interface_ref: SelectedVariableBindingRef,
+    port_id: str,
+) -> MeasurementCorrespondenceResult:
+    """Assess a replayed source occurrence through the shared candidate predicate.
+
+    Args:
+        store: Existing selected Core CAS reader and candidate artifact writer.
+        occurrence_ref: Exact versioned epoch or SQL source occurrence.
+        source_definition_ref: Explicit source semantic declaration.
+        source_representation_ref: Explicit source measurement representation.
+        model_interface_ref: Exact model-owned input interface.
+        port_id: Unique selected port in that interface.
+
+    Returns:
+        Candidate/refusal and its selected correspondence basis. No current
+        source permission or empirical semantic authority follows.
+    """
+    try:
+        occurrence, replayed, source = replay_selected_scoped_measurement_facts(
+            store, occurrence_ref
+        )
+        return _assess_measurement_occurrence(
+            store,
+            occurrence_ref=occurrence_ref,
+            occurrence=occurrence,
+            replayed_occurrence=replayed,
+            source_selection=source,
+            source_definition_ref=source_definition_ref,
+            source_representation_ref=source_representation_ref,
+            model_interface_ref=model_interface_ref,
+            port_id=port_id,
+        )
+    except (_AssessmentRefusal, OverlayAdmissionError, OSError, TypeError, ValueError) as exc:
+        return _result(
+            source_observation_id="unknown",
+            source_definition_ref=source_definition_ref,
+            source_representation_ref=source_representation_ref,
+            model_interface_ref=model_interface_ref,
+            model_port_id=port_id,
+            status="refused",
+            refusal_codes=(getattr(exc, "code", "selected_owner_input_invalid"),),
+        )
+
+
+def _assess_measurement_occurrence(
+    store: CoreJSONArtifactStore,
+    *,
+    occurrence_ref: ScopedMeasurementOccurrenceRef,
+    occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    replayed_occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    source_selection: ScopedSourceSelection | RegisteredSQLMeasurementSourceSelection,
+    source_definition_ref: VariableSemanticDefinitionRef,
+    source_representation_ref: VariableRepresentationRef,
+    model_interface_ref: SelectedVariableBindingRef,
+    port_id: str,
+) -> MeasurementCorrespondenceResult:
+    """Use one selected model/basis/evaluator path for both source owners."""
+    source_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, source_definition_ref
+    )
+    source_representation = load_variable_representation(store, source_representation_ref)
+    _reopen_definition_evidence(store, source_definition)
+    interface = load_program_graph_input_interface(store, model_interface_ref)
+    ports = tuple(port for port in interface.ports if port.port_id == port_id)
+    if len(ports) != 1:
+        raise _AssessmentRefusal("selected_model_port_not_unique")
+    (port,) = ports
+    target_definition_ref = port.semantic_definition_ref
+    target_representation_ref = port.representation_ref
+    profile_ref = port.binding_profile_ref
+    target_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, target_definition_ref
+    )
+    target_representation = load_variable_representation(store, target_representation_ref)
+    profile = validate_core_model_json_artifact(MeasurementBindingProfile, store, profile_ref)
+    basis = ScopedCorrespondenceBasis(
+        occurrence_ref=occurrence_ref,
+        source_definition_ref=source_definition_ref,
+        source_representation_ref=source_representation_ref,
+        source_definition_evidence_refs=source_definition.definition_evidence_refs,
+        model_interface_ref=SelectedVariableBindingRef.model_validate(
+            _selected_exact_ref(store, model_interface_ref).model_dump(mode="python")
+        ),
+        model_port_id=port_id,
+        target_definition_ref=target_definition_ref,
+        target_representation_ref=target_representation_ref,
+        binding_profile_ref=profile_ref,
+        scope=port.scope,
+    )
+    evaluation = evaluate_scoped_correspondence_basis(
+        basis=basis,
+        occurrence_ref=occurrence_ref,
+        occurrence=occurrence,
+        replayed_occurrence=replayed_occurrence,
+        source_selection=source_selection,
+        source_definition_ref=source_definition_ref,
+        source_definition=source_definition,
+        source_representation_ref=source_representation_ref,
+        source_representation=source_representation,
+        target_definition_ref=target_definition_ref,
+        target_definition=target_definition,
+        target_representation_ref=target_representation_ref,
+        target_representation=target_representation,
+        binding_profile_ref=profile_ref,
+        profile=profile,
+        model_interface_ref=basis.model_interface_ref,
+        model_port=port,
+    )
+    basis_ref = (
+        _persist_correspondence_basis(store, basis) if evaluation.status == "candidate" else None
+    )
+    return _result(
+        source_observation_id=occurrence.observation_id,
+        source_definition_ref=source_definition_ref,
+        source_representation_ref=source_representation_ref,
+        model_interface_ref=model_interface_ref,
+        model_port_id=port_id,
+        status=evaluation.status,
+        target_definition_ref=target_definition_ref,
+        target_representation_ref=target_representation_ref,
+        binding_profile_ref=profile_ref,
+        occurrence_ref=occurrence_ref,
+        correspondence_basis_ref=basis_ref,
+        recomputed_axes=evaluation.recomputed_axes,
+        optional_unknown_axes=evaluation.optional_unknown_axes,
+        limitation_codes=evaluation.limitation_codes,
+        refusal_codes=evaluation.refusal_codes,
+        semantic_correspondence=evaluation.semantic_correspondence,
+    )
+
+
 def assess_measurement_to_model_candidate(
     store: CoreJSONArtifactStore,
     overlay: CatalogAcquisitionOverlay,
@@ -362,25 +726,6 @@ def assess_measurement_to_model_candidate(
         observation = observation_row.observation
 
         _reopen_activation_evidence(store, projection, receipt_ref=receipt_ref, passport=passport)
-        source_definition = validate_core_model_json_artifact(
-            VariableSemanticDefinition, store, source_definition_ref
-        )
-        source_representation = load_variable_representation(store, source_representation_ref)
-        interface = load_program_graph_input_interface(store, model_interface_ref)
-        selected_ports = tuple(port for port in interface.ports if port.port_id == port_id)
-        if len(selected_ports) != 1:
-            raise _AssessmentRefusal("selected_model_port_not_unique")
-        port = selected_ports[0]
-        target_definition_ref = port.semantic_definition_ref
-        target_representation_ref = port.representation_ref
-        profile_ref = port.binding_profile_ref
-        target_definition = validate_core_model_json_artifact(
-            VariableSemanticDefinition, store, target_definition_ref
-        )
-        target_representation = load_variable_representation(store, target_representation_ref)
-        profile = validate_core_model_json_artifact(MeasurementBindingProfile, store, profile_ref)
-        _reopen_definition_evidence(store, source_definition)
-
         binding = passport.registration.field_binding
         expected_transform = (
             None if binding.unit_transform == "identity" else _resolve_fixed_unit_transform(binding)
@@ -397,77 +742,16 @@ def assess_measurement_to_model_candidate(
             expected_transform=expected_transform,
         )
         occurrence_ref = _persist_occurrence(store, replayed_occurrence)
-        occurrence = validate_core_model_json_artifact(
-            ScopedMeasurementOccurrence, store, occurrence_ref
-        )
-        basis = ScopedCorrespondenceBasis(
-            profile_id="measurement_to_model.same_definition.v1",
+        return _assess_measurement_occurrence(
+            store,
             occurrence_ref=occurrence_ref,
-            source_definition_ref=source_definition_ref,
-            source_representation_ref=source_representation_ref,
-            source_definition_evidence_refs=source_definition.definition_evidence_refs,
-            model_interface_ref=SelectedVariableBindingRef.model_validate(
-                _selected_exact_ref(store, model_interface_ref).model_dump(mode="json")
-            ),
-            model_port_id=port_id,
-            target_definition_ref=target_definition_ref,
-            target_representation_ref=target_representation_ref,
-            binding_profile_ref=profile_ref,
-            scope=port.scope,
-        )
-        evaluation = evaluate_scoped_correspondence_basis(
-            basis=basis,
-            occurrence_ref=occurrence_ref,
-            occurrence=occurrence,
+            occurrence=replayed_occurrence,
             replayed_occurrence=replayed_occurrence,
             source_selection=source_selection,
             source_definition_ref=source_definition_ref,
-            source_definition=source_definition,
-            source_representation_ref=source_representation_ref,
-            source_representation=source_representation,
-            target_definition_ref=target_definition_ref,
-            target_definition=target_definition,
-            target_representation_ref=target_representation_ref,
-            target_representation=target_representation,
-            binding_profile_ref=profile_ref,
-            profile=profile,
-            model_interface_ref=basis.model_interface_ref,
-            model_port=port,
-        )
-        if evaluation.status == "refused":
-            return _result(
-                source_observation_id=observation_id,
-                source_definition_ref=source_definition_ref,
-                source_representation_ref=source_representation_ref,
-                model_interface_ref=model_interface_ref,
-                model_port_id=port_id,
-                status="refused",
-                target_definition_ref=target_definition_ref,
-                target_representation_ref=target_representation_ref,
-                binding_profile_ref=profile_ref,
-                occurrence_ref=occurrence_ref,
-                recomputed_axes=evaluation.recomputed_axes,
-                optional_unknown_axes=evaluation.optional_unknown_axes,
-                refusal_codes=evaluation.refusal_codes,
-            )
-        basis_ref = _persist_correspondence_basis(store, basis)
-        return _result(
-            source_observation_id=observation_id,
-            source_definition_ref=source_definition_ref,
             source_representation_ref=source_representation_ref,
             model_interface_ref=model_interface_ref,
-            model_port_id=port_id,
-            status="candidate",
-            target_definition_ref=target_definition_ref,
-            target_representation_ref=target_representation_ref,
-            binding_profile_ref=profile_ref,
-            occurrence_ref=occurrence_ref,
-            correspondence_basis_ref=basis_ref,
-            recomputed_axes=evaluation.recomputed_axes,
-            optional_unknown_axes=evaluation.optional_unknown_axes,
-            limitation_codes=evaluation.limitation_codes,
-            refusal_codes=(),
-            semantic_correspondence="recomputed",
+            port_id=port_id,
         )
     except (_AssessmentRefusal, OverlayAdmissionError) as exc:
         refusal_code = (
@@ -897,7 +1181,7 @@ def _materialize_occurrence(
 
 def _persist_occurrence(
     store: CoreJSONArtifactStore,
-    occurrence: ScopedMeasurementOccurrence,
+    occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
 ) -> ScopedMeasurementOccurrenceRef:
     """Persist and immediately reopen the exact source occurrence and lineage."""
 
@@ -916,7 +1200,7 @@ def _persist_occurrence(
         return_selected_profile=True,
     )
     selected_ref = ScopedMeasurementOccurrenceRef.model_validate(raw_ref.model_dump(mode="json"))
-    loaded = validate_core_model_json_artifact(ScopedMeasurementOccurrence, store, selected_ref)
+    loaded = load_scoped_measurement_occurrence(store, selected_ref)
     if loaded != occurrence or store.get_manifest(selected_ref).inputs != inputs:
         raise _AssessmentRefusal("measurement_occurrence_readback_mismatch")
     return selected_ref

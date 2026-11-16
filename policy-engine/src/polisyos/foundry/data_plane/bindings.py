@@ -91,6 +91,8 @@ from polisyos.core.contracts import (
     ModelInputStepCoverage,
     ModelInputStepScope,
     ProgramGraphInputInvocation,
+    RegisteredSQLMeasurementOccurrence,
+    RegisteredSQLMeasurementSourceSelection,
     ReplayedDerivedMeasurementRole,
     ResolvedDerivedInput,
     ResolvedEntityVectorInput,
@@ -2166,14 +2168,13 @@ def prepare_input_bindings(
         ValueError: If existing source, rule or state owner validation refuses.
     """
     if resolved_binding_manifest_ref is not None:
-        if registered_sql_admission_ref is not None:
-            raise ValueError("foundry_input_bindings_semantic_sql_replay_not_established")
         return _prepare_semantic_input_bindings(
             store,
             data_snapshot_ref=data_snapshot_ref,
             registry_bundle_ref=registry_bundle_ref,
             resolved_binding_manifest_ref=resolved_binding_manifest_ref,
             rules=rules,
+            registered_sql_admission_ref=registered_sql_admission_ref,
         )
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     if _snapshot_requires_resolved_input_manifest(snapshot):
@@ -2370,6 +2371,9 @@ def build_input_bindings(
             if selected_method_input_steps
             else "1.4"
             if selected_method_inputs
+            else "1.3"
+            if resolved_binding_manifest_ref is not None
+            and registered_sql_admission_ref is not None
             else "1.2"
             if resolved_binding_manifest_ref is not None
             else "1.1"
@@ -2841,6 +2845,7 @@ def _prepare_semantic_input_bindings(
     registry_bundle_ref: ArtifactRef,
     resolved_binding_manifest_ref: ResolvedInputBindingManifestRef,
     rules: list[FoundryInputBindingRule] | None,
+    registered_sql_admission_ref: ArtifactRef | None = None,
     execute_request: ExecuteRequest | None = None,
     effective_step: int | None = None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
@@ -2854,10 +2859,31 @@ def _prepare_semantic_input_bindings(
     )
 
     manifest = load_resolved_input_binding_manifest(store, resolved_binding_manifest_ref)
-    selected_set, _ = load_model_input_obligation_set(
+    selected_set, members = load_model_input_obligation_set(
         store, manifest.model_input_obligation_set_ref
     )
     invocation = selected_set.invocation
+    if registered_sql_admission_ref is not None:
+        if (
+            manifest.schema_version != "1.0"
+            or not manifest.measurements
+            or manifest.derivations
+            or len(invocation.steps) != 1
+            or semantic_horizon_step is not None
+        ):
+            raise ValueError("foundry_input_bindings_semantic_sql_profile_not_established")
+        if any(
+            member.port.purpose != "initial_state" or member.port.carrier != "state_path"
+            for member in members
+        ):
+            raise ValueError("foundry_input_bindings_semantic_sql_profile_not_established")
+        snapshot = _load_data_snapshot(store, data_snapshot_ref)
+        _verify_registered_sql_transport(
+            store,
+            snapshot=snapshot,
+            snapshot_ref=data_snapshot_ref,
+            admission_ref=registered_sql_admission_ref,
+        )
     if expected_invocation is not None and invocation != expected_invocation:
         raise ValueError("foundry_input_bindings_semantic_invocation_mismatch")
     if historical_execution_ref is None:
@@ -2897,6 +2923,7 @@ def _prepare_semantic_input_bindings(
         registry_bundle_ref=registry_bundle_ref,
         resolved_binding_manifest_ref=resolved_binding_manifest_ref,
         rules=rules,
+        registered_sql_admission_ref=registered_sql_admission_ref,
         execute_request=execute_request,
         effective_step=effective_step,
         semantic_horizon_step=semantic_horizon_step,
@@ -2911,6 +2938,7 @@ def _prepare_semantic_input_binding_facts(
     registry_bundle_ref: ArtifactRef,
     resolved_binding_manifest_ref: ResolvedInputBindingManifestRef,
     rules: list[FoundryInputBindingRule] | None,
+    registered_sql_admission_ref: ArtifactRef | None = None,
     execute_request: ExecuteRequest | None = None,
     effective_step: int | None = None,
     semantic_horizon_step: SemanticHorizonStepContext | None = None,
@@ -3100,11 +3128,27 @@ def _prepare_semantic_input_binding_facts(
         occurrence, measurement_limits = _verify_scoped_measurement(
             store, selection, proofs[selection.binding_id], obligation
         )
-        role = selection.payload_occurrence_role()
-        if [edge for edge in payload_manifest.inputs if edge.role == role] != [
-            input_ref_from_artifact_ref(selection.selected_occurrence_ref, role=role)
-        ]:
-            raise ValueError("foundry_input_bindings_semantic_payload_occurrence_mismatch")
+        if isinstance(occurrence, RegisteredSQLMeasurementOccurrence):
+            source = occurrence.source_selection
+            if (
+                registered_sql_admission_ref is None
+                or artifact_ref_identity_key(source.registered_sql_admission_ref)
+                != artifact_ref_identity_key(registered_sql_admission_ref)
+                or artifact_ref_identity_key(source.snapshot_ref)
+                != artifact_ref_identity_key(data_snapshot_ref)
+                or artifact_ref_identity_key(source.payload_ref)
+                != artifact_ref_identity_key(snapshot.data_ref)
+                or source.source_path != selection.source_path
+            ):
+                raise ValueError("foundry_input_bindings_semantic_sql_source_mismatch")
+        else:
+            if registered_sql_admission_ref is not None:
+                raise ValueError("foundry_input_bindings_semantic_sql_source_mismatch")
+            role = selection.payload_occurrence_role()
+            if [edge for edge in payload_manifest.inputs if edge.role == role] != [
+                input_ref_from_artifact_ref(selection.selected_occurrence_ref, role=role)
+            ]:
+                raise ValueError("foundry_input_bindings_semantic_payload_occurrence_mismatch")
         raw = _resolve_source_path(payload, selection.source_path, missing=_MISSING)
         if (
             not isinstance(raw, int | float | Decimal)
@@ -3744,7 +3788,7 @@ def _verify_scoped_measurement(
     selection: ResolvedMeasurementInput,
     proof: ScopedCorrespondenceBasis,
     obligation: ModelInputObligation,
-) -> tuple[ScopedMeasurementOccurrence, tuple[str, ...]]:
+) -> tuple[ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence, tuple[str, ...]]:
     occurrence, replayed, source = _replay_selected_scoped_measurement(
         store, selection.selected_occurrence_ref
     )
@@ -3790,7 +3834,11 @@ def _verify_scoped_measurement(
 def _replay_selected_scoped_measurement(
     store: CoreJSONArtifactStore,
     occurrence_ref: ScopedMeasurementOccurrenceRef,
-) -> tuple[ScopedMeasurementOccurrence, ScopedMeasurementOccurrence, ScopedSourceSelection]:
+) -> tuple[
+    ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    ScopedSourceSelection | RegisteredSQLMeasurementSourceSelection,
+]:
     """Reopen and replay the exact admitted source, independent of output meaning."""
     try:
         occurrence, replayed, source = read_api.catalog.replay_selected_scoped_measurement_facts(
@@ -4899,8 +4947,6 @@ def reconcile_semantic_input_bindings(
         if semantic_horizon_step is not None:
             raise ValueError("foundry_input_bindings_semantic_manifest_required")
         return ()
-    if bindings.registered_sql_admission_ref is not None:
-        raise ValueError("foundry_input_bindings_semantic_sql_replay_not_established")
     core_store = resolve_verifiable_core_json_profile_reader(store)
     if core_store is None:
         raise ValueError("foundry_input_bindings_semantic_reader_not_established")
@@ -4910,6 +4956,7 @@ def reconcile_semantic_input_bindings(
         registry_bundle_ref=bindings.registry_bundle_ref,
         resolved_binding_manifest_ref=ref,
         rules=bindings.rules,
+        registered_sql_admission_ref=bindings.registered_sql_admission_ref,
         execute_request=execute_request,
         effective_step=effective_step,
         semantic_horizon_step=semantic_horizon_step,
@@ -4954,6 +5001,18 @@ def reconcile_semantic_input_bindings(
         or not verifier(state.state_ref).ok
     ):
         raise ValueError("foundry_input_bindings_semantic_state_replay_mismatch")
+    if bindings.registered_sql_admission_ref is not None:
+        _reconcile_registered_sql_bound_state(
+            core_store,
+            snapshot=prepared.snapshot,
+            payload=_load_binding_payload(core_store, prepared.snapshot),
+            slot_registry=load_registry_bundle_content(
+                core_store, bindings.registry_bundle_ref
+            ).slot_registry,
+            rules=bindings.rules,
+            bound_state_ref=state_ref,
+            lineage_inputs=expected_inputs[:-1],
+        )
     return (
         "semantic_input_use:candidate_simulation_input_only",
         *(f"semantic_input_limitation:{code}" for code in prepared.warnings),
@@ -4974,7 +5033,7 @@ def reconcile_explicit_initial_binding_slots(
 
     Args:
         store: Existing store containing the selected binding, data and state.
-        input_bindings_ref: Exact selected legacy no-SQL binding artifact.
+        input_bindings_ref: Exact selected legacy or SQL-only binding artifact.
         expected_state_paths: Slot IDs and their physical destinations from
             the calling model interface.
 
@@ -5009,7 +5068,7 @@ def _replay_explicit_initial_bindings(
         return _replay_method_predecessor_initial_bindings(
             store, input_bindings_ref, bindings, expected_state_paths
         )
-    if bindings.schema_version != "1.0":
+    if bindings.schema_version not in {"1.0", "1.1"}:
         raise ValueError("explicit_initial_binding_legacy_profile_required")
 
     source_refs = {
@@ -5018,9 +5077,19 @@ def _replay_explicit_initial_bindings(
     }
     _require_selected_binding_edges(
         store.get_manifest(input_bindings_ref),
-        {**source_refs, "artifact.bound_state_snapshot_ref": bindings.bound_state_snapshot_ref},
+        {
+            **source_refs,
+            "artifact.bound_state_snapshot_ref": bindings.bound_state_snapshot_ref,
+            **(
+                {"input.registered_sql_admission_ref": bindings.registered_sql_admission_ref}
+                if bindings.registered_sql_admission_ref is not None
+                else {}
+            ),
+        },
     )
     if _is_model_state_snapshot(store, bindings.bound_state_snapshot_ref):
+        if bindings.schema_version == "1.1":
+            raise ValueError("registered_sql_binding_replay_profile_not_established")
         snapshot = _load_data_snapshot(store, bindings.data_snapshot_ref)
         if bindings.rules or artifact_ref_identity_key(
             snapshot.data_ref
@@ -5053,6 +5122,24 @@ def _replay_explicit_initial_bindings(
     payload = _load_binding_payload(store, snapshot)
     slot_registry = load_registry_bundle_content(store, bindings.registry_bundle_ref).slot_registry
     state = load_state_snapshot(store, snapshot_ref=bindings.bound_state_snapshot_ref)
+    if bindings.registered_sql_admission_ref is not None:
+        _verify_registered_sql_transport(
+            store,
+            snapshot=snapshot,
+            snapshot_ref=bindings.data_snapshot_ref,
+            admission_ref=bindings.registered_sql_admission_ref,
+        )
+        _reconcile_registered_sql_bound_state(
+            store,
+            snapshot=snapshot,
+            payload=payload,
+            slot_registry=slot_registry,
+            rules=bindings.rules,
+            bound_state_ref=bindings.bound_state_snapshot_ref,
+            lineage_inputs=[
+                input_ref_from_artifact_ref(ref, role=role) for role, ref in source_refs.items()
+            ],
+        )
     _validate_rules(bindings.rules, slot_registry)
     supplied: list[_ExplicitInitialBinding] = []
     for slot_id, path in sorted(expected_state_paths.items()):

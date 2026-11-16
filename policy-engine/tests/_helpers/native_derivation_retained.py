@@ -91,6 +91,8 @@ def load_retained_native_source_fixture(
     base: Path,
     *,
     binding_id: str,
+    cost_profile_refs: tuple[artifacts.ArtifactRef, ...] | None = None,
+    original_purchase_ref: artifacts.ArtifactRef | None = None,
 ) -> SimpleNamespace:
     """Load exact historical inputs for a future explicitly configured fixture app.
 
@@ -105,7 +107,7 @@ def load_retained_native_source_fixture(
         connection.row_factory = sqlite3.Row
         rows = tuple(
             connection.execute(
-                "SELECT j.job_id, j.run_id, p.progress_json FROM control_jobs j "
+                "SELECT j.job_id, j.run_id, j.payload_ref, p.progress_json FROM control_jobs j "
                 "JOIN control_job_progress p ON p.job_id=j.job_id "
                 "WHERE j.job_kind='natural_language_run' AND j.state='completed'"
             )
@@ -184,6 +186,15 @@ def load_retained_native_source_fixture(
             and phase.prior_paid_input_admission is None
         ):
             original_purchases.append((candidate_ref, candidate))
+    if original_purchase_ref is not None:
+        selected_purchase = _selected_retained_ref(
+            store, original_purchase_ref, "runtime_quality.acquisition_route_loop_receipt"
+        )
+        original_purchases = [
+            row
+            for row in original_purchases
+            if artifact_ref_identity_key(row[0]) == artifact_ref_identity_key(selected_purchase)
+        ]
     if len(original_purchases) != 1:
         raise ValueError("retained_native_fixture_original_purchase_not_unique")
     terminal_ref, terminal = original_purchases[0]
@@ -195,15 +206,26 @@ def load_retained_native_source_fixture(
     ):
         raise ValueError("retained_native_fixture_quarantine_scope_mismatch")
 
-    cost_rows = tuple(
-        (ref, load_native_derivation_leaf_cost_profile(store, ref))
-        for ref in _selected_profiles(store, "runtime.quality.native_derivation_leaf_cost_profile")
-    )
-    cost_rows = tuple(
-        (ref, value)
-        for ref, value in cost_rows
-        if (value.scope.source_job_id, value.scope.run_id) == (source_job_id, run_id)
-    )
+    if cost_profile_refs is None:
+        cost_rows = tuple(
+            (ref, load_native_derivation_leaf_cost_profile(store, ref))
+            for ref in _selected_profiles(
+                store, "runtime.quality.native_derivation_leaf_cost_profile"
+            )
+        )
+        cost_rows = tuple(
+            (ref, value)
+            for ref, value in cost_rows
+            if (value.scope.source_job_id, value.scope.run_id) == (source_job_id, run_id)
+        )
+    else:
+        from tests._helpers.native_derivation_quotes import select_native_fixture_cost_profiles
+
+        cost_rows = select_native_fixture_cost_profiles(
+            store,
+            cost_profile_refs,
+            expected_source_actor=(tenant_id, cell_id, run_id, source_job_id),
+        )
     if not cost_rows:
         raise ValueError("retained_native_fixture_cost_inputs_missing")
     source_ref = cost_rows[0][1].scope.configured_port_source_ref
@@ -311,6 +333,7 @@ def load_retained_native_source_fixture(
         core_run_id=progress["core_run_id"],
         compiled=compiled,
         compiled_ref=compiled_ref,
+        source_payload_ref=rows[0]["payload_ref"],
         profile=profile,
         source=source,
         source_ref=source_ref,
@@ -322,6 +345,7 @@ def load_retained_native_source_fixture(
         deferral_ref=deferral_ref,
         epoch_history_root=epoch_history_root,
         configuration=configuration,
+        cost_profile_refs=tuple(ref for ref, _ in cost_rows),
         state={
             "holder": {
                 "metadata": {"native_authority": authority},
@@ -330,6 +354,61 @@ def load_retained_native_source_fixture(
             "appointments": [],
         },
     )
+
+
+@contextmanager
+def retained_native_demo_source_case(
+    base: Path,
+    output_root: Path,
+    *,
+    cost_profile_refs: tuple[artifacts.ArtifactRef, ...] | None = None,
+    original_purchase_ref: artifacts.ArtifactRef | None = None,
+) -> Iterator[SimpleNamespace]:
+    """Open fresh demo authentication over exact retained facts and existing keys.
+
+    This starts the controlled JWT/OPA fixtures, not a Runtime app or action.
+    It loads the original eight institutional keys; it issues no institutional
+    act and never substitutes an old grant for current authentication.
+    """
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import deployment_security
+    from tests._helpers.acquisition_served_history import _existing_key_config, _ExternalTrust
+
+    trust_root = output_root / "current-demo-trust"
+    trust_root.mkdir(parents=True)
+    trust = _ExternalTrust(trust_root)
+    try:
+        signers, identities = _existing_key_config(base / "trust", trust)
+
+        def deployment() -> Any:
+            return deployment_security.build_deployment_security(
+                deployment_security.DeploymentSecurityConfig.from_mapping(trust.raw)
+            )
+
+        claims = deployment().identity_provider.extract_user_claims(
+            trust.tokens["acquisition-operator"]
+        )
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            fixture = load_retained_native_source_fixture(
+                base,
+                binding_id="configured-native-two-leaf",
+                cost_profile_refs=cost_profile_refs,
+                original_purchase_ref=original_purchase_ref,
+            )
+        if (fixture.tenant_id, fixture.cell_id) != (claims.tenant_id, claims.cell_id):
+            raise ValueError("retained_native_demo_actor_scope_mismatch")
+        fixture.claims = claims
+        bind_retained_native_source_app(fixture, deployment_security_factory=deployment)
+        yield SimpleNamespace(
+            case=fixture,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+            claims=claims,
+            deployment=deployment,
+        )
+    finally:
+        trust.close()
 
 
 @dataclass(frozen=True, slots=True)

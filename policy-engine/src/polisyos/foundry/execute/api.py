@@ -10,7 +10,8 @@
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from hashlib import sha256
 from io import BytesIO
@@ -45,6 +46,7 @@ from polisyos.core.artifacts.protocol import (
     ArtifactStore,
     CoreJSONArtifactProfileReader,
     CoreJSONArtifactStore,
+    VerifiableArtifactReader,
 )
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -264,6 +266,15 @@ class ExecutionSourceBoundedReadRefusal(ExecutionSourceAdmissionRefusal):
         super().__init__(reason)
 
 
+class BoundedSemanticInputReader(CoreJSONArtifactProfileReader, VerifiableArtifactReader, Protocol):
+    """Read-only semantic replay whose actual transfers share the source budget."""
+
+    @property
+    def observed_source_bytes(self) -> int:
+        """Return the shared owner's cumulative measured transfer count."""
+        ...
+
+
 class BoundedExecutionSourceReader(Protocol):
     """Read source artifacts through a shared, aggregate-bounded Core reader.
 
@@ -307,6 +318,43 @@ class _BoundedExecutionSourceReadSession:
         if type(count) is not int or count < 0:
             raise TypeError("execution_source_reader_observed_bytes_invalid")
         self.observed_bytes += count
+
+    @contextmanager
+    def semantic_input_view(self) -> Iterator[BoundedSemanticInputReader]:
+        """Count the same owner's transfers while the canonical replayer runs."""
+        factory = getattr(self.reader, "semantic_input_reader", None)
+        if not callable(factory):
+            raise ExecutionSourceAdmissionRefusal(
+                "execution_source_semantic_bounded_reader_not_established"
+            )
+        view = factory()
+        before = view.observed_source_bytes
+        if (
+            type(before) is not int
+            or before < 0
+            or any(hasattr(view, name) for name in ("put_bytes", "put_json"))
+        ):
+            raise TypeError("execution_source_semantic_bounded_reader_contract_mismatch")
+        try:
+            yield view
+        except Exception as exc:
+            # Core/Catalog preserve refusal causes while wrapping their own
+            # semantic boundaries. Keep the actual shared-budget refusal typed.
+            cause: BaseException | None = exc
+            seen: set[int] = set()
+            while cause is not None and id(cause) not in seen:
+                seen.add(id(cause))
+                if isinstance(cause, ExecutionSourceBoundedReadRefusal):
+                    raise cause from cause.__cause__
+                cause = cause.__cause__ or (
+                    None if cause.__suppress_context__ else cause.__context__
+                )
+            raise
+        finally:
+            after = view.observed_source_bytes
+            if type(after) is not int or after < before:
+                raise TypeError("execution_source_semantic_bounded_usage_invalid")
+            self.add(after - before)
 
     def selected_manifest(self, ref: ArtifactRef) -> ArtifactManifest:
         manifest, observed_bytes = self.reader.read_selected_manifest(ref)
@@ -1071,69 +1119,77 @@ def _admit_execution_source(
         store, basis.input_bindings_ref, read_session=read_session
     )
     require_resolved_input_binding_manifest_edge(bindings, binding_manifest)
+    semantic_view = None
     if bindings.resolved_binding_manifest_ref is not None and read_session is not None:
-        raise ExecutionSourceAdmissionRefusal(
-            "execution_source_semantic_bounded_replay_not_established"
-        )
+        if bindings.schema_version != "1.3" or bindings.registered_sql_admission_ref is None:
+            raise ExecutionSourceAdmissionRefusal(
+                "execution_source_semantic_bounded_replay_not_established"
+            )
+        semantic_view = read_session.semantic_input_view()
     semantic_input_limitation_codes: tuple[str, ...] | None = None
-    if read_session is None:
-        if bindings.schema_version in {"1.4", "1.5"}:
-            from polisyos.foundry.data_plane.bindings import (
-                reconcile_selected_method_input_bindings,
-            )
+    if read_session is None or semantic_view is not None:
+        with nullcontext(store) if semantic_view is None else semantic_view as replay_store:
+            if bindings.schema_version in {"1.4", "1.5"}:
+                from polisyos.foundry.data_plane.bindings import (
+                    reconcile_selected_method_input_bindings,
+                )
 
-            selected_inputs = reconcile_selected_method_input_bindings(
-                store,
-                input_bindings_ref=basis.input_bindings_ref,
-                execute_request=basis.request,
-                effective_step=basis.effective_step,
-                semantic_horizon_step=semantic_step,
-                historical_execution_ref=simulation_result_ref,
-            )
-            semantic_notes = selected_inputs.notes
-            _reconcile_selected_method_dispatch_inputs(
-                store,
-                simulation_result_ref=simulation_result_ref,
-                basis=basis,
-                graph=graph,
-                records=selected_inputs.records,
-            )
-        else:
-            semantic_notes = reconcile_semantic_input_bindings(
-                store,
-                bindings,
-                execute_request=basis.request,
-                effective_step=basis.effective_step,
-                semantic_horizon_step=semantic_step,
-            )
-            if any(
-                source.source_kind == "method_output"
-                for node in graph.nodes
-                for source in (node.input_ports or {}).values()
+                selected_inputs = reconcile_selected_method_input_bindings(
+                    replay_store,
+                    input_bindings_ref=basis.input_bindings_ref,
+                    execute_request=basis.request,
+                    effective_step=basis.effective_step,
+                    semantic_horizon_step=semantic_step,
+                    historical_execution_ref=simulation_result_ref,
+                )
+                semantic_notes = selected_inputs.notes
+                _reconcile_selected_method_dispatch_inputs(
+                    replay_store,
+                    simulation_result_ref=simulation_result_ref,
+                    basis=basis,
+                    graph=graph,
+                    records=selected_inputs.records,
+                )
+            else:
+                semantic_notes = reconcile_semantic_input_bindings(
+                    replay_store,
+                    bindings,
+                    execute_request=basis.request,
+                    effective_step=basis.effective_step,
+                    semantic_horizon_step=semantic_step,
+                )
+                if any(
+                    source.source_kind == "method_output"
+                    for node in graph.nodes
+                    for source in (node.input_ports or {}).values()
+                ):
+                    bundle_ref, bundle = _load_execution_method_bundle(
+                        replay_store, simulation_result_ref=simulation_result_ref, basis=basis
+                    )
+                    _reconcile_method_output_transfers(
+                        replay_store, bundle_ref=bundle_ref, bundle=bundle, basis=basis, graph=graph
+                    )
+            historical_projection_notes = {
+                "semantic_input_limitation:method_historical_abi_completeness_not_established",
+                "semantic_input_limitation:method_historical_provider_completeness_not_established",
+                "semantic_input_limitation:method_provider_completeness_not_established",
+            }
+            if not all(
+                note in simulation_result.notes
+                for note in semantic_notes
+                if note not in historical_projection_notes
             ):
-                bundle_ref, bundle = _load_execution_method_bundle(
-                    store, simulation_result_ref=simulation_result_ref, basis=basis
+                raise ValueError("execution_source_semantic_input_limitations_missing")
+            prefix = "semantic_input_limitation:"
+            semantic_input_limitation_codes = tuple(
+                sorted(
+                    {
+                        note.removeprefix(prefix)
+                        for note in semantic_notes
+                        if note.startswith(prefix)
+                    }
                 )
-                _reconcile_method_output_transfers(
-                    store, bundle_ref=bundle_ref, bundle=bundle, basis=basis, graph=graph
-                )
-        historical_projection_notes = {
-            "semantic_input_limitation:method_historical_abi_completeness_not_established",
-            "semantic_input_limitation:method_historical_provider_completeness_not_established",
-            "semantic_input_limitation:method_provider_completeness_not_established",
-        }
-        if not all(
-            note in simulation_result.notes
-            for note in semantic_notes
-            if note not in historical_projection_notes
-        ):
-            raise ValueError("execution_source_semantic_input_limitations_missing")
-        prefix = "semantic_input_limitation:"
-        semantic_input_limitation_codes = tuple(
-            sorted(
-                {note.removeprefix(prefix) for note in semantic_notes if note.startswith(prefix)}
             )
-        )
     elif semantic_step is not None:
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     transport_edges = [

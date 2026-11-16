@@ -21,6 +21,7 @@ import {
   runCandidateSimulationAcquisitionHistoryEntryV3Schema,
   runCandidateSimulationAcquisitionHistoryEntryV4Schema,
   runCandidateSimulationAcquisitionHistoryEntryV5Schema,
+  runNativeGenericAcquisitionHistoryEntryV1Schema,
   runCandidateSourceCurrentProjectionSchema,
 } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
@@ -870,6 +871,116 @@ function AcquisitionHistorySection({
           ) : null}
           {acquisitionHistory.map((value, index) => {
             const row = asRecord(value);
+            if (
+              row?.schema_version ===
+              "policyos.runtime.run_native_generic_acquisition_history.v1"
+            ) {
+              const parsed =
+                runNativeGenericAcquisitionHistoryEntryV1Schema.safeParse(row);
+              if (
+                !projectionKnown ||
+                artifactStatus !== "resolved" ||
+                !parsed.success
+              ) {
+                return (
+                  <p
+                    key={index}
+                    data-testid={testIdPrefix + "-history-refused"}
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                    )}
+                  </p>
+                );
+              }
+              const native = parsed.data;
+              return (
+                <div
+                  key={index}
+                  className="space-y-1 border-t pt-2"
+                  data-testid={testIdPrefix + "-history-native"}
+                >
+                  <p className="font-medium">
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationTitle",
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationScope",
+                    )}
+                  </p>
+                  <p data-testid={testIdPrefix + "-native-boundary"}>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationBoundary",
+                      {
+                        purpose: native.authority_purpose,
+                        currentness: native.currentness_status,
+                        publication: String(native.publication_authority),
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                      route: native.route_id,
+                      generation: String(native.action_generation),
+                    })}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionOutcome", {
+                      outcome: native.terminal_outcome,
+                    })}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationSimulation",
+                      { status: native.simulation_status },
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationLimitations",
+                    )}
+                  </p>
+                  {native.limitations.map((limitation) => (
+                    <p key={limitation}>{limitation}</p>
+                  ))}
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationBlockers",
+                    )}
+                  </p>
+                  {native.simulation_authority_blockers.length > 0 ? (
+                    native.simulation_authority_blockers.map((blocker) => (
+                      <p key={blocker}>{blocker}</p>
+                    ))
+                  ) : (
+                    <p>
+                      {t(
+                        "pages.runs.candidateSimulation.modelInputContinuationNoBlockers",
+                      )}
+                    </p>
+                  )}
+                  <Link
+                    className="text-accent text-xs break-all underline"
+                    to={buildArtifactHref(native.n5_result_ref.artifact_id, {
+                      tab: "content",
+                      artifactRef: native.n5_result_ref,
+                    })}
+                    data-testid={testIdPrefix + "-native-result-ref"}
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationResultRef",
+                      { ref: native.n5_result_ref.artifact_id },
+                    )}
+                  </Link>
+                  <N5NumericalResultBody
+                    body={native.simulation_result_body}
+                    testIdPrefix={testIdPrefix + "-native-n5"}
+                  />
+                </div>
+              );
+            }
             if (
               row?.schema_version ===
               "policyos.runtime.run_candidate_simulation_acquisition_history.v5"

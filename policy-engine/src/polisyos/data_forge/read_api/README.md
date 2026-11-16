@@ -112,3 +112,23 @@ The runtime-safe facade exposes the existing publisher JSON reader plus
 constructors instead of recreating finalization law or treating generated hashes
 as effective source meaning. Historical binding projection rechecks full emitted
 values before any owner-generated occurrence field is projected.
+
+## Registered SQL candidate occurrence
+
+`catalog.materialize_registered_sql_measurement_occurrence(...)` reopens the
+selected SQL admission, capture, snapshot and payload through their existing
+owners, then binds one explicit flat row-and-column path to the selected
+definition, representation and declared scope. It persists the exact finite
+cell as `RegisteredSQLMeasurementOccurrence` schema 2.0; it does not aggregate,
+coerce or infer a missing value, and returns its typed occurrence reference.
+`assess_selected_measurement_to_model_candidate(...)` uses the same scoped
+correspondence law for the version-selected occurrence; it does not infer
+external authority from its SQL origin.
+Each selected JSON read is bounded to 4 MiB, depth 32 and 100,000 lexical nodes,
+with a 512 KiB manifest ceiling; stricter caller limits continue to apply.
+
+The occurrence is a candidate source projection. Meaning, release and scope
+remain consumer-asserted, source currentness remains `not_established`, and the
+artifact grants no external SQL rights or publication permission. The existing
+`ScopedMeasurementOccurrence` schema 1.0 remains a separate read shape and is
+not rewritten or promoted by this path.

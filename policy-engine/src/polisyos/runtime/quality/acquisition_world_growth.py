@@ -8021,7 +8021,7 @@ class AcquisitionWorldGrowthBridge:
     def _require_native_reentry_n4_producer(self, closure: VerifiedAcquisitionRouteClosure) -> None:
         """Check configuration for new N4 without contacting or pricing a provider."""
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig, _as_bool
+        from polisyos.scientist import GatewayLLMConfig, is_llm_simulation_mode_enabled
 
         payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
         models = payload.get("llm_models")
@@ -8032,9 +8032,7 @@ class AcquisitionWorldGrowthBridge:
             or not (models[0].strip())
         ):
             raise AcquisitionRouteClosureError("native_reentry_model_not_established")
-        if not _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False) and (
-            GatewayLLMConfig.from_env() is None
-        ):
+        if not is_llm_simulation_mode_enabled() and (GatewayLLMConfig.from_env() is None):
             raise AcquisitionRouteClosureError("native_reentry_n4_producer_unconfigured")
 
     def native_derivation_reentry_preflight(

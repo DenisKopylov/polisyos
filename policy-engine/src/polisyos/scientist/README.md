@@ -152,3 +152,14 @@ owner and the exact governance-monitor reader. It exposes no completion minting
 operation. Empty authority/environment slots retain typed nonreceipts.
 
 ## Candidate Protocol Facade\n\nThe root facade exports the existing typed `CritiqueReport` and `DraftResult` protocols for runtime consumers. Both are same-object aliases; a candidate protocol does not grant validation or publication authority.
+
+
+### Gateway producer configuration and reuse scope
+
+The existing Scientist root facade exposes `GatewayLLMConfig`,
+`gateway_cache_reuse_scope`, and `is_llm_simulation_mode_enabled` lazily. The
+configuration class and scope are the original factory objects; the private
+scope name remains compatible. Factory construction and Native preflight use
+the same live simulation-flag parser. Entering the scope binds the supplied
+producer ledger and cache-reuse guard; it does not issue action permission,
+settlement, source authority or publication rights.

@@ -513,3 +513,20 @@ original immutable completed source; missing ordinary selection is not a fallbac
 admission. The entry is not an HTTP mutation route, GET has no custody side
 effects, and recovered history retains candidate-only, currentness-not-established
 semantics rather than relabeling the original run as successful.
+
+
+## Native Generic acquisition history
+
+The existing candidate and Generic projections expose completed Native
+continuations as `RunNativeGenericAcquisitionHistoryEntryV1`, separate from
+NCM history. The reader joins the exact route/head, prepared, completed-N5 and
+completed-cycle records to their selected source and numerical result. All
+sixteen JSON refs require their exact kind, media type and manifest profile in
+both validation and generated clients. The numerical body is bound to its
+result ref and world hash; original request-profile version 4 or 5 is copied
+from the artifact, independently of execution schema version 3.
+
+This is a historical candidate observation. Currentness remains
+`not_established`, publication is false, and reading history does not renew an
+expired purchase, activate a source or grant current action permission. Missing
+or mismatched chain members refuse instead of borrowing an NCM source.

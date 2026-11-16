@@ -9600,12 +9600,12 @@ class ControlPlaneService(
             _ControlJobProducerIntent,
         )
         from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+        from polisyos.scientist import gateway_cache_reuse_scope
         from polisyos.scientist.orchestration.engine import (
             BudgetLedgerProducerRecord,
             BudgetMiddleware,
             ProducerBudgetObserver,
         )
-        from polisyos.scientist.orchestration.llm.factory import _gateway_cache_reuse_scope
 
         if (
             type(self) is not ControlPlaneService
@@ -9677,7 +9677,7 @@ class ControlPlaneService(
         validate_current_admission()
         with (
             store.producer_run_binding_scope(binding, control_job_attempt=source_job.attempt),
-            _gateway_cache_reuse_scope(
+            gateway_cache_reuse_scope(
                 authorizer=None,
                 principal=None,
                 context=None,

@@ -279,3 +279,84 @@ async def test_simulated_llm_mode_exercises_agent_json_contracts(monkeypatch):
     assert critique.verdict == "APPROVE"
     assert call_events
     assert {event["provider"] for event in call_events} == {"simulated_gateway"}
+
+
+def test_stable_scientist_facade_preserves_factory_object_identity() -> None:
+    """The public scope is the existing admission owner, not a wrapper copy."""
+    from polisyos import scientist
+    from polisyos.scientist.orchestration.llm import factory
+
+    assert scientist.GatewayLLMConfig is factory.GatewayLLMConfig
+    assert scientist.gateway_cache_reuse_scope is factory.gateway_cache_reuse_scope
+    assert scientist.gateway_cache_reuse_scope is factory._gateway_cache_reuse_scope
+    assert scientist.is_llm_simulation_mode_enabled is factory.is_llm_simulation_mode_enabled
+    before = factory._GATEWAY_CACHE_REUSE_SCOPE.get()
+    closed: list[bool] = []
+    with scientist.gateway_cache_reuse_scope(
+        authorizer=None,
+        principal=None,
+        context=None,
+        cache=None,
+        run_id="public-scope-identity-control",
+        settlement_store=object(),
+        reuse_guard=lambda operation: operation(),
+        on_close=closed.append,
+    ):
+        scope = factory._GATEWAY_CACHE_REUSE_SCOPE.get()
+        assert scope is not None and scope.state.active
+        assert scope.run_id == "public-scope-identity-control"
+    assert factory._GATEWAY_CACHE_REUSE_SCOPE.get() is before
+    assert not scope.state.active
+    assert closed == [True]
+
+
+@pytest.mark.parametrize(
+    ("flag", "expected"),
+    [
+        (None, False),
+        ("", False),
+        ("0", False),
+        ("false", False),
+        ("off", False),
+        ("unknown", False),
+        ("1", True),
+        ("true", True),
+        (" yes ", True),
+        ("ON", True),
+    ],
+)
+def test_simulation_flag_and_factory_share_current_environment_semantics(
+    monkeypatch: pytest.MonkeyPatch,
+    flag: str | None,
+    expected: bool,
+) -> None:
+    """A current environment value selects the same real or simulated client."""
+    from polisyos import scientist
+
+    if flag is None:
+        monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+    else:
+        monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", flag)
+    assert scientist.is_llm_simulation_mode_enabled() is expected
+    client = create_traced_gateway_client(
+        model_name="fixture-model",
+        config=GatewayLLMConfig(
+            base_url="https://fixture.invalid/v1", api_key="fixture-key", cache_maxsize=0
+        ),
+        tracer=_FakeTracer(),
+        metrics=_FakeMetrics(),
+    )
+    assert client is not None
+    expected_type = SimulatedGatewayLLMClient if expected else GatewayLLMClient
+    assert type(client.unwrap()) is expected_type
+
+
+def test_simulation_flag_is_not_frozen_by_lazy_facade_import(monkeypatch) -> None:
+    from polisyos import scientist
+
+    monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+    assert scientist.is_llm_simulation_mode_enabled() is False
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", " TRUE ")
+    assert scientist.is_llm_simulation_mode_enabled() is True
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+    assert scientist.is_llm_simulation_mode_enabled() is False

@@ -940,6 +940,94 @@ function parsedRunWithGenericCycleSimulation(
   return { ...run };
 }
 
+const nativeHistoryRefKinds = {
+  route_receipt_ref: "runtime_quality.acquisition_route_loop_receipt",
+  reentry_receipt_ref: "runtime_quality.acquisition_overlay_reentry_receipt",
+  source_compiled_ref: "runtime.compiled_recursive_generation_cycle",
+  pending_action_phase_ref: "runtime_quality.acquisition_route_phase_receipt",
+  native_world_checkpoint_ref:
+    "runtime_quality.acquisition_candidate_world_checkpoint",
+  native_input_collection_ref:
+    "runtime_quality.native_derivation_input_checkpoint",
+  original_generic_input_ref:
+    "runtime.quality.generic_cycle_simulation_n5_input",
+  original_profile_ref: "runtime.quality.generic_cycle_simulation_profile",
+  context_job_ref: "runtime.quality.cycle_substrate_context_job",
+  n4_source_ref: "runtime.generation_source_handoff",
+  n5_input_ref: "runtime.quality.generic_cycle_simulation_n5_input",
+  n5_execution_ref: "runtime.quality.generic_cycle_simulation_n5_execution",
+  n5_result_ref: "polisyos.runtime.joint_simulation_result",
+  prepared_checkpoint_ref: "runtime_quality.native_source_reentry_checkpoint",
+  n5_completed_checkpoint_ref:
+    "runtime_quality.native_source_reentry_checkpoint",
+  cycle_completed_checkpoint_ref:
+    "runtime_quality.native_source_reentry_checkpoint",
+} as const;
+
+function nativeGenericAcquisitionHistoryEntryFixture(): Record<
+  string,
+  unknown
+> {
+  const refFor = (kind: string, character: string) => {
+    const hash = "sha256:" + character.repeat(64);
+    return {
+      artifact_id: hash,
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: hash,
+    };
+  };
+  const refs: Record<string, Record<string, unknown>> = Object.fromEntries(
+    Object.entries(nativeHistoryRefKinds).map(([name, kind], index) => [
+      name,
+      refFor(kind, "0123456789abcdef"[index]!),
+    ]),
+  );
+  const resultRef = refs.n5_result_ref!;
+  const worldModelHash = "sha256:" + "6".repeat(64);
+  const genericResultBody = genericCycleSimulationProjection("run-1")
+    .n5_observations[0]!.simulation_result_body as Record<string, unknown>;
+
+  return {
+    schema_version:
+      "policyos.runtime.run_native_generic_acquisition_history.v1",
+    source_job_id: "source-job-1",
+    action_job_id: "action-job-2",
+    candidate_id: "candidate-native-1",
+    route_id: "sha256:" + "c".repeat(64),
+    action_generation: 3,
+    ...refs,
+    source_cycle_index: 4,
+    continued_cycle_index: 5,
+    original_profile_selection_ref: "sha256:" + "d".repeat(64),
+    current_profile_selection_ref: "sha256:" + "e".repeat(64),
+    world_model_record_content_hash: worldModelHash,
+    terminal_outcome: "reentry_completed",
+    n5_input_schema_version:
+      "policyos.runtime.generic_cycle_simulation_n5_input.v2",
+    request_profile_schema_version:
+      "policyos.runtime.generic_cycle_n5_request_profile.v5",
+    n5_execution_schema_version:
+      "policyos.runtime.generic_cycle_simulation_n5_execution.v3",
+    n5_owner_join_status: "resolved",
+    simulation_status: "joint_simulated",
+    simulation_authority_blockers: [],
+    simulation_result_body: {
+      ...genericResultBody,
+      artifact_ref: { ...resultRef },
+      selected_manifest_profile_sha256: resultRef.manifest_profile_sha256,
+      world_model_record_content_hash: worldModelHash,
+    },
+    limitations: [
+      "simulation_only_k_sim_not_world_evidence",
+      "historical_native_reentry_not_current_permission",
+    ],
+    currentness_status: "not_established",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+  };
+}
+
 function runWithJointParent(parent: unknown): Record<string, unknown> {
   const run = parsedRunWithGenericCycleSimulation();
   const projection = run.generic_cycle_simulation as Record<string, unknown>;
@@ -2116,10 +2204,10 @@ describe("OverviewTab", () => {
 
     const history = screen.getByTestId("overview-generic-acquisition-history");
     expect(history).toHaveTextContent(
-      "Persisted candidate history only. Currentness and publication authority are not established.",
+      "Persisted acquisition and continuation history only. Currentness and publication authority are not established.",
     );
     expect(history).toHaveTextContent(
-      "Some candidate acquisition history is unavailable in this view.",
+      "Some acquisition and continuation history is unavailable in this view.",
     );
     expect(history).toHaveTextContent(
       "Original evaluation: run run-original, job job-original, cycle 1",
@@ -2143,6 +2231,113 @@ describe("OverviewTab", () => {
       screen.getByTestId("overview-generic-acquisition-history-limitation"),
     ).toHaveTextContent("acquisition_action_history_incomplete");
   });
+
+  it("renders saved model-input continuation history without granting authority", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    Object.assign(run.generic_cycle_simulation as Record<string, unknown>, {
+      acquisition_history: [nativeGenericAcquisitionHistoryEntryFixture()],
+      acquisition_history_limitation_code: null,
+    });
+    overviewState.run = run;
+
+    renderWithProviders(<OverviewTab />);
+
+    const history = screen.getByTestId(
+      "overview-generic-acquisition-history-native",
+    );
+    expect(history).toHaveTextContent("Saved model-input continuation");
+    expect(history).toHaveTextContent(
+      "Authority purpose: candidate_observation_only; currentness: not_established; publication authority: false.",
+    );
+    expect(history).toHaveTextContent(
+      "Recorded simulation status: joint_simulated",
+    );
+    expect(history).toHaveTextContent(
+      "simulation_only_k_sim_not_world_evidence",
+    );
+    expect(history).toHaveTextContent(
+      "historical_native_reentry_not_current_permission",
+    );
+    expect(history).toHaveTextContent(
+      "No simulation authority blockers were recorded. This does not grant publication authority.",
+    );
+    expect(
+      screen.getByTestId("overview-generic-acquisition-native-result-ref"),
+    ).toHaveTextContent("Selected N5 result: sha256:" + "c".repeat(64));
+    const body = screen.getByTestId(
+      "overview-generic-acquisition-native-n5-result-body",
+    );
+    expect(body).toHaveTextContent("Outcome outcome-a: 0.75");
+    expect(history).not.toHaveTextContent("observed_admission: true");
+  });
+
+  it("renders listed simulation authority blockers on saved continuation history", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    const row = nativeGenericAcquisitionHistoryEntryFixture();
+    row.simulation_authority_blockers = ["publication_not_admitted"];
+    Object.assign(run.generic_cycle_simulation as Record<string, unknown>, {
+      acquisition_history: [row],
+      acquisition_history_limitation_code: null,
+    });
+    overviewState.run = run;
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-generic-acquisition-history-native"),
+    ).toHaveTextContent("publication_not_admitted");
+  });
+
+  const nativeHistoryCorruptions: Array<
+    [string, (row: Record<string, unknown>) => void]
+  > = [
+    [
+      "a malformed result body",
+      (row: Record<string, unknown>) => {
+        const body = row.simulation_result_body as Record<string, unknown>;
+        const horizon = body.horizon as Record<string, unknown>;
+        horizon.step = 0;
+      },
+    ],
+    [
+      "a result reference that differs from the body",
+      (row: Record<string, unknown>) => {
+        const resultRef = row.n5_result_ref as Record<string, unknown>;
+        resultRef.artifact_id = "sha256:" + "f".repeat(64);
+      },
+    ],
+    [
+      "a row claiming publication authority",
+      (row: Record<string, unknown>) => {
+        row.publication_authority = true;
+      },
+    ],
+  ];
+
+  it.each(nativeHistoryCorruptions)(
+    "withholds the model-input continuation result for %s",
+    (_reason, corrupt) => {
+      const run = parsedRunWithGenericCycleSimulation();
+      const row = nativeGenericAcquisitionHistoryEntryFixture();
+      corrupt(row);
+      Object.assign(run.generic_cycle_simulation as Record<string, unknown>, {
+        acquisition_history: [row],
+        acquisition_history_limitation_code: null,
+      });
+      overviewState.run = run;
+
+      renderWithProviders(<OverviewTab />);
+
+      expect(
+        screen.getByTestId("overview-generic-cycle-simulation-refused"),
+      ).toHaveTextContent("projection_version_binding_invalid");
+      expect(
+        screen.queryByTestId(
+          "overview-generic-acquisition-native-n5-result-body",
+        ),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it.each(["v4", "v5"] as const)(
     "renders the parent joint candidate with %s numerical qualification",
@@ -3292,7 +3487,7 @@ describe("candidate frontier history", () => {
       "overview-acquisition-history-limitation",
     );
     expect(limitation).toHaveTextContent(
-      "Some candidate acquisition history is unavailable in this view.",
+      "Some acquisition and continuation history is unavailable in this view.",
     );
     expect(limitation).not.toHaveTextContent(
       "acquisition_action_history_terminal_projection_unavailable",
@@ -3320,7 +3515,7 @@ describe("candidate frontier history", () => {
       "overview-acquisition-history-limitation",
     );
     expect(limitation).toHaveTextContent(
-      "Some candidate acquisition history is unavailable in this view.",
+      "Some acquisition and continuation history is unavailable in this view.",
     );
     expect(limitation).not.toHaveTextContent(
       "acquisition_action_history_terminal_projection_unavailable",

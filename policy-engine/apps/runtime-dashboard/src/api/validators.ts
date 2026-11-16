@@ -3231,6 +3231,7 @@ const runCandidateSimulationProjectionSchema = z
           runCandidateSimulationAcquisitionHistoryEntryV4Schema,
           runCandidateSimulationAcquisitionHistoryEntryV3Schema,
           runCandidateSimulationAcquisitionHistoryEntrySchema,
+          z.lazy(() => runNativeGenericAcquisitionHistoryEntryV1Schema),
         ]),
       )
       .default([]),
@@ -3521,6 +3522,143 @@ const runGenericCycleSimulationN5ResultBodySchema =
         });
       }
     });
+
+const nativeGenericAcquisitionHistoryRefSchema = <Kind extends string>(
+  kind: Kind,
+) =>
+  coreArtifactRefSchema.extend({
+    kind: z.literal(kind),
+    media_type: z.literal("application/json"),
+    manifest_profile_sha256: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  });
+
+export const runNativeGenericAcquisitionHistoryEntryV1Schema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_native_generic_acquisition_history.v1",
+    ),
+    source_job_id: z.string().min(1),
+    action_job_id: z.string().min(1),
+    candidate_id: z.string().min(1),
+    route_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    action_generation: z.number().int().positive(),
+    route_receipt_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_route_loop_receipt",
+    ),
+    reentry_receipt_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_overlay_reentry_receipt",
+    ),
+    source_compiled_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.compiled_recursive_generation_cycle",
+    ),
+    pending_action_phase_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    native_world_checkpoint_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_candidate_world_checkpoint",
+    ),
+    native_input_collection_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.native_derivation_input_checkpoint",
+    ),
+    original_generic_input_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.quality.generic_cycle_simulation_n5_input",
+    ),
+    original_profile_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.quality.generic_cycle_simulation_profile",
+    ),
+    context_job_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.quality.cycle_substrate_context_job",
+    ),
+    n4_source_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.generation_source_handoff",
+    ),
+    n5_input_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.quality.generic_cycle_simulation_n5_input",
+    ),
+    n5_execution_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.quality.generic_cycle_simulation_n5_execution",
+    ),
+    n5_result_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "polisyos.runtime.joint_simulation_result",
+    ),
+    prepared_checkpoint_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.native_source_reentry_checkpoint",
+    ),
+    n5_completed_checkpoint_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.native_source_reentry_checkpoint",
+    ),
+    cycle_completed_checkpoint_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.native_source_reentry_checkpoint",
+    ),
+    source_cycle_index: z.number().int().nonnegative(),
+    continued_cycle_index: z.number().int().nonnegative(),
+    original_profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    current_profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    world_model_record_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    terminal_outcome: z.literal("reentry_completed"),
+    n5_input_schema_version: z.literal(
+      "policyos.runtime.generic_cycle_simulation_n5_input.v2",
+    ),
+    request_profile_schema_version: z.enum([
+      "policyos.runtime.generic_cycle_n5_request_profile.v4",
+      "policyos.runtime.generic_cycle_n5_request_profile.v5",
+    ]),
+    n5_execution_schema_version: z.literal(
+      "policyos.runtime.generic_cycle_simulation_n5_execution.v3",
+    ),
+    n5_owner_join_status: z.literal("resolved"),
+    simulation_status: z.literal("joint_simulated"),
+    simulation_authority_blockers: z.array(z.string().min(1)),
+    simulation_result_body: runGenericCycleSimulationN5ResultBodySchema,
+    limitations: z.array(z.string().min(1)).min(2),
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((row, context) => {
+    if (row.continued_cycle_index <= row.source_cycle_index) {
+      context.addIssue({
+        code: "custom",
+        path: ["continued_cycle_index"],
+        message: "native_generic_history_cycle_order_invalid",
+      });
+    }
+    if (
+      !sameCoreArtifactRefView(
+        row.simulation_result_body.artifact_ref,
+        row.n5_result_ref,
+      ) ||
+      row.simulation_result_body.world_model_record_content_hash !==
+        row.world_model_record_content_hash
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["simulation_result_body"],
+        message: "native_generic_history_result_body_binding_invalid",
+      });
+    }
+    const requiredLimitations = [
+      "simulation_only_k_sim_not_world_evidence",
+      "historical_native_reentry_not_current_permission",
+    ];
+    if (
+      new Set(row.limitations).size !== row.limitations.length ||
+      requiredLimitations.some(
+        (limitation) => !row.limitations.includes(limitation),
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["limitations"],
+        message: "native_generic_history_limitations_incomplete",
+      });
+    }
+  });
+
+export type RunNativeGenericAcquisitionHistoryEntryV1View = z.output<
+  typeof runNativeGenericAcquisitionHistoryEntryV1Schema
+>;
 
 const runModelInputUseActionSelectorSchema = z
   .object({
@@ -4858,6 +4996,7 @@ const runGenericCycleSimulationProjectionFields = {
         runCandidateSimulationAcquisitionHistoryEntryV4Schema,
         runCandidateSimulationAcquisitionHistoryEntryV3Schema,
         runCandidateSimulationAcquisitionHistoryEntrySchema,
+        runNativeGenericAcquisitionHistoryEntryV1Schema,
       ]),
     )
     .nullable()

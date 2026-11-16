@@ -235,10 +235,7 @@ def test_retained_epoch_policy_reconciles_a_validly_signed_policy_binding(
     assert _stored_bytes(fixture.store) == before
 
 
-@pytest.mark.parametrize("status", ["expired", "revoked"])
-def test_readable_epoch_policy_never_renews_an_expired_or_revoked_current_mandate(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: str
-) -> None:
+def _old_mandate_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: str) -> None:
     from datetime import UTC, datetime, timedelta
 
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
@@ -328,11 +325,53 @@ def test_readable_epoch_policy_never_renews_an_expired_or_revoked_current_mandat
         )
         assert len(matches) == 1
         refs.append(matches[0])
-    before = _stored_bytes(fixture.store)
-    assert retained.load_retained_native_epoch_policy(fixture, selection)
     continuation = retained.RetainedNativeAdmissionSelection(
         selection.epoch_admission_evidence_ref, selection.epoch_public_key_path, refs[0], refs[1]
     )
+    fixture.store.put_bytes(
+        b'{"limitation":"fixture disconfirming information"}',
+        artifacts.ArtifactWriteOptions(
+            kind="test.acquisition.disconfirming", media_type="application/json"
+        ),
+    )
+    fixture.terminal = SimpleNamespace(route_id="sha256:" + "a" * 64)
+    return fixture, selection, continuation, key_root
+
+
+@pytest.mark.parametrize("status", ["expired", "revoked"])
+def test_readable_epoch_policy_never_renews_an_expired_or_revoked_current_mandate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: str
+) -> None:
+    fixture, selection, continuation, key_root = _old_mandate_fixture(tmp_path, monkeypatch, status)
+    before = _stored_bytes(fixture.store)
+    assert retained.load_retained_native_epoch_policy(fixture, selection)
+    with pytest.raises(ValueError, match="retained_native_continuation_mandate_not_current"):
+        retained.load_retained_native_admission_checkpoint(
+            fixture, continuation, institution_key_root=key_root
+        )
+    assert _stored_bytes(fixture.store) == before
+
+
+def test_post_outcome_checkpoint_reads_expired_signed_inputs_without_renewing_them(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fixture, _selection, continuation, key_root = _old_mandate_fixture(
+        tmp_path, monkeypatch, "expired"
+    )
+    before = _stored_bytes(fixture.store)
+
+    def signing_forbidden(*args, **kwargs):
+        raise AssertionError("historical checkpoint reads must not sign")
+
+    monkeypatch.setattr(artifacts.Ed25519Signer, "sign", signing_forbidden)
+    checkpoint = retained.load_retained_native_action_resume_checkpoint(
+        fixture, continuation, institution_key_root=key_root
+    )
+    assert checkpoint.action_job_id == "old-admission-job"
+    assert checkpoint.mandate_slot["delegation_contract_ref"] == str(
+        continuation.delegation_contract_ref.artifact_id
+    )
+    # The historical loader supplies configuration, never a current-use grant.
     with pytest.raises(ValueError, match="retained_native_continuation_mandate_not_current"):
         retained.load_retained_native_admission_checkpoint(
             fixture, continuation, institution_key_root=key_root
@@ -357,3 +396,330 @@ def test_epoch_only_selection_cannot_be_combined_with_a_whole_current_continuati
             continuation_selection=object(),
             epoch_policy_selection=object(),
         )
+
+
+def _resume_payload_fixture(tmp_path: Path):
+    """Build real owned payload/SQL locators, without claiming action admission."""
+    from polisyos.core import canon
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.control.job_scope_admission import (
+        ControlJobScopeAdmissionMixin,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+    fixture = SimpleNamespace(
+        tenant_id="tenant-resume", cell_id="cell-resume", control_run_id="run-resume"
+    )
+    claims = SimpleNamespace(tenant_id=fixture.tenant_id, cell_id=fixture.cell_id)
+    route_id = "sha256:" + "a" * 64
+    request = {
+        "route_projection_hash": "sha256:" + "b" * 64,
+        "planner_report_hash": "sha256:" + "c" * 64,
+        "replay_pins": {
+            "source_job_id": "source-job",
+            "compiled_ref": "sha256:" + "d" * 64,
+            "compiled_content_hash": "sha256:" + "e" * 64,
+            "terminal_event_id": "source-terminal",
+            "design_problem_ref": "sha256:" + "f" * 64,
+            "cost_basis_hash": "sha256:" + "1" * 64,
+        },
+        "idempotency_key": "same-existing-admission",
+    }
+    payload = {
+        "tenant_id": fixture.tenant_id,
+        "cell_id": fixture.cell_id,
+        "run_id": fixture.control_run_id,
+        "route_id": route_id,
+        "request": request,
+    }
+    store = artifacts.FileSystemCAS(tmp_path / "cas").for_tenant(fixture.tenant_id, fixture.cell_id)
+    with tenant_scope(None, tenant_id=fixture.tenant_id, cell_id=fixture.cell_id):
+        reference = store.put_bytes(
+            canon.to_canonical_bytes(payload),
+            artifacts.ArtifactWriteOptions(
+                kind="runtime.control_job_payload.acquisition",
+                media_type="application/json",
+                canon=artifacts.CanonInfo.from_spec(canon.CanonSpec()),
+            ),
+        )
+    database = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    job = database.create_job(
+        job_id="same-existing-job",
+        kind="acquisition",
+        run_id=fixture.control_run_id,
+        pipeline_id=None,
+        requested_execution_profile="dev",
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=str(reference.artifact_id),
+        submitted_by="fixture-mechanics-only",
+    )
+    control = ControlJobScopeAdmissionMixin()
+    control._artifact_store = store
+    control._control_store = database
+    checkpoint = SimpleNamespace(
+        action_job_id=job.job_id,
+        mandate_slot={"route_id": route_id},
+        human_decision_record_ref=artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate("sha256:" + "2" * 64),
+            kind="runtime_quality.agent_action_human_decision",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "3" * 64,
+        ),
+    )
+    return fixture, checkpoint, claims, control
+
+
+def test_resume_bootstrap_reads_actual_owned_payload_and_same_job_without_leasing(tmp_path: Path):
+    from polisyos.core.security.tenant_context import (
+        clear_tenant_context,
+        get_current_tenant_id_or_none,
+    )
+
+    fixture, checkpoint, claims, control = _resume_payload_fixture(tmp_path)
+    before = _stored_bytes(control._artifact_store)
+    original = control._control_store.get_job(checkpoint.action_job_id)
+    with clear_tenant_context():
+        result = retained.read_retained_native_action_resume_inputs(
+            fixture,
+            checkpoint,
+            claims=claims,
+            control=control,
+            idempotency_key="same-existing-admission",
+        )
+        assert get_current_tenant_id_or_none() is None
+    assert result.job == original
+    assert result.request.idempotency_key == "same-existing-admission"
+    assert result.payload_ref == original.payload_ref
+    assert control._control_store.get_job(checkpoint.action_job_id) == original
+    assert _stored_bytes(control._artifact_store) == before
+
+
+@pytest.mark.parametrize(
+    "mismatch", ["claims", "cas_owner", "cas_ambient_owner", "idempotency", "job", "route"]
+)
+def test_resume_bootstrap_refuses_foreign_or_different_stored_inputs(tmp_path: Path, mismatch: str):
+    from polisyos.core.security.tenant_context import (
+        clear_tenant_context,
+        get_current_tenant_id_or_none,
+    )
+
+    fixture, checkpoint, claims, control = _resume_payload_fixture(tmp_path)
+    before = _stored_bytes(control._artifact_store)
+    key = "same-existing-admission"
+    expected = ValueError
+    code = "retained_native_resume_payload_scope_mismatch"
+    if mismatch == "claims":
+        claims.tenant_id = "foreign-tenant"
+        code = "retained_native_resume_claim_scope_mismatch"
+    elif mismatch in {"cas_owner", "cas_ambient_owner"}:
+        fixture.tenant_id = claims.tenant_id = "foreign-tenant"
+        if mismatch == "cas_ambient_owner":
+            control._artifact_store = artifacts.FileSystemCAS(
+                tmp_path / "cas", ownership_enforced=True
+            )
+            expected = artifacts.ArtifactOwnershipError
+            code = None
+    elif mismatch == "idempotency":
+        key = "another-admission"
+        code = "retained_native_resume_idempotency_mismatch"
+    elif mismatch == "job":
+        checkpoint.action_job_id = "missing-job"
+        code = "retained_native_resume_job_missing"
+    else:
+        checkpoint.mandate_slot["route_id"] = "sha256:" + "4" * 64
+    with clear_tenant_context():
+        with pytest.raises(expected) as refusal:
+            retained.read_retained_native_action_resume_inputs(
+                fixture, checkpoint, claims=claims, control=control, idempotency_key=key
+            )
+        if code is not None:
+            assert refusal.value.args == (code,)
+        assert get_current_tenant_id_or_none() is None
+    assert _stored_bytes(control._artifact_store) == before
+
+
+def test_resume_effect_guard_repeatedly_refuses_actual_n4_and_new_activation_before_body():
+    import inspect
+    import sys
+
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+
+    assert sys.monitoring.get_tool(5) is None
+    with retained.forbid_retained_native_resume_effects():
+        for _ in range(2):
+            pending = N4GenerationPort.__call__(None, None, cycle_index=0)
+            with pytest.raises(
+                AssertionError,
+                match=r"^retained_native_resume_forbidden_effect:N4GenerationPort\.__call__$",
+            ):
+                pending.send(None)
+            pending.close()
+        for function in (
+            AcquisitionWorldGrowthBridge._admit_stored_attempt,
+            artifacts.Ed25519Signer.sign,
+        ):
+            arguments = {
+                name: None
+                for name, parameter in inspect.signature(function).parameters.items()
+                if parameter.default is inspect.Parameter.empty
+            }
+            with pytest.raises(AssertionError, match=r"^retained_native_resume_forbidden_effect:"):
+                function(**arguments)
+    assert sys.monitoring.get_tool(5) is None
+    assert sys.monitoring.get_events(5) == 0
+
+
+def test_resume_effect_guard_never_takes_an_existing_monitoring_slot():
+    import sys
+
+    assert sys.monitoring.get_tool(5) is None
+    sys.monitoring.use_tool_id(5, "another-observer")
+    try:
+        with (
+            pytest.raises(RuntimeError, match="retained_native_resume_monitoring_slot_occupied"),
+            retained.forbid_retained_native_resume_effects(),
+        ):
+            pytest.fail("occupied slot must refuse entry")
+        assert sys.monitoring.get_tool(5) == "another-observer"
+    finally:
+        sys.monitoring.free_tool_id(5)
+
+
+def test_resume_requires_existing_selection_and_never_changes_its_validity():
+    from tests.integration.runtime_quality.test_native_derivation_acquisition_served import (
+        assert_retained_native_paid_input_admission,
+    )
+
+    common = {
+        "base": None,
+        "output_root": None,
+        "monkeypatch": None,
+        "transport_calls": [],
+        "semantic_kernel_entries": [],
+    }
+    with pytest.raises(ValueError, match="retained_native_resume_current_selection_required"):
+        assert_retained_native_paid_input_admission(**common, resume_existing_action=True)
+    with pytest.raises(ValueError, match="retained_native_validity_cannot_change_existing_acts"):
+        assert_retained_native_paid_input_admission(
+            **common, continuation_selection=object(), authority_valid_for_seconds=1200
+        )
+
+
+@pytest.mark.parametrize("seconds", [599, 3601, True])
+def test_new_fixture_validity_window_is_bounded_before_any_institutional_effect(seconds):
+    from tests.integration.runtime_quality.test_native_derivation_acquisition_served import (
+        _run_signed_native_leaf_action,
+    )
+
+    with pytest.raises(ValueError, match="native_fixture_authority_window_out_of_bounds"):
+        _run_signed_native_leaf_action(
+            served=None,
+            trust=None,
+            signers=None,
+            identities=None,
+            institution_key_root=None,
+            route_id=None,
+            idempotency_key=None,
+            authority_valid_for_seconds=seconds,
+        )
+
+
+def _resume_assertion_inputs(tmp_path: Path):
+    """Exercise assertion mechanics, not receipt/event authority verification."""
+    from dataclasses import replace
+
+    from polisyos.core import canon
+
+    fixture, _checkpoint, claims, control = _resume_payload_fixture(tmp_path)
+    options = artifacts.ArtifactWriteOptions(
+        kind="runtime_quality.acquisition_route_phase_receipt",
+        media_type="application/json",
+        canon=artifacts.CanonInfo.from_spec(canon.CanonSpec()),
+    )
+    with retained.retained_native_owner_scope(fixture, claims):
+        reference = control._artifact_store.put_bytes(
+            b'{"assertion_fixture":"selected"}', options, return_selected_profile=True
+        )
+        competing = control._artifact_store.put_bytes(
+            control._artifact_store.get_bytes(reference),
+            artifacts.ArtifactWriteOptions(
+                kind="test.native.competing_profile",
+                media_type="application/json",
+                canon=options.canon,
+            ),
+            return_selected_profile=True,
+        )
+    # These SQL rows deliberately carry no source/PA2 claim. The real caller
+    # obtains its phase chain from AcquisitionRoutePhaseSink.current_action_outcome.
+    before = control._control_store.advance_acquisition_action_head(
+        tenant_id=fixture.tenant_id,
+        cell_id=fixture.cell_id,
+        run_id=fixture.control_run_id,
+        source_job_id="source-job",
+        route_id="sha256:" + "a" * 64,
+        action_generation=2,
+        expected_head_generation=0,
+        receipt_ref=str(reference.artifact_id),
+        receipt_sha256=str(reference.artifact_id),
+        durable_event_id="assertion-only-event",
+        coarse_phase="executing",
+        receipt_phase="outcome_selected",
+        recovery_state="none",
+        job_id="same-existing-job",
+        predecessor_receipt_ref=None,
+        receipt_manifest_profile_sha256=reference.manifest_profile_sha256,
+    )
+    outcome = SimpleNamespace(
+        head=replace(before, head_generation=5, receipt_phase="terminal"),
+        phase_chain=(SimpleNamespace(receipt_ref=str(reference.artifact_id)),),
+    )
+    return fixture, claims, control, before, reference, competing, outcome
+
+
+def test_resume_assertion_preserves_exact_selected_ancestor(tmp_path: Path):
+    fixture, claims, control, before, reference, _competing, outcome = _resume_assertion_inputs(
+        tmp_path
+    )
+    with retained.retained_native_owner_scope(fixture, claims):
+        retained.require_retained_native_resume_descendant(
+            store=control._artifact_store,
+            control_store=control._control_store,
+            before_head=before,
+            before_ref=reference,
+            outcome=outcome,
+        )
+
+
+@pytest.mark.parametrize("change", ["job", "generation", "foreign_chain", "selected_profile"])
+def test_resume_assertion_refuses_another_job_or_non_descendant(tmp_path: Path, change: str):
+    from dataclasses import replace
+
+    fixture, claims, control, before, reference, competing, outcome = _resume_assertion_inputs(
+        tmp_path
+    )
+    code = "retained_native_resume_action_identity_changed"
+    if change == "job":
+        outcome.head = replace(outcome.head, job_id="another-same-route-job")
+    elif change == "generation":
+        outcome.head = replace(outcome.head, action_generation=before.action_generation + 1)
+    elif change == "foreign_chain":
+        outcome.phase_chain = (SimpleNamespace(receipt_ref="sha256:" + "5" * 64),)
+        code = "retained_native_resume_selected_ancestor_missing"
+    else:
+        assert competing.artifact_id == reference.artifact_id
+        assert competing.manifest_profile_sha256 != reference.manifest_profile_sha256
+        reference = competing
+        code = "retained_native_resume_ancestor_profile_changed"
+    with retained.retained_native_owner_scope(fixture, claims):
+        with pytest.raises(ValueError) as refusal:
+            retained.require_retained_native_resume_descendant(
+                store=control._artifact_store,
+                control_store=control._control_store,
+                before_head=before,
+                before_ref=reference,
+                outcome=outcome,
+            )
+        assert refusal.value.args == (code,)

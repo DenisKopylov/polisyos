@@ -88,6 +88,7 @@ if TYPE_CHECKING:
         CandidateExperimentEvaluationPreflight,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.acquisition_planner import _N7ConfiguredCandidatePortSource
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
         _VerifiedCurrentCandidateExperimentReentryAction,
@@ -7111,6 +7112,134 @@ class AcquisitionWorldGrowthBridge:
         ):
             raise AcquisitionRouteClosureError("native_custody_reentry_selected_world_mismatch")
 
+    def _native_derivation_reentry_source_refs(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> tuple[
+        _N7ConfiguredCandidatePortSource,
+        artifacts.ArtifactRef,
+        artifacts.ArtifactRef,
+    ]:
+        """Read the selected source family's historical context without new authority.
+
+        The route owner has already replayed its configured N4/N5 source. This
+        consumer keeps that exact family, profile and cycle binding, and uses
+        the canonical context owner to reopen its selected historical bytes.
+        A Generic source cannot borrow a candidate-NCM context or vice versa.
+        """
+        from polisyos.runtime.quality.acquisition_planner import (
+            _n7_load_configured_candidate_port_source,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_design_problem_ref,
+        )
+
+        scope = closure.native_derivation_leaf_scope
+        if scope is None:
+            raise AcquisitionRouteClosureError("native_derivation_reentry_source_missing")
+        try:
+            source = _n7_load_configured_candidate_port_source(
+                self.artifact_store, scope.configured_port_source_ref
+            )
+            cycle = closure.source_cycle
+            simulation = cycle.simulation
+            if (
+                (source.tenant_id, source.cell_id, source.run_id, source.source_job_id)
+                != (closure.tenant_id, closure.cell_id, closure.run_id, closure.source_job_id)
+                or source.source_generation_run_id != closure.generation_run.run_id
+                or source.cycle_index != cycle.cycle_index
+                or source.candidate_id != cycle.selected_candidate_ref
+                or source.candidate_content_hash != cycle.selected_candidate_content_hash
+                or source.design_problem_basis_ref
+                != (cycle.design_problem_basis_ref or cycle.design_problem_ref)
+            ):
+                raise AcquisitionRouteClosureError("native_derivation_reentry_source_mismatch")
+            generic = (
+                source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3"
+            )
+            candidate_n4 = simulation.diagnostics.get("candidate_simulation_n4_source_selected_ref")
+            if generic:
+                context_ref = simulation.generic_context_job_ref
+                n4_ref = simulation.generic_n4_source_ref
+                foreign_family = (
+                    simulation.candidate_simulation_n4_source_ref,
+                    simulation.candidate_simulation_context_job_ref,
+                    simulation.candidate_simulation_n5_input_ref,
+                    simulation.candidate_simulation_profile_config_ref,
+                    simulation.candidate_simulation_profile_selection_ref,
+                    candidate_n4,
+                )
+            else:
+                context_ref = simulation.candidate_simulation_context_job_ref
+                declared_n4 = simulation.candidate_simulation_n4_source_ref
+                diagnostic_n4 = (
+                    artifacts.ArtifactRef.model_validate(candidate_n4)
+                    if candidate_n4 is not None
+                    else None
+                )
+                if (
+                    declared_n4 is not None
+                    and diagnostic_n4 is not None
+                    and _native_derivation_ref_key(declared_n4)
+                    != _native_derivation_ref_key(diagnostic_n4)
+                ):
+                    raise AcquisitionRouteClosureError(
+                        "native_derivation_reentry_selected_refs_mismatch"
+                    )
+                n4_ref = (
+                    declared_n4
+                    if declared_n4 is not None
+                    else diagnostic_n4
+                    if diagnostic_n4 is not None
+                    else source.n4_source_ref
+                )
+                foreign_family = (
+                    simulation.generic_context_job_ref,
+                    simulation.generic_n4_source_ref,
+                    simulation.generic_profile_ref,
+                    simulation.generic_profile_selection_ref,
+                    simulation.generic_n4_child_profile_family_ref,
+                    simulation.generic_n4_child_profile_set_ref,
+                    simulation.generic_n5_input_ref,
+                    simulation.generic_n5_execution_ref,
+                )
+            if any(ref is not None for ref in foreign_family):
+                raise AcquisitionRouteClosureError("native_derivation_reentry_source_family_mixed")
+            if context_ref is None or n4_ref is None:
+                raise AcquisitionRouteClosureError(
+                    "native_derivation_reentry_selected_refs_missing"
+                )
+            if _native_derivation_ref_key(context_ref) != _native_derivation_ref_key(
+                source.context_job_ref
+            ) or _native_derivation_ref_key(n4_ref) != _native_derivation_ref_key(
+                source.n4_source_ref
+            ):
+                raise AcquisitionRouteClosureError(
+                    "native_derivation_reentry_selected_refs_mismatch"
+                )
+            CycleSubstrateContextArtifactOwner(
+                store=self.artifact_store
+            ).resolve_historical_job_artifact(
+                context_ref,
+                problem=closure.design_problem_basis,
+                expected_design_problem_ref=cycle_job_design_problem_ref(
+                    closure.design_problem_basis
+                ),
+                expected_job_id=closure.source_job_id,
+                expected_run_id=closure.run_id,
+                expected_tenant_id=closure.tenant_id,
+                expected_cell_id=closure.cell_id,
+            )
+            return source, context_ref, n4_ref
+        except AcquisitionRouteClosureError:
+            raise
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            artifacts.raise_artifact_read_access_error(exc)
+            raise AcquisitionRouteClosureError(
+                "native_derivation_reentry_source_not_established"
+            ) from exc
+
     def resume(
         self,
         closure: VerifiedAcquisitionRouteClosure,
@@ -7175,32 +7304,9 @@ class AcquisitionWorldGrowthBridge:
         native_scope = closure.native_derivation_leaf_scope
         native_owner_pointer = None
         if native_scope is not None:
-            from polisyos.runtime.quality.acquisition_planner import (
-                _n7_load_configured_candidate_port_source,
+            configured_source, current_context_ref, current_n4_ref = (
+                self._native_derivation_reentry_source_refs(closure)
             )
-
-            configured_source = _n7_load_configured_candidate_port_source(
-                self.artifact_store, native_scope.configured_port_source_ref
-            )
-            current_context_ref = (
-                closure.source_cycle.simulation.candidate_simulation_context_job_ref
-            )
-            if current_context_ref is None:
-                raise ValueError("native_derivation_current_context_not_established")
-            n4_payload = closure.source_cycle.simulation.diagnostics.get(
-                "candidate_simulation_n4_source_selected_ref"
-            )
-            if n4_payload is not None:
-                current_n4_ref = artifacts.ArtifactRef.model_validate(n4_payload)
-            elif (
-                closure.source_cycle.cycle_index == configured_source.cycle_index
-                and closure.source_cycle.selected_candidate_content_hash
-                == configured_source.candidate_content_hash
-            ):
-                current_n4_ref = configured_source.n4_source_ref
-            else:
-                raise ValueError("native_derivation_current_n4_source_not_established")
-            _native_derivation_ref_key(current_n4_ref)
             group_id = agent_action_content_hash(
                 {
                     "source": native_scope.configured_port_source_ref.model_dump(mode="json"),

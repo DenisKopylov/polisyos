@@ -3076,7 +3076,7 @@ def verify_generic_initial_physical_work(
     a USD price, a new reservation, or permission to perform another call.
     """
     from polisyos.runtime.quality.generic_simulation_admission import (
-        GenericCycleN5ProgramGraphRequestProfileV4,
+        _is_generic_program_graph_n5_profile,
     )
     from polisyos.scientist.orchestration.engine import (
         BudgetLedgerProducerRunBinding,
@@ -3087,7 +3087,7 @@ def verify_generic_initial_physical_work(
     work = result.physical_work_observations
     if (
         not work
-        or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or not _is_generic_program_graph_n5_profile(input_record.n5)
         or type(expected_run_binding) is not BudgetLedgerProducerRunBinding
         or (
             expected_run_binding.run_id,

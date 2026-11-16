@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -62,6 +62,12 @@ from tests.integration.runtime_quality.test_program_graph_stock_n7_served import
 from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
     _with_hash,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionCustodyRecoveryRequest,
+    )
+
 
 controlled_candidate_gateway = _gateway_fixture
 
@@ -1276,6 +1282,7 @@ def assert_retained_native_action_resume(
     monkeypatch: pytest.MonkeyPatch,
     output_root: Path,
     idempotency_key: str,
+    custody_recovery: AcquisitionCustodyRecoveryRequest | None = None,
 ) -> dict[str, Any]:
     """Resume custody of an already selected outcome from its stored request.
 
@@ -1363,12 +1370,35 @@ def assert_retained_native_action_resume(
                         selected.head.receipt_manifest_profile_sha256,
                     )
                 )
+                baseline_head = selected.head
+                if custody_recovery is not None:
+                    # The explicit caller locator remains fixed across retries;
+                    # never choose a later failed attempt automatically.
+                    baseline_head = control._control_store.get_acquisition_action_head_by_receipt(
+                        tenant_id=served.tenant_id,
+                        cell_id=served.cell_id,
+                        run_id=served.control_run_id,
+                        source_job_id=served.job_id,
+                        route_id=slot["route_id"],
+                        action_generation=selected.head.action_generation,
+                        receipt_ref=str(custody_recovery.head_ref.artifact_id),
+                    )
+                    if baseline_head is None:
+                        raise ValueError("retained_native_recovery_selected_head_missing")
+                    before_ref = custody_recovery.head_ref
+                    require_retained_native_resume_descendant(
+                        store=control._artifact_store,
+                        control_store=control._control_store,
+                        before_head=baseline_head,
+                        before_ref=before_ref,
+                        outcome=selected,
+                    )
                 saved.update(
                     payload_ref=inputs.payload_ref,
                     request=inputs.request.model_dump(mode="json"),
                     attempt_before=inputs.job.attempt,
-                    selected_head_before=selected.head.receipt_ref,
-                    selected_head_phase_before=selected.head.receipt_phase,
+                    selected_head_before=baseline_head.receipt_ref,
+                    selected_head_phase_before=baseline_head.receipt_phase,
                     selected_head_before_ref=before_ref.model_dump(mode="json"),
                     action_generation=selected.head.action_generation,
                 )
@@ -1383,6 +1413,38 @@ def assert_retained_native_action_resume(
                     executing_at=selected.executing_phase.generated_at,
                 )
             job = inputs.job
+            if custody_recovery is not None:
+                recovery_request = inputs.request.model_copy(
+                    update={
+                        "custody_recovery": custody_recovery,
+                    }
+                )
+                route_path = (
+                    f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{slot['route_id']}"
+                )
+                saved["custody_recovery_submission"] = recovery_request.model_dump(mode="json")
+                save()
+                with trust.authorization_exchange("acquisition-operator"):
+                    response, current_digest = trust.post(
+                        client,
+                        route_path + "/execute",
+                        recovery_request.model_dump(mode="json"),
+                        route="/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+                    )
+                job = control._control_store.get_job(checkpoint.action_job_id)
+                saved.update(
+                    custody_recovery_status=response.status_code,
+                    custody_recovery_response=response.json(),
+                    custody_recovery_resource_digest=current_digest,
+                    state_after_recovery_request=None if job is None else job.state,
+                    attempt_after_recovery_request=None if job is None else job.attempt,
+                )
+                save()
+                assert response.status_code in {200, 202}, response.text
+                accepted = response.json()
+                assert accepted["job_id"] == checkpoint.action_job_id
+                assert accepted["authority_decision_ref"] == inputs.payload["decision_ref"]
+                assert job is not None and job.payload_ref == inputs.payload_ref
             now = datetime.now(UTC)
             if job.state == "running" and (
                 job.lease_expires_at is None or job.lease_expires_at > now
@@ -1436,7 +1498,7 @@ def assert_retained_native_action_resume(
                 require_retained_native_resume_descendant(
                     store=control._artifact_store,
                     control_store=control._control_store,
-                    before_head=selected.head,
+                    before_head=baseline_head,
                     before_ref=before_ref,
                     outcome=outcome,
                 )
@@ -1724,6 +1786,7 @@ def assert_retained_native_paid_input_admission(
     continuation_selection: Any | None = None,
     epoch_policy_selection: Any | None = None,
     resume_existing_action: bool = False,
+    custody_recovery: AcquisitionCustodyRecoveryRequest | None = None,
     authority_valid_for_seconds: int | None = None,
     idempotency_key: str = "retained-native-a-new-current-admission",
     skip_qualified_historical_removal_checks: bool = False,
@@ -1740,6 +1803,14 @@ def assert_retained_native_paid_input_admission(
         raise ValueError("retained_native_policy_and_current_continuation_conflict")
     if resume_existing_action and continuation_selection is None:
         raise ValueError("retained_native_resume_current_selection_required")
+    if custody_recovery is not None and not resume_existing_action:
+        raise ValueError("retained_native_failed_recovery_requires_explicit_resume")
+    if custody_recovery is not None:
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionCustodyRecoveryRequest,
+        )
+
+        custody_recovery = AcquisitionCustodyRecoveryRequest.model_validate(custody_recovery)
     if authority_valid_for_seconds is not None and continuation_selection is not None:
         raise ValueError("retained_native_validity_cannot_change_existing_acts")
 
@@ -1820,6 +1891,7 @@ def assert_retained_native_paid_input_admission(
                 monkeypatch=monkeypatch,
                 output_root=output_root,
                 idempotency_key=idempotency_key,
+                custody_recovery=custody_recovery,
             )
         trace_before = resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref)
         journal_path = Path(case.attempt.evidence.request_ref.journal_path)

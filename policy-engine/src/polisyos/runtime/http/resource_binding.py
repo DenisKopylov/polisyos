@@ -1153,7 +1153,9 @@ def bind_authorization_resource(
             body_sha256=body_sha256,
         )
     if spec.source is ResourceBindingSource.REQUEST_COMPOSITE:
-        selectors = _selectors_from_body(body, spec.selector_fields)
+        selectors = _selectors_from_body(
+            body, spec.selector_fields, omit_absent=spec.omit_absent_selector_fields
+        )
         return _build_bound_resource(
             request=request,
             requirement=requirement,
@@ -2705,10 +2707,14 @@ def _string_batch(body: Mapping[str, Any], *, field_name: str) -> tuple[str, ...
 def _selectors_from_body(
     body: Mapping[str, Any],
     field_names: Sequence[str],
+    *,
+    omit_absent: Sequence[str] = (),
 ) -> tuple[tuple[str, str], ...]:
     selectors: list[tuple[str, str]] = []
     for field_name in field_names:
         if field_name not in body or body[field_name] is None:
+            if field_name in omit_absent:
+                continue
             value = _ABSENT_SELECTOR
         else:
             value = _canonical_json(body[field_name])

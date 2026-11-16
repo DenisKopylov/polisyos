@@ -778,6 +778,29 @@ class ProductionAcquisitionAuthorityProvider:
             expected_request=selection.request,
         )
 
+    def load_acquisition_decision_history(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        request: AcquisitionRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Verify original acquisition custody without reissuing current permission."""
+        history = self._load_signed_decision_history(
+            closure=closure, job_id=job_id, decision_ref=decision_ref
+        )
+        self._require_persisted_action_tuple(
+            history.decision,
+            action_tuple=AcquisitionActionService._action_tuple(closure, request),
+            expected_action_kind=ACQUISITION_ACTION_KIND,
+            expected_human_decision_record_ref=request.human_decision_record_ref,
+            expected_request=request,
+        )
+        if history.decision.outcome != "allowed":
+            raise AgentActionAuthorityRecordingError("acquisition_history_approval_missing")
+        return history
+
     def load_model_input_use_decision_history(
         self,
         *,
@@ -968,7 +991,10 @@ class ProductionAcquisitionAuthorityProvider:
         expected_human_decision_record_ref: str | None,
         expected_action_kind: str = ACQUISITION_ACTION_KIND,
         expected_request: (
-            ModelInputSuccessorActionRequest | CandidateExperimentReuseActionRequest | None
+            AcquisitionRouteMutationRequest
+            | ModelInputSuccessorActionRequest
+            | CandidateExperimentReuseActionRequest
+            | None
         ) = None,
     ) -> AgentActionAuthorityGateway:
         """Reopen one exact PA2 decision and its current mandate and DS9 record."""
@@ -1043,7 +1069,10 @@ class ProductionAcquisitionAuthorityProvider:
         expected_action_kind: str,
         expected_human_decision_record_ref: str | None,
         expected_request: (
-            ModelInputSuccessorActionRequest | CandidateExperimentReuseActionRequest | None
+            AcquisitionRouteMutationRequest
+            | ModelInputSuccessorActionRequest
+            | CandidateExperimentReuseActionRequest
+            | None
         ),
     ) -> None:
         operation, invocation, intent = action_tuple

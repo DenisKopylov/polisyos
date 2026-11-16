@@ -33,6 +33,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     NativeDerivationLeafCostProfileScope,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
@@ -6964,6 +6965,152 @@ class AcquisitionWorldGrowthBridge:
             self.artifact_store, self.event_log, ref, kind, expected_inputs=expected_inputs
         )
 
+    def _read_existing_reentry(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        growth: AcquisitionWorldGrowthReceipt,
+        growth_ref: str,
+        pointer: Path,
+        custody_collection_ref: artifacts.ArtifactRef | None = None,
+    ) -> str | None:
+        """Reopen the existing owner receipt before considering any fresh work."""
+        event_id = "evt_acquisition_reentry_" + growth_ref.removeprefix("sha256:")
+        from_pointer = pointer.exists()
+        if from_pointer:
+            ref = json.loads(pointer.read_text())["receipt_ref"]
+        else:
+            events = self.event_log.list_events(event_id=event_id, limit=2)
+            if not events:
+                return None
+            if len(events) != 1:
+                raise ValueError("acquisition_reentry_outcome_ambiguous")
+            event = events[0].event
+            if custody_collection_ref is not None:
+                # The exact native profile is independently selected below;
+                # a mutable default must not filter this event's locator.
+                refs = event.artifact_refs
+                if len(refs) != 1 or event.payload_ref != refs[0]:
+                    raise AcquisitionRouteClosureError("acquisition_reentry_outcome_ambiguous")
+            else:
+                refs = tuple(
+                    ref
+                    for ref in event.artifact_refs
+                    if self.artifact_store.get_manifest(ref).kind == _REENTRY_KIND
+                )
+            if len(refs) != 1:
+                raise ValueError("acquisition_reentry_outcome_ambiguous")
+            ref = refs[0]
+        selector: str | artifacts.ArtifactRef = ref
+        if custody_collection_ref is not None:
+            profiles = _native_admission_owner_profiles(self.artifact_store, ref, _REENTRY_KIND)
+            if len(profiles) != 1:
+                raise AcquisitionRouteClosureError("native_custody_reentry_profile_not_established")
+            selector = profiles[0]
+        receipt = AcquisitionOverlayReentryReceipt.model_validate(
+            self._read(selector, _REENTRY_KIND)
+        )
+        self._validate_reentry(closure, growth, receipt)
+        if custody_collection_ref is not None:
+            if not isinstance(selector, artifacts.ArtifactRef):
+                raise AcquisitionRouteClosureError("native_custody_reentry_profile_not_established")
+            self._verify_native_custody_reentry(
+                closure=closure,
+                growth_ref=growth_ref,
+                receipt_ref=selector,
+                receipt=receipt,
+                collection_ref=custody_collection_ref,
+            )
+        if not from_pointer:
+            self._write_pointer(pointer, ref)
+        return ref
+
+    def _verify_native_custody_reentry(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        growth_ref: str,
+        receipt_ref: artifacts.ArtifactRef,
+        receipt: AcquisitionOverlayReentryReceipt,
+        collection_ref: artifacts.ArtifactRef,
+    ) -> None:
+        """Bind recorded Native continuation to its original selected world and head.
+
+        All reads use existing historical owners. A completed receipt does not
+        issue current-use authority or re-run any numerical work.
+        """
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            VerifiedAcquisitionActionOutcome,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationN5InputV1,
+        )
+
+        manifest = self.artifact_store.get_manifest(receipt_ref)
+        source = manifest.same_input_closure
+        input_ref = receipt.new_cycle.simulation.generic_n5_input_ref
+        scope = closure.native_derivation_leaf_scope
+        if (
+            scope is None
+            or source is None
+            or source.status != "closed"
+            or source.closure_sha256 != closure.route_id
+            or (source.tenant_id, source.cell_id, source.run_id, source.job_id)
+            != (closure.tenant_id, closure.cell_id, closure.run_id, closure.source_job_id)
+            or source.evidence_input_refs != (closure.compiled_ref,)
+            or input_ref is None
+            or input_ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionRouteClosureError("native_custody_reentry_source_mismatch")
+        value = GenericCycleSimulationN5InputV1.model_validate(
+            artifacts.load_core_json_artifact(self.artifact_store, input_ref)
+        )
+        checkpoint_ref = value.native_world_checkpoint_ref
+        if checkpoint_ref is None:
+            raise AcquisitionRouteClosureError("native_custody_reentry_native_world_missing")
+        owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=self.artifact_store)
+        owner.bind_native_world_history(control_store=self.control_store, event_log=self.event_log)
+        if owner.resolve_n5_input(input_ref, expected=value) != value:
+            raise AcquisitionRouteClosureError("native_custody_reentry_input_mismatch")
+        selected = replay_native_derived_world_selection(
+            self.artifact_store,
+            event_log=self.event_log,
+            control_store=self.control_store,
+            checkpoint_ref=checkpoint_ref,
+        )
+        current = self.control_store.current_execution_job_record()
+        snapshot = self.action_head_sink.current_action_outcome(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+        )
+        phase = selected.pending_action_phase
+        if (
+            type(snapshot) is not VerifiedAcquisitionActionOutcome
+            or snapshot.head.job_id != current.job_id
+            or (value.tenant_id, value.cell_id, value.run_id, value.job_id)
+            != (closure.tenant_id, closure.cell_id, closure.run_id, current.job_id)
+            or value.source_run_id != selected.original_generic_input.source_run_id
+            or value.cycle_index != receipt.new_cycle.cycle_index
+            or tuple(map(_native_derivation_ref_key, selected.checkpoint.collection_refs))
+            != (_native_derivation_ref_key(collection_ref),)
+            or selected.checkpoint.configured_port_source_ref != scope.configured_port_source_ref
+            or phase.job_id != current.job_id
+            or phase.action_generation != snapshot.head.action_generation
+            or phase.owner_declared_profile_ref != closure.owner_declared_profile_ref
+            or phase.native_leaf_provider_selection != closure.native_derivation_leaf_provider
+            or growth_ref not in phase.owner_receipt_refs
+            or sum(
+                row.receipt_ref == str(selected.pending_action_phase_ref.artifact_id)
+                for row in snapshot.phase_chain
+            )
+            != 1
+        ):
+            raise AcquisitionRouteClosureError("native_custody_reentry_selected_world_mismatch")
+
     def resume(
         self,
         closure: VerifiedAcquisitionRouteClosure,
@@ -7082,6 +7229,11 @@ class AcquisitionWorldGrowthBridge:
             growth, admitted = self._verified_growth(closure, growth_refs[0])
             native_collections: tuple[artifacts.ArtifactRef, ...] = ()
             native_configuration = self._native_derivation_configuration(closure)
+            custody = (
+                self.control_store.current_native_acquisition_custody_recovery()
+                if native_configuration is not None
+                else None
+            )
             if native_configuration is not None:
                 collection_ref = self._collect_current_native_derivation_inputs(
                     closure, growth_refs[0]
@@ -7100,53 +7252,49 @@ class AcquisitionWorldGrowthBridge:
                 if required is None:
                     return NativeDerivationInputsPending(collection_ref=collection_ref)
                 native_collections = (collection_ref,)
-                current_owner = {
-                    "action_job_id": current_action_job_id,
-                    "route_id": closure.route_id,
-                    "growth_ref": growth_refs[0],
-                    "collection_ref": collection_ref.model_dump(mode="json"),
-                }
-                if native_owner_pointer.exists():
-                    if json.loads(native_owner_pointer.read_text()) != current_owner:
-                        return NativeDerivationInputsPending(collection_ref=collection_ref)
-                else:
-                    fd, temporary = tempfile.mkstemp(
-                        prefix="native-owner-", dir=native_owner_pointer.parent
-                    )
-                    try:
-                        with os.fdopen(fd, "w") as stream:
-                            json.dump(current_owner, stream, sort_keys=True)
-                            stream.flush()
-                            os.fsync(stream.fileno())
-                        os.replace(temporary, native_owner_pointer)
-                    finally:
-                        if os.path.exists(temporary):
-                            os.unlink(temporary)
-            if pointer.exists():
-                ref = json.loads(pointer.read_text())["receipt_ref"]
-                receipt = AcquisitionOverlayReentryReceipt.model_validate(
-                    self._read(ref, _REENTRY_KIND)
+                if custody is None:
+                    current_owner = {
+                        "action_job_id": current_action_job_id,
+                        "route_id": closure.route_id,
+                        "growth_ref": growth_refs[0],
+                        "collection_ref": collection_ref.model_dump(mode="json"),
+                    }
+                    if native_owner_pointer.exists():
+                        if json.loads(native_owner_pointer.read_text()) != current_owner:
+                            return NativeDerivationInputsPending(collection_ref=collection_ref)
+                    else:
+                        fd, temporary = tempfile.mkstemp(
+                            prefix="native-owner-", dir=native_owner_pointer.parent
+                        )
+                        try:
+                            with os.fdopen(fd, "w") as stream:
+                                json.dump(current_owner, stream, sort_keys=True)
+                                stream.flush()
+                                os.fsync(stream.fileno())
+                            os.replace(temporary, native_owner_pointer)
+                        finally:
+                            if os.path.exists(temporary):
+                                os.unlink(temporary)
+            existing_reentry = self._read_existing_reentry(
+                closure=closure,
+                growth=growth,
+                growth_ref=growth_refs[0],
+                pointer=pointer,
+                custody_collection_ref=native_collections[0]
+                if custody is not None and native_collections
+                else None,
+            )
+            if existing_reentry is not None:
+                return existing_reentry
+            if custody is not None:
+                from polisyos.runtime.quality.acquisition_route_loop import (
+                    AcquisitionRouteClosureError,
                 )
-                self._validate_reentry(closure, growth, receipt)
-                return str(ref)
+
+                raise AcquisitionRouteClosureError(
+                    "native_custody_recovery_protected_reentry_refused"
+                )
             event_id = "evt_acquisition_reentry_" + growth_refs[0].removeprefix("sha256:")
-            events = self.event_log.list_events(event_id=event_id, limit=2)
-            if events:
-                if len(events) != 1:
-                    raise ValueError("acquisition_reentry_outcome_ambiguous")
-                refs = tuple(
-                    ref
-                    for ref in events[0].event.artifact_refs
-                    if self.artifact_store.get_manifest(ref).kind == _REENTRY_KIND
-                )
-                if len(refs) != 1:
-                    raise ValueError("acquisition_reentry_outcome_ambiguous")
-                receipt = AcquisitionOverlayReentryReceipt.model_validate(
-                    self._read(refs[0], _REENTRY_KIND)
-                )
-                self._validate_reentry(closure, growth, receipt)
-                self._write_pointer(pointer, refs[0])
-                return refs[0]
             fence = pointer.with_suffix(".started")
             started = fence.exists()
             if started and (not native_collections or fence.read_text() != growth_refs[0]):

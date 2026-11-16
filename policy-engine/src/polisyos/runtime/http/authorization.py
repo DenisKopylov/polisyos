@@ -339,6 +339,7 @@ class ResourceBindingSpec:
     parent_required: bool = False
     allow_empty_body: bool = False
     related_run_source: RelatedRunBindingSource | None = None
+    omit_absent_selector_fields: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.related_run_source is not None and (
@@ -375,6 +376,17 @@ class ResourceBindingSpec:
         _validate_binding_token(self.parent_field, field_name="parent_field")
         if not isinstance(self.selector_fields, tuple):
             raise TypeError("selector_fields must be an immutable tuple")
+        if (
+            not isinstance(self.omit_absent_selector_fields, tuple)
+            or len(set(self.omit_absent_selector_fields)) != len(self.omit_absent_selector_fields)
+            or not set(self.omit_absent_selector_fields).issubset(self.selector_fields)
+            or set(self.omit_absent_selector_fields).intersection(self.required_selector_fields)
+            or (
+                self.omit_absent_selector_fields
+                and self.source is not ResourceBindingSource.REQUEST_COMPOSITE
+            )
+        ):
+            raise ValueError("omitted absent selectors require optional request-composite fields")
         if not isinstance(self.required_selector_fields, tuple):
             raise TypeError("required_selector_fields must be an immutable tuple")
         if not isinstance(self.required_selector_alternatives, tuple):
@@ -417,6 +429,12 @@ class ResourceBindingSpec:
             for alternative in self.required_selector_alternatives
         ):
             raise ValueError("required_selector_alternatives must be subsets of selector_fields")
+
+        if any(
+            set(self.omit_absent_selector_fields).intersection(alternative)
+            for alternative in self.required_selector_alternatives
+        ):
+            raise ValueError("omitted absent selectors cannot be required alternatives")
 
         self._validate_source_fields()
 

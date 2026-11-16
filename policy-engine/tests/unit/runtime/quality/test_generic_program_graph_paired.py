@@ -319,3 +319,213 @@ def test_paired_capacity_refuses_the_whole_plan_before_a_new_reservation(tmp_pat
     assert failed.value.budget_refusal_basis["required_physical_units"] == 6
     assert calls == []
     assert ledger.snapshot() == before
+
+
+def _paired_result_envelope() -> dict[str, object]:
+    """Reuse the paired descriptor for constructor routing, not CAS/source proof."""
+    from datetime import UTC, datetime
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.contracts.foundry import SimulationResultRef
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PhysicalSimulationWorkObservation,
+        ProgramGraphPairedBaselineSampleV4,
+        ProgramGraphPairedComparatorV4,
+    )
+
+    request, _plan, decision = _physical_budget_request(1)
+    seed = 17
+    event = PhysicalSimulationWorkObservation(
+        invocation_id="a" * 32,
+        event_id="b" * 32,
+        physical_spec_ref="c" * 64,
+        effective_seed=seed,
+        status="completed",
+        started_at=datetime(2026, 11, 16, tzinfo=UTC),
+        completed_at=datetime(2026, 11, 16, tzinfo=UTC),
+        duration_seconds=0.0,
+        budget_status="not_established",
+    )
+    baseline = ProgramGraphPairedBaselineSampleV4(
+        replication_seed=seed,
+        physical_spec_ref=event.physical_spec_ref,
+        physical_work_event_id=event.event_id,
+        actuation_selection_ref=ArtifactRef(
+            artifact_id="sha256:" + "d" * 64,
+            kind="foundry.program_graph_actuation_selection",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "e" * 64,
+        ),
+        step_result_refs=(
+            SimulationResultRef(
+                artifact_id="sha256:" + "f" * 64,
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + "1" * 64,
+            ),
+        ),
+        outcomes_by_step=(dict.fromkeys(request.selected_outcomes, 1.0),),
+    )
+    comparator = ProgramGraphPairedComparatorV4(
+        selected_outcomes=request.selected_outcomes,
+        steps=request.horizon.steps(),
+        samples=(baseline,),
+    )
+    return {
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "world_model_record_ref": request.world_model_record_ref,
+        "world_model_record_content_hash": request.world_model_record.content_hash,
+        "atom_ids": [atom.intervention_id for atom in request.intervention_atoms],
+        "selected_outcomes": request.selected_outcomes,
+        "horizon": request.horizon.model_dump(mode="json"),
+        "engine_decisions": [decision.model_dump(mode="json")],
+        "equilibrium_semantics": {decision.objective_ref: "none"},
+        "trajectories": [],
+        "marginal_effects": {},
+        "interaction_terms": [],
+        "feedback_classification": {"numeric_interaction": "unsupported"},
+        "promotion_ready_value_packet": {
+            "effect_basis": comparator.estimand,
+            "effect_basis_status": "not_applicable_no_trajectory",
+            "comparator_refs_status": "selected_manifest_required",
+        },
+        "diagnostics": {
+            "engine_run_claimed": False,
+            "requested_replications": 1,
+            "replication_seeds": [seed],
+            "effect_basis": comparator.estimand,
+            "effect_basis_status": "established",
+            "comparator_refs_status": "selected_manifest_required",
+            "physical_work_capture_status": "observed",
+            "physical_work_observations": [event.model_dump(mode="json")],
+            "physical_work_units": 1,
+            "physical_work_unit": "physical_simulation_invocation",
+            "physical_work_usd_cost_status": "not_established",
+            "program_graph_paired_comparator": comparator.model_dump(mode="json"),
+        },
+    }
+
+
+def _construct_paired_result(payload: dict[str, object], *, engine: str = "program_graph"):
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+    )
+
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=engine, payload=payload, diagnostics=payload["diagnostics"]
+    )
+    return JointSimulationResult.model_validate({**payload, "receipt": receipt})
+
+
+def test_program_graph_pair_constructor_uses_its_typed_comparator_family() -> None:
+    """The real DTO must not demand an NCM record for a typed graph envelope."""
+    result = _construct_paired_result(_paired_result_envelope())
+    assert result.diagnostics["effect_basis_status"] == "established"
+    assert result.receipt.engine_kind == "program_graph"
+
+
+def test_ncm_constructor_still_refuses_established_without_its_record() -> None:
+    payload = _paired_result_envelope()
+    payload["diagnostics"].pop("program_graph_paired_comparator")
+    payload["engine_decisions"][0]["engine_kind"] = "ncm_parallel_worlds"
+    with pytest.raises(ValueError, match="ncm_comparator_record_missing"):
+        _construct_paired_result(payload, engine="ncm_parallel_worlds")
+
+
+@pytest.mark.parametrize(
+    ("changed", "reason"),
+    [
+        ("missing", "program_graph_paired_comparator_missing"),
+        ("mixed", "simulation_comparator_family_conflict"),
+        ("engine", "program_graph_paired_comparator_scope_invalid"),
+        ("receipt", "program_graph_paired_comparator_scope_invalid"),
+        ("effect", "program_graph_paired_comparator_scope_invalid"),
+        ("packet_effect", "program_graph_paired_comparator_scope_invalid"),
+        ("status", "program_graph_paired_comparator_scope_invalid"),
+        ("refs", "program_graph_paired_comparator_scope_invalid"),
+        ("outcome", "program_graph_paired_baseline_work_mismatch"),
+        ("work", "program_graph_paired_baseline_work_mismatch"),
+    ],
+)
+def test_paired_constructor_refuses_grafted_family_or_unbound_record(
+    changed: str, reason: str
+) -> None:
+    payload = _paired_result_envelope()
+    diagnostics = payload["diagnostics"]
+    engine = "program_graph"
+    if changed == "missing":
+        diagnostics.pop("program_graph_paired_comparator")
+    elif changed == "mixed":
+        diagnostics["ncm_conditional_comparator"] = {}
+    elif changed == "engine":
+        payload["engine_decisions"][0]["engine_kind"] = "ncm_parallel_worlds"
+    elif changed == "receipt":
+        engine = "ncm_parallel_worlds"
+    elif changed == "effect":
+        diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
+    elif changed == "packet_effect":
+        payload["promotion_ready_value_packet"]["effect_basis"] = (
+            "paired_conditional_model_difference.v1"
+        )
+    elif changed == "status":
+        diagnostics["effect_basis_status"] = "not_established"
+    elif changed == "refs":
+        diagnostics["comparator_refs_status"] = "not_established"
+    elif changed == "outcome":
+        record = diagnostics["program_graph_paired_comparator"]
+        record["selected_outcomes"] = ["other_outcome"]
+        record["samples"][0]["outcomes_by_step"] = [{"other_outcome": 1.0}]
+    elif changed == "work":
+        diagnostics["program_graph_paired_comparator"]["samples"][0]["physical_work_event_id"] = (
+            "9" * 32
+        )
+    with pytest.raises(ValueError, match=reason):
+        _construct_paired_result(payload, engine=engine)
+
+
+def test_ncm_constructor_still_refuses_an_invalid_record() -> None:
+    payload = _paired_result_envelope()
+    diagnostics = payload["diagnostics"]
+    diagnostics.pop("program_graph_paired_comparator")
+    diagnostics["ncm_conditional_comparator"] = {"schema_version": "wrong"}
+    payload["engine_decisions"][0]["engine_kind"] = "ncm_parallel_worlds"
+    with pytest.raises(ValueError, match="ncm_comparator_record_invalid"):
+        _construct_paired_result(payload, engine="ncm_parallel_worlds")
+
+
+def test_unpaired_legacy_constructor_does_not_acquire_a_comparator_requirement() -> None:
+    payload = _paired_result_envelope()
+    payload["diagnostics"].pop("program_graph_paired_comparator")
+    payload["diagnostics"]["effect_basis_status"] = "not_established"
+    result = _construct_paired_result(payload)
+    assert result.diagnostics["effect_basis_status"] == "not_established"
+
+
+def test_graph_family_removal_control_keeps_markers_but_loses_the_typed_guard(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+
+    payload = _paired_result_envelope()
+    payload["engine_decisions"][0]["engine_kind"] = "ncm_parallel_worlds"
+    with pytest.raises(ValueError, match="program_graph_paired_comparator_scope_invalid"):
+        _construct_paired_result(payload)
+    # The same constructor markers/receipt now accept an NCM-selected graph
+    # record if the actual family guard is removed. Source/CAS authority is
+    # still not established by this deliberately bounded envelope fixture.
+    with monkeypatch.context() as removal:
+        removal.setattr(owner, "_read_program_graph_paired_comparator", lambda _result: object())
+        forged = _construct_paired_result(payload)
+        assert forged.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
+    with pytest.raises(ValueError, match="program_graph_paired_comparator_scope_invalid"):
+        _construct_paired_result(payload)
+
+
+def test_interrupted_graph_pair_keeps_its_family_without_establishing_completion() -> None:
+    payload = _paired_result_envelope()
+    payload["diagnostics"]["physical_work_interruption"] = "n5_physical_work_failed"
+    payload["diagnostics"]["effect_basis_status"] = "not_established"
+    result = _construct_paired_result(payload)
+    assert result.diagnostics["effect_basis_status"] == "not_established"
+    assert result.diagnostics["effect_basis"] == "same_seed_compiled_intervention_difference.v4"

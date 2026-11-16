@@ -3036,7 +3036,7 @@ class JointSimulationResult(_StrictModel):
                 )
             ):
                 raise ValueError("method_metric_horizon_failure_result_mismatch")
-        _validate_embedded_ncm_comparator(self)
+        _validate_embedded_comparator_family(self)
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
         if self.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
@@ -3162,6 +3162,27 @@ class JointSimulationResult(_StrictModel):
         raise KeyError(f"trajectory_not_found:{run_level}:{','.join(normalized)}")
 
 
+def _validate_embedded_comparator_family(result: JointSimulationResult) -> None:
+    """Dispatch typed comparator validation without borrowing another family's status."""
+    graph_record = result.diagnostics.get("program_graph_paired_comparator")
+    ncm_record = result.diagnostics.get("ncm_conditional_comparator")
+    if graph_record is not None and ncm_record is not None:
+        raise ValueError("simulation_comparator_family_conflict")
+    selected = [item for item in result.engine_decisions if item.decision == "selected"]
+    graph_selected = (
+        len(selected) == 1
+        and selected[0].engine_kind == "program_graph"
+        and result.receipt.engine_kind == "program_graph"
+    )
+    if graph_record is not None or (
+        graph_selected and result.diagnostics.get("effect_basis_status") == "established"
+    ):
+        if _read_program_graph_paired_comparator(result) is None:
+            raise ValueError("program_graph_paired_comparator_missing")
+        return
+    _validate_embedded_ncm_comparator(result)
+
+
 def _validate_embedded_ncm_comparator(result: JointSimulationResult) -> None:
     """Reconcile a signed paired result, without pretending to know the caller request."""
     raw = result.diagnostics.get("ncm_conditional_comparator")
@@ -3204,6 +3225,7 @@ def _validate_embedded_ncm_comparator(result: JointSimulationResult) -> None:
     if (
         len(selected) != 1
         or selected[0].engine_kind != "ncm_parallel_worlds"
+        or result.receipt.engine_kind != "ncm_parallel_worlds"
         or binding.get("world_model_record_ref") != result.world_model_record_ref
         or binding.get("world_model_record_content_hash") != result.world_model_record_content_hash
         or binding.get("method_fqn") != selected[0].method_fqn
@@ -4003,11 +4025,15 @@ class JointSimulationHorizonController:
                     }
                     if exc.comparator_record is not None:
                         diagnostics["ncm_conditional_comparator"] = exc.comparator_record
+                        diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
+                        diagnostics["comparator_refs_status"] = "selected_manifest_required"
                     if exc.program_graph_comparator is not None:
                         diagnostics["program_graph_paired_comparator"] = (
                             exc.program_graph_comparator.model_dump(mode="json")
                         )
-                        diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
+                        diagnostics["effect_basis"] = (
+                            "same_seed_compiled_intervention_difference.v4"
+                        )
                         diagnostics["comparator_refs_status"] = "selected_manifest_required"
                     if exc.projection_error_code is not None:
                         diagnostics["projection_error_code"] = exc.projection_error_code
@@ -7167,10 +7193,27 @@ def _read_program_graph_paired_comparator(
     seeds = tuple(result.diagnostics.get("replication_seeds", ()))
     actual_seeds = tuple(item.replication_seed for item in selected.samples)
     interrupted = "physical_work_interruption" in result.diagnostics
+    decisions = [item for item in result.engine_decisions if item.decision == "selected"]
+    expected_status = "not_established" if interrupted else "established"
+    if (
+        result.diagnostics.get("ncm_conditional_comparator") is not None
+        or len(decisions) != 1
+        or decisions[0].engine_kind != "program_graph"
+        or result.receipt.engine_kind != "program_graph"
+        or result.diagnostics.get("effect_basis") != selected.estimand
+        or result.diagnostics.get("effect_basis_status") != expected_status
+        or result.diagnostics.get("comparator_refs_status") != "selected_manifest_required"
+        or result.promotion_ready_value_packet.get("effect_basis") != selected.estimand
+        or result.promotion_ready_value_packet.get("effect_basis_status")
+        != (expected_status if result.trajectories else "not_applicable_no_trajectory")
+        or result.promotion_ready_value_packet.get("comparator_refs_status")
+        != "selected_manifest_required"
+    ):
+        raise ValueError("program_graph_paired_comparator_scope_invalid")
     if (
         result.receipt.engine_kind != "program_graph"
         or selected.steps != result.horizon.steps()
-        or selected.selected_outcomes != result.outcome_variables
+        or selected.selected_outcomes != result.selected_outcomes
         or len(events) != len(result.physical_work_observations)
         or (not interrupted and actual_seeds != seeds)
         or (interrupted and actual_seeds != seeds[: len(actual_seeds)])

@@ -20,7 +20,11 @@ from .model_input_step_coverage import (
 
 if TYPE_CHECKING:
     from .model_input_requirements import ModelInputObligation, ModelInputObligationSet
-    from .semantic_input_binding import ResolvedDerivedInputAtStep, ResolvedInputBindingManifest
+    from .semantic_input_binding import (
+        ResolvedDerivedInputAtStep,
+        ResolvedEntityVectorInputAtStep,
+        ResolvedInputBindingManifest,
+    )
 
 
 @dataclass(frozen=True)
@@ -170,7 +174,7 @@ def recompute_resolved_step_input_coverage(
 
     Args:
         store: Existing store containing the immutable original obligation set.
-        manifest: Version-3 step-qualified candidate input selections.
+        manifest: Version-3 scalar or version-4 direct vector selections.
 
     Returns:
         Exact supplied and missing scope rows derived from the selected model.
@@ -178,20 +182,45 @@ def recompute_resolved_step_input_coverage(
     Raises:
         ValueError: If version, selected origin, scope or interface differs.
     """
-    if manifest.schema_version != "3.0":
+    if manifest.schema_version not in {"3.0", "4.0"}:
         raise ValueError("resolved_step_input_manifest_profile_required")
-    return resolve_model_input_step_selections(
+    resolved = resolve_model_input_step_selections(
         store,
         obligation_set_ref=manifest.model_input_obligation_set_ref,
-        selections=manifest.method_input_steps,
-    ).coverage
+        selections=(
+            manifest.entity_vector_steps
+            if manifest.schema_version == "4.0"
+            else manifest.method_input_steps
+        ),
+    )
+    if manifest.schema_version == "4.0":
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+
+        from .foundry import FoundryInputBindings
+
+        predecessor = validate_core_model_json_artifact(
+            FoundryInputBindings, store, resolved.obligation_set.invocation.input_bindings_ref
+        )
+        if (
+            predecessor.selected_method_inputs is not None
+            or predecessor.selected_method_input_steps is not None
+        ):
+            raise ValueError("resolved_entity_vector_original_prestate_required")
+        if artifact_ref_identity_key(manifest.data_snapshot_ref) != artifact_ref_identity_key(
+            predecessor.data_snapshot_ref
+        ) or artifact_ref_identity_key(
+            resolved.obligation_set.prestate_ref
+        ) != artifact_ref_identity_key(predecessor.bound_state_snapshot_ref):
+            raise ValueError("resolved_entity_vector_original_predecessor_mismatch")
+    return resolved.coverage
 
 
 def resolve_model_input_step_selections(
     store: ArtifactStore,
     *,
     obligation_set_ref: ArtifactRef,
-    selections: tuple[ResolvedDerivedInputAtStep, ...],
+    selections: tuple[ResolvedDerivedInputAtStep, ...]
+    | tuple[ResolvedEntityVectorInputAtStep, ...],
 ) -> ModelInputStepSelectionResolution:
     """Resolve all temporal selections with one immutable original-set read.
 
@@ -202,7 +231,7 @@ def resolve_model_input_step_selections(
     Args:
         store: Existing store containing the original model and obligation set.
         obligation_set_ref: Exact original full-horizon set, never a new output.
-        selections: Step-qualified derived selections from the manifest or owner.
+        selections: One supported scalar or vector selection family, without mixing.
 
     Returns:
         Reopened original subjects and their computed exact scope coverage.
@@ -211,15 +240,20 @@ def resolve_model_input_step_selections(
         ValueError: If a source obligation, model interface or scope is inconsistent.
     """
     from .model_input_requirements import load_model_input_obligation_set
-    from .semantic_input_binding import ResolvedDerivedInputAtStep
+    from .semantic_input_binding import ResolvedDerivedInputAtStep, ResolvedEntityVectorInputAtStep
 
+    if type(selections) is not tuple or any(
+        type(row) not in {ResolvedDerivedInputAtStep, ResolvedEntityVectorInputAtStep}
+        for row in selections
+    ):
+        raise ValueError("model_input_step_selection_row_untyped")
+    if len({type(row) for row in selections}) > 1:
+        raise ValueError("model_input_step_selection_mixed_profile_unsupported")
     selected_set, members = load_model_input_obligation_set(store, obligation_set_ref)
     if selected_set.required_step_scopes is None:
         raise ValueError("model_input_step_selection_set_profile_required")
     resolved: list[ModelInputStepScope] = []
     for row in selections:
-        if type(row) is not ResolvedDerivedInputAtStep:
-            raise ValueError("model_input_step_selection_row_untyped")
         if artifact_ref_identity_key(
             row.selection.model_interface_ref
         ) != artifact_ref_identity_key(selected_set.invocation.interface_ref):
@@ -232,6 +266,17 @@ def resolve_model_input_step_selections(
                 step_scope=row.step_scope,
             )
         )
+        if type(row) is ResolvedEntityVectorInputAtStep:
+            member = next(
+                member
+                for ref, member in zip(selected_set.obligation_refs, members, strict=True)
+                if artifact_ref_identity_key(ref)
+                == artifact_ref_identity_key(row.selection.model_input_obligation_ref)
+            )
+            if member.port.entity_axis_ref is None or artifact_ref_identity_key(
+                member.port.entity_axis_ref
+            ) != artifact_ref_identity_key(row.selection.entity_axis_ref):
+                raise ValueError("model_input_step_selection_entity_axis_mismatch")
     return ModelInputStepSelectionResolution(
         obligation_set=selected_set,
         obligations=members,

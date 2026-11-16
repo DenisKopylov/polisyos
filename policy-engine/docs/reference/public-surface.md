@@ -378,7 +378,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 949 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 965 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.derivations` | `src/polisyos/core/derivations.py` | `eager_exports` | 72 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
@@ -820,7 +820,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (949)</summary>
+<details><summary>Entrypoint exports (965)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -849,6 +849,7 @@ ResolvedMeasurementInput
 RunCandidateSimulationN5ResultBody
 ScopedCorrespondenceBasis
 ScopedCorrespondenceBasisRef
+ScopedCorrespondenceEvaluation
 ScopedMeasurementOccurrence
 ScopedMeasurementOccurrenceRef
 ScopedSourceSelection
@@ -1740,20 +1741,35 @@ persist_registered_derived_input_context
 persist_registered_derived_input_correspondence
 recompute_native_derivation_source_projection
 verify_registered_derived_family
+ENTITY_VECTOR_CANDIDATE_LIMITATIONS
 AcquiredObservationSemanticInputDataSnapshotLineage
 DerivedModelInputDataSnapshotLineage
 DerivedModelInputStepDataSnapshotLineage
+EntityVectorCandidateLimitation
+EntityVectorCorrespondenceBasis
+EntityVectorCorrespondenceBasisRef
 RegisteredSemanticBasis
 ReplayedCandidateDerivationRole
 ReplayedDerivedMeasurementRole
 ResolvedDerivedInputAtStep
+ResolvedEntityVectorInput
+ResolvedEntityVectorInputAtStep
+SelectedEntityVectorSourceMeaning
+SelectedEntityVectorSourceMeaningRef
+compare_measurement_representation_axes
+entity_vector_correspondence_basis_manifest_inputs
 evaluate_derived_input_correspondence
+evaluate_entity_vector_correspondence_basis
 evaluate_registered_derived_input_correspondence
 load_derived_input_correspondence
+load_entity_vector_correspondence_basis
 load_native_derivation_source_projection
 load_ratio_denominator_source_context
 load_registered_derived_input_context
 load_registered_derived_input_correspondence
+load_selected_entity_vector_source_meaning
+selected_entity_vector_source_meaning_manifest_inputs
+selected_method_input_tensor_identity
 MethodInputPortSource
 MethodOutputConsumptionRecord
 MethodOutputPayloadV11
@@ -10064,7 +10080,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 173 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 175 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -10302,7 +10318,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (173)</summary>
+<details><summary>Entrypoint exports (175)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10412,6 +10428,7 @@ WVSIndicatorRegistryReadError
 acquisition_overlay_admission_fence
 acquisition_overlay_admission_lock_path
 acquisition_supplier_declaration_scope_refusal
+assess_entity_vector_to_model_candidate
 assess_measurement_to_model_candidate
 build_acquisition_authority_provision
 build_authority_entry
@@ -10460,6 +10477,7 @@ parse_profile_input_coverage
 persist_acquisition_supplier_declaration
 plan_catalog_source_modules
 plan_catalog_source_stage_contracts
+prepare_registered_entity_vector_input_steps
 profile_input_coverage_currentness
 project_catalog_acquisition_state
 read_scoped_measurement_source_body

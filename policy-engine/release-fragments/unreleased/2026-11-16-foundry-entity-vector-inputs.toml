@@ -1,0 +1,28 @@
+id = "2026-11-16-foundry-entity-vector-inputs"
+title = "Bind candidate entity vectors to actual Foundry method inputs"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Add a bounded direct entity-vector input path through Core manifest 4.0, Foundry input-bindings 1.5, persisted NPY values, the existing execute consumer and stored-input readers."
+evidence = [
+  "src/polisyos/core/contracts/foundry.py",
+  "src/polisyos/core/contracts/semantic_input_binding.py",
+  "src/polisyos/core/contracts/variable_binding.py",
+  "src/polisyos/data_forge/read_api/catalog.py",
+  "src/polisyos/foundry/data_plane/bindings.py",
+  "src/polisyos/foundry/data_plane/selected_method_entity_vector.py",
+  "tests/unit/foundry/runtime/test_selected_method_entity_vector_inputs.py",
+]
+change_class = "python-public-api"
+surface_classification = "public_experimental: candidate entity-vector inputs through Core manifest 4.0 and Foundry input-bindings 1.5 on the existing execute and stored-reader surfaces"
+compatibility = "Additive vector profiles leave existing scalar MoneyUnit behavior and Foundry input-binding readers 1.0-1.4 unchanged. Direct scalar feedback retains its qualified input-bindings 1.4, execution-basis 1.3 and SimulationResult 1.5 profile. The step-qualified 1.5 reader requires one input kind per bundle; mixed scalar/vector rows are unsupported."
+migration = "Select vectors through Core manifest 4.0 with the exact model-input obligation, step predecessor, source view, candidate meaning/correspondence declarations and typed axis. Persist and read the actual vector argument through Foundry input-bindings 1.5, reopening the original source, snapshot and pre-state."
+api = "Core contracts expose the typed vector declarations, resolved selection and selected tensor identity. Catalog read API adds assess_entity_vector_to_model_candidate and prepare_registered_entity_vector_input_steps. The existing Foundry execute facade and stored-input readers consume and audit persisted bindings and actual argument hashes; no HTTP vector route is added."
+limitations = "The source meaning and source_scope remain consumer_asserted; source currentness, empirical correctness and independent origin remain not_established. Generic parallel JSON arrays do not decode a domain schema or time axis. The candidate port is one-dimensional GLOBAL, pathless DECIMAL with generic amount units, not a USD claim; no unit conversion is performed and correspondence scales must equal 1. Core's tensor identity is FoundrySelectedMethodVectorInput.tensor_value_sha256, separate from the alignment digest. No scalar broadcast, mixed scalar/vector step bundle or pre-seeded selected pre-state is supported. The actual generalized_gini@1.0 producer yielded .25/.15 and the fresh-process reader reconciled argument and output bytes. Retained dependency-removal/restoration controls passed without repeating those calculations; source-only admission is distinct from reading the numerical output. Pattern pass: P01/P02 follow the persisted producer-to-execute-reader bridge; P05/P15 keep source claims candidate-only; P07/P08 retain explicit profiles and step scope without time decoding; P10/P38 distinguish source admission from output availability; P03 includes the regenerated public inventory. Runtime current-use/N5, selected-feedback vectors, feedback model-state inputs and new institutional authority remain disabled. The generalized_gini fixture does not establish a registered metric law or authority. Independent G acceptance remains separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/foundry/execute/README.md",
+  "src/polisyos/foundry/data_plane/README.md",
+]
+runbook_docs = []

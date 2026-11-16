@@ -73,6 +73,7 @@ from polisyos.core.contracts import (
     DataSnapshotRef,
     DerivedModelInputDataSnapshotLineage,
     DerivedModelInputStepDataSnapshotLineage,
+    EntityAxisValueIdentity,
     ExecuteRequest,
     FeedbackConfig,
     FeedbackStateSnapshot,
@@ -92,6 +93,7 @@ from polisyos.core.contracts import (
     ProgramGraphInputInvocation,
     ReplayedDerivedMeasurementRole,
     ResolvedDerivedInput,
+    ResolvedEntityVectorInput,
     ResolvedInputBindingManifest,
     ResolvedInputBindingManifestRef,
     ResolvedMeasurementInput,
@@ -99,6 +101,7 @@ from polisyos.core.contracts import (
     ScopedMeasurementOccurrence,
     ScopedMeasurementOccurrenceRef,
     ScopedSourceSelection,
+    SelectedEntityVectorSourceDescriptor,
     SelectedVariableBindingRef,
     SemanticHorizonStepContext,
     StateSnapshot,
@@ -110,16 +113,20 @@ from polisyos.core.contracts import (
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
     evaluate_derived_input_correspondence,
+    evaluate_entity_vector_correspondence_basis,
     evaluate_scoped_correspondence_basis,
     load_derived_input_correspondence,
     load_derived_input_profile,
+    load_entity_vector_correspondence_basis,
     load_model_input_obligation_set,
     load_ratio_denominator_source_context,
     load_resolved_input_binding_manifest,
+    load_selected_entity_vector_source_meaning,
     load_variable_representation,
     persist_resolved_input_binding_manifest,
     resolve_model_input_step_selections,
     scoped_correspondence_basis_manifest_inputs,
+    selected_method_input_tensor_identity,
 )
 from polisyos.core.derivations import (
     DerivationRefusalError,
@@ -136,6 +143,9 @@ from polisyos.foundry._artifact_capabilities import (
     resolve_verifiable_core_json_profile_reader,
 )
 from polisyos.foundry.contracts.state import FeedbackState, GlobalState
+from polisyos.foundry.data_plane.selected_method_entity_vector import (
+    prepare_selected_method_entity_vector,
+)
 from polisyos.foundry.data_plane.selected_tensors import (
     encode_selected_tensor,
     selected_tensor_value_sha256,
@@ -161,7 +171,14 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
-from polisyos.ir.kernel import MoneyUnit, SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
+from polisyos.ir.kernel import (
+    MoneyUnit,
+    SlotKind,
+    SlotRegistry,
+    SlotScope,
+    SlotSpec,
+    SlotValueType,
+)
 from polisyos.ir.observation.bundles import (
     HTE_OBSERVATIONAL_DATA_CONTRACT_FQN,
     HTE_OBSERVATIONAL_DATA_CONTRACT_ID,
@@ -1386,11 +1403,26 @@ class _PreparedSelectedMethodInput:
 
 
 @dataclass(frozen=True)
+class _PreparedSelectedMethodVectorInput:
+    """One source-recomputed aligned vector before selected NPY persistence."""
+
+    model_input_obligation_ref: ArtifactRef
+    binding_id: str
+    port_id: str
+    slot_id: str
+    entity_axis_ref: ArtifactRef
+    source_descriptor: SelectedEntityVectorSourceDescriptor
+    alignment_identity: EntityAxisValueIdentity
+    value: np.ndarray
+    lineage_inputs: tuple[InputRef, ...]
+
+
+@dataclass(frozen=True)
 class _PreparedSelectedMethodInputAtStep:
-    """One source-recomputed scalar and its independently selected step scope."""
+    """One source-recomputed value and its independently selected step scope."""
 
     step_scope: ModelInputStepScope
-    input: _PreparedSelectedMethodInput
+    input: _PreparedSelectedMethodInput | _PreparedSelectedMethodVectorInput
 
 
 @dataclass(frozen=True)
@@ -1425,7 +1457,7 @@ class SelectedMethodInputFacts:
 
     bindings: FoundryInputBindings
     values: Mapping[str, np.ndarray]
-    records: tuple[FoundrySelectedMethodInput, ...]
+    records: tuple[FoundrySelectedMethodInput | FoundrySelectedMethodVectorInput, ...]
     notes: tuple[str, ...]
 
 
@@ -2280,7 +2312,9 @@ def build_input_bindings(
     selected_method_input_steps = tuple(
         FoundrySelectedMethodInputAtStep(
             step_scope=row.step_scope,
-            input_kind="scalar",
+            input_kind=(
+                "vector" if type(row.input) is _PreparedSelectedMethodVectorInput else "scalar"
+            ),
             input=_persist_selected_method_input(store, row.input),
         )
         for row in preparation.selected_method_input_steps
@@ -2563,9 +2597,10 @@ def _selected_method_binding_inputs(
 
 
 def _persist_selected_method_input(
-    store: CoreJSONArtifactStore, selected: _PreparedSelectedMethodInput
-) -> FoundrySelectedMethodInput:
-    """Persist one canonically encoded scalar without changing its dtype or shape."""
+    store: CoreJSONArtifactStore,
+    selected: _PreparedSelectedMethodInput | _PreparedSelectedMethodVectorInput,
+) -> FoundrySelectedMethodInput | FoundrySelectedMethodVectorInput:
+    """Persist one encoded value without changing its source or tensor identity."""
     value_ref = put_tensor(
         store,
         selected.value,
@@ -2573,6 +2608,18 @@ def _persist_selected_method_input(
         kind="foundry.selected_method_input_value",
         inputs=list(selected.lineage_inputs),
     )
+    if type(selected) is _PreparedSelectedMethodVectorInput:
+        return FoundrySelectedMethodVectorInput(
+            model_input_obligation_ref=selected.model_input_obligation_ref,
+            binding_id=selected.binding_id,
+            port_id=selected.port_id,
+            slot_id=selected.slot_id,
+            npy_value_ref=value_ref,
+            entity_axis_ref=selected.entity_axis_ref,
+            source_descriptor=selected.source_descriptor,
+            alignment_identity=selected.alignment_identity,
+            tensor_value_sha256=_selected_method_tensor_digest(selected.value),
+        )
     return FoundrySelectedMethodInput(
         model_input_obligation_ref=selected.model_input_obligation_ref,
         binding_id=selected.binding_id,
@@ -2871,7 +2918,7 @@ def _prepare_semantic_input_binding_facts(
 ) -> InputBindingsPreparation:
     """Replay immutable source, semantic, and physical input facts only."""
     manifest = load_resolved_input_binding_manifest(store, resolved_binding_manifest_ref)
-    if manifest.schema_version == "3.0":
+    if manifest.schema_version in {"3.0", "4.0"}:
         return _prepare_semantic_step_input_binding_facts(
             store,
             manifest=manifest,
@@ -3209,6 +3256,139 @@ def _prepare_semantic_input_binding_facts(
     return replace(prepared, warnings=tuple(dict.fromkeys((*prepared.warnings, *limitations))))
 
 
+def _prepare_selected_method_vector_input(
+    store: _VerifiableCoreJSONArtifactProfileReader,
+    *,
+    selection: ResolvedEntityVectorInput,
+    manifest_ref: ResolvedInputBindingManifestRef,
+    obligation: ModelInputObligation,
+    step_scope: ModelInputStepScope,
+) -> tuple[_PreparedSelectedMethodVectorInput, tuple[str, ...]]:
+    """Replay candidate declarations and physically reconstruct one vector."""
+    port = obligation.port
+    if (
+        port.entity_axis_ref is None
+        or port.physical_encoding is None
+        or len(port.physical_encoding.shape) != 1
+        or selection.model_port_id != port.port_id
+        or artifact_ref_identity_key(selection.model_interface_ref)
+        != artifact_ref_identity_key(obligation.interface_ref)
+        or artifact_ref_identity_key(selection.entity_axis_ref)
+        != artifact_ref_identity_key(port.entity_axis_ref)
+    ):
+        raise ValueError("foundry_selected_method_vector_port_mismatch")
+    meaning = load_selected_entity_vector_source_meaning(store, selection.source_meaning_ref)
+    proof = load_entity_vector_correspondence_basis(store, selection.correspondence_ref)
+    if meaning.source_descriptor.model_dump(mode="json") != selection.source_descriptor.model_dump(
+        mode="json"
+    ):
+        raise ValueError("foundry_selected_method_vector_source_descriptor_mismatch")
+    registry = load_registry_bundle_content(store, obligation.registry_bundle_ref)
+    source_registry = load_registry_bundle_content(store, meaning.source_registry_bundle_ref)
+    registered_slot = registry.slot_registry.slots.get(port.slot_id)
+    encoding = port.physical_encoding
+    if (
+        registered_slot is None
+        or registered_slot.state_path is not None
+        or registered_slot.scope is not SlotScope.GLOBAL
+        or registered_slot.value_type is not SlotValueType.DECIMAL
+        or registered_slot.shape is None
+        or len(registered_slot.shape) != 1
+        or registered_slot.dtype != encoding.dtype
+        or registered_slot.unit is None
+        or registered_slot.unit.unit_id != port.unit_id
+    ):
+        raise ValueError("foundry_selected_method_input_port_encoding_mismatch")
+    source_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, meaning.source_definition_ref
+    )
+    target_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, port.semantic_definition_ref
+    )
+    for definition in (source_definition, target_definition):
+        if any(not store.verify(ref).ok for ref in definition.definition_evidence_refs):
+            raise ValueError("foundry_input_bindings_semantic_definition_evidence_unverified")
+    source_representation = load_variable_representation(store, meaning.source_representation_ref)
+    result = evaluate_entity_vector_correspondence_basis(
+        basis=proof,
+        source_meaning_ref=selection.source_meaning_ref,
+        source_meaning=meaning,
+        source_definition_ref=meaning.source_definition_ref,
+        source_definition=source_definition,
+        source_representation_ref=meaning.source_representation_ref,
+        source_representation=source_representation,
+        source_registry_bundle_ref=meaning.source_registry_bundle_ref,
+        source_unit=(
+            None
+            if source_registry.units_registry is None
+            else source_registry.units_registry.units.get(source_representation.unit_id)
+        ),
+        target_unit=(
+            None
+            if registry.units_registry is None
+            else registry.units_registry.units.get(port.unit_id)
+        ),
+        target_definition_ref=port.semantic_definition_ref,
+        target_definition=target_definition,
+        target_representation_ref=port.representation_ref,
+        target_representation=load_variable_representation(store, port.representation_ref),
+        binding_profile_ref=port.binding_profile_ref,
+        profile=validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, port.binding_profile_ref
+        ),
+        model_interface_ref=selection.model_interface_ref,
+        model_port=port,
+        expected_scope=step_scope.scope,
+    )
+    if result.status != "candidate":
+        raise ValueError(
+            "foundry_input_bindings_semantic_correspondence_refused:"
+            + ",".join(result.refusal_codes)
+        )
+    axis_ref = ArtifactRef.model_validate(selection.entity_axis_ref.model_dump(mode="json"))
+    aligned = prepare_selected_method_entity_vector(
+        store,
+        port=port,
+        binding_port_id=selection.model_port_id,
+        binding_slot_id=port.slot_id,
+        source=selection.source_descriptor,
+        axis_ref=axis_ref,
+        limits=CoreJsonReadLimits(
+            max_bytes=4 * 1024 * 1024,
+            max_depth=32,
+            max_elements=100_000,
+            max_manifest_bytes=512 * 1024,
+        ),
+    )
+    return (
+        _PreparedSelectedMethodVectorInput(
+            model_input_obligation_ref=selection.model_input_obligation_ref,
+            binding_id=selection.binding_id,
+            port_id=port.port_id,
+            slot_id=port.slot_id,
+            entity_axis_ref=axis_ref,
+            source_descriptor=selection.source_descriptor,
+            alignment_identity=aligned.identity,
+            value=aligned.values,
+            lineage_inputs=(
+                input_ref_from_artifact_ref(
+                    selection.model_input_obligation_ref, role="target.model_input_obligation"
+                ),
+                input_ref_from_artifact_ref(manifest_ref, role="input.resolved_binding_manifest"),
+                input_ref_from_artifact_ref(
+                    selection.source_descriptor.source_view_ref, role="source.selected_value"
+                ),
+                input_ref_from_artifact_ref(
+                    selection.correspondence_ref, role="source.correspondence"
+                ),
+                input_ref_from_artifact_ref(selection.source_meaning_ref, role="source.meaning"),
+                input_ref_from_artifact_ref(axis_ref, role="source.entity_axis"),
+            ),
+        ),
+        result.limitation_codes,
+    )
+
+
 def _prepare_semantic_step_input_binding_facts(
     store: CoreJSONArtifactStore,
     *,
@@ -3222,12 +3402,13 @@ def _prepare_semantic_step_input_binding_facts(
     semantic_horizon_step: SemanticHorizonStepContext | None,
     expected_invocation: ProgramGraphInputInvocation | None,
 ) -> InputBindingsPreparation:
-    """Replay a scalar temporal batch against its one original full denominator.
+    """Replay one temporal source family against its original full denominator.
 
     The compact payload carries only derived values. Retained initial rules
     are independently replayed from their original predecessor source, while
     the exact selected physical prestate is reused without a shadow snapshot.
     """
+    vector_profile = manifest.schema_version == "4.0"
     if artifact_ref_identity_key(manifest.data_snapshot_ref) != artifact_ref_identity_key(
         data_snapshot_ref
     ):
@@ -3235,7 +3416,9 @@ def _prepare_semantic_step_input_binding_facts(
     resolved = resolve_model_input_step_selections(
         store,
         obligation_set_ref=manifest.model_input_obligation_set_ref,
-        selections=manifest.method_input_steps,
+        selections=(
+            manifest.entity_vector_steps if vector_profile else manifest.method_input_steps
+        ),
     )
     selected_set, members = resolved.obligation_set, resolved.obligations
     invocation = selected_set.invocation
@@ -3247,7 +3430,16 @@ def _prepare_semantic_step_input_binding_facts(
         raise ValueError("foundry_input_bindings_semantic_registry_mismatch")
     if len(resolved.coverage.required_step_scopes) > 32:
         raise ValueError("foundry_selected_method_input_step_profile_unrepresentable")
-    if any(
+    if vector_profile:
+        if any(
+            member.port.carrier != "method_input"
+            or member.port.physical_encoding is None
+            or len(member.port.physical_encoding.shape) != 1
+            or member.port.entity_axis_ref is None
+            for member in members
+        ):
+            raise ValueError("foundry_selected_method_input_step_vector_profile_required")
+    elif any(
         member.port.carrier != "method_input"
         or member.port.physical_encoding is None
         or member.port.physical_encoding.shape
@@ -3287,41 +3479,47 @@ def _prepare_semantic_step_input_binding_facts(
     ):
         raise ValueError("foundry_selected_method_input_step_original_prestate_required")
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
-    lineage = snapshot.source_lineage
-    if (
-        not isinstance(lineage, DerivedModelInputStepDataSnapshotLineage)
-        or snapshot.data_ref.kind != DERIVED_MODEL_INPUT_PAYLOAD_KIND
-        or artifact_ref_identity_key(lineage.base_data_snapshot_ref)
-        != artifact_ref_identity_key(predecessor.data_snapshot_ref)
-        or artifact_ref_identity_key(lineage.model_input_obligation_set_ref)
-        != artifact_ref_identity_key(manifest.model_input_obligation_set_ref)
-        or lineage.selections != manifest.method_input_steps
-    ):
-        raise ValueError("foundry_input_bindings_derived_step_snapshot_selection_mismatch")
-    payload = _load_binding_payload(store, snapshot)
-    payload_manifest = store.get_manifest(snapshot.data_ref)
-    if payload_manifest.artifact_schema != SchemaInfo(
-        name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.1"
-    ):
-        raise ValueError("foundry_input_bindings_derived_step_payload_profile_mismatch")
-    base_snapshot = _load_data_snapshot(store, predecessor.data_snapshot_ref)
-    payload_inputs = [
-        input_ref_from_artifact_ref(base_snapshot.data_ref, role="context.base_payload")
-    ]
-    for row in manifest.method_input_steps:
-        selection = row.selection
-        payload_inputs.extend(
-            (
-                input_ref_from_artifact_ref(
-                    selection.output_ref, role=selection.payload_output_role()
-                ),
-                input_ref_from_artifact_ref(
-                    selection.correspondence_ref, role="derived.correspondence"
-                ),
+    if vector_profile:
+        if artifact_ref_identity_key(data_snapshot_ref) != artifact_ref_identity_key(
+            predecessor.data_snapshot_ref
+        ):
+            raise ValueError("foundry_selected_method_vector_original_snapshot_required")
+    else:
+        lineage = snapshot.source_lineage
+        if (
+            not isinstance(lineage, DerivedModelInputStepDataSnapshotLineage)
+            or snapshot.data_ref.kind != DERIVED_MODEL_INPUT_PAYLOAD_KIND
+            or artifact_ref_identity_key(lineage.base_data_snapshot_ref)
+            != artifact_ref_identity_key(predecessor.data_snapshot_ref)
+            or artifact_ref_identity_key(lineage.model_input_obligation_set_ref)
+            != artifact_ref_identity_key(manifest.model_input_obligation_set_ref)
+            or lineage.selections != manifest.method_input_steps
+        ):
+            raise ValueError("foundry_input_bindings_derived_step_snapshot_selection_mismatch")
+        payload = _load_binding_payload(store, snapshot)
+        payload_manifest = store.get_manifest(snapshot.data_ref)
+        if payload_manifest.artifact_schema != SchemaInfo(
+            name="polisyos.runtime.quality.DerivedModelInputPayload", version="1.1"
+        ):
+            raise ValueError("foundry_input_bindings_derived_step_payload_profile_mismatch")
+        base_snapshot = _load_data_snapshot(store, predecessor.data_snapshot_ref)
+        payload_inputs = [
+            input_ref_from_artifact_ref(base_snapshot.data_ref, role="context.base_payload")
+        ]
+        for row in manifest.method_input_steps:
+            selection = row.selection
+            payload_inputs.extend(
+                (
+                    input_ref_from_artifact_ref(
+                        selection.output_ref, role=selection.payload_output_role()
+                    ),
+                    input_ref_from_artifact_ref(
+                        selection.correspondence_ref, role="derived.correspondence"
+                    ),
+                )
             )
-        )
-    if payload_manifest.inputs != payload_inputs:
-        raise ValueError("foundry_input_bindings_derived_step_payload_lineage_mismatch")
+        if payload_manifest.inputs != payload_inputs:
+            raise ValueError("foundry_input_bindings_derived_step_payload_lineage_mismatch")
     slots = load_registry_bundle_content(store, registry_bundle_ref).slot_registry
     retained = _replay_explicit_initial_bindings(
         store,
@@ -3348,9 +3546,23 @@ def _prepare_semantic_step_input_binding_facts(
         tuple[str, str, str, str | None],
         tuple[ScopedMeasurementOccurrence, ScopedMeasurementOccurrence, ScopedSourceSelection],
     ] = {}
-    for row in manifest.method_input_steps:
+    rows = manifest.entity_vector_steps if vector_profile else manifest.method_input_steps
+    for row in rows:
         selection = row.selection
         obligation = obligations[artifact_ref_identity_key(selection.model_input_obligation_ref)]
+        if vector_profile:
+            vector, vector_limits = _prepare_selected_method_vector_input(
+                store,
+                selection=selection,
+                manifest_ref=manifest_ref,
+                obligation=obligation,
+                step_scope=row.step_scope,
+            )
+            prepared_rows.append(
+                _PreparedSelectedMethodInputAtStep(step_scope=row.step_scope, input=vector)
+            )
+            limitations.extend(vector_limits)
+            continue
         value, projection, derived_limits = _verify_selected_derived_input(
             store,
             selection,
@@ -3384,9 +3596,9 @@ def _prepare_semantic_step_input_binding_facts(
             )
         )
         limitations.extend(derived_limits)
-    if to_canonical_bytes(payload, CanonSpec(forbid_floats=False)) != to_canonical_bytes(
-        {"derived_inputs": expected_payload}, CanonSpec(forbid_floats=False)
-    ):
+    if not vector_profile and to_canonical_bytes(
+        payload, CanonSpec(forbid_floats=False)
+    ) != to_canonical_bytes({"derived_inputs": expected_payload}, CanonSpec(forbid_floats=False)):
         raise ValueError("foundry_input_bindings_derived_step_payload_value_set_mismatch")
     state = _load_input_binding_state(
         store,
@@ -4388,22 +4600,37 @@ def _replay_selected_method_input_values(
 
 def _replay_selected_method_input_tensor(
     store: CoreJSONArtifactProfileReader,
-    record: FoundrySelectedMethodInput,
-    expected: _PreparedSelectedMethodInput,
+    record: FoundrySelectedMethodInput | FoundrySelectedMethodVectorInput,
+    expected: _PreparedSelectedMethodInput | _PreparedSelectedMethodVectorInput,
 ) -> np.ndarray:
-    """Reconcile one source-derived scalar and return bytes-backed NumPy storage."""
+    """Reconcile one source-derived tensor and return bytes-backed NumPy storage."""
     value = expected.value
     expected_digest = _selected_method_tensor_digest(value)
+    digest, shape, dtype = selected_method_input_tensor_identity(record)
+    if type(expected) is _PreparedSelectedMethodVectorInput:
+        if (
+            type(record) is not FoundrySelectedMethodVectorInput
+            or artifact_ref_identity_key(record.entity_axis_ref)
+            != artifact_ref_identity_key(expected.entity_axis_ref)
+            or record.source_descriptor.model_dump(mode="json")
+            != expected.source_descriptor.model_dump(mode="json")
+            or record.alignment_identity != expected.alignment_identity
+        ):
+            raise ValueError("foundry_selected_method_input_record_source_mismatch")
+    elif (
+        type(record) is not FoundrySelectedMethodInput
+        or record.canonical_value != expected.canonical_value
+    ):
+        raise ValueError("foundry_selected_method_input_record_source_mismatch")
     if (
         artifact_ref_identity_key(record.model_input_obligation_ref)
         != artifact_ref_identity_key(expected.model_input_obligation_ref)
         or record.binding_id != expected.binding_id
         or record.port_id != expected.port_id
         or record.slot_id != expected.slot_id
-        or record.canonical_value != expected.canonical_value
-        or record.dtype != value.dtype.name
-        or record.shape != value.shape
-        or record.value_sha256 != expected_digest
+        or dtype != value.dtype.name
+        or shape != value.shape
+        or digest != expected_digest
     ):
         raise ValueError("foundry_selected_method_input_record_source_mismatch")
     ref = record.npy_value_ref
@@ -4417,8 +4644,8 @@ def _replay_selected_method_input_tensor(
     actual = load_tensor(
         store,
         ref,
-        expected_shape=record.shape,
-        expected_dtype=record.dtype,
+        expected_shape=shape,
+        expected_dtype=dtype,
         max_payload_bytes=value.nbytes + 16_384,
     )
     if _selected_method_tensor_digest(actual) != expected_digest:
@@ -4459,11 +4686,16 @@ def _load_selected_method_step_input_binding(
     records = bindings.selected_method_input_steps
     if bindings.schema_version != "1.5" or not records or manifest_ref is None:
         raise ValueError("foundry_selected_method_input_step_profile_required")
-    if any(
-        row.input_kind != "scalar" or type(row.input) is not FoundrySelectedMethodInput
-        for row in records
-    ):
-        raise ValueError("foundry_selected_method_input_step_vector_semantics_not_established")
+    if len({row.input_kind for row in records}) != 1:
+        raise ValueError("foundry_selected_method_input_step_mixed_profile_not_established")
+    for row in records:
+        expected_type = (
+            FoundrySelectedMethodVectorInput
+            if row.input_kind == "vector"
+            else FoundrySelectedMethodInput
+        )
+        if type(row.input) is not expected_type:
+            raise ValueError("foundry_selected_method_input_step_record_type_mismatch")
     return core_store, bindings, manifest_ref, records
 
 
@@ -4489,9 +4721,8 @@ def _replay_selected_method_step_input_values(
     )
     values: dict[tuple[str, int], np.ndarray] = {}
     for row, expected in zip(records, prepared.selected_method_input_steps, strict=True):
-        if (
-            row.step_scope != expected.step_scope
-            or type(row.input) is not FoundrySelectedMethodInput
+        if row.step_scope != expected.step_scope or (row.input_kind == "vector") != (
+            type(expected.input) is _PreparedSelectedMethodVectorInput
         ):
             raise ValueError("foundry_selected_method_input_step_scope_mismatch")
         key = row.input.slot_id, row.step_scope.step

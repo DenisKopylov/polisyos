@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
@@ -16,36 +17,66 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactRef,
     CoreJSONArtifactStore,
+    CoreJsonReadLimits,
     PutOptions,
     SchemaInfo,
     artifact_manifest_profile_sha256,
     artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+    read_core_json_artifact_bounded,
     validate_core_model_json_artifact,
 )
 from polisyos.core.contracts import (
+    ENTITY_VECTOR_CANDIDATE_LIMITATIONS,
+    EntityAxisMemberId,
+    EntityVectorCorrespondenceBasis,
+    EntityVectorCorrespondenceBasisRef,
     FixedUnitTransformWitness,
+    FoundryInputBindings,
     MeasurementAxis,
     MeasurementBindingProfile,
     MeasurementBindingProfileRef,
     MeasurementCorrespondenceResult,
+    ModelInputObligationSet,
+    ModelInputPort,
+    ModelInputStepSelectionResolution,
+    ModelInputStepSubject,
+    ResolvedEntityVectorInput,
+    ResolvedEntityVectorInputAtStep,
+    ResolvedInputBindingManifest,
+    ResolvedInputBindingManifestRef,
     ScopedCorrespondenceBasis,
     ScopedCorrespondenceBasisRef,
+    ScopedCorrespondenceEvaluation,
     ScopedMeasurementOccurrence,
     ScopedMeasurementOccurrenceRef,
     ScopedSourceSelection,
+    SelectedEntityAxis,
+    SelectedEntityVectorSourceMeaning,
+    SelectedEntityVectorSourceMeaningRef,
     SelectedVariableBindingRef,
     VariableRepresentationRef,
     VariableSemanticDefinition,
     VariableSemanticDefinitionRef,
+    entity_axis_member_sort_key,
+    entity_vector_correspondence_basis_manifest_inputs,
     epoch,
+    evaluate_entity_vector_correspondence_basis,
     evaluate_scoped_correspondence_basis,
+    load_entity_vector_correspondence_basis,
     load_program_graph_input_interface,
+    load_resolved_input_binding_manifest,
+    load_selected_entity_vector_source_meaning,
     load_variable_representation,
+    persist_resolved_input_binding_manifest,
     replay_scoped_measurement_occurrence,
+    resolve_model_input_step_subjects,
     scoped_correspondence_basis_manifest_inputs,
     scoped_measurement_occurrence_manifest_inputs,
     scoped_source_selection_from_passport_mapping,
+    selected_entity_vector_source_meaning_manifest_inputs,
 )
+from polisyos.core.registry import load_registry_bundle, load_registry_bundle_content
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     ActivatedAcquisitionObservationProjection,
     ActivatedAcquisitionPassport,
@@ -57,9 +88,11 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.registry import RegistryBundleContent
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         CanonicalAcquisitionAuthority,
     )
+    from polisyos.ir.kernel import UnitSpecType
 
 
 class _AssessmentRefusalError(ValueError):
@@ -961,9 +994,799 @@ def _result(
     )
 
 
+def assess_entity_vector_to_model_candidate(
+    store: CoreJSONArtifactStore,
+    *,
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef,
+    obligation_set_ref: ArtifactRef,
+    step_subject: ModelInputStepSubject,
+    read_limits: CoreJsonReadLimits,
+) -> tuple[ScopedCorrespondenceEvaluation, EntityVectorCorrespondenceBasisRef | None]:
+    """Replay one selected entity-vector declaration against a model port.
+
+    The result is candidate-only. A successful comparison recomputes equality
+    between selected semantic definitions and representation axes; it does not
+    establish empirical meaning, source currentness, representativeness, or
+    permission for a current method call. Source JSON is reopened with bounded
+    Core readers and its generic parallel-array layout, membership, cardinality,
+    and finite numeric values are checked before a basis is persisted. The
+    original obligation set resolves the exact interface and step scope; a
+    caller-supplied scope cannot turn a declaration into a positive predicate.
+
+    Args:
+        store: Core JSON artifact store shared by the Catalog owner.
+        source_meaning_ref: Exact persisted declaration for one selected source
+            view, member pointer, value pointer, and consumer-declared scope.
+        obligation_set_ref: Exact original full-horizon model-input preflight.
+        step_subject: One original obligation and port-step coordinate whose
+            scope is resolved against the selected model clock.
+        read_limits: Explicit byte, depth, and element limits for the selected
+            source JSON read.
+
+    Returns:
+        tuple[ScopedCorrespondenceEvaluation, EntityVectorCorrespondenceBasisRef | None]:
+        Recomputed candidate/refusal and its persisted basis reference when
+        candidate predicates pass. Refusals never carry a basis reference.
+    """
+    if type(step_subject) is not ModelInputStepSubject:
+        return _entity_vector_refusal("entity_vector_step_subject_untyped"), None
+    try:
+        resolution = resolve_model_input_step_subjects(
+            store,
+            obligation_set_ref=obligation_set_ref,
+            subjects=(step_subject,),
+        )
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        return _entity_vector_refusal(_entity_vector_refusal_code(exc)), None
+    return _assess_entity_vector_to_model_candidate_from_resolution(
+        store,
+        source_meaning_ref=source_meaning_ref,
+        step_subject=step_subject,
+        resolution=resolution,
+        read_limits=read_limits,
+    )
+
+
+def _assess_entity_vector_to_model_candidate_from_resolution(
+    store: CoreJSONArtifactStore,
+    *,
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef,
+    step_subject: ModelInputStepSubject,
+    resolution: ModelInputStepSelectionResolution,
+    read_limits: CoreJsonReadLimits,
+) -> tuple[ScopedCorrespondenceEvaluation, EntityVectorCorrespondenceBasisRef | None]:
+    """Evaluate and persist one candidate using an existing Core step replay."""
+    try:
+        if (
+            type(read_limits) is not CoreJsonReadLimits
+            or type(resolution) is not ModelInputStepSelectionResolution
+            or type(step_subject) is not ModelInputStepSubject
+        ):
+            raise _AssessmentRefusal("entity_vector_bounded_step_inputs_required")
+        resolved_scopes = tuple(
+            scope
+            for scope in resolution.coverage.supplied_step_scopes
+            if (scope.port_id, scope.step)
+            == (step_subject.step_scope.port_id, step_subject.step_scope.step)
+        )
+        if len(resolved_scopes) != 1 or resolved_scopes[0] != step_subject.step_scope:
+            raise _AssessmentRefusal("entity_vector_step_scope_not_recomputed")
+        expected_scope = resolved_scopes[0].scope
+        selected_source_meaning_ref = SelectedEntityVectorSourceMeaningRef.model_validate(
+            _selected_exact_ref(store, source_meaning_ref).model_dump(mode="json")
+        )
+        source_meaning = load_selected_entity_vector_source_meaning(
+            store, selected_source_meaning_ref
+        )
+        selected_set = resolution.obligation_set
+        selected_interface_ref = SelectedVariableBindingRef.model_validate(
+            _selected_exact_ref(store, selected_set.invocation.interface_ref).model_dump(
+                mode="json"
+            )
+        )
+        model_port_id = step_subject.step_scope.port_id
+        interface = load_program_graph_input_interface(store, selected_interface_ref)
+        if artifact_ref_identity_key(interface.registry_bundle_ref) != artifact_ref_identity_key(
+            source_meaning.source_registry_bundle_ref
+        ):
+            raise _AssessmentRefusal("entity_vector_registry_bundle_mismatch")
+        selected_ports = tuple(port for port in interface.ports if port.port_id == model_port_id)
+        if len(selected_ports) != 1:
+            raise _AssessmentRefusal("entity_vector_model_port_not_unique")
+        model_port = selected_ports[0]
+        if type(model_port) is not ModelInputPort or model_port.entity_axis_ref is None:
+            raise _AssessmentRefusal("entity_vector_model_port_axis_required")
+        selected_obligation_refs = tuple(
+            (ref, member)
+            for ref, member in zip(
+                selected_set.obligation_refs, resolution.obligations, strict=True
+            )
+            if artifact_ref_identity_key(ref)
+            == artifact_ref_identity_key(step_subject.model_input_obligation_ref)
+        )
+        if len(selected_obligation_refs) != 1 or selected_obligation_refs[0][1].port != model_port:
+            raise _AssessmentRefusal("entity_vector_step_origin_port_mismatch")
+
+        selected_axis_ref = _selected_exact_ref(store, model_port.entity_axis_ref)
+        _replay_entity_vector_source_layout(
+            store,
+            source_meaning=source_meaning,
+            model_port=model_port,
+            axis_ref=selected_axis_ref,
+            read_limits=read_limits,
+        )
+
+        source_definition_ref = VariableSemanticDefinitionRef.model_validate(
+            _selected_exact_ref(store, source_meaning.source_definition_ref).model_dump(mode="json")
+        )
+        source_representation_ref = VariableRepresentationRef.model_validate(
+            _selected_exact_ref(store, source_meaning.source_representation_ref).model_dump(
+                mode="json"
+            )
+        )
+        source_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, source_definition_ref
+        )
+        source_representation = load_variable_representation(store, source_representation_ref)
+        _reopen_definition_evidence(store, source_definition)
+
+        target_definition_ref = VariableSemanticDefinitionRef.model_validate(
+            _selected_exact_ref(store, model_port.semantic_definition_ref).model_dump(mode="json")
+        )
+        target_representation_ref = VariableRepresentationRef.model_validate(
+            _selected_exact_ref(store, model_port.representation_ref).model_dump(mode="json")
+        )
+        binding_profile_ref = MeasurementBindingProfileRef.model_validate(
+            _selected_exact_ref(store, model_port.binding_profile_ref).model_dump(mode="json")
+        )
+        target_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, target_definition_ref
+        )
+        target_representation = load_variable_representation(store, target_representation_ref)
+        profile = validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, binding_profile_ref
+        )
+        _reopen_definition_evidence(store, target_definition)
+
+        registry_content = _load_reconciled_registry_bundle_content(
+            store, source_meaning.source_registry_bundle_ref
+        )
+        units = registry_content.units_registry
+        source_unit: UnitSpecType | None = (
+            None if units is None else units.units.get(source_representation.unit_id)
+        )
+        target_unit: UnitSpecType | None = (
+            None if units is None else units.units.get(target_representation.unit_id)
+        )
+        basis = EntityVectorCorrespondenceBasis(
+            source_meaning_ref=selected_source_meaning_ref,
+            model_interface_ref=selected_interface_ref,
+            model_port_id=model_port_id,
+            target_definition_ref=target_definition_ref,
+            target_representation_ref=target_representation_ref,
+            binding_profile_ref=binding_profile_ref,
+            scope=expected_scope,
+        )
+        evaluation = evaluate_entity_vector_correspondence_basis(
+            basis=basis,
+            source_meaning_ref=selected_source_meaning_ref,
+            source_meaning=source_meaning,
+            source_definition_ref=source_definition_ref,
+            source_definition=source_definition,
+            source_representation_ref=source_representation_ref,
+            source_representation=source_representation,
+            source_registry_bundle_ref=source_meaning.source_registry_bundle_ref,
+            source_unit=source_unit,
+            target_unit=target_unit,
+            target_definition_ref=target_definition_ref,
+            target_definition=target_definition,
+            target_representation_ref=target_representation_ref,
+            target_representation=target_representation,
+            binding_profile_ref=binding_profile_ref,
+            profile=profile,
+            model_interface_ref=selected_interface_ref,
+            model_port=model_port,
+            expected_scope=expected_scope,
+        )
+        if evaluation.status == "refused":
+            return evaluation, None
+
+        basis_ref = _persist_entity_vector_correspondence_basis(store, basis)
+        reopened_basis = load_entity_vector_correspondence_basis(store, basis_ref)
+        if reopened_basis != basis:
+            raise _AssessmentRefusal("entity_vector_correspondence_basis_readback_mismatch")
+        reopened_meaning = load_selected_entity_vector_source_meaning(
+            store, selected_source_meaning_ref
+        )
+        reopened_interface = load_program_graph_input_interface(store, selected_interface_ref)
+        reopened_ports = tuple(
+            port for port in reopened_interface.ports if port.port_id == model_port_id
+        )
+        if len(reopened_ports) != 1:
+            raise _AssessmentRefusal("entity_vector_model_port_not_unique")
+        reopened_source_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, source_definition_ref
+        )
+        reopened_target_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, target_definition_ref
+        )
+        _reopen_definition_evidence(store, reopened_source_definition)
+        _reopen_definition_evidence(store, reopened_target_definition)
+        reopened_registry_content = _load_reconciled_registry_bundle_content(
+            store, reopened_meaning.source_registry_bundle_ref
+        )
+        reopened_units = reopened_registry_content.units_registry
+        reopened_source_representation = load_variable_representation(
+            store, source_representation_ref
+        )
+        reopened_target_representation = load_variable_representation(
+            store, target_representation_ref
+        )
+        reopened_source_unit: UnitSpecType | None = (
+            None
+            if reopened_units is None
+            else reopened_units.units.get(reopened_source_representation.unit_id)
+        )
+        reopened_target_unit: UnitSpecType | None = (
+            None
+            if reopened_units is None
+            else reopened_units.units.get(reopened_target_representation.unit_id)
+        )
+        replayed = evaluate_entity_vector_correspondence_basis(
+            basis=reopened_basis,
+            source_meaning_ref=selected_source_meaning_ref,
+            source_meaning=reopened_meaning,
+            source_definition_ref=source_definition_ref,
+            source_definition=reopened_source_definition,
+            source_representation_ref=source_representation_ref,
+            source_representation=reopened_source_representation,
+            source_registry_bundle_ref=reopened_meaning.source_registry_bundle_ref,
+            source_unit=reopened_source_unit,
+            target_unit=reopened_target_unit,
+            target_definition_ref=target_definition_ref,
+            target_definition=reopened_target_definition,
+            target_representation_ref=target_representation_ref,
+            target_representation=reopened_target_representation,
+            binding_profile_ref=binding_profile_ref,
+            profile=validate_core_model_json_artifact(
+                MeasurementBindingProfile, store, binding_profile_ref
+            ),
+            model_interface_ref=selected_interface_ref,
+            model_port=reopened_ports[0],
+            expected_scope=expected_scope,
+        )
+        if replayed != evaluation or replayed.status != "candidate":
+            raise _AssessmentRefusal("entity_vector_correspondence_replay_mismatch")
+        return replayed, basis_ref
+    except (_AssessmentRefusal, OverlayAdmissionError) as exc:
+        return _entity_vector_refusal(exc.code), None
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        return _entity_vector_refusal(_entity_vector_refusal_code(exc)), None
+
+
+def prepare_registered_entity_vector_input_steps(
+    store: CoreJSONArtifactStore,
+    *,
+    data_snapshot_ref: ArtifactRef,
+    obligation_set_ref: ArtifactRef,
+    source_inputs: tuple[tuple[ModelInputStepSubject, SelectedEntityVectorSourceMeaning], ...],
+    read_limits: CoreJsonReadLimits,
+) -> ResolvedInputBindingManifestRef:
+    """Persist a complete candidate vector selection for registered method ports.
+
+    The source inputs pair one selected meaning declaration with each original
+    model-owned `(port, step)` subject. Core reopens the full obligation set and
+    computes the coverage denominator. Each target port and entity axis is
+    derived from that selected interface; callers cannot substitute a free
+    axis. The original DataSnapshot predecessor is checked against the input
+    bindings selected by the same invocation and is recorded unchanged in
+    manifest 4.0. This only stages candidate inputs for Foundry's independent
+    source replay and typed vector alignment.
+
+    Args:
+        store: Core JSON artifact store shared by Catalog and Foundry.
+        data_snapshot_ref: Exact original predecessor from the invocation's
+            selected `FoundryInputBindings` artifact.
+        obligation_set_ref: Exact selected original full-horizon preflight set.
+        source_inputs: Nonempty, canonical `(step subject, source meaning)` rows.
+        read_limits: Explicit bounds for each selected generic JSON source view.
+
+    Returns:
+        ResolvedInputBindingManifestRef: Selected direct vector manifest v4.
+
+    Raises:
+        ValueError: If a step, source declaration, full predecessor, coverage,
+            or candidate correspondence fails replay.
+    """
+    if (
+        type(read_limits) is not CoreJsonReadLimits
+        or type(source_inputs) is not tuple
+        or not source_inputs
+        or len(source_inputs) > 32
+        or any(type(row) is not tuple or len(row) != 2 for row in source_inputs)
+    ):
+        raise _AssessmentRefusal("entity_vector_step_input_inventory_invalid")
+    subjects: tuple[ModelInputStepSubject, ...] = tuple(row[0] for row in source_inputs)
+    meanings: tuple[SelectedEntityVectorSourceMeaning, ...] = tuple(row[1] for row in source_inputs)
+    if any(
+        type(subject) is not ModelInputStepSubject
+        or type(meaning) is not SelectedEntityVectorSourceMeaning
+        for subject, meaning in zip(subjects, meanings, strict=True)
+    ):
+        raise _AssessmentRefusal("entity_vector_step_input_inventory_invalid")
+    step_keys = tuple((row.step_scope.port_id, row.step_scope.step) for row in subjects)
+    if step_keys != tuple(sorted(set(step_keys))):
+        raise _AssessmentRefusal("entity_vector_step_input_inventory_noncanonical")
+
+    selected_obligation_set_ref = _selected_exact_ref(store, obligation_set_ref)
+    selected_obligation_set = validate_core_model_json_artifact(
+        ModelInputObligationSet, store, selected_obligation_set_ref
+    )
+    predecessor_input_bindings_ref = _selected_exact_ref(
+        store, selected_obligation_set.invocation.input_bindings_ref
+    )
+    original_input_bindings = validate_core_model_json_artifact(
+        FoundryInputBindings, store, predecessor_input_bindings_ref
+    )
+    if (
+        original_input_bindings.selected_method_inputs is not None
+        or original_input_bindings.selected_method_input_steps is not None
+    ):
+        raise _AssessmentRefusal("foundry_selected_method_input_step_original_prestate_required")
+
+    resolution = resolve_model_input_step_subjects(
+        store,
+        obligation_set_ref=selected_obligation_set_ref,
+        subjects=subjects,
+    )
+    if artifact_ref_identity_key(
+        resolution.obligation_set.invocation.input_bindings_ref
+    ) != artifact_ref_identity_key(predecessor_input_bindings_ref):
+        raise _AssessmentRefusal("entity_vector_original_predecessor_context_mismatch")
+    coverage = resolution.coverage
+    try:
+        coverage.require_complete()
+    except ValueError as exc:
+        raise _AssessmentRefusal("entity_vector_step_coverage_incomplete") from exc
+
+    invocation = resolution.obligation_set.invocation
+    selected_interface_ref = SelectedVariableBindingRef.model_validate(
+        _selected_exact_ref(store, invocation.interface_ref).model_dump(mode="json")
+    )
+    interface = load_program_graph_input_interface(store, selected_interface_ref)
+    selected_registry_ref = _selected_exact_ref(store, invocation.registry_bundle_ref)
+    original_input_bindings_ref = predecessor_input_bindings_ref
+    original_input_bindings_manifest = store.get_manifest(original_input_bindings_ref)
+    _require_exact_input_role(
+        original_input_bindings_manifest,
+        "input.data_snapshot_ref",
+        original_input_bindings.data_snapshot_ref,
+        refusal_code="entity_vector_original_snapshot_lineage_mismatch",
+    )
+    _require_exact_input_role(
+        original_input_bindings_manifest,
+        "input.registry_bundle_ref",
+        original_input_bindings.registry_bundle_ref,
+        refusal_code="entity_vector_original_registry_lineage_mismatch",
+    )
+    _require_exact_input_role(
+        original_input_bindings_manifest,
+        "artifact.bound_state_snapshot_ref",
+        original_input_bindings.bound_state_snapshot_ref,
+        refusal_code="entity_vector_original_prestate_lineage_mismatch",
+    )
+    original_data_snapshot_ref = _selected_exact_ref(
+        store, original_input_bindings.data_snapshot_ref
+    )
+    supplied_data_snapshot_ref = _selected_exact_ref(store, data_snapshot_ref)
+    if artifact_ref_identity_key(supplied_data_snapshot_ref) != artifact_ref_identity_key(
+        original_data_snapshot_ref
+    ):
+        raise _AssessmentRefusal("entity_vector_original_predecessor_mismatch")
+    if artifact_ref_identity_key(original_input_bindings.registry_bundle_ref) != (
+        artifact_ref_identity_key(selected_registry_ref)
+    ):
+        raise _AssessmentRefusal("entity_vector_invocation_registry_mismatch")
+    if artifact_ref_identity_key(original_input_bindings.bound_state_snapshot_ref) != (
+        artifact_ref_identity_key(resolution.obligation_set.prestate_ref)
+    ):
+        raise _AssessmentRefusal("entity_vector_original_prestate_mismatch")
+
+    obligations_by_ref = {
+        artifact_ref_identity_key(ref): obligation
+        for ref, obligation in zip(
+            resolution.obligation_set.obligation_refs, resolution.obligations, strict=True
+        )
+    }
+    entity_vector_steps: list[ResolvedEntityVectorInputAtStep] = []
+    binding_ids: set[str] = set()
+    for subject, source_meaning in zip(subjects, meanings, strict=True):
+        obligation_ref = _selected_exact_ref(store, subject.model_input_obligation_ref)
+        obligation = obligations_by_ref.get(artifact_ref_identity_key(obligation_ref))
+        if obligation is None:
+            raise _AssessmentRefusal("entity_vector_step_origin_not_selected")
+        model_port = obligation.port
+        if (
+            model_port.carrier != "method_input"
+            or model_port.port_id != subject.step_scope.port_id
+            or model_port.entity_axis_ref is None
+            or model_port.physical_encoding is None
+            or len(model_port.physical_encoding.shape) != 1
+        ):
+            raise _AssessmentRefusal("entity_vector_method_vector_port_required")
+        interface_ports = tuple(
+            port for port in interface.ports if port.port_id == model_port.port_id
+        )
+        if len(interface_ports) != 1 or interface_ports[0] != model_port:
+            raise _AssessmentRefusal("entity_vector_interface_port_mismatch")
+        if source_meaning.source_scope != subject.step_scope.scope or artifact_ref_identity_key(
+            source_meaning.source_registry_bundle_ref
+        ) != artifact_ref_identity_key(selected_registry_ref):
+            raise _AssessmentRefusal("entity_vector_candidate_scope_or_registry_mismatch")
+
+        source_meaning_ref = _persist_entity_vector_source_meaning(store, source_meaning)
+        evaluation, correspondence_ref = _assess_entity_vector_to_model_candidate_from_resolution(
+            store,
+            source_meaning_ref=source_meaning_ref,
+            step_subject=subject,
+            resolution=resolution,
+            read_limits=read_limits,
+        )
+        if evaluation.status != "candidate" or correspondence_ref is None:
+            code = (
+                evaluation.refusal_codes[0]
+                if evaluation.refusal_codes
+                else "entity_vector_candidate_refused"
+            )
+            raise _AssessmentRefusal(code)
+
+        axis_ref = _selected_exact_ref(store, model_port.entity_axis_ref)
+        selection = ResolvedEntityVectorInput(
+            binding_id=_entity_vector_binding_id(
+                model_port.port_id, subject.step_scope.step, source_meaning_ref
+            ),
+            model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
+                obligation_ref.model_dump(mode="json")
+            ),
+            model_interface_ref=selected_interface_ref,
+            model_port_id=model_port.port_id,
+            entity_axis_ref=SelectedVariableBindingRef.model_validate(
+                axis_ref.model_dump(mode="json")
+            ),
+            source_descriptor=source_meaning.source_descriptor,
+            source_meaning_ref=source_meaning_ref,
+            correspondence_ref=correspondence_ref,
+        )
+        if selection.binding_id in binding_ids:
+            raise _AssessmentRefusal("entity_vector_binding_id_duplicate")
+        binding_ids.add(selection.binding_id)
+        entity_vector_steps.append(
+            ResolvedEntityVectorInputAtStep(
+                step_scope=subject.step_scope,
+                selection=selection,
+            )
+        )
+
+    retained_binding_ids = tuple(
+        sorted(
+            rule.binding_id
+            for rule in original_input_bindings.rules
+            if rule.target_slot_id in resolution.obligation_set.supplied_initial_slots
+        )
+    )
+    manifest = ResolvedInputBindingManifest(
+        schema_version="4.0",
+        data_snapshot_ref=SelectedVariableBindingRef.model_validate(
+            original_data_snapshot_ref.model_dump(mode="json")
+        ),
+        model_input_obligation_set_ref=SelectedVariableBindingRef.model_validate(
+            selected_obligation_set_ref.model_dump(mode="json")
+        ),
+        entity_vector_steps=tuple(entity_vector_steps),
+        retained_binding_ids=retained_binding_ids,
+    )
+    manifest_ref = persist_resolved_input_binding_manifest(store, manifest)
+    reopened_manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    if reopened_manifest != manifest:
+        raise _AssessmentRefusal("entity_vector_manifest_readback_mismatch")
+    return manifest_ref
+
+
+def _persist_entity_vector_source_meaning(
+    store: CoreJSONArtifactStore,
+    source_meaning: SelectedEntityVectorSourceMeaning,
+) -> SelectedEntityVectorSourceMeaningRef:
+    """Persist and reopen one exact consumer-declared vector source view."""
+    if type(source_meaning) is not SelectedEntityVectorSourceMeaning:
+        raise _AssessmentRefusal("entity_vector_source_meaning_untyped")
+    try:
+        checked = SelectedEntityVectorSourceMeaning.model_validate(
+            source_meaning.model_dump(mode="python")
+        )
+        raw_ref = store.put_json(
+            checked,
+            PutOptions(
+                kind=checked.ARTIFACT_KIND,
+                media_type=checked.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=checked.ARTIFACT_SCHEMA_NAME,
+                    version=checked.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=list(selected_entity_vector_source_meaning_manifest_inputs(checked)),
+            ),
+            return_selected_profile=True,
+        )
+        selected_ref = SelectedEntityVectorSourceMeaningRef.model_validate(
+            raw_ref.model_dump(mode="json")
+        )
+        reopened = load_selected_entity_vector_source_meaning(store, selected_ref)
+        if reopened != checked:
+            raise _AssessmentRefusal("entity_vector_source_meaning_readback_mismatch")
+        return selected_ref
+    except _AssessmentRefusal:
+        raise
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise _AssessmentRefusal(_entity_vector_refusal_code(exc)) from exc
+
+
+def _persist_entity_vector_correspondence_basis(
+    store: CoreJSONArtifactStore,
+    basis: EntityVectorCorrespondenceBasis,
+) -> EntityVectorCorrespondenceBasisRef:
+    """Persist and reopen one exact candidate vector-to-port relation."""
+    try:
+        if type(basis) is not EntityVectorCorrespondenceBasis:
+            raise _AssessmentRefusal("entity_vector_correspondence_basis_untyped")
+        checked = EntityVectorCorrespondenceBasis.model_validate(basis.model_dump(mode="python"))
+        inputs = list(entity_vector_correspondence_basis_manifest_inputs(checked))
+        raw_ref = store.put_json(
+            checked,
+            PutOptions(
+                kind=checked.ARTIFACT_KIND,
+                media_type=checked.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=checked.ARTIFACT_SCHEMA_NAME,
+                    version=checked.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=inputs,
+            ),
+            return_selected_profile=True,
+        )
+        selected_ref = EntityVectorCorrespondenceBasisRef.model_validate(
+            raw_ref.model_dump(mode="json")
+        )
+        reopened = load_entity_vector_correspondence_basis(store, selected_ref)
+        if reopened != checked or store.get_manifest(selected_ref).inputs != inputs:
+            raise _AssessmentRefusal("entity_vector_correspondence_basis_readback_mismatch")
+        return selected_ref
+    except _AssessmentRefusal:
+        raise
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise _AssessmentRefusal(_entity_vector_refusal_code(exc)) from exc
+
+
+def _load_reconciled_registry_bundle_content(
+    store: CoreJSONArtifactStore,
+    registry_bundle_ref: ArtifactRef,
+) -> RegistryBundleContent:
+    """Load selected registries only after the bundle and member edges reconcile."""
+    selected_bundle_ref = _selected_exact_ref(store, registry_bundle_ref)
+    try:
+        bundle = load_registry_bundle(store, selected_bundle_ref)
+        if artifact_ref_identity_key(bundle.bundle_ref) != artifact_ref_identity_key(
+            selected_bundle_ref
+        ):
+            raise _AssessmentRefusal("entity_vector_registry_bundle_ref_mismatch")
+        required = (
+            (bundle.slot_registry, "slot_registry"),
+            (bundle.merge_registry, "merge_registry"),
+            (bundle.constraint_registry, "constraint_registry"),
+            (bundle.mechanism_registry, "mechanism_registry"),
+        )
+        optional = (
+            (bundle.selector_field_registry, "selector_field_registry"),
+            (bundle.metric_registry, "metric_registry"),
+            (bundle.units_registry, "units_registry"),
+            (bundle.trust_registry, "trust_registry"),
+            (bundle.predicate_registry, "predicate_registry"),
+            (bundle.privacy_registry, "privacy_registry"),
+        )
+        registry_inputs = []
+        for ref, role in required:
+            if ref.manifest_profile_sha256 is None:
+                raise _AssessmentRefusal("entity_vector_registry_member_profile_required")
+            selected_ref = _selected_exact_ref(store, ref)
+            if artifact_ref_identity_key(selected_ref) != artifact_ref_identity_key(ref):
+                raise _AssessmentRefusal("entity_vector_registry_member_profile_mismatch")
+            registry_inputs.append(input_ref_from_artifact_ref(selected_ref, role=role))
+        for ref, role in optional:
+            if ref is None:
+                continue
+            if ref.manifest_profile_sha256 is None:
+                raise _AssessmentRefusal("entity_vector_registry_member_profile_required")
+            selected_ref = _selected_exact_ref(store, ref)
+            if artifact_ref_identity_key(selected_ref) != artifact_ref_identity_key(ref):
+                raise _AssessmentRefusal("entity_vector_registry_member_profile_mismatch")
+            registry_inputs.append(input_ref_from_artifact_ref(selected_ref, role=role))
+        if tuple(store.get_manifest(selected_bundle_ref).inputs) != tuple(registry_inputs):
+            raise _AssessmentRefusal("entity_vector_registry_bundle_lineage_mismatch")
+        return load_registry_bundle_content(store, selected_bundle_ref)
+    except _AssessmentRefusal:
+        raise
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise _AssessmentRefusal(_entity_vector_refusal_code(exc)) from exc
+
+
+def _require_exact_input_role(
+    manifest: ArtifactManifest,
+    role: str,
+    ref: ArtifactRef,
+    *,
+    refusal_code: str,
+) -> None:
+    """Require one original selected input edge with exact identity/profile."""
+    expected = input_ref_from_artifact_ref(ref, role=role)
+    actual = tuple(edge for edge in manifest.inputs if edge.role == role)
+    if actual != (expected,):
+        raise _AssessmentRefusal(refusal_code)
+
+
+def _replay_entity_vector_source_layout(
+    store: CoreJSONArtifactStore,
+    *,
+    source_meaning: SelectedEntityVectorSourceMeaning,
+    model_port: ModelInputPort,
+    axis_ref: ArtifactRef,
+    read_limits: CoreJsonReadLimits,
+) -> SelectedEntityAxis:
+    """Reopen generic JSON arrays and recompute their exact selected membership."""
+    descriptor = source_meaning.source_descriptor
+    try:
+        source_view_ref = _selected_exact_ref(store, descriptor.source_view_ref)
+        axis = validate_core_model_json_artifact(SelectedEntityAxis, store, axis_ref)
+        if (
+            axis.identity_basis != "selected_source_view"
+            or axis.source_view_ref is None
+            or artifact_ref_identity_key(axis.source_view_ref)
+            != artifact_ref_identity_key(source_view_ref)
+            or axis.member_values_pointer != descriptor.member_ids_pointer
+            or model_port.entity_axis_ref is None
+            or artifact_ref_identity_key(model_port.entity_axis_ref)
+            != artifact_ref_identity_key(axis_ref)
+            or model_port.physical_encoding is None
+            or model_port.physical_encoding.shape != (axis.cardinality,)
+            or axis.cardinality > read_limits.max_elements
+        ):
+            raise _AssessmentRefusal("entity_vector_source_axis_or_port_mismatch")
+        if tuple(store.get_manifest(axis_ref).inputs) != (
+            input_ref_from_artifact_ref(axis.source_view_ref, role="selected_source_view"),
+        ):
+            raise _AssessmentRefusal("entity_vector_axis_lineage_mismatch")
+
+        source_read = read_core_json_artifact_bounded(store, source_view_ref, limits=read_limits)
+        if artifact_ref_identity_key(source_read.effective_ref) != artifact_ref_identity_key(
+            source_view_ref
+        ):
+            raise _AssessmentRefusal("entity_vector_source_view_profile_mismatch")
+        payload = source_read.value
+        if not isinstance(payload, Mapping):
+            raise _AssessmentRefusal("entity_vector_source_json_container_invalid")
+        member_values = _entity_vector_json_pointer(payload, descriptor.member_ids_pointer)
+        numeric_values = _entity_vector_json_pointer(payload, descriptor.values_pointer)
+        if (
+            type(member_values) is not list
+            or type(numeric_values) is not list
+            or not member_values
+            or len(member_values) != len(numeric_values)
+            or len(member_values) != axis.cardinality
+            or len(member_values) > read_limits.max_elements
+        ):
+            raise _AssessmentRefusal("entity_vector_source_parallel_array_layout_invalid")
+
+        members: list[EntityAxisMemberId] = []
+        for raw_member in member_values:
+            if type(raw_member) is str and raw_member:
+                members.append(EntityAxisMemberId(kind="string", value=raw_member))
+            elif type(raw_member) is int:
+                members.append(EntityAxisMemberId(kind="integer", value=raw_member))
+            else:
+                raise _AssessmentRefusal("entity_vector_source_member_id_invalid")
+        member_tuple = tuple(members)
+        member_keys = tuple(entity_axis_member_sort_key(member) for member in member_tuple)
+        if (
+            len(set(member_keys)) != len(member_keys)
+            or tuple(sorted(member_tuple, key=entity_axis_member_sort_key)) != axis.members
+        ):
+            raise _AssessmentRefusal("entity_vector_source_axis_membership_mismatch")
+        for value in numeric_values:
+            if type(value) not in {int, float}:
+                raise _AssessmentRefusal("entity_vector_source_numeric_value_invalid")
+            try:
+                finite = math.isfinite(value)
+            except (OverflowError, TypeError, ValueError):
+                finite = False
+            if not finite:
+                raise _AssessmentRefusal("entity_vector_source_numeric_value_invalid")
+        return axis
+    except _AssessmentRefusal:
+        raise
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise _AssessmentRefusal(_entity_vector_refusal_code(exc)) from exc
+
+
+def _entity_vector_json_pointer(payload: object, pointer: str) -> object:
+    """Resolve the bounded RFC 6901 subset shared with the physical reader."""
+    if not pointer.startswith("/") or pointer.endswith("/") or "//" in pointer:
+        raise _AssessmentRefusal("entity_vector_source_pointer_invalid")
+    current = payload
+    for raw_token in pointer[1:].split("/"):
+        if any(
+            raw_token[index] == "~"
+            and (index + 1 == len(raw_token) or raw_token[index + 1] not in "01")
+            for index in range(len(raw_token))
+        ):
+            raise _AssessmentRefusal("entity_vector_source_pointer_invalid")
+        token = raw_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, Mapping):
+            if token not in current:
+                raise _AssessmentRefusal("entity_vector_source_pointer_missing")
+            current = current[token]
+        elif type(current) is list and token.isdecimal():
+            index = int(token)
+            if index >= len(current):
+                raise _AssessmentRefusal("entity_vector_source_pointer_missing")
+            current = current[index]
+        else:
+            raise _AssessmentRefusal("entity_vector_source_pointer_missing")
+    return current
+
+
+def _entity_vector_refusal(code: str) -> ScopedCorrespondenceEvaluation:
+    """Return one explicit candidate-only refusal with the mandatory limits."""
+    return ScopedCorrespondenceEvaluation(
+        status="refused",
+        semantic_correspondence="not_established",
+        limitation_codes=ENTITY_VECTOR_CANDIDATE_LIMITATIONS,
+        refusal_codes=(code,),
+    )
+
+
+def _entity_vector_refusal_code(exc: BaseException) -> str:
+    """Keep stable typed refusal codes and collapse unstructured errors safely."""
+    value = getattr(exc, "code", None)
+    if not isinstance(value, str):
+        value = str(exc).strip()
+    if (
+        value
+        and len(value) <= 128
+        and all(
+            character.islower() or character.isdigit() or character == "_" for character in value
+        )
+    ):
+        return value
+    return "entity_vector_selected_source_replay_failed"
+
+
+def _entity_vector_binding_id(
+    port_id: str,
+    step: int,
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef,
+) -> str:
+    """Derive a stable collision-resistant ID from the complete selected input identity."""
+    canonical = json.dumps(
+        [port_id, step, list(artifact_ref_identity_key(source_meaning_ref))],
+        ensure_ascii=False,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return "entity-vector-" + hashlib.sha256(canonical).hexdigest()[:32]
+
+
 __all__ = [
+    "assess_entity_vector_to_model_candidate",
     "assess_measurement_to_model_candidate",
     "materialize_activated_measurement_occurrence",
+    "prepare_registered_entity_vector_input_steps",
     "read_scoped_measurement_source_body",
     "replay_selected_scoped_measurement_facts",
 ]

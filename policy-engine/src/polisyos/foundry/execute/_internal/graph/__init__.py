@@ -56,6 +56,7 @@ from polisyos.core.contracts import (
     ProgramGraphActuationSelectionRef,
     ProgramGraphInputInvocation,
     RegistrySlotInputPortSource,
+    selected_method_input_tensor_identity,
 )
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
@@ -1500,7 +1501,8 @@ def _materialize_exact_method_input_state(
                 value = _immutable_method_array(closed_world.values[slot_id])
                 record = closed_world.records[slot_id]
                 identity = _bounded_value_identity(value)
-                if identity != (record.value_sha256, record.shape, np.dtype(record.dtype).str):
+                digest, shape, dtype = selected_method_input_tensor_identity(record)
+                if identity != (digest, shape, np.dtype(dtype).str):
                     raise ProgramNodeValidationError(
                         "Selected method argument differs from its persisted input",
                         node_id=node.node_id,
@@ -1557,7 +1559,8 @@ def _verify_selected_method_argument_identities(
         record = selected.records.get(source.slot_id)
         if record is None:
             continue
-        expected = (record.value_sha256, record.shape, np.dtype(record.dtype).str)
+        digest, shape, dtype = selected_method_input_tensor_identity(record)
+        expected = (digest, shape, np.dtype(dtype).str)
         if _bounded_value_identity(state[input_slot_id]) != expected:
             raise ProgramNodeValidationError(
                 "Selected method argument changed during invocation",

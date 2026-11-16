@@ -13,7 +13,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.base import DimVar, MethodSignature, SlotSpec, SlotType, Unit
-from polisyos.ir.kernel import MoneyUnit, SlotScope, SlotValueType
+from polisyos.ir.kernel import GenericUnit, MoneyUnit, SlotScope, SlotValueType
 from polisyos.ir.kernel import SlotSpec as RegistrySlotSpec
 
 if TYPE_CHECKING:
@@ -27,14 +27,17 @@ def validate_registered_method_input(
     registered_slot_id: str,
     registry: RegistryBundleContent,
 ) -> RegistrySlotSpec:
-    """Check a selected registry source against a method's scalar monetary ABI.
+    """Check a selected registry source against a bounded method input ABI.
 
     The local ABI name and registered source identity are explicit independent
     arguments; neither identity nor unit is inferred from spelling. This
     finite profile permits GLOBAL DECIMAL scalar inputs with an exact resolved
     MoneyUnit currency and unit scale. It does not require a patch contract or
     impose a FLOW/STOCK kind: read-only methods use the same input boundary.
-    Temporal and semantic port obligations remain with their existing owner.
+    A separate vector profile permits a pathless GLOBAL DECIMAL input with an
+    explicit one-dimensional registry shape and exact generic ``amount`` unit.
+    Temporal, axis, cardinality and semantic port obligations remain with their
+    existing owner; neither profile applies an adapter or infers a unit.
 
     Args:
         signature: Selected executable method's typed ABI.
@@ -49,6 +52,16 @@ def validate_registered_method_input(
         ValueError: A source or its unit is unavailable or incompatible.
     """
     input_slot = signature.get_input_slot(input_slot_id)
+    if (
+        input_slot is not None
+        and input_slot.slot_type is SlotType.VECTOR
+        and input_slot.unit.dimension == "value"
+        and input_slot.unit.symbol == "amount"
+        and input_slot.unit.scale == 1.0
+    ):
+        return _validate_registered_vector_method_input(
+            input_slot, registered_slot_id=registered_slot_id, registry=registry
+        )
     if input_slot is None or input_slot.slot_type is not SlotType.SCALAR or input_slot.shape != ():
         raise ValueError("method_input_abi_scalar_slot_unavailable")
     source = registry.slot_registry.slots.get(registered_slot_id)
@@ -71,6 +84,42 @@ def validate_registered_method_input(
         or input_slot.unit.symbol != unit.currency
         or input_slot.unit.scale != 1.0
     ):
+        raise ValueError("method_input_abi_unit_mismatch")
+    return source
+
+
+def _validate_registered_vector_method_input(
+    input_slot: SlotSpec,
+    *,
+    registered_slot_id: str,
+    registry: RegistryBundleContent,
+) -> RegistrySlotSpec:
+    source = registry.slot_registry.slots.get(registered_slot_id)
+    if source is None:
+        raise ValueError("method_input_source_unregistered")
+    if (
+        source.scope is not SlotScope.GLOBAL
+        or source.value_type is not SlotValueType.DECIMAL
+        or source.state_path is not None
+        or source.shape is None
+        or len(source.shape) != 1
+        or not source.shape[0]
+        or source.shape[0] != source.shape[0].strip()
+        or source.dtype not in {"float32", "float64"}
+        or len(input_slot.shape) != 1
+        or not (
+            (type(input_slot.shape[0]) is int and input_slot.shape[0] > 0)
+            or isinstance(input_slot.shape[0], str | DimVar)
+        )
+        or source.shape[0] != str(input_slot.shape[0])
+    ):
+        raise ValueError("method_input_vector_source_profile_mismatch")
+    unit = (
+        registry.units_registry.units.get(source.unit.unit_id)
+        if source.unit is not None and registry.units_registry is not None
+        else None
+    )
+    if not isinstance(unit, GenericUnit) or unit.label != "amount":
         raise ValueError("method_input_abi_unit_mismatch")
     return source
 

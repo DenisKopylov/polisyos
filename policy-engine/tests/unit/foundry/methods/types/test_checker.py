@@ -156,3 +156,86 @@ def test_registered_input_refuses_missing_local_or_global_identity_and_vector_ab
             registered_slot_id="foreign.amount",
             registry=registry,
         )
+
+
+def _selected_amount_vector_registry(tmp_path, *, changes=None, unit=None):
+    slot = RegistrySlotSpec(
+        slot_id="selected.amount",
+        scope=SlotScope.GLOBAL,
+        kind=SlotKind.FLOW,
+        value_type=SlotValueType.DECIMAL,
+        unit=UnitRef(unit_id="model_unit"),
+        merge_rule={"rule_id": "sum"},
+        shape=["n_obs"],
+        dtype="float64",
+    )
+    if changes:
+        slot = slot.model_copy(update=changes)
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_registry_bundle(
+        store,
+        slot_registry=SlotRegistry(slots={slot.slot_id: slot}),
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        mechanism_registry=MechanismTypeRegistry(),
+        constraint_registry=ConstraintRegistry(),
+        units_registry=UnitsRegistry(units={"model_unit": unit or GenericUnit(label="amount")}),
+        return_selected_profile=True,
+    )
+    return load_registry_bundle_content(store, bundle.bundle_ref)
+
+
+def _amount_vector_signature():
+    signature = _read_only_signature()
+    return replace(
+        signature,
+        input_slots=frozenset(
+            {SlotSpec("local_amount", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",))}
+        ),
+    )
+
+
+def test_registered_vector_requires_actual_selected_generic_amount_unit(tmp_path) -> None:
+    registry = _selected_amount_vector_registry(tmp_path)
+    assert (
+        validate_registered_method_input(
+            _amount_vector_signature(),
+            input_slot_id="local_amount",
+            registered_slot_id="selected.amount",
+            registry=registry,
+        )
+        is registry.slot_registry.slots["selected.amount"]
+    )
+
+
+@pytest.mark.parametrize("unit", [MoneyUnit(currency="USD"), GenericUnit(label="USD")])
+def test_registered_vector_does_not_coerce_money_or_foreign_generic_unit(tmp_path, unit) -> None:
+    with pytest.raises(ValueError, match="^method_input_abi_unit_mismatch$"):
+        validate_registered_method_input(
+            _amount_vector_signature(),
+            input_slot_id="local_amount",
+            registered_slot_id="selected.amount",
+            registry=_selected_amount_vector_registry(tmp_path, unit=unit),
+        )
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"scope": SlotScope.PER_AGENT},
+        {"state_path": "agents.income"},
+        {"value_type": SlotValueType.INT},
+        {"shape": []},
+        {"shape": ["foreign"]},
+        {"dtype": "int64"},
+    ],
+)
+def test_registered_vector_preserves_explicit_rank_dtype_and_pathless_source(
+    tmp_path, changes
+) -> None:
+    with pytest.raises(ValueError, match="^method_input_vector_source_profile_mismatch$"):
+        validate_registered_method_input(
+            _amount_vector_signature(),
+            input_slot_id="local_amount",
+            registered_slot_id="selected.amount",
+            registry=_selected_amount_vector_registry(tmp_path, changes=changes),
+        )

@@ -117,6 +117,11 @@ def _gateway_cache_reuse_scope(
             _GATEWAY_CACHE_REUSE_SCOPE.reset(token)
 
 
+# The stable Scientist facade exposes this same context manager. Keep the
+# private name for existing callers without introducing another admission law.
+gateway_cache_reuse_scope = _gateway_cache_reuse_scope
+
+
 def _execute_scope_ticket[T](
     scope: _GatewayCacheReuseScope,
     operation: Callable[[], T],
@@ -202,6 +207,11 @@ def _as_bool(value: str | None, *, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def is_llm_simulation_mode_enabled() -> bool:
+    """Read the current simulation flag with the factory's boolean semantics."""
+    return _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False)
 
 
 def _is_plausible_gateway_api_key(value: str) -> bool:
@@ -356,7 +366,7 @@ def create_traced_gateway_client(
         producer_settlement_store = reuse_scope.settlement_store
         producer_budget_key = f"nl-run:{run_id}"
         reuse_guard = partial(_current_cache_reuse_admission, reuse_scope)
-    if _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False):
+    if is_llm_simulation_mode_enabled():
         simulated_model_ids = tuple(dict.fromkeys((model_name, *DEFAULT_SIMULATED_MODEL_IDS)))
         raw_client: (
             SimulatedGatewayLLMClient | CachingLLMClient | FallbackRouter | GatewayLLMClient
@@ -528,4 +538,6 @@ def create_traced_gateway_client(
 __all__ = [
     "GatewayLLMConfig",
     "create_traced_gateway_client",
+    "gateway_cache_reuse_scope",
+    "is_llm_simulation_mode_enabled",
 ]

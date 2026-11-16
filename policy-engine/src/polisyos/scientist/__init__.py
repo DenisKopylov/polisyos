@@ -52,6 +52,9 @@ __all__ = [
     "build_epoch_claim_lifecycle_bridge",
     "build_knowledge_tool_registry",
     "create_traced_gateway_client",
+    "GatewayLLMConfig",
+    "gateway_cache_reuse_scope",
+    "is_llm_simulation_mode_enabled",
     "discover_scientist_nodes",
     "get_metrics",
     "get_tracer",
@@ -196,6 +199,15 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "create_traced_gateway_client": (
         "polisyos.scientist.orchestration.llm.factory",
         "create_traced_gateway_client",
+    ),
+    "GatewayLLMConfig": ("polisyos.scientist.orchestration.llm.factory", "GatewayLLMConfig"),
+    "gateway_cache_reuse_scope": (
+        "polisyos.scientist.orchestration.llm.factory",
+        "gateway_cache_reuse_scope",
+    ),
+    "is_llm_simulation_mode_enabled": (
+        "polisyos.scientist.orchestration.llm.factory",
+        "is_llm_simulation_mode_enabled",
     ),
     "discover_scientist_nodes": ("polisyos.scientist.api", "discover_scientist_nodes"),
     "get_metrics": ("polisyos.core.observability", "get_metrics"),

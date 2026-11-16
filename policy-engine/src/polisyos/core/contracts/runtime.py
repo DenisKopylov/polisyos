@@ -4393,7 +4393,8 @@ class RunCandidateSimulationProjection(BaseModel):
         RunCandidateSimulationAcquisitionHistoryEntry
         | RunCandidateSimulationAcquisitionHistoryEntryV3
         | RunCandidateSimulationAcquisitionHistoryEntryV4
-        | RunCandidateSimulationAcquisitionHistoryEntryV5,
+        | RunCandidateSimulationAcquisitionHistoryEntryV5
+        | RunNativeGenericAcquisitionHistoryEntryV1,
         ...,
     ] = ()
     acquisition_history_limitation_code: (
@@ -4870,8 +4871,208 @@ class RunFailedCandidateSimulationProjection(BaseModel):
         return self
 
 
+_NATIVE_GENERIC_HISTORY_REF_KINDS = {
+    "route_receipt_ref": "runtime_quality.acquisition_route_loop_receipt",
+    "reentry_receipt_ref": "runtime_quality.acquisition_overlay_reentry_receipt",
+    "source_compiled_ref": "runtime.compiled_recursive_generation_cycle",
+    "pending_action_phase_ref": "runtime_quality.acquisition_route_phase_receipt",
+    "native_world_checkpoint_ref": "runtime_quality.acquisition_candidate_world_checkpoint",
+    "native_input_collection_ref": "runtime_quality.native_derivation_input_checkpoint",
+    "original_generic_input_ref": "runtime.quality.generic_cycle_simulation_n5_input",
+    "original_profile_ref": "runtime.quality.generic_cycle_simulation_profile",
+    "context_job_ref": "runtime.quality.cycle_substrate_context_job",
+    "n4_source_ref": "runtime.generation_source_handoff",
+    "n5_input_ref": "runtime.quality.generic_cycle_simulation_n5_input",
+    "n5_execution_ref": "runtime.quality.generic_cycle_simulation_n5_execution",
+    "n5_result_ref": "polisyos.runtime.joint_simulation_result",
+    "prepared_checkpoint_ref": "runtime_quality.native_source_reentry_checkpoint",
+    "n5_completed_checkpoint_ref": "runtime_quality.native_source_reentry_checkpoint",
+    "cycle_completed_checkpoint_ref": "runtime_quality.native_source_reentry_checkpoint",
+}
+
+
+def _native_generic_history_ref_json_schema(field_name: str) -> dict[str, Any]:
+    """Describe one full-selected JSON reference on the native-history wire."""
+    return {
+        "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+        "properties": {
+            "kind": {"const": _NATIVE_GENERIC_HISTORY_REF_KINDS[field_name]},
+            "media_type": {"const": "application/json"},
+            "manifest_profile_sha256": {
+                "type": "string",
+                "pattern": r"^sha256:[0-9a-f]{64}$",
+            },
+        },
+    }
+
+
+class RunNativeGenericAcquisitionHistoryEntryV1(BaseModel):
+    """Selected Native Generic re-entry history, limited to historical observation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.runtime.run_native_generic_acquisition_history.v1"] = (
+        "policyos.runtime.run_native_generic_acquisition_history.v1"
+    )
+    source_job_id: str = Field(min_length=1, strict=True)
+    action_job_id: str = Field(min_length=1, strict=True)
+    candidate_id: str = Field(min_length=1, strict=True)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    action_generation: int = Field(ge=1, strict=True)
+    route_receipt_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("route_receipt_ref")),
+    ]
+    reentry_receipt_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("reentry_receipt_ref")),
+    ]
+    source_compiled_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("source_compiled_ref")),
+    ]
+    pending_action_phase_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("pending_action_phase_ref")
+        ),
+    ]
+    native_world_checkpoint_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("native_world_checkpoint_ref")
+        ),
+    ]
+    native_input_collection_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("native_input_collection_ref")
+        ),
+    ]
+    original_generic_input_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("original_generic_input_ref")
+        ),
+    ]
+    original_profile_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("original_profile_ref")),
+    ]
+    context_job_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("context_job_ref")),
+    ]
+    n4_source_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("n4_source_ref")),
+    ]
+    n5_input_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("n5_input_ref")),
+    ]
+    n5_execution_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("n5_execution_ref")),
+    ]
+    n5_result_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("n5_result_ref")),
+    ]
+    prepared_checkpoint_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("prepared_checkpoint_ref")),
+    ]
+    n5_completed_checkpoint_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("n5_completed_checkpoint_ref")
+        ),
+    ]
+    cycle_completed_checkpoint_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema(
+                "cycle_completed_checkpoint_ref"
+            )
+        ),
+    ]
+    source_cycle_index: int = Field(ge=0, strict=True)
+    continued_cycle_index: int = Field(ge=0, strict=True)
+    original_profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    current_profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    terminal_outcome: Literal["reentry_completed"] = "reentry_completed"
+    n5_input_schema_version: Literal["policyos.runtime.generic_cycle_simulation_n5_input.v2"]
+    request_profile_schema_version: Literal[
+        "policyos.runtime.generic_cycle_n5_request_profile.v4",
+        "policyos.runtime.generic_cycle_n5_request_profile.v5",
+    ]
+    n5_execution_schema_version: Literal[
+        "policyos.runtime.generic_cycle_simulation_n5_execution.v3"
+    ]
+    n5_owner_join_status: Literal["resolved"] = "resolved"
+    simulation_status: Literal["joint_simulated"] = "joint_simulated"
+    simulation_authority_blockers: tuple[StrictStr, ...]
+    simulation_result_body: RunGenericCycleSimulationN5ResultBody
+    limitations: tuple[StrictStr, ...] = Field(min_length=1)
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @field_validator("simulation_authority_blockers", mode="before")
+    @classmethod
+    def _native_history_blockers_are_strings(cls, value: object) -> object:
+        if not isinstance(value, list | tuple) or any(
+            not isinstance(item, str) or not item for item in value
+        ):
+            raise ValueError("native_generic_history_blockers_invalid")
+        return tuple(value)
+
+    @field_validator("limitations", mode="before")
+    @classmethod
+    def _native_history_limitations_are_strings(cls, value: object) -> object:
+        if not isinstance(value, list | tuple) or any(
+            not isinstance(item, str) or not item for item in value
+        ):
+            raise ValueError("native_generic_history_limitations_invalid")
+        return tuple(value)
+
+    @model_validator(mode="after")
+    def _bind_native_history(self) -> RunNativeGenericAcquisitionHistoryEntryV1:
+        selected_refs = tuple(
+            (getattr(self, field_name), kind)
+            for field_name, kind in _NATIVE_GENERIC_HISTORY_REF_KINDS.items()
+        )
+        if any(
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in selected_refs
+        ):
+            raise ValueError("native_generic_history_selected_ref_invalid")
+        if self.continued_cycle_index <= self.source_cycle_index:
+            raise ValueError("native_generic_history_cycle_order_invalid")
+        body = self.simulation_result_body
+        if (
+            artifact_ref_identity_key(body.artifact_ref)
+            != artifact_ref_identity_key(self.n5_result_ref)
+            or body.world_model_record_content_hash != self.world_model_record_content_hash
+        ):
+            raise ValueError("native_generic_history_result_body_binding_invalid")
+        required_limitations = {
+            "simulation_only_k_sim_not_world_evidence",
+            "historical_native_reentry_not_current_permission",
+        }
+        if len(self.limitations) != len(set(self.limitations)) or not required_limitations.issubset(
+            self.limitations
+        ):
+            raise ValueError("native_generic_history_limitations_incomplete")
+        return self
+
+
 # These models refer to the candidate-specific result body declared after the
-# shared generic N5 body. Rebuild now that the forward reference is available.
+# shared generic N5 body. Rebuild now that the forward references are available.
 RunCandidateSimulationN5Observation.model_rebuild()
 RunCandidateSimulationProjection.model_rebuild()
 RunFailedCandidateSimulationProjection.model_rebuild()
@@ -5671,7 +5872,8 @@ class RunGenericCycleSimulationProjection(BaseModel):
             RunCandidateSimulationAcquisitionHistoryEntry
             | RunCandidateSimulationAcquisitionHistoryEntryV3
             | RunCandidateSimulationAcquisitionHistoryEntryV4
-            | RunCandidateSimulationAcquisitionHistoryEntryV5,
+            | RunCandidateSimulationAcquisitionHistoryEntryV5
+            | RunNativeGenericAcquisitionHistoryEntryV1,
             ...,
         ]
         | None

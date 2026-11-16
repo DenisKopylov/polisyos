@@ -12,6 +12,7 @@ from contextlib import closing
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -414,11 +415,21 @@ def test_selected_native_claim_does_not_establish_completed_work(
             ValueError, match="native_source_reentry_checkpoint_claim_already_selected"
         ):
             _select(case, claim, "n5_claimed")
-    coordinator = object.__new__(history.NativeSourceReentryCoordinator)
-    monkeypatch.setattr(coordinator, "_read", lambda member: _read(case, member))
-    monkeypatch.setattr(coordinator, "_verify_prepared", lambda value: None)
+    # The semantic Native source remains outside this recording-owner fixture.
+    # Both current and historical consumers use the same extracted cut law.
+    monkeypatch.setattr(history, "_verify_native_source_reentry_prepared", lambda **kwargs: None)
     with pytest.raises(ValueError, match="native_reentry_n5_completion_not_established"):
-        coordinator.progress()
+        history._verify_native_source_reentry_progress(
+            store=case.cas,
+            owner=None,
+            source_generation_run=None,
+            world_model_record_content_hash="sha256:" + "a" * 64,
+            prepared=_read(case, "prepared"),
+            n5=_read(case, "n5_completed"),
+            cycle=_read(case, "cycle_completed"),
+            n5_claim=_read(case, "n5_claimed"),
+            tail_claim=_read(case, "tail_claimed"),
+        )
     assert _read(case, "n5_completed") is None
 
 
@@ -432,3 +443,139 @@ def test_native_history_reader_requires_the_same_selected_store_owner(selected_c
             store=reader, events=case.events, subject=case.prepared.subject, member="prepared"
         )
     assert _read(case, "prepared", store=reader) is not None
+
+
+def _historical_prefix(case: _Case, monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
+    """Adapt only unproved upstream input/world; retain actual selection owners."""
+    from polisyos.runtime.quality import native_generic_context
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+    )
+
+    subject = case.prepared.subject
+    record = SimpleNamespace(
+        job_id=subject.action_job_id,
+        run_id=subject.run_id,
+        tenant_id=subject.tenant_id,
+        cell_id=subject.cell_id,
+        source_run_id=subject.source_run_id,
+        cycle_index=subject.cycle_index,
+        design_problem_ref=subject.design_problem_ref,
+        context_job_ref=subject.context_job_ref,
+        native_current_profile_selection_ref=subject.current_profile_selection_ref,
+    )
+    selection = SimpleNamespace(
+        pending_action_phase=SimpleNamespace(action_generation=subject.action_generation),
+        checkpoint=SimpleNamespace(
+            source_job_id=subject.source_job_id,
+            route_id=subject.route_id,
+            collection_refs=(subject.native_input_collection_ref,),
+        ),
+        pending_action_phase_ref=subject.pending_action_ref,
+        checkpoint_ref=subject.native_world_checkpoint_ref,
+        original_generic_input_ref=subject.original_generic_input_ref,
+        original_profile_ref=subject.original_profile_ref,
+        original_profile=SimpleNamespace(
+            profile_selection_ref=subject.original_profile_selection_ref
+        ),
+        world_model_record=SimpleNamespace(content_hash="sha256:" + "a" * 64),
+    )
+    monkeypatch.setattr(
+        GenericCycleSimulationN5InputV1, "model_validate", classmethod(lambda cls, raw: record)
+    )
+    monkeypatch.setattr(native_generic_context, "_selection_for_input", lambda *args: selection)
+    monkeypatch.setattr(history, "_verify_native_source_reentry_prepared", lambda **kwargs: None)
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=case.cas)
+    owner.bind_native_world_history(control_store=case.control, event_log=case.events)
+    return {
+        "store": case.cas,
+        "events": case.events,
+        "owner": owner,
+        "input_ref": case.prepared.n5_input_ref,
+        "source_generation_run": SimpleNamespace(
+            run_id=subject.source_run_id,
+            design_problem_ref=subject.stable_design_problem_ref,
+        ),
+        "receipt": SimpleNamespace(
+            source_run_id=subject.source_run_id,
+            source_cycle_index=subject.cycle_index - 1,
+            new_cycle=SimpleNamespace(cycle_index=subject.cycle_index),
+        ),
+        "expected_action_job_id": subject.action_job_id,
+        "expected_action_generation": subject.action_generation,
+        "expected_source_job_id": subject.source_job_id,
+        "expected_route_id": subject.route_id,
+        "expected_run_id": subject.run_id,
+        "expected_tenant_id": subject.tenant_id,
+        "expected_cell_id": subject.cell_id,
+    }
+
+
+def test_full_native_history_requires_the_selected_prepared_event(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = selected_case
+    args = _historical_prefix(case, monkeypatch)
+    before = tuple(case.cas.root.rglob("*.json"))
+    with pytest.raises(ValueError, match="native_reentry_prepared_checkpoint_missing"):
+        history.read_native_source_reentry_history(**args)
+    assert tuple(case.cas.root.rglob("*.json")) == before
+    with pytest.raises(ControlJobLeaseLostError):
+        case.control.current_execution_job_record()
+
+
+@pytest.mark.parametrize("profile_graft", [False, True])
+def test_full_native_history_does_not_promote_preparation_to_completed_result(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    profile_graft: bool,
+) -> None:
+    case = selected_case
+    with case.fence():
+        ref = _select(case, case.prepared, "prepared")
+    args = _historical_prefix(case, monkeypatch)
+    if profile_graft:
+        foreign = case.cas.put_json(
+            case.prepared.model_dump(mode="json"),
+            replace(history._options(case.prepared), inputs=[]),
+            history._CANON,
+            return_selected_profile=True,
+        )
+        assert foreign.artifact_id == ref.artifact_id
+        assert foreign.manifest_profile_sha256 != ref.manifest_profile_sha256
+        path = case.cas._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        held = path.with_name(path.name + ".held")
+        path.rename(held)
+        try:
+            assert case.cas.verify(foreign).ok
+            with pytest.raises((FileNotFoundError, ValueError)):
+                history.read_native_source_reentry_history(**args)
+        finally:
+            held.rename(path)
+    else:
+        with pytest.raises(ValueError, match="native_reentry_history_completion_not_established"):
+            history.read_native_source_reentry_history(**args)
+    with pytest.raises(ControlJobLeaseLostError):
+        case.control.current_execution_job_record()
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["expected_action_job_id", "expected_source_job_id", "expected_tenant_id", "expected_route_id"],
+)
+def test_full_native_history_refuses_foreign_source_action_scope(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+) -> None:
+    case = selected_case
+    with case.fence():
+        _select(case, case.prepared, "prepared")
+    args = _historical_prefix(case, monkeypatch)
+    args[field] = "sha256:" + "f" * 64 if field == "expected_route_id" else "foreign-scope"
+    with pytest.raises(ValueError, match="native_reentry_history_source_scope_mismatch"):
+        history.read_native_source_reentry_history(**args)
+    with pytest.raises(ControlJobLeaseLostError):
+        case.control.current_execution_job_record()

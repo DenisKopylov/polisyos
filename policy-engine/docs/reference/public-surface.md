@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 55 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 46 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 49 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `lazy_facade` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -380,7 +380,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 965 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 972 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.derivations` | `src/polisyos/core/derivations.py` | `eager_exports` | 72 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
@@ -822,7 +822,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (965)</summary>
+<details><summary>Entrypoint exports (972)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -852,6 +852,11 @@ RunCandidateSimulationN5ResultBody
 ScopedCorrespondenceBasis
 ScopedCorrespondenceBasisRef
 ScopedCorrespondenceEvaluation
+REGISTERED_SQL_MEASUREMENT_LIMITATIONS
+RegisteredSQLMeasurementSourceSelection
+RegisteredSQLMeasurementOccurrence
+load_scoped_measurement_occurrence
+replay_registered_sql_measurement_occurrence
 ScopedMeasurementOccurrence
 ScopedMeasurementOccurrenceRef
 ScopedSourceSelection
@@ -1476,7 +1481,9 @@ PolicySpecRef
 PreN9AdmittedCandidate
 PreN9EpochValiditySubjectStatement
 RegisteredSQLAdmissionBinding
+RegisteredSQLCapture
 RegisteredSQLUseContract
+registered_sql_capture_input_refs
 PreflightDiagnostic
 PreflightReport
 PreflightReportRef
@@ -6794,7 +6801,7 @@ validate_source_bound_gcm_spec
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 46 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
@@ -6813,7 +6820,7 @@ validate_source_bound_gcm_spec
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (46)</summary>
+<details><summary>Entrypoint exports (49)</summary>
 
 ```text
 create_n4_producer_binding
@@ -6854,6 +6861,9 @@ build_default_claim_ledger_owner
 build_epoch_claim_lifecycle_bridge
 build_knowledge_tool_registry
 create_traced_gateway_client
+GatewayLLMConfig
+gateway_cache_reuse_scope
+is_llm_simulation_mode_enabled
 discover_scientist_nodes
 get_metrics
 get_tracer
@@ -7609,7 +7619,7 @@ trace_to_mutation_hints
 
 </details>
 
-<details><summary>Supported exports (46)</summary>
+<details><summary>Supported exports (49)</summary>
 
 ```text
 create_n4_producer_binding
@@ -7650,6 +7660,9 @@ build_default_claim_ledger_owner
 build_epoch_claim_lifecycle_bridge
 build_knowledge_tool_registry
 create_traced_gateway_client
+GatewayLLMConfig
+gateway_cache_reuse_scope
+is_llm_simulation_mode_enabled
 discover_scientist_nodes
 get_metrics
 get_tracer
@@ -10086,7 +10099,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 175 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 177 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -10324,7 +10337,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (175)</summary>
+<details><summary>Entrypoint exports (177)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10436,6 +10449,7 @@ acquisition_overlay_admission_lock_path
 acquisition_supplier_declaration_scope_refusal
 assess_entity_vector_to_model_candidate
 assess_measurement_to_model_candidate
+assess_selected_measurement_to_model_candidate
 build_acquisition_authority_provision
 build_authority_entry
 build_authority_registry
@@ -10475,6 +10489,7 @@ load_catalog_source_registry
 load_derivation_catalog_selection
 load_seed_alignments
 materialize_activated_measurement_occurrence
+materialize_registered_sql_measurement_occurrence
 normalize_acquisition_unit
 normalize_country_code
 normalized_acquisition_source_body

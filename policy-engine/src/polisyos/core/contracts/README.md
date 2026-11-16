@@ -39,10 +39,18 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
   envelope. Partial selections remain nonexecutable until actual source/physical replay and full
   horizon coverage. Direct measurement step transport is not supplied by the derived-input variant.
 - **Bounded registered SQL input identity** - `decision_validity.py` owns
-  `RegisteredSQLAdmissionBinding` and `RegisteredSQLUseContract`; `fabric.py`
-  owns `data_snapshot_manifest_inputs_match`. The stable facade exposes the same
-  objects to the execution-input owner. These contracts and matching predicates
-  do not establish external SQL rights or authority.
+  `RegisteredSQLAdmissionBinding`, `RegisteredSQLUseContract`, and the selected
+  `RegisteredSQLCapture`; `fabric.py` owns `data_snapshot_manifest_inputs_match`.
+  The stable Core facade exposes these same objects, and `scientist.adapters`
+  preserves the exact `RegisteredSQLCapture` and capture-input helper identities
+  as compatibility aliases. `variable_binding.py` owns the explicit candidate
+  `RegisteredSQLMeasurementSourceSelection` and `RegisteredSQLMeasurementOccurrence`.
+  The latter uses manifest schema 2.0 under the existing scoped-occurrence name;
+  `load_scoped_measurement_occurrence` still reads schema 1.0 as the unchanged
+  `ScopedMeasurementOccurrence` wire and selects the SQL DTO only for schema 2.0.
+  No historical artifact is rewritten. SQL meaning, release and scope remain
+  consumer-asserted, source currentness remains `not_established`, and these
+  contracts do not establish external rights, current-use authority or publication.
 - **Execution source identity** - `foundry.py` carries the opt-in `FoundryExecutionInputBasis` and schema 1.4 `SimulationResult` source status. It binds one actual single-step Foundry request and selected source graph; it has no risk, unit, time-validity, refinement, or authority semantics. Feedback composition remains explicitly uncomposed.
 - **Candidate Foundry actuation selection** - `foundry.py` defines `ProgramGraphActuationSelection` and its selected ref. The persisted selection binds exact graph, plan, and LoweredIR refs; a selected empty ID tuple is the explicit baseline, while an omitted or `None` request ref keeps legacy all-applies behavior. Request schema 1.1 and single-step execution basis schema 1.4 carry the exact selection; it is candidate-only, and feedback selection is unsupported.
 - **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.

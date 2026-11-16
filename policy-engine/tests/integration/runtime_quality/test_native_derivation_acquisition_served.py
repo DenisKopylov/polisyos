@@ -971,11 +971,40 @@ def _appoint_exact_native_epoch_policy(
     native = sign_native_epoch_scenario(
         scenario,
         root,
-        custodian=previous.custodian if previous is not None else None,
+        custodian=getattr(previous, "custodian", None),
         prior_admission_refs=(
             previous.config.predicate_policy_admission_refs if previous is not None else ()
         ),
     )
+    if previous is not None:
+        from polisyos.runtime.quality.epoch_deployment import EpochDeploymentConfig
+
+        old = previous.config
+        if old.evidence_cas_root != native.config.evidence_cas_root or (
+            old.native_epoch_history_root != native.config.native_epoch_history_root
+        ):
+            raise ValueError("native_fixture_epoch_history_roots_differ")
+        trusted = {
+            (row.identity, str(row.public_key_path), row.roles): row
+            for row in (*old.trusted_issuers, *native.config.trusted_issuers)
+        }
+        admissions = {
+            artifact_ref_identity_key(ref): ref
+            for ref in (
+                *old.predicate_policy_admission_refs,
+                *native.config.predicate_policy_admission_refs,
+            )
+        }
+        native.config = EpochDeploymentConfig.model_validate(
+            {
+                **native.config.model_dump(mode="python"),
+                "trusted_issuers": tuple(trusted.values()),
+                "predicate_policy_admission_refs": tuple(admissions.values()),
+                "revoked_key_ids": tuple(
+                    dict.fromkeys((*old.revoked_key_ids, *native.config.revoked_key_ids))
+                ),
+            }
+        )
     appointments.append(native)
 
 
@@ -1088,6 +1117,7 @@ def _run_signed_native_leaf_action(
     retained_mandate: Any | None = None,
     human_decision_submission_root: Path | None = None,
     authority_valid_for_seconds: int | None = None,
+    action_checkpoint_root: Path | None = None,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
     from datetime import UTC, datetime, timedelta
@@ -1112,6 +1142,27 @@ def _run_signed_native_leaf_action(
             600 <= authority_valid_for_seconds <= 3600
         ):
             raise ValueError("native_fixture_authority_window_out_of_bounds")
+
+    def save_action(stage: str, *, job_id: str, request: Any, **values: Any) -> None:
+        if action_checkpoint_root is None:
+            return
+        import json
+
+        from tools.lib.fs import atomic_write_text
+
+        action_checkpoint_root.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "stage": stage,
+            "job_id": job_id,
+            "route_id": route_id,
+            "run_id": served.control_run_id,
+            "request": request.model_dump(mode="json"),
+            **values,
+        }
+        atomic_write_text(
+            action_checkpoint_root / f"{job_id}.json", json.dumps(payload, sort_keys=True) + "\n"
+        )
+
     route_path = f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{route_id}"
     route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
     slot = dict(retained_mandate.mandate_slot) if retained_mandate is not None else None
@@ -1193,6 +1244,13 @@ def _run_signed_native_leaf_action(
                         checkpoint=retained_mandate,
                         resource_digest=resource_digest,
                     )
+        save_action(
+            "mandate_selected",
+            job_id=job_id,
+            request=request,
+            mandate_slot=slot,
+            resource_digest=resource_digest,
+        )
         if retained_mandate is None:
             trust.raw["acquisition_authority"]["mandates"].append(slot)
         if slot.get("human_decision_record_ref") is None:
@@ -1229,6 +1287,13 @@ def _run_signed_native_leaf_action(
                         ),
                     )
                 slot["human_decision_record_ref"] = human_ref
+        save_action(
+            "human_decision_selected",
+            job_id=job_id,
+            request=request,
+            mandate_slot=slot,
+            resource_digest=resource_digest,
+        )
         with TestClient(served.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
@@ -1238,6 +1303,15 @@ def _run_signed_native_leaf_action(
                 request.model_dump(mode="json"),
                 route=route_template + "/execute",
             )
+            if action_checkpoint_root is not None:
+                save_action(
+                    "execute_response",
+                    job_id=job_id,
+                    request=request,
+                    mandate_slot=slot,
+                    response_status=accepted.status_code,
+                    response=accepted.json(),
+                )
             assert accepted.status_code in {200, 202}, accepted.text
             assert observed_digest == resource_digest
             assert accepted.json()["job_id"] == job_id
@@ -1252,6 +1326,17 @@ def _run_signed_native_leaf_action(
                 == job_id
             )
             job = control._control_store.get_job(job_id)
+            save_action(
+                "worker_returned",
+                job_id=job_id,
+                request=request,
+                mandate_slot=slot,
+                state=job.state if job else None,
+                attempt=job.attempt if job else None,
+                error_code=job.error_code if job else None,
+                error_message=job.error_message if job else None,
+                progress=job.progress if job else None,
+            )
             assert job is not None and job.state == "completed", job
             with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
                 outcome = control.acquisition_route_sink.current_action_outcome(
@@ -1260,6 +1345,18 @@ def _run_signed_native_leaf_action(
                     run_id=closure.run_id,
                     source_job_id=closure.source_job_id,
                     route_id=route_id,
+                )
+            if outcome is not None and action_checkpoint_root is not None:
+                from dataclasses import asdict
+
+                save_action(
+                    "canonical_outcome",
+                    job_id=job_id,
+                    request=request,
+                    mandate_slot=slot,
+                    progress=job.progress,
+                    head=asdict(outcome.head),
+                    terminal=outcome.latest_receipt.model_dump(mode="json"),
                 )
             assert outcome is not None and outcome.head.job_id == job_id
             assert outcome.head.receipt_manifest_profile_sha256 is not None
@@ -1818,38 +1915,20 @@ def assert_retained_native_paid_input_admission(
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.fabric.data_plane import resolve_live_transport_trace
-    from polisyos.runtime.http import deployment_security as security
     from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
-    from tests._helpers.acquisition_served_history import _existing_key_config, _ExternalTrust
     from tests._helpers.control_worker import stop_embedded_control_worker
     from tests._helpers.native_derivation_retained import (
         bind_retained_native_source_app,
         load_retained_native_action_resume_checkpoint,
         load_retained_native_admission_checkpoint,
         load_retained_native_epoch_policy,
-        load_retained_native_source_fixture,
+        retained_native_demo_source_case,
     )
 
-    trust_root = output_root / "current-demo-trust"
-    trust_root.mkdir(parents=True)
-    trust = _ExternalTrust(trust_root)
-    try:
-        signers, identities = _existing_key_config(base / "trust", trust)
-
-        def deployment():
-            return security.build_deployment_security(
-                security.DeploymentSecurityConfig.from_mapping(trust.raw)
-            )
-
-        claims = deployment().identity_provider.extract_user_claims(
-            trust.tokens["acquisition-operator"]
-        )
-        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-            case = load_retained_native_source_fixture(
-                base, binding_id="configured-native-two-leaf"
-            )
-        assert (case.tenant_id, case.cell_id) == (claims.tenant_id, claims.cell_id)
+    with retained_native_demo_source_case(base, output_root) as demo:
+        trust, signers, identities = demo.trust, demo.signers, demo.identities
+        claims, deployment, case = demo.claims, demo.deployment, demo.case
         if continuation_selection is not None:
             with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
                 loader = (
@@ -2024,8 +2103,6 @@ def assert_retained_native_paid_input_admission(
             "sibling_refusal": sibling_refusal,
             "prior_prechecks_reused": continuation_selection is not None,
         }
-    finally:
-        trust.close()
 
 
 @pytest.mark.integration
@@ -2579,3 +2656,605 @@ def assert_retained_native_human_decision_recovery(
         }
     finally:
         trust.close()
+
+
+def assert_retained_native_second_leaf_completion(
+    *,
+    base: Path,
+    output_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    original_purchase_ref: ArtifactRef,
+    owned_a_terminal_ref: ArtifactRef,
+    cost_profile_refs: tuple[ArtifactRef, ...],
+    epoch_policy_selection: Any,
+    pending_source_node_id: str,
+    pending_quote_usd: float,
+    transport_calls: list[Any],
+    semantic_kernel_entry_count: Callable[[], int],
+    purchase_idempotency_key: str,
+    admission_idempotency_key: str,
+    authority_valid_for_seconds: int = 3600,
+) -> dict[str, Any]:
+    """Acquire one remaining leaf under new demo acts, then consume both inputs.
+
+    Exact existing A purchase/collection/profile selectors are server fixture
+    inputs. This never renews A's quote, mandate or HumanDecision. The caller
+    supplies controlled transport at the actual HTTP boundary and a real N5
+    entry observer; it must not replace provider, model or numerical owners.
+    """
+    import json
+    from decimal import Decimal
+
+    import numpy as np
+    from fastapi.testclient import TestClient
+
+    from polisyos.core import artifacts
+    from polisyos.core.contracts import load_model_input_obligation_set
+    from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.fabric.data_plane import resolve_live_transport_trace
+    from polisyos.foundry.data_plane import load_input_bindings, replay_selected_method_input_facts
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthRoute,
+        NativeDerivationWorldCheckpoint,
+        replay_native_derivation_input_collection,
+    )
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.runtime.quality.n5_candidate_content import (
+        _read_recorded_generic_method_call,
+        read_generic_program_graph_n5_content_observation,
+    )
+    from polisyos.runtime.quality.native_source_reentry_history import (
+        read_native_source_reentry_history,
+    )
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests._helpers.native_derivation_quotes import prepare_retained_native_leaf_quote
+    from tests._helpers.native_derivation_retained import (
+        _selected_retained_ref,
+        load_retained_native_epoch_policy,
+        retained_native_demo_source_case,
+    )
+    from tests.integration.runtime_quality.test_program_graph_stock_n7_served import (
+        _configure_stock_provider,
+    )
+
+    with retained_native_demo_source_case(
+        base,
+        output_root,
+        cost_profile_refs=cost_profile_refs,
+        original_purchase_ref=original_purchase_ref,
+    ) as demo:
+        case, trust = demo.case, demo.trust
+        claims, state = demo.claims, demo.case.state
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            # The immutable unpaired profile asks for one inclusive step. No
+            # profile, horizon or seed is rewritten to manufacture dispatch.
+            assert type(case.profile.n5) is GenericCycleN5ProgramGraphRequestProfileV4
+            assert case.profile.n5.horizon.steps() == (0,)
+            assert case.profile.n5.replications == 1
+            assert case.profile.n5.seed == 0
+            selected_terminal = _selected_retained_ref(
+                case.store, owned_a_terminal_ref, "runtime_quality.acquisition_route_loop_receipt"
+            )
+            owned_a = AcquisitionRouteLoopReceipt.model_validate(
+                artifacts.load_core_json_artifact(case.store, selected_terminal)
+            )
+            if (
+                owned_a.route_id != case.terminal.route_id
+                or owned_a.terminal_outcome != "inputs_pending"
+                or owned_a.native_input_collection_ref is None
+                or (owned_a.source_job_id, owned_a.run_id, owned_a.tenant_id, owned_a.cell_id)
+                != (case.job_id, case.control_run_id, claims.tenant_id, claims.cell_id)
+            ):
+                raise ValueError("retained_native_owned_leaf_terminal_mismatch")
+            collection = replay_native_derivation_input_collection(
+                case.store, owned_a.native_input_collection_ref
+            ).collection
+            old_a_inputs = tuple(collection.source_inputs)
+            if len(old_a_inputs) != 1 or collection.input_closure_status != "partial":
+                raise ValueError("retained_native_owned_leaf_collection_not_partial")
+            new_refs = prepare_retained_native_leaf_quote(
+                case.store,
+                collection_ref=owned_a.native_input_collection_ref,
+                cost_profile_refs=cost_profile_refs,
+                source_node_id=pending_source_node_id,
+                amount_usd=pending_quote_usd,
+            )
+            selected_config = case.configuration.native_derivation_routes[0]
+            state["holder"]["configuration"] = AcquisitionWorldGrowthConfig.model_validate(
+                {
+                    **case.configuration.model_dump(mode="python"),
+                    "native_derivation_routes": (
+                        selected_config.model_copy(
+                            update={
+                                "owner_declared_cost_profile_refs": new_refs,
+                            }
+                        ),
+                    ),
+                }
+            )
+            config_path = output_root / "server-cost-profile-selection.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "cost_profile_refs": [ref.model_dump(mode="json") for ref in new_refs],
+                        "original_purchase_ref": original_purchase_ref.model_dump(mode="json"),
+                        "owned_a_terminal_ref": owned_a_terminal_ref.model_dump(mode="json"),
+                    },
+                    sort_keys=True,
+                )
+                + "\n"
+            )
+            policy_config = load_retained_native_epoch_policy(case, epoch_policy_selection)
+            from types import SimpleNamespace
+
+            state["appointments"].append(SimpleNamespace(config=policy_config))
+            source = GenerationSourceRepository(case.store).load(
+                case.source.n4_source_ref,
+                run_id=case.source.source_generation_run_id,
+                expected_run_id=case.control_run_id,
+                expected_job_id=case.job_id,
+                expected_tenant_id=claims.tenant_id,
+                expected_cell_id=claims.cell_id,
+                context_job_ref=case.source.context_job_ref,
+                profile_ref=case.compiled.generic_cycle_simulation_handoff.profile_ref,
+            )
+            if source.trinity_bundle is None:
+                raise ValueError("retained_native_original_trinity_missing")
+            model_id = _configure_stock_provider(
+                controlled_candidate_gateway,
+                problem=case.compiled.design_problem,
+                trinity=source.trinity_bundle,
+                evidence_root=output_root / "controlled-n4",
+            )
+            controlled_candidate_gateway.admit_compiled_problem(case.compiled.design_problem)
+            raw_request = artifacts.load_core_json_artifact(case.store, case.source_payload_ref)
+            if raw_request.get("llm_models") != [model_id]:
+                raise ValueError("retained_native_controlled_model_alias_mismatch")
+        monkeypatch.setenv("POLISYOS_RUNTIME_EXECUTION_PROFILE", "development")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(case.control_database))
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", str(base / "runtime-cache"))
+        monkeypatch.setenv("POLISYOS_TEST_RETAIN_NATIVE_EPOCH_SIGNER", "1")
+        monkeypatch.setattr(
+            surface_owner,
+            "build_production_world_bank_wdi_execution_port",
+            _native_fixture_port_factory(state),
+        )
+        before_calls = tuple(transport_calls)
+        before_kernels = semantic_kernel_entry_count()
+        a_trace = resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref)
+        a_journal = Path(case.attempt.evidence.request_ref.journal_path)
+        a_journal_before = a_journal.read_bytes()
+        with TestClient(case.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                routes = client.app.state.runtime_container.acquisition_action_service._route_loop(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                ).resolve_native_derivation_leaf_routes(run_id=case.control_run_id)
+                chosen = tuple(
+                    row
+                    for row in routes
+                    if (
+                        getattr(row, "native_derivation_leaf_scope", None) is not None
+                        and row.native_derivation_leaf_scope.source_node_id
+                        == pending_source_node_id
+                    )
+                )
+            if len(chosen) != 1:
+                raise ValueError("retained_native_pending_costed_route_not_unique")
+            leaf = chosen[0]
+        # A distinct B route uses the existing fixture's same declared scope
+        # and independent time/facet evidence; no A action permit is copied.
+        route = AcquisitionWorldGrowthRoute.model_validate(
+            {
+                **case.attempt.selection.model_dump(mode="python"),
+                "route_id": leaf.route_id,
+                "epoch_id": case.attempt.selection.epoch_id + 1,
+                "design_problem_ref": leaf.design_problem_ref,
+            }
+        )
+        state["holder"]["configuration"] = AcquisitionWorldGrowthConfig.model_validate(
+            {
+                **state["holder"]["configuration"].model_dump(mode="python"),
+                "routes": (*case.configuration.routes, route),
+            }
+        )
+        purchase = _run_signed_native_leaf_action(
+            served=case,
+            trust=trust,
+            signers=demo.signers,
+            identities=demo.identities,
+            institution_key_root=base / "trust",
+            route_id=leaf.route_id,
+            idempotency_key=purchase_idempotency_key,
+            authority_valid_for_seconds=authority_valid_for_seconds,
+            human_decision_submission_root=output_root / "human-decision-submissions",
+            action_checkpoint_root=output_root / "action-checkpoints",
+        )
+        assert purchase["terminal"].terminal_outcome == "quarantined_no_growth"
+        assert len(transport_calls) == len(before_calls) + 1
+        assert semantic_kernel_entry_count() == before_kernels
+        with (
+            _live_native_fixture_bridge(served=case, state=state) as bridge,
+            tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id),
+        ):
+            _appoint_exact_native_epoch_policy(
+                state=state,
+                bridge=bridge,
+                institution_store=case.store,
+                closure=purchase["closure"],
+                root=output_root / "new-b-epoch-institution",
+            )
+        b_attempt = state["paid_attempt"]
+        b_trace = resolve_live_transport_trace(b_attempt.evidence.raw_evidence_ref)
+        b_journal = Path(b_attempt.evidence.request_ref.journal_path)
+        journals_after_purchase = {path: path.read_bytes() for path in {a_journal, b_journal}}
+        after_purchase_calls = tuple(transport_calls)
+        completed = _run_signed_native_leaf_action(
+            served=case,
+            trust=trust,
+            signers=demo.signers,
+            identities=demo.identities,
+            institution_key_root=base / "trust",
+            route_id=leaf.route_id,
+            idempotency_key=admission_idempotency_key,
+            authority_valid_for_seconds=authority_valid_for_seconds,
+            human_decision_submission_root=output_root / "human-decision-submissions",
+            action_checkpoint_root=output_root / "action-checkpoints",
+        )
+        terminal = completed["terminal"]
+        assert terminal.terminal_outcome == "reentry_completed"
+        assert terminal.reentry_receipt_ref is not None
+        assert completed["job_id"] != purchase["job_id"]
+        assert tuple(transport_calls) == after_purchase_calls
+        assert semantic_kernel_entry_count() - before_kernels == 1
+        n4_receipts = {
+            path.relative_to(output_root / "controlled-n4").as_posix(): path.read_bytes()
+            for path in (output_root / "controlled-n4").rglob("receipt.json")
+        }
+        assert n4_receipts
+        after_completion_kernels = semantic_kernel_entry_count()
+        with TestClient(case.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            detail = client.get(
+                f"/api/v1/runs/{case.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert detail.status_code == 200, detail.text
+            generic = detail.json()["run"]["generic_cycle_simulation"]
+            history = generic["acquisition_history"]
+            rows = [row for row in history if row.get("action_job_id") == completed["job_id"]]
+            assert len(rows) == 1
+            assert rows[0]["terminal_outcome"] == "reentry_completed"
+            assert rows[0]["n5_owner_join_status"] == "resolved"
+            assert rows[0]["publication_authority"] is False
+            completed_history_row = rows[0]
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                restarted_outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                    run_id=case.control_run_id,
+                    source_job_id=case.job_id,
+                    route_id=leaf.route_id,
+                )
+            assert restarted_outcome is not None
+            assert restarted_outcome.head == completed["head"]
+            assert restarted_outcome.latest_receipt == terminal
+            actual_collection = replay_native_derivation_input_collection(
+                case.store, ArtifactRef.model_validate(rows[0]["native_input_collection_ref"])
+            ).collection
+            assert actual_collection.input_closure_status == "inputs_complete"
+            assert actual_collection.pending_actions == ()
+            by_node = {row.source_node_id: row for row in actual_collection.source_inputs}
+            assert by_node[old_a_inputs[0].source_node_id] == old_a_inputs[0]
+            assert set(by_node) == {old_a_inputs[0].source_node_id, pending_source_node_id}
+            for row in actual_collection.source_inputs:
+                _record, replayed, _selection = catalog.replay_selected_scoped_measurement_facts(
+                    case.store, row.occurrence_ref
+                )
+                expected = (
+                    Decimal("-0.03")
+                    if row.source_node_id == old_a_inputs[0].source_node_id
+                    else Decimal("200000000000")
+                )
+                assert replayed.canonical_value == expected
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                live_store = control._artifact_store
+                result_row = completed_history_row
+                world_checkpoint = NativeDerivationWorldCheckpoint.model_validate(
+                    artifacts.load_core_json_artifact(
+                        live_store,
+                        ArtifactRef.model_validate(result_row["native_world_checkpoint_ref"]),
+                    )
+                )
+                original_bindings = load_input_bindings(
+                    live_store, world_checkpoint.input_bindings_ref
+                )
+                assert original_bindings.selected_method_inputs is not None
+                (original_argument,) = original_bindings.selected_method_inputs
+                assert original_argument.canonical_value == Decimal("-6000000000")
+                historical_owner = GenericCycleSimulationAdmissionOwner(
+                    profiles=(), store=live_store
+                )
+                historical_owner.bind_native_world_history(
+                    control_store=control._control_store,
+                    event_log=control._diagnostic_event_log,
+                )
+                verified = read_native_source_reentry_history(
+                    store=live_store,
+                    events=control._diagnostic_event_log,
+                    owner=historical_owner,
+                    input_ref=ArtifactRef.model_validate(result_row["n5_input_ref"]),
+                    source_generation_run=completed["closure"].generation_run,
+                    receipt=AcquisitionOverlayReentryReceipt.model_validate(
+                        artifacts.load_core_json_artifact(
+                            live_store,
+                            ArtifactRef.model_validate(result_row["reentry_receipt_ref"]),
+                        )
+                    ),
+                    expected_action_job_id=completed["job_id"],
+                    expected_action_generation=completed["head"].action_generation,
+                    expected_source_job_id=case.job_id,
+                    expected_route_id=leaf.route_id,
+                    expected_run_id=case.control_run_id,
+                    expected_tenant_id=claims.tenant_id,
+                    expected_cell_id=claims.cell_id,
+                )
+                actual_result, actual_request = verified.result.result, verified.result.request
+                assert type(verified.input_record.n5) is GenericCycleN5ProgramGraphRequestProfileV4
+                assert actual_request.horizon.steps() == (0,)
+                assert actual_request.seed == case.profile.n5.seed == 0
+                assert actual_request.replications == 1
+                assert actual_request.program_graph_comparator_profile is None
+                assert actual_request.comparator_profile is None
+                assert len(actual_request.intervention_atoms) == 1
+                (actual_plan,) = actual_request.engine_plan
+                selected_bindings_ref = actual_plan.program_semantic_input_bindings_ref
+                assert selected_bindings_ref is not None
+                selected_bindings = load_input_bindings(live_store, selected_bindings_ref)
+                selected_manifest = load_resolved_input_binding_manifest(
+                    live_store, selected_bindings.resolved_binding_manifest_ref
+                )
+                selected_set, _ = load_model_input_obligation_set(
+                    live_store, selected_manifest.model_input_obligation_set_ref
+                )
+                facts = replay_selected_method_input_facts(
+                    live_store,
+                    input_bindings_ref=selected_bindings_ref,
+                    expected_invocation=selected_set.invocation,
+                )
+                (actual_argument,) = facts.records
+                assert actual_argument.canonical_value == Decimal("-6000000000")
+                assert actual_argument.slot_id == original_argument.slot_id
+                selected_value = facts.values[actual_argument.slot_id]
+                assert selected_value.size == 1
+                assert float(selected_value.item()) == -6_000_000_000.0
+                observation = read_generic_program_graph_n5_content_observation(
+                    actual_result,
+                    input_ref=ArtifactRef.model_validate(result_row["n5_input_ref"]),
+                    expected_request=actual_request,
+                    current_method_input_bindings_ref=(
+                        verified.result.initial_method_input.current_method_input_bindings_ref
+                        if verified.result.initial_method_input is not None
+                        else None
+                    ),
+                    store=live_store,
+                )
+                assert observation.completion.status == "recomputed"
+                assert len(observation.completion.planned_units) == 1
+                assert (
+                    observation.completion.completed_units == observation.completion.planned_units
+                )
+                (physical_work,) = actual_result.physical_work_observations
+                assert physical_work.status == "completed"
+                assert actual_result.diagnostics["physical_work_capture_status"] == "observed"
+                assert (
+                    actual_result.diagnostics["physical_work_usd_cost_status"] == "not_established"
+                )
+                assert len(observation.steps) == 1
+                (method_step,) = observation.steps
+                assert method_step.step == 0
+                argument_calls = [
+                    (payload, argument)
+                    for call in method_step.calls
+                    for payload in (_read_recorded_generic_method_call(call),)
+                    for argument in payload["arguments"]
+                    if argument["source_slot"] == actual_argument.slot_id
+                ]
+                assert len(argument_calls) == 1
+                payload, actual_call_argument = argument_calls[0]
+                assert payload["step"] == 0
+                assert actual_call_argument["value_sha256"] == actual_argument.value_sha256
+                delivered = np.frombuffer(
+                    bytes.fromhex(actual_call_argument["value_hex"]),
+                    dtype=np.dtype(actual_call_argument["dtype"]),
+                ).reshape(actual_call_argument["shape"])
+                assert delivered.size == 1
+                assert float(delivered.item()) == -6_000_000_000.0
+        with TestClient(case.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            repeated, _resource = trust.post(
+                client,
+                f"/api/v1/runs/{case.control_run_id}/acquisition-routes/{leaf.route_id}/execute",
+                completed["request"].model_dump(mode="json"),
+                route="/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+            )
+            assert repeated.status_code in {200, 202}, repeated.text
+            assert repeated.json()["job_id"] == completed["job_id"]
+            exact_job = control._control_store.get_job(completed["job_id"])
+            assert exact_job is not None and exact_job.state == "completed"
+            assert exact_job.progress == completed["progress"]
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                exact_outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                    run_id=case.control_run_id,
+                    source_job_id=case.job_id,
+                    route_id=leaf.route_id,
+                )
+            assert exact_outcome is not None and exact_outcome.head == completed["head"]
+            assert exact_outcome.latest_receipt == terminal
+            detail_again = client.get(
+                f"/api/v1/runs/{case.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": claims.tenant_id,
+                },
+            )
+            assert detail_again.status_code == 200, detail_again.text
+            rows_again = [
+                row
+                for row in detail_again.json()["run"]["generic_cycle_simulation"][
+                    "acquisition_history"
+                ]
+                if row.get("action_job_id") == completed["job_id"]
+            ]
+            assert rows_again == [completed_history_row]
+        assert tuple(transport_calls) == after_purchase_calls
+        assert semantic_kernel_entry_count() == after_completion_kernels
+        assert {
+            path.relative_to(output_root / "controlled-n4").as_posix(): path.read_bytes()
+            for path in (output_root / "controlled-n4").rglob("receipt.json")
+        } == n4_receipts
+        # The connector may append B to the same physical journal. Every old
+        # A byte remains an exact prefix; a distinct A journal cannot change.
+        if a_journal == b_journal:
+            assert a_journal.read_bytes().startswith(a_journal_before)
+        else:
+            assert a_journal.read_bytes() == a_journal_before
+        assert all(path.read_bytes() == data for path, data in journals_after_purchase.items())
+        assert resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref) == a_trace
+        assert resolve_live_transport_trace(b_attempt.evidence.raw_evidence_ref) == b_trace
+        return {
+            "purchase_job_id": purchase["job_id"],
+            "admission_job_id": completed["job_id"],
+            "reentry_receipt_ref": terminal.reentry_receipt_ref,
+            "native_input_collection_ref": rows[0]["native_input_collection_ref"],
+            "new_provider_calls": len(transport_calls) - len(before_calls),
+            "kernel_entries": after_completion_kernels - before_kernels,
+            "physical_work_units": 1,
+            "semantic_steps": [0],
+            "derived_method_argument": "-6000000000",
+            "actual_method_argument_value_sha256": actual_argument.value_sha256,
+            "server_cost_profile_refs": [ref.model_dump(mode="json") for ref in new_refs],
+        }
+
+
+@pytest.mark.integration
+def test_retained_native_second_leaf_completes_and_restart_reuses_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Run the explicitly admitted retained-A/full-B case through actual owners.
+
+    This selector mutates only its explicitly selected test-owned retained case.
+    The server fixture selection is not an HTTP caller's authority assertion.
+    Resource/source admission is required before enabling it.
+    """
+    import json
+    import os
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tests._helpers.acquisition_production import intercepted_wdi_transport
+    from tests._helpers.candidate_reentry_timing import _TimingObserver
+    from tests._helpers.lane01_wdi_profiles import fixture_wdi_response
+    from tests._helpers.native_derivation_retained import RetainedNativeEpochPolicySelection
+
+    path = os.environ.get("POLISYOS_NATIVE_SECOND_LEAF_SELECTOR")
+    if not path:
+        pytest.skip("explicit retained A/source/quote and effect admission required")
+    selected = json.loads(Path(path).read_text())
+    expected = {
+        "base",
+        "original_purchase_ref",
+        "owned_a_terminal_ref",
+        "cost_profile_refs",
+        "epoch_admission_evidence_ref",
+        "epoch_public_key_path",
+        "pending_source_node_id",
+        "pending_quote_usd",
+        "pending_provider_profile",
+        "purchase_idempotency_key",
+        "admission_idempotency_key",
+    }
+    if set(selected) != expected:
+        raise ValueError("retained_native_second_leaf_selector_fields_invalid")
+    if selected["purchase_idempotency_key"] == selected["admission_idempotency_key"]:
+        raise ValueError("retained_native_second_leaf_action_identities_not_distinct")
+    provider_profile = CandidateWDIProfile(**selected["pending_provider_profile"])
+
+    def response_factory(_method: str, url: str, params: Any) -> bytes:
+        assert provider_profile.indicator_id in url, url
+        assert params["date"] in {
+            str(provider_profile.year),
+            f"{provider_profile.year}:{provider_profile.year}",
+        }
+        return fixture_wdi_response(provider_profile)
+
+    transport_calls = intercepted_wdi_transport(
+        monkeypatch, allow_loopback=True, response_factory=response_factory
+    )
+    output = tmp_path / "native-second-leaf"
+    output.mkdir()
+    # Observe the unmodified kernel code; neither a wrapper nor a replacement
+    # producer is installed. The canonical timing helper owns setup and unwind.
+    timing = _TimingObserver(
+        {
+            "semantic_kernel": JointSimulationHorizonController._run_semantic_program_graph_horizon.__code__
+        },
+        output / "kernel-observation.json",
+        profile="native_second_leaf",
+    )
+    if not timing.enable():
+        raise RuntimeError(timing.reason or "native_fixture_kernel_observer_unavailable")
+    try:
+        result = assert_retained_native_second_leaf_completion(
+            base=Path(selected["base"]),
+            output_root=output,
+            monkeypatch=monkeypatch,
+            controlled_candidate_gateway=controlled_candidate_gateway,
+            original_purchase_ref=ArtifactRef.model_validate(selected["original_purchase_ref"]),
+            owned_a_terminal_ref=ArtifactRef.model_validate(selected["owned_a_terminal_ref"]),
+            cost_profile_refs=tuple(
+                ArtifactRef.model_validate(ref) for ref in selected["cost_profile_refs"]
+            ),
+            epoch_policy_selection=RetainedNativeEpochPolicySelection(
+                epoch_admission_evidence_ref=ArtifactRef.model_validate(
+                    selected["epoch_admission_evidence_ref"]
+                ),
+                epoch_public_key_path=Path(selected["epoch_public_key_path"]),
+            ),
+            pending_source_node_id=selected["pending_source_node_id"],
+            pending_quote_usd=selected["pending_quote_usd"],
+            transport_calls=transport_calls,
+            semantic_kernel_entry_count=lambda: timing.snapshot()["targets"]["semantic_kernel"][
+                "calls"
+            ],
+            purchase_idempotency_key=selected["purchase_idempotency_key"],
+            admission_idempotency_key=selected["admission_idempotency_key"],
+        )
+        (output / "result.json").write_text(json.dumps(result, sort_keys=True) + "\n")
+    finally:
+        timing.cleanup()
+        timing.flush()
+    assert timing.cleanup_status == "complete"
+    assert timing.observer_errors == 0

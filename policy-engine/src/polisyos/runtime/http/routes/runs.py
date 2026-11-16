@@ -80,6 +80,7 @@ from polisyos.core.contracts.runtime import (
     RunModelInputUseN5SuccessorProjection,
     RunModelInputUseN5SuccessorProjectionV2,
     RunModelInputUseN5SuccessorResponse,
+    RunNativeGenericAcquisitionHistoryEntryV1,
     RunNodesResponse,
     RunOperatorDiagnostic,
     RunQuantitiesResponse,
@@ -836,6 +837,202 @@ def _candidate_terminal_history_v5_projection(
     ), current_frontier
 
 
+def _acquisition_reentry_source_family(simulation: Any) -> Literal["candidate", "generic"]:
+    """Select one complete stored source family before its canonical verifier."""
+    candidate = (
+        simulation.candidate_simulation_n4_source_ref,
+        simulation.candidate_simulation_context_job_ref,
+        simulation.candidate_simulation_n5_input_ref,
+        simulation.candidate_simulation_profile_config_ref,
+        simulation.candidate_simulation_profile_selection_ref,
+    )
+    generic = (
+        simulation.generic_n4_source_ref,
+        simulation.generic_context_job_ref,
+        simulation.generic_profile_ref,
+        simulation.generic_n5_input_ref,
+        simulation.generic_n5_execution_ref,
+        simulation.generic_profile_selection_ref,
+    )
+    generic_present = (
+        *generic,
+        simulation.generic_n4_child_profile_family_ref,
+        simulation.generic_n4_child_profile_set_ref,
+        simulation.generic_n5_request_binding,
+    )
+    if any(item is not None for item in candidate) and any(
+        item is not None for item in generic_present
+    ):
+        raise ValueError("acquisition_reentry_source_family_mixed")
+    if all(item is not None for item in candidate):
+        typed_refs = zip(
+            candidate[:3],
+            (
+                "runtime.quality.n4_candidate_scenario_source",
+                "runtime.quality.cycle_substrate_context_job",
+                "runtime.quality.candidate_simulation_n5_input",
+            ),
+            strict=True,
+        )
+        family: Literal["candidate", "generic"] = "candidate"
+    elif all(item is not None for item in generic):
+        if (
+            simulation.generic_n4_child_profile_family_ref is not None
+            or simulation.generic_n4_child_profile_set_ref is not None
+        ):
+            raise ValueError("native_acquisition_reentry_policy_child_family_invalid")
+        typed_refs = zip(
+            generic[:5],
+            (
+                "runtime.generation_source_handoff",
+                "runtime.quality.cycle_substrate_context_job",
+                "runtime.quality.generic_cycle_simulation_profile",
+                "runtime.quality.generic_cycle_simulation_n5_input",
+                "runtime.quality.generic_cycle_simulation_n5_execution",
+            ),
+            strict=True,
+        )
+        family = "generic"
+    else:
+        raise ValueError("acquisition_reentry_source_family_incomplete")
+    for ref, kind in typed_refs:
+        if ref.kind != kind or ref.media_type != "application/json":
+            raise ValueError("acquisition_reentry_source_ref_kind_invalid")
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("acquisition_reentry_source_profile_missing")
+    return family
+
+
+def _native_generic_acquisition_history_entry(
+    *,
+    store: Any,
+    control_service: Any,
+    event_log: Any,
+    head: Any,
+    route_receipt_ref: ArtifactRef,
+    route_receipt: Any,
+    reentry_receipt_ref: ArtifactRef,
+    reentry_receipt: Any,
+    source_generation_run: Any,
+    compiled_ref: ArtifactRef,
+    tenant_id: str,
+    cell_id: str,
+) -> RunNativeGenericAcquisitionHistoryEntryV1:
+    """Project an independently replayed historical Native Generic continuation."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.runtime.quality.native_source_reentry_history import (
+        read_native_source_reentry_history,
+    )
+
+    if (
+        route_receipt.schema_version != "AcquisitionRouteLoopReceipt@1.2"
+        or route_receipt.terminal_outcome != "reentry_completed"
+        or route_receipt.owner_declared_profile_ref is None
+        or _acquisition_reentry_source_family(reentry_receipt.new_cycle.simulation) != "generic"
+    ):
+        raise ValueError("native_acquisition_reentry_terminal_family_invalid")
+    verified_head = control_service.acquisition_route_sink.verify_action_head(head)
+    if verified_head.head != head or verified_head.latest_receipt != route_receipt:
+        raise ValueError("native_acquisition_reentry_terminal_head_mismatch")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    owner.bind_native_world_history(
+        control_store=control_service._control_store, event_log=event_log
+    )
+    verified = read_native_source_reentry_history(
+        store=store,
+        events=event_log,
+        owner=owner,
+        input_ref=reentry_receipt.new_cycle.simulation.generic_n5_input_ref,
+        source_generation_run=source_generation_run,
+        receipt=reentry_receipt,
+        expected_action_job_id=route_receipt.job_id,
+        expected_action_generation=route_receipt.action_generation,
+        expected_source_job_id=route_receipt.source_job_id,
+        expected_route_id=route_receipt.route_id,
+        expected_run_id=route_receipt.run_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    selection, progress = verified.selection, verified.progress
+    if (
+        selection.pending_action_phase.compiled_ref != str(compiled_ref.artifact_id)
+        or selection.pending_action_phase.owner_declared_profile_ref
+        != route_receipt.owner_declared_profile_ref
+        or selection.pending_action_phase.native_leaf_provider_selection
+        != route_receipt.native_leaf_provider_selection
+        or sum(
+            row.receipt_ref == str(selection.pending_action_phase_ref.artifact_id)
+            and row.receipt == selection.pending_action_phase
+            for row in verified_head.phase_chain
+        )
+        != 1
+    ):
+        raise ValueError("native_acquisition_reentry_terminal_ancestor_mismatch")
+    if (
+        progress.prepared is None
+        or progress.n5_completed is None
+        or progress.cycle_completed is None
+    ):
+        raise ValueError("native_acquisition_reentry_recorded_completion_missing")
+    prepared_ref, prepared = progress.prepared
+    completed_ref, completed = progress.n5_completed
+    record = verified.input_record
+    result_manifest = read_selected_n5_result_manifest(
+        store, completed.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
+    )
+    result_body = RunGenericCycleSimulationN5ResultBody.model_validate(
+        _n5_numerical_body_payload(
+            ref=completed.n5_result_ref,
+            manifest=result_manifest,
+            result=verified.result.result,
+            authority_purpose="cycle_input_candidate_only",
+            store=store,
+            request=verified.result.request,
+        )
+    )
+    execution = load_core_json_artifact(store, completed.n5_execution_ref)
+    return RunNativeGenericAcquisitionHistoryEntryV1(
+        route_receipt_ref=route_receipt_ref,
+        reentry_receipt_ref=reentry_receipt_ref,
+        source_compiled_ref=compiled_ref,
+        source_job_id=route_receipt.source_job_id,
+        action_job_id=route_receipt.job_id,
+        route_id=route_receipt.route_id,
+        action_generation=route_receipt.action_generation,
+        pending_action_phase_ref=selection.pending_action_phase_ref,
+        native_world_checkpoint_ref=selection.checkpoint_ref,
+        native_input_collection_ref=selection.checkpoint.collection_refs[0],
+        original_generic_input_ref=selection.original_generic_input_ref,
+        original_profile_ref=selection.original_profile_ref,
+        original_profile_selection_ref=record.profile.profile_selection_ref,
+        current_profile_selection_ref=record.native_current_profile_selection_ref,
+        world_model_record_content_hash=selection.world_model_record.content_hash,
+        context_job_ref=record.context_job_ref,
+        n4_source_ref=prepared.n4_source_ref,
+        n5_input_ref=prepared.n5_input_ref,
+        n5_execution_ref=completed.n5_execution_ref,
+        n5_result_ref=completed.n5_result_ref,
+        prepared_checkpoint_ref=prepared_ref,
+        n5_completed_checkpoint_ref=completed_ref,
+        cycle_completed_checkpoint_ref=progress.cycle_completed[0],
+        source_cycle_index=reentry_receipt.source_cycle_index,
+        continued_cycle_index=reentry_receipt.new_cycle.cycle_index,
+        candidate_id=prepared.candidate_id,
+        n5_input_schema_version=record.schema_version,
+        request_profile_schema_version=record.n5.schema_version,
+        n5_execution_schema_version=execution["schema_version"],
+        simulation_authority_blockers=completed.simulation.authority_blockers,
+        simulation_result_body=result_body,
+        limitations=(
+            "simulation_only_k_sim_not_world_evidence",
+            "historical_native_reentry_not_current_permission",
+        ),
+    )
+
+
 def _candidate_acquisition_history_projection(
     *,
     compiled: Any,
@@ -853,7 +1050,8 @@ def _candidate_acquisition_history_projection(
         RunCandidateSimulationAcquisitionHistoryEntry
         | RunCandidateSimulationAcquisitionHistoryEntryV3
         | RunCandidateSimulationAcquisitionHistoryEntryV4
-        | RunCandidateSimulationAcquisitionHistoryEntryV5,
+        | RunCandidateSimulationAcquisitionHistoryEntryV5
+        | RunNativeGenericAcquisitionHistoryEntryV1,
         ...,
     ],
     str | None,
@@ -1028,7 +1226,7 @@ def _candidate_acquisition_history_projection(
         report = reconcile_authority_ref(
             artifact_store=store,
             event_log=event_log,
-            cas_ref=expected_id,
+            cas_ref=ref,
             expected_tenant_id=tenant_id,
             expected_cell_id=cell_id,
             expected_run_id=source_run_id,
@@ -1098,6 +1296,7 @@ def _candidate_acquisition_history_projection(
             | RunCandidateSimulationAcquisitionHistoryEntryV3
             | RunCandidateSimulationAcquisitionHistoryEntryV4
             | RunCandidateSimulationAcquisitionHistoryEntryV5
+            | RunNativeGenericAcquisitionHistoryEntryV1
         ] = []
         matching_receipts: list[
             tuple[
@@ -1589,6 +1788,27 @@ def _candidate_acquisition_history_projection(
             source_run = source_runs[0]
             if reentry_receipt.schema_version.endswith(".v3"):
                 validate_acquisition_overlay_continuation(source_run, reentry_receipt)
+            if (
+                _acquisition_reentry_source_family(reentry_receipt.new_cycle.simulation)
+                == "generic"
+            ):
+                history_entries.append(
+                    _native_generic_acquisition_history_entry(
+                        store=store,
+                        control_service=control_service,
+                        event_log=event_log,
+                        head=_head,
+                        route_receipt_ref=route_receipt_ref,
+                        route_receipt=route_receipt,
+                        reentry_receipt_ref=reentry_receipt_ref,
+                        reentry_receipt=reentry_receipt,
+                        source_generation_run=source_run,
+                        compiled_ref=compiled_ref,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
+                )
+                continue
             old_source_ref = source_cycle.simulation.candidate_simulation_n4_source_ref
             old_input_ref = source_cycle.simulation.candidate_simulation_n5_input_ref
             old_source = None

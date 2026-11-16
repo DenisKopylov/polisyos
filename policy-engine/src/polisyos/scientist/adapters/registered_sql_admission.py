@@ -32,16 +32,17 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.decision_validity import (
     RegisteredMaterialization,
     RegisteredSQLAdmissionBinding,
+    RegisteredSQLCapture,
     RegisteredSQLUseContract,
     SourceAdmissionReceipt,
     SourceRegistrationReceipt,
+    registered_sql_capture_input_refs,
 )
 from polisyos.core.contracts.fabric import (
     DataSnapshotOwnerBound,
     DataViewRequestRef,
     FabricBridgeDataSnapshotLineage,
     data_snapshot_manifest_inputs_match,
-    data_snapshot_owner_input_requirements,
 )
 from polisyos.fabric.api import _require_registered_sql_execution
 from polisyos.scientist.adapters.fabric_bridge import (
@@ -83,42 +84,6 @@ class RegisteredSQLViewContract(BaseModel):
     restrictions: Literal["no_filters_or_temporal_scope"] = "no_filters_or_temporal_scope"
 
 
-class RegisteredSQLCapture(BaseModel):
-    """Selected protected artifact describing the actual execution occurrence."""
-
-    ARTIFACT_KIND: ClassVar[str] = "fabric.registered_sql_capture"
-    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
-    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.fabric.RegisteredSQLCapture"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    schema_version: Literal["1.0"] = "1.0"
-    connector_id: str
-    registration_generation: int = Field(ge=1)
-    config_fingerprint: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    driver: Literal["sqlite"] = "sqlite"
-    driver_timeout_seconds: int = Field(gt=0)
-    execution_mode: Literal["one_direct_query_no_retry_cache_or_fallback"] = (
-        "one_direct_query_no_retry_cache_or_fallback"
-    )
-    produced_view: Literal["pandas_json_scalar_records"] = "pandas_json_scalar_records"
-    external_currentness: Literal["not_established"] = "not_established"
-    external_completeness: Literal["not_established"] = "not_established"
-    statement: str
-    parameters: tuple[str, ...] = Field(default=(), max_length=0)
-    page_size: int = Field(gt=0, le=10000)
-    output_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    columns: tuple[str, ...]
-    dtypes: tuple[str, ...]
-    request_ref: ArtifactRef
-    snapshot_ref: ArtifactRef
-    payload_ref: ArtifactRef
-    schema_ref: ArtifactRef
-    quality_ref: ArtifactRef
-    view_ref: ArtifactRef
-    use_ref: ArtifactRef
-
-
 @dataclass(frozen=True, slots=True)
 class _RegisteredSQLProducerWitness:
     """Live producer observation held inside the existing C105 proof state."""
@@ -142,35 +107,6 @@ def _selected(ref: ArtifactRef) -> None:
 
 def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
     return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
-
-
-def registered_sql_capture_input_refs(
-    snapshot: DataSnapshotOwnerBound,
-    snapshot_ref: ArtifactRef,
-    registration: SourceRegistrationReceipt,
-) -> list[InputRef]:
-    """Derive the ordered SQL capture inputs without granting source authority.
-
-    Args:
-        snapshot: Typed selected Fabric Bridge snapshot.
-        snapshot_ref: Exact selected snapshot reference.
-        registration: Existing source registration receipt.
-
-    Returns:
-        Ordered selected references used by the registered SQL producer.
-    """
-    refs = [
-        input_ref_from_artifact_ref(snapshot_ref, role="source.snapshot"),
-        input_ref_from_artifact_ref(registration.effective_view_contract_ref, role="source.view"),
-        input_ref_from_artifact_ref(registration.use_contract_ref, role="source.use"),
-    ]
-    refs.extend(
-        input_ref_from_artifact_ref(ref, role="snapshot." + role)
-        for ref, role in data_snapshot_owner_input_requirements(snapshot)
-    )
-    if any(ref.manifest_profile_sha256 is None for ref in refs):
-        raise ValueError("registered_sql_selected_profile_required")
-    return refs
 
 
 def _edge_keys(inputs: list[InputRef]) -> Counter[tuple[str, str, str | None]]:

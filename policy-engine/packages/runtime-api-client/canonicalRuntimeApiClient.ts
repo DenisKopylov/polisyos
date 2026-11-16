@@ -1769,6 +1769,9 @@ export type RunN5InteractionSamplingSummary =
 export type RunN5InteractionTerm =
   RuntimeApiComponents["schemas"]["RunN5InteractionTerm"];
 
+export type RunNativeGenericAcquisitionHistoryEntryV1 =
+  RuntimeApiComponents["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"];
+
 export type RunNodeRecord = RuntimeApiComponents["schemas"]["RunNodeRecord"];
 
 export type RunNodesResponse =

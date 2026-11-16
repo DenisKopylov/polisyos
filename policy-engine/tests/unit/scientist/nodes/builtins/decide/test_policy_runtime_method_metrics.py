@@ -3,6 +3,7 @@ from __future__ import annotations
 import pickle
 from copy import copy, deepcopy
 from dataclasses import asdict, dataclass, replace
+from pathlib import Path
 from typing import Any, Literal
 
 import pytest
@@ -2766,6 +2767,181 @@ def test_registry_bundle_uses_exact_schema_absence_with_typed_selected_profile(
             max_bytes=1024 * 1024,
             read_budget=_ProjectionReadBudget(),
         )
+
+
+class _BoundedReceiptOnlyStore:
+    """Expose only real bounded owner operations and retain their usage receipts."""
+
+    def __init__(self, store: ArtifactStore) -> None:
+        self._store = store
+        self.manifests: list[Any] = []
+        self.members: list[Any] = []
+
+    def read_raw_manifest_bytes_bounded(self, *args: Any, **kwargs: Any) -> Any:
+        receipt = self._store.read_raw_manifest_bytes_bounded(*args, **kwargs)
+        self.manifests.append(receipt)
+        return receipt
+
+    def read_raw_manifest_bytes_bounded_for_input(self, *args: Any, **kwargs: Any) -> Any:
+        receipt = self._store.read_raw_manifest_bytes_bounded_for_input(*args, **kwargs)
+        self.manifests.append(receipt)
+        return receipt
+
+    def open_member_bounded(self, *args: Any, **kwargs: Any) -> Any:
+        attempt = self._store.open_member_bounded(*args, **kwargs)
+        self.members.append(attempt)
+        return attempt
+
+    def observed_bytes(self) -> int:
+        usages = [item.usage for item in (*self.manifests, *self.members)]
+        assert usages
+        assert all(type(item.observed_source_bytes) is int for item in usages)
+        return sum(item.observed_source_bytes for item in usages)
+
+
+def test_semantic_input_view_uses_genuine_bounded_receipts_for_json_and_verification(
+    cas_store: ArtifactStore,
+) -> None:
+    """Root-list JSON and repeated verification use no unbounded store capability."""
+    ref = cas_store.put_json(
+        [{"amount": "11"}, {"amount": "20"}],
+        PutOptions(kind="test.selected_tabular_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    expected = cas_store.get_bytes(ref)
+    owner = _BoundedReceiptOnlyStore(cas_store)
+    budget = _ProjectionReadBudget()
+    view = _BoundedExecutionSourceReader(owner, budget).semantic_input_reader()
+    assert not any(hasattr(view, name) for name in ("put_bytes", "put_json"))
+    assert view.get_bytes(ref) == expected
+    first_count = budget.observed_bytes
+    report = view.verify(ref)
+    assert report.ok and report.byte_size == len(expected)
+    assert first_count > len(expected)
+    assert budget.observed_bytes > first_count
+    assert budget.observed_bytes == owner.observed_bytes() == view.observed_source_bytes
+    assert all(attempt.usage.payload_integrity_verified for attempt in owner.members)
+
+
+def test_semantic_input_view_preserves_default_manifest_identity(
+    cas_store: ArtifactStore,
+) -> None:
+    """Default-view comparisons remain bounded and retain kind/media expectations."""
+    from polisyos.core.artifacts import CoreJsonReadBoundsRefusalError
+
+    ref = cas_store.put_json(
+        [{"amount": "11"}],
+        PutOptions(kind="test.selected_tabular_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    expected = cas_store.get_manifest(ref)
+    default_ref = ref.model_copy(update={"manifest_profile_sha256": None})
+    owner = _BoundedReceiptOnlyStore(cas_store)
+    budget = _ProjectionReadBudget()
+    view = _BoundedExecutionSourceReader(owner, budget).semantic_input_reader()
+    assert view.get_manifest(default_ref) == expected
+    for change in ({"kind": "test.foreign_payload"}, {"media_type": "application/x-npz"}):
+        with pytest.raises(
+            ValueError, match="^semantic_bounded_default_manifest_identity_mismatch$"
+        ):
+            view.get_manifest(default_ref.model_copy(update=change))
+    assert not view.has(ArtifactID("sha256:" + "0" * 64))
+    with pytest.raises(CoreJsonReadBoundsRefusalError) as limited:
+        view.open_member(ref, "blob", max_manifest_bytes=1)
+    assert limited.value.limit_name == "max_manifest_bytes"
+    assert limited.value.limit_value == 1
+    assert budget.source_usage_established
+    assert budget.observed_bytes == owner.observed_bytes()
+
+
+def test_semantic_input_view_has_requires_available_selected_payload(tmp_path: Path) -> None:
+    """An orphan manifest cannot become a positive availability answer."""
+    from polisyos.core.artifacts import CoreJsonReadBoundsRefusalError, FileSystemCAS
+
+    cas_root = tmp_path / "selected-cas"
+    store = FileSystemCAS(cas_root)
+    ref = store.put_json(
+        [{"amount": "11"}],
+        PutOptions(kind="test.selected_tabular_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    digest = ref.artifact_id.hex
+    blob = cas_root / "artifacts" / "sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
+    backup = blob.with_name(blob.name + ".withheld")
+    owner = _BoundedReceiptOnlyStore(store)
+    budget = _ProjectionReadBudget()
+    view = _BoundedExecutionSourceReader(owner, budget).semantic_input_reader()
+    assert view.has(ref)
+    blob.rename(backup)
+    try:
+        assert view.get_manifest(ref).artifact_id == ref.artifact_id
+        with pytest.raises(CoreJsonReadBoundsRefusalError) as refused:
+            view.has(ref)
+        assert refused.value.code == "selected_artifact_not_found"
+        assert type(refused.value.__cause__) is FileNotFoundError
+        assert refused.value.__cause__.filename == str(blob)
+    finally:
+        backup.rename(blob)
+    assert view.has(ref)
+    assert budget.source_usage_established
+    assert budget.observed_bytes == owner.observed_bytes()
+
+
+def test_semantic_input_view_requires_actual_snapshot_parent_and_verified_npz_eof(
+    cas_store: ArtifactStore,
+) -> None:
+    """A binary child is readable only after its exact selected snapshot is replayed."""
+    import numpy as np
+
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts import StateSnapshot
+    from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
+
+    snapshot_ref = put_state_snapshot(
+        cas_store,
+        state={"baseline": np.asarray([1.0]), "scenario": np.asarray([2.0])},
+        return_selected_profile=True,
+    )
+    snapshot = validate_core_model_json_artifact(StateSnapshot, cas_store, snapshot_ref)
+    expected = cas_store.get_bytes(snapshot.state_ref)
+    owner = _BoundedReceiptOnlyStore(cas_store)
+    budget = _ProjectionReadBudget()
+    view = _BoundedExecutionSourceReader(owner, budget).semantic_input_reader()
+    with pytest.raises(ValueError, match="^semantic_bounded_state_blob_parent_required$"):
+        view.get_bytes(snapshot.state_ref)
+    view.get_bytes(snapshot_ref)
+    assert view.get_bytes(snapshot.state_ref) == expected
+    assert view.verify(snapshot.state_ref).ok
+    assert budget.source_usage_established
+    assert budget.observed_bytes == owner.observed_bytes()
+    assert all(attempt.usage.payload_integrity_verified for attempt in owner.members)
+
+
+def test_semantic_input_view_preserves_wrapped_shared_budget_refusal(
+    cas_store: ArtifactStore,
+) -> None:
+    """Core wrapping cannot turn the actual owner cap into an unmeasured semantic error."""
+    from polisyos.foundry.execute.api import (
+        ExecutionSourceBoundedReadRefusal,
+        _BoundedExecutionSourceReadSession,
+    )
+
+    ref = cas_store.put_json(
+        [{"amount": "11"}],
+        PutOptions(kind="test.selected_tabular_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    budget = _ProjectionReadBudget(max_bytes=64)
+    session = _BoundedExecutionSourceReadSession(_BoundedExecutionSourceReader(cas_store, budget))
+    with (
+        pytest.raises(ExecutionSourceBoundedReadRefusal) as refusal,
+        session.semantic_input_view() as view,
+    ):
+        view.get_bytes(ref)
+    assert refusal.value.limit_bytes == 64
+    assert budget.source_usage_established
+    assert session.observed_bytes == budget.observed_bytes
+    assert 0 <= budget.observed_bytes <= 64
 
 
 def test_state_blob_manifest_is_read_only_through_its_selected_snapshot_parent(

@@ -18862,7 +18862,7 @@ export interface components {
              * Acquisition History
              * @default []
              */
-            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"])[];
+            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"])[];
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_action_history_terminal_projection_unavailable" | "acquisition_reentry_source_not_established") | null;
             /**
@@ -19968,7 +19968,7 @@ export interface components {
          */
         RunGenericCycleSimulationProjection: {
             /** Acquisition History */
-            acquisition_history?: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"])[] | null;
+            acquisition_history?: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"])[] | null;
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: string | null;
             /**
@@ -20603,6 +20603,222 @@ export interface components {
             replication_sampling_by_step?: {
                 [key: string]: components["schemas"]["RunN5InteractionSamplingSummary"];
             };
+        };
+        /**
+         * RunNativeGenericAcquisitionHistoryEntryV1
+         * @description Selected Native Generic re-entry history, limited to historical observation.
+         */
+        RunNativeGenericAcquisitionHistoryEntryV1: {
+            /** Action Generation */
+            action_generation: number;
+            /** Action Job Id */
+            action_job_id: string;
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /** Candidate Id */
+            candidate_id: string;
+            context_job_ref: {
+                /** @constant */
+                kind: "runtime.quality.cycle_substrate_context_job";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Continued Cycle Index */
+            continued_cycle_index: number;
+            /** Current Profile Selection Ref */
+            current_profile_selection_ref: string;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            cycle_completed_checkpoint_ref: {
+                /** @constant */
+                kind: "runtime_quality.native_source_reentry_checkpoint";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Limitations */
+            limitations: string[];
+            n4_source_ref: {
+                /** @constant */
+                kind: "runtime.generation_source_handoff";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            n5_completed_checkpoint_ref: {
+                /** @constant */
+                kind: "runtime_quality.native_source_reentry_checkpoint";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            n5_execution_ref: {
+                /** @constant */
+                kind: "runtime.quality.generic_cycle_simulation_n5_execution";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * N5 Execution Schema Version
+             * @constant
+             */
+            n5_execution_schema_version: "policyos.runtime.generic_cycle_simulation_n5_execution.v3";
+            n5_input_ref: {
+                /** @constant */
+                kind: "runtime.quality.generic_cycle_simulation_n5_input";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * N5 Input Schema Version
+             * @constant
+             */
+            n5_input_schema_version: "policyos.runtime.generic_cycle_simulation_n5_input.v2";
+            /**
+             * N5 Owner Join Status
+             * @default resolved
+             * @constant
+             */
+            n5_owner_join_status: "resolved";
+            n5_result_ref: {
+                /** @constant */
+                kind: "polisyos.runtime.joint_simulation_result";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            native_input_collection_ref: {
+                /** @constant */
+                kind: "runtime_quality.native_derivation_input_checkpoint";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            native_world_checkpoint_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_candidate_world_checkpoint";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            original_generic_input_ref: {
+                /** @constant */
+                kind: "runtime.quality.generic_cycle_simulation_n5_input";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            original_profile_ref: {
+                /** @constant */
+                kind: "runtime.quality.generic_cycle_simulation_profile";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Original Profile Selection Ref */
+            original_profile_selection_ref: string;
+            pending_action_phase_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            prepared_checkpoint_ref: {
+                /** @constant */
+                kind: "runtime_quality.native_source_reentry_checkpoint";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            reentry_receipt_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_overlay_reentry_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * Request Profile Schema Version
+             * @enum {string}
+             */
+            request_profile_schema_version: "policyos.runtime.generic_cycle_n5_request_profile.v4" | "policyos.runtime.generic_cycle_n5_request_profile.v5";
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_loop_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_native_generic_acquisition_history.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_native_generic_acquisition_history.v1";
+            /** Simulation Authority Blockers */
+            simulation_authority_blockers: string[];
+            simulation_result_body: components["schemas"]["RunGenericCycleSimulationN5ResultBody"];
+            /**
+             * Simulation Status
+             * @default joint_simulated
+             * @constant
+             */
+            simulation_status: "joint_simulated";
+            source_compiled_ref: {
+                /** @constant */
+                kind: "runtime.compiled_recursive_generation_cycle";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Source Cycle Index */
+            source_cycle_index: number;
+            /** Source Job Id */
+            source_job_id: string;
+            /**
+             * Terminal Outcome
+             * @default reentry_completed
+             * @constant
+             */
+            terminal_outcome: "reentry_completed";
+            /** World Model Record Content Hash */
+            world_model_record_content_hash: string;
         };
         /**
          * RunNodeRecord

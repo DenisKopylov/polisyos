@@ -152,6 +152,153 @@ def _profile_for_scope(
     return persist_native_derivation_leaf_cost_profile(store, profile)
 
 
+def select_native_fixture_cost_profiles(
+    store: Any,
+    cost_profile_refs: tuple[artifacts.ArtifactRef, ...],
+    *,
+    expected_source_actor: tuple[str, str, str, str] | None = None,
+) -> tuple[tuple[artifacts.ArtifactRef, NativeDerivationLeafCostProfile], ...]:
+    """Validate explicit server quote inputs against their actual N7 owners.
+
+    Historical prices remain costing evidence only. This never selects the
+    latest view, renews a quote, authorizes a supplier, or opens transport.
+    """
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.runtime.quality.acquisition_planner import (
+        _n7_load_configured_candidate_port_source,
+        _n7_validate_configured_candidate_report_source,
+        load_acquisition_planner_report,
+        load_n7_derivation_bundle,
+        load_native_derivation_leaf_cost_profile,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import _select_source_planner_record
+    from polisyos.runtime.quality.generation_cycle import _requirement_missing_distributions
+
+    if type(cost_profile_refs) is not tuple or not cost_profile_refs:
+        raise ValueError("native_fixture_cost_selection_missing")
+    if any(
+        type(ref) is not artifacts.ArtifactRef or ref.manifest_profile_sha256 is None
+        for ref in cost_profile_refs
+    ):
+        raise ValueError("native_fixture_cost_selection_unselected")
+    keys = tuple(artifacts.artifact_ref_identity_key(ref) for ref in cost_profile_refs)
+    if len(keys) != len(set(keys)):
+        raise ValueError("native_fixture_cost_selection_duplicate")
+    rows = tuple(
+        (ref, load_native_derivation_leaf_cost_profile(store, ref)) for ref in cost_profile_refs
+    )
+    source_ref = rows[0][1].scope.configured_port_source_ref
+    source = _n7_load_configured_candidate_port_source(store, source_ref)
+    actor = source.tenant_id, source.cell_id, source.run_id, source.source_job_id
+    if expected_source_actor is not None and actor != expected_source_actor:
+        raise ValueError("native_fixture_cost_source_actor_mismatch")
+    bundle = load_n7_derivation_bundle(store, source.derivation_bundle_ref)
+    nodes = {node.node_id: node for node in bundle.source_nodes if node.requirement_gap is not None}
+    reports = {}
+    seen = set()
+    for _ref, profile in rows:
+        scope = profile.scope
+        if (
+            (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id) != actor
+            or artifacts.artifact_ref_identity_key(scope.configured_port_source_ref)
+            != artifacts.artifact_ref_identity_key(source_ref)
+            or artifacts.artifact_ref_identity_key(scope.derivation_bundle_ref)
+            != artifacts.artifact_ref_identity_key(source.derivation_bundle_ref)
+            or artifacts.artifact_ref_identity_key(scope.obligation_set_ref)
+            != artifacts.artifact_ref_identity_key(bundle.obligation_set_ref)
+            or scope.source_node_id not in nodes
+            or scope.source_node_id in seen
+        ):
+            raise ValueError("native_fixture_cost_leaf_scope_mismatch")
+        seen.add(scope.source_node_id)
+        node = nodes[scope.source_node_id]
+        suppliers = (
+            (node.selected_supplier_ref,)
+            if node.selected_supplier_ref is not None
+            else tuple(row.supplier_ref for row in node.supplier_alternatives)
+        )
+        if artifacts.artifact_ref_identity_key(scope.selected_supplier_ref) not in {
+            artifacts.artifact_ref_identity_key(ref) for ref in suppliers
+        }:
+            raise ValueError("native_fixture_cost_supplier_not_selected")
+        report_key = artifacts.artifact_ref_identity_key(scope.planner_report_ref)
+        if report_key not in reports:
+            report = load_acquisition_planner_report(store, scope.planner_report_ref)
+            if report.candidate_lineage is None or artifacts.artifact_ref_identity_key(
+                report.candidate_lineage.port_source_ref
+            ) != artifacts.artifact_ref_identity_key(source_ref):
+                raise ValueError("native_fixture_cost_planner_source_mismatch")
+            _n7_validate_configured_candidate_report_source(store=store, report=report)
+            reports[report_key] = report
+        gap = node.requirement_gap
+        record = _select_source_planner_record(reports[report_key], gap)
+        distributions = _requirement_missing_distributions(gap)
+        if (
+            scope.requirement_gap_id != gap.requirement_gap_id
+            or scope.compiled_requirement_ref != gap.compiled_requirement_ref
+            or scope.planner_record_id != record.acquisition_id
+            or scope.strategy != record.recommended_strategy
+            or distributions != (scope.missing_distribution,)
+        ):
+            raise ValueError("native_fixture_cost_planner_leaf_mismatch")
+        # The selected declaration is the provider source of truth, not a
+        # caller-supplied entry ID. Current rights are checked by the live owner.
+        declaration = catalog.load_acquisition_supplier_declaration(
+            store, scope.selected_supplier_ref
+        )
+        if (
+            not declaration.entry.entry_id
+            or not declaration.connector_id
+            or (declaration.entry.target_variable != scope.missing_distribution)
+        ):
+            raise ValueError("native_fixture_cost_provider_unresolved")
+    if seen != set(nodes):
+        raise ValueError("native_fixture_cost_leaf_denominator_mismatch")
+    return rows
+
+
+def prepare_retained_native_leaf_quote(
+    store: Any,
+    *,
+    collection_ref: artifacts.ArtifactRef,
+    cost_profile_refs: tuple[artifacts.ArtifactRef, ...],
+    source_node_id: str,
+    amount_usd: float,
+) -> tuple[artifacts.ArtifactRef, ...]:
+    """Issue a new demo quote only for an actually pending retained leaf.
+
+    The owned siblings retain their exact historical profiles. This creates
+    costing inputs, never a mandate, a provider purchase or a currentness claim.
+    """
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        replay_native_derivation_input_collection,
+    )
+
+    if (
+        isinstance(amount_usd, bool)
+        or not isinstance(amount_usd, int | float)
+        or (not math.isfinite(amount_usd) or amount_usd <= 0)
+        or amount_usd != round(amount_usd, 2)
+    ):
+        raise ValueError("native_derivation_quote_amount_invalid")
+    rows = select_native_fixture_cost_profiles(store, cost_profile_refs)
+    collection = replay_native_derivation_input_collection(store, collection_ref).collection
+    if source_node_id not in {row.source_node_id for row in collection.pending_actions} or (
+        source_node_id in {row.source_node_id for row in collection.source_inputs}
+    ):
+        raise ValueError("native_fixture_quote_leaf_not_pending")
+    candidates = tuple(row for row in rows if row[1].scope.source_node_id == source_node_id)
+    if len(candidates) != 1 or artifacts.artifact_ref_identity_key(
+        candidates[0][1].scope.derivation_bundle_ref
+    ) != artifacts.artifact_ref_identity_key(collection.derivation_bundle_ref):
+        raise ValueError("native_fixture_quote_collection_scope_mismatch")
+    ref, profile = candidates[0]
+    replacement = _profile_for_scope(
+        store, profile.scope, amount_usd=amount_usd, now=datetime.now(UTC)
+    )
+    return tuple(replacement if selected == ref else selected for selected, _ in rows)
+
+
 def adopt_served_native_leaf_quotes(
     served_case: Any,
     holder: dict[str, Any],

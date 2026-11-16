@@ -253,9 +253,14 @@ type CandidateExperimentResultWitnesses = [
     >
   >,
   Assert<
-    Equal<CandidateExperimentPriorResult["n5_result"], CandidateExperimentResult>
+    Equal<
+      CandidateExperimentPriorResult["n5_result"],
+      CandidateExperimentResult
+    >
   >,
-  Assert<Equal<CandidateExperimentPriorResult["prior_action_generation"], number>>,
+  Assert<
+    Equal<CandidateExperimentPriorResult["prior_action_generation"], number>
+  >,
   Assert<
     Equal<
       undefined extends CandidateExperimentAction["candidate_n5_result"]
@@ -336,3 +341,68 @@ void legacyAcquisitionRouteMutation;
 void recoveredAcquisitionRouteMutation;
 void legacyInitialObservation;
 void historicalInitialObservation;
+
+type NativeGenericAcquisitionHistoryEntry =
+  RawRuntimeApiComponents["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"];
+type NativeGenericHistoryResultRef =
+  NativeGenericAcquisitionHistoryEntry["n5_result_ref"];
+const nativeHistoryRefBase = {
+  artifact_id: `sha256:${"a".repeat(64)}`,
+  media_type: "application/json" as const,
+};
+const selectedNativeHistoryResultRef: NativeGenericHistoryResultRef = {
+  ...nativeHistoryRefBase,
+  kind: "polisyos.runtime.joint_simulation_result",
+  manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+};
+const unselectedNativeHistoryResultRef: Omit<
+  NativeGenericHistoryResultRef,
+  "manifest_profile_sha256"
+> = {
+  ...nativeHistoryRefBase,
+  kind: "polisyos.runtime.joint_simulation_result",
+};
+// @ts-expect-error native-history result refs require a selected manifest profile
+const rejectedUnselectedNativeHistoryResultRef: NativeGenericHistoryResultRef =
+  unselectedNativeHistoryResultRef;
+type WrongKindNativeHistoryResultRef = Omit<
+  NativeGenericHistoryResultRef,
+  "kind"
+> & {
+  kind: "runtime.quality.generic_cycle_simulation_n5_result";
+};
+const wrongKindNativeHistoryResultRef: WrongKindNativeHistoryResultRef = {
+  ...nativeHistoryRefBase,
+  kind: "runtime.quality.generic_cycle_simulation_n5_result",
+  manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+};
+// @ts-expect-error each selected ref keeps its schema-owned artifact kind
+const rejectedWrongKindNativeHistoryResultRef: NativeGenericHistoryResultRef =
+  wrongKindNativeHistoryResultRef;
+
+const emptyNativeHistoryBlockers: NativeGenericAcquisitionHistoryEntry["simulation_authority_blockers"] =
+  [];
+type NativeGenericHistoryCandidateBoundaryWitnesses = [
+  Assert<
+    Equal<
+      NativeGenericAcquisitionHistoryEntry["authority_purpose"],
+      "candidate_observation_only"
+    >
+  >,
+  Assert<
+    Equal<
+      NativeGenericAcquisitionHistoryEntry["currentness_status"],
+      "not_established"
+    >
+  >,
+  Assert<
+    Equal<NativeGenericAcquisitionHistoryEntry["publication_authority"], false>
+  >,
+];
+export type { NativeGenericHistoryCandidateBoundaryWitnesses };
+void selectedNativeHistoryResultRef;
+void unselectedNativeHistoryResultRef;
+void rejectedUnselectedNativeHistoryResultRef;
+void wrongKindNativeHistoryResultRef;
+void rejectedWrongKindNativeHistoryResultRef;
+void emptyNativeHistoryBlockers;

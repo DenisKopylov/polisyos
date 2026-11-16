@@ -288,7 +288,29 @@ def _storage_only_registered_source(tmp_path, *, expected_query, use_key="foundr
 
 def test_sql_producer_binds_actual_snapshot_to_existing_owner_and_retries(tmp_path):
     """Component fixture only; installed Runtime authority is a separate test."""
-    from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLProducer
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.decision_validity import (
+        RegisteredSQLCapture as CoreRegisteredSQLCapture,
+    )
+    from polisyos.core.contracts.decision_validity import (
+        registered_sql_capture_input_refs as core_capture_input_refs,
+    )
+    from polisyos.core.contracts.fabric import DataSnapshotOwnerBound
+    from polisyos.scientist.adapters import (
+        RegisteredSQLCapture as ScientistRegisteredSQLCapture,
+    )
+    from polisyos.scientist.adapters import (
+        registered_sql_capture_input_refs as scientist_capture_input_refs,
+    )
+    from polisyos.scientist.adapters.registered_sql_admission import (
+        RegisteredSQLCapture as ScientistModuleRegisteredSQLCapture,
+    )
+    from polisyos.scientist.adapters.registered_sql_admission import (
+        RegisteredSQLProducer,
+    )
+    from polisyos.scientist.adapters.registered_sql_admission import (
+        registered_sql_capture_input_refs as scientist_module_capture_input_refs,
+    )
 
     store, port, authority, owner, registration = _storage_only_registered_source(
         tmp_path, expected_query='SELECT * FROM "policy_inputs" LIMIT 100'
@@ -310,7 +332,21 @@ def test_sql_producer_binds_actual_snapshot_to_existing_owner_and_retries(tmp_pa
     assert materialization.request_ref.model_dump(mode="json") == request_ref.model_dump(
         mode="json"
     )
-    from polisyos.core.artifacts import validate_core_model_json_artifact
+    assert ScientistRegisteredSQLCapture is CoreRegisteredSQLCapture
+    assert ScientistModuleRegisteredSQLCapture is CoreRegisteredSQLCapture
+    assert scientist_capture_input_refs is core_capture_input_refs
+    assert scientist_module_capture_input_refs is core_capture_input_refs
+    capture = validate_core_model_json_artifact(
+        CoreRegisteredSQLCapture, store, materialization.producer_capture_ref
+    )
+    assert type(capture) is CoreRegisteredSQLCapture
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshotOwnerBound, store, materialization.snapshot_ref
+    )
+    capture_manifest = store.get_manifest(materialization.producer_capture_ref)
+    assert capture_manifest.inputs == core_capture_input_refs(
+        snapshot, materialization.snapshot_ref, registration
+    )
     from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
 
     protected = validate_core_model_json_artifact(RegisteredSQLAdmissionBinding, store, binding_ref)

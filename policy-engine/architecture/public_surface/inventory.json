@@ -2222,8 +2222,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 965,
-          "known_export_count": 965,
+          "export_count": 972,
+          "known_export_count": 972,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2252,6 +2252,11 @@
             "ScopedCorrespondenceBasis",
             "ScopedCorrespondenceBasisRef",
             "ScopedCorrespondenceEvaluation",
+            "REGISTERED_SQL_MEASUREMENT_LIMITATIONS",
+            "RegisteredSQLMeasurementSourceSelection",
+            "RegisteredSQLMeasurementOccurrence",
+            "load_scoped_measurement_occurrence",
+            "replay_registered_sql_measurement_occurrence",
             "ScopedMeasurementOccurrence",
             "ScopedMeasurementOccurrenceRef",
             "ScopedSourceSelection",
@@ -2876,7 +2881,9 @@
             "PreN9AdmittedCandidate",
             "PreN9EpochValiditySubjectStatement",
             "RegisteredSQLAdmissionBinding",
+            "RegisteredSQLCapture",
             "RegisteredSQLUseContract",
+            "registered_sql_capture_input_refs",
             "PreflightDiagnostic",
             "PreflightReport",
             "PreflightReportRef",
@@ -3215,8 +3222,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 104522,
-                "sha256": "ee5ae6359e3902b768f85727b2478072091e5280b0402c7d3b9e6594f42700f5"
+                "bytes": 105458,
+                "sha256": "035c665febd301e8526a13f01c4f62fc13bc5a8332cafd6a40589547a8cbca91"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -14636,8 +14643,8 @@
         "polisyos.scientist.policy_design"
       ],
       "major_subsystem": true,
-      "export_count": 46,
-      "known_export_count": 46,
+      "export_count": 49,
+      "known_export_count": 49,
       "exports": [
         "create_n4_producer_binding",
         "n4_producer_request_scope",
@@ -14677,6 +14684,9 @@
         "build_epoch_claim_lifecycle_bridge",
         "build_knowledge_tool_registry",
         "create_traced_gateway_client",
+        "GatewayLLMConfig",
+        "gateway_cache_reuse_scope",
+        "is_llm_simulation_mode_enabled",
         "discover_scientist_nodes",
         "get_metrics",
         "get_tracer",
@@ -14695,8 +14705,8 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 46,
-          "known_export_count": 46,
+          "export_count": 49,
+          "known_export_count": 49,
           "exports": [
             "create_n4_producer_binding",
             "n4_producer_request_scope",
@@ -14736,6 +14746,9 @@
             "build_epoch_claim_lifecycle_bridge",
             "build_knowledge_tool_registry",
             "create_traced_gateway_client",
+            "GatewayLLMConfig",
+            "gateway_cache_reuse_scope",
+            "is_llm_simulation_mode_enabled",
             "discover_scientist_nodes",
             "get_metrics",
             "get_tracer",
@@ -14769,8 +14782,8 @@
                 "path": "src/polisyos/scientist/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8937,
-                "sha256": "bf6ebcdffe46f709b944d61f41555f669da53222bbe416069828108c1c86770d"
+                "bytes": 9406,
+                "sha256": "13909ed5cecb30081fdb871e8c8a58357b5615347eb7eadefd098f09a6b96e62"
               },
               {
                 "path": "src/polisyos/scientist",
@@ -21962,8 +21975,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 175,
-          "known_export_count": 175,
+          "export_count": 177,
+          "known_export_count": 177,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -22074,6 +22087,7 @@
             "acquisition_supplier_declaration_scope_refusal",
             "assess_entity_vector_to_model_candidate",
             "assess_measurement_to_model_candidate",
+            "assess_selected_measurement_to_model_candidate",
             "build_acquisition_authority_provision",
             "build_authority_entry",
             "build_authority_registry",
@@ -22113,6 +22127,7 @@
             "load_derivation_catalog_selection",
             "load_seed_alignments",
             "materialize_activated_measurement_occurrence",
+            "materialize_registered_sql_measurement_occurrence",
             "normalize_acquisition_unit",
             "normalize_country_code",
             "normalized_acquisition_source_body",
@@ -22165,8 +22180,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 69142,
-                "sha256": "65464e9dd7d62b36bd032a30aab2347e7c49eb91ad86747cc8398f4c16e86e81"
+                "bytes": 69849,
+                "sha256": "46185e2aae64b4afe2f6dd9e7a5ffe3ec0bd6e8fe690f38152b56abd7c713d5f"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

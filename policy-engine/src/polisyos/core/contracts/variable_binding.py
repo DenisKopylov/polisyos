@@ -70,7 +70,7 @@ class MeasurementBindingProfileRef(SelectedVariableBindingRef):
 
 
 class ScopedMeasurementOccurrenceRef(SelectedVariableBindingRef):
-    """Exact selected Catalog occurrence materialized from an admitted epoch."""
+    """Exact selected Catalog occurrence with its versioned source owner."""
 
     kind: Literal["catalog.scoped_measurement_occurrence"] = "catalog.scoped_measurement_occurrence"
     media_type: Literal["application/json"] = "application/json"
@@ -488,6 +488,145 @@ class ScopedMeasurementOccurrence(BaseModel):
         return self
 
 
+REGISTERED_SQL_MEASUREMENT_LIMITATIONS: tuple[str, ...] = (
+    "source_meaning_consumer_asserted",
+    "source_release_consumer_asserted",
+    "source_scope_consumer_asserted",
+    "external_empirical_origin_not_established",
+    "empirical_correctness_not_established",
+    "source_currentness_not_established",
+    "source_representativeness_not_established",
+    "external_completeness_not_established",
+)
+
+
+class RegisteredSQLMeasurementSourceSelection(BaseModel):
+    """Bind a declared candidate meaning to one captured SQL row and column.
+
+    The Catalog producer derives the four transport references from the exact
+    SQL admission. Meaning, release and scope are explicit consumer assertions;
+    the selected capture establishes neither their empirical truth nor current
+    permission to use the source.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    source_kind: Literal["registered_sql"] = "registered_sql"
+    registered_sql_admission_ref: SelectedVariableBindingRef
+    capture_ref: SelectedVariableBindingRef
+    snapshot_ref: SelectedVariableBindingRef
+    payload_ref: SelectedVariableBindingRef
+    source_path: str = Field(min_length=1, max_length=512, strict=True)
+    declared_source_definition_ref: VariableSemanticDefinitionRef
+    declared_source_representation_ref: VariableRepresentationRef
+    declared_release: str = Field(min_length=1, max_length=256, strict=True)
+    source_scope: ModelInputScope
+    canonical_variable: str = Field(min_length=1, strict=True)
+    canonical_unit: str = Field(min_length=1, strict=True)
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+    source_meaning_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    source_release_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    source_scope_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    independent_origin: Literal["not_established"] = "not_established"
+    empirical_correctness: Literal["not_established"] = "not_established"
+    source_currentness: Literal["not_established"] = "not_established"
+    limitation_codes: tuple[str, ...] = REGISTERED_SQL_MEASUREMENT_LIMITATIONS
+
+    @property
+    def unit_transform(self) -> Literal["identity"]:
+        """Keep the bounded source projection free of implicit conversions."""
+        return "identity"
+
+    @model_validator(mode="after")
+    def _selected_source_is_closed(self) -> RegisteredSQLMeasurementSourceSelection:
+        for ref, kind in (
+            (self.registered_sql_admission_ref, "fabric.registered_sql_admission_binding"),
+            (self.capture_ref, "fabric.registered_sql_capture"),
+            (self.snapshot_ref, "fabric.data_snapshot"),
+            (self.payload_ref, "fabric.tabular_payload"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("registered_sql_measurement_source_ref_kind_mismatch")
+        parts = self.source_path.split(".")
+        if (
+            len(parts) != 2
+            or not parts[0].isascii()
+            or not parts[0].isdigit()
+            or str(int(parts[0])) != parts[0]
+            or not parts[1]
+            or parts[1] != parts[1].strip()
+            or self.declared_release != self.declared_release.strip()
+        ):
+            raise ValueError("registered_sql_measurement_source_path_invalid")
+        if self.limitation_codes != REGISTERED_SQL_MEASUREMENT_LIMITATIONS:
+            raise ValueError("registered_sql_measurement_limitations_required")
+        return self
+
+
+class RegisteredSQLMeasurementOccurrence(BaseModel):
+    """Replayable candidate scalar from the selected SQL capture, without an epoch.
+
+    The occurrence points to its already produced SQL payload/path. It never
+    adds a reverse edge to that immutable payload, and does not create an
+    acquisition passport or source-currentness claim.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    ARTIFACT_KIND: ClassVar[str] = "catalog.scoped_measurement_occurrence"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.catalog.ScopedMeasurementOccurrence"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "2.0"
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "2.0": "polisyos.catalog.scoped_measurement_occurrence.v2"
+    }
+
+    schema_version: Literal["polisyos.catalog.scoped_measurement_occurrence.v2"] = (
+        "polisyos.catalog.scoped_measurement_occurrence.v2"
+    )
+    source_selection: RegisteredSQLMeasurementSourceSelection
+    observation_id: str = Field(min_length=1, strict=True)
+    observation_content_sha256: str = Field(pattern=_SELECTED_PROFILE_SHA256, strict=True)
+    raw_values: tuple[str, ...] = Field(min_length=1, max_length=1)
+    canonical_value: str = Field(min_length=1, strict=True)
+
+    @property
+    def source_scope(self) -> ModelInputScope:
+        """Return the explicitly declared scope carried by this source."""
+        return self.source_selection.source_scope
+
+    @property
+    def canonical_unit(self) -> str:
+        """Return the selected representation's declared unit."""
+        return self.source_selection.canonical_unit
+
+    @property
+    def aggregation_method(self) -> Literal["identity"]:
+        """Identify the exact one-cell projection, without row aggregation."""
+        return "identity"
+
+    @model_validator(mode="after")
+    def _one_finite_source_value(self) -> RegisteredSQLMeasurementOccurrence:
+        try:
+            value = Decimal(self.canonical_value)
+        except ArithmeticError as exc:
+            raise ValueError("registered_sql_measurement_value_invalid") from exc
+        source_identity = _catalog_content_sha256(self.source_selection.model_dump(mode="json"))
+        if (
+            not value.is_finite()
+            or self.raw_values != (self.canonical_value,)
+            or self.observation_id != "registered-sql-observation:" + source_identity
+            or self.observation_content_sha256
+            != _catalog_content_sha256(
+                self.model_dump(mode="json", exclude={"observation_content_sha256"})
+            )
+        ):
+            raise ValueError("registered_sql_measurement_value_binding_mismatch")
+        return self
+
+
 class ScopedCorrespondenceBasis(BaseModel):
     """Exact bounded basis that Foundry can independently reopen and replay."""
 
@@ -872,10 +1011,26 @@ class MeasurementCorrespondenceResult(BaseModel):
 
 
 def scoped_measurement_occurrence_manifest_inputs(
-    occurrence: ScopedMeasurementOccurrence,
+    occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
 ) -> tuple[InputRef, ...]:
     """Return the exact role-qualified source edges for one occurrence artifact."""
 
+    if isinstance(occurrence, RegisteredSQLMeasurementOccurrence):
+        source = occurrence.source_selection
+        return (
+            input_ref_from_artifact_ref(source.registered_sql_admission_ref, role="sql.admission"),
+            input_ref_from_artifact_ref(source.capture_ref, role="sql.capture"),
+            input_ref_from_artifact_ref(source.snapshot_ref, role="sql.snapshot"),
+            input_ref_from_artifact_ref(
+                source.payload_ref, role="source.payload:" + source.source_path
+            ),
+            input_ref_from_artifact_ref(
+                source.declared_source_definition_ref, role="source.definition"
+            ),
+            input_ref_from_artifact_ref(
+                source.declared_source_representation_ref, role="source.representation"
+            ),
+        )
     return (
         input_ref_from_artifact_ref(occurrence.source_receipt_ref, role="active_receipt"),
         input_ref_from_artifact_ref(occurrence.source_passport_ref, role="source_passport"),
@@ -883,6 +1038,66 @@ def scoped_measurement_occurrence_manifest_inputs(
             occurrence.source_boundary_candidate_ref, role="source_boundary_candidate"
         ),
         input_ref_from_artifact_ref(occurrence.source_record_ref, role="source_record"),
+    )
+
+
+def load_scoped_measurement_occurrence(
+    store: CoreJSONArtifactProfileReader,
+    ref: ScopedMeasurementOccurrenceRef,
+) -> ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence:
+    """Read the exact epoch or registered-SQL occurrence under its own schema."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    schema = store.get_manifest(ref).artifact_schema
+    if schema is None or schema.name != ScopedMeasurementOccurrence.ARTIFACT_SCHEMA_NAME:
+        raise ValueError("scoped_measurement_occurrence_schema_not_established")
+    if schema.version == "1.0":
+        return validate_core_model_json_artifact(ScopedMeasurementOccurrence, store, ref)
+    if schema.version == "2.0":
+        return validate_core_model_json_artifact(RegisteredSQLMeasurementOccurrence, store, ref)
+    raise ValueError("scoped_measurement_occurrence_schema_not_established")
+
+
+def replay_registered_sql_measurement_occurrence(
+    payload: object,
+    *,
+    source_selection: RegisteredSQLMeasurementSourceSelection,
+) -> RegisteredSQLMeasurementOccurrence:
+    """Project one explicit finite numeric SQL cell, without inference or conversion.
+
+    The caller owns bounded CAS reading and capture/snapshot/admission replay.
+    This pure projection only decodes the selected flat row/column and binds
+    its value to the complete selected declaration.
+    """
+    source = RegisteredSQLMeasurementSourceSelection.model_validate_json(
+        source_selection.model_dump_json()
+    )
+    row_index, column = source.source_path.split(".")
+    index = int(row_index)
+    if (
+        not isinstance(payload, list)
+        or index >= len(payload)
+        or not isinstance(payload[index], dict)
+        or column not in payload[index]
+    ):
+        raise ValueError("registered_sql_measurement_source_path_missing")
+    raw = payload[index][column]
+    if isinstance(raw, bool) or not isinstance(raw, int | float | Decimal):
+        raise ValueError("registered_sql_measurement_scalar_required")
+    value = Decimal(str(raw))
+    if not value.is_finite():
+        raise ValueError("registered_sql_measurement_value_not_finite")
+    canonical = format(value, "f")
+    content = {
+        "schema_version": "polisyos.catalog.scoped_measurement_occurrence.v2",
+        "source_selection": source.model_dump(mode="json"),
+        "observation_id": "registered-sql-observation:"
+        + _catalog_content_sha256(source.model_dump(mode="json")),
+        "raw_values": [canonical],
+        "canonical_value": canonical,
+    }
+    return RegisteredSQLMeasurementOccurrence.model_validate_json(
+        json.dumps({**content, "observation_content_sha256": _catalog_content_sha256(content)})
     )
 
 
@@ -1375,9 +1590,9 @@ def evaluate_scoped_correspondence_basis(
     *,
     basis: ScopedCorrespondenceBasis,
     occurrence_ref: ScopedMeasurementOccurrenceRef,
-    occurrence: ScopedMeasurementOccurrence,
-    replayed_occurrence: ScopedMeasurementOccurrence,
-    source_selection: ScopedSourceSelection,
+    occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    replayed_occurrence: ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
+    source_selection: ScopedSourceSelection | RegisteredSQLMeasurementSourceSelection,
     source_definition_ref: VariableSemanticDefinitionRef,
     source_definition: VariableSemanticDefinition,
     source_representation_ref: VariableRepresentationRef,
@@ -1400,8 +1615,20 @@ def evaluate_scoped_correspondence_basis(
     neither establishes the provider's upstream empirical estimand.
     """
 
+    sql_source = isinstance(source_selection, RegisteredSQLMeasurementSourceSelection)
+    if sql_source != isinstance(occurrence, RegisteredSQLMeasurementOccurrence) or (
+        sql_source != isinstance(replayed_occurrence, RegisteredSQLMeasurementOccurrence)
+    ):
+        return ScopedCorrespondenceEvaluation(
+            status="refused",
+            semantic_correspondence="not_established",
+            refusal_codes=("source_owner_mapping_occurrence_mismatch",),
+        )
     refusals: list[str] = []
-    if source_selection.declared_source_condition:
+    if (
+        isinstance(source_selection, RegisteredSQLMeasurementSourceSelection)
+        or source_selection.declared_source_condition
+    ):
         declared_definition = source_selection.declared_source_definition_ref
         declared_representation = source_selection.declared_source_representation_ref
         if declared_definition is None or declared_representation is None:
@@ -1447,22 +1674,36 @@ def evaluate_scoped_correspondence_basis(
         source_definition_ref, source_definition, target_definition_ref, target_definition
     ):
         refusals.append("same_definition_profile_requires_exact_definition")
+    if isinstance(source_selection, RegisteredSQLMeasurementSourceSelection) and isinstance(
+        occurrence, RegisteredSQLMeasurementOccurrence
+    ):
+        source_matches = occurrence.source_selection == source_selection
+    elif isinstance(source_selection, ScopedSourceSelection) and isinstance(
+        occurrence, ScopedMeasurementOccurrence
+    ):
+        source_matches = (
+            occurrence.canonical_variable == source_selection.canonical_variable
+            and occurrence.raw_variable == source_selection.raw_field
+            and occurrence.dataset_id == source_selection.dataset_id
+            and occurrence.dataset_version == source_selection.dataset_version
+            and occurrence.source_watermark == source_selection.source_watermark
+            and occurrence.observation_class == source_selection.observation_class
+            and all(
+                artifact_ref_identity_key(getattr(occurrence, field))
+                == artifact_ref_identity_key(getattr(source_selection, field))
+                for field in (
+                    "source_receipt_ref",
+                    "source_passport_ref",
+                    "source_boundary_candidate_ref",
+                    "source_record_ref",
+                )
+            )
+        )
+    else:
+        source_matches = False
     if (
         _namespaced_semantic_id(source_definition) != source_selection.canonical_variable
-        or occurrence.canonical_variable != source_selection.canonical_variable
-        or occurrence.raw_variable != source_selection.raw_field
-        or occurrence.dataset_id != source_selection.dataset_id
-        or occurrence.dataset_version != source_selection.dataset_version
-        or occurrence.source_watermark != source_selection.source_watermark
-        or occurrence.observation_class != source_selection.observation_class
-        or artifact_ref_identity_key(occurrence.source_receipt_ref)
-        != artifact_ref_identity_key(source_selection.source_receipt_ref)
-        or artifact_ref_identity_key(occurrence.source_passport_ref)
-        != artifact_ref_identity_key(source_selection.source_passport_ref)
-        or artifact_ref_identity_key(occurrence.source_boundary_candidate_ref)
-        != artifact_ref_identity_key(source_selection.source_boundary_candidate_ref)
-        or artifact_ref_identity_key(occurrence.source_record_ref)
-        != artifact_ref_identity_key(source_selection.source_record_ref)
+        or not source_matches
     ):
         refusals.append("source_owner_mapping_occurrence_mismatch")
     if (
@@ -1515,15 +1756,24 @@ def evaluate_scoped_correspondence_basis(
         or model_port.scope.period_basis != "calendar_year"
     ):
         refusals.append("calendar_year_period_basis_not_established")
+    year = (
+        occurrence.source_scope.period_start.year
+        if isinstance(occurrence, RegisteredSQLMeasurementOccurrence)
+        else occurrence.year
+    )
     if (
-        occurrence.year is None
-        or occurrence.survey_year is not None
-        or occurrence.wave is not None
-        or occurrence.source_scope.period_start != date(occurrence.year, 1, 1)
-        or occurrence.source_scope.period_end != date(occurrence.year, 12, 31)
+        year is None
+        or (
+            isinstance(occurrence, ScopedMeasurementOccurrence)
+            and (occurrence.survey_year is not None or occurrence.wave is not None)
+        )
+        or occurrence.source_scope.period_start != date(year, 1, 1)
+        or occurrence.source_scope.period_end != date(year, 12, 31)
     ):
         refusals.append("calendar_year_source_scope_mismatch")
-    if source_selection.is_proxy or source_selection.observation_class != "observed":
+    if isinstance(source_selection, ScopedSourceSelection) and (
+        source_selection.is_proxy or source_selection.observation_class != "observed"
+    ):
         refusals.append("source_measurement_not_exact_observed")
 
     compared, optional_unknown, axis_refusals = compare_measurement_representation_axes(
@@ -1545,14 +1795,19 @@ def evaluate_scoped_correspondence_basis(
         semantic_correspondence="recomputed",
         recomputed_axes=compared,
         optional_unknown_axes=optional_unknown,
-        limitation_codes=(
-            "external_empirical_origin_not_established",
-            "source_currentness_not_established",
-            *(
-                ("optional_axis_unknown:methodology_ref",)
-                if MeasurementAxis.METHODOLOGY_REF in optional_unknown
-                else ()
-            ),
+        limitation_codes=tuple(
+            dict.fromkeys(
+                (
+                    "external_empirical_origin_not_established",
+                    "source_currentness_not_established",
+                    *(REGISTERED_SQL_MEASUREMENT_LIMITATIONS if sql_source else ()),
+                    *(
+                        ("optional_axis_unknown:methodology_ref",)
+                        if MeasurementAxis.METHODOLOGY_REF in optional_unknown
+                        else ()
+                    ),
+                )
+            )
         ),
     )
 
@@ -1878,6 +2133,7 @@ def _representation_axis_value(
 
 __all__ = [
     "ENTITY_VECTOR_CANDIDATE_LIMITATIONS",
+    "REGISTERED_SQL_MEASUREMENT_LIMITATIONS",
     "EntityVectorCandidateLimitation",
     "EntityVectorCorrespondenceBasis",
     "EntityVectorCorrespondenceBasisRef",
@@ -1887,6 +2143,8 @@ __all__ = [
     "MeasurementBindingProfileRef",
     "MeasurementCorrespondenceResult",
     "ModelInputScope",
+    "RegisteredSQLMeasurementOccurrence",
+    "RegisteredSQLMeasurementSourceSelection",
     "ScopedCorrespondenceBasis",
     "ScopedCorrespondenceBasisRef",
     "ScopedCorrespondenceEvaluation",
@@ -1905,8 +2163,10 @@ __all__ = [
     "evaluate_entity_vector_correspondence_basis",
     "evaluate_scoped_correspondence_basis",
     "load_entity_vector_correspondence_basis",
+    "load_scoped_measurement_occurrence",
     "load_selected_entity_vector_source_meaning",
     "load_variable_representation",
+    "replay_registered_sql_measurement_occurrence",
     "replay_scoped_measurement_occurrence",
     "scoped_correspondence_basis_manifest_inputs",
     "scoped_measurement_occurrence_manifest_inputs",

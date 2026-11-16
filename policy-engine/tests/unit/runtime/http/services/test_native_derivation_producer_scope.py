@@ -324,3 +324,63 @@ def test_native_readiness_refuses_a_caller_supplied_completion_marker():
             coordinator=SimpleNamespace(progress=lambda: SimpleNamespace(n5_completed=True)),
         )
     assert caught.value.code == "native_reentry_checkpoint_owner_mismatch"
+
+
+@pytest.mark.parametrize(
+    ("mode", "configured", "models", "expected_code"),
+    [
+        (None, False, ["original-model"], "native_reentry_n4_producer_unconfigured"),
+        ("0", False, ["original-model"], "native_reentry_n4_producer_unconfigured"),
+        (" TRUE ", False, ["original-model"], None),
+        (None, True, ["original-model"], None),
+        ("1", True, [], "native_reentry_model_not_established"),
+    ],
+)
+def test_native_new_n4_readiness_uses_the_public_factory_mode_owner(
+    tmp_path,
+    monkeypatch,
+    mode,
+    configured,
+    models,
+    expected_code,
+):
+    """Reopen real source JSON before configuration-only admission, with no I/O."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.scientist import GatewayLLMConfig
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    selected = store.put_json(
+        {"llm_models": models},
+        artifacts.ArtifactWriteOptions(
+            kind="test.native.original_source_payload", media_type="application/json"
+        ),
+        return_selected_profile=True,
+    )
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = store
+    if mode is None:
+        monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+    else:
+        monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", mode)
+    lookups = []
+
+    def config_from_env(cls):
+        lookups.append(cls)
+        return (
+            GatewayLLMConfig(base_url="https://fixture.invalid/v1", api_key="fixture-key")
+            if configured
+            else None
+        )
+
+    monkeypatch.setattr(GatewayLLMConfig, "from_env", classmethod(config_from_env))
+    closure = SimpleNamespace(source_payload_ref=selected)
+    if expected_code is not None:
+        with pytest.raises(AcquisitionRouteClosureError) as caught:
+            bridge._require_native_reentry_n4_producer(closure)
+        assert caught.value.code == expected_code
+    else:
+        bridge._require_native_reentry_n4_producer(closure)
+    assert len(lookups) == (0 if mode in {" TRUE ", "1"} else 1)
+    assert store.verify(selected).ok

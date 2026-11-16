@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from polisyos.core.artifacts import ArtifactStore
-    from polisyos.data_requirement.model_input_requirements import (
+    from polisyos.data_requirement import (
         CompiledModelInputRequirement,
         ModelInputCompilationReport,
     )

@@ -11,14 +11,15 @@ from dataclasses import dataclass
 from graphlib import CycleError, TopologicalSorter
 from types import MappingProxyType
 
-from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
-from polisyos.core.contracts.foundry import ProgramGraph
-from polisyos.core.contracts.method_input import (
+from polisyos.core.contracts import (
+    ExecutionPlan,
+    MethodDagNode,
     MethodInputPortSource,
     MethodOutputInputPortSource,
+    ProgramGraph,
     RegistrySlotInputPortSource,
 )
-from polisyos.core.registry.loader import RegistryBundleContent
+from polisyos.core.registry import RegistryBundleContent
 from polisyos.foundry.methods import MethodRegistry, resolve_selected_method_entry
 from polisyos.foundry.methods.base import (
     ComputeBackend,

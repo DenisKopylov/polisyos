@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 135 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 542 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 544 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -2358,7 +2358,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 542 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 544 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -2378,7 +2378,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (542)</summary>
+<details><summary>Entrypoint exports (544)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2596,6 +2596,7 @@ InterferenceEffectDecomposition
 InterferenceLossSpecBundle
 InterferenceMethod
 IntervalSemantics
+InterventionContext
 InterventionExpr
 InterventionQuery
 InterventionQueryRef
@@ -2647,6 +2648,7 @@ NegativeControlSpec
 NetworkCausalContractBundle
 NetworkContractBundle
 NetworkInterferenceReport
+NodeIntervention
 NodeMechanism
 NormPack
 NormRef
@@ -4043,7 +4045,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (542)</summary>
+<details><summary>Supported exports (544)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -4261,6 +4263,7 @@ InterferenceEffectDecomposition
 InterferenceLossSpecBundle
 InterferenceMethod
 IntervalSemantics
+InterventionContext
 InterventionExpr
 InterventionQuery
 InterventionQueryRef
@@ -4312,6 +4315,7 @@ NegativeControlSpec
 NetworkCausalContractBundle
 NetworkContractBundle
 NetworkInterferenceReport
+NodeIntervention
 NodeMechanism
 NormPack
 NormRef

@@ -21,6 +21,7 @@ from polisyos.data_requirement import (
     DATA_REQUIREMENT_BASIS_SCHEMA_VERSION,
     DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION,
     DATA_REQUIREMENT_SPEC_SCHEMA_VERSION,
+    CompiledModelInputRequirement,
     DataRequirementBasisResolution,
     DataRequirementCompilationReport,
     DataRequirementCompilationReportV1,
@@ -45,6 +46,14 @@ from polisyos.policy_grammar import (
 from polisyos.scientist.policy_design.claim_decomposition import compile_claim_decomposition
 
 NOW = datetime(2026, 5, 23, 12, 0, tzinfo=UTC)
+
+
+def test_compiled_model_input_requirement_facade_preserves_owner_identity() -> None:
+    from polisyos.data_requirement.model_input_requirements import (
+        CompiledModelInputRequirement as OwnerCompiledModelInputRequirement,
+    )
+
+    assert CompiledModelInputRequirement is OwnerCompiledModelInputRequirement
 
 
 class _FakeCapabilityBinding:

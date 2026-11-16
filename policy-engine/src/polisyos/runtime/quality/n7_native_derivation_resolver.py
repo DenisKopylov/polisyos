@@ -21,7 +21,7 @@ if TYPE_CHECKING:
         RegisteredDerivedInputProfile,
     )
     from polisyos.data_forge.read_api.catalog import AcquisitionSupplierDeclaration
-    from polisyos.data_requirement.model_input_requirements import CompiledModelInputRequirement
+    from polisyos.data_requirement import CompiledModelInputRequirement
     from polisyos.runtime.quality.acquisition_planner import (
         AcquisitionRequirementGap,
         N7DerivationBasis,

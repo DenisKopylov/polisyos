@@ -9,13 +9,13 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactRef,
     CoreJSONArtifactStore,
+    PutOptions,
     SchemaInfo,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
     load_core_json_artifact,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts import (
     ExecPlan,
     LoweredIR,

@@ -10,9 +10,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TypeGuard
 
-from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     LoweredIR,
     LoweredMechanism,
     ProgramGraph,

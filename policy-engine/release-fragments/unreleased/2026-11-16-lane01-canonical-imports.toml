@@ -1,0 +1,17 @@
+id = "2026-11-16-lane01-canonical-imports"
+title = "Use canonical contract facades in selected-input consumers"
+type = "fixed"
+component = "architecture"
+owner = "team-polisyos"
+summary = "Route selected-input, actuation and acquisition imports through their canonical public facades without changing the underlying contract objects or algorithms."
+evidence = ["src/polisyos/ir/__init__.py", "src/polisyos/data_requirement/__init__.py", "tests/unit/ir/test_supported_facade_route_identities.py", "tests/unit/data_requirement/test_compiler.py"]
+change_class = "python-public-api"
+surface_classification = "public_stable IR aliases and an additive alias on the existing ungoverned data_requirement facade; no package promotion"
+compatibility = "Existing defining-module imports remain valid. The facade exports resolve to the same InterventionContext, NodeIntervention and CompiledModelInputRequirement class objects; no DTO or artifact schema changes."
+migration = "Consumers may import the two intervention contracts from polisyos.ir and the compiled requirement from polisyos.data_requirement. Existing Core artifact, contract and registry facades are reused."
+api = "Adds InterventionContext and NodeIntervention to polisyos.ir and CompiledModelInputRequirement to polisyos.data_requirement. No HTTP or generated client shape changes."
+limitations = "Canonical access preserves contract identity; it does not establish model validity, external authority or permission for a new use."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/public-surface.md"]
+runbook_docs = []

@@ -1235,7 +1235,7 @@ def _generic_paired_atom_numerical_values(atom: object) -> dict[str, object]:
     The initial profile supports the existing typed node-intervention form;
     unsupported transform/coercion profiles refuse instead of dropping refs.
     """
-    from polisyos.ir.analytics.interventions import InterventionContext, NodeIntervention
+    from polisyos.ir import InterventionContext, NodeIntervention
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
     if not isinstance(atom, InterventionAtomBinding):

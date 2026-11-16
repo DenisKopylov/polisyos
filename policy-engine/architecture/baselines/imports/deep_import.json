@@ -4066,27 +4066,6 @@
       "source_module": "polisyos.foundry.compile._graph",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/compile/_graph.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.compile._graph",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/compile/_graph.py",
-      "target_module": "polisyos.core.contracts.execution_plan",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.compile._graph",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/compile/_graph.py",
-      "target_module": "polisyos.core.contracts.foundry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.compile._graph",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/compile/_graph.py",
       "target_module": "polisyos.ir.kernel.slots",
       "target_root": "ir"
     },
@@ -10783,13 +10762,6 @@
       "target_root": "fabric"
     },
     {
-      "source_module": "polisyos.runtime.quality.data_snapshot_lineage",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_snapshot_lineage.py",
-      "target_module": "polisyos.core.contracts.fabric",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
@@ -11075,13 +11047,6 @@
       "source_file": "src/polisyos/runtime/quality/hte_source_projection.py",
       "target_module": "polisyos.core.artifacts.manifest",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.hte_source_projection",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/hte_source_projection.py",
-      "target_module": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-      "target_root": "data_forge"
     },
     {
       "source_module": "polisyos.runtime.quality.hte_source_projection",

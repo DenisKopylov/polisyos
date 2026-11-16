@@ -23,6 +23,10 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import (
         read_canonical_immutable_container as read_canonical_immutable_container,
     )
+    from polisyos.ir.analytics.interventions import (
+        InterventionContext as InterventionContext,
+    )
+    from polisyos.ir.analytics.interventions import NodeIntervention as NodeIntervention
     from polisyos.ir.analytics.uncertainty import (
         OutputContractDeclaration as OutputContractDeclaration,
     )
@@ -247,6 +251,7 @@ __all__ = [
     "InterferenceLossSpecBundle",
     "InterferenceMethod",
     "IntervalSemantics",
+    "InterventionContext",
     "InterventionExpr",
     "InterventionQuery",
     "InterventionQueryRef",
@@ -298,6 +303,7 @@ __all__ = [
     "NetworkCausalContractBundle",
     "NetworkContractBundle",
     "NetworkInterferenceReport",
+    "NodeIntervention",
     "NodeMechanism",
     "NormPack",
     "NormRef",
@@ -1558,8 +1564,13 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "ICVerificationMode",
     ),
     "InputRef": ("polisyos.ir.artifacts.contracts", "InputRef"),
+    "InterventionContext": (
+        "polisyos.ir.analytics.interventions",
+        "InterventionContext",
+    ),
     "InterventionExpr": ("polisyos.ir.analytics.interventions", "InterventionExpr"),
     "InterventionQuery": ("polisyos.ir.analytics.interventions", "InterventionQuery"),
+    "NodeIntervention": ("polisyos.ir.analytics.interventions", "NodeIntervention"),
     "KernelEstimatorSpecRef": ("polisyos.ir.registry.refs", "KernelEstimatorSpecRef"),
     "LatentDiscoveryBundle": (
         "polisyos.ir.analytics.causal_discovery",

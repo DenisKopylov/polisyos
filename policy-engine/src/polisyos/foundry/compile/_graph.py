@@ -6,17 +6,17 @@ from collections.abc import Iterable
 from graphlib import TopologicalSorter
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.execution_plan import ExecutionPlan
-from polisyos.core.contracts.foundry import (
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.contracts import (
+    ExecutionPlan,
     LoweredIRRef,
     LoweredMechanism,
+    MethodInputPortSource,
     ProgramEdge,
     ProgramGraph,
     ProgramNode,
     ProgramOp,
 )
-from polisyos.core.contracts.method_input import MethodInputPortSource
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.methods import get_registry, resolve_selected_method_entry
 from polisyos.foundry.methods.base import MethodKind, SideEffectProfile

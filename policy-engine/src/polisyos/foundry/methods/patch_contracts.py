@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from polisyos.core.artifacts.manifest import artifact_ref_identity_key
-from polisyos.core.contracts.model_state_layout import (
+from polisyos.core.artifacts import artifact_ref_identity_key
+from polisyos.core.contracts import (
     ModelScalarStateLayout,
     model_scalar_state_layout_digest,
     model_scalar_state_slot_spec_digest,

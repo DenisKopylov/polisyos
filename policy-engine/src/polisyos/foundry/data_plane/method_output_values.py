@@ -14,12 +14,12 @@ from dataclasses import dataclass
 import numpy as np
 
 from polisyos.core.artifacts import (
+    ArtifactRef,
     CoreJsonReadLimits,
     artifact_ref_identity_key,
     read_core_json_artifact_bounded,
     validate_core_model_bounded_read,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import (
     MethodExecutionBundle,
     MethodExecutionInputSlot,

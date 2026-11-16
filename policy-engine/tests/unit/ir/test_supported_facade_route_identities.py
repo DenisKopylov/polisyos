@@ -18,10 +18,16 @@ def test_causal_consumer_facade_exports_preserve_canonical_owner_identity() -> N
     from polisyos import ir
     from polisyos.ir.analytics.causal import load_proof_bundle
     from polisyos.ir.analytics.causal_graph import graph_for_analysis, project_graph_to_dag
-    from polisyos.ir.analytics.interventions import load_intervention_query
+    from polisyos.ir.analytics.interventions import (
+        InterventionContext,
+        NodeIntervention,
+        load_intervention_query,
+    )
     from polisyos.ir.registry.refs import InterventionQueryRef, StructuralCausalModelSpecRef
 
     assert ir.InterventionQueryRef is InterventionQueryRef
+    assert ir.InterventionContext is InterventionContext
+    assert ir.NodeIntervention is NodeIntervention
     assert ir.StructuralCausalModelSpecRef is StructuralCausalModelSpecRef
     assert ir.load_proof_bundle is load_proof_bundle
     assert ir.load_intervention_query is load_intervention_query

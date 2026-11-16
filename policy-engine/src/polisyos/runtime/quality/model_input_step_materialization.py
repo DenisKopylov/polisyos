@@ -31,6 +31,7 @@ from polisyos.core.contracts import (
     DerivedModelInputStepDataSnapshotLineage,
     ModelInputStepCoverage,
     ModelInputStepScope,
+    ModelInputStepSubject,
     RegisteredDerivedModelInputRequest,
     ResolvedDerivedInputAtStep,
     ResolvedInputBindingManifest,
@@ -38,6 +39,7 @@ from polisyos.core.contracts import (
     SelectedVariableBindingRef,
     data_snapshot_owner_input_requirements,
     persist_resolved_input_binding_manifest,
+    resolve_model_input_step_subjects,
 )
 
 
@@ -87,10 +89,6 @@ def prepare_registered_derived_model_input_steps(
     Raises:
         ValueError: If identity, original base, source facts or supported profile differs.
     """
-    from polisyos.core.contracts.semantic_step_binding import (
-        ModelInputStepSubject,
-        resolve_model_input_step_subjects,
-    )
     from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.runtime.quality.model_input_routing import (
         _prepare_registered_derived_port_output,

@@ -23,6 +23,8 @@ from polisyos.core.contracts import (
     ExecPlan,
     ExecPlanRef,
     FoundryInputBindings,
+    MethodInputPortSource,
+    MethodOutputInputPortSource,
     ModelInputContext,
     ModelInputObligation,
     ModelInputObligationSet,
@@ -37,6 +39,7 @@ from polisyos.core.contracts import (
     ProgramGraphInputInvocation,
     ProgramGraphRef,
     ProgramNode,
+    RegistrySlotInputPortSource,
     StateSnapshot,
     StateSnapshotRef,
     derive_model_input_step_scopes,
@@ -45,11 +48,6 @@ from polisyos.core.contracts import (
     load_program_graph_input_interface,
     load_resolved_input_binding_manifest,
     verify_model_input_port_semantics,
-)
-from polisyos.core.contracts.method_input import (
-    MethodInputPortSource,
-    MethodOutputInputPortSource,
-    RegistrySlotInputPortSource,
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.contracts.specs import get_mechanism_spec, validate_mechanism_params

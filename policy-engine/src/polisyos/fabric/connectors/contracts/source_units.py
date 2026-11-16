@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core import artifacts
 from polisyos.fabric.quality import ProcessingGuarantee
-from polisyos.ir.kernel.units import UnitRef
+from polisyos.ir.kernel import UnitRef
 
 from .contract import ConnectorSchemaContract
 from .contract_registry import ContractRegistry

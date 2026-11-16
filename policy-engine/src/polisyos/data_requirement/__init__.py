@@ -46,6 +46,9 @@ if TYPE_CHECKING:
         verify_model_input_compilation_report,
         write_data_requirement_compilation_report,
     )
+    from .model_input_requirements import (
+        CompiledModelInputRequirement as CompiledModelInputRequirement,
+    )
     from .model_input_requirements import ModelInputCompilationReport as ModelInputCompilationReport
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -99,6 +102,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.data_requirement.model_input_requirements",
         "ModelInputCompilationReport",
     ),
+    "CompiledModelInputRequirement": (
+        "polisyos.data_requirement.model_input_requirements",
+        "CompiledModelInputRequirement",
+    ),
 }
 
 
@@ -121,6 +128,7 @@ __all__ = [
     "CapabilityBindingSnapshot",
     "CapabilityRequirementResolution",
     "ClaimConstructDeclarationInputError",
+    "CompiledModelInputRequirement",
     "DataQualityMinimums",
     "DataRequirementBasisResolution",
     "DataRequirementCompilationReport",

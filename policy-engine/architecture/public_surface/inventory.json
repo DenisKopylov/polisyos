@@ -4770,8 +4770,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 542,
-      "known_export_count": 542,
+      "export_count": 544,
+      "known_export_count": 544,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -4988,6 +4988,7 @@
         "InterferenceLossSpecBundle",
         "InterferenceMethod",
         "IntervalSemantics",
+        "InterventionContext",
         "InterventionExpr",
         "InterventionQuery",
         "InterventionQueryRef",
@@ -5039,6 +5040,7 @@
         "NetworkCausalContractBundle",
         "NetworkContractBundle",
         "NetworkInterferenceReport",
+        "NodeIntervention",
         "NodeMechanism",
         "NormPack",
         "NormRef",
@@ -5325,8 +5327,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 542,
-          "known_export_count": 542,
+          "export_count": 544,
+          "known_export_count": 544,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -5543,6 +5545,7 @@
             "InterferenceLossSpecBundle",
             "InterferenceMethod",
             "IntervalSemantics",
+            "InterventionContext",
             "InterventionExpr",
             "InterventionQuery",
             "InterventionQueryRef",
@@ -5594,6 +5597,7 @@
             "NetworkCausalContractBundle",
             "NetworkContractBundle",
             "NetworkInterferenceReport",
+            "NodeIntervention",
             "NodeMechanism",
             "NormPack",
             "NormRef",
@@ -5895,8 +5899,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 76410,
-                "sha256": "cf72b39579f9fa7b650209d5fb1c666a43ffa479d7fabfa158b3630b7ef136ca"
+                "bytes": 76861,
+                "sha256": "0bad4b4e2ecdc3265966c3f9e47603cb33c9354458d15183b9b2a4489180aa7c"
               },
               {
                 "path": "src/polisyos/ir",

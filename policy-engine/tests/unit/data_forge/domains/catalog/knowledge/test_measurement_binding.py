@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import stat
 import subprocess
 import sys
 from datetime import date
@@ -12,13 +13,25 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.artifacts import (
+    CoreJsonReadLimits,
     artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.entity_axis import (
+    EntityAxisMemberId,
+    SelectedEntityAxis,
+    SelectedEntityVectorSourceDescriptor,
+    entity_axis_digest,
+    entity_axis_member_sort_key,
+    entity_axis_membership_digest,
+)
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
 from polisyos.core.contracts.model_input_requirements import (
+    ModelInputPhysicalEncoding,
     ModelInputPort,
     ModelInputScope,
     ProgramGraphInputInterface,
@@ -28,18 +41,22 @@ from polisyos.core.contracts.variable_binding import (
     MeasurementAxis,
     MeasurementBindingProfile,
     MeasurementBindingProfileRef,
+    SelectedEntityVectorSourceMeaning,
     SelectedVariableBindingRef,
     VariableRepresentation,
     VariableRepresentationRef,
     VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
 from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
     _AssessmentRefusal,
     _reopen_definition_evidence,
+    _replay_entity_vector_source_layout,
     assess_measurement_to_model_candidate,
 )
+from polisyos.foundry.data_plane.entity_axis import build_selected_source_entity_axis
 from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
@@ -259,6 +276,281 @@ def _definition_with_selected_evidence(
         ),
         evidence_ref,
     )
+
+
+def _selected_json_ref(store: FileSystemCAS, kind: str, ref_type):
+    raw_ref = store.put_json(
+        {"fixture_kind": kind},
+        PutOptions(kind=kind, media_type="application/json"),
+        return_selected_profile=True,
+    )
+    return ref_type.model_validate(raw_ref.model_dump(mode="json"))
+
+
+def _entity_vector_source_fixture(
+    store: FileSystemCAS,
+    *,
+    payload: object,
+    member_pointer: str,
+    values_pointer: str,
+) -> tuple[SelectedEntityVectorSourceMeaning, ModelInputPort]:
+    view_ref = store.put_json(
+        payload,
+        PutOptions(kind="test.entity_vector_source_view", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    axis_result = build_selected_source_entity_axis(
+        store=store,
+        source_view_ref=view_ref,
+        namespace="test:households",
+        member_values_pointer=member_pointer,
+        limits=CoreJsonReadLimits(
+            max_bytes=32_000,
+            max_depth=8,
+            max_elements=128,
+            max_manifest_bytes=32_000,
+        ),
+    )
+    axis = axis_result.axis
+    selected_axis_ref = SelectedVariableBindingRef.model_validate(
+        axis_result.ref.model_dump(mode="json")
+    )
+    semantic_definition_ref = _selected_json_ref(
+        store, "catalog.variable_semantic_definition", VariableSemanticDefinitionRef
+    )
+    representation_ref = _selected_json_ref(
+        store, "catalog.variable_representation", VariableRepresentationRef
+    )
+    profile_ref = _selected_json_ref(
+        store, "catalog.measurement_binding_profile", MeasurementBindingProfileRef
+    )
+    registry_ref = _selected_json_ref(store, "core.registry_bundle", SelectedVariableBindingRef)
+    scope = ModelInputScope(
+        population_ref="population:households",
+        geography_ref="UA",
+        jurisdiction_ref="UA",
+        period_start=date(2022, 1, 1),
+        period_end=date(2022, 12, 31),
+        time_role="observation_time",
+        period_basis="calendar_year",
+    )
+    source_meaning = SelectedEntityVectorSourceMeaning(
+        source_descriptor=SelectedEntityVectorSourceDescriptor(
+            source_view_ref=view_ref,
+            member_ids_pointer=member_pointer,
+            values_pointer=values_pointer,
+        ),
+        source_definition_ref=semantic_definition_ref,
+        source_representation_ref=representation_ref,
+        source_registry_bundle_ref=registry_ref,
+        source_scope=scope,
+    )
+    port = ModelInputPort(
+        port_id="gini-income",
+        slot_id="distribution.income",
+        carrier="method_input",
+        unit_id="value",
+        purpose="simulation_input",
+        semantic_definition_ref=semantic_definition_ref,
+        representation_ref=representation_ref,
+        binding_profile_ref=profile_ref,
+        scope=scope,
+        entity_axis_ref=selected_axis_ref,
+        physical_encoding=ModelInputPhysicalEncoding(
+            shape=(len(axis.members),), dtype="float64", max_absolute_error=Decimal("0")
+        ),
+    )
+    return source_meaning, port
+
+
+def _persist_entity_axis_variant(
+    store: FileSystemCAS,
+    axis: SelectedEntityAxis,
+    members: tuple[EntityAxisMemberId, ...],
+    *,
+    manifest_version: str = "2.0",
+    lineage_role: str = "selected_source_view",
+):
+    canonical_members = tuple(sorted(members, key=entity_axis_member_sort_key))
+    variant = SelectedEntityAxis.model_validate(
+        axis.model_dump(mode="python")
+        | {
+            "members": canonical_members,
+            "cardinality": len(canonical_members),
+            "membership_sha256": entity_axis_membership_digest(canonical_members),
+            "axis_sha256": entity_axis_digest(
+                identity_basis=axis.identity_basis,
+                namespace=axis.namespace,
+                source_view_ref=axis.source_view_ref,
+                model_revision=axis.model_revision,
+                member_values_pointer=axis.member_values_pointer,
+                membership_provenance=axis.membership_provenance,
+                model_selection_status=axis.model_selection_status,
+                members=canonical_members,
+                cardinality=len(canonical_members),
+            ),
+        }
+    )
+    assert variant.source_view_ref is not None
+    ref = store.put_json(
+        variant,
+        PutOptions(
+            kind=variant.ARTIFACT_KIND,
+            media_type=variant.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=variant.ARTIFACT_SCHEMA_NAME, version=manifest_version),
+            inputs=[input_ref_from_artifact_ref(variant.source_view_ref, role=lineage_role)],
+        ),
+        return_selected_profile=True,
+    )
+    return SelectedVariableBindingRef.model_validate(ref.model_dump(mode="json"))
+
+
+def test_catalog_entity_vector_replay_recomputes_typed_membership_and_layout(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    raw_members = ("b", 1, "1", 2)
+    expected_members = tuple(
+        sorted(
+            (
+                EntityAxisMemberId(kind="string", value="b"),
+                EntityAxisMemberId(kind="integer", value=1),
+                EntityAxisMemberId(kind="string", value="1"),
+                EntityAxisMemberId(kind="integer", value=2),
+            ),
+            key=entity_axis_member_sort_key,
+        )
+    )
+    payload = {"entity_ids": list(raw_members), "values": [10, 20, 30, 40]}
+    meaning, port = _entity_vector_source_fixture(
+        store,
+        payload=payload,
+        member_pointer="/entity_ids",
+        values_pointer="/values",
+    )
+    axis_ref = port.entity_axis_ref
+    assert axis_ref is not None
+    read_limits = CoreJsonReadLimits(
+        max_bytes=32_000,
+        max_depth=8,
+        max_elements=128,
+        max_manifest_bytes=32_000,
+    )
+    assert store.get_manifest(axis_ref).artifact_schema.version == "2.0"
+    selected_axis = validate_core_model_json_artifact(SelectedEntityAxis, store, axis_ref)
+    assert selected_axis.members == expected_members
+
+    replayed = _replay_entity_vector_source_layout(
+        store,
+        source_meaning=meaning,
+        model_port=port,
+        axis_ref=axis_ref,
+        read_limits=read_limits,
+    )
+    assert replayed.members == expected_members
+    assert tuple((member.kind, member.value) for member in replayed.members) == (
+        ("integer", 1),
+        ("integer", 2),
+        ("string", "1"),
+        ("string", "b"),
+    )
+    fresh_store = FileSystemCAS.open_existing_read_only(store.root)
+    fresh_replay = _replay_entity_vector_source_layout(
+        fresh_store,
+        source_meaning=meaning,
+        model_port=port,
+        axis_ref=axis_ref,
+        read_limits=read_limits,
+    )
+    assert fresh_replay == replayed
+
+    wrong_members = tuple(
+        EntityAxisMemberId(kind="integer", value=9)
+        if member.kind == "integer" and member.value == 2
+        else member
+        for member in expected_members
+    )
+    wrong_axis_ref = _persist_entity_axis_variant(store, replayed, wrong_members)
+    wrong_port = ModelInputPort.model_validate(
+        port.model_dump(mode="python") | {"entity_axis_ref": wrong_axis_ref}
+    )
+    with pytest.raises(_AssessmentRefusal, match="entity_vector_source_axis_membership_mismatch"):
+        _replay_entity_vector_source_layout(
+            store,
+            source_meaning=meaning,
+            model_port=wrong_port,
+            axis_ref=wrong_axis_ref,
+            read_limits=read_limits,
+        )
+
+    wrong_role_ref = _persist_entity_axis_variant(
+        store, replayed, replayed.members, lineage_role="unrelated_source"
+    )
+    wrong_role_port = ModelInputPort.model_validate(
+        port.model_dump(mode="python") | {"entity_axis_ref": wrong_role_ref}
+    )
+    with pytest.raises(_AssessmentRefusal, match="entity_vector_axis_lineage_mismatch"):
+        _replay_entity_vector_source_layout(
+            store,
+            source_meaning=meaning,
+            model_port=wrong_role_port,
+            axis_ref=wrong_role_ref,
+            read_limits=read_limits,
+        )
+
+    unsupported_axis_ref = _persist_entity_axis_variant(
+        store, replayed, replayed.members, manifest_version="9.9"
+    )
+    unsupported_port = ModelInputPort.model_validate(
+        port.model_dump(mode="python") | {"entity_axis_ref": unsupported_axis_ref}
+    )
+    with pytest.raises(
+        _AssessmentRefusal,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        _replay_entity_vector_source_layout(
+            store,
+            source_meaning=meaning,
+            model_port=unsupported_port,
+            axis_ref=unsupported_axis_ref,
+            read_limits=read_limits,
+        )
+
+    list_payload = [list(raw_members), [10, 20, 30, 40]]
+    wrong_container_meaning, wrong_container_port = _entity_vector_source_fixture(
+        store,
+        payload=list_payload,
+        member_pointer="/0",
+        values_pointer="/1",
+    )
+    wrong_container_axis_ref = wrong_container_port.entity_axis_ref
+    assert wrong_container_axis_ref is not None
+    with pytest.raises(_AssessmentRefusal, match="entity_vector_source_json_container_invalid"):
+        _replay_entity_vector_source_layout(
+            store,
+            source_meaning=wrong_container_meaning,
+            model_port=wrong_container_port,
+            axis_ref=wrong_container_axis_ref,
+            read_limits=read_limits,
+        )
+
+    source_view_ref = meaning.source_descriptor.source_view_ref
+    source_blob, _ = store._paths(source_view_ref.artifact_id)
+    source_bytes = source_blob.read_bytes()
+    source_mode = stat.S_IMODE(source_blob.stat().st_mode)
+    source_blob.unlink()
+    try:
+        with pytest.raises(_AssessmentRefusal):
+            _replay_entity_vector_source_layout(
+                fresh_store,
+                source_meaning=meaning,
+                model_port=port,
+                axis_ref=axis_ref,
+                read_limits=read_limits,
+            )
+    finally:
+        source_blob.write_bytes(source_bytes)
+        source_blob.chmod(source_mode)
 
 
 def test_catalog_reopens_content_bound_definition_evidence(tmp_path: Path) -> None:
@@ -580,9 +872,7 @@ def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_r
 
         fresh_store = FileSystemCAS(store.root)
         stored_occurrence, replayed_occurrence, source_selection = (
-            catalog_read_api.replay_selected_scoped_measurement_facts(
-                fresh_store, occurrence_ref
-            )
+            catalog_read_api.replay_selected_scoped_measurement_facts(fresh_store, occurrence_ref)
         )
         assert stored_occurrence == occurrence == replayed_occurrence
         assert source_selection.source_receipt_ref == occurrence.source_receipt_ref
@@ -610,9 +900,7 @@ def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_r
         with monkeypatch.context() as context:
             context.setattr(store, "get_bytes", missing_raw)
             with pytest.raises(_AssessmentRefusal):
-                catalog_read_api.replay_selected_scoped_measurement_facts(
-                    store, occurrence_ref
-                )
+                catalog_read_api.replay_selected_scoped_measurement_facts(store, occurrence_ref)
             with pytest.raises(OverlayAdmissionError):
                 catalog_read_api.materialize_activated_measurement_occurrence(
                     store,

@@ -337,10 +337,16 @@ if TYPE_CHECKING:
         resolve_catalog_selection_policy as resolve_catalog_selection_policy,
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        assess_entity_vector_to_model_candidate as assess_entity_vector_to_model_candidate,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         assess_measurement_to_model_candidate as assess_measurement_to_model_candidate,
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         materialize_activated_measurement_occurrence as materialize_activated_measurement_occurrence,  # noqa: E501
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        prepare_registered_entity_vector_input_steps,  # noqa: F401
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         read_scoped_measurement_source_body as read_scoped_measurement_source_body,
@@ -678,7 +684,13 @@ _EXPORTS = {
     "assess_measurement_to_model_candidate": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
+    "assess_entity_vector_to_model_candidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
     "materialize_activated_measurement_occurrence": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
+    "prepare_registered_entity_vector_input_steps": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "replay_selected_scoped_measurement_facts": (

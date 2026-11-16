@@ -34,7 +34,7 @@ from polisyos.foundry.data_plane.selected_tensors import (
 )
 
 
-def reconcile_selected_method_entity_vector(
+def prepare_selected_method_entity_vector(
     store: EntityAxisStore,
     *,
     port: ModelInputPort,
@@ -42,19 +42,13 @@ def reconcile_selected_method_entity_vector(
     binding_slot_id: str,
     source: SelectedEntityVectorSourceDescriptor,
     axis_ref: ArtifactRef,
-    expected_alignment: EntityAxisValueIdentity,
-    selected_value: np.ndarray,
-    selected_value_sha256: str,
     limits: CoreJsonReadLimits,
 ) -> AlignedEntityVector:
-    """Recompute source membership and alignment before admitting an ABI vector.
+    """Reopen selected IDs and values and prepare their immutable aligned bytes.
 
-    The caller must supply the exact selected model port and the value loaded
-    from its selected NPY artifact. This helper reopens both the axis and the
-    selected JSON source view, reconstructs IDs and numeric values, performs
-    the declared physical encoding, aligns by typed ID, and checks both the
-    full alignment identity and the actual NPY argument bytes. It makes no
-    claim that the source view is representative or semantically authoritative.
+    This physical operation does not establish source meaning, time scope,
+    representativeness or authority. The binding owner separately replays the
+    selected candidate declarations before persisting these values.
     """
     if (
         type(port) is not ModelInputPort
@@ -66,7 +60,6 @@ def reconcile_selected_method_entity_vector(
         or port.physical_encoding is None
         or len(port.physical_encoding.shape) != 1
         or type(source) is not SelectedEntityVectorSourceDescriptor
-        or type(expected_alignment) is not EntityAxisValueIdentity
         or type(limits) is not CoreJsonReadLimits
     ):
         raise EntityAxisRefusal("method_entity_vector_selected_binding_mismatch")
@@ -79,14 +72,14 @@ def reconcile_selected_method_entity_vector(
         != artifact_ref_identity_key(source.source_view_ref)
         or axis.member_values_pointer != source.member_ids_pointer
         or port.physical_encoding.shape != (axis.cardinality,)
-        or expected_alignment.axis_sha256 != axis.axis_sha256
-        or expected_alignment.unit_id != port.unit_id
-        or expected_alignment.dtype != port.physical_encoding.dtype
-        or expected_alignment.shape != port.physical_encoding.shape
     ):
         raise EntityAxisRefusal("method_entity_vector_axis_or_port_mismatch")
 
     source_read = read_core_json_artifact_bounded(store, source.source_view_ref, limits=limits)
+    if not source_read.payload_integrity_verified or artifact_ref_identity_key(
+        source_read.effective_ref
+    ) != artifact_ref_identity_key(source.source_view_ref):
+        raise EntityAxisRefusal("method_entity_vector_source_view_identity_mismatch")
     payload = require_declared_profile(source_read.profile_read)
     member_values = _json_pointer(payload, source.member_ids_pointer)
     numeric_values = _json_pointer(payload, source.values_pointer)
@@ -120,8 +113,43 @@ def reconcile_selected_method_entity_vector(
     except (TypeError, ValueError, OverflowError) as exc:
         raise EntityAxisRefusal("method_entity_vector_source_alignment_refused") from exc
 
+    return aligned
+
+
+def reconcile_selected_method_entity_vector(
+    store: EntityAxisStore,
+    *,
+    port: ModelInputPort,
+    binding_port_id: str,
+    binding_slot_id: str,
+    source: SelectedEntityVectorSourceDescriptor,
+    axis_ref: ArtifactRef,
+    expected_alignment: EntityAxisValueIdentity,
+    selected_value: np.ndarray,
+    selected_value_sha256: str,
+    limits: CoreJsonReadLimits,
+) -> AlignedEntityVector:
+    """Replay source alignment and compare the actual selected NPY argument.
+
+    The preparation owner and this consumer use the same source reconstruction
+    and encoding. The actual NPY bytes must match that reconstruction as well
+    as the separately persisted tensor and complete alignment identities.
+    """
+    if type(expected_alignment) is not EntityAxisValueIdentity:
+        raise EntityAxisRefusal("method_entity_vector_selected_binding_mismatch")
+    aligned = prepare_selected_method_entity_vector(
+        store,
+        port=port,
+        binding_port_id=binding_port_id,
+        binding_slot_id=binding_slot_id,
+        source=source,
+        axis_ref=axis_ref,
+        limits=limits,
+    )
     if aligned.identity != expected_alignment:
         raise EntityAxisRefusal("method_entity_vector_alignment_identity_mismatch")
+    encoding = port.physical_encoding
+    assert encoding is not None
     actual = np.asarray(selected_value)
     if (
         actual.dtype != np.dtype(encoding.dtype)

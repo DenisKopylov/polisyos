@@ -7,6 +7,7 @@ from typing import ClassVar, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import (
+    ArtifactRef,
     ArtifactStore,
     InputRef,
     input_ref_from_artifact_ref,
@@ -15,11 +16,14 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 
+from .entity_axis import SelectedEntityVectorSourceDescriptor
 from .model_input_period_steps import ModelInputStepScope
 from .semantic_derived_binding import DerivedInputCorrespondenceRef, DerivedInputProfileRef
 from .variable_binding import (
+    EntityVectorCorrespondenceBasisRef,
     ScopedCorrespondenceBasisRef,
     ScopedMeasurementOccurrenceRef,
+    SelectedEntityVectorSourceMeaningRef,
     SelectedVariableBindingRef,
 )
 
@@ -169,30 +173,102 @@ class ResolvedDerivedInputAtStep(BaseModel):
         return self.selection.lineage_inputs()
 
 
+class ResolvedEntityVectorInput(BaseModel):
+    """Direct candidate vector selection, never a scalar or no-op derivation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$")
+    model_input_obligation_ref: SelectedVariableBindingRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1, max_length=512)
+    entity_axis_ref: SelectedVariableBindingRef
+    source_descriptor: SelectedEntityVectorSourceDescriptor
+    source_meaning_ref: SelectedEntityVectorSourceMeaningRef
+    correspondence_ref: EntityVectorCorrespondenceBasisRef
+
+    @model_validator(mode="after")
+    def _selected_direct_vector_refs(self) -> ResolvedEntityVectorInput:
+        for ref, kind in (
+            (self.model_input_obligation_ref, "runtime.quality.model_input_obligation"),
+            (self.model_interface_ref, "runtime.quality.program_graph_input_interface"),
+            (self.entity_axis_ref, "foundry.selected_entity_axis"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("resolved_entity_vector_input_kind_mismatch")
+        if self.model_port_id != self.model_port_id.strip():
+            raise ValueError("resolved_entity_vector_input_port_invalid")
+        return self
+
+    def lineage_refs(self) -> tuple[tuple[ArtifactRef, str], ...]:
+        """Return exact direct source and model-subject references."""
+        return tuple(
+            (ref, f"binding.{self.binding_id}.{role}")
+            for ref, role in (
+                (self.model_input_obligation_ref, "obligation"),
+                (self.model_interface_ref, "interface"),
+                (self.entity_axis_ref, "axis"),
+                (self.source_descriptor.source_view_ref, "source_view"),
+                (self.source_meaning_ref, "source_meaning"),
+                (self.correspondence_ref, "correspondence"),
+            )
+        )
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return the complete binding-qualified direct dependency inventory."""
+        return [input_ref_from_artifact_ref(ref, role=role) for ref, role in self.lineage_refs()]
+
+
+class ResolvedEntityVectorInputAtStep(BaseModel):
+    """Direct vector selection for one independently resolved model step."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    step_scope: ModelInputStepScope
+    selection: ResolvedEntityVectorInput
+
+    @model_validator(mode="after")
+    def _selected_port_matches_step(self) -> ResolvedEntityVectorInputAtStep:
+        if self.selection.model_port_id != self.step_scope.port_id:
+            raise ValueError("resolved_entity_vector_step_coordinate_mismatch")
+        return self
+
+    def lineage_refs(self) -> tuple[tuple[ArtifactRef, str], ...]:
+        """Return the direct vector's exact model and source dependencies."""
+        return self.selection.lineage_refs()
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return the direct vector's complete role-qualified edges."""
+        return self.selection.lineage_inputs()
+
+
 class ResolvedInputBindingManifest(BaseModel):
     """The selected measurement inputs and explicit retained predecessor rules.
 
     The listed refs identify what must be independently reopened and replayed.
     The manifest does not establish correspondence, permission, or currentness.
     Version 3 carries step-qualified derived annual method inputs.  Direct
-    measurement step transport is a separate, currently unwired source variant;
-    it must not be represented by a no-op derivation.
+    measurement step transport must not be represented by a no-op derivation.
+    Version 4 selects direct candidate entity vectors against the original
+    predecessor snapshot as context, without a copied or derived payload.
+    Mixed scalar/vector manifests are not part of that bounded profile.
     """
 
     ARTIFACT_KIND: ClassVar[str] = "foundry.resolved_input_binding_manifest"
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ResolvedInputBindingManifest"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0", "3.0")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "2.0", "3.0", "4.0")
     ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
         "1.0": "1.0",
         "2.0": "2.0",
         "3.0": "3.0",
+        "4.0": "4.0",
     }
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.0", "2.0", "3.0"] = "1.0"
+    schema_version: Literal["1.0", "2.0", "3.0", "4.0"] = "1.0"
     authority_purpose: Literal["candidate_simulation_input_only"] = (
         "candidate_simulation_input_only"
     )
@@ -208,9 +284,16 @@ class ResolvedInputBindingManifest(BaseModel):
     method_input_steps: tuple[ResolvedDerivedInputAtStep, ...] = Field(
         default=(), max_length=32, exclude_if=lambda value: not value
     )
+    entity_vector_steps: tuple[ResolvedEntityVectorInputAtStep, ...] = Field(
+        default=(), max_length=32, exclude_if=lambda value: not value
+    )
 
     @model_validator(mode="after")
     def _require_exact_unique_selections(self) -> ResolvedInputBindingManifest:
+        if self.schema_version != "4.0" and (
+            self.entity_vector_steps or "entity_vector_steps" in self.model_fields_set
+        ):
+            raise ValueError("resolved_input_binding_vector_inputs_version_mismatch")
         if self.schema_version == "1.0" and (
             not self.measurements or "derivations" in self.model_fields_set
         ):
@@ -232,6 +315,17 @@ class ResolvedInputBindingManifest(BaseModel):
                 raise ValueError("resolved_input_binding_step_source_path_duplicate")
         elif self.method_input_steps or "method_input_steps" in self.model_fields_set:
             raise ValueError("resolved_input_binding_step_inputs_version_mismatch")
+        if self.schema_version == "4.0":
+            if not self.entity_vector_steps or any(
+                name in self.model_fields_set
+                for name in ("measurements", "derivations", "method_input_steps")
+            ):
+                raise ValueError("resolved_input_binding_v4_requires_vectors_only")
+            step_keys = tuple(
+                (row.step_scope.port_id, row.step_scope.step) for row in self.entity_vector_steps
+            )
+            if step_keys != tuple(sorted(set(step_keys))):
+                raise ValueError("resolved_input_binding_vector_step_inventory_invalid")
         if (
             self.data_snapshot_ref.kind != "fabric.data_snapshot"
             or self.data_snapshot_ref.media_type != "application/json"
@@ -246,6 +340,7 @@ class ResolvedInputBindingManifest(BaseModel):
             *self.retained_binding_ids,
             *(item.binding_id for item in (*self.measurements, *self.derivations)),
             *(row.selection.binding_id for row in self.method_input_steps),
+            *(row.selection.binding_id for row in self.entity_vector_steps),
         )
         if any(not key or key != key.strip() for key in binding_ids) or len(
             set(binding_ids)
@@ -282,6 +377,8 @@ class ResolvedInputBindingManifest(BaseModel):
             inputs.extend(selection.lineage_inputs())
         for row in self.method_input_steps:
             inputs.extend(row.lineage_inputs())
+        for row in self.entity_vector_steps:
+            inputs.extend(row.lineage_inputs())
         return inputs
 
     def require_lineage(self, manifest: ArtifactManifest) -> None:
@@ -315,7 +412,7 @@ def load_resolved_input_binding_manifest(
         raise ValueError("resolved_input_binding_manifest_profile_required")
     value = validate_core_model_json_artifact(ResolvedInputBindingManifest, store, ref)
     value.require_lineage(store.get_manifest(ref))
-    if value.schema_version == "3.0":
+    if value.schema_version in {"3.0", "4.0"}:
         from .semantic_step_binding import recompute_resolved_step_input_coverage
 
         # A partial selection is candidate staging.  This checks exact selected

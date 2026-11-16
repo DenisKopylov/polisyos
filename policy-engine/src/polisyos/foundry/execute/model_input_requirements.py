@@ -54,7 +54,14 @@ from polisyos.core.contracts.method_input import (
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
 from polisyos.foundry.contracts.specs import get_mechanism_spec, validate_mechanism_params
 from polisyos.ir.governance import ScheduleSpec, SelectorPredicate, schedule_range
-from polisyos.ir.kernel import MergeRuleKind, MoneyUnit, SlotKind, SlotScope, SlotValueType
+from polisyos.ir.kernel import (
+    GenericUnit,
+    MergeRuleKind,
+    MoneyUnit,
+    SlotKind,
+    SlotScope,
+    SlotValueType,
+)
 from polisyos.ir.registry import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
 
@@ -550,9 +557,22 @@ def _recompute_program_graph_inputs(
                 and port.purpose == "simulation_input"
                 and not slot.shape
             )
+            vector_profile = (
+                encoding is not None
+                and len(encoding.shape) == 1
+                and port.carrier == "method_input"
+                and port.entity_axis_ref is not None
+                and slot.state_path is None
+                and slot.scope == SlotScope.GLOBAL
+                and slot.shape is not None
+                and len(slot.shape) == 1
+                and bool(slot.shape[0])
+                and slot.shape[0] == slot.shape[0].strip()
+                and slot.dtype == encoding.dtype
+            )
             if (
                 encoding is None
-                or not (scalar_profile or singleton_flow_profile)
+                or not (scalar_profile or singleton_flow_profile or vector_profile)
                 or slot.value_type != SlotValueType.DECIMAL
                 or (slot.dtype is not None and slot.dtype != encoding.dtype)
             ):
@@ -562,20 +582,30 @@ def _recompute_program_graph_inputs(
                 if registry.units_registry is None
                 else registry.units_registry.units.get(port.unit_id)
             )
+            scalar_method_profile = (
+                slot.kind == SlotKind.FLOW
+                and not slot.shape
+                and encoding is not None
+                and not encoding.shape
+                and port.entity_axis_ref is None
+                and representation.time_support == "period_total"
+                and representation.temporal_granularity == "annual"
+                and representation.money_unit is not None
+                and isinstance(method_input_unit, MoneyUnit)
+                and representation.money_unit.currency == method_input_unit.currency
+            )
+            vector_method_profile = (
+                vector_profile
+                and representation.money_unit is None
+                and isinstance(method_input_unit, GenericUnit)
+                and method_input_unit.label == "amount"
+            )
             if port.carrier == "method_input" and (
                 port.purpose != "simulation_input"
                 or slot.state_path is not None
                 or slot.scope != SlotScope.GLOBAL
                 or slot.value_type != SlotValueType.DECIMAL
-                or slot.kind != SlotKind.FLOW
-                or slot.shape
-                or encoding is None
-                or encoding.shape
-                or representation.time_support != "period_total"
-                or representation.temporal_granularity != "annual"
-                or representation.money_unit is None
-                or not isinstance(method_input_unit, MoneyUnit)
-                or representation.money_unit.currency != method_input_unit.currency
+                or not (scalar_method_profile or vector_method_profile)
             ):
                 raise ValueError("model_input_method_port_physical_profile_unsupported")
         if slot.state_path is not None:

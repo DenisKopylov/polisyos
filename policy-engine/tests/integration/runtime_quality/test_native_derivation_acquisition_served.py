@@ -1474,6 +1474,7 @@ def assert_retained_native_paid_input_admission(
     transport_calls: list[Any],
     semantic_kernel_entries: list[Any],
     continuation_selection: Any | None = None,
+    epoch_policy_selection: Any | None = None,
     idempotency_key: str = "retained-native-a-new-current-admission",
     skip_qualified_historical_removal_checks: bool = False,
 ) -> dict[str, Any]:
@@ -1485,6 +1486,9 @@ def assert_retained_native_paid_input_admission(
     The opt-in skip omits only the already-qualified negative-profile removal
     probe. Current route, source, sibling, authority and restart checks remain.
     """
+    if continuation_selection is not None and epoch_policy_selection is not None:
+        raise ValueError("retained_native_policy_and_current_continuation_conflict")
+
     from fastapi.testclient import TestClient
 
     from polisyos.core.security.tenant_context import tenant_scope
@@ -1497,6 +1501,7 @@ def assert_retained_native_paid_input_admission(
     from tests._helpers.native_derivation_retained import (
         bind_retained_native_source_app,
         load_retained_native_admission_checkpoint,
+        load_retained_native_epoch_policy,
         load_retained_native_source_fixture,
     )
 
@@ -1528,6 +1533,12 @@ def assert_retained_native_paid_input_admission(
 
             case.state["appointments"].append(SimpleNamespace(config=checkpoint.epoch_config))
             case.state["retained_admission_checkpoint"] = checkpoint
+        elif epoch_policy_selection is not None:
+            from types import SimpleNamespace
+
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                epoch_config = load_retained_native_epoch_policy(case, epoch_policy_selection)
+            case.state["appointments"].append(SimpleNamespace(config=epoch_config))
         case.claims = claims
         case.semantic_kernel_entries = semantic_kernel_entries
         bind_retained_native_source_app(case, deployment_security_factory=deployment)

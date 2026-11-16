@@ -8760,7 +8760,32 @@ class RunModelInputInitialObservation(BaseModel):
         # The wire omits ordinary origins; a schema default would require them in clients.
         json_schema_extra=lambda schema: schema.pop("default", None),
     )
-    reconciliation_ref: ArtifactRef | None = Field(
+    reconciliation_ref: (
+        Annotated[
+            ArtifactRef,
+            Field(
+                json_schema_extra={
+                    "required": [
+                        "artifact_id",
+                        "kind",
+                        "media_type",
+                        "manifest_profile_sha256",
+                    ],
+                    "properties": {
+                        "kind": {
+                            "const": "runtime_quality.generic_model_input_initial_reconciliation"
+                        },
+                        "media_type": {"const": "application/json"},
+                        "manifest_profile_sha256": {
+                            "type": "string",
+                            "pattern": r"^sha256:[0-9a-f]{64}$",
+                        },
+                    },
+                }
+            ),
+        ]
+        | None
+    ) = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )

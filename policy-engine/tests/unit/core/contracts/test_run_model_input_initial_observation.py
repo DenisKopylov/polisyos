@@ -115,6 +115,32 @@ def test_initial_observation_schema_preserves_legacy_origin_omission(
     assert _observation().observation_origin == "ordinary_completion"
 
 
+@pytest.mark.parametrize("mode", ["validation", "serialization"])
+def test_initial_observation_schema_requires_a_selected_reconciliation_ref(
+    mode: Literal["validation", "serialization"],
+) -> None:
+    schema = RunModelInputInitialObservation.model_json_schema(mode=mode)
+    ref, nullable = schema["properties"]["reconciliation_ref"]["anyOf"]
+
+    assert nullable == {"type": "null"}
+    assert "reconciliation_ref" not in schema["required"]
+    assert ref["required"] == [
+        "artifact_id",
+        "kind",
+        "media_type",
+        "manifest_profile_sha256",
+    ]
+    assert ref["properties"] == {
+        "kind": {"const": _RECONCILIATION_KIND},
+        "media_type": {"const": "application/json"},
+        "manifest_profile_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+        },
+    }
+    assert "manifest_profile_sha256" not in schema["$defs"]["ArtifactRef"]["required"]
+
+
 def test_historical_reconciliation_remains_candidate_only_and_serializes_selected_ref() -> None:
     payload = _observation().model_dump(mode="python")
     payload.update(

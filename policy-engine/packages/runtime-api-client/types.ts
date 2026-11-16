@@ -2399,7 +2399,14 @@ export interface components {
         "AcquisitionCustodyRecoveryRequest-Input": {
             /** Failed Attempt */
             failed_attempt: number;
-            head_ref: components["schemas"]["ArtifactRef-Input"];
+            head_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
         };
         /**
          * AcquisitionCustodyRecoveryRequest
@@ -2408,7 +2415,14 @@ export interface components {
         "AcquisitionCustodyRecoveryRequest-Output": {
             /** Failed Attempt */
             failed_attempt: number;
-            head_ref: components["schemas"]["ArtifactRef-Output"];
+            head_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
         };
         /**
          * AcquisitionDecisionRequestResponse
@@ -20167,7 +20181,14 @@ export interface components {
              * @constant
              */
             publication_authority: false;
-            reconciliation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            reconciliation_ref?: ({
+                /** @constant */
+                kind: "runtime_quality.generic_model_input_initial_reconciliation";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">) | null;
             /**
              * Recorded Predicate Provenance
              * @default recomputed
@@ -36059,6 +36080,9 @@ export interface operations {
         };
     };
 }
+type WithRequired<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};
 
 // Guarded recursive schema aliases; generated from components.schemas.
 type _RuntimeApiRecursiveSchema_BureaucraticBlock = {

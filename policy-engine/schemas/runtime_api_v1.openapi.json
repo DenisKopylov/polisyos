@@ -45790,7 +45790,25 @@
           "reconciliation_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef-Output"
+                "$ref": "#/components/schemas/ArtifactRef-Output",
+                "properties": {
+                  "kind": {
+                    "const": "runtime_quality.generic_model_input_initial_reconciliation"
+                  },
+                  "manifest_profile_sha256": {
+                    "pattern": "^sha256:[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "const": "application/json"
+                  }
+                },
+                "required": [
+                  "artifact_id",
+                  "kind",
+                  "media_type",
+                  "manifest_profile_sha256"
+                ]
               },
               {
                 "type": "null"

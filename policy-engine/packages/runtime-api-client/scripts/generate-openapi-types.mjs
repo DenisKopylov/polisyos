@@ -653,6 +653,23 @@ function normalizeRequiredProperties(schema, pointer, visited = new WeakSet()) {
   if (visited.has(schema)) return;
   visited.add(schema);
 
+  if (
+    typeof schema.$ref === "string" &&
+    (Object.hasOwn(schema, "properties") || Object.hasOwn(schema, "required"))
+  ) {
+    if (
+      schema.allOf !== undefined &&
+      (!Array.isArray(schema.allOf) || schema.allOf.length === 0)
+    ) {
+      throw new Error(`Malformed allOf in ref overlay schema ${pointer}`);
+    }
+    // $ref siblings are conjunctive in OpenAPI 3.1, but openapi-typescript
+    // returns the ref alone. Keep every sibling in place and compose the ref.
+    const reference = schema.$ref;
+    delete schema.$ref;
+    schema.allOf = [{ $ref: reference }, ...(schema.allOf ?? [])];
+  }
+
   if (Array.isArray(schema.required) && schema.required.length > 0) {
     const names = schema.required;
     if (names.some((name) => typeof name !== "string")) {

@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import threading
 from dataclasses import replace
+from datetime import UTC, datetime
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -17,6 +22,7 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
 from polisyos.runtime.http.errors import RuntimeDependencyTimeoutError
 from polisyos.runtime.http.resilience import BlockingDependencyGuard
 from polisyos.runtime.http.services.control import job_attempt_publication as publication
+from polisyos.runtime.http.services.control.job_diagnostics import ControlJobDiagnosticsMixin
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     _WorkflowExecutionNonAuthorityError,
 )
@@ -25,6 +31,7 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.generation_cycle import GenerationCycleError
 from tests.unit.runtime.http.test_control_worker_custody import job as _worker_custody_job
 from tests.unit.runtime.http.test_cycle_substrate_job_execution_binding import (
@@ -534,3 +541,242 @@ def test_failed_job_persists_sanitized_real_dependency_wait_diagnostic(
         release.set()
         guard.close()
         store.close()
+
+
+def test_route_recovery_failure_persists_bounded_cause_to_job_and_blocker_event(
+    tmp_path: Path, execution_scope: ControlJobExecutionScope
+) -> None:
+    """A real recovery wrapper retains typed wait evidence without changing failure status."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRoutePhaseReceipt,
+        AcquisitionRouteRecoveryRequired,
+        persist_world_commit_and_reenter,
+    )
+
+    release = threading.Event()
+    entered = threading.Event()
+    guard = BlockingDependencyGuard(
+        dependency_name="content_addressed_storage",
+        timeout_seconds=0.15,
+        breaker=CircuitBreaker(
+            circuit_id="test-recovery-cause-cas",
+            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+
+    def backend_operation() -> None:
+        entered.set()
+        release.wait(timeout=5)
+
+    backend_operation.__module__ = "secret=module"
+    backend_operation.__qualname__ = "secret=operation"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=artifact_store)
+
+    class FailureHost(publication.ControlJobAttemptPublicationMixin, ControlJobDiagnosticsMixin):
+        def __init__(self) -> None:
+            self._control_store = store
+            self._artifact_store = artifact_store
+            self._diagnostic_event_log = event_log
+
+        def _job_trace_context(
+            self,
+            *,
+            job_id: str,
+            payload: object | None = None,
+            parent_span_id: str | None = None,
+        ) -> dict[str, str | None]:
+            del payload
+            return {
+                "trace_id": f"trace_{job_id}",
+                "span_id": "span_test_failure_publication",
+                "parent_span_id": parent_span_id,
+            }
+
+        def _finish_generation_run_context(self, **_kwargs: Any) -> Any:
+            pytest.fail("failure without a Core context must not synthesize outputs")
+
+    host = FailureHost()
+    try:
+        pending = AcquisitionRoutePhaseReceipt(
+            receipt_id="receipt-reentry-pending",
+            tenant_id=str(execution_scope.tenant_id),
+            cell_id=str(execution_scope.cell_id),
+            run_id="run-reentry-cause",
+            source_job_id="job-source-reentry-cause",
+            route_id="sha256:" + "a" * 64,
+            action_generation=1,
+            job_id="job-reentry-cause",
+            compiled_ref="sha256:" + "b" * 64,
+            planner_report_hash="sha256:" + "c" * 64,
+            cost_basis_hash="sha256:" + "d" * 64,
+            decision_ref="sha256:" + "e" * 64,
+            coarse_phase="world_committed",
+            receipt_phase="world_committed_reentry_pending",
+            recovery_state="reentry_recovery_required",
+            predecessor_receipt_ref="sha256:" + "f" * 64,
+            owner_receipt_refs=("sha256:" + "9" * 64,),
+            generated_at=datetime.now(UTC),
+        )
+        durable_head = SimpleNamespace(
+            receipt_phase="world_committed_reentry_pending",
+            recovery_state="reentry_recovery_required",
+        )
+
+        class PendingSink:
+            def persist_phase(self, _receipt: object) -> object:
+                return durable_head
+
+            def get_head(self, _receipt: object) -> object:
+                return durable_head
+
+        with pytest.raises(AcquisitionRouteRecoveryRequired) as raised:
+            persist_world_commit_and_reenter(
+                sink=PendingSink(),
+                pending_receipt=pending,
+                reentry=lambda: guard.run(backend_operation),
+            )
+        error = raised.value
+        assert entered.is_set()
+        cause = error.__cause__
+        assert cause is not None and type(cause).__name__ == "_BlockingDependencyWaitTimeoutError"
+
+        job = _create_execution_scoped_job(
+            store,
+            job_id="job-reentry-cause",
+            run_id="run-reentry-cause",
+            tenant_id=str(execution_scope.tenant_id),
+            cell_id=str(execution_scope.cell_id),
+            actor_subject=str(execution_scope.actor_subject),
+            kind="natural_language_run",
+        )
+        with (
+            _authenticated_tenant_scope(
+                tenant_id=str(execution_scope.tenant_id), cell_id=str(execution_scope.cell_id)
+            ),
+            store.job_execution_fence(
+                job_id=job.job_id, worker_id=job.lease_owner, attempt=job.attempt
+            ),
+        ):
+            host._fail_control_job_attempt(
+                job=job,
+                execution_scope=execution_scope,
+                payload={},
+                capability_manifest_ref=None,
+                core_run_id=None,
+                core_run_context=None,
+                exc=error,
+                logger=logging.getLogger(__name__),
+            )
+
+        failed = store.get_job(job.job_id)
+        assert failed is not None and failed.state == "failed"
+        assert failed.error_message == str(error) == "reentry_recovery_required"
+        recovery = failed.progress["failure"]["recovery_cause"]
+        assert recovery["classification"] == "diagnostic_only"
+        assert recovery["termination"] == "no_linked_cause"
+        assert recovery["nodes"][0] == {
+            "exception_type": (
+                "polisyos.runtime.quality.acquisition_route_loop.AcquisitionRouteRecoveryRequired"
+            ),
+            "code": "not_established",
+        }
+        wait_node = recovery["nodes"][1]
+        assert wait_node["exception_type"].endswith("_BlockingDependencyWaitTimeoutError")
+        assert wait_node["code"] == "content_addressed_storage_timeout"
+        assert wait_node["blocking_wait"]["dependency"] == "content_addressed_storage"
+        assert wait_node["blocking_wait"]["underlying_work_outcome"] == "not_established"
+        assert "secret=" not in str(recovery)
+        assert error.__cause__ is cause
+
+        blocker_rows = [
+            row
+            for row in event_log.list_events(run_id=job.run_id, job_id=job.job_id, limit=20)
+            if row.event.event_type == "polisyos.runtime.diagnostic.blocker.v1"
+        ]
+        assert len(blocker_rows) == 1
+        blocker = blocker_rows[0]
+        assert blocker.event.state_after == "failed"
+        assert blocker.event.blocking_status == "blocking"
+        if blocker.payload_inline is not None:
+            persisted_payload = blocker.payload_inline
+        else:
+            assert blocker.payload_ref is not None
+            payload_bytes = artifact_store.get_bytes(blocker.payload_ref)
+            assert blocker.payload_sha256 == f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
+            persisted_payload = json.loads(payload_bytes)
+        assert persisted_payload["error"] == str(error)
+        assert persisted_payload["recovery_cause"] == recovery
+        assert persisted_payload["projection_authority"] == "runtime_event_only"
+    finally:
+        release.set()
+        guard.close()
+        store.close()
+
+
+def test_recovery_cause_diagnostic_bounds_unknown_cycle_and_depth() -> None:
+    """Unknown messages stay absent; recursive and long cause chains are bounded."""
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteRecoveryRequired
+
+    wrapped = AcquisitionRouteRecoveryRequired("wrapper-message-secret")
+    wrapped.__cause__ = RuntimeError("inner-message-secret")
+    unknown = publication._acquisition_recovery_cause_diagnostic(wrapped)
+    assert unknown["classification"] == "diagnostic_only"
+    assert unknown["nodes"][0]["code"] == "not_established"
+    assert unknown["nodes"][1]["code"] == "not_established"
+    assert "secret" not in str(unknown)
+
+    cyclic = RuntimeError("cycle-message-secret")
+    cyclic.__cause__ = cyclic
+    cycle_diagnostic = publication._acquisition_recovery_cause_diagnostic(cyclic)
+    assert len(cycle_diagnostic["nodes"]) == 1
+    assert cycle_diagnostic["termination"] == "cycle_detected"
+    assert "secret" not in str(cycle_diagnostic)
+
+    chain = [RuntimeError(f"depth-message-{index}") for index in range(10)]
+    for outer, inner in pairwise(chain):
+        outer.__cause__ = inner
+    depth_diagnostic = publication._acquisition_recovery_cause_diagnostic(chain[0])
+    assert len(depth_diagnostic["nodes"]) == publication._RECOVERY_CAUSE_MAX_DEPTH
+    assert depth_diagnostic["termination"] == "depth_limited"
+    assert "depth-message" not in str(depth_diagnostic)
+
+    reflection_calls: list[str] = []
+
+    class HookedMeta(type):
+        @property
+        def __module__(cls) -> str:
+            reflection_calls.append("type.__module__")
+            return "message=secret"
+
+    class HookedError(Exception, metaclass=HookedMeta):
+        @property
+        def __cause__(self) -> BaseException | None:
+            reflection_calls.append("exception.__cause__")
+            return None
+
+        @property
+        def __context__(self) -> BaseException | None:
+            reflection_calls.append("exception.__context__")
+            return None
+
+        @property
+        def __suppress_context__(self) -> bool:
+            reflection_calls.append("exception.__suppress_context__")
+            return False
+
+    hooked = HookedError("exception-message-secret")
+    cause_descriptor = BaseException.__dict__["__cause__"]
+    context_descriptor = BaseException.__dict__["__context__"]
+    suppress_descriptor = BaseException.__dict__["__suppress_context__"]
+    cause_descriptor.__set__(hooked, None)
+    context_descriptor.__set__(hooked, None)
+    suppress_descriptor.__set__(hooked, False)
+    hooked_diagnostic = publication._acquisition_recovery_cause_diagnostic(hooked)
+    assert hooked_diagnostic["termination"] == "no_linked_cause"
+    assert hooked_diagnostic["nodes"][0]["exception_type"].endswith(".HookedError")
+    assert reflection_calls == []
+    assert "secret" not in str(hooked_diagnostic)

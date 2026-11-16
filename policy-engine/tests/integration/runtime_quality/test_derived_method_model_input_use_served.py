@@ -423,12 +423,13 @@ def _run_current_job_real_method_world(
                         None if job is None else job.state,
                         None if job is None else job.error_message,
                     )
-                    source = control.resolve_completed_control_job_core_run_source(
-                        job,
-                        expected_control_run_id=job.run_id,
-                        tenant_id=served.TENANT,
-                        cell_id=served.CELL,
-                    )
+                    with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
+                        source = control.resolve_completed_control_job_core_run_source(
+                            job,
+                            expected_control_run_id=job.run_id,
+                            tenant_id=served.TENANT,
+                            cell_id=served.CELL,
+                        )
                     _assert_initial_observation_fresh_reader(
                         control,
                         monkeypatch=monkeypatch,

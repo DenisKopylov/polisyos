@@ -1,11 +1,13 @@
 """The strict replay reader preserves selected-owner read failures."""
 
+import json
 from pathlib import Path
 
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
     ArtifactManifest,
     ArtifactOwnershipError,
     ArtifactReadOnlyUnavailableError,
@@ -219,18 +221,142 @@ def test_selected_raw_media_rechecks_exact_view_and_bytes(
             selected.verify(ref)
 
 
+def test_selected_raw_json_without_declared_codec_rechecks_exact_view_and_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A selected raw JSON storage view gets byte checks without a codec claim."""
+    store = FileSystemCAS(tmp_path / "raw-json-cas").with_ambient_ownership_enforcement()
+    selected = SelectedProfileVerificationReader(store)
+    data = b'{"evidence":"selected raw JSON"}'
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ref = store.put_bytes(
+            data,
+            PutOptions(kind="test.raw_json", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        manifest = store.get_manifest(ref)
+        assert manifest.artifact_schema is None
+        assert manifest.canon is None
+        report = selected.verify(ref)
+        assert report.ok
+        assert report.byte_size == len(data)
+
+        wrong_profile = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64})
+        with pytest.raises(ArtifactOwnershipError):
+            selected.verify(wrong_profile)
+        with pytest.raises(
+            ArtifactIntegrityError,
+            match="Artifact reference type does not match selected manifest",
+        ):
+            selected.verify(ref.model_copy(update={"kind": "test.other_raw_json"}))
+        with pytest.raises(
+            ArtifactIntegrityError,
+            match="Artifact reference type does not match selected manifest",
+        ):
+            selected.verify(ref.model_copy(update={"media_type": "application/octet-stream"}))
+
+        with monkeypatch.context() as fault:
+            fault.setattr(store, "get_bytes", lambda _selector: b'{"evidence":"changed"}')
+            corrupt_report = selected.verify(ref)
+            assert not corrupt_report.ok
+            assert corrupt_report.error == "sha256 mismatch"
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            selected.verify(ref)
+
+
+@pytest.mark.parametrize(("field", "value"), [("kind", ""), ("media_type", "application")])
+def test_selected_raw_json_malformed_reference_does_not_opt_in_to_absent_profile(
+    tmp_path: Path, field: str, value: str
+) -> None:
+    """Malformed selected metadata cannot enable the absent-profile path."""
+    store = FileSystemCAS(tmp_path / "malformed-ref-cas")
+    ref = store.put_bytes(
+        b'{"evidence":"selected raw JSON"}',
+        PutOptions(kind="test.raw_json", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    malformed_ref = ref.model_copy(update={field: value})
+
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        SelectedProfileVerificationReader(store).verify(malformed_ref)
+
+
+@pytest.mark.parametrize("media_type", ["text/plain", "application/x-npz"])
+def test_selected_non_json_schema_view_still_verifies_without_canonical_profile(
+    tmp_path: Path, media_type: str
+) -> None:
+    """A binary schema does not require the separate Core JSON canonical codec."""
+    store = FileSystemCAS(tmp_path / "binary-schema-cas")
+    data = b"selected binary payload"
+    ref = store.put_bytes(
+        data,
+        PutOptions(
+            kind="test.typed_binary",
+            media_type=media_type,
+            schema=SchemaInfo(name="test.typed_binary", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    manifest = store.get_manifest(ref)
+    assert manifest.artifact_schema is not None
+    assert manifest.canon is None
+
+    report = SelectedProfileVerificationReader(store).verify(ref)
+
+    assert report.ok
+    assert report.byte_size == len(data)
+
+
 @pytest.mark.parametrize(
     "media_type", ["application/json", "Application/JSON; charset=utf-8", "application/test+JSON"]
 )
-def test_exact_json_view_still_requires_a_canonical_profile(
-    tmp_path: Path, media_type: str
+def test_typed_json_without_canonical_profile_still_refuses(
+    tmp_path: Path,
+    media_type: str,
 ) -> None:
-    """A selected JSON view alone supplies no canonical declaration."""
+    """A typed JSON schema cannot pass as raw storage when its codec is absent."""
     store = FileSystemCAS(tmp_path / "json-cas")
     ref = store.put_bytes(
         b'{"evidence":"raw transport"}',
-        PutOptions(kind="test.raw_json", media_type=media_type),
+        PutOptions(
+            kind="test.typed_json",
+            media_type=media_type,
+            schema=SchemaInfo(name="test.typed_json", version="1.0"),
+        ),
         return_selected_profile=True,
     )
+    manifest = store.get_manifest(ref)
+    assert manifest.artifact_schema is not None
+    assert manifest.canon is None
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
         SelectedProfileVerificationReader(store).verify(ref)
+
+
+def test_typed_json_malformed_canonical_profile_still_refuses(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An explicit malformed codec never becomes eligible for raw fallback."""
+    store = FileSystemCAS(tmp_path / "invalid-json-cas")
+    ref = store.put_bytes(
+        b'{"evidence":"typed transport"}',
+        PutOptions(
+            kind="test.typed_json",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.typed_json", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    raw_manifest = json.loads(store.get_raw_manifest_bytes(ref))
+    raw_manifest["canon"] = None
+    malformed_manifest = json.dumps(raw_manifest).encode()
+
+    with monkeypatch.context() as fault:
+        fault.setattr(
+            store,
+            "get_raw_manifest_bytes",
+            lambda _selector, **_kwargs: malformed_manifest,
+        )
+        with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"):
+            SelectedProfileVerificationReader(store).verify(ref)

@@ -56,24 +56,29 @@ class SelectedProfileVerificationReader:
         artifact_id, profile_sha256, ref = artifact_reference_parts(selector)
         media_type = ref.media_type.partition(";")[0].strip().casefold() if ref is not None else ""
         media_family, _, subtype = media_type.partition("/")
-        # A raw media view can omit the JSON codec when all selectors are exact.
-        allow_raw_profile = bool(
+        allow_profile_absent = bool(
             ref is not None
             and profile_sha256 is not None
             and ref.kind.strip()
             and media_family
             and subtype
-            and "json" not in subtype
         )
-        manifest, _ = read_core_manifest_profile(
+        manifest, declaration = read_core_manifest_profile(
             self,
-            ref if allow_raw_profile else selector,
-            allow_profile_absent=allow_raw_profile,
+            ref if allow_profile_absent else selector,
+            allow_profile_absent=allow_profile_absent,
         )
+        if declaration.status == "absent":
+            media_type = manifest.media_type.partition(";")[0].strip().casefold()
+            _, _, subtype = media_type.partition("/")
+            raw_storage_artifact = manifest.artifact_schema is None and manifest.canon is None
+            if "json" in subtype and not raw_storage_artifact:
+                raise CanonicalProfileRefusalError("canon_profile_absent")
+
         selected_ref = artifact_ref_for_manifest(manifest)
         data = self.get_bytes(selected_ref)
         selected_manifest, _ = read_core_manifest_profile(
-            self, selected_ref, allow_profile_absent=allow_raw_profile
+            self, selected_ref, allow_profile_absent=declaration.status == "absent"
         )
         if (
             artifact_ref_for_manifest(selected_manifest) != selected_ref

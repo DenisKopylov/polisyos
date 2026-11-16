@@ -981,6 +981,7 @@ def _read_retained_native_human_decision(
     closure: Any,
     checkpoint: Any,
     resource_digest: str,
+    executing_at: Any | None = None,
 ) -> str:
     """Read a known committed receipt through the authenticated canonical reader.
 
@@ -988,13 +989,14 @@ def _read_retained_native_human_decision(
     does not implement public discovery of a lost POST receipt. The protected
     action still revalidates current PA2/DS9 evidence after this historical read.
     """
-    from datetime import UTC, datetime
-
     from polisyos.core import artifacts
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionRecord
     from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
-    from tests._helpers.native_derivation_retained import _verify_retained_selected_signature
+    from tests._helpers.native_derivation_retained import (
+        _verify_retained_selected_signature,
+        require_retained_native_human_decision_current,
+    )
 
     reference = checkpoint.human_decision_record_ref
     assert reference is not None and reference.manifest_profile_sha256 is not None
@@ -1057,13 +1059,14 @@ def _read_retained_native_human_decision(
     assert source.bound_resource_digest == resource_digest
     assert source.permission_snapshot is not None
     assert source.permission_snapshot.resource_digest == resource_digest
-    now = datetime.now(UTC)
-    if (
+    if executing_at is None:
+        require_retained_native_human_decision_current(record)
+    elif (
         record.valid_from is None
         or record.valid_until is None
-        or not (record.valid_from <= now < record.valid_until)
+        or not (record.valid_from <= executing_at < record.valid_until)
     ):
-        raise ValueError("retained_native_human_decision_not_current")
+        raise ValueError("retained_native_resume_human_decision_not_effective_at_execution")
     return str(reference.artifact_id)
 
 
@@ -1078,8 +1081,11 @@ def _run_signed_native_leaf_action(
     idempotency_key: str,
     retained_mandate: Any | None = None,
     human_decision_submission_root: Path | None = None,
+    authority_valid_for_seconds: int | None = None,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
+    from datetime import UTC, datetime, timedelta
+
     from fastapi.testclient import TestClient
 
     from polisyos.core.security.tenant_context import tenant_scope
@@ -1093,6 +1099,13 @@ def _run_signed_native_leaf_action(
     )
     from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
+    if authority_valid_for_seconds is not None:
+        if retained_mandate is not None:
+            raise ValueError("retained_native_validity_cannot_change_existing_acts")
+        if type(authority_valid_for_seconds) is not int or not (
+            600 <= authority_valid_for_seconds <= 3600
+        ):
+            raise ValueError("native_fixture_authority_window_out_of_bounds")
     route_path = f"/api/v1/runs/{served.control_run_id}/acquisition-routes/{route_id}"
     route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
     slot = dict(retained_mandate.mandate_slot) if retained_mandate is not None else None
@@ -1200,6 +1213,14 @@ def _run_signed_native_leaf_action(
                         identities=identities,
                         cas_root=served.cas_root,
                         submission_checkpoint=submission_checkpoint,
+                        **(
+                            {
+                                "authority_valid_until": datetime.now(UTC)
+                                + timedelta(seconds=authority_valid_for_seconds)
+                            }
+                            if authority_valid_for_seconds is not None
+                            else {}
+                        ),
                     )
                 slot["human_decision_record_ref"] = human_ref
         with TestClient(served.app_factory()) as client:
@@ -1247,6 +1268,231 @@ def _run_signed_native_leaf_action(
             }
 
 
+def assert_retained_native_action_resume(
+    *,
+    served: Any,
+    checkpoint: Any,
+    trust: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    output_root: Path,
+    idempotency_key: str,
+) -> dict[str, Any]:
+    """Resume custody of an already selected outcome from its stored request.
+
+    The prior epoch policy and current institutional acts are separate inputs.
+    No source, mandate, HumanDecision, provider call or numerical work is
+    produced here. The canonical head must prove the protected effect already
+    selected its owner outcome. This path does not request new protected use.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.core import artifacts
+    from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
+    from tests._helpers.native_derivation_retained import (
+        forbid_retained_native_resume_effects,
+        read_retained_native_action_resume_inputs,
+        require_retained_native_resume_descendant,
+        retained_native_owner_scope,
+    )
+
+    if checkpoint.human_decision_record_ref is None:
+        raise ValueError("retained_native_resume_human_decision_missing")
+    slot = dict(checkpoint.mandate_slot)
+    slot["human_decision_record_ref"] = str(checkpoint.human_decision_record_ref.artifact_id)
+    existing = trust.raw["acquisition_authority"]["mandates"]
+    if slot not in existing:
+        existing.append(slot)
+    # The actual worker claims the already-existing expired lease. Prevent an
+    # app startup thread from racing that claim before the caller can stop it.
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    saved: dict[str, Any] = {"job_id": checkpoint.action_job_id}
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    def save() -> None:
+        (output_root / "retained-native-resume.json").write_text(
+            json.dumps(saved, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+        )
+
+    with forbid_retained_native_resume_effects():
+        with TestClient(served.app_factory()) as client:
+            container = client.app.state.runtime_container
+            control = container.control_service
+            stop_embedded_control_worker(control)
+            with retained_native_owner_scope(served, served.claims):
+                inputs = read_retained_native_action_resume_inputs(
+                    served,
+                    checkpoint,
+                    claims=served.claims,
+                    control=control,
+                    idempotency_key=idempotency_key,
+                )
+                admission = container.acquisition_action_service._validated_mutation(
+                    tenant_id=served.tenant_id,
+                    cell_id=served.cell_id,
+                    run_id=served.control_run_id,
+                    route_id=slot["route_id"],
+                    request=inputs.request,
+                )
+                if admission.job_id != checkpoint.action_job_id:
+                    raise ValueError("retained_native_resume_job_identity_changed")
+                selected = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=served.tenant_id,
+                    cell_id=served.cell_id,
+                    run_id=served.control_run_id,
+                    source_job_id=served.job_id,
+                    route_id=slot["route_id"],
+                )
+                if (
+                    selected is None
+                    or selected.head.job_id != checkpoint.action_job_id
+                    or selected.head.receipt_phase
+                    not in {"outcome_selected", "world_committed_reentry_pending", "terminal"}
+                    or selected.selection_phase is None
+                    or selected.executing_phase is None
+                ):
+                    raise ValueError("retained_native_resume_selected_outcome_required")
+                if selected.head.receipt_manifest_profile_sha256 is None:
+                    raise ValueError("retained_native_resume_ancestor_profile_required")
+                before_ref = artifacts.artifact_ref_for_manifest(
+                    artifacts.resolve_manifest_by_profile(
+                        control._artifact_store,
+                        selected.head.receipt_ref,
+                        selected.head.receipt_manifest_profile_sha256,
+                    )
+                )
+                saved.update(
+                    payload_ref=inputs.payload_ref,
+                    request=inputs.request.model_dump(mode="json"),
+                    attempt_before=inputs.job.attempt,
+                    selected_head_before=selected.head.receipt_ref,
+                    selected_head_phase_before=selected.head.receipt_phase,
+                    selected_head_before_ref=before_ref.model_dump(mode="json"),
+                    action_generation=selected.head.action_generation,
+                )
+                save()
+                _read_retained_native_human_decision(
+                    client=client,
+                    served=served,
+                    trust=trust,
+                    closure=admission.closure,
+                    checkpoint=checkpoint,
+                    resource_digest=slot["resource_digest"],
+                    executing_at=selected.executing_phase.generated_at,
+                )
+            job = inputs.job
+            now = datetime.now(UTC)
+            if job.state == "running" and (
+                job.lease_expires_at is None or job.lease_expires_at > now
+            ):
+                raise ValueError("retained_native_resume_lease_still_current")
+            if job.state in {"pending", "running"}:
+                assert (
+                    dispatch_one_control_job(
+                        store=control._control_store,
+                        handler=control._process_control_job,
+                        expected_job_id=checkpoint.action_job_id,
+                    )
+                    == checkpoint.action_job_id
+                )
+            elif job.state != "completed":
+                raise ValueError("retained_native_resume_job_not_recoverable")
+            completed = control._control_store.get_job(checkpoint.action_job_id)
+            with retained_native_owner_scope(served, served.claims):
+                outcome = control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=served.tenant_id,
+                    cell_id=served.cell_id,
+                    run_id=served.control_run_id,
+                    source_job_id=served.job_id,
+                    route_id=slot["route_id"],
+                )
+            saved.update(
+                state=None if completed is None else completed.state,
+                head=(
+                    {
+                        field: getattr(outcome.head, field)
+                        for field in (
+                            "job_id",
+                            "action_generation",
+                            "head_generation",
+                            "receipt_phase",
+                            "receipt_ref",
+                            "receipt_manifest_profile_sha256",
+                        )
+                    }
+                    if outcome is not None
+                    else None
+                ),
+                terminal=(
+                    outcome.latest_receipt.model_dump(mode="json") if outcome is not None else None
+                ),
+                progress=None if completed is None else completed.progress,
+            )
+            save()
+            assert completed is not None and outcome is not None
+            with retained_native_owner_scope(served, served.claims):
+                require_retained_native_resume_descendant(
+                    store=control._artifact_store,
+                    control_store=control._control_store,
+                    before_head=selected.head,
+                    before_ref=before_ref,
+                    outcome=outcome,
+                )
+                terminal_ref = artifacts.artifact_ref_for_manifest(
+                    artifacts.resolve_manifest_by_profile(
+                        control._artifact_store,
+                        outcome.head.receipt_ref,
+                        outcome.head.receipt_manifest_profile_sha256,
+                    )
+                )
+            assert completed.job_id == checkpoint.action_job_id
+            assert completed.state == "completed"
+            assert outcome.latest_receipt.terminal_outcome == "inputs_pending"
+            assert outcome.latest_receipt.native_input_collection_ref is not None
+
+        with TestClient(served.app_factory()) as client:
+            control = client.app.state.runtime_container.control_service
+            stop_embedded_control_worker(control)
+            response = client.get(
+                f"/api/v1/runs/{served.core_run_id}",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": served.tenant_id,
+                },
+            )
+            saved["fresh_api_status"] = response.status_code
+            save()
+            assert response.status_code == 200, response.text
+            projection = response.json()["run"]["generic_cycle_simulation"]
+            saved["fresh_generic_projection"] = projection
+            save()
+            assert projection["publication_authority"] is False
+            assert projection["currentness_status"] == "not_established"
+            assert any(
+                row["terminal_outcome"] == "inputs_pending"
+                and row["action_generation"] == selected.head.action_generation
+                and artifact_ref_identity_key(ArtifactRef.model_validate(row["route_receipt_ref"]))
+                == artifact_ref_identity_key(terminal_ref)
+                for row in projection["acquisition_history"]
+            )
+            retried = read_retained_native_action_resume_inputs(
+                served,
+                checkpoint,
+                claims=served.claims,
+                control=control,
+                idempotency_key=idempotency_key,
+            )
+            saved["fresh_stored_job_id"] = retried.job.job_id
+            saved["fresh_stored_request"] = retried.request.model_dump(mode="json")
+            save()
+            assert retried.job.job_id == checkpoint.action_job_id
+            assert retried.request == inputs.request
+            assert retried.job.progress == completed.progress
+    return saved
+
+
 def assert_paid_native_leaf_admission_and_restart(
     *,
     served: Any,
@@ -1260,6 +1506,7 @@ def assert_paid_native_leaf_admission_and_restart(
     original_action: dict[str, Any],
     transport_calls: list[Any],
     idempotency_key: str = "native-leaf-a-after-epoch-appointment",
+    authority_valid_for_seconds: int | None = None,
 ) -> Any:
     """Admit the actual paid purchase under a new demo grant, then retry it.
 
@@ -1319,6 +1566,7 @@ def assert_paid_native_leaf_admission_and_restart(
         idempotency_key=idempotency_key,
         retained_mandate=state.get("retained_admission_checkpoint"),
         human_decision_submission_root=institution_root / "human-decision-submissions",
+        authority_valid_for_seconds=authority_valid_for_seconds,
     )
     terminal = pending["terminal"]
     assert terminal.terminal_outcome == "inputs_pending"
@@ -1475,6 +1723,8 @@ def assert_retained_native_paid_input_admission(
     semantic_kernel_entries: list[Any],
     continuation_selection: Any | None = None,
     epoch_policy_selection: Any | None = None,
+    resume_existing_action: bool = False,
+    authority_valid_for_seconds: int | None = None,
     idempotency_key: str = "retained-native-a-new-current-admission",
     skip_qualified_historical_removal_checks: bool = False,
 ) -> dict[str, Any]:
@@ -1488,6 +1738,10 @@ def assert_retained_native_paid_input_admission(
     """
     if continuation_selection is not None and epoch_policy_selection is not None:
         raise ValueError("retained_native_policy_and_current_continuation_conflict")
+    if resume_existing_action and continuation_selection is None:
+        raise ValueError("retained_native_resume_current_selection_required")
+    if authority_valid_for_seconds is not None and continuation_selection is not None:
+        raise ValueError("retained_native_validity_cannot_change_existing_acts")
 
     from fastapi.testclient import TestClient
 
@@ -1500,6 +1754,7 @@ def assert_retained_native_paid_input_admission(
     from tests._helpers.control_worker import stop_embedded_control_worker
     from tests._helpers.native_derivation_retained import (
         bind_retained_native_source_app,
+        load_retained_native_action_resume_checkpoint,
         load_retained_native_admission_checkpoint,
         load_retained_native_epoch_policy,
         load_retained_native_source_fixture,
@@ -1526,7 +1781,12 @@ def assert_retained_native_paid_input_admission(
         assert (case.tenant_id, case.cell_id) == (claims.tenant_id, claims.cell_id)
         if continuation_selection is not None:
             with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-                checkpoint = load_retained_native_admission_checkpoint(
+                loader = (
+                    load_retained_native_action_resume_checkpoint
+                    if resume_existing_action
+                    else load_retained_native_admission_checkpoint
+                )
+                checkpoint = loader(
                     case, continuation_selection, institution_key_root=base / "trust"
                 )
             from types import SimpleNamespace
@@ -1552,6 +1812,15 @@ def assert_retained_native_paid_input_admission(
             "build_production_world_bank_wdi_execution_port",
             _native_fixture_port_factory(case.state),
         )
+        if resume_existing_action:
+            return assert_retained_native_action_resume(
+                served=case,
+                checkpoint=case.state["retained_admission_checkpoint"],
+                trust=trust,
+                monkeypatch=monkeypatch,
+                output_root=output_root,
+                idempotency_key=idempotency_key,
+            )
         trace_before = resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref)
         journal_path = Path(case.attempt.evidence.request_ref.journal_path)
         journal_before = journal_path.read_bytes()
@@ -1662,6 +1931,7 @@ def assert_retained_native_paid_input_admission(
             original_action=original_action,
             transport_calls=transport_calls,
             idempotency_key=idempotency_key,
+            authority_valid_for_seconds=authority_valid_for_seconds,
         )
         assert tuple(transport_calls) == initial_calls
         assert journal_path.read_bytes() == journal_before

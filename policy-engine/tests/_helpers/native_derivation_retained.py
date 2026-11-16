@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections.abc import Callable
+import sys
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core import artifacts, contracts, security
 from polisyos.core.artifacts import artifact_ref_identity_key
@@ -47,6 +49,12 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationProfileV1,
 )
 from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
 
 
 def _selected_profiles(store: Any, kind: str) -> tuple[artifacts.ArtifactRef, ...]:
@@ -343,6 +351,213 @@ class RetainedNativeAdmissionSelection:
     human_decision_record_ref: artifacts.ArtifactRef | None = None
 
 
+@contextmanager
+def retained_native_owner_scope(fixture: SimpleNamespace, claims: Any) -> Iterator[None]:
+    """Bind all fixture bootstrap reads to the actual authenticated owner.
+
+    This is a data-read scope, not an action permission. The live control
+    handler still establishes its own current authority and execution lease.
+    """
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    if (claims.tenant_id, claims.cell_id) != (fixture.tenant_id, fixture.cell_id):
+        raise ValueError("retained_native_resume_claim_scope_mismatch")
+    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        yield
+
+
+def read_retained_native_action_resume_inputs(
+    fixture: SimpleNamespace,
+    checkpoint: SimpleNamespace,
+    *,
+    claims: Any,
+    control: Any,
+    idempotency_key: str,
+) -> SimpleNamespace:
+    """Read the existing job's exact stored request in one owned bootstrap.
+
+    No projection is reconstructed and no job is created or leased. A caller
+    must establish the actual head's recovery purpose before dispatch: new
+    protected use requires current authority; already selected custody does not
+    turn an expired historical receipt into a current grant.
+    """
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionRouteMutationRequest,
+    )
+
+    if checkpoint.human_decision_record_ref is None:
+        raise ValueError("retained_native_resume_human_decision_missing")
+    with retained_native_owner_scope(fixture, claims):
+        job = control._control_store.get_job(checkpoint.action_job_id)
+        if job is None:
+            raise ValueError("retained_native_resume_job_missing")
+        if (
+            job.job_id != checkpoint.action_job_id
+            or job.kind != "acquisition"
+            or job.run_id != fixture.control_run_id
+        ):
+            raise ValueError("retained_native_resume_job_scope_mismatch")
+        payload_ref = control._require_control_job_payload_ref(job)
+        payload = control._load_payload_ref(
+            payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+        if (
+            payload.get("tenant_id"),
+            payload.get("cell_id"),
+            payload.get("run_id"),
+            payload.get("route_id"),
+        ) != (
+            fixture.tenant_id,
+            fixture.cell_id,
+            fixture.control_run_id,
+            checkpoint.mandate_slot["route_id"],
+        ):
+            raise ValueError("retained_native_resume_payload_scope_mismatch")
+        request = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
+        if request.idempotency_key != idempotency_key:
+            raise ValueError("retained_native_resume_idempotency_mismatch")
+    return SimpleNamespace(job=job, payload_ref=payload_ref, payload=payload, request=request)
+
+
+def require_retained_native_human_decision_current(record: Any) -> None:
+    """Check time after the canonical reader has established receipt custody.
+
+    This predicate grants nothing on its own. Signature, exact job/source,
+    current mandate, permission and lease checks remain with their owners.
+    """
+    now = datetime.now(UTC)
+    if (
+        record.valid_from is None
+        or record.valid_until is None
+        or not (record.valid_from <= now < record.valid_until)
+    ):
+        raise ValueError("retained_native_human_decision_not_current")
+
+
+def require_retained_native_resume_descendant(
+    *,
+    store: Any,
+    control_store: Any,
+    before_head: AcquisitionActionHeadRecord,
+    before_ref: artifacts.ArtifactRef,
+    outcome: VerifiedAcquisitionActionOutcome,
+) -> None:
+    """Bind a resume assertion to the canonical owner's verified phase chain.
+
+    The sink, not this assertion helper, verifies receipt/event ancestry. The
+    historical SQL owner preserves the exact selected profile for its members.
+    """
+    scope_fields = (
+        "tenant_id",
+        "cell_id",
+        "run_id",
+        "source_job_id",
+        "route_id",
+        "job_id",
+        "action_generation",
+    )
+    if any(getattr(outcome.head, field) != getattr(before_head, field) for field in scope_fields):
+        raise ValueError("retained_native_resume_action_identity_changed")
+    if sum(item.receipt_ref == before_head.receipt_ref for item in outcome.phase_chain) != 1:
+        raise ValueError("retained_native_resume_selected_ancestor_missing")
+    if (
+        before_ref.manifest_profile_sha256 is None
+        or before_head.receipt_manifest_profile_sha256 is None
+    ):
+        raise ValueError("retained_native_resume_ancestor_profile_required")
+    ancestor = control_store.get_acquisition_action_head_by_receipt(
+        tenant_id=before_head.tenant_id,
+        cell_id=before_head.cell_id,
+        run_id=before_head.run_id,
+        source_job_id=before_head.source_job_id,
+        route_id=before_head.route_id,
+        action_generation=before_head.action_generation,
+        receipt_ref=before_head.receipt_ref,
+    )
+    if ancestor != before_head:
+        raise ValueError("retained_native_resume_selected_ancestor_changed")
+    actual = artifacts.artifact_ref_for_manifest(
+        artifacts.resolve_manifest_by_profile(
+            store, ancestor.receipt_ref, ancestor.receipt_manifest_profile_sha256
+        )
+    )
+    if artifact_ref_identity_key(actual) != artifact_ref_identity_key(before_ref):
+        raise ValueError("retained_native_resume_ancestor_profile_changed")
+
+
+@contextmanager
+def forbid_retained_native_resume_effects() -> Iterator[None]:
+    """Block fresh institutional acts, provider I/O and N4/N5 before their body.
+
+    Reuse the C100 PY_START primitive. Forbidden entries stay enabled after a
+    caught refusal; unrelated code disables its own first-start notification.
+    Slot 5 is fixture-local and is never taken from another observer.
+    """
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.foundry.execute._internal.graph import execute_program_graph
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.runtime.quality.acquisition_executor import (
+        admit_acquisition_with_production_semantic_epoch,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tests._helpers.acquisition_served_history import (
+        _appoint_served_acquisition_mandate,
+    )
+    from tests._helpers.semantic_epoch_native import (
+        NativeEpochFixtureCustodian,
+        sign_native_epoch_scenario,
+    )
+
+    functions = (
+        WorldBankConnector.fetch,
+        WorldBankWDIAcquisitionExecutionPort.reserve_route_binding,
+        AcquisitionWorldGrowthBridge._admit_stored_attempt,
+        admit_acquisition_with_production_semantic_epoch,
+        N4GenerationPort.__call__,
+        JointSimulationHorizonController.run,
+        execute_program_graph,
+        _appoint_served_acquisition_mandate,
+        HumanDecisionService.create_record,
+        ControlPlaneStore.reserve_human_decision_action,
+        artifacts.Ed25519Signer.sign,
+        sign_native_epoch_scenario,
+        NativeEpochFixtureCustodian.create.__func__,
+        NativeEpochFixtureCustodian.persist_or_reuse,
+    )
+    targets = {id(function.__code__): function.__code__ for function in functions}
+    monitoring = sys.monitoring
+    if monitoring.get_tool(5) is not None or monitoring.get_events(5):
+        raise RuntimeError("retained_native_resume_monitoring_slot_occupied")
+
+    def started(code: Any, offset: int) -> Any:
+        del offset
+        if targets.get(id(code)) is code:
+            if sys._getframe(1).f_code is not code:
+                raise AssertionError("retained_native_resume_actual_entry_not_established")
+            raise AssertionError(f"retained_native_resume_forbidden_effect:{code.co_qualname}")
+        return monitoring.DISABLE
+
+    monitoring.use_tool_id(5, "retained-native-resume-effects")
+    try:
+        monitoring.register_callback(5, monitoring.events.PY_START, started)
+        monitoring.set_events(5, monitoring.events.PY_START)
+        yield
+    finally:
+        if monitoring.get_tool(5) != "retained-native-resume-effects":
+            raise RuntimeError("retained_native_resume_monitoring_owner_changed")
+        monitoring.set_events(5, 0)
+        monitoring.register_callback(5, monitoring.events.PY_START, None)
+        monitoring.free_tool_id(5)
+
+
 def _verify_retained_selected_signature(
     store: Any,
     ref: artifacts.ArtifactRef,
@@ -442,6 +657,37 @@ def load_retained_native_admission_checkpoint(
     source, meaning and epoch fences. Paths configure verifiers only; no
     private key is loaded and no signed body or validity interval is changed.
     """
+    return _load_retained_native_admission_checkpoint(
+        fixture, selection, institution_key_root=institution_key_root, require_current=True
+    )
+
+
+def load_retained_native_action_resume_checkpoint(
+    fixture: SimpleNamespace,
+    selection: RetainedNativeAdmissionSelection,
+    *,
+    institution_key_root: Path,
+) -> SimpleNamespace:
+    """Load signed locators for custody of an already selected action outcome.
+
+    This only configures the original public-key verifiers. The maintained
+    resume caller must obtain the exact post-outcome head from the canonical
+    sink before dispatch. It cannot use these historical inputs for a new
+    activation, mandate, provider call or numerical execution.
+    """
+    return _load_retained_native_admission_checkpoint(
+        fixture, selection, institution_key_root=institution_key_root, require_current=False
+    )
+
+
+def _load_retained_native_admission_checkpoint(
+    fixture: SimpleNamespace,
+    selection: RetainedNativeAdmissionSelection,
+    *,
+    institution_key_root: Path,
+    require_current: bool,
+) -> SimpleNamespace:
+    """Share exact selected signature and source checks across read purposes."""
     from polisyos.runtime.quality import agent_action_authority as authority
 
     store = fixture.store
@@ -492,8 +738,13 @@ def load_retained_native_admission_checkpoint(
     if (
         not current.current
         or current.revoked_at is not None
-        or not (current.effective_from <= now < current.effective_until)
-        or not (envelope.valid_from <= now < envelope.valid_until)
+        or (
+            require_current
+            and (
+                not (current.effective_from <= now < current.effective_until)
+                or not (envelope.valid_from <= now < envelope.valid_until)
+            )
+        )
         or envelope.required_tenant_id != fixture.tenant_id
     ):
         raise ValueError("retained_native_continuation_mandate_not_current")

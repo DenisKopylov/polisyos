@@ -1110,6 +1110,7 @@ def _approve_served_acquisition_request(
     identities: dict[str, str],
     cas_root: Path,
     submission_checkpoint: Path | None = None,
+    authority_valid_until: datetime | None = None,
 ) -> tuple[authority.AgentActionAuthorityDecision, str]:
     """Obtain real DS9 approval after the exact PA2 source decision refuses."""
     from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
@@ -1146,6 +1147,11 @@ def _approve_served_acquisition_request(
             identities=identities,
             now=datetime.now(UTC),
             audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
+            **(
+                {"authority_valid_until": authority_valid_until}
+                if authority_valid_until is not None
+                else {}
+            ),
         )
     body = {
         name: value

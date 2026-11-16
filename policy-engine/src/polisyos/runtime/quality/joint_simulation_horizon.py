@@ -43,6 +43,7 @@ from pydantic import (
 from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.artifacts import (
     ArtifactID,
+    ArtifactReader,
     ArtifactRef,
     InputRef,
     input_ref_from_artifact_ref,
@@ -4348,9 +4349,134 @@ class JointSimulationHorizonController:
             decisions=tuple(decisions),
         )
 
+    def _load_selected_result(
+        self,
+        ref: ArtifactRef,
+        *,
+        store: ArtifactReader,
+        expected_world_model_record_content_hash: str | None = None,
+        expected_atom_ids: Sequence[str] | None = None,
+        expected_selected_outcomes: Sequence[str] | None = None,
+        expected_receipt_payload_hash: str | None = None,
+        expected_request: JointSimulationRequest | None = None,
+    ) -> JointSimulationResult:
+        """Own decoding and fresh semantic proof for one persisted selected result."""
+        from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+        from polisyos.core.artifacts import ArtifactIntegrityError, ArtifactOwnershipError
+        from polisyos.foundry.execute import resolve_core_json_profile_store
+        from polisyos.runtime.http.errors import RuntimeDependencyError
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleError,
+            _decode_joint_simulation_result,
+            _joint_simulation_result_integrity_error,
+            _JointSimulationBindingMismatchError,
+        )
+
+        with _decode_joint_simulation_result(
+            ref,
+            store=store,
+            expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+            expected_atom_ids=expected_atom_ids,
+            expected_selected_outcomes=expected_selected_outcomes,
+            expected_receipt_payload_hash=expected_receipt_payload_hash,
+            expected_request=expected_request,
+        ) as (result, has_semantic_inputs):
+            selected = None
+            if expected_request is not None:
+                try:
+                    selected = self._validate_selected_result_structure(
+                        request=expected_request, result=result
+                    )
+                except (
+                    JointSimulationControllerError,
+                    ProofReceiptError,
+                    TypeError,
+                    ValueError,
+                ) as exc:
+                    raise _JointSimulationBindingMismatchError(
+                        "joint_simulation_result_execution_binding_invalid", str(exc)
+                    ) from exc
+            limitations = None
+            if has_semantic_inputs:
+                if expected_request is None:
+                    raise _JointSimulationBindingMismatchError(
+                        "joint_simulation_semantic_expected_request_required"
+                    )
+                # Only the known Core-to-IR adapter resolves to its configured
+                # owner. Unknown wrappers remain distinct policy/access views.
+                views = [store]
+                if selected is not None:
+                    planned = selected.plan.program_store
+                    current_view = resolve_core_json_profile_store(store)
+                    planned_view = resolve_core_json_profile_store(planned)
+                    if current_view is None or planned_view is not current_view:
+                        views.append(planned)
+                try:
+                    for view in views:
+                        observed = verify_semantic_program_graph_result_sources(
+                            view, result, expected_request=expected_request
+                        )
+                        if limitations is not None and observed != limitations:
+                            raise ValueError("selected_semantic_readview_disagreement")
+                        limitations = observed
+                except (
+                    FileNotFoundError,
+                    ArtifactOwnershipError,
+                    RuntimeDependencyError,
+                    OSError,
+                ) as exc:
+                    raise GenerationCycleError(
+                        "joint_simulation_semantic_sources_unavailable"
+                    ) from exc
+                except (
+                    CanonicalProfileRefusalError,
+                    ArtifactIntegrityError,
+                    TypeError,
+                    ValueError,
+                ) as exc:
+                    _joint_simulation_result_integrity_error(
+                        "semantic_program_graph_result_sources_invalid", exc
+                    )
+                if (
+                    expected_request.program_graph_comparator_profile is not None
+                    and limitations is None
+                ):
+                    raise _JointSimulationBindingMismatchError(
+                        "joint_simulation_result_execution_binding_invalid",
+                        "selected_program_graph_paired_comparator_not_established",
+                    )
+            result._verified_semantic_input_limitation_codes = limitations
+            return result
+
     def validate_selected_result(
         self, *, request: JointSimulationRequest, result: JointSimulationResult
     ) -> None:
+        """Recompute physical and semantic bindings, including custom-port results."""
+        selected = self._validate_selected_result_structure(request=request, result=result)
+        try:
+            if (
+                semantic_program_graph_result_inputs(result)
+                or request.program_graph_comparator_profile is not None
+            ):
+                limitations = verify_semantic_program_graph_result_sources(
+                    selected.plan.program_store, result, expected_request=request
+                )
+                if request.program_graph_comparator_profile is not None and limitations is None:
+                    raise ValueError("selected_program_graph_paired_comparator_not_established")
+        except (
+            ProofReceiptError,
+            JointSimulationControllerError,
+            TypeError,
+            ValueError,
+            KeyError,
+        ) as exc:
+            raise JointSimulationControllerError(
+                "selected_plan_execution_binding_missing", str(exc)
+            ) from exc
+
+    def _validate_selected_result_structure(
+        self, *, request: JointSimulationRequest, result: JointSimulationResult
+    ) -> _SelectedEngine:
         """Recompute the selected physical-plan binding for a produced N5 result.
 
         This is a candidate-only consistency check against the actual request and
@@ -4457,14 +4583,7 @@ class JointSimulationHorizonController:
                 raise ValueError("unexpected_selected_comparator")
             paired_comparator = _read_program_graph_paired_comparator(result)
             if request.program_graph_comparator_profile is not None:
-                if (
-                    paired_comparator is None
-                    or selected.decision.engine_kind != "program_graph"
-                    or verify_semantic_program_graph_result_sources(
-                        selected.plan.program_store, result, expected_request=request
-                    )
-                    is None
-                ):
+                if paired_comparator is None or selected.decision.engine_kind != "program_graph":
                     raise ValueError("selected_program_graph_paired_comparator_not_established")
             elif paired_comparator is not None:
                 raise ValueError("unexpected_selected_program_graph_comparator")
@@ -4490,6 +4609,7 @@ class JointSimulationHorizonController:
                                     sample.effects[outcome], expected, rel_tol=1e-12, abs_tol=1e-12
                                 ):
                                     raise ValueError("selected_sample_effect_basis_mismatch")
+            return selected
         except (
             ProofReceiptError,
             JointSimulationControllerError,

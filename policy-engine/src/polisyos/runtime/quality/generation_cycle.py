@@ -25,8 +25,8 @@ import re
 import stat
 import time
 from collections import Counter
-from collections.abc import Awaitable, Callable, Mapping, Sequence
-from contextlib import AbstractContextManager, ExitStack, nullcontext, suppress
+from collections.abc import Awaitable, Callable, Iterator, Mapping, Sequence
+from contextlib import AbstractContextManager, ExitStack, contextmanager, nullcontext, suppress
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -2103,13 +2103,35 @@ def load_joint_simulation_result(
     observation-bound consumer supplies its sibling hash, using an empty string
     for an absent sibling so that missing evidence cannot become an unbound read.
     """
+    return JointSimulationHorizonController()._load_selected_result(
+        ref,
+        store=store,
+        expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=expected_selected_outcomes,
+        expected_receipt_payload_hash=expected_receipt_payload_hash,
+        expected_request=expected_request,
+    )
+
+
+@contextmanager
+def _decode_joint_simulation_result(
+    ref: CASArtifactRef,
+    *,
+    store: ArtifactReader,
+    expected_world_model_record_content_hash: str | None = None,
+    expected_atom_ids: Sequence[str] | None = None,
+    expected_selected_outcomes: Sequence[str] | None = None,
+    expected_receipt_payload_hash: str | None = None,
+    expected_request: JointSimulationRequest | None = None,
+) -> Iterator[tuple[JointSimulationResult, bool]]:
+    """Decode one fresh selected view; callers must complete its semantic proof."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
     from polisyos.core.artifacts import artifact_manifest_profile_sha256
     from polisyos.runtime.quality.joint_simulation_horizon import (
         SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX,
         _cas_receipt_verification_binding,
         semantic_program_graph_result_inputs,
-        verify_semantic_program_graph_result_sources,
     )
 
     def refuse_profile(exc: CanonicalProfileRefusalError) -> None:
@@ -2228,7 +2250,6 @@ def load_joint_simulation_result(
             expected_atom_ids=expected_atom_ids,
             expected_selected_outcomes=expected_selected_outcomes,
         )
-        semantic_input_limitation_codes: tuple[str, ...] | None = None
         try:
             semantic_edges = [
                 edge
@@ -2237,39 +2258,18 @@ def load_joint_simulation_result(
             ]
             if semantic_edges != semantic_program_graph_result_inputs(result):
                 raise ValueError("semantic_program_graph_result_input_closure_mismatch")
-            if semantic_edges:
-                if expected_request is None:
-                    raise _JointSimulationBindingMismatchError(
-                        "joint_simulation_semantic_expected_request_required"
-                    )
-                semantic_input_limitation_codes = verify_semantic_program_graph_result_sources(
-                    store, result, expected_request=expected_request
+            if semantic_edges and expected_request is None:
+                raise _JointSimulationBindingMismatchError(
+                    "joint_simulation_semantic_expected_request_required"
                 )
         except _JointSimulationBindingMismatchError:
             raise
-        except (FileNotFoundError, ArtifactOwnershipError, RuntimeDependencyError, OSError) as exc:
-            raise GenerationCycleError("joint_simulation_semantic_sources_unavailable") from exc
         except (CanonicalProfileRefusalError, ArtifactIntegrityError, TypeError, ValueError) as exc:
             _joint_simulation_result_integrity_error(
                 "semantic_program_graph_result_sources_invalid", exc
             )
-        if expected_request is not None:
-            try:
-                JointSimulationHorizonController().validate_selected_result(
-                    request=expected_request, result=result
-                )
-            except (
-                JointSimulationControllerError,
-                ProofReceiptError,
-                TypeError,
-                ValueError,
-            ) as exc:
-                raise _JointSimulationBindingMismatchError(
-                    "joint_simulation_result_execution_binding_invalid", str(exc)
-                ) from exc
         result._comparator_refs_verified = comparator_refs_verified
-        result._verified_semantic_input_limitation_codes = semantic_input_limitation_codes
-        return result
+        yield result, bool(semantic_edges)
 
 
 class ValueArtifactBindingRefV1(_StrictModel):

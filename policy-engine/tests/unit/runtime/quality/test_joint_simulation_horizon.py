@@ -886,7 +886,9 @@ def test_operation_receipt_memo_with_explicit_retained_selected_cas(
     verify_code = owner.verify_simulation_receipt.__code__
     gy_code = owner.gy_content_hash.__code__
     decode_code = owner.from_canonical_bytes.__code__
-    selected_code = owner.JointSimulationHorizonController.validate_selected_result.__code__
+    selected_code = (
+        owner.JointSimulationHorizonController._validate_selected_result_structure.__code__
+    )
     binding_code = owner._cas_receipt_verification_binding.__wrapped__.__code__
 
     def counted(observed_code: object, _offset: int) -> None:
@@ -5394,7 +5396,9 @@ def test_receipt_binding_snapshot_and_selected_comparison_fallback(
     native_comparison_hashes: list[int] = []
     code = owner.build_content_bound_simulation_receipt.__code__
     gy_code = owner.gy_content_hash.__code__
-    selected_code = owner.JointSimulationHorizonController.validate_selected_result.__code__
+    selected_code = (
+        owner.JointSimulationHorizonController._validate_selected_result_structure.__code__
+    )
     monitoring = sys.monitoring
     tool_id = next(index for index in range(6) if monitoring.get_tool(index) is None)
     monitoring.use_tool_id(tool_id, "receipt-snapshot-test")
@@ -5477,3 +5481,147 @@ def test_receipt_binding_snapshot_and_selected_comparison_fallback(
         controller.validate_selected_result(request=selected_request, result=numeric)
     assert not owner._same_exact_json({"v": -0.0}, {"v": 0.0})
     assert not owner._same_exact_json({"v": True}, {"v": 1})
+
+
+@pytest.mark.parametrize(
+    "view_kind", ["same", "core_ir_adapter", "distinct", "denied", "actual_wait"]
+)
+def test_selected_result_load_consolidates_only_the_actual_readview(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, view_kind: str
+) -> None:
+    """Routing control only: a different access view never inherits another proof.
+
+    Decoding/physical selection and semantic proof are controlled here to isolate
+    their orchestration. Retained-source replay supplies the numerical oracle.
+    """
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.runtime.quality import generation_cycle as decoder
+    from polisyos.runtime.quality import joint_simulation_horizon as owner
+    from tests.unit.runtime.quality.test_generic_program_graph_paired import (
+        _construct_paired_result,
+        _paired_result_envelope,
+        _physical_budget_request,
+    )
+
+    request, _plan, _decision = _physical_budget_request(1)
+    result = _construct_paired_result(_paired_result_envelope())
+    store = FileSystemCAS(tmp_path / "selected-readviews")
+
+    class DistinctReadView:
+        def __getattr__(self, name):
+            return getattr(store, name)
+
+    planned = (
+        ensure_ir_artifact_store(store)
+        if view_kind == "core_ir_adapter"
+        else DistinctReadView()
+        if view_kind in {"distinct", "denied"}
+        else store
+    )
+    selected = SimpleNamespace(plan=SimpleNamespace(program_store=planned))
+    calls = []
+    decoded_options = []
+    semantic_error = [None]
+
+    @contextmanager
+    def decode(ref, **options):
+        decoded_options.append(options)
+        yield result, True
+
+    def verify(view, actual, *, expected_request):
+        assert actual is result and expected_request is request
+        calls.append(view)
+        if semantic_error[0] is not None:
+            raise semantic_error[0]
+        if view_kind == "denied" and view is planned:
+            raise FileNotFoundError("selected_view_removed")
+        return ("semantic_program_graph_candidate_only",)
+
+    monkeypatch.setattr(decoder, "_decode_joint_simulation_result", decode)
+    monkeypatch.setattr(
+        owner.JointSimulationHorizonController,
+        "_validate_selected_result_structure",
+        lambda self, **kwargs: selected,
+    )
+    monkeypatch.setattr(owner, "verify_semantic_program_graph_result_sources", verify)
+    monkeypatch.setattr(owner, "semantic_program_graph_result_inputs", lambda value: [object()])
+    controller = owner.JointSimulationHorizonController()
+    ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="polisyos.runtime.joint_simulation_result",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    try:
+        if view_kind == "actual_wait":
+            import time
+
+            from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+            from polisyos.core.artifacts import ArtifactIntegrityError
+            from polisyos.runtime.http.resilience import (
+                _BlockingDependencyWaitTimeoutError,
+                build_runtime_cas_guard,
+            )
+            from polisyos.runtime.quality.generic_simulation_admission import (
+                _written_n5_readback_wait_timeout,
+            )
+
+            guard = build_runtime_cas_guard()
+            try:
+                assert guard._timeout_seconds == 1.5
+                with pytest.raises(_BlockingDependencyWaitTimeoutError) as timed:
+                    guard.run(lambda: time.sleep(1.6))
+                wait = timed.value
+            finally:
+                guard.close()
+            for error in (
+                wait,
+                CanonicalProfileRefusalError("canon_profile_payload_not_canonical"),
+                ArtifactIntegrityError("selected_semantic_source_integrity_invalid"),
+            ):
+                semantic_error[0] = error
+                with pytest.raises(decoder.GenerationCycleError) as refusal:
+                    decoder.load_joint_simulation_result(ref, store=store, expected_request=request)
+                assert refusal.value.__cause__ is error
+                if error is wait:
+                    assert refusal.value.code == "joint_simulation_semantic_sources_unavailable"
+                    assert _written_n5_readback_wait_timeout(refusal.value) is wait
+                else:
+                    assert refusal.value.code == "joint_simulation_result_integrity_invalid"
+                    assert _written_n5_readback_wait_timeout(refusal.value) is None
+            assert calls == [store, store, store]
+        elif view_kind == "denied":
+            with pytest.raises(decoder.GenerationCycleError) as refusal:
+                decoder.load_joint_simulation_result(ref, store=store, expected_request=request)
+            assert refusal.value.code == "joint_simulation_semantic_sources_unavailable"
+            assert type(refusal.value.__cause__) is FileNotFoundError
+            assert calls == [store, planned]
+        else:
+            loaded = decoder.load_joint_simulation_result(
+                ref, store=store, expected_request=request
+            )
+            assert loaded is result
+            assert calls == ([store, planned] if view_kind == "distinct" else [store])
+            assert decoded_options[0]["expected_request"] is request
+            calls.clear()
+            # A warm result/private output field cannot authorize a custom port.
+            controller.validate_selected_result(request=request, result=loaded)
+            assert calls == [planned]
+            calls.clear()
+            with monkeypatch.context() as removed:
+
+                def missing(view, actual, *, expected_request):
+                    calls.append(view)
+                    raise ValueError("selected_semantic_rule_removed")
+
+                removed.setattr(owner, "verify_semantic_program_graph_result_sources", missing)
+                with pytest.raises(owner.JointSimulationControllerError):
+                    controller.validate_selected_result(request=request, result=loaded)
+                assert calls == [planned]
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()

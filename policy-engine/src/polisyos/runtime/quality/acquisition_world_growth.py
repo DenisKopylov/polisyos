@@ -80,6 +80,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
+        ControlJobExecutionAdmission,
         ControlJobRecord,
         ControlPlaneStore,
     )
@@ -124,6 +125,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
         PreparedJointSimulationConfiguration,
+    )
+    from polisyos.runtime.quality.native_source_reentry_history import (
+        NativeSourceReentryCoordinator,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
@@ -971,6 +975,7 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
         "AcquisitionWorldGrowthActionOutcomeSelector@1.0",
         "AcquisitionWorldGrowthActionOutcomeSelector@1.1",
         "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
+        "AcquisitionWorldGrowthActionOutcomeSelector@1.3",
     ] = "AcquisitionWorldGrowthActionOutcomeSelector@1.1"
     route_id: str = Field(pattern=_SHA)
     action_phase_ref: str = Field(pattern=_SHA)
@@ -990,6 +995,16 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
         default=None, exclude_if=lambda value: value is None
     )
 
+    native_budget_window_id: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
+    native_budget_window_digest: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
+    native_budget_window_state: Literal["issuing", "selected"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
     @model_validator(mode="after")
     def _selector_state_matches_receipt(self) -> Self:
         has_receipt = self.receipt_kind is not None and self.receipt_ref is not None
@@ -998,6 +1013,7 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
         if self.state == "prepared" and self.schema_version not in {
             "AcquisitionWorldGrowthActionOutcomeSelector@1.1",
             "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
+            "AcquisitionWorldGrowthActionOutcomeSelector@1.3",
         }:
             raise ValueError("acquisition_action_outcome_selector_schema_version_mismatch")
         if self.receipt_kind == _CANDIDATE_ACTION_KIND and self.schema_version != (
@@ -1023,6 +1039,32 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
             self.candidate_budget_window_state is not None
         ):
             raise ValueError("acquisition_candidate_budget_window_unexpected")
+        native = (
+            self.native_budget_window_state,
+            self.native_budget_window_id,
+            self.native_budget_window_digest,
+        )
+        if any(value is not None for value in native):
+            if (
+                self.schema_version != "AcquisitionWorldGrowthActionOutcomeSelector@1.3"
+                or self.candidate_budget_window_state is not None
+                or self.receipt_kind == _CANDIDATE_ACTION_KIND
+                or self.native_budget_window_state is None
+                or (self.native_budget_window_state == "selected")
+                != (
+                    self.native_budget_window_id is not None
+                    and self.native_budget_window_digest is not None
+                )
+                or (self.native_budget_window_id is None)
+                != (self.native_budget_window_digest is None)
+            ):
+                raise ValueError("acquisition_native_budget_window_state_mismatch")
+        elif self.schema_version == "AcquisitionWorldGrowthActionOutcomeSelector@1.3":
+            raise ValueError("acquisition_native_budget_window_not_established")
+        if self.schema_version == "AcquisitionWorldGrowthActionOutcomeSelector@1.3" and (
+            self.receipt_kind is not None and self.native_budget_window_state != "selected"
+        ):
+            raise ValueError("acquisition_native_budget_outcome_window_not_selected")
         candidate = self.candidate_receipt_ref
         if self.receipt_kind == _CANDIDATE_ACTION_KIND:
             if (
@@ -3940,12 +3982,13 @@ class AcquisitionWorldGrowthBridge:
                 ),
             )
 
-    def _candidate_source_budget_window(
+    def _source_reentry_budget_window(
         self,
         *,
         closure: VerifiedAcquisitionRouteClosure,
         action_phase_ref: str,
         create: bool,
+        native: bool,
     ) -> BudgetLedgerReentryBudgetWindow:
         """Select one source-ledger window under the actual action and worker fence."""
         from polisyos.runtime.quality.candidate_acquisition_action import _current_action
@@ -3955,13 +3998,32 @@ class AcquisitionWorldGrowthBridge:
             BudgetMiddleware,
         )
 
-        selected, phase, admission = _current_action(self, closure, action_phase_ref)
+        def current_action() -> tuple[
+            AcquisitionWorldGrowthRoute | AcquisitionCandidateSourceRoute,
+            AcquisitionRoutePhaseReceipt,
+            ControlJobExecutionAdmission,
+            str,
+        ]:
+            if native:
+                selected, phase, admission = self._current_native_reentry_action(
+                    closure=closure, action_phase_ref=action_phase_ref
+                )
+                _n5, profile_key = self._native_derivation_budget_profile(closure)
+            else:
+                selected, phase, admission = _current_action(self, closure, action_phase_ref)
+                profile_key = selected.profile_selection_ref
+            return selected, phase, admission, profile_key
+
+        family = "native" if native else "candidate"
+        schema_version = f"AcquisitionWorldGrowthActionOutcomeSelector@1.{3 if native else 2}"
+        prefix = f"{family}_budget_window_"
+        selected, phase, admission, profile_key = current_action()
         service = self._source_control_service
         if service is None:
-            raise ValueError("candidate_source_budget_owner_not_established")
+            raise ValueError(f"{family}_source_budget_owner_not_established")
         store = service._llm_producer_settlement_store
         if type(store) is not BudgetMiddleware:
-            raise ValueError("candidate_source_budget_owner_not_established")
+            raise ValueError(f"{family}_source_budget_owner_not_established")
         scope = BudgetLedgerReentryBudgetScope(
             run_binding=service.verify_acquisition_source_budget_owner(closure=closure),
             action_job_id=phase.job_id,
@@ -3969,29 +4031,29 @@ class AcquisitionWorldGrowthBridge:
             action_generation=phase.action_generation,
             action_phase_ref=action_phase_ref,
             source_payload_ref=str(closure.source_payload_ref),
-            profile_selection_ref=selected.profile_selection_ref,
+            profile_selection_ref=profile_key,
         )
         global_limit = service.acquisition_source_global_budget_usd(closure=closure)
         overlay_path, _ = self._paths(selected, create=create)
         with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             pointer, selector = self._read_action_selector(closure, selected, action_phase_ref)
             if create and selector.state != "executing":
-                raise ValueError("candidate_source_budget_action_not_executing")
-            first_issue = create and selector.candidate_budget_window_state is None
+                raise ValueError(f"{family}_source_budget_action_not_executing")
+            first_issue = create and getattr(selector, prefix + "state") is None
             if first_issue:
                 # An interruption after this durable intent must never grant
                 # permission to sample another baseline from a lost ledger.
                 selector = AcquisitionWorldGrowthActionOutcomeSelector.model_validate(
                     {
                         **selector.model_dump(mode="python"),
-                        "schema_version": "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
-                        "candidate_budget_window_state": "issuing",
+                        "schema_version": schema_version,
+                        prefix + "state": "issuing",
                     }
                 )
                 self._write_action_selector(pointer, selector)
-            if selector.candidate_budget_window_id is None:
+            if getattr(selector, prefix + "id") is None:
                 if not create:
-                    raise ValueError("candidate_source_budget_window_not_selected")
+                    raise ValueError(f"{family}_source_budget_window_not_selected")
                 window = (
                     store.open_reentry_budget_window_safe(
                         scope,
@@ -4009,42 +4071,63 @@ class AcquisitionWorldGrowthBridge:
                 or window.fresh_limit_usd != selected.reentry_budget_usd
                 or window.global_limit_usd != global_limit
                 or (
-                    selector.candidate_budget_window_id is not None
+                    getattr(selector, prefix + "id") is not None
                     and (
-                        selector.candidate_budget_window_id != window.window_id
-                        or selector.candidate_budget_window_digest != window.record_digest
+                        getattr(selector, prefix + "id") != window.window_id
+                        or getattr(selector, prefix + "digest") != window.record_digest
                     )
                 )
             ):
                 # A different initial phase needs an owner-verified ancestry,
                 # which this path does not yet establish. Never reset baseline.
-                raise ValueError("candidate_source_budget_window_binding_mismatch")
-            fresh_selection, fresh_phase, fresh_admission = _current_action(
-                self, closure, action_phase_ref
-            )
+                raise ValueError(f"{family}_source_budget_window_binding_mismatch")
+            fresh_selection, fresh_phase, fresh_admission, fresh_key = current_action()
             if (
                 fresh_selection != selected
+                or fresh_key != profile_key
                 or fresh_phase != phase
                 or fresh_admission.job.job_id != admission.job.job_id
                 or fresh_admission.job.lease_owner != admission.job.lease_owner
                 or fresh_admission.attempt != admission.attempt
                 or fresh_admission.scope != admission.scope
             ):
-                raise ValueError("candidate_source_budget_action_changed")
-            if selector.candidate_budget_window_id is None:
+                raise ValueError(f"{family}_source_budget_action_changed")
+            if getattr(selector, prefix + "id") is None:
                 self._write_action_selector(
                     pointer,
                     AcquisitionWorldGrowthActionOutcomeSelector.model_validate(
                         {
                             **selector.model_dump(mode="python"),
-                            "schema_version": "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
-                            "candidate_budget_window_id": window.window_id,
-                            "candidate_budget_window_digest": window.record_digest,
-                            "candidate_budget_window_state": "selected",
+                            "schema_version": schema_version,
+                            prefix + "id": window.window_id,
+                            prefix + "digest": window.record_digest,
+                            prefix + "state": "selected",
                         }
                     ),
                 )
             return window
+
+    def _candidate_source_budget_window(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action_phase_ref: str,
+        create: bool,
+    ) -> BudgetLedgerReentryBudgetWindow:
+        return self._source_reentry_budget_window(
+            closure=closure, action_phase_ref=action_phase_ref, create=create, native=False
+        )
+
+    def _native_derivation_budget_window(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action_phase_ref: str,
+        create: bool,
+    ) -> BudgetLedgerReentryBudgetWindow:
+        return self._source_reentry_budget_window(
+            closure=closure, action_phase_ref=action_phase_ref, create=create, native=True
+        )
 
     def prepare_candidate_source_budget_window(
         self,
@@ -4315,7 +4398,7 @@ class AcquisitionWorldGrowthBridge:
                     "schema_version": (
                         "AcquisitionWorldGrowthActionOutcomeSelector@1.2"
                         if receipt_kind == _CANDIDATE_ACTION_KIND
-                        else "AcquisitionWorldGrowthActionOutcomeSelector@1.1"
+                        else current.schema_version
                     ),
                     "state": "prepared",
                     "receipt_kind": receipt_kind,
@@ -7444,7 +7527,33 @@ class AcquisitionWorldGrowthBridge:
                 ),
                 None,
             )
+            native_budget_window = None
+            native_budget_observer = None
+            reentry_budget_state = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": growth.selection.reentry_budget_usd}}}
+            )
+            if native_collections:
+                native_budget_window = self._native_derivation_budget_window(
+                    closure=closure, action_phase_ref=growth.action_phase_ref, create=False
+                )
+                reentry_budget_state = BudgetState.model_validate(
+                    {
+                        "limits": {
+                            "run": {
+                                "key": "run",
+                                "max_usd": native_budget_window.effective_limit_usd,
+                            }
+                        }
+                    }
+                )
+                native_budget_observer = self._native_derivation_reentry_budget_binding(
+                    closure=closure,
+                    budget_state=reentry_budget_state,
+                    reentry_budget_scope=native_budget_window.scope,
+                )
             controller_kwargs: dict[str, object] = {}
+            if native_budget_observer is not None:
+                controller_kwargs["_producer_budget_reconciler"] = native_budget_observer
             native_reentry_coordinator = None
             native_progress = None
             if native_collections:
@@ -7475,22 +7584,26 @@ class AcquisitionWorldGrowthBridge:
                         collection_ref=native_collections[0],
                     )
                     native_progress = native_reentry_coordinator.progress()
-                    controller_kwargs = {
-                        "cycle_substrate_context": context,
-                        "generic_cycle_simulation_admission_owner": (
-                            self._source_control_service._generic_cycle_simulation_admission_owner
-                        ),
-                        "generic_cycle_simulation_handoff": handoff,
-                        "generic_cycle_simulation_currentness_resolver": currentness_resolver,
-                        "_prepared_n5_configuration": prepared_n5_configuration,
-                    }
+                    controller_kwargs.update(
+                        {
+                            "cycle_substrate_context": context,
+                            "generic_cycle_simulation_admission_owner": (
+                                self._source_control_service._generic_cycle_simulation_admission_owner
+                            ),
+                            "generic_cycle_simulation_handoff": handoff,
+                            "generic_cycle_simulation_currentness_resolver": currentness_resolver,
+                            "_prepared_n5_configuration": prepared_n5_configuration,
+                        }
+                    )
                 else:
-                    controller_kwargs = {
-                        "cycle_substrate_context": context,
-                        "candidate_simulation_handoff": handoff,
-                        "candidate_simulation_currentness_resolver": currentness_resolver,
-                        "_prepared_n5_configuration": prepared_n5_configuration,
-                    }
+                    controller_kwargs.update(
+                        {
+                            "cycle_substrate_context": context,
+                            "candidate_simulation_handoff": handoff,
+                            "candidate_simulation_currentness_resolver": currentness_resolver,
+                            "_prepared_n5_configuration": prepared_n5_configuration,
+                        }
+                    )
                 if native_context is not None:
                     if (
                         type(native_context) is not CandidateN5NativeContext
@@ -7541,6 +7654,12 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("acquisition_reentry_outcome_not_established")
             if model is None and (native_progress is None or native_progress.prepared is None):
                 raise ValueError("acquisition_reentry_model_unconfigured")
+            if native_budget_observer is not None:
+                self._native_derivation_reentry_readiness(
+                    closure=closure,
+                    observer=native_budget_observer,
+                    coordinator=native_reentry_coordinator,
+                )
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
                 model_id=model,
@@ -7563,7 +7682,17 @@ class AcquisitionWorldGrowthBridge:
                 )
             else:
                 context_binding = nullcontext()
-            with context_binding:
+            producer_scope = (
+                self._source_control_service.native_derivation_producer_scope(
+                    bridge=self,
+                    closure=closure,
+                    observer=native_budget_observer,
+                    reentry_budget_scope=native_budget_window.scope,
+                )
+                if native_budget_window is not None
+                else nullcontext()
+            )
+            with context_binding, producer_scope:
                 if not started:
                     with fence.open("x") as stream:
                         stream.write(growth_refs[0])
@@ -7588,16 +7717,7 @@ class AcquisitionWorldGrowthBridge:
                             if native_collections
                             else {}
                         ),
-                        budget_state=BudgetState.model_validate(
-                            {
-                                "limits": {
-                                    "run": {
-                                        "key": "run",
-                                        "max_usd": growth.selection.reentry_budget_usd,
-                                    }
-                                }
-                            }
-                        ),
+                        budget_state=reentry_budget_state,
                     )
                 )
             # No copied-context borrowing is permitted. Re-read complete owner
@@ -7702,6 +7822,276 @@ class AcquisitionWorldGrowthBridge:
             configured_port_source_ref=scope.configured_port_source_ref,
         )
 
+    def _current_native_reentry_action(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action_phase_ref: str,
+    ) -> tuple[
+        AcquisitionWorldGrowthRoute, AcquisitionRoutePhaseReceipt, ControlJobExecutionAdmission
+    ]:
+        """Reopen the actual Native phase and current acquisition worker lease."""
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+        service = self._source_control_service
+        if (
+            type(service) is not ControlPlaneService
+            or service._control_store is not self.control_store
+            or service._artifact_store is not self.artifact_store
+            or service._diagnostic_event_log is not self.event_log
+            or service.acquisition_route_sink is not self.action_head_sink
+            or closure.native_derivation_leaf_scope is None
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_budget_owner_not_established")
+        selected = self.selection(closure)
+        if selected is None:
+            raise AcquisitionRouteClosureError("native_reentry_budget_route_missing")
+        phase = self._validate_action_phase(closure, selected, action_phase_ref)
+        admission = self.control_store.current_execution_job_admission()
+        job = admission.job
+        if (
+            job.kind != "acquisition"
+            or job.state != "running"
+            or job.job_id != phase.job_id
+            or job.run_id != closure.run_id
+            or admission.scope.status != "established"
+            or admission.scope.actor_authenticated is not True
+            or (admission.scope.tenant_id, admission.scope.cell_id)
+            != (closure.tenant_id, closure.cell_id)
+            or self.control_store.current_native_acquisition_custody_recovery() is not None
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_budget_action_not_current")
+        current = self._native_derivation_route_reader(closure).resolve_current_route(
+            run_id=closure.run_id, route_id=closure.route_id, action_job_id=job.job_id
+        )
+        if current != closure:
+            raise AcquisitionRouteClosureError("native_reentry_budget_source_changed")
+        return selected, phase, admission
+
+    def _native_derivation_budget_profile(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[object, str]:
+        """Read the source family's selected original N5 policy, never a new world."""
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationN5InputV1,
+        )
+
+        source, _context_ref, _n4_ref = self._native_derivation_reentry_source_refs(closure)
+        service = self._source_control_service
+        if service is None:
+            raise AcquisitionRouteClosureError("native_reentry_budget_owner_not_established")
+        if source.schema_version == "policyos.runtime.n7_configured_candidate_port_source.v3":
+            owner = service._generic_cycle_simulation_admission_owner
+            if type(owner) is not GenericCycleSimulationAdmissionOwner or owner.store is not (
+                self.artifact_store
+            ):
+                raise AcquisitionRouteClosureError("native_reentry_budget_profile_owner_missing")
+            recorded = GenericCycleSimulationN5InputV1.model_validate(
+                artifacts.load_core_json_artifact(self.artifact_store, source.n5_input_ref)
+            )
+            actual = owner.resolve_n5_input(source.n5_input_ref, expected=recorded)
+            profile = owner.resolve_profile(
+                actual.profile_ref,
+                expected_profile=actual.profile,
+                job_id=actual.job_id,
+                run_id=actual.run_id,
+                tenant_id=actual.tenant_id,
+                cell_id=actual.cell_id,
+            )
+            if (actual.job_id, actual.run_id, actual.tenant_id, actual.cell_id) != (
+                closure.source_job_id,
+                closure.run_id,
+                closure.tenant_id,
+                closure.cell_id,
+            ) or actual.context_job_ref != source.context_job_ref:
+                raise AcquisitionRouteClosureError("native_reentry_budget_profile_source_mismatch")
+        else:
+            owner = self.cycle_substrate_context_admission_owner
+            if type(owner) is not ConfiguredCandidateSimulationContextAdmissionOwner or (
+                owner.store is not self.artifact_store
+            ):
+                raise AcquisitionRouteClosureError("native_reentry_budget_profile_owner_missing")
+            profile = owner.configured_profile_for_selection_ref(
+                cycle_job_profile_selection_ref(closure.design_problem_basis)
+            )
+            if candidate_simulation_profile_ref(profile) != (
+                closure.source_cycle.simulation.candidate_simulation_profile_config_ref
+            ):
+                raise AcquisitionRouteClosureError("native_reentry_budget_profile_source_mismatch")
+        return profile.n5, profile.profile_selection_ref
+
+    def _native_derivation_reentry_budget_binding(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        budget_state: BudgetState | None = None,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
+    ) -> ProducerBudgetObserver | None:
+        """Bind source, live lease and ledger without granting another producer call.
+
+        Reopening owned checkpoints still requires this identity. Fresh gateway
+        readiness and available units are separately required for new work.
+        """
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+        if (budget_state is None) != (reentry_budget_scope is None):
+            raise AcquisitionRouteClosureError("native_reentry_budget_scope_incomplete")
+        service = self._source_control_service
+        if (
+            type(service) is not ControlPlaneService
+            or service._control_store is not self.control_store
+            or service._artifact_store is not self.artifact_store
+            or service._diagnostic_event_log is not self.event_log
+            or service.acquisition_route_sink is not self.action_head_sink
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_budget_owner_not_established")
+        n5, _key = self._native_derivation_budget_profile(closure)
+        service.verify_acquisition_source_budget_owner(closure=closure)
+        if budget_state is None:
+            return None
+        window = self._native_derivation_budget_window(
+            closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref, create=False
+        )
+        if window.scope != reentry_budget_scope:
+            raise AcquisitionRouteClosureError("native_reentry_budget_window_changed")
+        observer = service.build_acquisition_source_budget_observer(
+            closure=closure, budget_state=budget_state, reentry_budget_scope=window.scope
+        )
+        ProducerBudgetObserver.require_bound_state(observer, budget_state)
+        from polisyos.runtime.quality.generation_cycle import _bind_selected_n5_invocation_policy
+
+        # Reuse the canonical exact-profile selection law, including legacy
+        # profiles with no quota. Such historical binding grants no new work;
+        # the separate new-work check below requires finite standard capacity.
+        with _bind_selected_n5_invocation_policy(observer, n5_profile=n5):
+            pass
+        return observer
+
+    def _require_native_reentry_standard_capacity(
+        self, closure: VerifiedAcquisitionRouteClosure, observer: ProducerBudgetObserver | None
+    ) -> None:
+        """Require current finite capacity only when new physical work is needed."""
+        from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5PairedProgramGraphRequestProfileV5,
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleN5RequestProfileV3,
+        )
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+        evidence = self._source_control_service.read_original_run_budget_scope(closure=closure)
+        if evidence.scope_explicit and (
+            evidence.run_budget_scope != "metered_paid_producers_and_bounded_candidate"
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_physical_usd_price_not_established")
+        n5, _key = self._native_derivation_budget_profile(closure)
+        if (
+            type(n5)
+            not in {
+                CandidateScenarioN5Config,
+                GenericCycleN5RequestProfileV3,
+                GenericCycleN5ProgramGraphRequestProfileV4,
+                GenericCycleN5PairedProgramGraphRequestProfileV5,
+            }
+            or n5.invocation_quota_policy is None
+            or n5.invocation_purpose != "standard"
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_standard_quota_not_established")
+        if observer is not None:
+            if type(observer) is not ProducerBudgetObserver:
+                raise AcquisitionRouteClosureError("native_reentry_budget_observer_untyped")
+            observer.admit()
+            capacity = observer.observe_standard_invocation_capacity()
+            profile = observer.invocation_quota_profile
+            if (
+                profile is None
+                or capacity.status != "available"
+                or (capacity.profile_digest != profile.profile_digest)
+            ):
+                raise AcquisitionRouteClosureError(
+                    "native_reentry_standard_capacity_not_established"
+                )
+
+    def _require_native_reentry_n4_producer(self, closure: VerifiedAcquisitionRouteClosure) -> None:
+        """Check configuration for new N4 without contacting or pricing a provider."""
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig, _as_bool
+
+        payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
+        models = payload.get("llm_models")
+        if (
+            not isinstance(models, list)
+            or not models
+            or not isinstance(models[0], str)
+            or not (models[0].strip())
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_model_not_established")
+        if not _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False) and (
+            GatewayLLMConfig.from_env() is None
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_n4_producer_unconfigured")
+
+    def native_derivation_reentry_preflight(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        budget_state: BudgetState | None = None,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
+    ) -> ProducerBudgetObserver | None:
+        """Require new-work readiness before reserving or fetching Native transport."""
+        observer = self._native_derivation_reentry_budget_binding(
+            closure=closure, budget_state=budget_state, reentry_budget_scope=reentry_budget_scope
+        )
+        self._require_native_reentry_standard_capacity(closure, observer)
+        self._require_native_reentry_n4_producer(closure)
+        return observer
+
+    def _native_derivation_reentry_readiness(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        observer: ProducerBudgetObserver,
+        coordinator: NativeSourceReentryCoordinator | None,
+    ) -> None:
+        """Let canonical selected cuts decide which new producers are still needed."""
+        from polisyos.runtime.quality.native_source_reentry_history import (
+            NativeSourceReentryCoordinator,
+        )
+
+        if coordinator is not None and (
+            type(coordinator) is not NativeSourceReentryCoordinator
+            or coordinator.bridge is not self
+            or coordinator.closure != closure
+        ):
+            raise AcquisitionRouteClosureError("native_reentry_checkpoint_owner_mismatch")
+        # The coordinator independently replays selected CAS/event/SQL members.
+        # A caller flag, `.started` file or claimed completion is insufficient.
+        progress = coordinator.progress() if coordinator is not None else None
+        if progress is None or progress.n5_completed is None:
+            self._require_native_reentry_standard_capacity(closure, observer)
+        if progress is None or progress.prepared is None:
+            self._require_native_reentry_n4_producer(closure)
+
+    def prepare_native_derivation_reentry_budget(
+        self, *, closure: VerifiedAcquisitionRouteClosure, action_phase_ref: str
+    ) -> None:
+        """Select the action's one ledger window and check capacity before transport."""
+        window = self._native_derivation_budget_window(
+            closure=closure, action_phase_ref=action_phase_ref, create=True
+        )
+        state = BudgetState.model_validate(
+            {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+        )
+        self.native_derivation_reentry_preflight(
+            closure=closure, budget_state=state, reentry_budget_scope=window.scope
+        )
+
     def require_native_derivation_provider_bindings(
         self,
         closure: VerifiedAcquisitionRouteClosure,
@@ -7725,6 +8115,7 @@ class AcquisitionWorldGrowthBridge:
             for binding in bindings
         ):
             raise ValueError("native_derivation_native_provider_mismatch")
+        self.native_derivation_reentry_preflight(closure=closure)
 
     def _native_derivation_route_reader(
         self, closure: VerifiedAcquisitionRouteClosure

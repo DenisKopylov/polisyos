@@ -674,9 +674,12 @@ class WorldBankWDIAcquisitionExecutionPort:
         """Reserve fresh transport only; deferred admission requires a new action authority."""
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
-        if bridge is not None and bridge.candidate_source_selection(closure) is not None:
-            # Candidate transport is reserved only by the live worker, after
-            # its source-budget and lease preflight has succeeded.
+        if bridge is not None and (
+            bridge.candidate_source_selection(closure) is not None
+            or closure.native_derivation_leaf_scope is not None
+        ):
+            # Current source-budget and unit capacity belong to the live
+            # worker, before any candidate or Native transport reservation.
             return
         if bridge is not None and bridge.has_admission_attempt(closure):
             return
@@ -733,6 +736,12 @@ class WorldBankWDIAcquisitionExecutionPort:
             )
             bridge.candidate_source_reentry_preflight(
                 closure=closure, budget_state=probe, reentry_budget_scope=window.scope
+            )
+        if bridge is not None and closure.native_derivation_leaf_scope is not None:
+            if action_phase_ref is None:
+                raise LiveAcquisitionExecutionError("native_reentry_action_phase_missing")
+            bridge.prepare_native_derivation_reentry_budget(
+                closure=closure, action_phase_ref=action_phase_ref
             )
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):

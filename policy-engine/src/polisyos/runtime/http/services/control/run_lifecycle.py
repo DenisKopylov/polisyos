@@ -8,7 +8,8 @@ import inspect
 import json
 import math
 import uuid
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -2079,6 +2080,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.runtime import (
         ObservationalRunIntent as _ObservationalRunIntent,
     )
+    from polisyos.core.llm import LLMProducerIntent
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -9578,6 +9580,116 @@ class ControlPlaneService(
             budget_state=budget_state,
             reentry_budget_scope=reentry_budget_scope,
         )
+
+    @contextmanager
+    def native_derivation_producer_scope(
+        self,
+        *,
+        bridge: object,
+        closure: VerifiedAcquisitionRouteClosure,
+        observer: ProducerBudgetObserver,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+    ) -> Iterator[None]:
+        """Bind current Native N4 admission to its original durable producer ledger.
+
+        The ledger keeps the original producer's run and attempt attribution;
+        the reentry window separately selects the current acquisition action.
+        Neither that historical binding nor this scope issues an action grant.
+        """
+        from polisyos.runtime.http.services.control.producer_basis import (
+            _ControlJobProducerIntent,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerProducerRecord,
+            BudgetMiddleware,
+            ProducerBudgetObserver,
+        )
+        from polisyos.scientist.orchestration.llm.factory import _gateway_cache_reuse_scope
+
+        if (
+            type(self) is not ControlPlaneService
+            or type(bridge) is not (AcquisitionWorldGrowthBridge)
+            or bridge._source_control_service is not self
+        ):
+            raise ValueError("native_reentry_producer_owner_not_established")
+        binding = self.verify_acquisition_source_budget_owner(closure=closure)
+        store = self._llm_producer_settlement_store
+        if (
+            type(store) is not BudgetMiddleware
+            or type(observer) is not ProducerBudgetObserver
+            or observer._store is not store
+            or observer._binding != binding
+            or observer.reentry_budget_window is None
+            or observer.reentry_budget_window.scope != reentry_budget_scope
+            or reentry_budget_scope.run_binding != binding
+            or reentry_budget_scope.source_payload_ref != closure.source_payload_ref
+        ):
+            raise ValueError("native_reentry_producer_budget_mismatch")
+        source_job = self._control_store.get_job(closure.source_job_id)
+        if source_job is None or source_job.state != "completed":
+            raise ValueError("native_reentry_producer_source_missing")
+        _selected, phase, admission = bridge._current_native_reentry_action(
+            closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref
+        )
+        if (
+            reentry_budget_scope.action_job_id != phase.job_id
+            or reentry_budget_scope.action_generation != phase.action_generation
+            or reentry_budget_scope.route_id != phase.route_id
+        ):
+            raise ValueError("native_reentry_producer_action_mismatch")
+
+        def validate_current_admission() -> None:
+            _fresh, fresh_phase, fresh = bridge._current_native_reentry_action(
+                closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref
+            )
+            if (
+                fresh_phase != phase
+                or fresh.job.job_id != admission.job.job_id
+                or fresh.job.lease_owner != admission.job.lease_owner
+                or fresh.attempt != admission.attempt
+                or fresh.scope != admission.scope
+                or store.resolve_reentry_budget_window_safe(reentry_budget_scope)
+                != observer.reentry_budget_window
+            ):
+                raise ValueError("native_reentry_producer_action_changed")
+
+        def bounded_operation[T](operation: Callable[[], T]) -> T:
+            # Observe before the actual begin, never reinterpret that newly
+            # pending begin as settled spend in the post-begin lease check.
+            validate_current_admission()
+            ProducerBudgetObserver.admit(observer)
+            return run_guarded_dependency_operation(self._control_store, operation)
+
+        def observe_intent(intent: LLMProducerIntent, receipt: object) -> None:
+            actual = run_guarded_dependency_operation(
+                self._control_store, lambda: store.resolve_producer_event_safe(intent.event_id)
+            )
+            if type(actual) is not BudgetLedgerProducerRecord or actual != receipt:
+                raise ValueError("native_reentry_producer_begin_readback_mismatch")
+            source = _ControlJobProducerIntent(intent=intent, begin_receipt=actual)
+            if source.begin_receipt.run_binding != binding or (
+                source.begin_receipt.control_job_attempt != source_job.attempt
+            ):
+                raise ValueError("native_reentry_producer_begin_owner_mismatch")
+            validate_current_admission()
+
+        validate_current_admission()
+        with (
+            store.producer_run_binding_scope(binding, control_job_attempt=source_job.attempt),
+            _gateway_cache_reuse_scope(
+                authorizer=None,
+                principal=None,
+                context=None,
+                cache=None,
+                run_id=binding.run_id,
+                settlement_store=store,
+                reuse_guard=bounded_operation,
+                validate_admission=validate_current_admission,
+                intent_observer=observe_intent,
+            ),
+        ):
+            yield
 
     def build_candidate_experiment_source_budget_observer(
         self,

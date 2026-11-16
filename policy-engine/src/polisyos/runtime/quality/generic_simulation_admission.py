@@ -115,6 +115,16 @@ class _GenericN5VerifiedMismatchError(CycleSubstrateContextOwnerError):
     """An independently compared N5 owner binding is demonstrably unequal."""
 
 
+class _GenericN5ExecutionReadbackTimeoutError(CycleSubstrateContextOwnerError):
+    """Keep a committed locator without claiming that readback established it."""
+
+    def __init__(self, ref: ArtifactRef, wait_error: Exception) -> None:
+        super().__init__("content_addressed_storage_timeout")
+        self.code = "content_addressed_storage_timeout"
+        self.unverified_execution_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+        self.wait_error = wait_error
+
+
 class GenericCycleN5RequestProfileV1(_StrictModel):
     """Server-owned N5 request settings for one exact generic profile."""
 
@@ -3604,8 +3614,6 @@ class GenericCycleSimulationAdmissionOwner:
         limitation_code: str | None = None,
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
-        from polisyos.core.artifacts import load_core_json_artifact
-
         self.resolve_n5_input(input_ref, expected=input_record)
         if status == "joint_simulated" and (result_ref is None or request_binding is None):
             raise CycleSubstrateContextOwnerError(
@@ -3749,19 +3757,56 @@ class GenericCycleSimulationAdmissionOwner:
             canon_spec=canon_spec,
             return_selected_profile=True,
         )
-        self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
-        manifest = self._store.get_manifest(ref)
-        persisted = parse_generic_cycle_simulation_n5_execution(
-            load_core_json_artifact(self._store, ref)
-        )
-        if not self._manifest_matches_record(manifest, ref, options) or persisted != record:
-            raise CycleSubstrateContextOwnerError(
-                "generic_cycle_simulation_n5_execution_readback_mismatch"
-            )
-        self.resolve_n5_execution(
-            ref, expected=record, expected_semantic_successor_ref=semantic_successor_ref
+        self._readback_written_n5_execution(
+            ref, record=record, options=options, semantic_successor_ref=semantic_successor_ref
         )
         return ref
+
+    def _readback_written_n5_execution(
+        self,
+        ref: ArtifactRef,
+        *,
+        record: GenericCycleSimulationN5ExecutionRecord,
+        options: artifacts.ArtifactWriteOptions,
+        semantic_successor_ref: ArtifactRef | None,
+    ) -> None:
+        """Retry only the complete pure readback once after an actual CAS wait.
+
+        The write, producer, current grant and budget operations stay outside
+        this boundary. Every attempt reopens the same selected ref and runs all
+        manifest, byte, typed-record and source/result verifiers afresh.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+
+        if not _is_selected_json_ref(ref, _N5_EXECUTION_KIND):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_execution_manifest_mismatch"
+            )
+        for attempt in range(2):
+            try:
+                self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
+                manifest = self._store.get_manifest(ref)
+                persisted = parse_generic_cycle_simulation_n5_execution(
+                    load_core_json_artifact(self._store, ref)
+                )
+                if not self._manifest_matches_record(manifest, ref, options) or persisted != record:
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_simulation_n5_execution_readback_mismatch"
+                    )
+                self.resolve_n5_execution(
+                    ref, expected=record, expected_semantic_successor_ref=semantic_successor_ref
+                )
+                return
+            except _BlockingDependencyWaitTimeoutError as exc:
+                if (
+                    type(exc) is not _BlockingDependencyWaitTimeoutError
+                    or exc.dependency != "content_addressed_storage"
+                    or exc.code != "content_addressed_storage_timeout"
+                ):
+                    raise
+                if attempt:
+                    raise _GenericN5ExecutionReadbackTimeoutError(ref, exc) from exc
 
     def recover_semantic_successor_execution(
         self,

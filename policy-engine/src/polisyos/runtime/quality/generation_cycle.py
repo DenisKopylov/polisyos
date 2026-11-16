@@ -257,6 +257,7 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationN5RequestBindingV1,
     GenericCycleSimulationN5RequestBindingV2,
     GenericN5ExecutionJoinOutcome,
+    _GenericN5ExecutionReadbackTimeoutError,
 )
 
 if TYPE_CHECKING:
@@ -286,6 +287,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     ProofReceiptError,
     WorldStateConsumptionRecord,
     _require_nl_physical_budget_scope,
+    _safe_work_cause,
     bind_world_state_consumption,
     build_content_bound_simulation_receipt,
     require_prepared_joint_simulation_configuration,
@@ -19961,10 +19963,24 @@ class GenerationCycleController:
             detail=detail,
             candidate_local_exception=candidate_local_exception,
         )
+        readback_diagnostics: dict[str, object] = {}
+        if type(candidate_local_exception) is _GenericN5ExecutionReadbackTimeoutError:
+            error_code, error_context = _safe_work_cause(candidate_local_exception.wait_error)
+            readback_diagnostics = {
+                "unverified_committed_execution_locator": {
+                    "ref": candidate_local_exception.unverified_execution_ref.model_dump(
+                        mode="json"
+                    ),
+                    "verification_status": "not_established",
+                },
+                "readback_error_code": error_code,
+                "readback_error_context": error_context,
+            }
         return refusal.model_copy(
             update={
                 "diagnostics": {
                     **refusal.diagnostics,
+                    **readback_diagnostics,
                     "request_builder": "persisted_generic_cycle_profile",
                 },
                 "k_world_ref_before": world_hash,

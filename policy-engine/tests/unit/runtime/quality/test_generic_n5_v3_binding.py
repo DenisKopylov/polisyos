@@ -2273,3 +2273,189 @@ def test_n8_input_read_distinguishes_wrapped_owner_denial_from_unavailability() 
     unavailable.__cause__ = PermissionError("nested filesystem permission")
     with pytest.raises(PermissionError):
         read(unavailable)
+
+
+@pytest.mark.asyncio
+async def test_committed_execution_readback_retries_only_real_cas_wait_without_rewriting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Use actual source/CAS codecs; no numerical controller or new permit runs."""
+    import time
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.runtime.http.resilience import (
+        _BlockingDependencyWaitTimeoutError,
+        build_runtime_cas_guard,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        _N5_EXECUTION_KIND,
+        _GenericN5ExecutionReadbackTimeoutError,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
+
+    numerical_calls = []
+
+    def no_numerical_work(*_args, **_kwargs):
+        numerical_calls.append("forbidden")
+        raise AssertionError("readback must never rerun N5")
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", no_numerical_work)
+    case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
+    store, owner = case["store"], case["owner"]
+    guard = build_runtime_cas_guard()
+    assert guard._timeout_seconds == 1.5
+
+    def slow_read():
+        time.sleep(1.6)
+
+    try:
+        with pytest.raises(_BlockingDependencyWaitTimeoutError) as timed:
+            guard.run(slow_read)
+        wait = timed.value
+    finally:
+        guard.close()
+    assert wait.dependency == "content_addressed_storage"
+    writes = []
+    verify_reads = []
+    put = store.put_json
+    verify = owner._verify_json_artifact
+    remaining = 0
+    failure = "wait"
+    damaged = []
+
+    def track_write(value, options, **kwargs):
+        ref = put(value, options, **kwargs)
+        if options.kind == _N5_EXECUTION_KIND:
+            writes.append(ref)
+        return ref
+
+    def fail_selected_read(ref, *, expected_kind):
+        nonlocal remaining
+        if expected_kind != _N5_EXECUTION_KIND:
+            return verify(ref, expected_kind=expected_kind)
+        verify_reads.append(ref)
+        if remaining:
+            remaining -= 1
+            if failure == "wait":
+                raise wait
+            if failure == "wrong_code":
+                noncanonical = _BlockingDependencyWaitTimeoutError(
+                    "content_addressed_storage", diagnostic=wait.diagnostic()
+                )
+                noncanonical.code = "not_the_canonical_cas_timeout"
+                raise noncanonical
+            if failure == "fake":
+                fake = RuntimeError("not a real wait timeout")
+                fake.code = "content_addressed_storage_timeout"
+                raise fake
+            if failure == "profile":
+                return verify(
+                    ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64}),
+                    expected_kind=expected_kind,
+                )
+            if failure == "foreign":
+                with _authenticated_tenant_scope(tenant_id="foreign-owner", cell_id="foreign"):
+                    return verify(ref, expected_kind=expected_kind)
+            if failure == "corrupt":
+                path = store._target._paths(ref.artifact_id)[0]
+                damaged.append((path, path.read_bytes()))
+                path.write_bytes(b"not the committed payload")
+        return verify(ref, expected_kind=expected_kind)
+
+    def persist():
+        return owner.persist_n5_execution(
+            input_ref=case["input_ref"],
+            input_record=case["input_record"],
+            result_ref=None,
+            request_binding=binding,
+            status="simulation_blocked",
+            limitation_code="test_no_numerical_run",
+            world_model_record_content_hash=case[
+                "input_record"
+            ].profile.context_inputs.world_model_record.content_hash,
+        )
+
+    monkeypatch.setattr(store, "put_json", track_write)
+    monkeypatch.setattr(owner, "_verify_json_artifact", fail_selected_read)
+    with _authenticated_tenant_scope(tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        source, candidate, context, port = owner._replay_n5_input_sources(case["input_record"])
+        request = owner._recompute_n5_request(
+            input_record=case["input_record"],
+            source=source,
+            source_candidate=candidate,
+            source_context=context,
+            port=port,
+        )
+        binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+        remaining = 1
+        ref = persist()
+        assert writes == [ref]
+        assert verify_reads[0] == verify_reads[1] == ref
+        record = parse_generic_cycle_simulation_n5_execution(load_core_json_artifact(store, ref))
+        assert owner.resolve_n5_execution(ref, expected=record) == record
+        assert type(record) is GenericCycleSimulationN5ExecutionV3
+        assert record.input_ref == case["input_ref"]
+
+        writes.clear()
+        verify_reads.clear()
+        remaining = 2
+        with pytest.raises(_GenericN5ExecutionReadbackTimeoutError) as exhausted:
+            persist()
+        assert len(writes) == 1 and verify_reads == [writes[0], writes[0]]
+        assert exhausted.value.unverified_execution_ref == writes[0]
+        assert exhausted.value.wait_error is wait and exhausted.value.__cause__ is wait
+        controller = GenerationCycleController(
+            cycle_substrate_context=case["context"],
+            artifact_store=store,
+            authority_scope="contract_testing",
+            repo_root=case["prepared"].source_root,
+        )
+        # Exercise the normal outer generic catch selector, not a supplied code.
+        forwarded_code = str(
+            getattr(exhausted.value, "code", None) or "generic_cycle_simulation_n5_refused"
+        )
+        assert forwarded_code == "content_addressed_storage_timeout"
+        refusal = controller._generic_cycle_simulation_refusal(
+            candidate=case["candidate"],
+            code=forwarded_code,
+            candidate_local_exception=exhausted.value,
+        )
+        assert refusal.status == "simulation_blocked"
+        assert refusal.diagnostics["reason"] == "content_addressed_storage_timeout"
+        assert refusal.authority_blockers == ("content_addressed_storage_timeout",)
+        assert refusal.generic_n5_execution_ref is None and refusal.simulation_result_ref is None
+        assert refusal.diagnostics["unverified_committed_execution_locator"] == {
+            "ref": writes[0].model_dump(mode="json"),
+            "verification_status": "not_established",
+        }
+        assert refusal.diagnostics["readback_error_code"] == "content_addressed_storage_timeout"
+        cause = refusal.diagnostics["readback_error_context"]
+        assert cause["dependency"] == "content_addressed_storage"
+        assert cause["timeout_seconds"] == "1.5"
+        assert cause["underlying_work_outcome"] == "not_established"
+        assert "slow_read" in cause["operation"]
+
+        for selected_failure, exception in [
+            ("wrong_code", _BlockingDependencyWaitTimeoutError),
+            ("fake", RuntimeError),
+            ("profile", ArtifactOwnershipError),
+            ("foreign", ArtifactOwnershipError),
+            ("corrupt", ValueError),
+        ]:
+            failure = selected_failure
+            writes.clear()
+            verify_reads.clear()
+            remaining = 1
+            try:
+                with pytest.raises(exception) as rejected:
+                    persist()
+                assert not isinstance(rejected.value, _GenericN5ExecutionReadbackTimeoutError)
+                assert len(writes) == 1 and verify_reads == [writes[0]]
+            finally:
+                for path, body in damaged:
+                    path.write_bytes(body)
+                damaged.clear()
+        assert numerical_calls == []

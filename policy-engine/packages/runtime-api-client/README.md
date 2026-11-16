@@ -116,6 +116,34 @@ and incomplete-history refusals retain their existing empty-history semantics.
 Regenerate the client and dashboard types from OpenAPI when adopting this added
 limitation value; the server remains the owner of terminal verification.
 
+## Native Generic acquisition history
+
+Run-detail projections may carry the versioned
+`RunNativeGenericAcquisitionHistoryEntryV1` row alongside the existing
+candidate and NCM history variants. It is included in both candidate-simulation
+and generic-cycle acquisition-history unions; no endpoint or permission is
+added. The row binds sixteen full selected JSON artifact references (including
+the kind, media type, and selected manifest profile), original and current
+profile-selection identities, cycle order, and a typed N5 result body joined to
+the selected result reference and world-model content hash.
+
+The dashboard validates this row with its handwritten strict Zod schema and
+renders it through the existing Generic numerical-result component. The
+projection explicitly carries `candidate_observation_only`,
+`not_established` currentness, and `publication_authority: false`; the view shows
+its limitations and refuses malformed rows. Existing history variants remain
+in the unions for compatibility, and the new schema does not reinterpret their
+wire shapes.
+
+The [E02 work plan](../../../E02-WORK-PLAN.md) records Core DTO checks at
+19/19, generated SDK tests and typecheck passing, and dashboard validator and
+Overview checks at 8/8 and 79/79. The no-effects Native history controls passed
+in separate cuts (42 passed with two fixture-graft failures retained, then the
+two corrected cases passed); this was not one 44-case green run. The authentic
+full Native R2 was attempted and failed at decision-request with a selected-cycle
+mismatch, before B acquisition, N4 or N5. Completion and restart verification
+remain unrun.
+
 ## Dependencies
 
 - Depends on:

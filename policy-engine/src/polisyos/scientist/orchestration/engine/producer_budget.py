@@ -704,7 +704,9 @@ class ProducerBudgetObserver:
         self._invocation_guard_binding_id = (
             id(invocation_guard_binding) if invocation_guard_binding is not None else None
         )
-        self._limit = self._current_limit().model_copy(deep=True)
+        # BudgetLimit contains only normalized immutable scalar values. Keep an
+        # independent model shell so later source-field edits remain detectable.
+        self._limit = self._current_limit().model_copy(deep=False)
         self._owner, resource = settlement_store._bind_live_producer_resource()
         self._reentry_window: BudgetLedgerReentryBudgetWindow | None = None
         if reentry_budget_scope is not None:

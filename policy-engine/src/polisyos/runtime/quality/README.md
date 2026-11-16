@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-11-14
+- Last updated: 2026-11-16
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,16 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+New trust-boundary observations use `build_diagnostic_attestation_record` and
+body/manifest version `1.1`. Producer-declared verification flags, material
+lists and signature locators are not independent verification. The canonical
+registry/evaluator keeps protected scorecard and operational-closeout attestation
+gates closed while the purpose-specific verifier is unappointed. Exact selected
+legacy `1.0` authority chains retain their original bytes, refs and events through
+the versioned replay recipe; they do not establish present protected permission.
+Canary admission preflights the required Runtime configuration and bearer before
+launch; actual authentication and deployment checks still run in Runtime.
 
 The package facade loads an export's defining owner when that name is requested.
 Existing exported objects, wildcard names and direct owner-module routes remain

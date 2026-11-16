@@ -380,6 +380,66 @@ def _experiment_outcomes(
     )
 
 
+def _assert_candidate_experiment_source_change_between_cuts_is_refused(
+    *,
+    control: ControlPlaneService,
+    origin: VerifiedCandidateExperimentOrigin,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Change the reopened real source after cut one and require cut-two refusal."""
+    from dataclasses import replace
+
+    import pytest
+
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+    original_resolve_source = AcquisitionRouteLoop._resolve_candidate_experiment_source
+    original_once = AcquisitionRouteLoopAuthoritySink._experiment_action_outcomes_once
+    source_reads: list[str] = []
+    completed_cuts: list[tuple[VerifiedAcquisitionActionOutcome, ...]] = []
+    source_changed_after_first_cut = False
+
+    with monkeypatch.context() as changed_between_cuts:
+
+        def return_changed_source(self, *, run_id: str, **kwargs: object):
+            nonlocal source_changed_after_first_cut
+            current = original_resolve_source(self, run_id=run_id, **kwargs)
+            source_reads.append(run_id)
+            if not source_changed_after_first_cut:
+                return current
+            changed_hash = "sha256:" + "0" * 64
+            if current.request_content_hash == changed_hash:
+                changed_hash = "sha256:" + "1" * 64
+            return replace(current, request_content_hash=changed_hash)
+
+        def record_completed_cut(owner, **kwargs):
+            nonlocal source_changed_after_first_cut
+            result = original_once(owner, **kwargs)
+            completed_cuts.append(result)
+            if len(completed_cuts) == 1:
+                source_changed_after_first_cut = True
+            return result
+
+        changed_between_cuts.setattr(
+            AcquisitionRouteLoop, "_resolve_candidate_experiment_source", return_changed_source
+        )
+        changed_between_cuts.setattr(
+            AcquisitionRouteLoopAuthoritySink,
+            "_experiment_action_outcomes_once",
+            record_completed_cut,
+        )
+        with pytest.raises(ValueError, match="candidate_experiment_source_changed"):
+            _experiment_outcomes(control=control, origin=origin)
+
+    if len(completed_cuts) != 1:
+        raise AssertionError("candidate experiment source change was not between history cuts")
+    if not source_reads or any(run_id != origin.run_id for run_id in source_reads):
+        raise AssertionError("candidate experiment lifecycle did not reopen its selected source")
+
+
 def _assert_candidate_experiment_phase_reuse_controls(
     *,
     control: ControlPlaneService,
@@ -414,27 +474,11 @@ def _assert_candidate_experiment_phase_reuse_controls(
             verified_origin=replace(origin, cell_id=origin.cell_id + "-foreign"),
         )
 
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
-
-    original_resolve_source = AcquisitionRouteLoop._resolve_candidate_experiment_source
-    source_reads: list[str] = []
-    with monkeypatch.context() as changed_source:
-
-        def return_changed_source(self, *, run_id: str):
-            current = original_resolve_source(self, run_id=run_id)
-            source_reads.append(run_id)
-            changed_hash = "sha256:" + "0" * 64
-            if current.request_content_hash == changed_hash:
-                changed_hash = "sha256:" + "1" * 64
-            return replace(current, request_content_hash=changed_hash)
-
-        changed_source.setattr(
-            AcquisitionRouteLoop, "_resolve_candidate_experiment_source", return_changed_source
-        )
-        with pytest.raises(ValueError, match="candidate_experiment_source_changed"):
-            _experiment_outcomes(control=control, origin=origin)
-    if source_reads != [origin.run_id]:
-        raise AssertionError("candidate experiment lifecycle source fence did not run exactly once")
+    _assert_candidate_experiment_source_change_between_cuts_is_refused(
+        control=control,
+        origin=origin,
+        monkeypatch=monkeypatch,
+    )
 
     store = control._control_store
     with monkeypatch.context() as changed_head:
@@ -1426,29 +1470,7 @@ def run_candidate_experiment_served_execution(
         if job_id != expected_job_id or response_body.get("authority_decision_ref") != decision_ref:
             raise AssertionError("candidate experiment execute response identity mismatch")
 
-        if not origin.candidate_terminal_history_chain:
-            from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
-
-            source_reads: list[str] = []
-            original_resolve_source = AcquisitionRouteLoop._resolve_candidate_experiment_source
-            with monkeypatch.context() as measured_source_reads:
-
-                def count_source_reads(self, *, run_id: str):
-                    source_reads.append(run_id)
-                    return original_resolve_source(self, run_id=run_id)
-
-                measured_source_reads.setattr(
-                    AcquisitionRouteLoop,
-                    "_resolve_candidate_experiment_source",
-                    count_source_reads,
-                )
-                request_outcomes = _experiment_outcomes(control=control, origin=origin)
-            if source_reads != [origin.run_id]:
-                raise AssertionError(
-                    "candidate experiment phase history repeated its same-read source proof"
-                )
-        else:
-            request_outcomes = _experiment_outcomes(control=control, origin=origin)
+        request_outcomes = _experiment_outcomes(control=control, origin=origin)
         if not request_outcomes or request_outcomes[-1].head.job_id != job_id:
             raise AssertionError("candidate experiment requested head not published")
         request_outcome = request_outcomes[-1]

@@ -37,6 +37,9 @@ from polisyos.runtime.http.services.control.production_data import (
     production_data_bundle_path,
 )
 from polisyos.runtime.quality.attestation import (
+    ATTESTATION_SCHEMA_VERSION,
+    DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION,
+    build_diagnostic_attestation_record,
     build_verified_attestation_record,
     serialize_attestation_record,
 )
@@ -323,14 +326,6 @@ def write_authority_artifact(
         state_after=state_after,
         manifest_canon=manifest_canon,
     )
-    expected_context, attestation_payload = _freeze_cas_writer_attestation_identity(
-        expected_context,
-        cas_ref_value=cas_ref_value,
-        manifest_ref=manifest_ref,
-        payload_sha256=payload_sha256,
-        schema=schema,
-        producer=producer,
-    )
     existing = _existing_authority_result_for_visible_views(
         store,
         cas_ref_value=cas_ref_value,
@@ -341,6 +336,14 @@ def write_authority_artifact(
     )
     if existing is not None:
         return existing
+    expected_context, attestation_payload = _freeze_cas_writer_attestation_identity(
+        expected_context,
+        cas_ref_value=cas_ref_value,
+        manifest_ref=manifest_ref,
+        payload_sha256=payload_sha256,
+        schema=schema,
+        producer=producer,
+    )
     _require_return_selected_profile_writer(store, "put_json")
     effective_attestation_ref = _persist_cas_writer_attestation(
         store,
@@ -514,6 +517,7 @@ def _persist_cas_writer_attestation(
             producer=producer,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            schema_version="1.1",
         ),
         CanonSpec(forbid_floats=False),
     )
@@ -534,8 +538,16 @@ def _cas_writer_attestation_payload(
     execution_profile: str,
     phase: str,
     generated_at: str,
+    schema_version: str = DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION,
 ) -> dict[str, Any]:
-    record = build_verified_attestation_record(
+    if schema_version not in {ATTESTATION_SCHEMA_VERSION, DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION}:
+        raise ValueError("unsupported CAS writer attestation format")
+    builder = (
+        build_verified_attestation_record
+        if schema_version == ATTESTATION_SCHEMA_VERSION
+        else build_diagnostic_attestation_record
+    )
+    record = builder(
         boundary_id="cas_writer",
         material_refs={
             "payload_bytes": f"sha256:{payload_sha256}",
@@ -566,13 +578,14 @@ def _cas_writer_attestation_write_options(
     producer: ProducerInfo,
     tenant_id: str,
     cell_id: str | None,
+    schema_version: str = "1.1",
 ) -> ArtifactWriteOptions:
     return ArtifactWriteOptions(
         kind=TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND,
         media_type="application/json",
         schema=SchemaInfo(
             name="polisyos.runtime.quality.AttestationRecord",
-            version="1.0",
+            version=schema_version,
         ),
         producer=producer,
         tenant_context=_tenant_context(tenant_id, cell_id),
@@ -587,6 +600,7 @@ def _freeze_cas_writer_attestation_identity(
     payload_sha256: str,
     schema: SchemaInfo,
     producer: ProducerInfo,
+    schema_version: str = DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION,
 ) -> tuple[AuthorityArtifactIdentityContext, dict[str, Any]]:
     payload = _cas_writer_attestation_payload(
         cas_ref_value=cas_ref_value,
@@ -599,6 +613,7 @@ def _freeze_cas_writer_attestation_identity(
         execution_profile=context.effective_execution_profile,
         phase=context.phase,
         generated_at=context.generated_at,
+        schema_version=schema_version,
     )
     spec = CanonSpec(forbid_floats=False)
     expected_ref = f"sha256:{content_hash(to_canonical_bytes(payload, spec))}"
@@ -625,14 +640,6 @@ def write_runtime_authority_artifact(
     payload_sha256 = content_hash(to_canonical_bytes(payload, canon_spec))
     cas_ref_value = f"sha256:{payload_sha256}"
     expected_context = _identity_context_from_fields(opts, authority_fields, canon_spec)
-    expected_context, _ = _freeze_cas_writer_attestation_identity(
-        expected_context,
-        cas_ref_value=cas_ref_value,
-        manifest_ref=f"cas-manifest://{cas_ref_value}",
-        payload_sha256=payload_sha256,
-        schema=_require_schema(opts),
-        producer=_require_producer(opts),
-    )
     existing = _existing_authority_result_for_visible_views(
         store,
         cas_ref_value=cas_ref_value,
@@ -955,12 +962,36 @@ def _existing_authority_result(
         ):
             raise ValueError("existing diagnostic event profile identity mismatch")
         diagnostic_event_verification = store.verify(diagnostic_event_ref)
-        if envelope.attestation_ref != expected_context.attestation_ref:
-            raise ValueError("existing authority identity mismatch")
-        attestation_id = core_artifacts.ArtifactID.model_validate(expected_context.attestation_ref)
+        attestation_id = core_artifacts.ArtifactID.model_validate(envelope.attestation_ref)
         attestation_verification = store.verify(attestation_id)
         attestation_manifest = read_core_manifest_profile(store, attestation_id)[0]
         attestation_payload = read_core_json_artifact(store, attestation_id).value
+        attestation_schema = attestation_manifest.artifact_schema
+        if (
+            attestation_schema is None
+            or attestation_schema.name != "polisyos.runtime.quality.AttestationRecord"
+            or not isinstance(attestation_payload, dict)
+        ):
+            raise ValueError("existing attestation format not established")
+        selected_format = {
+            ("1.0", ATTESTATION_SCHEMA_VERSION): ATTESTATION_SCHEMA_VERSION,
+            ("1.1", DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION): DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION,
+        }.get((attestation_schema.version, attestation_payload.get("schema_version")))
+        if selected_format is None:
+            raise ValueError("existing attestation format not supported")
+        # The retained selected chain chooses a recipe, never an authority band.
+        # Both recipes must reproduce the complete current invocation identity.
+        expected_context, expected_attestation_payload = _freeze_cas_writer_attestation_identity(
+            expected_context,
+            cas_ref_value=cas_ref_value,
+            manifest_ref=f"cas-manifest://{cas_ref_value}",
+            payload_sha256=payload_sha256,
+            schema=schema,
+            producer=producer,
+            schema_version=selected_format,
+        )
+        if envelope.attestation_ref != expected_context.attestation_ref:
+            raise ValueError("existing authority identity mismatch")
     except (TypeError, ValueError) as exc:
         raise ValueError("existing authority identity mismatch") from exc
     if (
@@ -985,19 +1016,6 @@ def _existing_authority_result(
         f"run/{expected_context.run_id}/job/{expected_context.job_id}/"
         f"phase/{expected_context.phase}/artifact/{cas_ref_value}"
     )
-    expected_attestation_payload = _cas_writer_attestation_payload(
-        cas_ref_value=cas_ref_value,
-        manifest_ref=f"cas-manifest://{cas_ref_value}",
-        payload_sha256=payload_sha256,
-        schema=schema,
-        producer=producer,
-        tenant_id=expected_context.tenant_id,
-        cell_id=expected_context.cell_id,
-        execution_profile=expected_context.effective_execution_profile,
-        phase=expected_context.phase,
-        generated_at=expected_context.generated_at,
-    )
-    attestation_schema = attestation_manifest.artifact_schema
     if (
         manifest.kind != opts.kind
         or manifest.media_type != opts.media_type
@@ -1052,7 +1070,7 @@ def _existing_authority_result(
         or attestation_manifest.kind != TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND
         or attestation_schema is None
         or attestation_schema.name != "polisyos.runtime.quality.AttestationRecord"
-        or attestation_schema.version != "1.0"
+        or attestation_schema.version not in {"1.0", "1.1"}
         or attestation_manifest.producer != producer
         or attestation_manifest.tenant_context != expected_tenant
         or attestation_manifest.canon

@@ -10,6 +10,12 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = "policyos.canary_matrix.v1"
+REQUIRED_ENV_VALUE = "<required>"
+
+RUNTIME_REQUIRED_ENV: dict[str, str] = {
+    "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN": REQUIRED_ENV_VALUE,
+    "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH": REQUIRED_ENV_VALUE,
+}
 
 DIMENSIONS: dict[str, list[str]] = {
     "profile": ["dev", "research", "governed", "production"],
@@ -39,7 +45,7 @@ PROVIDER_ENV: dict[str, dict[str, str]] = {
     "live_gonka_proxy": {
         "POLISYOS_LLM_GATEWAY_BASE_URL": "https://proxy.gonka.gg/v1",
         "POLISYOS_LLM_GATEWAY_PROVIDER": "gonka_proxy",
-        "POLISYOS_LLM_GATEWAY_API_KEY": "<required>",
+        "POLISYOS_LLM_GATEWAY_API_KEY": REQUIRED_ENV_VALUE,
     },
 }
 DATA_ROOT = {
@@ -350,6 +356,7 @@ def _runner(
     env = {
         **PROFILE_ENV[profile],
         **PROVIDER_ENV[provider],
+        **RUNTIME_REQUIRED_ENV,
     }
     if data == "canonical_production":
         env["POLISYOS_PRODUCTION_DATA_ROOT"] = DATA_ROOT[data]

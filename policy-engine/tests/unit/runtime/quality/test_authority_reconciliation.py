@@ -9,6 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import VerificationReport, artifact_manifest_profile_sha256
 from polisyos.core.artifacts._integrity_ops import verify_loaded_artifact
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
@@ -861,13 +862,45 @@ def test_runtime_authority_reader_rejects_same_schema_foreign_tenant_envelope_vi
                 return linked_payload_manifest
             return original_get_manifest(selector)
 
-    with pytest.raises(ValueError, match="existing authority identity mismatch"):
+    with pytest.raises(CanonicalProfileRefusalError) as graft:
         verify_runtime_authority_artifact_identity(
             _LinkedForeignManifestStore(),
             artifact_id=result.cas_ref.artifact_id,
             opts=opts,
             expected_context=result.identity_context,
         )
+    assert graft.value.code == "canon_profile_selected_manifest_changed"
+    registered_graft = artifact_store.put_bytes(
+        artifact_store.get_bytes(result.cas_ref),
+        replace(
+            opts,
+            canon=payload_manifest.canon,
+            tenant_context=payload_manifest.tenant_context,
+            same_input_closure=payload_manifest.same_input_closure,
+            authority=linked_authority,
+        ),
+        return_selected_profile=True,
+    )
+    assert registered_graft.artifact_id == result.cas_ref.artifact_id
+    assert registered_graft.manifest_profile_sha256 != result.cas_ref.manifest_profile_sha256
+    assert artifact_store.verify(registered_graft).ok
+    with pytest.raises(ValueError, match="existing authority identity mismatch") as foreign:
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=registered_graft,
+            opts=opts,
+            expected_context=result.identity_context,
+        )
+    assert str(foreign.value.__cause__) == "existing authority envelope manifest identity mismatch"
+    assert (
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=result.cas_ref,
+            opts=opts,
+            expected_context=result.identity_context,
+        ).cas_ref
+        == result.cas_ref
+    )
 
 
 def test_runtime_authority_writer_binds_effective_canon_to_fresh_reader(tmp_path) -> None:
@@ -1083,13 +1116,47 @@ def test_runtime_authority_reader_rejects_default_canon_envelope_view(
                 return linked_payload_manifest
             return original_get_manifest(selector)
 
-    with pytest.raises(ValueError, match="existing authority identity mismatch"):
+    with pytest.raises(CanonicalProfileRefusalError) as graft:
         verify_runtime_authority_artifact_identity(
             _LinkedDefaultCanonManifestStore(),
             artifact_id=result.cas_ref.artifact_id,
             opts=opts,
             expected_context=result.identity_context,
         )
+    assert graft.value.code == "canon_profile_selected_manifest_changed"
+    registered_graft = artifact_store.put_bytes(
+        artifact_store.get_bytes(result.cas_ref),
+        replace(
+            opts,
+            canon=payload_manifest.canon,
+            tenant_context=payload_manifest.tenant_context,
+            same_input_closure=payload_manifest.same_input_closure,
+            authority=forged_authority,
+        ),
+        return_selected_profile=True,
+    )
+    assert registered_graft.artifact_id == result.cas_ref.artifact_id
+    assert registered_graft.manifest_profile_sha256 != result.cas_ref.manifest_profile_sha256
+    assert artifact_store.verify(registered_graft).ok
+    with pytest.raises(ValueError, match="existing authority identity mismatch") as wrong_canon:
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=registered_graft,
+            opts=opts,
+            expected_context=result.identity_context,
+        )
+    assert (
+        str(wrong_canon.value.__cause__) == "existing authority envelope manifest identity mismatch"
+    )
+    assert (
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=result.cas_ref,
+            opts=opts,
+            expected_context=result.identity_context,
+        ).cas_ref
+        == result.cas_ref
+    )
 
 
 def test_runtime_authority_writer_links_cas_writer_attestation(tmp_path) -> None:
@@ -1116,10 +1183,12 @@ def test_runtime_authority_writer_links_cas_writer_attestation(tmp_path) -> None
     )
 
     assert attestation.trust_boundary_id == "cas_writer"
-    assert attestation.producer_identity.owner == "team-runtime"
+    assert attestation.producer_identity.owner == "not_established"
     assert attestation.environment_identity.tenant_id == "tenant-1"
-    assert attestation.consumer_verification == "verified"
-    assert attestation.tamper_check_status == "pass"
+    assert attestation.consumer_verification == "not_verified"
+    assert attestation.tamper_check_status == "not_checked"
+    assert attestation.signature_ref is None
+    assert attestation.isolation_status == "unknown"
 
 
 def test_runtime_authority_writer_rejects_existing_cas_without_durable_event(
@@ -1846,15 +1915,17 @@ def test_runtime_authority_reader_rejects_foreign_tenant_event_profile(tmp_path,
 
 
 def test_authority_envelope_rejects_explicit_null_runtime_event_profile() -> None:
-    from polisyos.core.security.quality_gates import (
-        SECURITY_ASSURANCE_ARTIFACT_KIND,
-        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
-    )
+    from polisyos.runtime.quality.report_registry import runtime_quality_report_owner_contract
 
+    owner = runtime_quality_report_owner_contract("security_assurance_report")
+    assert owner is not None
     envelope = {
-        "artifact_kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
-        "schema_name": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
-        "phase": "security_assurance_report",
+        "artifact_kind": owner.artifact_kind,
+        "schema_name": owner.schema_name,
+        "schema_version": owner.schema_version,
+        "phase": owner.phase,
+        "producer_component": owner.producer_component,
+        "producer_version": owner.producer_version,
         "validation_status": "pass",
         "runtime_event_manifest_profile_sha256": "sha256:" + "a" * 64,
     }
@@ -1862,6 +1933,16 @@ def test_authority_envelope_rejects_explicit_null_runtime_event_profile() -> Non
         "schema_version": "policyos.security_assurance_report.v1",
         "status": "pass",
     }
+    # A genuinely absent legacy field remains a bounded compatibility case.
+    assert (
+        authority_envelope_ownership_issues(
+            envelope=envelope,
+            report_key="security_assurance_report",
+            report=report_base,
+        )
+        == []
+    )
+
     for report in (
         {**report_base, "runtime_event_manifest_profile_sha256": None},
         {
@@ -1874,20 +1955,10 @@ def test_authority_envelope_rejects_explicit_null_runtime_event_profile() -> Non
             report_key="security_assurance_report",
             report=report,
         )
-        assert {issue["code"] for issue in issues} >= {
+        assert {issue["code"] for issue in issues} == {
             "authority_report_runtime_event_profile_invalid",
             "authority_envelope_runtime_event_profile_mismatch",
         }
-
-    # A genuinely absent legacy field remains a bounded compatibility case.
-    assert (
-        authority_envelope_ownership_issues(
-            envelope=envelope,
-            report_key="security_assurance_report",
-            report=report_base,
-        )
-        == []
-    )
 
 
 def test_runtime_authority_reader_rejects_same_byte_wrong_media_event_profile(

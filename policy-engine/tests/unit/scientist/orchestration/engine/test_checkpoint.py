@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from pydantic import BaseModel
 
+import polisyos.scientist.orchestration.engine.checkpoint as checkpoint_module
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
@@ -1102,6 +1103,7 @@ def test_checkpoint_hook_persists_original_execution_budget(tmp_path: Path) -> N
 def test_checkpoint_writer_and_resume_preserve_selected_profile(
     tmp_path: Path,
     async_writer: bool,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     store = FileSystemCAS(tmp_path)
     run_id = f"R_selected_profile_{async_writer}"
@@ -1130,6 +1132,16 @@ def test_checkpoint_writer_and_resume_preserve_selected_profile(
 
     selected_profile = created.checkpoint_ref.manifest_profile_sha256
     assert selected_profile is not None
+
+    owned_refs: list[ArtifactRef] = []
+    original_read = checkpoint_module._load_checkpoint_read
+
+    def capture_owned_ref(store_arg: Any, ref_arg: ArtifactRef) -> Any:
+        read = original_read(store_arg, ref_arg)
+        owned_refs.append(read.artifact_ref)
+        return read
+
+    monkeypatch.setattr(checkpoint_module, "_load_checkpoint_read", capture_owned_ref)
     run_dir = tmp_path / "runs" / run_id
     bare_legacy_ref = created.checkpoint_ref.model_copy(update={"manifest_profile_sha256": None})
     update_checkpoint_head(
@@ -1145,6 +1157,8 @@ def test_checkpoint_writer_and_resume_preserve_selected_profile(
     resolved = resolve_latest_checkpoint(store, run_id, run_dir=run_dir)
     assert resolved is not None
     resolved_head, checkpoint = resolved
+    assert owned_refs
+    assert resolved_head.checkpoint_ref is owned_refs[0]
     assert resolved_head.checkpoint_ref.manifest_profile_sha256 == selected_profile
     assert checkpoint.metadata.run_id == run_id
     assert checkpoint.state is not None

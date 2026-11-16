@@ -2476,7 +2476,7 @@ def test_inline_runtime_quality_projection_cannot_override_selected_cas_content(
     assert scorecard["quality_status"] == "fail"
 
 
-def test_generated_attestations_replace_synthetic_progress_records(tmp_path) -> None:
+def test_generated_diagnostics_preserve_existing_progress_records(tmp_path) -> None:
     job_payload = _completed_quality_job_payload()
     details = job_payload["progress"]["details"]  # type: ignore[index]
     assert isinstance(details, dict)
@@ -2542,8 +2542,8 @@ def test_generated_attestations_replace_synthetic_progress_records(tmp_path) -> 
         item for item in attestations if item["trust_boundary_id"] == "readiness_aggregator"
     )
 
-    assert readiness["attestation_id"] != "att-synthetic-readiness"
-    assert "attestation://" not in json.dumps(readiness, sort_keys=True)
+    assert readiness["attestation_id"] == "att-synthetic-readiness"
+    assert readiness == details["trust_boundary_attestations"][0]
 
 
 def test_request_payload_cannot_inject_runtime_quality_refs_for_serious_bundle(

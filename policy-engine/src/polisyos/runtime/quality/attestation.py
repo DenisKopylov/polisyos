@@ -9,9 +9,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-ATTESTATION_SCHEMA_VERSION = "polisyos.runtime.attestation.v1"
+ATTESTATION_SCHEMA_VERSION: Literal["polisyos.runtime.attestation.v1"] = (
+    "polisyos.runtime.attestation.v1"
+)
+DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION: Literal["polisyos.runtime.attestation.v1.1"] = (
+    "polisyos.runtime.attestation.v1.1"
+)
 DEFAULT_TRUST_BOUNDARY_REGISTRY = (
     Path(__file__).resolve().parents[4]
     / "architecture"
@@ -64,6 +69,7 @@ AttestationStatus = Literal[
     "synthetic_material_ref",
     "material_mismatch",
     "product_mismatch",
+    "not_established",
 ]
 
 
@@ -121,11 +127,13 @@ class EnvironmentIdentity(BaseModel):
 
 
 class AttestationRecord(BaseModel):
-    """Authority-bearing attestation for a trust-boundary step."""
+    """A boundary declaration; verification authority is established separately."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = ATTESTATION_SCHEMA_VERSION
+    schema_version: Literal[
+        "polisyos.runtime.attestation.v1", "polisyos.runtime.attestation.v1.1"
+    ] = ATTESTATION_SCHEMA_VERSION
     attestation_id: str = Field(min_length=1)
     trust_boundary_id: str = Field(min_length=1)
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -143,6 +151,19 @@ class AttestationRecord(BaseModel):
     signature_ref: str | None = Field(default=None, min_length=1)
     evidence_ref: str | None = Field(default=None, min_length=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _diagnostic_profile_cannot_claim_verification(self) -> AttestationRecord:
+        if self.schema_version == DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION and (
+            self.consumer_verification != "not_verified"
+            or self.tamper_check_status != "not_checked"
+            or self.isolation_status != "unknown"
+            or self.signature_ref is not None
+            or self.observed_materials
+            or self.observed_products
+        ):
+            raise ValueError("diagnostic_attestation_cannot_claim_verification")
+        return self
 
 
 class TrustBoundary(BaseModel):
@@ -195,6 +216,7 @@ class AttestationRequirementResult:
     next_action: str | None = None
     attestation_id: str | None = None
     attestation_ref: str | None = None
+    verifier_appointment: Literal["unappointed"] = "unappointed"
 
     def assert_production_closeout_satisfied(self) -> None:
         if not self.production_closeout_satisfied:
@@ -280,8 +302,68 @@ def build_verified_attestation_record(
     metadata: Mapping[str, Any] | None = None,
     registry: TrustBoundaryRegistry | None = None,
 ) -> AttestationRecord:
-    """Build a verified attestation record from one registry boundary declaration."""
+    """Reconstruct legacy producer declarations; this does not verify authority.
 
+    Preserve this recipe for historical bytes and explicit diagnostic fixtures.
+    Fresh Runtime producers use ``build_diagnostic_attestation_record``.
+    """
+    return _build_registry_attestation_record(
+        boundary_id=boundary_id,
+        material_refs=material_refs,
+        product_refs=product_refs,
+        attestation_id=attestation_id,
+        evidence_ref=evidence_ref,
+        signature_ref=signature_ref,
+        producer_component=producer_component,
+        producer_version=producer_version,
+        environment_id=environment_id,
+        execution_profile=execution_profile,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        runner_id=runner_id,
+        functionary_id=functionary_id,
+        service_account=service_account,
+        isolation_status=isolation_status,
+        service_generated=service_generated,
+        consumer_verification=consumer_verification,
+        tamper_check_status=tamper_check_status,
+        generated_at=generated_at,
+        allow_synthetic=allow_synthetic,
+        metadata=metadata,
+        registry=registry,
+    )
+
+
+def _build_registry_attestation_record(
+    *,
+    boundary_id: str,
+    material_refs: Mapping[str, str] | None = None,
+    product_refs: Mapping[str, str] | None = None,
+    attestation_id: str | None = None,
+    evidence_ref: str | None = None,
+    signature_ref: str | None = None,
+    producer_component: str | None = None,
+    producer_version: str = "2026.05.15+hds-phase4.6",
+    environment_id: str = "prod-cell-a",
+    execution_profile: str = "production",
+    tenant_id: str = "tenant-1",
+    cell_id: str | None = "cell-a",
+    runner_id: str | None = "runtime-worker-1",
+    functionary_id: str | None = None,
+    service_account: str | None = None,
+    isolation_status: IsolationStatus | None = None,
+    service_generated: bool = True,
+    consumer_verification: ConsumerVerificationStatus = "verified",
+    tamper_check_status: TamperCheckStatus = "pass",
+    generated_at: datetime | None = None,
+    allow_synthetic: bool = False,
+    metadata: Mapping[str, Any] | None = None,
+    registry: TrustBoundaryRegistry | None = None,
+    schema_version: str = ATTESTATION_SCHEMA_VERSION,
+) -> AttestationRecord:
+    """Apply one explicit serialization recipe to registry-owned requirements."""
+
+    diagnostic = schema_version == DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION
     loaded = registry or load_trust_boundary_registry()
     boundary = loaded.require(boundary_id)
     material_map = dict(material_refs or {})
@@ -303,26 +385,35 @@ def build_verified_attestation_record(
         "type": "trust_boundary_attestation",
         "phase": boundary.boundary_id,
         "blocker_status": "blocking" if boundary.production_closeout_required else "diagnostic",
-        "authority_role": "producer_authority",
+        "authority_role": "diagnostic_only" if diagnostic else "producer_authority",
         **dict(metadata or {}),
     }
+    if diagnostic:
+        merged_metadata["predicate_class"] = "not_established"
+        merged_metadata["authority_role"] = "diagnostic_only"
     return AttestationRecord(
+        schema_version=schema_version,
         attestation_id=attestation_id or f"att-{boundary_id}",
         trust_boundary_id=boundary.boundary_id,
         generated_at=generated_at or datetime.now(UTC),
         expected_materials=expected_materials,
-        observed_materials=list(expected_materials),
+        observed_materials=[] if diagnostic else list(expected_materials),
         expected_products=expected_products,
-        observed_products=list(expected_products),
+        observed_products=[] if diagnostic else list(expected_products),
         functionary=FunctionaryIdentity(
-            functionary_id=functionary_id or f"{boundary.functionary}@{environment_id}",
+            functionary_id=functionary_id
+            or (
+                f"unappointed:{boundary.functionary}"
+                if diagnostic
+                else f"{boundary.functionary}@{environment_id}"
+            ),
             role=boundary.functionary,
-            service_account=service_account or boundary.functionary,
+            service_account=None if diagnostic else service_account or boundary.functionary,
         ),
         producer_identity=ProducerIdentity(
             component=producer_component or f"polisyos.{boundary.boundary_id}",
             version=producer_version,
-            owner=boundary.producer_owner,
+            owner="not_established" if diagnostic else boundary.producer_owner,
         ),
         environment_identity=EnvironmentIdentity(
             environment_id=environment_id,
@@ -332,18 +423,48 @@ def build_verified_attestation_record(
             runner_id=runner_id,
         ),
         isolation_status=(
-            isolation_status
+            "unknown"
+            if diagnostic
+            else isolation_status
             if isolation_status is not None
             else ("isolated" if boundary.isolation_required else "shared")
         ),
         service_generated=service_generated,
-        consumer_verification=consumer_verification,
-        tamper_check_status=tamper_check_status,
-        signature_ref=signature_ref or f"signature://{boundary.boundary_id}",
+        consumer_verification="not_verified" if diagnostic else consumer_verification,
+        tamper_check_status="not_checked" if diagnostic else tamper_check_status,
+        signature_ref=None
+        if diagnostic
+        else signature_ref or f"signature://{boundary.boundary_id}",
         evidence_ref=(
             evidence_ref or f"quality_evidence/attestation_records.json#/{boundary.boundary_id}"
         ),
         metadata=merged_metadata,
+    )
+
+
+def build_diagnostic_attestation_record(
+    *,
+    boundary_id: str,
+    material_refs: Mapping[str, str] | None = None,
+    product_refs: Mapping[str, str] | None = None,
+    registry: TrustBoundaryRegistry | None = None,
+    **record_kwargs: Any,
+) -> AttestationRecord:
+    """Declare required boundary inputs without inventing verifier observations."""
+    options = dict(record_kwargs)
+    options.setdefault("environment_id", "not_established")
+    options.setdefault("execution_profile", "not_established")
+    options.setdefault("tenant_id", "not_established")
+    options.setdefault("cell_id", None)
+    options.setdefault("runner_id", None)
+    options.setdefault("producer_component", "polisyos.runtime.quality.attestation")
+    options["schema_version"] = DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION
+    return _build_registry_attestation_record(
+        boundary_id=boundary_id,
+        material_refs=material_refs,
+        product_refs=product_refs,
+        registry=registry,
+        **options,
     )
 
 
@@ -355,14 +476,14 @@ def build_required_production_attestations(
     registry: TrustBoundaryRegistry | None = None,
     **record_kwargs: Any,
 ) -> list[AttestationRecord]:
-    """Build verified records for every attested production closeout boundary."""
+    """Declare requirements for each boundary without granting production authority."""
 
     loaded = registry or load_trust_boundary_registry()
     records: list[AttestationRecord] = []
     evidence_ref_map = dict(evidence_refs or {})
     for boundary in iter_required_production_attestation_boundaries(loaded):
         records.append(
-            build_verified_attestation_record(
+            build_diagnostic_attestation_record(
                 boundary_id=boundary.boundary_id,
                 material_refs=material_refs,
                 product_refs=product_refs,
@@ -453,13 +574,16 @@ def evaluate_trust_boundary_attestation(
     first_failure: AttestationRequirementResult | None = None
     for record in candidates:
         status = _record_failure_status(record, boundary)
-        if status == "verified":
+        if status in {"verified", "not_established"}:
             return _result(
                 boundary,
-                status="verified",
-                production_closeout_satisfied=True,
-                failure_code="attestation_verified",
-                message=f"Trust boundary {boundary_id} has verified attestation.",
+                status="not_established",
+                production_closeout_satisfied=False,
+                failure_code="attestation_verifier_not_appointed",
+                message=(
+                    f"Trust boundary {boundary_id} has a producer declaration, but its "
+                    "purpose-specific verification authority is not appointed."
+                ),
                 record=record,
             )
         failure = _result(
@@ -493,6 +617,18 @@ def _record_failure_status(
     record: AttestationRecord,
     boundary: TrustBoundary,
 ) -> AttestationStatus:
+    # The registry owns the complete denominator. A caller's empty or partial
+    # expected inventory cannot make its own observed inventory sufficient.
+    if not _complete_material_keys(record.expected_materials, boundary.expected_material_kinds):
+        return "material_mismatch"
+    if not _complete_material_keys(record.expected_products, boundary.expected_product_kinds):
+        return "product_mismatch"
+    if record.schema_version == DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION:
+        return "not_established"
+    if not _complete_material_keys(record.observed_materials, boundary.expected_material_kinds):
+        return "material_mismatch"
+    if not _complete_material_keys(record.observed_products, boundary.expected_product_kinds):
+        return "product_mismatch"
     if record.consumer_verification != "verified":
         return "consumer_verification_failed"
     if record.tamper_check_status != "pass":
@@ -522,6 +658,11 @@ def _record_failure_status(
     ):
         return "product_mismatch"
     return "verified"
+
+
+def _complete_material_keys(materials: list[AttestedMaterial], kinds: list[str]) -> bool:
+    keys = [material.key for material in materials]
+    return len(keys) == len(set(keys)) == len(kinds) and set(keys) == set(kinds)
 
 
 def _observed_materials_match(
@@ -603,11 +744,13 @@ def _failure_code(status: AttestationStatus) -> str:
         "synthetic_material_ref": "attestation_synthetic_material_ref",
         "material_mismatch": "attestation_material_mismatch",
         "product_mismatch": "attestation_product_mismatch",
+        "not_established": "attestation_verifier_not_appointed",
     }.get(status, "attestation_failed")
 
 
 __all__ = [
     "ATTESTATION_SCHEMA_VERSION",
+    "DIAGNOSTIC_ATTESTATION_SCHEMA_VERSION",
     "REQUIRED_TRUST_BOUNDARY_IDS",
     "AttestationError",
     "AttestationRecord",
@@ -621,6 +764,7 @@ __all__ = [
     "TrustBoundaryRegistry",
     "TrustBoundaryRegistryError",
     "build_attestation_record",
+    "build_diagnostic_attestation_record",
     "build_required_production_attestations",
     "build_verified_attestation_record",
     "deserialize_attestation_record",

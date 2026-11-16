@@ -2696,9 +2696,9 @@ def resolve_latest_checkpoint(
             "checkpoint metadata mismatch between checkpoint_head.json and artifact: "
             + ", ".join(mismatches)
         )
-    head = head.model_copy(
-        update={"checkpoint_ref": checkpoint_read.artifact_ref.model_copy(deep=True)}
-    )
+    # CoreOwnedModelRead already detached this selected ref; transfer its ownership
+    # to the returned head instead of deep-copying the same ref again.
+    head = head.model_copy(update={"checkpoint_ref": checkpoint_read.artifact_ref})
     _reconcile_checkpoint_history(run_dir, head=head)
     materialized_state = materialize_checkpoint_state(
         store,

@@ -1578,26 +1578,20 @@ def _payload_with_trust_boundary_attestations(
         merged = [existing]
     else:
         merged = []
-    merged_by_id = {
-        str(item.get("trust_boundary_id")): item
+    existing_ids = {
+        item["trust_boundary_id"]
         for item in merged
         if isinstance(item.get("trust_boundary_id"), str)
     }
-    ordered_ids = list(merged_by_id)
     for attestation in attestations:
         boundary_id = attestation.get("trust_boundary_id")
         if not isinstance(boundary_id, str) or not boundary_id.strip():
             continue
-        existing_record = merged_by_id.get(boundary_id)
-        if existing_record is None:
-            ordered_ids.append(boundary_id)
-            merged_by_id[boundary_id] = attestation
-            continue
-        if _attestation_record_has_synthetic_refs(
-            existing_record
-        ) and not _attestation_record_has_synthetic_refs(attestation):
-            merged_by_id[boundary_id] = attestation
-    merged = [merged_by_id[boundary_id] for boundary_id in ordered_ids]
+        # Packaging cannot select, replace or upgrade another producer's
+        # records by a boundary label or by the shape of its references.
+        if boundary_id not in existing_ids:
+            merged.append(attestation)
+            existing_ids.add(boundary_id)
     details["trust_boundary_attestations"] = merged
     return enriched
 
@@ -1636,25 +1630,6 @@ def _payload_with_authoritative_progress_state(
         enriched["progress"] = progress
     progress["state"] = state
     return enriched
-
-
-def _attestation_record_has_synthetic_refs(record: dict[str, Any]) -> bool:
-    for key in (
-        "expected_materials",
-        "observed_materials",
-        "expected_products",
-        "observed_products",
-    ):
-        values = record.get(key)
-        if not isinstance(values, list):
-            continue
-        for item in values:
-            if not isinstance(item, dict):
-                continue
-            ref = item.get("ref")
-            if isinstance(ref, str) and ref.startswith("attestation://"):
-                return True
-    return False
 
 
 def _generated_phase_barrier_records(
@@ -2541,6 +2516,7 @@ def _generated_trust_boundary_attestations(
     records = build_required_production_attestations(
         material_refs=material_refs,
         product_refs=product_refs,
+        producer_component="tools.ops_runners.runtime.canary_evidence",
         evidence_refs={
             boundary_id: f"quality_evidence/attestation_records.json#/{boundary_id}"
             for boundary_id in (
@@ -3716,21 +3692,26 @@ def _with_wave4_i4_closeout_reader_records(
         producer="polisyos.scientist.cross_graph.conflict_materializer",
         runtime_event_ref=f"event://policy-design-case/{case_id}/conflict-materialization",
     )
-    enriched["attestation"] = _wave4_i4_runtime_reader_record(
-        {
-            "schema_version": "policyos.runtime.attestation.v1",
-            "status": "pass" if trust_boundary_attestation_records else "incomplete",
-            "attestation_record_count": len(trust_boundary_attestation_records),
-            "attestation_refs": [
-                str(row.get("attestation_id") or row.get("id") or index)
-                for index, row in enumerate(trust_boundary_attestation_records)
-                if isinstance(row, dict)
-            ],
-            "issues": [],
-        },
-        producer="polisyos.runtime.quality.attestation",
-        runtime_event_ref=f"event://policy-design-case/{case_id}/attestation",
-    )
+    enriched["attestation"] = {
+        "schema_version": "policyos.runtime.attestation.v1",
+        "status": "not_established",
+        "predicate_class": "not_established",
+        "authority_role": "diagnostic_only",
+        "capability_reality_state": "verification_missing",
+        "attestation_record_count": len(trust_boundary_attestation_records),
+        "attestation_refs": [
+            str(row.get("attestation_id") or row.get("id") or index)
+            for index, row in enumerate(trust_boundary_attestation_records)
+            if isinstance(row, dict)
+        ],
+        "issues": [
+            {
+                "code": "attestation_verifier_not_appointed",
+                "severity": "incomplete",
+                "message": "Boundary declarations do not establish a purpose-specific verifier.",
+            }
+        ],
+    }
     publication_issue = _wave4_i4_publication_source_missing_issue()
     enriched["audit_verifier_ingestion"] = _wave4_i4_not_established_record(
         {

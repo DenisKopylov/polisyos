@@ -150,6 +150,30 @@ def test_invocation_only_diagnostic_never_invents_a_usd_settlement(tmp_path):
         observer.admit_diagnostic_invocation_only()
 
 
+def test_observer_rejects_in_place_run_limit_mutation(tmp_path):
+    middleware, binding, state = _owner(tmp_path, cap="0")
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="diagnostic-limit-drift", total_units=2, protected_units=2
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=BudgetLedgerInvocationProfile.from_policy(binding, policy),
+        invocation_purpose="diagnostic",
+    )
+
+    original_limit = state.limits["run"]
+    assert set(BudgetLimit.model_fields) == {"key", "max_usd", "soft_limit_usd"}
+    assert BudgetLimit.__private_attributes__ == {}
+    assert type(original_limit.key) is str
+    assert type(original_limit.max_usd) is Decimal
+    original_limit.max_usd = Decimal("1")
+
+    with pytest.raises(ProducerBudgetSourceError, match="run_limit_changed"):
+        observer.admit_diagnostic_invocation_only()
+
+
 @pytest.mark.parametrize("case", ["standard", "positive_cap", "standard_pool", "zero_quota"])
 def test_invocation_only_diagnostic_refuses_inapplicable_profiles(tmp_path, case):
     middleware, binding, state = _owner(tmp_path, cap="1" if case == "positive_cap" else "0")

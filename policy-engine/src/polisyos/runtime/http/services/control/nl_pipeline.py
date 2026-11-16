@@ -5981,6 +5981,10 @@ class NaturalLanguageRunMixin:
                         for record in build_required_production_attestations(
                             material_refs=material_refs,
                             product_refs=product_refs,
+                            producer_component="polisyos.runtime.http.services.control.nl_pipeline",
+                            execution_profile=_runtime_quality_profile(),
+                            tenant_id=_runtime_quality_identity_value("tenant_id"),
+                            cell_id=_runtime_quality_identity_value("cell_id"),
                             metadata={
                                 "run_id": str(run_id),
                                 "job_id": _runtime_quality_job_id(),
@@ -6364,7 +6368,6 @@ class NaturalLanguageRunMixin:
                     read_core_manifest_profile,
                 )
                 from polisyos.runtime.http.services.control.artifacts import (
-                    _freeze_cas_writer_attestation_identity,
                     _identity_context_from_fields,
                 )
                 from polisyos.runtime.quality.authority import (
@@ -6671,14 +6674,8 @@ class NaturalLanguageRunMixin:
                 )
                 if expected_write_options.schema is None or expected_write_options.producer is None:
                     raise RuntimeError("runtime_quality_publication_reuse_owner_not_established")
-                expected_identity_context, _ = _freeze_cas_writer_attestation_identity(
-                    expected_identity_context,
-                    cas_ref_value=selected_id,
-                    manifest_ref=f"cas-manifest://{selected_id}",
-                    payload_sha256=selected_ref.artifact_id.hex,
-                    schema=expected_write_options.schema,
-                    producer=expected_write_options.producer,
-                )
+                # The shared identity owner resolves the exact retained
+                # attestation format before reproducing this invocation.
                 admission_issues = runtime_quality_report_cas_admission_issues(
                     artifact_store=store,
                     selected_ref=selected_ref,

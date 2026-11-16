@@ -85,9 +85,12 @@ def _write_source_tree(repo_root: Path) -> None:
         path.write_text("def marker() -> None:\n    return None\n", encoding="utf-8")
 
 
-def _write_complete_evidence(repo_root: Path) -> tuple[Path, Path]:
+def _write_complete_evidence(
+    repo_root: Path, *, omitted_junit_cases: set[str] | None = None
+) -> tuple[Path, Path]:
     from polisyos.scientist.validation import reliability_scorecard
 
+    omitted_cases = omitted_junit_cases or set()
     benchmark = repo_root / "bench.json"
     junit = repo_root / "cases.xml"
     _write_benchmark_json(
@@ -98,19 +101,17 @@ def _write_complete_evidence(repo_root: Path) -> tuple[Path, Path]:
             for case in cases
         ],
     )
-    _write_junit_xml(
-        junit,
-        [
-            case
-            for group in (
-                check_scientist_phase1_gate.PHASE1_TEST_CASES,
-                reliability_scorecard.SCENARIO_EVIDENCE_CASES,
-                reliability_scorecard.OPERATIONAL_EVIDENCE_CASES,
-            )
-            for cases in group.values()
-            for case in cases
-        ],
-    )
+    cases = [
+        case
+        for group in (
+            check_scientist_phase1_gate.PHASE1_TEST_CASES,
+            reliability_scorecard.SCENARIO_EVIDENCE_CASES,
+            reliability_scorecard.OPERATIONAL_EVIDENCE_CASES,
+        )
+        for case_names in group.values()
+        for case in case_names
+    ]
+    _write_junit_xml(junit, [case for case in cases if case not in omitted_cases])
     return benchmark, junit
 
 
@@ -202,8 +203,96 @@ def test_scientist_phase1_gate_builds_passing_json_report(tmp_path: Path) -> Non
     assert payload["assessment_id"] == "scientist_phase1_gate"
     assert payload["passes_all"] is True
     assert payload["reliability_scorecard"]["passes_all"] is True
-    assert payload["ratchet_results"]["critical_broad_exception_targets_clean"] is True
-    assert payload["ratchet_results"]["no_explicit_model_copy_deep_true"] is True
+    assert payload["ratchet_results"] == {
+        "critical_broad_exception_targets_clean": True
+    }
+    assert payload["deep_copy_scan"]["verdict_role"] == "non_blocking_diagnostic"
+    assert payload["deep_copy_scan"]["analysis_complete"] is True
+    assert payload["deep_copy_scan"]["findings"] == []
+
+
+def test_scientist_phase1_gate_fails_when_required_mutation_case_is_removed_with_empty_copy_scan(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    output_json = repo_root / "phase1-gate.json"
+    repo_root.mkdir()
+    _write_source_tree(repo_root)
+    benchmark_json, junit_xml = _write_complete_evidence(
+        repo_root,
+        omitted_junit_cases={"test_ledger_mutation_uses_copy_on_write_budget_state"},
+    )
+
+    exit_code = check_scientist_phase1_gate.main(
+        [
+            "--benchmark-json",
+            str(benchmark_json),
+            "--junit-xml",
+            str(junit_xml),
+            "--repo-root",
+            str(repo_root),
+            "--output",
+            str(output_json),
+            "--output-format",
+            "json",
+            "--require-passing",
+        ]
+    )
+    payload = json.loads(output_json.read_text(encoding="utf-8"))
+
+    assert exit_code == 1
+    assert payload["passes_all"] is False
+    assert payload["reliability_scorecard"]["passes_all"] is True
+    assert payload["phase1_test_results"]["branch_state_tranche"] is False
+    assert payload["deep_copy_scan"]["findings"] == []
+    assert "no_explicit_model_copy_deep_true" not in payload["ratchet_results"]
+    assert (
+        "branch_state_tranche:test_ledger_mutation_uses_copy_on_write_budget_state"
+        in payload["notes"]
+    )
+
+
+def test_scientist_phase1_copy_scan_errors_remain_nonblocking_and_reported(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    output_json = repo_root / "phase1-gate.json"
+    repo_root.mkdir()
+    _write_source_tree(repo_root)
+    source = repo_root / "src/polisyos/scientist/unparseable.py"
+    source.write_text("def malformed(:\n", encoding="utf-8")
+    benchmark_json, junit_xml = _write_complete_evidence(repo_root)
+
+    exit_code = check_scientist_phase1_gate.main(
+        [
+            "--benchmark-json",
+            str(benchmark_json),
+            "--junit-xml",
+            str(junit_xml),
+            "--repo-root",
+            str(repo_root),
+            "--output",
+            str(output_json),
+            "--output-format",
+            "json",
+            "--require-passing",
+        ]
+    )
+    payload = json.loads(output_json.read_text(encoding="utf-8"))
+
+    assert exit_code == 0
+    assert payload["passes_all"] is True
+    assert payload["deep_copy_scan"]["analysis_complete"] is False
+    scan_errors = payload["deep_copy_scan"]["scan_errors"]
+    assert len(scan_errors) == 1
+    assert scan_errors[0]["path"] == "src/polisyos/scientist/unparseable.py"
+    assert scan_errors[0]["error_class"] == "SyntaxError"
+    assert any(
+        item.startswith("deep_copy_diagnostic_incomplete:")
+        for item in payload["measurement"]["unresolved_by_construction"]
+    )
+    assert payload["measurement"]["denominator"]["deep_copy_enumeration_completed"] is True
+    assert payload["measurement"]["denominator"]["deep_copy_analysis_completed"] is False
 
 
 def test_scientist_phase1_gate_matches_parametrized_cases_for_required_names(
@@ -354,6 +443,8 @@ def test_scientist_phase1_copy_scan_uses_ast_and_reports_unresolved_calls(tmp_pa
         encoding="utf-8",
     )
     scan = check_scientist_phase1_gate._scan_for_explicit_deep_copy_calls(tmp_path, set())
+    assert scan["verdict_role"] == "non_blocking_diagnostic"
+    assert scan["analysis_complete"] is True
     assert scan["findings"] == [
         "src/polisyos/scientist/candidate.py:3",
         "src/polisyos/scientist/candidate.py:4",
@@ -378,6 +469,7 @@ def test_scientist_phase1_absent_or_malformed_source_is_unrun(tmp_path: Path) ->
         str(junit),
         "--output",
         str(output),
+        "--require-passing",
     ]
     assert check_scientist_phase1_gate.main(args) == 2
     payload = json.loads(output.read_text())
@@ -385,8 +477,15 @@ def test_scientist_phase1_absent_or_malformed_source_is_unrun(tmp_path: Path) ->
     assert payload["complete_verdict"] is False
     _write_source_tree(tmp_path)
     (tmp_path / "src/polisyos/scientist/candidate.py").write_text("def broken(:\n")
-    assert check_scientist_phase1_gate.main(args) == 2
-    assert json.loads(output.read_text())["status"] == "UNRUN"
+    assert check_scientist_phase1_gate.main(args) == 1
+    payload = json.loads(output.read_text())
+    assert payload["status"] == "FAILED"
+    assert payload["complete_verdict"] is True
+    assert payload["deep_copy_scan"]["analysis_complete"] is False
+    assert any(
+        item.startswith("deep_copy_diagnostic_incomplete:")
+        for item in payload["measurement"]["unresolved_by_construction"]
+    )
 
 
 def test_scientist_phase1_broad_handler_scan_ignores_comments_and_includes_tuples(
@@ -603,6 +702,7 @@ def test_phase1_caller_discloses_actual_reads_and_preserves_failure_predicates(
     assert outside.name not in actual_inputs
     assert excluded_name not in actual_inputs
     assert measurement["complete_verdict"] is True
+    assert measurement["denominator"]["deep_copy_analysis_completed"] is True
     assert measurement["selector"]["excluded_paths"] == sorted(
         check_scientist_phase1_gate.DEFAULT_DEEP_COPY_ALLOWLIST
     )
@@ -632,10 +732,15 @@ def test_phase1_caller_discloses_actual_reads_and_preserves_failure_predicates(
     }
     assert before.isdisjoint(after)
 
-    # The original deep-copy guard still fails through the real caller too.
+    # The syntax inventory remains visible through the real caller but does not gate closure.
     source.write_text("value = candidate.model_copy(deep=True)\n")
-    assert check_scientist_phase1_gate.main(args) == 1
-    assert f"deep_copy:{source_name}:1" in output.read_text()
+    assert check_scientist_phase1_gate.main(args) == 0
+    changed = _output_measurement(output, output_format)
+    diagnostic = changed["deep_copy_inventory_diagnostic"]
+    assert diagnostic["verdict_role"] == "non_blocking_diagnostic"
+    assert diagnostic["findings"] == [f"{source_name}:1"]
+    assert diagnostic["analysis_complete"] is True
+    assert f"deep_copy:{source_name}:1" not in output.read_text()
 
     source.unlink()
     source.mkdir()

@@ -669,6 +669,183 @@ void [baseStillAllowsOmission, missingRequiredSibling, suppliedRequiredSibling];
   );
 });
 
+test("ref object overlays retain selected profiles without narrowing legacy refs", async () => {
+  const selectedRef = (kind) => ({
+    $ref: "#/components/schemas/ArtifactRef",
+    properties: {
+      kind: { const: kind },
+      media_type: { const: "application/json" },
+      manifest_profile_sha256: {
+        type: "string",
+        pattern: "^sha256:[0-9a-f]{64}$",
+      },
+    },
+    required: ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+  });
+  const document = {
+    openapi: "3.1.0",
+    info: { title: "Selected ref overlays", version: "1" },
+    paths: {
+      "/recovery": {
+        post: {
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Recovery" },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Recorded locator",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Recovery" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        ArtifactRef: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            artifact_id: { type: "string" },
+            kind: { type: "string" },
+            media_type: { type: "string" },
+            manifest_profile_sha256: {
+              anyOf: [{ type: "string" }, { type: "null" }],
+            },
+          },
+          required: ["artifact_id", "kind", "media_type"],
+        },
+        Recovery: {
+          type: "object",
+          properties: {
+            failed_attempt: { type: "integer" },
+            head_ref: selectedRef(
+              "runtime_quality.acquisition_route_phase_receipt",
+            ),
+          },
+          required: ["failed_attempt", "head_ref"],
+        },
+        Observation: {
+          type: "object",
+          properties: {
+            observation_origin: {
+              enum: ["ordinary_completion", "historical_reconciliation"],
+            },
+            reconciliation_ref: {
+              anyOf: [
+                selectedRef(
+                  "runtime_quality.generic_model_input_initial_reconciliation",
+                ),
+                { type: "null" },
+              ],
+            },
+          },
+        },
+      },
+    },
+  };
+  const consumer = `
+type RecoveryInput = paths["/recovery"]["post"]["requestBody"]["content"]["application/json"];
+type RecoveryOutput = components["schemas"]["Recovery"];
+type Observation = components["schemas"]["Observation"];
+type ReconciliationRef = NonNullable<Observation["reconciliation_ref"]>;
+const selectedHead = {artifact_id: "sha256:a", kind: "runtime_quality.acquisition_route_phase_receipt", media_type: "application/json", manifest_profile_sha256: "sha256:b"} as const;
+const input: RecoveryInput = {failed_attempt: 1, head_ref: selectedHead};
+const output: RecoveryOutput = input;
+const omitted: Observation = {};
+const nullable: Observation = {reconciliation_ref: null};
+const historical: Observation = {observation_origin: "historical_reconciliation", reconciliation_ref: {artifact_id: "sha256:c", kind: "runtime_quality.generic_model_input_initial_reconciliation", media_type: "application/json", manifest_profile_sha256: "sha256:d"}};
+const legacy: components["schemas"]["ArtifactRef"] = {artifact_id: "sha256:a", kind: "other", media_type: "text/plain"};
+const nullableLegacy: components["schemas"]["ArtifactRef"] = {...legacy, manifest_profile_sha256: null};
+// @ts-expect-error selected custody heads require a profile, unlike plain ArtifactRef
+const missingHeadProfile: RecoveryInput = {failed_attempt: 1, head_ref: {artifact_id: "sha256:a", kind: "runtime_quality.acquisition_route_phase_receipt", media_type: "application/json"}};
+// @ts-expect-error response custody heads retain the same required profile
+const missingOutputProfile: RecoveryOutput = {failed_attempt: 1, head_ref: {artifact_id: "sha256:a", kind: "runtime_quality.acquisition_route_phase_receipt", media_type: "application/json"}};
+// @ts-expect-error the selected custody kind is a literal
+const wrongHeadKind: RecoveryInput = {failed_attempt: 1, head_ref: {...selectedHead, kind: "other"}};
+// @ts-expect-error a selected profile cannot be null
+const nullHeadProfile: RecoveryInput = {failed_attempt: 1, head_ref: {...selectedHead, manifest_profile_sha256: null}};
+// @ts-expect-error a present reconciliation ref requires its selected profile
+const missingReconciliationProfile: ReconciliationRef = {artifact_id: "sha256:c", kind: "runtime_quality.generic_model_input_initial_reconciliation", media_type: "application/json"};
+// @ts-expect-error reconciliation refs have their own selected kind
+const wrongReconciliationKind: ReconciliationRef = {...selectedHead};
+// @ts-expect-error the selected JSON media type remains load-bearing
+const wrongReconciliationMedia: ReconciliationRef = {artifact_id: "sha256:c", kind: "runtime_quality.generic_model_input_initial_reconciliation", media_type: "text/plain", manifest_profile_sha256: "sha256:d"};
+// @ts-expect-error the referenced closed object rejects unknown fields
+const extraHeadField: RecoveryInput = {failed_attempt: 1, head_ref: {...selectedHead, invented: true}};
+void [input, output, omitted, nullable, historical, legacy, nullableLegacy, missingHeadProfile, missingOutputProfile, wrongHeadKind, nullHeadProfile, missingReconciliationProfile, wrongReconciliationKind, wrongReconciliationMedia, extraHeadField];
+`;
+  assert.deepEqual(
+    typeErrors(`${await generateOpenApiTypes(document)}\n${consumer}`),
+    [],
+  );
+  const raw = `${COMMENT_HEADER}${astToString(await openapiTS(document))}`;
+  assert.ok(
+    typeErrors(`${raw}\n${consumer}`).some(
+      (diagnostic) => diagnostic.code === 2578,
+    ),
+    "removing object-overlay normalization must expose the ignored selected constraints",
+  );
+});
+
+test("ref object overlays preserve existing allOf constraints and reject malformed arms", async () => {
+  const makeDocument = (allOf) => ({
+    openapi: "3.1.0",
+    info: { title: "Existing ref overlay composition", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        Base: {
+          type: "object",
+          properties: { name: { type: "string" } },
+          required: ["name"],
+        },
+        Selected: {
+          $ref: "#/components/schemas/Base",
+          properties: { selected: { const: true } },
+          required: ["selected"],
+          allOf,
+        },
+      },
+    },
+  });
+  const document = makeDocument([
+    {
+      type: "object",
+      properties: { tag: { const: "kept" } },
+      required: ["tag"],
+    },
+  ]);
+  const consumer = `
+type Selected = components["schemas"]["Selected"];
+const selected: Selected = {name: "actual", selected: true, tag: "kept"};
+// @ts-expect-error the original allOf arm is still required
+const missingTag: Selected = {name: "actual", selected: true};
+// @ts-expect-error the original reference is still required
+const missingName: Selected = {selected: true, tag: "kept"};
+void [selected, missingTag, missingName];
+`;
+  assert.deepEqual(
+    typeErrors(`${await generateOpenApiTypes(document)}\n${consumer}`),
+    [],
+  );
+  for (const malformed of [[], {}, "not-an-array"]) {
+    await assert.rejects(
+      generateOpenApiTypes(makeDocument(malformed)),
+      /malformed allOf.*ref overlay/i,
+    );
+  }
+});
+
 test("private request-view names avoid collisions with source component names", async () => {
   const collisionDocument = structuredClone(DOCUMENT);
   collisionDocument.components.schemas[

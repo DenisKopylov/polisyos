@@ -814,3 +814,238 @@ def test_experiment_decision_refuses_an_unowned_or_unlinked_current_basis(
         )
         == restored
     )
+
+
+@pytest.fixture
+def canonical_v5_request():
+    """Use the actual pure producer constructor; no numerical work or authority."""
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
+    from polisyos.runtime.quality.generation_cycle import (
+        build_candidate_n5_request_from_resolved_values,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    source = _request()
+    return build_candidate_n5_request_from_resolved_values(
+        world_record=source.world_model_record,
+        derived_atom=source.intervention_atoms[0],
+        outcome=source.selected_outcomes[0],
+        ncm_spec=source.engine_plan[0].ncm_spec,
+        n5_config=CandidateScenarioN5Config(
+            budget_ref="budget://candidate-projection-test",
+            horizon=source.horizon,
+            baseline_state=source.baseline_state,
+            seed=17,
+            replications=2,
+        ),
+    )
+
+
+def test_v5_request_projection_preserves_legacy_numerical_bytes(canonical_v5_request) -> None:
+    """The new shared census retains the old 11 default fields and actual atom."""
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    request = canonical_v5_request
+    (atom,) = request.intervention_atoms
+    (outcome,) = request.selected_outcomes
+    legacy_defaults = {
+        "evidence_state",
+        "comparator_profile",
+        "coupling_graph",
+        "world_credal_state_before",
+        "candidate_intent",
+        "member_basis",
+        "source_candidate_relationship",
+        "composition_status",
+        "composition_limitation_code",
+        "child_to_parent_refinement_status",
+        "child_to_parent_refinement_limitation_code",
+    }
+    rule = {"component_rule": "unchanged"}
+    expected = {
+        "numerical_atom": {
+            "operator_kind": atom.operator_kind,
+            "target_world_slots": atom.target_world_slots,
+            "causal_do_expr": atom.causal_do_expr,
+            "outcome_variable": outcome,
+            "variable_map": JointSimulationPort._joint_simulation_variable_map(
+                atoms=(atom,), outcome=outcome, raw_hint=None
+            ),
+            "current_rule": rule,
+        },
+        "n5_request_defaults": {
+            name: type(request).model_fields[name].get_default(call_default_factory=True)
+            for name in sorted(legacy_defaults)
+        },
+    }
+    observed = evaluation._candidate_v5_numerical_request_facets(request=request, rule=rule)
+    assert exact_n5_content_bytes(observed) == exact_n5_content_bytes(expected)
+    assert "program_graph_comparator_profile" not in observed["n5_request_defaults"]
+
+
+@pytest.mark.parametrize("change", ["paired_profile", "wrong_engine", "extra_value"])
+def test_v5_request_projection_refuses_non_ncm_or_unclassified_content(
+    canonical_v5_request, change: str
+) -> None:
+    """A graph comparator or unsupported owner content is refused, never ignored."""
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+
+    request = canonical_v5_request
+    if change == "paired_profile":
+        request = request.model_copy(update={"program_graph_comparator_profile": object()})
+        reason = "candidate_evaluation_v5_program_graph_profile_not_applicable"
+    elif change == "wrong_engine":
+        request = request.model_copy(
+            update={
+                "engine_plan": (
+                    request.engine_plan[0].model_copy(update={"engine_kind": "program_graph"}),
+                )
+            }
+        )
+        reason = "candidate_evaluation_v5_request_not_established"
+    else:
+        request.__dict__["unclassified_numerical_control"] = 1
+        reason = "n5_native_model_field_denominator_not_established"
+    with pytest.raises(ValueError, match="^" + reason + "$"):
+        evaluation._candidate_v5_numerical_request_facets(request=request, rule={})
+
+
+def test_v5_request_projection_refuses_a_new_unclassified_owner_field(
+    canonical_v5_request, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The actual owner field denominator, not a stale local list, drives refusal."""
+    from pydantic import Field
+
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+
+    request = canonical_v5_request
+    fields = {**type(request).model_fields, "new_numerical_control": Field(default=1)}
+    monkeypatch.setattr(type(request), "__pydantic_fields__", fields)
+    request.__dict__["new_numerical_control"] = 1
+    with pytest.raises(
+        ValueError, match=r"^candidate_evaluation_v5_request_field_role_census_mismatch$"
+    ):
+        evaluation._candidate_v5_numerical_request_facets(request=request, rule={})
+
+
+@pytest.mark.integration
+def test_retained_v5_request_replay_without_new_n5(
+    monkeypatch: pytest.MonkeyPatch, record_property
+) -> None:
+    """Recompute paid historical request facets without repairing its old decision.
+
+    The selected owners reopen actual retained input/source/context/result and
+    both basis preparations. The read-only CAS and explicit effect traps permit
+    no N5, grant renewal, publication or historical write. This establishes
+    historical numerical reconstruction only, never current implementation or
+    authority and never a replacement for the full continuation sequence.
+    """
+    import hashlib
+    import json
+    import os
+
+    from polisyos.runtime.quality import acquisition_evaluation as evaluation
+    from polisyos.runtime.quality.generation_cycle import CandidateSourceReentryReceipt
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+    from tests.integration.core_runtime.test_candidate_experiment_retained_reentry import (
+        _owner_metadata_pins,
+        _selected_paths,
+    )
+
+    selected_path = os.environ.get("POLISYOS_TEST_RETAINED_REQUEST_CENSUS")
+    if selected_path is None:
+        pytest.skip("explicit retained request/basis selectors required")
+    commission = json.loads(Path(selected_path).resolve(strict=True).read_bytes())
+    cas = Path(commission["cas_root"]).resolve(strict=True)
+    selected_refs = [
+        commission["reentry_ref"],
+        commission["input_ref"],
+        *commission["basis_refs"].values(),
+    ]
+    paths = [path for ref in selected_refs for path in _selected_paths(cas, ref)]
+    before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    owner_before = _owner_metadata_pins(cas)
+    effects: list[str] = []
+
+    def refuse_effect(*_args, **_kwargs):
+        effects.append("unexpected_effect")
+        pytest.fail("retained_request_replay_attempted_write_or_n5")
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", refuse_effect)
+    for method in ("put_bytes", "put_json", "record_artifact_owner"):
+        monkeypatch.setattr(artifacts.FileSystemCAS, method, refuse_effect)
+    store = artifacts.FileSystemCAS.open_existing_read_only(cas)
+    replay_hashes = {}
+    with tenant_scope(None, tenant_id=commission["tenant_id"], cell_id=commission["cell_id"]):
+        reentry_ref = artifacts.ArtifactRef.model_validate(commission["reentry_ref"])
+        reentry = CandidateSourceReentryReceipt.model_validate(
+            artifacts.load_core_json_artifact(store, reentry_ref)
+        )
+        resolved = evaluation.resolve_selected_acquisition_evaluation_parts(
+            artifact_store=store,
+            control_store=None,
+            tenant_id=commission["tenant_id"],
+            cell_id=commission["cell_id"],
+            run_id=reentry.run_id,
+            generation_run=reentry.continued_generation_run,
+            source_cycle=reentry.new_cycle,
+            design_problem_ref=reentry.design_problem_basis_ref,
+        )
+        input_ref = artifacts.ArtifactRef.model_validate(commission["input_ref"])
+        assert resolved.selected.n5_input_ref == input_ref
+        request_scope = {
+            "store": store,
+            "input_ref": input_ref,
+            "run_id": resolved.input_record.run_id,
+            "job_id": resolved.input_record.job_id,
+            "tenant_id": resolved.input_record.tenant_id,
+            "cell_id": resolved.input_record.cell_id,
+        }
+        request = evaluation.rebuild_selected_candidate_n5_request(**request_scope)
+        assert request.program_graph_comparator_profile is None
+        for role, selector in commission["basis_refs"].items():
+            basis = CandidateAcquisitionEvaluationBasisV2.model_validate(
+                artifacts.load_core_json_artifact(
+                    store, artifacts.ArtifactRef.model_validate(selector)
+                )
+            )
+            assert basis.basis_role == role
+            # Its original blocked/prospective record remains unchanged: a new
+            # historical calculation is not a new selected basis or terminal.
+            assert basis.reason_codes == ("candidate_evaluation_v5_request_census_not_established",)
+            values, reasons = evaluation.recompute_candidate_acquisition_basis_values_v2(
+                artifact_store=store,
+                problem=resolved.source.problem,
+                preparation_inputs=basis.preparation_inputs,
+                predecessors=(),
+                prior=resolved,
+                prepared_n5_configuration=basis.prepared_n5_configuration,
+                selected_data_snapshot_ref=basis.selected_data_snapshot_ref,
+                selected_world_model_ref=basis.selected_world_model_ref,
+                historical_read_only=True,
+            )
+            assert reasons == (), (role, reasons)
+            assert len(values["n5_request_defaults"]) == 11
+            assert "program_graph_comparator_profile" not in values["n5_request_defaults"]
+            replay_hashes[role] = hashlib.sha256(exact_n5_content_bytes(values)).hexdigest()
+
+        for changed in (
+            {
+                "input_ref": input_ref.model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+                )
+            },
+            {"job_id": "foreign-retained-request-job"},
+        ):
+            with pytest.raises((OSError, RuntimeError, TypeError, ValueError)):
+                evaluation.rebuild_selected_candidate_n5_request(**{**request_scope, **changed})
+
+    assert effects == []
+    assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == before
+    assert _owner_metadata_pins(cas) == owner_before
+    record_property("historical_numerical_basis_hashes", json.dumps(replay_hashes, sort_keys=True))
+    record_property("n5_runs", 0)
+    record_property("current_authority", "not_revalidated")

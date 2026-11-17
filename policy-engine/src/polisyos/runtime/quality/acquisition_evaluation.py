@@ -6379,65 +6379,52 @@ def recompute_candidate_acquisition_basis_values(
 
 
 def _candidate_v5_numerical_request_facets(
-    *, prior: ResolvedAcquisitionEvaluation, problem: DesignProblem, rule: object
+    *, request: JointSimulationRequest, rule: object
 ) -> dict[str, object]:
-    """Rebuild the canonical V5 builder's non-config request facets."""
-    from polisyos.runtime.quality.generation_cycle import (
-        JointSimulationPort,
-        _value_outcome_variable,
-    )
-    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+    """Project the already owner-rebuilt NCM request without a parallel census.
 
-    # This exact V5 builder supplies the first group and leaves the second
-    # group at constructor defaults. Fail closed on any new request field.
-    supplied = {
-        "world_model_record_ref",
-        "world_model_record",
-        "intervention_atoms",
-        "selected_outcomes",
-        "horizon",
-        "engine_plan",
-        "baseline_state",
-        "comparator_refs",
-        "budget_ref",
-        "seed",
-        "replications",
-    }
-    defaulted = {
-        "evidence_state",
-        "comparator_profile",
-        "coupling_graph",
-        "world_credal_state_before",
-        "candidate_intent",
-        "member_basis",
-        "source_candidate_relationship",
-        "composition_status",
-        "composition_limitation_code",
-        "child_to_parent_refinement_status",
-        "child_to_parent_refinement_limitation_code",
-    }
-    if supplied & defaulted or supplied | defaulted != set(JointSimulationRequest.model_fields):
-        raise ValueError("candidate_evaluation_v5_request_census_not_established")
-    atom = prior.input_record.materialization.derived_n5_atom
-    outcome = _value_outcome_variable(prior.source.candidate, problem)
-    if not outcome:
-        raise ValueError("candidate_evaluation_numerical_outcome_not_established")
-    variable_map = JointSimulationPort._joint_simulation_variable_map(
-        atoms=(atom,), outcome=outcome, raw_hint=None
+    The shared role owner covers every actual request field. Constructor-supplied
+    fields come from the canonical pure request builder; its remaining actual
+    defaults retain the historical V2 projection. A program-graph comparator is
+    not applicable to this exact NCM builder, and must really be absent rather
+    than silently omitted from numerical identity.
+    """
+    from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan, JointSimulationRequest
+
+    if (
+        type(request) is not JointSimulationRequest
+        or len(request.engine_plan) != 1
+        or type(request.engine_plan[0]) is not EnginePlan
+        or request.engine_plan[0].engine_kind != "ncm_parallel_worlds"
+        or len(request.intervention_atoms) != 1
+        or len(request.selected_outcomes) != 1
+    ):
+        raise ValueError("candidate_evaluation_v5_request_not_established")
+    fields = exact_n5_model_field_names(request)
+    _require_n5_field_role_census(
+        fields,
+        _GENERIC_REQUEST_FIELD_ROLES,
+        allowed_roles=_GENERIC_FIELD_ROLES,
+        error_prefix="candidate_evaluation_v5_request_field_role",
     )
+    if request.program_graph_comparator_profile is not None:
+        raise ValueError("candidate_evaluation_v5_program_graph_profile_not_applicable")
+    supplied = request.model_fields_set
+    if type(supplied) is not set or not supplied.issubset(fields):
+        raise ValueError("candidate_evaluation_v5_request_constructor_fields_not_established")
+    defaulted = fields - supplied - {"program_graph_comparator_profile"}
+    (atom,) = request.intervention_atoms
+    (outcome,) = request.selected_outcomes
     return {
         "numerical_atom": {
             "operator_kind": atom.operator_kind,
             "target_world_slots": atom.target_world_slots,
             "causal_do_expr": atom.causal_do_expr,
             "outcome_variable": outcome,
-            "variable_map": variable_map,
+            "variable_map": request.engine_plan[0].variable_map,
             "current_rule": rule,
         },
-        "n5_request_defaults": {
-            name: JointSimulationRequest.model_fields[name].get_default(call_default_factory=True)
-            for name in sorted(defaulted)
-        },
+        "n5_request_defaults": {name: getattr(request, name) for name in sorted(defaulted)},
     }
 
 
@@ -6518,7 +6505,7 @@ def recompute_candidate_acquisition_basis_values_v2(
         ):
             raise ValueError("candidate_evaluation_identity_not_established")
         numerical_request = _candidate_v5_numerical_request_facets(
-            prior=prior, problem=problem, rule=preparation_inputs.configured_profile.rule
+            request=expected_request, rule=preparation_inputs.configured_profile.rule
         )
         values = {
             **prepared.effective_values,
@@ -6925,7 +6912,7 @@ def recompute_acquisition_basis_values(
                 "declared_model": values["declared_model"],
                 "n5_request_values": prepare_candidate_n5_request_projection_v2(n5).numerical,
                 **_candidate_v5_numerical_request_facets(
-                    prior=prior, problem=closure.design_problem_basis, rule=profile.rule
+                    request=expected_request, rule=profile.rule
                 ),
                 "n5_execution_configuration": prepared_configuration,
                 "n5_declared_implementation": implementation,

@@ -1,23 +1,26 @@
 """Opt-in real-CAS semantic corpus profiles for Catalog's exact-ref index.
 
-The ordinary profile covers 1,000 records. A separate explicit opt-in profile
-covers 30,000 records; neither establishes the full 100k/300k §6 scale suite
-or an operational performance gate. Every definition and representation is a
-real, typed, content-addressed test artifact. Synthetic fixture evidence
+The ordinary profile covers 1,000 records. Separate explicit opt-in profiles
+cover 10,000 and 30,000 records; none establishes the full 100k/300k §6 scale
+suite or an operational performance gate. Every definition and representation
+is a real, typed, content-addressed test artifact. Synthetic fixture evidence
 establishes only that these declared records can be reopened and validated; it
 establishes no empirical meaning, source authority, currentness, or permission.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import statistics
 import time
 from collections import Counter
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from pathlib import Path
+from threading import Barrier, Event, get_ident
 
 import pytest
 
@@ -26,6 +29,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
+    write_bytes_atomic,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -55,6 +59,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
 from tests._helpers.acquisition_production import _entry, _resolver
 
 _RECORDS = 1_000
+_MEDIUM_PROFILE_RECORDS = 10_000
 _LARGE_PROFILE_RECORDS = 30_000
 _PROFILE_ENV = "POLICYOS_P07_SEMANTIC_CORPUS_PROFILE"
 _TRUTH_KEYS = 16
@@ -62,6 +67,10 @@ _ALTERNATIVES_PER_TRUTH_KEY = 4
 _NEAR_MISS_REVISIONS = 16
 _SEED = 20261115
 _MAX_SCRATCH_BYTES = 256 * 1024 * 1024
+_OPT_IN_SCRATCH_BYTES = 2 * 1024 * 1024 * 1024
+# Prior admitted local P07 profile cap; this is a runner-safety envelope, not a deployment SLO.
+_PROFILE_MAX_WALL_SECONDS = 900
+_PROFILE_MAX_PROCESS_TREE_RSS_BYTES = 3 * 1024 * 1024 * 1024
 _WARMUPS = 2
 _SAMPLES = 15
 _DOMAINS = (
@@ -258,6 +267,11 @@ def _source_entry_key(entry: AcquisitionAuthorityEntry) -> tuple[str, str, str, 
     if ref is None:
         return None
     return _definition_identity(ref)
+
+
+def _publish_registry_snapshot(path: Path, registry: AcquisitionAuthorityRegistry) -> None:
+    """Publish a test-owned registry through Core's existing atomic writer."""
+    write_bytes_atomic(path, registry.model_dump_json().encode("utf-8"))
 
 
 def _run_semantic_corpus_profile(
@@ -584,13 +598,19 @@ def _run_semantic_corpus_profile(
 
     initial_entry = entries[0]
     authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=initial_entry)
+    initial_registry_build_started = time.perf_counter()
     built_registry = build_authority_registry(
         baseline_content_sha256=authority.provision.baseline_content_sha256,
         l5_measurement_registry_sha256=(authority.provision.l5_measurement_registry_content_sha256),
         entries=tuple(entries),
     )
-    authority.registry_path.write_text(built_registry.model_dump_json(), encoding="utf-8")
+    initial_registry_build_seconds = time.perf_counter() - initial_registry_build_started
+    initial_registry_publish_started = time.perf_counter()
+    _publish_registry_snapshot(authority.registry_path, built_registry)
+    initial_registry_publish_seconds = time.perf_counter() - initial_registry_publish_started
+    initial_registry_load_started = time.perf_counter()
     registry = authority._load_registry()
+    initial_registry_load_seconds = time.perf_counter() - initial_registry_load_started
     assert len(definition_refs) == corpus_records
     assert len({_definition_identity(ref) for ref in definition_refs}) == corpus_records
     expected_registry_rows = corpus_records + (_TRUTH_KEYS * (_ALTERNATIVES_PER_TRUTH_KEY - 1)) + 1
@@ -779,15 +799,126 @@ def _run_semantic_corpus_profile(
         l5_measurement_registry_sha256=authority.provision.l5_measurement_registry_content_sha256,
         entries=(*registry.entries, updated_source),
     )
-    authority.registry_path.write_text(
-        updated_registry_payload.model_dump_json(),
-        encoding="utf-8",
-    )
+
+    old_registry_raw_sha256 = hashlib.sha256(authority.registry_path.read_bytes()).hexdigest()
+    update_overlap_barrier = Barrier(2)
+    old_registry_bytes_read = Event()
+    updated_registry_published = Event()
+    reader_thread_ident: int | None = None
+    observed_old_registry_raw_sha256: str | None = None
+    observed_old_registry_raw_bytes: int | None = None
+    reader_gate_wait_seconds: float | None = None
+    original_path_read_bytes = Path.read_bytes
+
+    def read_registry_bytes_while_writer_waits(path: Path) -> bytes:
+        nonlocal observed_old_registry_raw_bytes
+        nonlocal observed_old_registry_raw_sha256
+        nonlocal reader_gate_wait_seconds
+        raw = original_path_read_bytes(path)
+        if path == authority.registry_path and get_ident() == reader_thread_ident:
+            observed_old_registry_raw_sha256 = hashlib.sha256(raw).hexdigest()
+            observed_old_registry_raw_bytes = len(raw)
+            old_registry_bytes_read.set()
+            gate_started = time.perf_counter()
+            if not updated_registry_published.wait(timeout=30):
+                raise TimeoutError("registry writer did not publish while owner read was held")
+            reader_gate_wait_seconds = time.perf_counter() - gate_started
+        return raw
+
+    def publish_updated_snapshot() -> float:
+        update_overlap_barrier.wait(timeout=30)
+        if not old_registry_bytes_read.wait(timeout=30):
+            raise TimeoutError("owner did not read the old registry before publication")
+        publish_started = time.perf_counter()
+        _publish_registry_snapshot(authority.registry_path, updated_registry_payload)
+        updated_registry_published.set()
+        return time.perf_counter() - publish_started
+
+    def load_and_query_old_snapshot() -> tuple[
+        str,
+        tuple[str, ...],
+        tuple[str, ...],
+        float,
+        float,
+        float,
+    ]:
+        nonlocal reader_thread_ident
+        update_overlap_barrier.wait(timeout=30)
+        reader_thread_ident = get_ident()
+        owner_load_started = time.perf_counter()
+        loaded_snapshot = authority._load_registry()
+        owner_load_seconds = time.perf_counter() - owner_load_started
+        index_query_started = time.perf_counter()
+        indexed_rows = authority._source_entries_for_semantic_definition(
+            loaded_snapshot,
+            first_key,
+        )
+        index_query_seconds = time.perf_counter() - index_query_started
+        oracle_started = time.perf_counter()
+        exhaustive_rows = exhaustive(_definition_identity(query_refs[0]), loaded_snapshot)
+        oracle_seconds = time.perf_counter() - oracle_started
+        return (
+            loaded_snapshot.content_sha256,
+            tuple(row.entry_id for row in indexed_rows),
+            tuple(row.entry_id for row in exhaustive_rows),
+            owner_load_seconds,
+            index_query_seconds,
+            oracle_seconds,
+        )
+
+    update_overlap_started = time.perf_counter()
+    with monkeypatch.context() as read_patch:
+        read_patch.setattr(Path, "read_bytes", read_registry_bytes_while_writer_waits)
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="p07-registry-update") as pool:
+            publish_future = pool.submit(publish_updated_snapshot)
+            old_during_update_future = pool.submit(load_and_query_old_snapshot)
+            update_publish_seconds = publish_future.result(timeout=60)
+            old_during_update_result = old_during_update_future.result(timeout=60)
+    concurrent_update_overlap_seconds = time.perf_counter() - update_overlap_started
+    assert observed_old_registry_raw_sha256 == old_registry_raw_sha256
+    assert observed_old_registry_raw_bytes is not None
+    assert reader_gate_wait_seconds is not None
+    old_owner_load_seconds_excluding_gate = old_during_update_result[3] - reader_gate_wait_seconds
+    assert old_owner_load_seconds_excluding_gate >= 0.0
+    assert old_during_update_result[0] == registry.content_sha256
+    assert old_during_update_result[1] == old_during_update_result[2]
+    assert len(old_during_update_result[1]) == _ALTERNATIVES_PER_TRUTH_KEY
+
+    new_snapshot_owner_load_query_started = time.perf_counter()
+    update_reload_started = time.perf_counter()
     updated_registry = authority._load_registry()
-    assert (
-        len(authority._source_entries_for_semantic_definition(updated_registry, first_key))
-        == _ALTERNATIVES_PER_TRUTH_KEY + 1
+    update_reload_seconds = time.perf_counter() - update_reload_started
+    assert updated_registry.content_sha256 == updated_registry_payload.content_sha256
+    update_visibility_started = time.perf_counter()
+    updated_bucket = authority._source_entries_for_semantic_definition(
+        updated_registry,
+        first_key,
     )
+    update_visibility_seconds = time.perf_counter() - update_visibility_started
+    new_snapshot_owner_load_query_seconds = (
+        time.perf_counter() - new_snapshot_owner_load_query_started
+    )
+    assert len(updated_bucket) == _ALTERNATIVES_PER_TRUTH_KEY + 1
+    updated_index = authority._semantic_definition_index_cache
+    assert updated_index is not None and updated_index.is_complete
+    assert updated_index.registry_content_sha256 == updated_registry.content_sha256
+    updated_oracle_buckets: dict[
+        tuple[str, str, str, str | None], list[AcquisitionAuthorityEntry]
+    ] = {}
+    for entry in updated_registry.entries:
+        key = _source_entry_key(entry)
+        if key is not None:
+            updated_oracle_buckets.setdefault(key, []).append(entry)
+    expected_updated_buckets = {
+        key: tuple(sorted(bucket, key=lambda entry: entry.entry_id))
+        for key, bucket in updated_oracle_buckets.items()
+    }
+    expected_updated_entry_count = sum(len(bucket) for bucket in expected_updated_buckets.values())
+    assert updated_index.entries_by_definition == expected_updated_buckets
+    assert updated_index.eligible_entry_count == expected_updated_entry_count
+    assert updated_index.indexed_entry_count == expected_updated_entry_count
+    assert updated_index.indexed_entry_count == len(updated_registry.entries)
+    assert updated_bucket == exhaustive(_definition_identity(query_refs[0]), updated_registry)
     assert len(authority._source_entries_for_semantic_definition(registry, first_key)) == (
         _ALTERNATIVES_PER_TRUTH_KEY
     )
@@ -803,15 +934,18 @@ def _run_semantic_corpus_profile(
             entry for entry in updated_registry.entries if entry.entry_id != removed_entry.entry_id
         ),
     )
-    authority.registry_path.write_text(
-        removed_registry_payload.model_dump_json(),
-        encoding="utf-8",
-    )
+    removal_publish_started = time.perf_counter()
+    _publish_registry_snapshot(authority.registry_path, removed_registry_payload)
+    removal_publish_seconds = time.perf_counter() - removal_publish_started
+    removal_reload_started = time.perf_counter()
     removed_registry = authority._load_registry()
+    removal_reload_seconds = time.perf_counter() - removal_reload_started
+    removal_visibility_started = time.perf_counter()
     removed_candidates = authority._source_entries_for_semantic_definition(
         removed_registry,
         first_key,
     )
+    removal_visibility_seconds = time.perf_counter() - removal_visibility_started
     removal_index = authority._semantic_definition_index_cache
     assert removal_index is not None and removal_index.is_complete
     assert removal_index.registry_content_sha256 == removed_registry.content_sha256
@@ -851,7 +985,7 @@ def _run_semantic_corpus_profile(
     )
 
     file_count, logical_bytes, allocated_bytes = _allocated_tree_bytes(tmp_path)
-    max_scratch_bytes = _MAX_SCRATCH_BYTES if corpus_records == _RECORDS else 2 * 1024 * 1024 * 1024
+    max_scratch_bytes = _MAX_SCRATCH_BYTES if corpus_records == _RECORDS else _OPT_IN_SCRATCH_BYTES
     assert allocated_bytes is None or allocated_bytes <= max_scratch_bytes
     report = {
         "scope": f"genuine_{corpus_records // 1000}k_typed_definition_revision_records_only",
@@ -878,10 +1012,66 @@ def _run_semantic_corpus_profile(
         "required_unknown_ref_is_valid_but_unregistered": True,
         "unregistered_unknown_probe_records": 1,
         "declared_ratio_relation_edges": 2,
-        "concurrency_workers": 1,
-        "concurrent_index_updates": "not_run",
+        "corpus_generation_workers": 1,
+        "concurrency_workers": 2,
+        "concurrent_index_updates": "atomic_registry_publish_with_held_old_snapshot_query",
+        "concurrent_registry_update_overlap": {
+            "workers": 2,
+            "owner_registry_read_held_across_atomic_publish": True,
+            "old_snapshot_content_sha256": old_during_update_result[0],
+            "old_snapshot_raw_sha256": observed_old_registry_raw_sha256,
+            "old_snapshot_raw_bytes": observed_old_registry_raw_bytes,
+            "published_snapshot_content_sha256": updated_registry.content_sha256,
+            "old_snapshot_query_matches_independent_scan": (
+                old_during_update_result[1] == old_during_update_result[2]
+            ),
+            "old_snapshot_bucket_rows": len(old_during_update_result[1]),
+            "new_snapshot_loaded_after_atomic_publish": (
+                updated_registry.content_sha256 == updated_registry_payload.content_sha256
+            ),
+            "elapsed_seconds": concurrent_update_overlap_seconds,
+        },
+        "registry_owner_load_and_query_seconds": {
+            "held_old_snapshot_load_excluding_controlled_wait": (
+                old_owner_load_seconds_excluding_gate
+            ),
+            "held_old_snapshot_exact_index_query": old_during_update_result[4],
+            "held_old_snapshot_exhaustive_oracle": old_during_update_result[5],
+            "fresh_new_snapshot_load": update_reload_seconds,
+            "fresh_new_snapshot_first_exact_index_query_including_rebuild": (
+                update_visibility_seconds
+            ),
+            "fresh_new_snapshot_owner_load_plus_first_query": (
+                new_snapshot_owner_load_query_seconds
+            ),
+            "boundary": (
+                "warm old load includes registry Path.read_bytes/raw hash/cache hit plus baseline "
+                "SHA-256 verification; fresh new load includes registry read/hash/parse/schema "
+                "validation plus baseline hash; first new exact-index query includes index "
+                "rebuild; timings are API-level wall time, not physical device I/O or full consumer "
+                "proof"
+            ),
+        },
+        "registry_lifecycle_seconds": {
+            "initial_registry_build": initial_registry_build_seconds,
+            "initial_registry_atomic_publish": initial_registry_publish_seconds,
+            "initial_registry_owner_load": initial_registry_load_seconds,
+            "add_exact_source_publish": update_publish_seconds,
+            "reload_added_registry": update_reload_seconds,
+            "first_query_after_add": update_visibility_seconds,
+            "remove_exact_source_publish": removal_publish_seconds,
+            "reload_removed_registry": removal_reload_seconds,
+            "first_query_after_remove": removal_visibility_seconds,
+        },
         "independent_oracle_registry_rows": len(registry.entries),
         "independent_oracle_definition_key_count": len(expected_buckets),
+        "updated_registry_rows": len(updated_registry.entries),
+        "updated_independent_oracle_definition_key_count": len(expected_updated_buckets),
+        "updated_indexed_entry_count": updated_index.indexed_entry_count,
+        "updated_index_complete_and_full_map_matches_oracle": (
+            updated_index.is_complete
+            and updated_index.entries_by_definition == expected_updated_buckets
+        ),
         "timed_indexed_vs_exhaustive_query_key_count": len(query_refs),
         "index_build_seconds": index_build_seconds,
         "warmups_per_query_operation": _WARMUPS,
@@ -913,6 +1103,15 @@ def _run_semantic_corpus_profile(
         "scratch_logical_bytes": logical_bytes,
         "scratch_allocated_bytes": allocated_bytes,
         "scratch_budget_bytes": max_scratch_bytes,
+        "proposed_test_runner_budget": {
+            "process_tree_wall_seconds": _PROFILE_MAX_WALL_SECONDS,
+            "process_tree_peak_rss_bytes": _PROFILE_MAX_PROCESS_TREE_RSS_BYTES,
+            "scratch_allocated_bytes": max_scratch_bytes,
+            "corpus_generation_workers": 1,
+            "registry_update_overlap_workers": 2,
+            "scope": "local_test_profile_cap_not_deployment_SLO",
+            "wall_and_rss_enforcement": "external_process_budget_supervisor_required",
+        },
         "timing_status": "descriptive_local_measurement_no_SLA_claim",
         "semantic_status": "test_owned_typed_records_fixture_evidence_only",
     }
@@ -931,6 +1130,24 @@ def test_genuine_semantic_corpus_1k_index_matches_exhaustive_and_rebuilds(
         monkeypatch,
         record_property,
         corpus_records=_RECORDS,
+    )
+
+
+@pytest.mark.skipif(
+    os.environ.get(_PROFILE_ENV) != "10k",
+    reason=f"set {_PROFILE_ENV}=10k to admit the bounded 10k profile explicitly",
+)
+def test_genuine_semantic_corpus_10k_index_matches_exhaustive_and_rebuilds(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Measure the intermediate real-record profile with the fixed truth subset."""
+    _run_semantic_corpus_profile(
+        tmp_path,
+        monkeypatch,
+        record_property,
+        corpus_records=_MEDIUM_PROFILE_RECORDS,
     )
 
 

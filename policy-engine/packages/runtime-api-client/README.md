@@ -135,7 +135,7 @@ its limitations and refuses malformed rows. Existing history variants remain
 in the unions for compatibility, and the new schema does not reinterpret their
 wire shapes.
 
-The [E02 work plan](../../../E02-WORK-PLAN.md) records Core DTO checks at
+The E02 work plan (`E02-WORK-PLAN.md` at the repository root) records Core DTO checks at
 19/19, generated SDK tests and typecheck passing, and dashboard validator and
 Overview checks at 8/8 and 79/79. The no-effects Native history controls passed
 in separate cuts (42 passed with two fixture-graft failures retained, then the

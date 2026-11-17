@@ -799,6 +799,21 @@ def _report_semantic_payload(payload: Mapping[str, object]) -> dict[str, object]
     return {key: json_compatible(value) for key, value in payload.items() if key != "generated_at"}
 
 
+def _report_path_matches_config_path(report_value: object, config_path: Path) -> bool:
+    """Compare absolute report path identity without rebasing unknown relative locators."""
+    if not isinstance(report_value, str) or not report_value:
+        return False
+    try:
+        reported = Path(report_value)
+        expected = Path(config_path)
+        if not reported.is_absolute() or not expected.is_absolute():
+            # Relative paths have no trustworthy base after restart.
+            return False
+        return reported.resolve() == expected.resolve()
+    except (OSError, RuntimeError, ValueError):
+        return False
+
+
 def _report_stage_state(
     config: DatasetBatchConfig,
     stage: str,
@@ -900,14 +915,15 @@ def current_catalog_report_basis(config: DatasetBatchConfig) -> dict[str, object
     qc = load_json(config.qc_report_path, default=None)
     if not isinstance(benchmark, dict) or not isinstance(qc, dict):
         return {"state": "not_established", "reason": "report_json_missing_or_malformed"}
-    expected_roots = {
-        "snapshot_root": str(config.snapshot_root),
-        "component_dir": str(config.component_dir),
-    }
     if (
         benchmark.get("kind") != "datasets_benchmark"
         or benchmark.get("run_profile") != config.run_profile
-        or any(benchmark.get(name) != value for name, value in expected_roots.items())
+        or not _report_path_matches_config_path(
+            benchmark.get("snapshot_root"), config.snapshot_root
+        )
+        or not _report_path_matches_config_path(
+            benchmark.get("component_dir"), config.component_dir
+        )
     ):
         return {"state": "not_established", "reason": "benchmark_report_identity_mismatch"}
     evaluation_mode = benchmark.get("evaluation_mode")

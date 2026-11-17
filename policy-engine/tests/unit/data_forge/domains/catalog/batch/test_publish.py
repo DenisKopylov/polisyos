@@ -185,6 +185,45 @@ def _build_publish_receipt_fixture(
     return config
 
 
+def test_batch_config_canonicalizes_path_fields_before_snapshot_roundtrip(
+    tmp_path: Path,
+) -> None:
+    from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
+    from polisyos.data_forge.domains.catalog.batch.config import _producer_config_snapshot
+
+    canonical_root = tmp_path / "canonical"
+    canonical_root.mkdir()
+    aliased_root = tmp_path / "alias"
+    aliased_root.symlink_to(canonical_root, target_is_directory=True)
+    registry_path = aliased_root / "registry.yaml"
+    _write_test_registry(registry_path)
+    metrics_path = aliased_root / "metrics_map.yaml"
+    metrics_path.symlink_to(catalog_default_resource_path("metrics_map.yaml"))
+
+    config = DatasetBatchConfig(
+        snapshot_root=aliased_root / "snapshot",
+        registry_path=registry_path,
+        metrics_map_path=metrics_path,
+    )
+    assert config.snapshot_root == (canonical_root / "snapshot").resolve()
+    assert config.registry_path == registry_path.resolve()
+    assert config.metrics_map_path == metrics_path.resolve()
+
+    snapshot = _producer_config_snapshot(config)
+    assert snapshot["snapshot_root"] == str(config.snapshot_root)
+    assert snapshot["registry_path"] == str(config.registry_path)
+    assert snapshot["metrics_map_path"] == str(config.metrics_map_path)
+    restored = DatasetBatchConfig.from_producer_config_snapshot(snapshot)
+    assert restored is not None
+    assert restored.snapshot_root == config.snapshot_root
+    assert restored.registry_path == config.registry_path
+    assert restored.metrics_map_path == config.metrics_map_path
+
+    default_config = DatasetBatchConfig(snapshot_root=aliased_root / "default-snapshot")
+    assert default_config.registry_path is None
+    assert default_config.metrics_map_path == default_config.default_metrics_map_path.resolve()
+
+
 def test_run_publish_refuses_present_but_unbound_reports_before_emission(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
@@ -235,6 +274,115 @@ def test_run_publish_blocks_on_native_benchmark_and_qc_evidence_below_thresholds
     assert readiness["readiness"]["consumer_ready"] is False
     assert not config.publish_manifest_path.exists()
     assert "publish" not in json.loads(config.stage_state_path.read_text(encoding="utf-8"))
+
+
+def test_published_catalog_receipt_accepts_symlinked_snapshot_identity_and_rejects_drift(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        _record_stage_completion,
+        _report_path_matches_config_path,
+        current_catalog_publish_receipt,
+        current_catalog_report_basis,
+    )
+    from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+    from tests.unit.runtime.http._published_catalog_fixture import (
+        build_published_catalog_fixture,
+    )
+
+    assert not _report_path_matches_config_path(
+        "relative/snapshot",
+        Path("relative/snapshot"),
+    )
+
+    canonical_root = tmp_path / "canonical"
+    canonical_root.mkdir()
+    aliased_root = tmp_path / "alias"
+    aliased_root.symlink_to(canonical_root, target_is_directory=True)
+
+    fixture = build_published_catalog_fixture(aliased_root, monkeypatch)
+    try:
+        assert fixture.report_basis_state == "current"
+        assert fixture.publish_receipt_state == "current"
+        benchmark_path = fixture.snapshot_root / "datasets" / "benchmark_report.json"
+        benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+        assert benchmark["snapshot_root"] == str(fixture.snapshot_root.resolve())
+        assert benchmark["component_dir"] == str((fixture.snapshot_root / "datasets").resolve())
+
+        saved_state = json.loads(
+            (fixture.snapshot_root / "datasets" / "manifests" / "stage_state.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        saved_config = saved_state["publish"]["input_basis"]["config"][
+            "effective_producer_config"
+        ]
+        reconstructed = DatasetBatchConfig.from_producer_config_snapshot(saved_config)
+        assert reconstructed is not None
+        assert reconstructed.snapshot_root == fixture.snapshot_root.resolve()
+        assert current_catalog_report_basis(reconstructed)["state"] == "current"
+        receipt = current_catalog_publish_receipt(
+            reconstructed.db_path,
+            run_profile="prod_full",
+        )
+        assert receipt["state"] == "current"
+
+        unrelated_root = tmp_path / "unrelated-snapshot"
+        unrelated_root.mkdir()
+        unrelated_component = tmp_path / "unrelated-component"
+        unrelated_component.mkdir()
+        pristine_benchmark = json.loads(json.dumps(benchmark))
+        missing = object()
+
+        def rebind_benchmark_report() -> None:
+            benchmark_path.write_text(
+                json.dumps(benchmark, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            write_stage_manifest(
+                manifest_path=fixture.snapshot_root / "datasets" / "manifests" / "benchmark.json",
+                stage="benchmark",
+                status="ok",
+                metrics={
+                    **benchmark["metrics"],
+                    "rest_rows_by_source": benchmark.get("rest_rows_by_source", {}),
+                    "rest_bytes_by_source": benchmark.get("rest_bytes_by_source", {}),
+                    "history_budget_exceeded_sources": benchmark.get(
+                        "history_budget_exceeded_sources", []
+                    ),
+                    "source_publish_blocking": benchmark.get("source_publish_blocking", {}),
+                },
+                artifacts=[benchmark_path],
+                started_at=str(benchmark["generated_at"]),
+            )
+            _record_stage_completion(reconstructed, "benchmark")
+            run_content_stage_with_receipt(reconstructed, "qc")
+
+        def assert_identity_refused(name: str, value: object) -> None:
+            benchmark.clear()
+            benchmark.update(json.loads(json.dumps(pristine_benchmark)))
+            if value is missing:
+                benchmark.pop(name)
+            else:
+                benchmark[name] = value
+            rebind_benchmark_report()
+            refused = current_catalog_report_basis(reconstructed)
+            assert refused["state"] == "not_established"
+            assert refused["reason"] == "benchmark_report_identity_mismatch"
+
+        for name, value in (
+            ("snapshot_root", str(unrelated_root)),
+            ("component_dir", str(unrelated_component)),
+            ("snapshot_root", missing),
+            ("component_dir", []),
+            ("snapshot_root", "invalid\x00path"),
+            ("component_dir", "relative/component"),
+        ):
+            assert_identity_refused(name, value)
+    finally:
+        fixture.producer_graph.close()
+        fixture.close()
 
 
 def test_publish_basis_refuses_a_forged_qc_passed_flag_even_when_stage_receipts_match(

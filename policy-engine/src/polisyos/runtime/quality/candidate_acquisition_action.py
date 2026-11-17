@@ -614,114 +614,153 @@ def _current_candidate_experiment_action_context(
         cell_id=origin.cell_id,
         action_outcome_reader=service.acquisition_route_sink,
     )
+    entered = False
+    validating_context = False
     try:
-        resolution = loop._resolve_current_candidate_experiment_resolution(run_id=origin.run_id)
-    except (OSError, RuntimeError, TypeError, ValueError) as exc:
-        raise ValueError("candidate_experiment_action_source_not_current") from exc
-    if type(resolution) is not _ResolvedCurrentCandidateExperiment:
-        raise ValueError("candidate_experiment_action_source_not_current")
-    current_origin = resolution.origin
-    if current_origin.current_action_head is None or not _same_candidate_experiment_origin_source(
-        origin, current_origin
-    ):
-        raise ValueError("candidate_experiment_action_source_changed")
-    selected = _candidate_experiment_source_selection(bridge, current_origin)
+        with loop._current_candidate_experiment_resolution_read_operation(
+            run_id=origin.run_id
+        ) as resolution:
+            entered = True
+            validating_context = True
+            if type(resolution) is not _ResolvedCurrentCandidateExperiment:
+                raise ValueError("candidate_experiment_action_source_not_current")
+            current_origin = resolution.origin
+            if (
+                current_origin.current_action_head is None
+                or not _same_candidate_experiment_origin_source(origin, current_origin)
+            ):
+                raise ValueError("candidate_experiment_action_source_changed")
+            selected = _candidate_experiment_source_selection(bridge, current_origin)
 
-    outcomes = resolution.outcomes
-    head = current_origin.current_action_head
-    outcome = _select_current_candidate_experiment_outcome(
-        outcomes,
-        origin=current_origin,
-        action_job_id=head.job_id,
-        action_generation=head.action_generation,
-        receipt_ref=action_phase_ref,
-        required_phase=required_phase,
-    )
-    if type(outcome.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
-        raise ValueError("candidate_experiment_action_phase_not_current")
-    phase_record = outcome.phase_chain[-1]
-    phase = outcome.latest_receipt
-    if (
-        phase_record.receipt_ref != action_phase_ref
-        or phase_record.receipt != phase
-        or phase.receipt_phase != required_phase
-        or (
-            required_phase == "executing"
-            and (
-                outcome.executing_phase_ref != action_phase_ref
-                or outcome.executing_phase != phase
-                or candidate_action_ref is not None
-            )
-        )
-        or (
-            required_phase == "candidate_input_reentry_pending"
-            and (
-                candidate_action_ref is None
-                or phase.candidate_receipt_ref != candidate_action_ref
-                or candidate_action_ref.kind != CANDIDATE_ACTION_KIND
-                or candidate_action_ref.manifest_profile_sha256 is None
-            )
-        )
-        or phase.tenant_id != origin.tenant_id
-        or phase.cell_id != origin.cell_id
-        or phase.run_id != origin.run_id
-        or phase.source_job_id != origin.source_job_id
-        or phase.route_id != origin.route_id
-        or phase.source_payload_ref != origin.source_payload_ref
-        or phase.capability_manifest_ref != origin.capability_manifest_ref
-        or phase.request_content_hash != origin.request_content_hash
-        or phase.policy_scope != origin.policy_scope
-        or phase.policy_ref != origin.policy_ref
-        or phase.action_generation != head.action_generation
-        or phase.job_id != head.job_id
-    ):
-        raise ValueError("candidate_experiment_action_phase_binding_mismatch")
-
-    receipt: CandidateAcquisitionActionReceipt | None = None
-    if required_phase == "candidate_input_reentry_pending":
-        if candidate_action_ref is None:
-            raise ValueError("candidate_experiment_reentry_action_missing")
-        payload = artifacts.load_core_json_artifact(bridge.artifact_store, candidate_action_ref)
-        receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
-        executing_records = tuple(
-            record
-            for record in outcome.phase_chain
-            if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
-        )
-        if len(executing_records) != 1:
-            raise ValueError("candidate_experiment_reentry_executing_phase_missing")
-        executing_phase = getattr(executing_records[0], "receipt", None)
-        if type(executing_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
-            raise ValueError("candidate_experiment_reentry_executing_phase_untyped")
-        selected_phase_ref = artifact_ref_for_manifest(
-            bridge.artifact_store.get_manifest(receipt.action_phase_ref)
-        )
-        if str(selected_phase_ref.artifact_id) != receipt.action_phase_ref:
-            raise ValueError("candidate_experiment_reentry_phase_profile_missing")
-        if not defer_historical_reentry:
-            read_candidate_experiment_acquisition_action_historical(
-                bridge=bridge,
+            outcomes = resolution.outcomes
+            head = current_origin.current_action_head
+            outcome = _select_current_candidate_experiment_outcome(
+                outcomes,
                 origin=current_origin,
-                receipt_ref=candidate_action_ref,
-                executing_phase=executing_phase,
-                executing_phase_ref=receipt.action_phase_ref,
+                action_job_id=head.job_id,
+                action_generation=head.action_generation,
+                receipt_ref=action_phase_ref,
+                required_phase=required_phase,
             )
+            if type(outcome.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+                raise ValueError("candidate_experiment_action_phase_not_current")
+            phase_record = outcome.phase_chain[-1]
+            phase = outcome.latest_receipt
+            if (
+                phase_record.receipt_ref != action_phase_ref
+                or phase_record.receipt != phase
+                or phase.receipt_phase != required_phase
+                or (
+                    required_phase == "executing"
+                    and (
+                        outcome.executing_phase_ref != action_phase_ref
+                        or outcome.executing_phase != phase
+                        or candidate_action_ref is not None
+                    )
+                )
+                or (
+                    required_phase == "candidate_input_reentry_pending"
+                    and (
+                        candidate_action_ref is None
+                        or phase.candidate_receipt_ref != candidate_action_ref
+                        or candidate_action_ref.kind != CANDIDATE_ACTION_KIND
+                        or candidate_action_ref.manifest_profile_sha256 is None
+                    )
+                )
+                or phase.tenant_id != origin.tenant_id
+                or phase.cell_id != origin.cell_id
+                or phase.run_id != origin.run_id
+                or phase.source_job_id != origin.source_job_id
+                or phase.route_id != origin.route_id
+                or phase.source_payload_ref != origin.source_payload_ref
+                or phase.capability_manifest_ref != origin.capability_manifest_ref
+                or phase.request_content_hash != origin.request_content_hash
+                or phase.policy_scope != origin.policy_scope
+                or phase.policy_ref != origin.policy_ref
+                or phase.action_generation != head.action_generation
+                or phase.job_id != head.job_id
+            ):
+                raise ValueError("candidate_experiment_action_phase_binding_mismatch")
 
-    admission = bridge.control_store.current_execution_job_admission()
-    job = admission.job
-    if (
-        type(admission) is not ControlJobExecutionAdmission
-        or job.kind != "acquisition"
-        or job.state != "running"
-        or job.run_id != origin.run_id
-        or job.job_id != phase.job_id
-        or admission.scope.status != "established"
-        or admission.scope.actor_authenticated is not True
-        or not admission.scope.actor_subject
-        or admission.scope.tenant_id != origin.tenant_id
-        or admission.scope.cell_id != origin.cell_id
-    ):
-        raise ValueError("candidate_experiment_action_live_job_scope_mismatch")
+            receipt: CandidateAcquisitionActionReceipt | None = None
+            if required_phase == "candidate_input_reentry_pending":
+                if candidate_action_ref is None:
+                    raise ValueError("candidate_experiment_reentry_action_missing")
+                payload = artifacts.load_core_json_artifact(
+                    bridge.artifact_store, candidate_action_ref
+                )
+                receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+                executing_records = tuple(
+                    record
+                    for record in outcome.phase_chain
+                    if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
+                )
+                if len(executing_records) != 1:
+                    raise ValueError("candidate_experiment_reentry_executing_phase_missing")
+                executing_phase = getattr(executing_records[0], "receipt", None)
+                if type(executing_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+                    raise ValueError("candidate_experiment_reentry_executing_phase_untyped")
+                selected_phase_ref = artifact_ref_for_manifest(
+                    bridge.artifact_store.get_manifest(receipt.action_phase_ref)
+                )
+                if str(selected_phase_ref.artifact_id) != receipt.action_phase_ref:
+                    raise ValueError("candidate_experiment_reentry_phase_profile_missing")
+                if not defer_historical_reentry:
+                    read_candidate_experiment_acquisition_action_historical(
+                        bridge=bridge,
+                        origin=current_origin,
+                        receipt_ref=candidate_action_ref,
+                        executing_phase=executing_phase,
+                        executing_phase_ref=receipt.action_phase_ref,
+                    )
+
+            admission = bridge.control_store.current_execution_job_admission()
+            job = admission.job
+            if (
+                type(admission) is not ControlJobExecutionAdmission
+                or job.kind != "acquisition"
+                or job.state != "running"
+                or job.run_id != origin.run_id
+                or job.job_id != phase.job_id
+                or admission.scope.status != "established"
+                or admission.scope.actor_authenticated is not True
+                or not admission.scope.actor_subject
+                or admission.scope.tenant_id != origin.tenant_id
+                or admission.scope.cell_id != origin.cell_id
+            ):
+                raise ValueError("candidate_experiment_action_live_job_scope_mismatch")
+            current_head = bridge.control_store.get_acquisition_action_head(
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                route_id=origin.route_id,
+                action_generation=head.action_generation,
+            )
+            after = bridge.control_store.current_execution_job_admission()
+            if current_head != head or not after.same_execution_identity(admission):
+                raise ValueError("candidate_experiment_action_live_owner_changed")
+            # Reentry consumes this fresh outcome for its historical receipt read. Fold
+            # after the final source selection, at the last boundary before that read.
+            if defer_historical_reentry and (
+                _candidate_experiment_source_selection(bridge, current_origin) != selected
+            ):
+                raise ValueError("candidate_experiment_action_live_owner_changed")
+            validating_context = False
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        if validating_context:
+            raise
+        reason = (
+            "candidate_experiment_action_history_not_verified"
+            if entered
+            else "candidate_experiment_action_source_not_current"
+        )
+        raise ValueError(reason) from exc
+
+    # The closing fresh replay can observe changes caused during context
+    # validation. Finish source selection before the final cheap lease/head
+    # fence; equal history values never supply current permission.
+    closing_selection = _candidate_experiment_source_selection(bridge, current_origin)
     current_head = bridge.control_store.get_acquisition_action_head(
         tenant_id=origin.tenant_id,
         cell_id=origin.cell_id,
@@ -731,35 +770,17 @@ def _current_candidate_experiment_action_context(
         action_generation=head.action_generation,
     )
     after = bridge.control_store.current_execution_job_admission()
-    if current_head != head or not after.same_execution_identity(admission):
-        raise ValueError("candidate_experiment_action_live_owner_changed")
-    # Reentry consumes this fresh outcome for its historical receipt read. Fold
-    # after the final source selection, at the last boundary before that read.
-    if defer_historical_reentry and (
-        _candidate_experiment_source_selection(bridge, current_origin) != selected
-    ):
-        raise ValueError("candidate_experiment_action_live_owner_changed")
-    try:
-        current_outcomes = service.acquisition_route_sink.experiment_action_outcomes(
-            tenant_id=origin.tenant_id,
-            cell_id=origin.cell_id,
-            run_id=origin.run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-            verified_origin=current_origin,
-        )
-    except (OSError, RuntimeError, TypeError, ValueError) as exc:
-        raise ValueError("candidate_experiment_action_history_not_verified") from exc
-    if current_outcomes != outcomes or (
-        not defer_historical_reentry
-        and _candidate_experiment_source_selection(bridge, current_origin) != selected
+    if (
+        current_head != head
+        or not after.same_execution_identity(admission)
+        or closing_selection != selected
     ):
         raise ValueError("candidate_experiment_action_live_owner_changed")
     return _CurrentCandidateExperimentActionContext(
         selection=selected,
         phase=phase,
         admission=admission,
-        outcome=current_outcomes[-1],
+        outcome=outcome,
         action=receipt,
     )
 

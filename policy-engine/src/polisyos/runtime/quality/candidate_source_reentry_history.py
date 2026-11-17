@@ -1067,9 +1067,13 @@ def _verify_n5(
     )
     from polisyos.runtime.quality.generation_cycle import (
         _candidate_simulation_selected_n4_source_ref,
+        _validate_loaded_joint_simulation_result,
         load_joint_simulation_result,
     )
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV3,
+    )
     from polisyos.runtime.quality.n5_execution_basis import (
         exact_n5_content_bytes,
         read_n5_execution_implementation_witness,
@@ -1086,6 +1090,7 @@ def _verify_n5(
     source_ref = _candidate_simulation_selected_n4_source_ref(simulation)
     if source_ref != receipt.n4_source_ref:
         raise ValueError("candidate_reentry_history_n4_transition_mismatch")
+    source = None
     if source_ref is not None:
         _selected_payload(store, source_ref, kind="runtime.quality.n4_candidate_scenario_source")
         source = repository.load_candidate_scenario_source_for_reissue(
@@ -1122,57 +1127,94 @@ def _verify_n5(
     ):
         raise ValueError("candidate_reentry_history_n4_context_mismatch")
     input_record = None
-    if receipt.n5_input_ref is not None:
-        input_record = repository.resolve_candidate_simulation_v5(
-            ref=receipt.n5_input_ref, **expected
-        )
-        if type(input_record) is not CandidateSimulationN5InputV5 or (
-            input_record.context_job_ref != receipt.context_job_ref
-            or input_record.model_declaration_ref != receipt.model_declaration_ref
-            or input_record.ncm_ref != receipt.ncm_ref
-            or input_record.original_candidate_id != receipt.source_candidate_ref
-            or input_record.original_candidate_hash != target_cycle.selected_candidate_content_hash
-            or input_record.materialization.world_model_record_hash
-            != receipt.scenario_world_model_content_hash
-            or exact_n5_content_bytes(input_record.profile) != exact_n5_content_bytes(profile)
-            or input_record.n4_source_ref != source_ref
-        ):
-            raise ValueError("candidate_reentry_history_n5_input_mismatch")
     execution = None
-    if receipt.n5_execution_ref is not None:
-        execution = repository.resolve_candidate_simulation_v5(
-            ref=receipt.n5_execution_ref, **expected
+    result = None
+    if (
+        type(source) is N4CandidateScenarioSourceRecordV3
+        and receipt.n5_input_ref is not None
+        and receipt.n5_execution_ref is not None
+        and receipt.n5_result_ref is not None
+    ):
+        paired_source, execution, input_record, result = (
+            repository._resolve_selected_candidate_simulation_v5_pair(
+                source_ref=source_ref,
+                execution_ref=receipt.n5_execution_ref,
+                input_ref=receipt.n5_input_ref,
+                expected_run_id=receipt.run_id,
+                expected_tenant_id=receipt.tenant_id,
+                expected_cell_id=receipt.cell_id,
+            )
         )
         if (
-            type(execution) is not CandidateSimulationExecutionV5
-            or input_record is None
-            or (
-                execution.n5_input_ref != receipt.n5_input_ref
-                or execution.n5_result_ref != receipt.n5_result_ref
-                or execution.context_job_ref != receipt.context_job_ref
-                or execution.model_declaration_ref != receipt.model_declaration_ref
-                or execution.ncm_ref != receipt.ncm_ref
-                or execution.original_candidate_id != receipt.source_candidate_ref
-                or execution.original_candidate_hash != target_cycle.selected_candidate_content_hash
-                or execution.world_model_record_hash != receipt.scenario_world_model_content_hash
-            )
+            exact_n5_content_bytes(paired_source) != exact_n5_content_bytes(source)
+            or paired_source.job_id != receipt.action_job_id
         ):
-            raise ValueError("candidate_reentry_history_n5_execution_mismatch")
+            raise ValueError("candidate_reentry_history_n4_pair_source_mismatch")
+    else:
+        if receipt.n5_input_ref is not None:
+            input_record = repository.resolve_candidate_simulation_v5(
+                ref=receipt.n5_input_ref, **expected
+            )
+        if receipt.n5_execution_ref is not None:
+            execution = repository.resolve_candidate_simulation_v5(
+                ref=receipt.n5_execution_ref, **expected
+            )
+    if receipt.n5_input_ref is not None and (
+        type(input_record) is not CandidateSimulationN5InputV5
+        or input_record.context_job_ref != receipt.context_job_ref
+        or input_record.model_declaration_ref != receipt.model_declaration_ref
+        or input_record.ncm_ref != receipt.ncm_ref
+        or input_record.original_candidate_id != receipt.source_candidate_ref
+        or input_record.original_candidate_hash != target_cycle.selected_candidate_content_hash
+        or input_record.materialization.world_model_record_hash
+        != receipt.scenario_world_model_content_hash
+        or exact_n5_content_bytes(input_record.profile) != exact_n5_content_bytes(profile)
+        or input_record.n4_source_ref != source_ref
+    ):
+        raise ValueError("candidate_reentry_history_n5_input_mismatch")
+    if receipt.n5_execution_ref is not None and (
+        type(execution) is not CandidateSimulationExecutionV5
+        or input_record is None
+        or execution.n5_input_ref != receipt.n5_input_ref
+        or execution.n5_result_ref != receipt.n5_result_ref
+        or execution.context_job_ref != receipt.context_job_ref
+        or execution.model_declaration_ref != receipt.model_declaration_ref
+        or execution.ncm_ref != receipt.ncm_ref
+        or execution.original_candidate_id != receipt.source_candidate_ref
+        or execution.original_candidate_hash != target_cycle.selected_candidate_content_hash
+        or execution.world_model_record_hash != receipt.scenario_world_model_content_hash
+    ):
+        raise ValueError("candidate_reentry_history_n5_execution_mismatch")
     if receipt.n5_result_ref is not None:
         if input_record is None:
             raise ValueError("candidate_reentry_history_n5_result_input_missing")
-        result = load_joint_simulation_result(
-            receipt.n5_result_ref,
-            store=store,
-            expected_world_model_record_content_hash=receipt.scenario_world_model_content_hash,
-            expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
-            expected_selected_outcomes=(input_record.outcome_variable,),
-            expected_receipt_payload_hash=(
+        if result is None:
+            result = load_joint_simulation_result(
+                receipt.n5_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=receipt.scenario_world_model_content_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+                expected_selected_outcomes=(input_record.outcome_variable,),
+                expected_receipt_payload_hash=(
+                    execution.n5_result_content_hash
+                    if execution is not None
+                    else simulation.simulation_ref or ""
+                ),
+            )
+        else:
+            _validate_loaded_joint_simulation_result(
+                result,
+                expected_world_model_record_content_hash=receipt.scenario_world_model_content_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+                expected_selected_outcomes=(input_record.outcome_variable,),
+            )
+            expected_result_hash = (
                 execution.n5_result_content_hash
                 if execution is not None
                 else simulation.simulation_ref or ""
-            ),
-        )
+            )
+            if result.receipt.payload_hash != expected_result_hash:
+                raise ValueError("candidate_reentry_history_n5_result_receipt_mismatch")
         if execution is not None:
             from polisyos.runtime.quality.n5_candidate_content import (
                 CONTENT_OBSERVATION_KEY,

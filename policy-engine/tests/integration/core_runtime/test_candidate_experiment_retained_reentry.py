@@ -304,16 +304,72 @@ def retained_reentry_runtime(
         assert not unexpected_effects
 
 
+def test_retained_pending_history_replays_two_fresh_owner_cuts_without_work(
+    retained_reentry_runtime: tuple[dict[str, Any], dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Read a genuine failed/pending history without reviving its execution grant."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+    from polisyos.runtime.quality.joint_simulation_horizon import _RECEIPT_MEMO
+
+    commission, runtime = retained_reentry_runtime
+    control = runtime["control"]
+    loop = AcquisitionRouteLoop(
+        control_store=control._control_store,
+        artifact_store=control._artifact_store,
+        event_log=control._diagnostic_event_log,
+        core_source_resolver=control.resolve_completed_control_job_core_run_source,
+        tenant_id=commission["tenant_id"],
+        cell_id=commission["cell_id"],
+        action_outcome_reader=control.acquisition_route_sink,
+    )
+    memos: list[dict[object, bytes]] = []
+    original = AcquisitionRouteLoopAuthoritySink._experiment_action_outcomes_once
+
+    def observe_cut(owner: AcquisitionRouteLoopAuthoritySink, **kwargs: Any) -> Any:
+        memo = _RECEIPT_MEMO.get()
+        assert memo is not None
+        memos.append(memo)
+        return original(owner, **kwargs)
+
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink, "_experiment_action_outcomes_once", observe_cut
+    )
+    resolution = loop._resolve_current_candidate_experiment_resolution(run_id=commission["run_id"])
+    assert len(memos) == 2 and memos[0] is not memos[1]
+    head = control._control_store.get_acquisition_action_head(
+        tenant_id=commission["tenant_id"],
+        cell_id=commission["cell_id"],
+        run_id=commission["run_id"],
+        source_job_id=resolution.origin.source_job_id,
+        route_id=resolution.origin.route_id,
+        action_generation=commission["action_generation"],
+    )
+    assert head is not None and head.receipt_phase == "candidate_input_reentry_pending"
+    assert resolution.origin.current_action_head == head
+    assert resolution.outcomes[-1].head == head
+    assert control._control_store.get_job(commission["action_job_id"]).state == "failed"
+    assert runtime["authority_valid_until"] < datetime.now(UTC)
+    record_property("retained_pending_history_cut_count", len(memos))
+
+
 def test_paid_candidate_reentry_reopens_historically_without_new_work(
     retained_reentry_runtime: tuple[dict[str, Any], dict[str, Any]],
     record_property: Callable[[str, object], None],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Reopen the actual completed reentry while preserving the failed history."""
     from polisyos.core.artifacts import ArtifactOwnershipError, ArtifactRef
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_module
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
     from polisyos.runtime.quality.candidate_source_reentry_history import (
         verify_candidate_experiment_source_reentry_history,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from tests._helpers.candidate_experiment_served_execution import (
         _build_candidate_experiment_world_growth_bridge,
     )
@@ -353,6 +409,61 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     bridge = _build_candidate_experiment_world_growth_bridge(
         control_service=control, authority=runtime["policy_owner"].issuer.authority
     )
+
+    def selected_key(ref: ArtifactRef) -> tuple[str, str | None]:
+        return str(ref.artifact_id), ref.manifest_profile_sha256
+
+    v5_record_reads: list[tuple[tuple[str, str | None], str | None]] = []
+    public_v5_resolutions: list[tuple[str, str | None]] = []
+    joint_result_reads: list[tuple[str, str | None]] = []
+    paired_v5_resolutions: list[tuple[tuple[str, str | None], ...]] = []
+    original_pair_resolver = (
+        GenerationSourceRepository._resolve_selected_candidate_simulation_v5_pair
+    )
+    original_record_reader = GenerationSourceRepository._read_candidate_simulation_v5_record
+    original_v5_resolver = GenerationSourceRepository.resolve_candidate_simulation_v5
+    original_result_reader = generation_cycle_module.load_joint_simulation_result
+
+    def count_v5_record_read(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
+        v5_record_reads.append((selected_key(kwargs["ref"]), kwargs.get("expected_job_id")))
+        return original_record_reader(repository, **kwargs)
+
+    def count_public_v5_resolution(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
+        public_v5_resolutions.append(selected_key(kwargs["ref"]))
+        return original_v5_resolver(repository, **kwargs)
+
+    def count_pair_resolution(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
+        paired_v5_resolutions.append(
+            tuple(
+                selected_key(kwargs[name]) for name in ("source_ref", "input_ref", "execution_ref")
+            )
+        )
+        return original_pair_resolver(repository, **kwargs)
+
+    def count_joint_result_read(ref: ArtifactRef, **kwargs: Any) -> Any:
+        joint_result_reads.append(selected_key(ref))
+        return original_result_reader(ref, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "_read_candidate_simulation_v5_record",
+        count_v5_record_read,
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "resolve_candidate_simulation_v5",
+        count_public_v5_resolution,
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "_resolve_selected_candidate_simulation_v5_pair",
+        count_pair_resolution,
+    )
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "load_joint_simulation_result",
+        count_joint_result_read,
+    )
     receipt = verify_candidate_experiment_source_reentry_history(
         bridge=bridge,
         origin=origin,
@@ -370,6 +481,49 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     assert receipt.continuation_currentness.status == "not_established"
     assert receipt.n5_execution_ref == ArtifactRef.model_validate(commission["n5_execution_ref"])
     assert receipt.n5_result_ref == ArtifactRef.model_validate(commission["n5_result_ref"])
+    assert receipt.n4_source_ref is not None
+    assert receipt.n5_input_ref is not None
+    assert all(
+        ref.manifest_profile_sha256 is not None
+        for ref in (
+            receipt.n4_source_ref,
+            receipt.n5_input_ref,
+            receipt.n5_execution_ref,
+            receipt.n5_result_ref,
+        )
+    )
+    input_key = selected_key(receipt.n5_input_ref)
+    execution_key = selected_key(receipt.n5_execution_ref)
+    result_key = selected_key(receipt.n5_result_ref)
+    assert [entry for entry in v5_record_reads if entry[0] == input_key] == [
+        (input_key, receipt.action_job_id)
+    ]
+    assert [entry for entry in v5_record_reads if entry[0] == execution_key] == [
+        (execution_key, receipt.action_job_id)
+    ]
+    assert not any(ref in {input_key, execution_key} for ref in public_v5_resolutions)
+    assert [ref for ref in joint_result_reads if ref == result_key] == [result_key]
+    assert paired_v5_resolutions == [
+        (
+            selected_key(receipt.n4_source_ref),
+            input_key,
+            execution_key,
+        )
+    ]
+    record_property(
+        "retained_v5_history_selected_reads",
+        json.dumps(
+            {
+                "input_record_reads": 1,
+                "execution_record_reads": 1,
+                "result_reads": 1,
+                "individual_v5_resolutions": 0,
+                "paired_resolutions": len(paired_v5_resolutions),
+                "expected_job_id": receipt.action_job_id,
+            },
+            sort_keys=True,
+        ),
+    )
     assert len(receipt.continued_generation_run.cycles) == commission["expected_continued_cycles"]
     assert receipt.new_cycle.simulation.status == "joint_simulated"
     # A warm historical reader must still honor the exact selected

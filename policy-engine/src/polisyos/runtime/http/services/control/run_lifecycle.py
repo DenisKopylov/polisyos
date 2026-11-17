@@ -2321,6 +2321,17 @@ class VerifiedAcquisitionActionOutcome:
     candidate_experiment_terminal_history: CandidateExperimentTerminalHistory | None = None
 
 
+@dataclass(slots=True)
+class _CandidateExperimentActionOutcomeRead:
+    """Hold read facts only; the owner replaces them after the closing fresh sweep.
+
+    This private carrier is never accepted as a source proof or effect permit.
+    A caller may consume its final value only after the read operation closes.
+    """
+
+    outcomes: tuple[VerifiedAcquisitionActionOutcome, ...]
+
+
 @dataclass(frozen=True, slots=True)
 class _HistoricalCandidateExperimentTerminalSelection:
     head: AcquisitionActionHeadRecord
@@ -5419,6 +5430,37 @@ class AcquisitionRouteLoopAuthoritySink:
         historical_source: _HistoricalCandidateExperimentTerminalSelection | None = None,
     ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
         """Repeat one operation-owned complete prefix at two observed cuts."""
+        with self._experiment_action_outcomes_read_operation(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+            verified_origin=verified_origin,
+            historical_source=historical_source,
+        ) as read:
+            pass
+        return read.outcomes
+
+    @contextmanager
+    def _experiment_action_outcomes_read_operation(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        historical_source: _HistoricalCandidateExperimentTerminalSelection | None = None,
+    ) -> Iterator[_CandidateExperimentActionOutcomeRead]:
+        """Bracket internal context validation with two independently fresh sweeps.
+
+        Every sweep retains its full source/head boundary reopens. Only trusted
+        read-only context validation belongs between these cuts, never a physical
+        effect. Exceptions from that validation propagate without authorizing a
+        result; no carrier from a prior operation is accepted here.
+        """
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
         from polisyos.runtime.quality.joint_simulation_horizon import (
             _receipt_verification_operation,
@@ -5435,6 +5477,8 @@ class AcquisitionRouteLoopAuthoritySink:
         }
         with _receipt_verification_operation(fresh=True):
             first = self._experiment_action_outcomes_once(**scope)
+        read = _CandidateExperimentActionOutcomeRead(first)
+        yield read
         with _receipt_verification_operation(fresh=True):
             second = self._experiment_action_outcomes_once(**scope)
         if len(first) != len(second) or any(
@@ -5442,7 +5486,7 @@ class AcquisitionRouteLoopAuthoritySink:
             for before, after in zip(first, second, strict=True)
         ):
             raise ValueError("candidate_experiment_action_history_changed")
-        return second
+        read.outcomes = second
 
     def _experiment_action_outcomes_once(
         self,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -720,10 +721,25 @@ def test_current_context_reuses_fresh_origin_and_preserves_final_fences(
         bridge.artifact_store, bridge.control_store = store, control
         bridge.event_log, bridge.action_head_sink = event_log, sink
         bridge._source_control_service = service
+
+        @contextmanager
+        def resolution_read(_loop, **_kwargs):
+            # Deep source and phase owners are component seams; both fresh
+            # sink sweeps and the action context's live fences remain real.
+            with sink._experiment_action_outcomes_read_operation(
+                tenant_id=fresh.tenant_id,
+                cell_id=fresh.cell_id,
+                run_id=fresh.run_id,
+                source_job_id=fresh.source_job_id,
+                route_id=fresh.route_id,
+                verified_origin=fresh,
+            ) as read:
+                yield _ResolvedCurrentCandidateExperiment(fresh, read.outcomes)
+
         monkeypatch.setattr(
             AcquisitionRouteLoop,
-            "_resolve_current_candidate_experiment_resolution",
-            lambda self, **_: _ResolvedCurrentCandidateExperiment(fresh, outcomes),
+            "_current_candidate_experiment_resolution_read_operation",
+            resolution_read,
         )
         selection = object()
         monkeypatch.setattr(actions, "_candidate_experiment_source_selection", lambda *_: selection)
@@ -742,15 +758,19 @@ def test_current_context_reuses_fresh_origin_and_preserves_final_fences(
             ),
         )
         forwarded = []
-        actual_fold = AcquisitionRouteLoopAuthoritySink.experiment_action_outcomes
+        actual_fold = AcquisitionRouteLoopAuthoritySink._experiment_action_outcomes_read_operation
 
+        @contextmanager
         def observed_fold(self, **kwargs):
             forwarded.append(kwargs["verified_origin"])
             assert kwargs["verified_origin"] is fresh
-            return actual_fold(self, **kwargs)
+            with actual_fold(self, **kwargs) as read:
+                yield read
 
         monkeypatch.setattr(
-            AcquisitionRouteLoopAuthoritySink, "experiment_action_outcomes", observed_fold
+            AcquisitionRouteLoopAuthoritySink,
+            "_experiment_action_outcomes_read_operation",
+            observed_fold,
         )
 
         def invoke():
@@ -762,16 +782,14 @@ def test_current_context_reuses_fresh_origin_and_preserves_final_fences(
             context = invoke()
             assert context.outcome == outcome and context.selection is selection
             assert forwarded == [fresh]
-            assert admission_reads == 2
+            assert admission_reads == 3  # The final admission is after the closing replay.
             assert head_list_reads == 4  # Entry and closing SQL reads at both observed cuts.
         else:
             message = (
-                "live_owner_changed"
-                if drift in {"head", "owner"}
-                else "action_history_not_verified"
+                "live_owner_changed" if drift in {"head", "owner"} else "action_source_not_current"
             )
             with pytest.raises(ValueError, match=message):
                 invoke()
-            assert forwarded == ([] if drift in {"head", "owner"} else [fresh])
+            assert forwarded == [fresh]
     finally:
         sql.close()

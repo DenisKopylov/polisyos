@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -101,15 +102,17 @@ def _candidate_action_case(
         def __init__(self, **_kwargs: object) -> None:
             pass
 
-        def _resolve_current_candidate_experiment_resolution(
-            self, *, run_id: str
-        ) -> _ResolvedCurrentCandidateExperiment:
+        @contextmanager
+        def _current_candidate_experiment_resolution_read_operation(self, *, run_id: str):
             assert run_id == origin.run_id
             verified_outcomes = sink.experiment_action_outcomes(verified_origin=origin)
-            return _ResolvedCurrentCandidateExperiment(
+            yield _ResolvedCurrentCandidateExperiment(
                 origin=current_origin,
                 outcomes=verified_outcomes,
             )
+            current = sink.experiment_action_outcomes(verified_origin=current_origin)
+            if current != verified_outcomes:
+                raise ValueError("candidate_experiment_action_history_changed")
 
     service = SimpleNamespace(
         acquisition_route_sink=sink,
@@ -374,7 +377,7 @@ def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
         return (drifted,)
 
     case["sink"].experiment_action_outcomes = record_owner_read
-    with pytest.raises(ValueError, match="candidate_experiment_action_live_owner_changed"):
+    with pytest.raises(ValueError, match="candidate_experiment_action_history_not_verified"):
         action._current_candidate_experiment_reentry_action_context(
             case["bridge"], case["origin"], case["phase_ref"], action_ref
         )
@@ -421,7 +424,7 @@ def test_candidate_reentry_rejects_history_removed_after_final_source_selection(
         return case["outcomes"] if final_outcomes is None else final_outcomes
 
     case["sink"].experiment_action_outcomes = record_owner_read
-    with pytest.raises(ValueError, match="candidate_experiment_action_live_owner_changed"):
+    with pytest.raises(ValueError, match="candidate_experiment_action_history_not_verified"):
         action._current_candidate_experiment_reentry_action_context(
             case["bridge"], case["origin"], case["phase_ref"], action_ref
         )
@@ -454,7 +457,7 @@ def test_candidate_action_reuses_owner_outcomes_and_keeps_final_currentness_fold
 @pytest.mark.parametrize(
     ("late_change", "expected_error"),
     [
-        ("removed_history", "candidate_experiment_action_live_owner_changed"),
+        ("removed_history", "candidate_experiment_action_history_not_verified"),
         ("rebound_selection", "candidate_experiment_action_live_owner_changed"),
         ("changed_head", "candidate_experiment_action_live_owner_changed"),
     ],
@@ -512,7 +515,7 @@ def test_candidate_action_maps_mid_replay_head_advance_to_live_owner_change(
         case["bridge"].control_store, "current_head", changed_head
     )
 
-    with pytest.raises(ValueError, match="candidate_experiment_action_live_owner_changed"):
+    with pytest.raises(ValueError, match="candidate_experiment_action_history_not_verified"):
         action._current_candidate_experiment_action(
             case["bridge"], case["origin"], case["phase_ref"]
         )
@@ -534,3 +537,79 @@ def test_candidate_experiment_action_requires_canonical_control_owner_before_rep
             )
     finally:
         owners.control_store.close()
+
+
+@pytest.mark.parametrize(
+    "body_reason",
+    [
+        "candidate_experiment_action_phase_binding_mismatch",
+        "candidate_experiment_action_live_job_scope_mismatch",
+    ],
+)
+def test_candidate_action_preserves_context_body_refusal(
+    monkeypatch: pytest.MonkeyPatch, body_reason: str
+) -> None:
+    """A refused phase or live admission is never relabelled as a replay error."""
+    from dataclasses import replace
+
+    case = _candidate_action_case()
+    _install_candidate_action_case(monkeypatch, case)
+    if body_reason == "candidate_experiment_action_phase_binding_mismatch":
+        case["phase"].job_id = "foreign-action-job"
+    else:
+        rejected = replace(
+            case["admission"],
+            scope=replace(case["admission"].scope, actor_authenticated=False),
+        )
+        case["bridge"].control_store.current_execution_job_admission = lambda: rejected
+    with pytest.raises(ValueError, match="^" + body_reason + "$"):
+        action._current_candidate_experiment_action(
+            case["bridge"], case["origin"], case["phase_ref"]
+        )
+    assert case["sink_calls"] == [case["origin"]]
+
+
+@pytest.mark.parametrize("changed", ["head", "lease", "grant"])
+@pytest.mark.parametrize("boundary", ["closing_replay", "closing_selection"])
+def test_candidate_action_checks_live_owner_after_closing_replay(
+    monkeypatch: pytest.MonkeyPatch, changed: str, boundary: str
+) -> None:
+    """Equal history values do not preserve a moved head or revoked live grant."""
+    from dataclasses import replace
+
+    case = _candidate_action_case()
+    _install_candidate_action_case(monkeypatch, case)
+    original_admission = case["admission"]
+    final_admission = original_admission
+
+    def change_live_owner() -> None:
+        nonlocal final_admission
+        if changed == "head":
+            case["bridge"].control_store.current_head = SimpleNamespace()
+        elif changed == "lease":
+            final_admission = replace(original_admission, attempt=2)
+        else:
+            final_admission = replace(
+                original_admission,
+                scope=replace(original_admission.scope, actor_authenticated=False),
+            )
+
+    if boundary == "closing_replay":
+        case["sink"].final_callback = change_live_owner
+    else:
+        selections = 0
+
+        def select_source(_bridge: object, _origin: object) -> object:
+            nonlocal selections
+            selections += 1
+            if selections == 2:
+                change_live_owner()
+            return case["selections"][0]
+
+        monkeypatch.setattr(action, "_candidate_experiment_source_selection", select_source)
+    case["bridge"].control_store.current_execution_job_admission = lambda: final_admission
+    with pytest.raises(ValueError, match=r"^candidate_experiment_action_live_owner_changed$"):
+        action._current_candidate_experiment_action(
+            case["bridge"], case["origin"], case["phase_ref"]
+        )
+    assert case["sink_calls"] == [case["origin"], case["current_origin"]]

@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -608,6 +609,22 @@ def test_current_fold_uses_exact_v2_history_for_the_selected_head(
     monkeypatch.setattr(
         AcquisitionRouteLoop, "_resolve_candidate_experiment_source", lambda *_args, **_: origin
     )
+    # Selected manifests belong to the same explicit upstream component seam
+    # as the phase/history adapters. Resolve the exact fixture profile here;
+    # no CAS custody or current permission is claimed by these typed values.
+    from polisyos.runtime.http.services.control import run_lifecycle
+
+    def selected_profile_adapter(selected_store, receipt_ref, profile):
+        assert selected_store is cas
+        selected_head = by_ref[receipt_ref].head
+        if profile != selected_head.receipt_manifest_profile_sha256:
+            raise ValueError("component_receipt_profile_mismatch")
+        return _ref("runtime_quality.acquisition_route_loop_receipt", receipt_ref[-1])
+
+    monkeypatch.setattr(
+        run_lifecycle.artifacts, "resolve_manifest_by_profile", selected_profile_adapter
+    )
+    monkeypatch.setattr(run_lifecycle, "artifact_ref_for_manifest", lambda selected: selected)
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink,
         "_read_verified_action_phase",
@@ -823,3 +840,141 @@ def _assert_terminal_anchored_historical_fold(
             AcquisitionRouteClosureError, match=r"^component_current_policy_deselected$"
         ):
             sink.experiment_action_outcomes(**scope)
+
+
+@pytest.mark.parametrize(
+    "change", [None, "source", "profile", "missing_ancestor", "head", "body_error"]
+)
+def test_current_resolution_brackets_context_with_two_fresh_owner_cuts(
+    monkeypatch: pytest.MonkeyPatch, change: str | None, tmp_path: Path
+) -> None:
+    """A first-B read shares no permission and still reopens both complete cuts.
+
+    Deep phase/source semantics are explicit component adapters. The canonical
+    route, sink sweep, separate receipt memos, source/head boundary reads and
+    propagation of an upstream missing-ancestor refusal are real. This is not a
+    claim that test-owned refs establish CAS custody or production authority.
+    """
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import _RECEIPT_MEMO
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _outcome,
+        _selection_case,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
+        _requested_phase,
+    )
+
+    origin, _ = _selection_case(1)
+    phase = _requested_phase()
+    origin = replace(
+        origin,
+        generation_run=None,
+        source_cycle=_FoldSourceCycle(phase.voi_decision),
+        design_problem_basis=None,
+    )
+    outcome = _outcome(phase, 1)
+    state = {"changed": False}
+    reads: list[object] = []
+    source_reads: list[object] = []
+    original_heads = (outcome.head,)
+
+    def current_heads(**_scope):
+        if state["changed"] and change == "head":
+            return (replace(outcome.head, receipt_ref=_hash("0")),)
+        return original_heads
+
+    store = SimpleNamespace(
+        list_acquisition_action_heads_for_source=current_heads,
+        list_acquisition_action_heads=current_heads,
+    )
+    service = object.__new__(ControlPlaneService)
+    sink = object.__new__(AcquisitionRouteLoopAuthoritySink)
+    sink._control_store = service._control_store = store
+    sink._artifact_store = service._artifact_store = FileSystemCAS(tmp_path / "cas")
+    sink._event_log = service._diagnostic_event_log = object()
+    sink._core_source_resolver = service.resolve_completed_control_job_core_run_source
+    service._acquisition_route_sink = sink
+    loop = AcquisitionRouteLoop(
+        control_store=store,
+        artifact_store=sink._artifact_store,
+        event_log=sink._event_log,
+        core_source_resolver=sink._core_source_resolver,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        action_outcome_reader=sink,
+    )
+
+    def source_adapter(_loop, **_scope):
+        source_reads.append(object())
+        return (
+            replace(origin, request_content_hash=_hash("0"))
+            if state["changed"] and change == "source"
+            else origin
+        )
+
+    def phase_adapter(_sink, _head, **_scope):
+        reads.append(_RECEIPT_MEMO.get())
+        if state["changed"] and change == "missing_ancestor":
+            raise ValueError("component_selected_ancestor_missing")
+        return replace(
+            outcome,
+            head=(
+                replace(outcome.head, receipt_manifest_profile_sha256=_hash("0"))
+                if state["changed"] and change == "profile"
+                else outcome.head
+            ),
+        )
+
+    monkeypatch.setattr(
+        AcquisitionRouteLoop, "_resolve_candidate_experiment_source", source_adapter
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink, "_verify_action_head_with_origin", phase_adapter
+    )
+
+    def read_context():
+        with loop._current_candidate_experiment_resolution_read_operation(
+            run_id=origin.run_id
+        ) as resolution:
+            assert len(reads) == 1
+            assert len(source_reads) == 3  # Route entry plus the first sweep's two boundaries.
+            assert resolution.outcomes == (outcome,)
+            state["changed"] = True
+            if change == "body_error":
+                raise ValueError("component_body_refusal")
+        return resolution
+
+    if change is None:
+        resolved = read_context()
+        assert resolved.outcomes == (outcome,)
+        assert len(source_reads) == 6  # Both sweeps plus the route's closing source fence.
+        assert len(reads) == 2 and reads[0] is not reads[1]
+    else:
+        reason = (
+            "component_body_refusal"
+            if change == "body_error"
+            else (
+                "candidate_experiment_action_history_changed"
+                if change == "head"
+                else "candidate_experiment_action_history_not_verified"
+            )
+        )
+        with pytest.raises(ValueError, match="^" + reason + "$") as refused:
+            read_context()
+        assert state["changed"] is True  # An earlier refusal cannot satisfy this control.
+        if change == "body_error":
+            assert len(reads) == 1  # No successful context escapes an early refusal.
+        elif change in {"source", "profile", "missing_ancestor"}:
+            assert (
+                str(refused.value.__cause__)
+                == {
+                    "source": "candidate_experiment_source_changed",
+                    "profile": "candidate_experiment_action_history_changed",
+                    "missing_ancestor": "component_selected_ancestor_missing",
+                }[change]
+            )

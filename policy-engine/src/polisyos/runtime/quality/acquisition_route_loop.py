@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
@@ -2999,6 +3000,23 @@ class AcquisitionRouteLoop:
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
     ) -> _ResolvedCurrentCandidateExperiment:
+        """Return current read facts only after both complete fresh cuts close."""
+        with self._current_candidate_experiment_resolution_read_operation(
+            run_id=run_id,
+            before_action_generation=before_action_generation,
+            action_job_id=action_job_id,
+        ) as resolution:
+            pass
+        return resolution
+
+    @contextmanager
+    def _current_candidate_experiment_resolution_read_operation(
+        self,
+        *,
+        run_id: str,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
+    ) -> Iterator[_ResolvedCurrentCandidateExperiment]:
         """Replay the live experiment source and retain its owner-verified outcomes.
 
         Each terminal generation is accepted only after its experiment-aware
@@ -3045,7 +3063,7 @@ class AcquisitionRouteLoop:
         reader = self._action_outcome_reader
         service = getattr(self._core_source_resolver, "__self__", None)
         owner_reader = getattr(
-            AcquisitionRouteLoopAuthoritySink, "experiment_action_outcomes", None
+            AcquisitionRouteLoopAuthoritySink, "_experiment_action_outcomes_read_operation", None
         )
         if (
             type(reader) is not AcquisitionRouteLoopAuthoritySink
@@ -3057,199 +3075,219 @@ class AcquisitionRouteLoop:
             or not callable(owner_reader)
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
+        validating_context = False
         try:
-            outcomes = owner_reader(
+            with owner_reader(
                 reader,
                 **scope,
                 route_id=origin.route_id,
                 verified_origin=origin,
-            )
-        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            raise AcquisitionRouteClosureError(
-                "candidate_experiment_action_history_not_verified"
-            ) from exc
-        if (
-            not isinstance(outcomes, tuple)
-            or any(type(item) is not VerifiedAcquisitionActionOutcome for item in outcomes)
-            or tuple(item.head for item in outcomes) != heads
-        ):
-            raise AcquisitionRouteClosureError("candidate_experiment_action_history_not_verified")
-
-        if tuple(item.head.action_generation for item in outcomes) != tuple(
-            range(1, len(outcomes) + 1)
-        ):
-            raise AcquisitionRouteClosureError("candidate_experiment_action_history_not_contiguous")
-        current_head = None
-        current_terminal_history = None
-        previous_terminal_history: CandidateExperimentTerminalHistory | None = None
-        terminal_history_chain: list[CandidateExperimentTerminalHistory] = []
-        for index, outcome in enumerate(outcomes):
-            head = outcome.head
-            receipt = outcome.latest_receipt
-            is_terminal = type(receipt) in {
-                AcquisitionCandidateExperimentTerminalReceipt,
-                AcquisitionCandidateExperimentTerminalReceiptV2,
-            }
-            if is_terminal:
-                history = outcome.candidate_experiment_terminal_history
+            ) as read:
+                validating_context = True
+                outcomes = read.outcomes
                 if (
-                    type(history) is not CandidateExperimentTerminalHistory
-                    or history.head != head
-                    or history.terminal != receipt
-                    or history.terminal_ref.artifact_id
-                    != ArtifactID.model_validate(head.receipt_ref)
-                    or history.terminal_ref.manifest_profile_sha256
-                    != head.receipt_manifest_profile_sha256
-                    or history.origin.candidate_terminal_history_chain
-                    != tuple(terminal_history_chain)
+                    not isinstance(outcomes, tuple)
+                    or any(type(item) is not VerifiedAcquisitionActionOutcome for item in outcomes)
+                    or tuple(item.head for item in outcomes) != heads
                 ):
                     raise AcquisitionRouteClosureError(
-                        "candidate_experiment_terminal_history_not_verified"
+                        "candidate_experiment_action_history_not_verified"
                     )
-                if type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
-                    # The canonical history owner has replayed the exact reuse
-                    # occurrence, including its retained or blocked outcome.
-                    if (
-                        previous_terminal_history is None
-                        or history.frontier_before is None
-                        or history.frontier_before != previous_terminal_history.frontier_after
-                    ):
-                        raise AcquisitionRouteClosureError(
-                            "candidate_experiment_terminal_generation_fold_mismatch"
-                        )
-                else:
-                    decision = history.decision
-                    if decision is None or history.selected_basis is None:
-                        raise AcquisitionRouteClosureError(
-                            "candidate_experiment_terminal_evaluation_history_not_established"
-                        )
-                    if previous_terminal_history is None:
+
+                if tuple(item.head.action_generation for item in outcomes) != tuple(
+                    range(1, len(outcomes) + 1)
+                ):
+                    raise AcquisitionRouteClosureError(
+                        "candidate_experiment_action_history_not_contiguous"
+                    )
+                current_head = None
+                current_terminal_history = None
+                previous_terminal_history: CandidateExperimentTerminalHistory | None = None
+                terminal_history_chain: list[CandidateExperimentTerminalHistory] = []
+                for index, outcome in enumerate(outcomes):
+                    head = outcome.head
+                    receipt = outcome.latest_receipt
+                    is_terminal = type(receipt) in {
+                        AcquisitionCandidateExperimentTerminalReceipt,
+                        AcquisitionCandidateExperimentTerminalReceiptV2,
+                    }
+                    if is_terminal:
+                        history = outcome.candidate_experiment_terminal_history
                         if (
-                            decision.prior_basis_ref is not None
-                            or decision.prior_evaluation is not None
-                            or decision.expected_frontier_revision != 0
-                            or decision.expected_frontier_ref is not None
+                            type(history) is not CandidateExperimentTerminalHistory
+                            or history.head != head
+                            or history.terminal != receipt
+                            or history.terminal_ref.artifact_id
+                            != ArtifactID.model_validate(head.receipt_ref)
+                            or history.terminal_ref.manifest_profile_sha256
+                            != head.receipt_manifest_profile_sha256
+                            or history.origin.candidate_terminal_history_chain
+                            != tuple(terminal_history_chain)
                         ):
                             raise AcquisitionRouteClosureError(
-                                "candidate_experiment_prior_frontier_history_not_established"
+                                "candidate_experiment_terminal_history_not_verified"
                             )
-                    else:
-                        previous = previous_terminal_history
-                        if previous.frontier_after is None:
+                        if type(receipt) is AcquisitionCandidateExperimentTerminalReceiptV2:
+                            # The canonical history owner has replayed the exact reuse
+                            # occurrence, including its retained or blocked outcome.
                             if (
-                                previous.evaluation is not None
-                                or decision.comparison_result != "not_established"
-                                or decision.predicate_provenance != "not_established"
-                                or decision.prior_basis_ref is not None
-                                or decision.prior_evaluation is not None
-                                or decision.expected_frontier_ref is not None
-                                or decision.expected_frontier_revision != 0
+                                previous_terminal_history is None
+                                or history.frontier_before is None
+                                or history.frontier_before
+                                != previous_terminal_history.frontier_after
                             ):
                                 raise AcquisitionRouteClosureError(
                                     "candidate_experiment_terminal_generation_fold_mismatch"
                                 )
-                        elif (
-                            previous.selected_basis is None
-                            or not _candidate_ref_same(
-                                decision.prior_basis_ref,
-                                previous.terminal.selected_basis_ref,
-                            )
-                            or decision.expected_frontier_ref
-                            != previous.frontier_after.frontier_ref
-                            or decision.expected_frontier_revision
-                            != previous.frontier_after.revision
-                            or previous.evaluation is None
-                            or decision.prior_evaluation is None
-                            or not _candidate_model_values_same(
-                                decision.prior_evaluation,
-                                previous.evaluation.selected.model_copy(
-                                    update={"basis_ref": previous.terminal.selected_basis_ref}
-                                ),
-                            )
-                        ):
-                            raise AcquisitionRouteClosureError(
-                                "candidate_experiment_terminal_generation_fold_mismatch"
-                            )
-                    if receipt.terminal_outcome == "candidate_evaluation_retained":
-                        previous = previous_terminal_history
-                        continuation = history.continuation
-                        current_basis = history.current_basis
-                        if (
-                            previous is None
-                            or previous.selected_basis is None
-                            or continuation is None
-                            or current_basis is None
-                            or not _candidate_model_values_same(
-                                history.selected_basis, previous.selected_basis
-                            )
-                            or not _candidate_model_values_same(
-                                history.evaluation, previous.evaluation
-                            )
-                            or not (
-                                set(previous.selected_basis.limitations)
-                                | set(current_basis.limitations)
-                                | (
-                                    set(previous.continuation.limitations)
-                                    if previous.continuation is not None
-                                    else set()
+                        else:
+                            decision = history.decision
+                            if decision is None or history.selected_basis is None:
+                                raise AcquisitionRouteClosureError(
+                                    "candidate_experiment_terminal_evaluation_history_not_established"
                                 )
-                            ).issubset(continuation.limitations)
-                        ):
-                            raise AcquisitionRouteClosureError(
-                                "candidate_experiment_retained_limitations_not_established"
-                            )
-                current_terminal_history = history
-                previous_terminal_history = history
-                terminal_history_chain.append(history)
-            elif type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
-                raise AcquisitionRouteClosureError("candidate_experiment_action_receipt_untyped")
-            if (
-                (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.source_job_id)
-                != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
-                or receipt.route_id != origin.route_id
-                or receipt.source_payload_ref != origin.source_payload_ref
-                or receipt.capability_manifest_ref != origin.capability_manifest_ref
-                or receipt.request_content_hash != origin.request_content_hash
-                or not _candidate_model_values_same(receipt.policy_scope, origin.policy_scope)
-                or not _candidate_ref_same(receipt.policy_ref, origin.policy_ref)
-                or not _candidate_model_values_same(
-                    receipt.voi_decision, origin.source_cycle.voi_decision
+                            if previous_terminal_history is None:
+                                if (
+                                    decision.prior_basis_ref is not None
+                                    or decision.prior_evaluation is not None
+                                    or decision.expected_frontier_revision != 0
+                                    or decision.expected_frontier_ref is not None
+                                ):
+                                    raise AcquisitionRouteClosureError(
+                                        "candidate_experiment_prior_frontier_history_not_established"
+                                    )
+                            else:
+                                previous = previous_terminal_history
+                                if previous.frontier_after is None:
+                                    if (
+                                        previous.evaluation is not None
+                                        or decision.comparison_result != "not_established"
+                                        or decision.predicate_provenance != "not_established"
+                                        or decision.prior_basis_ref is not None
+                                        or decision.prior_evaluation is not None
+                                        or decision.expected_frontier_ref is not None
+                                        or decision.expected_frontier_revision != 0
+                                    ):
+                                        raise AcquisitionRouteClosureError(
+                                            "candidate_experiment_terminal_generation_fold_mismatch"
+                                        )
+                                elif (
+                                    previous.selected_basis is None
+                                    or not _candidate_ref_same(
+                                        decision.prior_basis_ref,
+                                        previous.terminal.selected_basis_ref,
+                                    )
+                                    or decision.expected_frontier_ref
+                                    != previous.frontier_after.frontier_ref
+                                    or decision.expected_frontier_revision
+                                    != previous.frontier_after.revision
+                                    or previous.evaluation is None
+                                    or decision.prior_evaluation is None
+                                    or not _candidate_model_values_same(
+                                        decision.prior_evaluation,
+                                        previous.evaluation.selected.model_copy(
+                                            update={
+                                                "basis_ref": previous.terminal.selected_basis_ref
+                                            }
+                                        ),
+                                    )
+                                ):
+                                    raise AcquisitionRouteClosureError(
+                                        "candidate_experiment_terminal_generation_fold_mismatch"
+                                    )
+                            if receipt.terminal_outcome == "candidate_evaluation_retained":
+                                previous = previous_terminal_history
+                                continuation = history.continuation
+                                current_basis = history.current_basis
+                                if (
+                                    previous is None
+                                    or previous.selected_basis is None
+                                    or continuation is None
+                                    or current_basis is None
+                                    or not _candidate_model_values_same(
+                                        history.selected_basis, previous.selected_basis
+                                    )
+                                    or not _candidate_model_values_same(
+                                        history.evaluation, previous.evaluation
+                                    )
+                                    or not (
+                                        set(previous.selected_basis.limitations)
+                                        | set(current_basis.limitations)
+                                        | (
+                                            set(previous.continuation.limitations)
+                                            if previous.continuation is not None
+                                            else set()
+                                        )
+                                    ).issubset(continuation.limitations)
+                                ):
+                                    raise AcquisitionRouteClosureError(
+                                        "candidate_experiment_retained_limitations_not_established"
+                                    )
+                        current_terminal_history = history
+                        previous_terminal_history = history
+                        terminal_history_chain.append(history)
+                    elif type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_action_receipt_untyped"
+                        )
+                    if (
+                        (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.source_job_id)
+                        != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+                        or receipt.route_id != origin.route_id
+                        or receipt.source_payload_ref != origin.source_payload_ref
+                        or receipt.capability_manifest_ref != origin.capability_manifest_ref
+                        or receipt.request_content_hash != origin.request_content_hash
+                        or not _candidate_model_values_same(
+                            receipt.policy_scope, origin.policy_scope
+                        )
+                        or not _candidate_ref_same(receipt.policy_ref, origin.policy_ref)
+                        or not _candidate_model_values_same(
+                            receipt.voi_decision, origin.source_cycle.voi_decision
+                        )
+                        or receipt.action_generation != head.action_generation
+                        or receipt.job_id != head.job_id
+                        or receipt.coarse_phase != head.coarse_phase
+                        or receipt.receipt_phase != head.receipt_phase
+                        or receipt.recovery_state != head.recovery_state
+                        or receipt.predecessor_receipt_ref != head.predecessor_receipt_ref
+                        or head.receipt_ref != head.receipt_sha256
+                    ):
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_action_identity_mismatch"
+                        )
+                    if (
+                        index == len(outcomes) - 1
+                        and action_job_id is not None
+                        and action_job_id != head.job_id
+                    ):
+                        raise AcquisitionRouteClosureError("candidate_experiment_action_pending")
+                    if index < len(outcomes) - 1 and not is_terminal:
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_action_generation_predecessor_not_terminal"
+                        )
+                    current_head = head
+
+                yield _ResolvedCurrentCandidateExperiment(
+                    origin=replace(
+                        origin,
+                        current_action_head=current_head,
+                        current_terminal_history=current_terminal_history,
+                        candidate_terminal_history_chain=tuple(terminal_history_chain),
+                    ),
+                    outcomes=outcomes,
                 )
-                or receipt.action_generation != head.action_generation
-                or receipt.job_id != head.job_id
-                or receipt.coarse_phase != head.coarse_phase
-                or receipt.receipt_phase != head.receipt_phase
-                or receipt.recovery_state != head.recovery_state
-                or receipt.predecessor_receipt_ref != head.predecessor_receipt_ref
-                or head.receipt_ref != head.receipt_sha256
-            ):
-                raise AcquisitionRouteClosureError("candidate_experiment_action_identity_mismatch")
-            if (
-                index == len(outcomes) - 1
-                and action_job_id is not None
-                and action_job_id != head.job_id
-            ):
-                raise AcquisitionRouteClosureError("candidate_experiment_action_pending")
-            if index < len(outcomes) - 1 and not is_terminal:
-                raise AcquisitionRouteClosureError(
-                    "candidate_experiment_action_generation_predecessor_not_terminal"
-                )
-            current_head = head
+                validating_context = False
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            if validating_context:
+                raise
+            raise AcquisitionRouteClosureError(
+                "candidate_experiment_action_history_not_verified"
+            ) from exc
 
         refreshed_origin = self._resolve_candidate_experiment_source(run_id=run_id)
         if not _candidate_model_values_same(origin, refreshed_origin):
             raise AcquisitionRouteClosureError("candidate_experiment_source_changed")
         if self._control_store.list_acquisition_action_heads_for_source(**scope) != heads:
             raise AcquisitionRouteClosureError("candidate_experiment_action_history_changed")
-        return _ResolvedCurrentCandidateExperiment(
-            origin=replace(
-                refreshed_origin,
-                current_action_head=current_head,
-                current_terminal_history=current_terminal_history,
-                candidate_terminal_history_chain=tuple(terminal_history_chain),
-            ),
-            outcomes=outcomes,
-        )
 
     def _native_leaf_cost_profile_refs(
         self, origin: _VerifiedAcquisitionOrigin

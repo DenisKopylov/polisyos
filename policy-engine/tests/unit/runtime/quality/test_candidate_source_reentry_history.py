@@ -604,6 +604,289 @@ def test_candidate_n5_checkpoint_requires_selected_event_and_complete_output(
             held_path.rename(selected_path)
 
 
+def test_incomplete_v5_history_keeps_individual_input_read_and_refuses_completion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only a complete selected tuple uses the paired reader or completes N5."""
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.candidate_source_reentry_history import _verify_n5
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    def selected(kind: str, token: str) -> artifacts.ArtifactRef:
+        return artifacts.ArtifactRef(
+            artifact_id="sha256:" + token * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    source_ref = selected("runtime.quality.n4_candidate_scenario_source", "1")
+    input_ref = selected("runtime.quality.candidate_simulation_n5_input", "2")
+    context_ref = selected("runtime.quality.cycle_substrate_context_job", "3")
+    declaration_ref = selected("runtime.quality.candidate_simulation_model_declaration", "4")
+    ncm_ref = selected("ir.ncm_spec", "5")
+    content_hash = "sha256:" + "a" * 64
+    world_hash = "sha256:" + "b" * 64
+    profile = "selected-profile-content"
+    problem = object()
+    design_problem_ref = "sha256:" + "c" * 64
+    simulation = SimpleNamespace(
+        candidate_id="candidate-history",
+        status="joint_simulated",
+        candidate_simulation_n4_source_ref=source_ref,
+        candidate_simulation_context_job_ref=None,
+        cycle_substrate_context_job_ref=None,
+        k_world_ref_before=None,
+        k_world_ref_after=None,
+        diagnostics={},
+        simulation_ref=None,
+    )
+    target_cycle = SimpleNamespace(
+        simulation=simulation,
+        selected_candidate_content_hash=content_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    receipt = SimpleNamespace(
+        run_id="run-history",
+        action_job_id="action-job",
+        tenant_id="tenant-history",
+        cell_id="cell-history",
+        n4_source_ref=source_ref,
+        n5_input_ref=input_ref,
+        n5_execution_ref=None,
+        n5_result_ref=None,
+        context_job_ref=context_ref,
+        model_declaration_ref=declaration_ref,
+        ncm_ref=ncm_ref,
+        source_candidate_ref="candidate-history",
+        scenario_world_model_content_hash=world_hash,
+        prior_n4_source_ref=source_ref,
+    )
+    source = SimpleNamespace(
+        problem=problem,
+        job_id=receipt.action_job_id,
+        stable_subject_ref=design_problem_ref,
+        profile=profile,
+        origin_source_ref=source_ref,
+    )
+    input_record = CandidateSimulationN5InputV5.model_construct(
+        profile=profile,
+        n4_source_ref=source_ref,
+        context_job_ref=context_ref,
+        model_declaration_ref=declaration_ref,
+        ncm_ref=ncm_ref,
+        original_candidate_id=receipt.source_candidate_ref,
+        original_candidate_hash=content_hash,
+        materialization=SimpleNamespace(world_model_record_hash=world_hash),
+    )
+    input_resolutions: list[tuple[artifacts.ArtifactRef, dict[str, object]]] = []
+
+    def load_source(_repository: object, *_args: object, **_kwargs: object) -> object:
+        return source
+
+    def resolve_input(
+        _repository: object, *, ref: artifacts.ArtifactRef, **kwargs: object
+    ) -> object:
+        input_resolutions.append((ref, kwargs))
+        return input_record
+
+    monkeypatch.setattr(history, "_selected_payload", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(
+        GenerationSourceRepository, "load_candidate_scenario_source_for_reissue", load_source
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository, "resolve_candidate_simulation_v5", resolve_input
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "_resolve_selected_candidate_simulation_v5_pair",
+        lambda *_args, **_kwargs: pytest.fail("incomplete V5 tuple used the paired reader"),
+    )
+
+    with pytest.raises(
+        ValueError, match=r"^candidate_reentry_history_n5_completion_unwitnessed$"
+    ):
+        _verify_n5(
+            store=object(),
+            receipt=receipt,
+            target_cycle=target_cycle,
+            prior_origin_ref=None,
+            profile=profile,
+            problem=problem,
+        )
+
+    assert input_resolutions == [
+        (
+            input_ref,
+            {
+                "expected_run_id": receipt.run_id,
+                "expected_job_id": receipt.action_job_id,
+                "expected_tenant_id": receipt.tenant_id,
+                "expected_cell_id": receipt.cell_id,
+            },
+        )
+    ]
+
+
+def test_blocked_history_with_no_n5_refs_keeps_the_no_n5_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A historical blocked cycle needs no V5 reads and never enters the pair."""
+    from polisyos.runtime.quality.candidate_source_reentry_history import _verify_n5
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    simulation = SimulationPortObservation(
+        candidate_id="candidate-history",
+        status="simulation_blocked",
+    )
+    target_cycle = SimpleNamespace(
+        simulation=simulation,
+        selected_candidate_content_hash="sha256:" + "a" * 64,
+        design_problem_ref="sha256:" + "b" * 64,
+    )
+    receipt = SimpleNamespace(
+        run_id="run-history",
+        action_job_id="action-job",
+        tenant_id="tenant-history",
+        cell_id="cell-history",
+        n4_source_ref=None,
+        n5_input_ref=None,
+        n5_execution_ref=None,
+        n5_result_ref=None,
+        context_job_ref=None,
+        scenario_world_model_content_hash="sha256:" + "c" * 64,
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "_resolve_selected_candidate_simulation_v5_pair",
+        lambda *_args, **_kwargs: pytest.fail("blocked history entered the paired reader"),
+    )
+
+    _verify_n5(
+        store=object(),
+        receipt=receipt,
+        target_cycle=target_cycle,
+        prior_origin_ref=None,
+        profile=object(),
+        problem=object(),
+    )
+
+
+def test_complete_tuple_with_legacy_source_keeps_individual_v5_resolution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A non-V3 source cannot enter a resolver that requires exact N4 V3."""
+    from polisyos.runtime.quality.candidate_source_reentry_history import _verify_n5
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    def selected(kind: str, token: str) -> artifacts.ArtifactRef:
+        return artifacts.ArtifactRef(
+            artifact_id="sha256:" + token * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    source_ref = selected("runtime.quality.n4_candidate_scenario_source", "1")
+    input_ref = selected("runtime.quality.candidate_simulation_n5_input", "2")
+    execution_ref = selected("runtime.quality.candidate_simulation_execution", "3")
+    result_ref = selected("polisyos.runtime.joint_simulation_result", "4")
+    context_ref = selected("runtime.quality.cycle_substrate_context_job", "5")
+    declaration_ref = selected("runtime.quality.candidate_simulation_model_declaration", "6")
+    ncm_ref = selected("ir.ncm_spec", "7")
+    problem = "legacy-source-problem"
+    profile = "legacy-source-profile"
+    world_hash = "sha256:" + "a" * 64
+    target_hash = "sha256:" + "b" * 64
+    design_problem_ref = "sha256:" + "c" * 64
+    source = SimpleNamespace(
+        problem=problem,
+        job_id="action-job",
+        stable_subject_ref=design_problem_ref,
+        profile=profile,
+        origin_source_ref=source_ref,
+    )
+    simulation = SimpleNamespace(
+        candidate_simulation_n4_source_ref=source_ref,
+        candidate_simulation_context_job_ref=context_ref,
+        cycle_substrate_context_job_ref=context_ref,
+        k_world_ref_before=world_hash,
+        k_world_ref_after=world_hash,
+        status="joint_simulated",
+        diagnostics={},
+        simulation_ref=None,
+    )
+    target_cycle = SimpleNamespace(
+        simulation=simulation,
+        selected_candidate_content_hash=target_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    receipt = SimpleNamespace(
+        run_id="run-history",
+        action_job_id="action-job",
+        tenant_id="tenant-history",
+        cell_id="cell-history",
+        n4_source_ref=source_ref,
+        n5_input_ref=input_ref,
+        n5_execution_ref=execution_ref,
+        n5_result_ref=result_ref,
+        context_job_ref=context_ref,
+        model_declaration_ref=declaration_ref,
+        ncm_ref=ncm_ref,
+        source_candidate_ref="candidate-history",
+        scenario_world_model_content_hash=world_hash,
+        prior_n4_source_ref=source_ref,
+    )
+    input_resolutions: list[tuple[artifacts.ArtifactRef, dict[str, object]]] = []
+
+    class LegacyIndividualReadReachedError(Exception):
+        pass
+
+    def load_source(_repository: object, *_args: object, **_kwargs: object) -> object:
+        return source
+
+    def resolve_individually(
+        _repository: object, *, ref: artifacts.ArtifactRef, **kwargs: object
+    ) -> object:
+        input_resolutions.append((ref, kwargs))
+        raise LegacyIndividualReadReachedError
+
+    monkeypatch.setattr(history, "_selected_payload", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(
+        GenerationSourceRepository, "load_candidate_scenario_source_for_reissue", load_source
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository, "resolve_candidate_simulation_v5", resolve_individually
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "_resolve_selected_candidate_simulation_v5_pair",
+        lambda *_args, **_kwargs: pytest.fail("non-V3 source entered the paired resolver"),
+    )
+
+    with pytest.raises(LegacyIndividualReadReachedError):
+        _verify_n5(
+            store=object(),
+            receipt=receipt,
+            target_cycle=target_cycle,
+            prior_origin_ref=None,
+            profile=profile,
+            problem=problem,
+        )
+
+    assert input_resolutions == [
+        (
+            input_ref,
+            {
+                "expected_run_id": receipt.run_id,
+                "expected_job_id": receipt.action_job_id,
+                "expected_tenant_id": receipt.tenant_id,
+                "expected_cell_id": receipt.cell_id,
+            },
+        )
+    ]
+
+
 def test_real_world_builder_clock_is_verified_without_rebinding_retained_scope(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

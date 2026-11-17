@@ -35,6 +35,10 @@ from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     POLICY_KIND,
     CandidateUnpricedPolicyScope,
 )
+from polisyos.runtime.quality.agent_action_authority import (
+    _caller_controlled_scope_path,
+    agent_action_content_hash,
+)
 from polisyos.runtime.quality.candidate_experiment_reuse import (
     CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
     CandidateExperimentReuseActionRequest,
@@ -634,6 +638,22 @@ def test_reuse_action_tuple_is_distinct_no_fetch_and_binds_candidate_only_refs()
     }
     assert intent.action_kind == CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND
     assert "current_action_phase_ref" not in CandidateExperimentReuseActionSelection.model_fields
+
+
+def test_reuse_invocation_binds_resolved_policy_without_a_caller_scope() -> None:
+    selection = _reuse_action_selection()
+    _, invocation, _ = candidate_experiment_reuse_action_tuple(selection)
+
+    assert _caller_controlled_scope_path(invocation) is None
+    assert invocation.parameters["policy_context_sha256"] == agent_action_content_hash(
+        selection.policy_scope.model_dump(mode="json")
+    )
+    caller_scoped = invocation.model_copy(
+        update={
+            "parameters": {**invocation.parameters, "scope_selector": {"run": selection.run_id}}
+        }
+    )
+    assert _caller_controlled_scope_path(caller_scoped) == "parameters.scope_selector"
 
 
 def test_human_decision_ref_stays_in_request_but_not_stable_pa2_action_identity() -> None:

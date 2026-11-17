@@ -384,11 +384,24 @@ def _decode_config_snapshot_value(value: object, annotation: object) -> object:
     raise TypeError("unsupported persisted config field type")
 
 
+def _canonical_dataset_batch_path(name: str, value: Path) -> Path:
+    """Resolve one validated producer path or reject an ambiguous filesystem identity."""
+    try:
+        return value.resolve()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"{name} path cannot be resolved") from exc
+
+
 def _validate_dataset_batch_config_values(
     values: Mapping[str, object], *, allow_default_metrics_map: bool
 ) -> dict[str, object]:
     """Canonical read-only semantic validation shared by constructor and rehydration."""
     normalized = dict(values)
+    snapshot_root = normalized.get("snapshot_root")
+    if isinstance(snapshot_root, Path):
+        normalized["snapshot_root"] = _canonical_dataset_batch_path(
+            "snapshot_root", snapshot_root
+        )
     run_profile = normalized.get("run_profile")
     if not isinstance(run_profile, str):
         raise TypeError("run_profile must be text")
@@ -398,6 +411,7 @@ def _validate_dataset_batch_config_values(
         metrics_path = catalog_default_resource_path("metrics_map.yaml")
     if not isinstance(metrics_path, Path):
         raise ValueError("persisted metrics_map_path is required")
+    metrics_path = _canonical_dataset_batch_path("metrics_map_path", metrics_path)
     if not metrics_path.exists():
         raise ValueError(f"metrics_map.yaml not found: {metrics_path}")
     from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
@@ -407,6 +421,9 @@ def _validate_dataset_batch_config_values(
     registry_path = normalized.get("registry_path")
     if registry_path is not None and not isinstance(registry_path, Path):
         raise TypeError("registry_path must be a path or null")
+    if isinstance(registry_path, Path):
+        registry_path = _canonical_dataset_batch_path("registry_path", registry_path)
+        normalized["registry_path"] = registry_path
     registry = load_source_registry(registry_path or default_catalog_source_registry_path())
     if (
         normalized.get("date_start") or normalized.get("date_end")

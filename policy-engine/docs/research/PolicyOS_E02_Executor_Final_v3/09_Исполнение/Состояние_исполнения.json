@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; repaired B2 signed ingress observed and published; fresh NCM R10 running; Native full second leaf and hosted initial observation remain unqualified",
+        "status": "PAUSED by user after all active helpers and jobs finished naturally; LANE-01 and variable-binding specification incomplete",
         "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
         "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
@@ -9121,7 +9121,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Finish fresh NCM R10. Admit independently prepared Native R7. Retain Host R10 partial results and capture the precise CAS wait at a future authentic producer. No G closure.",
+        "next": "When the user resumes, reproduce only B2 /reuse/execute from retained R10 B1 with actual decision, predecessor and ledger custody. Capture the chained cause before HTTP translation. In parallel, isolate the Native decision-request CAS wait before physical work. Admit Host R11 with measured resources. DA06/07/08 and institutional authority/G remain separate.",
         "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9178,9 +9178,10 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "R7 prepared at published Main; external polling disabled by supported profile; real deterministic dispatch, native second-leaf and fresh-app read",
-          "hosted": "R10 result partially retained; full initial producer and aggregate/frontier checks unresolved",
-          "binding": "Every actual run binds its source/input/backend and the 3 GiB floor"
+          "native": "R7 complete FAIL before B dispatch. Bounded canonical decision-request/guard diagnosis first.",
+          "hosted": "R11 complete recipe prepared, induced local guard timeout smoke PASS; genuine locked-wheel check unrun.",
+          "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
+          "ncm": "R10 retained B1 plus B2 ingress available for bounded enqueue reproduction; no new run admitted"
         },
         "criterion_reconciliation": {
           "packets": 11,
@@ -9313,9 +9314,21 @@
         "ncm_r10": {
           "source_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
           "source_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
-          "status": "RUNNING at this cut",
+          "status": "COMMAND_FAIL, exit 1, natural completion and observed group quiescence",
           "profile": "same ordinary local seven/one candidate sequence with real live A; fresh scratch",
-          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r10-20261117/"
+          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r10-20261117/",
+          "observed": "Actual initial A PASS; B1 completed at terminal head 5 and frontier revision 1; fresh signed B2 decision and decision_available succeed; /reuse/execute HTTP 409 candidate_experiment_reuse_enqueue_not_established; original chained cause not retained; B2 job/head absent, B3/C unrun",
+          "elapsed_seconds": 3527.7,
+          "peak_sampled_process_tree_rss_bytes": 2050686976,
+          "run_id": "R_36d948f0ec8d88a0",
+          "terminal_ref": "sha256:956afac8f73cbd5c4506db6c5018753bcf281643ab4c017a8df9cc1bcdbc26bf",
+          "terminal_manifest_profile_sha256": "sha256:58bd8e2e8cda471f37a5dded5fd24846cb05bb3aaa07e658225ac435dc32d9b5",
+          "frontier_ref": "sha256:cc87bf6af4acbf1711ddaf04017300c8426f65f4c3cd51a273523c5eff58c57d",
+          "ledger": "Four completed standard units; zero pending or protected, leaving two standard plus one protected",
+          "qualification": "7,806 declared source pins; 2,076 loaded paths and 2,077 origins; unchanged commit/tree; no changed, wrong, unbound or forbidden origins. Final module census only.",
+          "supervisor_result_sha256": "5c2f18f5fc014f808967797bf467cbd51141c8a85ae6d34797a04d6d66f08abf",
+          "junit_sha256": "fd6478f42655bf42a32f0e209588dad810b98456335b9545a9d41efc387e0954",
+          "source_qualification_sha256": "90fa63358ef13907340d6f81d78286aa14b941443733b70218603cfad34a72a9"
         },
         "native_prefix_r6": {
           "status": "EXPECTED_PROBE_STOP after two actual routes, before B. Preservation REFUSED for extra startup custody scan; no timeout.",
@@ -9332,7 +9345,20 @@
           "peak_sampled_process_tree_rss_bytes": 3436576768,
           "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r10-20261117/",
           "scope": "No top-level joint N5 result, execution or frontier. The exact CAS operation is unestablished. The stored step admission reads pass separately at 5.634 s and 5.900 s with zero N5 or writes."
-        }
+        },
+        "native_r7": {
+          "status": "COMMAND_FAIL; HTTP 504 content_addressed_storage_timeout at second-leaf decision-request before new work",
+          "source_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
+          "source_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
+          "elapsed_seconds": 1161.151,
+          "peak_sampled_process_tree_rss_bytes": 3301949440,
+          "quiescent": true,
+          "preservation": "1355 prior file members, 177 SQL rows and original ledger preserved; expected audit append, 6 added members; no new job, action head, progress or new physical unit",
+          "diagnostic": "81 observed selector starts/returns; only the HTTP response assertion propagated. Canonical operation, queue wait and operation wait remain unestablished.",
+          "output": "Primary:policy-engine/_cache/e02/native-retained-two-leaf-host-r7-20261117/",
+          "supervisor_result_sha256": "fffbde05b217e41c60dc1bd0f92ae93027f077597b2206dee7f2fa4986c5b81f"
+        },
+        "resources_at_pause": "Approximately 5.85 GB moved to Trash and emptied by user; ~7.5 GiB free after final run; keep 3 GiB stop floor"
       },
       "current_execution_20261114": {
         "status": "ACTIVE",

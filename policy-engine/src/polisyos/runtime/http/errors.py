@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Mapping
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
@@ -601,6 +602,34 @@ def _map_core_exception(exc: BaseException) -> _MappedException:
     )
 
 
+def _log_blocking_wait_timeout(
+    exc: RuntimeDependencyError,
+    *,
+    context: ErrorReportContext,
+) -> None:
+    """Retain the canonical wait snapshot without changing the public refusal."""
+    # Diagnostics must not replace the original problem when logging is unavailable.
+    with suppress(Exception):
+        from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+
+        if type(exc) is not _BlockingDependencyWaitTimeoutError:
+            return
+
+        from polisyos.common.logger import get_logger
+
+        record = {
+            "request_id": context.request_id,
+            "dependency": context.dependency,
+            "code": _sanitize_context_value(exc.code),
+            "blocking_wait": _BlockingDependencyWaitTimeoutError.diagnostic(exc),
+        }
+        # Render the bounded fields into the message so plain console sinks keep them.
+        get_logger(__name__).warning(
+            "runtime_dependency_wait_timeout %s",
+            json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False),
+        )
+
+
 def install_exception_handlers(app: Any) -> None:
     """Install FastAPI exception handlers that preserve `request_id` and problem semantics."""
     json_response = _JSONResponse
@@ -623,6 +652,7 @@ def install_exception_handlers(app: Any) -> None:
         exc: RuntimeDependencyError,
     ) -> Any:
         context = collect_error_context(request, exc)
+        _log_blocking_wait_timeout(exc, context=context)
         error = "gateway_timeout" if exc.status_code == 504 else "service_unavailable"
         return problem_response(
             status_code=exc.status_code,

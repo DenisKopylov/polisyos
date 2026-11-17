@@ -112,7 +112,7 @@ applied.
 This description is limited to the combined `FoundryInputBindings` schema `1.3` path and makes
 no claim about semantic replay coverage for schemas `1.4` or `1.5`. A successful
 candidate simulation does not grant protected C105 current-use permission or
-publication authority. The [E02 work plan](../../../../E02-WORK-PLAN.md)
+publication authority. The E02 work plan (`E02-WORK-PLAN.md` at the repository root)
 records an R5 PASS with wrong-source/path,
 source/capture/profile/role-removal, strict-limit, and oversized-input controls,
 plus a separate retained Foundry execution and fresh

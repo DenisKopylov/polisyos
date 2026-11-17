@@ -2967,6 +2967,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
     )
     from polisyos.scientist.orchestration.engine.protocol import NodeSpec
     from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+    from tests._helpers.control_worker import stop_embedded_control_worker
     from tests._helpers.runtime_http import deployment_security_config_mapping
     from tests.unit.runtime.http.test_control_plane_store import (
         _job_creation_event,
@@ -3073,9 +3074,26 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
     with client:
         service = client.app.state.runtime_container.control_service
         assert service is not None
-        if service._worker is not None:
-            service._worker.stop()
+        fixture_service = runtime_api_env["app"].state.runtime_container.control_service
+        assert fixture_service is not None
+        # Both apps share the job queue; neither polling worker may claim the
+        # jobs whose real dispatch and cancellation this test controls.
+        for owned_service in (fixture_service, service):
+            stop_embedded_control_worker(owned_service)
+            embedded_worker = owned_service._worker
+            assert (
+                embedded_worker is None
+                or embedded_worker._thread is None
+                or not embedded_worker._thread.is_alive()
+            ), "app-owned control worker is still polling the shared job queue"
         store = service._control_store
+
+        def job_owner_details(job_id):
+            current = store.get_job(job_id)
+            if current is None:
+                return None
+            return current.state, current.lease_owner, current.attempt, current.lease_expires_at
+
         scope = _job_execution_scope()
         scope["tenant_id"], scope["cell_id"] = tenant, cell.cell_id
         cas = FileSystemCAS(runtime_api_env["cas_root"])
@@ -3129,6 +3147,11 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         active_runs = []
 
         def handler(active_job):
+            assert (active_job.job_id, active_job.lease_owner, active_job.attempt) == (
+                job.job_id,
+                "cancel-test-worker",
+                job.attempt + 1,
+            ), job_owner_details(job.job_id)
             bundle = build_default_registry_bundle(cas, return_selected_profile=True)
             run = RunContext.start(
                 store=cas, registry_bundle=bundle.bundle_ref, run_id=active_job.run_id
@@ -3274,7 +3297,10 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
 
         def dispatch():
             try:
-                worker.dispatch_once()
+                assert worker.dispatch_once(), (
+                    "cancellation test worker did not lease its job",
+                    job_owner_details(job.job_id),
+                )
             except BaseException as exc:
                 errors.append(exc)
 
@@ -3285,7 +3311,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             if cut == "healthy":
                 thread.join(timeout=35)
                 assert not thread.is_alive() and not errors, errors
-                assert store.get_job(job.job_id).state == "completed"
+                assert store.get_job(job.job_id).state == "completed", job_owner_details(job.job_id)
                 assert len(active_runs) == 1 and active_runs[0].trace_path is not None
                 assert "WORKER_INVOCATION_COMPLETED" in active_runs[0].trace_path.read_text()
                 _assert_real_tree_reaped(owned_tree_dir)
@@ -3299,7 +3325,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             ):
                 assert thread.is_alive() and _time.monotonic() < deadline, (
                     f"dispatch stopped before selected cut; errors={errors!r}; "
-                    f"job={store.get_job(job.job_id)!r}"
+                    f"owner={job_owner_details(job.job_id)!r}"
                 )
                 _time.sleep(0.01)
             assert owned_groups
@@ -3307,6 +3333,10 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                 assert not effects.exists()
             running = store.get_job(job.job_id)
             assert running is not None and running.state == "running"
+            assert (running.lease_owner, running.attempt) == (
+                worker.worker_id,
+                job.attempt + 1,
+            ), job_owner_details(job.job_id)
             assert (
                 client.get(f"/api/v1/control/jobs/{job.job_id}", headers=headers).status_code == 200
             )
@@ -3383,7 +3413,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                     expected_attempt=body["expected_attempt"],
                 )
             thread.join(timeout=10)
-            assert not thread.is_alive() and not errors
+            assert not thread.is_alive() and not errors, (errors, job_owner_details(job.job_id))
             if cut in {"after_body", "before_receipt"}:
                 _assert_real_tree_reaped(owned_tree_dir)
             else:
@@ -3426,6 +3456,11 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             fresh_calls = []
 
             def fresh_handler(current_job):
+                assert (current_job.job_id, current_job.lease_owner, current_job.attempt) == (
+                    fresh_job.job_id,
+                    "fresh-worker",
+                    fresh_job.attempt + 1,
+                ), job_owner_details(fresh_job.job_id)
                 fresh_calls.append(current_job.job_id)
                 store.complete_job(
                     job_id=current_job.job_id,
@@ -3436,7 +3471,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             fresh_worker = ControlWorker(
                 store=store, handler=fresh_handler, worker_id="fresh-worker", lease_seconds=2
             )
-            assert fresh_worker.dispatch_once()
+            assert fresh_worker.dispatch_once(), job_owner_details(fresh_job.job_id)
             assert fresh_calls == [fresh_job.job_id]
             assert store.get_job(fresh_job.job_id).state == "completed"
         finally:

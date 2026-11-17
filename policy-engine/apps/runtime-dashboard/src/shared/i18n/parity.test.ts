@@ -330,6 +330,18 @@ NON_NUMERIC_VARIABLE_REASONS.set(
   "route",
   "OverviewTab renders route_id only after typeof row.route_id === string; this is an opaque route identifier, not a quantity.",
 );
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "purpose",
+  "OverviewTab renders authority_purpose only after the strict Native history schema accepts candidate_observation_only; this is a typed authority-purpose label, not a quantity.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "currentness",
+  "OverviewTab renders currentness_status only after the strict Native history schema accepts not_established; this is a typed status, not a quantity.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "publication",
+  "OverviewTab stringifies publication_authority only after the strict Native history schema accepts false; this is a typed authority-boundary value, not a quantity.",
+);
 
 for (const [variable, reason] of [
   ["action", "A typed planner-action label, not a quantity."],
@@ -391,12 +403,19 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "d0467a16ab4bad801c46289bfc1e043d54793e549e82cf02398361b6fa6dd5a3";
 const ACTIVE_LOCALE_KEY_SET_SHA256 =
-  "79f593ff5e8b09f3d43b454b99563a27cba9e932d802fea9fe5170efe294fd51";
-const ACTIVE_LOCALE_LEAF_COUNT = 3343;
-const NON_COUNT_MESSAGE_COUNT = 348;
-const ACTIVE_VARIABLE_USE_COUNT = 543;
-// Keep the pre-model-input-use census pinned separately; the admitted addition is
-// enumerated below so this historical digest remains stable and reviewable.
+  "8aff2ffc484308c2790e81e293f06b06d34f02703b5e35aaf83749ddc242b4f1";
+const ACTIVE_LOCALE_LEAF_COUNT = 3376;
+const BASE_NON_COUNT_MESSAGE_COUNT = 348;
+const MODEL_INPUT_CONTINUATION_MESSAGE_PATHS = [
+  "pages.runs.candidateSimulation.modelInputContinuationBoundary",
+  "pages.runs.candidateSimulation.modelInputContinuationResultRef",
+  "pages.runs.candidateSimulation.modelInputContinuationSimulation",
+];
+const NON_COUNT_MESSAGE_COUNT =
+  BASE_NON_COUNT_MESSAGE_COUNT + MODEL_INPUT_CONTINUATION_MESSAGE_PATHS.length;
+const ACTIVE_VARIABLE_USE_COUNT = 548;
+// Keep the base interpolation census pinned separately; each admitted extension
+// is enumerated below so the historical digest remains stable and reviewable.
 const BASE_VARIABLE_USE_COUNT = 530;
 const BASE_VARIABLE_USE_KEY_SET_SHA256 =
   "3c162a89965c0ae1b120cd6c07d59910aab850a3f4edae92a790aa1f58d93518";
@@ -421,6 +440,26 @@ const MODEL_INPUT_USE_VARIABLE_IDENTITIES = [
   "pages.runs.modelInputUse.runSource#{runId}",
   "pages.runs.modelInputUse.runSource#{sourceJobId}",
 ];
+const MODEL_INPUT_CONTINUATION_VARIABLE_NAMES = new Set([
+  "currentness",
+  "publication",
+  "purpose",
+]);
+const MODEL_INPUT_CONTINUATION_VARIABLE_IDENTITIES = [
+  "pages.runs.candidateSimulation.modelInputContinuationBoundary#{currentness}",
+  "pages.runs.candidateSimulation.modelInputContinuationBoundary#{publication}",
+  "pages.runs.candidateSimulation.modelInputContinuationBoundary#{purpose}",
+  "pages.runs.candidateSimulation.modelInputContinuationResultRef#{ref}",
+  "pages.runs.candidateSimulation.modelInputContinuationSimulation#{status}",
+];
+const ADDITIVE_VARIABLE_NAMES = new Set([
+  ...MODEL_INPUT_USE_VARIABLE_NAMES,
+  ...MODEL_INPUT_CONTINUATION_VARIABLE_NAMES,
+]);
+const ADDITIVE_VARIABLE_USE_IDENTITIES = new Set([
+  ...MODEL_INPUT_USE_VARIABLE_IDENTITIES,
+  ...MODEL_INPUT_CONTINUATION_VARIABLE_IDENTITIES,
+]);
 const MODEL_INPUT_USE_NUMERIC_INVARIANT_IDENTITIES = [
   "pages.runs.modelInputUse.frontier#{revision}",
 ];
@@ -1055,7 +1094,7 @@ const LEGACY_CONTINUITY_RU_KEY_COUNT = 2485;
 const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
   "246672ca2e2a483b99142b0b00b6918ff66519b16a5963a0cdc52c9b55a88de0";
 const LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256 =
-  "ce8480d3a1c4a8876d1a007d7aa2d3d13f2ee8e4e1f33d0cbaa948f69d0e669c";
+  "54539f269829a4b8d726b79e8f390893e3c7d03f6ce5a191ff35a66ac59e0768";
 const RU_E02_EXTENSION_ROOTS = [
   "common.admissionRecovery",
   "pages.composer.dataSource.profileSha256",
@@ -1149,17 +1188,40 @@ const RU_E02_EXTENSION_ROOTS = [
   "shared.ui.trustView.profileBindingExportGeneric",
   "conditionalTransport",
   "runHte",
+  // Additive UI keys are pinned as E02 extensions. Keep flat Native continuation
+  // roots exact so unrelated legacy labels remain in the continuity digest.
+  "pages.cycleBoard.acquisition.action.requestAdmissionReview",
+  "pages.cycleBoard.acquisition.route.costBasisRecord",
+  "pages.cycleBoard.acquisition.route.historicalCostBasis",
+  "pages.cycleBoard.acquisition.route.historicalCostDisclosure",
+  "pages.cycleBoard.acquisition.route.historicalEstimate",
+  "pages.cycleBoard.acquisition.route.historicalNotOffer",
+  "pages.cycleBoard.acquisition.route.priorPaidInput",
+  "pages.cycleBoard.acquisition.route.statusNotEstablished",
+  "pages.runs.report.humanDecision.submission",
+  "pages.runs.candidateSimulation.modelInputContinuationBlockers",
+  "pages.runs.candidateSimulation.modelInputContinuationBoundary",
+  "pages.runs.candidateSimulation.modelInputContinuationLimitations",
+  "pages.runs.candidateSimulation.modelInputContinuationNoBlockers",
+  "pages.runs.candidateSimulation.modelInputContinuationResultRef",
+  "pages.runs.candidateSimulation.modelInputContinuationScope",
+  "pages.runs.candidateSimulation.modelInputContinuationSimulation",
+  "pages.runs.candidateSimulation.modelInputContinuationTitle",
 ] as const;
-const RU_E02_EXTENSION_KEY_COUNT = 373;
+const RU_E02_EXTENSION_KEY_COUNT = 406;
 const RU_E02_EXTENSION_KEY_SET_SHA256 =
-  "bd9cdb4e7aa09ed5079b4b858d7627b2d737b9b08a5f0b57873775aa48788de9";
+  "3eb11e00caacc791215c3a7d0796cc80deab7b994775c053a152c3c91ac95a53";
 const RU_E02_EXTENSION_VALUE_SHA256 =
-  "2d0e7eb8aa714950698ea734b3d9c41e9883ae9f487b3f53907da47eefed9a06";
+  "c46d2c1dc6a28d37468e2073b7d68a67cd93c292686f946ba69af779e4e91774";
 
 function isRuE02ExtensionPath(path: string): boolean {
   return RU_E02_EXTENSION_ROOTS.some(
     (root) => path === root || path.startsWith(`${root}.`),
   );
+}
+
+function collectRuE02ExtensionKeys(catalog: unknown): string[] {
+  return collectPaths(catalog).filter(isRuE02ExtensionPath).sort(comparePaths);
 }
 
 function collectCountMessages(
@@ -1629,7 +1691,7 @@ describe("locale catalogs", () => {
     const ruLegacyLeaves = ruLeaves.filter(
       ([path]) => !isRuE02ExtensionPath(path),
     );
-    const ruExtensionKeys = ruKeys.filter(isRuE02ExtensionPath);
+    const ruExtensionKeys = collectRuE02ExtensionKeys(ru);
     const ruExtensionLeaves = ruLeaves.filter(([path]) =>
       isRuE02ExtensionPath(path),
     );
@@ -1668,6 +1730,23 @@ describe("locale catalogs", () => {
     expect(ruExtensionKeys.every((path) => authoredKeys.includes(path))).toBe(
       true,
     );
+  });
+
+  it("detects removal of an additive Russian Native continuation key", () => {
+    const catalog = structuredClone(ru) as Catalog;
+    const pages = catalog.pages as Catalog;
+    const runs = pages.runs as Catalog;
+    const candidateSimulation = runs.candidateSimulation as Catalog;
+    Reflect.deleteProperty(candidateSimulation, "modelInputContinuationTitle");
+
+    const extensionKeys = collectRuE02ExtensionKeys(catalog);
+    expect(extensionKeys).toHaveLength(RU_E02_EXTENSION_KEY_COUNT - 1);
+    expect(
+      crypto
+        .createHash("sha256")
+        .update(JSON.stringify(extensionKeys))
+        .digest("hex"),
+    ).not.toBe(RU_E02_EXTENSION_KEY_SET_SHA256);
   });
 
   it("justifies exactly every active non-ICU count-message identity", () => {
@@ -2551,7 +2630,7 @@ describe("locale catalogs", () => {
     );
     const baseUseKeySets = activeUseKeySets.map((keys) =>
       keys.filter(
-        (identity) => !identity.startsWith("pages.runs.modelInputUse."),
+        (identity) => !ADDITIVE_VARIABLE_USE_IDENTITIES.has(identity),
       ),
     );
     const modelInputUseIdentitySets = activeUseKeySets.map((keys) =>
@@ -2559,11 +2638,18 @@ describe("locale catalogs", () => {
         identity.startsWith("pages.runs.modelInputUse."),
       ),
     );
+    const modelInputContinuationIdentitySets = activeUseKeySets.map((keys) =>
+      keys.filter((identity) =>
+        identity.startsWith(
+          "pages.runs.candidateSimulation.modelInputContinuation",
+        ),
+      ),
+    );
     const baseDeclaredVariableNames = declaredVariableNames.filter(
-      (variable) => !MODEL_INPUT_USE_VARIABLE_NAMES.has(variable),
+      (variable) => !ADDITIVE_VARIABLE_NAMES.has(variable),
     );
     const baseNonNumericVariableNames = [...NON_NUMERIC_VARIABLE_REASONS.keys()]
-      .filter((variable) => !MODEL_INPUT_USE_VARIABLE_NAMES.has(variable))
+      .filter((variable) => !ADDITIVE_VARIABLE_NAMES.has(variable))
       .sort(comparePaths);
     const baseNumericInvariantUseKeys = [
       ...NUMERIC_INVARIANT_USE_DECLARATIONS.keys(),
@@ -2572,6 +2658,19 @@ describe("locale catalogs", () => {
       .sort(comparePaths);
     const activeMessagePathSets = activeScans.map(
       (scan) => new Set(scan.uses.map(([path]) => path)),
+    );
+    const modelInputContinuationMessagePathSets = activeScans.map((scan) =>
+      [
+        ...new Set(
+          scan.uses
+            .filter(([path]) =>
+              path.startsWith(
+                "pages.runs.candidateSimulation.modelInputContinuation",
+              ),
+            )
+            .map(([path]) => path),
+        ),
+      ].sort(comparePaths),
     );
     const adjudicatedNumericUseKeys = [
       ...QUANTITATIVE_USE_DECLARATIONS.keys(),
@@ -2611,14 +2710,19 @@ describe("locale catalogs", () => {
     expect(paths.size).toBe(26);
     expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(43);
     expect(NUMERIC_VARIABLE_REASONS.size).toBe(91);
-    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(131);
+    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(134);
     expect(
       [...MODEL_INPUT_USE_VARIABLE_NAMES].every((variable) =>
         NON_NUMERIC_VARIABLE_REASONS.has(variable),
       ),
     ).toBe(true);
-    expect(declaredVariableNames).toHaveLength(222);
-    expect(new Set(declaredVariableNames).size).toBe(222);
+    expect(
+      [...MODEL_INPUT_CONTINUATION_VARIABLE_NAMES].every((variable) =>
+        NON_NUMERIC_VARIABLE_REASONS.has(variable),
+      ),
+    ).toBe(true);
+    expect(declaredVariableNames).toHaveLength(225);
+    expect(new Set(declaredVariableNames).size).toBe(225);
     expect(baseDeclaredVariableNames).toHaveLength(219);
     expect(activeLocaleKeys).toHaveLength(ACTIVE_LOCALE_LEAF_COUNT);
     expect(
@@ -2635,6 +2739,10 @@ describe("locale catalogs", () => {
       NON_COUNT_MESSAGE_COUNT,
       NON_COUNT_MESSAGE_COUNT,
     ]);
+    expect(modelInputContinuationMessagePathSets).toEqual([
+      MODEL_INPUT_CONTINUATION_MESSAGE_PATHS,
+      MODEL_INPUT_CONTINUATION_MESSAGE_PATHS,
+    ]);
     expect(activeUseKeySets.map((keys) => keys.length)).toEqual([
       ACTIVE_VARIABLE_USE_COUNT,
       ACTIVE_VARIABLE_USE_COUNT,
@@ -2646,6 +2754,10 @@ describe("locale catalogs", () => {
     expect(modelInputUseIdentitySets).toEqual([
       MODEL_INPUT_USE_VARIABLE_IDENTITIES,
       MODEL_INPUT_USE_VARIABLE_IDENTITIES,
+    ]);
+    expect(modelInputContinuationIdentitySets).toEqual([
+      MODEL_INPUT_CONTINUATION_VARIABLE_IDENTITIES,
+      MODEL_INPUT_CONTINUATION_VARIABLE_IDENTITIES,
     ]);
     expect(activeUseKeySets[0]).toEqual(activeUseKeySets[1]);
     expect(
@@ -2772,9 +2884,6 @@ describe("locale catalogs", () => {
   ] as const)(
     "requires complete active %s quantitative-use declarations",
     (locale, intlLocale, catalog) => {
-      expect(collectVariableKindDeclarationFailures(catalog, locale)).toEqual(
-        [],
-      );
       expect(
         collectNumericUseDeclarationFailures(
           catalog,
@@ -2783,6 +2892,48 @@ describe("locale catalogs", () => {
           QUANTITATIVE_USE_DECLARATIONS,
         ),
       ).toEqual([]);
+    },
+  );
+
+  it.each([
+    ["en", en],
+    ["ru", ru],
+    ["uk", uk],
+  ] as const)(
+    "requires declared interpolation kinds for every present %s message",
+    (locale, catalog) => {
+      expect(collectVariableKindDeclarationFailures(catalog, locale)).toEqual(
+        [],
+      );
+    },
+  );
+
+  it.each([
+    ["en", en],
+    ["ru", ru],
+    ["uk", uk],
+  ] as const)(
+    "rejects removal of Native authority-boundary variable kinds in %s",
+    (locale, catalog) => {
+      const declarations = new Map(NON_NUMERIC_VARIABLE_REASONS);
+      const variables = ["currentness", "publication", "purpose"];
+      variables.forEach((variable) => declarations.delete(variable));
+
+      expect(
+        collectVariableKindDeclarationFailures(
+          catalog,
+          locale,
+          NUMERIC_VARIABLE_REASONS,
+          declarations,
+        ),
+      ).toEqual(
+        variables
+          .map(
+            (variable) =>
+              `${locale}:pages.runs.candidateSimulation.modelInputContinuationBoundary#{${variable}}:variable-kind-undeclared`,
+          )
+          .sort(comparePaths),
+      );
     },
   );
 });

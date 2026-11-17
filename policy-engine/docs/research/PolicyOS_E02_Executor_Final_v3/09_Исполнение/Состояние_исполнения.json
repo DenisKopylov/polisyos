@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; paired-reader/context-bracket and canonical request-census fixes composed, independently reviewed, checked on Main and published; R8 remains historical FAIL; rebound Native/hosted/full NCM next; no G closure",
+        "status": "ACTIVE; NCM R9 establishes first B and exposes second-B invocation-scope refusal. Projection repaired and focused checks pass. Signed ingress and full continuation pending.",
         "main_commit": "132e69e75987dc0ff7ff0a8c05a5331bc9bf121c",
         "main_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
         "author_checkpoint": "34b6d88536b7f5840af50bf9ff26e965011dd29c",
@@ -9121,7 +9121,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "rebind Native/hosted to actual Source/input/backend freeze; admit full Native/hosted/NCM termini; retain qualified P08/GenericR4/30k and X03 comparative-cost DA08 window; no next lane",
+        "next": "Exercise fresh signed B2 ingress with the corrected projection and the retained B1 history. Then qualify two equal-B uses and changed C on an exact new defining source image. Native route diagnostic and fresh hosted paired producer run independently.",
         "author_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9178,9 +9178,9 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "R4 UNRUN, one unpaired method-input physical unit, new leaf + fresh-app/idempotent replay; no distinct equal-B use/changed-C claim",
-          "hosted": "R7 UNRUN, separate paired baseline/treatment, two units",
-          "binding": "Prepared905/7c0 commands must be rebound after source repair; actual RAM/disk admission required; unknown heavy profile alone"
+          "native": "Native R5 failed before B effects. Route-prefix diagnostic is prepared to observe the actual Runtime context without new N5. Full Native second leaf still requires the real one-unit producer and fresh-app/idempotency reader.",
+          "hosted": "Hosted R9 prepared on the same Main commit and tree. Fresh two-unit paired baseline/treatment producer and initial frontier required.",
+          "binding": "Frozen Main 1eefaf1c225496754e887afa2a0b1c7e0cc70bd4 / d3042e6bb86b9472b753fa79f82d19c72b0c6ae3. Recheck RAM and disk at launch. Disk floor 3 GiB."
         },
         "criterion_reconciliation": {
           "packets": 11,
@@ -9233,7 +9233,76 @@
             "supervisor_sha256": "3aeb05fba322259b73cf84aee417ed25c70d7b7a3ae94da9cd919e7b4024a872"
           }
         },
-        "identity_scope": "Published product Source checkpoint; a subsequent current-plan-only commit does not change the qualified product bytes. Every new runtime launch still binds its actual HEAD/tree."
+        "identity_scope": "Published product Source checkpoint; a subsequent current-plan-only commit does not change the qualified product bytes. Every new runtime launch still binds its actual HEAD/tree.",
+        "ncm_r9": {
+          "status": "COMMAND_FAIL at second B signed human decision before reuse job",
+          "source_commit": "1eefaf1c225496754e887afa2a0b1c7e0cc70bd4",
+          "source_tree": "d3042e6bb86b9472b753fa79f82d19c72b0c6ae3",
+          "profile": "ordinary local candidate, JAX CPU, one numerical thread, quota 7/1, live initial A required",
+          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r9-20261117/",
+          "elapsed_seconds": 3348.047,
+          "peak_sampled_process_tree_rss_bytes": 2086862848,
+          "quiescent": true,
+          "completed_standard_units": 4,
+          "protected_units_used": 0,
+          "selected_frontier_revision": 1,
+          "selected_frontier_ref": "sha256:fe0b029412a1602896074ba4e106eab661693296f8116886981550faca72cf55",
+          "b2_http_status": 409,
+          "b2_problem_code": "DS9-DECISION-SOURCE-INVALID",
+          "b2_refusal_source": "sha256:422894d75953f6ed08da8c7662c7930cbb0b0decd66a9b0eb30338462708d301",
+          "b2_pa2_refusal_reason": "envelope_provenance_caller_controlled",
+          "later_execution": "B2, B3 and C UNRUN",
+          "supervisor_sha256": "b7b249ca25d3918e86f14b6bf415df31bdc8da792dbfa7dc263447af72f2a921",
+          "qualification_sha256": "80d01e00fe19d3c6d4862918561110a66421b99a04fc3324c390251624f80986"
+        },
+        "native_r5": {
+          "status": "COMMAND_FAIL",
+          "source_commit": "1eefaf1c225496754e887afa2a0b1c7e0cc70bd4",
+          "source_tree": "d3042e6bb86b9472b753fa79f82d19c72b0c6ae3",
+          "elapsed_seconds": 516.539,
+          "peak_sampled_process_tree_rss_bytes": 3374170112,
+          "quiescent": true,
+          "deciding_boundary": "Runtime route resolution, guarded inventory for the selected prior paid attempt; no new B acquisition, N4 or N5",
+          "limitation": "Original timeout lacks queue/operation diagnostic. Isolated selected-profile reads cannot establish full Runtime latency.",
+          "old_files_preserved": 1337,
+          "old_sql_rows_preserved": 175,
+          "added_worker_leases": 1,
+          "output": "Primary:policy-engine/_cache/e02/native-retained-two-leaf-host-r5-20261117/",
+          "supervisor_sha256": "d37a6be349eff4513d933c739685848c8de1fd66b12319b21ff9d815b4c54742",
+          "isolated_guard_observations_seconds": {
+            "ordinary": 0.08840979193337262,
+            "locked_wheel_host": 0.09709950000979006,
+            "locked_wheel_host_with_r5_observer": 0.10102499998174608
+          },
+          "isolated_output": "Primary:policy-engine/_cache/e02/native-inventory-guard-{pair-r2,on-r3}-20261117/"
+        },
+        "hosted_paired_r8": {
+          "status": "RESOURCE_ABORT disk_floor_during_run",
+          "source_commit": "1eefaf1c225496754e887afa2a0b1c7e0cc70bd4",
+          "source_tree": "d3042e6bb86b9472b753fa79f82d19c72b0c6ae3",
+          "elapsed_seconds": 1012.969,
+          "peak_sampled_process_tree_rss_bytes": 3914940416,
+          "disk_free_min_bytes": 3212615680,
+          "quiescent": true,
+          "completed_standard_units": 2,
+          "result": "Both Foundry outputs persisted. Top-level joint N5 completion and initial frontier absent.",
+          "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r8-20261117/",
+          "supervisor_sha256": "ea7a2d9e28ab2f29ca199e9ff2a3bcf9afed67f45d17db291c237ff202bf06a8"
+        },
+        "b2_reuse_invocation": {
+          "status": "independently reviewed GO; focused guard and exact retained projection PASS; signed HTTP review and worker still unrun",
+          "old_exact_case": "scope guard fails on parameters.policy_scope",
+          "new_case": "exact canonical policy-context digest, independent PA2 authority resolution, unchanged reuse job identity; injected caller scope refused",
+          "focused_pass": 74,
+          "focused_elapsed_seconds": 48.533,
+          "focused_peak_rss_bytes": 1451343872,
+          "focused_supervisor_sha256": "ade62ac7bf318b43bf448e1edd5102d027e9efb245410979ea556e9276c9cbe0",
+          "focused_output": "Secondary:policy-engine/_cache/e02/ncm-b2-policy-context-green-20261117/",
+          "retained_replay_output": "Secondary:policy-engine/_cache/e02/ncm-b2-retained-policy-projection-20261117/",
+          "retained_replay_log_sha256": "be26c4a926a8bfd94bbec829887cb170468a2d524d313d401de2d100a8c3f128",
+          "retained_replay_scope": "ten projection predicates, zero N5, 13 exact retained paths unchanged; exact old tuple reconstructed, only invocation changes",
+          "fresh_image_boundary": "The current candidate production image binds all production Python source bytes. Signed ingress on retained R9 can be tested separately; equivalence across this source change remains unestablished."
+        }
       },
       "current_execution_20261114": {
         "status": "ACTIVE",

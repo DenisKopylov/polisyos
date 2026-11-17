@@ -363,7 +363,12 @@ def candidate_experiment_reuse_action_tuple(
         "predecessor_action_generation": selection.predecessor_action_generation,
         "action_generation": selection.action_generation,
         "policy_ref": selection.policy_ref.model_dump(mode="json"),
-        "policy_scope": selection.policy_scope.model_dump(mode="json"),
+        # Bind the owner-resolved policy context without introducing scope
+        # selectors into the generic invocation. PA2 resolves authority
+        # separately from the signed delegation and bound request.
+        "policy_context_sha256": agent_action_content_hash(
+            selection.policy_scope.model_dump(mode="json")
+        ),
         "catalog_source_selection_basis": selection.catalog_source_selection_basis,
         "catalog_source_content_ref": selection.catalog_source_content_ref,
         "authority_provision_content_sha256": selection.authority_provision_content_sha256,

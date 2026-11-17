@@ -1,9 +1,10 @@
 """Opt-in historical reentry over paid, retained candidate experiment outputs.
 
 This uses the maintained retained-runtime composition, including a new demo IdP
-and ordinary SQLite schema/WAL bookkeeping. It neither resumes the failed job
-nor supplies a current grant. The historical reader must leave every old SQL row,
-selected input and physical-ledger byte unchanged.
+and ordinary SQLite schema/WAL bookkeeping. Canonical CAS bootstrap calls must
+be idempotent: no added member or changed owner generation is allowed. The reader
+then refuses CAS writes, never resumes the failed job or supplies a current grant,
+and preserves every old SQL row, selected input and physical-ledger byte.
 """
 
 from __future__ import annotations
@@ -16,6 +17,8 @@ import sqlite3
 import sys
 import time
 from collections.abc import Callable, Iterator
+from datetime import UTC, datetime
+from functools import wraps
 from pathlib import Path
 from typing import Any
 
@@ -94,6 +97,43 @@ def _selected_input_pins(cas: Path, commission: dict[str, Any]) -> dict[Path, st
     }
 
 
+def _artifact_members(cas: Path) -> set[str]:
+    """Census artifact member names, including ownership and transaction metadata."""
+    root = cas / "artifacts"
+    assert root.is_dir() and not root.is_symlink()
+    members = set()
+
+    def refuse_incomplete_census(error: OSError) -> None:
+        raise error
+
+    for directory, directories, files in os.walk(
+        root, followlinks=False, onerror=refuse_incomplete_census
+    ):
+        for name in [*directories, *files]:
+            path = Path(directory) / name
+            assert not path.is_symlink()
+            members.add(path.relative_to(root).as_posix())
+    return members
+
+
+def _owner_metadata_pins(cas: Path) -> dict[str, str]:
+    """Pin the actual current owner pointer and selected immutable generation."""
+    root = cas / "artifacts/ownership"
+    pointer = root / "index.json"
+    value = json.loads(pointer.read_bytes())
+    paths = [pointer]
+    if value["schema_version"] == "policyos.artifact_ownership_index_pointer.v1":
+        generation = value["generation_sha256"]
+        assert re.fullmatch(r"sha256:[0-9a-f]{64}", generation)
+        selected = root / "generations" / (generation.removeprefix("sha256:") + ".json")
+        assert "sha256:" + _sha256(selected) == generation
+        paths.append(selected)
+    else:
+        # A legacy index has a detached signature rather than a generation pointer.
+        paths.append(root / "index.signature.json")
+    return {path.relative_to(root).as_posix(): _sha256(path) for path in paths}
+
+
 @pytest.fixture
 def retained_reentry_runtime(
     tmp_path: Path,
@@ -138,6 +178,8 @@ def retained_reentry_runtime(
     ledger_before = ledger.read_bytes()
     assert hashlib.sha256(ledger_before).hexdigest() == commission["ledger_sha256"]
     selected_before = _selected_input_pins(cas, commission)
+    members_before = _artifact_members(cas)
+    owner_before = _owner_metadata_pins(cas)
 
     from polisyos.core.artifacts import FileSystemCAS
     from polisyos.core.llm.traced_client import TracedLLMClient
@@ -155,21 +197,23 @@ def retained_reentry_runtime(
     from tests._helpers.candidate_experiment_retained_recovery import retained_candidate_runtime
 
     unexpected_effects: list[str] = []
+    bootstrap_open = True
+    bootstrap_cas_calls: dict[str, int] = {}
 
     def refuse_effect(*_args: Any, **_kwargs: Any) -> Any:
         unexpected_effects.append("unexpected_candidate_reentry_effect")
         raise AssertionError("historical_reentry_attempted_new_work_or_write")
 
-    # The only permitted retained-store setup is the normal constructor's
-    # idempotent ensure-schema/WAL bookkeeping. No action/provider/LLM/cost/CAS
-    # writer may execute, including during the maintained runtime startup.
+    # Normal setup may request idempotent publication of existing verifier
+    # provenance. Delegate to the original owner only during bootstrap, then
+    # require complete member-name and owner-generation equality before reads.
+    # No work, action, lease, provider or budget write is allowed in either phase.
     for owner, methods in (
         (JointSimulationHorizonController, ("run",)),
         (ControlWorker, ("start", "dispatch_once")),
         (TracedLLMClient, ("invoke", "ainvoke", "generate")),
         (WorldBankWDIAcquisitionExecutionPort, ("execute", "execute_candidate_experiment")),
         (BudgetMiddleware, ("reserve_safe", "reserve_invocation_safe", "record_spend_safe")),
-        (FileSystemCAS, ("put_bytes", "put_json", "record_artifact_owner")),
         (
             ControlPlaneStore,
             ("lease_next_job", "mark_running", "append_event", "append_diagnostic_event"),
@@ -177,6 +221,48 @@ def retained_reentry_runtime(
     ):
         for method in methods:
             monkeypatch.setattr(owner, method, refuse_effect)
+
+    def bootstrap_writer(original: Callable[..., Any], method: str) -> Callable[..., Any]:
+        @wraps(original)
+        def invoke(*args: Any, **kwargs: Any) -> Any:
+            if not bootstrap_open:
+                return refuse_effect(*args, **kwargs)
+            bootstrap_cas_calls[method] = bootstrap_cas_calls.get(method, 0) + 1
+            return original(*args, **kwargs)
+
+        return invoke
+
+    for method in ("put_bytes", "put_json", "record_artifact_owner"):
+        original = getattr(FileSystemCAS, method)
+        monkeypatch.setattr(FileSystemCAS, method, bootstrap_writer(original, method))
+
+    def assert_old_facts_unchanged(phase: str) -> None:
+        members_after = _artifact_members(cas)
+        owner_after = _owner_metadata_pins(cas)
+        checks = {
+            "artifact_members_unchanged": members_after == members_before,
+            "owner_metadata_unchanged": owner_after == owner_before,
+            "ledger_bytes_unchanged": ledger.read_bytes() == ledger_before,
+            "all_sql_rows_unchanged": _sql_rows(database) == sql_before,
+            "selected_facts_unchanged": (
+                {path: _sha256(path) for path in selected_before} == selected_before
+            ),
+        }
+        observation = {
+            "phase": phase,
+            "bootstrap_cas_calls": bootstrap_cas_calls,
+            "artifact_member_count_before": len(members_before),
+            "artifact_member_count_after": len(members_after),
+            "added_artifact_members": sorted(members_after - members_before),
+            "removed_artifact_members": sorted(members_before - members_after),
+            "owner_metadata_before": owner_before,
+            "owner_metadata_after": owner_after,
+            "checks": checks,
+        }
+        compact = json.dumps(observation, sort_keys=True, separators=(",", ":"))
+        record_property("retained_preservation_" + phase, compact)
+        print(compact, flush=True)  # noqa: T201 -- complete compact bootstrap/preservation result.
+        assert all(checks.values()), "retained_candidate_old_facts_changed"
 
     # Original R4's maintained run_genuine_candidate_experiment_scenario sets
     # this exact value; the production default remains 1.5 seconds.
@@ -193,6 +279,8 @@ def retained_reentry_runtime(
             output_root=tmp_path / "retained-runtime",
             monkeypatch=monkeypatch,
         ) as runtime:
+            bootstrap_open = False
+            assert_old_facts_unchanged("bootstrap")
             control = runtime["control"]
             assert control._worker is None
             store = control._artifact_store
@@ -211,10 +299,9 @@ def retained_reentry_runtime(
                 assert job.lease_owner is None and job.lease_expires_at is None
                 yield commission, runtime
     finally:
+        bootstrap_open = False
+        assert_old_facts_unchanged("final")
         assert not unexpected_effects
-        assert ledger.read_bytes() == ledger_before
-        assert _sql_rows(database) == sql_before
-        assert {path: _sha256(path) for path in selected_before} == selected_before
 
 
 def test_paid_candidate_reentry_reopens_historically_without_new_work(
@@ -222,7 +309,7 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     record_property: Callable[[str, object], None],
 ) -> None:
     """Reopen the actual completed reentry while preserving the failed history."""
-    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.artifacts import ArtifactOwnershipError, ArtifactRef
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
     from polisyos.runtime.quality.candidate_source_reentry_history import (
         verify_candidate_experiment_source_reentry_history,
@@ -232,6 +319,19 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     )
 
     commission, runtime = retained_reentry_runtime
+    observed_cut = datetime.now(UTC)
+    assert runtime["authority_valid_until"] < observed_cut
+    record_property(
+        "retained_historical_authority_cut",
+        json.dumps(
+            {
+                "original_authority_valid_until": runtime["authority_valid_until"].isoformat(),
+                "observed_cut": observed_cut.isoformat(),
+                "original_authority_expired": True,
+            },
+            sort_keys=True,
+        ),
+    )
     control = runtime["control"]
     store = control._artifact_store
     loop = AcquisitionRouteLoop(
@@ -278,7 +378,7 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     unavailable_profile = unavailable_profile.model_copy(
         update={"manifest_profile_sha256": "sha256:" + "0" * 64}
     )
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ArtifactOwnershipError, match="verify_manifest"):
         verify_candidate_experiment_source_reentry_history(
             bridge=bridge,
             origin=origin,

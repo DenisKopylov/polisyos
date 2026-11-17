@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; NCM R9 establishes first B and exposes second-B invocation-scope refusal. Projection repaired and focused checks pass. Signed ingress and full continuation pending.",
-        "main_commit": "132e69e75987dc0ff7ff0a8c05a5331bc9bf121c",
-        "main_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
-        "author_checkpoint": "34b6d88536b7f5840af50bf9ff26e965011dd29c",
+        "status": "ACTIVE; repaired B2 signed ingress observed and published; fresh NCM R10 running; Native full second leaf and hosted initial observation remain unqualified",
+        "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
+        "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
+        "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
         "ncm_r6": {
           "status": "RESOURCE_ABORT wall_time_cap; no final JUnit/origin qualification",
           "source_commit": "b3ba4cd8af416f3d6005444d65df28cd876566b8",
@@ -9121,8 +9121,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Exercise fresh signed B2 ingress with the corrected projection and the retained B1 history. Then qualify two equal-B uses and changed C on an exact new defining source image. Native route diagnostic and fresh hosted paired producer run independently.",
-        "author_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
+        "next": "Finish fresh NCM R10. Admit independently prepared Native R7. Retain Host R10 partial results and capture the precise CAS wait at a future authentic producer. No G closure.",
+        "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -9178,9 +9178,9 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "Native R5 failed before B effects. Route-prefix diagnostic is prepared to observe the actual Runtime context without new N5. Full Native second leaf still requires the real one-unit producer and fresh-app/idempotency reader.",
-          "hosted": "Hosted R9 prepared on the same Main commit and tree. Fresh two-unit paired baseline/treatment producer and initial frontier required.",
-          "binding": "Frozen Main 1eefaf1c225496754e887afa2a0b1c7e0cc70bd4 / d3042e6bb86b9472b753fa79f82d19c72b0c6ae3. Recheck RAM and disk at launch. Disk floor 3 GiB."
+          "native": "R7 prepared at published Main; external polling disabled by supported profile; real deterministic dispatch, native second-leaf and fresh-app read",
+          "hosted": "R10 result partially retained; full initial producer and aggregate/frontier checks unresolved",
+          "binding": "Every actual run binds its source/input/backend and the 3 GiB floor"
         },
         "criterion_reconciliation": {
           "packets": 11,
@@ -9290,7 +9290,7 @@
           "supervisor_sha256": "ea7a2d9e28ab2f29ca199e9ff2a3bcf9afed67f45d17db291c237ff202bf06a8"
         },
         "b2_reuse_invocation": {
-          "status": "independently reviewed GO; focused guard and exact retained projection PASS; signed HTTP review and worker still unrun",
+          "status": "independent source GO, 74 component checks PASS, actual retained signed ingress observed; corrected HTTP path produces 201 and decision_available200",
           "old_exact_case": "scope guard fails on parameters.policy_scope",
           "new_case": "exact canonical policy-context digest, independent PA2 authority resolution, unchanged reuse job identity; injected caller scope refused",
           "focused_pass": 74,
@@ -9301,7 +9301,37 @@
           "retained_replay_output": "Secondary:policy-engine/_cache/e02/ncm-b2-retained-policy-projection-20261117/",
           "retained_replay_log_sha256": "be26c4a926a8bfd94bbec829887cb170468a2d524d313d401de2d100a8c3f128",
           "retained_replay_scope": "ten projection predicates, zero N5, 13 exact retained paths unchanged; exact old tuple reconstructed, only invocation changes",
-          "fresh_image_boundary": "The current candidate production image binds all production Python source bytes. Signed ingress on retained R9 can be tested separately; equivalence across this source change remains unestablished."
+          "fresh_image_boundary": "The current candidate production image binds all production Python source bytes. Signed ingress on retained R9 can be tested separately; equivalence across this source change remains unestablished.",
+          "signed_ingress": {
+            "full_command": "COMMAND_FAIL because observer expected a lone 201; actual normal 403 step-up followed by 201 and 200 available",
+            "actual_output": "Secondary:policy-engine/_cache/e02/ncm-b2-signed-ingress-r1-20261117/budget-r5/command.log",
+            "reconciliation": "Secondary:policy-engine/_cache/e02/ncm-b2-signed-ingress-r1-20261117/r5-signed-ingress-reconciliation.json",
+            "allowed_decision_ref": "sha256:07d173afc11866b6bda094c158a388fc72072895d57f3aa6142cd41e562ef36e",
+            "scope": "No B2 worker, no new jobs, no new N5 or quota use. Exact original resource identity used for budget read; original fixture unchanged."
+          }
+        },
+        "ncm_r10": {
+          "source_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
+          "source_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
+          "status": "RUNNING at this cut",
+          "profile": "same ordinary local seven/one candidate sequence with real live A; fresh scratch",
+          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r10-20261117/"
+        },
+        "native_prefix_r6": {
+          "status": "EXPECTED_PROBE_STOP after two actual routes, before B. Preservation REFUSED for extra startup custody scan; no timeout.",
+          "elapsed_seconds": 540.804,
+          "peak_sampled_process_tree_rss_bytes": 3408789504,
+          "scope": "Old 1346 files,176 SQL rows,claims,generations and ledger unchanged; two declared quote/cost artifacts,one lease,one undeclared startup scan added",
+          "output": "Primary:policy-engine/_cache/e02/native-runtime-prefix-r6-20261117/"
+        },
+        "hosted_paired_r10": {
+          "source_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
+          "source_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
+          "status": "COMMAND_FAIL; normal job completes with simulation_blocked, content_addressed_storage_timeout; two completed standard units and exact Foundry steps retained",
+          "elapsed_seconds": 924.413,
+          "peak_sampled_process_tree_rss_bytes": 3436576768,
+          "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r10-20261117/",
+          "scope": "No top-level joint N5 result, execution or frontier. The exact CAS operation is unestablished. The stored step admission reads pass separately at 5.634 s and 5.900 s with zero N5 or writes."
         }
       },
       "current_execution_20261114": {

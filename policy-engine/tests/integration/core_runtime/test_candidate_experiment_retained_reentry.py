@@ -304,6 +304,59 @@ def retained_reentry_runtime(
         assert not unexpected_effects
 
 
+def test_retained_pending_history_replays_two_fresh_owner_cuts_without_work(
+    retained_reentry_runtime: tuple[dict[str, Any], dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Read a genuine failed/pending history without reviving its execution grant."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+    from polisyos.runtime.quality.joint_simulation_horizon import _RECEIPT_MEMO
+
+    commission, runtime = retained_reentry_runtime
+    control = runtime["control"]
+    loop = AcquisitionRouteLoop(
+        control_store=control._control_store,
+        artifact_store=control._artifact_store,
+        event_log=control._diagnostic_event_log,
+        core_source_resolver=control.resolve_completed_control_job_core_run_source,
+        tenant_id=commission["tenant_id"],
+        cell_id=commission["cell_id"],
+        action_outcome_reader=control.acquisition_route_sink,
+    )
+    memos: list[dict[object, bytes]] = []
+    original = AcquisitionRouteLoopAuthoritySink._experiment_action_outcomes_once
+
+    def observe_cut(owner: AcquisitionRouteLoopAuthoritySink, **kwargs: Any) -> Any:
+        memo = _RECEIPT_MEMO.get()
+        assert memo is not None
+        memos.append(memo)
+        return original(owner, **kwargs)
+
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink, "_experiment_action_outcomes_once", observe_cut
+    )
+    resolution = loop._resolve_current_candidate_experiment_resolution(run_id=commission["run_id"])
+    assert len(memos) == 2 and memos[0] is not memos[1]
+    head = control._control_store.get_acquisition_action_head(
+        tenant_id=commission["tenant_id"],
+        cell_id=commission["cell_id"],
+        run_id=commission["run_id"],
+        source_job_id=resolution.origin.source_job_id,
+        route_id=resolution.origin.route_id,
+        action_generation=commission["action_generation"],
+    )
+    assert head is not None and head.receipt_phase == "candidate_input_reentry_pending"
+    assert resolution.origin.current_action_head == head
+    assert resolution.outcomes[-1].head == head
+    assert control._control_store.get_job(commission["action_job_id"]).state == "failed"
+    assert runtime["authority_valid_until"] < datetime.now(UTC)
+    record_property("retained_pending_history_cut_count", len(memos))
+
+
 def test_paid_candidate_reentry_reopens_historically_without_new_work(
     retained_reentry_runtime: tuple[dict[str, Any], dict[str, Any]],
     record_property: Callable[[str, object], None],
@@ -371,27 +424,18 @@ def test_paid_candidate_reentry_reopens_historically_without_new_work(
     original_v5_resolver = GenerationSourceRepository.resolve_candidate_simulation_v5
     original_result_reader = generation_cycle_module.load_joint_simulation_result
 
-    def count_v5_record_read(
-        repository: GenerationSourceRepository, **kwargs: Any
-    ) -> Any:
-        v5_record_reads.append(
-            (selected_key(kwargs["ref"]), kwargs.get("expected_job_id"))
-        )
+    def count_v5_record_read(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
+        v5_record_reads.append((selected_key(kwargs["ref"]), kwargs.get("expected_job_id")))
         return original_record_reader(repository, **kwargs)
 
-    def count_public_v5_resolution(
-        repository: GenerationSourceRepository, **kwargs: Any
-    ) -> Any:
+    def count_public_v5_resolution(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
         public_v5_resolutions.append(selected_key(kwargs["ref"]))
         return original_v5_resolver(repository, **kwargs)
 
-    def count_pair_resolution(
-        repository: GenerationSourceRepository, **kwargs: Any
-    ) -> Any:
+    def count_pair_resolution(repository: GenerationSourceRepository, **kwargs: Any) -> Any:
         paired_v5_resolutions.append(
             tuple(
-                selected_key(kwargs[name])
-                for name in ("source_ref", "input_ref", "execution_ref")
+                selected_key(kwargs[name]) for name in ("source_ref", "input_ref", "execution_ref")
             )
         )
         return original_pair_resolver(repository, **kwargs)

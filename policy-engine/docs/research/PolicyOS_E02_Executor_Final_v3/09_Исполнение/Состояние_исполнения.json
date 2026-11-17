@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; actor/Catalog fixes and P07/browser qualifications ready for final composition; full NCM/Native/hosted termini remain; no G closure",
-        "main_commit": "eccd303a015ef5a41e58b78802ffab83f5888823",
-        "main_tree": "9f680712db0da33d890396d694ffbb1238ed0450",
-        "author_checkpoint": "19ca4d67bcdd40e059e34ae27e0457d6bcd2f309",
+        "status": "ACTIVE; paired-reader/context-bracket and canonical request-census fixes composed, independently reviewed, checked on Main and published; R8 remains historical FAIL; rebound Native/hosted/full NCM next; no G closure",
+        "main_commit": "132e69e75987dc0ff7ff0a8c05a5331bc9bf121c",
+        "main_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
+        "author_checkpoint": "34b6d88536b7f5840af50bf9ff26e965011dd29c",
         "ncm_r6": {
           "status": "RESOURCE_ABORT wall_time_cap; no final JUnit/origin qualification",
           "source_commit": "b3ba4cd8af416f3d6005444d65df28cd876566b8",
@@ -9121,14 +9121,119 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "compose/publishqualifiedsource;Source/input/backendfreeze;adequatelyadmittedfullNCMthenNative/hosted;no30kreplayforreporthint/docs; preserveDA06/07/08/C105 andseparateGacceptance",
-        "author_tree": "283eddf4f349adfff2bac5b40323e7576abc8d55",
+        "next": "rebind Native/hosted to actual Source/input/backend freeze; admit full Native/hosted/NCM termini; retain qualified P08/GenericR4/30k and X03 comparative-cost DA08 window; no next lane",
+        "author_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
           "limits": "legacyrawaliasreportsnotautomaticallyCurrent;fullsemantic/sourcechecksretained",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-catalog-path-identity-20261117/{publish-suite-r6,pipeline-suite-r7}/"
-        }
+        },
+        "ncm_r8": {
+          "source_commit": "905cc8a9ce642d1eb1e7d4a293bcec9bf87f9e51",
+          "source_tree": "7c0be1d0fa9a11a4a6561bfa49f16b464bc5834d",
+          "status": "COMMAND_FAIL",
+          "elapsed_seconds": 4354.674,
+          "peak_sampled_process_tree_rss_bytes": 2093481984,
+          "quiescent": true,
+          "completed_standard_units": 4,
+          "pending_units": 0,
+          "protected_units_used": 0,
+          "remaining_standard_units": 2,
+          "remaining_protected_units": 1,
+          "terminal_outcome": "candidate_reentry_completed",
+          "selected_evaluation": null,
+          "frontier": null,
+          "basis_status": "not_established",
+          "deciding_reason": "candidate_evaluation_v5_request_census_not_established",
+          "unclassified_field": "program_graph_comparator_profile",
+          "actual_ncm_builder_value": null,
+          "later_B2_B3_C": "UNRUN",
+          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r8-20261117/",
+          "supervisor_sha256": "f6b5e04b322704f5fb163e584dac611ffa99201377fdf779be849c68d8402edb",
+          "qualification_sha256": "a1e92c0d4f66c50ba3906e73a2c0889982661f93fb2c4e28fe419c8ebac4ac90",
+          "declared_input_pins": 7806,
+          "final_loaded_paths": 2076,
+          "final_module_origins": 2077,
+          "qualification_limit": "Final module census and declared pins, not complete runtime/syscall readset",
+          "terminal_ref": {
+            "artifact_id": "sha256:5216fad7bf5e0bb1586d08a170597bf396a6f9bb9f6873f56508e849db5ba937",
+            "manifest_profile_sha256": "sha256:24affd1ce469599a6de57a91d2e7f455e4315ef37d287a8bb31411d89d0bba35"
+          },
+          "g_acceptance": false,
+          "closure_ids": []
+        },
+        "context_read_composition": {
+          "main_commit": "fa0f2ecafe635f2f8e1b536358fb0e6e00529f23",
+          "source_tree": "997b85e8d17d418ceb0ceb84aefc65ee38855362",
+          "checks_passed": 61,
+          "elapsed_seconds": 37.881,
+          "peak_sampled_process_tree_rss_bytes": 1898512384,
+          "quiescent": true,
+          "named_pins": 24,
+          "named_pins_head_commission_unchanged": true,
+          "output": "Primary:policy-engine/_cache/e02/context-history-composed-r1-20261117/",
+          "supervisor_sha256": "737736e799ebed59fee5d8965654b40a7bafa3b5afcb9a681df8d3707f58d578",
+          "scope": "56 component checks +3 legacy/incomplete/blocked branches +2 actual retained readers; zero N5/provider/dispatch; no throughput/live-effect/G claim",
+          "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
+        },
+        "prepared_next": {
+          "native": "R4 UNRUN, one unpaired method-input physical unit, new leaf + fresh-app/idempotent replay; no distinct equal-B use/changed-C claim",
+          "hosted": "R7 UNRUN, separate paired baseline/treatment, two units",
+          "binding": "Prepared905/7c0 commands must be rebound after source repair; actual RAM/disk admission required; unknown heavy profile alone"
+        },
+        "criterion_reconciliation": {
+          "packets": 11,
+          "requirements": 66,
+          "unique_test_contracts": 64,
+          "shared_binding_occurrences": 17,
+          "requirement_binding_rows": 73,
+          "requirement_test_edge_occurrences": 86,
+          "distinct_requirement_test_pairs": 66,
+          "repeated_edges": 20,
+          "preserved_qualified": [
+            "GenericR4 current ProgramGraph sequence",
+            "P08 SQL1.3 producer/public execution/fresh reader/bounded controls",
+            "P07 approved30k",
+            "previously qualified scalar/vector/temporal/feedback/DAG/held-out scopes"
+          ],
+          "not_reopened": "Legacy selector NOT_RUN or newer HEAD alone does not invalidate qualified unchanged mechanisms",
+          "late": [
+            "DA06",
+            "DA07",
+            "DA08",
+            "C105 production current-use/appointment",
+            "independent G acceptance"
+          ],
+          "x03": "CPI candidate and retained numerical/fresh-reader scopes qualified; original expired-bearer whole invocation stays FAIL. Comparative BIND-X03-E01 remains final DA08: independently selected compatible holdout after freeze, cold/warm cost/portability measurement; reuse retained outputs where applicable, no automatic CPI N5 repeat. Not a new local Lane01 producer block."
+        },
+        "ncm_request_census_repair": {
+          "author_checkpoint": "34b6d88536b7f5840af50bf9ff26e965011dd29c",
+          "source_sha256": "0a18943134f54bd61f0b90347e145d4c16b7d4e29faa09a3cacf14b465633456",
+          "mirror_sha256": "40c057692320e642c3c92f3a6418dc6e7ec39b20908e91504ed140d9eaa6dcc8",
+          "status": "independent GO; Author27/27 and composed Main27/27 PASS; published and remote Main identity read back",
+          "checks_passed": 27,
+          "elapsed_seconds": 52.317,
+          "peak_sampled_process_tree_rss_bytes": 1914142720,
+          "quiescent": true,
+          "named_pins": 9,
+          "output": "Secondary:policy-engine/_cache/e02/ncm-v5-request-census-r8-fixed-r1-20261117/",
+          "supervisor_sha256": "8df5b2af8daa4a5c0b0c3d155e7426df1d03b1eda644866d9912435d138ebf46",
+          "recomputed_bases_numerical_sha256": "d2586f29f0435d98114c57a8acb92a4dd269f6362744f74d44ac649a341214aa",
+          "scope": "actual R8 historical reconstruction, not a current-code numerical execution or old-terminal promotion",
+          "main_composition": "132e69e75987dc0ff7ff0a8c05a5331bc9bf121c",
+          "main_tree": "e3e7d55b2148cf84dd19492340b591ff18948e3e",
+          "composed_check": {
+            "checks_passed": 27,
+            "elapsed_seconds": 51.314,
+            "peak_sampled_process_tree_rss_bytes": 1827569664,
+            "quiescent": true,
+            "named_pins_head_commission_unchanged": true,
+            "output": "Primary:policy-engine/_cache/e02/ncm-v5-request-census-composed-r1-20261117/",
+            "supervisor_sha256": "3aeb05fba322259b73cf84aee417ed25c70d7b7a3ae94da9cd919e7b4024a872"
+          }
+        },
+        "identity_scope": "Published product Source checkpoint; a subsequent current-plan-only commit does not change the qualified product bytes. Every new runtime launch still binds its actual HEAD/tree."
       },
       "current_execution_20261114": {
         "status": "ACTIVE",

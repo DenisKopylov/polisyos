@@ -240,7 +240,7 @@ class LifecycleManager:
             Target state.
         actor:
             Optional description of what is triggering the transition.
-            If None, the calling function/module is inferred via ``inspect``.
+            If None, the first external caller frame is inferred.
         strict:
             Retained for API compatibility. Illegal transitions now always
             raise ``LifecycleTransitionError``; when ``strict=False`` the
@@ -331,10 +331,23 @@ class LifecycleManager:
 
 def _infer_actor() -> str:
     """
-    Build a short actor string from the call stack, skipping internal frames.
+    Build a short actor string by walking caller frames, skipping internal frames.
     """
-    for frame_info in inspect.stack()[2:]:
-        module = frame_info.frame.f_globals.get("__name__", "")
-        if not module.startswith("polisyos.foundry.methods.lifecycle"):
-            return f"{frame_info.function}:{frame_info.filename.rsplit('/', 1)[-1]}:{frame_info.lineno}"
-    return "unknown"
+    frame = inspect.currentframe()
+    if frame is None:
+        return "unknown"
+    try:
+        # Match inspect.stack()[2:]: skip this helper and transition().
+        frame = frame.f_back
+        if frame is not None:
+            frame = frame.f_back
+        while frame is not None:
+            module = frame.f_globals.get("__name__", "")
+            if not module.startswith("polisyos.foundry.methods.lifecycle"):
+                filename = frame.f_code.co_filename.rsplit("/", 1)[-1]
+                return f"{frame.f_code.co_name}:{filename}:{frame.f_lineno}"
+            frame = frame.f_back
+        return "unknown"
+    finally:
+        # Frame references can retain every local reachable from the caller.
+        del frame

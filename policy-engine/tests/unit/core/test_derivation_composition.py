@@ -1,5 +1,6 @@
 """Compatibility and epistemic controls for opt-in certified composition."""
 
+from collections import Counter
 from decimal import Decimal
 from pathlib import Path
 
@@ -625,6 +626,79 @@ def test_composition_recipe_artifact_reopens_selected_chain_independently(tmp_pa
     assert resolved.series.effective_score is None
 
 
+def test_selected_recipe_and_certificate_share_one_fresh_replay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, recipe, prior, _source = _composition_recipe_case(tmp_path)
+    recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    output = d.materialize_composition(store, recipe)
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    actual_reopen = d._reopen_composition_recipe
+    reopened = Counter()
+
+    def observe_reopen(store, selected_recipe, replay):
+        reopened[selected_recipe.recipe_id] += 1
+        return actual_reopen(store, selected_recipe, replay)
+
+    monkeypatch.setattr(d, "_reopen_composition_recipe", observe_reopen)
+    for consumer in ("first.consumer", "second.consumer"):
+        reopened.clear()
+        resolved = d.resolve_certified_composition(
+            reader,
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id=consumer,
+            recipe_ref=recipe_ref,
+        )
+        assert resolved.certificate == output.certificate
+        assert resolved.series == output.series
+        assert resolved.consumer_method_id == consumer
+        assert resolved.series.evidence_status == "not_established"
+        assert resolved.series.effective_score is None
+        assert reopened == {recipe.recipe_id: 1, prior.recipe.recipe_id: 1}
+
+
+def test_selected_recipe_must_equal_the_replayed_certificate_recipe(tmp_path: Path) -> None:
+    store, recipe, prior, _source = _composition_recipe_case(tmp_path)
+    prior_recipe_ref = d.persist_composition_recipe_artifact(store, prior.recipe)
+    output = d.materialize_composition(store, recipe)
+    reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
+    with pytest.raises(d.DerivationRefusalError) as refused:
+        d.resolve_certified_composition(
+            reader,
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id="different.recipe.consumer",
+            recipe_ref=prior_recipe_ref,
+        )
+    assert refused.value.code == d.DerivationRefusalCode.CERTIFICATE_DRIFT
+    assert refused.value.stage == "selected_recipe_certificate_binding"
+    certificate_manifest = store.get_manifest(output.certificate_artifact_ref)
+    foreign_certificate_ref = store.put_bytes(
+        store.get_bytes(output.certificate_artifact_ref),
+        artifacts.PutOptions(
+            kind=certificate_manifest.kind,
+            media_type=certificate_manifest.media_type,
+            schema=artifacts.SchemaInfo(name="foreign.certificate", version="3.0.0"),
+            producer=certificate_manifest.producer,
+            inputs=certificate_manifest.inputs,
+            canon=certificate_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_certificate_ref.artifact_id == output.certificate_artifact_ref.artifact_id
+    assert foreign_certificate_ref.manifest_profile_sha256 != (
+        output.certificate_artifact_ref.manifest_profile_sha256
+    )
+    with pytest.raises(d.DerivationRefusalError) as certificate_refused:
+        d.resolve_certified_composition(
+            reader,
+            certificate_ref=foreign_certificate_ref,
+            consumer_method_id="different.recipe.foreign.certificate.consumer",
+            recipe_ref=prior_recipe_ref,
+        )
+    assert certificate_refused.value.code == d.DerivationRefusalCode.CERTIFICATE_DRIFT
+    assert certificate_refused.value.stage is None
+
+
 @pytest.mark.parametrize("missing", ["recipe", "prior_output", "prior_certificate", "source"])
 def test_composition_recipe_artifact_actual_removal_refuses_and_restores(
     tmp_path: Path, missing: str
@@ -645,7 +719,15 @@ def test_composition_recipe_artifact_actual_removal_refuses_and_restores(
         reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
         with pytest.raises(d.DerivationRefusalError):
             d.load_composition_recipe_artifact(reader, recipe_ref)
+        with pytest.raises(d.DerivationRefusalError) as refused:
+            d.resolve_certified_composition(
+                reader,
+                certificate_ref=output.certificate_artifact_ref,
+                consumer_method_id="selected.recipe.consumer",
+                recipe_ref=recipe_ref,
+            )
         if missing == "recipe":
+            assert refused.value.stage == "selected_recipe_artifact"
             # Embedded replay alone cannot prove independent recipe custody.
             assert (
                 d.resolve_certified_composition(
@@ -655,10 +737,28 @@ def test_composition_recipe_artifact_actual_removal_refuses_and_restores(
                 ).certificate.recipe
                 == recipe
             )
+        if missing == "source":
+            assert refused.value.stage == "selected_recipe_replay"
+            with pytest.raises(d.DerivationRefusalError) as default_refused:
+                d.resolve_certified_composition(
+                    reader,
+                    certificate_ref=output.certificate_artifact_ref,
+                    consumer_method_id="default.recipe.consumer",
+                )
+            assert default_refused.value.stage is None
     finally:
         withheld.rename(blob)
     reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
     assert d.load_composition_recipe_artifact(reader, recipe_ref) == recipe
+    assert (
+        d.resolve_certified_composition(
+            reader,
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id="restored.recipe.consumer",
+            recipe_ref=recipe_ref,
+        ).certificate.recipe
+        == recipe
+    )
 
 
 @pytest.mark.parametrize(
@@ -689,6 +789,7 @@ def test_composition_recipe_artifact_valid_bytes_foreign_manifest_refuses(
 ) -> None:
     store, recipe, _prior, _source = _composition_recipe_case(tmp_path)
     recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    output = d.materialize_composition(store, recipe)
     manifest = store.get_manifest(recipe_ref)
     foreign_ref = store.put_bytes(
         store.get_bytes(recipe_ref),
@@ -712,12 +813,21 @@ def test_composition_recipe_artifact_valid_bytes_foreign_manifest_refuses(
         d.load_composition_recipe_artifact(
             artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"), foreign_ref
         )
+    with pytest.raises(d.DerivationRefusalError) as refused:
+        d.resolve_certified_composition(
+            artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id="foreign.recipe.consumer",
+            recipe_ref=foreign_ref,
+        )
+    assert refused.value.stage == "selected_recipe_artifact"
 
 
 @pytest.mark.parametrize("budget", ["max_nodes", "max_depth", "max_edges", "max_points"])
 def test_composition_recipe_artifact_bounded_writer_and_reader(tmp_path: Path, budget: str) -> None:
     store, recipe, _prior, _source = _composition_recipe_case(tmp_path)
     recipe_ref = d.persist_composition_recipe_artifact(store, recipe)
+    output = d.materialize_composition(store, recipe)
     limits = d.DerivationEvaluationLimits.model_validate({budget: 1})
     with pytest.raises(d.DerivationRefusalError, match="budget"):
         d.persist_composition_recipe_artifact(store, recipe, limits=limits)
@@ -725,6 +835,14 @@ def test_composition_recipe_artifact_bounded_writer_and_reader(tmp_path: Path, b
         d.load_composition_recipe_artifact(
             artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
             recipe_ref,
+            limits=limits,
+        )
+    with pytest.raises(d.DerivationRefusalError, match="budget"):
+        d.resolve_certified_composition(
+            artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id="bounded.recipe.consumer",
+            recipe_ref=recipe_ref,
             limits=limits,
         )
 
@@ -781,6 +899,7 @@ def test_composition_recipe_artifact_source_union_budget_precedes_any_arithmetic
         family_id="mixed",
     )
     recipe_ref = d.persist_composition_recipe_artifact(store, mixed)
+    output = d.materialize_composition(store, mixed)
     original = d._evaluate_points
     calls = 0
 
@@ -797,6 +916,15 @@ def test_composition_recipe_artifact_source_union_budget_precedes_any_arithmetic
     reader = artifacts.FileSystemCAS.open_existing_read_only(tmp_path / "cas")
     with pytest.raises(d.DerivationRefusalError, match=r"source.*budget"):
         d.load_composition_recipe_artifact(reader, recipe_ref, limits=limits)
+    assert calls == 0
+    with pytest.raises(d.DerivationRefusalError, match=r"source.*budget"):
+        d.resolve_certified_composition(
+            reader,
+            certificate_ref=output.certificate_artifact_ref,
+            consumer_method_id="source.bounded.recipe.consumer",
+            recipe_ref=recipe_ref,
+            limits=limits,
+        )
     assert calls == 0
     assert d.load_composition_recipe_artifact(reader, recipe_ref) == mixed
     assert calls > 0

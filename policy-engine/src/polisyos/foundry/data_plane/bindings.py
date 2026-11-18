@@ -4023,7 +4023,6 @@ def _verify_registered_composition_input(
     )
     from polisyos.core.derivations import (
         CandidateSourceSeries,
-        load_composition_recipe_artifact,
         resolve_certified_composition,
     )
 
@@ -4047,17 +4046,22 @@ def _verify_registered_composition_input(
     ):
         raise ValueError("foundry_input_bindings_composition_obligation_set_mismatch")
     try:
-        recipe = load_composition_recipe_artifact(store, selection.recipe_ref)
-    except (OSError, DerivationRefusalError) as exc:
-        raise ValueError("foundry_input_bindings_composition_recipe_unavailable") from exc
-    resolution = resolve_certified_composition(
-        store,
-        certificate_ref=selection.certificate_ref,
-        consumer_method_id="polisyos.foundry.semantic-composition-input.v1",
-    )
-    if recipe != resolution.certificate.recipe or artifact_ref_identity_key(
-        resolution.certificate.derived_artifact_ref
-    ) != artifact_ref_identity_key(selection.output_ref):
+        resolution = resolve_certified_composition(
+            store,
+            certificate_ref=selection.certificate_ref,
+            consumer_method_id="polisyos.foundry.semantic-composition-input.v1",
+            recipe_ref=selection.recipe_ref,
+        )
+    except DerivationRefusalError as exc:
+        if exc.stage in {"selected_recipe_artifact", "selected_recipe_replay"}:
+            raise ValueError("foundry_input_bindings_composition_recipe_unavailable") from exc
+        if exc.stage == "selected_recipe_certificate_binding":
+            raise ValueError("foundry_input_bindings_composition_certificate_mismatch") from exc
+        raise
+    recipe = resolution.certificate.recipe
+    if artifact_ref_identity_key(resolution.certificate.derived_artifact_ref) != (
+        artifact_ref_identity_key(selection.output_ref)
+    ):
         raise ValueError("foundry_input_bindings_composition_certificate_mismatch")
     roles = []
     for role in proof.roles:

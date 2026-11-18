@@ -71,6 +71,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
 
 from .control.job_diagnostics import _ModelInputUseJobCompletion
 from .control.run_lifecycle import ControlPlaneService
+from .control_plane_store import _require_candidate_experiment_step_up_fresh
 from .human_decisions import HumanDecisionService
 from .model_input_successor_action import (
     ModelInputSuccessorActionRequest,
@@ -4516,10 +4517,22 @@ class AcquisitionActionService:
         decision_ref: str,
         request_id: str | None,
         principal: RuntimePrincipal | None,
+        step_up_expires_at: int | None = None,
     ) -> AcquisitionExecutionResponse:
         """Queue one candidate experiment without exposing an effect at the HTTP layer."""
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        # Bind the historical replay to source rows observed before it runs.
+        source_store = self.control_service._control_store
+        source_job_id = request.replay_pins.source_job_id
+        source_job = source_store.get_job(source_job_id)
+        source_event = source_store.get_job_created_event_payload(source_job_id)
+        source_outbox = source_store.get_job_created_outbox_event(source_job_id)
+        source_inputs = (
+            (source_job, source_event, source_outbox)
+            if source_job is not None and source_outbox is not None
+            else None
+        )
         origin = self._candidate_experiment_origin_for_request(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -4741,6 +4754,8 @@ class AcquisitionActionService:
                 request=request,
                 job_id=job_id,
                 decision_ref=decision_ref,
+                verified_origin=origin,
+                verified_source_inputs=source_inputs,
             )
             if (
                 type(history) is not AuthenticatedAgentActionDecisionHistory
@@ -4787,6 +4802,7 @@ class AcquisitionActionService:
             gateway.verify_bound_authorization(
                 operation=operation, invocation=invocation, intent=intent, persisted=persisted
             )
+            _require_candidate_experiment_step_up_fresh(step_up_expires_at)
             if inflight_retry_outcome is not None:
                 current_phase = inflight_retry_outcome.latest_receipt
                 current_head = inflight_retry_outcome.head
@@ -4853,9 +4869,17 @@ class AcquisitionActionService:
                         }
                     ).model_dump(mode="python")
                 )
-                refreshed_head = phase_owner.refresh_experiment_authorization(
-                    refreshed, request, expected_job=pending_authorization_job
-                )
+                if step_up_expires_at is None:
+                    refreshed_head = phase_owner.refresh_experiment_authorization(
+                        refreshed, request, expected_job=pending_authorization_job
+                    )
+                else:
+                    refreshed_head = phase_owner.refresh_experiment_authorization(
+                        refreshed,
+                        request,
+                        expected_job=pending_authorization_job,
+                        step_up_expires_at=step_up_expires_at,
+                    )
                 if refreshed_head.receipt_phase != "authorization_refreshed":
                     raise ValueError("candidate_experiment_refresh_head_not_established")
                 return AcquisitionExecutionResponse(
@@ -4931,6 +4955,8 @@ class AcquisitionActionService:
                 "request": request.model_dump(mode="json"),
                 "decision_ref": decision_ref,
             }
+            if step_up_expires_at is not None:
+                prepared = replace(prepared, step_up_expires_at=step_up_expires_at)
             self.control_service.enqueue_acquisition_job(
                 job_id=job_id,
                 run_id=run_id,

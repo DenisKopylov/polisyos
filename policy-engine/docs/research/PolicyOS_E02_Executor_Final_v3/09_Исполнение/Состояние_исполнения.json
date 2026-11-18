@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on published a9e62e7c6. Hosted authenticated reader and removals qualified. Scientific R16 B2/B3 terminal. C queued after step-up expiry and returned 503; no C physical work. Native retained exposure session and fresh GET qualified; full R13 running.",
-        "main_commit": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
-        "main_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
-        "author_checkpoint": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
+        "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
+        "main_commit": "8454bd50c408d557f63683b06c2bd653fe0e6eb8",
+        "main_tree": "63dad6d0c4e15aa768c15d1a02eb19953712363b",
+        "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9432,8 +9432,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Complete full locked-wheel Native R13. Qualify a fresh canonical C continuation from retained B3, preserving the pending action identity and 7/1 ledger, then run the changed numerical C and fresh reader. Existing qualified Generic, P06, P07 and P08 proofs remain scoped.",
-        "author_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
+        "next": "Run retained C with qualified source, fresh canonical pending authorization and same 7/1 ledger. Isolate the exact Native R13 saved request and timed Derivations CAS operation before another full Native run. Repeat affected consumers, then complete final freeze and external handoff.",
+        "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -10066,8 +10066,19 @@
           "peak_sampled_process_tree_rss_bytes": 1665859584,
           "retained_receipt_sha256": "b1a06186852990f07024951d70913423e5b877962576db0290395466f1abb019",
           "retained_output": "Primary:policy-engine/_cache/e02/native-r12-retained-gate-20261118/",
-          "full_r13": "RUNNING on frozen Main via the maintained locked-wheel selector with new fixture authority. Full B acquisition, numerical result and restart reuse are unverified.",
+          "full_r13": "COMMAND_FAIL after signed decision, HTTP 504 before a new job. Exact locked-wheel a9e62e7c6, source stable, 1422.819 s / 4279140352 B / quiescent. FileSystemCAS.verify from Core Derivations ran 1.963776 s at a 1.5 s guard, queue 0.000018292 s. Exact selector and underlying wait cause remain open. Zero N5 and no new job.",
+          "full_supervisor_sha256": "ffc5763fbdeee384162f0ca8867350044d19de5a0851337d58a089974b8a20fe",
           "full_output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r13-20261118/"
+        },
+        "scientific_c_admission_repair": {
+          "status": "AUTHOR_C_REPAIR_COMPONENT_PASS; actual retained C unrun",
+          "http_service_cases": 23,
+          "sql_cases": 27,
+          "runtime_api_contract": "PASS",
+          "scope": "C-only transport deadline and same-operation historical-source proof. Keeps later live authority, worker and selected-source checks.",
+          "http_service_supervisor_sha256": "a47da829d8599fbb09547e637020442fb3d9a347aac65a805b69a9865236bbb6",
+          "sql_supervisor_sha256": "9ac9da026161fd60e5e77052cf6354b3118b9d5de2427f8a20719739b554a87a",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-expiry-20261118/"
         }
       },
       "current_execution_20261114": {

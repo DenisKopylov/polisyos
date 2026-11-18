@@ -192,6 +192,12 @@ The HTTP authorization binds both outer fields under `EVIDENCE_ACQUIRE` and
 PA2/DS9 decision, which remains bound to the unchanged inner request. The caller's
 subject and tenant/cell must match that decision's authenticated scope.
 
+The verified step-up must remain fresh when the job and head are admitted or a
+pending decision is refreshed. Expiry before that admission returns 403 with
+`candidate_experiment_step_up_expired_before_admission`. Retry with a fresh
+assertion for the same request and a still-current PA2 decision. Prepared custody
+artifacts may remain available for recovery without a published job or head.
+
 A new job and requested action head are published atomically. `accepted` pairs
 with `requested`; an exact retry may return `completed` with `terminal` only after
 the existing job, request and terminal history are verified. Failed or unresolved

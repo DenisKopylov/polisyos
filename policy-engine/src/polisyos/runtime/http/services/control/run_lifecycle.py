@@ -5787,6 +5787,7 @@ class AcquisitionRouteLoopAuthoritySink:
         request: object,
         *,
         expected_job: ControlJobRecord,
+        step_up_expires_at: int | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Append fresh authority for the same pending pre-effect action atomically.
 
@@ -5810,6 +5811,7 @@ class AcquisitionRouteLoopAuthoritySink:
             expected_job_attempt=expected_job.attempt,
             expected_payload_ref=expected_job.payload_ref,
             expected_submitted_by=expected_job.submitted_by,
+            step_up_expires_at=step_up_expires_at,
         )
         self._verify_candidate_experiment_prejob_live_authority(typed, request)
         recovered = self._recover_orphan_experiment_phase(

@@ -8,6 +8,7 @@ import json
 import os
 import sqlite3
 import threading
+import time
 import uuid
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
@@ -1460,6 +1461,7 @@ class PendingAcquisitionActionAuthorizationCAS:
     expected_job_attempt: int
     expected_payload_ref: str
     expected_submitted_by: str
+    step_up_expires_at: int | None = None
 
 
 @dataclass(frozen=True)
@@ -1496,6 +1498,7 @@ class _PreparedAcquisitionActionHeadPublication:
     expected_head_generation: int = 0
     expected_previous_terminal_ref: str | None = None
     expected_previous_terminal_manifest_profile_sha256: str | None = None
+    step_up_expires_at: int | None = None
 
 
 @dataclass(frozen=True)
@@ -1660,6 +1663,16 @@ def _validate_acquisition_evaluation_frontier_key(
         raise ValueError("acquisition_evaluation_frontier_key_invalid")
     if not _is_sha256_ref(key.design_problem_ref):
         raise ValueError("acquisition_evaluation_frontier_design_problem_ref_invalid")
+
+
+def _require_candidate_experiment_step_up_fresh(step_up_expires_at: int | None) -> None:
+    """Refuse an expired explicit step-up deadline before durable SQL admission."""
+    if step_up_expires_at is None:
+        return
+    if type(step_up_expires_at) is not int or step_up_expires_at <= 0:
+        raise ValueError("candidate_experiment_step_up_expiry_invalid")
+    if step_up_expires_at <= int(time.time()):
+        raise ValueError("candidate_experiment_step_up_expired_before_admission")
 
 
 def _validate_pending_acquisition_action_authorization_cas(
@@ -5051,6 +5064,7 @@ class ControlPlaneStore:
                     )
                 ):
                     raise ValueError("acquisition_action_generation_predecessor_conflict")
+                _require_candidate_experiment_step_up_fresh(publication.step_up_expires_at)
             self._execute(sql, params)
             self.upsert_progress(job_id=job_id, progress=progress)
             self.append_event(
@@ -6811,6 +6825,10 @@ class ControlPlaneStore:
                 committed_frontier.frontier_ref if committed_frontier is not None else None,
                 receipt_manifest_profile_sha256,
             )
+            if pending_authorization_cas is not None:
+                _require_candidate_experiment_step_up_fresh(
+                    pending_authorization_cas.step_up_expires_at
+                )
             try:
                 if fence is None:
                     affected_rows = self._execute(

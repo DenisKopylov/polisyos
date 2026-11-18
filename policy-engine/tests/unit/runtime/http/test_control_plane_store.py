@@ -1066,6 +1066,84 @@ def test_candidate_action_publication_failure_rolls_back_job_head_and_outbox(
     assert store.lease_next_job(worker_id="worker-after-failure", lease_seconds=30) is None
 
 
+def test_candidate_action_step_up_expiring_under_sql_lock_publishes_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Check freshness after the locked source read, before any job admission SQL."""
+    store = _make_store(tmp_path)
+    now = 2_000_000_000
+    deadline = now + 1
+    publication = replace(_prepared_candidate_action_head(), step_up_expires_at=deadline)
+    scope = {
+        name: getattr(publication, name)
+        for name in (
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+        )
+    }
+    monkeypatch.setattr(control_plane_store_module.time, "time", lambda: now)
+    read_heads = store.list_acquisition_action_heads_for_source
+
+    def expire_after_locked_source_read(**kwargs):
+        nonlocal now
+        result = read_heads(**kwargs)
+        now = deadline
+        return result
+
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute(
+            "CREATE TRIGGER reject_unchecked_step_up_job BEFORE INSERT ON control_jobs "
+            "BEGIN SELECT RAISE(ABORT, 'unchecked_step_up_job_write'); END"
+        )
+    with monkeypatch.context() as admission:
+        admission.setattr(
+            store, "list_acquisition_action_heads_for_source", expire_after_locked_source_read
+        )
+        with pytest.raises(
+            ValueError, match=r"^candidate_experiment_step_up_expired_before_admission$"
+        ):
+            _create_candidate_action_job(store, publication)
+    assert now == deadline
+    assert store.get_job(publication.job_id) is None
+    assert store.get_acquisition_action_head(**scope) is None
+    assert store.list_outbox_events(state=None, limit=500) == []
+    assert store.lease_next_job(worker_id="worker-after-expiry", lease_seconds=30) is None
+
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute("DROP TRIGGER reject_unchecked_step_up_job")
+    created = _create_candidate_action_job(store, replace(publication, step_up_expires_at=now + 1))
+    assert created.job_id == publication.job_id and created.state == "pending"
+    head = store.get_acquisition_action_head(**scope)
+    assert head is not None and head.receipt_ref == publication.receipt_ref
+    assert head.head_generation == 1 and head.receipt_phase == "requested"
+
+
+@pytest.mark.parametrize("deadline", [True, 0, -1, 2_000_000_001.0, "2000000001"])
+def test_candidate_action_step_up_deadline_requires_an_exact_positive_int(
+    tmp_path: Path, deadline: Any
+) -> None:
+    """Malformed carrier deadlines cannot publish even a pending job or outbox."""
+    store = _make_store(tmp_path)
+    publication = replace(_prepared_candidate_action_head(), step_up_expires_at=deadline)
+    with pytest.raises(ValueError, match=r"^candidate_experiment_step_up_expiry_invalid$"):
+        _create_candidate_action_job(store, publication)
+    assert store.get_job(publication.job_id) is None
+    assert store.list_outbox_events(state=None, limit=500) == []
+    assert (
+        store.list_acquisition_action_heads_for_source(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+        )
+        == ()
+    )
+
+
 def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:
     store = _make_store(tmp_path)
     store.heartbeat_worker(
@@ -3600,7 +3678,9 @@ def test_control_job_execution_admission_identity_survives_real_heartbeat_and_re
         refreshed = store.current_execution_job_admission()
 
         assert refreshed.manifest_pointer_state == "refreshed_current"
-        assert refreshed.admission_capability_manifest_ref == before.admission_capability_manifest_ref
+        assert (
+            refreshed.admission_capability_manifest_ref == before.admission_capability_manifest_ref
+        )
         assert refreshed.same_execution_identity(before)
         assert refreshed.matches_job_record(leased)
 

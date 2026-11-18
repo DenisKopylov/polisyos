@@ -495,6 +495,7 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
     )
     calls: list[dict[str, object]] = []
     completed_retry = False
+    expired_at_admission = False
 
     def execute_candidate_experiment(
         *,
@@ -506,7 +507,12 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
         decision_ref: str,
         request_id: str | None,
         principal: object,
+        step_up_expires_at: int,
     ) -> AcquisitionExecutionResponse:
+        if expired_at_admission:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_step_up_expired_before_admission"
+            )
         status = "completed" if completed_retry else "accepted"
         receipt_phase = "terminal" if completed_retry else "requested"
         calls.append(
@@ -519,6 +525,7 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
                 "decision_ref": decision_ref,
                 "request_id": request_id,
                 "principal": principal,
+                "step_up_expires_at": step_up_expires_at,
             }
         )
         return AcquisitionExecutionResponse(
@@ -595,6 +602,13 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
             headers={**headers, "X-PolicyOS-Step-Up": retry_step_up},
             json=body.model_dump(mode="json"),
         )
+        expired_at_admission = True
+        expiring_step_up = _install_bound_test_step_up(secure_client)
+        expired = secure_client.post(
+            path,
+            headers={**headers, "X-PolicyOS-Step-Up": expiring_step_up},
+            json=body.model_dump(mode="json"),
+        )
     finally:
         secure_client.close()
 
@@ -616,6 +630,7 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
     assert call["route_id"] == original_request.route_id
     assert call["request"] == original_request
     assert call["decision_ref"] == decision_ref
+    assert type(call["step_up_expires_at"]) is int and call["step_up_expires_at"] > 0
     assert isinstance(call["request_id"], str) and call["request_id"]
     principal = call["principal"]
     assert principal.tenant_id == runtime_api_env["tenant_a"]
@@ -630,6 +645,8 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
     assert retry.json()["status"] == "completed"
     assert retry.json()["receipt_phase"] == "terminal"
     assert retry.json()["world_growth"] == "not_established"
+    assert expired.status_code == 403, expired.text
+    assert expired.json()["code"] == "candidate_experiment_step_up_expired_before_admission"
 
 
 def test_candidate_experiment_route_projects_candidate_and_fails_closed(
@@ -707,14 +724,19 @@ def test_acquisition_mutations_are_request_bound_and_step_up_protected(
     for path in sorted(path for method, path in _ROUTES if method == "POST"):
         route = _route(app, "POST", path)
         dependency = get_route_action_permission_dependency(route)
-        assert dependency.requirement.permission is RuntimePermission.EVIDENCE_ACQUIRE
+        if "/reuse/" in path:
+            expected_permission = CANDIDATE_EXPERIMENT_REUSE_PERMISSION
+            expected_kind = CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND
+        else:
+            expected_permission = RuntimePermission.EVIDENCE_ACQUIRE
+            expected_kind = (
+                "runtime.evidence.acquisition.candidate_experiment"
+                if "candidate-acquisition-experiment" in path
+                else "runtime.evidence.acquisition"
+            )
+        assert dependency.requirement.permission is expected_permission
         binding = dependency.requirement.resource_binding
         assert binding.source is ResourceBindingSource.REQUEST_COMPOSITE
-        expected_kind = (
-            "runtime.evidence.acquisition.candidate_experiment"
-            if "candidate-acquisition-experiment" in path
-            else "runtime.evidence.acquisition"
-        )
         assert binding.resource_kind == expected_kind
         step_up = get_route_step_up_dependency(route, action_dependency=dependency)
         assert step_up is not None

@@ -615,7 +615,7 @@ def _log_blocking_wait_timeout(
         if type(exc) is not _BlockingDependencyWaitTimeoutError:
             return
 
-        from polisyos.common.logger import get_logger
+        from polisyos.common import logger as common_logger
 
         record = {
             "request_id": context.request_id,
@@ -624,7 +624,7 @@ def _log_blocking_wait_timeout(
             "blocking_wait": _BlockingDependencyWaitTimeoutError.diagnostic(exc),
         }
         # Render the bounded fields into the message so plain console sinks keep them.
-        get_logger(__name__).warning(
+        common_logger.get_logger(__name__).warning(
             "runtime_dependency_wait_timeout %s",
             json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False),
         )

@@ -1092,45 +1092,68 @@ def _replay_derived_selection_value(
         store, selection.correspondence_ref, require_selected_profile=True
     ).artifact_schema
     registered_schema_name = "polisyos.catalog.RegisteredDerivedInputCorrespondence"
-    if schema == SchemaInfo(name=registered_schema_name, version="2.1"):
-        if expected_step_scope is None or expected_obligation_set_ref is None:
-            raise DataSnapshotLineageError("derived_model_input_temporal_scope_not_established")
-        if (
-            type(expected_step_scope) is not ModelInputStepScope
-            or expected_obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
-            or expected_obligation_set_ref.media_type != "application/json"
-            or expected_obligation_set_ref.manifest_profile_sha256 is None
-        ):
-            raise DataSnapshotLineageError("derived_model_input_temporal_expected_subject_invalid")
-        proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
-        profile = load_registered_derived_input_profile(store, proof.profile_ref)
-        context = load_registered_derived_input_context(store, proof.context_ref)
-        if (
-            proof.schema_version != "2.1"
-            or context.schema_version != "1.1"
-            or proof.step_scope != expected_step_scope
-            or context.step_scope != expected_step_scope
-            or artifact_ref_identity_key(context.obligation_set_ref)
-            != artifact_ref_identity_key(expected_obligation_set_ref)
-            or artifact_ref_identity_key(context.model_input_obligation_ref)
-            != artifact_ref_identity_key(selection.model_input_obligation_ref)
-            or artifact_ref_identity_key(context.model_interface_ref)
-            != artifact_ref_identity_key(selection.model_interface_ref)
-            or artifact_ref_identity_key(context.profile_ref)
-            != artifact_ref_identity_key(proof.profile_ref)
-            or context.model_port_id != selection.model_port_id
-            or context.year != selection.year
-            or expected_step_scope.port_id != selection.model_port_id
-            or expected_step_scope.scope.period_start.year != selection.year
-            or expected_step_scope.scope.period_end.year != selection.year
-            or context.output_scope != expected_step_scope.scope
-        ):
-            raise DataSnapshotLineageError("derived_model_input_temporal_context_mismatch")
-    elif schema == SchemaInfo(name=registered_schema_name, version="2.0"):
-        if expected_step_scope is not None or expected_obligation_set_ref is not None:
-            raise DataSnapshotLineageError("derived_model_input_temporal_scope_unexpected")
-        proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
-        profile = load_registered_derived_input_profile(store, proof.profile_ref)
+    temporal_schema = SchemaInfo(name=registered_schema_name, version="2.1")
+    one_period_schema = SchemaInfo(name=registered_schema_name, version="2.0")
+    if schema in (temporal_schema, one_period_schema):
+        if schema == temporal_schema:
+            if expected_step_scope is None or expected_obligation_set_ref is None:
+                raise DataSnapshotLineageError("derived_model_input_temporal_scope_not_established")
+            if (
+                type(expected_step_scope) is not ModelInputStepScope
+                or expected_obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+                or expected_obligation_set_ref.media_type != "application/json"
+                or expected_obligation_set_ref.manifest_profile_sha256 is None
+            ):
+                raise DataSnapshotLineageError(
+                    "derived_model_input_temporal_expected_subject_invalid"
+                )
+            proof = load_registered_derived_input_correspondence(
+                store, selection.correspondence_ref
+            )
+            profile = load_registered_derived_input_profile(store, proof.profile_ref)
+            context = load_registered_derived_input_context(store, proof.context_ref)
+            if (
+                proof.schema_version != "2.1"
+                or context.schema_version != "1.1"
+                or proof.step_scope != expected_step_scope
+                or context.step_scope != expected_step_scope
+                or artifact_ref_identity_key(context.obligation_set_ref)
+                != artifact_ref_identity_key(expected_obligation_set_ref)
+                or artifact_ref_identity_key(context.model_input_obligation_ref)
+                != artifact_ref_identity_key(selection.model_input_obligation_ref)
+                or artifact_ref_identity_key(context.model_interface_ref)
+                != artifact_ref_identity_key(selection.model_interface_ref)
+                or artifact_ref_identity_key(context.profile_ref)
+                != artifact_ref_identity_key(proof.profile_ref)
+                or context.model_port_id != selection.model_port_id
+                or context.year != selection.year
+                or expected_step_scope.port_id != selection.model_port_id
+                or expected_step_scope.scope.period_start.year != selection.year
+                or expected_step_scope.scope.period_end.year != selection.year
+                or context.output_scope != expected_step_scope.scope
+            ):
+                raise DataSnapshotLineageError("derived_model_input_temporal_context_mismatch")
+        else:
+            if expected_step_scope is not None or expected_obligation_set_ref is not None:
+                raise DataSnapshotLineageError("derived_model_input_temporal_scope_unexpected")
+            proof = load_registered_derived_input_correspondence(
+                store, selection.correspondence_ref
+            )
+            profile = load_registered_derived_input_profile(store, proof.profile_ref)
+        try:
+            resolution = resolve_certified_composition(
+                store,
+                certificate_ref=selection.certificate_ref,
+                consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
+                recipe_ref=selection.recipe_ref,
+            )
+        except DerivationRefusalError as exc:
+            if exc.stage == "selected_recipe_certificate_binding":
+                raise DataSnapshotLineageError(
+                    "derived_model_input_selected_output_mismatch"
+                ) from exc
+            raise
+        recipe = resolution.certificate.recipe
     elif schema == SchemaInfo(
         name="polisyos.catalog.DerivedInputCorrespondenceBasis", version="1.0"
     ):
@@ -1146,21 +1169,6 @@ def _replay_derived_selection_value(
         )
     else:
         raise DataSnapshotLineageError("derived_model_input_correspondence_profile_unsupported")
-    if schema.name == registered_schema_name:
-        try:
-            resolution = resolve_certified_composition(
-                store,
-                certificate_ref=selection.certificate_ref,
-                consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
-                recipe_ref=selection.recipe_ref,
-            )
-        except DerivationRefusalError as exc:
-            if exc.stage == "selected_recipe_certificate_binding":
-                raise DataSnapshotLineageError(
-                    "derived_model_input_selected_output_mismatch"
-                ) from exc
-            raise
-        recipe = resolution.certificate.recipe
     if any(
         artifact_ref_identity_key(getattr(selection, field))
         != artifact_ref_identity_key(getattr(proof, field))

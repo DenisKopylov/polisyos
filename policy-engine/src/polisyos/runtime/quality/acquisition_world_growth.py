@@ -1257,10 +1257,13 @@ def _native_admission_owner_profiles(
     kind: str | frozenset[str],
 ) -> tuple[artifacts.ArtifactRef, ...]:
     """Select a complete same-subject denominator without consulting its default view."""
-    inventory_reader = getattr(artifact_store, "inventory_snapshot", None)
+    selected_artifact_id = artifacts.ArtifactID.model_validate(artifact_id)
+    inventory_reader = getattr(artifact_store, "artifact_inventory_snapshot", None)
+    if not callable(inventory_reader):
+        inventory_reader = getattr(artifact_store, "inventory_snapshot", None)
     if not callable(inventory_reader):
         raise ValueError("acquisition_negative_profile_inventory_unavailable")
-    snapshot = inventory_reader(artifact_id=artifacts.ArtifactID.model_validate(artifact_id))
+    snapshot = inventory_reader(artifact_id=selected_artifact_id)
     if (
         type(snapshot) is not artifacts.CASInventorySnapshot
         or snapshot.verdict != "pass"

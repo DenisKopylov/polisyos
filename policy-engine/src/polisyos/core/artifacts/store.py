@@ -5645,33 +5645,67 @@ class FileSystemCAS:
     def _capture_inventory_member_paths(
         self,
         *,
+        subject_artifact_id: ArtifactID | None = None,
         stop_probe: Callable[[], None] | None = None,
     ) -> tuple[tuple[str, ...], dict[tuple[str, str], Path]]:
-        """Parse the complete canonical member-name set without reading contents."""
+        """Parse canonical member names globally or for one artifact subject."""
         names: set[str] = set()
-        pending_directories = [self.base]
-        while pending_directories:
-            _probe_batch_stop(stop_probe)
-            parent = pending_directories.pop()
-            # Own the scandir loop so cancellation also reaches entry processing;
-            # os.walk would consume a complete directory inside its opaque next().
-            with os.scandir(parent) as entries:
-                while True:
-                    _probe_batch_stop(stop_probe)
-                    try:
-                        entry = next(entries)
-                    except StopIteration:
+        if subject_artifact_id is None:
+            pending_directories = [self.base]
+            while pending_directories:
+                _probe_batch_stop(stop_probe)
+                parent = pending_directories.pop()
+                # Own the scandir loop so cancellation also reaches entry processing;
+                # os.walk would consume a complete directory inside its opaque next().
+                with os.scandir(parent) as entries:
+                    while True:
                         _probe_batch_stop(stop_probe)
-                        break
-                    _probe_batch_stop(stop_probe)
-                    if entry.is_symlink():
-                        raise ArtifactIntegrityError("cas_inventory_symlink_member")
-                    if entry.is_dir(follow_symlinks=False):
-                        pending_directories.append(Path(entry.path))
-                    elif entry.is_file(follow_symlinks=False):
-                        names.add(Path(entry.path).relative_to(self.base).as_posix())
-                    else:
-                        raise ArtifactIntegrityError("cas_inventory_nonregular_member")
+                        try:
+                            entry = next(entries)
+                        except StopIteration:
+                            _probe_batch_stop(stop_probe)
+                            break
+                        _probe_batch_stop(stop_probe)
+                        if entry.is_symlink():
+                            raise ArtifactIntegrityError("cas_inventory_symlink_member")
+                        if entry.is_dir(follow_symlinks=False):
+                            pending_directories.append(Path(entry.path))
+                        elif entry.is_file(follow_symlinks=False):
+                            names.add(Path(entry.path).relative_to(self.base).as_posix())
+                        else:
+                            raise ArtifactIntegrityError("cas_inventory_nonregular_member")
+        else:
+            artifact_hex = subject_artifact_id.hex
+            shard = self.base / artifact_hex[:2] / artifact_hex[2:4]
+            if self._ownership_index._path_has_symlink_component(shard):
+                raise ArtifactIntegrityError("cas_inventory_symlink_member")
+            current = self.base
+            for component in (artifact_hex[:2], artifact_hex[2:4]):
+                _probe_batch_stop(stop_probe)
+                current = current / component
+                try:
+                    mode = os.lstat(current).st_mode
+                except FileNotFoundError:
+                    break
+                if not stat.S_ISDIR(mode):
+                    raise ArtifactIntegrityError("cas_inventory_nonregular_member")
+            else:
+                try:
+                    with os.scandir(shard) as entries:
+                        for entry in entries:
+                            _probe_batch_stop(stop_probe)
+                            if entry.name != artifact_hex and not entry.name.startswith(
+                                artifact_hex + "."
+                            ):
+                                continue
+                            if entry.is_symlink():
+                                raise ArtifactIntegrityError("cas_inventory_symlink_member")
+                            if not entry.is_file(follow_symlinks=False):
+                                raise ArtifactIntegrityError("cas_inventory_nonregular_member")
+                            names.add(Path(entry.path).relative_to(self.base).as_posix())
+                except FileNotFoundError:
+                    # A missing selected shard is a stable empty subject inventory.
+                    pass
 
         members: dict[tuple[str, str], Path] = {}
         member_pattern = re.compile(
@@ -5835,13 +5869,17 @@ class FileSystemCAS:
         self,
         *,
         artifact_id: ArtifactID | None = None,
+        subject_only: bool = False,
     ) -> tuple[
         tuple[str, ...],
         tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
         str,
     ]:
-        """Capture member names, exact manifest views, and owner generation under root lock."""
-        names, members = self._capture_inventory_member_paths()
+        """Capture member names, manifest views, and owner generation under a lease."""
+        if subject_only:
+            names, members = self._capture_inventory_member_paths(subject_artifact_id=artifact_id)
+        else:
+            names, members = self._capture_inventory_member_paths()
 
         visible_views: list[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes]] = []
         tenant_id: str | None = None
@@ -5898,18 +5936,46 @@ class FileSystemCAS:
         self,
         artifact_id: ArtifactID | str | None = None,
     ) -> CASInventorySnapshot:
-        """Verify a stable inventory, optionally limiting verified views to one blob ID.
+        """Verify the complete root inventory, optionally reading one subject's payloads.
 
-        The complete CAS name set and shared owner generation are still captured
-        and rechecked. When ``artifact_id`` is supplied, only that ID's visible
-        manifest views and blobs are read and verified. The active tenant scope
-        can hide other tenant views; those remain explicitly unresolved.
+        Even when ``artifact_id`` is supplied, the complete canonical CAS name set
+        and shared owner generation are captured and rechecked.
         """
+        return self._inventory_snapshot(artifact_id, subject_only=False)
+
+    def artifact_inventory_snapshot(self, artifact_id: ArtifactID | str) -> CASInventorySnapshot:
+        """Verify all currently visible views for one artifact subject.
+
+        The scan reads only the subject's canonical shard and same-ID members,
+        while retaining before/after name and signed owner-generation cuts. It
+        verifies every visible manifest and blob for the subject.
+        """
+        if not isinstance(artifact_id, (ArtifactID, str)):
+            raise TypeError("artifact inventory requires an artifact ID")
+        selected_artifact_id, _, _ = _artifact_reference(artifact_id)
+        if (
+            type(self) is not FileSystemCAS
+            and type(self).inventory_snapshot is not FileSystemCAS.inventory_snapshot
+        ):
+            return self.inventory_snapshot(artifact_id=selected_artifact_id)
+        return self._inventory_snapshot(selected_artifact_id, subject_only=True)
+
+    def _inventory_snapshot(
+        self,
+        artifact_id: ArtifactID | str | None,
+        *,
+        subject_only: bool,
+    ) -> CASInventorySnapshot:
         selected_artifact_id = (
             None if artifact_id is None else ArtifactID.model_validate(artifact_id)
         )
         inputs = (
-            "canonical CAS root member names",
+            (
+                "canonical CAS same-ID member names in the selected shard for "
+                f"{selected_artifact_id}"
+                if subject_only
+                else "canonical CAS root member names"
+            ),
             (
                 "all visible manifest bytes and profiles"
                 if selected_artifact_id is None
@@ -5926,12 +5992,32 @@ class FileSystemCAS:
             "detached signature contents",
             "direct filesystem writers outside the CAS lease protocol",
             "other tenant views hidden by the active tenant scope",
+            *(
+                ("all artifact IDs and shards outside the selected subject",)
+                if subject_only
+                else ()
+            ),
         )
-        try:
+
+        def capture() -> tuple[
+            tuple[str, ...],
+            tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
+            str,
+        ]:
+            if subject_only and selected_artifact_id is not None:
+                with self._coordinator.artifact_lease(
+                    selected_artifact_id,
+                    exclusive=False,
+                    create_lock_files=not self._read_only,
+                ):
+                    return self._capture_inventory_membership(
+                        artifact_id=selected_artifact_id, subject_only=True
+                    )
             with self._coordinator.root_exclusive():
-                names_before, views, generation_before = self._capture_inventory_membership(
-                    artifact_id=selected_artifact_id
-                )
+                return self._capture_inventory_membership(artifact_id=selected_artifact_id)
+
+        try:
+            names_before, views, generation_before = capture()
         except ArtifactIntegrityError as exc:
             return CASInventorySnapshot(
                 verdict="fail",
@@ -6008,10 +6094,7 @@ class FileSystemCAS:
             )
 
         try:
-            with self._coordinator.root_exclusive():
-                names_after, _views_after, generation_after = self._capture_inventory_membership(
-                    artifact_id=selected_artifact_id
-                )
+            names_after, _views_after, generation_after = capture()
         except ArtifactIntegrityError as exc:
             return CASInventorySnapshot(
                 verdict="fail",

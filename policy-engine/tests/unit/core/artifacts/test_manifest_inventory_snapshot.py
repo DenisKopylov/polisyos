@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -182,3 +183,135 @@ def test_manifest_snapshot_returns_unrun_when_owner_generation_changes_without_n
     )
     assert snapshot.verdict == "UNRUN"
     assert snapshot.reason == "manifest_inventory_changed_during_scan"
+
+
+def test_artifact_snapshot_scans_only_the_selected_shard_and_all_subject_profiles(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The subject API verifies every profile without traversing unrelated shards."""
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = b'{"decision":"limited"}'
+    kind = "policyos.evaluation_safety.decision"
+    schema = SchemaInfo(name=kind, version="1.0")
+    default_ref = store.put_bytes(
+        payload,
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=schema,
+            producer=ProducerInfo(component="test.subject.default", version="1"),
+        ),
+    )
+    profile_refs = tuple(
+        store.put_bytes(
+            payload,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=schema,
+                producer=ProducerInfo(component=f"test.subject.profile-{index}", version="1"),
+            ),
+        )
+        for index in range(2)
+    )
+    assert all(ref.artifact_id == default_ref.artifact_id for ref in profile_refs)
+    unrelated_ref = store.put_bytes(
+        b"unrelated", PutOptions(kind="test.unrelated", media_type="text/plain")
+    )
+    unrelated_shard = store._paths(unrelated_ref.artifact_id)[0].parent
+    (unrelated_shard / "malformed-unrelated-member").write_bytes(b"ignored by subject scan")
+
+    real_scandir = os.scandir
+    scanned_subject_shards: list[Path] = []
+
+    def record_scandir(path_arg):
+        candidate = Path(path_arg)
+        if candidate == store.base or candidate.is_relative_to(store.base):
+            scanned_subject_shards.append(candidate)
+        return real_scandir(path_arg)
+
+    monkeypatch.setattr("polisyos.core.artifacts.store.os.scandir", record_scandir)
+    snapshot = store.artifact_inventory_snapshot(default_ref.artifact_id)
+
+    assert snapshot.verdict == "pass"
+    assert len(snapshot.entries) >= 3
+    assert {str(entry.manifest.artifact_id) for entry in snapshot.entries} == {
+        str(default_ref.artifact_id)
+    }
+    visible_profiles = {
+        entry.artifact_ref.manifest_profile_sha256
+        if isinstance(entry.artifact_ref, ArtifactRef)
+        else None
+        for entry in snapshot.entries
+    }
+    assert len(visible_profiles) == len(snapshot.entries)
+    assert sum("same-ID member names" in item for item in snapshot.inputs) == 1
+    assert any(
+        "outside the selected subject" in item for item in snapshot.unresolved_by_construction
+    )
+    assert scanned_subject_shards == [store._paths(default_ref.artifact_id)[0].parent] * 2
+
+    global_snapshot = store.inventory_snapshot(artifact_id=default_ref.artifact_id)
+    assert global_snapshot.verdict == "fail"
+    assert global_snapshot.reason == "cas_inventory_member_name_invalid"
+
+
+def test_artifact_snapshot_refuses_a_symlink_within_the_selected_subject(
+    tmp_path: Path,
+) -> None:
+    """A same-ID symlink cannot be omitted from the subject denominator."""
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_bytes(b"subject", PutOptions(kind="test.subject", media_type="text/plain"))
+    profile = "a" * 64
+    alias = store._member_path(ref.artifact_id, "manifest", None).with_name(
+        f"{ref.artifact_id.hex}.view.{profile}.manifest.json"
+    )
+    alias.symlink_to(store._member_path(ref.artifact_id, "manifest", None))
+
+    snapshot = store.artifact_inventory_snapshot(ref.artifact_id)
+
+    assert snapshot.verdict == "fail"
+    assert snapshot.reason == "cas_inventory_symlink_member"
+
+
+@pytest.mark.parametrize("movement", ["profile", "owner"])
+def test_artifact_snapshot_rejects_movement_between_subject_cuts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, movement: str
+) -> None:
+    """A changed subject or signed owner generation invalidates the read."""
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a")
+    payload = b"subject with moving custody"
+    original = store.put_bytes(payload, PutOptions(kind="test.subject", media_type="text/plain"))
+    lease = store._coordinator.artifact_lease
+    moved = False
+
+    @contextmanager
+    def move_after_first_cut(artifact_id, **kwargs):
+        nonlocal moved
+        with lease(artifact_id, **kwargs) as held:
+            yield held
+        if artifact_id != original.artifact_id or moved:
+            return
+        moved = True
+        if movement == "profile":
+            store.put_bytes(
+                payload, PutOptions(kind="test.additional-view", media_type="text/plain")
+            )
+        else:
+            store._ownership_index.record_owner(artifact_id, tenant_id="tenant-b")
+
+    monkeypatch.setattr(store._coordinator, "artifact_lease", move_after_first_cut)
+    snapshot = store.artifact_inventory_snapshot(original.artifact_id)
+
+    assert moved
+    assert snapshot.verdict == "UNRUN"
+    assert snapshot.reason == "inventory_changed_during_scan"
+
+
+def test_artifact_snapshot_requires_a_valid_artifact_id(tmp_path: Path) -> None:
+    """Existing ID model instances are validated before choosing a shard."""
+    store = FileSystemCAS(tmp_path / "cas")
+    malformed = ArtifactID.from_sha256_hex("a" * 64).model_copy(update={"root": "invalid"})
+    with pytest.raises(ValueError, match="ArtifactID must start"):
+        store.artifact_inventory_snapshot(malformed)

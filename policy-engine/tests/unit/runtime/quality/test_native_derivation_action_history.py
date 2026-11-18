@@ -27,7 +27,10 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRoutePhaseReceipt,
     NativeDerivationLeafProviderSelection,
 )
-from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionWorldGrowthBridge,
+    _native_admission_owner_profiles,
+)
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests.unit.runtime.quality.test_native_derivation_leaf_cost_profile import (
     _profile,
@@ -475,3 +478,60 @@ def test_native_selected_writer_and_provider_preflight_refuse_backend_without_in
             return_selected_profile=True,
         )
     assert events.list_events(limit=10) == []
+
+
+def test_native_owner_profiles_prefers_subject_inventory_and_keeps_legacy_fallback(
+    tmp_path: Path,
+) -> None:
+    """Native admission uses bounded inventory when available and preserves custom stores."""
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    kind = "runtime_quality.acquisition_world_growth_attempt"
+    ref = store.put_bytes(
+        b"selected owner profile",
+        artifacts.PutOptions(kind=kind, media_type="application/octet-stream"),
+    )
+
+    class SubjectInventoryStore:
+        def __init__(self) -> None:
+            self.selected: list[artifacts.ArtifactID] = []
+
+        def artifact_inventory_snapshot(self, *, artifact_id):
+            selected = artifacts.ArtifactID.model_validate(artifact_id)
+            self.selected.append(selected)
+            return store.artifact_inventory_snapshot(selected)
+
+        def inventory_snapshot(self, **kwargs):
+            raise AssertionError("legacy inventory path should not be selected")
+
+    preferred = SubjectInventoryStore()
+    profiles = _native_admission_owner_profiles(preferred, str(ref.artifact_id), kind)
+    assert preferred.selected == [ref.artifact_id]
+    assert len(profiles) == 1
+    assert profiles[0].artifact_id == ref.artifact_id
+
+    class LegacyInventoryStore:
+        def __getattr__(self, name):
+            if name == "artifact_inventory_snapshot":
+                raise AttributeError(name)
+            return getattr(store, name)
+
+    legacy_profiles = _native_admission_owner_profiles(
+        LegacyInventoryStore(), str(ref.artifact_id), kind
+    )
+    assert len(legacy_profiles) == 1
+    assert legacy_profiles[0].artifact_id == ref.artifact_id
+
+    class InventoryOverrideCAS(artifacts.FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.legacy_calls = 0
+
+        def inventory_snapshot(self, artifact_id=None):
+            self.legacy_calls += 1
+            return super().inventory_snapshot(artifact_id=artifact_id)
+
+    overridden = InventoryOverrideCAS(tmp_path / "cas")
+    overridden_profiles = _native_admission_owner_profiles(overridden, str(ref.artifact_id), kind)
+    assert overridden.legacy_calls == 1
+    assert len(overridden_profiles) == 1
+    assert overridden_profiles[0].artifact_id == ref.artifact_id

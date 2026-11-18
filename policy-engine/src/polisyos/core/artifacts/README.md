@@ -184,6 +184,11 @@ local Python API and adds no HTTP endpoint.
 - `FileSystemCAS.inventory_snapshot(artifact_id=...)` rechecks the complete local member-name
   set and owner generation while verifying only the selected artifact ID's visible views.
   The active tenant scope can hide other tenants' views, which remain unresolved by construction.
+- `FileSystemCAS.artifact_inventory_snapshot(artifact_id=...)` verifies every visible default
+  and secondary view of one exact artifact. The stock filesystem owner limits name enumeration
+  to that artifact's canonical shard and rechecks names and the signed ownership generation
+  after verifying the selected manifests and blob. Call `inventory_snapshot()` for a whole-root
+  integrity inventory. Custom owners retain their established inventory behavior.
 - `FileSystemCAS.manifest_inventory_snapshot(kind=...)` is an additive public method on the
   existing `polisyos.core.artifacts.FileSystemCAS` class. It rechecks the complete local member-name
   set, every visible manifest profile, and owner generation while selecting all visible

@@ -2412,6 +2412,8 @@ def test_candidate_terminal_writer_recovers_saved_cas_event_idempotently(tmp_pat
         ("backend_timeout", 1, "read_error"),
         ("backend_guard_error", 1, "read_error"),
         ("unregistered_guard", 1, "read_error"),
+        ("missing_ref", 1, "permission_denied"),
+        ("foreign_profile", 1, "permission_denied"),
     ],
 )
 def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
@@ -2424,6 +2426,21 @@ def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
         b"authority byte retry",
         PutOptions(kind="test.bytes", media_type="application/octet-stream"),
     )
+    foreign_writer = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-b", cell_id="cell-b")
+    foreign_ref = foreign_writer.put_bytes(
+        b"authority byte retry",
+        PutOptions(kind="test.foreign", media_type="application/octet-stream"),
+    )
+    assert foreign_ref.artifact_id == ref.artifact_id
+    missing_ref = ArtifactID.from_sha256_hex("f" * 64)
+    selector = (
+        missing_ref
+        if fault == "missing_ref"
+        else foreign_ref
+        if fault == "foreign_profile"
+        else ref
+    )
+    selected_kind = getattr(selector, "kind", None)
     backing = FileSystemCAS(
         tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
     )
@@ -2438,7 +2455,7 @@ def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
         # retry can use the real reader while the expired worker is still alive.
         done = threading.Event()
         finished.append(done)
-        started.append(selector.kind)
+        started.append(getattr(selector, "kind", None))
         try:
             if fault == "one_late_read" and len(started) == 1:
                 ref.kind = "mutated-after-first-dispatch"
@@ -2466,8 +2483,8 @@ def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
     )
     try:
         with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-            result = _capture_bytes_read(guarded, ref)
-        assert started == ["test.bytes"] * read_count
+            result = _capture_bytes_read(guarded, selector)
+        assert started == [selected_kind] * read_count
         if error_kind is None:
             assert result.failure is None
             assert result.value == b"authority byte retry"
@@ -2478,4 +2495,100 @@ def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
     finally:
         release.set()
         assert all(event.wait(timeout=1.0) for event in finished)
+        guarded.close()
+
+
+def test_registered_guard_retries_one_get_manifest_wait_timeout(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A fresh guarded manifest read can recover one late stock CAS read."""
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
+    writer = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    ref = writer.put_bytes(
+        b"manifest timeout retry",
+        PutOptions(kind="test.manifest", media_type="application/octet-stream"),
+    )
+    backing = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
+    )
+    guarded = guard_runtime_cas(backing)
+    original_read = FileSystemCAS.get_manifest
+    calls = 0
+    first_started = threading.Event()
+    first_release = threading.Event()
+    first_finished = threading.Event()
+
+    @wraps(original_read)
+    def delayed_manifest_read(store, selector):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            first_started.set()
+            assert first_release.wait(timeout=3.0)
+            first_finished.set()
+        return original_read(store, selector)
+
+    monkeypatch.setattr(FileSystemCAS, "get_manifest", delayed_manifest_read)
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            manifest = guarded.get_manifest(ref)
+        assert manifest.kind == ref.kind
+        assert calls == 2
+        assert first_started.is_set()
+        assert not first_finished.is_set()
+    finally:
+        first_release.set()
+    assert first_finished.wait(timeout=1.0)
+    guarded.close()
+
+
+def test_read_retry_policy_leaves_custom_backend_and_cas_writes_single_call(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The read-only retry whitelist excludes custom stores and writes."""
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
+
+    class CustomStore:
+        def __init__(self) -> None:
+            self.reads = 0
+
+        def get_bytes(self, _selector) -> bytes:
+            self.reads += 1
+            return b"custom"
+
+    custom = CustomStore()
+    custom_result = _capture_bytes_read(custom, "sha256:" + "a" * 64)
+    assert custom_result.value == b"custom"
+    assert custom.reads == 1
+
+    backing = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
+    )
+    guarded = guard_runtime_cas(backing)
+    calls = 0
+    release = threading.Event()
+    finished = threading.Event()
+
+    def one_timed_out_write(*_args, **_kwargs):
+        nonlocal calls
+        calls += 1
+        try:
+            assert release.wait(timeout=3.0)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(backing, "put_bytes", one_timed_out_write)
+    try:
+        with (
+            tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+            pytest.raises(_BlockingDependencyWaitTimeoutError),
+        ):
+            guarded.put_bytes(
+                b"do not retry writes",
+                PutOptions(kind="test", media_type="application/octet-stream"),
+            )
+        assert calls == 1
+    finally:
+        release.set()
+        assert finished.wait(timeout=1.0)
         guarded.close()

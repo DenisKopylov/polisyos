@@ -93,6 +93,12 @@ Start a single incident timeline immediately:
 
 5. If the outage looks like configuration drift, compare the runtime environment with the last
    known-good deployment instead of editing environment variables at random.
+6. For `content_addressed_storage_timeout`, check the operation and wait
+   disposition. A running worker can finish after the request stops waiting.
+   The guard can make one fresh attempt for an eligible immutable read. For a
+   timed-out mutation, use the operation's idempotency identity and inspect the
+   durable job, receipt, and event before sending another request. See the
+   [CAS or OPA outage runbook](cas-opa-outage.md) for dependency triage.
 
 ## Rollback / Mitigation
 

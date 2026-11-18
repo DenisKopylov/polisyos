@@ -229,7 +229,8 @@ class CandidateExperimentReuseTerminalOwner:
         )
         from polisyos.runtime.quality.candidate_experiment_reuse import (
             CandidateExperimentReuseActionSelection,
-            _reopen_current_reuse_catalog_source,
+            _reopen_current_reuse_catalog_context,
+            _reopen_current_reuse_wdi_source,
             _selected_predecessor_evaluation,
         )
         from polisyos.runtime.quality.candidate_source_basis import (
@@ -312,11 +313,15 @@ class CandidateExperimentReuseTerminalOwner:
         policy_ref, policy = resolve_current_candidate_unpriced_policy(
             control_service=service, scope=origin.policy_scope
         )
-        catalog, authority, _ = _reopen_current_reuse_catalog_source(
+        catalog = _reopen_current_reuse_catalog_context(
             control_service=service,
             substrate_registry=prior.handoff.context.substrate_registry,
+        )
+        current_wdi_port, _ = _reopen_current_reuse_wdi_source(
+            control_service=service,
             source_ref=selection.source_ref,
             expected_source=history.source,
+            expected_bridge=bridge,
         )
         catalog_ref = (
             _catalog_content_ref(catalog)
@@ -330,7 +335,8 @@ class CandidateExperimentReuseTerminalOwner:
             or policy.request_content_hash != selection.request_content_hash
             or catalog.selection_basis != selection.catalog_source_selection_basis
             or catalog_ref != selection.catalog_source_content_ref
-            or authority.provision_content_sha256 != selection.authority_provision_content_sha256
+            or current_wdi_port._provision_content_sha256
+            != selection.authority_provision_content_sha256
         ):
             raise ValueError("candidate_experiment_reuse_current_owner_changed")
         # Reuse the current profile/materialization owner with the verified

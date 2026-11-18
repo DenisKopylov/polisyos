@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "PAUSED by user after all active helpers and jobs finished naturally; LANE-01 and variable-binding specification incomplete",
+        "status": "ACTIVE after 18 November resume; B2 repaired enqueue qualified; worker, full NCM sequence and Native/hosted continuity remain open",
         "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
         "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
@@ -9121,7 +9121,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "When the user resumes, reproduce only B2 /reuse/execute from retained R10 B1 with actual decision, predecessor and ledger custody. Capture the chained cause before HTTP translation. In parallel, isolate the Native decision-request CAS wait before physical work. Admit Host R11 with measured resources. DA06/07/08 and institutional authority/G remain separate.",
+        "next": "Qualify the fresh NCM generation sequence on the composed source; localize the Native decision-request CAS wait before new work and capture actual hosted wait telemetry. Keep the qualified specification components and DA06/07/08, institutional authority and G boundaries.",
         "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9358,7 +9358,39 @@
           "output": "Primary:policy-engine/_cache/e02/native-retained-two-leaf-host-r7-20261117/",
           "supervisor_result_sha256": "fffbde05b217e41c60dc1bd0f92ae93027f077597b2206dee7f2fa4986c5b81f"
         },
-        "resources_at_pause": "Approximately 5.85 GB moved to Trash and emptied by user; ~7.5 GiB free after final run; keep 3 GiB stop floor"
+        "resources_at_pause": "Approximately 5.85 GB moved to Trash and emptied by user; ~7.5 GiB free after final run; keep 3 GiB stop floor",
+        "b2_enqueue_binding_repair": {
+          "status": "First real retained-B1 B2 enqueue qualified with fresh scoped demo authority. No worker or numerical effect.",
+          "mechanism": "Canonical _candidate_experiment_loop call omitted the required run_id. Pass the existing validated run scope.",
+          "red_http": "409 candidate_experiment_reuse_enqueue_not_established, underlying TypeError missing run_id, no new job/head",
+          "green_http": "200, exact pending generation-2 job and requested head; one additional job, event and head; unchanged frontier and ledger",
+          "green_source_sha256": "849bf174965d61f8e3d4bbdc2c28ecd2465d9e24b0ccc8fec2de2c0399f8c4a1",
+          "preservation": "1,556 original file bytes or link targets unchanged and exact budget resource pins retained; zero transport/provider/N5",
+          "elapsed_seconds_red_green": [
+            124.324,
+            245.219
+          ],
+          "peak_sampled_process_tree_rss_bytes_red_green": [
+            2036350976,
+            2031255552
+          ],
+          "output": "Secondary:policy-engine/_cache/e02/ncm-r10-b2-enqueue-{r1,r2}-20261118/",
+          "supervisor_sha256_red_green": [
+            "b0dc1a84d50c07e4e9ecb19f642330baa5863cd30935fb3b38b380bc34ffe666",
+            "1a4bebddc94530b36b43937ab086aa0e195e27ee5b4273cefdc4b5bad4182907"
+          ],
+          "scope": "Independent source review GO with explicit retry limitation; full sequence, candidate numerical reuse and G unassigned",
+          "affected": {
+            "tests": 27,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "elapsed_seconds": 290.648,
+            "peak_sampled_process_tree_rss_bytes": 1889714176,
+            "output": "Secondary:policy-engine/_cache/e02/ncm-r10-b2-enqueue-affected-20261118/",
+            "supervisor_sha256": "4dbc090e9f6649a531e88eba9190e825cc3722ffa240dea5ebe0d7b1a1bf995a"
+          }
+        }
       },
       "current_execution_20261114": {
         "status": "ACTIVE",

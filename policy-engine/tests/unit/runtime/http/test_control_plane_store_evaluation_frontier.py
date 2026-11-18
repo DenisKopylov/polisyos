@@ -562,6 +562,127 @@ def test_frontier_cas_checks_revision_and_ref_independently(
     assert store.read_acquisition_evaluation_frontier(key) == advanced.frontier
 
 
+def test_terminal_frontier_conflict_preserves_executing_head_and_frontier(
+    tmp_path: Path,
+) -> None:
+    """A stale terminal CAS leaves the existing executing head and live frontier intact."""
+    _, _, cas_type = _types()
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "terminal-conflict.sqlite3")
+    _, initial, _ = _bootstrap(store, tmp_path)
+    key = initial.key
+
+    terminal_job, terminal_worker, terminal_attempt = _create_action_job(
+        store, job_id="action-terminal-conflict"
+    )
+    route_id = _sha("terminal-conflict-route")
+    executing_ref = _sha("terminal-conflict-executing")
+    executing_profile = _sha("terminal-conflict-executing-profile")
+    with store.job_execution_fence(
+        job_id=terminal_job.job_id,
+        worker_id=terminal_worker,
+        attempt=terminal_attempt,
+    ):
+        executing_head = store.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=0,
+            receipt_ref=executing_ref,
+            receipt_sha256=executing_ref,
+            durable_event_id="event-terminal-conflict-executing",
+            coarse_phase="executing",
+            receipt_phase="executing",
+            recovery_state="none",
+            job_id=terminal_job.job_id,
+            predecessor_receipt_ref=None,
+            receipt_manifest_profile_sha256=executing_profile,
+        )
+
+    competing_job, competing_worker, competing_attempt = _create_action_job(
+        store, job_id="action-terminal-conflict-competitor"
+    )
+    competitor = _append_action(
+        store,
+        job=competing_job,
+        worker_id=competing_worker,
+        attempt=competing_attempt,
+        key=key,
+        expected_revision=initial.revision,
+        expected_ref=initial.frontier_ref,
+        route_id="terminal-conflict-competitor",
+        replacement=_value("compiled-competitor", "selected-tuple-competitor"),
+    )
+    assert competitor.frontier.revision == initial.revision + 1
+
+    terminal_cas = cas_type(
+        key=key,
+        expected_revision=initial.revision,
+        expected_frontier_ref=initial.frontier_ref,
+        replacement=None,
+    )
+    terminal_ref = _sha("terminal-conflict-terminal")
+    route_scope = {
+        "tenant_id": key.tenant_id,
+        "cell_id": key.cell_id,
+        "run_id": "run-a",
+        "source_job_id": key.source_job_id,
+        "route_id": route_id,
+    }
+
+    def head_version_count() -> int:
+        count = store._fetchone(
+            """
+            SELECT COUNT(*) AS version_count FROM runtime_acquisition_action_heads
+            WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
+              AND source_job_id = ? AND route_id = ? AND action_generation = 1
+            """,
+            (key.tenant_id, key.cell_id, "run-a", key.source_job_id, route_id),
+        )
+        assert count is not None
+        return int(count["version_count"])
+
+    before_heads = store.list_acquisition_action_heads(**route_scope)
+    before_versions = head_version_count()
+    assert before_heads == (executing_head,)
+    assert before_versions == 1
+    with (
+        store.job_execution_fence(
+            job_id=terminal_job.job_id,
+            worker_id=terminal_worker,
+            attempt=terminal_attempt,
+        ),
+        pytest.raises(ValueError, match="frontier_conflict"),
+    ):
+        store.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=executing_head.head_generation,
+            receipt_ref=terminal_ref,
+            receipt_sha256=terminal_ref,
+            durable_event_id="event-terminal-conflict-terminal",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            job_id=terminal_job.job_id,
+            predecessor_receipt_ref=executing_head.receipt_ref,
+            frontier_cas=terminal_cas,
+            receipt_manifest_profile_sha256=_sha("terminal-conflict-terminal-profile"),
+        )
+
+    assert store.list_acquisition_action_heads(**route_scope) == before_heads
+    assert head_version_count() == before_versions
+    assert store.read_acquisition_evaluation_frontier(key) == competitor.frontier
+    final_job = store.get_job(terminal_job.job_id)
+    assert final_job is not None and final_job.state == "running"
+
+
 def test_sibling_retained_terminals_serialize_without_advancing_frontier(tmp_path: Path) -> None:
     sqlite_path = tmp_path / "concurrent-retained.sqlite3"
     stores = tuple(ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path) for _ in range(2))

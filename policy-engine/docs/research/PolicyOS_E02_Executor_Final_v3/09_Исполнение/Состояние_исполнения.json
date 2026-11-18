@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; B2 enqueue and worker import repairs published; Native first B request 200; complete scientific sequence and Native/hosted frontier open",
+        "status": "ACTIVE; NCM R12 B2 decision subject mismatch isolated, Native R9 historical-chain timeout and hosted R12 missing expected request",
         "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
         "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
@@ -9121,7 +9121,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Compose and freeze the qualified canonical shared recipe/certificate replay. Run fresh full NCM sequence and the maintained Native second-leaf/restart test using the R2 retained state. Keep hosted readback measurements and final requirements separate.",
+        "next": "Bind no-fetch reuse to the verified effective candidate cycle and verify the issuer on retained R12 inputs. Isolate the hosted expected-request reader and the Native historical-chain stall with a bounded retained test before repeating expensive prefixes.",
         "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9449,7 +9449,64 @@
           "boundary_sha256": "547ba4c51d6005fba59dd8241de53b8defc96d0bbb7a3c5bbd7207f9eac7c99e",
           "full_native_state": "UNRUN on composed source"
         },
-          "combined_recipe_certificate_replay": {
+            "published_composition_18_november": {
+            "main_commit": "06faf700d397010af01a71ef788fecd53fc048fb",
+            "main_tree": "b80576d3dc3f4d6abcf2f8af6decb5fbb8d80d3a",
+            "author_commit": "b137db255bbc923d8d8add48b4863d1968303758",
+            "remote_ref_and_affected_bytes_read_back": true
+          },
+          "ci_companions_18_november": {
+            "status": "Published author only; compose after current numerical freeze",
+            "author_commit": "c496c14d01236a58855670bc9eefc1e984dff87e",
+            "affected_tests": 12,
+            "affected": {
+              "status": "PASS",
+              "actual_exit_code": 0,
+              "elapsed_seconds": 32.665,
+              "peak_sampled_process_tree_rss_bytes": 1649950720,
+              "quiescent": true,
+              "supervisor_sha256": "27ad31f34404c42584c7ed1ee67f77fd5924ce2ede98e862708a4acd6a9c4b18"
+            },
+            "architecture_static": {
+              "status": "PASS",
+              "actual_exit_code": 0,
+              "elapsed_seconds": 190.496,
+              "peak_sampled_process_tree_rss_bytes": 241795072,
+              "quiescent": true,
+              "supervisor_sha256": "d08f65439cea9838bb3c1f8f49b0eda15940fcad34f4894606af5eb2ac10a979"
+            },
+            "local_documentation_coverage_percent": 100,
+            "scope": "Local directory command red on workspace residue; generated freshness and overall typing gate remain open. Reported typed-flow diagnostics reduced from 56 to 51 total in the selected check.",
+            "output": "Secondary:policy-engine/_cache/e02/lane01-ci-companions-20261118/"
+          },
+          "native_retained_r9": {
+            "source": "06faf700d397010af01a71ef788fecd53fc048fb",
+            "tree": "b80576d3dc3f4d6abcf2f8af6decb5fbb8d80d3a",
+            "previous_r8": "HARNESS_ERROR at collection: missing Tool5 recipe key. No product work.",
+            "semantic_boundary": "HTTP 504 at B decision-request; no B job, head, grant, or numerical work; original members, SQL and ledger preserved",
+            "timeout": "FileSystemCAS.has from Core _verify_resolvable_ref; already running for 1.5136476 s, queue 18.79 us, deadline 1.5 s; exact selector and inner phase not established",
+            "observer": "Retained A chain proof; 27 starts from one captured input set, 26 returns, one unwind. Exact selected terminal and predecessors recorded.",
+            "result": {
+              "status": "COMMAND_FAIL",
+              "actual_exit_code": 1,
+              "elapsed_seconds": 1132.502,
+              "peak_sampled_process_tree_rss_bytes": 3926147072,
+              "quiescent": true,
+              "supervisor_sha256": "7085cd9676b0c1fcaf23f971c125e7dba515f64faa771eafc30a33b9d7c894a6"
+            },
+            "tool5_sha256": "7662325e9fcb5a31c24083eb65257e1c56afc563038fa3b84e4f6166ba3d51a8",
+            "preservation_sha256": "11bc4420d9193995580e3af3d8510ffcf369a0681297c0fa8edd7ef5a8909c81",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r9-20261118/"
+          },
+          "composed_wave_r12": {
+            "source": "06faf700d397010af01a71ef788fecd53fc048fb",
+            "tree": "b80576d3dc3f4d6abcf2f8af6decb5fbb8d80d3a",
+            "ncm": "COMMAND_FAIL exit 1 in 3848.501 s, quiescent. A live PASS, B1 terminal/frontier 1, B2 executing with durable occurrence and prospective basis 0196452d… then subject-mismatch at strict decision issuance, reproduced from exact saved inputs with no N5; B3/C UNRUN. Supervisor SHA256 6b5e87102d7e938380d691ba9b4cc5332cda9cc7e1012c58e52cd061899ebab4.",
+            "ncm_output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r12-20261118/",
+            "hosted": "COMMAND_FAIL exit 1 in 1641.022 s, quiescent. Real paired methods ran; worker reports joint_simulation_semantic_expected_request_required, no observed CAS timeout/slow rows; frontier unverified. Supervisor SHA256 0aea6becbf89a7491b0c7fc318d47a6e30120f3374171804b1361a6578d1cd1b.",
+            "hosted_output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r12-fallback-20261118/"
+          },
+        "combined_recipe_certificate_replay": {
             "status": "Independent source GO, selected R3 positive/refusal cohort and real retained readback PASS; live hosted frontier unresolved",
             "cohort": {
               "tests": 36,

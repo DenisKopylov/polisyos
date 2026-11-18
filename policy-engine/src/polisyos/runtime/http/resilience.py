@@ -516,6 +516,70 @@ class GuardedDependencyProxy:
 
         return _run_guarded_dependency(self._guard, operation)
 
+    def get_bytes_with_one_timeout_retry(self, selector: Any) -> bytes:
+        """Retry one registered ambient CAS read after its own guard expires."""
+        from polisyos.core.artifacts.ids import ArtifactID
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_reference_parts
+
+        if type(selector) not in (str, ArtifactID, ArtifactRef):
+            return self.get_bytes(selector)
+        try:
+            binding = _require_runtime_filesystem_guard(self)
+            artifact_id, _, reference = artifact_reference_parts(selector)
+        except (TypeError, ValueError):
+            return self.get_bytes(selector)
+
+        backend = binding.backend
+        reader = backend.get_bytes
+
+        def current_scope() -> tuple[str | None, str | None, bool] | None:
+            if (
+                not backend.has_stock_component_types()
+                or backend._ownership_enforced is not True
+                or backend._tenant_id is not None
+                or backend._cell_id is not None
+                or getattr(reader, "__func__", None) is not type(backend).get_bytes
+                or backend.get_bytes != reader
+            ):
+                return None
+            tenant, cell = backend._resolve_owner(required=False)
+            if tenant is None:
+                return None
+            return tenant, cell, backend._ownership_requires_scope
+
+        scope = current_scope()
+        if scope is None:
+            return self.get_bytes(selector)
+
+        # Keep a private normalized reference, with a new selector for every
+        # attempt. The first worker can outlive the caller's timeout.
+        snapshot = reference or artifact_id
+        return_text = type(selector) is str
+
+        @wraps(reader)
+        def read() -> bytes | _BlockingDependencyWaitTimeoutError:
+            aid, _, ref = artifact_reference_parts(snapshot)
+            try:
+                return reader(str(aid) if return_text else ref or aid)
+            except _BlockingDependencyWaitTimeoutError as target_error:
+                # Only an exception emitted by this guard may trigger retry.
+                return target_error
+
+        try:
+            result = _run_guarded_dependency(binding.guard, read)
+        except _BlockingDependencyWaitTimeoutError as error:
+            if (
+                type(error) is not _BlockingDependencyWaitTimeoutError
+                or error.dependency != "content_addressed_storage"
+                or _require_runtime_filesystem_guard(self) is not binding
+                or current_scope() != scope
+            ):
+                raise
+            result = _run_guarded_dependency(binding.guard, read)
+        if isinstance(result, _BlockingDependencyWaitTimeoutError):
+            raise result
+        return result
+
     def with_ambient_ownership_enforcement(self) -> GuardedDependencyProxy:
         """Retain this runtime guard while selecting a tenant-enforced store view."""
         enforcer = getattr(self._target, "with_ambient_ownership_enforcement", None)

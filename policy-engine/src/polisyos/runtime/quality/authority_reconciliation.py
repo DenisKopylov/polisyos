@@ -120,7 +120,11 @@ def _capture_bytes_read(artifact_store: Any, selector: Any) -> _AuthorityReadRes
     """Read one CAS byte object and reject a malformed backend return value."""
 
     def read_bytes() -> bytes:
-        value = artifact_store.get_bytes(selector)
+        retrying_read = getattr(artifact_store, "get_bytes_with_one_timeout_retry", None)
+        if callable(retrying_read):
+            value = retrying_read(selector)
+        else:
+            value = artifact_store.get_bytes(selector)
         if not isinstance(value, bytes):
             raise TypeError("CAS byte read did not return bytes")
         return value

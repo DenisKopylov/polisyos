@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import errno
+import threading
 import traceback
 from dataclasses import replace
 from datetime import UTC, datetime
+from functools import wraps
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -26,6 +28,13 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.runtime.http.resilience import (
+    GuardedDependencyProxy,
+    _BlockingDependencyWaitTimeoutError,
+    build_runtime_cas_guard,
+    guard_runtime_cas,
+)
 from polisyos.runtime.http.services.control.artifacts import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
     verify_runtime_authority_artifact_identity,
@@ -41,6 +50,7 @@ from polisyos.runtime.quality.authority import (
 )
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationError,
+    _capture_bytes_read,
     reconcile_authority_event,
     reconcile_authority_ref,
     resolve_authority_diagnostic_event_ref,
@@ -2391,3 +2401,81 @@ def test_candidate_terminal_writer_recovers_saved_cas_event_idempotently(tmp_pat
                 store, event_log, terminal, opts, **{**context, **changed}
             )
     assert len(event_log.list_events(run_id=terminal.run_id, job_id=terminal.job_id)) == 1
+
+
+@pytest.mark.parametrize(
+    ("fault", "read_count", "error_kind"),
+    [
+        ("one_late_read", 2, None),
+        ("persistent_timeout", 2, "read_error"),
+        ("validation_error", 1, "value_error"),
+        ("backend_timeout", 1, "read_error"),
+        ("backend_guard_error", 1, "read_error"),
+        ("unregistered_guard", 1, "read_error"),
+    ],
+)
+def test_authority_byte_capture_retries_one_exact_registered_cas_timeout(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, fault: str, read_count: int, error_kind: str | None
+) -> None:
+    """A real guard may retry one exact read after its own wait expires."""
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
+    writer = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    ref = writer.put_bytes(
+        b"authority byte retry",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    backing = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
+    )
+    original_read = FileSystemCAS.get_bytes
+    started = []
+    finished = []
+    release = threading.Event()
+
+    @wraps(original_read)
+    def read_with_fault(store, selector):
+        # Hold the selected call before it acquires the artifact stripe so a
+        # retry can use the real reader while the expired worker is still alive.
+        done = threading.Event()
+        finished.append(done)
+        started.append(selector.kind)
+        try:
+            if fault == "one_late_read" and len(started) == 1:
+                ref.kind = "mutated-after-first-dispatch"
+                assert release.wait(timeout=3.0)
+                return b"late result"
+            if fault in {"persistent_timeout", "unregistered_guard"}:
+                assert release.wait(timeout=3.0)
+            if fault == "validation_error":
+                raise ValueError("invalid selected bytes")
+            if fault == "backend_timeout":
+                raise TimeoutError("backend timeout")
+            if fault == "backend_guard_error":
+                raise _BlockingDependencyWaitTimeoutError(
+                    "content_addressed_storage", diagnostic={}
+                )
+            return original_read(store, selector)
+        finally:
+            done.set()
+
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", read_with_fault)
+    guarded = (
+        GuardedDependencyProxy(target=backing, guard=build_runtime_cas_guard())
+        if fault == "unregistered_guard"
+        else guard_runtime_cas(backing)
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            result = _capture_bytes_read(guarded, ref)
+        assert started == ["test.bytes"] * read_count
+        if error_kind is None:
+            assert result.failure is None
+            assert result.value == b"authority byte retry"
+            assert not finished[0].is_set()
+        else:
+            assert result.failure is not None
+            assert result.failure.error_kind == error_kind
+    finally:
+        release.set()
+        assert all(event.wait(timeout=1.0) for event in finished)
+        guarded.close()

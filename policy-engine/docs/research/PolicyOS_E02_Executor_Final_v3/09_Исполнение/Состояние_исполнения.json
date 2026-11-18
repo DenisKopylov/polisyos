@@ -9228,7 +9228,8 @@
               "supervisor_sha256": "0c17c32a0e8b8107e66513ad676fe8c2ee269d4da2cd4232b674f090243eaf8d",
               "affected_output": "Secondary:policy-engine/_cache/e02/lane01-b2-r15-compiled-field-20261118/affected/",
               "affected_supervisor_sha256": "7c8afad780d3110bcf3d3fbeb0f7579b11613ce3e18f1afcb63c7acc16cf62f6",
-              "remaining": "live atomic B2/B3 terminal and frontier publication, fresh API and changed C"
+              "remaining": "live atomic B2/B3 terminal and frontier publication, fresh API and changed C",
+              "main_published_direct_readback": true
             }
           },
           "b2_draft_probe": {
@@ -9305,12 +9306,26 @@
             "supervisor_sha256": "ae918bbfff798052b824a1ee0fe2dc006190894dcf5c0323e159fe6d6f5ae1c7"
           },
           "hosted_r16": {
-            "status": "RUNNING",
+            "status": "COMMAND_FAIL_LIVE_GET_INVENTORY_INCOMPLETE",
             "source": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
             "profile": "same full locked-wheel paired test and guard, port isolation asserted before application initialization",
             "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r16-profile-owner-20261118/",
             "command_sha256": "5169548b7da682e529e2234da4c35f6ab17a71eee4a2fc12ebf2ac2d68a90636",
-            "tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007"
+            "tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
+            "elapsed_seconds": 2158.54,
+            "peak_rss_bytes": 5519507456,
+            "completed_standard_units": 2,
+            "selected_frontier_revision": 1,
+            "scope": "Numerical oracle and direct historical reader pass. Authenticated GET HTTP 200 matches source identities, then fails complete-inventory assertion.",
+            "supervisor_sha256": "267cd09645381e68481aed106cf5f49c9cc488dd4af3348bd340103408c62f89",
+            "retained_inner_r2": {
+              "status": "PASS_EXACT_STOCK_GUARDED_RETAINED_HISTORY",
+              "elapsed_seconds": 80.138,
+              "frontiers": 1,
+              "n5_calls": 0,
+              "output": "Primary:policy-engine/_cache/e02/host-r16-fresh-frontier-r2-20261118/",
+              "supervisor_sha256": "c3a98d1445baeca96e8aa4f198940f82c2a49f59bfcd0285a7263eac085f33ee"
+            }
           },
           "scoped_typed_manifest_lookup": {
             "status": "PASS 169/169; reviewed and published on author branch",
@@ -9474,10 +9489,10 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "Native R11 stops at principal signing; late signature verified with a wrong-key control; no B dispatch.",
-          "hosted": "Hosted R15 full route FAIL; saved-result reader PASS; port-isolated maintained R16 prepared and unrun.",
+          "native": "Finish the confirmed Control/Core binding for actual gate/evidence GETs, run the no-N5 witness, then second leaf through real restart.",
+          "hosted": "Exact retained Runtime CAS history reader passes. Reopen the same frontier through the authenticated GET with the guard and original ledger.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
-          "ncm": "R15 B2 terminal CAS/event persisted; historical precommit proof pending; B3/C unrun."
+          "ncm": "Historical R15 B2 passes on 4f4bde5c3. Scientific R16 is running from the same independently frozen source; live B2/B3/C are pending."
         },
         "criterion_reconciliation": {
           "packets": 11,
@@ -9866,6 +9881,58 @@
           "elapsed_seconds": 30.277,
           "output": "Primary:policy-engine/_cache/e02/b2-worker-owner-import-r1-20261118/",
           "supervisor_sha256": "3532485486cca67d8a39349dd3d907910eff1d708a85818b0c96de3fdfce6ff0"
+        },
+        "consultant_followup_18_november": {
+          "cas": {
+            "commit": "b9b44fb9bab031b54ed0015d427da1c643c52b48",
+            "tree": "273d0e61f5280a1b40f70b5f66924747f502245a",
+            "exact_generation_loads": {
+              "get_bytes": [
+                2,
+                1
+              ],
+              "selected_verifier": [
+                6,
+                5
+              ]
+            },
+            "retained_r14_generation_loads": [
+              52287,
+              44884
+            ],
+            "retained_r14_generation_cpu_seconds": [
+              5.702382,
+              4.839594
+            ],
+            "retained_r14_join_wall_seconds": [
+              37.764,
+              35.588
+            ],
+            "retained_r14_new_n5": 0,
+            "affected_checks_passed": 141,
+            "affected_supervisor_sha256": "0399da3c75abb56fa09aae01faff7d87fbafb8b10a33e73104fda5c87bbe451f",
+            "comparison_output": "Primary:policy-engine/_cache/e02/consultant-cas-r14-comparison-20261118/"
+          },
+          "b2_sql_rollback": {
+            "commit": "1859180e739f74fefcdc0678ee21d10cd9ea2504",
+            "checks_passed": 42,
+            "supervisor_sha256": "94bcf8ac03dcbaa263363dfaac8661288a010be9da2acd10bd353a373f628862",
+            "output": "Primary:policy-engine/_cache/e02/consultant-b2-sql-cohort-r1/"
+          },
+          "scientific_live_r16": {
+            "status": "RUNNING",
+            "source": "4f4bde5c3772c45a3d0fc37134d061164f3ed14a",
+            "tree": "c8e92820af987954d03a80b61c197f56c78da3ab",
+            "quota": "7 total / 1 protected",
+            "output": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/"
+          },
+          "guard_latency": {
+            "existing_checks_passed": 45,
+            "instrument_scratch_barrier": "PASS",
+            "native_stall_cause": "not_established",
+            "output": "Primary:policy-engine/_cache/e02/consultant-cas-latency-r1/",
+            "result_sha256": "a09e65ba953271ee629dd707e4f45014581a973d523a64f582f18075c4bed60f"
+          }
         }
       },
       "current_execution_20261114": {

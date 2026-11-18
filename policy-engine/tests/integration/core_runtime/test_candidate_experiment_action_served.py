@@ -707,16 +707,24 @@ def _run_candidate_experiment_action_oracle(
         caller_selected_human.model_dump(mode="json"),
         route=route_template,
     )
-    assert caller_ref_response.status_code == 200, caller_ref_response.text
     assert caller_ref_digest != resource_digest
-    caller_ref_decision = AgentActionAuthorityDecision.model_validate(
-        canon.from_canonical_bytes(
-            control._artifact_store.get_bytes(caller_ref_response.json()["authority_decision_ref"])
-        )
-    )
-    assert caller_ref_decision.outcome == "refused"
-    assert "delegation_contract_not_persisted" in caller_ref_decision.refusal_reasons
     job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+    current_head = origin.current_action_head
+    if current_head is not None and current_head.receipt_phase != "terminal":
+        assert current_head.job_id == job_id
+        assert caller_ref_response.status_code == 409, caller_ref_response.text
+        assert caller_ref_response.json()["code"] == "candidate_experiment_predecessor_not_current"
+    else:
+        assert caller_ref_response.status_code == 200, caller_ref_response.text
+        caller_ref_decision = AgentActionAuthorityDecision.model_validate(
+            canon.from_canonical_bytes(
+                control._artifact_store.get_bytes(
+                    caller_ref_response.json()["authority_decision_ref"]
+                )
+            )
+        )
+        assert caller_ref_decision.outcome == "refused"
+        assert "delegation_contract_not_persisted" in caller_ref_decision.refusal_reasons
     install_provider()
     effects: list[object] = []
     replay = action_service.replay_candidate_experiment_authority(

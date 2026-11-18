@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on 5da; Native retained A PASS and B/restart live, NCM B2 continuation saved before terminal refusal, held-out CAS optimization qualified on author source",
-        "main_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
-        "main_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
-        "author_checkpoint": "1d660527f8839def6a2dd41bbe2659d337b28f40",
+        "status": "ACTIVE on published 7db. Native A PASS; Native full R10 fails before B dispatch. Scientific R15 running on composed source.",
+        "main_commit": "7db89f93d4c4d329981c1babf0234db30b050206",
+        "main_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
+        "author_checkpoint": "7db89f93d4c4d329981c1babf0234db30b050206",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9167,8 +9167,44 @@
             ]
           },
           "native_full_r10": {
-            "status": "LIVE, final B and restart unqualified",
-            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r10-20261118/"
+            "status": "COMMAND_FAIL",
+            "semantic_scope": "B decision request and selected mandate reached; human decision, B dispatch/N5, terminal and restart unrun",
+            "elapsed_seconds": 1390.242,
+            "peak_sampled_process_tree_rss_bytes": 4710711296,
+            "quiescent": true,
+            "source_qualification": "stable",
+            "deciding_operation": "FileSystemCAS.put_json from _persist_cas_writer_attestation during HumanDecision exposure-session preparation",
+            "timeout_seconds": 1.5,
+            "operation_seconds": 1.972374667180702,
+            "guard_queue_seconds": 3.4665921702980995e-05,
+            "late_write": "attestation persisted; exposure-session document absent",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r10-20261118/",
+            "supervisor_sha256": "dda900c9f903e72323106ec55c58f83903ad3f9460b2021ef429555b416358d3"
+          }
+        },
+        "current_composed_r15": {
+          "source_commit": "7db89f93d4c4d329981c1babf0234db30b050206",
+          "source_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
+          "publication": "direct remote readback after ordinary fast-forward",
+          "scientific": {
+            "status": "RUNNING",
+            "quota": "7/1 candidate",
+            "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r15-20261118/",
+            "command_sha256": "99b809ca675c8dc5bbbe248c265ec69ed722b3737dd37beeb76379609331601e"
+          },
+          "b2_draft_probe": {
+            "status": "HARNESS_ERROR, downstream UNRUN",
+            "reason": "ArtifactOwnershipError in isolated fixture bootstrap",
+            "n5_calls": 0,
+            "output": "Secondary:policy-engine/_cache/e02/lane01-b2-r14-continuation-retained-20261118/precommit-reader-budget-r3/",
+            "supervisor_sha256": "7fda7af98ff98ad693c9bfbd14db9efd1be5e5a505265fb3f95c65092c0dcbc3"
+          },
+          "hosted": {
+            "status": "RUNNING",
+            "profile": "locked-wheel providers, isolated scratch, unchanged 1.5 s guard",
+            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r15-composed-20261118/",
+            "command_sha256": "f9b63500383917e5dd90f20b99051a81e1ba93e5cc0952edfce062ebffba4a22",
+            "shared_rss_cap_bytes": 8589934592
           }
         },
         "current_composed_r13": {
@@ -9266,8 +9302,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Finish Native full R10 on 5da. Qualify the exact downstream retained B2 reader without new N5 where admissible. Then compose released owner deltas and run the affected scientific/hosted routes.",
-        "author_tree": "760f7f2ed0836b565a120b14a634a654652c6d33",
+        "next": "Finish genuine scientific R15. Run the maintained hosted frontier and fresh reader on the composed source. Measure the bounded pre-dispatch Native attestation writer phase before another full second-leaf and restart attempt.",
+        "author_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -9323,10 +9359,10 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "R7 complete FAIL before B dispatch. Bounded canonical decision-request/guard diagnosis first.",
-          "hosted": "R11 complete recipe prepared, induced local guard timeout smoke PASS; genuine locked-wheel check unrun.",
+          "native": "Native full R10 fails at exposure-session attestation before dispatch; isolate writer phases.",
+          "hosted": "Hosted R15 admitted on the composed source with the maintained full paired selector and shared resource guard.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
-          "ncm": "R10 retained B1 plus B2 ingress available for bounded enqueue reproduction; no new run admitted"
+          "ncm": "R15 active on composed source with separate fresh fixture."
         },
         "criterion_reconciliation": {
           "packets": 11,

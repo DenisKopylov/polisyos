@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on published bcd7. Exact R15 B2 historical refusal reproduced at the compiled reference comparison. Hosted R16 running; Native full R11 remains stopped before B dispatch.",
-        "main_commit": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
-        "main_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
-        "author_checkpoint": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
+        "status": "ACTIVE on published a9e62e7c6. Hosted authenticated reader and removals qualified. Scientific R16 B2/B3 terminal. C queued after step-up expiry and returned 503; no C physical work. Native retained exposure session and fresh GET qualified; full R13 running.",
+        "main_commit": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
+        "main_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
+        "author_checkpoint": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9432,8 +9432,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Publish the qualified historical reader repair after Hosted R16 releases Main. Run the maintained fresh scientific sequence with bounded worker cause telemetry. Native second leaf and restart remain open.",
-        "author_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
+        "next": "Complete full locked-wheel Native R13. Qualify a fresh canonical C continuation from retained B3, preserving the pending action identity and 7/1 ledger, then run the changed numerical C and fresh reader. Existing qualified Generic, P06, P07 and P08 proofs remain scoped.",
+        "author_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -10034,6 +10034,40 @@
             "scope_result_sha256": "7ef6095477135fce91831bd89d14e026d841dd11a1df7eec597fb35c540a9ad1",
             "retained_authenticated_gate": "pending"
           }
+        },
+        "ncm_r16": {
+          "source_commit": "4f4bde5c3772c45a3d0fc37134d061164f3ed14a",
+          "source_tree": "c8e92820af987954d03a80b61c197f56c78da3ab",
+          "status": "COMMAND_FAIL, exit 1, quiescent. Exact live B2/B3 terminal heads and unchanged physical spend qualify at their original bound stages.",
+          "elapsed_seconds": 7908.411,
+          "peak_sampled_process_tree_rss_bytes": 2137096192,
+          "b2_terminal_ref": "sha256:4cb870659954fa600d0a936235f33f52b488934044d69607ae431e7c5af12fa7",
+          "b3_terminal_ref": "sha256:230e26bfc00cbf3246dcf4a423a88cab7eea31693768c16e7c710024808f23ac",
+          "b3_terminal_profile": "sha256:28d9681ee83896a82ef8d3e253ed89882c04a6f52e8699d13fcaefe9b163af79",
+          "frontier_revision": 3,
+          "c_job": "candidate-experiment-07571cfa874d3d5139134c8d76681953aa054b6738cb22c94be034c8566703b3",
+          "c_requested_at": "2026-11-18T17:32:28Z",
+          "c_step_up_consumed_at": "2026-11-18T17:25:18Z",
+          "c_step_up_expired_at": "2026-11-18T17:29:18Z",
+          "c_response": "503 authorization_binding_integrity_violation. C pending, no C worker or numerical result.",
+          "completed_standard_units": 4,
+          "pending_units": 0,
+          "protected_units_used": 0,
+          "ledger_sha256": "0259595b1ce33b8a3b105d295f0515c9e49749dba49d6e0b710a204e1e785b8f",
+          "supervisor_sha256": "ef383d19d6175b3c3aff3aeaa28cf8fb54258a6e14eac0b05d9c95f0459342d6",
+          "qualification_sha256": "2d1408d8f3602cbfe53356269e9321d17034c61714e1ad2a4452e932af8e7371",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/"
+        },
+        "native_current_exposure": {
+          "source_commit": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
+          "source_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
+          "retained_gate": "PASS: authentic gate HTTP 200, fresh session HTTP 200, same scoped reference; blocked pre-evidence decision, zero acquisition/N5, original fixture and ledger preserved.",
+          "elapsed_seconds": 23.82,
+          "peak_sampled_process_tree_rss_bytes": 1665859584,
+          "retained_receipt_sha256": "b1a06186852990f07024951d70913423e5b877962576db0290395466f1abb019",
+          "retained_output": "Primary:policy-engine/_cache/e02/native-r12-retained-gate-20261118/",
+          "full_r13": "RUNNING on frozen Main via the maintained locked-wheel selector with new fixture authority. Full B acquisition, numerical result and restart reuse are unverified.",
+          "full_output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r13-20261118/"
         }
       },
       "current_execution_20261114": {

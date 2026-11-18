@@ -7797,6 +7797,31 @@ class HumanDecisionAuthoritySink:
             raise RuntimeError("artifact_ownership_evidence_invalid")
         return dict(evidence)
 
+    def ownership_scope_evidence(
+        self,
+        *,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> Mapping[str, object]:
+        """Read only the selected owner scope through the guarded artifact store.
+
+        Args:
+            tenant_id: Optional tenant override for the selected store scope.
+            cell_id: Optional cell override for the selected store scope.
+
+        Returns:
+            The normalized tenant and optional cell for the selected scope.
+        """
+
+        read_scope = getattr(self._artifact_store, "ownership_scope_evidence", None)
+        if callable(read_scope):
+            evidence = read_scope(tenant_id=tenant_id, cell_id=cell_id)
+        else:
+            evidence = self.ownership_evidence(tenant_id=tenant_id, cell_id=cell_id)
+        if not isinstance(evidence, Mapping):
+            raise RuntimeError("artifact_ownership_evidence_invalid")
+        return {key: evidence[key] for key in ("tenant_id", "cell_id") if key in evidence}
+
     def write_authority_artifact(
         self,
         payload: object,

@@ -530,6 +530,63 @@ def test_current_generation_token_distinguishes_ephemeral_empty_from_signed_empt
     assert signed_empty._current_generation_token() == signed_empty_token
 
 
+def test_selected_owner_scope_avoids_history_but_diagnostic_evidence_keeps_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    store.put_bytes(
+        b"selected owner scope",
+        PutOptions(kind="test.owner_scope", media_type="text/plain"),
+    )
+    history_checks: list[str] = []
+    original_history_status = store._ownership_index._pre_v3_history_status
+
+    def record_history_status(generation_sha256: str) -> str:
+        history_checks.append(generation_sha256)
+        return original_history_status(generation_sha256)
+
+    monkeypatch.setattr(store._ownership_index, "_pre_v3_history_status", record_history_status)
+
+    selected_scope = store.ownership_scope_evidence()
+
+    assert selected_scope == {"tenant_id": "tenant-a", "cell_id": "cell-a"}
+    assert history_checks == []
+
+    diagnostic = store.ownership_evidence()
+
+    assert diagnostic["tenant_id"] == "tenant-a"
+    assert diagnostic["cell_id"] == "cell-a"
+    assert len(history_checks) == 1
+
+
+def test_selected_owner_scope_rejects_a_corrupt_current_pointer(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    store.put_bytes(
+        b"selected owner scope",
+        PutOptions(kind="test.owner_scope", media_type="text/plain"),
+    )
+    pointer = json.loads(store._ownership_index.path.read_bytes())
+    pointer["generation_sha256"] = "sha256:" + "f" * 64
+    pointer_bytes = (json.dumps(pointer, indent=2, sort_keys=True) + "\n").encode()
+    store._ownership_index.path.write_bytes(pointer_bytes)
+
+    with pytest.raises(ValueError, match="ownership_index_generation_invalid"):
+        store.ownership_scope_evidence()
+
+    assert store._ownership_index.path.read_bytes() == pointer_bytes
+
+
 def test_ambiguous_duplicate_schema_fails_before_stale_legacy_fallback(
     tmp_path: Path,
 ) -> None:

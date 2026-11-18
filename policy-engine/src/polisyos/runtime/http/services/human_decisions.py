@@ -1548,7 +1548,7 @@ class HumanDecisionService:
 
         try:
             owner_cell_id = _selected_exposure_owner_cell_id(
-                self._sink.ownership_evidence,
+                self._sink,
                 expected_tenant_id=session.tenant_id,
             )
         except RuntimeAuthorizationAuditError as exc:

@@ -164,6 +164,8 @@ from .ownership import (
     ArtifactReadOnlyUnavailableError,
     ArtifactTransactionPendingError,
     _ArtifactTransactionLease,
+    _normal_cell_id,
+    _normal_tenant_id,
 )
 from .protocol import (
     ArtifactReader,
@@ -1689,6 +1691,54 @@ class FileSystemCAS:
             tenant_id=owner_tenant,
             cell_id=owner_cell,
         )
+
+    def ownership_scope_evidence(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+    ) -> dict[str, object]:
+        """Return the tenant and cell selected by the current CAS owner scope.
+
+        Exact stock stores validate the current ownership-index generation and
+        expose only its resolved tenant and cell. Custom stores and components
+        retain their existing ownership-evidence behavior.
+
+        Args:
+            tenant_id: Optional tenant override for the selected store scope.
+            cell_id: Optional cell override for the selected store scope.
+
+        Returns:
+            The normalized tenant and optional cell for the selected scope.
+        """
+        owner_index = self._ownership_index
+        owner_index_methods = getattr(owner_index, "__dict__", {})
+        if (
+            not self.has_stock_component_types()
+            or type(owner_index).evidence is not _DEFAULT_ARTIFACT_OWNERSHIP_EVIDENCE_METHOD
+            or type(owner_index)._current_generation_token
+            is not _DEFAULT_ARTIFACT_OWNERSHIP_TOKEN_METHOD
+            or "evidence" in owner_index_methods
+            or "_current_generation_token" in owner_index_methods
+            or "ownership_evidence" in getattr(self, "__dict__", {})
+        ):
+            evidence = self.ownership_evidence(tenant_id=tenant_id, cell_id=cell_id)
+            return {key: evidence[key] for key in ("tenant_id", "cell_id") if key in evidence}
+
+        owner_tenant, owner_cell = self._resolve_owner(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            required=False,
+        )
+        self._ownership_index._current_generation_token()
+        if not owner_tenant:
+            return {}
+        normalized_tenant = _normal_tenant_id(owner_tenant)
+        normalized_cell = _normal_cell_id(owner_cell)
+        evidence: dict[str, object] = {"tenant_id": normalized_tenant}
+        if normalized_cell is not None:
+            evidence["cell_id"] = normalized_cell
+        return evidence
 
     def _manifest_path_for_ref(
         self,

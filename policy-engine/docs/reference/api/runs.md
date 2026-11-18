@@ -2,9 +2,9 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-10-20
+Freshness: 2026-11-18
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/routes/human_decisions.py`, `src/polisyos/runtime/http/resource_binding.py`, `src/polisyos/runtime/http/dependencies.py`, `src/polisyos/runtime/http/services/human_decision_contracts.py`, and `schemas/runtime_api_v1.openapi.json`
 Source pin: External candidate freeze manifest `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-v4-v7-author-r8-20261020/freeze-r8a/source-freeze.json`; the post-commit receipt will bind the adopted frozen source hash.
 Validation:
 
@@ -43,6 +43,8 @@ for the complete schema-described and route-only surfaces.
 | `GET`  | `/api/v1/runs/{run_id}/evidence-context`       | `RunEvidenceContextResponse`    | Evidence bundle and context resolution                                 |
 | `GET`  | `/api/v1/runs/{run_id}/paper`                  | `RunPaperPacket`                | Replay-pinned run paper and selected artifact refs                     |
 | `GET`  | `/api/v1/runs/{run_id}/workflow`               | `RunWorkflowResponse`           | Workflow/DAG view                                                      |
+| `GET`  | `/api/v1/runs/{run_id}/human-decision-gate` | `HumanDecisionGateResponse` | `RUNS_REVIEW`; `source_kind` query selector |
+| `GET`  | `/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content` | Exact artifact bytes | `RUNS_REVIEW`; `artifact_id` path selector and exposure header |
 | `GET`  | `/api/v1/runs/{run_id}/candidate-acquisition-experiment` | `CandidateExperimentRouteProjection` | Selected candidate policy and replay pins; no execution permission |
 | `POST` | `/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request` | `AcquisitionDecisionRequestResponse` | Prepare a signed decision; does not enqueue or execute |
 | `POST` | `/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute` | `AcquisitionExecutionResponse` | Queue an exact protected request, or read back its verified completed job |
@@ -56,6 +58,7 @@ Common status codes for committed endpoints: `200`, `201`, `400`, `401`, `403`, 
 Validation anchors:
 
 - `tests/unit/runtime/http/test_runs_api.py`
+- `tests/unit/runtime/http/test_human_decision_control_run_binding.py`
 - `tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py`
 - `tests/unit/runtime/http/test_timeline_api.py`
 - `tests/unit/runtime/http/test_core_only_runs_api.py`
@@ -63,6 +66,38 @@ Validation anchors:
 - `tests/unit/runtime/http/test_lineage_routes.py`
 - `tests/unit/runtime/http/test_temporal_routes.py`
 - `tests/property/runtime/http/test_access_invariants_properties.py`
+
+## Human-decision gate and evidence reads
+
+Both routes require `runs.review` in the authenticated tenant and cell. Issuing
+an exposure session and delivering evidence also require the configured
+human-decision creation permission, normally `runs.human_decisions.create`.
+Gate authorization binds `run_id` and the required `source_kind`
+(`agent_action_authority` or `production_approval`). Evidence authorization binds
+`run_id` and `artifact_id`. The `X-PolicyOS-Human-Decision-Exposure` header names
+the custody-signed session for the requesting principal.
+
+A completed authenticated natural-language Control run may be requested by its
+Control `R_...` `run_id` even when the index stores its terminal Core owner under
+a separate `control-...` id. The server verifies the unique completed
+`natural_language_run` job and authenticated tenant/cell scope, then binds its
+Control id, job, indexed Core id, and exact manifest reference. After
+authorization, the handler reopens this relationship; tenant, cell, job, Core
+owner, or manifest drift is refused. The original Control id stays in the gate
+request/response, gate audit selector, exposure lookup, and authorization
+selector; only the indexed-owner read uses the Core id. Direct Core ids retain
+their existing behavior.
+
+The gate returns `HumanDecisionGateResponse` with status, reasons, reason codes,
+source, and exposure projection. A missing producer returns `producer_missing`;
+`operational_authority` remains false. The gate may request an exposure session
+through its existing service, while recording a decision remains a separate
+permission- and step-up-protected operation. Evidence returns exact verified
+artifact bytes in the manifest-selected media type with `Cache-Control:
+no-store`, `Content-Encoding: identity`, an exact-CAS `ETag`,
+`X-Content-Type-Options: nosniff`, and the exposure-session response header.
+Its exposure audit receipt completes only after the exact terminal body frame is
+accepted.
 
 ## `GET /api/v1/runs/{run_id}/candidate-acquisition-experiment`
 

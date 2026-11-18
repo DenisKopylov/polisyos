@@ -9489,10 +9489,10 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "The authentic pre-execution route passes. Run the full locked-wheel second leaf and restart from the preserved A on the exact admitted source.",
-          "hosted": "Authenticated retained GET passes on the composed source. Verify selected tensor and actuation removal plus restoration on the same retained history.",
+          "native": "R12 genuine gate reached selected owner scope and timed out before exposure custody. Verify the narrow checked scope read; resume with actual current fixture authority.",
+          "hosted": "Hosted initial paired result now passes retained authenticated RunDetails and exact tensor/actuation removal controls.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
-          "ncm": "Historical R15 B2 passes on 4f4bde5c3. Scientific R16 is running from the same independently frozen source; live B2/B3/C are pending."
+          "ncm": "B2 and B3 are live terminal at frontier revisions 2 and 3 with four standard units. Changed C and final source qualification are pending."
         },
         "criterion_reconciliation": {
           "packets": 11,
@@ -9924,7 +9924,15 @@
             "source": "4f4bde5c3772c45a3d0fc37134d061164f3ed14a",
             "tree": "c8e92820af987954d03a80b61c197f56c78da3ab",
             "quota": "7 total / 1 protected",
-            "output": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/"
+            "output": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/",
+            "verified_live_frontier_revision": 3,
+            "checkpointed_terminal_actions": [
+              "B2",
+              "B3"
+            ],
+            "completed_standard_units": 4,
+            "protected_units_used": 0,
+            "changed_c_and_final_qualification": "pending"
           },
           "guard_latency": {
             "existing_checks_passed": 45,
@@ -9959,6 +9967,72 @@
             "n5_calls": 0,
             "output": "Primary:policy-engine/_cache/e02/host-r16-authenticated-get-r1-20261118/budget-r3/",
             "supervisor_sha256": "70e1a1a5edfa61d5b84242877e5ce49434df8fc8d95614b051db04c435002697"
+          },
+          "hosted_retained_removals": {
+            "status": "PASS",
+            "source_commit": "cb9355446cb46f6d38afc3efb06b4ae8bc4621fe",
+            "source_tree": "5ec21355831fa2b8f8028886b151d96bd82d1495",
+            "elapsed_seconds": 745.19,
+            "peak_rss_bytes": 2156036096,
+            "exact_selected_removals": [
+              "method_input_tensor",
+              "baseline_actuation"
+            ],
+            "restored_same_row_and_units": true,
+            "original_inputs_unchanged": true,
+            "n5_calls": 0,
+            "output": "Primary:policy-engine/_cache/e02/host-r16-authenticated-removals-r1-20261118/",
+            "supervisor_sha256": "3a25d65898141a571ac844b394d18a4d3dd981855d5f05f7e24274dd984b5635"
+          },
+          "native_full_r12": {
+            "status": "COMMAND_FAIL_REAL_GATE_PREWRITE_SCOPE",
+            "source_commit": "cb9355446cb46f6d38afc3efb06b4ae8bc4621fe",
+            "source_tree": "5ec21355831fa2b8f8028886b151d96bd82d1495",
+            "elapsed_seconds": 448.716,
+            "peak_rss_bytes": 2215329792,
+            "http_status": 503,
+            "failure": "human_decision_exposure_session_nonreceipt",
+            "guard_timeout_seconds": 1.5,
+            "operation_elapsed_seconds": 1.5101819159463048,
+            "before_exposure_write": true,
+            "b_worker_fetch_n5_restart": "unrun",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r12-20261118/budget-r3/",
+            "supervisor_sha256": "5ce06af49a182d5f5a56a85c6b5c1d4adba1a282fe1ed30585b99b5d96917576",
+            "retained_scope_baseline": {
+              "generation_opens": 886,
+              "wall_seconds": 6.551389167,
+              "thread_cpu_seconds": 6.546177292,
+              "output": "Primary:policy-engine/_cache/e02/native-exposure-selected-owner-r1-20261118/full.json",
+              "sha256": "396869feb3ffb0351886f1384d293e53ff5c532f1b5529bf7eb6c18fd2bc1e6f"
+            }
+          },
+          "native_api_docs_gate": {
+            "status": "PASS_LOCAL_COMBINED_WINDOW",
+            "output": "Primary:policy-engine/_cache/e02/native-alias-admission-r1-20261118/docs-drift-r2/",
+            "supervisor_sha256": "33cb792beda83226098829e9bc523fc55ab20ad494dd4ebb813c3acfeb443ff2"
+          },
+          "native_exposure_selected_scope": {
+            "status": "PASS_RETAINED_GUARDED_SCOPE_AND_FOCUSED_REGRESSIONS",
+            "generation_opens": [
+              886,
+              1
+            ],
+            "worker_wall_ns": [
+              6551389167,
+              17488333
+            ],
+            "worker_cpu_ns": [
+              6546177292,
+              17443375
+            ],
+            "guard_deadline_seconds": 1.5,
+            "exact_scope_and_fixture_pins_unchanged": true,
+            "core_checks": 73,
+            "runtime_selected_checks": 6,
+            "docs_gate": "PASS_COMBINED_SCOPE",
+            "output": "Primary:policy-engine/_cache/e02/native-exposure-selected-owner-r1-20261118/",
+            "scope_result_sha256": "7ef6095477135fce91831bd89d14e026d841dd11a1df7eec597fb35c540a9ad1",
+            "retained_authenticated_gate": "pending"
           }
         }
       },

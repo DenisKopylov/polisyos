@@ -47,6 +47,14 @@ historical census below. Source and verification status remain in the existing
   They do not appoint a verifier, issue deployment trust or renew an expired
   grant. The [retained-artifact recovery procedure](../runbooks/retained-artifact-recovery.md#selected-execution-evidence)
   now distinguishes missing bytes, historical replay and current-use admission.
+  Human-decision exposure selects the tenant and cell from the current validated
+  CAS owner generation before writing a session or delivery receipt. Full owner
+  history remains available through the diagnostic evidence interface. The
+  [Runs API reference](api/runs.md#human-decision-gate-and-evidence-reads)
+  describes the exact Control alias, required permissions and session binding.
+  A scope failure before the write leaves the session unissued. Use the
+  [CAS outage runbook](../runbooks/cas-opa-outage.md) and reconcile the retained
+  record before any further custody action.
 
 This documentation delta reports no new production readiness, runbook rehearsal,
 G acceptance or whole-lane PASS. Existing source-qualified checks retain their

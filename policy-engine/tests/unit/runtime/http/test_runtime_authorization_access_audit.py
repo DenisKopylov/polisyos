@@ -1386,6 +1386,56 @@ def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> Non
     )
 
 
+def test_selected_exposure_owner_scope_uses_narrow_reader_or_legacy_evidence() -> None:
+    from polisyos.runtime.http.access_audit import _selected_exposure_owner_cell_id
+
+    legacy_calls: list[tuple[str | None, str | None]] = []
+
+    class LegacyOwner:
+        def ownership_evidence(
+            self,
+            *,
+            tenant_id: str | None,
+            cell_id: str | None,
+        ) -> dict[str, object]:
+            legacy_calls.append((tenant_id, cell_id))
+            return {"tenant_id": "tenant-a", "cell_id": "cell-a", "artifact_count": 12}
+
+    assert (
+        _selected_exposure_owner_cell_id(
+            LegacyOwner(),
+            expected_tenant_id="tenant-a",
+        )
+        == "cell-a"
+    )
+    assert legacy_calls == [(None, None)]
+
+    class NarrowOwner(LegacyOwner):
+        def ownership_scope_evidence(
+            self,
+            *,
+            tenant_id: str | None,
+            cell_id: str | None,
+        ) -> dict[str, object]:
+            return {"tenant_id": "tenant-a", "cell_id": "cell-b"}
+
+        def ownership_evidence(
+            self,
+            *,
+            tenant_id: str | None,
+            cell_id: str | None,
+        ) -> dict[str, object]:
+            pytest.fail("selected scope lookup used full diagnostic ownership evidence")
+
+    assert (
+        _selected_exposure_owner_cell_id(
+            NarrowOwner(),
+            expected_tenant_id="tenant-a",
+        )
+        == "cell-b"
+    )
+
+
 def test_exposure_signature_failure_leaves_no_completed_row(tmp_path) -> None:
     from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
     from polisyos.core.artifacts.store import FileSystemCAS

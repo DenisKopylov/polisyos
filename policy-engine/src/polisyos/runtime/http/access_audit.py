@@ -892,11 +892,18 @@ def _reservation_matches_prepared(
 
 
 def _selected_exposure_owner_cell_id(
-    ownership_evidence: Callable[..., Mapping[str, object]],
+    ownership_source: object,
     *,
     expected_tenant_id: str,
 ) -> str | None:
     """Resolve the selected store owner scope and bind it to the event tenant."""
+    ownership_evidence = getattr(ownership_source, "ownership_scope_evidence", None)
+    if not callable(ownership_evidence):
+        ownership_evidence = getattr(ownership_source, "ownership_evidence", None)
+    if not callable(ownership_evidence):
+        raise RuntimeAuthorizationAuditError(
+            "Human-decision exposure selected owner scope is unavailable"
+        )
     try:
         evidence = ownership_evidence(tenant_id=None, cell_id=None)
     except Exception as exc:
@@ -1076,7 +1083,7 @@ def prepare_human_decision_exposure_event(
     writer = authority_artifacts.write_runtime_authority_artifact
 
     cell_id = _selected_exposure_owner_cell_id(
-        artifact_store.ownership_evidence,
+        artifact_store,
         expected_tenant_id=event.tenant_id,
     )
     payload, payload_ref, options, authority_fields = _exposure_authority_write_inputs(
@@ -1109,7 +1116,7 @@ def prepare_human_decision_exposure_event_through_sink(
     if event.event_receipt_ref is not None:
         raise ValueError("an exposure event must be prepared without a receipt ref")
     cell_id = _selected_exposure_owner_cell_id(
-        authority_sink.ownership_evidence,
+        authority_sink,
         expected_tenant_id=event.tenant_id,
     )
     payload, payload_ref, options, authority_fields = _exposure_authority_write_inputs(

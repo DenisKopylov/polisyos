@@ -6,7 +6,7 @@ import hashlib
 import importlib
 import json
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, permutations
@@ -1254,7 +1254,9 @@ def test_production_approval_blocks_unverified_scorecard_producer(tmp_path: Path
     assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
 
 
-def test_production_gate_issues_subject_bound_exposure_session(tmp_path: Path) -> None:
+def test_production_gate_issues_subject_bound_exposure_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     gate_input = fixture.gate_input.model_copy(update={"exposure_session_ref": None})
     proof = _bound_read_permission(
@@ -1265,12 +1267,31 @@ def test_production_gate_issues_subject_bound_exposure_session(tmp_path: Path) -
             "source_kind": "production_approval",
         },
     )
+    sink_type = type(fixture.base.service._sink)
+    original_scope_reader = sink_type.ownership_scope_evidence
+    scope_reads: list[tuple[str | None, str | None]] = []
+
+    def observe_scope_read(
+        sink: object,
+        *,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> Mapping[str, object]:
+        scope_reads.append((tenant_id, cell_id))
+        return original_scope_reader(
+            sink,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+
+    monkeypatch.setattr(sink_type, "ownership_scope_evidence", observe_scope_read)
 
     issued = fixture.base.service.issue_exposure_session(
         gate_input,
         bound_permission=proof,
     )
 
+    assert scope_reads == [(None, None)]
     assert issued.session.basis_digest == fixture.basis_ref
     assert issued.session.principal_subject == "human-reviewer-1"
     assert issued.session.actor_ref == fixture.base.principal_payload["actor_ref"]

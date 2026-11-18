@@ -2474,11 +2474,11 @@ class FileSystemCAS:
         aid = ArtifactID.model_validate(artifact_id)
         if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
             raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
-        self._require_blob_owner(aid, operation="read_manifest_by_profile")
-        self._require_manifest_view_owner(
+        self._require_blob_and_selected_view_owner(
             aid,
             manifest_profile_sha256,
-            operation="read_manifest_by_profile",
+            blob_operation="read_manifest_by_profile",
+            view_operation="read_manifest_by_profile",
         )
         manifest_path = self._manifest_path_for_ref(aid, manifest_profile_sha256)
         if self._ownership_index._path_has_symlink_component(manifest_path):

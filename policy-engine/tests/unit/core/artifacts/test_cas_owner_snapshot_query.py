@@ -433,6 +433,13 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     assert generation_loads == 1
 
     generation_loads = 0
+    selected_manifest = tenant_a.get_manifest_by_profile(
+        a_view.artifact_id, a_view.manifest_profile_sha256
+    )
+    assert selected_manifest.kind == a_view.kind
+    assert generation_loads == 1
+
+    generation_loads = 0
     assert tenant_a.get_bytes(a_view) == b"shared source bytes"
     assert generation_loads == 2
     schema = tenant_a.get_manifest(a_view).artifact_schema
@@ -441,6 +448,13 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     generation_loads = 0
     with pytest.raises(ArtifactOwnershipError, match="Manifest view"):
         tenant_a.get_raw_manifest_bytes(b_view)
+    assert generation_loads == 1
+
+    generation_loads = 0
+    with pytest.raises(ArtifactOwnershipError, match="Manifest view"):
+        tenant_a.get_manifest_by_profile(
+            b_view.artifact_id, b_view.manifest_profile_sha256
+        )
     assert generation_loads == 1
 
     tenant_c = FileSystemCAS(root).for_tenant("tenant-c", cell_id="cell-c")
@@ -452,8 +466,15 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     )
     with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
         tenant_c.get_raw_manifest_bytes(b_view)
+    with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
+        tenant_c.get_manifest_by_profile(
+            b_view.artifact_id, b_view.manifest_profile_sha256
+        )
 
     # Tenant B has a blob grant and selected-view claim, but no default-view claim.
+    assert tenant_b.get_manifest_by_profile(
+        b_view.artifact_id, b_view.manifest_profile_sha256
+    )
     with pytest.raises(ArtifactOwnershipError, match="not owned"):
         tenant_b.get_raw_manifest_bytes(b_view.artifact_id)
 
@@ -482,6 +503,11 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
 
     monkeypatch.setattr(fresh_index, "_load_generation_snapshot", observe_fresh_load)
     assert fresh_reader.get_raw_manifest_bytes(b_view)
+    assert fresh_loads == 1
+    fresh_loads = 0
+    assert fresh_reader.get_manifest_by_profile(
+        b_view.artifact_id, b_view.manifest_profile_sha256
+    )
     assert fresh_loads == 1
 
     # The blob-only/default path remains available through its existing authorization route.
@@ -512,8 +538,18 @@ def test_runtime_style_optional_scope_reuses_only_for_present_tenant(
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         assert runtime_store.get_raw_manifest_bytes(selected)
     assert len(loads) == 1
+    loads.clear()
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert runtime_store.get_manifest_by_profile(
+            selected.artifact_id, selected.manifest_profile_sha256
+        )
+    assert len(loads) == 1
     with pytest.raises(ArtifactOwnershipError):
         runtime_store.get_raw_manifest_bytes(selected)
+    with pytest.raises(ArtifactOwnershipError):
+        runtime_store.get_manifest_by_profile(
+            selected.artifact_id, selected.manifest_profile_sha256
+        )
 
 
 def test_selected_read_preserves_custom_ownership_index_dispatch(tmp_path: Path) -> None:
@@ -577,3 +613,8 @@ def test_selected_read_preserves_custom_ownership_index_dispatch(tmp_path: Path)
     assert scoped_reader.get_raw_manifest_bytes(selected)
     assert index.blob_checks == 1
     assert index.view_checks == 1
+    assert scoped_reader.get_manifest_by_profile(
+        selected.artifact_id, selected.manifest_profile_sha256
+    )
+    assert index.blob_checks == 2
+    assert index.view_checks == 2

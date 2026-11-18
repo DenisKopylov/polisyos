@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import ArtifactRef, ArtifactTenantContextInfo
@@ -27,8 +28,17 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
     from polisyos.runtime.quality.generation_cycle import _GenerationCycleN5Completion
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
 
     from .job_nl_context import _ControlNLJobContext
+
+
+@dataclass(frozen=True, slots=True)
+class _GenericInitialCompletion:
+    """Carry one owner-replayed request only through this completion attempt."""
+
+    frontier: GenericModelInputInitialFrontierCAS
+    request: JointSimulationRequest
 
 
 class ControlNLJobExecutionMixin:
@@ -497,7 +507,7 @@ class ControlNLJobExecutionMixin:
         self,
         context: _ControlNLJobContext,
         compiled: CompiledRecursiveGenerationCycleRun,
-    ) -> tuple[tuple[ArtifactRef, ...], tuple[GenericModelInputInitialFrontierCAS, ...]]:
+    ) -> tuple[tuple[ArtifactRef, ...], tuple[_GenericInitialCompletion, ...]]:
         """Seed only actual ordinary method observations selected by this job.
 
         Old Generic outputs retain their existing completion behavior. Every
@@ -523,7 +533,7 @@ class ControlNLJobExecutionMixin:
             GenericModelInputInitialFrontierCAS,
         )
         from polisyos.runtime.quality.acquisition_evaluation import (
-            issue_generic_model_input_initial_evaluation_basis,
+            _issue_generic_model_input_initial_evaluation_basis_with_result,
             issue_generic_model_input_initial_evaluation_decision,
             persist_acquisition_evaluation_artifact,
         )
@@ -632,7 +642,7 @@ class ControlNLJobExecutionMixin:
                     tenant_id=scope.tenant_id,
                     cell_id=scope.cell_id,
                 )
-                basis = issue_generic_model_input_initial_evaluation_basis(
+                basis, resolved = _issue_generic_model_input_initial_evaluation_basis_with_result(
                     owner=owner,
                     execution_ref=execution_ref,
                     expected=expected,
@@ -666,11 +676,14 @@ class ControlNLJobExecutionMixin:
                     record=decision,
                 )
                 seeds.append(
-                    GenericModelInputInitialFrontierCAS(
-                        key=key,
-                        decision_ref=decision_ref,
-                        decision=decision,
-                        basis=basis,
+                    _GenericInitialCompletion(
+                        frontier=GenericModelInputInitialFrontierCAS(
+                            key=key,
+                            decision_ref=decision_ref,
+                            decision=decision,
+                            basis=basis,
+                        ),
+                        request=resolved.request,
                     )
                 )
                 for ref in (
@@ -686,20 +699,23 @@ class ControlNLJobExecutionMixin:
     def _revalidate_generic_initial_completion(
         self,
         context: _ControlNLJobContext,
-        seeds: tuple[GenericModelInputInitialFrontierCAS, ...],
+        seeds: tuple[_GenericInitialCompletion, ...],
     ) -> None:
         """Reopen current profile, selected outputs and durable units at completion."""
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import artifact_ref_identity_key, load_core_json_artifact
         from polisyos.runtime.quality.acquisition_evaluation import (
             verify_generic_initial_physical_work,
         )
         from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
         from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationN5ExecutionV3,
             GenericCycleSimulationN5InputV1,
+            _same_typed_public_value,
+            parse_generic_cycle_simulation_n5_execution,
         )
 
         for seed in seeds:
-            selected = seed.basis.initial_observation
+            selected = seed.frontier.basis.initial_observation
             source = GenericCycleSimulationN5InputV1.model_validate(
                 load_core_json_artifact(self._artifact_store, selected.input_ref)
             )
@@ -711,11 +727,29 @@ class ControlNLJobExecutionMixin:
                 tenant_id=source.tenant_id,
                 cell_id=source.cell_id,
             )
+            execution = parse_generic_cycle_simulation_n5_execution(
+                load_core_json_artifact(self._artifact_store, selected.execution_ref)
+            )
+            if (
+                type(execution) is not GenericCycleSimulationN5ExecutionV3
+                or execution.initial_method_input_purpose != "current_use_method_input_revalidation"
+                or execution.result_ref is None
+                or execution.current_method_input_bindings_ref is None
+                or artifact_ref_identity_key(execution.input_ref)
+                != artifact_ref_identity_key(selected.input_ref)
+                or artifact_ref_identity_key(execution.result_ref)
+                != artifact_ref_identity_key(selected.result_ref)
+                or artifact_ref_identity_key(execution.current_method_input_bindings_ref)
+                != artifact_ref_identity_key(selected.current_method_input_bindings_ref)
+                or not _same_typed_public_value(execution.request_binding.request, seed.request)
+            ):
+                raise ValueError("generic_initial_completion_request_binding_mismatch")
             result = load_joint_simulation_result(
                 selected.result_ref,
                 store=self._artifact_store,
                 expected_world_model_record_content_hash=source.profile.context_inputs.world_model_record.content_hash,
                 expected_selected_outcomes=(source.outcome_variable,),
+                expected_request=seed.request,
             )
             verify_generic_initial_physical_work(
                 result=result,
@@ -1677,7 +1711,9 @@ class ControlNLJobExecutionMixin:
             run_id=run_id,
             capability_manifest_ref=str(capability_manifest_ref),
             progress=progress,
-            generic_model_input_initial_frontiers=generic_initial_seeds,
+            generic_model_input_initial_frontiers=tuple(
+                seed.frontier for seed in generic_initial_seeds
+            ),
         )
         self._emit_runtime_diagnostic_event(
             execution_scope=execution_scope,

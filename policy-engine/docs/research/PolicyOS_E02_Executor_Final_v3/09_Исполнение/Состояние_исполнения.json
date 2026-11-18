@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; NCM R12 B2 decision subject mismatch isolated, Native R9 historical-chain timeout and hosted R12 missing expected request",
+        "status": "ACTIVE; B2 and hosted completion repairs verified at retained boundaries; native historical-chain timeout diagnosis and composed end-to-end pending",
         "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
         "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
@@ -9505,6 +9505,36 @@
             "ncm_output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r12-20261118/",
             "hosted": "COMMAND_FAIL exit 1 in 1641.022 s, quiescent. Real paired methods ran; worker reports joint_simulation_semantic_expected_request_required, no observed CAS timeout/slow rows; frontier unverified. Supervisor SHA256 0aea6becbf89a7491b0c7fc318d47a6e30120f3374171804b1361a6578d1cd1b.",
             "hosted_output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r12-fallback-20261118/"
+          },
+          "reuse_and_host_completion_repair": {
+            "status": "Author source and bounded retained evidence qualified; composed NCM and hosted end-to-end unrun",
+            "b2": "Exact R12 issuer refuses old producer parameters, accepts verified effective source; substituted prior refuses. No worker, authority renewal or N5.",
+            "b2_issuer_receipt_sha256": "dab7c0992711ce1c6c84ff5a850002df4c192a1f37d897094be6ba1dd392a238",
+            "host_read": {
+              "elapsed_seconds": 102.771,
+              "rss_bytes": 1865400320,
+              "supervisor_sha256": "663e92c9e3431ece9a128f6e96fea74d7a99c34792c45e34d9d6f89ce3206f6c"
+            },
+            "host_removal": {
+              "elapsed_seconds": 127.037,
+              "rss_bytes": 1870036992,
+              "supervisor_sha256": "ebcbbc595e818ae172fb18a5277fbda4fb07d041eb40bb87930523a9e0407395"
+            },
+            "host_scope": "Exact retained selected CAS and two previously settled standard units; test-owned current profile, real candidate reader, no new job completion/frontier or N5. Wrong seed, serialized-only request, and removed selected step refuse; restored input verifies.",
+            "affected_cohort": {
+              "pass": 60,
+              "fail": 0,
+              "skip": 0,
+              "elapsed_seconds": 21.69,
+              "rss_bytes": 1829650432,
+              "supervisor_sha256": "61c9e998a4b11fa7daa91d1d0b9c67435d3be597b07500a1712cf2a45b989259"
+            },
+            "final_relay": {
+              "pass": 2,
+              "elapsed_seconds": 17.505,
+              "rss_bytes": 1646444544,
+              "supervisor_sha256": "cd45849c33c52e30ddd5906e2ac35aed61ebc6977c1b373cc9abe3f43c7e877a"
+            }
           },
         "combined_recipe_certificate_replay": {
             "status": "Independent source GO, selected R3 positive/refusal cohort and real retained readback PASS; live hosted frontier unresolved",

@@ -72,6 +72,11 @@ def _record_operation_adapter(monkeypatch, bridge, context):
     return state
 
 
+def _empty_candidate_evaluation_event_log() -> SimpleNamespace:
+    """Expose an empty persisted-event read for component dispatch fixtures."""
+    return SimpleNamespace(list_events=lambda **_kwargs: ())
+
+
 def _outcome(phase, generation: int) -> VerifiedAcquisitionActionOutcome:
     receipt_ref = _hash(str(generation))
     head = AcquisitionActionHeadRecord(
@@ -386,7 +391,7 @@ def test_candidate_dispatch_rejects_locator_that_differs_from_canonical_owner(
         ),
         experiment_action_outcomes=lambda **kwargs: full_outcome_reads.append(kwargs),
     )
-    store, event_log = object(), object()
+    store, event_log = object(), _empty_candidate_evaluation_event_log()
     control_store = SimpleNamespace()
     service = object.__new__(ControlPlaneService)
     service._artifact_store, service._control_store = store, control_store
@@ -474,12 +479,12 @@ def test_original_source_n5_does_not_retain_first_experiment(
     """Dispatch demands fresh reentry; the numerical boundary is not simulated here."""
     origin, outcomes = _selection_case(1)
     pending = outcomes[-1].latest_receipt
-    source_evaluation = object()
+    source_evaluation = SimpleNamespace(result=SimpleNamespace(diagnostics={}))
     configuration_value = object()
     records_seen = []
     numerical_inputs = []
     fresh_calls = []
-    store, event_log = object(), object()
+    store, event_log = object(), _empty_candidate_evaluation_event_log()
     control_store = SimpleNamespace(
         current_execution_job_admission=lambda: SimpleNamespace(
             job=SimpleNamespace(job_id=pending.job_id)
@@ -822,7 +827,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     pending = outcomes[-1].latest_receipt
     assert type(pending) is AcquisitionCandidateExperimentPhaseReceipt
     predecessor = outcomes[-1].head
-    store, event_log = object(), object()
+    store, event_log = object(), _empty_candidate_evaluation_event_log()
     selection = SimpleNamespace()
     action = SimpleNamespace(
         selection=selection,
@@ -894,7 +899,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         "_candidate_experiment_pending_reentry_locator_ref",
         lambda **_kwargs: pending_phase_ref,
     )
-    source_evaluation = object()
+    source_evaluation = SimpleNamespace(result=SimpleNamespace(diagnostics={}))
     prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
     window = SimpleNamespace(
         fresh_limit_usd=Decimal("1"),

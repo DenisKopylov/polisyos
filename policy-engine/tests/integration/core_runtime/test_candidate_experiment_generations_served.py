@@ -1492,6 +1492,16 @@ def _continue_genuine_candidate_experiment_generations(
         assert basis is not None
         assert basis.basis_role == "prospective"
         assert basis.predicate_provenance == "recomputed"
+        effective_candidate_hash = (
+            history.origin.effective_source_cycle.selected_candidate_content_hash
+        )
+        assert effective_candidate_hash != initial_basis.source_candidate_content_hash
+        assert basis.source_candidate_content_hash == effective_candidate_hash
+        assert history.decision.source_candidate_content_hash == effective_candidate_hash
+        assert basis.candidate_id == initial_basis.candidate_id
+        assert basis.design_problem_basis_ref == initial_basis.design_problem_basis_ref
+        assert history.decision.candidate_id == basis.candidate_id
+        assert history.decision.design_problem_basis_ref == basis.design_problem_basis_ref
         assert basis.effective_values_sha256 == initial_basis.effective_values_sha256
         assert basis.observed_admission is False
         assert basis.publication_authority is False

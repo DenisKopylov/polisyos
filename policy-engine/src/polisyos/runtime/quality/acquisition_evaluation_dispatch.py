@@ -393,7 +393,9 @@ class CandidateExperimentReuseTerminalOwner:
             design_problem_ref=previous.design_problem_ref,
             design_problem_basis_ref=previous.design_problem_basis_ref,
             candidate_id=previous.candidate_id,
-            source_candidate_content_hash=previous.source_candidate_content_hash,
+            source_candidate_content_hash=(
+                origin.effective_source_cycle.selected_candidate_content_hash
+            ),
             candidate_action_ref=selection.predecessor_action_ref,
             candidate_world_intent_ref=previous.candidate_world_intent_ref,
             candidate_source_ref=selection.source_ref,
@@ -823,7 +825,7 @@ def dispatch_candidate_experiment_reuse(
             design_problem_ref=selection.policy_scope.design_problem_ref,
             design_problem_basis_ref=selection.policy_scope.design_problem_basis_ref,
             candidate_id=selection.policy_scope.candidate_id,
-            source_candidate_content_hash=previous.source_candidate_content_hash,
+            source_candidate_content_hash=current_basis.source_candidate_content_hash,
             candidate_action_ref=selection.predecessor_action_ref,
             candidate_world_intent_ref=previous.candidate_world_intent_ref,
             candidate_source_ref=selection.source_ref,

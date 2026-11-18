@@ -32,6 +32,7 @@ from polisyos.runtime.http.errors import conflict, forbidden, service_unavailabl
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     human_decision_create_owner_from_bound_request,
+    human_decision_read_owner_from_bound_request,
     human_decision_record_owner_from_bound_request,
     human_decision_recovery_owner_from_bound_request,
 )
@@ -283,6 +284,30 @@ def _require_run(
     return run
 
 
+def _require_human_decision_read_run(
+    request: Request,
+    *,
+    ctx: RuntimeApiContext,
+    run_id: str,
+    resource_kind: str,
+    selector_name: str,
+    selector_value: str,
+) -> IndexedRunRecord:
+    """Reopen the exact post-authorization run owner for a gate or evidence read."""
+    run = human_decision_read_owner_from_bound_request(
+        request,
+        ctx=ctx,
+        run_id=run_id,
+        resource_kind=resource_kind,
+        selector_name=selector_name,
+        selector_value=selector_value,
+    )
+    if run is None:
+        return _require_run(request, ctx=ctx, run_id=run_id)
+    enforce_run_tenant_access(request, ctx=ctx, run=run)
+    return run
+
+
 def _run_tenant_id(run: IndexedRunRecord) -> str:
     """Return the tenant already admitted by `_require_run`, or fail closed."""
     tenant_id = run.details.tenant_id
@@ -442,7 +467,14 @@ if router is not None:
             Query(pattern=r"^[a-z][a-z0-9_.:-]*$"),
         ] = None,
     ) -> HumanDecisionGateResponse:
-        run = _require_run(request, ctx=ctx, run_id=run_id)
+        run = _require_human_decision_read_run(
+            request,
+            ctx=ctx,
+            run_id=run_id,
+            resource_kind="runtime.run.human_decision_gate",
+            selector_name="source_kind",
+            selector_value=source_kind,
+        )
         tenant_id = _run_tenant_id(run)
         set_authz_resource(
             request,
@@ -875,7 +907,14 @@ if router is not None:
         ctx: _RuntimeContextDependency,
         service: _HumanDecisionServiceDependency,
     ) -> Response:
-        run = _require_run(request, ctx=ctx, run_id=run_id)
+        run = _require_human_decision_read_run(
+            request,
+            ctx=ctx,
+            run_id=run_id,
+            resource_kind="runtime.run.human_decision_evidence",
+            selector_name="artifact_id",
+            selector_value=artifact_id,
+        )
         tenant_id = _run_tenant_id(run)
         set_authz_resource(
             request,

@@ -72,6 +72,7 @@ _LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
 _HUMAN_DECISION_CREATE_CONTEXT_KIND = "runtime.human_decision.create.v1"
 _HUMAN_DECISION_RECOVERY_CONTEXT_KIND = "runtime.human_decision.recovery.v1"
 _HUMAN_DECISION_RECORD_CONTEXT_KIND = "runtime.human_decision.record.v1"
+_HUMAN_DECISION_READ_CONTEXT_KIND = "runtime.human_decision.read.v1"
 _CONTROL_JOB_CANCELLATION_CONTEXT_KIND = "runtime.control_job.cancellation.v1"
 _METHOD_METRIC_RUN_CONTEXT_KIND = "runtime.run.method_metric_context.v1"
 
@@ -593,6 +594,84 @@ def human_decision_record_owner_from_bound_request(
             context, request=request, ctx=ctx, scope=_require_access_scope(request), run_id=run_id
         ),
         selected,
+    )
+
+
+def human_decision_read_owner_from_bound_request(
+    request: Request,
+    *,
+    ctx: RuntimeApiContext,
+    run_id: str,
+    resource_kind: str,
+    selector_name: str,
+    selector_value: str,
+) -> IndexedRunRecord | None:
+    """Reopen an authorized Core run selected by a Control alias for DS9 reads."""
+    bound = getattr(getattr(request, "state", object()), "authz_bound_resource", None)
+    if type(bound) is not BoundAuthorizationResource:
+        raise forbidden(
+            "The human-decision read authorization context is absent",
+            code="authorization_binding_context_missing",
+        )
+    expected_selector_names = {
+        "runtime.run.human_decision_gate": "source_kind",
+        "runtime.run.human_decision_evidence": "artifact_id",
+    }
+    expected_selector_name = expected_selector_names.get(resource_kind)
+    scope = _require_access_scope(request)
+    if (
+        expected_selector_name is None
+        or selector_name != expected_selector_name
+        or bound.requirement.resource_binding.resource_kind != resource_kind
+        or bound.authority is not BindingAuthority.OWNERSHIP_VERIFIED
+        or bound.tenant_id != scope.tenant_id
+        or run_id != _path_identifier(request, "run_id")
+    ):
+        raise forbidden(
+            "The human-decision read binding does not match the route",
+            code="authorization_binding_context_mismatch",
+        )
+    request_selector = (
+        _query_identifier(request, selector_name)
+        if selector_name == "source_kind"
+        else _path_identifier(request, selector_name)
+    )
+    if request_selector != selector_value:
+        raise forbidden(
+            "The human-decision read selector changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    expected_selectors = tuple(
+        sorted(
+            (
+                ("run_id", _canonical_json(run_id)),
+                (selector_name, _canonical_json(selector_value)),
+            )
+        )
+    )
+    if bound.canonical_selectors != expected_selectors:
+        raise forbidden(
+            "The human-decision read selectors differ from the sealed context",
+            code="authorization_binding_context_mismatch",
+        )
+    if bound.resolved_context_kind is None and bound.resolved_context is None:
+        return None
+    context = get_bound_resource_context(request, expected_kind=_HUMAN_DECISION_READ_CONTEXT_KIND)
+    if (
+        set(context) != {"context_version", "resource_kind", "owned_run_binding"}
+        or context.get("context_version") != _HUMAN_DECISION_READ_CONTEXT_KIND
+        or context.get("resource_kind") != resource_kind
+    ):
+        raise forbidden(
+            "The human-decision read context has an unsupported version",
+            code="authorization_binding_context_invalid",
+        )
+    return _human_decision_create_control_alias_run_from_context(
+        context,
+        request=request,
+        ctx=ctx,
+        scope=scope,
+        run_id=run_id,
     )
 
 
@@ -1279,6 +1358,8 @@ def _bind_owned_existing_path(
             "runtime.run.human_decision",
             "runtime.run.human_decision_recovery",
             "runtime.run.human_decision_record",
+            "runtime.run.human_decision_gate",
+            "runtime.run.human_decision_evidence",
         }:
             resource_id, tenant_id, owned_run_binding = _resolve_owned_run_for_binding(
                 request,
@@ -1438,6 +1519,20 @@ def _bind_owned_existing_path(
                         if owned_run_binding is not None
                         else {}
                     ),
+                },
+                _RESOLVED_CONTEXT_CANON,
+            )
+    elif spec.resource_kind in {
+        "runtime.run.human_decision_gate",
+        "runtime.run.human_decision_evidence",
+    }:
+        if owned_run_binding is not None:
+            resolved_context_kind = _HUMAN_DECISION_READ_CONTEXT_KIND
+            resolved_context = canon.to_canonical_bytes(
+                {
+                    "context_version": resolved_context_kind,
+                    "resource_kind": spec.resource_kind,
+                    "owned_run_binding": owned_run_binding.as_context(),
                 },
                 _RESOLVED_CONTEXT_CANON,
             )
@@ -2452,7 +2547,7 @@ def _resolve_owned_run_for_binding(
     scope: AccessScope,
     value: str,
 ) -> tuple[str, str, _OwnedRunBinding | None]:
-    """Resolve a Core run or one completed NL control alias for DS9 creation."""
+    """Resolve a Core run or one completed NL Control alias for DS9 routes."""
     run_id = _required_string(value, field_name="run_id")
     try:
         run = ctx.run_index.get_run(run_id)
@@ -2995,6 +3090,7 @@ __all__ = [
     "human_decision_create_from_bound_request",
     "human_decision_create_from_bound_resource",
     "human_decision_create_owner_from_bound_request",
+    "human_decision_read_owner_from_bound_request",
     "human_decision_record_owner_from_bound_request",
     "human_decision_recovery_from_bound_resource",
     "human_decision_recovery_owner_from_bound_request",

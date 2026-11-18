@@ -8,6 +8,19 @@ from polisyos.core import artifacts
 from polisyos.runtime.http import resource_binding
 from polisyos.runtime.http.errors import RuntimeHTTPError
 
+_HUMAN_DECISION_READ_SELECTOR_CASES = (
+    (
+        "runtime.run.human_decision_gate",
+        "source_kind",
+        "production_approval",
+    ),
+    (
+        "runtime.run.human_decision_evidence",
+        "artifact_id",
+        "sha256:" + "d" * 64,
+    ),
+)
+
 
 def probe_retained_control_run_owner(
     *,
@@ -315,6 +328,196 @@ def _binding() -> dict[str, object]:
         "cell_id": "cell-1",
         "core_manifest_ref": manifest_ref.model_dump(mode="json"),
     }
+
+
+def _read_bound_alias_request(monkeypatch, *, resource_kind: str):
+    """Bind one read route to a Control alias using its production resource contract."""
+    from fastapi import Request
+
+    from polisyos.core.security import AccessScope, PIIAccessLevel, PolicyOSRole
+    from polisyos.runtime.http.authorization import (
+        ActionPermissionVerification,
+        principal_from_access_scope,
+    )
+    from polisyos.runtime.http.dependencies import RuntimeAccessScope
+    from polisyos.runtime.http.routes.human_decisions import _EVIDENCE_AUTHZ, _GATE_AUTHZ
+
+    assert RuntimeAccessScope is AccessScope
+    binding = resource_binding._validate_owned_run_binding_context(
+        _binding(), expected_control_run_id="R_control-alias"
+    )
+    if resource_kind == "runtime.run.human_decision_gate":
+        requirement = _GATE_AUTHZ.requirement
+        selector_name = "source_kind"
+        selector_value = "agent_action_authority"
+        path = "/api/v1/runs/R_control-alias/human-decision-gate"
+        query = b"source_kind=agent_action_authority"
+        path_params = {"run_id": "R_control-alias"}
+    else:
+        requirement = _EVIDENCE_AUTHZ.requirement
+        selector_name = "artifact_id"
+        selector_value = "sha256:" + "c" * 64
+        path = f"/api/v1/runs/R_control-alias/human-decision-evidence/{selector_value}/content"
+        query = b""
+        path_params = {"run_id": "R_control-alias", "artifact_id": selector_value}
+
+    scope = AccessScope(
+        tenant_id="tenant-1",
+        cell_id="cell-1",
+        principal_type="user",
+        user_sub="test-human-decision-read",
+        roles=frozenset({PolicyOSRole.ANALYST}),
+        max_pii_tier=PIIAccessLevel.HIGH,
+        mfa_verified=True,
+        jwt_jti="test-human-decision-read-jti",
+    )
+    subject, tenant_id, jwt_id, roles = principal_from_access_scope(scope)
+    request = Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "scheme": "http",
+            "server": ("testserver", 80),
+            "client": ("testclient", 50000),
+            "root_path": "",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": query,
+            "headers": [],
+            "path_params": path_params,
+            "app": SimpleNamespace(),
+        }
+    )
+    request.state.authz_effective_scope = scope
+    request.state.action_permission_verification = ActionPermissionVerification(
+        requirement=requirement,
+        subject=subject,
+        tenant_id=tenant_id,
+        jwt_id=jwt_id,
+        roles=roles,
+        authorization_source="test-human-decision-read-binding",
+        granted_permissions=(requirement.permission,),
+    )
+    indexed = SimpleNamespace(
+        run_id=binding.core_run_id,
+        details=SimpleNamespace(
+            tenant_id=binding.tenant_id,
+            cell_id=binding.cell_id,
+            control_job_id=binding.control_job_id,
+            manifest_ref=artifacts.ArtifactRef.model_validate(binding.core_manifest_ref),
+        ),
+    )
+    index = SimpleNamespace(
+        refresh=lambda *, force=False: None,
+        get_run=lambda run_id: indexed
+        if run_id == binding.core_run_id
+        else (_ for _ in ()).throw(KeyError(run_id)),
+    )
+    context = SimpleNamespace(run_index=index)
+    monkeypatch.setattr(resource_binding, "_require_runtime_context", lambda _request: context)
+    monkeypatch.setattr(
+        resource_binding,
+        "_resolve_owned_run_for_binding",
+        lambda _request, _ctx, _scope, run_id: (run_id, scope.tenant_id, binding),
+    )
+    bound = resource_binding.bind_authorization_resource(request, requirement, b"")
+    request.state.authz_bound_resource = bound
+    return request, context, binding, resource_kind, selector_name, selector_value
+
+
+@pytest.mark.parametrize(
+    ("resource_kind", "selector_name"),
+    tuple(case[:2] for case in _HUMAN_DECISION_READ_SELECTOR_CASES),
+    ids=("gate-query", "evidence-path"),
+)
+def test_human_decision_read_binds_control_alias_and_exact_selector(
+    monkeypatch, resource_kind: str, selector_name: str
+) -> None:
+    request, context, binding, _kind, _name, selector_value = _read_bound_alias_request(
+        monkeypatch, resource_kind=resource_kind
+    )
+
+    reopened = resource_binding.human_decision_read_owner_from_bound_request(
+        request,
+        ctx=context,
+        run_id="R_control-alias",
+        resource_kind=resource_kind,
+        selector_name=selector_name,
+        selector_value=selector_value,
+    )
+
+    assert reopened is not None and reopened.run_id == binding.core_run_id
+    assert request.state.authz_bound_resource.canonical_selectors == tuple(
+        sorted(
+            (
+                ("run_id", resource_binding._canonical_json("R_control-alias")),
+                (selector_name, resource_binding._canonical_json(selector_value)),
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    ("resource_kind", "selector_name", "changed_selector_value"),
+    _HUMAN_DECISION_READ_SELECTOR_CASES,
+    ids=("gate-query", "evidence-path"),
+)
+def test_human_decision_read_refuses_selector_changed_after_binding(
+    monkeypatch,
+    resource_kind: str,
+    selector_name: str,
+    changed_selector_value: str,
+) -> None:
+    request, context, _binding, resource_kind, selector_name, _selector_value = (
+        _read_bound_alias_request(monkeypatch, resource_kind=resource_kind)
+    )
+
+    with pytest.raises(RuntimeHTTPError):
+        resource_binding.human_decision_read_owner_from_bound_request(
+            request,
+            ctx=context,
+            run_id="R_control-alias",
+            resource_kind=resource_kind,
+            selector_name=selector_name,
+            selector_value=changed_selector_value,
+        )
+
+
+@pytest.mark.parametrize(
+    "resource_kind",
+    tuple(case[0] for case in _HUMAN_DECISION_READ_SELECTOR_CASES),
+    ids=("gate-query", "evidence-path"),
+)
+def test_human_decision_read_reopens_owner_after_authorization(
+    monkeypatch,
+    resource_kind: str,
+) -> None:
+    request, context, binding, resource_kind, selector_name, selector_value = (
+        _read_bound_alias_request(monkeypatch, resource_kind=resource_kind)
+    )
+    changed = dict(binding.as_context())
+    changed["cell_id"] = "cell-other"
+    monkeypatch.setattr(
+        resource_binding,
+        "_resolve_owned_run_for_binding",
+        lambda *_args: (
+            "R_control-alias",
+            "tenant-1",
+            resource_binding._validate_owned_run_binding_context(
+                changed, expected_control_run_id="R_control-alias"
+            ),
+        ),
+    )
+
+    with pytest.raises(RuntimeHTTPError):
+        resource_binding.human_decision_read_owner_from_bound_request(
+            request,
+            ctx=context,
+            run_id="R_control-alias",
+            resource_kind=resource_kind,
+            selector_name=selector_name,
+            selector_value=selector_value,
+        )
 
 
 def test_control_alias_context_preserves_alias_and_exact_core_owner() -> None:

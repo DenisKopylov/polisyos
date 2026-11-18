@@ -9200,11 +9200,69 @@
             "supervisor_sha256": "7fda7af98ff98ad693c9bfbd14db9efd1be5e5a505265fb3f95c65092c0dcbc3"
           },
           "hosted": {
-            "status": "RUNNING",
+            "status": "COMMAND_FAIL",
             "profile": "locked-wheel providers, isolated scratch, unchanged 1.5 s guard",
             "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r15-composed-20261118/",
             "command_sha256": "f9b63500383917e5dd90f20b99051a81e1ba93e5cc0952edfce062ebffba4a22",
+            "shared_rss_cap_bytes": 8589934592,
+            "failure": "outer_join_validation / joint_simulation_semantic_sources_unavailable; no frontier or fresh API reader",
+            "elapsed_seconds": 1244.486,
+            "peak_rss_bytes": 4091461632,
+            "completed_standard_units": 2,
+            "source_qualification": "stable",
+            "guarded_read_waits": [
+              {
+                "operation": "get_bytes",
+                "elapsed_seconds": 2.286181584
+              },
+              {
+                "operation": "get_manifest_by_profile",
+                "elapsed_seconds": 1.745154375
+              }
+            ],
+            "causal_scope": "selected CAS waits and Prometheus default-port collision observed; causal link to final refusal unestablished",
+            "supervisor_sha256": "aef9ca9ba49bfd523118b75a40be07c2474a971991769201b5f0d7380a639306",
+            "saved_result_reader": {
+              "status": "PASS",
+              "join_seconds": 37.94662941689603,
+              "elapsed_seconds": 51.422,
+              "reconciled_physical_units": 2,
+              "n5_calls": 0,
+              "negative": "wrong candidate hash refuses",
+              "output": "Primary:policy-engine/_cache/e02/host-r15-retained-cas-phase-20261118/",
+              "supervisor_sha256": "0ea44606bcaba9a9f7849a465f44f410f73b1ae4ac9081ccb42d762bcb711498"
+            }
+          },
+          "native_writer_probe": {
+            "status": "PASS",
+            "guarded_call_seconds": 0.09161670808680356,
+            "tool_timeout_seconds": 1.5,
+            "n5_calls": 0,
+            "checked": [
+              "exact synthetic R10 attestation payload",
+              "fresh CAS read",
+              "tenant claim",
+              "foreign tenant refused"
+            ],
+            "limitation": "isolated operation does not establish whole Native path or attribute the old wait",
+            "output": "Secondary:policy-engine/_cache/e02/lane01-native-r10-authority-writer-r1-20261118/",
+            "summary_sha256": "48c38d91d193abc345102d5e6418d63ca1575a0102bba96ef5b7f9588d27b8b8"
+          },
+          "native_full_r11": {
+            "status": "RUNNING",
+            "source": "published 7db / dae",
+            "profile": "locked-wheel providers, original 1.5 s CAS guard, ephemeral Prometheus port",
+            "prior_retained_input": "fresh APFS clone of canonical Native A R4",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r11-20261118/",
+            "command_sha256": "2484beeb1ae61f4e18a7b17f37b35544ab4bda070a583db7d031f2ffdfa6a8b0",
             "shared_rss_cap_bytes": 8589934592
+          },
+          "hosted_r16": {
+            "status": "BOUND_UNRUN",
+            "source": "published 7db / dae",
+            "profile": "same full locked-wheel paired test and guard, port isolation asserted before application initialization",
+            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r16-composed-20261118/",
+            "command_sha256": "29516e94dd33b2e7dc90f461ede08872a2d484aa5f2dca81ad2dc3da860e447b"
           }
         },
         "current_composed_r13": {
@@ -9302,7 +9360,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Finish genuine scientific R15. Run the maintained hosted frontier and fresh reader on the composed source. Measure the bounded pre-dispatch Native attestation writer phase before another full second-leaf and restart attempt.",
+        "next": "Finish genuine scientific R15 and Native R11. Admit Hosted R16 with its isolated port in a measured slot; verify frontier and fresh reader under the existing checks. No further repetition without a new distinguishing signal.",
         "author_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9359,8 +9417,8 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "Native full R10 fails at exposure-session attestation before dispatch; isolate writer phases.",
-          "hosted": "Hosted R15 admitted on the composed source with the maintained full paired selector and shared resource guard.",
+          "native": "Isolated exact writer PASS; maintained Native R11 runs on the composed source with isolated metrics port.",
+          "hosted": "Hosted R15 full route FAIL; saved-result reader PASS; port-isolated maintained R16 prepared and unrun.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
           "ncm": "R15 active on composed source with separate fresh fixture."
         },

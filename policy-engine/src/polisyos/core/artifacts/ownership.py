@@ -1613,6 +1613,65 @@ class ArtifactOwnershipIndex:
         mapping = _blob_readers_mapping(payload) if blob_readers else _artifacts_mapping(payload)
         return [dict(record) for record in mapping.get(str(artifact_id), [])]
 
+    def _require_blob_reader_and_view_owner(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+        *,
+        tenant_id: str,
+        cell_id: str | None,
+        blob_operation: str,
+        view_operation: str,
+    ) -> None:
+        """Authorize one scoped blob and exact-view read from one current generation."""
+        aid = _coerce_artifact_id(artifact_id)
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        snapshot = self._load_snapshot_for_claim_query()
+        if isinstance(snapshot, _CachedOwnershipSnapshot):
+            artifact_records = snapshot.payload["artifacts"].get(str(aid), ())
+            blob_reader_records = snapshot.payload["blob_readers"].get(str(aid), ())
+        else:
+            artifact_records = _artifacts_mapping(snapshot.payload).get(str(aid), ())
+            blob_reader_records = _blob_readers_mapping(snapshot.payload).get(str(aid), ())
+
+        blob_readable = any(
+            _record_matches_owner(
+                record,
+                tenant_id=normalized_tenant,
+                cell_id=normalized_cell,
+            )
+            for record in artifact_records
+        ) or any(
+            _record_matches_owner(
+                record,
+                tenant_id=normalized_tenant,
+                cell_id=normalized_cell,
+            )
+            for record in blob_reader_records
+        )
+        if not blob_readable:
+            raise ArtifactOwnershipError(
+                f"Artifact {aid} payload is not readable by tenant "
+                f"{_owner_label(normalized_tenant, normalized_cell)} for {blob_operation}"
+            )
+
+        _validate_profile_sha256(manifest_profile_sha256)
+        if any(
+            _record_matches_view_owner(
+                record,
+                manifest_profile_sha256=manifest_profile_sha256,
+                tenant_id=normalized_tenant,
+                cell_id=normalized_cell,
+            )
+            for record in artifact_records
+        ):
+            return
+        raise ArtifactOwnershipError(
+            f"Manifest view {manifest_profile_sha256} for artifact {aid} is not owned "
+            f"by tenant {_owner_label(normalized_tenant, normalized_cell)} for {view_operation}"
+        )
+
     def _transaction_claims_for(
         self,
         artifact_id: ArtifactID,

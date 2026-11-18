@@ -404,3 +404,176 @@ def test_owner_query_observes_new_generation_from_another_index(tmp_path: Path) 
     assert not first.is_owned_by(newly_claimed, tenant_id="tenant-a", cell_id="cell-a")
     second.record_owner(newly_claimed, tenant_id="tenant-a", cell_id="cell-a")
     assert first.is_owned_by(newly_claimed, tenant_id="tenant-a", cell_id="cell-a")
+
+
+def test_selected_manifest_reads_reuse_one_current_ownership_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scoped selected reads authorize blob and view from one freshly loaded generation."""
+    root = tmp_path / "cas"
+    tenant_a = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
+    tenant_b = FileSystemCAS(root).for_tenant("tenant-b", cell_id="cell-b")
+    a_view = _source(tenant_a, b"shared source bytes", "1.0")
+    b_view = _source(tenant_b, b"shared source bytes", "2.0")
+    assert a_view.artifact_id == b_view.artifact_id
+    assert a_view.manifest_profile_sha256 is not None
+    assert b_view.manifest_profile_sha256 is not None
+
+    index = tenant_a._ownership_index
+    generation_loads = 0
+    original_load = index._load_generation_snapshot
+
+    def observe_load(pointer_bytes: bytes):
+        nonlocal generation_loads
+        generation_loads += 1
+        return original_load(pointer_bytes)
+
+    monkeypatch.setattr(index, "_load_generation_snapshot", observe_load)
+    assert tenant_a.get_raw_manifest_bytes(a_view)
+    assert generation_loads == 1
+
+    generation_loads = 0
+    assert tenant_a.get_bytes(a_view) == b"shared source bytes"
+    assert generation_loads == 2
+    schema = tenant_a.get_manifest(a_view).artifact_schema
+    assert schema is not None and schema.version == "1.0"
+
+    generation_loads = 0
+    with pytest.raises(ArtifactOwnershipError, match="Manifest view"):
+        tenant_a.get_raw_manifest_bytes(b_view)
+    assert generation_loads == 1
+
+    tenant_c = FileSystemCAS(root).for_tenant("tenant-c", cell_id="cell-c")
+    tenant_c._ownership_index.record_view_owner(
+        b_view.artifact_id,
+        b_view.manifest_profile_sha256,
+        tenant_id="tenant-c",
+        cell_id="cell-c",
+    )
+    with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
+        tenant_c.get_raw_manifest_bytes(b_view)
+
+    # Tenant B has a blob grant and selected-view claim, but no default-view claim.
+    with pytest.raises(ArtifactOwnershipError, match="not owned"):
+        tenant_b.get_raw_manifest_bytes(b_view.artifact_id)
+
+    tenant_a._ownership_index.record_view_owner(
+        a_view.artifact_id,
+        b_view.manifest_profile_sha256,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    fresh_index = ArtifactOwnershipIndex(root)
+    fresh_reader = FileSystemCAS(
+        root,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+        ownership_index=fresh_index,
+    )
+    fresh_loads = 0
+    original_fresh_load = fresh_index._load_generation_snapshot
+
+    def observe_fresh_load(pointer_bytes: bytes):
+        nonlocal fresh_loads
+        fresh_loads += 1
+        return original_fresh_load(pointer_bytes)
+
+    monkeypatch.setattr(fresh_index, "_load_generation_snapshot", observe_fresh_load)
+    assert fresh_reader.get_raw_manifest_bytes(b_view)
+    assert fresh_loads == 1
+
+    # The blob-only/default path remains available through its existing authorization route.
+    default = tenant_a.put_bytes(
+        b"default-view payload",
+        PutOptions(kind="test.default", media_type="application/octet-stream"),
+    )
+    assert tenant_a.get_bytes(default) == b"default-view payload"
+
+
+def test_runtime_style_optional_scope_reuses_only_for_present_tenant(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The Runtime base store shares the snapshot only while a tenant owns the read."""
+    runtime_store = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=False
+    )
+    writer = runtime_store.for_tenant("tenant-a", cell_id="cell-a")
+    selected = _source(writer, b"scoped primary bytes", "1.0")
+    loads = []
+    original = runtime_store._ownership_index._load_generation_snapshot
+
+    def observe(pointer_bytes: bytes):
+        loads.append(pointer_bytes)
+        return original(pointer_bytes)
+
+    monkeypatch.setattr(runtime_store._ownership_index, "_load_generation_snapshot", observe)
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert runtime_store.get_raw_manifest_bytes(selected)
+    assert len(loads) == 1
+    with pytest.raises(ArtifactOwnershipError):
+        runtime_store.get_raw_manifest_bytes(selected)
+
+
+def test_selected_read_preserves_custom_ownership_index_dispatch(tmp_path: Path) -> None:
+    """A custom ownership index keeps the existing separate virtual authorization calls."""
+
+    class DispatchIndex(ArtifactOwnershipIndex):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.blob_checks = 0
+            self.view_checks = 0
+
+        def require_blob_reader(
+            self,
+            artifact_id: ArtifactID | str,
+            *,
+            tenant_id: str,
+            cell_id: str | None = None,
+            operation: str = "read",
+        ) -> None:
+            self.blob_checks += 1
+            return super().require_blob_reader(
+                artifact_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                operation=operation,
+            )
+
+        def require_view_owner(
+            self,
+            artifact_id: ArtifactID | str,
+            manifest_profile_sha256: str,
+            *,
+            tenant_id: str,
+            cell_id: str | None = None,
+            operation: str = "read",
+        ) -> None:
+            self.view_checks += 1
+            return super().require_view_owner(
+                artifact_id,
+                manifest_profile_sha256,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                operation=operation,
+            )
+
+    root = tmp_path / "cas"
+    stock_writer = FileSystemCAS(root)
+    scoped_writer = stock_writer.for_tenant("tenant-a", cell_id="cell-a")
+    selected = _source(scoped_writer, b"subclass dispatch", "1.0")
+    assert selected.manifest_profile_sha256 is not None
+
+    index = DispatchIndex(root)
+    scoped_reader = FileSystemCAS(
+        root,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+        ownership_index=index,
+    )
+    assert scoped_reader.get_raw_manifest_bytes(selected)
+    assert index.blob_checks == 1
+    assert index.view_checks == 1

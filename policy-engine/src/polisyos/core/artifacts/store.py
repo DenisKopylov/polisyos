@@ -1859,6 +1859,40 @@ class FileSystemCAS:
             operation=operation,
         )
 
+    def _require_blob_and_selected_view_owner(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str,
+        *,
+        blob_operation: str,
+        view_operation: str,
+        ref: ArtifactRef | None = None,
+    ) -> None:
+        """Authorize a selected scoped read with one current stock ownership snapshot."""
+        if (
+            self.has_stock_component_types()
+            and self._ownership_enforced
+            and _GOVERNED_PUBLIC_READ.get() is None
+        ):
+            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+            if tenant_id is not None:
+                self._ownership_index._require_blob_reader_and_view_owner(
+                    artifact_id,
+                    manifest_profile_sha256,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    blob_operation=blob_operation,
+                    view_operation=view_operation,
+                )
+                return
+        self._require_blob_owner(artifact_id, operation=blob_operation, ref=ref)
+        self._require_manifest_view_owner(
+            artifact_id,
+            manifest_profile_sha256,
+            operation=view_operation,
+            ref=ref,
+        )
+
     def _require_unclaimed_without_owner(
         self,
         artifact_id: ArtifactID,
@@ -2205,12 +2239,14 @@ class FileSystemCAS:
             OSError: If the blob file cannot be read.
         """
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
-        self._require_blob_owner(aid, operation="read", ref=ref)
-        if profile_sha256 is not None:
-            self._require_manifest_view_owner(
+        if profile_sha256 is None:
+            self._require_blob_owner(aid, operation="read", ref=ref)
+        else:
+            self._require_blob_and_selected_view_owner(
                 aid,
                 profile_sha256,
-                operation="read_manifest",
+                blob_operation="read",
+                view_operation="read_manifest",
                 ref=ref,
             )
         blob, _ = self._paths(aid)
@@ -2468,18 +2504,19 @@ class FileSystemCAS:
             if selected_profile is not None and selected_profile != manifest_profile_sha256:
                 raise ValueError("conflicting manifest profile selectors")
             selected_profile = manifest_profile_sha256
-        self._require_blob_owner(aid, operation="read_raw_manifest", ref=ref)
         if selected_profile is None:
+            self._require_blob_owner(aid, operation="read_raw_manifest", ref=ref)
             self._require_default_manifest_access(
                 aid,
                 operation="read_raw_manifest",
                 ref=ref,
             )
         else:
-            self._require_manifest_view_owner(
+            self._require_blob_and_selected_view_owner(
                 aid,
                 selected_profile,
-                operation="read_raw_manifest_view",
+                blob_operation="read_raw_manifest",
+                view_operation="read_raw_manifest_view",
                 ref=ref,
             )
         manifest_path = self._manifest_path_for_ref(aid, selected_profile)

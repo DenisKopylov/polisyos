@@ -9079,10 +9079,79 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; published selected-source and late-request fixes; hosted R13 independently reopens two prior physical units, live frontier absent; Native and NCM extended routes pending",
-        "main_commit": "05856b7ac0d4f0cee1fc2c539b67ae7ac8025236",
-        "main_tree": "cdf1786bdcdf7a687d193a9f814d54fb336f5931",
-        "author_checkpoint": "77159f5e1e9108f58f1ad88e7ece8c78493f28ec",
+        "status": "ACTIVE on 5da; Native retained A PASS and B/restart live, NCM B2 continuation saved before terminal refusal, held-out CAS optimization qualified on author source",
+        "main_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
+        "main_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
+        "author_checkpoint": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
+        "current_composed_r14": {
+          "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
+          "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
+          "native_paid_a": {
+            "status": "PASS1/1 exact locked-wheel authenticated scoped A action history only; no B, grant, acquisition or N5",
+            "elapsed_seconds": 199.302,
+            "read_seconds": 55.863,
+            "peak_sampled_process_tree_rss_bytes": 2494185472,
+            "preserved": "1386 retained files, 20 SQL tables and ledger exact in original and APFS clone",
+            "supervisor_sha256": "0885fa339fabc24cee6c91323c4c2217d50dba878c754af3db8f2d3c67131d6c",
+            "preservation_sha256": "da138a7f8708f5c9832b5221a13b4c4b7be1c766c23a1eea9428ee33a1a1ff21",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-a-chain-r4-20261118/"
+          },
+          "hosted": {
+            "status": "COMMAND_FAIL exit 1; two real standard units, compiled simulation_blocked and zero frontier versions/heads",
+            "refusal": "outer_join_validation / joint_simulation_semantic_sources_unavailable",
+            "timeout": "2.146 s raw manifest and 1.697 s has; unchanged 1.5 s deadline; guard executor queue 15–34 us; internal phase not established",
+            "elapsed_seconds": 1257.041,
+            "peak_sampled_process_tree_rss_bytes": 4140580864,
+            "supervisor_sha256": "f70246f649290619a6009c293150c5cd1b5c531548e5537ddb2373fca623e81e",
+            "tool5_sha256": "05aadc9662471d829b1313aca3bd7015d79154e660193c0e88de8244fd978beb",
+            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r14-composed-20261118/"
+          },
+          "hosted_retained_profile": {
+            "status": "PASS diagnostic selected join and ledger, different candidate refused, no N5 or frontier",
+            "join_seconds": 41.467,
+            "complete_seconds": 55.099,
+            "peak_sampled_process_tree_rss_bytes": 1727496192,
+            "validated_scope": "76610 ownership generation snapshots in the bounded retained join; inclusive wall 8.477 s and thread CPU 8.375 s; other per-selector rows incomplete due to caps, original timeout cause unestablished",
+            "supervisor_sha256": "b4ceecfa15551d6065157a7db1b1794466ca9227364479e35205f964649ca8c2",
+            "profile_sha256": "d8dfa8dadd6429217d10df9f839f7848601e8d29cacd91e1b05902f7ca051d72",
+            "output": "Primary:policy-engine/_cache/e02/host-r14-retained-cas-profile-20261118/"
+          },
+          "ncm_actual_b1": {
+            "status": "B1 terminal/frontier PASS prefix on stable composed source. Full R14 COMMAND_FAIL exit 1.",
+            "frontier": "sha256:a029e7f048c0679093c5e9785d4482c3a77c82c8f7d1717a24ca6d46dc69ce88",
+            "pending": "B2 decision and continuation written, no terminal; RuntimeError under recovery wrapper without recorded message. B3/C UNRUN.",
+            "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r14-20261118/",
+            "qualification_sha256": "3c3c84d8b8796edb1b670b757118f8abcca8a0cf0b582696492561ff52729348",
+            "supervisor_sha256": "ea48cd2112aa23a8ba89a3439f6f0009beac9a692c1c21a2441d86b9695991a9",
+            "elapsed_seconds": 4084.941
+          },
+          "standard_ci": {
+            "run_id": 44292472109,
+            "pass": "generated-client/architecture freshness, component smoke, frontend unit coverage and performance",
+            "open": "one keyboard journey missing the print button after reading-view navigation and exact pre-change-equal mirror ratchet findings; Runtime HTTP cancelled",
+            "separate_canary": "44292472320; canary_runner_required_environment_missing; 0 executed"
+          },
+          "scoped_cas_author_lookup": {
+            "status": "Author source independently reviewed; 104/104 affected checks PASS, intended load-count control red on exact preimage; held-out canonical result and ledger verification PASS; full hosted frontier unrun on this author delta",
+            "observed_generation_loads_before_after": [
+              76610,
+              57256
+            ],
+            "observed_join_seconds_before_after": [
+              41.467,
+              35.432
+            ],
+            "scope": "Same retained CAS and interpreter; different concurrent load. One fresh selected blob/view authorization pair. Actual Runtime tenant-scope path; no cross-operation grants or cache. Original timeout cause unestablished.",
+            "after_profile_sha256": "3da9b9c1e4c308547cf2e281f074130b8691562b96664646e91a6c9b5c9450e0",
+            "after_supervisor_sha256": "407ff7c20894c7c39f59307d5ed17f174df89e04eaf9b9d591f56aeb29b1c155",
+            "affected_supervisor_sha256": "2e8cf9dfe092658fe81430b71451629026d4a6f8a25cc8e103976d42738e0d12",
+            "output": "Secondary:policy-engine/_cache/e02/host-r14-retained-cas-profile-20261118/stock-snapshot-composition-r3/"
+          },
+          "native_full_r10": {
+            "status": "LIVE, final B and restart unqualified",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r10-20261118/"
+          }
+        },
         "current_composed_r13": {
           "source_commit": "05856b7ac0d4f0cee1fc2c539b67ae7ac8025236",
           "source_tree": "cdf1786bdcdf7a687d193a9f814d54fb336f5931",
@@ -9178,8 +9247,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Qualify the internal generation join and typed hosted read retry, complete the Native A-chain read, then run the clean NCM sequence from composed source.",
-        "author_tree": "750b845e5a10280b9147633a88bf37224e530a73",
+        "next": "Finish Native full R10, verify canonical B2 continuation wire readback on retained owner evidence, then compose those released changes and run affected scientific/hosted consumers.",
+        "author_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",

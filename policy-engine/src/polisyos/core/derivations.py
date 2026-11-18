@@ -190,10 +190,17 @@ class DerivationRefusalError(RuntimeError):
         detail: str,
         *,
         reason: DerivationRefusalReason | None = None,
+        stage: Literal[
+            "selected_recipe_artifact",
+            "selected_recipe_replay",
+            "selected_recipe_certificate_binding",
+        ]
+        | None = None,
     ) -> None:
         self.code = code
         self.reason = reason
         self.detail = detail
+        self.stage = stage
         suffix = f"/{reason.value}" if reason is not None else ""
         super().__init__(f"{code.value}{suffix}: {detail}")
 
@@ -3421,13 +3428,11 @@ def persist_composition_recipe_artifact(
     return ref
 
 
-def load_composition_recipe_artifact(
+def _read_composition_recipe_artifact(
     store: _CertifiedDerivationReader,
     recipe_ref: artifacts.ArtifactRef,
-    *,
-    limits: DerivationEvaluationLimits | None = None,
 ) -> CompositionRecipe:
-    """Verify a selected v3 recipe artifact and replay its full input chain."""
+    """Reopen the exact recipe artifact without replaying its input arithmetic."""
     from polisyos.core.artifacts import load_core_json_artifact
 
     if (
@@ -3451,6 +3456,25 @@ def load_composition_recipe_artifact(
             inputs=_composition_edges(recipe),
             refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
         )
+        return recipe
+    except DerivationRefusalError:
+        raise
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+            "composition recipe artifact readback failed",
+        ) from exc
+
+
+def load_composition_recipe_artifact(
+    store: _CertifiedDerivationReader,
+    recipe_ref: artifacts.ArtifactRef,
+    *,
+    limits: DerivationEvaluationLimits | None = None,
+) -> CompositionRecipe:
+    """Verify a selected v3 recipe artifact and replay its full input chain."""
+    try:
+        recipe = _read_composition_recipe_artifact(store, recipe_ref)
         return _bounded_recipe_replay(store, recipe, limits)[0]
     except DerivationRefusalError:
         raise
@@ -3579,7 +3603,9 @@ class _CompositionReplay:
         self.points = reserved_points
         self.sources: set[tuple[str, str, str, str]] = set()
 
-    def preflight(self, ref: artifacts.ArtifactRef) -> int:
+    def preflight(
+        self, ref: artifacts.ArtifactRef, *, selected_recipe: CompositionRecipe | None = None
+    ) -> int:
         """Reconcile the entire selected ancestor graph before any arithmetic."""
         from polisyos.core.artifacts import load_core_json_artifact
 
@@ -3602,11 +3628,13 @@ class _CompositionReplay:
                 "combined certificate node/depth budget exceeded",
             )
         self.active.add(key)
+        shared_recipe_inputs = False
         try:
             certificate = CompositionCertificate.model_validate(
                 load_core_json_artifact(self.store, ref)
             )
             recipe = certificate.recipe
+            shared_recipe_inputs = selected_recipe is not None and recipe == selected_recipe
             self.edges += len(recipe.inputs)
             self.points += len(recipe.context.years)
             if self.edges > self.limits.max_edges or self.points > self.limits.max_points:
@@ -3729,6 +3757,7 @@ class _CompositionReplay:
                 raise DerivationRefusalError(
                     DerivationRefusalCode.CERTIFICATE_DRIFT, "selected source budget exceeded"
                 )
+            shared_recipe_inputs = False
             series = CompositionDerivedSeries.model_validate(
                 load_core_json_artifact(self.store, certificate.derived_artifact_ref)
             )
@@ -3772,22 +3801,42 @@ class _CompositionReplay:
             self.depths[key] = depth
             self.source_sets[key] = tuple(refs[index] for index in sorted(refs))
             return depth
-        except DerivationRefusalError:
+        except DerivationRefusalError as exc:
+            if shared_recipe_inputs and exc.stage is None:
+                exc.stage = "selected_recipe_replay"
             raise
         except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
             raise DerivationRefusalError(
-                DerivationRefusalCode.CERTIFICATE_DRIFT, "composition certificate preflight failed"
+                DerivationRefusalCode.CERTIFICATE_DRIFT,
+                "composition certificate preflight failed",
+                stage="selected_recipe_replay" if shared_recipe_inputs else None,
             ) from exc
         finally:
             self.active.remove(key)
 
-    def resolve(self, ref: artifacts.ArtifactRef) -> CompositionResolution:
+    def resolve(
+        self, ref: artifacts.ArtifactRef, *, selected_recipe: CompositionRecipe | None = None
+    ) -> CompositionResolution:
         key = _ref_key(ref)
         if key in self.results:
             return self.results[key]
-        self.preflight(ref)
+        self.preflight(ref, selected_recipe=selected_recipe)
         certificate = self.prepared[key]
-        recipe, normalized = _reopen_composition_recipe(self.store, certificate.recipe, self)
+        shared_recipe_inputs = selected_recipe is not None and certificate.recipe == selected_recipe
+        try:
+            recipe, normalized = _reopen_composition_recipe(self.store, certificate.recipe, self)
+        except DerivationRefusalError as exc:
+            if shared_recipe_inputs and exc.stage is None:
+                exc.stage = "selected_recipe_replay"
+            raise
+        except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+            if not shared_recipe_inputs:
+                raise
+            raise DerivationRefusalError(
+                DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+                "composition recipe artifact readback failed",
+                stage="selected_recipe_replay",
+            ) from exc
         series = _composition_series(recipe, normalized)
         expected = _composition_certificate(
             recipe, series, normalized, certificate.derived_artifact_ref
@@ -3819,13 +3868,38 @@ def resolve_certified_composition(
     certificate_ref: artifacts.ArtifactRef,
     consumer_method_id: str,
     limits: DerivationEvaluationLimits | None = None,
+    recipe_ref: artifacts.ArtifactRef | None = None,
 ) -> CompositionResolution:
-    """Freshly replay the complete selected certificate chain before consumption."""
+    """Freshly replay the selected certificate chain and optional recipe custody.
+
+    An independently selected recipe is reopened and integrity-checked before
+    the certificate graph is replayed. Exact typed equality binds that artifact
+    to the replayed recipe, so the same input chain needs no second replay.
+    Every invocation uses a fresh replay; current-use and ownership gates are
+    not memoized, and the returned authority limitations remain unchanged.
+    """
     if not consumer_method_id.strip():
         raise ValueError("consumer method id must be nonempty")
+    recipe = None
+    if recipe_ref is not None:
+        try:
+            recipe = _read_composition_recipe_artifact(store, recipe_ref)
+        except DerivationRefusalError as exc:
+            raise DerivationRefusalError(
+                exc.code,
+                exc.detail,
+                reason=exc.reason,
+                stage="selected_recipe_artifact",
+            ) from exc
     result = _CompositionReplay(store, limits or DerivationEvaluationLimits()).resolve(
-        certificate_ref
+        certificate_ref, selected_recipe=recipe
     )
+    if recipe is not None and recipe != result.certificate.recipe:
+        raise DerivationRefusalError(
+            DerivationRefusalCode.CERTIFICATE_DRIFT,
+            "selected recipe differs from the replayed certificate recipe",
+            stage="selected_recipe_certificate_binding",
+        )
     return CompositionResolution(
         certificate=result.certificate, series=result.series, consumer_method_id=consumer_method_id
     )

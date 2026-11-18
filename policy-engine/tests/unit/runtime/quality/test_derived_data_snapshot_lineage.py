@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, derivations
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     DataSnapshot,
@@ -60,9 +60,23 @@ def test_derived_snapshot_replays_values_preserves_candidate_limits_and_refuses_
         )
         assert isinstance(snapshot.source_lineage, DerivedModelInputDataSnapshotLineage)
         reader = artifacts.FileSystemCAS.open_existing_read_only(case.store.root)
-        result = validate_data_snapshot_owner_lineage(
-            reader, batch.data_snapshot_ref, snapshot, candidate_only=True
+        selection = snapshot.source_lineage.selections[0]
+        recipe = derivations.CompositionRecipe.model_validate(
+            artifacts.load_core_json_artifact(reader, selection.recipe_ref)
         )
+        actual_reopen = derivations._reopen_composition_recipe
+        reopened = []
+
+        def observe_reopen(store, selected_recipe, replay):
+            reopened.append(selected_recipe.recipe_id)
+            return actual_reopen(store, selected_recipe, replay)
+
+        with monkeypatch.context() as observed:
+            observed.setattr(derivations, "_reopen_composition_recipe", observe_reopen)
+            result = validate_data_snapshot_owner_lineage(
+                reader, batch.data_snapshot_ref, snapshot, candidate_only=True
+            )
+        assert reopened == [recipe.recipe_id]
         assert set(DERIVED_MODEL_INPUT_LIMITATIONS) <= set(result.required_admissibility_blockers)
         assert result.acquisition_source_row_status == "not_applicable"
         with pytest.raises(DataSnapshotLineageError, match="derived_model_input_candidate_only"):
@@ -76,7 +90,6 @@ def test_derived_snapshot_replays_values_preserves_candidate_limits_and_refuses_
             )
 
         payload = artifacts.load_core_json_artifact(case.store, snapshot.data_ref)
-        selection = snapshot.source_lineage.selections[0]
         selected_key = selection.source_path.split(".")[1]
         changed = copy.deepcopy(payload)
         changed["derived_inputs"][selected_key]["value"] += Decimal("1")

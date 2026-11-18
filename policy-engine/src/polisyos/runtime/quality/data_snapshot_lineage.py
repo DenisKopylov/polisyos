@@ -1082,7 +1082,7 @@ def _replay_derived_selection_value(
         load_registered_derived_input_profile,
     )
     from polisyos.core.derivations import (
-        load_composition_recipe_artifact,
+        DerivationRefusalError,
         load_derivation_recipe_artifact,
         resolve_certified_composition,
         resolve_certified_derivation,
@@ -1126,23 +1126,11 @@ def _replay_derived_selection_value(
             or context.output_scope != expected_step_scope.scope
         ):
             raise DataSnapshotLineageError("derived_model_input_temporal_context_mismatch")
-        recipe = load_composition_recipe_artifact(store, selection.recipe_ref)
-        resolution = resolve_certified_composition(
-            store,
-            certificate_ref=selection.certificate_ref,
-            consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
-        )
     elif schema == SchemaInfo(name=registered_schema_name, version="2.0"):
         if expected_step_scope is not None or expected_obligation_set_ref is not None:
             raise DataSnapshotLineageError("derived_model_input_temporal_scope_unexpected")
         proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
         profile = load_registered_derived_input_profile(store, proof.profile_ref)
-        recipe = load_composition_recipe_artifact(store, selection.recipe_ref)
-        resolution = resolve_certified_composition(
-            store,
-            certificate_ref=selection.certificate_ref,
-            consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
-        )
     elif schema == SchemaInfo(
         name="polisyos.catalog.DerivedInputCorrespondenceBasis", version="1.0"
     ):
@@ -1158,6 +1146,21 @@ def _replay_derived_selection_value(
         )
     else:
         raise DataSnapshotLineageError("derived_model_input_correspondence_profile_unsupported")
+    if schema.name == registered_schema_name:
+        try:
+            resolution = resolve_certified_composition(
+                store,
+                certificate_ref=selection.certificate_ref,
+                consumer_method_id="polisyos.runtime.derived-data-snapshot-lineage.v1",
+                recipe_ref=selection.recipe_ref,
+            )
+        except DerivationRefusalError as exc:
+            if exc.stage == "selected_recipe_certificate_binding":
+                raise DataSnapshotLineageError(
+                    "derived_model_input_selected_output_mismatch"
+                ) from exc
+            raise
+        recipe = resolution.certificate.recipe
     if any(
         artifact_ref_identity_key(getattr(selection, field))
         != artifact_ref_identity_key(getattr(proof, field))

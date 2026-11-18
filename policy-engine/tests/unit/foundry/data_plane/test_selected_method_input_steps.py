@@ -9,12 +9,14 @@ from decimal import Decimal
 import numpy as np
 import pytest
 
+from polisyos.core import derivations
 from polisyos.core.artifacts import (
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
+    load_core_json_artifact,
 )
 from polisyos.core.contracts import (
     FoundryInputBindings,
@@ -25,6 +27,7 @@ from polisyos.core.contracts import (
     load_resolved_input_binding_manifest,
 )
 from polisyos.foundry.data_plane.bindings import (
+    _verify_selected_derived_input,
     build_input_bindings,
     load_input_bindings,
     prepare_input_bindings,
@@ -289,6 +292,63 @@ def test_step_reader_reopens_every_source_recipe_and_tensor_before_coverage_cred
         with pytest.raises(ValueError):
             replay(wrong_ref)
         assert replay().coverage.is_complete
+
+
+def test_registered_step_input_shares_replay_and_preserves_refusal_stages(
+    _temporal_fixture, monkeypatch
+):
+    fixture = _temporal_fixture
+    case = fixture.case
+    stage = prepare_registered_derived_model_input_steps(
+        case.store,
+        base_data_snapshot_ref=case.data_snapshot_ref,
+        obligation_set_ref=fixture.preflight.obligation_set_ref,
+        inputs=fixture.requests,
+    )
+    fresh = FileSystemCAS.open_existing_read_only(case.store.root)
+    manifest = load_resolved_input_binding_manifest(fresh, stage.resolved_binding_manifest_ref)
+    row = manifest.method_input_steps[0]
+    _selected_set, (obligation,) = load_model_input_obligation_set(
+        fresh, fixture.preflight.obligation_set_ref
+    )
+    recipe = derivations.CompositionRecipe.model_validate(
+        load_core_json_artifact(fresh, row.selection.recipe_ref)
+    )
+    actual_reopen = derivations._reopen_composition_recipe
+    reopened = []
+
+    def observe_reopen(store, selected_recipe, replay):
+        reopened.append(selected_recipe.recipe_id)
+        return actual_reopen(store, selected_recipe, replay)
+
+    def verify():
+        return _verify_selected_derived_input(
+            fresh,
+            row.selection,
+            obligation,
+            obligation_set_ref=fixture.preflight.obligation_set_ref,
+            expected_step_scope=row.step_scope,
+        )
+
+    with monkeypatch.context() as observed:
+        observed.setattr(derivations, "_reopen_composition_recipe", observe_reopen)
+        value, projection, limitations = verify()
+    assert value == fixture.spec.rows[0].expected_flow
+    assert projection == "scalar"
+    assert "source_currentness_not_established" in limitations
+    assert reopened == [recipe.recipe_id]
+    with (
+        _removed_blob(case.store, row.selection.recipe_ref),
+        pytest.raises(ValueError, match="^foundry_input_bindings_composition_recipe_unavailable$"),
+    ):
+        verify()
+    with (
+        _removed_blob(case.store, row.selection.certificate_ref),
+        pytest.raises(derivations.DerivationRefusalError) as refused,
+    ):
+        verify()
+    assert refused.value.stage is None
+    assert verify()[0] == fixture.spec.rows[0].expected_flow
 
 
 def test_state_only_binding_cannot_launder_a_step_manifest_through_an_identical_state(

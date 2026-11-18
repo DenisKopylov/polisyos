@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE after 18 November resume; B2 repaired enqueue qualified; worker, full NCM sequence and Native/hosted continuity remain open",
+        "status": "ACTIVE; B2 enqueue and worker import repairs published; Native first B request 200; complete scientific sequence and Native/hosted frontier open",
         "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
         "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
@@ -9121,7 +9121,7 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Qualify the fresh NCM generation sequence on the composed source; localize the Native decision-request CAS wait before new work and capture actual hosted wait telemetry. Keep the qualified specification components and DA06/07/08, institutional authority and G boundaries.",
+        "next": "Compose and freeze the qualified canonical shared recipe/certificate replay. Run fresh full NCM sequence and the maintained Native second-leaf/restart test using the R2 retained state. Keep hosted readback measurements and final requirements separate.",
         "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -9390,6 +9390,99 @@
             "output": "Secondary:policy-engine/_cache/e02/ncm-r10-b2-enqueue-affected-20261118/",
             "supervisor_sha256": "4dbc090e9f6649a531e88eba9190e825cc3722ffa240dea5ebe0d7b1a1bf995a"
           }
+        },
+        "composed_checkpoint_18_november": {
+          "main_commit": "84b10272faf4230a68e7eb4ba437258ece0e5328",
+          "tree": "d35b1163d078a768577c97876435fe37c2f8f884",
+          "author_commit": "653d0e1fed2a989272a3b39ecbb1b728b7eb95eb",
+          "checked": "exact remote Main/author and committed source bytes read back"
+        },
+        "hosted_paired_r11": {
+          "status": "COMMAND_FAIL at written Generic execution readback; actual paired result and selected execution persisted; no frontier",
+          "source": "84b10272faf4230a68e7eb4ba437258ece0e5328",
+          "elapsed_seconds": 1251.75,
+          "peak_sampled_process_tree_rss_bytes": 4516904960,
+          "quiescent": true,
+          "result_ref": "sha256:cc6bf373c1b880bfc7f2f89b1be458e9d6f03dd38cec500288c32800b671d388",
+          "result_selected_profile": "sha256:0ff3e97f46864eca004b242f52ca9316b45d77539092c76378e8c2968a2259e0",
+          "execution_ref": "sha256:ba03749833914159db9d91a90407e41777ba7406622b950c7e74b54c7f34740e",
+          "execution_selected_profile": "sha256:5a3c72fa627e6c33e82eaa9ea6defc41f3f1b8750ff5e322c275c7bf0e8d1814",
+          "telemetry": "Core _verify_resolvable_ref -> FileSystemCAS.verify and has; 1.680/1.511 s still running at observation, below 24 us queue, 1.5 s deadline; no historical timeout refs or internal phase attribution",
+          "supervisor_sha256": "74f462301d72203d9322e61b577cada30da5a51f00c4f4dfdcbd2f32257c1c93",
+          "timeout_observations_sha256": "868e96b73953dd74b3d92c57c0182b675dc4a2506c775b4fd29944cc45186b16",
+          "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r11-composed-20261118/"
+        },
+        "hosted_paired_r11_retained_read": {
+          "status": "Scoped PASS; actual guarded Generic execution and result resolved on selected bytes, no N5, original and clone selected bytes/ledger plus original DB preserved",
+          "observed_pairs": 5558,
+          "timing_prefix_calls": 1100,
+          "elapsed_seconds": 38.841,
+          "peak_sampled_process_tree_rss_bytes": 1696235520,
+          "quiescent": true,
+          "supervisor_sha256": "89f2a41cd53425ba8767ef5d743b4785e6caa61a7a84f3ba26dd0429f212d93d",
+          "output": "Primary:policy-engine/_cache/e02/host-r11-retained-n5-readback-20261118/",
+          "scope": "ordinary retained reader, no timeout reproduction or current publishable frontier"
+        },
+        "ncm_r11": {
+          "status": "COMMAND_FAIL; natural exit 1, B2 worker ImportError, B1 terminal/frontier retained",
+          "source": "84b10272faf4230a68e7eb4ba437258ece0e5328",
+          "run_id": "R_cd0333bafec6580d",
+          "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r11-20261118/",
+          "tally": "A and B1 four completed standard units, zero protected; B2 executing head 2 attempt 1; B2 terminal/B3/C unrun",
+          "b2_job_id": "candidate-experiment-reuse-163292324f6d1a3a6a78274a00e8d15fdb7921e7d431867fd211928c407a2c63",
+          "b2_executing_ref": "sha256:c9f859a69486764c89f712b61029b11ae7d21c05e83b22d72f9b09a969bdf0f2",
+          "b1_frontier_ref": "sha256:069fdd1694609c5b07989188a223fe7a15dfc7214e169d3182275a89c4cffa21",
+          "elapsed_seconds": 3741.705,
+          "peak_sampled_process_tree_rss_bytes": 2152677376,
+          "quiescent": true,
+          "supervisor_sha256": "5a18aeca0d75270487aea6c5860b1d9f1c3218c49ce9efe59e0d7e7c1f6a3827"
+        },
+        "native_r7_request_prefix": {
+          "attempt_1": "HARNESS_ERROR precollection missing exact prewarm helper; no product request or physical work",
+          "attempt_2": "Actual HTTP 200 at exact B request; expected diagnostic skip, no new job/head/grant/numerical unit and no observed CAS timeout",
+          "output": "Primary:policy-engine/_cache/e02/native-r7-decision-prefix-r2-20261118/",
+          "elapsed_seconds": 1244.556,
+          "peak_sampled_process_tree_rss_bytes": 4364959744,
+          "quiescent": true,
+          "preservation": "1361 prior members and 177 retained SQL rows unchanged; exact physical ledger unchanged; ordinary audit append/new scoped artifacts",
+          "supervisor_sha256": "8003aad398dff3078850396bcac754919c38d6f6ef61ca3d495b4f52d5b198a6",
+          "boundary_sha256": "547ba4c51d6005fba59dd8241de53b8defc96d0bbb7a3c5bbd7207f9eac7c99e",
+          "full_native_state": "UNRUN on composed source"
+        },
+          "combined_recipe_certificate_replay": {
+            "status": "Independent source GO, selected R3 positive/refusal cohort and real retained readback PASS; live hosted frontier unresolved",
+            "cohort": {
+              "tests": 36,
+              "failed": 0,
+              "skipped": 0,
+              "elapsed_seconds": 97.48,
+              "peak_sampled_process_tree_rss_bytes": 1082769408,
+              "quiescent": true,
+              "output": "Secondary:policy-engine/_cache/e02/combined-derivation-replay-tests-r3-20261118/",
+              "supervisor_sha256": "2e7ee1d74709efd8efd17950924a4d80cbced415d6984bbfd61d9a99a3803b39"
+            },
+            "retained_read": {
+              "baseline_pairs": 5558,
+              "combined_pairs": 3822,
+              "cas_deadline_seconds": 1.5,
+              "scope": "Same exact selected execution/result bytes, no N5 or selected-state writes; does not establish historical timeout phase",
+              "elapsed_seconds": 33.344,
+              "peak_sampled_process_tree_rss_bytes": 1663008768,
+              "quiescent": true,
+              "output": "Secondary:policy-engine/_cache/e02/host-r11-retained-n5-combined-readback-r3-20261118/",
+              "supervisor_sha256": "9dc2da6e61db941a878b7bac443a8b353581be9e4b3e4566c11730b2d48e4346"
+            }
+          },
+        "b2_worker_import_repair": {
+          "status": "Published Main; actual idle import probe and affected tests PASS; live worker sequence still open",
+          "main_commit": "2390b04a61d3e69d8e1cd9c112145fdf3bd73601",
+          "main_tree": "9342170db0e54175f10c74e3f1728e34305ab068",
+          "change": "reopen exact already composed Catalog context and canonical WDI owner under existing bridge fence",
+          "test_count": 45,
+          "lazy_symbols_resolved": 38,
+          "elapsed_seconds": 30.277,
+          "output": "Primary:policy-engine/_cache/e02/b2-worker-owner-import-r1-20261118/",
+          "supervisor_sha256": "3532485486cca67d8a39349dd3d907910eff1d708a85818b0c96de3fdfce6ff0"
         }
       },
       "current_execution_20261114": {

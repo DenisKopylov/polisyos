@@ -38,7 +38,20 @@ def test_selected_reader_reopens_owner_and_content_without_using_false_as_access
             return_selected_profile=True,
         )
         selected = SelectedProfileVerificationReader(store)
+        index = store._ownership_index
+        generation_loads = 0
+        original_load = index._load_generation_snapshot
+
+        def observe_generation_load(pointer_bytes: bytes):
+            nonlocal generation_loads
+            generation_loads += 1
+            return original_load(pointer_bytes)
+
+        monkeypatch.setattr(index, "_load_generation_snapshot", observe_generation_load)
         assert selected.verify(ref).ok
+        assert generation_loads == 5
+        monkeypatch.setattr(index, "_load_generation_snapshot", original_load)
+
         original = store.get_bytes
 
         def deny_after_manifest(_ref: object) -> bytes:

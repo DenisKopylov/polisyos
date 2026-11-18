@@ -51,6 +51,7 @@ from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     MetricsRef,
     ProgramGraph,
+    ProgramNode,
     SimulationResult,
 )
 from polisyos.core.registry import (
@@ -450,8 +451,22 @@ def _put_program_graph_view(
 
 
 def _program_graph_payload(*, payload_version: str = "0.2") -> ProgramGraph:
+    nodes = (
+        [
+            ProgramNode(
+                node_id="fixture-method",
+                node_kind="method",
+                method_fqn="policy.test.no_inputs",
+                method_version="1.0.0",
+                input_ports={},
+            )
+        ]
+        if payload_version == "0.3"
+        else []
+    )
     return ProgramGraph(
         schema_version=payload_version,
+        nodes=nodes,
         ir_ref=ArtifactRef(
             artifact_id="sha256:" + "a" * 64,
             kind="ir.policy_spec",

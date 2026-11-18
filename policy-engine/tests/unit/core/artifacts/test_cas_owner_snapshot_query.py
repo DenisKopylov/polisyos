@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 import polisyos.core.artifacts.ownership as ownership_module
+from polisyos.core.artifacts import ArtifactIntegrityError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.ownership import (
@@ -312,6 +313,16 @@ def test_governed_read_capability_does_not_authorize_lineage_write(tmp_path: Pat
         source = _source(store, b"governed read only", "1.0")
         with store._capture_public_read_set() as capture:
             assert store.get_bytes(source) == b"governed read only"
+        captured_operations = capture.serialized_operation_refs()
+        assert {entry["operation"] for entry in captured_operations} == {
+            "get_bytes",
+            "get_manifest",
+        }
+        assert all(
+            entry["artifact_id"] == str(source.artifact_id)
+            and entry["manifest_profile_sha256"] == source.manifest_profile_sha256
+            for entry in captured_operations
+        )
         store._record_governed_public_read_closure(
             "gpr_" + "a" * 32, capture, owner_token=owner_token
         )
@@ -441,7 +452,7 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
 
     generation_loads = 0
     assert tenant_a.get_bytes(a_view) == b"shared source bytes"
-    assert generation_loads == 2
+    assert generation_loads == 1
     schema = tenant_a.get_manifest(a_view).artifact_schema
     assert schema is not None and schema.version == "1.0"
 
@@ -452,9 +463,7 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
 
     generation_loads = 0
     with pytest.raises(ArtifactOwnershipError, match="Manifest view"):
-        tenant_a.get_manifest_by_profile(
-            b_view.artifact_id, b_view.manifest_profile_sha256
-        )
+        tenant_a.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
     assert generation_loads == 1
 
     tenant_c = FileSystemCAS(root).for_tenant("tenant-c", cell_id="cell-c")
@@ -467,14 +476,10 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
         tenant_c.get_raw_manifest_bytes(b_view)
     with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
-        tenant_c.get_manifest_by_profile(
-            b_view.artifact_id, b_view.manifest_profile_sha256
-        )
+        tenant_c.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
 
     # Tenant B has a blob grant and selected-view claim, but no default-view claim.
-    assert tenant_b.get_manifest_by_profile(
-        b_view.artifact_id, b_view.manifest_profile_sha256
-    )
+    assert tenant_b.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
     with pytest.raises(ArtifactOwnershipError, match="not owned"):
         tenant_b.get_raw_manifest_bytes(b_view.artifact_id)
 
@@ -505,9 +510,7 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     assert fresh_reader.get_raw_manifest_bytes(b_view)
     assert fresh_loads == 1
     fresh_loads = 0
-    assert fresh_reader.get_manifest_by_profile(
-        b_view.artifact_id, b_view.manifest_profile_sha256
-    )
+    assert fresh_reader.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
     assert fresh_loads == 1
 
     # The blob-only/default path remains available through its existing authorization route.
@@ -516,6 +519,52 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
         PutOptions(kind="test.default", media_type="application/octet-stream"),
     )
     assert tenant_a.get_bytes(default) == b"default-view payload"
+
+
+@pytest.mark.parametrize(
+    ("member_state", "expected_error"),
+    [
+        ("missing_blob", FileNotFoundError),
+        ("missing_manifest", FileNotFoundError),
+        ("same_byte_blob_symlink", ArtifactIntegrityError),
+    ],
+)
+def test_tenant_scoped_selected_get_bytes_refuses_missing_or_symlinked_members(
+    tmp_path: Path, member_state: str, expected_error: type[Exception]
+) -> None:
+    """The optimized selected read still requires the exact on-disk members."""
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
+    payload = b"tenant-scoped selected read member control"
+    default_view = _source(store, payload, "1.0")
+    selected = _source(store, payload, "2.0")
+    assert selected.artifact_id == default_view.artifact_id
+    assert selected.manifest_profile_sha256 != default_view.manifest_profile_sha256
+    blob_path = _target_blob(root, payload)
+    default_manifest_path = store._manifest_path_for_ref(
+        default_view.artifact_id, default_view.manifest_profile_sha256
+    )
+    selected_manifest_path = store._manifest_path_for_ref(
+        selected.artifact_id, selected.manifest_profile_sha256
+    )
+    assert default_manifest_path != selected_manifest_path
+
+    if member_state == "missing_blob":
+        blob_path.unlink()
+    elif member_state == "missing_manifest":
+        assert default_manifest_path.is_file()
+        selected_manifest_path.unlink()
+    else:
+        external_blob = tmp_path / "same-byte-external-blob.bin"
+        external_blob.write_bytes(payload)
+        blob_path.unlink()
+        blob_path.symlink_to(external_blob)
+
+    with pytest.raises(expected_error):
+        store.get_bytes(selected)
+
+    if member_state == "same_byte_blob_symlink":
+        assert external_blob.read_bytes() == payload
 
 
 def test_runtime_style_optional_scope_reuses_only_for_present_tenant(

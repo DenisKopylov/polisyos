@@ -1867,8 +1867,8 @@ class FileSystemCAS:
         blob_operation: str,
         view_operation: str,
         ref: ArtifactRef | None = None,
-    ) -> None:
-        """Authorize a selected scoped read with one current stock ownership snapshot."""
+    ) -> bool:
+        """Authorize a selected scoped read and report reusable exact stock admission."""
         if (
             self.has_stock_component_types()
             and self._ownership_enforced
@@ -1884,7 +1884,7 @@ class FileSystemCAS:
                     blob_operation=blob_operation,
                     view_operation=view_operation,
                 )
-                return
+                return True
         self._require_blob_owner(artifact_id, operation=blob_operation, ref=ref)
         self._require_manifest_view_owner(
             artifact_id,
@@ -1892,6 +1892,7 @@ class FileSystemCAS:
             operation=view_operation,
             ref=ref,
         )
+        return False
 
     def _require_unclaimed_without_owner(
         self,
@@ -2239,19 +2240,27 @@ class FileSystemCAS:
             OSError: If the blob file cannot be read.
         """
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        selected_view_owner_prechecked = False
         if profile_sha256 is None:
             self._require_blob_owner(aid, operation="read", ref=ref)
         else:
-            self._require_blob_and_selected_view_owner(
+            selected_view_owner_prechecked = self._require_blob_and_selected_view_owner(
                 aid,
                 profile_sha256,
                 blob_operation="read",
                 view_operation="read_manifest",
                 ref=ref,
             )
+        if _PUBLIC_READ_CAPTURE.get() is not None:
+            selected_view_owner_prechecked = False
         blob, _ = self._paths(aid)
         if not self._hpc_enabled or self._tracer is None:
-            return self._read_verified_blob(aid, blob, manifest_ref=ref)
+            return self._read_verified_blob(
+                aid,
+                blob,
+                manifest_ref=ref,
+                selected_view_owner_prechecked=selected_view_owner_prechecked,
+            )
 
         short_id = f"{aid.hex[:16]}..."
         with self._tracer.start_as_current_span(
@@ -2275,7 +2284,12 @@ class FileSystemCAS:
                 span.set_attribute("cas.duration_seconds", duration)
                 raise FileNotFoundError(f"Artifact not found: {aid.hex}")
 
-            data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+            data = self._read_verified_blob(
+                aid,
+                blob,
+                manifest_ref=ref,
+                selected_view_owner_prechecked=selected_view_owner_prechecked,
+            )
             duration = time.perf_counter() - start
             byte_size = len(data)
 
@@ -2447,17 +2461,29 @@ class FileSystemCAS:
             manifest = ArtifactManifest.model_validate_json(manifest_bytes)
         else:
             manifest = self._manifests.read(manp)
+        return self._validate_selected_manifest(aid, profile_sha256, ref, manifest)
+
+    def _validate_selected_manifest(
+        self,
+        artifact_id: ArtifactID,
+        profile_sha256: str | None,
+        ref: ArtifactRef | None,
+        manifest: ArtifactManifest,
+    ) -> ArtifactManifest:
+        """Validate one manifest against its artifact and exact selected view."""
         try:
-            _validate_manifest_identity(aid, manifest)
+            _validate_manifest_identity(artifact_id, manifest)
             if profile_sha256 is not None:
                 actual_profile = self._manifests.profile_sha256(manifest)
                 if actual_profile != profile_sha256:
-                    raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {artifact_id}"
+                    )
             if ref is not None and (
                 ref.kind != manifest.kind or ref.media_type != manifest.media_type
             ):
                 raise ArtifactIntegrityError(
-                    f"Artifact reference type does not match selected manifest for {aid}"
+                    f"Artifact reference type does not match selected manifest for {artifact_id}"
                 )
         except ArtifactIntegrityError as exc:
             self._record_integrity_failure(reason=type(exc).__name__)
@@ -6440,6 +6466,7 @@ class FileSystemCAS:
         blob_path: Path,
         *,
         manifest_ref: ArtifactRef | None = None,
+        selected_view_owner_prechecked: bool = False,
     ) -> bytes:
         if self._read_only:
             data = self._read_cas_file_no_follow(blob_path, member="blob")
@@ -6455,12 +6482,50 @@ class FileSystemCAS:
                 self._record_integrity_failure(reason=type(exc).__name__)
                 raise
             return data
+        if selected_view_owner_prechecked:
+            return self._read_selected_blob_after_owner_admission(
+                artifact_id,
+                blob_path,
+                manifest_ref=manifest_ref,
+            )
         return _read_verified_blob(
             artifact_id,
             blob_path,
             load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
             record_integrity_failure=self._record_integrity_failure,
         )
+
+    def _read_selected_blob_after_owner_admission(
+        self,
+        artifact_id: ArtifactID,
+        blob_path: Path,
+        *,
+        manifest_ref: ArtifactRef | None,
+    ) -> bytes:
+        """Read one exact selected view under its existing artifact lease."""
+        selector: ArtifactID | ArtifactRef = manifest_ref or artifact_id
+        aid, profile_sha256, ref = _artifact_reference(selector)
+        if profile_sha256 is None:
+            raise RuntimeError("selected_view_owner_admission_requires_exact_profile")
+
+        data = self._read_cas_file_no_follow(blob_path, member="blob")
+        manifest_bytes = self._read_cas_file_no_follow(
+            self._manifest_path_for_ref(aid, profile_sha256),
+            member="manifest",
+        )
+        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+        manifest = self._validate_selected_manifest(aid, profile_sha256, ref, manifest)
+        try:
+            _validate_read_integrity_with_digest(
+                aid,
+                data=data,
+                manifest=manifest,
+                actual_sha256_hex=content_hash(data),
+            )
+        except ArtifactIntegrityError as exc:
+            self._record_integrity_failure(reason=type(exc).__name__)
+            raise
+        return data
 
     @_transactional_read()
     def _load_verified_snapshot(

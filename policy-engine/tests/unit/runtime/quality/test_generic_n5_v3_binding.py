@@ -2299,6 +2299,7 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
     )
     from polisyos.runtime.quality.generic_simulation_admission import (
         _N5_EXECUTION_KIND,
+        GenericN5ExecutionJoinExpectation,
         _GenericN5ExecutionReadbackTimeoutError,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
@@ -2480,6 +2481,91 @@ async def test_committed_execution_readback_retries_only_real_cas_wait_without_r
         assert owner.resolve_n5_execution(ref, expected=record) == record
         assert type(record) is GenericCycleSimulationN5ExecutionV3
         assert record.input_ref == case["input_ref"]
+
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        expectation = GenericN5ExecutionJoinExpectation(
+            input_ref=record.input_ref,
+            result_ref=record.result_ref,
+            status=record.status,
+            model_input_obligation_set_ref=None,
+            n4_source_ref=record.n4_source_ref,
+            context_job_ref=record.context_job_ref,
+            profile_ref=record.profile_ref,
+            child_family_ref=record.n4_child_profile_family_ref,
+            child_set_ref=record.n4_child_profile_set_ref,
+            profile_selection_ref=record.profile_selection_ref,
+            profile=case["handoff"].profile,
+            child_selection=case["input_record"].child_selection,
+            design_problem_ref=cycle_job_design_problem_ref(case["problem"]),
+            outcome_variable=record.outcome_variable,
+            cycle_index=case["input_record"].cycle_index,
+            candidate_id=record.candidate_id,
+            candidate_atom_hash=record.candidate_atom_hash,
+            world_model_record_content_hash=record.world_model_record_content_hash,
+            job_id=record.job_id,
+            run_id=record.run_id,
+            source_run_id=record.source_run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+        )
+        resolve_basis = GenericCycleSimulationAdmissionOwner._resolve_n5_execution_with_program_graph_input_basis
+        attempts = 0
+
+        def transient_join_wait(replay_owner, ref, *, expected):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise GenerationCycleError(
+                    "joint_simulation_semantic_sources_unavailable"
+                ) from wait
+            return resolve_basis(replay_owner, ref, expected=expected)
+
+        with monkeypatch.context() as retry:
+            retry.setattr(
+                GenericCycleSimulationAdmissionOwner,
+                "_resolve_n5_execution_with_program_graph_input_basis",
+                transient_join_wait,
+            )
+            retried = owner.resolve_n5_execution_join(ref, expected=expectation)
+        assert attempts == 2
+        assert retried.status == "resolved"
+
+        attempts = 0
+
+        def persistent_join_wait(*_args, **_kwargs):
+            nonlocal attempts
+            attempts += 1
+            raise GenerationCycleError("joint_simulation_semantic_sources_unavailable") from wait
+
+        with monkeypatch.context() as retry:
+            retry.setattr(
+                GenericCycleSimulationAdmissionOwner,
+                "_resolve_n5_execution_with_program_graph_input_basis",
+                persistent_join_wait,
+            )
+            still_unavailable = owner.resolve_n5_execution_join(ref, expected=expectation)
+        assert attempts == 2
+        assert still_unavailable.status == "not_established"
+        assert still_unavailable.code == "joint_simulation_semantic_sources_unavailable"
+
+        attempts = 0
+
+        def semantic_join_refusal(*_args, **_kwargs):
+            nonlocal attempts
+            attempts += 1
+            raise GenerationCycleError("joint_simulation_result_integrity_invalid")
+
+        with monkeypatch.context() as retry:
+            retry.setattr(
+                GenericCycleSimulationAdmissionOwner,
+                "_resolve_n5_execution_with_program_graph_input_basis",
+                semantic_join_refusal,
+            )
+            semantically_invalid = owner.resolve_n5_execution_join(ref, expected=expectation)
+        assert attempts == 1
+        assert semantically_invalid.status == "not_established"
+        assert semantically_invalid.code == "joint_simulation_result_integrity_invalid"
 
         # The actual nested availability family must exercise the same full
         # readback and preserve its write-once bound, not a per-CAS retry layer.

@@ -586,7 +586,6 @@ def read_candidate_acquisition_retained_continuation(
             or type(root_generation_run) is not GenerationCycleRun
             or type(scope) is not CandidateUnpricedPolicyScope
             or type(prior_experiment_origin.design_problem_basis) is not DesignProblem
-            or root_generation_run.run_id != prior_experiment_origin.run_id
             or root_generation_run.design_problem_ref != scope.design_problem_ref
             or tuple(
                 cycle
@@ -620,6 +619,8 @@ def read_candidate_acquisition_retained_continuation(
             type(effective_source_cycle) is not GenerationCycleRecord
             or type(effective_generation_run) is not GenerationCycleRun
             or effective_generation_run.run_id != root_generation_run.run_id
+            or decision.prior_evaluation is None
+            or effective_generation_run.run_id != decision.prior_evaluation.generation_run_id
             or effective_generation_run.design_problem_ref != root_generation_run.design_problem_ref
             or not effective_generation_run.cycles
             or effective_generation_run.cycles[-1] != effective_source_cycle

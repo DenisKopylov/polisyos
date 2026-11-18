@@ -4561,9 +4561,19 @@ class GenericCycleSimulationAdmissionOwner:
         if input_problem is not None:
             return input_problem, None, None
         try:
-            verified, blocked_input, resolved_result = (
-                self._resolve_n5_execution_with_program_graph_input_basis(ref, expected=record)
-            )
+            try:
+                replayed = self._resolve_n5_execution_with_program_graph_input_basis(
+                    ref, expected=record
+                )
+            except (GenerationCycleError, RuntimeDependencyError) as exc:
+                if _written_n5_readback_wait_timeout(exc) is None:
+                    raise
+                # Repeat the complete read-only proof once. Admission,
+                # producer work and persistence stay outside this join.
+                replayed = self._resolve_n5_execution_with_program_graph_input_basis(
+                    ref, expected=record
+                )
+            verified, blocked_input, resolved_result = replayed
         except FileNotFoundError:
             return refused("unavailable", "generic_n5_execution_dependency_absent")
         except CanonicalProfileRefusalError as exc:

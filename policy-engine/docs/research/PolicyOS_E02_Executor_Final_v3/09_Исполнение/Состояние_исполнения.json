@@ -9079,10 +9079,67 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE; B2 and hosted completion repairs verified at retained boundaries; native historical-chain timeout diagnosis and composed end-to-end pending",
-        "main_commit": "d961a7a9d984f032205f3d68207aab5e019ef399",
-        "main_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
-        "author_checkpoint": "0a308d7e030d0432297e9a47d738f5f9ac8aab76",
+        "status": "ACTIVE; published selected-source and late-request fixes; hosted R13 independently reopens two prior physical units, live frontier absent; Native and NCM extended routes pending",
+        "main_commit": "05856b7ac0d4f0cee1fc2c539b67ae7ac8025236",
+        "main_tree": "cdf1786bdcdf7a687d193a9f814d54fb336f5931",
+        "author_checkpoint": "77159f5e1e9108f58f1ad88e7ece8c78493f28ec",
+        "current_composed_r13": {
+          "source_commit": "05856b7ac0d4f0cee1fc2c539b67ae7ac8025236",
+          "source_tree": "cdf1786bdcdf7a687d193a9f814d54fb336f5931",
+          "hosted_r13": {
+            "status": "COMMAND_FAIL exit 1; stable source; two completed standard units; compiled candidate blocked before frontier",
+            "refusal": "outer_join_validation / joint_simulation_semantic_sources_unavailable; both frontier tables empty",
+            "wait": "typed FileSystemCAS.get_bytes timeout, 2.0240457 s with 22.79 us queue at the 1.5 s budget; exact selector and view unestablished",
+            "elapsed_seconds": 1166.137,
+            "peak_sampled_process_tree_rss_bytes": 4278976512,
+            "supervisor_sha256": "2b431d9aad878cba8a92417114c16204740cf0aaf3ebcd34b693708ec622d5a9",
+            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r13-frontier-20261118/"
+          },
+          "hosted_retained_r13": {
+            "status": "PASS diagnostic candidate join, two prior units reconciled, wrong candidate rejected, no physical call or frontier write",
+            "elapsed_seconds": 45.569,
+            "peak_sampled_process_tree_rss_bytes": 1734819840,
+            "supervisor_sha256": "bd6346b95b371efaad896c5a558185332fa63f776d77a4557762e14bebae9213",
+            "output": "Primary:policy-engine/_cache/e02/host-r13-fresh-frontier-retained-20261118/reopen-budget/"
+          },
+          "native_a_chain_r1": {
+            "status": "HARNESS_ERROR / product UNRUN; collection node select and Tool5 module binding",
+            "elapsed_seconds": 26.196,
+            "supervisor_sha256": "6b955cb55eaf624803c9da46b1fc5a1bc98b60cd8c6e9542f4798cd048a773e6",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-a-chain-r1-20261118/"
+          },
+          "native_a_chain_r2": {
+            "status": "HARNESS_ERROR / actual action reader UNRUN; exact collection/Tool5 pass, test helper import missing before action reader",
+            "elapsed_seconds": 129.12,
+            "peak_sampled_process_tree_rss_bytes": 2184019968,
+            "quiescent": true,
+            "supervisor_sha256": "2a23d9a8442194ef8c03709e0d65b216829efd3331a7a0215cd200cc32614e46",
+            "output": "Primary:policy-engine/_cache/e02/native-retained-a-chain-r2-20261118/"
+          },
+          "selected_owner_repairs": {
+            "status": "4 PASS / 0 FAIL / 0 SKIP on final four byte pins; scoped typed join/guard proof only",
+            "scope": "Two-plane generation identity, exact typed wait retries complete pure selected join once; transient success, persistent fail closed, unrelated refusal no retry. Live NCM/hosted end-to-end pending.",
+            "elapsed_seconds": 27.829,
+            "peak_sampled_process_tree_rss_bytes": 1871495168,
+            "supervisor_sha256": "da47b70985def30a5abb645a7fcfc124348e083c0371f134780a7496eaf2a6ed",
+            "output": "Secondary:policy-engine/_cache/e02/lane01-owner-retries-and-joins-final-20261118/"
+          },
+          "ncm_r13": {
+            "status": "SOURCE_DRIFT; genuine A and two new B1 physical units observed, four settled standard total, B1 terminal/frontier absent, B2/B3/C unrun",
+            "error": "candidate_experiment_evaluation_decision_changed during B1 closeout; exact failed predicate operands unavailable",
+            "source_exposure": "Both changed paths restored to exact Main bytes after 127 s. Changed reader is within the recorded 2930-file N5 production image. Fresh revalidation of changed bytes would refuse; full cause remains unestablished.",
+            "result": {
+              "exit_code": 3,
+              "elapsed_seconds": 2754.291,
+              "peak_sampled_process_tree_rss_bytes": 2166046720,
+              "quiescent": true,
+              "supervisor_sha256": "37c31336316321967ae6c13fd3b7d6c082169c577a1078c30ede821098d68261",
+              "qualification_sha256": "2a005f972b7e785100e843c94283312a75dcc016d9ea5544f6f52389d47c84a8"
+            },
+            "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r13-20261118/"
+          },
+          "standard_ci_companion": "Published author 77159f5e; 380 record meanings and statuses unchanged; four covered source digests refreshed. Pending Main composition/CI."
+        },
         "ncm_r6": {
           "status": "RESOURCE_ABORT wall_time_cap; no final JUnit/origin qualification",
           "source_commit": "b3ba4cd8af416f3d6005444d65df28cd876566b8",
@@ -9121,8 +9178,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Bind no-fetch reuse to the verified effective candidate cycle and verify the issuer on retained R12 inputs. Isolate the hosted expected-request reader and the Native historical-chain stall with a bounded retained test before repeating expensive prefixes.",
-        "author_tree": "eda823455eea9e0e246f598d80dd0207ba15b095",
+        "next": "Qualify the internal generation join and typed hosted read retry, complete the Native A-chain read, then run the clean NCM sequence from composed source.",
+        "author_tree": "750b845e5a10280b9147633a88bf37224e530a73",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",

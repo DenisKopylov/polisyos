@@ -9082,7 +9082,7 @@
         "status": "ACTIVE on 5da; Native retained A PASS and B/restart live, NCM B2 continuation saved before terminal refusal, held-out CAS optimization qualified on author source",
         "main_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
         "main_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
-        "author_checkpoint": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
+        "author_checkpoint": "1d660527f8839def6a2dd41bbe2659d337b28f40",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9146,6 +9146,25 @@
             "after_supervisor_sha256": "407ff7c20894c7c39f59307d5ed17f174df89e04eaf9b9d591f56aeb29b1c155",
             "affected_supervisor_sha256": "2e8cf9dfe092658fe81430b71451629026d4a6f8a25cc8e103976d42738e0d12",
             "output": "Secondary:policy-engine/_cache/e02/host-r14-retained-cas-profile-20261118/stock-snapshot-composition-r3/"
+          },
+          "b2_retained_wire_repair": {
+            "status": "Author independently reviewed; strict selected compiler roundtrip 5/5 and exact original R14 retained CAS/SQLite readback PASS; full B2 terminal/B3/C not established",
+            "producer_shape": "The actual compiler gives Python tuples in two Any metadata fields. Same canonical JSON/content hash, different old typed object equality. Validate live payload strictly before revalidating public wire.",
+            "retained_scope": "Actual selected continuation ed933764…/efb5bdee…, same bytes and authority/event read, no original writes, no N5 or publication, historical RuntimeError text unavailable",
+            "cohort": {
+              "elapsed_seconds": 17.528,
+              "rss_bytes": 1556463616,
+              "supervisor_sha256": "216a85b42382d1967dcb48777ab5790c3766cf5075b889fd4749a0808ef16f52"
+            },
+            "retained": {
+              "elapsed_seconds": 13.429,
+              "rss_bytes": 1432698880,
+              "supervisor_sha256": "3ba1a76dbb753ccea9eb6cd2f393c3b7283d0b8d2ae325e248a4c111ef21c6e9"
+            },
+            "outputs": [
+              "Secondary:policy-engine/_cache/e02/lane01-b2-canonical-wire-r3-20261118/",
+              "Secondary:policy-engine/_cache/e02/lane01-b2-r14-continuation-retained-20261118/run-final/"
+            ]
           },
           "native_full_r10": {
             "status": "LIVE, final B and restart unqualified",
@@ -9247,8 +9266,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Finish Native full R10, verify canonical B2 continuation wire readback on retained owner evidence, then compose those released changes and run affected scientific/hosted consumers.",
-        "author_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
+        "next": "Finish Native full R10 on 5da. Qualify the exact downstream retained B2 reader without new N5 where admissible. Then compose released owner deltas and run the affected scientific/hosted routes.",
+        "author_tree": "760f7f2ed0836b565a120b14a634a654652c6d33",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",

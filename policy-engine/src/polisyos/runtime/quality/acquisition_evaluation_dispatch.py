@@ -7207,6 +7207,26 @@ def _persist_current_continuation(
     )
 
 
+def _issue_candidate_retained_continuation(
+    payload: dict[str, object],
+) -> CandidateAcquisitionRetainedContinuation:
+    """Validate the exact public wire that the retained producer hashes and stores."""
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        CandidateAcquisitionRetainedContinuation,
+    )
+
+    provisional = CandidateAcquisitionRetainedContinuation.model_construct(
+        **payload, content_hash=""
+    )
+    wire = provisional.model_dump(mode="json", exclude={"content_hash"})
+    validated = CandidateAcquisitionRetainedContinuation.model_validate(
+        {**payload, "content_hash": exact_n5_content_hash(wire)}
+    )
+    return CandidateAcquisitionRetainedContinuation.model_validate(
+        validated.model_dump(mode="json")
+    )
+
+
 def _persist_candidate_current_continuation(
     *,
     owner: CandidateAcquisitionEvaluationCurrentOwner
@@ -7376,17 +7396,7 @@ def _persist_candidate_current_continuation(
         if prior_record
         else datetime.now(UTC).isoformat(),
     }
-    provisional = CandidateAcquisitionRetainedContinuation.model_construct(
-        **payload, content_hash=""
-    )
-    record = CandidateAcquisitionRetainedContinuation.model_validate(
-        {
-            **payload,
-            "content_hash": exact_n5_content_hash(
-                provisional.model_dump(mode="json", exclude={"content_hash"})
-            ),
-        }
-    )
+    record = _issue_candidate_retained_continuation(payload)
     if prior_record is not None and not _candidate_model_values_same(prior_record, record):
         raise ValueError("candidate_retained_continuation_recovery_changed")
     ref = (

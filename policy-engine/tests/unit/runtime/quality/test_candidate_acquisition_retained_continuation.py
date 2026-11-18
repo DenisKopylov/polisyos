@@ -77,17 +77,23 @@ def test_costed_owner_cannot_be_paired_with_experiment_terminal() -> None:
         )
 
 
-def test_experiment_reader_joins_outer_control_and_inner_generation_run_separately(
+def test_experiment_reader_binds_inner_run_and_compiled_view_through_verified_scope(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Retained experiment replay binds the selected internal run, not the Control alias."""
+    """The digest joins the record while the verified scope binds its full profile."""
     from dataclasses import replace
 
-    from polisyos.runtime.quality import acquisition_retained_continuation as retained_reader
-    from polisyos.runtime.quality import acquisition_route_loop
+    from polisyos.runtime.quality import (
+        acquisition_evaluation,
+        acquisition_retained_continuation,
+        acquisition_route_loop,
+    )
     from polisyos.runtime.quality.acquisition_evaluation import (
         AcquisitionSelectedEvaluation,
         issue_candidate_acquisition_evaluation_decision,
+    )
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        CandidateAcquisitionRetainedContinuation,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceiptV2,
@@ -163,11 +169,40 @@ def test_experiment_reader_joins_outer_control_and_inner_generation_run_separate
         planner_record=cast("Any", None),
     )
 
-    class ArtifactReadReachedError(Exception):
-        """Sentinel proving source-owner identity checks passed."""
+    wrong_profile_scope = scope.model_copy(
+        update={
+            "compiled_ref": scope.compiled_ref.model_copy(
+                update={"manifest_profile_sha256": _hash("c")}
+            )
+        }
+    )
+    wrong_profile_payload = terminal.model_dump(mode="python")
+    wrong_profile_payload["policy_scope"] = wrong_profile_scope
+    wrong_profile_terminal = AcquisitionCandidateExperimentTerminalReceiptV2.model_validate(
+        wrong_profile_payload
+    )
+    assert wrong_profile_terminal.compiled_ref.artifact_id == terminal.compiled_ref.artifact_id
+    assert (
+        wrong_profile_terminal.compiled_ref.manifest_profile_sha256
+        != terminal.compiled_ref.manifest_profile_sha256
+    )
 
-    def stop_at_artifact_read(**_kwargs: object) -> object:
-        raise ArtifactReadReachedError
+    class SelectedJoinReachedError(Exception):
+        """Sentinel proving the selected digest join passed before historical replay."""
+
+    selected_record: CandidateAcquisitionRetainedContinuation | None = None
+    artifact_read_count = 0
+
+    def return_selected_record(**kwargs: object) -> object:
+        nonlocal artifact_read_count
+        assert kwargs["ref"] == terminal.current_continuation_ref
+        assert kwargs["record_type"] is CandidateAcquisitionRetainedContinuation
+        assert selected_record is not None
+        artifact_read_count += 1
+        return selected_record
+
+    def stop_before_prior_replay(**_kwargs: object) -> object:
+        raise SelectedJoinReachedError
 
     monkeypatch.setattr(
         acquisition_route_loop,
@@ -175,44 +210,83 @@ def test_experiment_reader_joins_outer_control_and_inner_generation_run_separate
         lambda _origin: (generation_run, cycle),
     )
     monkeypatch.setattr(
-        retained_reader,
+        acquisition_retained_continuation,
         "read_acquisition_evaluation_artifact",
-        stop_at_artifact_read,
+        return_selected_record,
+    )
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        stop_before_prior_replay,
     )
 
-    def read(*, decision_generation_run_id: str, scope_run_id: str = outer_run_id) -> None:
+    def read(
+        *,
+        decision_generation_run_id: str,
+        scope_run_id: str = outer_run_id,
+        terminal_override: AcquisitionCandidateExperimentTerminalReceiptV2 | None = None,
+    ) -> None:
+        nonlocal selected_record
+        selected_terminal = terminal if terminal_override is None else terminal_override
         selected_prior = selected.model_copy(
             update={"generation_run_id": decision_generation_run_id}
         )
         decision = issue_candidate_acquisition_evaluation_decision(
-            tenant_id=terminal.tenant_id,
-            cell_id=terminal.cell_id,
-            run_id=terminal.run_id,
-            source_job_id=terminal.source_job_id,
-            action_job_id=terminal.job_id,
-            action_generation=terminal.action_generation,
-            route_id=terminal.route_id,
+            tenant_id=selected_terminal.tenant_id,
+            cell_id=selected_terminal.cell_id,
+            run_id=selected_terminal.run_id,
+            source_job_id=selected_terminal.source_job_id,
+            action_job_id=selected_terminal.job_id,
+            action_generation=selected_terminal.action_generation,
+            route_id=selected_terminal.route_id,
             compiled_ref=str(scope.compiled_ref.artifact_id),
             design_problem_ref=scope.design_problem_ref,
             design_problem_basis_ref=scope.design_problem_basis_ref,
             candidate_id=scope.candidate_id,
             source_candidate_content_hash=scope.candidate_content_hash,
-            candidate_action_ref=terminal.candidate_action_ref,
+            candidate_action_ref=selected_terminal.candidate_action_ref,
             candidate_world_intent_ref=_ref(
                 "runtime_quality.acquisition_candidate_world_intent", "a"
             ),
             candidate_source_ref=_ref("runtime.quality.candidate_acquisition_source", "b"),
-            current_basis_ref=terminal.selected_basis_ref,
-            prior_basis_ref=terminal.selected_basis_ref,
+            current_basis_ref=selected_terminal.selected_basis_ref,
+            prior_basis_ref=selected_terminal.selected_basis_ref,
             prior_evaluation=selected_prior,
             comparison_result="equivalent",
             predicate_provenance="recomputed",
             reason_codes=(),
             expected_frontier_revision=1,
             expected_frontier_ref=_hash("e"),
-            generated_at=terminal.generated_at.isoformat(),
-            reuse_occurrence_ref=terminal.reuse_occurrence_ref,
+            generated_at=selected_terminal.generated_at.isoformat(),
+            reuse_occurrence_ref=selected_terminal.reuse_occurrence_ref,
             decision_version="2.0",
+        )
+        selected_record = CandidateAcquisitionRetainedContinuation.model_construct(
+            tenant_id=decision.tenant_id,
+            cell_id=decision.cell_id,
+            run_id=decision.run_id,
+            source_job_id=decision.source_job_id,
+            action_job_id=decision.action_job_id,
+            action_generation=decision.action_generation,
+            route_id=decision.route_id,
+            compiled_ref=decision.compiled_ref,
+            design_problem_ref=decision.design_problem_ref,
+            design_problem_basis_ref=decision.design_problem_basis_ref,
+            candidate_id=decision.candidate_id,
+            candidate_action_ref=decision.candidate_action_ref,
+            reuse_occurrence_ref=selected_terminal.reuse_occurrence_ref,
+            candidate_world_intent_ref=decision.candidate_world_intent_ref,
+            candidate_source_ref=decision.candidate_source_ref,
+            evaluation_decision_ref=selected_terminal.evaluation_decision_ref,
+            current_basis_ref=decision.current_basis_ref,
+            retained_evaluation=decision.prior_evaluation,
+            current_projection=cast("Any", None),
+            retained_port_capture_ref=_ref("runtime_quality.candidate_retained_port_capture", "f"),
+            budget_observation_before=cast("Any", None),
+            budget_observation_after=cast("Any", None),
+            limitations=("prior evaluator replay remains required",),
+            generated_at=selected_terminal.generated_at.isoformat(),
+            content_hash=_hash("9"),
         )
         selected_origin = (
             origin
@@ -223,18 +297,26 @@ def test_experiment_reader_joins_outer_control_and_inner_generation_run_separate
             store=cast("CoreJSONArtifactStore", None),
             event_log=cast("RuntimeDiagnosticEventLog", None),
             control_store=cast("ControlPlaneStore", None),
-            ref=cast("ArtifactRef", terminal.current_continuation_ref),
+            ref=cast("ArtifactRef", selected_terminal.current_continuation_ref),
             decision=decision,
-            terminal=terminal,
+            terminal=selected_terminal,
             prior_experiment_origin=selected_origin,
         )
 
-    with pytest.raises(ArtifactReadReachedError):
+    with pytest.raises(SelectedJoinReachedError):
         read(decision_generation_run_id=inner_run_id)
     with pytest.raises(ValueError, match="candidate_retained_experiment_source_not_established"):
         read(decision_generation_run_id="generation_cycle_foreign")
     with pytest.raises(ValueError, match="candidate_retained_experiment_source_not_established"):
         read(decision_generation_run_id=inner_run_id, scope_run_id="R_foreign_control")
+
+    reads_before_profile_control = artifact_read_count
+    with pytest.raises(ValueError, match="candidate_retained_experiment_source_not_established"):
+        read(
+            decision_generation_run_id=inner_run_id,
+            terminal_override=wrong_profile_terminal,
+        )
+    assert artifact_read_count == reads_before_profile_control
 
 
 @pytest.mark.parametrize("normalize_wire", [False, True], ids=["preimage", "canonical_wire"])

@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on published 7db. Native A PASS; Native full R10 fails before B dispatch. Scientific R15 running on composed source.",
-        "main_commit": "7db89f93d4c4d329981c1babf0234db30b050206",
-        "main_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
-        "author_checkpoint": "7db89f93d4c4d329981c1babf0234db30b050206",
+        "status": "ACTIVE on published bcd7. Exact R15 B2 historical refusal reproduced at the compiled reference comparison. Hosted R16 running; Native full R11 remains stopped before B dispatch.",
+        "main_commit": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
+        "main_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
+        "author_checkpoint": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9187,10 +9187,49 @@
           "source_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
           "publication": "direct remote readback after ordinary fast-forward",
           "scientific": {
-            "status": "RUNNING",
+            "status": "COMMAND_FAIL",
             "quota": "7/1 candidate",
             "output": "Primary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r15-20261118/",
-            "command_sha256": "99b809ca675c8dc5bbbe248c265ec69ed722b3737dd37beeb76379609331601e"
+            "command_sha256": "99b809ca675c8dc5bbbe248c265ec69ed722b3737dd37beeb76379609331601e",
+            "elapsed_seconds": 4195.162,
+            "peak_rss_bytes": 1923350528,
+            "declared_source_input_pins": 7807,
+            "changed_source_inputs": 0,
+            "completed_standard_units": 4,
+            "b2_terminal_ref": "sha256:6794faec6a655bc5eda8cd511e80b2ac001b0015ddd07ddfa76b6b08c69d8cb7",
+            "b2_terminal_profile": "sha256:2de19e79e3193735f76bd2127e5c579c39b174330ca54c8f4aa3eac50df01e5c",
+            "b2_durable_event": "evt_acquisition_2_experiment_terminal_91fa910d38ebab82",
+            "b2_sql_head": "executing generation 2/head 2; frontier revision 1",
+            "b3_c": "UNRUN",
+            "cause": "wrapped ValueError; semantic code not preserved",
+            "supervisor_sha256": "bd98e828649365e5d96c2b83d3b14d793efe12a5be55cc75338fda5c09cdfd24",
+            "precommit_probe": {
+              "status": "REPRODUCED_FAIL",
+              "exact_code": "candidate_retained_selected_join_mismatch",
+              "sole_failed_predicate": "record_terminal_compiled",
+              "checked_predicates": 19,
+              "source": "7db89f93d/dae09bc4",
+              "older_retained_ledger_identity": "original physical directory and stable existing lock",
+              "n5_calls": 0,
+              "sources_original_and_clone_bytes_unchanged": true,
+              "output": "Primary:policy-engine/_cache/e02/lane01-b2-r15-precommit-verify-20261118/budget-r5/",
+              "supervisor_sha256": "4315ad3459eb9efd0be40e7c9ce6192fc4d78d4679d82bcbbf0bb462fdb7effe"
+            },
+            "compiled_view_repair": {
+              "status": "HISTORICAL_PRECOMMIT_PASS",
+              "verification": "actual R15 selected terminal and executing head, original locked budget, unchanged original and clone state",
+              "n5_calls": 0,
+              "elapsed_seconds": 40.374,
+              "peak_rss_bytes": 1828831232,
+              "source_file_sha256": "1908b244c814a2a5dfc3243f973d28039b3df30e2a7cb8141156ad0340f7494c",
+              "profile_control": "same blob under different selected profile refuses; legacy digest and inner/outer run identities preserved",
+              "affected_tests": "72/72 PASS",
+              "output": "Primary:policy-engine/_cache/e02/lane01-b2-r15-precommit-verify-20261118/budget-r6/",
+              "supervisor_sha256": "0c17c32a0e8b8107e66513ad676fe8c2ee269d4da2cd4232b674f090243eaf8d",
+              "affected_output": "Secondary:policy-engine/_cache/e02/lane01-b2-r15-compiled-field-20261118/affected/",
+              "affected_supervisor_sha256": "7c8afad780d3110bcf3d3fbeb0f7579b11613ce3e18f1afcb63c7acc16cf62f6",
+              "remaining": "live atomic B2/B3 terminal and frontier publication, fresh API and changed C"
+            }
           },
           "b2_draft_probe": {
             "status": "HARNESS_ERROR, downstream UNRUN",
@@ -9249,20 +9288,38 @@
             "summary_sha256": "48c38d91d193abc345102d5e6418d63ca1575a0102bba96ef5b7f9588d27b8b8"
           },
           "native_full_r11": {
-            "status": "RUNNING",
+            "status": "COMMAND_FAIL",
             "source": "published 7db / dae",
             "profile": "locked-wheel providers, original 1.5 s CAS guard, ephemeral Prometheus port",
             "prior_retained_input": "fresh APFS clone of canonical Native A R4",
             "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r11-20261118/",
             "command_sha256": "2484beeb1ae61f4e18a7b17f37b35544ab4bda070a583db7d031f2ffdfa6a8b0",
-            "shared_rss_cap_bytes": 8589934592
+            "shared_rss_cap_bytes": 8589934592,
+            "elapsed_seconds": 1472.084,
+            "peak_rss_bytes": 4566073344,
+            "source_qualification": "stable",
+            "observation": "B decision-request HTTP 200, mandate selected; local principal signing timeout before decision submission; no B job, provider, N5 or restart",
+            "cas_timeout_seconds": 1.5,
+            "signing_wait_seconds": 1.9756361660547554,
+            "late_signature": "fresh read-only signed artifact valid under exact fixture key; wrong key untrusted",
+            "supervisor_sha256": "ae918bbfff798052b824a1ee0fe2dc006190894dcf5c0323e159fe6d6f5ae1c7"
           },
           "hosted_r16": {
-            "status": "BOUND_UNRUN",
-            "source": "published 7db / dae",
+            "status": "RUNNING",
+            "source": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
             "profile": "same full locked-wheel paired test and guard, port isolation asserted before application initialization",
-            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r16-composed-20261118/",
-            "command_sha256": "29516e94dd33b2e7dc90f461ede08872a2d484aa5f2dca81ad2dc3da860e447b"
+            "output": "Primary:policy-engine/_cache/e02/runtime-paired-v4-host-r16-profile-owner-20261118/",
+            "command_sha256": "5169548b7da682e529e2234da4c35f6ab17a71eee4a2fc12ebf2ac2d68a90636",
+            "tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007"
+          },
+          "scoped_typed_manifest_lookup": {
+            "status": "PASS 169/169; reviewed and published on author branch",
+            "author_commit": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
+            "author_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
+            "stable_checks": "source-qualified old red 2 != 1; new current scoped snapshot 1, unchanged authority and fallback semantics",
+            "output": "Secondary:policy-engine/_cache/e02/lane01-scoped-profile-lookup-20261118/",
+            "supervisor_sha256": "306eb5e542c0f50e3e500250efc43e4242554ab690849aa8de69ba7b110feaf2",
+            "main_published_direct_readback": true
           }
         },
         "current_composed_r13": {
@@ -9360,8 +9417,8 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Finish genuine scientific R15 and Native R11. Admit Hosted R16 with its isolated port in a measured slot; verify frontier and fresh reader under the existing checks. No further repetition without a new distinguishing signal.",
-        "author_tree": "dae09bc48a9f1e2eab832f39be144eca1d65eb25",
+        "next": "Publish the qualified historical reader repair after Hosted R16 releases Main. Run the maintained fresh scientific sequence with bounded worker cause telemetry. Native second leaf and restart remain open.",
+        "author_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -9417,10 +9474,10 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "Isolated exact writer PASS; maintained Native R11 runs on the composed source with isolated metrics port.",
+          "native": "Native R11 stops at principal signing; late signature verified with a wrong-key control; no B dispatch.",
           "hosted": "Hosted R15 full route FAIL; saved-result reader PASS; port-isolated maintained R16 prepared and unrun.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
-          "ncm": "R15 active on composed source with separate fresh fixture."
+          "ncm": "R15 B2 terminal CAS/event persisted; historical precommit proof pending; B3/C unrun."
         },
         "criterion_reconciliation": {
           "packets": 11,

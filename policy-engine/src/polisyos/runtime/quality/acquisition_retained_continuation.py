@@ -707,7 +707,12 @@ def read_candidate_acquisition_retained_continuation(
         )
         or record.action_job_id != terminal.job_id
         or record.action_generation != terminal.action_generation
-        or record.compiled_ref != terminal.compiled_ref
+        or record.compiled_ref
+        != (
+            str(terminal.compiled_ref.artifact_id)
+            if type(terminal) in experiment_types
+            else terminal.compiled_ref
+        )
         or record.compiled_ref != prior_compiled_ref
         or record.design_problem_ref != prior_design_problem_ref
         or record.design_problem_basis_ref != decision.design_problem_basis_ref

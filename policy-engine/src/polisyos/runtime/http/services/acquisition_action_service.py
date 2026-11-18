@@ -3456,7 +3456,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(
                 "candidate_experiment_reuse_lifecycle_owner_unavailable"
             )
-        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id)
+        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
         origin = run_catalog_source_call(
             control.catalog_serving_source,
             lambda: loop.resolve_candidate_experiment_predecessor_origin(

@@ -9489,8 +9489,8 @@
           "preservation": "1508 artifact member names, owner metadata, SQL rows, ledger and selected/direct-input bytes; not every artifact content hash"
         },
         "prepared_next": {
-          "native": "Finish the confirmed Control/Core binding for actual gate/evidence GETs, run the no-N5 witness, then second leaf through real restart.",
-          "hosted": "Exact retained Runtime CAS history reader passes. Reopen the same frontier through the authenticated GET with the guard and original ledger.",
+          "native": "The authentic pre-execution route passes. Run the full locked-wheel second leaf and restart from the preserved A on the exact admitted source.",
+          "hosted": "Authenticated retained GET passes on the composed source. Verify selected tensor and actuation removal plus restoration on the same retained history.",
           "binding": "Every actual run binds its source/input/backend and the 3 GiB floor",
           "ncm": "Historical R15 B2 passes on 4f4bde5c3. Scientific R16 is running from the same independently frozen source; live B2/B3/C are pending."
         },
@@ -9932,6 +9932,33 @@
             "native_stall_cause": "not_established",
             "output": "Primary:policy-engine/_cache/e02/consultant-cas-latency-r1/",
             "result_sha256": "a09e65ba953271ee629dd707e4f45014581a973d523a64f582f18075c4bed60f"
+          },
+          "native_bounded_exposure": {
+            "status": "PASS_LOCKED_WHEEL_PRE_EXECUTION",
+            "product_commit": "cf34f884a244654604e05ccc7f3c72389346575a",
+            "product_tree": "64e6da7025b81a1078f3a6ece587c62de64f5ae5",
+            "elapsed_seconds": 523.565,
+            "peak_rss_bytes": 3359047680,
+            "provider_fetches": 0,
+            "preexecution_n5_calls": 0,
+            "affected_cohort_passed": 87,
+            "final_alias_cohort_passed": 25,
+            "runtime_api_contract": "PASS",
+            "output": "Primary:policy-engine/_cache/e02/native-alias-admission-r1-20261118/",
+            "supervisor_sha256": "bad64cacec8f11b0fc676febc20dd0b62e6e99e3f2cfd602aa4b6dc8e3bb7078"
+          },
+          "hosted_retained_authenticated_get": {
+            "status": "PASS",
+            "source_commit": "cf34f884a244654604e05ccc7f3c72389346575a",
+            "source_tree": "64e6da7025b81a1078f3a6ece587c62de64f5ae5",
+            "http_status": 200,
+            "observation_count": 1,
+            "inventory": "complete",
+            "elapsed_seconds": 169.245,
+            "original_inputs_unchanged": true,
+            "n5_calls": 0,
+            "output": "Primary:policy-engine/_cache/e02/host-r16-authenticated-get-r1-20261118/budget-r3/",
+            "supervisor_sha256": "70e1a1a5edfa61d5b84242877e5ce49434df8fc8d95614b051db04c435002697"
           }
         }
       },

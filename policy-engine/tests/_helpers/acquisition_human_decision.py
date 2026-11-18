@@ -77,12 +77,14 @@ def persist_signed(
     job_id: str,
     now: datetime,
     canon_spec=None,
+    artifact_store: Any | None = None,
 ) -> str:
     """Persist through the existing authority writer, then sign the exact CAS bytes."""
+    store = artifact_store if artifact_store is not None else control._artifact_store
     dumped = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
     digest = agent_action_content_hash(dumped)
     result = write_runtime_authority_artifact(
-        control._artifact_store,
+        store,
         control._diagnostic_event_log,
         dumped,
         artifacts.ArtifactWriteOptions(
@@ -140,9 +142,7 @@ def persist_signed(
         ),
         canon_spec=canon_spec or canon.CanonSpec(),
     )
-    control._artifact_store.sign_artifact(
-        result.cas_ref.artifact_id, signer, signer_identity=signer_identity
-    )
+    store.sign_artifact(result.cas_ref.artifact_id, signer, signer_identity=signer_identity)
     return str(result.cas_ref.artifact_id)
 
 
@@ -159,14 +159,33 @@ def prepare_human_decision(
     now: datetime,
     audit_path: Path,
     authority_valid_until: datetime | None = None,
+    fixture_issuer_store: Any | None = None,
+    runtime_exposure_via_http: bool = False,
 ) -> contracts.HumanDecisionPA2GateInput:
-    """Create signed external predicates and durable exposure; never rewrite the source.
+    """Create signed external predicates and, by default, fixture exposure receipts.
 
     Args:
         authority_valid_until: Optional absolute expiry for the test-owned signed gate. The
             default preserves the existing 30-minute fixture interval.
+        fixture_issuer_store: Optional tenant-scoped CAS owner used by the fixture issuer to
+            write its three externally signed predicate artifacts into the same CAS root.
+        runtime_exposure_via_http: Return before creating Runtime-owned exposure artifacts so
+            the caller can obtain a session and record evidence delivery through HTTP routes.
     """
     store = control._artifact_store
+    if runtime_exposure_via_http:
+        if fixture_issuer_store is None:
+            raise ValueError("native_external_issuer_requires_tenant_scoped_fixture_cas")
+        if (
+            getattr(fixture_issuer_store, "_tenant_id", None) != tenant_id
+            or getattr(fixture_issuer_store, "_cell_id", None) != cell_id
+            or getattr(fixture_issuer_store, "_ownership_enforced", None) is not True
+        ):
+            raise ValueError("native_external_issuer_fixture_cas_scope_mismatch")
+        runtime_root = getattr(store, "root", None)
+        issuer_root = getattr(fixture_issuer_store, "root", None)
+        if runtime_root is None or issuer_root != runtime_root:
+            raise ValueError("native_external_issuer_fixture_cas_root_mismatch")
     source_bytes = store.get_bytes(source_ref)
     source = AgentActionAuthorityDecision.model_validate(canon.from_canonical_bytes(source_bytes))
     assert source.outcome == "refused" and source.human_decision_request is not None
@@ -207,6 +226,7 @@ def prepare_human_decision(
             run_id=run_id,
             job_id="job-external-reviewer",
             now=now,
+            artifact_store=fixture_issuer_store,
             canon_spec=canon.CanonSpec(forbid_floats=False)
             if prefix == "HUMAN_DECISION_EXPOSURE_EVENT"
             else None,
@@ -278,6 +298,22 @@ def prepare_human_decision(
         "HUMAN_DECISION_PRESENTATION_CONTRACT",
         "HumanDecisionPresentationContract",
     )
+    if runtime_exposure_via_http:
+        return contracts.HumanDecisionPA2GateInput(
+            source_kind="agent_action_authority",
+            source_ref=source_ref,
+            action_kind=source.action_kind,
+            tenant_id=tenant_id,
+            run_id=run_id,
+            decision_request_ref=request.request_ref,
+            decision_request_digest=digest,
+            basis_ref=source.contract_ref,
+            basis_digest=source.contract_ref,
+            principal_binding_ref=principal_ref,
+            reviewer_separation_ref=separation_ref,
+            presentation_contract_ref=presentation_ref,
+            exposure_session_ref=None,
+        )
     session = contracts.HumanDecisionExposureSession(
         session_id=f"session-{digest[7:19]}",
         session_ref=f"runtime://human-decision/exposure/{digest[7:]}",

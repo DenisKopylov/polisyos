@@ -1105,6 +1105,188 @@ def _read_retained_native_human_decision(
     return str(reference.artifact_id)
 
 
+def _approve_native_request_through_exposure_routes(
+    *,
+    client: Any,
+    control: Any,
+    trust: Any,
+    request: Any,
+    resource_digest: str,
+    closure: Any,
+    signers: Any,
+    identities: Any,
+    cas_root: Path,
+    submission_checkpoint: Path | None,
+    authority_valid_until: Any | None,
+) -> tuple[Any, str]:
+    """Issue external predicates separately, then use Runtime exposure and submission routes."""
+    from collections import Counter
+    from datetime import UTC, datetime
+
+    from polisyos.core import artifacts, canon
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionGateResponse
+    from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
+    from tests._helpers.acquisition_human_decision import prepare_human_decision
+    from tests._helpers.acquisition_served_history import _submit_served_human_decision
+
+    route_path = f"/api/v1/runs/{closure.run_id}"
+    route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
+    response, observed_digest = trust.post(
+        client,
+        f"{route_path}/acquisition-routes/{closure.route_id}/decision-request",
+        request.model_dump(mode="json"),
+        route=route_template + "/decision-request",
+    )
+    assert response.status_code == 200 and observed_digest == resource_digest, response.text
+    source_ref = response.json()["authority_decision_ref"]
+    tenant_id, cell_id = closure.tenant_id, closure.cell_id
+    service = client.app.state.runtime_container.human_decision_service
+    fixture_issuer_store = artifacts.FileSystemCAS(cas_root, ownership_enforced=True).for_tenant(
+        tenant_id, cell_id
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        source = AgentActionAuthorityDecision.model_validate(
+            canon.from_canonical_bytes(control._artifact_store.get_bytes(source_ref))
+        )
+        assert source.refusal_reasons == ("human_decision_missing",), source.refusal_reasons
+        gate_input = prepare_human_decision(
+            control,
+            service,
+            source_ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=closure.run_id,
+            signers=signers,
+            identities=identities,
+            now=datetime.now(UTC),
+            audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
+            authority_valid_until=authority_valid_until,
+            fixture_issuer_store=fixture_issuer_store,
+            runtime_exposure_via_http=True,
+        )
+
+    reviewer_headers = {
+        "Authorization": trust.authorization_header("human-reviewer-1"),
+        "X-Tenant-ID": tenant_id,
+    }
+    gate_params: dict[str, str] = {
+        "source_kind": gate_input.source_kind,
+        "source_ref": gate_input.source_ref,
+        "action_kind": gate_input.action_kind,
+        "principal_binding_ref": gate_input.principal_binding_ref,
+        "reviewer_separation_ref": gate_input.reviewer_separation_ref,
+        "presentation_contract_ref": gate_input.presentation_contract_ref,
+        "basis_digest": gate_input.basis_digest,
+    }
+    gate_url = f"{route_path}/human-decision-gate"
+    gate_response = client.get(gate_url, params=gate_params, headers=reviewer_headers)
+    assert gate_response.status_code == 200, gate_response.text
+    gate = HumanDecisionGateResponse.model_validate(gate_response.json())
+    session_ref = gate.exposure.exposure_session_ref
+    assert session_ref is not None
+    required_refs = gate.exposure.required_artifact_digests
+    assert required_refs and gate.exposure.completed_artifact_digests == ()
+
+    # Do not add a grant to the acquisition operator: this evidence-use path also
+    # requires runs.human_decisions.create, which the signed fixture principal lacks.
+    first_ref = required_refs[0]
+    evidence_url = f"{route_path}/human-decision-evidence/{first_ref}/content"
+    underprivileged_principal = client.get(
+        evidence_url,
+        headers={
+            "Authorization": trust.authorization_header("acquisition-operator"),
+            "X-Tenant-ID": tenant_id,
+            "X-PolicyOS-Human-Decision-Exposure": session_ref,
+        },
+    )
+    assert underprivileged_principal.status_code == 409, underprivileged_principal.text
+    assert underprivileged_principal.json().get("code") == "DS9-DECISION-PERMISSION-UNVERIFIED"
+
+    wrong_session_ref = "sha256:" + "0" * 64
+    if wrong_session_ref == session_ref:
+        wrong_session_ref = "sha256:" + "1" * 64
+    missing_session = client.get(
+        evidence_url,
+        headers={
+            **reviewer_headers,
+            "X-PolicyOS-Human-Decision-Exposure": wrong_session_ref,
+        },
+    )
+    assert missing_session.status_code == 400, missing_session.text
+    assert missing_session.json().get("error") == "bad_request"
+    assert missing_session.json().get("detail") == "DS9-DECISION-ARTIFACT-MISSING"
+
+    for artifact_ref in required_refs:
+        delivery = client.get(
+            f"{route_path}/human-decision-evidence/{artifact_ref}/content",
+            headers={
+                **reviewer_headers,
+                "X-PolicyOS-Human-Decision-Exposure": session_ref,
+            },
+        )
+        assert delivery.status_code == 200, delivery.text
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            expected_bytes = control._artifact_store.get_bytes(artifact_ref)
+        assert delivery.content == expected_bytes
+        assert delivery.headers.get("cache-control") == "no-store"
+        assert delivery.headers.get("etag") == f'"{artifact_ref}"'
+        assert delivery.headers.get("x-policyos-exposure-session") == session_ref
+
+    gate_params["exposure_session_ref"] = session_ref
+    admitted_response = client.get(gate_url, params=gate_params, headers=reviewer_headers)
+    assert admitted_response.status_code == 200, admitted_response.text
+    admitted = HumanDecisionGateResponse.model_validate(admitted_response.json())
+    assert admitted.status == "available", admitted.reason_codes
+    assert Counter(admitted.exposure.completed_artifact_digests) == Counter(required_refs)
+    assert admitted.submission is not None
+    body = admitted.submission.selector.model_dump(
+        mode="json", exclude={"exposure_session_ref", "operational_authority"}
+    )
+    body.update(
+        action="approve",
+        decision_mode="ordinary",
+        accountability_statement="I accept this bounded acquisition.",
+        dissent_statement="The measurement limitations remain material and were reviewed.",
+    )
+
+    missing_session_submission, _ = trust.post(
+        client,
+        f"{route_path}/human-decisions",
+        body,
+        route="/api/v1/runs/{run_id}/human-decisions",
+        subject="human-reviewer-1",
+        extra_headers={"X-PolicyOS-Human-Decision-Exposure": wrong_session_ref},
+    )
+    assert missing_session_submission.status_code == 409, missing_session_submission.text
+    assert missing_session_submission.json().get("code") == "DS9-DECISION-ARTIFACT-MISSING"
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        assert (
+            control.human_decision_sink.get_reservation(
+                tenant_id=tenant_id,
+                governed_action_key=admitted.governed_action_key,
+            )
+            is None
+        )
+
+    record_ref = _submit_served_human_decision(
+        client,
+        run_id=closure.run_id,
+        body=body,
+        exposure_session_ref=session_ref,
+        trust=trust,
+        submission_checkpoint=submission_checkpoint,
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        reservation = control.human_decision_sink.get_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=admitted.governed_action_key,
+        )
+    assert reservation is not None and reservation.state == "committed"
+    assert reservation.record_ref == record_ref
+    return source, record_ref
+
+
 def _run_signed_native_leaf_action(
     *,
     served: Any,
@@ -1118,6 +1300,8 @@ def _run_signed_native_leaf_action(
     human_decision_submission_root: Path | None = None,
     authority_valid_for_seconds: int | None = None,
     action_checkpoint_root: Path | None = None,
+    runtime_exposure_via_http: bool = False,
+    stop_before_execute: bool = False,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
     from datetime import UTC, datetime, timedelta
@@ -1267,25 +1451,42 @@ def _run_signed_native_leaf_action(
                         client, submission_checkpoint=submission_checkpoint, trust=trust
                     )
                 else:
-                    _source, human_ref = _approve_served_acquisition_request(
-                        client,
-                        request,
-                        resource_digest,
-                        closure=closure,
-                        trust=trust,
-                        signers=signers,
-                        identities=identities,
-                        cas_root=served.cas_root,
-                        submission_checkpoint=submission_checkpoint,
-                        **(
-                            {
-                                "authority_valid_until": datetime.now(UTC)
-                                + timedelta(seconds=authority_valid_for_seconds)
-                            }
-                            if authority_valid_for_seconds is not None
-                            else {}
-                        ),
+                    authority_valid_until = (
+                        datetime.now(UTC) + timedelta(seconds=authority_valid_for_seconds)
+                        if authority_valid_for_seconds is not None
+                        else None
                     )
+                    if runtime_exposure_via_http:
+                        _source, human_ref = _approve_native_request_through_exposure_routes(
+                            client=client,
+                            control=control,
+                            trust=trust,
+                            request=request,
+                            resource_digest=resource_digest,
+                            closure=closure,
+                            signers=signers,
+                            identities=identities,
+                            cas_root=served.cas_root,
+                            submission_checkpoint=submission_checkpoint,
+                            authority_valid_until=authority_valid_until,
+                        )
+                    else:
+                        _source, human_ref = _approve_served_acquisition_request(
+                            client,
+                            request,
+                            resource_digest,
+                            closure=closure,
+                            trust=trust,
+                            signers=signers,
+                            identities=identities,
+                            cas_root=served.cas_root,
+                            submission_checkpoint=submission_checkpoint,
+                            **(
+                                {"authority_valid_until": authority_valid_until}
+                                if authority_valid_until is not None
+                                else {}
+                            ),
+                        )
                 slot["human_decision_record_ref"] = human_ref
         save_action(
             "human_decision_selected",
@@ -1294,6 +1495,12 @@ def _run_signed_native_leaf_action(
             mandate_slot=slot,
             resource_digest=resource_digest,
         )
+        if stop_before_execute:
+            return {
+                "job_id": job_id,
+                "human_decision_record_ref": slot["human_decision_record_ref"],
+                "execute_status": None,
+            }
         with TestClient(served.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
@@ -2422,6 +2629,137 @@ def test_paid_native_leaf_persists_pending_and_restart_does_not_refetch(
         trust.close()
 
 
+@pytest.mark.integration
+def test_native_human_decision_exposure_uses_runtime_routes_before_worker(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Exercise issuer predicates and Runtime exposure without dispatching worker or N5."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core import artifacts, canon
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import deployment_security as security
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests._helpers.acquisition_served_history import _ExternalTrust, _key_config
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests._helpers.native_derivation_quotes import adopt_served_native_leaf_quotes
+
+    trust_root = tmp_path / "trust"
+    trust_root.mkdir()
+    trust = _ExternalTrust(trust_root)
+    signers, identities = _key_config(trust_root, trust)
+    state: dict[str, Any] = {"appointments": []}
+
+    def deployment():
+        return security.build_deployment_security(
+            security.DeploymentSecurityConfig.from_mapping(trust.raw)
+        )
+
+    claims = deployment().identity_provider.extract_user_claims(
+        trust.tokens["acquisition-operator"]
+    )
+
+    def catalog_ready(**kwargs: Any) -> None:
+        state["holder"] = kwargs["holder"]
+        _prepare_native_epoch_owner_inputs(**kwargs)
+
+    monkeypatch.setattr(
+        surface_owner,
+        "build_production_world_bank_wdi_execution_port",
+        _native_fixture_port_factory(state),
+    )
+    try:
+        with configured_native_source_case(
+            tmp_path,
+            monkeypatch,
+            controlled_candidate_gateway,
+            deployment_security_factory=deployment,
+            claims=claims,
+            request_headers={
+                "Authorization": trust.authorization_header("acquisition-operator"),
+                "X-Tenant-ID": claims.tenant_id,
+            },
+            forbid_fetch=True,
+            catalog_ready=catalog_ready,
+        ) as (served, holder):
+            with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                closures = adopt_served_native_leaf_quotes(
+                    served, holder, quote_usd_by_node={"input-a": 0.01, "input-b": 0.02}
+                )
+                _adopt_native_growth_routes(served, holder, closures)
+            leaf_a = next(
+                row
+                for row in closures
+                if row.native_derivation_leaf_scope.source_node_id == "input-a"
+            )
+            unexpected_n5_calls: list[bool] = []
+
+            def refuse_n5(*_args: object, **_kwargs: object) -> None:
+                unexpected_n5_calls.append(True)
+                raise AssertionError("pre-execution decision path started N5")
+
+            with monkeypatch.context() as pre_execution:
+                pre_execution.setattr(JointSimulationHorizonController, "run", refuse_n5)
+                result = _run_signed_native_leaf_action(
+                    served=served,
+                    trust=trust,
+                    signers=signers,
+                    identities=identities,
+                    institution_key_root=trust_root,
+                    route_id=leaf_a.route_id,
+                    idempotency_key="native-preaction-exposure-without-worker",
+                    human_decision_submission_root=tmp_path / "human-decision-submissions",
+                    runtime_exposure_via_http=True,
+                    stop_before_execute=True,
+                )
+            assert not unexpected_n5_calls
+            assert result["execute_status"] is None
+            assert holder["fetch_calls"] == []
+            assert served.semantic_kernel_entries == []
+
+            with TestClient(served.app_factory()) as client:
+                from polisyos.runtime.http.services.human_decision_contracts import (
+                    HumanDecisionRecord,
+                )
+
+                control = client.app.state.runtime_container.control_service
+                stop_embedded_control_worker(control)
+                with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+                    reference = artifacts.artifact_ref_for_manifest(
+                        control._artifact_store.get_manifest(result["human_decision_record_ref"])
+                    )
+                    assert reference.manifest_profile_sha256 is not None
+                    assert str(reference.artifact_id) == result["human_decision_record_ref"]
+                    selected_bytes = control._artifact_store.get_bytes(reference)
+                    selected_record = HumanDecisionRecord.model_validate(
+                        canon.from_canonical_bytes(selected_bytes)
+                    )
+                    assert control._control_store.get_job(result["job_id"]) is None
+                response = client.get(
+                    f"/api/v1/runs/{served.control_run_id}/human-decisions",
+                    params={
+                        "record_ref": str(reference.artifact_id),
+                        "manifest_profile_sha256": reference.manifest_profile_sha256,
+                    },
+                    headers={
+                        "Authorization": trust.authorization_header("human-reviewer-1"),
+                        "X-Tenant-ID": claims.tenant_id,
+                    },
+                )
+                assert response.status_code == 200, response.text
+                record = HumanDecisionRecord.model_validate(response.json())
+                assert record.record_ref.startswith("runtime://human-decisions/")
+                assert record.tenant_id == claims.tenant_id
+                assert record.run_id == served.control_run_id
+                assert record.decision_action_exercised == "approve"
+                assert record == selected_record
+    finally:
+        trust.close()
+
+
 def test_native_fixture_bridge_uses_live_current_app_for_same_selected_artifact(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -2881,6 +3219,7 @@ def assert_retained_native_second_leaf_completion(
             authority_valid_for_seconds=authority_valid_for_seconds,
             human_decision_submission_root=output_root / "human-decision-submissions",
             action_checkpoint_root=output_root / "action-checkpoints",
+            runtime_exposure_via_http=True,
         )
         assert purchase["terminal"].terminal_outcome == "quarantined_no_growth"
         assert len(transport_calls) == len(before_calls) + 1
@@ -2912,6 +3251,7 @@ def assert_retained_native_second_leaf_completion(
             authority_valid_for_seconds=authority_valid_for_seconds,
             human_decision_submission_root=output_root / "human-decision-submissions",
             action_checkpoint_root=output_root / "action-checkpoints",
+            runtime_exposure_via_http=True,
         )
         terminal = completed["terminal"]
         assert terminal.terminal_outcome == "reentry_completed"

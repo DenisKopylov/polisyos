@@ -324,22 +324,39 @@ def test_default_and_explicit_selected_alias_preserve_distinct_valid_signatures(
 
 
 @pytest.mark.parametrize("compress", [False, True])
-def test_explicit_unsigned_alias_is_not_promoted_by_default_signature(compress, tmp_path):
+def test_default_signature_verifies_equal_selected_view_but_strict_import_requires_exact_sidecar(
+    compress, tmp_path
+):
     _key, signer, verifier = _keyring()
     source = _store(tmp_path / "source")
     refs = _views(source, signer)
     requests = [refs[0].artifact_id, refs[0], refs[1]]
-    assert source.verify_signature(refs[0], verifier).status == SignatureVerificationStatus.UNSIGNED
+
+    # The default and explicit profile identify the same exact manifest bytes.
+    # Cryptographic verification may reuse that default signature, while the
+    # exact selected signature surface continues to report its own sidecar.
+    assert source.get_manifest_bytes(refs[0]) == source.get_manifest_bytes(refs[0].artifact_id)
+    assert source.has_signature(refs[0].artifact_id)
+    assert not source.has_signature(refs[0])
+    with pytest.raises(FileNotFoundError):
+        source.get_signature_bytes(refs[0])
+    assert source.verify_signature(refs[0], verifier).status == SignatureVerificationStatus.VALID
+
     package = tmp_path / ("unsigned-alias.tar.gz" if compress else "unsigned-alias")
     source.export_subgraph(requests, package, compress=compress)
     receiver = _store(tmp_path / "receiver")
     report = receiver.import_subgraph(package)
     assert not report.verification_failed
     fresh = _store(receiver.root)
-    assert fresh.verify_signature(refs[0], verifier).status == SignatureVerificationStatus.UNSIGNED
+    assert fresh.has_signature(refs[0].artifact_id)
+    assert not fresh.has_signature(refs[0])
+    with pytest.raises(FileNotFoundError):
+        fresh.get_signature_bytes(refs[0])
+    assert fresh.verify_signature(refs[0], verifier).status == SignatureVerificationStatus.VALID
     for request in (refs[0].artifact_id, refs[1]):
         assert fresh.get_signature_bytes(request) == source.get_signature_bytes(request)
         assert fresh.verify_signature(request, verifier).status == SignatureVerificationStatus.VALID
+
     required = _store(tmp_path / "required")
     with pytest.raises(ImportSignatureVerificationError) as refusal:
         required.import_subgraph(package, signature_verifier=verifier)

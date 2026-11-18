@@ -4059,11 +4059,11 @@ class FileSystemCAS:
         if profile_sha256 is None:
             self._require_artifact_owner(aid, operation="verify", ref=ref)
         else:
-            self._require_blob_owner(aid, operation="verify", ref=ref)
-            self._require_manifest_view_owner(
+            self._require_blob_and_selected_view_owner(
                 aid,
                 profile_sha256,
-                operation="verify_manifest",
+                blob_operation="verify",
+                view_operation="verify_manifest",
                 ref=ref,
             )
         blob, _default_manifest = self._paths(aid)

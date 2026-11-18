@@ -453,6 +453,19 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
     generation_loads = 0
     assert tenant_a.get_bytes(a_view) == b"shared source bytes"
     assert generation_loads == 1
+
+    generation_loads = 0
+    report = tenant_a.verify(a_view)
+    assert report.ok
+    # One snapshot authorizes blob + exact view; verify's retained typed readback
+    # independently reloads the latest view, reducing the old 3 reads to 2.
+    assert generation_loads == 2
+
+    generation_loads = 0
+    with pytest.raises(ArtifactOwnershipError, match="Manifest view"):
+        tenant_a.verify(b_view)
+    assert generation_loads == 1
+
     schema = tenant_a.get_manifest(a_view).artifact_schema
     assert schema is not None and schema.version == "1.0"
 
@@ -477,6 +490,8 @@ def test_selected_manifest_reads_reuse_one_current_ownership_generation(
         tenant_c.get_raw_manifest_bytes(b_view)
     with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
         tenant_c.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
+    with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
+        tenant_c.verify(b_view)
 
     # Tenant B has a blob grant and selected-view claim, but no default-view claim.
     assert tenant_b.get_manifest_by_profile(b_view.artifact_id, b_view.manifest_profile_sha256)
@@ -667,3 +682,8 @@ def test_selected_read_preserves_custom_ownership_index_dispatch(tmp_path: Path)
     )
     assert index.blob_checks == 2
     assert index.view_checks == 2
+    report = scoped_reader.verify(selected)
+    assert report.ok
+    assert index.blob_checks == 3
+    # verify's selected-view authorization and its retained typed readback remain distinct.
+    assert index.view_checks == 4

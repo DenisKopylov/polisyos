@@ -2713,8 +2713,8 @@ class AcquisitionActionService:
         if history_prefix is not None and require_current:
             raise AcquisitionActionServiceError("candidate_experiment_historical_prefix_not_permit")
         loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
-        pins = request.replay_pins
         store = self.control_service._control_store
+        pins = request.replay_pins
         try:
             historical_head = None
             if not require_current and pins.predecessor_terminal_ref is None:
@@ -2818,6 +2818,133 @@ class AcquisitionActionService:
             if pending_retry:
                 origin = replace(origin, current_action_head=latest)
         return origin
+
+    def _revalidate_candidate_experiment_execute_origin(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        expected_head: AcquisitionActionHeadRecord | None,
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Reopen current source, selected predecessor and full heads for execute.
+
+        The caller may carry one predecessor origin already replayed in this
+        operation. This method supplies no current authority: it rechecks the
+        configured root, immutable selected predecessor and exact SQL frontier.
+        """
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_model_values_same,
+        )
+
+        from .control_plane_store import AcquisitionActionHeadRecord
+
+        if (
+            type(origin) is not VerifiedCandidateExperimentOrigin
+            or origin.schema_version != "polisyos.runtime.candidate_experiment_origin.v1"
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_history_origin_unbound")
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        chain = origin.candidate_terminal_history_chain
+        if any(type(history) is not CandidateExperimentTerminalHistory for history in chain):
+            raise AcquisitionActionServiceError("candidate_experiment_history_origin_unbound")
+        if request.route_id != origin.route_id or not _candidate_model_values_same(
+            request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+
+        loop = self._candidate_experiment_loop(
+            tenant_id=origin.tenant_id, cell_id=origin.cell_id, run_id=origin.run_id
+        )
+        try:
+            live_root = loop._resolve_candidate_experiment_source(run_id=origin.run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_predecessor_not_current"
+            ) from exc
+        historical_root = replace(
+            origin,
+            current_action_head=None,
+            current_terminal_history=None,
+            candidate_terminal_history_chain=(),
+        )
+        if not _candidate_model_values_same(live_root, historical_root):
+            raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+
+        heads = self._candidate_experiment_source_heads(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            origin=origin,
+            request=request,
+        )
+        expected_prefix = tuple(history.head for history in origin.candidate_terminal_history_chain)
+        if origin.current_action_head is not None and origin.current_action_head != expected_head:
+            raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+        if expected_head is not None:
+            generation = len(expected_prefix) + 1
+            job_id = self._candidate_experiment_job_id(origin, request)
+            if (
+                type(expected_head) is not AcquisitionActionHeadRecord
+                or (
+                    expected_head.tenant_id,
+                    expected_head.cell_id,
+                    expected_head.run_id,
+                    expected_head.source_job_id,
+                    expected_head.route_id,
+                    expected_head.action_generation,
+                    expected_head.job_id,
+                )
+                != (
+                    origin.tenant_id,
+                    origin.cell_id,
+                    origin.run_id,
+                    origin.source_job_id,
+                    origin.route_id,
+                    generation,
+                    job_id,
+                )
+                or expected_head.receipt_phase == "terminal"
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+        expected_heads = (
+            (*expected_prefix, expected_head) if expected_head is not None else expected_prefix
+        )
+        if heads != expected_heads:
+            raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+
+        store = self.control_service._control_store
+        for history in chain:
+            if (
+                history.head.receipt_phase != "terminal"
+                or history.head.receipt_ref != str(history.terminal_ref.artifact_id)
+                or history.head.receipt_manifest_profile_sha256
+                != history.terminal_ref.manifest_profile_sha256
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+            current_head = store.get_acquisition_action_head(
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                route_id=origin.route_id,
+                action_generation=history.head.action_generation,
+            )
+            if current_head != history.head:
+                raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+            try:
+                selected_receipt = loop._selected_candidate_experiment_receipt(current_head)
+            except AcquisitionRouteClosureError as exc:
+                raise AcquisitionActionServiceError(exc.code) from exc
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_predecessor_not_current"
+                ) from exc
+            if not _candidate_model_values_same(selected_receipt, history.terminal):
+                raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+        return replace(origin, current_action_head=expected_head)
 
     def _candidate_experiment_source_heads(
         self,
@@ -4565,12 +4692,26 @@ class AcquisitionActionService:
         pending_authorization_job = None
         inflight_retry_outcome = None
         has_authorization_refresh = False
+        verified_current_head = None
         same_job_heads = tuple(head for head in existing_heads if head.job_id == job_id)
         if len(same_job_heads) > 1:
             raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
         if same_job_heads:
+            selected_head = same_job_heads[0]
+            pending_job = self.control_service._control_store.get_job(job_id)
+            reuse_historical_origin = (
+                pending_job is not None
+                and pending_job.state == "pending"
+                and selected_head.receipt_phase in {"requested", "authorization_refreshed"}
+            )
             try:
-                outcome = phase_owner.verify_action_head(same_job_heads[0])
+                outcome = (
+                    phase_owner._verify_action_head_with_origin(
+                        selected_head, verified_origin=origin
+                    )
+                    if reuse_historical_origin
+                    else phase_owner.verify_action_head(selected_head)
+                )
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
                 raise AcquisitionActionServiceError(
                     "candidate_experiment_requested_phase_recovery_not_established"
@@ -4584,6 +4725,7 @@ class AcquisitionActionService:
                 is not AcquisitionCandidateExperimentPhaseReceipt
             ):
                 raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            verified_current_head = outcome.head
             existing_requested = outcome.phase_chain[0]
             requested_phase = existing_requested.receipt
             if requested_phase.receipt_phase != "requested" or requested_phase.job_id != job_id:
@@ -4716,12 +4858,8 @@ class AcquisitionActionService:
                         terminal_history.terminal_ref if has_authorization_refresh else None
                     ),
                 )
-        current_origin = self._candidate_experiment_origin_for_request(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
-            request=request,
-            require_current=True,
+        current_origin = self._revalidate_candidate_experiment_execute_origin(
+            origin=origin, request=request, expected_head=verified_current_head
         )
         port = self._require_candidate_experiment_execution_port()
         bridge = getattr(port, "_world_growth_bridge", None)
@@ -4783,11 +4921,19 @@ class AcquisitionActionService:
             def _no_effect(_invocation: OperationInvocationRecord) -> object:
                 raise RuntimeError("candidate experiment enqueue cannot execute an effect")
 
-            gateway = self.replay_candidate_experiment_authority(
-                tenant_id=tenant_id,
-                cell_id=cell_id,
-                run_id=run_id,
-                route_id=route_id,
+            gateway_origin = self._revalidate_candidate_experiment_execute_origin(
+                origin=current_origin,
+                request=request,
+                expected_head=current_origin.current_action_head,
+            )
+            provider = self._require_authority_provider()
+            for_candidate_experiment_job = getattr(provider, "for_candidate_experiment_job", None)
+            if not callable(for_candidate_experiment_job):
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_authority_producer_missing"
+                )
+            gateway = for_candidate_experiment_job(
+                origin=gateway_origin,
                 request=request,
                 job_id=job_id,
                 decision_ref=decision_ref,
@@ -4797,7 +4943,7 @@ class AcquisitionActionService:
             if persisted.decision != history.decision:
                 raise ValueError("candidate_experiment_current_pa2_changed")
             operation, invocation, intent = self._candidate_experiment_action_tuple(
-                current_origin, request
+                gateway_origin, request
             )
             gateway.verify_bound_authorization(
                 operation=operation, invocation=invocation, intent=intent, persisted=persisted

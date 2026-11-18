@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
-        "main_commit": "8454bd50c408d557f63683b06c2bd653fe0e6eb8",
-        "main_tree": "63dad6d0c4e15aa768c15d1a02eb19953712363b",
+        "main_commit": "10f2bc4cd8450a3b970ec5acd507928d8fc6ce2e",
+        "main_tree": "975202161e9767811c74d618c69ddc5438001740",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9432,7 +9432,25 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Run retained C with qualified source, fresh canonical pending authorization and same 7/1 ledger. Isolate the exact Native R13 saved request and timed Derivations CAS operation before another full Native run. Repeat affected consumers, then complete final freeze and external handoff.",
+        "retained_c_r7": {
+          "source": [
+            "4af234ddbe4e9bafcd9ee22049e1939da53da00d",
+            "9ac9bd0da1f504d41119d61e1a4373fd6a0c268d"
+          ],
+          "result": "HTTP 403 candidate_experiment_step_up_expired_before_admission",
+          "state": "same pending generation-4 requested head, attempt 0, frontier revision 3, four standard units, zero protected; execute-scoped replay reuse passes 28 affected checks and proceeds to R8",
+          "elapsed_seconds": 1745.608,
+          "peak_rss_bytes": 1998716928,
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r7-20261118/budget/"
+        },
+        "native_authority_byte_retry": {
+          "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
+          "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
+          "r14_exact_request_preflight": "PASS, old source only, no effects",
+          "repair": "Main 0e003218d, independent review and 58 affected checks pass",
+          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 full route pending."
+        },
+        "next": "Qualify the retained C execute within its unchanged step-up window while preserving the original 7/1 journal. Finish the Native retained second-leaf and restart run. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

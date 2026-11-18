@@ -28,6 +28,7 @@ from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
     AcquisitionCandidateExperimentTerminalReceipt,
+    VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.agent_action_authority import AuthenticatedAgentActionDecisionHistory
 from tests.unit.runtime.http.services.test_acquisition_action_service import (
@@ -40,6 +41,46 @@ from tests.unit.runtime.quality.test_candidate_experiment_terminal_history impor
     _ref,
     _requested_phase,
 )
+
+
+@dataclass(frozen=True)
+class _FixtureVoiDecision:
+    scheduler_action: str
+    scheduler_reason: str
+
+
+@dataclass(frozen=True)
+class _FixtureCycle:
+    cycle_index: int
+    voi_decision: _FixtureVoiDecision
+
+
+def _verified_origin(base: Any) -> VerifiedCandidateExperimentOrigin:
+    """Build the exact source carrier needed by execute revalidation tests."""
+    voi = base.source_cycle.voi_decision
+    return VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=base.tenant_id,
+        cell_id=base.cell_id,
+        run_id=base.run_id,
+        source_job_id=base.source_job_id,
+        source_payload_ref=base.source_payload_ref,
+        capability_manifest_ref=base.capability_manifest_ref,
+        request_content_hash=base.request_content_hash,
+        route_id=base.route_id,
+        policy_ref=base.policy_ref,
+        policy_scope=base.policy_scope,
+        generation_run=None,
+        source_cycle=_FixtureCycle(
+            cycle_index=base.source_cycle.cycle_index,
+            voi_decision=_FixtureVoiDecision(
+                scheduler_action=voi.scheduler_action, scheduler_reason=voi.scheduler_reason
+            ),
+        ),
+        design_problem_basis=None,
+        planner_report=None,
+        planner_record=None,
+    )
 
 
 def _case(
@@ -190,7 +231,14 @@ def _case(
         get_job_created_event_payload=lambda _: source_event,
         get_job_created_outbox_event=lambda _: source_outbox,
     )
-    sink = SimpleNamespace(verify_action_head=lambda _: outcome, get_head=lambda _: head)
+    reused_head_origins: list[object] = []
+    sink = SimpleNamespace(
+        verify_action_head=lambda _: outcome,
+        _verify_action_head_with_origin=lambda _head, *, verified_origin: (
+            reused_head_origins.append(verified_origin) or outcome
+        ),
+        get_head=lambda _: head,
+    )
     selection = object()
     continuation = CandidateExperimentEvaluationPreflight(
         origin=origin,
@@ -247,7 +295,10 @@ def _case(
             verify_bound_authorization=lambda **_: calls.append(("verify", effective_ref)),
         )
 
-    service.replay_candidate_experiment_authority = replay
+    service._require_authority_provider = lambda: SimpleNamespace(
+        for_candidate_experiment_job=replay
+    )
+    service._revalidate_candidate_experiment_execute_origin = lambda **_: origin
     monkeypatch.setattr(owner, "read_core_json_artifact", lambda *_: SimpleNamespace(value=payload))
     return {
         "service": service,
@@ -269,6 +320,8 @@ def _case(
         "origin": origin,
         "store": store,
         "sink": sink,
+        "reused_head_origins": reused_head_origins,
+        "terminal_history": terminal_history,
         "port": port,
         "continuation": continuation,
         "source_inputs": source_inputs,
@@ -342,12 +395,18 @@ def test_execute_carries_original_history_without_reusing_the_pending_origin(
         }
     )
     origin_reads: list[bool] = []
+    execute_origin_reads: list[dict[str, Any]] = []
 
     def resolve_origin(**kwargs):
         origin_reads.append(kwargs["require_current"])
-        return current_origin if kwargs["require_current"] else historical_origin
+        return historical_origin
+
+    def revalidate_origin(**kwargs):
+        execute_origin_reads.append(kwargs)
+        return current_origin
 
     service._candidate_experiment_origin_for_request = resolve_origin
+    service._revalidate_candidate_experiment_execute_origin = revalidate_origin
     case["port"]._world_growth_bridge.preflight_candidate_experiment_evaluation = (
         lambda **_: replace(case["continuation"], origin=current_origin)
     )
@@ -376,7 +435,15 @@ def test_execute_carries_original_history_without_reusing_the_pending_origin(
     )
 
     assert result.status == "accepted"
-    assert origin_reads == [False, True]
+    assert origin_reads == [False]
+    assert len(execute_origin_reads) == 2
+    assert execute_origin_reads[0]["origin"] is historical_origin
+    assert execute_origin_reads[0]["expected_head"] is (
+        case["sink"].get_head(None) if state in {"pending", "running"} else None
+    )
+    assert execute_origin_reads[1]["origin"] is current_origin
+    assert execute_origin_reads[1]["expected_head"] is current_origin.current_action_head
+    assert case["reused_head_origins"] == ([historical_origin] if state == "pending" else [])
     (history_request,) = case["history_requests"]
     assert history_request["verified_origin"] is historical_origin
     assert historical_origin.current_action_head is None
@@ -395,6 +462,132 @@ def test_execute_carries_original_history_without_reusing_the_pending_origin(
     assert len(enqueued) == (1 if state == "new" else 0)
     if state == "new":
         assert enqueued[0]["prepared_acquisition_action_head"].step_up_expires_at == deadline
+
+
+@pytest.mark.parametrize(
+    "movement",
+    [
+        "stable_default",
+        "changed_current_policy",
+        "unexpected_head",
+        "stable_predecessor",
+        "changed_predecessor_head",
+        "changed_predecessor_cas",
+        "stable_pending",
+        "changed_pending_head",
+    ],
+)
+def test_execute_origin_revalidation_reopens_live_policy_and_exact_heads(
+    monkeypatch: pytest.MonkeyPatch, movement: str
+) -> None:
+    """The execute shortcut rechecks current policy and the complete SQL frontier."""
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
+
+    case = _case(monkeypatch, state="new")
+    del case["service"]._revalidate_candidate_experiment_execute_origin
+    origin = _verified_origin(case["origin"])
+    request = case["kwargs"]["request"]
+    expected_head = None
+    selected_head = None
+    selected_receipt = None
+    heads: tuple[AcquisitionActionHeadRecord, ...] = ()
+    if movement in {
+        "stable_predecessor",
+        "changed_predecessor_head",
+        "changed_predecessor_cas",
+    }:
+        prior = _case(monkeypatch, state="completed")["terminal_history"]
+        origin = replace(origin, candidate_terminal_history_chain=(prior,))
+        request = request.model_copy(
+            update={
+                "replay_pins": request.replay_pins.model_copy(
+                    update={"predecessor_terminal_ref": prior.terminal_ref}
+                )
+            }
+        )
+        heads = (prior.head,)
+        selected_head = prior.head
+        selected_receipt = prior.terminal
+        if movement == "changed_predecessor_head":
+            selected_head = replace(prior.head, receipt_ref=_hash("8"), receipt_sha256=_hash("8"))
+        elif movement == "changed_predecessor_cas":
+            selected_receipt = prior.terminal.model_copy(update={"receipt_id": "changed"})
+    action_job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+    if movement in {"unexpected_head", "stable_pending", "changed_pending_head"}:
+        pending = replace(
+            _candidate_current_action_head(),
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            job_id="foreign-job" if movement == "unexpected_head" else action_job_id,
+            action_generation=1,
+            receipt_phase="requested",
+            coarse_phase="requested",
+            recovery_state="none",
+        )
+        heads = (pending,)
+        if movement != "unexpected_head":
+            expected_head = pending
+        if movement == "changed_pending_head":
+            heads = (replace(pending, receipt_ref=_hash("7"), receipt_sha256=_hash("7")),)
+
+    live_root = replace(
+        origin,
+        current_action_head=None,
+        current_terminal_history=None,
+        candidate_terminal_history_chain=(),
+    )
+    if movement == "changed_current_policy":
+        live_root = replace(
+            live_root,
+            policy_ref=_ref("runtime_quality.candidate_unpriced_acquisition_policy", "b"),
+        )
+    root_reads: list[str] = []
+    loop = SimpleNamespace(
+        _resolve_candidate_experiment_source=lambda *, run_id: (
+            root_reads.append(run_id) or live_root
+        ),
+        _selected_candidate_experiment_receipt=lambda _head: selected_receipt,
+    )
+    case["service"]._candidate_experiment_loop = lambda **_: loop
+    selected_reads: list[int] = []
+    case["service"].control_service._control_store = SimpleNamespace(
+        list_acquisition_action_heads_for_source=lambda **_: heads,
+        get_acquisition_action_head=lambda **kwargs: selected_reads.append(
+            kwargs["action_generation"]
+        )
+        or selected_head,
+    )
+
+    if movement in {
+        "changed_current_policy",
+        "unexpected_head",
+        "changed_predecessor_head",
+        "changed_predecessor_cas",
+        "changed_pending_head",
+    }:
+        with pytest.raises(AcquisitionActionServiceError):
+            case["service"]._revalidate_candidate_experiment_execute_origin(
+                origin=origin, request=request, expected_head=expected_head
+            )
+    else:
+        current = case["service"]._revalidate_candidate_experiment_execute_origin(
+            origin=origin, request=request, expected_head=expected_head
+        )
+        assert current.current_action_head == expected_head
+    assert root_reads == [origin.run_id]
+    assert selected_reads == (
+        [1]
+        if movement
+        in {
+            "stable_predecessor",
+            "changed_predecessor_head",
+            "changed_predecessor_cas",
+        }
+        else []
+    )
 
 
 @pytest.mark.parametrize("movement", ["source_job", "source_head"])
@@ -457,6 +650,7 @@ def test_execute_carried_history_rechecks_actual_rows_before_authority_or_enqueu
         )
         service.control_service._control_store = database
         service._candidate_experiment_origin_for_request = lambda **_: origin
+        service._revalidate_candidate_experiment_execute_origin = lambda **_: origin
         service.load_candidate_experiment_decision_history = (
             lambda **values: AcquisitionActionService.load_candidate_experiment_decision_history(
                 service, **values
@@ -471,6 +665,7 @@ def test_execute_carried_history_rechecks_actual_rows_before_authority_or_enqueu
 
         service._candidate_experiment_loop = forbid_source_proof
         service._require_candidate_experiment_authority_provider = forbid_authority
+        service._require_authority_provider = forbid_authority
 
         def move_rows(**_kwargs):
             if movement == "source_job":

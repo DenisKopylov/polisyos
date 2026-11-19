@@ -800,7 +800,10 @@ class ProducerBudgetObserver:
         )
 
     def _read_invocation_capacity_basis(
-        self, profile: BudgetLedgerInvocationProfile
+        self,
+        profile: BudgetLedgerInvocationProfile,
+        *,
+        at_reentry_open: BudgetLedgerReentryBudgetWindow | None = None,
     ) -> (
         tuple[
             tuple[str, str, str],
@@ -819,7 +822,7 @@ class ProducerBudgetObserver:
             if "_capacity_owner_snapshot" in vars(self):
                 raise ValueError("invocation_capacity_source_shadowed")
             owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
-                self
+                self, require_existing_lock=at_reentry_open is not None
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             return "quota_source_not_established"
@@ -841,6 +844,11 @@ class ProducerBudgetObserver:
             for record in snapshot.invocation_reservations.values()
             if record.run_id == self._binding.run_id
         )
+        if at_reentry_open is not None and (
+            anchor[0] != at_reentry_open.revision
+            or any(record.revision >= at_reentry_open.revision for record in records)
+        ):
+            return "quota_reentry_window_advanced"
         if any(record.status not in {"completed", "failed"} for record in records):
             return "quota_invocation_unresolved"
         standard_limit = profile.total_units - profile.protected_units
@@ -860,6 +868,36 @@ class ProducerBudgetObserver:
             protected_remaining,
             tuple(sorted((record.operation_id, record.revision) for record in standard)),
         )
+
+    def require_reentry_before_physical_work(self, window: BudgetLedgerReentryBudgetWindow) -> None:
+        """Require the stock quota ledger to still be at this action's opening revision.
+
+        Every bounded physical invocation has a durable reservation before the
+        kernel starts. Even unrelated ledger advancement leaves this conservative
+        recovery predicate unestablished. The action owner still owns locking,
+        currentness and admission for any new invocation.
+        """
+        with self._lock:
+            ProducerBudgetObserver.require_bound_state(self, self._state)
+            profile = self._invocation_profile
+            if (
+                type(window) is not BudgetLedgerReentryBudgetWindow
+                or window != self._reentry_window
+                or window.scope.run_binding != self._binding
+                or self._invocation_selection_pending
+                or not self._invocation_selection_bound
+                or profile is None
+                or self.invocation_purpose != "standard"
+            ):
+                raise ProducerBudgetSourceError("reentry_physical_work_not_established")
+            basis = ProducerBudgetObserver._read_invocation_capacity_basis(
+                self, profile, at_reentry_open=window
+            )
+            if isinstance(basis, str):
+                raise ProducerBudgetSourceError("reentry_physical_work_not_established", basis)
+            _owner, _resource, _anchor, _limit, standard_remaining, *_ = basis
+            if standard_remaining == 0:
+                raise ProducerBudgetSourceError("reentry_physical_work_not_established")
 
     def _unknown_diagnostic_capacity(self, reason: str) -> N5DiagnosticCapacityObservation:
         return N5DiagnosticCapacityObservation(

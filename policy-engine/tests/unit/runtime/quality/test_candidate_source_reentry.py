@@ -569,7 +569,10 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         prepare_joint_simulation_configuration,
     )
     from polisyos.runtime.quality.n5_execution_basis import _exact_native_content
-    from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+    from polisyos.scientist.orchestration.engine import (
+        ProducerBudgetObserver,
+        ProducerBudgetSourceError,
+    )
     from tests.unit.runtime.quality.test_candidate_acquisition_world import _candidate_world_case
     from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
     from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
@@ -722,7 +725,10 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         expected_error: str | None = None,
         costed: bool = False,
         prepared_configuration: bool = False,
-        checkpoint: Literal["selected", "missing", "corrupt", "foreign_fence"] | None = None,
+        checkpoint: Literal[
+            "selected", "unstarted", "missing_world", "missing", "corrupt", "foreign_fence"
+        ]
+        | None = None,
     ) -> None:
         folder = tmp_path / name
         folder.mkdir()
@@ -789,11 +795,31 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
                 return context_ref if checkpoint == "selected" else None
 
             def reopen(**kwargs: object) -> SimpleNamespace:
-                assert kwargs["existing_context_ref"] == context_ref
+                assert kwargs["existing_context_ref"] == (
+                    context_ref if checkpoint == "selected" else None
+                )
                 assert kwargs["reentry_budget_scope"] is window.scope
+                assert kwargs.get("recover_before_physical_work", False) is (
+                    checkpoint != "selected"
+                )
                 calls.append("reopen_world")
+                if checkpoint == "missing_world":
+                    raise ValueError("candidate_world_checkpoint_not_established")
                 return handoff
 
+            def require_before_work(observer: ProducerBudgetObserver, checked: object) -> None:
+                assert observer is handoff.experiment_reentry_budget.observer
+                assert checked is window
+                calls.append("before_work")
+                if checkpoint != "unstarted":
+                    raise ProducerBudgetSourceError("reentry_physical_work_not_established")
+
+            monkeypatch.setattr(
+                ProducerBudgetObserver,
+                "require_reentry_before_physical_work",
+                require_before_work,
+                raising=False,
+            )
             monkeypatch.setattr(
                 history, "locate_candidate_source_reentry_n5_checkpoint_context", locate
             )
@@ -854,9 +880,14 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         if checkpoint is not None:
             assert (fence.stat().st_ino, fence.read_bytes()) == fence_identity
             assert "preflight" not in calls
-            assert ("reopen_world" in calls) is (checkpoint == "selected")
-            assert ("producer" in calls) is (checkpoint == "selected")
-            assert ("checkpoint_locator" in calls) is (checkpoint != "foreign_fence")
+            assert ("reopen_world" in calls) is (
+                not costed and checkpoint in {"selected", "unstarted", "missing_world", "missing"}
+            )
+            assert ("before_work" in calls) is (
+                not costed and checkpoint in {"unstarted", "missing"}
+            )
+            assert ("producer" in calls) is (checkpoint in {"selected", "unstarted"})
+            assert ("checkpoint_locator" in calls) is (not costed and checkpoint != "foreign_fence")
 
     exercise("recovered", recovered=True)
     exercise("costed-recovered", recovered=True, costed=True)
@@ -864,6 +895,20 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
     exercise("new", recovered=False)
     exercise("new-prepared", recovered=False, prepared_configuration=True)
     exercise("after-n5", recovered=False, checkpoint="selected")
+    exercise("before-physical-work", recovered=False, checkpoint="unstarted")
+    exercise(
+        "missing-world",
+        recovered=False,
+        checkpoint="missing_world",
+        expected_error="candidate_world_checkpoint_not_established",
+    )
+    exercise(
+        "costed-fenced-recovery",
+        recovered=False,
+        costed=True,
+        checkpoint="missing",
+        expected_error="candidate_source_reentry_outcome_not_established",
+    )
     exercise(
         "unselected-n5",
         recovered=False,
@@ -898,6 +943,74 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
         readback=changed_readback,
         expected_error="candidate_source_reentry_readback_changed",
     )
+
+
+def test_reentry_recovery_checks_the_real_ledger_before_preparing_world_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A completed reservation can leave capacity while ruling out pre-work recovery."""
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+        BudgetLimit,
+        BudgetState,
+        ProducerBudgetObserver,
+    )
+    from tests.unit.runtime.quality.test_acquisition_candidate_budget_window import (
+        _prepare,
+        _settle,
+        _unit_window,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
+    from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
+        _reentry_receipts,
+        _selected_ref,
+    )
+
+    case = _unit_window(tmp_path, monkeypatch)
+    _settle(case, "retained-producer", Decimal("0.02"))
+    middleware = case.service._llm_producer_settlement_store
+    profile = BudgetLedgerInvocationProfile.from_policy(
+        case.binding,
+        BudgetInvocationQuotaPolicy(allocation_id="retained", total_units=7, protected_units=1),
+    )
+    middleware.configure_invocation_profile_safe(profile)
+    window = _prepare(case)
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)})
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=case.binding,
+        budget_state=state,
+        invocation_quota_profile=profile,
+        reentry_budget_scope=window.scope,
+    )
+    assert observer.reserve_invocation("b" * 64, "a" * 64) is not None
+    observer.finish_invocation("b" * 64, "a" * 64, "completed")
+    assert observer.observe_standard_invocation_capacity().status == "available"
+
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    origin, _ = _selection_case(1)
+    _, action, _ = _reentry_receipts()
+    action_ref = _selected_ref("runtime_quality.acquisition_candidate_action_receipt", "5")
+    monkeypatch.setattr(actions, "read_candidate_experiment_acquisition_action", lambda **_: action)
+    monkeypatch.setattr(actions, "_candidate_experiment_source_selection", lambda *_: object())
+
+    def reconcile(**kwargs: object) -> SimpleNamespace:
+        assert kwargs["require_existing_quota"] is True
+        return SimpleNamespace(
+            observer=observer, action_context=SimpleNamespace(budget_window=window)
+        )
+
+    bridge._reconcile_candidate_experiment_source_reentry_budget = reconcile
+    with pytest.raises(ValueError, match="candidate_source_reentry_outcome_not_established"):
+        bridge._candidate_source_context_handoff(
+            origin=origin,
+            candidate_action_ref=action_ref,
+            budget_state=state,
+            reentry_budget_scope=window.scope,
+            recover_before_physical_work=True,
+        )
 
 
 @pytest.mark.parametrize(

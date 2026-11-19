@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -16,6 +18,7 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetInvocationQuotaPolicy,
     BudgetLedgerInvocationProfile,
     BudgetLedgerProducerRunBinding,
+    BudgetLedgerReentryBudgetScope,
     FileBudgetLedger,
 )
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -115,6 +118,92 @@ def _diagnostic_capacity(observer):
     method = getattr(observer, "observe_diagnostic_invocation_capacity", None)
     assert callable(method), "canonical owner must expose diagnostic capacity observation"
     return method()
+
+
+@pytest.mark.parametrize(
+    "interruption",
+    [
+        "reserved",
+        "completed",
+        "failed",
+        "unknown",
+        "unrelated_mutation",
+        "same_revision_reservation",
+        "replaced_lock",
+    ],
+)
+def test_reentry_recovery_reconciles_the_durable_window_at_its_open_revision(
+    tmp_path: Path, interruption: str
+) -> None:
+    """An admitted invocation survives every outcome and closes pre-work recovery."""
+    middleware, binding, state = _owner(tmp_path)
+    _settle(middleware, binding, "existing-source", "0.1")
+    policy = BudgetInvocationQuotaPolicy(allocation_id="reentry", total_units=7, protected_units=1)
+    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        invocation_quota_profile=profile,
+    )
+    _finish_invocation(observer, policy, "existing-physical-work", "standard")
+    window = middleware.open_reentry_budget_window_safe(
+        BudgetLedgerReentryBudgetScope(
+            run_binding=binding,
+            action_job_id="action-job",
+            action_generation=2,
+            route_id="sha256:" + _digest("route"),
+            action_phase_ref="sha256:" + _digest("phase"),
+            source_payload_ref="sha256:" + _digest("source"),
+            profile_selection_ref="sha256:" + _digest("profile"),
+        ),
+        fresh_limit_usd=Decimal("1"),
+        global_limit_usd=Decimal("1"),
+    )
+    resumed = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=BudgetState(limits=state.limits),
+        invocation_quota_profile=profile,
+        reentry_budget_scope=window.scope,
+    )
+    revision = middleware.snapshot_safe().revision
+    assert revision == window.revision
+    resumed.require_reentry_before_physical_work(window)
+    assert middleware.snapshot_safe().revision == revision
+
+    without_quota = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=BudgetState(limits=state.limits),
+        reentry_budget_scope=window.scope,
+    )
+    with pytest.raises(ProducerBudgetSourceError, match="reentry_physical_work_not_established"):
+        without_quota.require_reentry_before_physical_work(window)
+    with pytest.raises(ProducerBudgetSourceError, match="reentry_physical_work_not_established"):
+        resumed.require_reentry_before_physical_work(
+            window.model_copy(update={"revision": window.revision + 1})
+        )
+    if interruption == "unrelated_mutation":
+        _settle(middleware, binding, "another-settlement", "0.1")
+    elif interruption == "same_revision_reservation":
+        ledger_path = tmp_path / "ledger.json"
+        snapshot = json.loads(ledger_path.read_bytes())
+        snapshot["invocation_reservations"][_digest("existing-physical-work")]["revision"] = (
+            revision
+        )
+        ledger_path.write_text(json.dumps(snapshot), encoding="utf-8")
+    elif interruption == "replaced_lock":
+        lock_path = tmp_path / "ledger.json.lock"
+        lock_path.rename(tmp_path / "displaced.lock")
+        lock_path.write_bytes(b"")
+    else:
+        record = resumed.reserve_invocation(_digest("new-work"), _digest("new-request"))
+        assert record is not None
+        if interruption != "reserved":
+            resumed.finish_invocation(record.operation_id, record.request_digest, interruption)
+    with pytest.raises(ProducerBudgetSourceError, match="reentry_physical_work_not_established"):
+        resumed.require_reentry_before_physical_work(window)
 
 
 def test_invocation_only_diagnostic_never_invents_a_usd_settlement(tmp_path):

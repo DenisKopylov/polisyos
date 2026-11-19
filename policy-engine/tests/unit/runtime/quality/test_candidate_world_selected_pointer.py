@@ -21,7 +21,9 @@ from polisyos.core.artifacts import (
     load_core_json_artifact,
 )
 from polisyos.core.canon import CanonSpec
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import acquisition_world_growth as growth
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 
 def _write_pointer_fixture_views(
@@ -154,6 +156,10 @@ def test_selected_world_pointer_refuses_wrong_identity_and_cas_refuses_wrong_pro
     assert restored_wrong == wrong_profile
     bridge = growth.AcquisitionWorldGrowthBridge.__new__(growth.AcquisitionWorldGrowthBridge)
     bridge.artifact_store = store
+    bridge.event_log = RuntimeDiagnosticEventLog(
+        store=ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"),
+        artifact_store=store,
+    )
     with pytest.raises(CanonicalProfileRefusalError) as refused:
         bridge._read(restored_wrong, growth._CANDIDATE_WORLD_CHECKPOINT_KIND)
     assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"

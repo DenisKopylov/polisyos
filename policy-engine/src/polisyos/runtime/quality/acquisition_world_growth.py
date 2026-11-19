@@ -9207,6 +9207,24 @@ class AcquisitionWorldGrowthBridge:
             reentry_budget_scope=reentry_budget_scope,
         )
 
+    @staticmethod
+    def _require_candidate_reentry_before_physical_work(
+        observer: ProducerBudgetObserver,
+        window: BudgetLedgerReentryBudgetWindow,
+    ) -> None:
+        """Require original physical admission to remain unspent and unreserved."""
+        from polisyos.scientist.orchestration.engine import (
+            ProducerBudgetObserver,
+            ProducerBudgetSourceError,
+        )
+
+        if type(observer) is not ProducerBudgetObserver:
+            raise ValueError("candidate_source_reentry_budget_owner_not_established")
+        try:
+            ProducerBudgetObserver.require_reentry_before_physical_work(observer, window)
+        except ProducerBudgetSourceError as exc:
+            raise ValueError("candidate_source_reentry_outcome_not_established") from exc
+
     def _candidate_source_context_handoff(
         self,
         *,
@@ -9214,6 +9232,7 @@ class AcquisitionWorldGrowthBridge:
         origin: VerifiedCandidateExperimentOrigin | None = None,
         candidate_action_ref: artifacts.ArtifactRef,
         existing_context_ref: artifacts.ArtifactRef | None = None,
+        recover_before_physical_work: bool = False,
         budget_state: BudgetState | None = None,
         reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
     ) -> CandidateSourceWorldHandoff:
@@ -9261,6 +9280,7 @@ class AcquisitionWorldGrowthBridge:
         identity = origin if origin is not None else closure
         if identity is None:
             raise ValueError("candidate_source_context_identity_missing")
+        reopen_world = existing_context_ref is not None or recover_before_physical_work
         experiment_reentry_budget = None
         if origin is not None:
             from polisyos.runtime.quality.candidate_acquisition_action import (
@@ -9282,8 +9302,13 @@ class AcquisitionWorldGrowthBridge:
                 candidate_action_ref=candidate_action_ref,
                 budget_state=budget_state,
                 reentry_budget_scope=reentry_budget_scope,
-                require_existing_quota=existing_context_ref is not None,
+                require_existing_quota=reopen_world,
             )
+            if recover_before_physical_work:
+                self._require_candidate_reentry_before_physical_work(
+                    experiment_reentry_budget.observer,
+                    experiment_reentry_budget.action_context.budget_window,
+                )
         else:
             if closure is None:
                 raise ValueError("candidate_source_context_closure_missing")
@@ -9345,7 +9370,7 @@ class AcquisitionWorldGrowthBridge:
             candidate_action_ref=candidate_action_ref,
             configured_profile=configured,
             original_model_declaration=original_model_declaration,
-            create=existing_context_ref is None,
+            create=not reopen_world,
         )
         transaction_time = intent.transaction_time
         payload, _stats, _notes, rule = _candidate_acquisition_snapshot_values(
@@ -9392,7 +9417,7 @@ class AcquisitionWorldGrowthBridge:
                 base_data_snapshot_ref=views.data_snapshot_ref,
             )
             if checkpoint_result is None:
-                if existing_context_ref is not None:
+                if reopen_world:
                     raise ValueError("candidate_world_checkpoint_not_established")
                 materialization = materialize_candidate_acquisition_snapshot(
                     self.artifact_store,
@@ -9683,7 +9708,7 @@ class AcquisitionWorldGrowthBridge:
                         candidate_action_ref=candidate_action_ref,
                         budget_state=budget_state,
                         reentry_budget_scope=reentry_budget_scope,
-                        require_existing_quota=existing_context_ref is not None,
+                        require_existing_quota=reopen_world,
                     )
                 replayed = context_owner.resolve_for_current_job(
                     context_ref, problem=identity.design_problem_basis
@@ -9913,10 +9938,11 @@ class AcquisitionWorldGrowthBridge:
         CandidateSourceReentryReceipt,
         ResolvedAcquisitionEvaluation | None,
     ]:
-        """Recover one selected result or fence exactly one physical N6/N5 attempt.
+        """Recover a selected result or fence the first physical N6/N5 attempt.
 
-        The exact selected N5 can finish an experiment after a crash. A fence
-        without a selected N5 or terminal result leaves the action unresolved.
+        The exact selected N5 can finish an experiment after a crash. A fenced
+        experiment without a selected N5 can resume only from its selected
+        world and an independently reconciled pre-invocation ledger.
         The operation-local evaluation is the one resolved and verified during
         owner readback; it is never retained across calls.
         """
@@ -10078,7 +10104,8 @@ class AcquisitionWorldGrowthBridge:
             if pointer.exists():
                 raise ValueError("candidate_source_reentry_event_missing")
             resume_context_ref = None
-            if fence.exists():
+            fence_present = fence.exists()
+            if fence_present:
                 if origin is None:
                     raise ValueError("candidate_source_reentry_outcome_not_established")
                 try:
@@ -10097,8 +10124,6 @@ class AcquisitionWorldGrowthBridge:
                     origin=origin,
                     reentry_context=reentry_context,
                 )
-                if resume_context_ref is None:
-                    raise ValueError("candidate_source_reentry_outcome_not_established")
                 window = reentry_context.budget_window
             elif origin is not None:
                 window = self.resolve_candidate_experiment_reentry_budget_window(
@@ -10129,11 +10154,13 @@ class AcquisitionWorldGrowthBridge:
                 state = BudgetState.model_validate(
                     {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
                 )
-            if resume_context_ref is not None:
+            recover_before_work = fence_present and resume_context_ref is None
+            if fence_present:
                 selected_world = self._candidate_source_context_handoff(
                     origin=origin,
                     candidate_action_ref=candidate_action_ref,
                     existing_context_ref=resume_context_ref,
+                    recover_before_physical_work=recover_before_work,
                     budget_state=state,
                     reentry_budget_scope=window.scope,
                 )
@@ -10232,7 +10259,9 @@ class AcquisitionWorldGrowthBridge:
                     else {}
                 ),
             )
-            if resume_context_ref is None:
+            if recover_before_work:
+                self._require_candidate_reentry_before_physical_work(observer, window)
+            if not fence_present:
                 with fence.open("x") as stream:
                     stream.write(candidate_action_ref.model_dump_json() + "\n")
                     stream.flush()

@@ -4374,15 +4374,15 @@ class AcquisitionRouteLoopAuthoritySink:
         self,
         phase: AcquisitionCandidateExperimentPhaseReceipt,
         request: object,
-    ) -> None:
-        """Verify source and current PA2/DS9 without requiring an inserted job row."""
+    ) -> VerifiedCandidateExperimentOrigin | None:
+        """Verify prejob PA2/DS9 and return the checked origin for an execution action."""
         from polisyos.runtime.quality.candidate_experiment_reuse import (
             CandidateExperimentReuseActionSelection,
         )
 
         if type(request) is CandidateExperimentReuseActionSelection:
             self._verify_candidate_experiment_reuse_prejob_live_authority(phase, request)
-            return
+            return None
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionActionService,
             CandidateExperimentRouteMutationRequest,
@@ -4509,6 +4509,7 @@ class AcquisitionRouteLoopAuthoritySink:
             or str(persisted.write_result.cas_ref.artifact_id) != decision_ref
         ):
             raise ValueError("candidate_experiment_live_authority_not_established")
+        return current_origin
 
     def _verify_candidate_experiment_reuse_prejob_live_authority(
         self,
@@ -6918,16 +6919,24 @@ class AcquisitionRouteLoopAuthoritySink:
             and candidate_frontier_cas is not None
         ):
             raise ValueError("candidate_experiment_terminal_frontier_is_owner_derived")
+        verified_pending_origin = None
         if (
             type(typed) is AcquisitionCandidateExperimentPhaseReceipt
             and candidate_experiment_request is None
         ):
             self._verify_candidate_experiment_live_authority(typed)
         elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
-            self._verify_candidate_experiment_prejob_live_authority(
+            origin = self._verify_candidate_experiment_prejob_live_authority(
                 typed, candidate_experiment_request
             )
+            if pending_authorization_cas is not None:
+                verified_pending_origin = origin
         current = self.get_head(typed)
+        if (
+            verified_pending_origin is not None
+            and current != verified_pending_origin.current_action_head
+        ):
+            raise ValueError("candidate_experiment_refresh_pending_head_changed")
         reuse_owner = None
         if type(typed) is AcquisitionCandidateExperimentTerminalReceiptV2:
             if current is None or current.receipt_phase != "executing":
@@ -6956,7 +6965,13 @@ class AcquisitionRouteLoopAuthoritySink:
                 )
                 previous_receipt = previous_chain[-1].receipt
             else:
-                previous = self.verify_action_head(current)
+                previous = (
+                    self._verify_action_head_with_origin(
+                        current, verified_origin=verified_pending_origin
+                    )
+                    if verified_pending_origin is not None
+                    else self.verify_action_head(current)
+                )
                 previous_chain = previous.phase_chain
                 previous_receipt = previous.latest_receipt
             if type(typed) in {

@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
-        "main_commit": "1699733a0668435453c827db5ff274c29e01d69e",
-        "main_tree": "e7f58bcbdbc44c349e77bf9289df0cb61ad4e08a",
+        "main_commit": "cc646d6050e69fa194adcf7f81f766be5a314294",
+        "main_tree": "884842215a0415800fbf827471f89c1042b4ebe1",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9454,14 +9454,23 @@
           "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r8-20261118/budget/",
           "next": "Reuse the verified origin in prejob authority checks; preserve current PA2/DS9 and expiry."
         },
+        "retained_c_r9": {
+          "source": [
+            "7114d39244288272d0fccfa03ab12477760cac71",
+            "bbb789218eebb4771bcd6a79c576d524d7829853"
+          ],
+          "result": "HTTP 403 after 256.841 s at the unchanged 240 s deadline; generation 4 pending at attempt 0; frontier 3 and original 7/1 ledger unchanged",
+          "remaining_cost": "55.957 s cold pending predecessor replay. The pending writer now reuses its exact freshly verified origin and still rereads the current head, selected CAS/events and SQL admission fence. 39 focused cases PASS.",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r9-20261118/budget-r2/"
+        },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
           "r14_exact_request_preflight": "PASS, old source only, no effects",
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
-          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. Second-leaf and restart verification pending."
+          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 running on published Main cc646d605 / 884842215a0415800fbf827471f89c1042b4ebe1, fresh COW from retained A. The Core facade import repair passes 62 focused checks and the static architecture checker. Second-leaf and restart verification pending."
         },
-        "next": "The independently reviewed C repair passes 38 focused refresh and retry tests. Qualify retained C within its unchanged step-up window and original 7/1 journal. Run Native second-leaf and restart verification on a fresh COW clone of retained A after checking disk capacity. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
+        "next": "Qualify retained C R10 within its unchanged step-up window and original 7/1 journal after the 39 focused checks of pending-origin reuse. Finish the running Native R18 second-leaf and restart verification. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

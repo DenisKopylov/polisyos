@@ -25,6 +25,7 @@ from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRout
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
+    VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
@@ -88,7 +89,6 @@ def test_prejob_authority_reuses_one_origin_and_bound_source_rows(
     )
     from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionResolverPolicy
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
     from polisyos.runtime.quality.agent_action_authority import CANDIDATE_EXPERIMENT_ACTION_KIND
     from tests._helpers.runtime_http import _build_control_service
     from tests.unit.runtime.http.services.test_acquisition_action_service import (
@@ -233,7 +233,7 @@ def test_prejob_authority_reuses_one_origin_and_bound_source_rows(
     action_service._candidate_experiment_action_tuple = lambda *_: (object(), object(), object())
 
     try:
-        sink._verify_candidate_experiment_prejob_live_authority(phase, request)
+        assert sink._verify_candidate_experiment_prejob_live_authority(phase, request) is origin
         assert order == [
             "source_job",
             "source_event",
@@ -289,14 +289,61 @@ def test_refresh_is_versioned_and_preserves_original_v1_wire() -> None:
         )
 
 
+@pytest.mark.parametrize("head_current", [True, False], ids=["current", "changed"])
 def test_pending_refresh_persists_new_authority_without_replacing_job_or_root(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, head_current: bool
 ) -> None:
     database, cas, sink, requested, job, initial = _pending_case(tmp_path, monkeypatch)
     original_bytes = cas.get_bytes(initial.receipt_ref)
     refreshed = _refreshed(requested, initial.receipt_ref)
+    origin = VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=requested.tenant_id,
+        cell_id=requested.cell_id,
+        run_id=requested.run_id,
+        source_job_id=requested.source_job_id,
+        source_payload_ref=requested.source_payload_ref,
+        capability_manifest_ref=requested.capability_manifest_ref,
+        request_content_hash=requested.request_content_hash,
+        route_id=requested.route_id,
+        policy_scope=requested.policy_scope,
+        policy_ref=requested.policy_ref,
+        generation_run=None,
+        source_cycle=SimpleNamespace(voi_decision=requested.voi_decision),
+        design_problem_basis=None,
+        planner_report=None,
+        planner_record=None,
+        current_action_head=initial if head_current else None,
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_verify_candidate_experiment_prejob_live_authority",
+        lambda *_args: origin,
+    )
+    verify = AcquisitionRouteLoopAuthoritySink._verify_action_head_with_origin
+    predecessor_origins = []
+
+    def record_origin(owner, head, **kwargs):
+        if owner is sink and head == initial:
+            predecessor_origins.append(kwargs.get("verified_origin"))
+        return verify(owner, head, **kwargs)
+
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink, "_verify_action_head_with_origin", record_origin
+    )
+
     try:
+        if not head_current:
+            with pytest.raises(
+                ValueError, match="candidate_experiment_refresh_pending_head_changed"
+            ):
+                sink.refresh_experiment_authorization(refreshed, object(), expected_job=job)
+            assert sink.get_head(requested) == initial
+            assert database.get_job(job.job_id) == job
+            assert predecessor_origins == []
+            return
         head = sink.refresh_experiment_authorization(refreshed, object(), expected_job=job)
+        assert predecessor_origins == [origin]
         assert head.head_generation == 2
         assert head.job_id == job.job_id
         assert head.action_generation == initial.action_generation

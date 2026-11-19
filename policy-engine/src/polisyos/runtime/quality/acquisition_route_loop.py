@@ -3456,6 +3456,7 @@ class AcquisitionRouteLoop:
         run_id: str,
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
+        requested_route_id: str | None = None,
     ) -> tuple[
         VerifiedAcquisitionRouteClosure
         | NativeDerivationLeafRouteAvailability
@@ -3466,7 +3467,8 @@ class AcquisitionRouteLoop:
 
         Costed leaves use only a deployment-adopted exact owner quote. A missing
         supplier or quote stays visible as read-only pending input, without the
-        replay pins required by an action mutation.
+        replay pins required by an action mutation. An exact lookup still checks
+        every quote competing for the selected node and supplier.
         """
         from dataclasses import replace
 
@@ -3542,6 +3544,7 @@ class AcquisitionRouteLoop:
             return ArtifactRef.model_validate(ref.model_dump(mode="python"))
 
         resolved: list[VerifiedAcquisitionRouteClosure | NativeDerivationLeafRouteAvailability] = []
+        has_leaf_group = False
         for node in bundle.source_nodes:
             gap = node.requirement_gap
             if gap is None:
@@ -3556,6 +3559,7 @@ class AcquisitionRouteLoop:
             if len(distributions) != 1:
                 raise AcquisitionRouteClosureError("native_leaf_missing_distribution_ambiguous")
             for supplier in suppliers or (None,):
+                has_leaf_group = True
                 scope = None
                 if supplier is not None:
                     scope = NativeDerivationLeafCostProfileScope(
@@ -3601,8 +3605,20 @@ class AcquisitionRouteLoop:
                     raise AcquisitionRouteClosureError(
                         "native_leaf_provider_configuration_ambiguous"
                     )
-                current_choices: list[VerifiedAcquisitionRouteClosure] = []
-                paid_choices: list[VerifiedAcquisitionRouteClosure] = []
+                selected_identity = {
+                    "tenant_id": self._tenant_id,
+                    "cell_id": self._cell_id,
+                    "run_id": run_id,
+                    "source_job_id": origin.job.job_id,
+                    "derivation_bundle_ref": bundle_ref.model_dump(mode="json"),
+                    "source_node_id": node.node_id,
+                    "planner_record_id": record.acquisition_id,
+                    "selected_supplier_ref": supplier.model_dump(mode="json") if supplier else None,
+                    "cost_status": "not_established",
+                }
+                pending_route_id = _content_hash(selected_identity)
+                group_matches = requested_route_id is None or pending_route_id == requested_route_id
+                quote_candidates = []
                 for profile_ref, _profile in matches if provider_matches else ():
                     current_quote = (
                         artifact_ref_identity_key(profile_ref) in configured_keys
@@ -3619,8 +3635,27 @@ class AcquisitionRouteLoop:
                     )
                     if cost is None:
                         raise AcquisitionRouteClosureError("native_leaf_cost_profile_unavailable")
+                    cost_origin = replace(
+                        origin, planner_record=record, source_requirement=gap, cost=cost
+                    )
+                    quote_candidates.append((profile_ref, cost_origin, cost_time, current_quote))
+                    if not group_matches:
+                        group_matches = requested_route_id == self._acquisition_route_id(
+                            cost_origin,
+                            run_id=run_id,
+                            native_scope=scope,
+                            native_provider=provider_matches[0],
+                            owner_declared_profile_ref=profile_ref,
+                        )
+                if not group_matches:
+                    continue
+                # Another quote for this same leaf can supersede the requested
+                # quote with an already paid input or make the choice ambiguous.
+                current_choices: list[VerifiedAcquisitionRouteClosure] = []
+                paid_choices: list[VerifiedAcquisitionRouteClosure] = []
+                for profile_ref, cost_origin, cost_time, current_quote in quote_candidates:
                     costed = self._resolve_current_route_from_origin(
-                        replace(origin, planner_record=record, source_requirement=gap, cost=cost),
+                        cost_origin,
                         run_id=run_id,
                         before_action_generation=before_action_generation,
                         action_job_id=action_job_id,
@@ -3656,20 +3691,9 @@ class AcquisitionRouteLoop:
                 if current_choices:
                     resolved.append(current_choices[0])
                     continue
-                selected_identity = {
-                    "tenant_id": self._tenant_id,
-                    "cell_id": self._cell_id,
-                    "run_id": run_id,
-                    "source_job_id": origin.job.job_id,
-                    "derivation_bundle_ref": bundle_ref.model_dump(mode="json"),
-                    "source_node_id": node.node_id,
-                    "planner_record_id": record.acquisition_id,
-                    "selected_supplier_ref": supplier.model_dump(mode="json") if supplier else None,
-                    "cost_status": "not_established",
-                }
                 resolved.append(
                     NativeDerivationLeafRouteAvailability(
-                        route_id=_content_hash(selected_identity),
+                        route_id=pending_route_id,
                         source_node_id=node.node_id,
                         derivation_bundle_ref=bundle_ref,
                         requirement_gap_id=gap.requirement_gap_id,
@@ -3688,6 +3712,8 @@ class AcquisitionRouteLoop:
                         ),
                     )
                 )
+        if requested_route_id is not None and has_leaf_group and not resolved:
+            raise AcquisitionRouteClosureError("native_leaf_route_not_current")
         return tuple(resolved)
 
     def resolve_current_route(
@@ -3704,6 +3730,7 @@ class AcquisitionRouteLoop:
                 run_id=run_id,
                 before_action_generation=before_action_generation,
                 action_job_id=action_job_id,
+                requested_route_id=route_id,
             )
             matches = tuple(item for item in native if item.route_id == route_id)
             if matches:
@@ -3728,6 +3755,40 @@ class AcquisitionRouteLoop:
         if route_id is not None and resolved.route_id != route_id:
             raise AcquisitionRouteClosureError("acquisition_route_not_current")
         return resolved
+
+    def _acquisition_route_id(
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        run_id: str,
+        native_scope: NativeDerivationLeafCostProfileScope | None,
+        native_provider: NativeDerivationLeafProviderSelection | None,
+        owner_declared_profile_ref: ArtifactRef | None,
+    ) -> str:
+        """Hash the exact offer before resolving its action history."""
+        if origin.cost is None:
+            raise AcquisitionRouteClosureError("costed_route_not_unique")
+        route_identity = {
+            "tenant_id": self._tenant_id,
+            "cell_id": self._cell_id,
+            "run_id": run_id,
+            "source_job_id": origin.job.job_id,
+            "compiled_ref": origin.compiled_ref,
+            "design_problem_ref": origin.compiled.design_problem_ref,
+            "planner_run_id": origin.report.run_id,
+            "planner_record_id": origin.planner_record.acquisition_id,
+            "cost_basis_hash": origin.cost.record_content_hash,
+        }
+        if native_scope is not None:
+            if native_provider is None:
+                raise AcquisitionRouteClosureError("native_leaf_provider_binding_not_established")
+            selected_profile = _require_native_leaf_cost_profile_ref(owner_declared_profile_ref)
+            route_identity["native_derivation_leaf_scope"] = native_scope.model_dump(mode="json")
+            route_identity["native_derivation_leaf_provider"] = native_provider.model_dump(
+                mode="json"
+            )
+            route_identity["owner_declared_profile_ref"] = selected_profile.model_dump(mode="json")
+        return _content_hash(route_identity)
 
     def _resolve_current_route_from_origin(
         self,
@@ -3784,26 +3845,13 @@ class AcquisitionRouteLoop:
             ):
                 raise AcquisitionRouteClosureError("native_leaf_cost_revalidation_required")
         route_source_cycle = source_cycle
-        route_identity = {
-            "tenant_id": self._tenant_id,
-            "cell_id": self._cell_id,
-            "run_id": run_id,
-            "source_job_id": job.job_id,
-            "compiled_ref": compiled_ref,
-            "design_problem_ref": compiled.design_problem_ref,
-            "planner_run_id": report.run_id,
-            "planner_record_id": planner_record.acquisition_id,
-            "cost_basis_hash": cost.record_content_hash,
-        }
-        if native_scope is not None:
-            route_identity["native_derivation_leaf_scope"] = native_scope.model_dump(mode="json")
-            if native_provider is None:
-                raise AcquisitionRouteClosureError("native_leaf_provider_binding_not_established")
-            route_identity["native_derivation_leaf_provider"] = native_provider.model_dump(
-                mode="json"
-            )
-            route_identity["owner_declared_profile_ref"] = selected_profile.model_dump(mode="json")
-        route_id = _content_hash(route_identity)
+        route_id = self._acquisition_route_id(
+            origin,
+            run_id=run_id,
+            native_scope=native_scope,
+            native_provider=native_provider,
+            owner_declared_profile_ref=owner_declared_profile_ref,
+        )
         (
             generation_run,
             source_cycle,

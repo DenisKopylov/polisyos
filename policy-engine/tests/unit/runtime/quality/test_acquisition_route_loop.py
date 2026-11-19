@@ -1461,3 +1461,273 @@ def test_effective_source_preserves_v1_blocked_all_empty_frontier_behavior() -> 
 
     assert effective_run is generation_run
     assert effective_cycle is source_cycle
+
+
+def test_exact_native_route_resolution_replays_only_requested_leaf_group(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An exact Native lookup matches the full result without replaying siblings."""
+    from datetime import timedelta
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionStrategy,
+        NativeDerivationLeafCostProfileScope,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        NativeDerivationLeafProviderSelection,
+    )
+
+    @dataclass(frozen=True)
+    class _Cost:
+        record_content_hash: str
+
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return {"record_content_hash": self.record_content_hash}
+
+    @dataclass(frozen=True)
+    class _Origin:
+        job: object
+        payload_ref: str
+        manifest_ref: str
+        compiled_ref: str
+        terminal_event_id: str
+        compiled: object
+        report: object
+        report_ref: ArtifactRef
+        generation_run: object
+        source_cycle: object
+        planner_record: object
+        configured_port_source: object
+        source_requirement: object | None = None
+        cost: object | None = None
+
+    def _ref(index: int, kind: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id="sha256:" + f"{index:064x}",
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + f"{index + 1000:064x}",
+        )
+
+    port_source_ref = _ref(1, "runtime.quality.n7_configured_candidate_port_source")
+    report_ref = _ref(2, "runtime.acquisition_planner_report")
+    bundle_ref = _ref(3, "runtime.quality.n7_derivation_bundle")
+    obligation_set_ref = _ref(4, "runtime.quality.model_input_obligation_set")
+    source = SimpleNamespace(
+        derivation_bundle_ref=bundle_ref,
+        schema_version="policyos.runtime.n7_configured_candidate_port_source.v3",
+    )
+    report = SimpleNamespace(
+        candidate_lineage=SimpleNamespace(port_source_ref=port_source_ref),
+        run_id="planner-run",
+    )
+    design_problem = _problem("ds15_costed_closure")
+    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    origin = _Origin(
+        job=SimpleNamespace(job_id="source-job"),
+        payload_ref="sha256:" + "1" * 64,
+        manifest_ref="sha256:" + "2" * 64,
+        compiled_ref="sha256:" + "3" * 64,
+        terminal_event_id="terminal-event",
+        compiled=SimpleNamespace(
+            design_problem=design_problem,
+            design_problem_ref=design_problem_ref,
+            content_hash=design_problem_ref,
+        ),
+        report=report,
+        report_ref=report_ref,
+        generation_run=object(),
+        source_cycle=SimpleNamespace(cycle_index=0),
+        planner_record=SimpleNamespace(
+            acquisition_id="base-planner-record",
+            recommended_strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+        ),
+        configured_port_source=source,
+    )
+
+    nodes: list[object] = []
+    profile_refs: list[ArtifactRef] = []
+    profiles_by_ref: dict[tuple[str, str, str, str | None], object] = {}
+    costs_by_ref: dict[tuple[str, str, str, str | None], _Cost] = {}
+    profile_node_by_cost_hash: dict[str, str] = {}
+    scopes_by_node: dict[str, NativeDerivationLeafCostProfileScope] = {}
+    providers: list[NativeDerivationLeafProviderSelection] = []
+    valid_from = datetime.now(UTC) - timedelta(minutes=1)
+    valid_until = datetime.now(UTC) + timedelta(hours=1)
+    for index, node_id in enumerate(("leaf-a", "leaf-b"), start=10):
+        supplier_ref = _ref(index, "catalog.acquisition_supplier_declaration")
+        profile_ref = _ref(index + 100, "runtime.quality.native_derivation_leaf_cost_profile")
+        gap = SimpleNamespace(
+            requirement_gap_id=f"gap-{node_id}",
+            compiled_requirement_ref=f"compiled-requirement-{node_id}",
+        )
+        planner_record = SimpleNamespace(
+            acquisition_id=f"planner-record-{node_id}",
+            recommended_strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+        )
+        scope = NativeDerivationLeafCostProfileScope(
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            run_id="run-a",
+            source_job_id="source-job",
+            configured_port_source_ref=port_source_ref,
+            planner_report_ref=report_ref,
+            derivation_bundle_ref=bundle_ref,
+            obligation_set_ref=obligation_set_ref,
+            source_node_id=node_id,
+            requirement_gap_id=gap.requirement_gap_id,
+            compiled_requirement_ref=gap.compiled_requirement_ref,
+            planner_record_id=planner_record.acquisition_id,
+            strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+            selected_supplier_ref=supplier_ref,
+            missing_distribution=f"distribution-{node_id}",
+        )
+        scopes_by_node[node_id] = scope
+        profile_refs.append(profile_ref)
+        profiles_by_ref[acquisition_route_loop.artifact_ref_identity_key(profile_ref)] = (
+            SimpleNamespace(
+                scope=scope,
+                effective_at=valid_from,
+                expires_at=valid_until,
+            )
+        )
+        cost = _Cost(record_content_hash="sha256:" + f"{index + 200:064x}")
+        costs_by_ref[acquisition_route_loop.artifact_ref_identity_key(profile_ref)] = cost
+        profile_node_by_cost_hash[cost.record_content_hash] = node_id
+        nodes.append(
+            SimpleNamespace(
+                node_id=node_id,
+                requirement_gap=gap,
+                selected_supplier_ref=supplier_ref,
+                supplier_alternatives=(),
+            )
+        )
+        providers.append(
+            NativeDerivationLeafProviderSelection(
+                source_node_id=node_id,
+                supplier_ref=supplier_ref,
+                authority_entry_id="acquisition-authority:sha256:" + f"{index:064x}",
+                connector_id=f"connector-{node_id}",
+            )
+        )
+    bundle = SimpleNamespace(
+        source_nodes=tuple(nodes),
+        obligation_set_ref=obligation_set_ref,
+    )
+    loop = AcquisitionRouteLoop(
+        control_store=object(),
+        artifact_store=SimpleNamespace(
+            has=lambda *_args, **_kwargs: False,
+            get_bytes=lambda *_args, **_kwargs: b"",
+            get_manifest=lambda *_args, **_kwargs: None,
+        ),
+        event_log=object(),
+        core_source_resolver=lambda *_args, **_kwargs: None,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    monkeypatch.setattr(loop, "_resolve_verified_origin", lambda **_kwargs: origin)
+    monkeypatch.setattr(loop, "_native_leaf_cost_profile_refs", lambda _origin: tuple(profile_refs))
+    monkeypatch.setattr(loop, "_native_historical_cost_profile_refs", lambda _origin: ())
+    monkeypatch.setattr(loop, "_native_action_recorded_profile_ref", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(loop, "_native_leaf_provider_selections", lambda _origin: tuple(providers))
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "_n7_load_derivation_bundle",
+        lambda _store, _ref: bundle,
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "load_native_derivation_leaf_cost_profile",
+        lambda _store, ref: profiles_by_ref[acquisition_route_loop.artifact_ref_identity_key(ref)],
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "_select_source_planner_record",
+        lambda _report, gap: SimpleNamespace(
+            acquisition_id=f"planner-record-{gap.requirement_gap_id.removeprefix('gap-')}",
+            recommended_strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+        ),
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "_requirement_missing_distributions",
+        lambda gap: (f"distribution-{gap.requirement_gap_id.removeprefix('gap-')}",),
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "produce_acquisition_cost_basis_record",
+        lambda **kwargs: costs_by_ref[
+            acquisition_route_loop.artifact_ref_identity_key(kwargs["owner_declared_profile_ref"])
+        ],
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop, "agent_action_content_hash", lambda _value: "sha256:" + "a" * 64
+    )
+    monkeypatch.setattr(
+        acquisition_route_loop, "_resolve_source_cycle_problem_basis", lambda **_kwargs: None
+    )
+
+    replayed_route_ids: list[str] = []
+    replayed_node_ids: list[str] = []
+
+    def _record_replay(
+        **kwargs: object,
+    ) -> tuple[object, object, tuple[object, ...], tuple[object, ...], tuple[object, ...]]:
+        replayed_route_ids.append(str(kwargs["route_id"]))
+        replayed_node_ids.append(profile_node_by_cost_hash[str(kwargs["cost_basis_hash"])])
+        return origin.generation_run, origin.source_cycle, (), (), ()
+
+    monkeypatch.setattr(loop, "_latest_verified_source", _record_replay)
+    monkeypatch.setattr(loop, "_native_prior_paid_input_admission", lambda _closure: None)
+    monkeypatch.setattr(
+        acquisition_route_loop,
+        "VerifiedAcquisitionRouteClosure",
+        lambda **kwargs: SimpleNamespace(
+            route_id=kwargs["route_id"], prior_paid_input_admission=None
+        ),
+    )
+
+    full_routes = loop.resolve_native_derivation_leaf_routes(run_id="run-a")
+    assert len(full_routes) == 2
+    assert len({row.route_id for row in full_routes}) == 2
+
+    replayed_route_ids.clear()
+    replayed_node_ids.clear()
+    target = full_routes[1]
+    selected = loop.resolve_current_route(run_id="run-a", route_id=target.route_id)
+
+    assert selected == target
+    assert replayed_route_ids == [target.route_id]
+    assert replayed_node_ids == ["leaf-b"]
+
+    competing_profile_ref = _ref(999, "runtime.quality.native_derivation_leaf_cost_profile")
+    competing_cost = _Cost(record_content_hash="sha256:" + "e" * 64)
+    profile_refs.append(competing_profile_ref)
+    profiles_by_ref[acquisition_route_loop.artifact_ref_identity_key(competing_profile_ref)] = (
+        SimpleNamespace(
+            scope=scopes_by_node["leaf-b"],
+            effective_at=valid_from,
+            expires_at=valid_until,
+        )
+    )
+    costs_by_ref[acquisition_route_loop.artifact_ref_identity_key(competing_profile_ref)] = (
+        competing_cost
+    )
+    profile_node_by_cost_hash[competing_cost.record_content_hash] = "leaf-b"
+    replayed_route_ids.clear()
+    replayed_node_ids.clear()
+    with pytest.raises(AcquisitionRouteClosureError, match="native_leaf_cost_profile_ambiguous"):
+        loop.resolve_current_route(run_id="run-a", route_id=target.route_id)
+    assert len(replayed_route_ids) == 2
+    assert replayed_node_ids == ["leaf-b", "leaf-b"]
+
+    replayed_route_ids.clear()
+    replayed_node_ids.clear()
+    with pytest.raises(AcquisitionRouteClosureError, match="native_leaf_route_not_current"):
+        loop.resolve_current_route(run_id="run-a", route_id="sha256:" + "f" * 64)
+    assert replayed_route_ids == []
+    assert replayed_node_ids == []

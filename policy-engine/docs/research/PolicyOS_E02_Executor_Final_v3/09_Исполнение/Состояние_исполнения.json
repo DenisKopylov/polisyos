@@ -9079,9 +9079,9 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
-        "main_commit": "24d5538e42555795e4c284af65a2095166034fa4",
-        "main_tree": "ade54763c7559f4a55da06ceb230469bc958b3f7",
+        "status": "ACTIVE. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal and C R11 admitted within Step-Up with acquired input selected. Numerical C is pending. Native R21 identifies the exact decision-route history fold; scoped selector and 23 route cases pass. Native second-leaf completion and restart are pending.",
+        "main_commit": "4e7bfd63ad27276767810258b17e576f6934c328",
+        "main_tree": "677c6300d5e231ff983686b4a19d32d6203064d3",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9477,16 +9477,16 @@
             "c6de16654fb124ca15ca12136759bb17a807b90f",
             "737766d3643a7f3bac312cc10a84f62e7e1f542e"
           ],
-          "result": "Actual HTTP 200 in 202.330 s at the unchanged 240 s Step-Up deadline; generation 4 advances to executing at worker attempt 1. Numerical C and final readback pending."
+          "result": "Actual HTTP 200 in 202.330 s at the unchanged 240 s Step-Up deadline; worker attempt 1 persists outcome_selected and candidate_input_reentry_pending. Numerical C and final readback pending."
         },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
           "r14_exact_request_preflight": "PASS, old source only, no effects",
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
-          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5."
+          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Finish retained C R11 worker, frontier 4 and fresh API readback using the original 7/1 journal. Bind and measure the Native decision issuance cutoff before the next retained second-leaf completion and restart run. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
+        "next": "Resume the exact retained C job and verify the changed result, frontier 4 and fresh API with the original 7/1 journal. Verify the exact Native decision route, second-leaf completion and restart on a retained A clone under the unchanged guards. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

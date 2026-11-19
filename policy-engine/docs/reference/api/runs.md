@@ -691,6 +691,11 @@ zero receipt terminates as quarantined without re-entry. These candidate-level
 observations describe selected membership only; they do not establish legal
 approval, publication authority, or whole-model closure.
 
+A Native mutation resolves the exact route ID against the current compiled
+inputs, supplier and quote. Its history fold verifies the quotes competing for
+that leaf, including already paid inputs and current quotes. The Native list
+view verifies the full set of leaves.
+
 The POST responses from `/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request`
 and `/execute` also now return `world_growth="not_established"`. Their previous
 v1 response models defaulted this field to `no_growth` before any owner outcome

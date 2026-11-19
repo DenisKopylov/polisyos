@@ -14,7 +14,11 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import load_core_json_artifact, validate_core_model_json_artifact
+from polisyos.core.artifacts import (
+    artifact_ref_identity_key,
+    load_core_json_artifact,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ProducerInfo,
@@ -23,7 +27,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts import epoch as epoch_contract
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, DerivedModelInputDataSnapshotLineage
 from polisyos.core.contracts.foundry import (
     ExecuteRequest,
     FoundryInputBindingRule,
@@ -68,7 +72,7 @@ from polisyos.foundry.data_plane.bindings import (
     load_input_bindings,
     reconcile_semantic_input_bindings,
 )
-from polisyos.foundry.execute.api import admit_execution_source
+from polisyos.foundry.execute.api import ExecutionSourceAdmissionRefusal, admit_execution_source
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir.kernel.units import MoneyUnit
@@ -411,34 +415,35 @@ def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
         assert float(final_state.government_balance) == pytest.approx(750_001_000, abs=64)
         assert float(final_state.agents.income[0]) == pytest.approx(-6_750_000_000, abs=512)
 
-        original_recipe_bytes = fresh.get_bytes
-
-        def missing_recipe(ref, *args, **kwargs):
-            if getattr(ref, "artifact_id", None) == arithmetic.recipe_ref.artifact_id:
-                raise FileNotFoundError("exact persisted recipe removed")
-            return original_recipe_bytes(ref, *args, **kwargs)
-
-        def corrupt_recipe(ref, *args, **kwargs):
-            if getattr(ref, "artifact_id", None) == arithmetic.recipe_ref.artifact_id:
-                return b"{}"
-            return original_recipe_bytes(ref, *args, **kwargs)
-
-        for control in (missing_recipe, corrupt_recipe):
-            with monkeypatch.context() as patch:
-                patch.setattr(fresh, "get_bytes", control)
+        recipe_path, _ = fresh._paths(arithmetic.recipe_ref.artifact_id)
+        original_recipe_bytes = recipe_path.read_bytes()
+        for corrupted_bytes in (None, b"{}"):
+            try:
+                if corrupted_bytes is None:
+                    recipe_path.unlink()
+                else:
+                    recipe_path.write_bytes(corrupted_bytes)
+                # Snapshot custody verifies the exact recipe before derivation replay.
                 with pytest.raises(
-                    ValueError, match=r"^foundry_input_bindings_derived_recipe_unavailable$"
+                    ExecutionSourceAdmissionRefusal,
+                    match=r"^DataSnapshot owner-lineage child ref is unverified$",
                 ):
-                    admit_execution_source(fresh, executed.simulation_result_ref)
+                    admit_execution_source(
+                        FileSystemCAS(case.store_root), executed.simulation_result_ref
+                    )
+            finally:
+                recipe_path.write_bytes(original_recipe_bytes)
             assert (
                 admit_execution_source(fresh, executed.simulation_result_ref).basis
                 == admitted.basis
             )
 
+        original_get_bytes = fresh.get_bytes
+
         def missing_denominator(ref, *args, **kwargs):
             if getattr(ref, "artifact_id", None) == denominator.source_series_ref.artifact_id:
                 raise FileNotFoundError("selected AND denominator input removed")
-            return original_recipe_bytes(ref, *args, **kwargs)
+            return original_get_bytes(ref, *args, **kwargs)
 
         with monkeypatch.context() as patch:
             patch.setattr(fresh, "get_bytes", missing_denominator)
@@ -579,7 +584,19 @@ def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
         snapshot = validate_core_model_json_artifact(
             DataSnapshot, store, materialized.data_snapshot_ref
         )
-        assert snapshot.source_lineage is None
+        lineage = snapshot.source_lineage
+        assert isinstance(lineage, DerivedModelInputDataSnapshotLineage)
+        assert artifact_ref_identity_key(lineage.base_data_snapshot_ref) == (
+            artifact_ref_identity_key(case.data_snapshot_ref)
+        )
+        assert artifact_ref_identity_key(lineage.model_input_obligation_set_ref) == (
+            artifact_ref_identity_key(preflight.obligation_set_ref)
+        )
+        selected = load_resolved_input_binding_manifest(
+            store, materialized.resolved_binding_manifest_ref
+        )
+        assert lineage.selections == selected.derivations
+        assert lineage.lineage_status == "not_established"
         assert "derived_input_not_acquired_observation" in snapshot.notes
     finally:
         if owner is not None:

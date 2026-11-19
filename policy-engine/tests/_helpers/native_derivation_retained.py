@@ -653,13 +653,20 @@ def _verify_retained_selected_signature(
 def load_retained_native_epoch_policy(
     fixture: SimpleNamespace,
     selection: RetainedNativeEpochPolicySelection,
+    *,
+    prepared_epoch_ref: artifacts.ArtifactRef | None = None,
+    prior_config: EpochDeploymentConfig | None = None,
 ) -> EpochDeploymentConfig:
-    """Read an unchanged signed policy with public trust and no signing operation.
+    """Read unchanged signed policy for one exact prepared epoch with public trust.
 
-    The actual native policy owner reconciles signature trust role, selected
-    evidence, policy bytes and relation against the independently reopened
-    prepared epoch/query. This does not renew a mandate or authorize a use.
+    The native owner reconciles the signature, evidence, policy and relation
+    against the independently reopened prepared epoch and its query. A later
+    epoch extends the existing deployment's public trust and admission selection.
     """
+    from polisyos.runtime.quality.semantic_epoch import (
+        EpochResolutionQuery,
+        SemanticEpochManifest,
+    )
     from polisyos.runtime.quality.semantic_epoch_qualification import (
         SemanticEpochNativePolicyOwner,
         build_semantic_epoch_native_deployment,
@@ -673,36 +680,58 @@ def load_retained_native_epoch_policy(
     )
     prepared = contracts.epoch.load_verified_epoch_statement(
         store=store,
-        ref=fixture.deferral.negative_receipt.prepared_epoch_ref,
+        ref=prepared_epoch_ref or fixture.deferral.negative_receipt.prepared_epoch_ref,
         expected_kind="epoch.prepared",
     )
+    prepared_query = EpochResolutionQuery.model_validate(prepared["query"])
     manifest_ref = artifacts.ArtifactRef.model_validate(prepared["stamp"]["semantic_manifest_ref"])
-    manifest = contracts.epoch.load_verified_epoch_statement(
-        store=store, ref=manifest_ref, expected_kind="epoch.semantic_manifest"
+    manifest = SemanticEpochManifest.model_validate(
+        contracts.epoch.load_verified_epoch_statement(
+            store=store, ref=manifest_ref, expected_kind="epoch.semantic_manifest"
+        )
     )
+    if (
+        manifest.scope_identity != prepared_query.scope_identity
+        or manifest.authority_purpose != prepared_query.authority_purpose
+        or manifest.requested_query_context_ref != prepared_query.requested_query_context_ref
+    ):
+        raise ValueError("retained_native_epoch_policy_prepared_query_mismatch")
     query = contracts.chronology.NativeChronologyQuery(
         domain=contracts.chronology.ChronologyProofDomain(
             format=contracts.chronology.FULL_PREFIX_FORMAT,
             profile=contracts.chronology.FULL_PREFIX_PROFILE,
             proof_domain="semantic_epoch",
             family="epoch",
-            scope_ref=fixture.attempt.selection.epoch_scope_identity.scope_identity_ref,
-            authority_purpose=fixture.attempt.selection.authority_purpose,
+            scope_ref=prepared_query.scope_identity.scope_identity_ref,
+            authority_purpose=prepared_query.authority_purpose,
         ),
-        requested_cutoff_ref=manifest["epoch_ref"],
-        requested_query_context_ref=prepared["query"]["requested_query_context_ref"],
+        requested_cutoff_ref=manifest.epoch_ref,
+        requested_query_context_ref=prepared_query.requested_query_context_ref,
     )
-    config = EpochDeploymentConfig(
-        evidence_cas_root=store.root,
-        native_epoch_history_root=fixture.epoch_history_root,
-        trusted_issuers=(
-            EpochTrustedIssuerConfig(
-                identity="fixture-native-epoch-owner",
-                public_key_path=selection.epoch_public_key_path,
-                roles=("predicate_policy_admission",),
-            ),
-        ),
-        predicate_policy_admission_refs=(admission_ref,),
+    issuer = EpochTrustedIssuerConfig(
+        identity="fixture-native-epoch-owner",
+        public_key_path=selection.epoch_public_key_path,
+        roles=("predicate_policy_admission",),
+    )
+    if prior_config is None:
+        prior_config = EpochDeploymentConfig(
+            evidence_cas_root=store.root,
+            native_epoch_history_root=fixture.epoch_history_root,
+        )
+    if (
+        prior_config.evidence_cas_root != store.root
+        or prior_config.native_epoch_history_root != fixture.epoch_history_root
+    ):
+        raise ValueError("retained_native_epoch_policy_roots_mismatch")
+    admissions = {
+        artifact_ref_identity_key(ref): ref
+        for ref in (*prior_config.predicate_policy_admission_refs, admission_ref)
+    }
+    config = prior_config.model_copy(
+        update={
+            "trusted_issuers": tuple(dict.fromkeys((*prior_config.trusted_issuers, issuer))),
+            "predicate_policy_admission_refs": tuple(admissions.values()),
+        },
     )
     deployment = build_semantic_epoch_native_deployment(config)
     with deployment.composition_scope(runtime_artifact_store=store):

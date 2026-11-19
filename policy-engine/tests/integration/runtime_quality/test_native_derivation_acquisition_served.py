@@ -67,6 +67,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionCustodyRecoveryRequest,
     )
+    from tests._helpers.native_derivation_retained import RetainedNativeEpochPolicySelection
 
 
 controlled_candidate_gateway = _gateway_fixture
@@ -1091,7 +1092,6 @@ def _appoint_exact_native_epoch_policy(
     institution_store: Any,
     closure: Any,
     root: Path,
-    retained_b_quarantine_retry: dict[str, Any] | None = None,
 ) -> None:
     """Supply independent test-root admission for the actual persisted prepared epoch."""
     from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
@@ -1101,7 +1101,6 @@ def _appoint_exact_native_epoch_policy(
         bridge=bridge,
         institution_store=institution_store,
         closure=closure,
-        retained_b_quarantine_retry=retained_b_quarantine_retry,
     )
     appointments = state["appointments"]
     previous = appointments[-1] if appointments else None
@@ -3155,6 +3154,7 @@ def assert_retained_native_second_leaf_completion(
     admission_idempotency_key: str,
     retained_b_purchase: dict[str, Any] | None = None,
     retained_b_quarantine_retry: dict[str, Any] | None = None,
+    retained_b_epoch_policy_selection: RetainedNativeEpochPolicySelection | None = None,
     authority_valid_for_seconds: int = 3600,
 ) -> dict[str, Any]:
     """Acquire or resume one retained leaf, then consume both inputs.
@@ -3212,6 +3212,9 @@ def assert_retained_native_second_leaf_completion(
     from tests.integration.runtime_quality.test_program_graph_stock_n7_served import (
         _configure_stock_provider,
     )
+
+    if (retained_b_quarantine_retry is None) != (retained_b_epoch_policy_selection is None):
+        raise ValueError("retained_native_retry_epoch_policy_selection_missing")
 
     with retained_native_demo_source_case(
         base,
@@ -3670,14 +3673,32 @@ def assert_retained_native_second_leaf_completion(
             _live_native_fixture_bridge(served=case, state=state) as bridge,
             tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id),
         ):
-            _appoint_exact_native_epoch_policy(
-                state=state,
-                bridge=bridge,
-                institution_store=case.store,
-                closure=purchase["closure"],
-                root=output_root / "new-b-epoch-institution",
-                retained_b_quarantine_retry=retained_b_quarantine_retry,
-            )
+            if retained_b_epoch_policy_selection is None:
+                _appoint_exact_native_epoch_policy(
+                    state=state,
+                    bridge=bridge,
+                    institution_store=case.store,
+                    closure=purchase["closure"],
+                    root=output_root / "new-b-epoch-institution",
+                )
+            else:
+                scenario = _native_epoch_scenario_for_paid_attempt(
+                    state=state,
+                    bridge=bridge,
+                    institution_store=case.store,
+                    closure=purchase["closure"],
+                    retained_b_quarantine_retry=retained_b_quarantine_retry,
+                )
+                if scenario.history._root != case.epoch_history_root:
+                    raise ValueError("native_fixture_epoch_history_roots_differ")
+                appointments = state["appointments"]
+                b_config = load_retained_native_epoch_policy(
+                    case,
+                    retained_b_epoch_policy_selection,
+                    prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+                    prior_config=appointments[-1].config,
+                )
+                appointments.append(SimpleNamespace(config=b_config))
         b_attempt = state["paid_attempt"]
         b_trace = resolve_live_transport_trace(b_attempt.evidence.raw_evidence_ref)
         b_journal = Path(b_attempt.evidence.request_ref.journal_path)
@@ -4102,6 +4123,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
         "prepared_epoch_ref",
         "admitted_boundary_evidence_ref",
         "fresh_idempotency_key",
+        "epoch_policy_selection",
     }
     if retained_b_purchase is None and retained_b_quarantine_retry is None:
         if set(selected) != expected:
@@ -4135,6 +4157,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             or retained_b_profile.manifest_profile_sha256 is None
         ):
             raise ValueError("retained_native_second_leaf_purchase_selector_unselected")
+    retained_b_epoch_policy_selection = None
     if retained_b_quarantine_retry is not None:
         if (
             type(retained_b_quarantine_retry) is not dict
@@ -4186,6 +4209,19 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             for ref in retained_b_quarantine_retry["head_chain_refs"]
         ):
             raise ValueError("retained_native_second_leaf_retry_head_chain_invalid")
+        epoch_policy = retained_b_quarantine_retry["epoch_policy_selection"]
+        if (
+            type(epoch_policy) is not dict
+            or set(epoch_policy) != {"epoch_admission_evidence_ref", "epoch_public_key_path"}
+            or type(epoch_policy["epoch_public_key_path"]) is not str
+        ):
+            raise ValueError("retained_native_second_leaf_retry_epoch_policy_invalid")
+        retained_b_epoch_policy_selection = RetainedNativeEpochPolicySelection(
+            epoch_admission_evidence_ref=ArtifactRef.model_validate(
+                epoch_policy["epoch_admission_evidence_ref"]
+            ),
+            epoch_public_key_path=Path(epoch_policy["epoch_public_key_path"]),
+        )
     provider_profile = CandidateWDIProfile(**selected["pending_provider_profile"])
 
     def response_factory(_method: str, url: str, params: Any) -> bytes:
@@ -4241,6 +4277,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             admission_idempotency_key=selected["admission_idempotency_key"],
             retained_b_purchase=retained_b_purchase,
             retained_b_quarantine_retry=retained_b_quarantine_retry,
+            retained_b_epoch_policy_selection=retained_b_epoch_policy_selection,
         )
         (output / "result.json").write_text(json.dumps(result, sort_keys=True) + "\n")
     finally:
